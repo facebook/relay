@@ -75,18 +75,40 @@ function parse(
   var source = new Source(text, 'GraphQL Document');
   var documentAST = parser.parse(source);
   var rules = [
-    require('graphql/validation/rules/ArgumentsOfCorrectType'),
-    require('graphql/validation/rules/DefaultValuesOfCorrectType'),
-    require('graphql/validation/rules/FieldsOnCorrectType'),
-    require('graphql/validation/rules/FragmentsOnCompositeTypes'),
-    require('graphql/validation/rules/KnownArgumentNames'),
-    require('graphql/validation/rules/KnownTypeNames'),
-    require('graphql/validation/rules/PossibleFragmentSpreads'),
-    require('graphql/validation/rules/PossibleFragmentSpreads'),
-    require('graphql/validation/rules/VariablesInAllowedPosition'),
+    require(
+      'graphql/validation/rules/ArgumentsOfCorrectType'
+    ).ArgumentsOfCorrectType,
+    require(
+      'graphql/validation/rules/DefaultValuesOfCorrectType'
+    ).DefaultValuesOfCorrectType,
+    require(
+      'graphql/validation/rules/FieldsOnCorrectType'
+    ).FieldsOnCorrectType,
+    require(
+      'graphql/validation/rules/FragmentsOnCompositeTypes'
+    ).FragmentsOnCompositeTypes,
+    require(
+      'graphql/validation/rules/KnownArgumentNames'
+    ).KnownArgumentNames,
+    require(
+      'graphql/validation/rules/KnownTypeNames'
+    ).KnownTypeNames,
+    require(
+      'graphql/validation/rules/PossibleFragmentSpreads'
+    ).PossibleFragmentSpreads,
+    require(
+      'graphql/validation/rules/PossibleFragmentSpreads'
+    ).PossibleFragmentSpreads,
+    require(
+      'graphql/validation/rules/VariablesInAllowedPosition'
+    ).VariablesInAllowedPosition,
   ];
   if (type !== 'mutation') {
-    rules.push(require('graphql/validation/rules/ProvidedNonNullArguments'));
+    rules.push(
+      require(
+        'graphql/validation/rules/ProvidedNonNullArguments'
+      ).ProvidedNonNullArguments
+    );
   }
   var validationErrors = validate(schema, documentAST, rules);
   if (validationErrors && validationErrors.length > 0) {

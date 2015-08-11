@@ -1,4 +1,4 @@
-# [Relay](https://facebook.github.io/relay/) Technical Preview
+# [Relay](https://facebook.github.io/relay/) Technical Preview [![Build Status](https://travis-ci.org/facebook/relay.svg)](https://travis-ci.org/facebook/relay)
 
 Relay is a JavaScript framework for building data-driven React applications.
 

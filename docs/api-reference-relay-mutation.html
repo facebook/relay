@@ -1,0 +1,242 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>Relay | A JavaScript framework for building data-driven React applications</title><meta name="viewport" content="width=device-width"><meta property="og:title" content="Relay | A JavaScript framework for building data-driven React applications"><meta property="og:type" content="website"><meta property="og:url" content="http://facebook.github.io/relay/index.html"><meta property="og:description" content="A JavaScript framework for building data-driven React applications"><link rel="shortcut icon" href="/relay/img/favicon.png"><link rel="stylesheet" href="/relay/css/relay.css"><script type="text/javascript" src="//use.typekit.net/vqa1hcx.js"></script><script type="text/javascript">try{Typekit.load();}catch(e){}</script></head><body><div class="container"><div class="nav-main"><div class="wrap"><a class="nav-home" href="/relay/"><img class="nav-logo" src="/relay/img/logo.svg" width="50" height="50">Relay</a><ul class="nav-site"><li><a href="/relay/docs/getting-started.html#content" class="active">Docs</a></li><li><a href="/relay/support.html" class="">Support</a></li><li><a href="https://github.com/facebook/relay" class="">GitHub</a></li></ul></div></div><section class="content wrap documentationContent"><div class="nav-docs"><div class="nav-docs-section"><h3>Quick Start</h3><ul><li><a style="margin-left:0;" class="" href="/relay/docs/getting-started.html#content">Getting Started</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/tutorial.html#content">Tutorial</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/videos.html#content">Videos</a></li></ul></div><div class="nav-docs-section"><h3>Guides</h3><ul><li><a style="margin-left:0;" class="" href="/relay/docs/guides-containers.html#content">Containers</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/guides-routes.html#content">Routes</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/guides-root-container.html#content">Root Container</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/guides-ready-state.html#content">Ready State</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/guides-mutations.html#content">Mutations</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/guides-network-layer.html#content">Network Layer</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/guides-babel-plugin.html#content">Babel Relay Plugin</a></li></ul></div><div class="nav-docs-section"><h3>GraphQL</h3><ul><li><a style="margin-left:0;" class="" href="/relay/docs/graphql-relay-specification.html#content">GraphQL Relay Specification</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/graphql-object-identification.html#content">Object Identification</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/graphql-connections.html#content">Connection</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/graphql-mutations.html#content">Mutations</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/graphql-further-reading.html#content">Further Reading</a></li></ul></div><div class="nav-docs-section"><h3>API Reference</h3><ul><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay.html#content">Relay</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-container.html#content">RelayContainer</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-route.html#content">Relay.Route</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-root-container.html#content">Relay.RootContainer</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-ql.html#content">Relay.QL</a></li><li><a style="margin-left:0;" class="active" href="/relay/docs/api-reference-relay-mutation.html#content">Relay.Mutation</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-proptypes.html#content">Relay.PropTypes</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-store.html#content">Relay.Store</a></li></ul></div><div class="nav-docs-section"><h3>Interfaces</h3><ul><li><a style="margin-left:0;" class="" href="/relay/docs/interfaces-relay-network-layer.html#content">RelayNetworkLayer</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/interfaces-relay-mutation-request.html#content">RelayMutationRequest</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/interfaces-relay-query-request.html#content">RelayQueryRequest</a></li></ul></div></div><div class="inner-content"><a id="content"></a><a class="edit-page-link" href="https://github.com/facebook/relay/blob/master/docs/APIReference-Mutation.md" target="_blank">Edit on GitHub</a><h1>Relay.Mutation</h1><div><p>Relay makes use of GraphQL mutations; operations that enable us to mutate data on the client and server. To create a mutation for use in our app, we subclass <code>Relay.Mutation</code> and implement, at minimum, the four abstract methods listed below.</p><h2><a class="anchor" name="overview"></a>Overview <a class="hash-link" href="#overview">#</a></h2><p><em>Properties</em></p><div><ul class="apiIndex">
+  <li>
+    <a href="#fragments-static-property">
+      <pre>static fragments</pre>
+      Declare this mutation's data dependencies here
+    </a>
+  </li>
+  <li>
+    <a href="#initialvariables-static-property">
+      <pre>static initialVariables</pre>
+      A default set of variables to make available to this mutation's fragment builders
+    </a>
+  </li>
+  <li>
+    <a href="#preparevariables-static-property">
+      <pre>static prepareVariables</pre>
+      A method to modify the variables based on the runtime environment, previous variables, or the meta route
+    </a>
+  </li>
+</ul>
+
+</div><p><em>Methods</em></p><div><ul class="apiIndex">
+  <li>
+    <a href="#constructor">
+      <pre>constructor(props)</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getconfigs-abstract-method">
+      <pre>abstract getConfigs()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getfatquery-abstract-method">
+      <pre>abstract getFatQuery()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getmutation-abstract-method">
+      <pre>abstract getMutation()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getvariables-abstract-method">
+      <pre>abstract getVariables()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getfragment-static-method">
+      <pre>static getFragment(fragmentName[, variableMapping])</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getcollisionkey">
+      <pre>getCollisionKey()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getfiles">
+      <pre>getFiles()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getoptimisticconfigs">
+      <pre>getOptimisticConfigs()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getoptimisticresponse">
+      <pre>getOptimisticResponse()</pre>
+    </a>
+  </li>
+</ul>
+
+</div><h2><a class="anchor" name="properties"></a>Properties <a class="hash-link" href="#properties">#</a></h2><h3><a class="anchor" name="fragments-static-property"></a>fragments (static property) <a class="hash-link" href="#fragments-static-property">#</a></h3><pre class="prism language-javascript"><span class="token keyword">static</span> fragments<span class="token punctuation">:</span> RelayMutationFragments<span class="token operator">&lt;</span>$Enum<span class="token operator">&lt;</span>Tp<span class="token operator">&gt;</span><span class="token operator">&gt;</span>
+
+<span spellcheck="true" class="token comment">// Type of RelayMutationFragments</span>
+type RelayMutationFragments<span class="token operator">&lt;</span>Tk<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">[</span>key<span class="token punctuation">:</span> Tk<span class="token punctuation">]</span><span class="token punctuation">:</span> FragmentBuilder<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span spellcheck="true" class="token comment">// Type of FragmentBuilder</span>
+type FragmentBuilder <span class="token operator">=</span> <span class="token punctuation">(</span>variables<span class="token punctuation">:</span> Variables<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> RelayConcreteNode<span class="token punctuation">;</span></pre><p>We declare our mutations&#x27; data dependencies here, just as we would with a container. This is particularly useful to ensure that a set of fields we might want to use in this mutation&#x27;s optimistic response have been fetched.</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">LikeStoryMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    story<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on Story {
+        likers { count },
+        viewerDoesLike,
+      }
+    `</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token function">getOptimisticResponse</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span spellcheck="true" class="token comment">// this.props.story.likers.count and this.props.story.viewerDoesLike</span>
+    <span spellcheck="true" class="token comment">// are guaranteed to have been fetched since we&#x27;ve declared</span>
+    <span spellcheck="true" class="token comment">// them to be part of this mutation&#x27;s data dependencies above.</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span> <span spellcheck="true" class="token comment">/* ... */</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><div class="line-highlight" style="height:20px;top:20px;"></div><div class="line-highlight" style="height:20px;top:40px;"></div><div class="line-highlight" style="height:20px;top:60px;"></div><div class="line-highlight" style="height:20px;top:80px;"></div><div class="line-highlight" style="height:20px;top:100px;"></div><div class="line-highlight" style="height:20px;top:120px;"></div><div class="line-highlight" style="height:20px;top:140px;"></div><div class="line-highlight" style="height:20px;top:160px;"></div></pre><p>See also:
+<a href="guides-mutations.html#fragment-variables" target="_blank">Mutations &gt; Fragment variables</a> and
+<a href="guides-mutations.html#optimistic-updates" target="_blank">Mutations &gt; Optimistic updates</a></p><h3><a class="anchor" name="initialvariables-static-property"></a>initialVariables (static property) <a class="hash-link" href="#initialvariables-static-property">#</a></h3><pre class="prism language-javascript"><span class="token keyword">static</span> initialVariables<span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">[</span>name<span class="token punctuation">:</span> string<span class="token punctuation">]</span><span class="token punctuation">:</span> mixed<span class="token punctuation">}</span><span class="token punctuation">;</span></pre><p>The defaults we specify here will become available to our fragment builders:</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">ChangeTodoStatusMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token keyword">static</span> initialVariables <span class="token operator">=</span> <span class="token punctuation">{</span>orderby<span class="token punctuation">:</span> <span class="token string">&#x27;priority&#x27;</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    todos<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      # The variable defined above is available here as $orderby
+      fragment on User { todos(orderby: $orderby) { ... } }
+    `</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span spellcheck="true" class="token comment">/* ... */</span>
+<span class="token punctuation">}</span></pre><p>See also:
+<a href="guides-mutations.html#fragment-variables" target="_blank">Mutations &gt; Fragment variables</a></p><h3><a class="anchor" name="preparevariables-static-property"></a>prepareVariables (static property) <a class="hash-link" href="#preparevariables-static-property">#</a></h3><pre class="prism language-javascript"><span class="token keyword">static</span> prepareVariables<span class="token punctuation">:</span> <span class="token operator">?</span><span class="token punctuation">(</span>
+  prevVariables<span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">[</span>name<span class="token punctuation">:</span> string<span class="token punctuation">]</span><span class="token punctuation">:</span> mixed<span class="token punctuation">}</span><span class="token punctuation">,</span>
+  route<span class="token punctuation">:</span> RelayMetaRoute<span class="token punctuation">,</span>
+<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">{</span><span class="token punctuation">[</span>name<span class="token punctuation">:</span> string<span class="token punctuation">]</span><span class="token punctuation">:</span> mixed<span class="token punctuation">}</span>
+
+<span spellcheck="true" class="token comment">// Type of `route` argument</span>
+type RelayMetaRoute <span class="token operator">=</span> <span class="token punctuation">{</span>
+  name<span class="token punctuation">:</span> string<span class="token punctuation">;</span>
+<span class="token punctuation">}</span></pre><p>If we provide to a mutation a method that conforms to the signature described above, it will be given the opportunity to modify the fragment builders&#x27; variables, based on the previous variables (or the <code>initialVariables</code> if no previous ones exist), the meta route, and the runtime environment. Whatever variables this method returns will become available to this mutation&#x27;s fragment builders.</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">BuySongMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token keyword">static</span> initialVariables <span class="token operator">=</span> <span class="token punctuation">{</span>format<span class="token punctuation">:</span> <span class="token string">&#x27;mp3&#x27;</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token keyword">static</span> prepareVariables <span class="token operator">=</span> <span class="token punctuation">(</span>prevVariables<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> overrideVariables <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">var</span> formatPreference <span class="token operator">=</span> localStorage<span class="token punctuation">.</span><span class="token function">getItem</span><span class="token punctuation">(</span><span class="token string">&#x27;formatPreference&#x27;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>formatPreference<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      overrideVariables<span class="token punctuation">.</span>format <span class="token operator">=</span> formatPreference<span class="token punctuation">;</span>  <span spellcheck="true" class="token comment">// Lossless, hopefully</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>prevVariables<span class="token punctuation">,</span> overrideVariables<span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span spellcheck="true" class="token comment">/* ... */</span>
+<span class="token punctuation">}</span></pre><p>See also:
+<a href="guides-mutations.html#fragment-variables" target="_blank">Mutations &gt; Fragment variables</a></p><h2><a class="anchor" name="methods"></a>Methods <a class="hash-link" href="#methods">#</a></h2><h3><a class="anchor" name="constructor"></a>constructor <a class="hash-link" href="#constructor">#</a></h3><p>Create a mutation instance using the <code>new</code> keyword, optionally passing it some props.</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">var</span> bookFlightMutation <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BuyPlaneTicketMutation</span><span class="token punctuation">(</span><span class="token punctuation">{</span>airport<span class="token punctuation">:</span> <span class="token string">&#x27;yvr&#x27;</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Relay<span class="token punctuation">.</span>Store<span class="token punctuation">.</span><span class="token function">update</span><span class="token punctuation">(</span>bookFlightMutation<span class="token punctuation">)</span><span class="token punctuation">;</span></pre><h3><a class="anchor" name="getconfigs-abstract-method"></a>getConfigs (abstract method) <a class="hash-link" href="#getconfigs-abstract-method">#</a></h3><pre class="prism language-javascript">abstract <span class="token function">getConfigs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> Array<span class="token operator">&lt;</span><span class="token punctuation">{</span><span class="token punctuation">[</span>key<span class="token punctuation">:</span> string<span class="token punctuation">]</span><span class="token punctuation">:</span> mixed<span class="token punctuation">}</span><span class="token operator">&gt;</span></pre><p>Implement this required method give Relay instructions on how to use the response payload from each mutation to update the client-side store.</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">BuySongMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on BuySongMutationPayload {
+        collection {
+          songs {
+            count,
+            edges,
+          }
+          totalRunTime,
+        },
+        viewer {
+          hasPurchasedMusic,
+        },
+      }
+    `</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></pre><p>See also: <a href="guides-mutations.html#mutator-configuration" target="_blank">Mutations &gt; Mutator configuration</a></p><h3><a class="anchor" name="getfatquery-abstract-method"></a>getFatQuery (abstract method) <a class="hash-link" href="#getfatquery-abstract-method">#</a></h3><pre class="prism language-javascript">abstract <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> GraphQL<span class="token punctuation">.</span>Fragment</pre><p>Implement this required method to design a ‘fat query’ – one that represents every field in your data model that could change as a result of this mutation.</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">BuySongMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on Collection {
+        songs {
+          count,
+          edges,
+        },
+        totalRunTime,
+      }
+    `</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></pre><p>See also:
+<a href="guides-mutations.html#the-fat-query" target="_blank">Mutations &gt; The fat query</a></p><h3><a class="anchor" name="getmutation-abstract-method"></a>getMutation (abstract method) <a class="hash-link" href="#getmutation-abstract-method">#</a></h3><pre class="prism language-javascript">abstract <span class="token function">getMutation</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> GraphQL<span class="token punctuation">.</span>Mutation</pre><p>Implement this required method to return a GraphQL mutation operation that represents the mutation to be performed.</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">LikeStoryMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token function">getMutation</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>viewerDoesLike
+      <span class="token operator">?</span> <span class="token keyword">return</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`mutation {unlikeStory}`</span></span>
+      <span class="token punctuation">:</span> <span class="token keyword">return</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`mutation {likeStory}`</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></pre><h3><a class="anchor" name="getvariables-abstract-method"></a>getVariables (abstract method) <a class="hash-link" href="#getvariables-abstract-method">#</a></h3><pre class="prism language-javascript">abstract <span class="token function">getVariables</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">[</span>name<span class="token punctuation">:</span> string<span class="token punctuation">]</span><span class="token punctuation">:</span> mixed<span class="token punctuation">}</span></pre><p>Implement this required method to prepare variables to be used as input to the mutation.</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">DestroyShipMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token function">getVariables</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+      <span spellcheck="true" class="token comment">// Assume that the server exposes a `destroyShip` mutation</span>
+      <span spellcheck="true" class="token comment">// that accepts a `shipIDToDestroy` variable as input:</span>
+      shipIDToDestroy<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>ship<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></pre><blockquote><p>Warning</p><p>The term ‘variables’ here refers to the input to the server-side mutation, <strong>not</strong> to the variables made available to this mutation&#x27;s fragment builders.</p></blockquote><h3><a class="anchor" name="getfragment-static-method"></a>getFragment (static method) <a class="hash-link" href="#getfragment-static-method">#</a></h3><pre class="prism language-javascript"><span class="token keyword">static</span> <span class="token function">getFragment</span><span class="token punctuation">(</span>
+  fragmentName<span class="token punctuation">:</span> $Enum<span class="token operator">&lt;</span>Tp<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+  variableMapping<span class="token operator">?</span><span class="token punctuation">:</span> Variables
+<span class="token punctuation">)</span><span class="token punctuation">:</span> RelayFragmentReference
+
+<span spellcheck="true" class="token comment">// Type of the variableMapping argument</span>
+type Variables <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">[</span>name<span class="token punctuation">:</span> string<span class="token punctuation">]</span><span class="token punctuation">:</span> mixed<span class="token punctuation">}</span><span class="token punctuation">;</span></pre><p>Gets a fragment reference for use in a parent&#x27;s query fragment.</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">StoryComponent</span> <span class="token keyword">extends</span> <span class="token class-name">React<span class="token punctuation">.</span>Component</span> <span class="token punctuation">{</span>
+  <span spellcheck="true" class="token comment">/* ... */</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    story<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL`
+      fragment on Story <span class="token punctuation">{</span>
+        id<span class="token punctuation">,</span>
+        text<span class="token punctuation">,</span>
+        $<span class="token punctuation">{</span>LikeStoryMutation<span class="token punctuation">.</span><span class="token function">getFragment</span><span class="token punctuation">(</span><span class="token string">&#x27;story&#x27;</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">}</span>
+    `<span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><div class="line-highlight" style="height:20px;top:140px;"></div></pre><p>You can also pass variables to the mutation&#x27;s fragment builder from the outer fragment that contains it.</p><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">Movie</span> <span class="token keyword">extends</span> <span class="token class-name">React<span class="token punctuation">.</span>Component</span> <span class="token punctuation">{</span>
+  <span spellcheck="true" class="token comment">/* ... */</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    movie<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL`
+      fragment on Movie <span class="token punctuation">{</span>
+        <span class="token function">posterImage</span><span class="token punctuation">(</span>lang<span class="token punctuation">:</span> $lang<span class="token punctuation">)</span> <span class="token punctuation">{</span> url <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token function">trailerVideo</span><span class="token punctuation">(</span>format<span class="token punctuation">:</span> $format<span class="token punctuation">,</span> lang<span class="token punctuation">:</span> $lang<span class="token punctuation">)</span> <span class="token punctuation">{</span> url <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        $<span class="token punctuation">{</span>RentMovieMutation<span class="token punctuation">.</span><span class="token function">getFragment</span><span class="token punctuation">(</span><span class="token string">&#x27;movie&#x27;</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+          format<span class="token punctuation">:</span> variables<span class="token punctuation">.</span>format<span class="token punctuation">,</span>
+          lang<span class="token punctuation">:</span> variables<span class="token punctuation">.</span>lang<span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">}</span>
+    `<span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><div class="line-highlight" style="height:20px;top:140px;"></div><div class="line-highlight" style="height:20px;top:160px;"></div><div class="line-highlight" style="height:20px;top:180px;"></div><div class="line-highlight" style="height:20px;top:200px;"></div></pre><blockquote><p>Hint</p><p>In that last example, think of <code>$format</code> and <code>variables.format</code> as the same value.</p></blockquote><h3><a class="anchor" name="getcollisionkey"></a>getCollisionKey <a class="hash-link" href="#getcollisionkey">#</a></h3><pre class="prism language-javascript"><span class="token function">getCollisionKey</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token operator">?</span>string</pre><p>Implement this method to return a collision key. Relay will send any mutations having the same collision key to the server serially and in-order.</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">LikeStoryMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token function">getCollisionKey</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span spellcheck="true" class="token comment">// Give the same key to like mutations that affect the same story</span>
+    <span class="token keyword">return</span> <span class="token template-string"><span class="token string">`like_</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>id<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">`</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></pre><h3><a class="anchor" name="getfiles"></a>getFiles <a class="hash-link" href="#getfiles">#</a></h3><pre class="prism language-javascript"><span class="token function">getFiles</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token operator">?</span>FileMap
+
+<span spellcheck="true" class="token comment">// Type of the FileMap object</span>
+type FileMap <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">[</span>key<span class="token punctuation">:</span> string<span class="token punctuation">]</span><span class="token punctuation">:</span> File<span class="token punctuation">}</span><span class="token punctuation">;</span></pre><p>Implement this method to return a map of <code>File</code> objects to upload as part of a mutation.</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">AttachDocumentMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token function">getFiles</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+      file<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>file<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">class</span> <span class="token class-name">FileUploader</span> <span class="token keyword">extends</span> <span class="token class-name">React<span class="token punctuation">.</span>Component</span> <span class="token punctuation">{</span>
+  <span class="token function">handleSubmit</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> fileToAttach <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>refs<span class="token punctuation">.</span>fileInput<span class="token punctuation">.</span>files<span class="token punctuation">.</span><span class="token function">item</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Relay<span class="token punctuation">.</span>Store<span class="token punctuation">.</span><span class="token function">update</span><span class="token punctuation">(</span>
+      <span class="token keyword">new</span> <span class="token class-name">AttachDocumentMutation</span><span class="token punctuation">(</span><span class="token punctuation">{</span>file<span class="token punctuation">:</span> fileToAttach<span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></pre><h3><a class="anchor" name="getoptimisticconfigs"></a>getOptimisticConfigs <a class="hash-link" href="#getoptimisticconfigs">#</a></h3><pre class="prism language-javascript"><span class="token function">getOptimisticConfigs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> Array<span class="token operator">&lt;</span><span class="token punctuation">{</span><span class="token punctuation">[</span>key<span class="token punctuation">:</span> string<span class="token punctuation">]</span><span class="token punctuation">:</span> mixed<span class="token punctuation">}</span><span class="token operator">&gt;</span></pre><p>Implement this method in cases where the mutator configuration needed to handle the optimistic response need be different than the one that handles the server response.</p><p>See also: <a href="#getconfigs-abstract-method" target="">Relay.Mutation::getConfigs()</a></p><h3><a class="anchor" name="getoptimisticresponse"></a>getOptimisticResponse <a class="hash-link" href="#getoptimisticresponse">#</a></h3><pre class="prism language-javascript"><span class="token function">getOptimisticResponse</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token operator">?</span><span class="token punctuation">{</span><span class="token punctuation">[</span>key<span class="token punctuation">:</span> string<span class="token punctuation">]</span><span class="token punctuation">:</span> mixed<span class="token punctuation">}</span></pre><p>Implement this method to craft an optimistic response having the same shape as the server response payload. This optimistic response will be used to preemptively update the client cache before the server returns, giving the impression that the mutation completed instantaneously.</p><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">LikeStoryMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token function">getOptimisticResponse</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+      story<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        id<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+        likers<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+          count<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>likers<span class="token punctuation">.</span>count <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        viewerDoesLike<span class="token punctuation">:</span> <span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>viewerDoesLike<span class="token punctuation">,</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></pre><p>See also: <a href="guides-mutations.html#optimistic-updates" target="_blank">Mutations &gt; Optimistic updates</a></p></div><div class="docs-prevnext"><a class="docs-next" href="api-reference-relay-proptypes.html#content">Next →</a></div></div></section><footer class="wrap"><div class="right">©2015 Facebook Inc.</div></footer></div><div id="fb-root"></div><script>
+            !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+          </script></body></html>

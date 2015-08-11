@@ -1,0 +1,298 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>Relay | A JavaScript framework for building data-driven React applications</title><meta name="viewport" content="width=device-width"><meta property="og:title" content="Relay | A JavaScript framework for building data-driven React applications"><meta property="og:type" content="website"><meta property="og:url" content="http://facebook.github.io/relay/index.html"><meta property="og:description" content="A JavaScript framework for building data-driven React applications"><link rel="shortcut icon" href="/relay/img/favicon.png"><link rel="stylesheet" href="/relay/css/relay.css"><script type="text/javascript" src="//use.typekit.net/vqa1hcx.js"></script><script type="text/javascript">try{Typekit.load();}catch(e){}</script></head><body><div class="container"><div class="nav-main"><div class="wrap"><a class="nav-home" href="/relay/"><img class="nav-logo" src="/relay/img/logo.svg" width="50" height="50">Relay</a><ul class="nav-site"><li><a href="/relay/docs/getting-started.html#content" class="active">Docs</a></li><li><a href="/relay/support.html" class="">Support</a></li><li><a href="https://github.com/facebook/relay" class="">GitHub</a></li></ul></div></div><section class="content wrap documentationContent"><div class="nav-docs"><div class="nav-docs-section"><h3>Quick Start</h3><ul><li><a style="margin-left:0;" class="" href="/relay/docs/getting-started.html#content">Getting Started</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/tutorial.html#content">Tutorial</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/videos.html#content">Videos</a></li></ul></div><div class="nav-docs-section"><h3>Guides</h3><ul><li><a style="margin-left:0;" class="" href="/relay/docs/guides-containers.html#content">Containers</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/guides-routes.html#content">Routes</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/guides-root-container.html#content">Root Container</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/guides-ready-state.html#content">Ready State</a></li><li><a style="margin-left:0;" class="active" href="/relay/docs/guides-mutations.html#content">Mutations</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/guides-network-layer.html#content">Network Layer</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/guides-babel-plugin.html#content">Babel Relay Plugin</a></li></ul></div><div class="nav-docs-section"><h3>GraphQL</h3><ul><li><a style="margin-left:0;" class="" href="/relay/docs/graphql-relay-specification.html#content">GraphQL Relay Specification</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/graphql-object-identification.html#content">Object Identification</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/graphql-connections.html#content">Connection</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/graphql-mutations.html#content">Mutations</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/graphql-further-reading.html#content">Further Reading</a></li></ul></div><div class="nav-docs-section"><h3>API Reference</h3><ul><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay.html#content">Relay</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-container.html#content">RelayContainer</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-route.html#content">Relay.Route</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-root-container.html#content">Relay.RootContainer</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-ql.html#content">Relay.QL</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-mutation.html#content">Relay.Mutation</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-proptypes.html#content">Relay.PropTypes</a></li><li><a style="margin-left:0;" class="" href="/relay/docs/api-reference-relay-store.html#content">Relay.Store</a></li></ul></div><div class="nav-docs-section"><h3>Interfaces</h3><ul><li><a style="margin-left:0;" class="" href="/relay/docs/interfaces-relay-network-layer.html#content">RelayNetworkLayer</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/interfaces-relay-mutation-request.html#content">RelayMutationRequest</a></li><li><a style="margin-left:20px;" class="" href="/relay/docs/interfaces-relay-query-request.html#content">RelayQueryRequest</a></li></ul></div></div><div class="inner-content"><a id="content"></a><a class="edit-page-link" href="https://github.com/facebook/relay/blob/master/docs/Guides-Mutations.md" target="_blank">Edit on GitHub</a><h1>Mutations</h1><div><p>Up until this point we have only interacted with the GraphQL endpoint to perform queries that fetch data. In this guide, you will learn how to use Relay to perform mutations – operations that consist of writes to the data store followed by a fetch of any changed fields.</p><h2><a class="anchor" name="a-complete-example"></a>A complete example <a class="hash-link" href="#a-complete-example">#</a></h2><p>Before taking a deep dive into the mutations API, let&#x27;s look at a complete example. Here, we subclass <code>Relay.Mutation</code> to create a custom mutation that we can use to like a story.</p><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">LikeStoryMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span spellcheck="true" class="token comment">// This method should return a GraphQL operation that represents</span>
+  <span spellcheck="true" class="token comment">// the mutation to be performed. This presumes that the server</span>
+  <span spellcheck="true" class="token comment">// implements a mutation type named ‘likeStory’.</span>
+  <span class="token function">getMutation</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`mutation {likeStory}`</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span spellcheck="true" class="token comment">// Use this method to prepare the variables that will be used as</span>
+  <span spellcheck="true" class="token comment">// input to the mutation. Our ‘likeStory’ mutation takes exactly</span>
+  <span spellcheck="true" class="token comment">// one variable as input – the ID of the story to like.</span>
+  <span class="token function">getVariables</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>storyID<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>id<span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span spellcheck="true" class="token comment">// Use this method to design a ‘fat query’ – one that represents every</span>
+  <span spellcheck="true" class="token comment">// field in your data model that could change as a result of this mutation.</span>
+  <span spellcheck="true" class="token comment">// Liking a story could affect the likers count, the sentence that</span>
+  <span spellcheck="true" class="token comment">// summarizes who has liked a story, and the fact that the viewer likes the</span>
+  <span spellcheck="true" class="token comment">// story or not. Relay will intersect this query with a ‘tracked query’</span>
+  <span spellcheck="true" class="token comment">// that represents the data that your application actually uses, and</span>
+  <span spellcheck="true" class="token comment">// instruct the server to include only those fields in its response.</span>
+  <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      query LikeStoryPayload {
+        story {
+          likers {
+            count,
+          },
+          likeSentence,
+          viewerDoesLike,
+        },
+      }
+    `</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span spellcheck="true" class="token comment">// These configurations advise Relay on how to handle the LikeStoryPayload</span>
+  <span spellcheck="true" class="token comment">// returned by the server. Here, we tell Relay to use the payload to</span>
+  <span spellcheck="true" class="token comment">// change the fields of a record it already has in the store. The</span>
+  <span spellcheck="true" class="token comment">// key-value pairs of ‘fieldIDs’ associate field names in the payload</span>
+  <span spellcheck="true" class="token comment">// with the ID of the record that we want updated.</span>
+  <span class="token function">getConfigs</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+      type<span class="token punctuation">:</span> <span class="token string">&#x27;FIELDS_CHANGE&#x27;</span><span class="token punctuation">,</span>
+      fieldIDs<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        story<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span spellcheck="true" class="token comment">// This mutation has a hard dependency on the story&#x27;s ID. We specify this</span>
+  <span spellcheck="true" class="token comment">// dependency declaratively here as a GraphQL query fragment. Relay will</span>
+  <span spellcheck="true" class="token comment">// use this fragment to ensure that the story&#x27;s ID is available wherever</span>
+  <span spellcheck="true" class="token comment">// this mutation is used.</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    story<span class="token punctuation">:</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on Story {
+        id,
+      }
+    `</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></pre><p>Here&#x27;s an example of this mutation in use by a <code>LikeButton</code> component:</p><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">LikeButton</span> <span class="token keyword">extends</span> <span class="token class-name">React<span class="token punctuation">.</span>Component</span> <span class="token punctuation">{</span>
+  _handleLike <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+    <span spellcheck="true" class="token comment">// To perform a mutation, pass an instance of one to `Relay.Store.update`</span>
+    Relay<span class="token punctuation">.</span>Store<span class="token punctuation">.</span><span class="token function">update</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">LikeStoryMutation</span><span class="token punctuation">(</span><span class="token punctuation">{</span>story<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>
+      <span class="token operator">&lt;</span>div<span class="token operator">&gt;</span>
+        <span class="token punctuation">{</span><span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>viewerDoesLike
+          <span class="token operator">?</span> <span class="token string">&#x27;You like this&#x27;</span>
+          <span class="token punctuation">:</span> <span class="token operator">&lt;</span>button onClick<span class="token operator">=</span><span class="token punctuation">{</span><span class="token keyword">this</span><span class="token punctuation">.</span>_handleLike<span class="token punctuation">}</span><span class="token operator">&gt;</span>Like <span class="token keyword">this</span><span class="token operator">&lt;</span><span class="token operator">/</span>button<span class="token operator">&gt;</span>
+        <span class="token punctuation">}</span>
+      <span class="token operator">&lt;</span><span class="token operator">/</span>div<span class="token operator">&gt;</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span spellcheck="true" class="token comment">// You can compose a mutation&#x27;s query fragments like you would those</span>
+    <span spellcheck="true" class="token comment">// of any other RelayContainer. This ensures that the data depended</span>
+    <span spellcheck="true" class="token comment">// upon by the mutation will be fetched and ready for use.</span>
+    story<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL`
+      fragment on Story <span class="token punctuation">{</span>
+        viewerDoesLike<span class="token punctuation">,</span>
+        $<span class="token punctuation">{</span>LikeStoryMutation<span class="token punctuation">.</span><span class="token function">getFragment</span><span class="token punctuation">(</span><span class="token string">&#x27;story&#x27;</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">}</span>
+    `<span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></pre><p>In this particular example, the only field that the <code>LikeButton</code> cares about is <code>viewerDoesLike</code>. That field will form part of the tracked query that Relay will intersect with the fat query of <code>LikeStoryMutation</code> to determine what fields to request as part of the server&#x27;s response payload for the mutation. Another component elsewhere in the application might be interested in the likers count, or the like sentence. Since those fields will automatically be added to Relay&#x27;s tracked query, the <code>LikeButton</code> need not worry about requesting them explicitly.</p><h2><a class="anchor" name="mutation-props"></a>Mutation props <a class="hash-link" href="#mutation-props">#</a></h2><p>Any props that we pass to the constructor of a mutation will become available to its instance methods as <code>this.props</code>. Like in components used within Relay containers, props for which a corresponding fragment has been defined will be populated by Relay with query data:</p><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">LikeStoryMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    story<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on Story {
+        id,
+        viewerDoesLike,
+      }
+    `</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token function">getMutation</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span spellcheck="true" class="token comment">// Here, viewerDoesLike is guaranteed to be available.</span>
+    <span spellcheck="true" class="token comment">// We can use it to make this mutation polymorphic.</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>viewerDoesLike
+      <span class="token operator">?</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`mutation {unlikeStory}`</span></span>
+      <span class="token punctuation">:</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`mutation {likeStory}`</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span spellcheck="true" class="token comment">/* ... */</span>
+<span class="token punctuation">}</span></pre><h2><a class="anchor" name="fragment-variables"></a>Fragment variables <a class="hash-link" href="#fragment-variables">#</a></h2><p>Like can be done with <a href="guides-containers.html" target="_blank">Relay containers</a>, we can prepare variables for use by our mutation&#x27;s fragment builders, based on the previous variables and the runtime environment.</p><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">RentMovieMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token keyword">static</span> initialVariables <span class="token operator">=</span> <span class="token punctuation">{</span>
+    format<span class="token punctuation">:</span> <span class="token string">&#x27;hd&#x27;</span><span class="token punctuation">,</span>
+    lang<span class="token punctuation">:</span> <span class="token string">&#x27;en-CA&#x27;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token keyword">static</span> prepareVariables <span class="token operator">=</span> <span class="token punctuation">(</span>prevVariables<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> overrideVariables <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>navigator<span class="token punctuation">.</span>language<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      overrideVariables<span class="token punctuation">.</span>lang <span class="token operator">=</span> navigator<span class="token punctuation">.</span>language<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">var</span> formatPreference <span class="token operator">=</span> localStorage<span class="token punctuation">.</span><span class="token function">getItem</span><span class="token punctuation">(</span><span class="token string">&#x27;formatPreference&#x27;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>formatPreference<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      overrideVariables<span class="token punctuation">.</span>format <span class="token operator">=</span> formatPreference<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>prevVariables<span class="token punctuation">,</span> overrideVariables<span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span spellcheck="true" class="token comment">// Now we can use the variables we&#x27;ve prepared to fetch movies</span>
+    <span spellcheck="true" class="token comment">// appropriate for the viewer&#x27;s locale and preferences</span>
+    movie<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on Movie {
+        posterImage(lang: $lang) { url },
+        trailerVideo(format: $format, lang: $lang) { url },
+      }
+    `</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></pre><h2><a class="anchor" name="the-fat-query"></a>The fat query <a class="hash-link" href="#the-fat-query">#</a></h2><p>Changing one thing in a system can have a ripple effect that causes other things to change in turn. Imagine a mutation that we can use to accept a friend request. This can have wide implications:</p><ul><li>both people&#x27;s friend count will increment</li><li>an edge representing the new friend will be added to the viewer&#x27;s <code>friends</code> connection</li><li>an edge representing the viewer will be added to the new friend&#x27;s <code>friends</code> connection</li><li>the viewer&#x27;s friendship status with the requester will change</li></ul><p>Design a fat query that covers every possible field that could change:</p><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">AcceptFriendRequestMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span spellcheck="true" class="token comment">// This presumes that the server-side implementation of this mutation</span>
+    <span spellcheck="true" class="token comment">// returns a payload of type `AcceptFriendRequestPayload` that exposes</span>
+    <span spellcheck="true" class="token comment">// `friendEdge`, `friendRequester`, and `viewer` fields.</span>
+    <span class="token keyword">return</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on AcceptFriendRequestPayload {
+        friendEdge,
+        friendRequester {
+          friends,
+          friendshipStatusWithViewer,
+        },
+        viewer {
+          friends,
+        },
+      }
+    `</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></pre><p>This fat query looks like any other GraphQL query, with one important distinction. We know some of these fields to be non-scalar (like <code>friendEdge</code> and <code>friends</code>) but notice that we have not named any of their children by way of a subquery. In this way, we indicate to Relay that <em>anything</em> under those non-scalar fields may change as a result of this mutation.</p><blockquote><p>Note</p><p>When designing a fat query, consider <em>all</em> of the data that might change as a result of the mutation – not just the data currently in use by your application. We don&#x27;t need to worry about overfetching; this query is never executed without first intersecting it with a ‘tracked query’ of the data our application actually needs. If we omit fields in the fat query, we might observe data inconsistencies in the future when we add views with new data dependencies, or add new data dependencies to existing views.</p></blockquote><h2><a class="anchor" name="mutator-configuration"></a>Mutator configuration <a class="hash-link" href="#mutator-configuration">#</a></h2><p>We need to give Relay instructions on how to use the response payload from each mutation to update the client-side store. We do this by configuring the mutation with one or more of the following mutation types:</p><h3><a class="anchor" name="fields-change"></a><code>FIELDS_CHANGE</code> <a class="hash-link" href="#fields-change">#</a></h3><p>Any field in the payload that can be correlated by DataID with one or more records in the client-side store will be merged with the record(s) in the store.</p><h4><a class="anchor" name="arguments"></a>Arguments <a class="hash-link" href="#arguments">#</a></h4><ul><li><p><code>fieldIDs: {[fieldName: string]: DataID | Array&lt;DataID&gt;}</code></p><p>A map between a <code>fieldName</code> in the response and one or more DataIDs in the store.</p></li></ul><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">RenameDocumentMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span spellcheck="true" class="token comment">// This mutation declares a dependency on a document&#x27;s ID</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    document<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`fragment on Document { id }`</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span spellcheck="true" class="token comment">// We know that only the document&#x27;s name can change as a result</span>
+  <span spellcheck="true" class="token comment">// of this mutation, and specify it here in the fat query.</span>
+  <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on RenameDocumentMutationPayload { updatedDocument { name } }
+    `</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">getVariables</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>id<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>document<span class="token punctuation">.</span>id<span class="token punctuation">,</span> newName<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>newName<span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">getConfigs</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+      type<span class="token punctuation">:</span> <span class="token string">&#x27;FIELDS_CHANGE&#x27;</span><span class="token punctuation">,</span>
+      <span spellcheck="true" class="token comment">// Correlate the `updatedDocument` field in the response</span>
+      <span spellcheck="true" class="token comment">// with the DataID of the record we would like updated.</span>
+      fieldIDs<span class="token punctuation">:</span> <span class="token punctuation">{</span>updatedDocument<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>document<span class="token punctuation">.</span>id<span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span spellcheck="true" class="token comment">/* ... */</span>
+<span class="token punctuation">}</span></pre><h3><a class="anchor" name="node-delete"></a><code>NODE_DELETE</code> <a class="hash-link" href="#node-delete">#</a></h3><p>Given a parent, a connection, and one or more DataIDs in the response payload, Relay will remove the node(s) from the connection and delete the associated record(s) from the store.</p><h4><a class="anchor" name="arguments"></a>Arguments <a class="hash-link" href="#arguments">#</a></h4><ul><li><p><code>parentName: string</code></p><p>The field name in the response that represents the parent of the connection</p></li><li><p><code>parentID: string</code></p><p>The DataID of the parent node that contains the connection</p></li><li><p><code>connectionName: string</code></p><p>The field name in the response that represents the connection</p></li><li><p><code>deletedIDFieldName: DataID | Array&lt;DataID&gt;</code></p><p>One or more DataIDs corresponding to nodes to remove from the connection and delete from the store</p></li></ul><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">DestroyShipMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span spellcheck="true" class="token comment">// This mutation declares a dependency on an enemy ship&#x27;s ID</span>
+  <span spellcheck="true" class="token comment">// and the ID of the faction that ship belongs to.</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    ship<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`fragment on Ship { id, faction { id } }`</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span spellcheck="true" class="token comment">// Destroying a ship will remove it from a faction&#x27;s fleet, so we</span>
+  <span spellcheck="true" class="token comment">// specify the faction&#x27;s ships connection as part of the fat query.</span>
+  <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on DestroyShipMutationPayload {
+        destroyedShipID,
+        faction { ships },
+      }
+    `</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">getConfigs</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+      type<span class="token punctuation">:</span> <span class="token string">&#x27;DELETE_NODE&#x27;</span><span class="token punctuation">,</span>
+      parentName<span class="token punctuation">:</span> <span class="token string">&#x27;faction&#x27;</span><span class="token punctuation">,</span>
+      parentID<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>ship<span class="token punctuation">.</span>faction<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+      connectionName<span class="token punctuation">:</span> <span class="token string">&#x27;ships&#x27;</span><span class="token punctuation">,</span>
+      deletedIDFieldName<span class="token punctuation">:</span> <span class="token string">&#x27;destroyedShipID&#x27;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span spellcheck="true" class="token comment">/* ... */</span>
+<span class="token punctuation">}</span></pre><h3><a class="anchor" name="range-add"></a><code>RANGE_ADD</code> <a class="hash-link" href="#range-add">#</a></h3><p>Given a parent, a connection, and the name of the newly created edge in the response payload Relay will add the node to the store and attach it to the connection according to the range behavior specified.</p><h4><a class="anchor" name="arguments"></a>Arguments <a class="hash-link" href="#arguments">#</a></h4><ul><li><p><code>parentName: string</code></p><p>The field name in the response that represents the parent of the connection</p></li><li><p><code>parentID: string</code></p><p>The DataID of the parent node that contains the connection</p></li><li><p><code>connectionName: string</code></p><p>The field name in the response that represents the connection</p></li><li><p><code>edgeName: string</code></p><p>The field name in the response that represents the newly created edge</p></li><li><p><code>rangeBehaviors: {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS}</code></p><p>A map of GraphQL calls to the behavior we want Relay to exhibit when adding the new edge to connections under the influence of those calls. Behaviors can be one of <code>&#x27;append&#x27;</code>, <code>&#x27;prepend&#x27;</code>, or <code>&#x27;remove&#x27;</code>.</p></li></ul><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">IntroduceShipMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span spellcheck="true" class="token comment">// This mutation declares a dependency on the faction</span>
+  <span spellcheck="true" class="token comment">// into which this ship is to be introduced.</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    faction<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`fragment on Faction { id }`</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span spellcheck="true" class="token comment">// Introducing a ship will add it to a faction&#x27;s fleet, so we</span>
+  <span spellcheck="true" class="token comment">// specify the faction&#x27;s ships connection as part of the fat query.</span>
+  <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on IntroduceShipMutation {
+        faction { ships },
+        newShipEdge,
+      }
+    `</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">getConfigs</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+      type<span class="token punctuation">:</span> <span class="token string">&#x27;RANGE_ADD&#x27;</span><span class="token punctuation">,</span>
+      parentName<span class="token punctuation">:</span> <span class="token string">&#x27;faction&#x27;</span><span class="token punctuation">,</span>
+      parentID<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>faction<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+      connectionName<span class="token punctuation">:</span> <span class="token string">&#x27;ships&#x27;</span><span class="token punctuation">,</span>
+      edgeName<span class="token punctuation">:</span> <span class="token string">&#x27;newShipEdge&#x27;</span><span class="token punctuation">,</span>
+      rangeBehaviors<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span spellcheck="true" class="token comment">// When the ships connection is not under the influence</span>
+        <span spellcheck="true" class="token comment">// of any call, append the ship to the end of the connection</span>
+        <span class="token string">&#x27;&#x27;</span><span class="token punctuation">:</span> <span class="token string">&#x27;append&#x27;</span><span class="token punctuation">,</span>
+        <span spellcheck="true" class="token comment">// Prepend the ship, wherever the connection is sorted by age</span>
+        <span class="token string">&#x27;orderby:newest&#x27;</span><span class="token punctuation">:</span> <span class="token string">&#x27;prepend&#x27;</span><span class="token punctuation">,</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span spellcheck="true" class="token comment">/* ... */</span>
+<span class="token punctuation">}</span></pre><h3><a class="anchor" name="range-delete"></a><code>RANGE_DELETE</code> <a class="hash-link" href="#range-delete">#</a></h3><p>Given a parent, a connection, one or more DataIDs in the response payload, and a path between the parent and the connection, Relay will remove the node(s) from the connection but leave the associated record(s) in the store.</p><h4><a class="anchor" name="arguments"></a>Arguments <a class="hash-link" href="#arguments">#</a></h4><ul><li><p><code>parentName: string</code></p><p>The field name in the response that represents the parent of the connection</p></li><li><p><code>parentID: string</code></p><p>The DataID of the parent node that contains the connection</p></li><li><p><code>connectionName: string</code></p><p>The field name in the response that represents the connection</p></li><li><p><code>deletedIDFieldName: DataID | Array&lt;DataID&gt;</code></p><p>One or more DataIDs corresponding to nodes to remove from the connection</p></li><li><p><code>pathToConnection: Array&lt;string&gt;</code></p><p>Any array containing the field names between the parent and the connection, including the parent and the connection</p></li></ul><h4><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h4><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">RemoveTagMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span spellcheck="true" class="token comment">// This mutation declares a dependency on the</span>
+  <span spellcheck="true" class="token comment">// todo from which this tag is being removed.</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    todo<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`fragment on Todo { id }`</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span spellcheck="true" class="token comment">// Removing a tag from a todo will affect its tags connection</span>
+  <span spellcheck="true" class="token comment">// so we specify it here as part of the fat query.</span>
+  <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on RemoveTagMutationPayload {
+        todo { tags },
+        removedTagIDs,
+      }
+    `</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">getConfigs</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+      type<span class="token punctuation">:</span> <span class="token string">&#x27;RANGE_DELETE&#x27;</span><span class="token punctuation">,</span>
+      parentName<span class="token punctuation">:</span> <span class="token string">&#x27;todo&#x27;</span><span class="token punctuation">,</span>
+      parentID<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>todo<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+      connectionName<span class="token punctuation">:</span> <span class="token string">&#x27;tags&#x27;</span><span class="token punctuation">,</span>
+      deletedIDFieldName<span class="token punctuation">:</span> <span class="token string">&#x27;removedTagIDs&#x27;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span spellcheck="true" class="token comment">/* ... */</span>
+<span class="token punctuation">}</span></pre><h2><a class="anchor" name="optimistic-updates"></a>Optimistic updates <a class="hash-link" href="#optimistic-updates">#</a></h2><p>All of the mutations we&#x27;ve performed so far have waited on a response from the server before updating the client-side store. Relay offers us a chance to craft an optimistic response of the same shape based on what we expect the server&#x27;s response to be in the event of a successful mutation.</p><p>Let&#x27;s craft an optimistic response for the <code>LikeStoryMutation</code> example above:</p><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">LikeStoryMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span spellcheck="true" class="token comment">/* ... */</span>
+  <span spellcheck="true" class="token comment">// Here&#x27;s the fat query from before</span>
+  <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      query LikeStoryPayload {
+        story {
+          likers {
+            count,
+          },
+          likeSentence,
+          viewerDoesLike,
+        },
+      }
+    `</span></span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span spellcheck="true" class="token comment">// Let&#x27;s craft an optimistic response that mimics the shape of the</span>
+  <span spellcheck="true" class="token comment">// LikeStoryPayload, as well as the values we expect to receive.</span>
+  <span class="token function">getOptimisticResponse</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+      story<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        id<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+        likers<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+          count<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>likers<span class="token punctuation">.</span>count <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        viewerDoesLike<span class="token punctuation">:</span> <span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>story<span class="token punctuation">.</span>viewerDoesLike<span class="token punctuation">,</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span spellcheck="true" class="token comment">// To be able to increment the likers count, and flip the viewerDoesLike</span>
+  <span spellcheck="true" class="token comment">// bit, we need to ensure that those pieces of data will be available to</span>
+  <span spellcheck="true" class="token comment">// this mutation, in addition to the ID of the story.</span>
+  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+    story<span class="token punctuation">:</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on Story {
+        id,
+        likers { count },
+        viewerDoesLike,
+      }
+    `</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span spellcheck="true" class="token comment">/* ... */</span>
+<span class="token punctuation">}</span></pre><p>You don&#x27;t have to mimic the entire response payload. Here, we&#x27;ve punted on the like sentence, since it&#x27;s difficult to localize on the client side. When the server responds, Relay will treat its payload as the source of truth, but in the meantime, the optimistic response will be applied right away, allowing the people who use our product to enjoy instant feedback after having taken an action.</p></div><div class="docs-prevnext"><a class="docs-next" href="guides-network-layer.html#content">Next →</a></div></div></section><footer class="wrap"><div class="right">©2015 Facebook Inc.</div></footer></div><div id="fb-root"></div><script>
+            !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+          </script></body></html>

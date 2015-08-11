@@ -10,12 +10,12 @@ var util = require('util');
  * This is part of the Babel transform to convert embedded GraphQL RFC to
  * JavaScript. It converts from GraphQL AST to a string of JavaScript code.
  */
-function RQLPrinter2(schema, rqlFunctionName) {
+function GraphQLPrinter(schema, rqlFunctionName) {
   this.rqlFunctionName = rqlFunctionName;
   this.schema = schema;
 }
 
-RQLPrinter2.prototype.getCode = function(ast, substitutions) {
+GraphQLPrinter.prototype.getCode = function(ast, substitutions) {
   var options = {
     rqlFunctionName: this.rqlFunctionName,
     schema: this.schema,
@@ -724,4 +724,4 @@ function getSelections(node) {
   return [];
 }
 
-module.exports = RQLPrinter2;
+module.exports = GraphQLPrinter;

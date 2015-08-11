@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<!-- Built with spec-md -->
+
+<head>
+  <meta charset="utf-8">
+  <title>Relay Global Object Identification Specification</title>
+  <link href="spec.css" rel="stylesheet">
+  <link href="highlight.css" rel="stylesheet">
+</head>
+
+<body>
+  <header>
+    <h1>Relay Global Object Identification Specification</h1>
+    <section id="intro">
+      <p>Relay&rsquo;s support for object identification relies on the GraphQL server exposing object identifiers in a standardized way. In the query, the schema should provide a standard mechanism for asking for an object by ID. In the response, the schema
+        provides a standard way of providing these IDs.</p>
+      <p>We refer to objects with identifiers as &ldquo;nodes&rdquo;.</p>
+      <p>An example of both of those is the following query:</p><pre><code>{
+  node(id: &quot;4&quot;) {
+    id
+    ... on User {
+      name
+    }
+  }
+</code></pre>
+      <ul>
+        <li>Refetching the object is done with the <code>node</code> field on the root query object.</li>
+        <li>The ID to be used for refetching is provided in an <code>id</code> field on the result.</li>
+      </ul>
+      <p>This section of the spec describes the formal requirements around object refetching.</p>
+    </section>
+    <div class="spec-toc">
+      <ol>
+        <li><a href="#sec-Reserved-Types"><span class="spec-secnum">1</span>Reserved Types</a></li>
+        <li><a href="#sec-Node-Interface"><span class="spec-secnum">2</span>Node Interface</a>
+          <ol>
+            <li><a href="#sec-Node-Interface.Introspection"><span class="spec-secnum">2.1</span>Introspection</a></li>
+          </ol>
+        </li>
+        <li><a href="#sec-Node-root-field"><span class="spec-secnum">3</span>Node root field</a>
+          <ol>
+            <li><a href="#sec-Node-root-field.Introspection"><span class="spec-secnum">3.1</span>Introspection</a></li>
+          </ol>
+        </li>
+        <li><a href="#sec-Field-stability"><span class="spec-secnum">4</span>Field stability</a></li>
+        <li><a href="#sec-Plural-identifying-root-fields"><span class="spec-secnum">5</span>Plural identifying root fields</a>
+          <ol>
+            <li><a href="#sec-Fields"><span class="spec-secnum">5.1</span>Fields</a></li>
+          </ol>
+        </li>
+      </ol>
+    </div>
+  </header>
+  <section id="sec-Reserved-Types">
+    <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Reserved-Types">1</a></span>Reserved Types</h2>
+    <p>A GraphQL Relay server must reserve certain types and type names to support the object identification model used by Relay. In particular, this spec creates guidelines for the following types:</p>
+    <ul>
+      <li>An interface named <code>Node</code>.</li>
+      <li>The <code>node</code> field on the root query type.</li>
+    </ul>
+  </section>
+  <section id="sec-Node-Interface">
+    <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Node-Interface">2</a></span>Node Interface</h2>
+    <p>The server must provide an interface called <code>Node</code>. That interface must include exactly one field, called <code>id</code> that returns a non&#8208;null <code>ID</code>.</p>
+    <p>This <code>id</code> should be a globally unique identifier for this object, and given just this <code>id</code>, the server should be able to refetch the object.</p>
+    <section id="sec-Node-Interface.Introspection">
+      <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Node-Interface.Introspection">2.1</a></span>Introspection</h3>
+      <p>A server that correctly implements the above interface will accept the following introspection query, and return the provided response:</p><pre><code>{
+  __type(name: &quot;Node&quot;) {
+    name
+    kind
+    fields {
+      name
+      type {
+        kind
+        ofType {
+          name
+          kind
+        }
+      }
+    }
+  }
+}
+</code></pre>
+      <p>yields </p><pre><code>{
+  "<span class="hljs-attribute">__type</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Node"</span></span>,
+    "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"INTERFACE"</span></span>,
+    "<span class="hljs-attribute">fields</span>": <span class="hljs-value">[
+      {
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"id"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"NON_NULL"</span></span>,
+          "<span class="hljs-attribute">ofType</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"ID"</span></span>,
+            "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"SCALAR"</span>
+          </span>}
+        </span>}
+      </span>}
+    ]
+  </span>}
+</span>}
+</code></pre></section>
+  </section>
+  <section id="sec-Node-root-field">
+    <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Node-root-field">3</a></span>Node root field</h2>
+    <p>The server must provide a root field called <code>node</code> that returns the <code>Node</code> interface. This root field must take exactly one argument, a non&#8208;null ID named <code>id</code>.</p>
+    <p>If a query returns an object that implements <code>Node</code>, then this root field should refetch the identical object when value returned by the server in the <code>Node</code>&lsquo;s <code>id</code> field is passed as the <code>id</code> parameter
+      to the <code>node</code> root field.</p>
+    <p>The server must make a best effort to fetch this data, but it may not always be possible; for example, the server may return a <code>User</code> with a valid <code>id</code>, but when the request is made to refetch that user with the <code>node</code>      root field, the user&rsquo;s database may be unavailable, or the user may have deleted their account. In this case, the result of querying this field should be <code>null</code>.</p>
+    <section id="sec-Node-root-field.Introspection">
+      <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Node-root-field.Introspection">3.1</a></span>Introspection</h3>
+      <p>A server that correctly implements the above requirement will accept the following introspection query, and return a response that contains the provided response.</p><pre><code>{
+  __schema {
+    queryType {
+      fields {
+        name
+        type {
+          name
+          kind
+        }
+        args {
+          name
+          type {
+            kind
+            ofType {
+              name
+              kind
+            }
+          }
+        }
+      }
+    }
+  }
+}
+</code></pre>
+      <p>yields </p><pre><code>{
+  "<span class="hljs-attribute">__schema</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">queryType</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">fields</span>": <span class="hljs-value">[
+        // This array may have other entries
+        {
+          "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"node"</span></span>,
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Node"</span></span>,
+            "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"INTERFACE"</span>
+          </span>}</span>,
+          "<span class="hljs-attribute">args</span>": <span class="hljs-value">[
+            {
+              "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"id"</span></span>,
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+                "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"NON_NULL"</span></span>,
+                "<span class="hljs-attribute">ofType</span>": <span class="hljs-value">{
+                  "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"ID"</span></span>,
+                  "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"SCALAR"</span>
+                </span>}
+              </span>}
+            </span>}
+          ]
+        </span>}
+      ]
+    </span>}
+  </span>}
+</span>}
+</code></pre></section>
+  </section>
+  <section id="sec-Field-stability">
+    <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Field-stability">4</a></span>Field stability</h2>
+    <p>If two objects appear in a query, both implementing <code>Node</code> with identical IDs, then the two objects must be equal.</p>
+    <p>For the purposes of this definition, object equality is defined as follows:</p>
+    <ul>
+      <li>If a field is queried on both objects, the result of querying that field on the first object must be equal to the result of querying that field on the second object.
+        <ul>
+          <li>If the field returns a scalar, equality is defined as is appropriate for that scalar. </li>
+          <li>If the field returns an enum, equality is defined as both fields returning the same enum value.</li>
+          <li>If the field returns an object, equality is defined recursively as per the above.</li>
+        </ul>
+      </li>
+    </ul>
+    <p>For example:</p><pre><code>{
+  fourNode: node(id: &quot;4&quot;) {
+    id
+    ... on User {
+      name
+      userWithIdOneGreater {
+        id
+        name
+      }
+    }
+  }
+  fiveNode: node(id: &quot;5&quot;) {
+    id
+    ... on User {
+      name
+      userWithIdOneLess {
+        id
+        name
+      }
+    }
+  }
+}
+</code></pre>
+    <p>might return:</p><pre><code>{
+  "<span class="hljs-attribute">fourNode</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"4"</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Mark Zuckerberg"</span></span>,
+    "<span class="hljs-attribute">userWithIdOneGreater</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5"</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Chris Hughes"</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">fiveNode</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"5"</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Chris Hughes"</span></span>,
+    "<span class="hljs-attribute">userWithIdOneLess</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"4"</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Mark Zuckerberg"</span></span>,
+    }
+  </span>}
+</span>}
+</code></pre>
+    <p>Because <code>fourNode.id</code> and <code>fiveNode.userWithIdOneLess.id</code> are the same, we are guaranteed by the conditions above that <code>fourNode.name</code> must be the same as <code>fiveNode.userWithIdOneLess.name</code>, and indeed it
+      is.</p>
+  </section>
+  <section id="sec-Plural-identifying-root-fields">
+    <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Plural-identifying-root-fields">5</a></span>Plural identifying root fields</h2>
+    <p>Imagine a root field named <code>username</code>, that takes a user&rsquo;s username and returns the corresponding user:</p><pre><code>{
+  username(username: &quot;zuck&quot;) {
+    id
+  }
+}
+</code></pre>
+    <p>might return:</p><pre><code>{
+  "<span class="hljs-attribute">username</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"4"</span></span>,
+  }
+</span>}
+</code></pre>
+    <p>Clearly, we can link up the object in the response, the user with ID 4, with the request, identifying the object with username &ldquo;zuck&rdquo;. Now imagine a root field named <code>usernames</code>, that takes a list of usernames and returns a
+      list of objects:</p><pre><code>{
+  usernames(usernames: [&quot;zuck&quot;, &quot;moskov&quot;]) {
+    id
+  }
+}
+</code></pre>
+    <p>might return:</p><pre><code>{
+  "<span class="hljs-attribute">usernames</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"4"</span></span>,
+    },
+    {
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-string">"6"</span>
+    </span>}
+  ]
+</span>}
+</code></pre>
+    <p>For Relay to be able to link the usernames to the responses, it needs to know that the array in the response will be the same size as the array passed as an argument, and that the order in the response will match the order in the argument. We call
+      these <em>plural identifying root fields</em>, and their requirements are described below.</p>
+    <section id="sec-Fields">
+      <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Fields">5.1</a></span>Fields</h3>
+      <p>A Relay&#8208;compliant server may expose root fields that accept a list of input arguments, and returns a list of responses. For Relay to use these fields, these fields must be <em>plural identifying root fields</em>, and obey the following requirements.</p>
+      <div
+      class="spec-note">Relay&#8208;compliant servers may expose root fields that are not <em>plural identifying root fields</em>; the Relay client will just be unable to use those fields as root fields in its queries.</div>
+        <p><em>Plural identifying root fields</em> must have a single argument. The type of that argument must be a non&#8208;null list of non&#8208;nulls. In our <code>usernames</code> example, the field would take a single argument named <code>usernames</code>,
+          whose type (using our type system shorthand) would be <code>[String!]!</code>.</p>
+        <p>The return type of a <em>plural identifying root field</em> must be a list, or a non&#8208;null wrapper around a list. The list must wrap the <code>Node</code> interface, an object that implements the <code>Node</code> interface, or a non&#8208;null
+          wrapper around those types.</p>
+        <p>Whenever the <em>plural identifying root field</em> is used, the length of the list in the response must be the same as the length of the list in the arguments. Each item in the response must correspond to its item in the input; more formally,
+          if passing the root field an input list <code>Lin</code> resulted in output value <code>Lout</code>, then for an arbitrary permutation <code>P</code>, passing the root field <code>P(Lin)</code> must result in output value <code>P(Lout)</code>.</p>
+        <p>Because of this, servers are advised to not have the response type wrap a non&#8208;null wrapper, because if it is unable to fetch the object for a given entry in the input, it still must provide a value in the output for that input entry; <code>null</code>          is a useful value for doing so. </p>
+    </section>
+  </section>
+  <footer>Written in <a href="http://leebyron.com/spec-md/" target="_blank">Spec Markdown</a>.</footer>
+</body>
+
+</html>

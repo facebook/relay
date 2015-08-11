@@ -1,0 +1,6 @@
+dist/
+lib/
+node_modules
+npm-debug.log
+website/src/relay/docs
+.nvmrc

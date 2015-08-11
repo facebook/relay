@@ -1,0 +1,164 @@
+/**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @emails oncall+relay
+ */
+
+'use strict';
+
+jest.dontMock('GraphQLStoreChangeEmitter');
+
+describe('GraphQLStoreChangeEmitter', () => {
+  var ErrorUtils;
+  var GraphQLStoreChangeEmitter;
+  var GraphQLStoreRangeUtils;
+
+  var mockCallback;
+
+  beforeEach(() => {
+    jest.resetModuleRegistry();
+
+    ErrorUtils = require('ErrorUtils');
+    GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
+    GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+    GraphQLStoreRangeUtils.getCanonicalClientID.mockImplementation(id => id);
+
+    ErrorUtils.applyWithGuard.mockImplementation(callback => {
+      try {
+        callback();
+      } catch (guarded) {}
+    });
+    mockCallback = jest.genMockFunction();
+  });
+
+  it('should broadcast changes asynchronously', () => {
+    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback);
+    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+
+    expect(mockCallback).not.toBeCalled();
+    jest.runAllTimers();
+    expect(mockCallback).toBeCalled();
+  });
+
+  it('should broadcast exclusively to subscribed IDs', () => {
+    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback);
+    GraphQLStoreChangeEmitter.broadcastChangeForID('bar');
+
+    jest.runAllTimers();
+
+    expect(mockCallback).not.toBeCalled();
+  });
+
+  it('should not broadcast to removed callbacks', () => {
+    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback).remove();
+    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+
+    jest.runAllTimers();
+
+    expect(mockCallback).not.toBeCalled();
+  });
+
+  it('should only invoke callbacks subscribed at the time of broadcast', () => {
+    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback);
+
+    jest.runAllTimers();
+
+    expect(mockCallback).not.toBeCalled();
+  });
+
+  it('should only broadcast once per execution loop', () => {
+    GraphQLStoreChangeEmitter.addListenerForIDs(['foo', 'bar'], mockCallback);
+    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+    GraphQLStoreChangeEmitter.broadcastChangeForID('bar');
+
+    jest.runAllTimers();
+
+    expect(mockCallback.mock.calls.length).toBe(1);
+
+    GraphQLStoreChangeEmitter.broadcastChangeForID('bar');
+    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+
+    jest.runAllTimers();
+
+    expect(mockCallback.mock.calls.length).toBe(2);
+  });
+
+  it('should correctly broadcast changes to range IDs', () => {
+    GraphQLStoreRangeUtils.getCanonicalClientID.mockImplementation(
+      id => id === 'baz_first(5)' ? 'baz' : id
+    );
+
+    GraphQLStoreChangeEmitter.addListenerForIDs(['baz_first(5)'], mockCallback);
+    GraphQLStoreChangeEmitter.broadcastChangeForID('baz');
+
+    jest.runAllTimers();
+
+    expect(mockCallback).toBeCalled();
+  });
+
+  it('should guard against callback errors', () => {
+    var mockThrowingCallback = jest.genMockFunction().mockImplementation(() => {
+      throw new Error();
+    });
+
+    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockThrowingCallback);
+    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback);
+    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+
+    expect(() => {
+      jest.runAllTimers();
+    }).not.toThrow();
+
+    expect(mockThrowingCallback).toBeCalled();
+    expect(mockCallback).toBeCalled();
+  });
+
+  it('should use the injected strategy to batch updates', () => {
+    var mockBatching = false;
+    var mockBatchingStrategy = jest.genMockFunction().mockImplementation(
+      callback => {
+        mockBatching = true;
+        callback();
+        mockBatching = false;
+      }
+    );
+    GraphQLStoreChangeEmitter.injectBatchingStrategy(mockBatchingStrategy);
+
+    mockCallback.mockImplementation(() => {
+      expect(mockBatching).toBe(true);
+    });
+
+    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback);
+    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+
+    expect(mockBatchingStrategy.mock.calls.length).toBe(0);
+    jest.runAllTimers();
+    expect(mockBatchingStrategy.mock.calls.length).toBe(1);
+  });
+
+  it('schedules changes during broadcasts in the next execution loop', () => {
+    var mockBatchingStrategy = jest.genMockFunction().mockImplementation(
+      callback => callback()
+    );
+    GraphQLStoreChangeEmitter.injectBatchingStrategy(mockBatchingStrategy);
+
+    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], () => {
+      GraphQLStoreChangeEmitter.broadcastChangeForID('bar');
+    });
+    GraphQLStoreChangeEmitter.addListenerForIDs(['bar'], mockCallback);
+    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+
+    jest.runAllTimers();
+
+    expect(mockCallback).toBeCalled();
+    // Jest does not allow running only one tick, so just assert that broadcasts
+    // occurring twice means `mockCallback` was invoked separately.
+    expect(mockBatchingStrategy.mock.calls.length).toBe(2);
+  });
+});

@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "babel-node ./server.js"
+  },
+  "devDependencies": {
+    "babel-core": "5.8.22",
+    "babel-eslint": "^4.0.5",
+    "babel-loader": "5.3.2",
+    "babel-runtime": "5.8.20",
+    "eslint": "^1.0.0",
+    "eslint-loader": "^1.0.0",
+    "eslint-plugin-react": "^3.2.0",
+    "express": "^4.13.1",
+    "webpack": "^1.10.5",
+    "webpack-dev-server": "^1.10.1"
+  },
+  "dependencies": {
+    "babel-relay-plugin": "0.1.0",
+    "classnames": "^2.1.3",
+    "express-graphql": "0.1.0",
+    "graphql": "^0.2.6",
+    "graphql-relay": "^0.1.0",
+    "react": "^0.14.0-beta3",
+    "react-relay": "0.1.0",
+    "todomvc-app-css": "^2.0.1",
+    "todomvc-common": "^1.0.2"
+  }
+}

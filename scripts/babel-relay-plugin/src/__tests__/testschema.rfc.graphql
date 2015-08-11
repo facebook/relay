@@ -1,0 +1,151 @@
+type Root {
+  node(id: Int): Node
+  nodes(ids: [Int]): [Node]
+  viewer: Viewer
+  search(query: SearchInput): [SearchResult]
+}
+
+type SearchResult {
+  title: String
+}
+
+input SearchInput {
+  query: String
+}
+
+type Mutation {
+  actorSubscribe(input: ActorSubscribeInput): ActorSubscribeResponsePayload
+  actorSubscribeSubscribe(input: ActorSubscribeInput!): ActorSubscribeResponsePayload
+}
+
+input ActorSubscribeInput {
+  clientMutationId: String
+  actorId: String
+}
+
+type ActorSubscribeResponsePayload {
+  clientMutationId: String
+  actor: User
+}
+
+type ActorSubscribeSubscription {
+  clientMutationId: String
+}
+
+type Viewer {
+  __configs__: ConfigsConnection
+  newsFeed(first: Int): NewsFeedConnection
+  pendingPosts(first: Int): PendingPostsConnection
+  actor: User
+}
+
+type ConfigsConnection {
+  edges: [ConfigsConnectionEdge]
+  pageInfo: PageInfo
+}
+
+type ConfigsConnectionEdge {
+  cursor: String
+  node: Config
+}
+
+type Config {
+  name: String
+}
+
+type NewsFeedConnection {
+  edges: [NewsFeedConnectionEdge]
+  pageInfo: PageInfo
+}
+
+type NewsFeedConnectionEdge {
+  cursor: String
+  node: Node
+}
+
+type Story implements Node {
+  friends(first: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender): UserConnection
+  id: String
+  name: String
+  profilePicture(size: Int): ProfilePicture
+  websites: [String]
+}
+
+type PendingPostsConnection {
+  count: Int
+  edges: [PendingPostsConnectionEdge]
+  pageInfo: PageInfo
+}
+
+type PendingPostsConnectionEdge {
+  cursor: String
+  node: PendingPost
+}
+
+type PendingPost {
+  text: String
+}
+
+type UserConnection {
+  count: Int
+  edges: [UserConnectionEdge]
+  pageInfo: PageInfo
+}
+
+type UserConnectionEdge {
+  cursor: String
+  node: User
+  source: User
+}
+
+interface Node {
+  friends(first: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender): UserConnection
+  id: String
+  name: String
+  profilePicture(size: Int): ProfilePicture
+  websites: [String]
+}
+
+type User implements Node {
+  friends(first: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender): UserConnection
+  id: String
+  name: String
+  profilePicture(size: Int): ProfilePicture
+  websites: [String]
+  userOnlyField: String
+  gender: Gender
+  firstName(if: Boolean, unless: Boolean): String
+  fakeConnection: FakeConnection
+}
+
+type FakeConnection {
+  edges: [FakeEdge]
+}
+
+type FakeEdge {
+  cursor: String
+  node: FakeNode
+}
+
+type FakeNode implements Node {
+  id: String
+}
+
+type ProfilePicture {
+  uri: String
+  width: Int
+  height: Int
+}
+
+type PageInfo {
+  hasPreviousPage: Boolean
+  hasNextPage: Boolean
+  endCursor: String
+  startCursor: String
+}
+
+enum Gender {
+  MALE,
+  FEMALE,
+  UNKNOWN
+}

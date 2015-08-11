@@ -1,0 +1,25 @@
+Input:
+var foo = Relay.QL`
+  query CallValues {
+    node(id: 123) {
+      friends(
+        first: "10",
+        orderby: Name,
+        find: cursor1,
+        isViewerFriend: "true",
+        gender: "MALE",
+      ) {
+        edges {
+          node {
+            id,
+          },
+        },
+      },
+    },
+  }
+`;
+
+Output:
+var foo = (function () {
+  throw new Error("Encountered a GraphQL validation error processing file `callInvalidValues.fixture`. Check your terminal for details.");
+})();

@@ -1,0 +1,17 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  mutation {
+    fakeMutation(input: $input) {
+      actor {
+        profilePicture
+      }
+    }
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  throw new Error('Encountered a GraphQL validation error processing file `nonExistantMutation.fixture`. Check your terminal for details.');
+})();

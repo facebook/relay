@@ -1,0 +1,25 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  fragment on User {
+    friends(orderby: $order) {
+      count
+    }
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  var GraphQL = Relay.QL.__GraphQL;
+  return new GraphQL.QueryFragment('MetadataVarArgs', 'User', [new GraphQL.Field('friends', [new GraphQL.Field('count', null, null, null, null, null, {
+    'parentType': 'UserConnection'
+  })], null, [new GraphQL.Callv('orderby', new GraphQL.CallVariable('order'))], null, null, {
+    'parentType': 'User',
+    'connection': true
+  }), new GraphQL.Field('id', null, null, null, null, null, {
+    'parentType': 'User',
+    'generated': true,
+    'requisite': true
+  })]);
+})();

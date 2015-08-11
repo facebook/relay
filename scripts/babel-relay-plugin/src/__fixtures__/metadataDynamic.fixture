@@ -1,0 +1,34 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  fragment on NewsFeedConnection{
+    edges {
+      node {
+        id
+      }
+    }
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  var GraphQL = Relay.QL.__GraphQL;
+  return new GraphQL.QueryFragment('MetadataDynamic', 'NewsFeedConnection', [new GraphQL.Field('edges', [new GraphQL.Field('node', [new GraphQL.Field('id', null, null, null, null, null, {
+    'parentType': 'Node',
+    'requisite': true
+  })], null, null, null, null, {
+    'parentType': 'NewsFeedConnectionEdge',
+    'rootCall': 'node',
+    'pk': 'id',
+    'dynamic': true,
+    'requisite': true
+  }), new GraphQL.Field('cursor', null, null, null, null, null, {
+    'parentType': 'NewsFeedConnectionEdge',
+    'generated': true,
+    'requisite': true
+  })], null, null, null, null, {
+    'parentType': 'NewsFeedConnection',
+    'plural': true
+  })]);
+})();

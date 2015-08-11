@@ -24,6 +24,7 @@ class ProfilePicture extends React.Component {
     // Expects the `user` prop to have the following shape:
     // {
     //   profilePhoto: {
+    //     uri,
     //     size
     //   }
     // }

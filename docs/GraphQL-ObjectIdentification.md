@@ -79,7 +79,7 @@ yields
 
 ```json
 {
-  "node": {
+  "empire": {
     "id": "RmFjdGlvbjoy",
     "name": "Galactic Empire"
   }

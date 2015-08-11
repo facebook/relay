@@ -97,7 +97,7 @@ Only fields specified by these fragments will be populated in `this.props` when 
 ```{8-14}
 class StarWarsShip extends React.Component {
   render() {
-    return <div>{this.props.name}</div>;
+    return <div>{this.props.ship.name}</div>;
   }
 }
 

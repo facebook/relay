@@ -12,8 +12,8 @@ Both `Faction` and `Ship` have identifiers that we can use to refetch them. We
 expose this capability to Relay through the `Node` interface and the `node`
 field on the root query type.
 
-The `Node` interface contains a single field, `id`, which is a `String!`. The
-`node` root field takes a single argument, a `String!`, and returns a `Node`.
+The `Node` interface contains a single field, `id`, which is a `ID!`. The
+`node` root field takes a single argument, a `ID!`, and returns a `Node`.
 These two work in concert to allow refetching; if we pass the `id` returned in
 that field to the `node` field, we get the object back.
 

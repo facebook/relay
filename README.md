@@ -15,6 +15,7 @@ The repository comes with an implementation of [TodoMVC](http://todomvc.com/). T
 ```
 git clone https://github.com/facebook/relay.git
 cd relay/examples/todo && npm install
+npm install --global babel
 npm start
 ```
 

@@ -1,4 +1,6 @@
 {
+  "repository": "facebook/relay",
+  "license": "BSD-3-Clause",
   "scripts": {
     "start": "node server/server.js",
     "build-spec": "mkdir -p src/relay/graphql; cp node_modules/spec-md/css/* src/relay/graphql; spec-md graphql/Mutations.md > src/relay/graphql/mutations.htm; spec-md graphql/ObjectIdentification.md > src/relay/graphql/objectidentification.htm; spec-md graphql/Connections.md > src/relay/graphql/connections.htm"

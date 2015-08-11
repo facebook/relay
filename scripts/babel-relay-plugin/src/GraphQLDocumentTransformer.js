@@ -9,11 +9,11 @@ var Source = require('graphql/language/source').Source;
 var validate = require('graphql/validation/validate').validate;
 var util = require('util');
 
-function GraphQLDocumentTransformer2(schema /*: GraphQLSchema */) {
+function GraphQLDocumentTransformer(schema /*: GraphQLSchema */) {
   this.schema = schema;
 }
 
-GraphQLDocumentTransformer2.prototype.transformQuery = function(
+GraphQLDocumentTransformer.prototype.transformQuery = function(
   queryAndSubstitutions,
   documentName, /*: string */
   tagName /*: string */
@@ -24,7 +24,7 @@ GraphQLDocumentTransformer2.prototype.transformQuery = function(
   return printer.getCode(queryDocument, queryAndSubstitutions.substitutions);
 };
 
-GraphQLDocumentTransformer2.prototype.parseDocument = function(
+GraphQLDocumentTransformer.prototype.parseDocument = function(
   query, /*: string */
   documentName /*: string */
 ) /*: string */ {
@@ -52,7 +52,7 @@ GraphQLDocumentTransformer2.prototype.parseDocument = function(
   return parse(type, queryText, this.schema).definitions[0];
 };
 
-GraphQLDocumentTransformer2.prototype.getName = function(
+GraphQLDocumentTransformer.prototype.getName = function(
   documentName /*: string */
 ) /*: string */ {
   if (!documentName || !documentName.length) {
@@ -121,4 +121,4 @@ function parse(
   return documentAST;
 }
 
-module.exports = GraphQLDocumentTransformer2;
+module.exports = GraphQLDocumentTransformer;

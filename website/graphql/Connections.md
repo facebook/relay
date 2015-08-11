@@ -157,7 +157,7 @@ An "Edge Type" must contain a field called `node`. This field must return either
 a Scalar, Enum, Object, Interface, Union, or a Non-Null wrapper around one of
 those types. Notably, this field *cannot* return a list.
 
-NOTE The naming echos that of the "Node" inferface and "node" root
+NOTE The naming echoes that of the "Node" interface and "node" root
 field as described in a later section of this spec. Relay can perform
 certain optimizations if this field returns an object that implements
 `Node`, however, this is not a strict requirement for use of Relay.
@@ -257,7 +257,7 @@ most `last` edges. More formally:
 
 ## Pagination algorithm
 
-To determine what edges to return, the connection evalutes the
+To determine what edges to return, the connection evaluates the
 `before` and `after` cursors to filter the edges, then evaluates `first` to
 slice the edges, then `last` to slice the edges.
 

@@ -23,7 +23,7 @@ Build the GraphQL Relay spec via
 npm run build-spec
 ```
 
-Anytime you change the contens of `relay/website/graphql`, you must re-build.
+Anytime you change the contents of `relay/website/graphql`, you must re-build.
 
 # Publish the Website
 

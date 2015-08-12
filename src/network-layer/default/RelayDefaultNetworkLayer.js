@@ -38,6 +38,13 @@ class RelayDefaultNetworkLayer {
     this._uri = uri;
     this._timeout = timeout;
     this._retryDelays = retryDelays;
+
+    // Bind instance methods to facilitate reuse when creating custom network
+    // layers.
+    var self: any = this;
+    self.sendMutation = this.sendMutation.bind(this);
+    self.sendQueries = this.sendQueries.bind(this);
+    self.supports = this.supports.bind(this);
   }
 
   sendMutation(request: RelayMutationRequest): Promise {

@@ -57,11 +57,14 @@ describe('RelayDefaultNetworkLayer', () => {
       timeout: 15000,
       retryDelays: [1000, 3000],
     };
-    networkLayer = new RelayDefaultNetworkLayer(
-      networkConfig.uri,
-      networkConfig.timeout,
-      networkConfig.retryDelays
-    );
+    // Spread properties to test that functions are bound correctly.
+    networkLayer = {
+      ...new RelayDefaultNetworkLayer(
+        networkConfig.uri,
+        networkConfig.timeout,
+        networkConfig.retryDelays
+      ),
+    };
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

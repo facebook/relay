@@ -27,6 +27,7 @@ An example of all four of those is the following query:
       }
     }
   }
+}
 ```
 
 In this case, `friends` is a connection. That query demonstrates the four
@@ -204,7 +205,7 @@ returns
         // May contain other items
         {
           "name": "node",
-          "type":
+          "type": {
             "name": "Example",
             "kind": "OBJECT",
             "ofType": null

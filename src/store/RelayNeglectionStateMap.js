@@ -28,7 +28,7 @@ export type NeglectionState = {
 /**
  * @internal
  *
- * A class that implementes the `SortedMap` interface for a mapping from
+ * A class that implements the `SortedMap` interface for a mapping from
  * DataID to NeglectionState.
  */
 class RelayNeglectionStateMap {

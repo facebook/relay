@@ -78,11 +78,11 @@ When all data necessary to render becomes available, **Relay.RootContainer** wil
 
 This snippet configures **Relay.RootContainer** to render `ProfilePicture` within a `ScrollView` component as soon as data is ready.
 
-The `renderLoading` callback is always called with a `data` argument, which is a an object mapping from `propName` to query data. It is expected that the `renderLoading` callback renders the supplied `Component` with them (e.g. using the JSX spread attributes feature).
+The `renderFetched` callback is always called with a `data` argument, which is a an object mapping from `propName` to query data. It is expected that the `renderFetched` callback renders the supplied `Component` with them (e.g. using the JSX spread attributes feature).
 
 > Note
 >
-> Even though we have access to the `data` object in `renderLoading`, the actual data is intentionally opaque. This prevents the `renderLoading` from creating an implicit dependency on the fragments declared by `Component`.
+> Even though we have access to the `data` object in `renderFetched`, the actual data is intentionally opaque. This prevents the `renderFetched` from creating an implicit dependency on the fragments declared by `Component`.
 
 ### `renderFailure`
 

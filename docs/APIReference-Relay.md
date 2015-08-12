@@ -122,7 +122,7 @@ var Container = Relay.createContainer(Component, {
   initialVariables?: Object,
   prepareVariables?: (variables: Object, route: string) => Object,
   fragments: {[key: string]: Function}
-})
+});
 ```
 
 Creates a new Relay Container - see the [Container Guide](guides-containers.html) for more details and examples.

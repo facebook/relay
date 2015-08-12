@@ -7,7 +7,7 @@ permalink: docs/api-reference-relay-container.html
 next: api-reference-relay-route
 ---
 
-`RelayContainer` is a higher-order React component that lets a React components encode its data requirements.
+`RelayContainer` is a higher-order React component that lets a React component encode its data requirements.
 
 - Relay ensures that this data is available before the component is rendered.
 - Updates will be sent to the component whenever the underlying data has changed.

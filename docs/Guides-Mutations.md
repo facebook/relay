@@ -36,7 +36,7 @@ class LikeStoryMutation extends Relay.Mutation {
   // instruct the server to include only those fields in its response.
   getFatQuery(): {
     Relay.QL`
-      query LikeStoryPayload {
+      fragment on LikeStoryPayload {
         story {
           likers {
             count,
@@ -443,7 +443,7 @@ class LikeStoryMutation extends Relay.Mutation {
   // Here's the fat query from before
   getFatQuery(): {
     Relay.QL`
-      query LikeStoryPayload {
+      fragment on LikeStoryPayload {
         story {
           likers {
             count,

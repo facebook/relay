@@ -106,6 +106,7 @@ var buildDist = function(opts) {
 
 var paths = {
   dist: 'dist',
+  entry: 'lib/Relay.js',
   lib: 'lib',
   src: [
     '*src/**/*.js',
@@ -131,7 +132,7 @@ gulp.task('dist', ['modules'], function () {
     debug: true,
     output: 'relay.js'
   };
-  return gulp.src('./index.js')
+  return gulp.src(paths.entry)
     .pipe(buildDist(distOpts))
     .pipe(derequire())
     .pipe(header(DEVELOPMENT_HEADER, {
@@ -145,7 +146,7 @@ gulp.task('dist:min', ['modules'], function () {
     debug: false,
     output: 'relay.min.js'
   };
-  return gulp.src('./index.js')
+  return gulp.src(paths.entry)
     .pipe(buildDist(distOpts))
     .pipe(header(PRODUCTION_HEADER, {
       version: process.env.npm_package_version

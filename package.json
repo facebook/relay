@@ -15,10 +15,9 @@
     "PATENTS",
     "README.md",
     "dist/",
-    "index.js",
     "lib/"
   ],
-  "main": "index.js",
+  "main": "lib/Relay.js",
   "repository": "facebook/relay",
   "scripts": {
     "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",

@@ -159,7 +159,7 @@ View composition is *exactly* what you're used to — Relay containers are stand
 ```{8-9}
 class Profile extends React.Component {
   render() {
-    // Expects a `user` will a string `name`, as well as the information
+    // Expects a `user` with a string `name`, as well as the information
     // for `<ProfilePicture>` (we'll get that next).
     var user = this.props.user;
     return (

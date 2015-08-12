@@ -8,7 +8,11 @@ next: api-reference-relay-container
 ---
 
 
-`Relay` is the entry point to the React library. If you're using one of the prebuilt packages it's available as a global; if you're using CommonJS modules you can `require()` it.
+`Relay` is the entry point to the Relay library. If you're using one of the prebuilt packages it's available as a global; if you're using CommonJS modules you can `require()` it.
+
+> Note
+>
+> The `react-relay` npm module includes `react` as a *peer dependency*. Your app should specify React as a dependency explicitly.
 
 The most-used function is [`createContainer()`](#createcontainer-static-method) which wraps components with data declarations.
 

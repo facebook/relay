@@ -38,6 +38,13 @@ function printRelayQueryCall(call: Call): string {
   return '.' + call.name + '(' + valueString +')';
 }
 
+function repeat(str: string, times: number): string {
+  for (var result = '', i = 0; i < times; i++) {
+    result += str;
+  };
+  return result;
+}
+
 function sanitizeCallValue(value: CallValue): string {
   if (value == null) {
     return '';
@@ -51,9 +58,9 @@ function sanitizeCallValue(value: CallValue): string {
     value += ' ';
   }
   return value.replace(/^( *)(.*?)( *)$/, (_, prefix, body, suffix) => (
-    '\\ '.repeat(prefix.length) +
+    repeat('\\ ', prefix.length) +
     body +
-    '\\ '.repeat(suffix.length)
+    repeat('\\ ', suffix.length)
   ));
 }
 

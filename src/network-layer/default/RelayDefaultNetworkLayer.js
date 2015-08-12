@@ -157,6 +157,16 @@ function throwOnServerError(response: any): any  {
 }
 
 /**
+ * Repeats given string, mostly equivalent of `String.prototype.repeat`
+ */
+function repeat(str: string, times: number): string {
+  for (var result = '', i = 0; i < times; i++) {
+    result += str;
+  };
+  return result;
+}
+
+/**
  * Formats an error response from GraphQL server request.
  */
 function formatRequestErrors(
@@ -169,7 +179,8 @@ function formatRequestErrors(
   var queryLines = request.getQueryString().split('\n');
   return errors.map(({locations, message}, ii) => {
     var prefix = (ii + 1) + '. ';
-    var indent = ' '.repeat(prefix.length);
+
+    var indent = repeat(' ', prefix.length);
     return (
       prefix + message + '\n' +
       locations.map(({column, line}) => {
@@ -177,7 +188,7 @@ function formatRequestErrors(
         var offset = Math.min(column - 1, CONTEXT_BEFORE);
         return [
           queryLine.substr(column - 1 - offset, CONTEXT_LENGTH),
-          ' '.repeat(offset) + '^^^'
+          repeat(' ', offset) + '^^^'
         ].map(messageLine => indent + messageLine).join('\n');
       }).join('\n')
     );

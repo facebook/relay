@@ -27,7 +27,7 @@ where the provided parameters are:
 {
   "input": {
     "clientMutationId": "549b5e7c-0516-4fc9-8944-125401211590",
-    "text": "Hello world"
+    "text": "Hello World!"
   }
 }
 ```
@@ -110,7 +110,7 @@ provided response.
 }
 ```
 
-yields 
+yields
 
 ```json
 {

@@ -65,7 +65,7 @@ class LikeStoryMutation extends Relay.Mutation {
   // use this fragment to ensure that the story's ID is available wherever
   // this mutation is used.
   static fragments = {
-    story: Relay.QL`
+    story: () => Relay.QL`
       fragment on Story {
         id,
       }

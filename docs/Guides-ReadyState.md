@@ -7,7 +7,7 @@ permalink: docs/guides-ready-state.html
 next: guides-mutations
 ---
 
-Whenever Relay is fulfilling data requirements, it can useful to know when certain events occur. For example, we might want to record how long it takes for data to be available, or we might want to log errors to the server. These events are available on most Relay APIs via the `onReadyStateChange` callback.
+Whenever Relay is fulfilling data requirements, it can be useful to know when certain events occur. For example, we might want to record how long it takes for data to be available, or we might want to log errors to the server. These events are available on most Relay APIs via the `onReadyStateChange` callback.
 
 ## `onReadyStateChange`
 

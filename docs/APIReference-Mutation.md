@@ -213,7 +213,7 @@ Relay.Store.update(bookFlightMutation);
 abstract getConfigs(): Array<{[key: string]: mixed}>
 ```
 
-Implement this required method give Relay instructions on how to use the response payload from each mutation to update the client-side store.
+Implement this required method to give Relay instructions on how to use the response payload from each mutation to update the client-side store.
 
 #### Example
 

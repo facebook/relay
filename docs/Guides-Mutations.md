@@ -92,7 +92,10 @@ class LikeButton extends React.Component {
       </div>
     );
   }
-  static fragments = {
+}
+
+module.exports = Relay.createContainer(LikeButton, {
+  fragments: {
     // You can compose a mutation's query fragments like you would those
     // of any other RelayContainer. This ensures that the data depended
     // upon by the mutation will be fetched and ready for use.
@@ -102,8 +105,8 @@ class LikeButton extends React.Component {
         ${LikeStoryMutation.getFragment('story')},
       }
     `,
-  };
-}
+  },
+});
 ```
 
 In this particular example, the only field that the `LikeButton` cares about is `viewerDoesLike`. That field will form part of the tracked query that Relay will intersect with the fat query of `LikeStoryMutation` to determine what fields to request as part of the server's response payload for the mutation. Another component elsewhere in the application might be interested in the likers count, or the like sentence. Since those fields will automatically be added to Relay's tracked query, the `LikeButton` need not worry about requesting them explicitly.

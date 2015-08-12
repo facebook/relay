@@ -136,8 +136,8 @@ module.exports = Relay.createContainer(ProfilePicture, {
       # The variable defined above is available here as `$size`.
       fragment on User { profilePicture(size: $size) { ... } }
     `,
-  };
-}
+  },
+});
 ```
 
 In this example, `profilePicture(size: 50)` will be fetched for the intial render.
@@ -167,7 +167,7 @@ module.exports = Relay.createContainer(ProfilePicture, {
     };
   };
   // ...
-}
+});
 ```
 
 ## Properties and Methods
@@ -222,8 +222,8 @@ module.exports = Relay.createContainer(ProfilePicture, {
     user: () => Relay.QL`
       fragment on User { profilePicture(size: $size) { ... } }
     `,
-  };
-}
+  },
+});
 ```
 In this example, the `width` of the rendered image will always correspond to the `$size` variable used to fetch the current version of `profilePicture.uri`.
 
@@ -278,8 +278,8 @@ module.exports = Relay.createContainer(Feed, {
         },
       }
     `,
-  };
-}
+  },
+});
 ```
 
 > Note
@@ -363,8 +363,8 @@ module.exports = Relay.createContainer(Feed, {
         }
       }
     `,
-  };
-}
+  },
+});
 
 ```
 
@@ -411,8 +411,8 @@ module.exports = Relay.createContainer(ProfilePicture, {
         # ...
       }
     `,
-  };
-}
+  },
+});
 ```
 
 `RelayMutationTransaction.getStatus` can return one of the following strings:

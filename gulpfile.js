@@ -153,10 +153,21 @@ gulp.task('dist:min', ['modules'], function () {
     .pipe(gulp.dest(paths.dist));
 });
 
+gulp.task('website:check-version', function(cb) {
+  var version = require('./package').version;
+  var websiteVersion = require('./website/core/SiteData').version;
+  if (websiteVersion !== version) {
+    return cb(
+      new Error('Website version does not match package.json. Saw ' + websiteVersion + ' but expected ' + version)
+    );
+  }
+  cb();
+});
+
 gulp.task('watch', function() {
   gulp.watch(paths.src, ['modules']);
 });
 
 gulp.task('default', function(cb) {
-  runSequence('clean', 'modules', ['dist', 'dist:min'], cb);
+  runSequence('clean', 'website:check-version', 'modules', ['dist', 'dist:min'], cb);
 });

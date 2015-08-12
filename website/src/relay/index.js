@@ -1,5 +1,6 @@
 var React = require('React');
 var Site = require('Site');
+var SiteData = require('SiteData');
 
 var index = React.createClass({
   render: function() {
@@ -52,7 +53,7 @@ var index = React.createClass({
             </a>
             <a
               className="button"
-              href="https://github.com/facebook/relay/releases/tag/v0.1.0">
+              href={'https://github.com/facebook/relay/releases/tag/v' + SiteData.version}>
               Download the Technical Preview
             </a>
           </div>

@@ -129,6 +129,7 @@ class RelayDefaultNetworkLayer {
         }),
         headers: {'Content-Type': 'application/json'},
         method: 'POST',
+        credentials: 'same-origin',
       };
     }
     return fetch(this._uri, init).then(throwOnServerError);
@@ -147,6 +148,7 @@ class RelayDefaultNetworkLayer {
       headers: {'Content-Type': 'application/json'},
       method: 'POST',
       retryDelays: this._retryDelays,
+      credentials: 'same-origin',
     });
   }
 }

@@ -15,6 +15,7 @@
     "PATENTS",
     "README.md",
     "dist/",
+    "index.js",
     "lib/"
   ],
   "main": "index.js",

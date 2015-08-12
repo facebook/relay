@@ -32,8 +32,10 @@
     "babel-runtime": "5.8.20",
     "crc32": "^0.2.2",
     "fbjs": "0.1.0-alpha.7",
-    "react": "^0.14.0-beta2",
     "react-static-container": "^1.0.0-alpha.1"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0-beta3"
   },
   "devDependencies": {
     "babel-core": "5.8.21",
@@ -48,6 +50,7 @@
     "gulp-util": "^3.0.6",
     "jest-cli": "^0.4.16",
     "object-assign": "^3.0.0",
+    "react": "^0.14.0-beta3",
     "run-sequence": "^1.1.2",
     "webpack": "1.11.0",
     "webpack-stream": "^2.1.0"

@@ -184,7 +184,7 @@ Route is useful in providing the context which a component is being rendered in.
 #### Example
 
 ```
-var name = this.props.route.name;
+var name = this.props.relay.route.name;
 if (name === 'SuperAwesomeRoute') {
   // Do something super cool.
 }

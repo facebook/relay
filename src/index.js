@@ -9,8 +9,8 @@
 
 'use strict';
 
-var RelayDefaultNetworkLayer = require('./lib/RelayDefaultNetworkLayer');
-var RelayPublic = require('./lib/RelayPublic');
+var RelayDefaultNetworkLayer = require('./RelayDefaultNetworkLayer');
+var RelayPublic = require('./RelayPublic');
 
 // By default, assume that GraphQL is served at `/graphql` on the same domain.
 RelayPublic.injectNetworkLayer(new RelayDefaultNetworkLayer('/graphql'));

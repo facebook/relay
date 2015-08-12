@@ -110,7 +110,8 @@ var paths = {
   src: [
     '*src/**/*.js',
     '!src/**/__tests__/**/*.js',
-    '!src/**/__mocks__/**/*.js'
+    '!src/**/__mocks__/**/*.js',
+    'index.js'
   ],
 };
 

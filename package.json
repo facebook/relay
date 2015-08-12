@@ -17,7 +17,7 @@
     "dist/",
     "lib/"
   ],
-  "main": "lib/RelayPublic.js",
+  "main": "index.js",
   "repository": "facebook/relay",
   "scripts": {
     "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",

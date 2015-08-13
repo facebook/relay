@@ -42,7 +42,7 @@ describe('splitDeferredRelayQueries()', () => {
     // Reset query numbers back to q0.
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     Relay = require('Relay');
     RelayQuery = require('RelayQuery');
     RelayQueryTransform = require('RelayQueryTransform');
@@ -337,7 +337,7 @@ describe('splitDeferredRelayQueries()', () => {
       filterGeneratedRootIDField(getRefNode(
         Relay.QL`
           query {
-            node(id:$ref_q1) {
+            nodes(ids:$ref_q1) {
               ${fragment},
             }
           }
@@ -410,7 +410,7 @@ describe('splitDeferredRelayQueries()', () => {
       filterGeneratedRootIDField(getRefNode(
         Relay.QL`
           query {
-            node(id:$ref_q2) {
+            nodes(ids:$ref_q2) {
               ${nestedFragment},
             }
           }
@@ -470,7 +470,7 @@ describe('splitDeferredRelayQueries()', () => {
       filterGeneratedRootIDField(getRefNode(
         Relay.QL`
           query {
-            node(id:$ref_q1) {
+            nodes(ids:$ref_q1) {
               ${Relay.QL`fragment on Page{id,profilePicture{uri}}`}
             }
           }
@@ -490,7 +490,7 @@ describe('splitDeferredRelayQueries()', () => {
       filterGeneratedRootIDField(getRefNode(
         Relay.QL`
           query {
-            node(id:$ref_q2) {
+            nodes(ids:$ref_q2) {
               ${nestedFragment},
             }
           }
@@ -643,7 +643,7 @@ describe('splitDeferredRelayQueries()', () => {
       filterGeneratedRootIDField(getRefNode(
         Relay.QL`
           query {
-            node(id:$ref_q1) {
+            nodes(ids:$ref_q1) {
               ${nestedFragment},
             }
           }
@@ -693,7 +693,7 @@ describe('splitDeferredRelayQueries()', () => {
       getRefNode(
         Relay.QL`
           query {
-            node(id:$ref_q1) {
+            nodes(ids:$ref_q1) {
               ${fragment},
             }
           }
@@ -747,7 +747,7 @@ describe('splitDeferredRelayQueries()', () => {
       filterGeneratedRootIDField(getRefNode(
         Relay.QL`
           query {
-            node(id:$ref_q1) {
+            nodes(ids:$ref_q1) {
               ${fragment},
             }
           }
@@ -810,7 +810,7 @@ describe('splitDeferredRelayQueries()', () => {
       getRefNode(
         Relay.QL`
           query {
-            node(id:$ref_q1) {
+            nodes(ids:$ref_q1) {
               ${fragment},
             }
           }
@@ -870,7 +870,7 @@ describe('splitDeferredRelayQueries()', () => {
       getRefNode(
         Relay.QL`
           query {
-            node(id:$ref_q1) {
+            nodes(ids:$ref_q1) {
               ${fragment},
             }
           }
@@ -1012,7 +1012,7 @@ describe('splitDeferredRelayQueries()', () => {
       filterGeneratedRootIDField(getRefNode(
         Relay.QL`
           query {
-            node(id:$ref_q2) {
+            nodes(ids:$ref_q2) {
               ${fragment},
             }
           }

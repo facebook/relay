@@ -52,10 +52,18 @@ var RelayNodeInterface = {
 
     var rootBatchCall = query.getBatchCall();
     if (rootBatchCall) {
-      var payloadResult = getBatchCallResult(query, payload);
-      if (payloadResult) {
-        results.push(payloadResult);
-      }
+      Object.keys(payload).forEach(dataID => {
+        var result = payload[dataID];
+        if (typeof result === 'object' && result !== null) {
+          invariant(
+            result[RelayNodeInterface.ID] === dataID,
+            'RelayNodeInterface.getResultsFromPayload(): Expected each batch ' +
+            'response for query `%s()` to have an `id`.',
+            query.getName()
+          );
+          results.push({dataID, result});
+        }
+      });
     } else {
       forEachRootCallArg(query, (rootCallArg, rootCallName) => {
         var payloadKey = getPayloadKey(payload, rootCallName, rootCallArg);
@@ -93,29 +101,6 @@ var RelayNodeInterface = {
     return results;
   },
 };
-
-function getBatchCallResult(
-  query: RelayQuery.Root,
-  payload: {[key: string]: mixed}
-): ?PayloadResult {
-  var payloadKey = getPayloadKey(payload, query.getRootCall().name, null);
-  if (payloadKey == null) {
-    return null;
-  }
-  var result = payload[payloadKey];
-  if (typeof result !== 'object' || !result) {
-    return null;
-  }
-  var dataID = result[RelayNodeInterface.ID];
-  invariant(
-    dataID != null,
-    'RelayNodeInterface.getResultsFromPayload(): Unable to write result ' +
-    'with no `%s` field for query, `%s`.',
-    RelayNodeInterface.ID,
-    query.getName()
-  );
-  return {dataID, result};
-}
 
 /**
  * Gets the key in `payload` that corresponds to results for the particular root

@@ -26,7 +26,7 @@ describe('RelayRecordStore', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     GraphQLRange = require('GraphQLRange');
     RelayConnectionInterface = require('RelayConnectionInterface');
     RelayMockCacheManager = require('RelayMockCacheManager');

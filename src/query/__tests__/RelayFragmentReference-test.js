@@ -26,7 +26,7 @@ describe('RelayFragmentReference', () => {
   var route;
 
   beforeEach(() => {
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     Relay = require('Relay');
     RelayFragmentReference = require('RelayFragmentReference');
     RelayMetaRoute = require('RelayMetaRoute');

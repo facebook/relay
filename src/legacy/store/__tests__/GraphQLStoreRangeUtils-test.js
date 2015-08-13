@@ -19,7 +19,7 @@ jest
 describe('GraphQLStoreRangeUtils', () => {
 
   it('should encode and decode', () => {
-    var GraphQL = require('GraphQL_EXPERIMENTAL');
+    var GraphQL = require('GraphQL');
     var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 
     var id = 'client:1';

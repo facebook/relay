@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type * as GraphQL from 'GraphQL_EXPERIMENTAL';
+import type * as GraphQL from 'GraphQL';
 import type RelayFragmentReference from 'RelayFragmentReference';
 import type RelayMetaRoute from 'RelayMetaRoute';
 

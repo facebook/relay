@@ -13,7 +13,7 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL_EXPERIMENTAL');
+var GraphQL = require('GraphQL');
 var RelayFragmentReference = require('RelayFragmentReference');
 var RelayRouteFragment = require('RelayRouteFragment');
 

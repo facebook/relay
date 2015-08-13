@@ -13,7 +13,7 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL_EXPERIMENTAL');
+var GraphQL = require('GraphQL');
 import type {Call, CallValue} from 'RelayInternalTypes';
 import type {Variables} from 'RelayTypes';
 

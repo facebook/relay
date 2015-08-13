@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type GraphQL from 'GraphQL_EXPERIMENTAL';
+import type GraphQL from 'GraphQL';
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID, RangeBehaviors} from 'RelayInternalTypes';

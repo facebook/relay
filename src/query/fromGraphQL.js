@@ -12,7 +12,7 @@
 
 'use strict';
 
-import type GraphQL from 'GraphQL_EXPERIMENTAL';
+import type GraphQL from 'GraphQL';
 var RelayQuery = require('RelayQuery');
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayProfiler = require('RelayProfiler');
@@ -31,7 +31,7 @@ type ConcreteQueryObject = (
 /**
  * @internal
  *
- * Converts GraphQL_EXPERIMENTAL nodes to RelayQuery nodes.
+ * Converts GraphQL nodes to RelayQuery nodes.
  */
 var fromGraphQL = {
   Node(query: ConcreteQueryObject): RelayQuery.Node {

@@ -21,7 +21,7 @@ describe('callsToGraphQL', function() {
   var callsToGraphQL;
 
   beforeEach(() => {
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
 
     callsFromGraphQL = require('callsFromGraphQL');
     callsToGraphQL = require('callsToGraphQL');

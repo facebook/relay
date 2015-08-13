@@ -129,6 +129,8 @@ window.addEventListener('popstate', () => {
     <Relay.RootContainer
       Component={UserProfile}
       route={profileRoute}
-  />, container);
+    />,
+    container
+  );
 });
 ```

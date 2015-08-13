@@ -37,7 +37,7 @@ describe('RelayContainer', function() {
     reactComponentExpect = require('reactComponentExpect');
 
     MockComponent = React.createClass({
-      render: jest.genMockFunction().mockImplementation(() => <div />)
+      render: jest.genMockFunction().mockImplementation(() => <div />),
     });
 
     mockCreateContainer = component => {
@@ -46,8 +46,8 @@ describe('RelayContainer', function() {
         fragments: {
           foo: jest.genMockFunction().mockImplementation(
             variables => Relay.QL`fragment on Node{id,url(site:$site)}`
-          )
-        }
+          ),
+        },
       });
     };
 

@@ -45,7 +45,7 @@ describe('RelayDefaultNetworkLayer', () => {
     RelayConnectionInterface = require('RelayConnectionInterface');
     RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
     RelayMetaRoute = require('RelayMetaRoute');
-    RelayMutationRequest =  require('RelayMutationRequest');
+    RelayMutationRequest = require('RelayMutationRequest');
     RelayQuery = require('RelayQuery');
     RelayQueryRequest = require('RelayQueryRequest');
 
@@ -107,7 +107,7 @@ describe('RelayDefaultNetworkLayer', () => {
 
       expect(method).toBe('POST');
       expect(headers).toEqual({
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       });
       expect(body).toEqual(JSON.stringify({
         query: request.getQueryString(),
@@ -119,7 +119,7 @@ describe('RelayDefaultNetworkLayer', () => {
       var response = {
         data: {
           test_call: {
-            field: 1
+            field: 1,
           },
         },
       };

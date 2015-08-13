@@ -44,7 +44,7 @@ describe('getRelayQueries', () => {
       fragments: {
         first: () => Relay.QL`fragment on Node{id,firstName}`,
         last: () => Relay.QL`fragment on Node{id,lastName}`,
-      }
+      },
     });
 
     makeRoute = function() {
@@ -54,7 +54,7 @@ describe('getRelayQueries', () => {
       MockRoute.paramDefinitions = {
         id: {
           type: 'String',
-          id: true
+          id: true,
         },
       };
       MockRoute.queries = {

@@ -504,8 +504,8 @@ describe('subtractRelayQuery', () => {
       `);
       minQuery = minQuery.clone([
         minQuery.getChildren()[0].clone([
-          minQuery.getChildren()[0].getChildren()[0].cloneAsRefQueryDependency()
-        ])
+          minQuery.getChildren()[0].getChildren()[0].cloneAsRefQueryDependency(),
+        ]),
       ]);
       var subQuery = getNode(Relay.QL`
         query {

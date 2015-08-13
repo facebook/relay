@@ -176,7 +176,7 @@ class GraphQLRange {
     // the range (i.e. last(N)).
     this._orderedSegments = [
       new GraphQLSegment(),
-      new GraphQLSegment()
+      new GraphQLSegment(),
     ];
 
     // GraphQLRange nodes can also support static queries like surrounds,
@@ -247,7 +247,7 @@ class GraphQLRange {
 
     this._staticQueriesMap[calls] = {
       edgeIDs: edgeIDsToStore,
-      cursors: cursorsToStore
+      cursors: cursorsToStore,
     };
   }
 
@@ -846,7 +846,7 @@ class GraphQLRange {
     var segment;
     var segmentIndex;
     var pageInfo = {
-      ...RelayConnectionInterface.getDefaultPageInfo()
+      ...RelayConnectionInterface.getDefaultPageInfo(),
     };
 
     var afterCursor = calls.after;
@@ -949,7 +949,7 @@ class GraphQLRange {
     var segment;
     var segmentIndex;
     var pageInfo = {
-      ...RelayConnectionInterface.getDefaultPageInfo()
+      ...RelayConnectionInterface.getDefaultPageInfo(),
     };
 
     var beforeCursor = calls.before;
@@ -1037,29 +1037,29 @@ class GraphQLRange {
       hasFirst,
       hasLast,
       staticQueriesMap,
-      orderedSegments
+      orderedSegments,
     ] = descriptor;
     var range = new GraphQLRange();
     range._hasFirst = hasFirst;
     range._hasLast = hasLast;
     range._staticQueriesMap = staticQueriesMap;
     range._orderedSegments =
-      orderedSegments.map(descriptor => GraphQLSegment.fromJSON(descriptor));
+      orderedSegments.map(orderedSegment => GraphQLSegment.fromJSON(orderedSegment));
     return range;
   }
 
-  toJSON(){
+  toJSON() {
     return [
       this._hasFirst,
       this._hasLast,
       this._staticQueriesMap,
-      this._orderedSegments
+      this._orderedSegments,
     ];
   }
 
   __debug() {
     return {
-      orderedSegments: this._orderedSegments
+      orderedSegments: this._orderedSegments,
     };
   }
 

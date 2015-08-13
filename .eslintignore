@@ -1,0 +1,9 @@
+dist/
+docs/
+examples/
+node_modules/
+lib/
+scripts/
+# for disable website but should be done as well
+website/
+*.md

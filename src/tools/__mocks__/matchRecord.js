@@ -20,7 +20,7 @@ type Result = {
 var METADATA_KEYS = {
   '__dataID__': true,
   '__range__': true,
-  '__status__': true
+  '__status__': true,
 };
 
 function matchRecord(
@@ -32,7 +32,7 @@ function matchRecord(
     return {
       isMatched: actual === expected,
       message: 'be ' + expected + ', but got ' + actual,
-      path
+      path,
     };
   }
 
@@ -43,20 +43,20 @@ function matchRecord(
         message: (
           'be ' + expected.toString() + ', but got ' + actual.toString()
         ),
-        path
+        path,
       };
     } else {
       return {
         isMatched: false,
         message: 'be ' + expected + ', but got ' + actual.toString(),
-        path
+        path,
       };
     }
   } else if (expected instanceof GraphQLFragmentPointer) {
     return {
       isMatched: false,
       message: 'be ' + expected.toString() + ', but got ' + actual,
-      path
+      path,
     };
   }
 
@@ -67,7 +67,7 @@ function matchRecord(
       return {
         isMatched: false,
         message: 'not have key ' + key,
-        path
+        path,
       };
     }
   }
@@ -78,7 +78,7 @@ function matchRecord(
       return {
         isMatched: false,
         message: 'have key ' + k,
-        path
+        path,
       };
     }
     if (k in METADATA_KEYS) {
@@ -108,7 +108,7 @@ function matchRecord(
   return {
     isMatched: true,
     message: null,
-    path: null
+    path: null,
   };
 }
 

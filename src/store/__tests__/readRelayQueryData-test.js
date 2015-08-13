@@ -21,7 +21,6 @@ describe('readRelayQueryData', () => {
   var Relay;
   var RelayConnectionInterface;
   var RelayFragmentReference;
-  var RelayQuery;
   var RelayRecordStore;
   var callsToGraphQL;
   var readRelayQueryData;
@@ -57,7 +56,7 @@ describe('readRelayQueryData', () => {
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
       PAGE_INFO,
-      START_CURSOR
+      START_CURSOR,
     } = RelayConnectionInterface);
 
     jest.addMatchers(RelayTestUtils.matchers);
@@ -180,7 +179,7 @@ describe('readRelayQueryData', () => {
       user_id: {
         id: 'user_id',
         websites: [],
-      }
+      },
     };
     var query = getNode(Relay.QL`fragment on User{id,websites}`);
     var data = getData({records}, query, 'user_id');
@@ -193,8 +192,8 @@ describe('readRelayQueryData', () => {
     var records = {
       user_id: {
         id: 'user_id',
-        websites
-      }
+        websites,
+      },
     };
     var query = getNode(Relay.QL`fragment on User{id,websites}`);
     var data = getData({records}, query, 'user_id');
@@ -263,7 +262,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'client:1',
         city: 'San Francisco',
         country: 'US',
-      }
+      },
     };
 
     var fragment1 = Relay.QL`fragment on Actor{address{city}}`;
@@ -279,7 +278,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'client:1',
         city: 'San Francisco',
         country: 'US',
-      }
+      },
     });
   });
 
@@ -315,7 +314,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: false,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
     var data = getData({records}, query, rangeID);
     expect(data).toEqual({
@@ -381,7 +380,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     var data = getData({records}, query, 'feedbackID');
@@ -428,7 +427,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     var data = getData({records}, query, 'feedbackID');
@@ -439,7 +438,7 @@ describe('readRelayQueryData', () => {
         count: 57,
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-        }
+        },
       },
     });
   });
@@ -535,7 +534,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'feedback_id',
         likers: {
           __dataID__: 'likers_id',
-        }
+        },
       },
       likers_id: {
         __dataID__: 'likers_id',
@@ -552,16 +551,16 @@ describe('readRelayQueryData', () => {
         __dataID__: 'likers_edge_id',
         node: {
           __dataID__: 'liker_id',
-        }
+        },
       },
       likers_page_info_id: {
         __dataID__: 'likers_page_info_id',
-        [HAS_NEXT_PAGE]: true
+        [HAS_NEXT_PAGE]: true,
       },
       liker_id: {
         __dataID__: 'liker_id',
-        name: 'Tim'
-      }
+        name: 'Tim',
+      },
     };
 
     var query = getNode(Relay.QL`fragment on Feedback{likers(first:"1"){edges{node{name}}}}`);
@@ -604,7 +603,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'feedback_id',
         comments: {
           __dataID__: 'comments_id',
-        }
+        },
       },
       comments_id: {
         __dataID__: 'comments_id',
@@ -632,7 +631,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     var data = getData(
@@ -647,7 +646,7 @@ describe('readRelayQueryData', () => {
       [PAGE_INFO]: {
         [START_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
-      }
+      },
     });
 
     data = getData({records}, query, 'feedback_id');
@@ -667,7 +666,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'feedback_id',
         comments: {
           __dataID__: 'comments_id',
-        }
+        },
       },
       comments_id: {
         __dataID__: 'comments_id',
@@ -681,7 +680,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'comment_edge_id',
         node: {__dataID__: 'comment_node_id'},
         cursor: 'cursor',
-      }
+      },
     };
     var fragmentReference = new RelayFragmentReference(
       () => Relay.QL`fragment on CommentsConnection{edges{node{id}}}`,
@@ -709,7 +708,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     var data = getData(
@@ -725,12 +724,12 @@ describe('readRelayQueryData', () => {
         __dataID__: 'comment_edge_id',
         node: {
           __dataID__: 'comment_node_id',
-          id: 'comment_node_id'
-        }
+          id: 'comment_node_id',
+        },
       }],
       [PAGE_INFO]: {
         [START_CURSOR]: 'cursor',
-      }
+      },
     });
 
     data = getData({records}, query, 'feedback_id');
@@ -753,23 +752,23 @@ describe('readRelayQueryData', () => {
           {__dataID__: 'client1'},
           {__dataID__: 'client2'},
         ],
-        hometown: {__dataID__: 'hometown_id'}
+        hometown: {__dataID__: 'hometown_id'},
       },
       hometown_id: {
         __dataID__: 'hometown_id',
         id: 'hometown_id',
-        name: 'hometown name'
+        name: 'hometown name',
       },
       client1: {
         __dataID__: 'client1',
         service: 'GTALK',
-        name: '123'
+        name: '123',
       },
       client2: {
         __dataID__: 'client1',
         service: 'TWITTER',
-        name: '123'
-      }
+        name: '123',
+      },
     };
     var fragmentReference = new RelayFragmentReference(
       () => Relay.QL`fragment on Screenname {service, name}`,
@@ -838,35 +837,36 @@ describe('readRelayQueryData', () => {
 
   it('does not clobber previously-read sibling fields when a linked dataID ' +
      'is `null` or `undefined`', () => {
-    var query = getNode(Relay.QL`
-      fragment on User {
-        id,
-        address {
-          city,
-        },
-      }
-    `);
-    var records = {
-      user_id: {
-        __dataID__: 'user_id',
-        id: 'user_id',
-        address: null,
-      },
-    };
-    var data = getData({records}, query, 'user_id');
-    expect(data.address).toBeNull();
-    expect(data.id).toBe('user_id');
+       var query = getNode(Relay.QL`
+         fragment on User {
+           id,
+           address {
+             city,
+           },
+         }
+       `);
+       var records = {
+         user_id: {
+           __dataID__: 'user_id',
+           id: 'user_id',
+           address: null,
+         },
+       };
+       var data = getData({records}, query, 'user_id');
+       expect(data.address).toBeNull();
+       expect(data.id).toBe('user_id');
 
-    records = {
-      user_id: {
-        __dataID__: 'user_id',
-        id: 'user_id',
-      },
-    };
-    data = getData({records}, query, 'user_id');
-    expect(data.address).toBeUndefined();
-    expect(data.id).toBe('user_id');
-  });
+       records = {
+         user_id: {
+           __dataID__: 'user_id',
+           id: 'user_id',
+         },
+       };
+       data = getData({records}, query, 'user_id');
+       expect(data.address).toBeUndefined();
+       expect(data.id).toBe('user_id');
+     }
+  );
 
   it('does not set undefined value if linked dataID missing', () => {
     var query = getNode(Relay.QL`
@@ -967,7 +967,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
     data = getData({records}, query, 'user_id');
     expect(data.friends.count).toBe(42);
@@ -1090,7 +1090,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: false,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     // First we read the outer fragment, which populates the
@@ -1197,7 +1197,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     var data = getData(

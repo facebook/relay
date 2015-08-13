@@ -7,6 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+ /* eslint no-shadow: 1 */
+
 'use strict';
 
 /**
@@ -90,7 +92,7 @@ var RelayTestUtils = {
           container
         );
         return result;
-      }
+      },
     };
   },
 
@@ -354,7 +356,7 @@ var RelayTestUtils = {
       }
       var fragment = RelayQuery.Node.create(
         new GraphQL.QueryFragment('Test', 'Node', [
-          new GraphQL.Field('__test__')
+          new GraphQL.Field('__test__'),
         ]),
         RelayMetaRoute.get('$RelayTestUtils'),
         {}
@@ -380,7 +382,7 @@ var RelayTestUtils = {
      * when the objects match.
      */
     toMatchQueryJSON(expected) {
-      var matchQueryJSON = (actual, expected, path) =>  {
+      var matchQueryJSON = (actual, expected, path) => {
         if (typeof actual !== 'object') {
           if (actual === expected) {
             return true;
@@ -433,7 +435,7 @@ var RelayTestUtils = {
         return true;
       };
       return matchQueryJSON(this.actual, expected, []);
-    }
+    },
   },
 
   unmockRelay() {

@@ -112,7 +112,7 @@ var GraphQLDeferredQueryTracker = {
           'remove() can only be called once'
         );
         subscribers[index] = null;
-      }
+      },
     };
   },
 
@@ -219,7 +219,7 @@ var GraphQLDeferredQueryTracker = {
     rootCallToFragmentNameMap = new Map();
     subscribers = [];
     broadcastItems = null;
-  }
+  },
 };
 
 /**
@@ -421,7 +421,7 @@ function processBroadcasts() {
     }
   }
 
-  subscribers = subscribers.filter(subscriber => subscriber !== null);
+  subscribers = subscribers.filter(sub => sub !== null);
   broadcastItems = null;
 }
 

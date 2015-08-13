@@ -69,7 +69,7 @@ describe('RelayProfiler', function() {
       expect(actualOrdering).toEqual([
         'beforeCallback',
         'mockMethod',
-        'afterCallback'
+        'afterCallback',
       ]);
     });
 
@@ -101,7 +101,7 @@ describe('RelayProfiler', function() {
         '1: beforeCallback',
         '0: mockMethod',
         '1: afterCallback',
-        '2: afterCallback'
+        '2: afterCallback',
       ]);
     });
 
@@ -185,7 +185,7 @@ describe('RelayProfiler', function() {
         '1: afterCallback',
         '2: afterCallback',
         '3: afterCallback (aggregate)',
-        '4: afterCallback (aggregate)'
+        '4: afterCallback (aggregate)',
       ]);
     });
 
@@ -256,7 +256,7 @@ describe('RelayProfiler', function() {
         '2: beforeEnd',
         '1: beforeEnd',
         '1: afterEnd',
-        '2: afterEnd'
+        '2: afterEnd',
       ]);
     });
 

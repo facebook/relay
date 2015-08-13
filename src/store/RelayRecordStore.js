@@ -562,7 +562,7 @@ class RelayRecordStore {
     var connectionIDs;
     forEachObject(record, (datum, key) => {
       if (datum && getFieldNameFromKey(key) === schemaName) {
-        var dataID = datum.__dataID__;
+        dataID = datum.__dataID__;
         if (dataID) {
           connectionIDs = connectionIDs || [];
           connectionIDs.push(dataID);

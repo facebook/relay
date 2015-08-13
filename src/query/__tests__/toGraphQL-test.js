@@ -15,7 +15,6 @@ var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 describe('toGraphQL', function() {
-  var GraphQL;
   var Relay;
 
   var fromGraphQL;
@@ -45,7 +44,7 @@ describe('toGraphQL', function() {
           'Expected ' + expected + not +
           'to equal ' + actual;
         return expected === actual;
-      }
+      },
     });
   });
 

@@ -149,7 +149,7 @@ describe('printRelayQuery', () => {
           },
         }
       `, {
-        env: value
+        env: value,
       });
       expect(printRelayQuery(query)).toEqual(trimQuery(`
         query FooQuery {

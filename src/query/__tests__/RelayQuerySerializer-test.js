@@ -183,7 +183,7 @@ describe('RelayQuerySerializer', () => {
           metadata: {
             requisite: true,
             parentType: 'Node',
-          }
+          },
         }],
         metadata: {
           isDeferred: false,
@@ -210,7 +210,7 @@ describe('RelayQuerySerializer', () => {
           metadata: {
             requisite: true,
             parentType: 'Node',
-          }
+          },
         }],
         metadata: {
           isDeferred: true,
@@ -325,7 +325,7 @@ describe('RelayQuerySerializer', () => {
               pk: 'id',
               requisite: true,
               rootCall: 'node',
-              parentType: 'FriendsEdge'
+              parentType: 'FriendsEdge',
             },
           }],
           metadata: {plural: true, parentType: 'FriendsConnection'},

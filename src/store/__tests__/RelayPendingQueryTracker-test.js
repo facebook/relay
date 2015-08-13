@@ -18,17 +18,13 @@ jest.dontMock('RelayPendingQueryTracker');
 
 describe('RelayPendingQueryTracker', () => {
   var DliteFetchModeConstants;
-  var GraphQL;
-  var Promise;
   var Relay;
   var RelayPendingQueryTracker;
-  var RelayQuery;
   var RelayStoreData;
 
   var addPending;
   var fetchRelayQuery;
   var subtractRelayQuery;
-  var toGraphQL;
   var writeRelayQueryPayload;
 
   var {getNode} = RelayTestUtils;

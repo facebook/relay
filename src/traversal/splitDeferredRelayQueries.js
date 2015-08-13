@@ -123,7 +123,7 @@ function wrapNode(
     node.getChildren(),
     {
       isDeferred: true,
-      rootArg: node.getRootCallArgument()
+      rootArg: node.getRootCallArgument(),
     },
     node.getName()
   );

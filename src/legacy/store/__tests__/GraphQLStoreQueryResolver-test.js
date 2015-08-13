@@ -135,7 +135,7 @@ describe('GraphQLStoreQueryResolver', () => {
     );
 
     mockReader({
-      [mockResultA.id]: mockResultA
+      [mockResultA.id]: mockResultA,
     });
     var resolvedA = resolver.resolve(fragmentPointer);
 
@@ -143,7 +143,7 @@ describe('GraphQLStoreQueryResolver', () => {
     callback(['1038750002']);
 
     mockReader({
-      [mockResultB.id]: mockResultB
+      [mockResultB.id]: mockResultB,
     });
     var resolvedB = resolver.resolve(fragmentPointer);
 
@@ -182,7 +182,7 @@ describe('GraphQLStoreQueryResolver', () => {
     );
     var mockResults = {
       '1': {__dataID__: '1', name: 'One'},
-      '2': {__dataID__: '2', name: 'Two'}
+      '2': {__dataID__: '2', name: 'Two'},
     };
     mockReader(mockResults);
 
@@ -211,7 +211,7 @@ describe('GraphQLStoreQueryResolver', () => {
     );
     var mockResults = {
       '1': {__dataID__: '1', name: 'One'},
-      '2': {__dataID__: '2', name: 'Two'}
+      '2': {__dataID__: '2', name: 'Two'},
     };
     mockReader(mockResults);
 
@@ -233,7 +233,7 @@ describe('GraphQLStoreQueryResolver', () => {
     );
     var mockResults = {
       '1': {__dataID__: '1', name: 'One'},
-      '2': {__dataID__: '2', name: 'Two'}
+      '2': {__dataID__: '2', name: 'Two'},
     };
     mockReader(mockResults);
 
@@ -271,7 +271,7 @@ describe('GraphQLStoreQueryResolver', () => {
     );
     var mockResults = {
       '1': {__dataID__: '1', name: 'One'},
-      '2': {__dataID__: '2', name: 'Two'}
+      '2': {__dataID__: '2', name: 'Two'},
     };
     mockReader(mockResults);
 
@@ -366,7 +366,8 @@ describe('GraphQLStoreQueryResolver', () => {
         GraphQLStoreChangeEmitter.addListenerForIDs.mock.calls[0][1];
       // On first resolve we get data for all added ids
       expect(getIncreaseSubscriptionsParameters(2)).toEqual([
-        'address', 'chris'
+        'address',
+        'chris',
       ]);
 
       // New mock data for the resolve

@@ -328,7 +328,9 @@ class RelayMutationTransaction {
     var shouldRollback = true;
     var commitFailureCallback = this._onCommitFailureCallback;
     if (commitFailureCallback) {
-      var preventAutoRollback = function() { shouldRollback = false; };
+      var preventAutoRollback = function() {
+        shouldRollback = false;
+      };
       ErrorUtils.applyWithGuard(
         commitFailureCallback,
         null,

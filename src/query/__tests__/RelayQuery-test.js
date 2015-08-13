@@ -312,7 +312,7 @@ describe('RelayQuery', () => {
       query.__concreteNode__.metadata = {rootCallType: 'scalar'};
       expect(query.getCallType()).toBe('scalar');
 
-      var me = getNode(Relay.QL`query{me{id}}`);
+      me = getNode(Relay.QL`query{me{id}}`);
       expect(me.getCallType()).toBe(undefined);
     });
 
@@ -481,7 +481,7 @@ describe('RelayQuery', () => {
           country,
         }
       `;
-      var fragment = getNode(node);
+      fragment = getNode(node);
       expect(fragment.getDebugName()).toBe('UnknownFile');
       expect(fragment.getType()).toBe('StreetAddress');
       expect(fragment.getFragmentID()).toBe(generateRQLFieldAlias(
@@ -493,7 +493,7 @@ describe('RelayQuery', () => {
       var node = Relay.QL`fragment on Node{id}`;
       var route = RelayMetaRoute.get('Foo');
       var variables = {};
-      var fragment = RelayQuery.Node.create(node, route, variables);
+      fragment = RelayQuery.Node.create(node, route, variables);
       var fragmentID = generateRQLFieldAlias('0.Foo.{}');
       expect(fragment.getFragmentID()).toBe(fragmentID);
 
@@ -582,7 +582,7 @@ describe('RelayQuery', () => {
           city
         }
       `;
-      var fragment = getNode(fragmentRQL);
+      fragment = getNode(fragmentRQL);
       var node = fragment.createNode(fragmentRQL);
       expect(node instanceof RelayQuery.Fragment).toBe(true);
       expect(node.getType()).toBe('StreetAddress');
@@ -731,7 +731,7 @@ describe('RelayQuery', () => {
       `;
       var variables = {size: '32'};
       var pictureVariable =
-        getNode(pictureVariableRQL,  variables).getChildren()[0];
+        getNode(pictureVariableRQL, variables).getChildren()[0];
       expect(pictureScalar.equals(pictureVariable)).toBe(true);
 
       var diffId = getNode(generatedIdRQL).getChildren()[1];
@@ -989,7 +989,7 @@ describe('RelayQuery', () => {
       // variables return their values
       expect(friendVariable.getCallsWithValues()).toEqual([
         {name: 'first', value: 10},
-        {name: 'after', value: 'offset'}
+        {name: 'after', value: 'offset'},
       ]);
 
       var pictureScalarRQL = Relay.QL`
@@ -999,7 +999,7 @@ describe('RelayQuery', () => {
       `;
       var pictureScalar = getNode(pictureScalarRQL).getChildren()[0];
       expect(pictureScalar.getCallsWithValues()).toEqual([
-        {name: 'size', value: ['32', '64']}
+        {name: 'size', value: ['32', '64']},
       ]);
 
       var pictureVariableRQL = Relay.QL`
@@ -1014,7 +1014,7 @@ describe('RelayQuery', () => {
       var pictureVariable =
         getNode(pictureVariableRQL, variables).getChildren()[0];
       expect(pictureVariable.getCallsWithValues()).toEqual([
-        {name: 'size', value: [32, '64']}
+        {name: 'size', value: [32, '64']},
       ]);
     });
 
@@ -1039,7 +1039,7 @@ describe('RelayQuery', () => {
       );
       expect(clonedFeed.getSchemaName()).toBe('friends');
       expect(clonedFeed.getCallsWithValues()).toEqual([
-        {name: 'first', value: 25}
+        {name: 'first', value: 25},
       ]);
       expect(clonedFeed.getSerializationKey()).toEqual(
         generateRQLFieldAlias('friends.first(25)')
@@ -1269,7 +1269,7 @@ describe('RelayQuery', () => {
       expect(root instanceof RelayQuery.Root).toBe(true);
       expect(root.getRootCall()).toEqual({
         name: 'node',
-        value: '4'
+        value: '4',
       });
       expect(root.getChildren().length).toBe(1);
       expect(root.getChildren()[0]).toBe(field);
@@ -1286,7 +1286,7 @@ describe('RelayQuery', () => {
       expect(root instanceof RelayQuery.Root).toBe(true);
       expect(root.getRootCall()).toEqual({
         name: 'node',
-        value: '4'
+        value: '4',
       });
       expect(root.getChildren().length).toBe(1);
       expect(root.getChildren()[0]).toBe(field);

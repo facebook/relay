@@ -224,8 +224,8 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
-          id: '123'
-        }
+          id: '123',
+        },
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -330,8 +330,8 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
-          id: '123'
-        }
+          id: '123',
+        },
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -367,13 +367,13 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         '123': {
-          id: '123'
+          id: '123',
         },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          '123': true
+          '123': true,
         },
         updated: {},
       });
@@ -397,7 +397,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         '123': {
-          id: '123'
+          id: '123',
         },
       };
       var results = writePayload(store, query, payload);
@@ -413,7 +413,7 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          name: 'Joe'
+          name: 'Joe',
         },
       };
       var store = new RelayRecordStore({records});
@@ -428,7 +428,7 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          name: 'Joseph'
+          name: 'Joseph',
         },
       };
       var results = writePayload(store, query, payload);
@@ -460,7 +460,7 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          name: 'Joseph'
+          name: 'Joseph',
         },
       };
       var results = writePayload(store, query, payload);

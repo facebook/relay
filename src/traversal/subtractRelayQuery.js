@@ -168,7 +168,7 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
     return node.clone(node.getChildren().map(child => {
       var childState = {
         isEmpty: true,
-        subtrahend: state.subtrahend
+        subtrahend: state.subtrahend,
       };
       var diff = this.visit(child, childState);
       state.isEmpty = state.isEmpty && childState.isEmpty;

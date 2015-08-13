@@ -21,7 +21,6 @@ jest
 describe('RelayMutation', function() {
   var MockMutation;
   var Relay;
-  var RelayQuery;
 
   var buildRQL;
   var fromGraphQL;

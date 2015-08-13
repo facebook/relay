@@ -15,12 +15,9 @@ var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 describe('RelayQueryVisitor', () => {
-  var GraphQL;
   var Relay;
   var RelayQuery;
   var RelayQueryVisitor;
-
-  var generateRQLFieldAlias;
 
   var {getNode} = RelayTestUtils;
   var query;

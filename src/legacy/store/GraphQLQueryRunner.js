@@ -11,6 +11,8 @@
  * @flow
  */
 
+ /* eslint no-unused-expressions: 1 */
+
 'use strict';
 
 var DliteFetchModeConstants = require('DliteFetchModeConstants');
@@ -290,7 +292,7 @@ function runQueries(
   return {
     abort(): void {
       setReadyState({aborted: true});
-    }
+    },
   };
 }
 

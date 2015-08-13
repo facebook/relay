@@ -61,7 +61,7 @@ describe('RelayStoreData', function() {
       CLIENT_MUTATION_ID,
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
-      PAGE_INFO
+      PAGE_INFO,
     } = RelayConnectionInterface);
 
     cacheManager = RelayMockCacheManager.genCacheManager();
@@ -126,7 +126,7 @@ describe('RelayStoreData', function() {
       '123': {
         __dataID__: '123',
         id: '123',
-      }
+      },
     });
   });
 
@@ -149,7 +149,7 @@ describe('RelayStoreData', function() {
       '123': {
         __dataID__: '123',
         id: '123',
-      }
+      },
     });
   });
 
@@ -168,7 +168,7 @@ describe('RelayStoreData', function() {
         __dataID__: 'client:viewer',
         __path__: getPathToRecord('client:viewer'),
         isFbEmployee: true,
-      }
+      },
     });
   });
 
@@ -232,7 +232,7 @@ describe('RelayStoreData', function() {
           {service: 'GTALK'},
           {service: 'TWITTER'},
         ],
-      }
+      },
     };
     storeData.handleQueryPayload(query, response);
 
@@ -291,13 +291,13 @@ describe('RelayStoreData', function() {
           edges: [
             {
               node: {
-                id: '1'
+                id: '1',
               },
               cursor: '1',
             },
             {
               node: {
-                id: '2'
+                id: '2',
               },
               cursor: '2',
             },
@@ -488,7 +488,7 @@ describe('RelayStoreData', function() {
             [HAS_NEXT_PAGE]: true,
           },
         },
-      }
+      },
     };
     storeData.handleQueryPayload(query, response);
 
@@ -609,7 +609,7 @@ describe('RelayStoreData', function() {
             [HAS_NEXT_PAGE]: true,
           },
         },
-      }
+      },
     };
     storeData.handleQueryPayload(query, response);
 

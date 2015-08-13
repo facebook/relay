@@ -300,93 +300,94 @@ describe('RelayMutationTransaction', () => {
     it('auto-rollbacks colliding queued transactions upon failure, unless ' +
       'prevented', () => {
 
-      var failureCallback1 = jest.genMockFunction().mockImplementation(
-        (transaction, preventAutoRollback) => {
-          expect(transaction).toBe(transaction1);
-          expect(transaction.getStatus()).toBe(
-            RelayMutationTransactionStatus.COMMIT_FAILED
-          );
-          preventAutoRollback();
-        }
-      );
-      var transaction1 = new RelayMutationTransaction(mockMutation1);
-      transaction1.commit({onFailure: failureCallback1});
+        var failureCallback1 = jest.genMockFunction().mockImplementation(
+          (transaction, preventAutoRollback) => {
+            expect(transaction).toBe(transaction1);
+            expect(transaction.getStatus()).toBe(
+              RelayMutationTransactionStatus.COMMIT_FAILED
+            );
+            preventAutoRollback();
+          }
+        );
+        var transaction1 = new RelayMutationTransaction(mockMutation1);
+        transaction1.commit({onFailure: failureCallback1});
 
-      var failureCallback2 = jest.genMockFunction().mockImplementation(
-        (transaction, preventAutoRollback) => {
-          expect(transaction).toBe(transaction2);
-          expect(transaction.getStatus()).toBe(
-            RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED
-          );
-        }
-      );
-      var transaction2 = new RelayMutationTransaction(mockMutation1);
-      transaction2.commit({onFailure: failureCallback2});
+        var failureCallback2 = jest.genMockFunction().mockImplementation(
+          (transaction, preventAutoRollback) => {
+            expect(transaction).toBe(transaction2);
+            expect(transaction.getStatus()).toBe(
+              RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED
+            );
+          }
+        );
+        var transaction2 = new RelayMutationTransaction(mockMutation1);
+        transaction2.commit({onFailure: failureCallback2});
 
-      var failureCallback3 = jest.genMockFunction().mockImplementation(
-        (transaction, preventAutoRollback) => {
-          expect(transaction).toBe(transaction3);
-          expect(transaction.getStatus()).toBe(
-            RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED
-          );
-          preventAutoRollback();
-        }
-      );
-      var transaction3 = new RelayMutationTransaction(mockMutation1);
-      transaction3.commit({onFailure: failureCallback3});
+        var failureCallback3 = jest.genMockFunction().mockImplementation(
+          (transaction, preventAutoRollback) => {
+            expect(transaction).toBe(transaction3);
+            expect(transaction.getStatus()).toBe(
+              RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED
+            );
+            preventAutoRollback();
+          }
+        );
+        var transaction3 = new RelayMutationTransaction(mockMutation1);
+        transaction3.commit({onFailure: failureCallback3});
 
-      expect(transaction1.getStatus()).toBe(
-        RelayMutationTransactionStatus.COMMITTING
-      );
-      expect(transaction2.getStatus()).toBe(
-        RelayMutationTransactionStatus.COMMIT_QUEUED
-      );
-      expect(transaction3.getStatus()).toBe(
-        RelayMutationTransactionStatus.COMMIT_QUEUED
-      );
+        expect(transaction1.getStatus()).toBe(
+          RelayMutationTransactionStatus.COMMITTING
+        );
+        expect(transaction2.getStatus()).toBe(
+          RelayMutationTransactionStatus.COMMIT_QUEUED
+        );
+        expect(transaction3.getStatus()).toBe(
+          RelayMutationTransactionStatus.COMMIT_QUEUED
+        );
 
-      var failureCallback4 = jest.genMockFunction().mockImplementation();
-      var transaction4 = new RelayMutationTransaction(mockMutation2);
-      transaction4.commit({onFailure: failureCallback4});
+        var failureCallback4 = jest.genMockFunction().mockImplementation();
+        var transaction4 = new RelayMutationTransaction(mockMutation2);
+        transaction4.commit({onFailure: failureCallback4});
 
-      var failureCallback5 = jest.genMockFunction().mockImplementation();
-      var transaction5 = new RelayMutationTransaction(mockMutation2);
-      transaction5.commit({onFailure: failureCallback5});
+        var failureCallback5 = jest.genMockFunction().mockImplementation();
+        var transaction5 = new RelayMutationTransaction(mockMutation2);
+        transaction5.commit({onFailure: failureCallback5});
 
-      expect(transaction4.getStatus()).toBe(
-        RelayMutationTransactionStatus.COMMITTING
-      );
-      expect(transaction5.getStatus()).toBe(
-        RelayMutationTransactionStatus.COMMIT_QUEUED
-      );
-      expect(RelayNetworkLayer.sendMutation.mock.calls.length).toBe(2);
+        expect(transaction4.getStatus()).toBe(
+          RelayMutationTransactionStatus.COMMITTING
+        );
+        expect(transaction5.getStatus()).toBe(
+          RelayMutationTransactionStatus.COMMIT_QUEUED
+        );
+        expect(RelayNetworkLayer.sendMutation.mock.calls.length).toBe(2);
 
-      var request = RelayNetworkLayer.sendMutation.mock.calls[0][0];
-      request.reject(new Error('error'));
-      jest.runAllTimers();
+        var request = RelayNetworkLayer.sendMutation.mock.calls[0][0];
+        request.reject(new Error('error'));
+        jest.runAllTimers();
 
-      expect(failureCallback1).toBeCalled();
-      expect(failureCallback2).toBeCalled();
-      expect(failureCallback3).toBeCalled();
-      expect(failureCallback4).not.toBeCalled();
-      expect(failureCallback5).not.toBeCalled();
-      expect(transaction1.getStatus()).toBe(
-        RelayMutationTransactionStatus.COMMIT_FAILED
-      );
-      expect(() => transaction2.getStatus()).toThrow(
-        'Invariant Violation: RelayMutationTransaction: Only pending ' +
-        'transactions can be interacted with.'
-      );
-      expect(transaction3.getStatus()).toBe(
-        RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED
-      );
-      expect(transaction4.getStatus()).toBe(
-        RelayMutationTransactionStatus.COMMITTING
-      );
-      expect(transaction5.getStatus()).toBe(
-        RelayMutationTransactionStatus.COMMIT_QUEUED
-      );
-    });
+        expect(failureCallback1).toBeCalled();
+        expect(failureCallback2).toBeCalled();
+        expect(failureCallback3).toBeCalled();
+        expect(failureCallback4).not.toBeCalled();
+        expect(failureCallback5).not.toBeCalled();
+        expect(transaction1.getStatus()).toBe(
+          RelayMutationTransactionStatus.COMMIT_FAILED
+        );
+        expect(() => transaction2.getStatus()).toThrow(
+          'Invariant Violation: RelayMutationTransaction: Only pending ' +
+          'transactions can be interacted with.'
+        );
+        expect(transaction3.getStatus()).toBe(
+          RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED
+        );
+        expect(transaction4.getStatus()).toBe(
+          RelayMutationTransactionStatus.COMMITTING
+        );
+        expect(transaction5.getStatus()).toBe(
+          RelayMutationTransactionStatus.COMMIT_QUEUED
+        );
+      }
+    );
   });
 
   describe('recommit', () => {

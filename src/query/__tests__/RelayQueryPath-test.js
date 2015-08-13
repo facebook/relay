@@ -16,7 +16,6 @@ RelayTestUtils.unmockRelay();
 
 describe('RelayQueryPath', () => {
   var Relay;
-  var RelayQuery;
   var RelayQueryPath;
 
   var fromJSON;
@@ -213,7 +212,7 @@ describe('RelayQueryPath', () => {
           children: [],
           metadata: {
             requisite: true,
-            parentType: 'Node'
+            parentType: 'Node',
           },
         },
       ],
@@ -301,7 +300,7 @@ describe('RelayQueryPath', () => {
           children: [],
           metadata: {
             requisite: true,
-            parentType: 'Node'
+            parentType: 'Node',
           },
         }],
         metadata: {},
@@ -313,7 +312,7 @@ describe('RelayQueryPath', () => {
         calls: [],
         children: [EMPTY_FRAGMENT],
         metadata: {
-          parentType: 'Actor'
+          parentType: 'Actor',
         },
       },
     ]);

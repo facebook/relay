@@ -27,14 +27,6 @@ type Field = {
   metadata: {[key: string]: mixed}
 };
 
-type Query = {
-  kind: 'Query';
-  name: string;
-  calls: Array<Call>;
-  children: Array<Selection>;
-  metadata: {[key: string]: mixed}
-};
-
 type FragmentDefinition = {
   kind: 'FragmentDefinition';
   name: string;

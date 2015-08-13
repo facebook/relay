@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+/* eslint no-shadow: 1 */
+
 'use strict';
 
 jest
@@ -471,7 +473,7 @@ describe('RelayStoreGarbageCollector', () => {
             __dataID__: 'b',
             field2: {__dataID__: 'client:2'},
           },
-          'client:2': {__dataID__: 'client:2'}
+          'client:2': {__dataID__: 'client:2'},
         });
       }
     );
@@ -479,7 +481,7 @@ describe('RelayStoreGarbageCollector', () => {
     it('removes all edges when a range is removed', () => {
       var mockRange = new GraphQLRange();
       mockRange.getEdgeIDs = jest.genMockFunction().mockReturnValue([
-        'client:1', 'client:2'
+        'client:1', 'client:2',
       ]);
       var records = {
         range: {__dataID__: 'range', __range__: mockRange},

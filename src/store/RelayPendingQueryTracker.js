@@ -208,7 +208,7 @@ class PendingFetch {
     var queryID = this.getQuery().getID();
     delete pendingFetchMap[queryID];
 
-    warning(false, error.message);
+    warning(false, 'Cannot mark as rejected');
 
     this._errors.push(error);
     this._updateResolvedDeferred();

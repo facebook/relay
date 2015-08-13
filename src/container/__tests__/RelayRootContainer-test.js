@@ -24,7 +24,6 @@ describe('RelayRootContainer', function() {
   var RelayRootContainer;
   var RelayRoute;
   var RelayStore;
-  var RelayTypes;
 
   var ReactComponent;
   var RelayContainer;
@@ -48,7 +47,7 @@ describe('RelayRootContainer', function() {
 
     ReactComponent = React.createClass({render: () => <div />});
     RelayContainer = Relay.createContainer(ReactComponent, {
-      fragments: {}
+      fragments: {},
     });
     ShallowRenderer = ReactTestUtils.createRenderer();
 
@@ -81,7 +80,7 @@ describe('RelayRootContainer', function() {
       });
       var container = document.createElement('div');
       jest.addMatchers({
-        toRenderChildWithRoute(route) {
+        toRenderChildWithRoute(childRoute) {
           var context;
           function onRender() {
             context = this.context;
@@ -96,7 +95,7 @@ describe('RelayRootContainer', function() {
           ReactDOM.render(element, container);
           var mockRequests = RelayStore.primeCache.mock.requests;
           mockRequests[mockRequests.length - 1].block();
-          return context.route === route;
+          return context.route === childRoute;
         },
       });
     });
@@ -248,7 +247,7 @@ describe('RelayRootContainer', function() {
     it('creates and primes queries when `Component` changes', () => {
       var AnotherComponent = React.createClass({render: () => <div />});
       var AnotherContainer = Relay.createContainer(AnotherComponent, {
-        fragments: {}
+        fragments: {},
       });
       ShallowRenderer.render(
         <RelayRootContainer Component={AnotherContainer} route={route} />
@@ -391,7 +390,7 @@ describe('RelayRootContainer', function() {
 
     it('aborts loading requests', () => {
       function mockLoading(request) {
-       request.block();
+        request.block();
       }
       expect(mockLoading).toAbortOnUpdate();
       expect(mockLoading).toAbortOnUnmount();
@@ -573,7 +572,7 @@ describe('RelayRootContainer', function() {
         {
           done: true,
           stale: false,
-        }
+        },
       ]);
     });
 

@@ -76,8 +76,8 @@ describe('RelayMutationQuery', () => {
           fatQuery,
           tracker,
           fieldIDs: {
-            unsubscribee: '4'
-          }
+            unsubscribee: '4',
+          },
         });
       }).toFailInvariant(
         'RelayMutationQuery: Invalid field name on fat query, `unsubscribee`.'
@@ -103,8 +103,8 @@ describe('RelayMutationQuery', () => {
         fatQuery,
         tracker,
         fieldIDs: {
-          feedback: '123'
-        }
+          feedback: '123',
+        },
       });
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
@@ -116,7 +116,7 @@ describe('RelayMutationQuery', () => {
       expect(flattenRelayQuery(node))
         .toEqualQueryNode(flattenRelayQuery(expected));
       expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([
-        ['123']
+        ['123'],
       ]);
     });
 
@@ -140,8 +140,8 @@ describe('RelayMutationQuery', () => {
         fatQuery,
         tracker,
         fieldIDs: {
-          stories: ['123']
-        }
+          stories: ['123'],
+        },
       });
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on ViewerNotificationsUpdateAllSeenStateResponsePayload {
@@ -153,7 +153,7 @@ describe('RelayMutationQuery', () => {
       expect(flattenRelayQuery(node))
         .toEqualQueryNode(flattenRelayQuery(expected));
       expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([
-        ['123']
+        ['123'],
       ]);
     });
 
@@ -189,8 +189,8 @@ describe('RelayMutationQuery', () => {
         fatQuery,
         tracker,
         fieldIDs: {
-          stories: ['123', '456']
-        }
+          stories: ['123', '456'],
+        },
       });
       var node = intersectRelayQuery.mock.calls[0][0];
       var expected = getNodeWithoutSource(Relay.QL`
@@ -209,7 +209,7 @@ describe('RelayMutationQuery', () => {
         .toEqualQueryNode(flattenRelayQuery(expected));
       expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([
         ['123'],
-        ['456']
+        ['456'],
       ]);
     });
   });
@@ -276,13 +276,12 @@ describe('RelayMutationQuery', () => {
       expect(flattenRelayQuery(node))
         .toEqualQueryNode(flattenRelayQuery(expected));
       expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([
-        ['123']
+        ['123'],
       ]);
     });
   });
 
   describe('edge insertion', () => {
-    var GraphQLMutatorConstants;
     var fatQuery, rangeBehaviors;
 
     beforeEach(() => {
@@ -328,7 +327,7 @@ describe('RelayMutationQuery', () => {
         connectionName: 'comments',
         parentID: '123',
         edgeName: 'feedbackCommentEdge',
-        rangeBehaviors
+        rangeBehaviors,
       });
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
@@ -349,7 +348,7 @@ describe('RelayMutationQuery', () => {
       expect(flattenRelayQuery(node))
         .toEqualQueryNode(flattenRelayQuery(expected));
       expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([
-        ['123']
+        ['123'],
       ]);
     });
 
@@ -383,7 +382,7 @@ describe('RelayMutationQuery', () => {
         connectionName: 'comments',
         parentID: '123',
         edgeName: 'feedbackCommentEdge',
-        rangeBehaviors
+        rangeBehaviors,
       });
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
@@ -438,7 +437,7 @@ describe('RelayMutationQuery', () => {
         connectionName: 'comments',
         parentID: '123',
         edgeName: 'feedbackCommentEdge',
-        rangeBehaviors
+        rangeBehaviors,
       });
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
@@ -481,7 +480,7 @@ describe('RelayMutationQuery', () => {
         parentID: '123',
         edgeName: 'feedbackCommentEdge',
         parentName: 'feedback',
-        rangeBehaviors
+        rangeBehaviors,
       });
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
@@ -517,7 +516,7 @@ describe('RelayMutationQuery', () => {
         parentID: '123',
         edgeName: 'feedbackCommentEdge',
         parentName: 'feedback',
-        rangeBehaviors
+        rangeBehaviors,
       });
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
@@ -548,7 +547,7 @@ describe('RelayMutationQuery', () => {
           parentID: '123',
           edgeName: 'feedbackCommentEdge',
           parentName: 'story',
-          rangeBehaviors
+          rangeBehaviors,
         });
       }).toFailInvariant(
         'RelayMutationQuery: Invalid field name on fat query, `story`.'
@@ -576,7 +575,7 @@ describe('RelayMutationQuery', () => {
       var mockData = {};
       RelayMutationQuery.buildFragmentForOptimisticUpdate({
         response: mockData,
-        fatQuery
+        fatQuery,
       });
 
       expect(inferRelayFieldsFromData.mock.calls.length).toBe(1);
@@ -601,7 +600,7 @@ describe('RelayMutationQuery', () => {
             doesViewerLike: true,
             id: '1',
             likers: {
-              count: 4
+              count: 4,
             },
           },
         },
@@ -944,7 +943,7 @@ describe('RelayMutationQuery', () => {
               },
             }
           `],
-        }
+        },
       ];
 
       var mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
@@ -1035,7 +1034,7 @@ describe('RelayMutationQuery', () => {
           parentID,
           connectionName,
           edgeName,
-          rangeBehaviors
+          rangeBehaviors,
         },
         {
           type: RelayMutationType.FIELDS_CHANGE,

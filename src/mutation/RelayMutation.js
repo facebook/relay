@@ -14,7 +14,6 @@
 'use strict';
 
 import type GraphQL from 'GraphQL_EXPERIMENTAL';
-import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
 var RelayDeprecated = require('RelayDeprecated');
 var RelayFragmentReference = require('RelayFragmentReference');
 import type RelayMetaRoute from 'RelayMetaRoute';

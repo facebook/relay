@@ -60,7 +60,7 @@ describe('RelayStoreData', () => {
           topLevelComments: {
             count: 1,
           },
-        }
+        },
       };
       storeData.handleQueryPayload(query, response);
 
@@ -203,7 +203,7 @@ describe('RelayStoreData', () => {
             topLevelComments: {
               count: 1,
             },
-          }
+          },
         };
         storeData.handleQueryPayload(query, response);
 

@@ -17,12 +17,10 @@ RelayTestUtils.unmockRelay();
 describe('observeRelayQueryData', () => {
   var GraphQLStoreChangeEmitter;
   var Relay;
-  var RelayQuery;
   var RelayRecordStore;
 
   var addListenerForIDs;
   var observeRelayQueryData;
-  var readRelayQueryData;
 
   var firstMockCallback;
   var secondMockCallback;
@@ -86,7 +84,7 @@ describe('observeRelayQueryData', () => {
     var query = getNode(Relay.QL`fragment on Node{id, name}`);
     var records = {node: null};
     observeData(records, query, 'node').subscribe({
-      onNext: firstMockCallback
+      onNext: firstMockCallback,
     });
 
     expect(firstMockCallback).toBeCalledWith(null);
@@ -146,93 +144,91 @@ describe('observeRelayQueryData', () => {
 
     // Check that the change emitter still listens to the right id
     expect(addListenerForIDs.mock.calls[1][0]).toEqual([
-      'user', 'date'
+      'user', 'date',
     ]);
   });
 
   it('calls subscribers when data is added to an observed node', () => {
-      var recordsStore = new RelayRecordStore({records: {
-        user: {id: 1, name: 'Chris', birthdate: {__dataID__: 'date'}},
-        date: null,
-      }});
-      var query = getNode(Relay.QL`fragment on User{id, name, birthdate {day}}`);
-      var observable = observeRelayQueryData(recordsStore, query, 'user');
+    var recordsStore = new RelayRecordStore({records: {
+      user: {id: 1, name: 'Chris', birthdate: {__dataID__: 'date'}},
+      date: null,
+    }});
+    var query = getNode(Relay.QL`fragment on User{id, name, birthdate {day}}`);
+    var observable = observeRelayQueryData(recordsStore, query, 'user');
 
-      observable.subscribe({onNext: firstMockCallback});
-      var handleUpdate = addListenerForIDs.mock.calls[0][1];
+    observable.subscribe({onNext: firstMockCallback});
+    var handleUpdate = addListenerForIDs.mock.calls[0][1];
 
-      // Mutate birthdate record
-      recordsStore.putRecord('date');
-      recordsStore.putField('date', 'day', 30);
-      handleUpdate();
+    // Mutate birthdate record
+    recordsStore.putRecord('date');
+    recordsStore.putField('date', 'day', 30);
+    handleUpdate();
 
-      expect(firstMockCallback).toBeCalledWith({
-        __dataID__: 'user',
-        id: 1,
-        name: 'Chris',
-        birthdate: {
-          __dataID__: 'date',
-          day: 30,
-        },
-      });
-      expect(addListenerForIDs.mock.remove[0]).toBeCalled();
-      expect(addListenerForIDs.mock.calls[1][0]).toEqual([
-        'user', 'date'
-      ]);
-    }
-  );
+    expect(firstMockCallback).toBeCalledWith({
+      __dataID__: 'user',
+      id: 1,
+      name: 'Chris',
+      birthdate: {
+        __dataID__: 'date',
+        day: 30,
+      },
+    });
+    expect(addListenerForIDs.mock.remove[0]).toBeCalled();
+    expect(addListenerForIDs.mock.calls[1][0]).toEqual([
+      'user', 'date',
+    ]);
+  });
 
   it('calls a subscriber when data disappears from a node', () => {
-      var recordsStore = new RelayRecordStore({records: {
-        user: {id: 1, name: 'Jon', birthdate: {__dataID__: 'date'}},
-        date: {day: 15 },
-      }});
-      var query = getNode(Relay.QL`fragment on User{id, name, birthdate {day}}`);
-      var observable = observeRelayQueryData(recordsStore, query, 'user');
+    var recordsStore = new RelayRecordStore({records: {
+      user: {id: 1, name: 'Jon', birthdate: {__dataID__: 'date'}},
+      date: {day: 15 },
+    }});
+    var query = getNode(Relay.QL`fragment on User{id, name, birthdate {day}}`);
+    var observable = observeRelayQueryData(recordsStore, query, 'user');
 
-      observable.subscribe({onNext: firstMockCallback});
-      var handleUpdate = addListenerForIDs.mock.calls[0][1];
+    observable.subscribe({onNext: firstMockCallback});
+    var handleUpdate = addListenerForIDs.mock.calls[0][1];
 
-      // Remove record from store
-      recordsStore.deleteRecord('date');
-      handleUpdate();
+    // Remove record from store
+    recordsStore.deleteRecord('date');
+    handleUpdate();
 
-      expect(firstMockCallback).toBeCalledWith({
-        __dataID__: 'user',
-        id: 1,
-        name: 'Jon',
-        birthdate: null,
-      });
-      expect(addListenerForIDs.mock.calls[0][0]).toEqual([
-        'user', 'date'
-      ]);
-      expect(addListenerForIDs.mock.remove[0]).toBeCalled();
-      expect(addListenerForIDs.mock.calls[1][0]).toEqual([
-        'user', 'date'
-      ]);
-    }
-  );
+    expect(firstMockCallback).toBeCalledWith({
+      __dataID__: 'user',
+      id: 1,
+      name: 'Jon',
+      birthdate: null,
+    });
+    expect(addListenerForIDs.mock.calls[0][0]).toEqual([
+      'user', 'date',
+    ]);
+    expect(addListenerForIDs.mock.remove[0]).toBeCalled();
+    expect(addListenerForIDs.mock.calls[1][0]).toEqual([
+      'user', 'date',
+    ]);
+  });
 
   it('no longer calls disposed-of subscribers when data changes', () => {
-      var recordsStore = new RelayRecordStore({records: {
-        user: {id: 1, name: 'Jon', birthdate: {__dataID__: 'date'}},
-        date: {day: 15 },
-      }});
-      var query = getNode(Relay.QL`fragment on User{id, name, birthdate {day}}`);
-      var observable = observeRelayQueryData(recordsStore, query, 'user');
+    var recordsStore = new RelayRecordStore({records: {
+      user: {id: 1, name: 'Jon', birthdate: {__dataID__: 'date'}},
+      date: {day: 15 },
+    }});
+    var query = getNode(Relay.QL`fragment on User{id, name, birthdate {day}}`);
+    var observable = observeRelayQueryData(recordsStore, query, 'user');
 
-      observable.subscribe({onNext: firstMockCallback});
-      var handleUpdate = addListenerForIDs.mock.calls[0][1];
-      var subscription = observable.subscribe({onNext: secondMockCallback});
+    observable.subscribe({onNext: firstMockCallback});
+    var handleUpdate = addListenerForIDs.mock.calls[0][1];
+    var subscription = observable.subscribe({onNext: secondMockCallback});
 
-      expect(secondMockCallback).toBeCalled();
+    expect(secondMockCallback).toBeCalled();
 
-      subscription.dispose();
-      recordsStore.deleteRecord('date');
-      handleUpdate();
+    subscription.dispose();
+    recordsStore.deleteRecord('date');
+    handleUpdate();
 
-      expect(firstMockCallback.mock.calls.length).toBe(2);
-      expect(secondMockCallback.mock.calls.length).toBe(1);
+    expect(firstMockCallback.mock.calls.length).toBe(2);
+    expect(secondMockCallback.mock.calls.length).toBe(1);
   });
 
   describe('garbage collection', () => {

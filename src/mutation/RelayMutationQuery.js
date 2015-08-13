@@ -11,6 +11,8 @@
  * @flow
  */
 
+/* eslint comma-dangle: 1 */
+
 'use strict';
 
 import type GraphQL from 'GraphQL_EXPERIMENTAL';
@@ -310,7 +312,7 @@ var RelayMutationQuery = {
         null,
         null,
         {'requisite':true}
-      )
+      ),
     ];
 
     configs.forEach(config => {
@@ -367,7 +369,7 @@ var RelayMutationQuery = {
       children,
       mutation.metadata
     )));
-  }
+  },
 };
 
 function getFieldFromFatQuery(

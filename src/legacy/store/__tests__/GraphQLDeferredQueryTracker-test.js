@@ -22,7 +22,6 @@ describe('GraphQLDeferredQueryTracker', () => {
   var RelayStoreData;
 
   var flattenSplitRelayQueries;
-  var getWeakIdForObject;
   var splitDeferredRelayQueries;
 
   var {defer, getNode} = RelayTestUtils;

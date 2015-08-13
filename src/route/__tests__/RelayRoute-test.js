@@ -33,12 +33,12 @@ describe('RelayRoute', () => {
       MockRoute.paramDefinitions = {
         required: {
           type: 'String',
-          required: true
+          required: true,
         },
         optional: {
           type: 'String',
-          required: false
-        }
+          required: false,
+        },
       };
       MockRoute.queries = {
         required: (Component, params) => Relay.QL`
@@ -54,7 +54,7 @@ describe('RelayRoute', () => {
               ${Component.getQuery('optional')}
             }
           }
-        `
+        `,
       };
       return MockRoute;
     };

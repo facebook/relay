@@ -175,7 +175,7 @@ var RelayStore = {
   ): void {
     var transaction = new RelayMutationTransaction(mutation);
     transaction.commit(callbacks);
-  }
+  },
 };
 
 module.exports = RelayStore;

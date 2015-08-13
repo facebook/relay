@@ -33,7 +33,7 @@ var RelayDeprecated = {
    */
   warn({was, now}: {
     was: string,
-    now: string
+    now: string,
   }): void {
     warning(false, 'Relay: `%s` is deprecated; use `%s`.', was, now);
   },
@@ -44,7 +44,7 @@ var RelayDeprecated = {
   createWarning({was, now, adapter}: {
     was: string,
     now: string,
-    adapter: Function
+    adapter: Function,
   }): Function {
     return function() {
       RelayDeprecated.warn({was, now});

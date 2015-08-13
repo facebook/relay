@@ -82,7 +82,7 @@ describe('writePayload()', () => {
           'client:viewer': true,
           '123': true,
         },
-        updated: {}
+        updated: {},
       });
 
       // viewer has a client id and must be refetched by the original root call
@@ -114,7 +114,7 @@ describe('writePayload()', () => {
         created: {
           '123': true,
         },
-        updated: {}
+        updated: {},
       });
 
       expect(store.getRecordStatus('123')).toBe('EXISTENT');

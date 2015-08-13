@@ -92,7 +92,7 @@ var GraphQLStoreTestUtils = {
 
       for (var ii = 0; ii < actualFragments.length; ii++) {
         var context = {
-          actual: actualFragments[ii]
+          actual: actualFragments[ii],
         };
         var matches = GraphQLStoreTestUtils.matchers.toMatchQueryFragment.call(
           context,

@@ -17,14 +17,11 @@ RelayTestUtils.unmockRelay();
 describe('checkRelayQueryData', () => {
   var GraphQL;
   var GraphQLRange;
-  var GraphQLStoreRangeUtils;
   var Relay;
   var RelayConnectionInterface;
-  var RelayQuery;
   var RelayRecordStore;
 
   var checkRelayQueryData;
-  var emptyFunction;
 
   var {getNode} = RelayTestUtils;
   var HAS_NEXT_PAGE, HAS_PREV_PAGE;
@@ -73,7 +70,7 @@ describe('checkRelayQueryData', () => {
 
   it('returns true when node is null', () => {
     var records = {
-      1055790163: null
+      1055790163: null,
     };
 
     var result = hasData(getNode(
@@ -88,12 +85,12 @@ describe('checkRelayQueryData', () => {
     expect(result).toEqual(true);
   });
 
- it('returns true when checking basic id query', () => {
+  it('returns true when checking basic id query', () => {
     var records = {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-      }
+      },
     };
 
     var result = hasData(getNode(
@@ -113,7 +110,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-      }
+      },
     };
 
     var result = hasData(getNode(
@@ -133,7 +130,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-      }
+      },
     };
 
     var result = hasData(getNode(
@@ -155,7 +152,7 @@ describe('checkRelayQueryData', () => {
         id: '1055790163',
         firstName: 'Yuzhi',
         __dataID__: '1055790163',
-      }
+      },
     };
 
     var result = hasData(getNode(
@@ -178,7 +175,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-      }
+      },
     };
 
     var result = hasData(getNode(
@@ -230,7 +227,7 @@ describe('checkRelayQueryData', () => {
         id: '1055790163',
         __dataID__: '1055790163',
         friends: { __dataID__: 'friends_id'},
-      }
+      },
     };
 
     var result = hasData(getNode(
@@ -257,7 +254,7 @@ describe('checkRelayQueryData', () => {
       },
       friends_id: {
         __dataID__: 'friends_id',
-      }
+      },
     };
 
     var result = hasData(getNode(
@@ -284,8 +281,8 @@ describe('checkRelayQueryData', () => {
       },
       'client:screenname1': {
         __dataID__: 'client:screenname1',
-        service: true
-      }
+        service: true,
+      },
     };
 
     var result = hasData(getNode(
@@ -309,7 +306,7 @@ describe('checkRelayQueryData', () => {
         id: '1055790163',
         __dataID__: '1055790163',
         screennames: [{__dataID__: 'client:screenname1'}],
-      }
+      },
     };
 
     var result = hasData(getNode(
@@ -336,7 +333,7 @@ describe('checkRelayQueryData', () => {
       },
       'client:screenname1': {
         __dataID__: 'client:screenname1',
-      }
+      },
     };
 
     var result = hasData(getNode(
@@ -363,8 +360,8 @@ describe('checkRelayQueryData', () => {
       },
       friends_id: {
         __dataID__:'friends_id',
-        __range__: new GraphQLRange()
-      }
+        __range__: new GraphQLRange(),
+      },
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: [],
@@ -397,8 +394,8 @@ describe('checkRelayQueryData', () => {
       },
       friends_id: {
         __dataID__:'friends_id',
-        __range__: new GraphQLRange()
-      }
+        __range__: new GraphQLRange(),
+      },
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: [],
@@ -430,7 +427,7 @@ describe('checkRelayQueryData', () => {
       },
       configs_id: {
         __dataID__: 'configs_id',
-        edges: [{__dataID__: 'edge_id'}]
+        edges: [{__dataID__: 'edge_id'}],
       },
       edge_id: {
         __dataID__: 'edge_id',
@@ -472,7 +469,7 @@ describe('checkRelayQueryData', () => {
       },
       friends_id: {
         __dataID__:'friends_id',
-        __range__: new GraphQLRange()
+        __range__: new GraphQLRange(),
       },
       edge_id: {
         __dataID__: 'edge_id',
@@ -481,7 +478,7 @@ describe('checkRelayQueryData', () => {
       node_id: {
         __dataID__: 'node_id',
         id: 'node_id',
-      }
+      },
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['edge_id'],
@@ -514,16 +511,16 @@ describe('checkRelayQueryData', () => {
       },
       friends_id: {
         __dataID__:'friends_id',
-        __range__: new GraphQLRange()
+        __range__: new GraphQLRange(),
       },
       edge_id: {
         __dataID__: 'edge_id',
         node: {__dataID__:'node_id'},
-        cursor: 'cursor'
+        cursor: 'cursor',
       },
       node_id: {
         __dataID__: 'node_id',
-      }
+      },
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['edge_id'],
@@ -553,7 +550,7 @@ describe('checkRelayQueryData', () => {
         id: '1055790163',
         __dataID__: '1055790163',
         username: 'yuzhi',
-      }
+      },
     };
 
     var fragment1 = Relay.QL`

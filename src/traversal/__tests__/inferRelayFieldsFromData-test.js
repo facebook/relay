@@ -22,7 +22,7 @@ describe('inferRelayFieldsFromData', function() {
   var inferRelayFieldsFromData;
 
   var {getNode, matchers} = RelayTestUtils;
-  var END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO, START_CURSOR;
+  var HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
@@ -38,7 +38,7 @@ describe('inferRelayFieldsFromData', function() {
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
       PAGE_INFO,
-      START_CURSOR
+      START_CURSOR,
     } = RelayConnectionInterface);
 
     jest.addMatchers({
@@ -48,7 +48,7 @@ describe('inferRelayFieldsFromData', function() {
         this.actual = flattenRelayQuery(expected.clone(this.actual));
         // NOTE: Generated fields might get in the way.
         return matchers.toEqualQueryNode.call(this, expected);
-      }
+      },
     });
   });
 
@@ -106,7 +106,7 @@ describe('inferRelayFieldsFromData', function() {
       id: '123',
       screennames: [
         {service: 'GTALK'},
-        {service: "TWITTER"},
+        {service: 'TWITTER'},
       ],
     })).toEqualFields(Relay.QL`  fragment on Actor {
             id,
@@ -188,7 +188,7 @@ describe('inferRelayFieldsFromData', function() {
       node: {
         id: '123',
         name: 'name',
-      }
+      },
     })).toEqualFields(Relay.QL`  fragment on NodeSavedStateResponsePayload {
             node {
               id,

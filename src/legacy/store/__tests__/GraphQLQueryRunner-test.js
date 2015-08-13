@@ -92,7 +92,7 @@ describe('GraphQLQueryRunner', () => {
     mockQuerySet = {
       foo: getNode(Relay.QL`query{viewer{actor{id,name}}}`),
       bar: getNode(Relay.QL`query{node(id:"4"){id,name}}`),
-      baz: null
+      baz: null,
     };
 
     jest.addMatchers(RelayTestUtils.matchers);
@@ -456,7 +456,7 @@ describe('GraphQLQueryRunner', () => {
         ].map(query => ({
           required: deferQuery(getNode(query)),
           deferred: [],
-        }))
+        })),
       };
 
       splitDeferredRelayQueries.mockImplementation(query => {

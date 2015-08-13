@@ -19,9 +19,6 @@ describe('RelayFragmentReference', () => {
   var Relay;
   var RelayFragmentReference;
   var RelayMetaRoute;
-  var RelayQuery;
-
-  var generateRQLFieldAlias;
 
   var route;
 

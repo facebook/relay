@@ -11,6 +11,8 @@
  * @flow
  */
 
+ /* eslint no-unused-expressions: 1 */
+
 'use strict';
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var RelayError = require('RelayError');

@@ -23,6 +23,7 @@
     "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",
     "preinstall": "cd scripts/babel-relay-plugin/ && npm install",
     "prepublish": "npm run build",
+    "lint": "`npm bin`/eslint .",
     "test": "NODE_ENV=test jest"
   },
   "engines": {
@@ -39,9 +40,14 @@
   },
   "devDependencies": {
     "babel-core": "5.8.21",
+    "babel-eslint": "^4.0.5",
     "babel-loader": "5.3.2",
     "del": "^1.2.0",
     "envify": "^3.4.0",
+    "eslint": "^1.1.0",
+    "eslint-plugin-react": "^3.2.2",
+    "eslint-plugin-react-internal": "file:eslint-rules",
+    "eslint-tester": "^0.8.2",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.1.0",
     "gulp-derequire": "^2.1.0",

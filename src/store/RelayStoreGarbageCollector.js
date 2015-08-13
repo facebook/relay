@@ -128,7 +128,7 @@ class RelayStoreGarbageCollector {
     iterator = offset;
     var profileState = {
       count: -1,
-      stepLength: stepLength
+      stepLength: stepLength,
     };
     var profile = RelayProfiler.profile(
       'RelayStoreGarbageCollector.collect',
@@ -239,14 +239,14 @@ class RelayStoreGarbageCollector {
     var remainingRecords: Array<?Record> = [
       records[dataID],
       queuedRecords[dataID],
-      cachedRecords[dataID]
+      cachedRecords[dataID],
     ];
 
     // If `field` contains a linked record and the linked record has a
     // client-site DataID the record will be added to `remainingRecords` and
     // it's DataID will be set to `true` in `removalStatusMap`.
     function enqueueField(field: FieldValue): void {
-      var dataID = getClientIDFromLinkedRecord(field);
+      dataID = getClientIDFromLinkedRecord(field);
       // If we have a dataID we haven't seen before we add it to the remaining
       // records
       if (dataID && !removalStatusMap[dataID]) {

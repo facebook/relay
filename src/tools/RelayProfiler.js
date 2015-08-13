@@ -11,6 +11,8 @@
  * @flow
  */
 
+/* eslint no-shadow: 1 */
+
 'use strict';
 
 var emptyFunction = require('emptyFunction');
@@ -210,7 +212,7 @@ var RelayProfiler = {
                 profileHandler.onStop(name, state);
               }
             });
-          }
+          },
         };
       }
     }

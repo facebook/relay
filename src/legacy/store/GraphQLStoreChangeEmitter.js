@@ -59,7 +59,7 @@ var GraphQLStoreChangeEmitter = {
     return {
       remove: function() {
         delete subscribers[index];
-      }
+      },
     };
   },
 
@@ -81,7 +81,7 @@ var GraphQLStoreChangeEmitter = {
    * Exposed for profiling reasons.
    * @private
    */
-  _processSubscribers: processSubscribers
+  _processSubscribers: processSubscribers,
 
 };
 

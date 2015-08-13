@@ -11,6 +11,9 @@
  * @flow
  */
 
+ /* eslint no-shadow: 1 */
+ /* eslint no-unused-expressions: 1 */
+
 'use strict';
 
 import type {DataID} from 'RelayInternalTypes';

@@ -11,6 +11,8 @@
  * @flow
  */
 
+ /* eslint no-shadow: 1 */
+
 'use strict';
 
 import type {RelayContainer} from 'RelayTypes';
@@ -22,7 +24,7 @@ var RelayContainerProxy = {
   proxyMethods(
     RelayContainer: RelayContainer,
     Component: ReactClass
-  ): void {}
+  ): void {},
 };
 
 module.exports = RelayContainerProxy;

@@ -657,7 +657,7 @@ describe('writePayload()', () => {
       var payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
-        deletedRequestIds: [firstRequestID, secondRequestID]
+        deletedRequestIds: [firstRequestID, secondRequestID],
       };
 
       // write to the base store
@@ -829,7 +829,7 @@ describe('writePayload()', () => {
         message: {
           text: 'Hello!',
           ranges: [],
-        }
+        },
       };
 
       var mutation = getNode(Relay.QL`
@@ -934,7 +934,7 @@ describe('writePayload()', () => {
         [{name: 'first', value: '2'}]
       ).requestedEdges.map(edge => edge.edgeID)).toEqual([
         nextEdgeID,
-        edgeID
+        edgeID,
       ]);
 
       // base records are not modified
@@ -946,7 +946,7 @@ describe('writePayload()', () => {
         connectionID,
         [{name: 'first', value: '2'}]
       ).requestedEdges.map(edge => edge.edgeID)).toEqual([
-        edgeID
+        edgeID,
       ]);
     });
 
@@ -959,7 +959,7 @@ describe('writePayload()', () => {
         message: {
           text: 'Hello!',
           ranges: [],
-        }
+        },
       };
 
       var mutation = getNode(Relay.QL`
@@ -1064,7 +1064,7 @@ describe('writePayload()', () => {
         [{name: 'first', value: '2'}]
       ).requestedEdges.map(edge => edge.edgeID)).toEqual([
         nextEdgeID,
-        edgeID
+        edgeID,
       ]);
     });
   });

@@ -13,7 +13,6 @@
 
 'use strict';
 
-import type {Call} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 
@@ -148,17 +147,17 @@ function printChildren(
   node: RelayQuery.Node,
   fragmentMap: FragmentMap
 ): string {
-  var children = node.getChildren().map(node => {
-    if (node instanceof RelayQuery.Field) {
-      return printField(node, fragmentMap);
+  var children = node.getChildren().map(childrenNode => {
+    if (childrenNode instanceof RelayQuery.Field) {
+      return printField(childrenNode, fragmentMap);
     } else {
       invariant(
-        node instanceof RelayQuery.Fragment,
+        childrenNode instanceof RelayQuery.Fragment,
         'printRelayQuery(): expected child node to be a `Field` or ' +
         '`Fragment`, got `%s`.',
-        node.constructor.name
+        childrenNode.constructor.name
       );
-      return printInlineFragment(node, fragmentMap);
+      return printInlineFragment(childrenNode, fragmentMap);
     }
   });
   if (!children.length) {

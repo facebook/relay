@@ -367,47 +367,49 @@ describe('RelayRecordStore', () => {
 
     it('falls through to existing records for fields not in the queued record',
       () => {
-      var record = {
-        id: '4',
-        name: 'Zuck',
-        __dataID__: '4',
-      };
-      var queuedRecord = {
-        id: '4',
-        __dataID__: '4',
-      };
-      var store = new RelayRecordStore({
-        records: {'4': record},
-        queuedRecords: {'4': queuedRecord},
-      });
-      expect(store.getField('4', 'name')).toBe('Zuck');
-    });
+        var record = {
+          id: '4',
+          name: 'Zuck',
+          __dataID__: '4',
+        };
+        var queuedRecord = {
+          id: '4',
+          __dataID__: '4',
+        };
+        var store = new RelayRecordStore({
+          records: {'4': record},
+          queuedRecords: {'4': queuedRecord},
+        });
+        expect(store.getField('4', 'name')).toBe('Zuck');
+      }
+    );
 
     it('falls through to cached records for fields not in the existing record',
       () => {
-      var record = {
-        id: '4',
-        __dataID__: '4',
-      };
-      var cachedRecord = {
-        id: '4',
-        name: 'Mark',
-        __dataID__: '4',
-      };
-      var store = new RelayRecordStore({
-        cachedRecords: {'4': cachedRecord},
-        records: {'4': record},
-      });
-      expect(store.getField('4', 'name')).toBe('Mark');
-    });
+        var record = {
+          id: '4',
+          __dataID__: '4',
+        };
+        var cachedRecord = {
+          id: '4',
+          name: 'Mark',
+          __dataID__: '4',
+        };
+        var store = new RelayRecordStore({
+          cachedRecords: {'4': cachedRecord},
+          records: {'4': record},
+        });
+        expect(store.getField('4', 'name')).toBe('Mark');
+      }
+    );
   });
 
   describe('getLinkedRecordID()', () => {
     it('throws if the data is an unexpected format', () => {
       var records = {
         story: {
-          feedback: 'not an object'
-        }
+          feedback: 'not an object',
+        },
       };
       var store = new RelayRecordStore({records});
       expect(() => {
@@ -420,7 +422,7 @@ describe('RelayRecordStore', () => {
         '4': {
           id: '4',
           __dataID__: '4',
-        }
+        },
       };
       var store = new RelayRecordStore({records});
       expect(store.getLinkedRecordID('4', 'address')).toBe(undefined);
@@ -431,7 +433,7 @@ describe('RelayRecordStore', () => {
         '4': {
           id: '4',
           __dataID__: '4',
-          address: null
+          address: null,
         },
       };
       var store = new RelayRecordStore({records});
@@ -445,7 +447,7 @@ describe('RelayRecordStore', () => {
           __dataID__: '4',
           address: {
             __dataID__: 'client:1',
-          }
+          },
         },
         'client:1': {
           street: '1 Hacker Way',
@@ -460,8 +462,8 @@ describe('RelayRecordStore', () => {
     it('throws if the data is an unexpected format', () => {
       var records = {
         'story': {
-          actors: ['not an object']
-        }
+          actors: ['not an object'],
+        },
       };
       var store = new RelayRecordStore({records});
       expect(() => {
@@ -473,8 +475,8 @@ describe('RelayRecordStore', () => {
       var records = {
         '4': {
           id: '4',
-          __dataID__: '4'
-        }
+          __dataID__: '4',
+        },
       };
       var store = new RelayRecordStore({records});
       expect(store.getLinkedRecordIDs('4', 'actors')).toBe(undefined);
@@ -485,8 +487,8 @@ describe('RelayRecordStore', () => {
         '4': {
           id: '4',
           __dataID__: '4',
-          actors: null
-        }
+          actors: null,
+        },
       };
       var store = new RelayRecordStore({records});
       expect(store.getLinkedRecordIDs('4', 'actors')).toBe(null);
@@ -500,13 +502,13 @@ describe('RelayRecordStore', () => {
           actors: [
             {__dataID__: 'item:1'},
             {__dataID__: 'item:2'},
-          ]
-        }
+          ],
+        },
       };
       var store = new RelayRecordStore({records});
       expect(store.getLinkedRecordIDs('4', 'actors')).toEqual([
         'item:1',
-        'item:2'
+        'item:2',
       ]);
     });
   });
@@ -521,7 +523,7 @@ describe('RelayRecordStore', () => {
           id: '4',
           __dataID__: '4',
           'friends': {
-            __dataID__: 'client:1'
+            __dataID__: 'client:1',
           },
         },
         'client:1': {
@@ -530,8 +532,8 @@ describe('RelayRecordStore', () => {
         'edge:1': {
           __dataID__: 'edge:1',
           node: {
-            __dataID__: 'node:1'
-          }
+            __dataID__: 'node:1',
+          },
         },
         'node:1': {
           __dataID__: 'node:1',
@@ -550,7 +552,7 @@ describe('RelayRecordStore', () => {
       var store = new RelayRecordStore({records});
       var calls = [
         {name: 'first', value: '10'},
-        {name: 'orderby', value: 'TOP_STORIES'}
+        {name: 'orderby', value: 'TOP_STORIES'},
       ];
       expect(store.getRangeMetadata('client:1', calls)).toBe(undefined);
     });
@@ -561,7 +563,7 @@ describe('RelayRecordStore', () => {
       store.getRangeMetadata('client:1', []);
       expect([
         'RelayRecordStore.getRangeMetadata(): Expected range to exist if ' +
-        '`edges` has been fetched.'
+        '`edges` has been fetched.',
       ]).toBeWarnedNTimes(1);
     });
 
@@ -594,7 +596,7 @@ describe('RelayRecordStore', () => {
         diffCalls: [
           {name: 'first', value: '1'},
           {name: 'after', value: 'edge:1'},
-        ]
+        ],
       });
       var store = new RelayRecordStore({records});
       var rangeInfo = store.getRangeMetadata('client:1', [
@@ -609,10 +611,10 @@ describe('RelayRecordStore', () => {
       ]);
       expect(rangeInfo.requestedEdges).toEqual([{
         edgeID: 'edge:1',
-        nodeID: 'node:1'
+        nodeID: 'node:1',
       }]);
       expect(rangeInfo.filterCalls).toEqual([
-        {name: 'orderby', value: ['TOP_STORIES']}
+        {name: 'orderby', value: ['TOP_STORIES']},
       ]);
     });
   });
@@ -634,8 +636,8 @@ describe('RelayRecordStore', () => {
       var calls = [
         {
           name: 'orderby',
-          value: 'TOP_STORIES'
-        }
+          value: 'TOP_STORIES',
+        },
       ];
       var records = {
         'client:1': {
@@ -662,7 +664,7 @@ describe('RelayRecordStore', () => {
     it('returns null if the record is not in a connection', () => {
       var records = {
         '1': {
-          __dataID__: '1'
+          __dataID__: '1',
         },
       };
       var store = new RelayRecordStore({records});
@@ -672,7 +674,7 @@ describe('RelayRecordStore', () => {
     it('returns the connection ids containing the node', () => {
       var records = {
         '1': {
-          __dataID__: '1'
+          __dataID__: '1',
         },
         'range:1': {
           __dataID__: 'range:1',
@@ -690,7 +692,7 @@ describe('RelayRecordStore', () => {
       var store = new RelayRecordStore({records}, null, nodeRangeMap);
       expect(store.getConnectionIDsForRecord('1')).toEqual([
         'range:1',
-        'range:2'
+        'range:2',
       ]);
 
       // node/connection link is cleared when the node is deleted
@@ -723,11 +725,11 @@ describe('RelayRecordStore', () => {
         '1': {
           __dataID__: '1',
           'photos': {
-            __dataID__: '2'
+            __dataID__: '2',
           },
           'photos.orderby(likes)': {
-            __dataID__: '3'
-          }
+            __dataID__: '3',
+          },
         },
       };
       var store = new RelayRecordStore({records});

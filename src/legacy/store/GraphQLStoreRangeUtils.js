@@ -67,7 +67,7 @@ var GraphQLStoreRangeUtils = {
       rangeData[key] = {
         dataID: dataID,
         calls: calls,
-        callValues: callValues
+        callValues: callValues,
       };
     }
     return key;

@@ -17,7 +17,7 @@
  * Types that Relay framework users may find useful.
  */
 import type URI from 'URI';
-import type {DataID, ClientMutationID} from 'RelayInternalTypes';
+import type {DataID} from 'RelayInternalTypes';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 
 // Routes and variables

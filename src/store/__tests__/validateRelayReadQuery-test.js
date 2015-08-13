@@ -47,7 +47,7 @@ describe('validateRelayReadQuery', () => {
           alias
         );
         return true;
-      }
+      },
     });
   });
 

@@ -326,8 +326,8 @@ function handleRangeAdd(
     cursor: cursor,
     node: {
       ...edge.node,
-      id: nodeID
-    }
+      id: nodeID,
+    },
   };
 
   // add the node to every connection for this field

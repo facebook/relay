@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+ /* eslint no-shadow: 1 */
+
 'use strict';
 
 var RelayTestUtils = require('RelayTestUtils');
@@ -16,14 +18,11 @@ RelayTestUtils.unmockRelay();
 
 describe('splitDeferredRelayQueries()', () => {
   // modules
-  var GraphQL;
   var Relay;
   var RelayQuery;
-  var RelayQueryTransform;
 
   var flattenRelayQuery;
   var generateRQLFieldAlias;
-  var printRelayQuery;
   var splitDeferredRelayQueries;
 
   // helper functions
@@ -274,8 +273,9 @@ describe('splitDeferredRelayQueries()', () => {
     // field has two `node` children:
     // - the requisite `node{id}`
     // - the nested deferred fragment
-    expect(flattenRelayQuery(deferred[0].deferred[0].required)).
-      toEqualQueryRoot(flattenRelayQuery(getNode(Relay.QL`
+    expect(
+      flattenRelayQuery(deferred[0].deferred[0].required)
+    ).toEqualQueryRoot(flattenRelayQuery(getNode(Relay.QL`
       query {
         viewer {
           newsFeed {

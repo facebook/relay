@@ -42,7 +42,7 @@ if (__DEV__) {
      * At the moment, "well-formed" means that the query does not contain
      * duplicate aliases.
      */
-    validateRelayReadQuery = function validateRelayReadQuery(
+    validateRelayReadQuery = function(
       queryNode: RelayQuery.Node,
       options?: StoreReaderOptions
     ): void {

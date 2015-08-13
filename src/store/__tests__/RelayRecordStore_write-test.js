@@ -14,7 +14,6 @@
 jest.autoMockOff();
 
 describe('RelayRecordStore', () => {
-  var GraphQL;
   var GraphQLRange;
   var RelayConnectionInterface;
   var RelayMockCacheManager;
@@ -75,7 +74,7 @@ describe('RelayRecordStore', () => {
       var cache = RelayMockCacheManager.genCacheManager();
       var records = {
         '1': {
-          __dataID__: '1'
+          __dataID__: '1',
         },
       };
       var store = new RelayRecordStore({records}, null, null, cache);
@@ -178,7 +177,7 @@ describe('RelayRecordStore', () => {
         is_verified: true,
         phone_number: {
           display_number: '1-800-555-1212', // directory assistance
-        }
+        },
       };
       store.putField('1', 'all_phones', [phone]);
       expect(store.getField('1', 'all_phones')).toEqual([phone]);
@@ -420,7 +419,7 @@ describe('RelayRecordStore', () => {
       );
     });
 
-    it('overwrites ranges if present',  () => {
+    it('overwrites ranges if present', () => {
       var cache = RelayMockCacheManager.genCacheManager();
       var records = {};
       var store = new RelayRecordStore({records}, null, null, cache);
@@ -482,11 +481,11 @@ describe('RelayRecordStore', () => {
       var calls = [
         {
           name: 'orderby',
-          value: 'TOP_STORIES'
+          value: 'TOP_STORIES',
         },
         {
           name: 'first',
-          value: '10'
+          value: '10',
         },
       ];
       store.putRecord('1');
@@ -550,8 +549,8 @@ describe('RelayRecordStore', () => {
       );
 
       // node are automatically associated with the range
-      nodes.forEach(nodeID => {
-        expect(store.getConnectionIDsForRecord(nodeID)).toEqual([connectionID]);
+      nodes.forEach(node => {
+        expect(store.getConnectionIDsForRecord(node)).toEqual([connectionID]);
       });
 
       var rangeInfo = store.getRangeMetadata(connectionID, calls);
@@ -580,7 +579,6 @@ describe('RelayRecordStore', () => {
     var queuedRecords;
     var queuedStore;
     var records;
-    var store;
 
     var _inc = 0;
     function addEdgeToStore(store) {
@@ -666,7 +664,7 @@ describe('RelayRecordStore', () => {
       var rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
         edgeID,
-        firstEdgeID
+        firstEdgeID,
       ]);
       expect(store.getConnectionIDsForRecord(nodeID)).toEqual([connectionID]);
       expect(cache.cacheField).toBeCalledWith(
@@ -685,7 +683,7 @@ describe('RelayRecordStore', () => {
       var rangeInfo = queuedStore.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
         edgeID,
-        firstEdgeID
+        firstEdgeID,
       ]);
       // cache not updated on optimistic range update
       expect(cache.cacheField).not.toBeCalledWith(
@@ -697,7 +695,7 @@ describe('RelayRecordStore', () => {
       // base store is unchanged
       rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
-        firstEdgeID
+        firstEdgeID,
       ]);
       expect(store.getConnectionIDsForRecord(nodeID)).toEqual(null);
     });
@@ -711,7 +709,7 @@ describe('RelayRecordStore', () => {
       var rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
         lastEdgeID,
-        edgeID
+        edgeID,
       ]);
       expect(store.getConnectionIDsForRecord(nodeID)).toEqual([connectionID]);
       expect(cache.cacheField).toBeCalledWith(
@@ -730,7 +728,7 @@ describe('RelayRecordStore', () => {
       var rangeInfo = queuedStore.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
         lastEdgeID,
-        edgeID
+        edgeID,
       ]);
       // cache not updated on optimistic range update
       expect(cache.cacheField).not.toBeCalledWith(
@@ -742,14 +740,14 @@ describe('RelayRecordStore', () => {
       // base store is unchanged
       rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
-        lastEdgeID
+        lastEdgeID,
       ]);
       expect(store.getConnectionIDsForRecord(nodeID)).toEqual(null);
     });
 
     it('deletes edges from base stores', () => {
       expect(store.getConnectionIDsForRecord(firstNodeID)).toEqual([
-        connectionID
+        connectionID,
       ]);
       store.applyRangeUpdate(connectionID, firstEdgeID, REMOVE);
 
@@ -782,10 +780,10 @@ describe('RelayRecordStore', () => {
       // base store is unchanged
       rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
-        firstEdgeID
+        firstEdgeID,
       ]);
       expect(store.getConnectionIDsForRecord(firstNodeID)).toEqual([
-        connectionID
+        connectionID,
       ]);
     });
 
@@ -798,7 +796,7 @@ describe('RelayRecordStore', () => {
       var calls = [{name: 'first', value: 1}];
       var rangeInfo = queuedStore.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
-        firstEdgeID
+        firstEdgeID,
       ]);
     });
 
@@ -811,7 +809,7 @@ describe('RelayRecordStore', () => {
       var calls = [{name: 'last', value: 1}];
       var rangeInfo = queuedStore.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
-        lastEdgeID
+        lastEdgeID,
       ]);
     });
   });

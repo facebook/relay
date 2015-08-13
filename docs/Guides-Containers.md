@@ -28,10 +28,10 @@ class ProfilePicture extends React.Component {
     //     size
     //   }
     // }
-    var user = this.props.user;
+    var profilePhoto = this.props.user.profilePhoto;
     return (
       <View>
-        <Image uri={user.profilePhoto.uri} width={...} />
+        <Image uri={profilePhoto.uri} width={profilePhoto.size} />
         <Slider onChange={value => this.setSize(value)} />
       </View>
     );

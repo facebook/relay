@@ -11,8 +11,6 @@
  * @typechecks
  */
 
- /* eslint consistent-return: 1 */
-
 'use strict';
 
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
@@ -549,7 +547,7 @@ class RelayDiffQueryBuilder {
         '`%s`.',
         connectionField.getStorageKey()
       );
-      return;
+      return {};
     }
 
     var hasSplitQueries = false;

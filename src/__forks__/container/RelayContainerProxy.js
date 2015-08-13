@@ -11,8 +11,6 @@
  * @flow
  */
 
- /* eslint no-shadow: 1 */
-
 'use strict';
 
 import type {RelayContainer} from 'RelayTypes';

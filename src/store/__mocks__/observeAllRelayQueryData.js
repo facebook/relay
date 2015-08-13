@@ -7,9 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
- /* eslint no-shadow: 1 */
-
 'use strict';
+
 var actualImplementation = require.requireActual('observeAllRelayQueryData');
 
 var mockImplementation = jest.genMockFunction().mockImplementation(

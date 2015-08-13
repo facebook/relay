@@ -41,7 +41,6 @@ rules:
   consistent-return: 2
   no-unused-vars: [2, args: none]
   quotes: [2, single, avoid-escape]
-  no-shadow: 2
   no-multi-spaces: 2
 
   # WISHLIST. One day...

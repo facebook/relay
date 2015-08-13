@@ -23,7 +23,7 @@ var compiler = webpack({
       {
         test: /\.js$/,
         loader: 'babel',
-        query: {stage: 0, plugins: ['./build/babelGraphQLPlugin']}
+        query: {stage: 0, plugins: ['./build/babelRelayPlugin']}
       }
     ]
   },

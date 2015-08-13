@@ -28,7 +28,7 @@ var compiler = webpack({
         loader: 'babel',
         query: {
           stage: 0,
-          plugins: ['./build/babelGraphQLPlugin']
+          plugins: ['./build/babelRelayPlugin']
         }
       },
       {

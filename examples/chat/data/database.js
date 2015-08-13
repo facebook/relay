@@ -1,4 +1,26 @@
-var _messages = [
+export class Message extends Object {}
+export class User extends Object {}
+
+// Mock authenticated ID
+const VIEWER_ID = 'Bill';
+
+// Mock user data
+var viewer = new User();
+viewer.id = VIEWER_ID;
+var usersById = {
+  [VIEWER_ID]: viewer
+};
+
+// Mock message data
+var messagesById = messages.reduce((preMessages, message) => {
+  preMessages[message.id] = message;
+  return preMessages;
+}, {});
+var messageIdsByUser = {
+  [VIEWER_ID]: []
+};
+
+var messages = [
   {
     id: 'm_1',
     threadID: 't_1',
@@ -57,27 +79,35 @@ var _messages = [
   }
 ];
 
-module.exports = {
-  name: 'message',
-  // at least one of the CRUD methods is required
-  read: function (req, resource, params, config, callback) {
-    setTimeout(function () {
-      callback(null, JSON.parse(JSON.stringify(_messages)));
-    }, 10);
-  },
-  create: function (req, resource, params, body, config, callback) {
-    _messages.push({
-      id: params.id,
-      threadID: params.threadID,
-      threadName: params.threadName,
-      authorName: params.authorName,
-      text: params.text,
-      timestamp: params.timestamp
-    });
-    setTimeout(function () {
-      callback(null, _messages);
-    }, 10);
-  }
-  // update: function (resource, params, body, config, callback) {},
-  // delete: function (resource, params, config, callback) {}
-};
+
+
+export function addMessage(text, currentThreadID) {
+  var timestamp = Date.now();
+  var message = new Message();
+  message.id = 'm_' + timestamp;
+  message.threadID = currentThreadID || 't_' + timestamp;
+  message.authorName = 'Bill'; // hard coded for the exampl
+  message.text = text;
+  message.timestamp = timestamp;
+  message.isRead = true;
+
+  messagesById[message.id] = message;
+  messageIdsByUser[VIEWER_ID].push(message.id);
+  return message.id;
+}
+
+export function getMessage(id) {
+  return messagesById[id];
+}
+
+export function getMessages() {
+  return messageIdsByUser[VIEWER_ID].map((id) => getMessage[id]);
+}
+
+export function getUser(id) {
+  return usersById[VIEWER_ID];
+}
+
+export function getViewer() {
+  return getUser(VIEWER_ID);
+}

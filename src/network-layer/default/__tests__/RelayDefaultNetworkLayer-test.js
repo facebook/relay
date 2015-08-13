@@ -111,7 +111,7 @@ describe('RelayDefaultNetworkLayer', () => {
       });
       expect(body).toEqual(JSON.stringify({
         query: request.getQueryString(),
-        variables: JSON.stringify(variables),
+        variables: variables,
       }));
     });
 
@@ -195,7 +195,7 @@ describe('RelayDefaultNetworkLayer', () => {
       var {body, fetchTimeout, method, retryDelays} = call[1];
       expect(body).toBe(JSON.stringify({
         query: requestA.getQueryString(),
-        variables: JSON.stringify(queryA.getVariables()),
+        variables: queryA.getVariables(),
       }));
       expect(fetchTimeout).toBe(networkConfig.timeout);
       expect(method).toBe('POST');

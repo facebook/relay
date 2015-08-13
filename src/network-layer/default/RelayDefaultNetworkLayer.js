@@ -125,7 +125,7 @@ class RelayDefaultNetworkLayer {
       init = {
         body: JSON.stringify({
           query: request.getQueryString(),
-          variables: JSON.stringify(request.getVariables()),
+          variables: request.getVariables(),
         }),
         headers: {'Content-Type': 'application/json'},
         method: 'POST',
@@ -142,7 +142,7 @@ class RelayDefaultNetworkLayer {
     return fetchWithRetries(this._uri, {
       body: JSON.stringify({
         query: request.getQueryString(),
-        variables: JSON.stringify(request.getVariables()),
+        variables: request.getVariables(),
       }),
       fetchTimeout: this._timeout,
       headers: {'Content-Type': 'application/json'},

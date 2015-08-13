@@ -9,7 +9,10 @@ next: api-reference-relay-root-container
 
 Relay uses routes to define entry points into a Relay application.
 
-*Note* that Relay Routes don't really implement any URL routing-specific logic or work with History API. In the future we will maybe rename RelayRoute to be something more like RelayQueryRoots or RelayQueryConfig.
+> Note
+>
+> Relay routes don't really implement any URL routing specific logic or work with History API. In the future we will maybe rename RelayRoute to be something more like RelayQueryRoots or RelayQueryConfig.
+
 
 ## Overview
 

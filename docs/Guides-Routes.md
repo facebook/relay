@@ -9,7 +9,9 @@ next: guides-root-container
 
 Routes are responsible for defining the entry points into a Relay application. But in order to understand why routes are necessary, we must first understand the difference between GraphQL queries and fragments.
 
-*Note* that Relay Routes don't really implement any URL routing-specific logic or work with History API. In the future we will maybe rename RelayRoute to be something more like RelayQueryRoots or RelayQueryConfig.
+> Note
+>
+> Relay routes don't really implement any URL routing specific logic or work with History API. In the future we will maybe rename RelayRoute to be something more like RelayQueryRoots or RelayQueryConfig.
 
 ## Queries vs. Fragments
 
@@ -127,6 +129,6 @@ window.addEventListener('popstate', () => {
     <Relay.RootContainer
       Component={UserProfile}
       route={profileRoute}
-  />
+  />, container);
 });
 ```

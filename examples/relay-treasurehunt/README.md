@@ -23,7 +23,7 @@ If at any time you make changes to `data/schema.js`, stop the server,
 regenerate `data/schema.json`, and restart the server:
 
 ```
-./scripts/updateSchema.js
+npm run update-schema
 npm start
 ```
 

@@ -1,3 +1,4 @@
+import 'babel/polyfill';
 import StarWarsApp from './components/StarWarsApp';
 import StarWarsAppHomeRoute from './routes/StarWarsAppHomeRoute';
 

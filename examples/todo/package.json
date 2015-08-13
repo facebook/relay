@@ -1,7 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "start": "babel-node ./server.js"
+    "start": "babel-node ./server.js",
+    "update-schema": "babel-node ./scripts/updateSchema.js"
   },
   "devDependencies": {
     "babel": "5.8.21",

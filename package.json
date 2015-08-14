@@ -25,7 +25,7 @@
     "test": "NODE_ENV=test jest"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": ">= 0.10.0"
   },
   "dependencies": {
     "babel-runtime": "5.8.20",

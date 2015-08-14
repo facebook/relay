@@ -31,7 +31,7 @@ describe('GraphQLFragmentPointer', () => {
     jest.addMatchers({
       toEqualPointer(expected) {
         return this.actual.equals(expected);
-      },
+      }
     });
   });
 

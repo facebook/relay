@@ -39,8 +39,8 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          emailAddresses: [email],
-        },
+          emailAddresses: [email]
+        }
       };
       var store = new RelayRecordStore({records});
       var newEmail = 'user2@example.com';
@@ -54,15 +54,15 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          emailAddresses: [newEmail],
-        },
+          emailAddresses: [newEmail]
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
-          '123': true,
-        },
+          '123': true
+        }
       });
       expect(store.getField('123', 'emailAddresses')).toEqual([newEmail]);
     });
@@ -73,8 +73,8 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          emailAddresses: [email],
-        },
+          emailAddresses: [email]
+        }
       };
       var store = new RelayRecordStore({records});
       var newEmail = 'user2@example.com';
@@ -88,15 +88,15 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          emailAddresses: [newEmail, email],
-        },
+          emailAddresses: [newEmail, email]
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
-          '123': true,
-        },
+          '123': true
+        }
       });
       expect(store.getField('123', 'emailAddresses'))
         .toEqual([newEmail, email]);
@@ -108,8 +108,8 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          emailAddresses: [email],
-        },
+          emailAddresses: [email]
+        }
       };
       var store = new RelayRecordStore({records});
       var newEmail = 'user2@example.com';
@@ -123,15 +123,15 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          emailAddresses: [email, newEmail],
-        },
+          emailAddresses: [email, newEmail]
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
-          '123': true,
-        },
+          '123': true
+        }
       });
       expect(store.getField('123', 'emailAddresses'))
         .toEqual([email, newEmail]);
@@ -143,8 +143,8 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          emailAddresses: [email],
-        },
+          emailAddresses: [email]
+        }
       };
       var store = new RelayRecordStore({records});
 
@@ -158,13 +158,13 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          emailAddresses: [email],
-        },
+          emailAddresses: [email]
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
-        updated: {},
+        updated: {}
       });
       expect(store.getField('123', 'emailAddresses')).toEqual([email]);
     });

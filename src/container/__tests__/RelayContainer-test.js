@@ -68,8 +68,8 @@ describe('RelayContainer', function() {
         ),
         bar: jest.genMockFunction().mockImplementation(
           () => Relay.QL`fragment on Node @relay(plural:true){id,name}`
-        ),
-      },
+        )
+      }
     });
     MockContainer.mock = {render};
 
@@ -100,8 +100,8 @@ describe('RelayContainer', function() {
     it('throws if container defines invalid `Relay.QL` fragment', () => {
       var BadContainer = Relay.createContainer(MockComponent, {
         fragments: {
-          viewer: () => Relay.QL`query{node(id:"123"){id}}`,
-        },
+          viewer: () => Relay.QL`query{node(id:"123"){id}}`
+        }
       });
       var badFragmentReference = BadContainer.getFragment('viewer');
       expect(() => {
@@ -118,7 +118,7 @@ describe('RelayContainer', function() {
       var TEST_PHOTO_SIZE = 100;
       var MockProfilePhoto = Relay.createContainer(MockComponent, {
         initialVariables: {
-          testPhotoSize: TEST_PHOTO_SIZE,
+          testPhotoSize: TEST_PHOTO_SIZE
         },
         fragments: {
           photo: variables => Relay.QL`
@@ -127,8 +127,8 @@ describe('RelayContainer', function() {
                 uri
               }
             }
-          `,
-        },
+          `
+        }
       });
       var fragment = getNode(
         MockProfilePhoto.getQuery('photo'),
@@ -144,7 +144,7 @@ describe('RelayContainer', function() {
           ),
           new GraphQL.Field(
             'id', null, null, null, null, null, {generated: true}
-          ),
+          )
         ])
       ));
     });
@@ -159,8 +159,8 @@ describe('RelayContainer', function() {
               name,
               ${MockProfileLink.getQuery('user')}
             }
-          `,
-        },
+          `
+        }
       });
       var MockProfileLink = Relay.createContainer(anotherComponent, {
         fragments: {
@@ -169,8 +169,8 @@ describe('RelayContainer', function() {
               id,
               url
             }
-          `,
-        },
+          `
+        }
       });
       var fragment = getNode(
         MockProfile.getQuery('user'),
@@ -179,12 +179,12 @@ describe('RelayContainer', function() {
       expect(fragment).toEqualQueryNode(getNode(
         new GraphQL.QueryFragment('Test', 'Actor', [
           new GraphQL.Field('id'),
-          new GraphQL.Field('name'),
+          new GraphQL.Field('name')
         ], [
           new GraphQL.QueryFragment('Test', 'Actor', [
             new GraphQL.Field('id'),
-            new GraphQL.Field('url'),
-          ]),
+            new GraphQL.Field('url')
+          ])
         ])
       ));
     });
@@ -201,34 +201,34 @@ describe('RelayContainer', function() {
             fragment on Viewer {
               newsFeed,
             }
-          `,
-        },
+          `
+        }
       });
       sideshowFragment = new GraphQL.QueryFragment('Test', 'Viewer');
       feedFragment =
         new GraphQL.QueryFragment('Test', 'Viewer', [
-          new GraphQL.Field('newsFeed'),
+          new GraphQL.Field('newsFeed')
         ]);
     });
 
     it('can conditionally include a fragment based on variables', () => {
       var MockSideshow = Relay.createContainer(MockComponent, {
         initialVariables: {
-          hasSideshow: null,
+          hasSideshow: null
         },
         fragments: {
           viewer: variables => Relay.QL`
             fragment on Viewer {
               ${MockFeed.getQuery('viewer').if(variables.hasSideshow)},
             }
-          `,
-        },
+          `
+        }
       });
 
       // hasSideshow: true
       var fragment = getNode(
         MockSideshow.getQuery('viewer', {
-          hasSideshow: new GraphQL.CallVariable('sideshow'),
+          hasSideshow: new GraphQL.CallVariable('sideshow')
         }),
         {sideshow: true}
       );
@@ -242,7 +242,7 @@ describe('RelayContainer', function() {
       // hasSideshow: false
       fragment = getNode(
         MockSideshow.getQuery('viewer', {
-          hasSideshow: new GraphQL.CallVariable('sideshow'),
+          hasSideshow: new GraphQL.CallVariable('sideshow')
         }),
         {sideshow: false}
       );
@@ -252,7 +252,7 @@ describe('RelayContainer', function() {
     it('can conditionally exclude a fragment based on variables', () => {
       var MockSideshow = Relay.createContainer(MockComponent, {
         initialVariables: {
-          hasSideshow: null,
+          hasSideshow: null
         },
         fragments: {
           viewer: variables => Relay.QL`
@@ -261,8 +261,8 @@ describe('RelayContainer', function() {
             .getQuery('viewer')
             .unless(variables.hasSideshow)},
             }
-          `,
-        },
+          `
+        }
       });
 
       // hasSideshow: true
@@ -422,7 +422,7 @@ describe('RelayContainer', function() {
       'you are purposely passing in mock data that conforms to ' +
       'the shape of this component\'s fragment.',
       'foo',
-      'MockComponent',
+      'MockComponent'
     ]).toBeWarnedNTimes(1);
   });
 
@@ -443,7 +443,7 @@ describe('RelayContainer', function() {
       'a prop from the parent. Pass an explicit `null` if this is ' +
       'intentional.',
       'bar',
-      'MockComponent',
+      'MockComponent'
     ]).toBeWarnedNTimes(1);
   });
 
@@ -509,7 +509,7 @@ describe('RelayContainer', function() {
   it('re-renders if props resolve to different objects', () => {
     var mockDataList = [
       {__dataID__: '42', id: '42', name: 'Tim', ...mockFooPointer},
-      {__dataID__: '42', id: '42', name: 'Tee', ...mockFooPointer},
+      {__dataID__: '42', id: '42', name: 'Tee', ...mockFooPointer}
     ];
 
     GraphQLStoreQueryResolver.mockResolveImplementation(0, function() {
@@ -538,7 +538,7 @@ describe('RelayContainer', function() {
     var mockDataSet = {
       '42': {__dataID__: '42', name: 'Tim'},
       '43': {__dataID__: '43', name: 'Tee'},
-      '44': {__dataID__: '44', name: 'Toe'},
+      '44': {__dataID__: '44', name: 'Toe'}
     };
     var render = jest.genMockFunction().mockImplementation(() => <div />);
     var shouldComponentUpdate = jest.genMockFunction();
@@ -549,8 +549,8 @@ describe('RelayContainer', function() {
       fragments: {
         foo: jest.genMockFunction().mockImplementation(
           () => Relay.QL`fragment on Node{id,name}`
-        ),
-      },
+        )
+      }
     });
 
     GraphQLStoreQueryResolver.mockResolveImplementation(0, (pointer) => {

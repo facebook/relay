@@ -44,7 +44,7 @@ describe('toGraphQL', function() {
           'Expected ' + expected + not +
           'to equal ' + actual;
         return expected === actual;
-      },
+      }
     });
   });
 
@@ -147,7 +147,7 @@ describe('toGraphQL', function() {
         }
       }
     `, {
-      q: value,
+      q: value
     });
     expect(relayQuery.getRootCall().value).toEqual(value);
     var convertedQuery = toGraphQL.Query(relayQuery);
@@ -163,7 +163,7 @@ describe('toGraphQL', function() {
         }
       }
     `, {
-      q: value,
+      q: value
     });
     expect(relayQuery.getRootCall().value).toEqual(value);
     var convertedQuery = toGraphQL.Query(relayQuery);

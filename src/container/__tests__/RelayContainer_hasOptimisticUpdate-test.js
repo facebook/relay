@@ -39,7 +39,7 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
       }
     }
     MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {foo: () => Relay.QL`fragment on Node{id}`},
+      fragments: {foo: () => Relay.QL`fragment on Node{id}`}
     });
     RelayTestRenderer = RelayTestUtils.createRenderer();
 

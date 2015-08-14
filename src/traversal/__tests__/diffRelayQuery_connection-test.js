@@ -48,7 +48,7 @@ describe('diffRelayQuery', () => {
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
 
     rootCallMap = {
-      'viewer': {'': 'client:viewer'},
+      'viewer': {'': 'client:viewer'}
     };
 
     jest.addMatchers(RelayTestUtils.matchers);
@@ -89,14 +89,14 @@ describe('diffRelayQuery', () => {
           edges: [
             {cursor: 'c1', node: {id: 's1'}},
             {cursor: 'c2', node: {id: 's2'}},
-            {cursor: 'c3', node: {id: 's3'}},
+            {cursor: 'c3', node: {id: 's3'}}
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
-            [HAS_PREV_PAGE]: false,
-          },
-        },
-      },
+            [HAS_PREV_PAGE]: false
+          }
+        }
+      }
     };
     var query = getNode(Relay.QL`
       query {
@@ -132,14 +132,14 @@ describe('diffRelayQuery', () => {
           edges: [
             {cursor: 'c1', node: {id: 's1'}},
             {cursor: 'c2', node: {id: 's2'}},
-            {cursor: 'c3', node: {id: 's3'}},
+            {cursor: 'c3', node: {id: 's3'}}
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
-            [HAS_PREV_PAGE]: false,
-          },
-        },
-      },
+            [HAS_PREV_PAGE]: false
+          }
+        }
+      }
     };
     var query = getNode(Relay.QL`
       query {
@@ -187,14 +187,14 @@ describe('diffRelayQuery', () => {
           edges: [
             {cursor: 'c1', node: {id:'', message:{text:'s1'}}},
             {cursor: 'c2', node: {id:'', message:{text:'s1'}}},
-            {cursor: 'c3', node: {id:'', message:{text:'s1'}}},
+            {cursor: 'c3', node: {id:'', message:{text:'s1'}}}
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
-            [HAS_PREV_PAGE]: false,
-          },
-        },
-      },
+            [HAS_PREV_PAGE]: false
+          }
+        }
+      }
     };
     var writeQuery = getNode(Relay.QL`
       query {
@@ -236,7 +236,7 @@ describe('diffRelayQuery', () => {
       'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
       'if the node is refetchable by `id`. Cannot refetch data for field ' +
       '`%s`.',
-      'newsFeed',
+      'newsFeed'
     ]).toBeWarnedNTimes(3);
   });
 
@@ -252,14 +252,14 @@ describe('diffRelayQuery', () => {
           edges: [
             {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
             {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
-            {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}},
+            {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}}
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
-            [HAS_PREV_PAGE]: false,
-          },
-        },
-      },
+            [HAS_PREV_PAGE]: false
+          }
+        }
+      }
     };
     var writeQuery = getNode(Relay.QL`
       query {
@@ -338,14 +338,14 @@ describe('diffRelayQuery', () => {
             edges: [
               {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
               {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
-              {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}},
+              {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}}
             ],
             [PAGE_INFO]: {
               [HAS_NEXT_PAGE]: true,
-              [HAS_PREV_PAGE]: false,
-            },
-          },
-        },
+              [HAS_PREV_PAGE]: false
+            }
+          }
+        }
       };
       var writeQuery = getNode(Relay.QL`
         query {
@@ -472,14 +472,14 @@ describe('diffRelayQuery', () => {
             edges: [
               {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
               {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
-              {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}},
+              {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}}
             ],
             [PAGE_INFO]: {
               [HAS_NEXT_PAGE]: true,
-              [HAS_PREV_PAGE]: false,
-            },
-          },
-        },
+              [HAS_PREV_PAGE]: false
+            }
+          }
+        }
       };
       var writeQuery = getNode(Relay.QL`
         query {
@@ -550,7 +550,7 @@ describe('diffRelayQuery', () => {
         'RelayDiffQueryBuilder: connection `edges{*}` fields can only be ' +
         'refetched if the connection supports the `find` call. Cannot ' +
         'refetch data for field `%s`.',
-        'notificationStories',
+        'notificationStories'
       ]).toBeWarnedNTimes(3);
     }
   );
@@ -565,14 +565,14 @@ describe('diffRelayQuery', () => {
       viewer: {
         [alias]: {
           edges: [
-            {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
+            {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}}
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
-            [HAS_PREV_PAGE]: false,
-          },
-        },
-      },
+            [HAS_PREV_PAGE]: false
+          }
+        }
+      }
     };
     var writeQuery = getNode(Relay.QL`
       query {

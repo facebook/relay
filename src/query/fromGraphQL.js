@@ -70,14 +70,14 @@ var fromGraphQL = {
       'fromGraphQL.Operation(): Expected a mutation/subscription node.'
     );
     return node;
-  },
+  }
 };
 
 RelayProfiler.instrumentMethods(fromGraphQL, {
   Node: 'fromGraphQL.Node',
   Field: 'fromGraphQL.Field',
   Fragment: 'fromGraphQL.Fragment',
-  Query: 'fromGraphQL.Query',
+  Query: 'fromGraphQL.Query'
 });
 
 module.exports = fromGraphQL;

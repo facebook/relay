@@ -91,7 +91,7 @@ var RelayNodeInterface = {
     }
 
     return results;
-  },
+  }
 };
 
 function getBatchCallResult(

@@ -11,8 +11,6 @@
  * @flow
  */
 
-/* eslint comma-dangle: 1 */
-
 'use strict';
 
 import type GraphQL from 'GraphQL_EXPERIMENTAL';
@@ -271,8 +269,8 @@ var RelayMutationQuery = {
     var children = [
       nullthrows(RelayMutationQuery.buildFragmentForOptimisticUpdate({
         response,
-        fatQuery,
-      })),
+        fatQuery
+      }))
     ];
     // TODO: Can this method ever return null? Task #7705258.
     return nullthrows(flattenRelayQuery(RelayQuery.Node.buildMutation(
@@ -312,7 +310,7 @@ var RelayMutationQuery = {
         null,
         null,
         {'requisite':true}
-      ),
+      )
     ];
 
     configs.forEach(config => {
@@ -335,7 +333,7 @@ var RelayMutationQuery = {
             parentID: config.parentID,
             parentName: config.parentName,
             rangeBehaviors: config.rangeBehaviors,
-            tracker,
+            tracker
           }));
           break;
 
@@ -346,7 +344,7 @@ var RelayMutationQuery = {
             fatQuery,
             parentID: config.parentID,
             parentName: config.parentName,
-            tracker,
+            tracker
           }));
           children.push(RelayQuery.Node.buildField(config.deletedIDFieldName));
           break;
@@ -355,7 +353,7 @@ var RelayMutationQuery = {
           children.push(RelayMutationQuery.buildFragmentForFields({
             fatQuery,
             fieldIDs: config.fieldIDs,
-            tracker,
+            tracker
           }));
           break;
       }
@@ -369,7 +367,7 @@ var RelayMutationQuery = {
       children,
       mutation.metadata
     )));
-  },
+  }
 };
 
 function getFieldFromFatQuery(
@@ -419,7 +417,7 @@ function buildEdgeField(
   edgeFields: Array<RelayQuery.Node>
 ): RelayQuery.Field {
   var fields = [
-    RelayQuery.Node.buildField('cursor'),
+    RelayQuery.Node.buildField('cursor')
   ];
   if (RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD &&
       !GraphQLStoreDataHandler.isClientID(parentID)) {

@@ -61,7 +61,7 @@ describe('RelayStoreData', function() {
       CLIENT_MUTATION_ID,
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
-      PAGE_INFO,
+      PAGE_INFO
     } = RelayConnectionInterface);
 
     cacheManager = RelayMockCacheManager.genCacheManager();
@@ -108,7 +108,7 @@ describe('RelayStoreData', function() {
             }
           )
         );
-      },
+      }
     });
   });
 
@@ -120,13 +120,13 @@ describe('RelayStoreData', function() {
     expect(cacheManager).toContainCalledMethods({
       cacheNode: 0,
       cacheField: 2,
-      cacheRootCall: 0,
+      cacheRootCall: 0
     });
     expect(cacheManager.cacheField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
-        id: '123',
-      },
+        id: '123'
+      }
     });
   });
 
@@ -138,7 +138,7 @@ describe('RelayStoreData', function() {
     expect(cacheManager).toContainCalledMethods({
       cacheNode: 0,
       cacheField: 2,
-      cacheRootCall: 1,
+      cacheRootCall: 1
     });
     expect(cacheManager.cacheRootCall).toBeCalledWith(
       'username',
@@ -148,8 +148,8 @@ describe('RelayStoreData', function() {
     expect(cacheManager.cacheField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
-        id: '123',
-      },
+        id: '123'
+      }
     });
   });
 
@@ -161,14 +161,14 @@ describe('RelayStoreData', function() {
     expect(cacheManager).toContainCalledMethods({
       cacheNode: 0,
       cacheField: 3,
-      cacheRootCall: 1,
+      cacheRootCall: 1
     });
     expect(cacheManager.cacheField).toBeCalledWithNodeFields({
       'client:viewer': {
         __dataID__: 'client:viewer',
         __path__: getPathToRecord('client:viewer'),
-        isFbEmployee: true,
-      },
+        isFbEmployee: true
+      }
     });
   });
 
@@ -189,28 +189,28 @@ describe('RelayStoreData', function() {
         id: '123',
         hometown: {
           id: '456',
-          url: 'http://...',
-        },
-      },
+          url: 'http://...'
+        }
+      }
     };
     storeData.handleQueryPayload(query, response);
 
     expect(cacheManager).toContainCalledMethods({
       cacheNode: 0,
       cacheField: 6,
-      cacheRootCall: 0,
+      cacheRootCall: 0
     });
     expect(cacheManager.cacheField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
         id: '123',
-        hometown: {__dataID__: '456'},
+        hometown: {__dataID__: '456'}
       },
       '456': {
         __dataID__: '456',
         id: '456',
-        url: 'http://...',
-      },
+        url: 'http://...'
+      }
     });
   });
 
@@ -230,9 +230,9 @@ describe('RelayStoreData', function() {
         id: '123',
         screennames: [
           {service: 'GTALK'},
-          {service: 'TWITTER'},
-        ],
-      },
+          {service: 'TWITTER'}
+        ]
+      }
     };
     storeData.handleQueryPayload(query, response);
 
@@ -240,7 +240,7 @@ describe('RelayStoreData', function() {
     expect(cacheManager).toContainCalledMethods({
       cacheNode: 0,
       cacheField: 9,
-      cacheRootCall: 0,
+      cacheRootCall: 0
     });
     expect(cacheManager.cacheField).toBeCalledWithNodeFields({
       '123': {
@@ -248,19 +248,19 @@ describe('RelayStoreData', function() {
         id: '123',
         screennames: [
           {__dataID__: 'client:1'},
-          {__dataID__: 'client:2'},
-        ],
+          {__dataID__: 'client:2'}
+        ]
       },
       'client:1': {
         __dataID__: 'client:1',
         __path__: getPathToRecord('client:1'),
-        service: 'GTALK',
+        service: 'GTALK'
       },
       'client:2': {
         __dataID__: 'client:2',
         __path__: getPathToRecord('client:2'),
-        service: 'TWITTER',
-      },
+        service: 'TWITTER'
+      }
     });
   });
 
@@ -291,64 +291,64 @@ describe('RelayStoreData', function() {
           edges: [
             {
               node: {
-                id: '1',
+                id: '1'
               },
-              cursor: '1',
+              cursor: '1'
             },
             {
               node: {
-                id: '2',
+                id: '2'
               },
-              cursor: '2',
-            },
+              cursor: '2'
+            }
           ],
           [PAGE_INFO]: {
             [HAS_PREV_PAGE]: false,
-            [HAS_NEXT_PAGE]: true,
-          },
-        },
-      },
+            [HAS_NEXT_PAGE]: true
+          }
+        }
+      }
     };
     storeData.handleQueryPayload(query, response);
 
     expect(cacheManager).toContainCalledMethods({
       cacheNode: 0,
       cacheField: 21,
-      cacheRootCall: 0,
+      cacheRootCall: 0
     });
     expect(cacheManager.cacheField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
         id: '123',
-        friends: {__dataID__: 'client:1'},
+        friends: {__dataID__: 'client:1'}
       },
       'client:1': {
         __dataID__: 'client:1',
         __path__: getPathToRecord('client:1'),
         __filterCalls__: [],
         __forceIndex__: 0,
-        __range__: getRangeForRecord('client:1'),
+        __range__: getRangeForRecord('client:1')
       },
       'client:client:1:1': {
         __dataID__: 'client:client:1:1',
         __path__: getPathToRecord('client:client:1:1'),
         node: {__dataID__: '1'},
-        cursor: '1',
+        cursor: '1'
       },
       '1': {
         __dataID__: '1',
-        id: '1',
+        id: '1'
       },
       'client:client:1:2': {
         __dataID__: 'client:client:1:2',
         __path__: getPathToRecord('client:client:1:2'),
         node: {__dataID__: '2'},
-        cursor: '2',
+        cursor: '2'
       },
       '2': {
         __dataID__: '2',
-        id: '2',
-      },
+        id: '2'
+      }
     });
   });
 
@@ -379,31 +379,31 @@ describe('RelayStoreData', function() {
           edges: [],
           [PAGE_INFO]: {
             [HAS_PREV_PAGE]: false,
-            [HAS_NEXT_PAGE]: true,
-          },
-        },
-      },
+            [HAS_NEXT_PAGE]: true
+          }
+        }
+      }
     };
     storeData.handleQueryPayload(query, response);
 
     expect(cacheManager).toContainCalledMethods({
       cacheNode: 0,
       cacheField: 9,
-      cacheRootCall: 0,
+      cacheRootCall: 0
     });
     expect(cacheManager.cacheField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
         id: '123',
-        friends: {__dataID__: 'client:1'},
+        friends: {__dataID__: 'client:1'}
       },
       'client:1': {
         __dataID__: 'client:1',
         __path__: getPathToRecord('client:1'),
         __filterCalls__: [],
         __forceIndex__: 0,
-        __range__: getRangeForRecord('client:1'),
-      },
+        __range__: getRangeForRecord('client:1')
+      }
     });
   });
 
@@ -428,8 +428,8 @@ describe('RelayStoreData', function() {
       [CLIENT_MUTATION_ID]: 'abc',
       feedback: {
         id: '123',
-        doesViewerLike: true,
-      },
+        doesViewerLike: true
+      }
     };
     storeData.handleUpdatePayload(
       mutationQuery,
@@ -440,12 +440,12 @@ describe('RelayStoreData', function() {
     expect(cacheManager).toContainCalledMethods({
       cacheNode: 0,
       cacheField: prevCallCount + 2, // both scalar fields are updated
-      cacheRootCall: 0,
+      cacheRootCall: 0
     });
     expect(cacheManager.cacheField).toBeCalledWithNodeFields({
       '123': {
-        doesViewerLike: true,
-      },
+        doesViewerLike: true
+      }
     });
   });
 
@@ -478,17 +478,17 @@ describe('RelayStoreData', function() {
           edges: [
             {
               node: {
-                id: '1',
+                id: '1'
               },
-              cursor: '1',
-            },
+              cursor: '1'
+            }
           ],
           [PAGE_INFO]: {
             [HAS_PREV_PAGE]: false,
-            [HAS_NEXT_PAGE]: true,
-          },
-        },
-      },
+            [HAS_NEXT_PAGE]: true
+          }
+        }
+      }
     };
     storeData.handleQueryPayload(query, response);
 
@@ -496,7 +496,7 @@ describe('RelayStoreData', function() {
       type: RelayMutationType.RANGE_ADD,
       connectionName: 'comments',
       edgeName: 'feedbackCommentEdge',
-      rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
+      rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND}
     }];
 
     var prevCallCount = cacheManager.cacheField.mock.calls.length;
@@ -526,19 +526,19 @@ describe('RelayStoreData', function() {
       [CLIENT_MUTATION_ID]: 'abc',
       feedback: {
         comments: {
-          count: 3,
+          count: 3
         },
-        id: '123',
+        id: '123'
       },
       feedbackCommentEdge: {
         node: {
-          id: '2',
+          id: '2'
         },
         cursor: '2',
         source: {
-          id: '123',
-        },
-      },
+          id: '123'
+        }
+      }
     };
     storeData.handleUpdatePayload(
       mutationQuery,
@@ -549,24 +549,24 @@ describe('RelayStoreData', function() {
     expect(cacheManager).toContainCalledMethods({
       cacheNode: 0,
       cacheField: prevCallCount + 12,
-      cacheRootCall: 0,
+      cacheRootCall: 0
     });
     expect(cacheManager.cacheField).toBeCalledWithNodeFields({
       'client:1': {
         __range__: getRangeForRecord('client:1'),
-        count: 3,
+        count: 3
       },
       'client:client:1:2': {
         __dataID__: 'client:client:1:2',
         __path__: getPathToRecord('client:client:1:2'),
         node: {__dataID__: '2'},
         cursor: '2',
-        source: {__dataID__: '123'},
+        source: {__dataID__: '123'}
       },
       '2': {
         __dataID__: '2',
-        id: '2',
-      },
+        id: '2'
+      }
     });
   });
 
@@ -599,24 +599,24 @@ describe('RelayStoreData', function() {
           edges: [
             {
               node: {
-                id: '1',
+                id: '1'
               },
-              cursor: '1',
-            },
+              cursor: '1'
+            }
           ],
           [PAGE_INFO]: {
             [HAS_PREV_PAGE]: false,
-            [HAS_NEXT_PAGE]: true,
-          },
-        },
-      },
+            [HAS_NEXT_PAGE]: true
+          }
+        }
+      }
     };
     storeData.handleQueryPayload(query, response);
 
     var configs = [{
       type: RelayMutationType.RANGE_DELETE,
       pathToConnection: ['feedback', 'comments'],
-      deletedIDFieldName: 'deletedCommentId',
+      deletedIDFieldName: 'deletedCommentId'
     }];
 
     var prevCallCount = cacheManager.cacheField.mock.calls.length;
@@ -640,9 +640,9 @@ describe('RelayStoreData', function() {
       feedback: {
         id: '123',
         comments: {
-          count: 1,
-        },
-      },
+          count: 1
+        }
+      }
     };
     storeData.handleUpdatePayload(
       mutationQuery,
@@ -653,13 +653,13 @@ describe('RelayStoreData', function() {
     expect(cacheManager).toContainCalledMethods({
       cacheNode: 1,
       cacheField: prevCallCount + 4,
-      cacheRootCall: 0,
+      cacheRootCall: 0
     });
     expect(cacheManager.cacheField).toBeCalledWithNodeFields({
       'client:1': {
         __range__: getRangeForRecord('client:1'),
-        count: 1,
-      },
+        count: 1
+      }
     });
   });
 });

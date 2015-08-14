@@ -59,7 +59,7 @@ function containsRelayQueryRootCall(
 
 var canonicalRootCalls = {
   'nodes': 'node',
-  'usernames': 'username',
+  'usernames': 'username'
 };
 
 /**

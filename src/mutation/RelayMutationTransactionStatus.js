@@ -43,7 +43,7 @@ var RelayMutationTransactionStatus = {
   /**
    * Transaction was sent to the server for comitting but was failed.
    */
-  COMMIT_FAILED: 'COMMIT_FAILED',
+  COMMIT_FAILED: 'COMMIT_FAILED'
 };
 
 module.exports = RelayMutationTransactionStatus;

@@ -36,8 +36,8 @@ var RelayPropTypes = {
     name: PropTypes.string.isRequired,
     params: PropTypes.object.isRequired,
     queries: PropTypes.object.isRequired,
-    uri: PropTypes.object,
-  }),
+    uri: PropTypes.object
+  })
 };
 
 module.exports = RelayPropTypes;

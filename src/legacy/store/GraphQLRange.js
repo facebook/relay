@@ -26,7 +26,7 @@ var {
   END_CURSOR,
   HAS_NEXT_PAGE,
   HAS_PREV_PAGE,
-  START_CURSOR,
+  START_CURSOR
 } = RelayConnectionInterface;
 
 /**
@@ -176,7 +176,7 @@ class GraphQLRange {
     // the range (i.e. last(N)).
     this._orderedSegments = [
       new GraphQLSegment(),
-      new GraphQLSegment(),
+      new GraphQLSegment()
     ];
 
     // GraphQLRange nodes can also support static queries like surrounds,
@@ -247,7 +247,7 @@ class GraphQLRange {
 
     this._staticQueriesMap[calls] = {
       edgeIDs: edgeIDsToStore,
-      cursors: cursorsToStore,
+      cursors: cursorsToStore
     };
   }
 
@@ -756,7 +756,7 @@ class GraphQLRange {
       return {
         requestedEdgeIDs: [],
         diffCalls: [],
-        pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
+        pageInfo: RelayConnectionInterface.getDefaultPageInfo()
       };
     }
     if ((calls.first && calls.before) || (calls.last && calls.after)) {
@@ -768,7 +768,7 @@ class GraphQLRange {
       return {
         requestedEdgeIDs: [],
         diffCalls: [],
-        pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
+        pageInfo: RelayConnectionInterface.getDefaultPageInfo()
       };
     }
     if (!isValidRangeCallValues(calls)) {
@@ -779,7 +779,7 @@ class GraphQLRange {
       return {
         requestedEdgeIDs: [],
         diffCalls: [],
-        pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
+        pageInfo: RelayConnectionInterface.getDefaultPageInfo()
       };
     }
     if (calls.first) {
@@ -811,8 +811,8 @@ class GraphQLRange {
           [START_CURSOR]: storedInfo.cursors[0],
           [END_CURSOR]: storedInfo.cursors[storedInfo.cursors.length - 1],
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: true,
-        },
+          [HAS_PREV_PAGE]: true
+        }
       };
     }
 
@@ -821,7 +821,7 @@ class GraphQLRange {
     return {
       requestedEdgeIDs: [],
       diffCalls: queryCalls,
-      pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
+      pageInfo: RelayConnectionInterface.getDefaultPageInfo()
     };
   }
 
@@ -846,7 +846,7 @@ class GraphQLRange {
     var segment;
     var segmentIndex;
     var pageInfo = {
-      ...RelayConnectionInterface.getDefaultPageInfo(),
+      ...RelayConnectionInterface.getDefaultPageInfo()
     };
 
     var afterCursor = calls.after;
@@ -860,7 +860,7 @@ class GraphQLRange {
         return {
           requestedEdgeIDs: [],
           diffCalls: [],
-          pageInfo: pageInfo,
+          pageInfo: pageInfo
         };
       }
       segment = this._orderedSegments[segmentIndex];
@@ -925,7 +925,7 @@ class GraphQLRange {
     return {
       requestedEdgeIDs: requestedEdgeIDs,
       diffCalls: diffCalls,
-      pageInfo: pageInfo,
+      pageInfo: pageInfo
     };
   }
 
@@ -949,7 +949,7 @@ class GraphQLRange {
     var segment;
     var segmentIndex;
     var pageInfo = {
-      ...RelayConnectionInterface.getDefaultPageInfo(),
+      ...RelayConnectionInterface.getDefaultPageInfo()
     };
 
     var beforeCursor = calls.before;
@@ -963,7 +963,7 @@ class GraphQLRange {
         return {
           requestedEdgeIDs: [],
           diffCalls: [],
-          pageInfo: pageInfo,
+          pageInfo: pageInfo
         };
       }
       segment = this._orderedSegments[segmentIndex];
@@ -1028,7 +1028,7 @@ class GraphQLRange {
     return {
       requestedEdgeIDs: requestedEdgeIDs,
       diffCalls: diffCalls,
-      pageInfo: pageInfo,
+      pageInfo: pageInfo
     };
   }
 
@@ -1037,7 +1037,7 @@ class GraphQLRange {
       hasFirst,
       hasLast,
       staticQueriesMap,
-      orderedSegments,
+      orderedSegments
     ] = descriptor;
     var range = new GraphQLRange();
     range._hasFirst = hasFirst;
@@ -1053,13 +1053,13 @@ class GraphQLRange {
       this._hasFirst,
       this._hasLast,
       this._staticQueriesMap,
-      this._orderedSegments,
+      this._orderedSegments
     ];
   }
 
   __debug() {
     return {
-      orderedSegments: this._orderedSegments,
+      orderedSegments: this._orderedSegments
     };
   }
 

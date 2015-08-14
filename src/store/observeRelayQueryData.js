@@ -103,7 +103,7 @@ class RelayQueryDataObservable {
     if (this._lastError) {
       callbacks.onError(this._lastError);
       return {
-        dispose: emptyFunction,
+        dispose: emptyFunction
       };
     }
 
@@ -134,7 +134,7 @@ class RelayQueryDataObservable {
           // No longer observing any dataIDs
           this._observedDataIDs = {};
         }
-      },
+      }
     };
   }
 

@@ -72,17 +72,17 @@ describe('writePayload()', () => {
       var payload = {
         'viewer': {
           actor: {
-            id: '123',
-          },
-        },
+            id: '123'
+          }
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
           'client:viewer': true,
-          '123': true,
+          '123': true
         },
-        updated: {},
+        updated: {}
       });
 
       // viewer has a client id and must be refetched by the original root call
@@ -106,15 +106,15 @@ describe('writePayload()', () => {
       `);
       var payload = {
         '123': {
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          '123': true,
+          '123': true
         },
-        updated: {},
+        updated: {}
       });
 
       expect(store.getRecordStatus('123')).toBe('EXISTENT');
@@ -140,10 +140,10 @@ describe('writePayload()', () => {
           'actor': {
             id: '123',
             address: {
-              city: 'San Francisco',
-            },
-          },
-        },
+              city: 'San Francisco'
+            }
+          }
+        }
       };
       writePayload(store, query, payload);
 
@@ -170,8 +170,8 @@ describe('writePayload()', () => {
         isVerified: true,
         phoneNumber: {
           displayNumber: '1-800-555-1212', // directory assistance
-          countryCode: '1',
-        },
+          countryCode: '1'
+        }
       };
       var query = getNode(Relay.QL`
         query {
@@ -189,8 +189,8 @@ describe('writePayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          allPhones: [phone],
-        },
+          allPhones: [phone]
+        }
       };
       writePayload(store, query, payload);
 
@@ -241,13 +241,13 @@ describe('writePayload()', () => {
                 node: {
                   id: 'node1',
                   address: {
-                    city: 'San Francisco',
-                  },
-                },
-              },
-            ],
-          },
-        },
+                    city: 'San Francisco'
+                  }
+                }
+              }
+            ]
+          }
+        }
       };
       writePayload(store, query, payload);
 
@@ -288,8 +288,8 @@ describe('writePayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          name: 'Joe',
-        },
+          name: 'Joe'
+        }
       };
       writePayload(store, query, payload, tracker);
       var trackedQueries = tracker.trackNodeForID.mock.calls;
@@ -317,9 +317,9 @@ describe('writePayload()', () => {
         '123': {
           id: '123',
           address: {
-            city: 'San Francisco',
-          },
-        },
+            city: 'San Francisco'
+          }
+        }
       };
       var addressID = 'client:1';
       var addressFragment = getNode(fragment).getChildren()[0];
@@ -335,8 +335,8 @@ describe('writePayload()', () => {
     it('tracks new linked records', () => {
       var records = {
         'client:viewer': {
-          __dataID__: 'client:viewer',
-        },
+          __dataID__: 'client:viewer'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -352,9 +352,9 @@ describe('writePayload()', () => {
         viewer: {
           actor: {
             id: '123',
-            name: 'Joe',
-          },
-        },
+            name: 'Joe'
+          }
+        }
       };
       var tracker = new RelayQueryTracker();
       writePayload(store, query, payload, tracker);
@@ -368,8 +368,8 @@ describe('writePayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -389,14 +389,14 @@ describe('writePayload()', () => {
         isVerified: true,
         phoneNumber: {
           displayNumber: '1-800-555-1212', // directory assistance
-          countryCode: '1',
-        },
+          countryCode: '1'
+        }
       };
       var payload = {
         '123': {
           id: '123',
-          allPhones: [phone],
-        },
+          allPhones: [phone]
+        }
       };
       var tracker = new RelayQueryTracker();
       writePayload(store, query, payload, tracker);
@@ -417,8 +417,8 @@ describe('writePayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -444,12 +444,12 @@ describe('writePayload()', () => {
                 cursor: 'c1',
                 node: {
                   id: '456',
-                  name: 'Greg',
-                },
-              },
-            ],
-          },
-        },
+                  name: 'Greg'
+                }
+              }
+            ]
+          }
+        }
       };
       var tracker = new RelayQueryTracker();
       writePayload(store, query, payload, tracker);
@@ -477,8 +477,8 @@ describe('writePayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -504,12 +504,12 @@ describe('writePayload()', () => {
                 cursor: 'c1',
                 node: {
                   id: '456',
-                  name: 'Greg',
-                },
-              },
-            ],
-          },
-        },
+                  name: 'Greg'
+                }
+              }
+            ]
+          }
+        }
       };
       var tracker = new RelayQueryTracker();
       writePayload(store, query, payload, tracker);
@@ -540,12 +540,12 @@ describe('writePayload()', () => {
                 cursor: 'c2',
                 node: {
                   id: '789',
-                  name: 'Jing',
-                },
-              },
-            ],
-          },
-        },
+                  name: 'Jing'
+                }
+              }
+            ]
+          }
+        }
       };
       tracker = new RelayQueryTracker();
       tracker.trackNodeForID.mockClear();
@@ -594,9 +594,9 @@ describe('writePayload()', () => {
           allPhones: [
             {
               phoneNumber: {
-                displayNumber: '1-800-555-1212', // directory assistance
-              },
-            },
+                displayNumber: '1-800-555-1212' // directory assistance
+              }
+            }
           ],
           [alias]: {
             edges: [
@@ -604,12 +604,12 @@ describe('writePayload()', () => {
                 cursor: 'c1',
                 node: {
                   id: '456',
-                  name: 'Tim',
-                },
-              },
-            ],
-          },
-        },
+                  name: 'Tim'
+                }
+              }
+            ]
+          }
+        }
       };
       // populate the store and record the original tracked queries
       var tracker = new RelayQueryTracker();
@@ -627,7 +627,7 @@ describe('writePayload()', () => {
       tracker = new RelayQueryTracker();
       tracker.trackNodeForID.mockClear();
       writePayload(store, query, payload, tracker, {
-        updateTrackedQueries: true,
+        updateTrackedQueries: true
       });
       var nextTracked = tracker.trackNodeForID.mock.calls;
       expect(nextTracked.length).toBe(prevTracked.length);

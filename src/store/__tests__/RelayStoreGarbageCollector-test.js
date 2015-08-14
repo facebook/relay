@@ -44,7 +44,7 @@ describe('RelayStoreGarbageCollector', () => {
         relayStoreData,
         stepLength
       ),
-      storeData: relayStoreData,
+      storeData: relayStoreData
     };
   }
 
@@ -246,8 +246,8 @@ describe('RelayStoreGarbageCollector', () => {
           'client:1': {__dataID__: 'client:1'},
           'client:range': {
             __dataID__: 'client:range',
-            __range__: mockRange,
-          },
+            __range__: mockRange
+          }
         };
         var {garbageCollector, storeData} =
           createRelayStoreGarbageCollector(records);
@@ -259,7 +259,7 @@ describe('RelayStoreGarbageCollector', () => {
         // Collectible on all registered DataIDs now set to true
         garbageCollector.scheduleCollection();
         expect(storeData.getQueuedData()).toEqual({
-          'client:1': {__dataID__: 'client:1'},
+          'client:1': {__dataID__: 'client:1'}
         });
       }
     );
@@ -277,7 +277,7 @@ describe('RelayStoreGarbageCollector', () => {
         var records = {
           a: {__dataID__: 'a'},
           b: {__dataID__: 'b'},
-          c: {__dataID__: 'c'},
+          c: {__dataID__: 'c'}
         };
         var {garbageCollector, storeData} =
           createRelayStoreGarbageCollector(records);
@@ -306,13 +306,13 @@ describe('RelayStoreGarbageCollector', () => {
         jest.runAllTimers();
         expect(storeData.getQueuedData()).toEqual({
           b: {__dataID__: 'b'},
-          c: {__dataID__: 'c'},
+          c: {__dataID__: 'c'}
         });
         // Second step of the second collect-cycle. `b` will be removed.
         (tasks[3])();
         jest.runAllTimers();
         expect(storeData.getQueuedData()).toEqual({
-          c: {__dataID__: 'c'},
+          c: {__dataID__: 'c'}
         });
         // Executing the last step of the last collect-cycle, no more steps will
         // be queued after this step.
@@ -346,17 +346,17 @@ describe('RelayStoreGarbageCollector', () => {
         var records = {
           a: {
             __dataID__: 'a',
-            field: {__dataID__: 'client:1'},
+            field: {__dataID__: 'client:1'}
           },
           b: {__dataID__: 'b'},
           c: {
             __dataID__: 'c',
-            field: {__dataID__: 'client:2'},
+            field: {__dataID__: 'client:2'}
           },
           d: {__dataID__: 'd'},
           e: {__dataID__: 'e'},
           'client:1': {__dataID__: 'client:1'},
-          'client:2': {__dataID__: 'client:2'},
+          'client:2': {__dataID__: 'client:2'}
         };
         var {garbageCollector, storeData} =
           createRelayStoreGarbageCollector(records);
@@ -376,7 +376,7 @@ describe('RelayStoreGarbageCollector', () => {
         // will be scheduled and run asynchronously.
         expect(storeData.getQueuedData()).toEqual({
           d: {__dataID__: 'd'},
-          e: {__dataID__: 'e'},
+          e: {__dataID__: 'e'}
         });
         jest.runAllTimers();
         // Next collection step takes care of the remaining DataIDs `d` and `e`.
@@ -399,14 +399,14 @@ describe('RelayStoreGarbageCollector', () => {
         a: {
           __dataID__: 'a',
           field1: {__dataID__: 'client:1'},
-          field2: {__dataID__: 'client:2'},
+          field2: {__dataID__: 'client:2'}
         },
         'client:1': {__dataID__: 'client:1'},
         'client:2': {
           __dataID__: 'client:2',
-          field3: {__dataID__: 'client:3' },
+          field3: {__dataID__: 'client:3' }
         },
-        'client:3': {__dataID__: 'client:3'},
+        'client:3': {__dataID__: 'client:3'}
       };
       var nodeData = storeData.getNodeData();
       forEachObject(records, (data, dataID) => {
@@ -416,10 +416,10 @@ describe('RelayStoreGarbageCollector', () => {
       var queuedRecords = {
         a: {
           __dataID__: 'a',
-          field2: {__dataID__: 'client:4'},
+          field2: {__dataID__: 'client:4'}
         },
         'client:4': {__dataID__: 'client:4'},
-        'client:5': {__dataID__: 'client:5'},
+        'client:5': {__dataID__: 'client:5'}
       };
       var queuedData = storeData.getQueuedData();
       forEachObject(queuedRecords, (data, dataID) => {
@@ -436,7 +436,7 @@ describe('RelayStoreGarbageCollector', () => {
       garbageCollector.scheduleCollection();
       expect(storeData.getNodeData()).toEqual({});
       expect(storeData.getQueuedData()).toEqual({
-        'client:5': {__dataID__: 'client:5'},
+        'client:5': {__dataID__: 'client:5'}
       });
     });
 
@@ -448,14 +448,14 @@ describe('RelayStoreGarbageCollector', () => {
           a: {
             __dataID__: 'a',
             b: {__dataID__: 'b'},
-            field1: {__dataID__: 'client:1'},
+            field1: {__dataID__: 'client:1'}
           },
           b: {
             __dataID__: 'b',
-            field2: {__dataID__: 'client:2'},
+            field2: {__dataID__: 'client:2'}
           },
           'client:1': {__dataID__: 'client:1'},
-          'client:2': {__dataID__: 'client:2'},
+          'client:2': {__dataID__: 'client:2'}
         };
         var {garbageCollector, storeData} =
           createRelayStoreGarbageCollector(records);
@@ -469,9 +469,9 @@ describe('RelayStoreGarbageCollector', () => {
         expect(storeData.getQueuedData()).toEqual({
           b: {
             __dataID__: 'b',
-            field2: {__dataID__: 'client:2'},
+            field2: {__dataID__: 'client:2'}
           },
-          'client:2': {__dataID__: 'client:2'},
+          'client:2': {__dataID__: 'client:2'}
         });
       }
     );
@@ -479,12 +479,12 @@ describe('RelayStoreGarbageCollector', () => {
     it('removes all edges when a range is removed', () => {
       var mockRange = new GraphQLRange();
       mockRange.getEdgeIDs = jest.genMockFunction().mockReturnValue([
-        'client:1', 'client:2',
+        'client:1', 'client:2'
       ]);
       var records = {
         range: {__dataID__: 'range', __range__: mockRange},
         'client:1': {__dataID__: 'client:1'},
-        'client:2': {__dataID__: 'client:2'},
+        'client:2': {__dataID__: 'client:2'}
       };
       var {garbageCollector, storeData} =
         createRelayStoreGarbageCollector(records);
@@ -492,7 +492,7 @@ describe('RelayStoreGarbageCollector', () => {
       expect(storeData.getQueuedData()).toEqual({
         range: {__dataID__: 'range', __range__: mockRange},
         'client:1': {__dataID__: 'client:1'},
-        'client:2': {__dataID__: 'client:2'},
+        'client:2': {__dataID__: 'client:2'}
       });
 
       garbageCollector.register('range');

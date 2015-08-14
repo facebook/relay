@@ -74,12 +74,12 @@ class RelayChangeTracker {
     if (__DEV__) {
       return {
         created: Object.freeze(this._created),
-        updated: Object.freeze(this._updated),
+        updated: Object.freeze(this._updated)
       };
     }
     return {
       created: this._created,
-      updated: this._updated,
+      updated: this._updated
     };
   }
 }

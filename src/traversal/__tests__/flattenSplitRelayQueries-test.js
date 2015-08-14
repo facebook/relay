@@ -26,7 +26,7 @@ describe('flattenSplitRelayQueries', () => {
   it('returns an empty array when there are no queries', () => {
     var split = {
       required: null,
-      deferred: [],
+      deferred: []
     };
     expect(flattenSplitRelayQueries(split)).toEqual([]);
   });
@@ -34,7 +34,7 @@ describe('flattenSplitRelayQueries', () => {
   it('returns a single required query', () => {
     var split = {
       required: getQuery(),
-      deferred: [],
+      deferred: []
     };
     expect(flattenSplitRelayQueries(split)).toEqual([split.required]);
   });
@@ -44,8 +44,8 @@ describe('flattenSplitRelayQueries', () => {
       required: null,
       deferred: [{
         required: getQuery(),
-        deferred: [],
-      }],
+        deferred: []
+      }]
     };
     expect(flattenSplitRelayQueries(split))
       .toEqual([split.deferred[0].required]);
@@ -57,19 +57,19 @@ describe('flattenSplitRelayQueries', () => {
       deferred: [
         {
           required: getQuery(),
-          deferred: [],
+          deferred: []
         },
         {
           required: getQuery(),
-          deferred: [],
-        },
-      ],
+          deferred: []
+        }
+      ]
     };
     expect(flattenSplitRelayQueries(split))
       .toEqual([
         split.required,
         split.deferred[0].required,
-        split.deferred[1].required,
+        split.deferred[1].required
       ]);
   });
 
@@ -81,16 +81,16 @@ describe('flattenSplitRelayQueries', () => {
           required: getQuery(),
           deferred: [{
             required: getQuery(),
-            deferred: [],
-          }],
-        },
-      ],
+            deferred: []
+          }]
+        }
+      ]
     };
     expect(flattenSplitRelayQueries(split))
       .toEqual([
         split.required,
         split.deferred[0].required,
-        split.deferred[0].deferred[0].required,
+        split.deferred[0].deferred[0].required
       ]);
   });
 });

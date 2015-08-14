@@ -32,7 +32,7 @@ describe('RelayQueryVisitor', () => {
 
     var variables = {
       first: 10,
-      after: 'offset',
+      after: 'offset'
     };
 
     var fragment = Relay.QL`

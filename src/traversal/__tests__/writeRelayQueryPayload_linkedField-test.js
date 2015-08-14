@@ -50,15 +50,15 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         viewer: {
-          actor: null,
-        },
+          actor: null
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          'client:viewer': true,
+          'client:viewer': true
         },
-        updated: {},
+        updated: {}
       });
       expect(store.getRecordStatus(VIEWER_ID)).toBe('EXISTENT');
       expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(null);
@@ -69,12 +69,12 @@ describe('writeRelayQueryPayload()', () => {
         'client:viewer': {
           __dataID__: VIEWER_ID,
           actor: {
-            __dataID__: 'client:1',
-          },
+            __dataID__: 'client:1'
+          }
         },
         'client:1': {
-          __dataID__: 'client:1',
-        },
+          __dataID__: 'client:1'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -88,16 +88,16 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         viewer: {
-          actor: null,
-        },
+          actor: null
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
         },
         updated: {
-          'client:viewer': true,
-        },
+          'client:viewer': true
+        }
       });
       expect(store.getRecordStatus(VIEWER_ID)).toBe('EXISTENT');
       expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(null);
@@ -117,8 +117,8 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         viewer: {
-          actor: undefined,
-        },
+          actor: undefined
+        }
       };
       writePayload(store, query, payload);
       expect(store.getRecordStatus(VIEWER_ID)).toBe('EXISTENT');
@@ -130,13 +130,13 @@ describe('writeRelayQueryPayload()', () => {
         'client:viewer': {
           __dataID__: VIEWER_ID,
           actor: {
-            __dataID__: '123',
-          },
+            __dataID__: '123'
+          }
         },
         '123': {
           __dataID__: '123',
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -150,8 +150,8 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         viewer: {
-          actor: undefined,
-        },
+          actor: undefined
+        }
       };
       writePayload(store, query, payload);
       expect(store.getRecordStatus(VIEWER_ID)).toBe('EXISTENT');
@@ -176,17 +176,17 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         viewer: {
           actor: {
-            id: actorID,
-          },
-        },
+            id: actorID
+          }
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
           'client:viewer': true,
-          '123': true,
+          '123': true
         },
-        updated: {},
+        updated: {}
       });
       expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(actorID);
       expect(store.getRecordStatus(actorID)).toBe('EXISTENT');
@@ -198,12 +198,12 @@ describe('writeRelayQueryPayload()', () => {
         'client:viewer': {
           __dataID__: 'client:viewer',
           actor: {
-            __dataID__: actorID,
-          },
+            __dataID__: actorID
+          }
         },
         '123': {
-          __dataID__: actorID,
-        },
+          __dataID__: actorID
+        }
       };
       var store = new RelayRecordStore({records});
       var nextActorID = '456';
@@ -219,18 +219,18 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         viewer: {
           actor: {
-            id: nextActorID,
-          },
-        },
+            id: nextActorID
+          }
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          '456': true,
+          '456': true
         },
         updated: {
-          'client:viewer': true,
-        },
+          'client:viewer': true
+        }
       });
       expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(nextActorID);
       expect(store.getRecordStatus(nextActorID)).toBe('EXISTENT');
@@ -255,17 +255,17 @@ describe('writeRelayQueryPayload()', () => {
           id: '123',
           // address has no id and receives a generated client id
           address: {
-            city: 'San Francisco',
-          },
-        },
+            city: 'San Francisco'
+          }
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
           '123': true,
-          'client:1': true,
+          'client:1': true
         },
-        updated: {},
+        updated: {}
       });
       expect(store.getLinkedRecordID('123', 'address')).toBe(addressID);
       expect(store.getRecordStatus(addressID)).toBe('EXISTENT');
@@ -279,13 +279,13 @@ describe('writeRelayQueryPayload()', () => {
           __dataID__: '123',
           id: '123',
           address: {
-            __dataID__: addressID,
-          },
+            __dataID__: addressID
+          }
         },
         'client:1': {
           __dataID__: addressID,
-          city: 'San Francisco',
-        },
+          city: 'San Francisco'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -303,14 +303,14 @@ describe('writeRelayQueryPayload()', () => {
           // the address record has no id but should reuse the previously
           // generated client id
           address: {
-            city: 'San Francisco',
-          },
-        },
+            city: 'San Francisco'
+          }
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
-        updated: {},
+        updated: {}
       });
       expect(store.getLinkedRecordID('123', 'address')).toBe(addressID);
       expect(store.getField(addressID, 'city')).toBe('San Francisco');
@@ -321,11 +321,11 @@ describe('writeRelayQueryPayload()', () => {
         'user:1': {
           __dataID__: 'user:1',
           'hometown': {
-            __dataID__: 'hometown:1',
+            __dataID__: 'hometown:1'
           },
-          id: 'user:1',
+          id: 'user:1'
         },
-        'hometown:1': null,
+        'hometown:1': null
       };
       var store = new RelayRecordStore({records});
       store.removeRecord('hometown:1');
@@ -343,18 +343,18 @@ describe('writeRelayQueryPayload()', () => {
           id: 'user:1',
           'hometown': {
             id: 'hometown:1',
-            name: 'World',
-          },
-        },
+            name: 'World'
+          }
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          'hometown:1': true,
+          'hometown:1': true
         },
         updated: {
-          'user:1': true,
-        },
+          'user:1': true
+        }
       });
     });
   });

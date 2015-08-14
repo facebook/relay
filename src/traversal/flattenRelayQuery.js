@@ -65,7 +65,7 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
     if (!flattenedField) {
       flattenedField = {
         node,
-        flattenedFieldMap: {},
+        flattenedFieldMap: {}
       };
       state.flattenedFieldMap[serializationKey] = flattenedField;
     }

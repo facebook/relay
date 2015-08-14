@@ -61,7 +61,7 @@ describe('GraphQLQueryRunner', () => {
     splitDeferredRelayQueries.mockImplementation(
       query => ({
         required: query,
-        deferred: [],
+        deferred: []
       })
     );
   }
@@ -85,14 +85,14 @@ describe('GraphQLQueryRunner', () => {
     warning = require('warning');
 
     RelayNetworkLayer.injectNetworkLayer({
-      supports: () => true,
+      supports: () => true
     });
 
     mockCallback = jest.genMockFunction();
     mockQuerySet = {
       foo: getNode(Relay.QL`query{viewer{actor{id,name}}}`),
       bar: getNode(Relay.QL`query{node(id:"4"){id,name}}`),
-      baz: null,
+      baz: null
     };
 
     jest.addMatchers(RelayTestUtils.matchers);
@@ -104,7 +104,7 @@ describe('GraphQLQueryRunner', () => {
     expect(mockCallback).not.toBeCalled();
     jest.runAllTimers();
     expect(mockCallback.mock.calls).toEqual([
-      [{aborted: false, done: true, error: null, ready: true, stale: false}],
+      [{aborted: false, done: true, error: null, ready: true, stale: false}]
     ]);
   });
 
@@ -119,7 +119,7 @@ describe('GraphQLQueryRunner', () => {
     expect(diffQueryCalls[0][0]).toEqualQueryNode(mockQuerySet.foo);
     expect(diffQueryCalls[1][0]).toEqualQueryNode(mockQuerySet.bar);
     expect(mockCallback.mock.calls).toEqual([
-      [{aborted: false, done: true, error: null, ready: true, stale: false}],
+      [{aborted: false, done: true, error: null, ready: true, stale: false}]
     ]);
   });
 
@@ -127,12 +127,12 @@ describe('GraphQLQueryRunner', () => {
     diffRelayQuery.mockImplementation(query => [query]);
     checkRelayQueryData.mockImplementation(() => false);
     RelayNetworkLayer.injectNetworkLayer({
-      supports: () => false,
+      supports: () => false
     });
 
     var fragment = Relay.QL`fragment on Node{id}`;
     var querySet = {
-      foo: getNode(Relay.QL`query{node(id:"123"){${defer(fragment)}}}`),
+      foo: getNode(Relay.QL`query{node(id:"123"){${defer(fragment)}}}`)
     };
 
     warning.mockClear();
@@ -148,7 +148,7 @@ describe('GraphQLQueryRunner', () => {
       'Relay: Query `%s` contains a deferred fragment (e.g. ' +
       '`getFragment(\'foo\').defer()`) which is not supported by the ' +
       'default network layer. This query will be sent without deferral.',
-      querySet.foo.getName(),
+      querySet.foo.getName()
     ]);
   });
 
@@ -163,7 +163,7 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{aborted: false, done: false, error: null, ready: false, stale: false}],
+      [{aborted: false, done: false, error: null, ready: false, stale: false}]
     ]);
   });
 
@@ -191,7 +191,7 @@ describe('GraphQLQueryRunner', () => {
     RelayPendingQueryTracker.add.mock.fetches[0].resolve();
     jest.runAllTimers();
     expect(mockCallback.mock.calls).toEqual([
-      [{aborted: false, done: false, error: null, ready: false, stale: false}],
+      [{aborted: false, done: false, error: null, ready: false, stale: false}]
     ]);
 
     RelayPendingQueryTracker.add.mock.fetches[1].resolve();
@@ -223,15 +223,15 @@ describe('GraphQLQueryRunner', () => {
       required: null,
       deferred: [{
         required: deferQuery(query),
-        deferred: [],
-      }],
+        deferred: []
+      }]
     }));
 
     GraphQLQueryRunner.run(mockQuerySet, mockCallback);
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{aborted: false, done: false, error: null, ready: true, stale: false}],
+      [{aborted: false, done: false, error: null, ready: true, stale: false}]
     ]);
   });
 
@@ -241,7 +241,7 @@ describe('GraphQLQueryRunner', () => {
       if (query.getRootCall().name === 'viewer') {
         return {
           required: query,
-          deferred: [],
+          deferred: []
         };
       } else {
         // Treat `mockQuerySet.bar` as deferred.
@@ -249,8 +249,8 @@ describe('GraphQLQueryRunner', () => {
           query: null,
           deferred: [{
             required: deferQuery(query),
-            deferred: [],
-          }],
+            deferred: []
+          }]
         };
       }
     });
@@ -263,7 +263,7 @@ describe('GraphQLQueryRunner', () => {
 
     expect(mockCallback.mock.calls).toEqual([
       [{aborted: false, done: false, error: null, ready: false, stale: false}],
-      [{aborted: false, done: false, error: null, ready: true, stale: false}],
+      [{aborted: false, done: false, error: null, ready: true, stale: false}]
     ]);
 
     RelayPendingQueryTracker.add.mock.fetches[1].resolve();
@@ -282,7 +282,7 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{aborted: false, done: false, error: null, ready: false, stale: false}],
+      [{aborted: false, done: false, error: null, ready: false, stale: false}]
     ]);
 
     RelayPendingQueryTracker.add.mock.fetches[0].resolve();
@@ -291,7 +291,7 @@ describe('GraphQLQueryRunner', () => {
 
     expect(mockCallback.mock.calls).toEqual([
       [{aborted: false, done: false, error: null, ready: false, stale: false}],
-      [{aborted: false, done: true, error: null, ready: true, stale: false}],
+      [{aborted: false, done: true, error: null, ready: true, stale: false}]
     ]);
   });
 
@@ -319,7 +319,7 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{aborted: true, done: false, error: null, ready: false, stale: false}],
+      [{aborted: true, done: false, error: null, ready: false, stale: false}]
     ]);
   });
 
@@ -335,7 +335,7 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{aborted: true, done: false, error: null, ready: false, stale: false}],
+      [{aborted: true, done: false, error: null, ready: false, stale: false}]
     ]);
   });
 
@@ -372,7 +372,7 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{aborted: true, done: false, error: null, ready: false, stale: false}],
+      [{aborted: true, done: false, error: null, ready: false, stale: false}]
     ]);
   });
 
@@ -402,7 +402,7 @@ describe('GraphQLQueryRunner', () => {
 
     expect(mockCallback.mock.calls).toEqual([
       [{aborted: false, done: false, error: null, ready: false, stale: false}],
-      [{aborted: false, done: false, error: null, ready: true, stale: true}],
+      [{aborted: false, done: false, error: null, ready: true, stale: true}]
     ]);
     expect(RelayPendingQueryTracker.add.mock.calls.length).toBe(1);
 
@@ -452,11 +452,11 @@ describe('GraphQLQueryRunner', () => {
             query {
               viewer{actor{id,lastName}}
             }
-          `,
+          `
         ].map(query => ({
           required: deferQuery(getNode(query)),
-          deferred: [],
-        })),
+          deferred: []
+        }))
       };
 
       splitDeferredRelayQueries.mockImplementation(query => {
@@ -482,13 +482,13 @@ describe('GraphQLQueryRunner', () => {
           done: false,
           error: null,
           ready: false,
-          stale: false,
+          stale: false
         };
 
         // Only called once after both splitQuery#0 and splitQuery#1.
         expect(mockCallback.mock.calls).toEqual([
           [{...defaultState}],
-          [{...defaultState, ready: true}],
+          [{...defaultState, ready: true}]
         ]);
 
         resolveSplitQueryByIndex(2);
@@ -499,7 +499,7 @@ describe('GraphQLQueryRunner', () => {
         expect(mockCallback.mock.calls).toEqual([
           [{...defaultState, ready: false}],
           [{...defaultState, ready: true}],
-          [{...defaultState, ready: true}],
+          [{...defaultState, ready: true}]
         ]);
 
         resolveSplitQueryByIndex(4);

@@ -49,7 +49,7 @@ function genMockRequest(args) {
     },
     fail(error) {
       args[1]({aborted: false, done: false, error, ready, stale: false});
-    },
+    }
   };
 }
 
@@ -60,7 +60,7 @@ RelayStore.primeCache.mockImplementation((...args) => {
   var returnValue = {
     abort: jest.genMockFunction().mockImplementation(() => {
       resolveImmediate(request.abort);
-    }),
+    })
   };
   RelayStore.primeCache.mock.abort.push(returnValue.abort);
   RelayStore.primeCache.mock.requests.push(request);
@@ -74,7 +74,7 @@ RelayStore.forceFetch.mockImplementation((...args) => {
   var returnValue = {
     abort: jest.genMockFunction().mockImplementation(() => {
       resolveImmediate(request.abort);
-    }),
+    })
   };
   RelayStore.forceFetch.mock.abort.push(returnValue.abort);
   RelayStore.forceFetch.mock.requests.push(request);
@@ -85,7 +85,7 @@ RelayStore.mock = {
   setMockRecords: records => {
     RelayStore.mock.recordStore = new RelayRecordStore({records});
   },
-  recordStore: null,
+  recordStore: null
 };
 
 RelayStore.observe.mockImplementation((...args) => {

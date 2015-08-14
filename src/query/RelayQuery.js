@@ -501,7 +501,7 @@ class RelayQueryRoot extends RelayQueryNode {
         batchCall = {
           refParamName: REF_PARAM_PREFIX + callArg.sourceQueryID,
           sourceQueryID: callArg.sourceQueryID,
-          sourceQueryPath: callArg.jsonPath,
+          sourceQueryPath: callArg.jsonPath
         };
       } else {
         batchCall = null;
@@ -975,7 +975,7 @@ class RelayQueryField extends RelayQueryNode {
     field.__children__ = [];
     field.__metadata__ = {
       ...field.__metadata__,
-      isRefQueryDependency: true,
+      isRefQueryDependency: true
     };
     return field;
   }
@@ -1156,5 +1156,5 @@ module.exports = {
   Node: RelayQueryNode,
   Operation: RelayQueryOperation,
   Root: RelayQueryRoot,
-  Subscription: RelayQuerySubscription,
+  Subscription: RelayQuerySubscription
 };

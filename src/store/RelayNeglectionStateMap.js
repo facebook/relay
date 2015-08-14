@@ -110,7 +110,7 @@ class RelayNeglectionStateMap {
         }
         var value = states[ii++];
         return {done, value};
-      },
+      }
     };
   }
 
@@ -124,7 +124,7 @@ class RelayNeglectionStateMap {
       dataID,
       collectible: false,
       generations: 0,
-      subscriptions,
+      subscriptions
     });
   }
 

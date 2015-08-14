@@ -50,7 +50,7 @@ describe('observeRelayQueryData', () => {
     mockCallsbacks = {
       onCompleted: jest.genMockFunction(),
       onError: jest.genMockFunction(),
-      onNext: jest.genMockFunction(),
+      onNext: jest.genMockFunction()
     };
 
     jest.addMatchers(RelayTestUtils.matchers);
@@ -67,7 +67,7 @@ describe('observeRelayQueryData', () => {
   it('creates observers for the dataIDs when `subscribe` is called', () => {
     var query = getNode(Relay.QL`fragment on Node @relay(plural:true){id}`);
     var records = {
-      1: {__dataID__: '1', id: 1},
+      1: {__dataID__: '1', id: 1}
     };
 
     var observer = observeAllData(records, query, ['1']);
@@ -80,7 +80,7 @@ describe('observeRelayQueryData', () => {
     var records = {
       1: {__dataID__: '1', id: 1},
       2: {__dataID__: '2', id: 2},
-      3: {__dataID__: '3', id: 3},
+      3: {__dataID__: '3', id: 3}
     };
 
     var observer = observeAllData(records, query, ['1', '2', '3']);
@@ -97,7 +97,7 @@ describe('observeRelayQueryData', () => {
     var records = {
       1: {__dataID__: '1', id: 1},
       2: {__dataID__: '2', id: 2},
-      3: {__dataID__: '3', id: 3},
+      3: {__dataID__: '3', id: 3}
     };
 
     var observer = observeAllData(records, query, ['1', '2', '3']);
@@ -112,7 +112,7 @@ describe('observeRelayQueryData', () => {
     var records = {
       1: {__dataID__: '1', id: 1},
       2: {__dataID__: '2', id: 2},
-      3: {__dataID__: '3', id: 3},
+      3: {__dataID__: '3', id: 3}
     };
 
     var observer = observeAllData(records, query, ['1', '2', '3']);
@@ -132,7 +132,7 @@ describe('observeRelayQueryData', () => {
     var records = {
       1: {__dataID__: '1', id: 1},
       2: {__dataID__: '2', id: 2},
-      3: {__dataID__: '3', id: 3},
+      3: {__dataID__: '3', id: 3}
     };
 
     var observer = observeAllData(records, query, ['1', '2', '3']);
@@ -147,7 +147,7 @@ describe('observeRelayQueryData', () => {
     var query = getNode(Relay.QL`fragment on Node @relay(plural:true){id}`);
     var records = {
       1: {__dataID__: '1', id: 1},
-      2: {__dataID__: '2', id: 2},
+      2: {__dataID__: '2', id: 2}
     };
 
     var observer = observeAllData(records, query, ['1']);
@@ -163,14 +163,14 @@ describe('observeRelayQueryData', () => {
     var query = getNode(Relay.QL`fragment on Node @relay(plural:true){id}`);
     var records = {
       1: {__dataID__: '1', id: 1},
-      2: {__dataID__: '2', id: 2},
+      2: {__dataID__: '2', id: 2}
     };
 
     var observer = observeAllData(records, query, ['1', '2']);
     observer.subscribe(mockCallsbacks);
     expect(mockCallsbacks.onNext.mock.calls[0][0]).toEqual([
       {__dataID__: '1', id: 1},
-      {__dataID__: '2', id: 2},
+      {__dataID__: '2', id: 2}
     ]);
   });
 
@@ -179,7 +179,7 @@ describe('observeRelayQueryData', () => {
     var records = {
       1: {__dataID__: '1', id: 1},
       2: {__dataID__: '2', id: 2},
-      3: {__dataID__: '3', id: 3},
+      3: {__dataID__: '3', id: 3}
     };
 
     var observer = observeAllData(records, query, ['1']);
@@ -190,7 +190,7 @@ describe('observeRelayQueryData', () => {
     expect(mockCallsbacks.onNext.mock.calls[1][0]).toEqual([
       {__dataID__: '1', id: 1},
       {__dataID__: '2', id: 2},
-      {__dataID__: '3', id: 3},
+      {__dataID__: '3', id: 3}
     ]);
   });
 
@@ -199,7 +199,7 @@ describe('observeRelayQueryData', () => {
     var records = {
       a: {__dataID__: 'a', id: 1},
       b: {__dataID__: 'b', id: 2},
-      c: {__dataID__: 'c', id: 3},
+      c: {__dataID__: 'c', id: 3}
     };
 
     var observer = observeAllData(records, query, ['a', 'b', 'c']);
@@ -207,14 +207,14 @@ describe('observeRelayQueryData', () => {
     expect(mockCallsbacks.onNext.mock.calls[0][0]).toEqual([
       {__dataID__: 'a', id: 1},
       {__dataID__: 'b', id: 2},
-      {__dataID__: 'c', id: 3},
+      {__dataID__: 'c', id: 3}
     ]);
 
     observer.setDataIDs(['c', 'a', 'b']);
     expect(mockCallsbacks.onNext.mock.calls[1][0]).toEqual([
       {__dataID__: 'c', id: 3},
       {__dataID__: 'a', id: 1},
-      {__dataID__: 'b', id: 2},
+      {__dataID__: 'b', id: 2}
     ]);
   });
 
@@ -222,7 +222,7 @@ describe('observeRelayQueryData', () => {
     var query = getNode(Relay.QL`fragment on Node @relay(plural:true){id}`);
     var records = {
       a: {__dataID__: 'a', id: 1},
-      b: {__dataID__: 'b', id: 2},
+      b: {__dataID__: 'b', id: 2}
     };
 
     var observer = observeAllData(records, query, ['a', 'b']);
@@ -230,7 +230,7 @@ describe('observeRelayQueryData', () => {
 
     observer.setDataIDs(['a']);
     expect(mockCallsbacks.onNext.mock.calls[1][0]).toEqual([
-      {__dataID__: 'a', id: 1},
+      {__dataID__: 'a', id: 1}
     ]);
   });
 
@@ -238,7 +238,7 @@ describe('observeRelayQueryData', () => {
     var query = getNode(Relay.QL`fragment on Node @relay(plural:true){id}`);
     var records = {
       a: {__dataID__: 'a', id: 1},
-      b: {__dataID__: 'b', id: 2},
+      b: {__dataID__: 'b', id: 2}
     };
 
     var error = new Error('An error occured');
@@ -257,7 +257,7 @@ describe('observeRelayQueryData', () => {
     () => {
       var query = getNode(Relay.QL`fragment on Node @relay(plural:true){id}`);
       var records = {
-        a: {__dataID__: 'a', id: 1},
+        a: {__dataID__: 'a', id: 1}
       };
 
       var observer = observeAllData(records, query, ['a', 'b']);

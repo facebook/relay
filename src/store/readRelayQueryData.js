@@ -98,7 +98,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
   ): StoreReaderResult {
     var result = {
       data: (undefined: $FlowIssue),
-      dataIDs: ({}: $FlowIssue),
+      dataIDs: ({}: $FlowIssue)
     };
     var rangeData = GraphQLStoreRangeUtils.parseRangeClientID(dataID);
     var status = this._recordStore.getRecordStatus(
@@ -111,7 +111,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
         parent: null,
         rangeInfo: null,
         seenDataIDs: result.dataIDs,
-        storeDataID: dataID,
+        storeDataID: dataID
       };
       this.visit(queryNode, state);
       result.data = state.data;
@@ -208,7 +208,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
           parent: node,
           rangeInfo: null,
           seenDataIDs: state.seenDataIDs,
-          storeDataID: dataID,
+          storeDataID: dataID
         };
         node.getChildren().forEach(child => this.visit(child, nextState));
         return nextState.data;
@@ -236,7 +236,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       parent: node,
       rangeInfo: metadata && calls.length ? metadata : null,
       seenDataIDs: state.seenDataIDs,
-      storeDataID: dataID,
+      storeDataID: dataID
     };
     this.traverse(node, nextState);
     this._setDataValue(state, applicationName, nextState.data);
@@ -255,7 +255,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
         parent: node,
         rangeInfo: null,
         seenDataIDs: state.seenDataIDs,
-        storeDataID: edgeData.edgeID,
+        storeDataID: edgeData.edgeID
       };
       this.traverse(node, nextState);
       return nextState.data;
@@ -327,7 +327,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       parent: node,
       rangeInfo: null,
       seenDataIDs: state.seenDataIDs,
-      storeDataID: dataID,
+      storeDataID: dataID
     };
     var status = this._recordStore.getRecordStatus(dataID);
     if (status === RelayRecordStatus.EXISTENT) {

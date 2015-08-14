@@ -22,7 +22,7 @@ var RelayContainerProxy = {
   proxyMethods(
     RelayContainer: RelayContainer,
     Component: ReactClass
-  ): void {},
+  ): void {}
 };
 
 module.exports = RelayContainerProxy;

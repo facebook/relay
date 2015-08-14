@@ -42,7 +42,7 @@ var RelayPublic = {
   getQueries: getRelayQueries,
   injectNetworkLayer: RelayNetworkLayer.injectNetworkLayer,
   injectTaskScheduler: RelayTaskScheduler.injectScheduler,
-  isContainer: isRelayContainer,
+  isContainer: isRelayContainer
 };
 
 module.exports = RelayPublic;

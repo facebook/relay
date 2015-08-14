@@ -92,8 +92,8 @@ describe('diffRelayQuery', () => {
     var payload = {
       '123': {
         id: '123',
-        firstName: 'Joe',
-      },
+        firstName: 'Joe'
+      }
     };
     writePayload(store, writeQuery, payload, tracker);
 

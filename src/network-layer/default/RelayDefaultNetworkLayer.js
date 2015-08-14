@@ -119,17 +119,17 @@ class RelayDefaultNetworkLayer {
       }
       init = {
         body: formData,
-        method: 'POST',
+        method: 'POST'
       };
     } else {
       init = {
         body: JSON.stringify({
           query: request.getQueryString(),
-          variables: request.getVariables(),
+          variables: request.getVariables()
         }),
         headers: {'Content-Type': 'application/json'},
         method: 'POST',
-        credentials: 'same-origin',
+        credentials: 'same-origin'
       };
     }
     return fetch(this._uri, init).then(throwOnServerError);
@@ -142,13 +142,13 @@ class RelayDefaultNetworkLayer {
     return fetchWithRetries(this._uri, {
       body: JSON.stringify({
         query: request.getQueryString(),
-        variables: request.getVariables(),
+        variables: request.getVariables()
       }),
       fetchTimeout: this._timeout,
       headers: {'Content-Type': 'application/json'},
       method: 'POST',
       retryDelays: this._retryDelays,
-      credentials: 'same-origin',
+      credentials: 'same-origin'
     });
   }
 }
@@ -186,7 +186,7 @@ function formatRequestErrors(
         var offset = Math.min(column - 1, CONTEXT_BEFORE);
         return [
           queryLine.substr(column - 1 - offset, CONTEXT_LENGTH),
-          ' '.repeat(offset) + '^^^',
+          ' '.repeat(offset) + '^^^'
         ].map(messageLine => indent + messageLine).join('\n');
       }).join('\n')
     );

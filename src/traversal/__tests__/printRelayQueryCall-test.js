@@ -17,7 +17,7 @@ describe('printRelayQueryCall', () => {
   it('prints a call with a null argument', () => {
     var call = {
       name: 'me',
-      value: null,
+      value: null
     };
     expect(printRelayQueryCall(call)).toEqual('.me()');
   });
@@ -25,7 +25,7 @@ describe('printRelayQueryCall', () => {
   it('prints a call with an undefined argument', () => {
     var call = {
       name: 'me',
-      value: undefined,
+      value: undefined
     };
     expect(printRelayQueryCall(call)).toEqual('.me()');
   });
@@ -33,7 +33,7 @@ describe('printRelayQueryCall', () => {
   it('prints a call with a string argument', () => {
     var call = {
       name: 'first',
-      value: '5',
+      value: '5'
     };
     expect(printRelayQueryCall(call)).toEqual('.first(5)');
   });
@@ -41,7 +41,7 @@ describe('printRelayQueryCall', () => {
   it('prints a call with a numeric argument', () => {
     var call = {
       name: 'first',
-      value: 5,
+      value: 5
     };
     expect(printRelayQueryCall(call)).toEqual('.first(5)');
   });
@@ -49,7 +49,7 @@ describe('printRelayQueryCall', () => {
   it('prints a call with `true` argument', () => {
     var call = {
       name: 'if',
-      value: true,
+      value: true
     };
     expect(printRelayQueryCall(call)).toEqual('.if(true)');
   });
@@ -57,7 +57,7 @@ describe('printRelayQueryCall', () => {
   it('prints a call with `false` argument', () => {
     var call = {
       name: 'unless',
-      value: false,
+      value: false
     };
     expect(printRelayQueryCall(call)).toEqual('.unless(false)');
   });
@@ -65,7 +65,7 @@ describe('printRelayQueryCall', () => {
   it('prints a call with many arguments', () => {
     var call = {
       name: 'usernames',
-      value: ['glh', 'joesavona'],
+      value: ['glh', 'joesavona']
     };
     expect(printRelayQueryCall(call)).toEqual('.usernames(glh,joesavona)');
   });
@@ -73,7 +73,7 @@ describe('printRelayQueryCall', () => {
   it('sanitizes argument values', () => {
     var call = {
       name: 'checkin_search_query',
-      value: JSON.stringify({query: 'Menlo Park'}),
+      value: JSON.stringify({query: 'Menlo Park'})
     };
     expect(printRelayQueryCall(call)).toEqual(
       '.checkin_search_query(\\{"query":"Menlo Park"\\})'
@@ -88,12 +88,12 @@ describe('printRelayQueryCall', () => {
       ' x': '\\ x',
       'x ': 'x\\ \\ ',
       ' x ': '\\ x\\ \\ ',
-      'x y': 'x y',
+      'x y': 'x y'
     };
     Object.keys(values).forEach(value => {
       var call = {
         name: 'node',
-        value,
+        value
       };
       var expected = values[value];
       expect(printRelayQueryCall(call)).toEqual('.node(' + expected + ')');

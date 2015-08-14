@@ -144,7 +144,7 @@ var RelayQuerySerializer = {
         alias: alias !== name ? alias : null,
         calls: node.getCallsWithValues(),
         children,
-        metadata: node.__concreteNode__.__metadata__,
+        metadata: node.__concreteNode__.__metadata__
       };
     } else if (node instanceof RelayQuery.Fragment) {
       return {
@@ -155,8 +155,8 @@ var RelayQuerySerializer = {
         metadata: {
           ...node.__concreteNode__.__metadata__,
           isDeferred: node.isDeferred(),
-          isReferenceFragment: node.isReferenceFragment(),
-        },
+          isReferenceFragment: node.isReferenceFragment()
+        }
       };
     } else {
       invariant(
@@ -171,10 +171,10 @@ var RelayQuerySerializer = {
         name: node.getName(),
         calls: [rootCall],
         children,
-        metadata: node.__concreteNode__.__metadata__,
+        metadata: node.__concreteNode__.__metadata__
       };
     }
-  },
+  }
 };
 
 module.exports = RelayQuerySerializer;

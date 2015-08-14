@@ -16,7 +16,7 @@
 var METADATA_KEYS = {
   __dataID__: true,
   __range__: true,
-  __status__: true,
+  __status__: true
 };
 
 /**
@@ -54,7 +54,7 @@ var GraphQLStoreDataHandler = {
    */
   isMetadataKey: function(key: string): boolean {
     return METADATA_KEYS[key] || false;
-  },
+  }
 };
 
 module.exports = GraphQLStoreDataHandler;

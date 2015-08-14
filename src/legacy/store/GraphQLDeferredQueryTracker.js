@@ -101,7 +101,7 @@ var GraphQLDeferredQueryTracker = {
     var subscriber = {
       callbacks,
       dataID,
-      fragmentID,
+      fragmentID
     };
     subscribers.push(subscriber);
     return {
@@ -112,7 +112,7 @@ var GraphQLDeferredQueryTracker = {
           'remove() can only be called once'
         );
         subscribers[index] = null;
-      },
+      }
     };
   },
 
@@ -219,7 +219,7 @@ var GraphQLDeferredQueryTracker = {
     rootCallToFragmentNameMap = new Map();
     subscribers = [];
     broadcastItems = null;
-  },
+  }
 };
 
 /**
@@ -399,7 +399,7 @@ function processBroadcasts() {
         var {
           dataID,
           error,
-          fragmentID,
+          fragmentID
         } = broadcastItems[jj];
         var method;
         var args;

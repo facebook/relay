@@ -59,7 +59,7 @@ var GraphQLStoreChangeEmitter = {
     return {
       remove: function() {
         delete subscribers[index];
-      },
+      }
     };
   },
 
@@ -81,7 +81,7 @@ var GraphQLStoreChangeEmitter = {
    * Exposed for profiling reasons.
    * @private
    */
-  _processSubscribers: processSubscribers,
+  _processSubscribers: processSubscribers
 
 };
 
@@ -131,7 +131,7 @@ function getBroadcastID(id: string): string {
 RelayProfiler.instrumentMethods(GraphQLStoreChangeEmitter, {
   addListenerForIDs: 'GraphQLStoreChangeEmitter.addListenerForIDs',
   broadcastChangeForID: 'GraphQLStoreChangeEmitter.broadcastChangeForID',
-  _processSubscribers: 'GraphQLStoreChangeEmitter.processSubscribers',
+  _processSubscribers: 'GraphQLStoreChangeEmitter.processSubscribers'
 });
 
 module.exports = GraphQLStoreChangeEmitter;

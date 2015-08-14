@@ -175,15 +175,15 @@ class RelayRootContainer extends React.Component {
         readyState: {...readyState, mounted: true},
         fetchState: {
           done: readyState.done,
-          stale: readyState.stale,
-        },
+          stale: readyState.stale
+        }
       });
     };
 
     if (typeof refetchRoute !== 'undefined') {
       RelayDeprecated.warn({
         was: 'RelayRootContainer.refetchRoute',
-        now: 'RelayRootContainer.forceFetch',
+        now: 'RelayRootContainer.forceFetch'
       });
       forceFetch = refetchRoute;
     }
@@ -201,8 +201,8 @@ class RelayRootContainer extends React.Component {
       readyState: null,
       fetchState: {
         done: false,
-        stale: false,
-      },
+        stale: false
+      }
     };
   }
 
@@ -286,7 +286,7 @@ class RelayRootContainer extends React.Component {
       if (renderFetched) {
         children = renderFetched({
           ...this.props.route.params,
-          ...this.state.fragmentPointers,
+          ...this.state.fragmentPointers
         }, this.state.fetchState);
       } else {
         var Component = this.props.Component;
@@ -323,11 +323,11 @@ RelayRootContainer.propTypes = {
   renderFailure: PropTypes.func,
   renderFetched: PropTypes.func,
   renderLoading: PropTypes.func,
-  route: RelayPropTypes.QueryConfig.isRequired,
+  route: RelayPropTypes.QueryConfig.isRequired
 };
 
 RelayRootContainer.childContextTypes = {
-  route: RelayPropTypes.QueryConfig.isRequired,
+  route: RelayPropTypes.QueryConfig.isRequired
 };
 
 module.exports = RelayRootContainer;

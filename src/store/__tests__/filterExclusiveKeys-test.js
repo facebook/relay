@@ -25,7 +25,7 @@ describe('filterExclusiveKeys', () => {
     var b = {x: true, y: true, z: true};
     expect(filterExclusiveKeys(a, b)).toEqual([
       ['v', 'w'],
-      ['y', 'z'],
+      ['y', 'z']
     ]);
   });
 
@@ -34,7 +34,7 @@ describe('filterExclusiveKeys', () => {
     var b = {x: true, y: true, z: true};
     expect(filterExclusiveKeys(a, b)).toEqual([
       [],
-      ['x', 'y', 'z'],
+      ['x', 'y', 'z']
     ]);
   });
 
@@ -43,7 +43,7 @@ describe('filterExclusiveKeys', () => {
     var b = {x: true, y: true, z: true};
     expect(filterExclusiveKeys(a, b)).toEqual([
       [],
-      ['x', 'y', 'z'],
+      ['x', 'y', 'z']
     ]);
   });
 
@@ -52,7 +52,7 @@ describe('filterExclusiveKeys', () => {
     var b = null;
     expect(filterExclusiveKeys(a, b)).toEqual([
       ['x', 'y', 'z'],
-      [],
+      []
     ]);
   });
 
@@ -61,7 +61,7 @@ describe('filterExclusiveKeys', () => {
     var b = {};
     expect(filterExclusiveKeys(a, b)).toEqual([
       ['x', 'y', 'z'],
-      [],
+      []
     ]);
   });
 });

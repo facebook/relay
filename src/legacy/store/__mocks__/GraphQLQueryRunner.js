@@ -45,7 +45,7 @@ function genMockRequest(args) {
     },
     fail(error) {
       args[1]({aborted: false, done: false, error, ready, stale: false});
-    },
+    }
   };
 }
 
@@ -56,7 +56,7 @@ GraphQLQueryRunner.run.mockImplementation((...args) => {
   var returnValue = {
     abort: jest.genMockFunction().mockImplementation(() => {
       resolveImmediate(request.abort);
-    }),
+    })
   };
   GraphQLQueryRunner.run.mock.abort.push(returnValue.abort);
   GraphQLQueryRunner.run.mock.requests.push(request);
@@ -70,7 +70,7 @@ GraphQLQueryRunner.forceFetch.mockImplementation((...args) => {
   var returnValue = {
     abort: jest.genMockFunction().mockImplementation(() => {
       resolveImmediate(request.abort);
-    }),
+    })
   };
   GraphQLQueryRunner.forceFetch.mock.abort.push(returnValue.abort);
   GraphQLQueryRunner.forceFetch.mock.requests.push(request);

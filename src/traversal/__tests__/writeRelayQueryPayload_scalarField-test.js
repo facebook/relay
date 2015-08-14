@@ -47,15 +47,15 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          name: null,
-        },
+          name: null
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          '123': true,
+          '123': true
         },
-        updated: {},
+        updated: {}
       });
       expect(store.getField('123', 'name')).toBe(null);
     });
@@ -64,8 +64,8 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -78,15 +78,15 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          name: null,
-        },
+          name: null
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
-          '123': true,
-        },
+          '123': true
+        }
       });
       expect(store.getField('123', 'name')).toBe(null);
     });
@@ -96,8 +96,8 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          name: 'Joe',
-        },
+          name: 'Joe'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -110,15 +110,15 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          name: null,
-        },
+          name: null
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
-          '123': true,
-        },
+          '123': true
+        }
       });
       expect(store.getField('123', 'name')).toBe(null);
     });
@@ -136,8 +136,8 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          name: undefined,
-        },
+          name: undefined
+        }
       };
       writePayload(store, query, payload);
       expect(store.getField('123', 'id')).toBe('123');
@@ -148,8 +148,8 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -162,8 +162,8 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          name: undefined,
-        },
+          name: undefined
+        }
       };
       writePayload(store, query, payload);
       expect(store.getField('123', 'id')).toBe('123');
@@ -175,8 +175,8 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          name: 'Joe',
-        },
+          name: 'Joe'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -189,8 +189,8 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          name: undefined,
-        },
+          name: undefined
+        }
       };
       writePayload(store, query, payload);
       expect(store.getField('123', 'name')).toBe('Joe');
@@ -201,8 +201,8 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          name: 'Joe',
-        },
+          name: 'Joe'
+        }
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -215,15 +215,15 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         '123': {
           id: '123',
-          name: 'Joseph',
-        },
+          name: 'Joseph'
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
-          '123': true,
-        },
+          '123': true
+        }
       });
       expect(store.getField('123', 'name')).toBe('Joseph');
     });

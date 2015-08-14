@@ -80,7 +80,7 @@ GraphQLStoreChangeEmitter.injectBatchingStrategy(
 );
 
 var containerContextTypes = {
-  route: RelayPropTypes.QueryConfig.isRequired,
+  route: RelayPropTypes.QueryConfig.isRequired
 };
 var nextContainerID = 0;
 
@@ -163,7 +163,7 @@ function createContainerComponent(
       this.pending = null;
       this.state = {
         variables: {},
-        queryData: {},
+        queryData: {}
       };
     }
 
@@ -258,7 +258,7 @@ function createContainerComponent(
       var completeProfiler = RelayProfiler.profile(
         'RelayContainer.setVariables', {
           containerName,
-          nextVariables,
+          nextVariables
         }
       );
 
@@ -318,7 +318,7 @@ function createContainerComponent(
         variables: nextVariables,
         request: forceFetch ?
           RelayStore.forceFetch(querySet, onReadyStateChange) :
-          RelayStore.primeCache(querySet, onReadyStateChange),
+          RelayStore.primeCache(querySet, onReadyStateChange)
       };
       this.pending = current;
     }
@@ -450,7 +450,7 @@ function createContainerComponent(
               fragmentID,
               {
                 onSuccess: this._handleDeferredSuccess.bind(this),
-                onFailure: this._handleDeferredFailure.bind(this),
+                onFailure: this._handleDeferredFailure.bind(this)
               }
             );
         }
@@ -476,7 +476,7 @@ function createContainerComponent(
 
       this.setState({
         queryData,
-        variables,
+        variables
       });
     }
 
@@ -495,7 +495,7 @@ function createContainerComponent(
         this._updateQueryResolvers();
         return {
           variables,
-          queryData: this._getQueryData(nextProps),
+          queryData: this._getQueryData(nextProps)
         };
       });
 
@@ -778,7 +778,7 @@ function createContainerComponent(
         hasOptimisticUpdate: this.hasOptimisticUpdate,
         route: this.context.route,
         setVariables: this.setVariables,
-        variables: this.state.variables,
+        variables: this.state.variables
       };
       return (
         <Component
@@ -885,7 +885,7 @@ function initializeProfiler(RelayContainer: RelayContainer): void {
     componentWillReceiveProps:
       'RelayContainer.prototype.componentWillReceiveProps',
     shouldComponentUpdate:
-      'RelayContainer.prototype.shouldComponentUpdate',
+      'RelayContainer.prototype.shouldComponentUpdate'
   });
 }
 
@@ -967,7 +967,7 @@ function create(
   ContainerConstructor.getQueryNames = RelayDeprecated.createWarning({
     was: componentName + '.getQueryNames',
     now: componentName + '.getFragmentNames',
-    adapter: ContainerConstructor.getFragmentNames,
+    adapter: ContainerConstructor.getFragmentNames
   });
 
   /**
@@ -1004,7 +1004,7 @@ function create(
   ContainerConstructor.getQuery = RelayDeprecated.createWarning({
     was: componentName + '.getQuery',
     now: componentName + '.getFragment',
-    adapter: ContainerConstructor.getFragment,
+    adapter: ContainerConstructor.getFragment
   });
 
   ContainerConstructor.contextTypes = containerContextTypes;

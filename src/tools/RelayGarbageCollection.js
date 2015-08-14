@@ -63,7 +63,7 @@ var RelayGarbageCollection = {
     if (garbageCollector) {
       garbageCollector.scheduleCollection(stepLength);
     }
-  },
+  }
 };
 
 module.exports = RelayGarbageCollection;

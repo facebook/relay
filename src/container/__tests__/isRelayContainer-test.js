@@ -25,11 +25,11 @@ describe('isRelayContainer', function() {
     Relay = require('Relay');
 
     MockComponent = React.createClass({
-      render: () => <div />,
+      render: () => <div />
     });
 
     MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {},
+      fragments: {}
     });
   });
 

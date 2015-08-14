@@ -20,7 +20,7 @@ class RelayNeglectionStateMap {
 }
 
 RelayNeglectionStateMap.mock = {
-  instances: [],
+  instances: []
 };
 
 module.exports = RelayNeglectionStateMap;

@@ -34,7 +34,7 @@ describe('containsRelayQueryRootCall', function() {
           getNode(thisQuery),
           getNode(thatQuery)
         );
-      },
+      }
     });
   });
 

@@ -31,7 +31,7 @@ function filterExclusiveKeys(
   }
   return [
     keysA.filter(key => !hasOwnProperty.call(b, key)),
-    keysB.filter(key => !hasOwnProperty.call(a, key)),
+    keysB.filter(key => !hasOwnProperty.call(a, key))
   ];
 }
 

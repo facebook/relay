@@ -46,7 +46,7 @@ describe('RelayFragmentReference', () => {
     var reference = new RelayFragmentReference(
       () => node,
       {
-        size: 'default',
+        size: 'default'
       }
     );
     var variables = {size: 'ignored'};
@@ -54,7 +54,7 @@ describe('RelayFragmentReference', () => {
     // size ignored because no variables are passed into the fragment
     expect(reference.getFragment(variables)).toBe(node);
     expect(reference.getVariables(route, variables)).toEqual({
-      size: 'default',
+      size: 'default'
     });
   });
 
@@ -70,24 +70,24 @@ describe('RelayFragmentReference', () => {
     var reference = new RelayFragmentReference(
       () => node,
       {
-        size: 'default',
+        size: 'default'
       },
       {
-        size: new GraphQL.CallVariable('outerSize'),
+        size: new GraphQL.CallVariable('outerSize')
       }
     );
     // no outer variable, default is used
     var variables = {};
     expect(reference.getFragment(variables)).toBe(node);
     expect(reference.getVariables(route, variables)).toEqual({
-      size: 'default',
+      size: 'default'
     });
 
     // outer variable overrides inner default
     variables = {outerSize: 'override'};
     expect(reference.getFragment(variables)).toBe(node);
     expect(reference.getVariables(route, variables)).toEqual({
-      size: 'override',
+      size: 'override'
     });
   });
 
@@ -127,7 +127,7 @@ describe('RelayFragmentReference', () => {
     var reference = new RelayFragmentReference(
       () => node,
       {
-        size: 'default',
+        size: 'default'
       },
       {},
       prepareVariables
@@ -135,7 +135,7 @@ describe('RelayFragmentReference', () => {
 
     var customVariables = {
       size: 'override',
-      other: 'custom',
+      other: 'custom'
     };
     prepareVariables.mockImplementation(() => customVariables);
 

@@ -58,9 +58,9 @@ describe('RelayStoreData', () => {
           id: '123',
           doesViewerLike: false,
           topLevelComments: {
-            count: 1,
-          },
-        },
+            count: 1
+          }
+        }
       };
       storeData.handleQueryPayload(query, response);
 
@@ -103,13 +103,13 @@ describe('RelayStoreData', () => {
           id: '123',
           doesViewerLike: false,
           topLevelComments: {
-            count: 1,
-          },
-        },
+            count: 1
+          }
+        }
       };
       storeData.handleUpdatePayload(mutationQuery, payload, {
         configs: [],
-        isOptimisticUpdate: false,
+        isOptimisticUpdate: false
       });
 
       // results are written to `records`
@@ -149,14 +149,14 @@ describe('RelayStoreData', () => {
           id: '123',
           doesViewerLike: false,
           topLevelComments: {
-            count: 1,
-          },
-        },
+            count: 1
+          }
+        }
       };
       storeData.handleUpdatePayload(mutationQuery, payload, {
         configs: [],
         isOptimisticUpdate: true,
-        clientMutationID: 'mutationID',
+        clientMutationID: 'mutationID'
       });
 
       // results are written to `queuedRecords`
@@ -169,7 +169,7 @@ describe('RelayStoreData', () => {
 
       // `records` is unchanged
       expect(storeData.getNodeData()).toEqual({
-        '123': {__dataID__: '123'},
+        '123': {__dataID__: '123'}
       });
     });
 
@@ -201,9 +201,9 @@ describe('RelayStoreData', () => {
             id: '123',
             doesViewerLike: false,
             topLevelComments: {
-              count: 1,
-            },
-          },
+              count: 1
+            }
+          }
         };
         storeData.handleQueryPayload(query, response);
 
@@ -228,14 +228,14 @@ describe('RelayStoreData', () => {
             id: '123',
             doesViewerLike: false,
             topLevelComments: {
-              count: 1,
-            },
-          },
+              count: 1
+            }
+          }
         };
         storeData.handleUpdatePayload(mutationQuery, payload, {
           configs: [],
           isOptimisticUpdate: true,
-          clientMutationID: 'mutationID',
+          clientMutationID: 'mutationID'
         });
 
         // simulate a server response with different data
@@ -243,8 +243,8 @@ describe('RelayStoreData', () => {
           '123': {
             id: '123',
             doesViewerLike: true, // inverted
-            topLevelComments: null, // delete
-          },
+            topLevelComments: null // delete
+          }
         };
         storeData.handleQueryPayload(query, response);
 

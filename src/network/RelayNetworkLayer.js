@@ -56,7 +56,7 @@ var RelayNetworkLayer = {
   supports(...options: Array<string>): boolean {
     var networkLayer = getCurrentNetworkLayer();
     return networkLayer.supports(...options);
-  },
+  }
 };
 
 function getCurrentNetworkLayer(): NetworkLayer {

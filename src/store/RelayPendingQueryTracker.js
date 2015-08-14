@@ -100,7 +100,7 @@ class PendingFetch {
     if (subtractedQuery) {
       pendingFetchMap[queryID] = {
         fetch: this,
-        query: subtractedQuery,
+        query: subtractedQuery
       };
       GraphQLDeferredQueryTracker.recordQuery(subtractedQuery);
       this._fetchSubtractedQueryPromise.done(
@@ -318,7 +318,7 @@ var RelayPendingQueryTracker = {
   },
 
   // TODO: Use `export type`.
-  PendingFetch,
+  PendingFetch
 
 };
 

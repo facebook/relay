@@ -281,7 +281,7 @@ function getCanonicalID(id: DataID): DataID {
 }
 
 RelayProfiler.instrumentMethods(GraphQLStoreQueryResolver.prototype, {
-  resolve: 'GraphQLStoreQueryResolver.resolve',
+  resolve: 'GraphQLStoreQueryResolver.resolve'
 });
 
 module.exports = GraphQLStoreQueryResolver;

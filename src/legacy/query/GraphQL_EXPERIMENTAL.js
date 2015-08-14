@@ -45,7 +45,7 @@ var JSON_TYPES = {
   BATCH_VARIABLE: 7,
   MUTATION: 8,
   QUERY_WITH_VALUES: 9,
-  SUBSCRIPTION: 10,
+  SUBSCRIPTION: 10
 };
 
 /**
@@ -108,7 +108,7 @@ class GraphQLCallvNode {
       JSON_TYPES.CALL,
       this.name,
       this.value,
-      this.metadata === EMPTY_OBJECT ? null : this.metadata,
+      this.metadata === EMPTY_OBJECT ? null : this.metadata
     ]);
   }
 }
@@ -139,7 +139,7 @@ class GraphQLCallValue {
   toJSON() {
     return [
       JSON_TYPES.CALL_VALUE,
-      this.callValue,
+      this.callValue
     ];
   }
 }
@@ -188,7 +188,7 @@ class GraphQLBatchCallVariable {
     return [
       JSON_TYPES.BATCH_VARIABLE,
       this.sourceQueryID,
-      this.jsonPath,
+      this.jsonPath
     ];
   }
 }
@@ -225,7 +225,7 @@ class GraphQLCallVariable {
   toJSON() {
     return [
       JSON_TYPES.CALL_VARIABLE,
-      this.callVariableName,
+      this.callVariableName
     ];
   }
 }
@@ -267,7 +267,7 @@ class GraphQLFieldNode extends GraphQLNode {
       isPlural: !!metadata.plural,
       isRequisite: !!metadata.requisite,
       isUnionOrInterface: !!metadata.dynamic,
-      parentType: metadata.parentType,
+      parentType: metadata.parentType
     };
   }
 
@@ -284,7 +284,7 @@ class GraphQLFieldNode extends GraphQLNode {
       calls,
       alias,
       condition,
-      metadata,
+      metadata
     ] = descriptor;
     invariant(type === JSON_TYPES.FIELD, 'Expected field descriptor');
     return new GraphQLFieldNode(
@@ -307,7 +307,7 @@ class GraphQLFieldNode extends GraphQLNode {
       this.calls.length ? this._calls : null,
       this.alias,
       this.condition,
-      this.__metadata__ === EMPTY_OBJECT ? null : this.__metadata__,
+      this.__metadata__ === EMPTY_OBJECT ? null : this.__metadata__
     ]);
   }
 }
@@ -357,7 +357,7 @@ class GraphQLQueryFragment extends GraphQLNode {
       this.type,
       this.fields.length ? this.fields : null,
       this.fragments.length ? this.fragments : null,
-      this.metadata,
+      this.metadata
     ]);
   }
 }
@@ -386,7 +386,7 @@ class GraphQLQuery extends GraphQLNode {
     this.kind = QUERY;
     this.metadata = {
       ...this.__metadata__,
-      rootArg,
+      rootArg
     };
     this.name = queryName;
     this.fieldName = rootCall;
@@ -424,7 +424,7 @@ class GraphQLQuery extends GraphQLNode {
       this.fields.length ? this.fields : null,
       this.fragments.length ? this.fragments : null,
       this.__metadata__ !== EMPTY_OBJECT ? this.__metadata__ : null,
-      this.name || null,
+      this.name || null
     ]);
   }
 }
@@ -470,7 +470,7 @@ class GraphQLQueryWithValues {
     return trimArray([
       JSON_TYPES.QUERY_WITH_VALUES,
       this.query,
-      this.values,
+      this.values
     ]);
   }
 }
@@ -500,7 +500,7 @@ class GraphQLOperation extends GraphQLNode {
       this.calls[0],
       this.fields.length ? this.fields : null,
       this.fragments.length ? this.fragments : null,
-      this.metadata === EMPTY_OBJECT ? null : this.metadata,
+      this.metadata === EMPTY_OBJECT ? null : this.metadata
     ]);
   }
 }
@@ -526,7 +526,7 @@ class GraphQLMutation extends GraphQLOperation {
       mutationCall,
       fields,
       fragments,
-      metadata,
+      metadata
     ] = descriptor;
     invariant(type === JSON_TYPES.MUTATION, 'Expected mutation descriptor');
     return new GraphQLMutation(
@@ -568,7 +568,7 @@ class GraphQLSubscription extends GraphQLOperation {
       subscriptionCall,
       fields,
       fragments,
-      metadata,
+      metadata
     ] = descriptor;
     invariant(
       type === JSON_TYPES.SUBSCRIPTION,
@@ -750,7 +750,7 @@ var GraphQL = {
   isMutation,
   isQuery,
   isQueryWithValues,
-  isSubscription,
+  isSubscription
 };
 
 module.exports = GraphQL;

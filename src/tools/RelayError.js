@@ -44,7 +44,7 @@ var RelayError = {
     );
     (error: any).source = errorData;
     return error;
-  },
+  }
 };
 
 /**

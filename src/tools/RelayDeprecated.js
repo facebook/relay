@@ -33,7 +33,7 @@ var RelayDeprecated = {
    */
   warn({was, now}: {
     was: string,
-    now: string,
+    now: string
   }): void {
     warning(false, 'Relay: `%s` is deprecated; use `%s`.', was, now);
   },
@@ -44,7 +44,7 @@ var RelayDeprecated = {
   createWarning({was, now, adapter}: {
     was: string,
     now: string,
-    adapter: Function,
+    adapter: Function
   }): Function {
     return function() {
       RelayDeprecated.warn({was, now});
@@ -59,13 +59,13 @@ var RelayDeprecated = {
     var deprecatedProperties = [
       'queries',
       'queryParams',
-      'processQueryParams',
+      'processQueryParams'
     ].filter(property => maybeSpec.hasOwnProperty(property));
 
     var modernProperties = [
       'fragments',
       'initialVariables',
-      'prepareVariables',
+      'prepareVariables'
     ].filter(property => maybeSpec.hasOwnProperty(property));
 
     if (modernProperties.length) {
@@ -103,7 +103,7 @@ var RelayDeprecated = {
     if (queryParams && !Mutation.initialVariables) {
       RelayDeprecated.warn({
         was: Mutation.name + '.queryParams',
-        now: Mutation.name + '.initialVariables',
+        now: Mutation.name + '.initialVariables'
       });
       Mutation.initialVariables = queryParams;
     }
@@ -115,12 +115,12 @@ var RelayDeprecated = {
     if (queries && !Mutation.fragments) {
       RelayDeprecated.warn({
         was: Mutation.name + '.queries',
-        now: Mutation.name + '.fragments',
+        now: Mutation.name + '.fragments'
       });
       Mutation.fragments = queries;
     }
     return Mutation.fragments;
-  },
+  }
 
 };
 

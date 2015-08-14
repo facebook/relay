@@ -128,7 +128,7 @@ class RelayStoreGarbageCollector {
     iterator = offset;
     var profileState = {
       count: -1,
-      stepLength: stepLength,
+      stepLength: stepLength
     };
     var profile = RelayProfiler.profile(
       'RelayStoreGarbageCollector.collect',
@@ -239,7 +239,7 @@ class RelayStoreGarbageCollector {
     var remainingRecords: Array<?Record> = [
       records[dataID],
       queuedRecords[dataID],
-      cachedRecords[dataID],
+      cachedRecords[dataID]
     ];
 
     // If `field` contains a linked record and the linked record has a
@@ -332,7 +332,7 @@ RelayProfiler.instrumentMethods(RelayStoreGarbageCollector.prototype, {
   increaseSubscriptionsFor:
     'RelayStoreGarbageCollector.prototype.increaseSubscriptionsFor',
   register:
-    'RelayStoreGarbageCollector.prototype.register',
+    'RelayStoreGarbageCollector.prototype.register'
 });
 
 module.exports = RelayStoreGarbageCollector;

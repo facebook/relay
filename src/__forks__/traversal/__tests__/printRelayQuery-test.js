@@ -149,7 +149,7 @@ describe('printRelayQuery', () => {
           },
         }
       `, {
-        env: value,
+        env: value
       });
       expect(printRelayQuery(query)).toEqual(trimQuery(`
         query FooQuery {
@@ -169,7 +169,7 @@ describe('printRelayQuery', () => {
           }
         }
       `, {
-        q: value,
+        q: value
       });
 
       expect(printRelayQuery(query)).toEqual(trimQuery(`
@@ -187,12 +187,12 @@ describe('printRelayQuery', () => {
         new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
         [
           RelayQuery.Node.buildField('id'),
-          RelayQuery.Node.buildField('name'),
+          RelayQuery.Node.buildField('name')
         ],
         {
           isDeferred: true,
           rootArg: RelayNodeInterface.ID,
-          type: RelayNodeInterface.NODE_TYPE,
+          type: RelayNodeInterface.NODE_TYPE
         },
         'RefQueryName'
       );
@@ -327,7 +327,7 @@ describe('printRelayQuery', () => {
       var alias = generateRQLFieldAlias('profilePicture.size(32,64)');
       var variables = {
         height: 64,
-        width: 32,
+        width: 32
       };
       var fragment = getNode(Relay.QL`
         fragment on Actor {
@@ -364,7 +364,7 @@ describe('printRelayQuery', () => {
       `, {
         first: 10,
         orderby: ['name'],
-        isViewerFriend: false,
+        isViewerFriend: false
       });
       var alias = fragment.getChildren()[0].getSerializationKey();
       expect(printRelayQuery(fragment)).toEqual(trimQuery(`

@@ -161,7 +161,7 @@ class GraphQLSegment {
     if (!this.getLength()) {
       return {
         edgeIDs: [],
-        cursors: [],
+        cursors: []
       };
     }
     var currentIndex = this._minIndex;
@@ -171,7 +171,7 @@ class GraphQLSegment {
         console.error('This segment does not have a cursor %s', cursor);
         return {
           edgeIDs: [],
-          cursors: [],
+          cursors: []
         };
       }
       currentIndex = index + 1;
@@ -191,7 +191,7 @@ class GraphQLSegment {
     }
     return {
       edgeIDs: edgeIDs,
-      cursors: cursors,
+      cursors: cursors
     };
   }
 
@@ -205,7 +205,7 @@ class GraphQLSegment {
     if (!this.getLength()) {
       return {
         edgeIDs: [],
-        cursors: [],
+        cursors: []
       };
     }
     var currentIndex = this._maxIndex;
@@ -215,7 +215,7 @@ class GraphQLSegment {
         console.error('This segment does not have a cursor %s', cursor);
         return {
           edgeIDs: [],
-          cursors: [],
+          cursors: []
         };
       }
       currentIndex = index - 1;
@@ -236,7 +236,7 @@ class GraphQLSegment {
     // Reverse edges because larger index were added first
     return {
       edgeIDs: edgeIDs.reverse(),
-      cursors: cursors.reverse(),
+      cursors: cursors.reverse()
     };
   }
 
@@ -281,7 +281,7 @@ class GraphQLSegment {
     this._indexToMetadataMap[index] = {
       edgeID: edgeID,
       cursor: cursor,
-      deleted: false,
+      deleted: false
     };
     this._idToIndicesMap[edgeID] = this._idToIndicesMap[edgeID] || [];
     this._idToIndicesMap[edgeID].unshift(index);
@@ -495,7 +495,7 @@ class GraphQLSegment {
     return {
       count: this._count,
       maxIndex: this._maxIndex,
-      minIndex: this._minIndex,
+      minIndex: this._minIndex
     };
   }
 
@@ -600,7 +600,7 @@ class GraphQLSegment {
       this._cursorToIndexMap,
       this._minIndex,
       this._maxIndex,
-      this._count,
+      this._count
     ];
   }
 
@@ -611,7 +611,7 @@ class GraphQLSegment {
       cursorToIndexMap,
       minIndex,
       maxIndex,
-      count,
+      count
     ] = descriptor;
     var segment = new GraphQLSegment();
     segment._indexToMetadataMap = indexToMetadataMap;
@@ -627,7 +627,7 @@ class GraphQLSegment {
     return {
       metadata: this._indexToMetadataMap,
       idToIndices: this._idToIndicesMap,
-      cursorToIndex:  this._cursorToIndexMap,
+      cursorToIndex:  this._cursorToIndexMap
     };
   }
 

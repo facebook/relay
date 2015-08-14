@@ -34,7 +34,7 @@ function genMockRequest(resolve, reject) {
     resolve(response, error) {
       resolve({error: error || null, response});
     },
-    reject,
+    reject
   });
 }
 

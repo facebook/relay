@@ -42,7 +42,7 @@ describe('writeRelayQueryPayload()', () => {
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
       PAGE_INFO,
-      START_CURSOR,
+      START_CURSOR
     } = RelayConnectionInterface);
 
     jest.addMatchers(RelayTestUtils.matchers);
@@ -81,22 +81,22 @@ describe('writeRelayQueryPayload()', () => {
           edges: [],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: false,
-            [HAS_PREV_PAGE]: false,
-          },
-        },
-      },
+            [HAS_PREV_PAGE]: false
+          }
+        }
+      }
     };
 
     var results = writePayload(store, query, payload);
     expect(results).toEqual({
       created: {
         '123': true,
-        'client:1': true, // `friends` connection
+        'client:1': true // `friends` connection
       },
-      updated: {},
+      updated: {}
     });
     expect(store.getRangeMetadata('client:1', [
-      {name: 'first', value: 3},
+      {name: 'first', value: 3}
     ])).toEqual({
       diffCalls: [],
       filterCalls: [],
@@ -104,9 +104,9 @@ describe('writeRelayQueryPayload()', () => {
         [END_CURSOR]: undefined,
         [HAS_NEXT_PAGE]: false,
         [HAS_PREV_PAGE]: false,
-        [START_CURSOR]: undefined,
+        [START_CURSOR]: undefined
       },
-      requestedEdges: [],
+      requestedEdges: []
     });
   });
 
@@ -136,8 +136,8 @@ describe('writeRelayQueryPayload()', () => {
     `);
     var payload = {
       '123': {
-        id: '123',
-      },
+        id: '123'
+      }
     };
     var alias = generateRQLFieldAlias('friends.first(3)');
     payload['123'][alias] = {
@@ -145,35 +145,35 @@ describe('writeRelayQueryPayload()', () => {
         {
           cursor: 'friend1',
           node: {
-            id: 'friend1ID',
+            id: 'friend1ID'
           },
           source: {
-            id: '123',
-          },
+            id: '123'
+          }
         },
         {
           cursor: 'friend2',
           node: {
-            id: 'friend2ID',
+            id: 'friend2ID'
           },
           source: {
-            id: '123',
-          },
+            id: '123'
+          }
         },
         {
           cursor: 'friend3',
           node: {
-            id: 'friend3ID',
+            id: 'friend3ID'
           },
           source: {
-            id: '123',
-          },
-        },
+            id: '123'
+          }
+        }
       ],
       [PAGE_INFO]: {
         [HAS_NEXT_PAGE]: true,
-        [HAS_PREV_PAGE]: false,
-      },
+        [HAS_PREV_PAGE]: false
+      }
     };
     var results = writePayload(store, query, payload);
     expect(results).toEqual({
@@ -185,15 +185,15 @@ describe('writeRelayQueryPayload()', () => {
         'client:client:1:friend3ID': true,
         'friend1ID': true, // nodes
         'friend2ID': true,
-        'friend3ID': true,
+        'friend3ID': true
       },
-      updated: {},
+      updated: {}
     });
     expect(store.getField('friend1ID', 'id')).toBe('friend1ID');
     expect(store.getField('friend2ID', 'id')).toBe('friend2ID');
     expect(store.getField('friend3ID', 'id')).toBe('friend3ID');
     expect(store.getRangeMetadata('client:1', [
-      {name: 'first', value: 3},
+      {name: 'first', value: 3}
     ])).toEqual({
       diffCalls: [],
       filterCalls: [],
@@ -201,13 +201,13 @@ describe('writeRelayQueryPayload()', () => {
         [END_CURSOR]: 'friend3',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-        [START_CURSOR]: 'friend1',
+        [START_CURSOR]: 'friend1'
       },
       requestedEdges: [
         {edgeID: 'client:client:1:friend1ID', nodeID: 'friend1ID'},
         {edgeID: 'client:client:1:friend2ID', nodeID: 'friend2ID'},
-        {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'},
-      ],
+        {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'}
+      ]
     });
   });
 
@@ -234,8 +234,8 @@ describe('writeRelayQueryPayload()', () => {
     `);
     var payload = {
       '123': {
-        id: '123',
-      },
+        id: '123'
+      }
     };
     var alias = generateRQLFieldAlias('friends.first(3)');
     payload['123'][alias] = {
@@ -243,19 +243,19 @@ describe('writeRelayQueryPayload()', () => {
         null,
         {
           cursor: 'friend2',
-          node: null,
+          node: null
         },
         {
           cursor: 'friend3',
           node: {
-            id: 'friend3ID',
-          },
-        },
+            id: 'friend3ID'
+          }
+        }
       ],
       [PAGE_INFO]: {
         [HAS_NEXT_PAGE]: true,
-        [HAS_PREV_PAGE]: false,
-      },
+        [HAS_PREV_PAGE]: false
+      }
     };
     var results = writePayload(store, query, payload);
     expect(results).toEqual({
@@ -263,13 +263,13 @@ describe('writeRelayQueryPayload()', () => {
         '123': true,
         'client:1': true, // `friends` connection
         'client:client:1:friend3ID': true, // edges
-        'friend3ID': true,
+        'friend3ID': true
       },
-      updated: {},
+      updated: {}
     });
     expect(store.getField('friend3ID', 'id')).toBe('friend3ID');
     expect(store.getRangeMetadata('client:1', [
-      {name: 'first', value: 1},
+      {name: 'first', value: 1}
     ])).toEqual({
       diffCalls: [],
       filterCalls: [],
@@ -277,11 +277,11 @@ describe('writeRelayQueryPayload()', () => {
         [END_CURSOR]: 'friend3',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-        [START_CURSOR]: 'friend3',
+        [START_CURSOR]: 'friend3'
       },
       requestedEdges: [
-        {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'},
-      ],
+        {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'}
+      ]
     });
   });
 
@@ -298,8 +298,8 @@ describe('writeRelayQueryPayload()', () => {
     var payload = {
       '123': {
         id: '123',
-        friends: {count: 5},
-      },
+        friends: {count: 5}
+      }
     };
     writePayload(store, query, payload);
 
@@ -326,8 +326,8 @@ describe('writeRelayQueryPayload()', () => {
     `);
     payload = {
       '123': {
-        id: '123',
-      },
+        id: '123'
+      }
     };
     var alias = generateRQLFieldAlias('friends.first(1)');
     payload['123'][alias] = {
@@ -335,31 +335,31 @@ describe('writeRelayQueryPayload()', () => {
         {
           cursor: 'friend1',
           node: {
-            id: 'friend1ID',
+            id: 'friend1ID'
           },
           source: {
-            id: '123',
-          },
-        },
+            id: '123'
+          }
+        }
       ],
       [PAGE_INFO]: {
         [HAS_NEXT_PAGE]: true,
-        [HAS_PREV_PAGE]: false,
-      },
+        [HAS_PREV_PAGE]: false
+      }
     };
     var results = writePayload(store, query, payload);
     expect(results).toEqual({
       created: {
         'client:client:1:friend1ID': true,  // edges
-        'friend1ID': true, // nodes
+        'friend1ID': true // nodes
       },
       updated: {
-        'client:1': true,
-      },
+        'client:1': true
+      }
     });
     expect(store.getField('friend1ID', 'id')).toBe('friend1ID');
     expect(store.getRangeMetadata('client:1', [
-      {name: 'first', value: 1},
+      {name: 'first', value: 1}
     ])).toEqual({
       diffCalls: [],
       filterCalls: [],
@@ -367,11 +367,11 @@ describe('writeRelayQueryPayload()', () => {
         [END_CURSOR]: 'friend1',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-        [START_CURSOR]: 'friend1',
+        [START_CURSOR]: 'friend1'
       },
       requestedEdges: [
-        {edgeID: 'client:client:1:friend1ID', nodeID: 'friend1ID'},
-      ],
+        {edgeID: 'client:client:1:friend1ID', nodeID: 'friend1ID'}
+      ]
     });
   });
 
@@ -408,19 +408,19 @@ describe('writeRelayQueryPayload()', () => {
             {
               cursor: 'friend1',
               node: {
-                id: 'friend1ID',
+                id: 'friend1ID'
               },
               source: {
-                id: '123',
-              },
-            },
+                id: '123'
+              }
+            }
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
-            [HAS_PREV_PAGE]: false,
-          },
-        },
-      },
+            [HAS_PREV_PAGE]: false
+          }
+        }
+      }
     };
     expect(() => writePayload(store, query, payload)).toFailInvariant(
       'RelayQueryWriter: Cannot write edges for connection ' +
@@ -448,21 +448,21 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         '123': {
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var alias = generateRQLFieldAlias('friends.first(1)');
       payload['123'][alias] = {
         edges: [{
           node: {
-            id: 'node1',
+            id: 'node1'
           },
-          cursor: 'cursor1',
+          cursor: 'cursor1'
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: false,
-        },
+          [HAS_PREV_PAGE]: false
+        }
       };
       var records = {};
       store = new RelayRecordStore({records});
@@ -485,34 +485,34 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         '123': {
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var alias = generateRQLFieldAlias('friends.first(1).after(cursor1)');
       payload['123'][alias] = {
         edges: [{
           node: {
-            id: 'node2',
+            id: 'node2'
           },
-          cursor: 'cursor2',
+          cursor: 'cursor2'
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: true,
-        },
+          [HAS_PREV_PAGE]: true
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
           'node2': true,
-          'client:client:1:node2': true, // 2nd edge
+          'client:client:1:node2': true // 2nd edge
         },
         updated: {
-          'client:1': true, // range updated
-        },
+          'client:1': true // range updated
+        }
       });
       expect(store.getRangeMetadata('client:1', [
-        {name: 'first', value: 2},
+        {name: 'first', value: 2}
       ])).toEqual({
         diffCalls: [],
         filterCalls: [],
@@ -520,12 +520,12 @@ describe('writeRelayQueryPayload()', () => {
           [END_CURSOR]: 'cursor2',
           [HAS_NEXT_PAGE]: true,
           [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: 'cursor1',
+          [START_CURSOR]: 'cursor1'
         },
         requestedEdges: [
           {edgeID: 'client:client:1:node1', nodeID: 'node1'},
-          {edgeID: 'client:client:1:node2', nodeID: 'node2'},
-        ],
+          {edgeID: 'client:client:1:node2', nodeID: 'node2'}
+        ]
       });
     });
 
@@ -546,34 +546,34 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         '123': {
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var alias = generateRQLFieldAlias('friends.find(node1)');
       payload['123'][alias] = {
         edges: [{
           node: {
             id: 'node1',
-            name: 'Tim', // added field
+            name: 'Tim' // added field
           },
-          cursor: 'cursor1',
+          cursor: 'cursor1'
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: true,
-        },
+          [HAS_PREV_PAGE]: true
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
-          'node1': true,    // `name` added
+          'node1': true    // `name` added
           // range not updated, only the node changed
-        },
+        }
       });
       expect(store.getField('node1', 'name')).toBe('Tim');
       expect(store.getRangeMetadata('client:1', [
-        {name: 'first', value: 1},
+        {name: 'first', value: 1}
       ])).toEqual({
         diffCalls: [],
         filterCalls: [],
@@ -581,11 +581,11 @@ describe('writeRelayQueryPayload()', () => {
           [END_CURSOR]: 'cursor1',
           [HAS_NEXT_PAGE]: true,
           [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: 'cursor1',
+          [START_CURSOR]: 'cursor1'
         },
         requestedEdges: [
-          {edgeID: 'client:client:1:node1', nodeID: 'node1'},
-        ],
+          {edgeID: 'client:client:1:node1', nodeID: 'node1'}
+        ]
       });
     });
 
@@ -611,37 +611,37 @@ describe('writeRelayQueryPayload()', () => {
       `, RelayMetaRoute.get('$RelayTest'), {});
       var payload = {
         '123': {
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var alias = generateRQLFieldAlias('friends.find(node1)');
       payload['123'][alias] = {
         edges: [{
           node: {
-            id: 'node1',
+            id: 'node1'
           },
           source: { // new edge field
-            id: '456',
+            id: '456'
           },
-          cursor: 'cursor1',
+          cursor: 'cursor1'
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: true,
-        },
+          [HAS_PREV_PAGE]: true
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          '456': true, // `source` added
+          '456': true // `source` added
         },
         updated: {
           'client:1': true, // range updated because an edge had a change
-          'client:client:1:node1': true, // `source` added to edge
-        },
+          'client:client:1:node1': true // `source` added to edge
+        }
       });
       expect(store.getRangeMetadata('client:1', [
-        {name: 'first', value: 1},
+        {name: 'first', value: 1}
       ])).toEqual({
         diffCalls: [],
         filterCalls: [],
@@ -649,11 +649,11 @@ describe('writeRelayQueryPayload()', () => {
           [END_CURSOR]: 'cursor1',
           [HAS_NEXT_PAGE]: true,
           [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: 'cursor1',
+          [START_CURSOR]: 'cursor1'
         },
         requestedEdges: [
-          {edgeID: 'client:client:1:node1', nodeID: 'node1'},
-        ],
+          {edgeID: 'client:client:1:node1', nodeID: 'node1'}
+        ]
       });
       var sourceID = store.getLinkedRecordID('client:client:1:node1', 'source');
       expect(sourceID).toBe('456');
@@ -676,35 +676,35 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         '123': {
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var alias = generateRQLFieldAlias('friends.first(1)');
       payload['123'][alias] = {
         edges: [{
           node: {
-            id: 'node1b',
+            id: 'node1b'
           },
-          cursor: 'cursor1b',
+          cursor: 'cursor1b'
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: false,
-        },
+          [HAS_PREV_PAGE]: false
+        }
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
           'node1b': true,
-          'client:client:1:node1b': true,   // edge added but never referenced
+          'client:client:1:node1b': true   // edge added but never referenced
         },
         updated: {
-          'client:1': true,     // range updated
-        },
+          'client:1': true     // range updated
+        }
       });
       expect(store.getField('node1b', 'id')).toBe('node1b');
       expect(store.getRangeMetadata('client:1', [
-        {name: 'first', value: 1},
+        {name: 'first', value: 1}
       ])).toEqual({
         diffCalls: [],
         filterCalls: [],
@@ -712,11 +712,11 @@ describe('writeRelayQueryPayload()', () => {
           [END_CURSOR]: 'cursor1',
           [HAS_NEXT_PAGE]: true,
           [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: 'cursor1',
+          [START_CURSOR]: 'cursor1'
         },
         requestedEdges: [
-          {edgeID: 'client:client:1:node1', nodeID: 'node1'},
-        ],
+          {edgeID: 'client:client:1:node1', nodeID: 'node1'}
+        ]
       });
     });
 
@@ -736,35 +736,35 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         '123': {
-          id: '123',
-        },
+          id: '123'
+        }
       };
       var alias = generateRQLFieldAlias('friends.first(1)');
       payload['123'][alias] = {
         edges: [{
           node: {
-            id: 'node1b',
+            id: 'node1b'
           },
-          cursor: 'cursor1b',
+          cursor: 'cursor1b'
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: false,
-        },
+          [HAS_PREV_PAGE]: false
+        }
       };
       var results = writePayload(store, query, payload, null, {forceIndex: 1});
       expect(results).toEqual({
         created: {
           'node1b': true,
-          'client:client:1:node1b': true,
+          'client:client:1:node1b': true
         },
         updated: {
-          'client:1': true,     // range updated
-        },
+          'client:1': true     // range updated
+        }
       });
       expect(store.getField('node1b', 'id')).toBe('node1b');
       expect(store.getRangeMetadata('client:1', [
-        {name: 'first', value: 1},
+        {name: 'first', value: 1}
       ])).toEqual({
         diffCalls: [],
         filterCalls: [],
@@ -772,11 +772,11 @@ describe('writeRelayQueryPayload()', () => {
           [END_CURSOR]: 'cursor1b',
           [HAS_NEXT_PAGE]: true,
           [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: 'cursor1b',
+          [START_CURSOR]: 'cursor1b'
         },
         requestedEdges: [
-          {edgeID: 'client:client:1:node1b', nodeID: 'node1b'},
-        ],
+          {edgeID: 'client:client:1:node1b', nodeID: 'node1b'}
+        ]
       });
     });
   });

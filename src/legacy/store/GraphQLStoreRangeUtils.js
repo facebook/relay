@@ -67,7 +67,7 @@ var GraphQLStoreRangeUtils = {
       rangeData[key] = {
         dataID: dataID,
         calls: calls,
-        callValues: callValues,
+        callValues: callValues
       };
     }
     return key;
@@ -93,7 +93,7 @@ var GraphQLStoreRangeUtils = {
    */
   getCanonicalClientID: function(dataID) {
     return rangeData[dataID] ? rangeData[dataID].dataID : dataID;
-  },
+  }
 };
 
 module.exports = GraphQLStoreRangeUtils;

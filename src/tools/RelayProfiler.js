@@ -210,7 +210,7 @@ var RelayProfiler = {
                 profileHandler.onStop(name, state);
               }
             });
-          },
+          }
         };
       }
     }
@@ -238,7 +238,7 @@ var RelayProfiler = {
         removeFromArray(profileHandlersByName[name], handler);
       }
     }
-  },
+  }
 
 };
 

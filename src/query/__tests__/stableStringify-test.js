@@ -52,16 +52,16 @@ describe('stableStringify', () => {
       top2: {
         middle: {
           inner: [1, 'foo', ['bar', 2]],
-          other: false,
-        },
+          other: false
+        }
       },
       top1: [
         {first: true},
         {first: false},
-        'random',
+        'random'
       ],
       misc: true,
-      extra: null,
+      extra: null
     };
 
     var expected =

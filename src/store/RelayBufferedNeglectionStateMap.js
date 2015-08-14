@@ -48,7 +48,7 @@ class RelayBufferedNeglectionStateMap {
   decreaseSubscriptionsFor(dataID: DataID): void {
     this._bufferedChanges.push({
       type: 'decrease',
-      dataID,
+      dataID
     });
   }
 
@@ -59,7 +59,7 @@ class RelayBufferedNeglectionStateMap {
   increaseSubscriptionsFor(dataID: DataID): void {
     this._bufferedChanges.push({
       type: 'increase',
-      dataID,
+      dataID
     });
   }
 
@@ -70,7 +70,7 @@ class RelayBufferedNeglectionStateMap {
   register(dataID: DataID): void {
     this._bufferedChanges.push({
       type: 'register',
-      dataID,
+      dataID
     });
   }
 
@@ -81,7 +81,7 @@ class RelayBufferedNeglectionStateMap {
   remove(dataID: DataID): void {
     this._bufferedChanges.push({
       type: 'remove',
-      dataID,
+      dataID
     });
   }
 

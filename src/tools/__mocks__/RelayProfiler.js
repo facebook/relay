@@ -32,11 +32,11 @@ var RelayProfiler = {
   detachAggregateHandler: jest.genMockFunction(),
   profile: jest.genMockFunction().mockImplementation(() => {
     return {
-      stop: jest.genMockFunction(),
+      stop: jest.genMockFunction()
     };
   }),
   attachProfileHandler: jest.genMockFunction(),
-  detachProfileHandler: jest.genMockFunction(),
+  detachProfileHandler: jest.genMockFunction()
 };
 
 module.exports = RelayProfiler;

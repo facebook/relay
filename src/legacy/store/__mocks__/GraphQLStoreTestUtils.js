@@ -92,7 +92,7 @@ var GraphQLStoreTestUtils = {
 
       for (var ii = 0; ii < actualFragments.length; ii++) {
         var context = {
-          actual: actualFragments[ii],
+          actual: actualFragments[ii]
         };
         var matches = GraphQLStoreTestUtils.matchers.toMatchQueryFragment.call(
           context,
@@ -107,7 +107,7 @@ var GraphQLStoreTestUtils = {
       }
 
       return true;
-    },
+    }
   },
   /**
    * @param {GraphQLNode} node
@@ -154,7 +154,7 @@ var GraphQLStoreTestUtils = {
     jest
       .dontMock('GraphQL_EXPERIMENTAL')
       .dontMock('GraphQLFragmentPointer');
-  },
+  }
 };
 
 module.exports = GraphQLStoreTestUtils;

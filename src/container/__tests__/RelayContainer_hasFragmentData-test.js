@@ -41,8 +41,8 @@ describe('RelayContainer.hasFragmentData', function() {
       fragments: {
         foo: jest.genMockFunction().mockImplementation(
           variables => Relay.QL`fragment on Node{id,url(site:$site)}`
-        ),
-      },
+        )
+      }
     });
     MockContainer.mock = {render};
 

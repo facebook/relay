@@ -197,7 +197,7 @@ class RelayMutationTransaction {
         configs: this._getConfigs(),
         fatQuery: this._getFatQuery(),
         mutationName: this._mutation.constructor.name,
-        mutation: this._getMutationNode(),
+        mutation: this._getMutationNode()
       });
     }
     return this._query;
@@ -208,7 +208,7 @@ class RelayMutationTransaction {
       var input = {
         ...this._mutation.getVariables(),
         /* $FlowIssue #7728187 - Computed Property */
-        [CLIENT_MUTATION_ID]: this._id,
+        [CLIENT_MUTATION_ID]: this._id
       };
       this._variables = {input};
     }
@@ -239,14 +239,14 @@ class RelayMutationTransaction {
             configs: optimisticConfigs,
             fatQuery: this._getFatQuery(),
             mutationName: this._mutation.constructor.name,
-            mutation: this._getMutationNode(),
+            mutation: this._getMutationNode()
           });
         } else {
           this._optimisticQuery =
             RelayMutationQuery.buildQueryForOptimisticUpdate({
               response: optimisticResponse,
               fatQuery: this._getFatQuery(),
-              mutation: this._getMutationNode(),
+              mutation: this._getMutationNode()
             });
         }
       } else {

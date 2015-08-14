@@ -103,7 +103,7 @@ var toGraphQL = {
         metadata
       );
     });
-  },
+  }
 };
 
 RelayProfiler.instrumentMethods(toGraphQL, {
@@ -111,7 +111,7 @@ RelayProfiler.instrumentMethods(toGraphQL, {
   QueryWithValues: 'toGraphQL.QueryWithValues',
   Query: 'toGraphQL.Query',
   Fragment: 'toGraphQL.Fragment',
-  Field: 'toGraphQL.Field',
+  Field: 'toGraphQL.Field'
 });
 
 function toGraphQLChildren(
@@ -136,7 +136,7 @@ function toGraphQLChildren(
 function toGraphQLMetadata(node: RelayQuery.Node): ?Object {
   var metadata = {
     ...node.__concreteNode__.__metadata__,
-    ...node.__metadata__,
+    ...node.__metadata__
   };
   if (Object.keys(metadata).length) {
     return metadata;

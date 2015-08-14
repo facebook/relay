@@ -55,24 +55,19 @@ var executor = {
   name: 'Executor',
 };
 
-var nextShip = 9;
-export function getNewShipId() {
-  return '' + (nextShip++);
-}
-
-export var rebels = {
+var rebels = {
   id: '1',
   name: 'Alliance to Restore the Republic',
   ships: ['1', '2', '3', '4', '5']
 };
 
-export var empire = {
+var empire = {
   id: '2',
   name: 'Galactic Empire',
   ships: ['6', '7', '8']
 };
 
-export var data = {
+var data = {
   Faction: {
     1: rebels,
     2: empire
@@ -88,3 +83,34 @@ export var data = {
     8: executor
   }
 };
+
+var nextShip = 9;
+export function createShip(shipName, factionId) {
+  var newShip = {
+    id: '' + (nextShip++),
+    name: shipName
+  };
+  data.Ship[newShip.id] = newShip;
+  data.Faction[factionId].ships.push(newShip.id);
+  return newShip;
+}
+
+export function getShip(id) {
+  return data.Ship[id];
+}
+
+export function getFaction(id) {
+  return data.Faction[id];
+}
+
+export function getFactions(names) {
+  return names.map(name => {
+    if (name === 'empire') {
+      return empire;
+    }
+    if (name === 'rebels') {
+      return rebels;
+    }
+    return null;
+  });
+}

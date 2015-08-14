@@ -25,7 +25,7 @@
     "test": "NODE_ENV=test jest"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": ">=2"
   },
   "dependencies": {
     "babel-runtime": "5.8.20",
@@ -48,7 +48,7 @@
     "gulp-flatten": "^0.1.0",
     "gulp-header": "^1.2.2",
     "gulp-util": "^3.0.6",
-    "jest-cli": "^0.4.16",
+    "jest-cli": "^0.5.0",
     "object-assign": "^3.0.0",
     "react": "^0.14.0-beta3",
     "run-sequence": "^1.1.2",

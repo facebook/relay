@@ -1,7 +1,7 @@
 ---
 language: node_js
 node_js:
-- '0.10'
+- 'iojs-v3'
 env:
 - TEST_DIR=.
 - TEST_DIR=scripts/babel-relay-plugin

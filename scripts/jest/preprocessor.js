@@ -4,7 +4,7 @@
 var babel = require('babel-core');
 var babelPluginModules = require('fbjs/scripts/babel/rewrite-modules');
 var fs = require('fs');
-var getBabelRelayPlugin = require('../babel-relay-plugin/src/getBabelRelayPlugin');
+var getBabelRelayPlugin = require('babel-relay-plugin');
 var objectAssign = require('object-assign');
 var path = require('path');
 

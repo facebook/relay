@@ -21,7 +21,6 @@
   "repository": "facebook/relay",
   "scripts": {
     "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",
-    "preinstall": "cd scripts/babel-relay-plugin/ && npm install",
     "prepublish": "npm run build",
     "test": "NODE_ENV=test jest"
   },
@@ -40,6 +39,7 @@
   "devDependencies": {
     "babel-core": "5.8.21",
     "babel-loader": "5.3.2",
+    "babel-relay-plugin": "^0.1.2",
     "del": "^1.2.0",
     "envify": "^3.4.0",
     "gulp": "^3.9.0",

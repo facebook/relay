@@ -3,6 +3,7 @@
     <span spellcheck="true" class="token comment">// Expects the `user` prop to have the following shape:</span>
     <span spellcheck="true" class="token comment">// {</span>
     <span spellcheck="true" class="token comment">//   profilePhoto: {</span>
+    <span spellcheck="true" class="token comment">//     uri,</span>
     <span spellcheck="true" class="token comment">//     size</span>
     <span spellcheck="true" class="token comment">//   }</span>
     <span spellcheck="true" class="token comment">// }</span>
@@ -84,7 +85,7 @@ module<span class="token punctuation">.</span>exports <span class="token operato
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><div class="line-highlight" style="height:20px;top:80px;"></div><div class="line-highlight" style="height:20px;top:100px;"></div><div class="line-highlight" style="height:20px;top:200px;"></div><div class="line-highlight" style="height:20px;top:500px;"></div><div class="line-highlight" style="height:20px;top:520px;"></div><div class="line-highlight" style="height:20px;top:540px;"></div></pre><h2><a class="anchor" name="container-composition"></a>Container Composition <a class="hash-link" href="#container-composition">#</a></h2><p>React and Relay support creating arbitrarily complex applications through <em>composition</em>. Larger components can be created by composing smaller components, helping us to create modular, robust applications. There are two aspects to composing components in Relay:</p><ul><li>Composing the view logic, and</li><li>Composing the data descriptions.</li></ul><p>Let&#x27;s explore how this works via a <code>&lt;Profile&gt;</code> component that composes the <code>&lt;ProfilePicture&gt;</code> from above.</p><h3><a class="anchor" name="composing-views-it-s-plain-react"></a>Composing Views - It&#x27;s Plain React <a class="hash-link" href="#composing-views-it-s-plain-react">#</a></h3><p>View composition is <em>exactly</em> what you&#x27;re used to — Relay containers are standard React components. Here&#x27;s the <code>&lt;Profile&gt;</code> component:</p><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">Profile</span> <span class="token keyword">extends</span> <span class="token class-name">React<span class="token punctuation">.</span>Component</span> <span class="token punctuation">{</span>
   <span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span spellcheck="true" class="token comment">// Expects a `user` will a string `name`, as well as the information</span>
+    <span spellcheck="true" class="token comment">// Expects a `user` with a string `name`, as well as the information</span>
     <span spellcheck="true" class="token comment">// for `&lt;ProfilePicture&gt;` (we&#x27;ll get that next).</span>
     <span class="token keyword">var</span> user <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>user<span class="token punctuation">;</span>
     <span class="token keyword">return</span> <span class="token punctuation">(</span>

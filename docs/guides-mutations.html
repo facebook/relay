@@ -20,7 +20,7 @@
   <span spellcheck="true" class="token comment">// instruct the server to include only those fields in its response.</span>
   <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
     Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
-      query LikeStoryPayload {
+      fragment on LikeStoryPayload {
         story {
           likers {
             count,
@@ -49,7 +49,7 @@
   <span spellcheck="true" class="token comment">// use this fragment to ensure that the story&#x27;s ID is available wherever</span>
   <span spellcheck="true" class="token comment">// this mutation is used.</span>
   <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
-    story<span class="token punctuation">:</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+    story<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
       fragment on Story {
         id,
       }
@@ -70,7 +70,10 @@
       <span class="token operator">&lt;</span><span class="token operator">/</span>div<span class="token operator">&gt;</span>
     <span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token punctuation">}</span>
-  <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> Relay<span class="token punctuation">.</span><span class="token function">createContainer</span><span class="token punctuation">(</span>LikeButton<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  fragments<span class="token punctuation">:</span> <span class="token punctuation">{</span>
     <span spellcheck="true" class="token comment">// You can compose a mutation&#x27;s query fragments like you would those</span>
     <span spellcheck="true" class="token comment">// of any other RelayContainer. This ensures that the data depended</span>
     <span spellcheck="true" class="token comment">// upon by the mutation will be fetched and ready for use.</span>
@@ -80,8 +83,8 @@
         $<span class="token punctuation">{</span>LikeStoryMutation<span class="token punctuation">.</span><span class="token function">getFragment</span><span class="token punctuation">(</span><span class="token string">&#x27;story&#x27;</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
       <span class="token punctuation">}</span>
     `<span class="token punctuation">,</span>
-  <span class="token punctuation">}</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span></pre><p>In this particular example, the only field that the <code>LikeButton</code> cares about is <code>viewerDoesLike</code>. That field will form part of the tracked query that Relay will intersect with the fat query of <code>LikeStoryMutation</code> to determine what fields to request as part of the server&#x27;s response payload for the mutation. Another component elsewhere in the application might be interested in the likers count, or the like sentence. Since those fields will automatically be added to Relay&#x27;s tracked query, the <code>LikeButton</code> need not worry about requesting them explicitly.</p><h2><a class="anchor" name="mutation-props"></a>Mutation props <a class="hash-link" href="#mutation-props">#</a></h2><p>Any props that we pass to the constructor of a mutation will become available to its instance methods as <code>this.props</code>. Like in components used within Relay containers, props for which a corresponding fragment has been defined will be populated by Relay with query data:</p><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">LikeStoryMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></pre><p>In this particular example, the only field that the <code>LikeButton</code> cares about is <code>viewerDoesLike</code>. That field will form part of the tracked query that Relay will intersect with the fat query of <code>LikeStoryMutation</code> to determine what fields to request as part of the server&#x27;s response payload for the mutation. Another component elsewhere in the application might be interested in the likers count, or the like sentence. Since those fields will automatically be added to Relay&#x27;s tracked query, the <code>LikeButton</code> need not worry about requesting them explicitly.</p><h2><a class="anchor" name="mutation-props"></a>Mutation props <a class="hash-link" href="#mutation-props">#</a></h2><p>Any props that we pass to the constructor of a mutation will become available to its instance methods as <code>this.props</code>. Like in components used within Relay containers, props for which a corresponding fragment has been defined will be populated by Relay with query data:</p><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">LikeStoryMutation</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Mutation</span> <span class="token punctuation">{</span>
   <span class="token keyword">static</span> fragments <span class="token operator">=</span> <span class="token punctuation">{</span>
     story<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
       fragment on Story {
@@ -256,7 +259,7 @@
   <span spellcheck="true" class="token comment">// Here&#x27;s the fat query from before</span>
   <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
     Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
-      query LikeStoryPayload {
+      fragment on LikeStoryPayload {
         story {
           likers {
             count,

@@ -256,20 +256,20 @@
       <div class="spec-algo" id="EdgesToReturn()"><span class="spec-call"><a href="#EdgesToReturn()">EdgesToReturn</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
         <ol>
           <li>Let <var>edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()">ApplyCursorsToEdges</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>)</span>.</li>
-          <li>If <var>last</var> is set:
-            <ol>
-              <li>If <var>edges</var> has length greater than than <var>last</var>:
-                <ol>
-                  <li>Slice <var>edges</var> to be of length <var>last</var> by removing edges from the start of <var>edges</var>.</li>
-                </ol>
-              </li>
-            </ol>
-          </li>
           <li>If <var>first</var> is set:
             <ol>
               <li>If <var>edges</var> has length greater than than <var>first</var>:
                 <ol>
                   <li>Slice <var>edges</var> to be of length <var>first</var> by removing edges from the end of <var>edges</var>.</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+          <li>If <var>last</var> is set:
+            <ol>
+              <li>If <var>edges</var> has length greater than than <var>last</var>:
+                <ol>
+                  <li>Slice <var>edges</var> to be of length <var>last</var> by removing edges from the start of <var>edges</var>.</li>
                 </ol>
               </li>
             </ol>

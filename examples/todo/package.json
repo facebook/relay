@@ -9,7 +9,6 @@
     "babel-eslint": "^4.0.5",
     "babel-loader": "5.3.2",
     "babel-relay-plugin": "0.1.2",
-    "babel-runtime": "5.8.20",
     "eslint": "^1.0.0",
     "eslint-loader": "^1.0.0",
     "eslint-plugin-react": "^3.2.0",

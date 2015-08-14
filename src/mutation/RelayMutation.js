@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type GraphQL from 'GraphQL_EXPERIMENTAL';
+import type GraphQL from 'GraphQL';
 var RelayDeprecated = require('RelayDeprecated');
 var RelayFragmentReference = require('RelayFragmentReference');
 import type RelayMetaRoute from 'RelayMetaRoute';

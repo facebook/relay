@@ -32,7 +32,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
   }
 
   beforeEach(() => {
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
   });
 
   describe('scalar-valued calls', () => {

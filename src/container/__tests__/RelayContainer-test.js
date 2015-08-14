@@ -43,7 +43,7 @@ describe('RelayContainer', function() {
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
     GraphQLStoreTestUtils = require('GraphQLStoreTestUtils');
     React = require('React');

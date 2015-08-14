@@ -13,7 +13,7 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL_EXPERIMENTAL');
+var GraphQL = require('GraphQL');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayFragmentReference = require('RelayFragmentReference');
 import type {Call} from 'RelayInternalTypes';
@@ -940,13 +940,9 @@ class RelayQueryField extends RelayQueryNode {
     var concreteCall = this.__concreteNode__.calls.filter(
       call => call.name === callName
     )[0];
-    invariant(
-      concreteCall,
-      'RelayQuery: Field `%s` does not have an argument `%s`.',
-      this.getSchemaName(),
-      callName
-    );
-    return concreteCall.metadata.type;
+    if (concreteCall) {
+      return concreteCall.metadata.type;
+    }
   }
 
   equals(that: RelayQueryNode): boolean {

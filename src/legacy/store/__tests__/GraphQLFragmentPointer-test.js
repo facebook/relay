@@ -93,7 +93,7 @@ describe('GraphQLFragmentPointer', () => {
     it('throws for unknown ref queries', () => {
       var rootFragment = Relay.QL`fragment on Node{id}`;
       var root = getRefNode(
-        Relay.QL`query{node(id:$ref_q0){${rootFragment}}}`,
+        Relay.QL`query{nodes(ids:$ref_q0){${rootFragment}}}`,
         {path: '$.*.id'}
       );
 

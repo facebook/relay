@@ -893,7 +893,7 @@ class GraphQLRange {
         var lastCursor = segment.getLastCursor();
         // If segment has null cursors, retrieve whole range.
         if (lastCursor === null) {
-          diffCalls.push({name: 'first', value: '' + calls.first});
+          diffCalls.push({name: 'first', value: calls.first});
         } else {
           if (lastCursor !== undefined) {
             diffCalls.push({name: 'after', value: lastCursor});
@@ -907,7 +907,7 @@ class GraphQLRange {
               diffCalls.push({name: 'before', value: firstCursor});
             }
           }
-          diffCalls.push({name: 'first', value: '' + countNeeded});
+          diffCalls.push({name: 'first', value: countNeeded});
         }
       }
     }
@@ -996,7 +996,7 @@ class GraphQLRange {
         var firstCursor = segment.getFirstCursor();
         // If segment has null cursors, retrieve whole range.
         if (firstCursor === null) {
-          diffCalls.push({name: 'last', value: '' + calls.last});
+          diffCalls.push({name: 'last', value: calls.last});
         } else {
           if (firstCursor !== undefined) {
             diffCalls.push({name: 'before', value: firstCursor});
@@ -1010,7 +1010,7 @@ class GraphQLRange {
               diffCalls.push({name: 'after', value: lastCursor});
             }
           }
-          diffCalls.push({name: 'last', value: '' + countNeeded});
+          diffCalls.push({name: 'last', value: countNeeded});
         }
       }
     }

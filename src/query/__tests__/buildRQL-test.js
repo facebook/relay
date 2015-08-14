@@ -30,7 +30,7 @@ describe('buildRQL', () => {
   var MockContainer;
 
   beforeEach(() => {
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     React = require('React');
     Relay = require('Relay');
     RelayQuery = require('RelayQuery');

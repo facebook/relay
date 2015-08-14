@@ -13,7 +13,7 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL_EXPERIMENTAL');
+var GraphQL = require('GraphQL');
 var RelayNodeInterface = require('RelayNodeInterface');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
@@ -218,7 +218,7 @@ function createRefQuery(
 
   // Create the wrapper root query.
   var root = RelayQuery.Node.buildRoot(
-    RelayNodeInterface.NODE,
+    RelayNodeInterface.NODES,
     new GraphQL.BatchCallVariable(context.getID(), path.join('.')),
     [node],
     {

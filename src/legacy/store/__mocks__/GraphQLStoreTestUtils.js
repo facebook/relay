@@ -33,7 +33,7 @@ var GraphQLStoreTestUtils = {
      */
     toMatchQueryFragment: function(expected) {
       /* jslint loopfunc:true */
-      var GraphQL = require('GraphQL_EXPERIMENTAL');
+      var GraphQL = require('GraphQL');
 
       var actual = this.actual;
 
@@ -152,7 +152,7 @@ var GraphQLStoreTestUtils = {
   },
   deepUnmockRQL: function() {
     jest
-      .dontMock('GraphQL_EXPERIMENTAL')
+      .dontMock('GraphQL')
       .dontMock('GraphQLFragmentPointer');
   }
 };

@@ -72,7 +72,7 @@ var buildDist = function(opts) {
     },
     output: {
       filename: opts.output,
-      libraryTarget: 'var',
+      libraryTarget: 'umd',
       library: 'Relay'
     },
     plugins: [

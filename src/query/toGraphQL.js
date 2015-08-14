@@ -12,7 +12,7 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL_EXPERIMENTAL');
+var GraphQL = require('GraphQL');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 

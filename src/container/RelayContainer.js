@@ -16,7 +16,7 @@
 'use strict';
 
 var ErrorUtils = require('ErrorUtils');
-import type GraphQL from 'GraphQL_EXPERIMENTAL';
+import type GraphQL from 'GraphQL';
 var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');

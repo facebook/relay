@@ -17,7 +17,7 @@ RelayTestUtils.unmockRelay();
 jest
   .mock('warning')
   .dontMock('DliteFetchModeConstants')
-  .dontMock('GraphQL_EXPERIMENTAL')
+  .dontMock('GraphQL')
   .dontMock('GraphQLDeferredQueryTracker')
   .dontMock('GraphQLQueryRunner');
 
@@ -70,7 +70,7 @@ describe('GraphQLQueryRunner', () => {
     jest.resetModuleRegistry();
 
     DliteFetchModeConstants = require('DliteFetchModeConstants');
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     GraphQLQueryRunner = require('GraphQLQueryRunner');
     Relay = require('Relay');
     RelayNetworkLayer = require('RelayNetworkLayer');

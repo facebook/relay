@@ -29,15 +29,18 @@ type GraphQLErrorLocation = {
   line: number;
 };
 
+var DEFAULT_FETCH_TIMEOUT = 15000;
+var DEFAULT_RETRY_DELAYS = [1000, 3000];
+
 class RelayDefaultNetworkLayer {
   _uri: string;
   _timeout: number;
   _retryDelays: Array<number>;
 
-  constructor(uri: string, timeout: number, retryDelays: Array<number>) {
+  constructor(uri: string, timeout?: number, retryDelays?: Array<number>) {
     this._uri = uri;
-    this._timeout = timeout;
-    this._retryDelays = retryDelays;
+    this._timeout = typeof timeout === 'number' ? timeout : DEFAULT_FETCH_TIMEOUT;
+    this._retryDelays = retryDelays || DEFAULT_RETRY_DELAYS;
 
     // Bind instance methods to facilitate reuse when creating custom network
     // layers.
@@ -127,9 +130,9 @@ class RelayDefaultNetworkLayer {
           query: request.getQueryString(),
           variables: request.getVariables()
         }),
+        credentials: 'same-origin',
         headers: {'Content-Type': 'application/json'},
-        method: 'POST',
-        credentials: 'same-origin'
+        method: 'POST'
       };
     }
     return fetch(this._uri, init).then(throwOnServerError);
@@ -144,11 +147,11 @@ class RelayDefaultNetworkLayer {
         query: request.getQueryString(),
         variables: request.getVariables()
       }),
+      credentials: 'same-origin',
       fetchTimeout: this._timeout,
       headers: {'Content-Type': 'application/json'},
       method: 'POST',
-      retryDelays: this._retryDelays,
-      credentials: 'same-origin'
+      retryDelays: this._retryDelays
     });
   }
 }

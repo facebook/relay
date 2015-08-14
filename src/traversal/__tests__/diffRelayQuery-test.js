@@ -32,7 +32,7 @@ describe('diffRelayQuery', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     GraphQLRange = require('GraphQLRange');
     Relay = require('Relay');
     RelayConnectionInterface = require('RelayConnectionInterface');

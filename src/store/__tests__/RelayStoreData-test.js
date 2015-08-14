@@ -263,21 +263,21 @@ describe('RelayStoreData', () => {
   describe('buildFragmentQueryForDataID', () => {
     it('builds root queries for refetchable IDs', () => {
       var data = new RelayStoreData();
-      var node = getNode(Relay.QL`
+      var fragment = Relay.QL`
         fragment on Node {
           id,
           name,
         }
-      `);
+      `;
+      var node = getNode(fragment);
       var query = data.buildFragmentQueryForDataID(
         node,
         '123'
       );
-      expect(query).toEqualQueryRoot(getNode(Relay.QL`
+      expect(query).toEqualQueryRoot(getVerbatimNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
-            name,
+            ${fragment}
           }
         }
       `));

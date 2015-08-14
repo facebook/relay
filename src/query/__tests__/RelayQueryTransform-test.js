@@ -23,7 +23,7 @@ describe('RelayQueryTransform', () => {
   var query;
 
   beforeEach(() => {
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     Relay = require('Relay');
     RelayQuery = require('RelayQuery');
     RelayQueryTransform = require('RelayQueryTransform');

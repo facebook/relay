@@ -26,7 +26,7 @@ describe('toGraphQL', function() {
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     Relay = require('Relay');
 
     fromGraphQL = require('fromGraphQL');

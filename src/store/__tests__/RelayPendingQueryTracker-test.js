@@ -33,7 +33,7 @@ describe('RelayPendingQueryTracker', () => {
     jest.resetModuleRegistry();
 
     DliteFetchModeConstants = require('DliteFetchModeConstants');
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     Promise = require('Promise');
     Relay = require('Relay');
     RelayPendingQueryTracker = require('RelayPendingQueryTracker');

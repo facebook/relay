@@ -23,7 +23,7 @@ describe('RelayQueryVisitor', () => {
   var query;
 
   beforeEach(() => {
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     Relay = require('Relay');
     RelayQuery = require('RelayQuery');
     RelayQueryVisitor = require('RelayQueryVisitor');

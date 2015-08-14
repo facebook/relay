@@ -95,7 +95,7 @@ var RelayTestUtils = {
   },
 
   defer(fragment) {
-    var GraphQL = require('GraphQL_EXPERIMENTAL');
+    var GraphQL = require('GraphQL');
     var RelayFragmentReference = require('RelayFragmentReference');
     var invariant = require('invariant');
 
@@ -141,15 +141,15 @@ var RelayTestUtils = {
    * `Relay.QL` as a basis and attach the appropriate args and ref params.
    */
   getRefNode(node, refParam) {
-    var GraphQL = require('GraphQL_EXPERIMENTAL');
+    var GraphQL = require('GraphQL');
     var RelayQuery = require('RelayQuery');
     var RelayMetaRoute = require('RelayMetaRoute');
 
     var invariant = require('invariant');
 
     invariant(
-      node.fieldName === 'node',
-     'getRefNode(): Ref queries require `node()` roots.'
+      node.fieldName === 'nodes',
+     'getRefNode(): Ref queries require `nodes()` roots.'
     );
     var callValue = Array.isArray(node.calls[0].value) ?
       node.calls[0].value[0] :
@@ -172,7 +172,7 @@ var RelayTestUtils = {
 
     return RelayQuery.Node.create(
       new GraphQL.Query(
-        'node',
+        'nodes',
         new GraphQL.BatchCallVariable(id, refParam.path),
         node.fields,
         node.fragments,
@@ -332,7 +332,7 @@ var RelayTestUtils = {
      * the same length have equivalent (shallow-equal) roots and fields.
      */
     toMatchPath(expected) {
-      var GraphQL = require('GraphQL_EXPERIMENTAL');
+      var GraphQL = require('GraphQL');
       var RelayMetaRoute = require('RelayMetaRoute');
       var RelayQuery = require('RelayQuery');
       var RelayQueryPath = require('RelayQueryPath');
@@ -442,7 +442,7 @@ var RelayTestUtils = {
       .dontMock('areEqual')
 
       // Legacy modules
-      .dontMock('GraphQL_EXPERIMENTAL')
+      .dontMock('GraphQL')
       .dontMock('GraphQLMutatorConstants')
       .dontMock('GraphQLStoreDataHandler')
       .dontMock('GraphQLStoreRangeUtils')

@@ -14,7 +14,7 @@
 'use strict';
 
 var ErrorUtils = require('ErrorUtils');
-import type GraphQL from 'GraphQL_EXPERIMENTAL';
+import type GraphQL from 'GraphQL';
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayMutationQuery = require('RelayMutationQuery');
 var RelayMutationRequest = require('RelayMutationRequest');

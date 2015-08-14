@@ -32,7 +32,7 @@ describe('printRelayQuery', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     Relay = require('Relay');
     RelayNodeInterface = require('RelayNodeInterface');
     RelayQuery = require('RelayQuery');

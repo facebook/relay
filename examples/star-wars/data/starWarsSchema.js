@@ -27,10 +27,10 @@ import {
 } from 'graphql-relay';
 
 import {
-  data,
-  empire,
-  getNewShipId,
-  rebels,
+  getFaction,
+  getShip,
+  getFactions,
+  createShip,
 } from './starWarsDatabase';
 
 /**
@@ -117,7 +117,13 @@ import {
 var {nodeInterface, nodeField} = nodeDefinitions(
   (globalId) => {
     var {type, id} = fromGlobalId(globalId);
-    return data[type][id];
+    if (type === 'Faction') {
+      return getFaction(id);
+    } else if (type === 'Ship') {
+      return getShip(id);
+    } else {
+      return null;
+    }
   },
   (obj) => {
     return obj.ships ? factionType : shipType;
@@ -189,7 +195,7 @@ var factionType = new GraphQLObjectType({
       description: 'The ships used by the faction.',
       args: connectionArgs,
       resolve: (faction, args) => connectionFromArray(
-        faction.ships.map((id) => data.Ship[id]),
+        faction.ships.map((id) => getShip(id)),
         args
       ),
     }
@@ -217,17 +223,7 @@ var queryType = new GraphQLObjectType({
           type: new GraphQLList(GraphQLString),
         },
       },
-      resolve: (root, {names}) => {
-        return names.map(name => {
-          if (name === 'empire') {
-            return empire;
-          }
-          if (name === 'rebels') {
-            return rebels;
-          }
-          return null;
-        });
-      },
+      resolve: (root, {names}) => getFactions(names),
     },
     node: nodeField
   })
@@ -262,20 +258,15 @@ var shipMutation = mutationWithClientMutationId({
   outputFields: {
     ship: {
       type: shipType,
-      resolve: (payload) => data['Ship'][payload.shipId]
+      resolve: (payload) => getShip(payload.shipId)
     },
     faction: {
       type: factionType,
-      resolve: (payload) => data['Faction'][payload.factionId]
+      resolve: (payload) => getFaction(payload.factionId)
     }
   },
   mutateAndGetPayload: ({shipName, factionId}) => {
-    var newShip = {
-      id: getNewShipId(),
-      name: shipName
-    };
-    data.Ship[newShip.id] = newShip;
-    data.Faction[factionId].ships.push(newShip.id);
+    var newShip = createShip(shipName, factionId);
     return {
       shipId: newShip.id,
       factionId: factionId,

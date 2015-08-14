@@ -18,7 +18,7 @@
     "graphql": "^0.2.6",
     "graphql-relay": "^0.1.0",
     "react": "^0.14.0-beta3",
-    "react-relay": "0.1.0",
+    "react-relay": "0.1.1",
     "todomvc-app-css": "^2.0.1",
     "todomvc-common": "^1.0.2",
     "webpack": "^1.10.5",

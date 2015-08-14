@@ -6,12 +6,8 @@
   },
   "devDependencies": {
     "babel": "5.8.21",
-    "babel-eslint": "^4.0.5",
     "babel-loader": "5.3.2",
     "babel-relay-plugin": "0.1.2",
-    "eslint": "^1.0.0",
-    "eslint-loader": "^1.0.0",
-    "eslint-plugin-react": "^3.2.0",
     "webpack": "^1.10.5",
     "webpack-dev-server": "^1.10.1"
   },

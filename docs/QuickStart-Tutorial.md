@@ -248,7 +248,6 @@ Before going any further, we need to serialize our executable schema to JSON for
 
 ```
 ./scripts/updateSchema.js
-npm start
 ```
 
 ## Writing the game

@@ -1,5 +1,7 @@
 ## master
 
+* Upgraded jest to 0.5 and switched Relay to use iojs v2+ only.
+
 ## 0.1.1 (August 14, 2015)
 
 * The 'main' entrypoint can now be used in non-ES6 projects (now built w/ Babel)

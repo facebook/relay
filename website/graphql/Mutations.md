@@ -78,7 +78,7 @@ provided response.
         type {
           kind
           fields {
-            name,
+            name
             type {
               kind
               ofType {
@@ -92,13 +92,16 @@ provided response.
           name
           type {
             kind
-            inputFields {
-              name
-              type {
-                kind
-                ofType {
-                  name
+            ofType {
+              kind
+              inputFields {
+                name
+                type {
                   kind
+                  ofType {
+                    name
+                    kind
+                  }
                 }
               }
             }
@@ -139,20 +142,23 @@ yields
             {
               "name": "input",
               "type": {
-                "kind": "INPUT_OBJECT",
-                "inputFields": [
-                  // May contain more fields here
-                  {
-                    "name": "clientMutationId",
-                    "type": {
-                      "kind": "NON_NULL",
-                      "ofType": {
-                        "name": "String",
-                        "kind": "SCALAR"
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "inputFields": [
+                    // May contain more fields here
+                    {
+                      "name": "clientMutationId",
+                      "type": {
+                        "kind": "NON_NULL",
+                        "ofType": {
+                          "name": "String",
+                          "kind": "SCALAR"
+                        }
                       }
                     }
-                  }
-                ]
+                  ]
+                }
               }
             }
           ]

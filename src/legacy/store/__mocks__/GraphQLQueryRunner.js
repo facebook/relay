@@ -45,7 +45,7 @@ function genMockRequest(args) {
     },
     fail(error) {
       args[1]({aborted: false, done: false, error, ready, stale: false});
-    }
+    },
   };
 }
 

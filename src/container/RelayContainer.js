@@ -965,7 +965,7 @@ function create(
   ContainerConstructor.getQueryNames = RelayDeprecated.createWarning({
     was: componentName + '.getQueryNames',
     now: componentName + '.getFragmentNames',
-    adapter: ContainerConstructor.getFragmentNames
+    adapter: ContainerConstructor.getFragmentNames,
   });
 
   /**

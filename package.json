@@ -22,7 +22,7 @@
   "scripts": {
     "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",
     "prepublish": "npm run build",
-    "lint": "`npm bin`/eslint .",
+    "lint": "eslint .",
     "test": "NODE_ENV=test jest"
   },
   "engines": {

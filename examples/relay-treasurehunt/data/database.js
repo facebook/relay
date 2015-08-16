@@ -8,8 +8,8 @@
  */
 
 // Model types
-class Game extends Object {}
-class HidingSpot extends Object {}
+export class Game extends Object {}
+export class HidingSpot extends Object {}
 
 // Mock data
 var game = new Game();

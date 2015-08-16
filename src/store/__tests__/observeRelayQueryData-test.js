@@ -41,12 +41,10 @@ describe('observeRelayQueryData', () => {
 
     GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
     Relay = require('Relay');
-    RelayQuery = require('RelayQuery');
     RelayRecordStore = require('RelayRecordStore');
 
     addListenerForIDs = GraphQLStoreChangeEmitter.addListenerForIDs;
     observeRelayQueryData = require('observeRelayQueryData');
-    readRelayQueryData = require('readRelayQueryData');
 
     firstMockCallback = jest.genMockFunction();
     secondMockCallback = jest.genMockFunction();

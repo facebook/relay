@@ -39,14 +39,11 @@ describe('splitDeferredRelayQueries()', () => {
     // Reset query numbers back to q0.
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL');
     Relay = require('Relay');
     RelayQuery = require('RelayQuery');
-    RelayQueryTransform = require('RelayQueryTransform');
     RelayTestUtils = require('RelayTestUtils');
     flattenRelayQuery = require('flattenRelayQuery');
     generateRQLFieldAlias = require('generateRQLFieldAlias');
-    printRelayQuery = require('printRelayQuery');
     splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 
     jest.addMatchers(RelayTestUtils.matchers);

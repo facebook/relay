@@ -23,12 +23,9 @@ describe('RelayQueryVisitor', () => {
   var query;
 
   beforeEach(() => {
-    GraphQL = require('GraphQL');
     Relay = require('Relay');
     RelayQuery = require('RelayQuery');
     RelayQueryVisitor = require('RelayQueryVisitor');
-
-    generateRQLFieldAlias = require('generateRQLFieldAlias');
 
     var variables = {
       first: 10,

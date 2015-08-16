@@ -32,18 +32,15 @@ describe('diffRelayQuery', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL');
     GraphQLRange = require('GraphQLRange');
     Relay = require('Relay');
     RelayConnectionInterface = require('RelayConnectionInterface');
     RelayQuery = require('RelayQuery');
-    RelayQueryPath = require('RelayQueryPath');
     RelayQueryTracker = require('RelayQueryTracker');
     RelayRecordStore = require('RelayRecordStore');
 
     diffRelayQuery = require('diffRelayQuery');
     filterRelayQuery = require('filterRelayQuery');
-    printRelayQuery = require('printRelayQuery');
 
     rootCallMap = {
       viewer: {'': 'client:viewer'},

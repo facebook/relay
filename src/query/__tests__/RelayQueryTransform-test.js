@@ -23,12 +23,9 @@ describe('RelayQueryTransform', () => {
   var query;
 
   beforeEach(() => {
-    GraphQL = require('GraphQL');
     Relay = require('Relay');
     RelayQuery = require('RelayQuery');
     RelayQueryTransform = require('RelayQueryTransform');
-
-    generateRQLFieldAlias = require('generateRQLFieldAlias');
 
     var variables = {
       first: 10,

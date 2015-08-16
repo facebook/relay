@@ -33,16 +33,12 @@ describe('RelayPendingQueryTracker', () => {
     jest.resetModuleRegistry();
 
     DliteFetchModeConstants = require('DliteFetchModeConstants');
-    GraphQL = require('GraphQL');
-    Promise = require('Promise');
     Relay = require('Relay');
     RelayPendingQueryTracker = require('RelayPendingQueryTracker');
-    RelayQuery = require('RelayQuery');
     RelayStoreData = require('RelayStoreData');
 
     fetchRelayQuery = require('fetchRelayQuery');
     subtractRelayQuery = require('subtractRelayQuery');
-    toGraphQL = require('toGraphQL');
     writeRelayQueryPayload = require('writeRelayQueryPayload');
 
     subtractRelayQuery.mockImplementation(query => query);

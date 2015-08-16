@@ -40,7 +40,6 @@ describe('GraphQLDeferredQueryTracker', () => {
     RelayStoreData = require('RelayStoreData');
 
     flattenSplitRelayQueries = require('flattenSplitRelayQueries');
-    getWeakIdForObject = require('getWeakIdForObject');
     splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 
     recordStore = RelayStoreData.getDefaultInstance().getRecordStore();

@@ -44,14 +44,11 @@ describe('checkRelayQueryData', () => {
 
     GraphQL = require('GraphQL');
     GraphQLRange = require('GraphQLRange');
-    GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
     Relay = require('Relay');
     RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayQuery = require('RelayQuery');
     RelayRecordStore = require('RelayRecordStore');
 
     checkRelayQueryData = require('checkRelayQueryData');
-    emptyFunction = require('emptyFunction');
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
   });

@@ -86,7 +86,6 @@ describe('GraphQLRange', () => {
     origConsoleWarn = console.warn;
 
     GraphQLRange = require('GraphQLRange');
-    GraphQL = require('GraphQL');
     GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
     RelayConnectionInterface = require('RelayConnectionInterface');
 

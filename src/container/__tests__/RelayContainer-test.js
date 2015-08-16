@@ -49,11 +49,8 @@ describe('RelayContainer', function() {
     React = require('React');
     ReactTestUtils = require('ReactTestUtils');
     Relay = require('Relay');
-    RelayMetaRoute = require('RelayMetaRoute');
     RelayQuery = require('RelayQuery');
     RelayRoute = require('RelayRoute');
-
-    toGraphQL = require('toGraphQL');
 
     var render = jest.genMockFunction().mockImplementation(function() {
       // Make it easier to expect prop values.
@@ -204,7 +201,6 @@ describe('RelayContainer', function() {
           `
         }
       });
-      sideshowFragment = new GraphQL.QueryFragment('Test', 'Viewer');
       feedFragment =
         new GraphQL.QueryFragment('Test', 'Viewer', [
           new GraphQL.Field('newsFeed'),

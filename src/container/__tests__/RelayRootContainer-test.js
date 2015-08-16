@@ -43,7 +43,6 @@ describe('RelayRootContainer', function() {
     RelayRootContainer = require('RelayRootContainer');
     RelayRoute = require('RelayRoute');
     RelayStore = require('RelayStore');
-    RelayTypes = require('RelayTypes');
 
     ReactComponent = React.createClass({render: () => <div />});
     RelayContainer = Relay.createContainer(ReactComponent, {

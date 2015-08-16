@@ -38,7 +38,6 @@ describe('diffRelayQuery', () => {
 
     Relay = require('Relay');
     RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayQuery = require('RelayQuery');
     RelayQueryTracker = require('RelayQueryTracker');
     RelayRecordStore = require('RelayRecordStore');
 

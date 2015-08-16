@@ -80,7 +80,7 @@ describe('RelayRootContainer', function() {
       });
       var container = document.createElement('div');
       jest.addMatchers({
-        toRenderChildWithRoute(childRoute) {
+        toRenderChildWithRoute(route) {
           var context;
           function onRender() {
             context = this.context;
@@ -95,7 +95,7 @@ describe('RelayRootContainer', function() {
           ReactDOM.render(element, container);
           var mockRequests = RelayStore.primeCache.mock.requests;
           mockRequests[mockRequests.length - 1].block();
-          return context.route === childRoute;
+          return context.route === route;
         }
       });
     });

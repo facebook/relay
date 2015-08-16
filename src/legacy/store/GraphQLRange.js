@@ -1044,7 +1044,7 @@ class GraphQLRange {
     range._hasLast = hasLast;
     range._staticQueriesMap = staticQueriesMap;
     range._orderedSegments =
-      orderedSegments.map(orderedSegment => GraphQLSegment.fromJSON(orderedSegment));
+      orderedSegments.map(descriptor => GraphQLSegment.fromJSON(descriptor));
     return range;
   }
 

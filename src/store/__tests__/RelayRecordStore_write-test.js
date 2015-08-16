@@ -549,8 +549,8 @@ describe('RelayRecordStore', () => {
       );
 
       // node are automatically associated with the range
-      nodes.forEach(node => {
-        expect(store.getConnectionIDsForRecord(node)).toEqual([connectionID]);
+      nodes.forEach(nodeID => {
+        expect(store.getConnectionIDsForRecord(nodeID)).toEqual([connectionID]);
       });
 
       var rangeInfo = store.getRangeMetadata(connectionID, calls);

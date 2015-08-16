@@ -246,7 +246,7 @@ class RelayStoreGarbageCollector {
     // client-site DataID the record will be added to `remainingRecords` and
     // it's DataID will be set to `true` in `removalStatusMap`.
     function enqueueField(field: FieldValue): void {
-      dataID = getClientIDFromLinkedRecord(field);
+      var dataID = getClientIDFromLinkedRecord(field);
       // If we have a dataID we haven't seen before we add it to the remaining
       // records
       if (dataID && !removalStatusMap[dataID]) {

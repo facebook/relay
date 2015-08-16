@@ -147,17 +147,17 @@ function printChildren(
   node: RelayQuery.Node,
   fragmentMap: FragmentMap
 ): string {
-  var children = node.getChildren().map(childrenNode => {
-    if (childrenNode instanceof RelayQuery.Field) {
-      return printField(childrenNode, fragmentMap);
+  var children = node.getChildren().map(node => {
+    if (node instanceof RelayQuery.Field) {
+      return printField(node, fragmentMap);
     } else {
       invariant(
-        childrenNode instanceof RelayQuery.Fragment,
+        node instanceof RelayQuery.Fragment,
         'printRelayQuery(): expected child node to be a `Field` or ' +
         '`Fragment`, got `%s`.',
-        childrenNode.constructor.name
+        node.constructor.name
       );
-      return printInlineFragment(childrenNode, fragmentMap);
+      return printInlineFragment(node, fragmentMap);
     }
   });
   if (!children.length) {

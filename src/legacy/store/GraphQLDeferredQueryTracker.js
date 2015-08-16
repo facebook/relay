@@ -421,7 +421,7 @@ function processBroadcasts() {
     }
   }
 
-  subscribers = subscribers.filter(sub => sub !== null);
+  subscribers = subscribers.filter(subscriber => subscriber !== null);
   broadcastItems = null;
 }
 

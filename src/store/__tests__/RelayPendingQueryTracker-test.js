@@ -53,7 +53,7 @@ describe('RelayPendingQueryTracker', () => {
         query,
         fetchMode,
         forceIndex: null,
-        storeData: RelayStoreData.getDefaultInstance()
+        storeData: RelayStoreData.getDefaultInstance(),
       });
     };
 
@@ -96,7 +96,7 @@ describe('RelayPendingQueryTracker', () => {
     jest.runAllTimers();
 
     expect(subtractRelayQuery.mock.calls).toEqual([
-      [mockQueryC, mockQueryA]
+      [mockQueryC, mockQueryA],
     ]);
 
     fetchRelayQuery.mock.requests[1].resolve({});
@@ -137,7 +137,7 @@ describe('RelayPendingQueryTracker', () => {
 
     expect(subtractRelayQuery.mock.calls).toEqual([
       [mockQueryB, mockQueryA],
-      [mockQueryC, mockQueryA]
+      [mockQueryC, mockQueryA],
     ]);
   });
 
@@ -353,7 +353,7 @@ describe('RelayPendingQueryTracker', () => {
 
     addPending({
       query: mockQuery,
-      fetchMode: DliteFetchModeConstants.FETCH_MODE_PRELOAD
+      fetchMode: DliteFetchModeConstants.FETCH_MODE_PRELOAD,
     });
 
     RelayPendingQueryTracker.resolvePreloadQuery(
@@ -384,7 +384,7 @@ describe('RelayPendingQueryTracker', () => {
 
     addPending({
       query: mockQuery,
-      fetchMode: DliteFetchModeConstants.FETCH_MODE_PRELOAD
+      fetchMode: DliteFetchModeConstants.FETCH_MODE_PRELOAD,
     });
 
     jest.runAllTimers();
@@ -405,7 +405,7 @@ describe('RelayPendingQueryTracker', () => {
 
     var mockPending = addPending({
       query: mockQuery,
-      fetchMode: DliteFetchModeConstants.FETCH_MODE_PRELOAD
+      fetchMode: DliteFetchModeConstants.FETCH_MODE_PRELOAD,
     });
     var mockCallback = jest.genMockFunction();
     mockPending.getResolvedPromise().catch(mockCallback);

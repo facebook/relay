@@ -33,7 +33,7 @@ describe('RelayDefaultNetworkLayer', () => {
   function genResponse(data) {
     return {
       json: () => Promise.resolve(data),
-      status: 200
+      status: 200,
     };
   }
 
@@ -55,7 +55,7 @@ describe('RelayDefaultNetworkLayer', () => {
     networkConfig = {
       uri: '/graphql',
       timeout: 15000,
-      retryDelays: [1000, 3000]
+      retryDelays: [1000, 3000],
     };
     // Spread properties to test that functions are bound correctly.
     networkLayer = {
@@ -63,7 +63,7 @@ describe('RelayDefaultNetworkLayer', () => {
         networkConfig.uri,
         networkConfig.timeout,
         networkConfig.retryDelays
-      )
+      ),
     };
 
     jest.addMatchers(RelayTestUtils.matchers);
@@ -89,8 +89,8 @@ describe('RelayDefaultNetworkLayer', () => {
       variables = {
         input: {
           [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'client:a',
-          actor_id: 4
-        }
+          actor_id: 4,
+        },
       };
       request = new RelayMutationRequest(mutation, variables);
       request.getPromise().then(responseCallback).catch(rejectCallback);
@@ -111,7 +111,7 @@ describe('RelayDefaultNetworkLayer', () => {
       });
       expect(body).toEqual(JSON.stringify({
         query: request.getQueryString(),
-        variables: variables
+        variables: variables,
       }));
     });
 
@@ -120,8 +120,8 @@ describe('RelayDefaultNetworkLayer', () => {
         data: {
           test_call: {
             field: 1
-          }
-        }
+          },
+        },
       };
 
       expect(fetch).not.toBeCalled();
@@ -134,7 +134,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(rejectCallback.mock.calls.length).toBe(0);
       expect(responseCallback.mock.calls.length).toBe(1);
       expect(responseCallback.mock.calls[0][0]).toEqual({
-        response: response.data
+        response: response.data,
       });
     });
 
@@ -144,9 +144,9 @@ describe('RelayDefaultNetworkLayer', () => {
           message: 'Something went wrong.',
           locations: [{
             column: 10,
-            line: 1
-          }]
-        }]
+            line: 1,
+          }],
+        }],
       };
 
       expect(fetch).not.toBeCalled();
@@ -165,7 +165,7 @@ describe('RelayDefaultNetworkLayer', () => {
         '',
         '1. Something went wrong.',
         '   ' + request.getQueryString().substr(0, 60),
-        '            ^^^'
+        '            ^^^',
       ].join('\n'));
       expect(error.source).toEqual(response);
     });
@@ -195,7 +195,7 @@ describe('RelayDefaultNetworkLayer', () => {
       var {body, fetchTimeout, method, retryDelays} = call[1];
       expect(body).toBe(JSON.stringify({
         query: requestA.getQueryString(),
-        variables: queryA.getVariables()
+        variables: queryA.getVariables(),
       }));
       expect(fetchTimeout).toBe(networkConfig.timeout);
       expect(method).toBe('POST');
@@ -211,10 +211,10 @@ describe('RelayDefaultNetworkLayer', () => {
       jest.runAllTimers();
 
       var payloadA = {
-        data: {'123': {id: '123'}}
+        data: {'123': {id: '123'}},
       };
       var payloadB = {
-        data: {'456': {id: '456'}}
+        data: {'456': {id: '456'}},
       };
       fetchWithRetries.mock.deferreds[0].resolve(genResponse(payloadA));
       fetchWithRetries.mock.deferreds[1].resolve(genResponse(payloadB));
@@ -222,11 +222,11 @@ describe('RelayDefaultNetworkLayer', () => {
 
       expect(resolveACallback.mock.calls.length).toBe(1);
       expect(resolveACallback.mock.calls[0][0]).toEqual({
-        response: payloadA.data
+        response: payloadA.data,
       });
       expect(resolveBCallback.mock.calls.length).toBe(1);
       expect(resolveBCallback.mock.calls[0][0]).toEqual({
-        response: payloadB.data
+        response: payloadB.data,
       });
     });
 
@@ -238,7 +238,7 @@ describe('RelayDefaultNetworkLayer', () => {
 
       fetchWithRetries.mock.deferreds[0].resolve({
         json: () => Promise.reject(JSON.parse('{ // invalid')),
-        status: 200
+        status: 200,
       });
       jest.runAllTimers();
 
@@ -260,9 +260,9 @@ describe('RelayDefaultNetworkLayer', () => {
           message: 'Something went wrong.',
           locations: [{
             column: 7,
-            line: 1
-          }]
-        }]
+            line: 1,
+          }],
+        }],
       };
       fetchWithRetries.mock.deferreds[0].resolve(genResponse(payloadA));
       jest.runAllTimers();
@@ -275,7 +275,7 @@ describe('RelayDefaultNetworkLayer', () => {
         '',
         '1. Something went wrong.',
         '   ' + requestA.getQueryString().substr(0, 60),
-        '         ^^^'
+        '         ^^^',
       ].join('\n'));
       expect(error.source).toEqual(payloadA);
     });
@@ -289,7 +289,7 @@ describe('RelayDefaultNetworkLayer', () => {
       jest.runAllTimers();
 
       var payload = {
-        data: {'456': {id: '456'}}
+        data: {'456': {id: '456'}},
       };
       fetchWithRetries.mock.deferreds[0].resolve(genResponse({}));
       fetchWithRetries.mock.deferreds[1].resolve(genResponse(payload));

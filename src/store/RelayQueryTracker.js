@@ -60,7 +60,7 @@ class RelayQueryTracker {
 
     this._trackedNodesByID[dataID] = this._trackedNodesByID[dataID] || {
       trackedNodes: [],
-      isFlattened: false
+      isFlattened: false,
     };
     this._trackedNodesByID[dataID].trackedNodes.push(node);
     this._trackedNodesByID[dataID].isFlattened = false;

@@ -45,7 +45,7 @@ var JSON_TYPES = {
   BATCH_VARIABLE: 7,
   MUTATION: 8,
   QUERY_WITH_VALUES: 9,
-  SUBSCRIPTION: 10
+  SUBSCRIPTION: 10,
 };
 
 /**
@@ -267,7 +267,7 @@ class GraphQLFieldNode extends GraphQLNode {
       isPlural: !!metadata.plural,
       isRequisite: !!metadata.requisite,
       isUnionOrInterface: !!metadata.dynamic,
-      parentType: metadata.parentType
+      parentType: metadata.parentType,
     };
   }
 
@@ -386,7 +386,7 @@ class GraphQLQuery extends GraphQLNode {
     this.kind = QUERY;
     this.metadata = {
       ...this.__metadata__,
-      rootArg
+      rootArg,
     };
     this.name = queryName;
     this.fieldName = rootCall;
@@ -500,7 +500,7 @@ class GraphQLOperation extends GraphQLNode {
       this.calls[0],
       this.fields.length ? this.fields : null,
       this.fragments.length ? this.fragments : null,
-      this.metadata === EMPTY_OBJECT ? null : this.metadata
+      this.metadata === EMPTY_OBJECT ? null : this.metadata,
     ]);
   }
 }
@@ -750,7 +750,7 @@ var GraphQL = {
   isMutation,
   isQuery,
   isQueryWithValues,
-  isSubscription
+  isSubscription,
 };
 
 module.exports = GraphQL;

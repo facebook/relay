@@ -224,7 +224,7 @@ class RelayDiffQueryBuilder {
     } else if (node.isGenerated()) {
       return {
         diffNode: node,
-        trackedNode: null
+        trackedNode: null,
       };
     } else if (node.isConnection()) {
       return this.diffConnection(node, path, dataID);
@@ -300,7 +300,7 @@ class RelayDiffQueryBuilder {
 
     return {
       diffNode,
-      trackedNode
+      trackedNode,
     };
   }
 
@@ -314,7 +314,7 @@ class RelayDiffQueryBuilder {
     if (this._store.getField(dataID, field.getStorageKey()) === undefined) {
       return {
         diffNode: field,
-        trackedNode: null
+        trackedNode: null,
       };
     }
     return null;
@@ -334,7 +334,7 @@ class RelayDiffQueryBuilder {
     if (nextDataID === undefined) {
       return {
         diffNode: field,
-        trackedNode: null
+        trackedNode: null,
       };
     }
     if (nextDataID === null) {
@@ -363,7 +363,7 @@ class RelayDiffQueryBuilder {
       // not fetched
       return {
         diffNode: field,
-        trackedNode: null
+        trackedNode: null,
       };
     } else if (linkedIDs === null || linkedIDs.length === 0) {
       // empty array means nothing to fetch
@@ -401,7 +401,7 @@ class RelayDiffQueryBuilder {
       if (hasSplitQueries) {
         return {
           diffNode: null,
-          trackedNode: field
+          trackedNode: field,
         };
       }
     } else {
@@ -440,7 +440,7 @@ class RelayDiffQueryBuilder {
     if (connectionID === undefined) {
       return {
         diffNode: field,
-        trackedNode: null
+        trackedNode: null,
       };
     }
     // Skip if the connection is deleted.
@@ -468,7 +468,7 @@ class RelayDiffQueryBuilder {
           connectionField: field,
           dataID: connectionID,
           edgeID: edge.edgeID,
-          rangeInfo
+          rangeInfo,
         };
         var diffOutput = this.traverse(
           field,
@@ -488,7 +488,7 @@ class RelayDiffQueryBuilder {
       connectionField: field,
       dataID: connectionID,
       edgeID: null,
-      rangeInfo
+      rangeInfo,
     };
     // diff non-`edges` fields such as `count`
     var diffOutput = this.traverse(
@@ -547,7 +547,7 @@ class RelayDiffQueryBuilder {
         '`%s`.',
         connectionField.getStorageKey()
       );
-      return {};
+      return;
     }
 
     var hasSplitQueries = false;
@@ -613,7 +613,7 @@ class RelayDiffQueryBuilder {
     // be tracked.
     return {
       diffNode: null,
-      trackedNode: hasSplitQueries ? edgeField : trackedNode
+      trackedNode: hasSplitQueries ? edgeField : trackedNode,
     };
   }
 }
@@ -626,7 +626,7 @@ function makeScope(dataID: DataID): DiffScope {
     connectionField: null,
     dataID,
     edgeID: null,
-    rangeInfo: null
+    rangeInfo: null,
   };
 }
 
@@ -718,7 +718,7 @@ function splitNodeAndEdgesFields(
   }
   return {
     edges: hasEdgeChild ? edgeOrFragment.clone(edgeChildren) : null,
-    node: hasNodeChild ? edgeOrFragment.clone(nodeChildren) : null
+    node: hasNodeChild ? edgeOrFragment.clone(nodeChildren) : null,
   };
 }
 

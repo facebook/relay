@@ -101,7 +101,7 @@ var GraphQLDeferredQueryTracker = {
     var subscriber = {
       callbacks,
       dataID,
-      fragmentID
+      fragmentID,
     };
     subscribers.push(subscriber);
     return {
@@ -399,7 +399,7 @@ function processBroadcasts() {
         var {
           dataID,
           error,
-          fragmentID
+          fragmentID,
         } = broadcastItems[jj];
         var method;
         var args;

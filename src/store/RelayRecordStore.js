@@ -242,7 +242,7 @@ class RelayRecordStore {
       return;
     }
     var nextRecord: Record = ({
-      __dataID__: dataID
+      __dataID__: dataID,
     }: $FixMe);
     if (target === this._queuedRecords) {
       this._setClientMutationID(nextRecord);
@@ -457,7 +457,7 @@ class RelayRecordStore {
       parentID
     );
     var fieldValue = {
-      __dataID__: recordID
+      __dataID__: recordID,
     };
     parent[storageKey] = fieldValue;
     if (!this._queuedRecords && this._cacheManager) {
@@ -522,7 +522,7 @@ class RelayRecordStore {
         parentID
       );
       return {
-        __dataID__: recordID
+        __dataID__: recordID,
       };
     });
     parent[storageKey] = records;
@@ -562,7 +562,7 @@ class RelayRecordStore {
     var connectionIDs;
     forEachObject(record, (datum, key) => {
       if (datum && getFieldNameFromKey(key) === schemaName) {
-        dataID = datum.__dataID__;
+        var dataID = datum.__dataID__;
         if (dataID) {
           connectionIDs = connectionIDs || [];
           connectionIDs.push(dataID);
@@ -632,7 +632,7 @@ class RelayRecordStore {
         diffCalls: calls,
         filterCalls,
         pageInfo: undefined,
-        requestedEdges: []
+        requestedEdges: [],
       };
     }
     // Convert ordered `{name,value}` objects to `GraphQL.Call`s
@@ -643,7 +643,7 @@ class RelayRecordStore {
     var {
       diffCalls,
       pageInfo,
-      requestedEdgeIDs
+      requestedEdgeIDs,
     } = range.retrieveRangeInfoForQuery(calls, queuedRecord);
     if (diffCalls && diffCalls.length) {
       diffCalls = filterCalls.concat(diffCalls);
@@ -655,7 +655,7 @@ class RelayRecordStore {
       requestedEdges = requestedEdgeIDs
         .map(edgeID => ({
           edgeID,
-          nodeID: this.getLinkedRecordID(edgeID, NODE)
+          nodeID: this.getLinkedRecordID(edgeID, NODE),
         }))
         .filter(edge => this._getRecord(edge.nodeID));
     } else {
@@ -665,7 +665,7 @@ class RelayRecordStore {
       diffCalls,
       filterCalls,
       pageInfo,
-      requestedEdges
+      requestedEdges,
     };
   }
 
@@ -785,8 +785,8 @@ class RelayRecordStore {
       __dataID__: edgeID,
       cursor: this.getField(edgeID, CURSOR),
       node: {
-        __dataID__: nodeID
-      }
+        __dataID__: nodeID,
+      },
     };
   }
 
@@ -925,7 +925,7 @@ class RelayRecordStore {
     var source = this._queuedRecords || this._records;
     if (!source[dataID]) {
       record = source[dataID] = ({
-        __dataID__: dataID
+        __dataID__: dataID,
       }: $FixMe);
     }
     if (source === this._queuedRecords) {

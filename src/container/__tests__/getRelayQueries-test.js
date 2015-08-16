@@ -43,7 +43,7 @@ describe('getRelayQueries', () => {
     MockPageContainer = Relay.createContainer(MockPageComponent, {
       fragments: {
         first: () => Relay.QL`fragment on Node{id,firstName}`,
-        last: () => Relay.QL`fragment on Node{id,lastName}`
+        last: () => Relay.QL`fragment on Node{id,lastName}`,
       }
     });
 
@@ -55,7 +55,7 @@ describe('getRelayQueries', () => {
         id: {
           type: 'String',
           id: true
-        }
+        },
       };
       MockRoute.queries = {
         first: (Component, params) => Relay.QL`
@@ -71,7 +71,7 @@ describe('getRelayQueries', () => {
               ${Component.getFragment('last')}
             }
           }
-        `
+        `,
       };
       return MockRoute;
     };
@@ -86,7 +86,7 @@ describe('getRelayQueries', () => {
 
     var expected = {
       first: getNode(Relay.QL`query{node(id:"123"){${Relay.QL`fragment on Node{id,firstName}`}}}`),
-      last: getNode(Relay.QL`query{node(id:"123"){${Relay.QL`fragment on Node{id,lastName}`}}}`)
+      last: getNode(Relay.QL`query{node(id:"123"){${Relay.QL`fragment on Node{id,lastName}`}}}`),
     };
 
     expect(queries.first).toEqualQueryRoot(expected.first);
@@ -103,7 +103,7 @@ describe('getRelayQueries', () => {
 
     expect(queries).toEqual({
       first: null,
-      last: null
+      last: null,
     });
   });
 
@@ -111,7 +111,7 @@ describe('getRelayQueries', () => {
     class BadRoute extends Relay.Route {}
     BadRoute.routeName = 'BadRoute';
     BadRoute.queries = {
-      first: () => Relay.QL`fragment on Node{id}`
+      first: () => Relay.QL`fragment on Node{id}`,
     };
     var badRoute = new BadRoute({});
 

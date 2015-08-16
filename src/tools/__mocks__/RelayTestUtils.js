@@ -43,7 +43,7 @@ var RelayTestUtils = {
       }
     }
     ContextSetter.childContextTypes = {
-      route: RelayPropTypes.QueryConfig.isRequired
+      route: RelayPropTypes.QueryConfig.isRequired,
     };
 
     class MockPointer {
@@ -367,7 +367,7 @@ var RelayTestUtils = {
           'Expected:',
           '  ' + printRelayQuery(actualQuery),
           '\ntoMatchPath:',
-          '  ' + printRelayQuery(expectedQuery)
+          '  ' + printRelayQuery(expectedQuery),
         ].filter(token => token).join('\n');
 
         return false;
@@ -474,7 +474,7 @@ var RelayTestUtils = {
       payload,
     );
     return changeTracker.getChangeSet();
-  }
+  },
 };
 
 /**
@@ -538,7 +538,7 @@ function printQueryComparison(actual, expected, message) {
     formatRefParam(actual),
     message + ':',
     '  ' + printRelayQuery(expected),
-    formatRefParam(expected)
+    formatRefParam(expected),
   ].filter(line => !!line).join('\n');
 }
 

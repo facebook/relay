@@ -332,7 +332,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
     if (processQueryParams && !this.prepareVariables) {
       RelayDeprecated.warn({
         was: this.name + '.getQuery',
-        now: this.name + '.getFragment'
+        now: this.name + '.getFragment',
       });
       this.prepareVariables =
         (prevVariables, route) => processQueryParams(route, prevVariables);
@@ -360,7 +360,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
   static getQuery(): RelayFragmentReference {
     RelayDeprecated.warn({
       was: this.name + '.getQuery',
-      now: this.name + '.getFragment'
+      now: this.name + '.getFragment',
     });
     return this.getFragment.apply(this, arguments);
   }

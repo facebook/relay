@@ -32,7 +32,7 @@ var RelayRecordStatus = {
    * Record status is unknown because it has not yet been fetched from the
    * server.
    */
-  UNKNOWN: 'UNKNOWN'
+  UNKNOWN: 'UNKNOWN',
 };
 
 module.exports = RelayRecordStatus;

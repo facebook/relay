@@ -229,7 +229,7 @@ describe('RelayProfiler', function() {
         onStop(name) {
           expect(name).toBe('mockBehavior');
           actualOrdering.push('1: afterEnd');
-        }
+        },
       });
 
       RelayProfiler.attachProfileHandler('mockBehavior', {
@@ -240,14 +240,14 @@ describe('RelayProfiler', function() {
         onStop(name) {
           expect(name).toBe('mockBehavior');
           actualOrdering.push('2: afterEnd');
-        }
+        },
       });
 
       var profiler = RelayProfiler.profile('mockBehavior');
 
       expect(actualOrdering).toEqual([
         '2: beforeEnd',
-        '1: beforeEnd'
+        '1: beforeEnd',
       ]);
 
       profiler.stop();
@@ -263,7 +263,7 @@ describe('RelayProfiler', function() {
     it('does not invoke detached profile handlers', () => {
       var mockHandlers = {
         onStart: jest.genMockFunction(),
-        onStop: jest.genMockFunction()
+        onStop: jest.genMockFunction(),
       };
 
       RelayProfiler.attachProfileHandler('mockBehavior', mockHandlers);
@@ -277,7 +277,7 @@ describe('RelayProfiler', function() {
     it('passes state to each profile handler', () => {
       var mockHandlers = {
         onStart: jest.genMockFunction(),
-        onStop: jest.genMockFunction()
+        onStop: jest.genMockFunction(),
       };
       var state = {};
 

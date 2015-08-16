@@ -80,7 +80,7 @@ Object.assign(RelayQL, {
       );
     }
     return substitution;
-  }
+  },
 });
 
 module.exports = RelayQL;

@@ -94,7 +94,7 @@ var RelayNodeInterface = {
     }
 
     return results;
-  }
+  },
 };
 
 function getPayloadRecords(

@@ -162,14 +162,14 @@ describe('RelayQuery', () => {
         new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
         [
           new GraphQL.Field('id'),
-          new GraphQL.Field('name')
+          new GraphQL.Field('name'),
         ]
       ));
       var batchCall = root.getBatchCall();
       expect(batchCall).toEqual({
         refParamName: 'ref_q0',
         sourceQueryID: 'q0',
-        sourceQueryPath: '$.*.actor.id'
+        sourceQueryPath: '$.*.actor.id',
       });
     });
 
@@ -257,7 +257,7 @@ describe('RelayQuery', () => {
         new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
         [
           new GraphQL.Field('id'),
-          new GraphQL.Field('name')
+          new GraphQL.Field('name'),
         ]
       ));
       var other = getNode(new GraphQL.Query(
@@ -265,7 +265,7 @@ describe('RelayQuery', () => {
         new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
         [
           new GraphQL.Field('id'),
-          new GraphQL.Field('name')
+          new GraphQL.Field('name'),
         ]
       ));
       expect(node.equals(other)).toBe(true);
@@ -277,7 +277,7 @@ describe('RelayQuery', () => {
         new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
         [
           new GraphQL.Field('id'),
-          new GraphQL.Field('name')
+          new GraphQL.Field('name'),
         ]
       ));
       var other = getNode(new GraphQL.Query(
@@ -285,7 +285,7 @@ describe('RelayQuery', () => {
         new GraphQL.BatchCallVariable('q0', '$.*.actor.current_city.id'),
         [
           new GraphQL.Field('id'),
-          new GraphQL.Field('name')
+          new GraphQL.Field('name'),
         ]
       ));
       expect(node.equals(other)).toBe(false);
@@ -312,7 +312,7 @@ describe('RelayQuery', () => {
       query.__concreteNode__.metadata = {rootCallType: 'scalar'};
       expect(query.getCallType()).toBe('scalar');
 
-      me = getNode(Relay.QL`query{me{id}}`);
+      var me = getNode(Relay.QL`query{me{id}}`);
       expect(me.getCallType()).toBe(undefined);
     });
 
@@ -481,7 +481,7 @@ describe('RelayQuery', () => {
           country,
         }
       `;
-      fragment = getNode(node);
+      var fragment = getNode(node);
       expect(fragment.getDebugName()).toBe('UnknownFile');
       expect(fragment.getType()).toBe('StreetAddress');
       expect(fragment.getFragmentID()).toBe(generateRQLFieldAlias(
@@ -493,7 +493,7 @@ describe('RelayQuery', () => {
       var node = Relay.QL`fragment on Node{id}`;
       var route = RelayMetaRoute.get('Foo');
       var variables = {};
-      fragment = RelayQuery.Node.create(node, route, variables);
+      var fragment = RelayQuery.Node.create(node, route, variables);
       var fragmentID = generateRQLFieldAlias('0.Foo.{}');
       expect(fragment.getFragmentID()).toBe(fragmentID);
 
@@ -582,7 +582,7 @@ describe('RelayQuery', () => {
           city
         }
       `;
-      fragment = getNode(fragmentRQL);
+      var fragment = getNode(fragmentRQL);
       var node = fragment.createNode(fragmentRQL);
       expect(node instanceof RelayQuery.Fragment).toBe(true);
       expect(node.getType()).toBe('StreetAddress');
@@ -672,7 +672,7 @@ describe('RelayQuery', () => {
       `;
       var variables = {
         after: 'offset',
-        first: 10
+        first: 10,
       };
       friendVariable = getNode(friendVariableRQL, variables).getChildren()[0];
       expect(friendVariable.getSchemaName()).toBe('friends');
@@ -857,7 +857,7 @@ describe('RelayQuery', () => {
       `;
       var variables = {
         width: null,
-        height: undefined
+        height: undefined,
       };
       var pictureField = getNode(pictureFragment, variables).getChildren()[0];
       expect(pictureField.getCallsWithValues()).toEqual([
@@ -865,9 +865,9 @@ describe('RelayQuery', () => {
           name: 'size',
           value: [
             null,
-            undefined
-          ]
-        }
+            undefined,
+          ],
+        },
       ]);
     });
 
@@ -895,7 +895,7 @@ describe('RelayQuery', () => {
         `;
         var variables = {
           height: 64,
-          width: 32
+          width: 32,
         };
         var pictureVariable =
           getNode(pictureVariableRQL, variables).getChildren()[0];
@@ -968,7 +968,7 @@ describe('RelayQuery', () => {
         `;
         var variables = {
           height: 64,
-          width: 32
+          width: 32,
         };
         var pictureVariable =
           getNode(pictureVariableRQL, variables).getChildren()[0];
@@ -981,7 +981,7 @@ describe('RelayQuery', () => {
       expect(friendScalar.getCallsWithValues()).toEqual([
         {name: 'first', value: '10'},
         {name: 'after', value: 'offset'},
-        {name: 'orderby', value: 'name'}
+        {name: 'orderby', value: 'name'},
       ]);
       // variables return their values
       expect(friendVariable.getCallsWithValues()).toEqual([
@@ -1006,7 +1006,7 @@ describe('RelayQuery', () => {
       `;
       var variables = {
         height: '64',
-        width: 32
+        width: 32,
       };
       var pictureVariable =
         getNode(pictureVariableRQL, variables).getChildren()[0];
@@ -1047,7 +1047,7 @@ describe('RelayQuery', () => {
         friendVariable.getChildren(),
         [
           {name: 'first', value: 10},
-          {name: 'after', value: 'offset'}
+          {name: 'after', value: 'offset'},
         ]
       );
       expect(clonedFeed).toBe(friendVariable);
@@ -1134,8 +1134,8 @@ describe('RelayQuery', () => {
         actor: 'actor:id',
         feedback_id: 'feedback:id',
         message: {
-          text: 'comment!'
-        }
+          text: 'comment!',
+        },
       });
       var mutationQuery = getNode(Relay.QL`
         mutation {
@@ -1154,7 +1154,7 @@ describe('RelayQuery', () => {
       );
       expect(mutationQuery.getCall()).toEqual({
         name: 'commentCreate',
-        value: input
+        value: input,
       });
       var children = mutationQuery.getChildren();
       expect(children.length).toBe(2);
@@ -1175,8 +1175,8 @@ describe('RelayQuery', () => {
         actor: 'actor:id',
         feedback_id: 'feedback:id',
         message: {
-          text: 'comment!'
-        }
+          text: 'comment!',
+        },
       });
       var mutationQuery = getNode(Relay.QL`
         mutation {
@@ -1211,8 +1211,8 @@ describe('RelayQuery', () => {
         actor: 'actor:id',
         feedback_id: 'feedback:id',
         message: {
-          text: 'comment!'
-        }
+          text: 'comment!',
+        },
       });
       var mutationQuery = getNode(Relay.QL`
         mutation {
@@ -1299,7 +1299,7 @@ describe('RelayQuery', () => {
       expect(root.getBatchCall()).toEqual({
         refParamName: 'ref_q0',
         sourceQueryID: 'q0',
-        sourceQueryPath: '$.*.id'
+        sourceQueryPath: '$.*.id',
       });
     });
   });
@@ -1359,16 +1359,16 @@ describe('RelayQuery', () => {
 
     it('builds fields with calls', () => {
       var field = RelayQuery.Node.buildField('profilePicture', [
-        {name: 'size', value: 32}
+        {name: 'size', value: 32},
       ]);
       expect(field.getCallsWithValues()).toEqual([
-        {name: 'size', value: 32}
+        {name: 'size', value: 32},
       ]);
       field = RelayQuery.Node.buildField('profilePicture', [
-        {name: 'size', value: ['32']}
+        {name: 'size', value: ['32']},
       ]);
       expect(field.getCallsWithValues()).toEqual([
-        {name: 'size', value: ['32']}
+        {name: 'size', value: ['32']},
       ]);
     });
   });
@@ -1423,10 +1423,10 @@ describe('RelayQuery', () => {
       var reference = new RelayFragmentReference(
         () => innerFragment,
         {
-          size: 'default'
+          size: 'default',
         },
         {
-          size: new GraphQL.CallVariable('outerSize')
+          size: new GraphQL.CallVariable('outerSize'),
         }
       );
       var fragment = getNode(Relay.QL`
@@ -1435,7 +1435,7 @@ describe('RelayQuery', () => {
           ${reference},
         }
       `, {
-        outerSize: 'override'
+        outerSize: 'override',
       });
       var children = fragment.getChildren();
       expect(children.length).toBe(2);
@@ -1449,7 +1449,7 @@ describe('RelayQuery', () => {
       expect(grandchildren[0].getSchemaName()).toBe('id');
       expect(grandchildren[1].getSchemaName()).toBe('profilePicture');
       expect(grandchildren[1].getCallsWithValues()).toEqual([
-        {name: 'size', value: 'override'}
+        {name: 'size', value: 'override'},
       ]);
     });
   });

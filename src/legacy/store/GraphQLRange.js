@@ -26,7 +26,7 @@ var {
   END_CURSOR,
   HAS_NEXT_PAGE,
   HAS_PREV_PAGE,
-  START_CURSOR
+  START_CURSOR,
 } = RelayConnectionInterface;
 
 /**
@@ -756,7 +756,7 @@ class GraphQLRange {
       return {
         requestedEdgeIDs: [],
         diffCalls: [],
-        pageInfo: RelayConnectionInterface.getDefaultPageInfo()
+        pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
       };
     }
     if ((calls.first && calls.before) || (calls.last && calls.after)) {
@@ -768,7 +768,7 @@ class GraphQLRange {
       return {
         requestedEdgeIDs: [],
         diffCalls: [],
-        pageInfo: RelayConnectionInterface.getDefaultPageInfo()
+        pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
       };
     }
     if (!isValidRangeCallValues(calls)) {
@@ -779,7 +779,7 @@ class GraphQLRange {
       return {
         requestedEdgeIDs: [],
         diffCalls: [],
-        pageInfo: RelayConnectionInterface.getDefaultPageInfo()
+        pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
       };
     }
     if (calls.first) {
@@ -811,8 +811,8 @@ class GraphQLRange {
           [START_CURSOR]: storedInfo.cursors[0],
           [END_CURSOR]: storedInfo.cursors[storedInfo.cursors.length - 1],
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: true
-        }
+          [HAS_PREV_PAGE]: true,
+        },
       };
     }
 
@@ -821,7 +821,7 @@ class GraphQLRange {
     return {
       requestedEdgeIDs: [],
       diffCalls: queryCalls,
-      pageInfo: RelayConnectionInterface.getDefaultPageInfo()
+      pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
     };
   }
 
@@ -860,7 +860,7 @@ class GraphQLRange {
         return {
           requestedEdgeIDs: [],
           diffCalls: [],
-          pageInfo: pageInfo
+          pageInfo: pageInfo,
         };
       }
       segment = this._orderedSegments[segmentIndex];
@@ -925,7 +925,7 @@ class GraphQLRange {
     return {
       requestedEdgeIDs: requestedEdgeIDs,
       diffCalls: diffCalls,
-      pageInfo: pageInfo
+      pageInfo: pageInfo,
     };
   }
 
@@ -963,7 +963,7 @@ class GraphQLRange {
         return {
           requestedEdgeIDs: [],
           diffCalls: [],
-          pageInfo: pageInfo
+          pageInfo: pageInfo,
         };
       }
       segment = this._orderedSegments[segmentIndex];
@@ -1028,7 +1028,7 @@ class GraphQLRange {
     return {
       requestedEdgeIDs: requestedEdgeIDs,
       diffCalls: diffCalls,
-      pageInfo: pageInfo
+      pageInfo: pageInfo,
     };
   }
 

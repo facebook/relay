@@ -49,7 +49,7 @@ function genMockRequest(args) {
     },
     fail(error) {
       args[1]({aborted: false, done: false, error, ready, stale: false});
-    }
+    },
   };
 }
 
@@ -85,7 +85,7 @@ RelayStore.mock = {
   setMockRecords: records => {
     RelayStore.mock.recordStore = new RelayRecordStore({records});
   },
-  recordStore: null
+  recordStore: null,
 };
 
 RelayStore.observe.mockImplementation((...args) => {

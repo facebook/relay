@@ -105,7 +105,7 @@ var buildRQL = {
       return GraphQL.isQuery(node) ? node : undefined;
     }
     return null;
-  }
+  },
 };
 
 function toVariables(variableNames: VariableNames): {

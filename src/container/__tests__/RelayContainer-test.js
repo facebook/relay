@@ -100,7 +100,7 @@ describe('RelayContainer', function() {
     it('throws if container defines invalid `Relay.QL` fragment', () => {
       var BadContainer = Relay.createContainer(MockComponent, {
         fragments: {
-          viewer: () => Relay.QL`query{node(id:"123"){id}}`
+          viewer: () => Relay.QL`query{node(id:"123"){id}}`,
         }
       });
       var badFragmentReference = BadContainer.getFragment('viewer');
@@ -118,7 +118,7 @@ describe('RelayContainer', function() {
       var TEST_PHOTO_SIZE = 100;
       var MockProfilePhoto = Relay.createContainer(MockComponent, {
         initialVariables: {
-          testPhotoSize: TEST_PHOTO_SIZE
+          testPhotoSize: TEST_PHOTO_SIZE,
         },
         fragments: {
           photo: variables => Relay.QL`
@@ -207,14 +207,14 @@ describe('RelayContainer', function() {
       sideshowFragment = new GraphQL.QueryFragment('Test', 'Viewer');
       feedFragment =
         new GraphQL.QueryFragment('Test', 'Viewer', [
-          new GraphQL.Field('newsFeed')
+          new GraphQL.Field('newsFeed'),
         ]);
     });
 
     it('can conditionally include a fragment based on variables', () => {
       var MockSideshow = Relay.createContainer(MockComponent, {
         initialVariables: {
-          hasSideshow: null
+          hasSideshow: null,
         },
         fragments: {
           viewer: variables => Relay.QL`
@@ -252,7 +252,7 @@ describe('RelayContainer', function() {
     it('can conditionally exclude a fragment based on variables', () => {
       var MockSideshow = Relay.createContainer(MockComponent, {
         initialVariables: {
-          hasSideshow: null
+          hasSideshow: null,
         },
         fragments: {
           viewer: variables => Relay.QL`
@@ -422,7 +422,7 @@ describe('RelayContainer', function() {
       'you are purposely passing in mock data that conforms to ' +
       'the shape of this component\'s fragment.',
       'foo',
-      'MockComponent'
+      'MockComponent',
     ]).toBeWarnedNTimes(1);
   });
 
@@ -443,7 +443,7 @@ describe('RelayContainer', function() {
       'a prop from the parent. Pass an explicit `null` if this is ' +
       'intentional.',
       'bar',
-      'MockComponent'
+      'MockComponent',
     ]).toBeWarnedNTimes(1);
   });
 

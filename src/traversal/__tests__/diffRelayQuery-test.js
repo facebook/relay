@@ -46,7 +46,7 @@ describe('diffRelayQuery', () => {
     printRelayQuery = require('printRelayQuery');
 
     rootCallMap = {
-      viewer: {'': 'client:viewer'}
+      viewer: {'': 'client:viewer'},
     };
 
     jest.addMatchers(RelayTestUtils.matchers);
@@ -80,8 +80,8 @@ describe('diffRelayQuery', () => {
     var records = {
       '4': {
         __dataID__: '4',
-        id: '4'
-      }
+        id: '4',
+      },
     };
     var store = new RelayRecordStore({records});
     var tracker = new RelayQueryTracker();
@@ -103,7 +103,7 @@ describe('diffRelayQuery', () => {
         __dataID__: '4',
         id: '4',
         name: 'Mark'
-      }
+      },
     };
     var store = new RelayRecordStore({records});
     var tracker = new RelayQueryTracker();
@@ -124,7 +124,7 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        'profilePicture.size(32)': 'https://facebook.com'
+        'profilePicture.size(32)': 'https://facebook.com',
       }
     };
     var store = new RelayRecordStore({records});
@@ -146,7 +146,7 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        'profilePicture.size(32)': 'https://facebook.com'
+        'profilePicture.size(32)': 'https://facebook.com',
       }
     };
     var store = new RelayRecordStore({records});
@@ -181,7 +181,7 @@ describe('diffRelayQuery', () => {
         __dataID__: '4808495',
         id: '4808495',
         name: 'Joe'
-      }
+      },
     };
     var store = new RelayRecordStore({records}, {rootCallMap});
     var tracker = new RelayQueryTracker();
@@ -216,19 +216,19 @@ describe('diffRelayQuery', () => {
         __dataID__: 'story',
         id: 'story',
         feedback: {
-          __dataID__: 'story:feedback'
-        }
+          __dataID__: 'story:feedback',
+        },
       },
       'story:feedback': {
         __dataID__: 'story:feedback',
         topLevelComments: {
-          __dataID__: 'story:feedback:comments'
-        }
+          __dataID__: 'story:feedback:comments',
+        },
       },
       'story:feedback:comments': {
         __dataID__: 'story:feedback:comments',
-        count: 5
-      }
+        count: 5,
+      },
     };
     var store = new RelayRecordStore({records});
     var tracker = new RelayQueryTracker();
@@ -327,19 +327,19 @@ describe('diffRelayQuery', () => {
         __dataID__: 'story',
         id: 'story',
         feedback: {
-          __dataID__: 'story:feedback'
-        }
+          __dataID__: 'story:feedback',
+        },
       },
       'story:feedback': {
         __dataID__: 'story:feedback',
         topLevelComments: {
-          __dataID__: 'story:feedback:comments'
-        }
+          __dataID__: 'story:feedback:comments',
+        },
       },
       'story:feedback:comments': {
         __dataID__: 'story:feedback:comments',
-        count: 5
-      }
+        count: 5,
+      },
     };
     var store = new RelayRecordStore({records});
 
@@ -380,19 +380,19 @@ describe('diffRelayQuery', () => {
         __dataID__: 'story',
         id: 'story',
         feedback: {
-          __dataID__: 'story:feedback'
-        }
+          __dataID__: 'story:feedback',
+        },
       },
       'story:feedback': {
         __dataID__: 'story:feedback',
         topLevelComments: {
-          __dataID__: 'story:feedback:comments'
-        }
+          __dataID__: 'story:feedback:comments',
+        },
       },
       'story:feedback:comments': {
         __dataID__: 'story:feedback:comments',
-        count: 5
-      }
+        count: 5,
+      },
     };
     var store = new RelayRecordStore({records});
 
@@ -423,26 +423,26 @@ describe('diffRelayQuery', () => {
     var mockRange = new GraphQLRange();
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       diffCalls: [],
-      requestedEdges: []
+      requestedEdges: [],
     });
     var records = {
       story: {
         __dataID__: 'story',
         id: 'story',
         feedback: {
-          __dataID__: 'story:feedback'
-        }
+          __dataID__: 'story:feedback',
+        },
       },
       'story:feedback': {
         __dataID__: 'story:feedback',
         topLevelComments: {
-          __dataID__: 'story:feedback:comments'
-        }
+          __dataID__: 'story:feedback:comments',
+        },
       },
       'story:feedback:comments': {
         __dataID__: 'story:feedback:comments',
-        __range__: mockRange
-      }
+        __range__: mockRange,
+      },
     };
     var store = new RelayRecordStore({records});
     var query = getNode(Relay.QL`
@@ -557,7 +557,7 @@ describe('diffRelayQuery', () => {
         }
       },
       'actor': {
-        __dataID__: 'actor'
+        __dataID__: 'actor',
         // `id` should always be fetched, but should work correctly regardless
       }
     };
@@ -580,8 +580,8 @@ describe('diffRelayQuery', () => {
     var records = {
       '4': {
         __dataID__: '4',
-        id: '4'
-      }
+        id: '4',
+      },
     };
     var store = new RelayRecordStore({records});
     var tracker = new RelayQueryTracker();
@@ -658,7 +658,7 @@ describe('diffRelayQuery', () => {
     var records = {
       '4': {
         __dataID__: '4',
-        friends: null
+        friends: null,
       }
     };
     var store = new RelayRecordStore({records});
@@ -1445,7 +1445,7 @@ describe('diffRelayQuery', () => {
         __dataID__: 'client:4:660361306',
         node: {__dataID__: '660361306'},
         cursor: 'cursor1'
-      }
+      },
     ];
     var records = {
       '4': {
@@ -1566,7 +1566,7 @@ describe('diffRelayQuery', () => {
     var records = {
       'client:viewer': {
         __dataID__: 'client:viewer',
-        actor: {__dataID__: '4'}
+        actor: {__dataID__: '4'},
       },
       '4': {
         __dataID__: '4',

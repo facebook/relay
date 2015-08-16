@@ -281,7 +281,7 @@ class GraphQLSegment {
     this._indexToMetadataMap[index] = {
       edgeID: edgeID,
       cursor: cursor,
-      deleted: false
+      deleted: false,
     };
     this._idToIndicesMap[edgeID] = this._idToIndicesMap[edgeID] || [];
     this._idToIndicesMap[edgeID].unshift(index);
@@ -495,7 +495,7 @@ class GraphQLSegment {
     return {
       count: this._count,
       maxIndex: this._maxIndex,
-      minIndex: this._minIndex
+      minIndex: this._minIndex,
     };
   }
 

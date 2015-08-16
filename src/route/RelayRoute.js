@@ -54,7 +54,7 @@ class RelayRoute {
       queries,
       paramDefinitions,
       path,
-      prepareParams
+      prepareParams,
     } = constructor;
     invariant(
       constructor !== RelayRoute,
@@ -70,7 +70,7 @@ class RelayRoute {
     if (processQueryParams && !prepareParams) {
       RelayDeprecated.warn({
         was: routeName + '.processQueryParams',
-        now: routeName + '.prepareParams'
+        now: routeName + '.prepareParams',
       });
       prepareParams = processQueryParams;
     }
@@ -104,22 +104,22 @@ class RelayRoute {
     Object.defineProperty(this, 'name', {
       enumerable: true,
       value: routeName,
-      writable: false
+      writable: false,
     });
     Object.defineProperty(this, 'params', {
       enumerable: true,
       value: params,
-      writable: false
+      writable: false,
     });
     Object.defineProperty(this, 'queries', {
       enumerable: true,
       value: queries,
-      writable: false
+      writable: false,
     });
     Object.defineProperty(this, 'uri', {
       enumerable: true,
       value: uri,
-      writable: false
+      writable: false,
     });
     if (__DEV__) {
       Object.freeze(this.params);

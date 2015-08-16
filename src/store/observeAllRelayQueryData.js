@@ -11,8 +11,6 @@
  * @flow
  */
 
- /* eslint no-unused-expressions: 1 */
-
 'use strict';
 
 import type {DataID} from 'RelayInternalTypes';
@@ -93,7 +91,7 @@ class RelayQueryMultipleDataObservable {
     if (this._lastError) {
       callbacks.onError(this._lastError);
       return {
-        dispose: emptyFunction
+        dispose: emptyFunction,
       };
     }
 
@@ -112,7 +110,7 @@ class RelayQueryMultipleDataObservable {
       callbacks.onError(this._lastError);
       this._disposeSubscriptions(dataIDToSubscriptionIndex);
       return {
-        dispose: emptyFunction
+        dispose: emptyFunction,
       };
     }
     this._subscribeCalls.push({callbacks, dataIDToSubscriptionIndex});
@@ -140,7 +138,7 @@ class RelayQueryMultipleDataObservable {
           this._subscriptions = {};
           this._wrappedData = {};
         }
-      }
+      },
     };
   }
 
@@ -211,7 +209,7 @@ class RelayQueryMultipleDataObservable {
           subscriptions.push(observer.subscribe({
             onCompleted: () => this._handleCompleted(dataID),
             onError: error => this._handleError(dataID, error),
-            onNext: data => this._handleNext(dataID, data)
+            onNext: data => this._handleNext(dataID, data),
           }));
         }
       }

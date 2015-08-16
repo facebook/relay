@@ -124,7 +124,7 @@ class RelayNeglectionStateMap {
       dataID,
       collectible: false,
       generations: 0,
-      subscriptions
+      subscriptions,
     });
   }
 

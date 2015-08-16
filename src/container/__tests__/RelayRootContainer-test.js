@@ -60,7 +60,7 @@ describe('RelayRootContainer', function() {
       },
       toBeShallowRenderedChild() {
         return ShallowRenderer.getRenderOutput().props.children === this.actual;
-      }
+      },
     });
   });
 
@@ -71,12 +71,12 @@ describe('RelayRootContainer', function() {
       /* jslint validthis: true */
       RouteAwareComponent = React.createClass({
         contextTypes: {
-          route: Relay.PropTypes.QueryConfig.isRequired
+          route: Relay.PropTypes.QueryConfig.isRequired,
         },
         render: function() {
           this.props.onRender.call(this);
           return null;
-        }
+        },
       });
       var container = document.createElement('div');
       jest.addMatchers({
@@ -96,7 +96,7 @@ describe('RelayRootContainer', function() {
           var mockRequests = RelayStore.primeCache.mock.requests;
           mockRequests[mockRequests.length - 1].block();
           return context.route === route;
-        }
+        },
       });
     });
 
@@ -254,7 +254,7 @@ describe('RelayRootContainer', function() {
       );
       expect(getRelayQueries.mock.calls).toEqual([
         [RelayContainer, route],
-        [AnotherContainer, route]
+        [AnotherContainer, route],
       ]);
       expect(RelayStore.primeCache.mock.calls.length).toBe(2);
     });
@@ -266,7 +266,7 @@ describe('RelayRootContainer', function() {
       );
       expect(getRelayQueries.mock.calls).toEqual([
         [RelayContainer, route],
-        [RelayContainer, anotherRoute]
+        [RelayContainer, anotherRoute],
       ]);
       expect(RelayStore.primeCache.mock.calls.length).toBe(2);
     });
@@ -363,7 +363,7 @@ describe('RelayRootContainer', function() {
         var index = RelayStore.primeCache.mock.calls.length - 1;
         return {
           abort: RelayStore.primeCache.mock.abort[index],
-          request: RelayStore.primeCache.mock.requests[index]
+          request: RelayStore.primeCache.mock.requests[index],
         };
       }
       jest.addMatchers({
@@ -378,7 +378,7 @@ describe('RelayRootContainer', function() {
           this.actual(request);
           ShallowRenderer.unmount();
           return abort.mock.calls.length > 0;
-        }
+        },
       });
     });
 
@@ -438,12 +438,12 @@ describe('RelayRootContainer', function() {
       elements = {
         loading: <div />,
         resolve: <div />,
-        failure: <div />
+        failure: <div />,
       };
       callbacks = {
         renderLoading: jest.genMockFunction().mockReturnValue(elements.loading),
         renderFetched: jest.genMockFunction().mockReturnValue(elements.resolve),
-        renderFailure: jest.genMockFunction().mockReturnValue(elements.failure)
+        renderFailure: jest.genMockFunction().mockReturnValue(elements.failure),
       };
     });
 
@@ -521,7 +521,7 @@ describe('RelayRootContainer', function() {
       var MockRoute = RelayRoute.genMock();
       route = new MockRoute({
         routeParam: '42',
-        viewer: 'this-will-be-overwritten'
+        viewer: 'this-will-be-overwritten',
       });
 
       var data = null;
@@ -563,15 +563,15 @@ describe('RelayRootContainer', function() {
       expect(callbacks.renderFetched.mock.calls.map(args => args[1])).toEqual([
         {
           done: false,
-          stale: true
+          stale: true,
         },
         {
           done: false,
-          stale: false
+          stale: false,
         },
         {
           done: true,
-          stale: false
+          stale: false,
         }
       ]);
     });
@@ -663,7 +663,7 @@ describe('RelayRootContainer', function() {
         error: null,
         mounted: true,
         ready: false,
-        stale: false
+        stale: false,
       };
       onReadyStateChange = jest.genMockFunction();
       ShallowRenderer.render(
@@ -683,7 +683,7 @@ describe('RelayRootContainer', function() {
       RelayStore.primeCache.mock.requests[0].block();
 
       expect(onReadyStateChange.mock.calls).toEqual([
-        [{...defaultState}]
+        [{...defaultState}],
       ]);
     });
 
@@ -693,7 +693,7 @@ describe('RelayRootContainer', function() {
 
       expect(onReadyStateChange.mock.calls).toEqual([
         [{...defaultState, ready: false}],
-        [{...defaultState, ready: true}]
+        [{...defaultState, ready: true}],
       ]);
     });
 
@@ -705,7 +705,7 @@ describe('RelayRootContainer', function() {
       expect(onReadyStateChange.mock.calls).toEqual([
         [{...defaultState, done: false, ready: false}],
         [{...defaultState, done: false, ready: true}],
-        [{...defaultState, done: true, ready: true}]
+        [{...defaultState, done: true, ready: true}],
       ]);
     });
 
@@ -715,7 +715,7 @@ describe('RelayRootContainer', function() {
 
       expect(onReadyStateChange.mock.calls).toEqual([
         [{...defaultState, done: false, ready: true}],
-        [{...defaultState, done: true, ready: true}]
+        [{...defaultState, done: true, ready: true}],
       ]);
     });
 
@@ -728,7 +728,7 @@ describe('RelayRootContainer', function() {
       expect(onReadyStateChange.mock.calls).toEqual([
         [{...defaultState, error: null, ready: false}],
         [{...defaultState, error: null, ready: true}],
-        [{...defaultState, error, ready: true}]
+        [{...defaultState, error, ready: true}],
       ]);
     });
 
@@ -739,7 +739,7 @@ describe('RelayRootContainer', function() {
 
       expect(onReadyStateChange.mock.calls).toEqual([
         [{...defaultState, error: null}],
-        [{...defaultState, error}]
+        [{...defaultState, error}],
       ]);
     });
 
@@ -748,7 +748,7 @@ describe('RelayRootContainer', function() {
       RelayStore.primeCache.mock.requests[0].fail(error);
 
       expect(onReadyStateChange.mock.calls).toEqual([
-        [{...defaultState, error}]
+        [{...defaultState, error}],
       ]);
     });
 
@@ -771,7 +771,7 @@ describe('RelayRootContainer', function() {
       jest.runAllTimers();
 
       expect(onReadyStateChange.mock.calls).toEqual([
-        [{...defaultState, aborted: true, mounted: false}]
+        [{...defaultState, aborted: true, mounted: false}],
       ]);
     });
   });

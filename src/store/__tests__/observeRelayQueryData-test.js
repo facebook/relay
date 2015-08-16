@@ -59,7 +59,7 @@ describe('observeRelayQueryData', () => {
     var name = 'RelayObserverError';
     var message = 'Record `node` has not been fetched.';
     observeData({}, query, 'node').subscribe({
-      onError: firstMockCallback
+      onError: firstMockCallback,
     });
 
     expect(firstMockCallback).toBeCalled();
@@ -71,7 +71,7 @@ describe('observeRelayQueryData', () => {
     var query = getNode(Relay.QL`fragment on Node{id, name}`);
     var records = {node: null};
     var subscription = observeData(records, query, 'node').subscribe({
-      onNext: firstMockCallback
+      onNext: firstMockCallback,
     });
 
     subscription.dispose();
@@ -107,11 +107,11 @@ describe('observeRelayQueryData', () => {
   it('no longer watches data when no subscribers are attached', () => {
     var recordsStore = new RelayRecordStore({records: {
       user: {id: 1, name: 'Chris', birthdate: {__dataID__: 'date'}},
-      date: null
+      date: null,
     }});
     var query = getNode(Relay.QL`fragment on User{id, name, birthdate {day}}`);
     observeRelayQueryData(recordsStore, query, 'user').subscribe({
-      onNext: firstMockCallback
+      onNext: firstMockCallback,
     }).dispose();
 
     expect(addListenerForIDs.mock.calls.length).toBe(1);
@@ -121,7 +121,7 @@ describe('observeRelayQueryData', () => {
   it('calls a subscriber when observed data changes', () => {
     var recordsStore = new RelayRecordStore({records: {
       user: {id: 1, name: 'Chris', birthdate: {__dataID__: 'date'}},
-      date: null
+      date: null,
     }});
     var query = getNode(Relay.QL`fragment on User{id, name, birthdate {day}}`);
     var observable = observeRelayQueryData(recordsStore, query, 'user');
@@ -139,7 +139,7 @@ describe('observeRelayQueryData', () => {
       __dataID__: 'user',
       id: 1,
       name: 'Joe',
-      birthdate: null
+      birthdate: null,
     });
 
     // Check that the change emitter still listens to the right id
@@ -151,7 +151,7 @@ describe('observeRelayQueryData', () => {
   it('calls subscribers when data is added to an observed node', () => {
     var recordsStore = new RelayRecordStore({records: {
       user: {id: 1, name: 'Chris', birthdate: {__dataID__: 'date'}},
-      date: null
+      date: null,
     }});
     var query = getNode(Relay.QL`fragment on User{id, name, birthdate {day}}`);
     var observable = observeRelayQueryData(recordsStore, query, 'user');
@@ -170,8 +170,8 @@ describe('observeRelayQueryData', () => {
       name: 'Chris',
       birthdate: {
         __dataID__: 'date',
-        day: 30
-      }
+        day: 30,
+      },
     });
     expect(addListenerForIDs.mock.remove[0]).toBeCalled();
     expect(addListenerForIDs.mock.calls[1][0]).toEqual([
@@ -182,7 +182,7 @@ describe('observeRelayQueryData', () => {
   it('calls a subscriber when data disappears from a node', () => {
     var recordsStore = new RelayRecordStore({records: {
       user: {id: 1, name: 'Jon', birthdate: {__dataID__: 'date'}},
-      date: {day: 15 }
+      date: {day: 15 },
     }});
     var query = getNode(Relay.QL`fragment on User{id, name, birthdate {day}}`);
     var observable = observeRelayQueryData(recordsStore, query, 'user');
@@ -198,7 +198,7 @@ describe('observeRelayQueryData', () => {
       __dataID__: 'user',
       id: 1,
       name: 'Jon',
-      birthdate: null
+      birthdate: null,
     });
     expect(addListenerForIDs.mock.calls[0][0]).toEqual([
       'user', 'date'
@@ -212,7 +212,7 @@ describe('observeRelayQueryData', () => {
   it('no longer calls disposed-of subscribers when data changes', () => {
     var recordsStore = new RelayRecordStore({records: {
       user: {id: 1, name: 'Jon', birthdate: {__dataID__: 'date'}},
-      date: {day: 15 }
+      date: {day: 15 },
     }});
     var query = getNode(Relay.QL`fragment on User{id, name, birthdate {day}}`);
     var observable = observeRelayQueryData(recordsStore, query, 'user');
@@ -286,7 +286,7 @@ describe('observeRelayQueryData', () => {
       recordsStore = new RelayRecordStore({records: {
         chris: {__dataID__: 'chris', address: {__dataID__: 'address'}},
         date: {__dataID__: 'date', day: 15},
-        address: {__dataID__: 'address', city: 'Menlo Park'}
+        address: {__dataID__: 'address', city: 'Menlo Park'},
       }});
       observable = observeRelayQueryData(recordsStore, query, 'chris');
     });

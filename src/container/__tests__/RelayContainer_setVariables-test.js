@@ -74,7 +74,7 @@ describe('RelayContainer.setVariables', function() {
       error: null,
       mounted: true,
       ready: false,
-      stale: false
+      stale: false,
     };
     domContainer = document.createElement('div');
     mockInstance = RelayTestUtils.createRenderer(domContainer).render(
@@ -129,7 +129,7 @@ describe('RelayContainer.setVariables', function() {
             profilePicture: {
               uri: '//url'
             }
-          }
+          },
         ];
       });
 
@@ -178,7 +178,7 @@ describe('RelayContainer.setVariables', function() {
 
       var updatedQueryData = [
         {__dataID__: '21', id: '21', url: '//www'},
-        {__dataID__: '42', id: '42', url: '//www'}
+        {__dataID__: '42', id: '42', url: '//www'},
       ];
       GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
         expect(pointer.getFragment().getVariables()).toEqual({site: 'www'});
@@ -355,7 +355,7 @@ describe('RelayContainer.setVariables', function() {
 
       expect(mockFunction.mock.calls).toEqual([
         [{...defaultState, done: false, ready: false}],
-        [{...defaultState, done: true, ready: true}]
+        [{...defaultState, done: true, ready: true}],
       ]);
     });
 
@@ -416,7 +416,7 @@ describe('RelayContainer.setVariables', function() {
           entity: entityQuery
         },
         initialVariables: {site: 'mobile'},
-        prepareVariables
+        prepareVariables,
       });
       mockInstance = RelayTestUtils.createRenderer(domContainer).render(
         genMockPointer => <MockContainer entity={genMockPointer('42')} />
@@ -474,7 +474,7 @@ describe('RelayContainer.setVariables', function() {
       }).not.toThrow();
 
       expect(mockCallback.mock.calls).toEqual([
-        [{...defaultState, aborted: true, mounted: false}]
+        [{...defaultState, aborted: true, mounted: false}],
       ]);
     });
   });
@@ -547,7 +547,7 @@ describe('RelayContainer.setVariables', function() {
         },
         initialVariables: {
           site: undefined,
-          size: 48
+          size: 48,
         }
       });
 
@@ -583,7 +583,7 @@ describe('RelayContainer.setVariables', function() {
       Relay.Store.primeCache.mock.requests[0].succeed();
       expect(innerComponent.state.variables).toEqual({
         site: 'mobile',
-        size: 32
+        size: 32,
       });
 
       mockInstance.setVariables({site: 'www'});
@@ -591,12 +591,12 @@ describe('RelayContainer.setVariables', function() {
 
       Relay.Store.primeCache.mock.requests[1].succeed();
       expect(mockInstance.state.variables).toEqual({
-        site: 'www'
+        site: 'www',
       });
 
       expect(innerComponent.state.variables).toEqual({
         site: 'www',
-        size: 48
+        size: 48,
       });
     });
   });

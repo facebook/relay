@@ -50,7 +50,7 @@ describe('RelayMutation', function() {
           fragment on Node {
             id,
           }
-        `
+        `,
       };
       return MockMutationClass;
     };
@@ -69,7 +69,7 @@ describe('RelayMutation', function() {
   it('resolves props', () => {
     new MockMutation({
       bar: mockBarPointer,
-      foo: mockFooPointer
+      foo: mockFooPointer,
     });
     expect(Relay.Store.read.mock.calls.length).toBe(2);
 
@@ -84,7 +84,7 @@ describe('RelayMutation', function() {
   it('throws if mutation defines invalid `Relay.QL` fragment', () => {
     class BadMutation extends Relay.Mutation {}
     BadMutation.fragments = {
-      foo: () => Relay.QL`query{node(id:"123"){id}}`
+      foo: () => Relay.QL`query{node(id:"123"){id}}`,
     };
     var badFragmentReference = BadMutation.getFragment('foo');
     expect(() => {

@@ -118,14 +118,14 @@ describe('RelayNeglectionStateMap', () => {
         dataID: 'a',
         collectible: false,
         generations: 0,
-        subscriptions: 0
+        subscriptions: 0,
       };
 
       neglectionStateB = {
         dataID: 'b',
         collectible: false,
         generations: 0,
-        subscriptions: 1
+        subscriptions: 1,
       };
     });
 

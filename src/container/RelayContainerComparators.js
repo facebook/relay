@@ -118,7 +118,7 @@ var RelayContainerComparators = {
     nextVariables: Object
   ): boolean {
     return compareObjects(isScalarAndEqual, variables, nextVariables);
-  }
+  },
 };
 
 module.exports = RelayContainerComparators;

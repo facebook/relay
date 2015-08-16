@@ -151,7 +151,7 @@ class RelayQueryPath {
       [child, (node: $FlowIssue).getFieldByStorageKey('id')],
       {
         ...node.__concreteNode__.metatada,
-        rootArg: node.getRootCallArgument()
+        rootArg: node.getRootCallArgument(),
       },
       this.getName()
     );

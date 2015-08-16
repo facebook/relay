@@ -34,11 +34,9 @@ describe('inferRelayFieldsFromData', function() {
     inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 
     ({
-      END_CURSOR,
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
-      PAGE_INFO,
-      START_CURSOR
+      PAGE_INFO
     } = RelayConnectionInterface);
 
     jest.addMatchers({
@@ -55,7 +53,7 @@ describe('inferRelayFieldsFromData', function() {
   it('infers scalar fields from scalars', () => {
     expect(inferRelayFieldsFromData({
       id: '123',
-      name: 'Alice'
+      name: 'Alice',
     })).toEqualFields(Relay.QL`  fragment on Actor {
             id,
             name,
@@ -66,8 +64,8 @@ describe('inferRelayFieldsFromData', function() {
     expect(inferRelayFieldsFromData({
       id: '123',
       address: {
-        city: 'Menlo Park'
-      }
+        city: 'Menlo Park',
+      },
     })).toEqualFields(Relay.QL`  fragment on Actor {
             id,
             address {
@@ -79,7 +77,7 @@ describe('inferRelayFieldsFromData', function() {
   it('infers unterminated fields from null', () => {
     expect(inferRelayFieldsFromData({
       id: '123',
-      address: null
+      address: null,
     })).toEqualFields(Relay.QL`  fragment on Actor {
             id,
             address,
@@ -91,8 +89,8 @@ describe('inferRelayFieldsFromData', function() {
       id: '123',
       websites: [
         'facebook.com',
-        'google.com'
-      ]
+        'google.com',
+      ],
     });
     expect(fields).toEqualFields(Relay.QL`  fragment on Actor {
             id,
@@ -106,8 +104,8 @@ describe('inferRelayFieldsFromData', function() {
       id: '123',
       screennames: [
         {service: 'GTALK'},
-        {service: 'TWITTER'}
-      ]
+        {service: 'TWITTER'},
+      ],
     })).toEqualFields(Relay.QL`  fragment on Actor {
             id,
             screennames {
@@ -119,7 +117,7 @@ describe('inferRelayFieldsFromData', function() {
   it('infers unterminated fields from empty arrays', () => {
     expect(inferRelayFieldsFromData({
       id: '123',
-      websites: []
+      websites: [],
     })).toEqualFields(Relay.QL`  fragment on Actor {
             id,
             websites,
@@ -129,7 +127,7 @@ describe('inferRelayFieldsFromData', function() {
   it('infers unterminated fields from null elements in arrays', () => {
     expect(inferRelayFieldsFromData({
       id: '123',
-      websites: [null]
+      websites: [null],
     })).toEqualFields(Relay.QL`  fragment on Actor {
             id,
             websites,
@@ -139,7 +137,7 @@ describe('inferRelayFieldsFromData', function() {
   it('infers field arguments from keys', () => {
     expect(inferRelayFieldsFromData({
       id: '123',
-      'url.site(www)': 'https://...'
+      'url.site(www)': 'https://...',
     })).toEqualFields(Relay.QL`  fragment on Actor {
             id,
             url(site:"www"),
@@ -149,7 +147,7 @@ describe('inferRelayFieldsFromData', function() {
   it('throws for keys with invalid call encodings', () => {
     expect(() => {
       inferRelayFieldsFromData({
-        'url.site': 'https://...'
+        'url.site': 'https://...',
       });
     }).toFailInvariant(
       'inferRelayFieldsFromData(): Malformed data key, `url.site`.'
@@ -162,13 +160,13 @@ describe('inferRelayFieldsFromData', function() {
       'friends.first(2)': {
         edges: [
           {node: {name: 'Alice'}},
-          {node: {name: 'Bob'}}
+          {node: {name: 'Bob'}},
         ],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: false
-        }
-      }
+          [HAS_PREV_PAGE]: false,
+        },
+      },
     })).toEqualFields(Relay.QL`  fragment on Actor {
             id,
             friends(first:"2") {
@@ -187,7 +185,7 @@ describe('inferRelayFieldsFromData', function() {
     expect(inferRelayFieldsFromData({
       node: {
         id: '123',
-        name: 'name'
+        name: 'name',
       }
     })).toEqualFields(Relay.QL`  fragment on NodeSavedStateResponsePayload {
             node {
@@ -203,7 +201,7 @@ describe('inferRelayFieldsFromData', function() {
       __range__: null,
       __status__: null,
       id: '123',
-      name: 'Alice'
+      name: 'Alice',
     })).toEqualFields(Relay.QL`  fragment on Node {
             id,
             name,

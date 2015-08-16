@@ -22,5 +22,5 @@ RelayPublic.injectNetworkLayer(new RelayDefaultNetworkLayer('/graphql'));
 module.exports = {
   ...RelayPublic,
   // Expose the default network layer to allow convenient re-configuration.
-  DefaultNetworkLayer: RelayDefaultNetworkLayer
+  DefaultNetworkLayer: RelayDefaultNetworkLayer,
 };

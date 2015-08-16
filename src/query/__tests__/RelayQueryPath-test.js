@@ -28,8 +28,8 @@ describe('RelayQueryPath', () => {
     children: [],
     metadata: {
       isDeferred: false,
-      isReferenceFragment: false
-    }
+      isReferenceFragment: false,
+    },
   };
 
   beforeEach(() => {
@@ -213,10 +213,10 @@ describe('RelayQueryPath', () => {
           metadata: {
             requisite: true,
             parentType: 'Node'
-          }
-        }
+          },
+        },
       ],
-      metadata: {}
+      metadata: {},
     }]);
 
     var fragment = Relay.QL`fragment on Node { name }`;
@@ -251,7 +251,7 @@ describe('RelayQueryPath', () => {
       name: 'UnknownFile',
       calls: [{name: 'viewer', value: null}],
       children: [EMPTY_FRAGMENT],
-      metadata: {}
+      metadata: {},
     }]);
 
     var fragment = Relay.QL`fragment on Viewer { pendingPosts { count } }`;
@@ -301,9 +301,9 @@ describe('RelayQueryPath', () => {
           metadata: {
             requisite: true,
             parentType: 'Node'
-          }
+          },
         }],
-        metadata: {}
+        metadata: {},
       },
       {
         kind: 'Field',
@@ -313,8 +313,8 @@ describe('RelayQueryPath', () => {
         children: [EMPTY_FRAGMENT],
         metadata: {
           parentType: 'Actor'
-        }
-      }
+        },
+      },
     ]);
 
     var fragment = Relay.QL`fragment on StreetAddress { country }`;

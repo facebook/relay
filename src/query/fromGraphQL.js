@@ -77,7 +77,7 @@ RelayProfiler.instrumentMethods(fromGraphQL, {
   Node: 'fromGraphQL.Node',
   Field: 'fromGraphQL.Field',
   Fragment: 'fromGraphQL.Fragment',
-  Query: 'fromGraphQL.Query'
+  Query: 'fromGraphQL.Query',
 });
 
 module.exports = fromGraphQL;

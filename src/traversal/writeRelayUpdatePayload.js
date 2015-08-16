@@ -54,7 +54,7 @@ var ID = 'id';
 var IGNORED_KEYS = {
   error: true,
   /* $FlowIssue #7728187 - Computed Property */
-  [CLIENT_MUTATION_ID]: true
+  [CLIENT_MUTATION_ID]: true,
 };
 var STUB_CURSOR_ID = 'client:cursor';
 

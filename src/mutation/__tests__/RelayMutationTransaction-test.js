@@ -85,12 +85,12 @@ describe('RelayMutationTransaction', () => {
         configs: 'optimisticConfigs',
         fatQuery: 'fatQuery',
         mutation: mutationNode,
-        mutationName: 'RelayMutation'
+        mutationName: 'RelayMutation',
       }]]);
       expect(storeData.handleUpdatePayload.mock.calls).toEqual([[
         'optimisticQuery',
         {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
-        {configs: 'optimisticConfigs', isOptimisticUpdate: true}
+        {configs: 'optimisticConfigs', isOptimisticUpdate: true},
       ]]);
     });
 
@@ -108,13 +108,13 @@ describe('RelayMutationTransaction', () => {
         fatQuery: 'fatQuery',
         mutation: mutationNode,
         response: {
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'
-        }
+          [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        },
       }]]);
       expect(storeData.handleUpdatePayload.mock.calls).toEqual([[
         'optimisticQuery',
         {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
-        {configs: 'configs', isOptimisticUpdate: true}
+        {configs: 'configs', isOptimisticUpdate: true},
       ]]);
     });
   });
@@ -413,7 +413,7 @@ describe('RelayMutationTransaction', () => {
       );
       transaction1.commit({
         onSuccess: successCallback1,
-        onFailure: failureCallback1
+        onFailure: failureCallback1,
       });
 
       expect(RelayNetworkLayer.sendMutation.mock.calls.length).toBe(1);

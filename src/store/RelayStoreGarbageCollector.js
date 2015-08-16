@@ -332,7 +332,7 @@ RelayProfiler.instrumentMethods(RelayStoreGarbageCollector.prototype, {
   increaseSubscriptionsFor:
     'RelayStoreGarbageCollector.prototype.increaseSubscriptionsFor',
   register:
-    'RelayStoreGarbageCollector.prototype.register'
+    'RelayStoreGarbageCollector.prototype.register',
 });
 
 module.exports = RelayStoreGarbageCollector;

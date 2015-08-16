@@ -93,7 +93,7 @@ var GraphQLStoreRangeUtils = {
    */
   getCanonicalClientID: function(dataID) {
     return rangeData[dataID] ? rangeData[dataID].dataID : dataID;
-  }
+  },
 };
 
 module.exports = GraphQLStoreRangeUtils;

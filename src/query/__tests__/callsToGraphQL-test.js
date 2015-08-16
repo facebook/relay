@@ -30,7 +30,7 @@ describe('callsToGraphQL', function() {
   it('converts array calls with null values', () => {
     var relayCalls = [{
       name: 'size',
-      value: null
+      value: null,
     }];
     var graphqlCalls = [new GraphQL.Callv('size', null)];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
@@ -40,7 +40,7 @@ describe('callsToGraphQL', function() {
   it('converts array calls without values', () => {
     var relayCalls = [{
       name: 'size',
-      value: []
+      value: [],
     }];
     var graphqlCalls = [new GraphQL.Callv('size', [])];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
@@ -50,7 +50,7 @@ describe('callsToGraphQL', function() {
   it('converts calls with array values', () => {
     var relayCalls = [{
       name: 'size',
-      value: [32, 64]
+      value: [32, 64],
     }];
     var graphqlCalls = [new GraphQL.Callv('size', [32, 64])];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
@@ -60,7 +60,7 @@ describe('callsToGraphQL', function() {
   it('converts singular calls with null values', () => {
     var relayCalls = [{
       name: 'size',
-      value: 32
+      value: 32,
     }];
     var graphqlCalls = [new GraphQL.Callv('size', 32)];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);

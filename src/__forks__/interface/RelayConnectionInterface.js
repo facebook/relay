@@ -21,12 +21,12 @@ var CONNECTION_CALLS = {
   'find': true,
   'first': true,
   'last': true,
-  'surrounds': true
+  'surrounds': true,
 };
 var REQUIRED_RANGE_CALLS = {
   'find': true,
   'first': true,
-  'last': true
+  'last': true,
 };
 
 /**
@@ -77,7 +77,7 @@ var RelayConnectionInterface = {
     pageInfo[RelayConnectionInterface.HAS_NEXT_PAGE] = false;
     pageInfo[RelayConnectionInterface.HAS_PREV_PAGE] = false;
     return pageInfo;
-  }
+  },
 };
 
 module.exports = RelayConnectionInterface;

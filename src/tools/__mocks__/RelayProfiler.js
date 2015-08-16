@@ -36,7 +36,7 @@ var RelayProfiler = {
     };
   }),
   attachProfileHandler: jest.genMockFunction(),
-  detachProfileHandler: jest.genMockFunction()
+  detachProfileHandler: jest.genMockFunction(),
 };
 
 module.exports = RelayProfiler;

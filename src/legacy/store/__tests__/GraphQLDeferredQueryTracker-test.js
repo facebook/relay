@@ -68,7 +68,7 @@ describe('GraphQLDeferredQueryTracker', () => {
       fragmentID,
       {
         onSuccess: onSuccess,
-        onFailure: onFailure
+        onFailure: onFailure,
       }
     );
     GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
@@ -103,7 +103,7 @@ describe('GraphQLDeferredQueryTracker', () => {
       dataID,
       fragmentID,
       {
-        onSuccess: onSuccess
+        onSuccess: onSuccess,
       }
     );
     GraphQLDeferredQueryTracker.recordQuery(mockDeferred);

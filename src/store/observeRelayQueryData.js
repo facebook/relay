@@ -11,9 +11,8 @@
  * @flow
  */
 
- /* eslint no-unused-expressions: 1 */
-
 'use strict';
+
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var RelayError = require('RelayError');
 import type {DataID} from 'RelayInternalTypes';
@@ -103,7 +102,7 @@ class RelayQueryDataObservable {
     if (this._lastError) {
       callbacks.onError(this._lastError);
       return {
-        dispose: emptyFunction
+        dispose: emptyFunction,
       };
     }
 
@@ -134,7 +133,7 @@ class RelayQueryDataObservable {
           // No longer observing any dataIDs
           this._observedDataIDs = {};
         }
-      }
+      },
     };
   }
 

@@ -75,7 +75,7 @@ describe('RelayRecordStore', () => {
       var records = {
         '1': {
           __dataID__: '1'
-        }
+        },
       };
       var store = new RelayRecordStore({records}, null, null, cache);
       store.deleteRecord('1');
@@ -89,7 +89,7 @@ describe('RelayRecordStore', () => {
     it('writes to queued data if available, otherwise base data', () => {
       var cachedRecords = {
         a: {__dataID__: 'a'},
-        b: {__dataID__: 'b'}
+        b: {__dataID__: 'b'},
       };
       var records = {};
       var queuedRecords = {};
@@ -176,7 +176,7 @@ describe('RelayRecordStore', () => {
       var phone = {
         is_verified: true,
         phone_number: {
-          display_number: '1-800-555-1212' // directory assistance
+          display_number: '1-800-555-1212', // directory assistance
         }
       };
       store.putField('1', 'all_phones', [phone]);
@@ -187,7 +187,7 @@ describe('RelayRecordStore', () => {
     it('writes to queued data if available, otherwise base data', () => {
       var cachedRecords = {
         'a': {__dataID__: 'a'},
-        'b': {__dataID__: 'b'}
+        'b': {__dataID__: 'b'},
       };
       var records = {};
       var queuedRecords = {};
@@ -247,12 +247,12 @@ describe('RelayRecordStore', () => {
       var cachedRecords = {
         'a': {
           __dataID__: 'a',
-          name: 'A'
+          name: 'A',
         },
         'b': {
           __dataID__: 'b',
-          name: 'B'
-        }
+          name: 'B',
+        },
       };
       var records = {};
       var queuedRecords = {};
@@ -301,7 +301,7 @@ describe('RelayRecordStore', () => {
       store.putLinkedRecordID('viewerID', 'actor', 'actorID');
       expect(store.getLinkedRecordID('viewerID', 'actor')).toBe('actorID');
       expect(cache.cacheField).toBeCalledWith('viewerID', 'actor', {
-        __dataID__: 'actorID'
+        __dataID__: 'actorID',
       });
     });
 
@@ -362,7 +362,7 @@ describe('RelayRecordStore', () => {
         .toEqual(['actor1', 'actor2']);
       expect(cache.cacheField).toBeCalledWith('storyID', 'actors', [
         {__dataID__: 'actor1'},
-        {__dataID__: 'actor2'}
+        {__dataID__: 'actor2'},
       ]);
     });
 
@@ -486,7 +486,7 @@ describe('RelayRecordStore', () => {
         {
           name: 'first',
           value: '10'
-        }
+        },
       ];
       store.putRecord('1');
       store.putRange('1', calls);
@@ -526,7 +526,7 @@ describe('RelayRecordStore', () => {
       store.putRange(connectionID, []);
       var pageInfo = {
         [HAS_NEXT_PAGE]: true,
-        [HAS_PREV_PAGE]: false
+        [HAS_PREV_PAGE]: false,
       };
       var calls = [{name: 'first', value: 3}];
       var edges = [];
@@ -559,7 +559,7 @@ describe('RelayRecordStore', () => {
       expect(rangeInfo.requestedEdges).toEqual([
         {edgeID: 'edge0', nodeID: 'node0'},
         {edgeID: 'edge1', nodeID: 'node1'},
-        {edgeID: 'edge2', nodeID: 'node2'}
+        {edgeID: 'edge2', nodeID: 'node2'},
       ]);
       expect(cache.cacheField).toBeCalledWith(
         connectionID,
@@ -579,6 +579,7 @@ describe('RelayRecordStore', () => {
     var queuedRecords;
     var queuedStore;
     var records;
+    var store;
 
     var _inc = 0;
     function addEdgeToStore(store) {
@@ -622,7 +623,7 @@ describe('RelayRecordStore', () => {
         [{name: 'first', value: 1}],
         {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: false
+          [HAS_PREV_PAGE]: false,
         },
         [firstEdgeID]
       );
@@ -635,7 +636,7 @@ describe('RelayRecordStore', () => {
         [{name: 'last', value: 1}],
         {
           [HAS_NEXT_PAGE]: false,
-          [HAS_PREV_PAGE]: true
+          [HAS_PREV_PAGE]: true,
         },
         [lastEdgeID]
       );

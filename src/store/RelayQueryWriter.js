@@ -88,7 +88,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       nodeID: null,
       recordID,
       responseData,
-      path
+      path,
     };
 
     if (node instanceof RelayQuery.Field && !node.isScalar()) {
@@ -191,7 +191,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   ): ?RelayQuery.Node {
     var {
       recordID,
-      responseData
+      responseData,
     } = state;
     invariant(
       this._store.getRecordStatus(recordID) === RelayRecordStatus.EXISTENT,
@@ -319,7 +319,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       path,
       nodeID: null,
       recordID: connectionID,
-      responseData: connectionData
+      responseData: connectionData,
     };
     this._traverseConnection(field, field, connectionState);
   }
@@ -360,7 +360,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   ): void {
     var {
       recordID: connectionID,
-      responseData: connectionData
+      responseData: connectionData,
     } = state;
     var storageKey = connection.getStorageKey();
     invariant(
@@ -464,7 +464,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         path,
         nodeID,
         recordID: edgeID,
-        responseData: edgeData
+        responseData: edgeData,
       });
       isUpdate = isUpdate || this.hasChangeToRecord(edgeID);
     });
@@ -543,7 +543,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         path,
         nodeID: null, // never propagate `nodeID` past the first linked field
         recordID: nextLinkedID,
-        responseData: nextRecord
+        responseData: nextRecord,
       });
       isUpdate = isUpdate || this.hasChangeToRecord(nextLinkedID);
       nextIndex++;
@@ -605,7 +605,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       path,
       nodeID: null,
       recordID: nextLinkedID,
-      responseData: fieldData
+      responseData: fieldData,
     });
   }
 }

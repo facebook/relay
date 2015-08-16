@@ -59,13 +59,13 @@ var RelayDeprecated = {
     var deprecatedProperties = [
       'queries',
       'queryParams',
-      'processQueryParams'
+      'processQueryParams',
     ].filter(property => maybeSpec.hasOwnProperty(property));
 
     var modernProperties = [
       'fragments',
       'initialVariables',
-      'prepareVariables'
+      'prepareVariables',
     ].filter(property => maybeSpec.hasOwnProperty(property));
 
     if (modernProperties.length) {
@@ -103,7 +103,7 @@ var RelayDeprecated = {
     if (queryParams && !Mutation.initialVariables) {
       RelayDeprecated.warn({
         was: Mutation.name + '.queryParams',
-        now: Mutation.name + '.initialVariables'
+        now: Mutation.name + '.initialVariables',
       });
       Mutation.initialVariables = queryParams;
     }
@@ -115,12 +115,12 @@ var RelayDeprecated = {
     if (queries && !Mutation.fragments) {
       RelayDeprecated.warn({
         was: Mutation.name + '.queries',
-        now: Mutation.name + '.fragments'
+        now: Mutation.name + '.fragments',
       });
       Mutation.fragments = queries;
     }
     return Mutation.fragments;
-  }
+  },
 
 };
 

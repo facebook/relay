@@ -238,7 +238,7 @@ var RelayProfiler = {
         removeFromArray(profileHandlersByName[name], handler);
       }
     }
-  }
+  },
 
 };
 

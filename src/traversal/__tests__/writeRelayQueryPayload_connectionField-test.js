@@ -42,7 +42,7 @@ describe('writeRelayQueryPayload()', () => {
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
       PAGE_INFO,
-      START_CURSOR
+      START_CURSOR,
     } = RelayConnectionInterface);
 
     jest.addMatchers(RelayTestUtils.matchers);
@@ -81,8 +81,8 @@ describe('writeRelayQueryPayload()', () => {
           edges: [],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: false,
-            [HAS_PREV_PAGE]: false
-          }
+            [HAS_PREV_PAGE]: false,
+          },
         }
       }
     };
@@ -91,7 +91,7 @@ describe('writeRelayQueryPayload()', () => {
     expect(results).toEqual({
       created: {
         '123': true,
-        'client:1': true // `friends` connection
+        'client:1': true, // `friends` connection
       },
       updated: {}
     });
@@ -104,7 +104,7 @@ describe('writeRelayQueryPayload()', () => {
         [END_CURSOR]: undefined,
         [HAS_NEXT_PAGE]: false,
         [HAS_PREV_PAGE]: false,
-        [START_CURSOR]: undefined
+        [START_CURSOR]: undefined,
       },
       requestedEdges: []
     });
@@ -172,8 +172,8 @@ describe('writeRelayQueryPayload()', () => {
       ],
       [PAGE_INFO]: {
         [HAS_NEXT_PAGE]: true,
-        [HAS_PREV_PAGE]: false
-      }
+        [HAS_PREV_PAGE]: false,
+      },
     };
     var results = writePayload(store, query, payload);
     expect(results).toEqual({
@@ -185,7 +185,7 @@ describe('writeRelayQueryPayload()', () => {
         'client:client:1:friend3ID': true,
         'friend1ID': true, // nodes
         'friend2ID': true,
-        'friend3ID': true
+        'friend3ID': true,
       },
       updated: {}
     });
@@ -201,12 +201,12 @@ describe('writeRelayQueryPayload()', () => {
         [END_CURSOR]: 'friend3',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-        [START_CURSOR]: 'friend1'
+        [START_CURSOR]: 'friend1',
       },
       requestedEdges: [
         {edgeID: 'client:client:1:friend1ID', nodeID: 'friend1ID'},
         {edgeID: 'client:client:1:friend2ID', nodeID: 'friend2ID'},
-        {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'}
+        {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'},
       ]
     });
   });
@@ -243,19 +243,19 @@ describe('writeRelayQueryPayload()', () => {
         null,
         {
           cursor: 'friend2',
-          node: null
+          node: null,
         },
         {
           cursor: 'friend3',
           node: {
             id: 'friend3ID'
-          }
+          },
         }
       ],
       [PAGE_INFO]: {
         [HAS_NEXT_PAGE]: true,
-        [HAS_PREV_PAGE]: false
-      }
+        [HAS_PREV_PAGE]: false,
+      },
     };
     var results = writePayload(store, query, payload);
     expect(results).toEqual({
@@ -263,7 +263,7 @@ describe('writeRelayQueryPayload()', () => {
         '123': true,
         'client:1': true, // `friends` connection
         'client:client:1:friend3ID': true, // edges
-        'friend3ID': true
+        'friend3ID': true,
       },
       updated: {}
     });
@@ -277,10 +277,10 @@ describe('writeRelayQueryPayload()', () => {
         [END_CURSOR]: 'friend3',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-        [START_CURSOR]: 'friend3'
+        [START_CURSOR]: 'friend3',
       },
       requestedEdges: [
-        {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'}
+        {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'},
       ]
     });
   });
@@ -340,21 +340,21 @@ describe('writeRelayQueryPayload()', () => {
           source: {
             id: '123'
           }
-        }
+        },
       ],
       [PAGE_INFO]: {
         [HAS_NEXT_PAGE]: true,
-        [HAS_PREV_PAGE]: false
-      }
+        [HAS_PREV_PAGE]: false,
+      },
     };
     var results = writePayload(store, query, payload);
     expect(results).toEqual({
       created: {
         'client:client:1:friend1ID': true,  // edges
-        'friend1ID': true // nodes
+        'friend1ID': true, // nodes
       },
       updated: {
-        'client:1': true
+        'client:1': true,
       }
     });
     expect(store.getField('friend1ID', 'id')).toBe('friend1ID');
@@ -367,10 +367,10 @@ describe('writeRelayQueryPayload()', () => {
         [END_CURSOR]: 'friend1',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-        [START_CURSOR]: 'friend1'
+        [START_CURSOR]: 'friend1',
       },
       requestedEdges: [
-        {edgeID: 'client:client:1:friend1ID', nodeID: 'friend1ID'}
+        {edgeID: 'client:client:1:friend1ID', nodeID: 'friend1ID'},
       ]
     });
   });
@@ -417,10 +417,10 @@ describe('writeRelayQueryPayload()', () => {
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
-            [HAS_PREV_PAGE]: false
-          }
-        }
-      }
+            [HAS_PREV_PAGE]: false,
+          },
+        },
+      },
     };
     expect(() => writePayload(store, query, payload)).toFailInvariant(
       'RelayQueryWriter: Cannot write edges for connection ' +
@@ -461,8 +461,8 @@ describe('writeRelayQueryPayload()', () => {
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: false
-        }
+          [HAS_PREV_PAGE]: false,
+        },
       };
       var records = {};
       store = new RelayRecordStore({records});
@@ -498,17 +498,17 @@ describe('writeRelayQueryPayload()', () => {
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: true
-        }
+          [HAS_PREV_PAGE]: true,
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
           'node2': true,
-          'client:client:1:node2': true // 2nd edge
+          'client:client:1:node2': true, // 2nd edge
         },
         updated: {
-          'client:1': true // range updated
+          'client:1': true, // range updated
         }
       });
       expect(store.getRangeMetadata('client:1', [
@@ -520,12 +520,12 @@ describe('writeRelayQueryPayload()', () => {
           [END_CURSOR]: 'cursor2',
           [HAS_NEXT_PAGE]: true,
           [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: 'cursor1'
+          [START_CURSOR]: 'cursor1',
         },
         requestedEdges: [
           {edgeID: 'client:client:1:node1', nodeID: 'node1'},
-          {edgeID: 'client:client:1:node2', nodeID: 'node2'}
-        ]
+          {edgeID: 'client:client:1:node2', nodeID: 'node2'},
+        ],
       });
     });
 
@@ -560,16 +560,16 @@ describe('writeRelayQueryPayload()', () => {
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: true
-        }
+          [HAS_PREV_PAGE]: true,
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
-          'node1': true    // `name` added
+          'node1': true,    // `name` added
           // range not updated, only the node changed
-        }
+        },
       });
       expect(store.getField('node1', 'name')).toBe('Tim');
       expect(store.getRangeMetadata('client:1', [
@@ -581,11 +581,11 @@ describe('writeRelayQueryPayload()', () => {
           [END_CURSOR]: 'cursor1',
           [HAS_NEXT_PAGE]: true,
           [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: 'cursor1'
+          [START_CURSOR]: 'cursor1',
         },
         requestedEdges: [
-          {edgeID: 'client:client:1:node1', nodeID: 'node1'}
-        ]
+          {edgeID: 'client:client:1:node1', nodeID: 'node1'},
+        ],
       });
     });
 
@@ -618,7 +618,7 @@ describe('writeRelayQueryPayload()', () => {
       payload['123'][alias] = {
         edges: [{
           node: {
-            id: 'node1'
+            id: 'node1',
           },
           source: { // new edge field
             id: '456'
@@ -627,18 +627,18 @@ describe('writeRelayQueryPayload()', () => {
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: true
-        }
+          [HAS_PREV_PAGE]: true,
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          '456': true // `source` added
+          '456': true, // `source` added
         },
         updated: {
           'client:1': true, // range updated because an edge had a change
-          'client:client:1:node1': true // `source` added to edge
-        }
+          'client:client:1:node1': true, // `source` added to edge
+        },
       });
       expect(store.getRangeMetadata('client:1', [
         {name: 'first', value: 1}
@@ -649,11 +649,11 @@ describe('writeRelayQueryPayload()', () => {
           [END_CURSOR]: 'cursor1',
           [HAS_NEXT_PAGE]: true,
           [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: 'cursor1'
+          [START_CURSOR]: 'cursor1',
         },
         requestedEdges: [
-          {edgeID: 'client:client:1:node1', nodeID: 'node1'}
-        ]
+          {edgeID: 'client:client:1:node1', nodeID: 'node1'},
+        ],
       });
       var sourceID = store.getLinkedRecordID('client:client:1:node1', 'source');
       expect(sourceID).toBe('456');
@@ -689,17 +689,17 @@ describe('writeRelayQueryPayload()', () => {
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: false
-        }
+          [HAS_PREV_PAGE]: false,
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
           'node1b': true,
-          'client:client:1:node1b': true   // edge added but never referenced
+          'client:client:1:node1b': true,   // edge added but never referenced
         },
         updated: {
-          'client:1': true     // range updated
+          'client:1': true,     // range updated
         }
       });
       expect(store.getField('node1b', 'id')).toBe('node1b');
@@ -712,11 +712,11 @@ describe('writeRelayQueryPayload()', () => {
           [END_CURSOR]: 'cursor1',
           [HAS_NEXT_PAGE]: true,
           [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: 'cursor1'
+          [START_CURSOR]: 'cursor1',
         },
         requestedEdges: [
-          {edgeID: 'client:client:1:node1', nodeID: 'node1'}
-        ]
+          {edgeID: 'client:client:1:node1', nodeID: 'node1'},
+        ],
       });
     });
 
@@ -749,17 +749,17 @@ describe('writeRelayQueryPayload()', () => {
         }],
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: false
-        }
+          [HAS_PREV_PAGE]: false,
+        },
       };
       var results = writePayload(store, query, payload, null, {forceIndex: 1});
       expect(results).toEqual({
         created: {
           'node1b': true,
-          'client:client:1:node1b': true
+          'client:client:1:node1b': true,
         },
         updated: {
-          'client:1': true     // range updated
+          'client:1': true,     // range updated
         }
       });
       expect(store.getField('node1b', 'id')).toBe('node1b');
@@ -772,11 +772,11 @@ describe('writeRelayQueryPayload()', () => {
           [END_CURSOR]: 'cursor1b',
           [HAS_NEXT_PAGE]: true,
           [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: 'cursor1b'
+          [START_CURSOR]: 'cursor1b',
         },
         requestedEdges: [
-          {edgeID: 'client:client:1:node1b', nodeID: 'node1b'}
-        ]
+          {edgeID: 'client:client:1:node1b', nodeID: 'node1b'},
+        ],
       });
     });
   });

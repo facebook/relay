@@ -122,17 +122,17 @@ class RelayDefaultNetworkLayer {
       }
       init = {
         body: formData,
-        method: 'POST'
+        method: 'POST',
       };
     } else {
       init = {
         body: JSON.stringify({
           query: request.getQueryString(),
-          variables: request.getVariables()
+          variables: request.getVariables(),
         }),
         credentials: 'same-origin',
         headers: {'Content-Type': 'application/json'},
-        method: 'POST'
+        method: 'POST',
       };
     }
     return fetch(this._uri, init).then(throwOnServerError);
@@ -145,13 +145,13 @@ class RelayDefaultNetworkLayer {
     return fetchWithRetries(this._uri, {
       body: JSON.stringify({
         query: request.getQueryString(),
-        variables: request.getVariables()
+        variables: request.getVariables(),
       }),
       credentials: 'same-origin',
       fetchTimeout: this._timeout,
       headers: {'Content-Type': 'application/json'},
       method: 'POST',
-      retryDelays: this._retryDelays
+      retryDelays: this._retryDelays,
     });
   }
 }

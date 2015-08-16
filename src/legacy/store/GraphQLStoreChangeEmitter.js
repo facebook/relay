@@ -131,7 +131,7 @@ function getBroadcastID(id: string): string {
 RelayProfiler.instrumentMethods(GraphQLStoreChangeEmitter, {
   addListenerForIDs: 'GraphQLStoreChangeEmitter.addListenerForIDs',
   broadcastChangeForID: 'GraphQLStoreChangeEmitter.broadcastChangeForID',
-  _processSubscribers: 'GraphQLStoreChangeEmitter.processSubscribers'
+  _processSubscribers: 'GraphQLStoreChangeEmitter.processSubscribers',
 });
 
 module.exports = GraphQLStoreChangeEmitter;

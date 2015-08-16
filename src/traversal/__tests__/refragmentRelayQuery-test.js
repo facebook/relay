@@ -33,7 +33,7 @@ describe('refragmentRelayQuery', () => {
         /* jslint validthis:true */
         this.actual = refragmentRelayQuery(flattenRelayQuery(this.actual));
         return matchers.toEqualQueryNode.call(this, expected);
-      }
+      },
     });
   });
 

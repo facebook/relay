@@ -192,7 +192,7 @@ class RelayStoreData {
       changeTracker,
       {
         forceIndex,
-        updateTrackedQueries: true
+        updateTrackedQueries: true,
       }
     );
     writeRelayQueryPayload(
@@ -221,7 +221,7 @@ class RelayStoreData {
       changeTracker,
       {
         forceIndex: generateForceIndex(),
-        updateTrackedQueries: false
+        updateTrackedQueries: false,
       }
     );
     writeRelayUpdatePayload(
@@ -364,7 +364,7 @@ class RelayStoreData {
 }
 
 RelayProfiler.instrumentMethods(RelayStoreData.prototype, {
-  handleQueryPayload: 'RelayStoreData.prototype.handleQueryPayload'
+  handleQueryPayload: 'RelayStoreData.prototype.handleQueryPayload',
 });
 
 module.exports = RelayStoreData;

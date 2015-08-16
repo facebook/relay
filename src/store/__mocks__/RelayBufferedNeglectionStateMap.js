@@ -27,7 +27,7 @@ class RelayBufferedNeglectionStateMap {
 }
 
 RelayBufferedNeglectionStateMap.mock = {
-  instances: []
+  instances: [],
 };
 
 module.exports = RelayBufferedNeglectionStateMap;

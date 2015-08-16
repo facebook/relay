@@ -33,8 +33,8 @@ describe('RelayQuerySerializer', () => {
       metadata: {
         generated: true,
         requisite: true,
-        parentType
-      }
+        parentType,
+      },
     };
   }
 
@@ -46,8 +46,8 @@ describe('RelayQuerySerializer', () => {
       calls: [],
       children: [],
       metadata: {
-        parentType
-      }
+        parentType,
+      },
     };
   }
 
@@ -104,17 +104,17 @@ describe('RelayQuerySerializer', () => {
             calls: [],
             children: [
               scalarField('name', 'Actor'),
-              idField('Actor')
+              idField('Actor'),
             ],
             metadata: {
               dynamic: true,
               pk: 'id',
               rootCall: 'node',
-              parentType: 'Viewer'
-            }
-          }
+              parentType: 'Viewer',
+            },
+          },
         ],
-        metadata: {}
+        metadata: {},
       });
       var clone = fromJSON(toJSON(query));
       expect(clone.equals(query)).toBe(true);
@@ -136,9 +136,9 @@ describe('RelayQuerySerializer', () => {
         calls: [{name: 'node', value: '123'}],
         children: [
           scalarField('name', 'Node'),
-          idField('Node')
+          idField('Node'),
         ],
-        metadata: {}
+        metadata: {},
       });
       var clone = fromJSON(toJSON(query));
       expect(clone.equals(query)).toBe(true);
@@ -160,9 +160,9 @@ describe('RelayQuerySerializer', () => {
         calls: [{name: 'nodes', value: ['1', '2', '3']}],
         children: [
           scalarField('name', 'Node'),
-          idField('Node')
+          idField('Node'),
         ],
-        metadata: {varargs: 1}
+        metadata: {varargs: 1},
       });
       var clone = fromJSON(toJSON(query));
       expect(clone.equals(query)).toBe(true);
@@ -182,13 +182,13 @@ describe('RelayQuerySerializer', () => {
           ...idField('Node'),
           metadata: {
             requisite: true,
-            parentType: 'Node'
+            parentType: 'Node',
           }
         }],
         metadata: {
           isDeferred: false,
-          isReferenceFragment: false
-        }
+          isReferenceFragment: false,
+        },
       });
       expect(fromJSON(toJSON(fragment)).equals(fragment)).toBe(true);
     });
@@ -209,13 +209,13 @@ describe('RelayQuerySerializer', () => {
           ...idField('Node'),
           metadata: {
             requisite: true,
-            parentType: 'Node'
+            parentType: 'Node',
           }
         }],
         metadata: {
           isDeferred: true,
-          isReferenceFragment: true
-        }
+          isReferenceFragment: true,
+        },
       });
 
       var deserialized = fromJSON(toJSON(fragment));
@@ -240,7 +240,7 @@ describe('RelayQuerySerializer', () => {
         name: 'profilePicture',
         alias: 'photo',
         calls: [
-          {name: 'size', value: '32'}
+          {name: 'size', value: '32'},
         ],
         children: [{
           kind: 'Field',
@@ -248,9 +248,9 @@ describe('RelayQuerySerializer', () => {
           alias: null,
           calls: [],
           children: [],
-          metadata: {parentType: 'Image'}
+          metadata: {parentType: 'Image'},
         }],
-        metadata: {parentType: 'User'}
+        metadata: {parentType: 'User'},
       });
       expect(fromJSON(toJSON(field)).equals(field)).toBe(true);
     });
@@ -269,7 +269,7 @@ describe('RelayQuerySerializer', () => {
         name: 'profilePicture',
         alias: 'photo',
         calls: [
-          {name: 'size', value: ['32', '64']}
+          {name: 'size', value: ['32', '64']},
         ],
         children: [{
           kind: 'Field',
@@ -277,9 +277,9 @@ describe('RelayQuerySerializer', () => {
           alias: null,
           calls: [],
           children: [],
-          metadata: {parentType: 'Image'}
+          metadata: {parentType: 'Image'},
         }],
-        metadata: {parentType: 'User'}
+        metadata: {parentType: 'User'},
       });
       expect(fromJSON(toJSON(field)).equals(field)).toBe(true);
     });
@@ -302,7 +302,7 @@ describe('RelayQuerySerializer', () => {
         name: 'friends',
         alias: null,
         calls: [
-          {name: 'isViewerFriend', value: true}
+          {name: 'isViewerFriend', value: true},
         ],
         children: [{
           kind: 'Field',
@@ -318,19 +318,19 @@ describe('RelayQuerySerializer', () => {
               ...idField('User'),
               metadata: {
                 requisite: true,
-                parentType: 'User'
-              }
+                parentType: 'User',
+              },
             }],
             metadata: {
               pk: 'id',
               requisite: true,
               rootCall: 'node',
               parentType: 'FriendsEdge'
-            }
+            },
           }],
-          metadata: {plural: true, parentType: 'FriendsConnection'}
+          metadata: {plural: true, parentType: 'FriendsConnection'},
         }],
-        metadata: {connection: true, parentType: 'User'}
+        metadata: {connection: true, parentType: 'User'},
       });
       expect(fromJSON(toJSON(field)).equals(field)).toBe(true);
     });

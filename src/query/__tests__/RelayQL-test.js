@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
- /* eslint no-unused-expressions: 1 */
-
 'use strict';
 
 var RelayTestUtils = require('RelayTestUtils');

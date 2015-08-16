@@ -43,7 +43,7 @@ function splitDeferredRelayQueries(node: RelayQuery.Root): SplitQueries {
     __path__: [],
     __refQuery__: null,
     deferred: [],
-    required: null
+    required: null,
   };
   splitter.visit(node, splitQueries);
 
@@ -223,7 +223,7 @@ function createRefQuery(
     [node],
     {
       isDeferred: true,
-      rootArg: RelayNodeInterface.ID
+      rootArg: RelayNodeInterface.ID,
     },
     context.getName()
   );
@@ -284,7 +284,7 @@ class GraphQLSplitDeferredQueries extends RelayQueryTransform<SplitQueries> {
         __path__: path,
         __refQuery__: null,
         deferred: [],
-        required: null
+        required: null,
       };
       var result = this.traverse(node, deferred);
       if (result) {

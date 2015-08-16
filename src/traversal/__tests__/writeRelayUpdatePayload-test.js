@@ -103,12 +103,12 @@ describe('writePayload()', () => {
               {
                 cursor: commentID + ':cursor',
                 node: {
-                  id: commentID
-                }
-              }
-            ]
-          }
-        }
+                  id: commentID,
+                },
+              },
+            ],
+          },
+        },
       };
       writePayload(store, query, payload);
       connectionID = store.getLinkedRecordID(
@@ -122,7 +122,7 @@ describe('writePayload()', () => {
       // create the mutation and payload
       var input = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        deletedCommentId: commentID
+        deletedCommentId: commentID,
       };
       var mutation = getNode(Relay.QL`
         mutation {
@@ -136,12 +136,12 @@ describe('writePayload()', () => {
           }
         }
       `, {
-        input: JSON.stringify(input)
+        input: JSON.stringify(input),
       });
       var configs = [{
         type: RelayMutationType.RANGE_DELETE,
         deletedIDFieldName: 'deletedCommentId',
-        pathToConnection: ['feedback', 'topLevelComments']
+        pathToConnection: ['feedback', 'topLevelComments'],
       }];
 
       var payload = {
@@ -151,9 +151,9 @@ describe('writePayload()', () => {
         feedback: {
           id: 'feedback_id',
           topLevelComments: {
-            count: 0
-          }
-        }
+            count: 0,
+          },
+        },
       };
 
       // write to the queued store
@@ -176,9 +176,9 @@ describe('writePayload()', () => {
         created: {},
         updated: {
           [connectionID]: true, // range edge deleted & count changed
-          [edgeID]: true // edge deleted
+          [edgeID]: true, // edge deleted
           // `commentID` is not modified
-        }
+        },
       });
 
       expect(queueStore.getField(connectionID, 'count')).toBe(0);
@@ -197,7 +197,7 @@ describe('writePayload()', () => {
         connectionID,
         [{name: 'first', value: '1'}]
       ).requestedEdges.map(edge => edge.edgeID)).toEqual([
-        edgeID
+        edgeID,
       ]);
     });
 
@@ -205,7 +205,7 @@ describe('writePayload()', () => {
       // create the mutation and payload
       var input = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        deletedCommentId: commentID
+        deletedCommentId: commentID,
       };
       var mutation = getNode(Relay.QL`
         mutation {
@@ -219,12 +219,12 @@ describe('writePayload()', () => {
           }
         }
       `, {
-        input: JSON.stringify(input)
+        input: JSON.stringify(input),
       });
       var configs = [{
         type: RelayMutationType.RANGE_DELETE,
         deletedIDFieldName: 'deletedCommentId',
-        pathToConnection: ['feedback', 'topLevelComments']
+        pathToConnection: ['feedback', 'topLevelComments'],
       }];
 
       var payload = {
@@ -234,9 +234,9 @@ describe('writePayload()', () => {
         feedback: {
           id: 'feedback_id',
           topLevelComments: {
-            count: 0
-          }
-        }
+            count: 0,
+          },
+        },
       };
 
       // write to the queued store
@@ -259,9 +259,9 @@ describe('writePayload()', () => {
         created: {},
         updated: {
           [connectionID]: true, // range edge deleted & count changed
-          [edgeID]: true // edge deleted
+          [edgeID]: true, // edge deleted
           // `commentID` is not modified
-        }
+        },
       });
 
       expect(store.getField(connectionID, 'count')).toBe(0);
@@ -325,18 +325,18 @@ describe('writePayload()', () => {
               {
                 cursor: firstCommentID + ':cursor',
                 node: {
-                  id: firstCommentID
-                }
+                  id: firstCommentID,
+                },
               },
               {
                 cursor: secondCommentID + ':cursor',
                 node: {
-                  id: secondCommentID
-                }
-              }
-            ]
-          }
-        }
+                  id: secondCommentID,
+                },
+              },
+            ],
+          },
+        },
       };
 
       writePayload(store, query, payload);
@@ -350,7 +350,7 @@ describe('writePayload()', () => {
       var input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        deletedCommentId: firstCommentID
+        deletedCommentId: firstCommentID,
       };
       var mutation = getNode(Relay.QL`
         mutation {
@@ -365,11 +365,11 @@ describe('writePayload()', () => {
           }
         }
       `, {
-        input: JSON.stringify(input)
+        input: JSON.stringify(input),
       });
       var configs = [{
         type: RelayMutationType.NODE_DELETE,
-        deletedIDFieldName: 'deletedCommentId'
+        deletedIDFieldName: 'deletedCommentId',
       }];
 
       var payload = {
@@ -379,9 +379,9 @@ describe('writePayload()', () => {
         feedback: {
           id: feedbackID,
           topLevelComments: {
-            count: 0
-          }
-        }
+            count: 0,
+          },
+        },
       };
 
       // write to the queued store
@@ -405,8 +405,8 @@ describe('writePayload()', () => {
         updated: {
           [connectionID]: true, // range item deleted & count changed
           [firstEdgeID]: true, // edge deleted
-          [firstCommentID]: true // node deleted
-        }
+          [firstCommentID]: true, // node deleted
+        },
       });
 
       // node is deleted
@@ -420,7 +420,7 @@ describe('writePayload()', () => {
         connectionID,
         [{name: 'first', value: '2'}]
       ).requestedEdges.map(edge => edge.edgeID)).toEqual([
-        secondEdgeID
+        secondEdgeID,
       ]);
       // connection metadata is merged into the queued store
       expect(queueStore.getField(connectionID, 'count')).toBe(0);
@@ -437,7 +437,7 @@ describe('writePayload()', () => {
         [{name: 'first', value: '2'}]
       ).requestedEdges.map(edge => edge.edgeID)).toEqual([
         firstEdgeID,
-        secondEdgeID
+        secondEdgeID,
       ]);
     });
 
@@ -446,7 +446,7 @@ describe('writePayload()', () => {
       var input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        deletedCommentId: firstCommentID
+        deletedCommentId: firstCommentID,
       };
       var mutation = getNode(Relay.QL`
         mutation {
@@ -461,11 +461,11 @@ describe('writePayload()', () => {
           }
         }
       `, {
-        input: JSON.stringify(input)
+        input: JSON.stringify(input),
       });
       var configs = [{
         type: RelayMutationType.NODE_DELETE,
-        deletedIDFieldName: 'deletedCommentId'
+        deletedIDFieldName: 'deletedCommentId',
       }];
 
       var payload = {
@@ -475,9 +475,9 @@ describe('writePayload()', () => {
         feedback: {
           id: feedbackID,
           topLevelComments: {
-            count: 0
-          }
-        }
+            count: 0,
+          },
+        },
       };
 
       // write to the base store
@@ -501,8 +501,8 @@ describe('writePayload()', () => {
         updated: {
           [connectionID]: true, // range item deleted & count changed
           [firstEdgeID]: true, // edge deleted
-          [firstCommentID]: true // node deleted
-        }
+          [firstCommentID]: true, // node deleted
+        },
       });
 
       // node is deleted
@@ -516,7 +516,7 @@ describe('writePayload()', () => {
         connectionID,
         [{name: 'first', value: '1'}]
       ).requestedEdges.map(edge => edge.edgeID)).toEqual([
-        secondEdgeID
+        secondEdgeID,
       ]);
       // connection metadata is merged into the queued store
       expect(store.getField(connectionID, 'count')).toBe(0);
@@ -556,14 +556,14 @@ describe('writePayload()', () => {
       `);
       var payload = {
         request1: {
-          id: firstRequestID
+          id: firstRequestID,
         },
         request2: {
-          id: secondRequestID
+          id: secondRequestID,
         },
         request3: {
-          id: secondRequestID
-        }
+          id: secondRequestID,
+        },
       };
 
       writePayload(store, query, payload);
@@ -574,7 +574,7 @@ describe('writePayload()', () => {
       var input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        deletedRequestIds: [firstRequestID, secondRequestID]
+        deletedRequestIds: [firstRequestID, secondRequestID],
       };
       var mutation = getNode(Relay.QL`
         mutation {
@@ -583,17 +583,17 @@ describe('writePayload()', () => {
           }
         }
       `, {
-        input: JSON.stringify(input)
+        input: JSON.stringify(input),
       });
       var configs = [{
         type: RelayMutationType.NODE_DELETE,
-        deletedIDFieldName: 'deletedRequestIds'
+        deletedIDFieldName: 'deletedRequestIds',
       }];
 
       var payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
-        deletedRequestIds: [firstRequestID, secondRequestID]
+        deletedRequestIds: [firstRequestID, secondRequestID],
       };
 
       // write to the queued store
@@ -616,8 +616,8 @@ describe('writePayload()', () => {
         created: {},
         updated: {
           [firstRequestID]: true, // node deleted
-          [secondRequestID]: true // node deleted
-        }
+          [secondRequestID]: true, // node deleted
+        },
       });
 
       // node is deleted
@@ -638,7 +638,7 @@ describe('writePayload()', () => {
       var input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        deletedRequestIds: [firstRequestID, secondRequestID]
+        deletedRequestIds: [firstRequestID, secondRequestID],
       };
       var mutation = getNode(Relay.QL`
         mutation {
@@ -647,11 +647,11 @@ describe('writePayload()', () => {
           }
         }
       `, {
-        input: JSON.stringify(input)
+        input: JSON.stringify(input),
       });
       var configs = [{
         type: RelayMutationType.NODE_DELETE,
-        deletedIDFieldName: 'deletedRequestIds'
+        deletedIDFieldName: 'deletedRequestIds',
       }];
 
       var payload = {
@@ -680,8 +680,8 @@ describe('writePayload()', () => {
         created: {},
         updated: {
           [firstRequestID]: true, // node deleted
-          [secondRequestID]: true
-        }
+          [secondRequestID]: true,
+        },
       });
 
       // node is deleted
@@ -740,12 +740,12 @@ describe('writePayload()', () => {
               {
                 cursor: commentID + ':cursor',
                 node: {
-                  id: commentID
-                }
-              }
-            ]
-          }
-        }
+                  id: commentID,
+                },
+              },
+            ],
+          },
+        },
       };
 
       writePayload(store, query, payload);
@@ -757,7 +757,7 @@ describe('writePayload()', () => {
       var input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        feedback_id: feedbackID
+        feedback_id: feedbackID,
       };
       var mutation = getNode(Relay.QL`
         mutation {
@@ -776,7 +776,7 @@ describe('writePayload()', () => {
         type: RelayMutationType.RANGE_ADD,
         connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
-        rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND}
+        rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
       }];
       var payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
@@ -784,9 +784,9 @@ describe('writePayload()', () => {
         feedback: {
           id: feedbackID,
           topLevelComments: {
-            count: 2
-          }
-        }
+            count: 2,
+          },
+        },
       };
 
       // write to queued store
@@ -809,7 +809,7 @@ describe('writePayload()', () => {
         'writeRelayUpdatePayload(): Expected response payload to include the ' +
         'newly created edge `%s` and its `node` field. Did you forget to ' +
         'update the `RANGE_ADD` mutation config?',
-        'feedbackCommentEdge'
+        'feedbackCommentEdge',
       ]).toBeWarnedNTimes(1);
 
       // feedback is updated, but the edge is not added
@@ -828,7 +828,7 @@ describe('writePayload()', () => {
         feedback_id: feedbackID,
         message: {
           text: 'Hello!',
-          ranges: []
+          ranges: [],
         }
       };
 
@@ -856,13 +856,13 @@ describe('writePayload()', () => {
           }
         }
       `, {
-        input: JSON.stringify(input)
+        input: JSON.stringify(input),
       });
       var configs = [{
         type: RelayMutationType.RANGE_ADD,
         connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
-        rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND}
+        rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
       }];
 
       var nextCursor = 'comment789:cursor';
@@ -875,21 +875,21 @@ describe('writePayload()', () => {
         feedback: {
           id: feedbackID,
           topLevelComments: {
-            count: 2
-          }
+            count: 2,
+          },
         },
         feedbackCommentEdge: {
           cursor: nextCursor,
           node: {
             id: nextNodeID,
             body: {
-              text: input.message.text
-            }
+              text: input.message.text,
+            },
           },
           source: {
-            id: feedbackID
-          }
-        }
+            id: feedbackID,
+          },
+        },
       };
 
       // write to queued store
@@ -912,11 +912,11 @@ describe('writePayload()', () => {
         created: {
           [nextNodeID]: true, // node added
           [nextEdgeID]: true, // edge added
-          [bodyID]: true // `body` subfield
+          [bodyID]: true, // `body` subfield
         },
         updated: {
-          [connectionID]: true // range item added & count changed
-        }
+          [connectionID]: true, // range item added & count changed
+        },
       });
 
       // queued records are updated: edge/node added
@@ -958,7 +958,7 @@ describe('writePayload()', () => {
         feedback_id: feedbackID,
         message: {
           text: 'Hello!',
-          ranges: []
+          ranges: [],
         }
       };
 
@@ -986,13 +986,13 @@ describe('writePayload()', () => {
           }
         }
       `, {
-        input: JSON.stringify(input)
+        input: JSON.stringify(input),
       });
       var configs = [{
         type: RelayMutationType.RANGE_ADD,
         connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
-        rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND}
+        rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
       }];
 
       var nextCursor = 'comment789:cursor';
@@ -1005,21 +1005,21 @@ describe('writePayload()', () => {
         feedback: {
           id: feedbackID,
           topLevelComments: {
-            count: 2
-          }
+            count: 2,
+          },
         },
         feedbackCommentEdge: {
           cursor: nextCursor,
           node: {
             id: nextNodeID,
             body: {
-              text: input.message.text
-            }
+              text: input.message.text,
+            },
           },
           source: {
-            id: feedbackID
-          }
-        }
+            id: feedbackID,
+          },
+        },
       };
 
       // write to base store
@@ -1042,11 +1042,11 @@ describe('writePayload()', () => {
         created: {
           [nextNodeID]: true, // node added
           [nextEdgeID]: true, // edge added
-          [bodyID]: true // `body` subfield
+          [bodyID]: true, // `body` subfield
         },
         updated: {
-          [connectionID]: true // range item added & count changed
-        }
+          [connectionID]: true, // range item added & count changed
+        },
       });
 
       // base records are updated: edge/node added

@@ -44,7 +44,7 @@ describe('buildRQL', () => {
     });
     MockComponent = React.createClass({render});
     MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {}
+      fragments: {},
     });
     MockContainer.getQuery = jest.genMockFunction().mockReturnValue(
       Relay.QL`fragment on Node { name }`
@@ -93,7 +93,7 @@ describe('buildRQL', () => {
       // Confirm that `${variables.sizeVariable}` is a variable by applying
       // variable values using `RelayQuery`:
       var fragment = getNode(node, {
-        sizeVariable: '32'
+        sizeVariable: '32',
       });
       expect(fragment instanceof RelayQuery.Fragment).toBe(true);
       var children = fragment.getChildren();
@@ -101,7 +101,7 @@ describe('buildRQL', () => {
       expect(children[1].getSchemaName()).toBe('profilePicture');
       // Variable has the applied value, not initial value.
       expect(children[1].getCallsWithValues()).toEqual([
-        {name: 'size', value: '32'}
+        {name: 'size', value: '32'},
       ]);
     });
 
@@ -149,7 +149,7 @@ describe('buildRQL', () => {
       expect(query instanceof RelayQuery.Root).toBe(true);
       expect(query.getRootCall()).toEqual({
         name: 'node',
-        value: '123'
+        value: '123',
       });
       expect(query.getChildren()[1].equals(
         getNode(MockContainer.getQuery(), variables)
@@ -171,7 +171,7 @@ describe('buildRQL', () => {
 
     it('returns different queries for different components', () => {
       var MockContainer2 = Relay.createContainer(MockComponent, {
-        fragments: {}
+        fragments: {},
       });
       MockContainer2.getQuery = jest.genMockFunction().mockReturnValue(
         Relay.QL`fragment on Node { name }`

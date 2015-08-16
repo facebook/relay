@@ -15,9 +15,9 @@ var RelayMockCacheManager = {
       cacheNode: jest.genMockFunction(),
       cacheField: jest.genMockFunction(),
       cacheRootCall: jest.genMockFunction(),
-      readAllData: jest.genMockFunction()
+      readAllData: jest.genMockFunction(),
     };
-  }
+  },
 };
 
 module.exports = RelayMockCacheManager;

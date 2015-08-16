@@ -180,7 +180,7 @@ describe('RelayMutationQuery', () => {
             },
             seenState
           }
-        `)
+        `),
       };
       tracker.getTrackedChildrenForID.mockImplementation(
         dataID => [trackedNodes[dataID]]
@@ -234,7 +234,7 @@ describe('RelayMutationQuery', () => {
           tracker,
           connectionName: 'comments',
           parentID: '123',
-          parentName: 'story'
+          parentName: 'story',
         });
       }).toFailInvariant(
         'RelayMutationQuery: Invalid field name on fat query, `story`.'
@@ -262,7 +262,7 @@ describe('RelayMutationQuery', () => {
         tracker,
         connectionName: 'comments',
         parentID: '123',
-        parentName: 'feedback'
+        parentName: 'feedback',
       });
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentDeleteResponsePayload {
@@ -282,6 +282,7 @@ describe('RelayMutationQuery', () => {
   });
 
   describe('edge insertion', () => {
+    var GraphQLMutatorConstants;
     var fatQuery, rangeBehaviors;
 
     beforeEach(() => {
@@ -303,7 +304,7 @@ describe('RelayMutationQuery', () => {
       `);
       rangeBehaviors = {
         '': GraphQLMutatorConstants.PREPEND,
-        'orderby(toplevel)': GraphQLMutatorConstants.PREPEND
+        'orderby(toplevel)': GraphQLMutatorConstants.PREPEND,
       };
     });
 
@@ -601,11 +602,11 @@ describe('RelayMutationQuery', () => {
             id: '1',
             likers: {
               count: 4
-            }
-          }
+            },
+          },
         },
         fatQuery,
-        mutation
+        mutation,
       });
 
       var variables = {input: ''};
@@ -662,7 +663,7 @@ describe('RelayMutationQuery', () => {
       var connectionName = 'comments';
       var edgeName = 'feedbackCommentEdge';
       var rangeBehaviors = {
-        '': GraphQLMutatorConstants.PREPEND
+        '': GraphQLMutatorConstants.PREPEND,
       };
       var configs = [
         {
@@ -671,8 +672,8 @@ describe('RelayMutationQuery', () => {
           parentID,
           connectionName,
           edgeName,
-          rangeBehaviors
-        }
+          rangeBehaviors,
+        },
       ];
 
       var mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
@@ -683,7 +684,7 @@ describe('RelayMutationQuery', () => {
         fatQuery,
         configs,
         mutationName,
-        mutation
+        mutation,
       });
 
       var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
@@ -745,8 +746,8 @@ describe('RelayMutationQuery', () => {
           parentName,
           parentID,
           connectionName,
-          deletedIDFieldName
-        }
+          deletedIDFieldName,
+        },
       ];
 
       var mutation = Relay.QL`mutation{commentDelete(input:$input)}`;
@@ -757,7 +758,7 @@ describe('RelayMutationQuery', () => {
         fatQuery,
         configs,
         mutationName,
-        mutation
+        mutation,
       });
 
       var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
@@ -808,8 +809,8 @@ describe('RelayMutationQuery', () => {
           parentName,
           parentID,
           connectionName,
-          deletedIDFieldName
-        }
+          deletedIDFieldName,
+        },
       ];
 
       var mutation = Relay.QL`mutation{commentDelete(input:$input)}`;
@@ -820,7 +821,7 @@ describe('RelayMutationQuery', () => {
         fatQuery,
         configs,
         mutationName,
-        mutation
+        mutation,
       });
 
       var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
@@ -855,13 +856,13 @@ describe('RelayMutationQuery', () => {
         }
       `);
       var fieldIDs = {
-        feedback: '123'
+        feedback: '123',
       };
       var configs = [
         {
           type: RelayMutationType.FIELDS_CHANGE,
-          fieldIDs
-        }
+          fieldIDs,
+        },
       ];
 
       var mutation = Relay.QL`mutation{feedbackLike(input:$input)}`;
@@ -872,7 +873,7 @@ describe('RelayMutationQuery', () => {
         fatQuery,
         configs,
         mutationName,
-        mutation
+        mutation,
       });
 
       var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
@@ -923,7 +924,7 @@ describe('RelayMutationQuery', () => {
       var connectionName = 'comments';
       var edgeName = 'feedbackCommentEdge';
       var rangeBehaviors = {
-        '': GraphQLMutatorConstants.PREPEND
+        '': GraphQLMutatorConstants.PREPEND,
       };
       var configs = [
         {
@@ -932,7 +933,7 @@ describe('RelayMutationQuery', () => {
           parentID,
           connectionName,
           edgeName,
-          rangeBehaviors
+          rangeBehaviors,
         },
         {
           type: RelayMutationType.REQUIRED_CHILDREN,
@@ -942,7 +943,7 @@ describe('RelayMutationQuery', () => {
                 doesViewerLike,
               },
             }
-          `]
+          `],
         }
       ];
 
@@ -954,7 +955,7 @@ describe('RelayMutationQuery', () => {
         fatQuery,
         configs,
         mutationName,
-        mutation
+        mutation,
       });
 
       var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
@@ -1022,10 +1023,10 @@ describe('RelayMutationQuery', () => {
       var connectionName = 'comments';
       var edgeName = 'feedbackCommentEdge';
       var rangeBehaviors = {
-        '': GraphQLMutatorConstants.PREPEND
+        '': GraphQLMutatorConstants.PREPEND,
       };
       var fieldIDs = {
-        feedback: '123'
+        feedback: '123',
       };
       var configs = [
         {
@@ -1038,8 +1039,8 @@ describe('RelayMutationQuery', () => {
         },
         {
           type: RelayMutationType.FIELDS_CHANGE,
-          fieldIDs
-        }
+          fieldIDs,
+        },
       ];
 
       var mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
@@ -1050,7 +1051,7 @@ describe('RelayMutationQuery', () => {
         fatQuery,
         configs,
         mutationName,
-        mutation
+        mutation,
       });
 
       var expectedMutationQuery = getNodeWithoutSource(Relay.QL`

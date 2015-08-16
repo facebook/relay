@@ -11,8 +11,6 @@
  * @flow
  */
 
- /* eslint no-unused-expressions: 1 */
-
 'use strict';
 
 var DliteFetchModeConstants = require('DliteFetchModeConstants');
@@ -121,7 +119,7 @@ var GraphQLQueryRunner = {
 
     var fetchMode = DliteFetchModeConstants.FETCH_MODE_REFETCH;
     return runQueries(queries, callback, fetchMode, profiler);
-  }
+  },
 
 };
 
@@ -179,7 +177,7 @@ function runQueries(
     done: false,
     error: null,
     ready: false,
-    stale: false
+    stale: false,
   };
   var scheduled = false;
   function setReadyState(partial: PartialReadyState): void {
@@ -198,7 +196,7 @@ function runQueries(
       done: partial.done != null ? partial.done : readyState.done,
       error: partial.error != null ? partial.error : readyState.error,
       ready: partial.ready != null ? partial.ready : readyState.ready,
-      stale: partial.stale != null ? partial.stale : readyState.stale
+      stale: partial.stale != null ? partial.stale : readyState.stale,
     };
     if (scheduled) {
       return;

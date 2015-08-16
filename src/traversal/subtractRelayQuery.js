@@ -40,7 +40,7 @@ function subtractRelayQuery(
   var visitor = new RelayQuerySubtractor();
   var state = {
     isEmpty: true,
-    subtrahend
+    subtrahend,
   };
   var diff = visitor.visit(minuend, state);
   if (!state.isEmpty) {
@@ -124,7 +124,7 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
     for (var ii = 0; ii < subtrahendRanges.length; ii++) {
       fieldState = {
         isEmpty: true,
-        subtrahend: subtrahendRanges[ii]
+        subtrahend: subtrahendRanges[ii],
       };
       diff = this._subtractChildren(diff, fieldState);
       state.isEmpty = fieldState.isEmpty;
@@ -151,7 +151,7 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
 
     var fieldState = {
       isEmpty: true,
-      subtrahend: subField
+      subtrahend: subField,
     };
     var diff = this._subtractChildren(node, fieldState);
     state.isEmpty = fieldState.isEmpty;

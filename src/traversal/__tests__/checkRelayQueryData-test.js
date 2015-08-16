@@ -89,7 +89,7 @@ describe('checkRelayQueryData', () => {
     var records = {
       1055790163: {
         id: '1055790163',
-        __dataID__: '1055790163'
+        __dataID__: '1055790163',
       }
     };
 
@@ -109,7 +109,7 @@ describe('checkRelayQueryData', () => {
     var records = {
       1055790163: {
         id: '1055790163',
-        __dataID__: '1055790163'
+        __dataID__: '1055790163',
       }
     };
 
@@ -129,7 +129,7 @@ describe('checkRelayQueryData', () => {
     var records = {
       1055790163: {
         id: '1055790163',
-        __dataID__: '1055790163'
+        __dataID__: '1055790163',
       }
     };
 
@@ -151,7 +151,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         firstName: 'Yuzhi',
-        __dataID__: '1055790163'
+        __dataID__: '1055790163',
       }
     };
 
@@ -174,7 +174,7 @@ describe('checkRelayQueryData', () => {
     var records = {
       1055790163: {
         id: '1055790163',
-        __dataID__: '1055790163'
+        __dataID__: '1055790163',
       }
     };
 
@@ -198,12 +198,12 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        friends: { __dataID__: 'friends_id'}
+        friends: { __dataID__: 'friends_id'},
       },
       friends_id: {
         __dataID__:'friends_id',
-        count: 500
-      }
+        count: 500,
+      },
     };
 
     var result = hasData(getNode(
@@ -226,7 +226,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        friends: { __dataID__: 'friends_id'}
+        friends: { __dataID__: 'friends_id'},
       }
     };
 
@@ -250,10 +250,10 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        friends: { __dataID__: 'friends_id'}
+        friends: { __dataID__: 'friends_id'},
       },
       friends_id: {
-        __dataID__: 'friends_id'
+        __dataID__: 'friends_id',
       }
     };
 
@@ -277,7 +277,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        screennames: [{__dataID__: 'client:screenname1'}]
+        screennames: [{__dataID__: 'client:screenname1'}],
       },
       'client:screenname1': {
         __dataID__: 'client:screenname1',
@@ -305,7 +305,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        screennames: [{__dataID__: 'client:screenname1'}]
+        screennames: [{__dataID__: 'client:screenname1'}],
       }
     };
 
@@ -329,10 +329,10 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        screennames: [{__dataID__: 'client:screenname1'}]
+        screennames: [{__dataID__: 'client:screenname1'}],
       },
       'client:screenname1': {
-        __dataID__: 'client:screenname1'
+        __dataID__: 'client:screenname1',
       }
     };
 
@@ -356,7 +356,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        friends: { __dataID__: 'friends_id'}
+        friends: { __dataID__: 'friends_id'},
       },
       friends_id: {
         __dataID__:'friends_id',
@@ -366,7 +366,7 @@ describe('checkRelayQueryData', () => {
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: [],
       diffCalls: [],
-      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false }
+      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
     var result = hasData(getNode(
@@ -390,7 +390,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        friends: { __dataID__: 'friends_id'}
+        friends: { __dataID__: 'friends_id'},
       },
       friends_id: {
         __dataID__:'friends_id',
@@ -400,7 +400,7 @@ describe('checkRelayQueryData', () => {
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: [],
       diffCalls: [new GraphQL.Callv('first', 10)],
-      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false }
+      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
     var result = hasData(getNode(
@@ -423,7 +423,7 @@ describe('checkRelayQueryData', () => {
     var records = {
       viewer_id: {
         '__configs__.named(some_gk)': {__dataID__:'configs_id'},
-        __dataID__: 'viewer_id'
+        __dataID__: 'viewer_id',
       },
       configs_id: {
         __dataID__: 'configs_id',
@@ -431,12 +431,12 @@ describe('checkRelayQueryData', () => {
       },
       edge_id: {
         __dataID__: 'edge_id',
-        node: {__dataID__:'node_id'}
+        node: {__dataID__:'node_id'},
       },
       node_id: {
         __dataID__: 'node_id',
-        name: 'some_gk'
-      }
+        name: 'some_gk',
+      },
     };
 
     var result = hasData(getNode(
@@ -465,7 +465,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        friends: { __dataID__: 'friends_id'}
+        friends: { __dataID__: 'friends_id'},
       },
       friends_id: {
         __dataID__:'friends_id',
@@ -473,17 +473,17 @@ describe('checkRelayQueryData', () => {
       },
       edge_id: {
         __dataID__: 'edge_id',
-        node: {__dataID__:'node_id'}
+        node: {__dataID__:'node_id'},
       },
       node_id: {
         __dataID__: 'node_id',
-        id: 'node_id'
+        id: 'node_id',
       }
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['edge_id'],
       diffCalls: [],
-      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false }
+      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
     var result = hasData(getNode(
@@ -507,7 +507,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        friends: { __dataID__: 'friends_id'}
+        friends: { __dataID__: 'friends_id'},
       },
       friends_id: {
         __dataID__:'friends_id',
@@ -519,13 +519,13 @@ describe('checkRelayQueryData', () => {
         cursor: 'cursor'
       },
       node_id: {
-        __dataID__: 'node_id'
+        __dataID__: 'node_id',
       }
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['edge_id'],
       diffCalls: [],
-      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false }
+      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
     var result = hasData(getNode(
@@ -549,7 +549,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        username: 'yuzhi'
+        username: 'yuzhi',
       }
     };
 

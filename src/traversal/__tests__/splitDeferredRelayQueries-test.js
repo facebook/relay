@@ -969,9 +969,9 @@ describe('splitDeferredRelayQueries()', () => {
           {
             generated: true,
             pk: 'id',
-            rootCall: 'node'
+            rootCall: 'node',
           }
-        )
+        ),
       ]
     );
     queryNode = queryNode.clone(

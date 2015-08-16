@@ -99,7 +99,7 @@ var RelayNodeInterface = {
     }
 
     return results;
-  }
+  },
 };
 
 /**

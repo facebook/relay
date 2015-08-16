@@ -48,7 +48,7 @@ function checkRelayQueryData(
   var state = {
     dataID: undefined,
     rangeInfo: undefined,
-    result: true
+    result: true,
   };
 
   checker.visit(query, state);
@@ -93,7 +93,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
         nextState = {
           dataID,
           rangeInfo: undefined,
-          result: true
+          result: true,
         };
         this.traverse(root, nextState);
         state.result = state.result && nextState.result;
@@ -152,7 +152,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
         var nextState = {
           dataID: dataIDs[ii],
           rangeInfo: undefined,
-          result: true
+          result: true,
         };
         this.traverse(field, nextState);
         state.result = nextState.result;
@@ -171,7 +171,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     var nextState = {
       dataID,
       rangeInfo: null, // Flow rejects `undefined` here
-      result: true
+      result: true,
     };
     var metadata = this._store.getRangeMetadata(dataID, calls);
     if (metadata) {
@@ -199,7 +199,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
       var nextState = {
         dataID: edges[ii].edgeID,
         rangeInfo: undefined,
-        result: true
+        result: true,
       };
       this.traverse(field, nextState);
       state.result = nextState.result;
@@ -225,7 +225,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
       var nextState = {
         dataID,
         rangeInfo: undefined,
-        result: true
+        result: true,
       };
       this.traverse(field, nextState);
       state.result = state.result && nextState.result;

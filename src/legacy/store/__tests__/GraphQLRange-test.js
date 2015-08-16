@@ -128,7 +128,7 @@ describe('GraphQLRange', () => {
   it('should add for after().first() query', () => {
     var queryCalls = [
       {name: 'after', value: null},
-      {name: 'first', value: 3}
+      {name: 'first', value: 3},
     ];
     var pageInfo = {
       [HAS_NEXT_PAGE]: true,
@@ -149,7 +149,7 @@ describe('GraphQLRange', () => {
 
     queryCalls = [
       {name: 'after', value: 'cursor3'},
-      {name: 'first', value: 2}
+      {name: 'first', value: 2},
     ];
     range.addItems(
       queryCalls,
@@ -160,7 +160,7 @@ describe('GraphQLRange', () => {
     // Request the full set
     queryCalls = [
       {name: 'after', value: null},
-      {name: 'first', value: 5}
+      {name: 'first', value: 5},
     ];
     var result = range.retrieveRangeInfoForQuery(queryCalls);
 
@@ -177,7 +177,7 @@ describe('GraphQLRange', () => {
 
   it('should add for after().first() query in last segment', () => {
     var queryCalls = [
-      {name: 'last', value: 3}
+      {name: 'last', value: 3},
     ];
     var pageInfo = {
       [HAS_NEXT_PAGE]: false,
@@ -204,7 +204,7 @@ describe('GraphQLRange', () => {
 
     // Request the full set
     queryCalls = [
-      {name: 'last', value: 5}
+      {name: 'last', value: 5},
     ];
     var result = range.retrieveRangeInfoForQuery(queryCalls);
 
@@ -467,7 +467,7 @@ describe('GraphQLRange', () => {
   it('should add for after().last() with gap', () => {
     var queryCalls = [
       {name: 'after', value: null},
-      {name: 'last', value: 3}
+      {name: 'last', value: 3},
     ];
 
     var pageInfo = {
@@ -490,7 +490,7 @@ describe('GraphQLRange', () => {
     // Request the super set
     queryCalls = [
       {name: 'after', value: null},
-      {name: 'last', value: 5}
+      {name: 'last', value: 5},
     ];
     var result = range.retrieveRangeInfoForQuery(queryCalls);
 
@@ -585,7 +585,7 @@ describe('GraphQLRange', () => {
   it('should retrieve for after().first() queries', () => {
     var queryCalls = [
       {name: 'after', value: null},
-      {name: 'first', value: 3}
+      {name: 'first', value: 3},
     ];
 
     var pageInfo = {
@@ -602,7 +602,7 @@ describe('GraphQLRange', () => {
     // Request a subset with after
     queryCalls = [
       {name: 'after', value: 'cursor1'},
-      {name: 'first', value: 2}
+      {name: 'first', value: 2},
     ];
     var result = range.retrieveRangeInfoForQuery(queryCalls);
 
@@ -633,7 +633,7 @@ describe('GraphQLRange', () => {
     // Request a non-intersecting superset with after
     queryCalls = [
       {name: 'after', value: 'cursor3'},
-      {name: 'first', value: 2}
+      {name: 'first', value: 2},
     ];
     result = range.retrieveRangeInfoForQuery(queryCalls);
 
@@ -648,7 +648,7 @@ describe('GraphQLRange', () => {
 
   it('should retrieve for last() queries', () => {
     var queryCalls = [
-      {name: 'last', value: 3}
+      {name: 'last', value: 3},
     ];
 
     // Request the from empty range
@@ -859,7 +859,7 @@ describe('GraphQLRange', () => {
   it('should support calls with no arguments', () => {
     var queryCalls = [
       {name: 'first', value: 3},
-      {name: 'dummy_call', value: null}
+      {name: 'dummy_call', value: null},
     ];
 
     var pageInfo = {
@@ -872,7 +872,7 @@ describe('GraphQLRange', () => {
     // Request the full set
     var result = range.retrieveRangeInfoForQuery([
       {name: 'first', value: 3},
-      {name: 'dummy_call', value: null}
+      {name: 'dummy_call', value: null},
     ]);
 
     expect(result.requestedEdgeIDs).toEqual(
@@ -1115,7 +1115,7 @@ describe('GraphQLRange', () => {
 
   it('should add  and retrieve for surrounds() query', () => {
     var queryCalls = [
-      {name: 'surrounds', value: ['id2', 1]}
+      {name: 'surrounds', value: ['id2', 1]},
     ];
 
     var pageInfo = {
@@ -1134,7 +1134,7 @@ describe('GraphQLRange', () => {
 
   it('should not return surrounds query data for first query', () => {
     var surroundQueryCalls = [
-      {name: 'surrounds', value: ['id2', 1]}
+      {name: 'surrounds', value: ['id2', 1]},
     ];
 
     var pageInfo = {
@@ -1555,7 +1555,7 @@ describe('GraphQLRange', () => {
     var nullCursorEdges = [
       edgeWithNullCursor1,
       edgeWithNullCursor2,
-      edgeWithNullCursor3
+      edgeWithNullCursor3,
     ];
 
     range.addItems(queryCalls, nullCursorEdges, pageInfo);
@@ -1564,7 +1564,7 @@ describe('GraphQLRange', () => {
     expect(result.requestedEdgeIDs).toEqual([
       'edgeWithNullCursor1',
       'edgeWithNullCursor2',
-      'edgeWithNullCursor3'
+      'edgeWithNullCursor3',
     ]);
     expect(result.diffCalls).toEqual(five);
   });
@@ -1575,13 +1575,13 @@ describe('GraphQLRange', () => {
     ];
 
     var pageInfo = {
-      [HAS_NEXT_PAGE]: true
+      [HAS_NEXT_PAGE]: true,
     };
 
     var nullCursorEdges = [
       edgeWithNullCursor1,
       edgeWithNullCursor2,
-      edgeWithNullCursor3
+      edgeWithNullCursor3,
     ];
 
     // we don't replace empty ranges
@@ -1604,7 +1604,7 @@ describe('GraphQLRange', () => {
     var cursorEdges = [
       edge0,
       edge1,
-      edge2
+      edge2,
     ];
     range = new GraphQLRange();
     segment = getFirstSegment(range);
@@ -1620,13 +1620,13 @@ describe('GraphQLRange', () => {
     ];
 
     var pageInfo = {
-      [HAS_PREV_PAGE]: true
+      [HAS_PREV_PAGE]: true,
     };
 
     var nullCursorEdges = [
       edgeWithNullCursor1,
       edgeWithNullCursor2,
-      edgeWithNullCursor3
+      edgeWithNullCursor3,
     ];
 
     // we don't replace empty ranges
@@ -1649,7 +1649,7 @@ describe('GraphQLRange', () => {
     var cursorEdges = [
       edge0,
       edge1,
-      edge2
+      edge2,
     ];
     range = new GraphQLRange();
     segment = getLastSegment(range);
@@ -1671,14 +1671,14 @@ describe('GraphQLRange', () => {
     var nullCursorEdges = [
       edgeWithNullCursor1,
       edgeWithNullCursor2,
-      edgeWithNullCursor3
+      edgeWithNullCursor3,
     ];
 
     range.addItems(three, nullCursorEdges, pageInfo);
     var result = range.retrieveRangeInfoForQuery(two);
     expect(result.requestedEdgeIDs).toEqual([
       'edgeWithNullCursor1',
-      'edgeWithNullCursor2'
+      'edgeWithNullCursor2',
     ]);
     expect(result.pageInfo[HAS_NEXT_PAGE]).toBe(true);
     expect(result.pageInfo[HAS_PREV_PAGE]).toBe(false);
@@ -1687,7 +1687,7 @@ describe('GraphQLRange', () => {
     expect(result.requestedEdgeIDs).toEqual([
       'edgeWithNullCursor1',
       'edgeWithNullCursor2',
-      'edgeWithNullCursor3'
+      'edgeWithNullCursor3',
     ]);
     expect(result.pageInfo[HAS_NEXT_PAGE]).toBe(false);
     expect(result.pageInfo[HAS_PREV_PAGE]).toBe(false);
@@ -1930,7 +1930,7 @@ describe('GraphQLRange', () => {
   it('returns the DataIDs of all edges', () => {
     // Add a static edges
     var surroundQueryCalls = [
-      {name: 'surrounds', value: ['id2', 1]}
+      {name: 'surrounds', value: ['id2', 1]},
     ];
     var pageInfo = {
       [HAS_NEXT_PAGE]: false,
@@ -1950,7 +1950,7 @@ describe('GraphQLRange', () => {
       edge2.__dataID__,
       edge3.__dataID__,
       edge98.__dataID__,
-      edge99.__dataID__
+      edge99.__dataID__,
     ]);
   });
 });

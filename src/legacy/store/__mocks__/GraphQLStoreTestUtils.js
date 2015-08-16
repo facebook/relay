@@ -107,7 +107,7 @@ var GraphQLStoreTestUtils = {
       }
 
       return true;
-    }
+    },
   },
   /**
    * @param {GraphQLNode} node
@@ -154,7 +154,7 @@ var GraphQLStoreTestUtils = {
     jest
       .dontMock('GraphQL')
       .dontMock('GraphQLFragmentPointer');
-  }
+  },
 };
 
 module.exports = GraphQLStoreTestUtils;

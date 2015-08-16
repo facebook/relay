@@ -24,7 +24,7 @@ class RelayMetaRoute {
     Object.defineProperty(this, 'name', {
       enumerable: true,
       value: name,
-      writable: false
+      writable: false,
     });
   }
 

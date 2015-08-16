@@ -151,7 +151,7 @@ var RelayMutationTracker = {
     clientMutationID: ClientMutationID
   ): void {
     delete clientMutationIDToErrorNodeID[clientMutationID];
-  }
+  },
 };
 
 module.exports = RelayMutationTracker;

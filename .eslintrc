@@ -3,7 +3,6 @@ parser: babel-eslint
 
 plugins:
   - react
-  - react-internal
 
 env:
   browser: true
@@ -33,11 +32,9 @@ rules:
   strict: [2, global]
   # Make this a warning for now. We do this in a few places so we might need to
   # disable
-  no-unused-expressions: 2
   eol-last: 2
   dot-notation: 2
   dot-location: [2, property]
-  consistent-return: 2
   no-unused-vars: [2, args: none]
   quotes: [2, single, avoid-escape]
   no-multi-spaces: 2
@@ -93,7 +90,3 @@ rules:
   # We don't care to do this
   react/sort-comp: 0
   react/wrap-multilines: [2, {declaration: false, assignment: false}]
-
-  # CUSTOM RULES
-  # the second argument of warning/invariant should be a literal string
-  react-internal/warning-and-invariant-args: 2

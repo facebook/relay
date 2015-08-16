@@ -7,4 +7,3 @@ scripts/
 # for disable website but should be done as well
 website/
 *.md
-eslint-rules/

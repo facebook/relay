@@ -9,10 +9,13 @@ next: graphql-object-identification
 
 # Getting Started
 
-The three core assumptions that Relay makes on a GraphQL server are that
-it provides a mechanism for refetching an object, a description of how
-to page through connections, and a structure around mutations to make
-them predictable. This example demonstrates all three of these assumptions.
+The three core assumptions that Relay makes on a GraphQL server are that it provides:
+
+1. Mechanism for refetching an object
+2. Description of how to page through connections
+3. Structure around mutations to make them predictable.
+ 
+This example demonstrates all three of these assumptions.
 
 This example is not comprehensive, but it is designed to quickly introduce
 these core assumptions, to provide some context before diving into

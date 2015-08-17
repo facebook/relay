@@ -165,6 +165,10 @@ var GraphQLAddMessageMutation = mutationWithClientMutationId({
       type: GraphQLThread,
       resolve: ({threadID}) => getThread(threadID)
     },
+    viewer: {
+      type: GraphQLUser,
+      resolve: () => getViewer(),
+    },
   },
   mutateAndGetPayload: ({text, currentThreadID}) => {
     var {messageID, threadID} = addMessage(text, currentThreadID);

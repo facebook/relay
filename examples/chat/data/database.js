@@ -108,6 +108,7 @@ export function addMessage(text, currentThreadID) {
   message.authorName = 'me'; // hard coded for the exampl
   message.text = text;
   message.timestamp = timestamp;
+  threadsById[currentThreadID].isRead = true;
 
   messagesById[message.id] = message;
   messageIdsByThread[currentThreadID].push(message.id);

@@ -77,6 +77,14 @@ var GraphQLMessage = new GraphQLObjectType({
   interfaces: [nodeInterface]
 });
 
+var {
+  connectionType: MessageConnection,
+  edgeType: GraphQLMessageEdge,
+} = connectionDefinitions({
+  name: 'Message',
+  nodeType: GraphQLMessage,
+});
+
 var GraphQLThread = new GraphQLObjectType({
   name: 'Thread',
   fields: {
@@ -107,16 +115,8 @@ var { connectionType: ThreadConnection } = connectionDefinitions({
     unreadCount: {
       type: GraphQLInt,
       resolve: (conn) => conn.edges.filter(edge => !edge.node.isRead).length
-    },
+    }
   })
-});
-
-var {
-  connectionType: MessageConnection,
-  edgeType: GraphQLMessageEdge,
-} = connectionDefinitions({
-  name: 'Message',
-  nodeType: GraphQLMessage,
 });
 
 var GraphQLUser = new GraphQLObjectType({
@@ -163,7 +163,7 @@ var GraphQLAddMessageMutation = mutationWithClientMutationId({
     },
     thread: {
       type: GraphQLThread,
-      resolve: (threadID) => getThread(threadID)
+      resolve: ({threadID}) => getThread(threadID)
     },
   },
   mutateAndGetPayload: ({text, currentThreadID}) => {

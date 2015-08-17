@@ -56,7 +56,7 @@ function getCallValue(
     var variableName = arg.callVariableName;
     invariant(
       variables.hasOwnProperty(variableName),
-      'callsFromGraphQL(): Expected a declared value for variable, `<%s>`.',
+      'callsFromGraphQL(): Expected a declared value for variable, `$%s`.',
       variableName
     );
     return variables[variableName];

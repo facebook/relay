@@ -22,6 +22,6 @@
   },
   "dependencies": {
     "babel-core": "^5.8.3",
-    "graphql": "^0.2.6"
+    "graphql": "^0.4.2"
   }
 }

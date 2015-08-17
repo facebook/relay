@@ -1,3 +1,4 @@
+export class Thread extends Object {}
 export class Message extends Object {}
 export class User extends Object {}
 
@@ -70,45 +71,75 @@ var messages = [
     timestamp: Date.now() - 39999
   }
 ];
+// inject raw messages into database
+messages.map(mes => {
+  let {threadID, threadName} = mes;
+  if (!threadsById[threadID]) {
+    let thread = new Thread();
+    thread.id = threadID;
+    thread.name = threadName;
+    thread.isRead = false;
+    threadIdsByUser[VIEWER_ID].push(thread.id);
+    threadsById[thread.id] = thread;
+  }
 
-var messagesById = messages.reduce((preMessages, message) => {
-  preMessages[message.id] = message;
-  return preMessages;
-}, {});
-var messageIdsByUser = {
+  let message = new Message();
+  let {id, authorName, text, timestamp} = mes;
+  message.id = id;
+  message.authorName = authorName;
+  message.text = text;
+  message.timestamp = timestamp;
+  messagesById[message.id] = message;
+  messageIdsByThread[threadID].push(message.id);
+});
+
+var threadsById = {};
+var threadIdsByUser = {
   [VIEWER_ID]: []
 };
+
+var messagesById = {};
+var messageIdsByThread = {};
 
 export function addMessage(text, currentThreadID) {
   var timestamp = Date.now();
   var message = new Message();
   message.id = 'm_' + timestamp;
-  message.threadID = currentThreadID || 't_' + timestamp;
   message.authorName = 'me'; // hard coded for the exampl
   message.text = text;
   message.timestamp = timestamp;
-  message.isRead = true;
 
   messagesById[message.id] = message;
-  messageIdsByUser[VIEWER_ID].push(message.id);
-  return message.id;
+  messageIdsByThread[currentThreadID].push(message.id);
+  return {
+    messageID: message.id,
+    currentThreadID
+  };
+}
+
+export function getThread(id) {
+  return threadsById[id];
+}
+
+export function getThreads() {
+  return threadIdsByUser[VIEWER_ID].map(id => getThread(id));
 }
 
 export function getMessage(id) {
   return messagesById[id];
 }
 
-export function getMessages() {
-  return messageIdsByUser[VIEWER_ID].map((id) => getMessage[id]);
+export function getMessagesByThreadId(threadID) {
+  return messageIdsByThread[threadID].map(id => getMessage(id));
 }
 
-export function markMessageAsRead(id, isRead) {
-  var message = getMessage(id);
-  message.isRead = isRead;
+export function markThreadAsRead(id, isRead) {
+  var thread = getThread(id);
+  thread.isRead = isRead;
 }
 
 export function getUser(id) {
-  return usersById[VIEWER_ID];
+  return usersById[id];
 }
 
 export function getViewer() {

@@ -987,6 +987,14 @@ function create(
         fragmentNames.map(name => '`' + name + '`').join(', ')
       );
     }
+    invariant(
+      typeof fragmentBuilder === 'function',
+      'RelayContainer: Expected `%s.fragments.%s` to be a function returning '+
+      'a fragment. Example: `%s: () => Relay.QL`fragment on ...`',
+      containerName,
+      fragmentName,
+      fragmentName
+    );
     return new RelayFragmentReference(
       () => buildContainerFragment(
         containerName,

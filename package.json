@@ -24,9 +24,6 @@
     "prepublish": "npm run build",
     "test": "NODE_ENV=test jest"
   },
-  "engines": {
-    "node": ">=2"
-  },
   "dependencies": {
     "babel-runtime": "5.8.20",
     "crc32": "^0.2.2",

@@ -116,6 +116,25 @@ describe('RelayContainer', function() {
       );
     });
 
+    it('throws if container defines a fragment without function', () => {
+      var BadContainer = Relay.createContainer(MockComponent, {
+        fragments: {
+          viewer: Relay.QL`
+            fragment on Viewer {
+              newsFeed,
+            }
+          `
+        }
+      });
+      expect(() => {
+        BadContainer.getFragment('viewer');
+      }).toFailInvariant(
+        'RelayContainer: Expected `Relay(MockComponent).fragments.viewer` to ' +
+        'be a function returning a fragment. Example: ' +
+        '`viewer: () => Relay.QL`fragment on ...`'
+      );
+    });
+
     it('creates query for a container without fragments', () => {
       // Test that scalar constants are substituted, not only query fragments.
       var TEST_PHOTO_SIZE = 100;

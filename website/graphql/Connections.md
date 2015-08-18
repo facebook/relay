@@ -167,7 +167,8 @@ certain optimizations if this field returns an object that implements
 
 An "Edge Type" must contain a field called `cursor`. This field must return
 either a type that serializes as a String; this may be a String, a Non-Null
-wrapper around a String, or a custom scalar that serializes as a String.
+wrapper around a String, a custom scalar that serializes as a String, or a
+Non-Null wrapper around a custom scalar that serializes as a String.
 
 Whatever type this field returns will be referred to as the *cursor type*
 in the rest of this spec.

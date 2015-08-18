@@ -22,7 +22,8 @@
   "scripts": {
     "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",
     "prepublish": "npm run build",
-    "test": "NODE_ENV=test jest"
+    "test": "NODE_ENV=test jest",
+    "update-schema": "babel-node ./scripts/jest/updateSchema.js"
   },
   "dependencies": {
     "babel-runtime": "5.8.20",
@@ -39,6 +40,7 @@
     "babel-relay-plugin": "^0.1.2",
     "del": "^1.2.0",
     "envify": "^3.4.0",
+    "graphql": "^0.2.6",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.1.0",
     "gulp-derequire": "^2.1.0",

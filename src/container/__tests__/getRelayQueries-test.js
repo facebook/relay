@@ -120,7 +120,7 @@ describe('getRelayQueries', () => {
       getRelayQueries(MockPageContainer, badRoute);
     }).toFailInvariant(
       'Relay.QL defined on route `BadRoute` named `first` is not a valid ' +
-      'query. A A typical query is defined using: Relay.QL`query {...}`'
+      'query. A typical query is defined using: Relay.QL`query {...}`'
     );
   });
 

@@ -62,7 +62,7 @@ function getRelayQueries(
       );
       invariant(
         concreteQuery !== undefined,
-        'Relay.QL defined on route `%s` named `%s` is not a valid query. A ' +
+        'Relay.QL defined on route `%s` named `%s` is not a valid query. ' +
         'A typical query is defined using: Relay.QL`query {...}`',
         route.name,
         queryName

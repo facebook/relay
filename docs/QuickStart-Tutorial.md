@@ -247,7 +247,7 @@ export var Schema = new GraphQLSchema({
 Before going any further, we need to serialize our executable schema to JSON for use by the Relay.QL transpiler, then start up the server. From the command line:
 
 ```
-./scripts/updateSchema.js
+npm run update-schema
 npm start
 ```
 

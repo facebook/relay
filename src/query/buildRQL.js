@@ -16,9 +16,12 @@
 var GraphQL = require('GraphQL');
 var Map = require('Map');
 var RelayQL = require('RelayQL');
+var RelayFragmentReference = require('RelayFragmentReference');
 import type {RelayConcreteNode} from 'RelayQL';
 import type {Params} from 'RelayRoute';
 import type {RelayContainer, Variables} from 'RelayTypes';
+
+var invariant = require('invariant');
 
 export type FragmentBuilder = (variables: Variables) => RelayConcreteNode;
 export type QueryBuilder =
@@ -81,7 +84,8 @@ var buildRQL = {
   Query(
     queryBuilder: QueryBuilder,
     Component: any,
-    variableNames: VariableNames
+    variableNames: VariableNames,
+    fragmentReference: RelayFragmentReference
   ): ?GraphQL.Query {
     var componentCache = queryCache.get(queryBuilder);
     var node;
@@ -96,8 +100,29 @@ var buildRQL = {
       if (isDeprecatedCallWithArgCountGreaterThan(queryBuilder, 2)) {
         // TODO: Delete legacy support, (Component, variables, rql) => rql`...`.
         node = queryBuilder(Component, variables, RelayQL);
+      } else if (isDeprecatedCallWithArgCountGreaterThan(queryBuilder, 0)) {
+        node = queryBuilder(Component, variables);
       } else {
         node = queryBuilder(Component, variables);
+        if (GraphQL.isQuery(node) && node.fragments.length === 0) {
+          var rootCall = node.calls[0];
+          if (!node.fields.every(field => field.fields.length === 0)) {
+            invariant(
+              false,
+              'Relay.QL: Expected query `%s` to be empty. For example, use ' +
+              '`node(id: $id)`, not `node(id: $id) { ... }`.',
+              rootCall.name
+            );
+          }
+          node = new GraphQL.Query(
+            rootCall.name,
+            rootCall.value,
+            node.fields,
+            [fragmentReference],
+            node.metadata,
+            node.name
+          );
+        }
       }
       componentCache.set(Component, node);
     }

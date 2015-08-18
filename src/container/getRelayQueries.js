@@ -61,7 +61,8 @@ function getRelayQueries(
       var concreteQuery = buildRQL.Query(
         queryBuilder,
         Component,
-        Object.keys(route.params)
+        Object.keys(route.params),
+        Component.getFragment(queryName, route.params)
       );
       invariant(
         concreteQuery !== undefined,

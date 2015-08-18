@@ -134,7 +134,11 @@ export function getMessage(id) {
 }
 
 export function getMessagesByThreadId(threadID) {
-  return messageIdsByThread[threadID].map(id => getMessage(id));
+  let orderedMessages = messageIdsByThread[threadID].map(id => getMessage(id));
+  orderedMessages.sort((x, y) => {
+    return x.timestamp < y.timestamp ? -1 : x.timestamp > y.timestamp ? 1 : 0;
+  });
+  return orderedMessages;
 }
 
 export function markThreadAsRead(id, isRead) {

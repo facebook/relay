@@ -166,7 +166,11 @@ certain optimizations if this field returns an object that implements
 ### Cursor
 
 An "Edge Type" must contain a field called `cursor`. This field must return
-either a String or a Non-Null wrapper around a String.
+either a type that serializes as a String; this may be a String, a Non-Null
+wrapper around a String, or a custom scalar that serializes as a String.
+
+Whatever type this field returns will be referred to as the *cursor type*
+in the rest of this spec.
 
 The result of this field is considered opaque by Relay, but will be passed
 back to the server as described in the "Arguments" section below.
@@ -214,6 +218,7 @@ returns
         {
           "name": "cursor",
           "type": {
+            // This shows the cursor type as String!, other types are possible
             "name": null,
             "kind": "NON_NULL",
             "ofType": {
@@ -239,7 +244,7 @@ allow the client to slice the set of edges before it is returned.
 To enable forward pagination, two arguments are required.
 
  - `first` takes an integer.
- - `after` takes a string.
+ - `after` takes the *cursor type* as described in the `cursor` field section.
 
 The server should use those two arguments to modify the edges returned by
 the connection, returning edges after the `after` cursor, and returning at
@@ -250,7 +255,7 @@ most `first` edges. More formally:
 To enable backward pagination, two arguments are required.
 
  - `last` takes an integer.
- - `before` takes a string.
+ - `before` takes the *cursor type* as described in the `cursor` field section.
 
 The server should use those two arguments to modify the edges returned by
 the connection, returning edges before the `before` cursor, and returning at

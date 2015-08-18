@@ -69,7 +69,7 @@
         type {
           kind
           fields {
-            name,
+            name
             type {
               kind
               ofType {
@@ -83,13 +83,16 @@
           name
           type {
             kind
-            inputFields {
-              name
-              type {
-                kind
-                ofType {
-                  name
+            ofType {
+              kind
+              inputFields {
+                name
+                type {
                   kind
+                  ofType {
+                    name
+                    kind
+                  }
                 }
               }
             }
@@ -126,20 +129,23 @@
             {
               "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"input"</span></span>,
               "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
-                "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"INPUT_OBJECT"</span></span>,
-                "<span class="hljs-attribute">inputFields</span>": <span class="hljs-value">[
-                  // May contain more fields here
-                  {
-                    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"clientMutationId"</span></span>,
-                    "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
-                      "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"NON_NULL"</span></span>,
-                      "<span class="hljs-attribute">ofType</span>": <span class="hljs-value">{
-                        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"String"</span></span>,
-                        "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"SCALAR"</span>
+                "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"NON_NULL"</span></span>,
+                "<span class="hljs-attribute">ofType</span>": <span class="hljs-value">{
+                  "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"INPUT_OBJECT"</span></span>,
+                  "<span class="hljs-attribute">inputFields</span>": <span class="hljs-value">[
+                    // May contain more fields here
+                    {
+                      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"clientMutationId"</span></span>,
+                      "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+                        "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"NON_NULL"</span></span>,
+                        "<span class="hljs-attribute">ofType</span>": <span class="hljs-value">{
+                          "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"String"</span></span>,
+                          "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"SCALAR"</span>
+                        </span>}
                       </span>}
                     </span>}
-                  </span>}
-                ]
+                  ]
+                </span>}
               </span>}
             </span>}
           ]

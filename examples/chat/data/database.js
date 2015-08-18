@@ -12,6 +12,14 @@ var usersById = {
   [VIEWER_ID]: viewer
 };
 
+var threadsById = {};
+var threadIdsByUser = {
+  [VIEWER_ID]: []
+};
+
+var messagesById = {};
+var messageIdsByThread = {};
+
 // Mock message data
 var messages = [
   {
@@ -90,16 +98,11 @@ messages.map(mes => {
   message.text = text;
   message.timestamp = timestamp;
   messagesById[message.id] = message;
+  if (!messageIdsByThread[threadID]) {
+    messageIdsByThread[threadID] = [];
+  }
   messageIdsByThread[threadID].push(message.id);
 });
-
-var threadsById = {};
-var threadIdsByUser = {
-  [VIEWER_ID]: []
-};
-
-var messagesById = {};
-var messageIdsByThread = {};
 
 export function addMessage(text, currentThreadID) {
   var timestamp = Date.now();

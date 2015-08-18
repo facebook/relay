@@ -203,7 +203,7 @@ var Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
     addMessage: GraphQLAddMessageMutation,
-    markMessageAsRead: GraphQLMarkThreadAsReadMutation
+    markThreadAsRead: GraphQLMarkThreadAsReadMutation
   },
 });
 

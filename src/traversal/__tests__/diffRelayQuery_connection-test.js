@@ -163,7 +163,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(after:"c3",first:"2") {
+          newsFeed(after:"c3",first:$count) {
             edges {
               node {
                 id
@@ -172,7 +172,9 @@ describe('diffRelayQuery', () => {
           }
         }
       }
-    `));
+    `, {
+      count: 2,
+    }));
   });
 
   it('does not fetch missing `edges` data for generated `node` ids', () => {

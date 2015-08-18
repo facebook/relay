@@ -27,6 +27,7 @@ An example of all four of those is the following query:
       }
     }
   }
+}
 ```
 
 In this case, `friends` is a connection. That query demonstrates the four
@@ -204,7 +205,7 @@ returns
         // May contain other items
         {
           "name": "node",
-          "type":
+          "type": {
             "name": "Example",
             "kind": "OBJECT",
             "ofType": null
@@ -269,12 +270,12 @@ More formally:
 
 EdgesToReturn(allEdges, before, after, first, last):
   * Let {edges} be the result of calling {ApplyCursorsToEdges(allEdges, before, after)}.
-  * If {last} is set:
-    * If {edges} has length greater than than {last}:
-      * Slice {edges} to be of length {last} by removing edges from the start of {edges}.
   * If {first} is set:
     * If {edges} has length greater than than {first}:
       * Slice {edges} to be of length {first} by removing edges from the end of {edges}.
+  * If {last} is set:
+    * If {edges} has length greater than than {last}:
+      * Slice {edges} to be of length {last} by removing edges from the start of {edges}.
   * Return {edges}.
 
 ApplyCursorsToEdges(allEdges, before, after):

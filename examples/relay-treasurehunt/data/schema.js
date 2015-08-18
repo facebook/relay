@@ -135,7 +135,7 @@ var CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
       resolve: () => getGame(),
     },
   },
-  mutateAndGetPayload: ({id, text}) => {
+  mutateAndGetPayload: ({id}) => {
     var localHidingSpotId = fromGlobalId(id).id;
     checkHidingSpotForTreasure(localHidingSpotId);
     return {localHidingSpotId};

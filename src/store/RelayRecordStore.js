@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type {GraphQL} from 'GraphQL_EXPERIMENTAL';
+import type {GraphQL} from 'GraphQL';
 var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 var GraphQLRange = require('GraphQLRange');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');

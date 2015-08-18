@@ -1,7 +1,7 @@
 {
   "name": "react-relay",
   "description": "A framework for building data-driven React applications.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "keywords": [
     "graphql",
     "react",
@@ -15,30 +15,31 @@
     "PATENTS",
     "README.md",
     "dist/",
-    "index.js",
     "lib/"
   ],
-  "main": "index.js",
+  "main": "lib/Relay.js",
   "repository": "facebook/relay",
   "scripts": {
     "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",
-    "preinstall": "cd scripts/babel-relay-plugin/ && npm install",
     "prepublish": "npm run build",
     "test": "NODE_ENV=test jest"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": ">=2"
   },
   "dependencies": {
     "babel-runtime": "5.8.20",
     "crc32": "^0.2.2",
     "fbjs": "0.1.0-alpha.7",
-    "react": "^0.14.0-beta2",
     "react-static-container": "^1.0.0-alpha.1"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0-beta3"
   },
   "devDependencies": {
     "babel-core": "5.8.21",
     "babel-loader": "5.3.2",
+    "babel-relay-plugin": "^0.1.2",
     "del": "^1.2.0",
     "envify": "^3.4.0",
     "gulp": "^3.9.0",
@@ -47,8 +48,9 @@
     "gulp-flatten": "^0.1.0",
     "gulp-header": "^1.2.2",
     "gulp-util": "^3.0.6",
-    "jest-cli": "^0.4.16",
+    "jest-cli": "^0.5.0",
     "object-assign": "^3.0.0",
+    "react": "^0.14.0-beta3",
     "run-sequence": "^1.1.2",
     "webpack": "1.11.0",
     "webpack-stream": "^2.1.0"

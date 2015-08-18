@@ -30,7 +30,7 @@ describe('RelayQuery', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     Relay = require('Relay');
     RelayConnectionInterface = require('RelayConnectionInterface');
     RelayFragmentReference = require('RelayFragmentReference');
@@ -833,10 +833,7 @@ describe('RelayQuery', () => {
       field.__concreteNode__.calls[0].metadata = {type: 'scalar'};
 
       expect(field.getCallType('size')).toBe('scalar');
-      expect(() => field.getCallType('nonExistentCall')).toFailInvariant(
-        'RelayQuery: Field `profilePicture` does not have an argument ' +
-        '`nonExistentCall`.'
-      );
+      expect(field.getCallType('nonExistentCall')).toBe(undefined);
     });
 
     it('throws if a variable is missing', () => {
@@ -848,7 +845,7 @@ describe('RelayQuery', () => {
       var variables = {};
       var pictureField = getNode(pictureFragment, variables).getChildren()[0];
       expect(() => pictureField.getCallsWithValues()).toFailInvariant(
-        'callsFromGraphQL(): Expected a declared value for variable, `<width>`.'
+        'callsFromGraphQL(): Expected a declared value for variable, `$width`.'
       );
     });
 

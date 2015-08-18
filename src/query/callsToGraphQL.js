@@ -14,7 +14,7 @@
 'use strict';
 
 import type {Call} from 'RelayInternalTypes';
-var GraphQL = require('GraphQL_EXPERIMENTAL');
+var GraphQL = require('GraphQL');
 
 /**
  * @internal

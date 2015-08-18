@@ -9,6 +9,10 @@ next: guides-root-container
 
 Routes are responsible for defining the entry points into a Relay application. But in order to understand why routes are necessary, we must first understand the difference between GraphQL queries and fragments.
 
+> Note
+>
+> Relay routes don't really implement any URL routing specific logic or work with History API. In the future we will maybe rename RelayRoute to be something more like RelayQueryRoots or RelayQueryConfig.
+
 ## Queries vs. Fragments
 
 In GraphQL, **queries** declare fields that exist on the root query type. For example, the following query might fetch the name of the user with an `id` of `123`:
@@ -120,7 +124,13 @@ But now, we can also create routes for arbitrary user IDs. For example, if we wa
 ```
 window.addEventListener('popstate', () => {
   var userID = getQueryParamFromURI('userID', document.location.href);
-  var profileRoute = new ProfileRoute({userID});
-  // ...
+  var profileRoute = new ProfileRoute({userID: userID});
+  React.render(
+    <Relay.RootContainer
+      Component={UserProfile}
+      route={profileRoute}
+    />,
+    container
+  );
 });
 ```

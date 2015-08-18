@@ -13,7 +13,7 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL_EXPERIMENTAL');
+var GraphQL = require('GraphQL');
 import type RelayMetaRoute from 'RelayMetaRoute';
 import type {Variables} from 'RelayTypes';
 

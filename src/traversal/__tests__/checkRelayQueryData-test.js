@@ -45,7 +45,7 @@ describe('checkRelayQueryData', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL_EXPERIMENTAL');
+    GraphQL = require('GraphQL');
     GraphQLRange = require('GraphQLRange');
     GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
     Relay = require('Relay');

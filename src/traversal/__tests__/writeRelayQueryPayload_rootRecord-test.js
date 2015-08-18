@@ -157,7 +157,7 @@ describe('writeRelayQueryPayload()', () => {
       var store = new RelayRecordStore({records});
       var query = getRefNode(Relay.QL`
         query {
-          node(id:$ref_q0) {
+          nodes(ids:$ref_q0) {
             id
           }
         }
@@ -276,13 +276,14 @@ describe('writeRelayQueryPayload()', () => {
       );
     });
 
-    it('requires a single result for ref queries', () => {
+    it('handles plural results for ref queries', () => {
       var records = {};
       var store = new RelayRecordStore({records});
       var query = getRefNode(Relay.QL`
         query {
-          node(id:$ref_q0) {
-            id
+          nodes(ids:$ref_q0) {
+            id,
+            name
           }
         }
       `, {path: '$.*.id'}); // This path is bogus.
@@ -290,18 +291,19 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
+          name: 'Yuzhi',
         },
         '456': {
           __dataID__: '456',
           id: '456',
+          name: 'Jing',
         },
       };
-      expect(() => {
-        writePayload(store, query, payload);
-      }).toFailInvariant(
-        'writeRelayQueryPayload(): Expected payload to have at most 1 ' +
-        'payload for root call `node()`, called with 2 payloads.'
-      );
+      writePayload(store, query, payload);
+      expect(store.getRecordStatus('123')).toBe('EXISTENT');
+      expect(store.getField('123', 'name')).toBe('Yuzhi');
+      expect(store.getRecordStatus('456')).toBe('EXISTENT');
+      expect(store.getField('456', 'name')).toBe('Jing');
     });
 
     it('is not created when the response is undefined', () => {

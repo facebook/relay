@@ -218,22 +218,14 @@ Implement this required method to give Relay instructions on how to use the resp
 #### Example
 
 ```
-class BuySongMutation extends Relay.Mutation {
-  getFatQuery() {
-    return Relay.QL`
-      fragment on BuySongMutationPayload {
-        collection {
-          songs {
-            count,
-            edges,
-          }
-          totalRunTime,
-        },
-        viewer {
-          hasPurchasedMusic,
-        },
-      }
-    `,
+class LikeStoryMutation extends Relay.Mutation {
+  getConfigs() {
+    return [{
+      type: 'FIELDS_CHANGE',
+      fieldIDs: {
+        story: this.props.story.id,
+      },
+    }];
   }
 }
 ```

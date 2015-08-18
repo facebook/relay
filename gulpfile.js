@@ -70,7 +70,7 @@ var buildDist = function(opts) {
     },
     output: {
       filename: opts.output,
-      libraryTarget: 'var',
+      libraryTarget: 'umd',
       library: 'Relay'
     },
     plugins: [
@@ -106,6 +106,7 @@ var buildDist = function(opts) {
 
 var paths = {
   dist: 'dist',
+  entry: 'lib/Relay.js',
   lib: 'lib',
   src: [
     '*src/**/*.js',
@@ -131,7 +132,7 @@ gulp.task('dist', ['modules'], function () {
     debug: true,
     output: 'relay.js'
   };
-  return gulp.src('./index.js')
+  return gulp.src(paths.entry)
     .pipe(buildDist(distOpts))
     .pipe(derequire())
     .pipe(header(DEVELOPMENT_HEADER, {
@@ -145,7 +146,7 @@ gulp.task('dist:min', ['modules'], function () {
     debug: false,
     output: 'relay.min.js'
   };
-  return gulp.src('./index.js')
+  return gulp.src(paths.entry)
     .pipe(buildDist(distOpts))
     .pipe(header(PRODUCTION_HEADER, {
       version: process.env.npm_package_version
@@ -153,10 +154,21 @@ gulp.task('dist:min', ['modules'], function () {
     .pipe(gulp.dest(paths.dist));
 });
 
+gulp.task('website:check-version', function(cb) {
+  var version = require('./package').version;
+  var websiteVersion = require('./website/core/SiteData').version;
+  if (websiteVersion !== version) {
+    return cb(
+      new Error('Website version does not match package.json. Saw ' + websiteVersion + ' but expected ' + version)
+    );
+  }
+  cb();
+});
+
 gulp.task('watch', function() {
   gulp.watch(paths.src, ['modules']);
 });
 
 gulp.task('default', function(cb) {
-  runSequence('clean', 'modules', ['dist', 'dist:min'], cb);
+  runSequence('clean', 'website:check-version', 'modules', ['dist', 'dist:min'], cb);
 });

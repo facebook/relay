@@ -7,7 +7,7 @@ permalink: docs/api-reference-relay-container.html
 next: api-reference-relay-route
 ---
 
-`RelayContainer` is a higher-order React component that lets a React components encode its data requirements.
+`RelayContainer` is a higher-order React component that lets a React component encode its data requirements.
 
 - Relay ensures that this data is available before the component is rendered.
 - Updates will be sent to the component whenever the underlying data has changed.
@@ -136,8 +136,8 @@ module.exports = Relay.createContainer(ProfilePicture, {
       # The variable defined above is available here as `$size`.
       fragment on User { profilePicture(size: $size) { ... } }
     `,
-  };
-}
+  },
+});
 ```
 
 In this example, `profilePicture(size: 50)` will be fetched for the intial render.
@@ -167,7 +167,7 @@ module.exports = Relay.createContainer(ProfilePicture, {
     };
   };
   // ...
-}
+});
 ```
 
 ## Properties and Methods
@@ -184,7 +184,7 @@ Route is useful in providing the context which a component is being rendered in.
 #### Example
 
 ```
-var name = this.props.route.name;
+var name = this.props.relay.route.name;
 if (name === 'SuperAwesomeRoute') {
   // Do something super cool.
 }
@@ -222,8 +222,8 @@ module.exports = Relay.createContainer(ProfilePicture, {
     user: () => Relay.QL`
       fragment on User { profilePicture(size: $size) { ... } }
     `,
-  };
-}
+  },
+});
 ```
 In this example, the `width` of the rendered image will always correspond to the `$size` variable used to fetch the current version of `profilePicture.uri`.
 
@@ -278,8 +278,8 @@ module.exports = Relay.createContainer(Feed, {
         },
       }
     `,
-  };
-}
+  },
+});
 ```
 
 > Note
@@ -363,8 +363,8 @@ module.exports = Relay.createContainer(Feed, {
         }
       }
     `,
-  };
-}
+  },
+});
 
 ```
 
@@ -411,8 +411,8 @@ module.exports = Relay.createContainer(ProfilePicture, {
         # ...
       }
     `,
-  };
-}
+  },
+});
 ```
 
 `RelayMutationTransaction.getStatus` can return one of the following strings:

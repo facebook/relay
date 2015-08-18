@@ -13,7 +13,7 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL_EXPERIMENTAL');
+var GraphQL = require('GraphQL');
 import type {Call, CallValue} from 'RelayInternalTypes';
 import type {Variables} from 'RelayTypes';
 
@@ -56,7 +56,7 @@ function getCallValue(
     var variableName = arg.callVariableName;
     invariant(
       variables.hasOwnProperty(variableName),
-      'callsFromGraphQL(): Expected a declared value for variable, `<%s>`.',
+      'callsFromGraphQL(): Expected a declared value for variable, `$%s`.',
       variableName
     );
     return variables[variableName];

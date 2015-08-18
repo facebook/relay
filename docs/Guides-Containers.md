@@ -54,7 +54,7 @@ Relay.QL`
   fragment on User {
     # Set the `size` argument to a GraphQL variable named `$size` so that we can
     # later change its value via the slider.
-    profilePicture(size: $size) {
+    profilePhoto(size: $size) {
       # Get the apppropriate URI for the given size, for example on a CDN.
       uri,
     },
@@ -81,7 +81,7 @@ module.exports = Relay.createContainer(ProfilePicture, {
   fragments: {
     user: () => Relay.QL`
       fragment on User {
-        profilePicture(size: $size) {
+        profilePhoto(size: $size) {
           uri,
         },
       }

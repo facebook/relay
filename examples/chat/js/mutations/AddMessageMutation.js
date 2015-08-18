@@ -1,5 +1,11 @@
 export default class AddMessageMutation extends Relay.Mutation {
   static fragments = {
+    thread: () => Relay.QL`
+      fragment on Thread {
+        isRead,
+        lastUpdated
+      }
+    `,
     viewer: () => Relay.QL`
       fragment on User {
         id,
@@ -14,9 +20,12 @@ export default class AddMessageMutation extends Relay.Mutation {
   }
   getFatQuery() {
     return Relay.QL`
-      fragment on addMessagePayload {
+      fragment on AddMessagePayload {
         messageEdge,
-        thread,
+        thread {
+          isRead,
+          lastUpdated
+        },
         viewer {
           threads {
             unreadCount,
@@ -43,18 +52,20 @@ export default class AddMessageMutation extends Relay.Mutation {
     };
   }
   getOptimisticResponse() {
+    let timestamp = Date.now();
     return {
       messageEdge: {
         node: {
-          id: 'm_' + Date.now(),
+          id: 'm_' + timestamp,
           authorName: 'me', // hard coded for the example
-          timestamp: Date.now(),
+          timestamp: timestamp,
           text: this.props.text,
         },
       },
       thread: {
         id: this.props.currentThreadID,
-        isRead: true
+        isRead: true,
+        lastUpdated: timestamp
       },
       viewer: {
         id: this.props.viewer.id

@@ -10,44 +10,64 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var ChatThreadActionCreators = require('../actions/ChatThreadActionCreators');
-var React = require('react');
-var classNames = require('classnames');
+import React from 'react';
+import classNames from 'classnames';
+import MarkThreadAsReadMutation from '../mutations/MarkThreadAsReadMutation';
 
-var ReactPropTypes = React.PropTypes;
+class ThreadListItem extends React.Component {
 
-var ThreadListItem = React.createClass({
-
-  propTypes: {
-    thread: ReactPropTypes.object,
-    currentThreadID: ReactPropTypes.string
-  },
-
-  render: function() {
+  render() {
     var thread = this.props.thread;
-    var lastMessage = thread.lastMessage;
+    var lastMessage = thread.messages.edges.node;
     return (
       <li
         className={classNames({
           'thread-list-item': true,
-          'active': thread.id === this.props.currentThreadID
+          active: thread.id === this.props.currentThreadID
         })}
         onClick={this._onClick}>
         <h5 className="thread-name">{thread.name}</h5>
         <div className="thread-time">
-          {lastMessage.date.toLocaleTimeString()}
+          {new Date(lastMessage.timestamp).toLocaleTimeString()}
         </div>
         <div className="thread-last-message">
           {lastMessage.text}
         </div>
       </li>
     );
-  },
-
-  _onClick: function() {
-    ChatThreadActionCreators.clickThread(this.props.thread.id);
   }
 
-});
+  _onClick = () => {
+    window.history.pushState({currentThreadID: this.props.thread.id}, '');
+    Relay.Store.update(new MarkThreadAsReadMutation({
+      thread: this.props.thread,
+      isRead: true
+    }));
+  }
 
-module.exports = ThreadListItem;
+}
+
+export default Relay.createContainer(ThreadListItem, {
+  fragments: {
+    thread: () => Relay.QL`
+      fragment on Thread {
+        id,
+        name,
+        messages(last: 1) {
+          edges {
+            node {
+              text,
+              timestamp
+            }
+          }
+        },
+        ${MarkThreadAsReadMutation.getFragment('thread')}
+      }
+    `,
+    viewer: () => Relay.QL`
+      fragment on User {
+        ${MarkThreadAsReadMutation.getFragment('viewer')}
+      }
+    `
+  }
+});

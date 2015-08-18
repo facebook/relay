@@ -10,18 +10,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var MessageComposer = require('./MessageComposer.react');
-var MessageListItem = require('./MessageListItem.react');
-var MessageStore = require('../stores/MessageStore');
-var React = require('react');
-var ThreadStore = require('../stores/ThreadStore');
-
-function getStateFromStores() {
-  return {
-    messages: MessageStore.getAllForCurrentThread(),
-    thread: ThreadStore.getCurrent()
-  };
-}
+import React from 'react';
+import MessageComposer from './MessageComposer';
+import MessageListItem from './MessageListItem';
 
 function getMessageListItem(message) {
   return (
@@ -32,52 +23,59 @@ function getMessageListItem(message) {
   );
 }
 
-var MessageSection = React.createClass({
+class MessageSection extends React.Component {
 
-  getInitialState: function() {
-    return getStateFromStores();
-  },
-
-  componentDidMount: function() {
-    this._scrollToBottom();
-    MessageStore.addChangeListener(this._onChange);
-    ThreadStore.addChangeListener(this._onChange);
-  },
-
-  componentWillUnmount: function() {
-    MessageStore.removeChangeListener(this._onChange);
-    ThreadStore.removeChangeListener(this._onChange);
-  },
-
-  render: function() {
+  render() {
     var messageListItems = this.state.messages.map(getMessageListItem);
     return (
       <div className="message-section">
-        <h3 className="message-thread-heading">{this.state.thread.name}</h3>
+        <h3 className="message-thread-heading">{this.props.thread.name}</h3>
         <ul className="message-list" ref="messageList">
           {messageListItems}
         </ul>
-        <MessageComposer threadID={this.state.thread.id}/>
+        <MessageComposer threadID={this.props.thread.id}/>
       </div>
     );
-  },
-
-  componentDidUpdate: function() {
-    this._scrollToBottom();
-  },
-
-  _scrollToBottom: function() {
-    var ul = this.refs.messageList.getDOMNode();
-    ul.scrollTop = ul.scrollHeight;
-  },
-
-  /**
-   * Event handler for 'change' events coming from the MessageStore
-   */
-  _onChange: function() {
-    this.setState(getStateFromStores());
   }
 
-});
+  componentDidMount() {
+    window.addEventListener('popstate', () => {
+      this.props.relay.setVariables({
+        currentThreadID: window.history.state.currentThreadID
+      });
+    });
+  }
 
-module.exports = MessageSection;
+  componentDidUpdate() {
+    this._scrollToBottom();
+  }
+
+  _scrollToBottom() {
+    var ul = React.findDomNode(this.refs.messageList);
+    ul.scrollTop = ul.scrollHeight;
+  }
+
+}
+
+export default Relay.createContainer(MessageSection, {
+
+  initialVariables: {
+    currentThreadID: 123 // hard-coded temporarily
+  },
+
+  fragments: {
+    thread: () => Relay.QL`
+      fragment on Thread(id: $currentThreadID) {
+        id,
+        name
+        messages {
+          edges {
+            node {
+              ${MessageListItem.getFragment('message')}
+            }
+          }
+        }
+      }
+    `
+  }
+});

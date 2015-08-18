@@ -2,12 +2,12 @@
 
 import fs from 'fs';
 import path from 'path';
-import { GraphQLMessageSchema } from '../data/schema';
+import { GraphQLChatSchema } from '../data/schema';
 import { graphql } from 'graphql';
 import { introspectionQuery } from 'graphql/utilities';
 
 async () => {
-  var result = await (graphql(GraphQLMessageSchema, introspectionQuery));
+  var result = await (graphql(GraphQLChatSchema, introspectionQuery));
   if (result.errors) {
     console.error('ERROR: ', JSON.stringify(result.errors, null, 2));
   } else {

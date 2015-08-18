@@ -81,18 +81,23 @@ var messages = [
 ];
 // inject raw messages into database
 messages.map(mes => {
-  let {threadID, threadName} = mes;
+  let {threadID, threadName, timestamp} = mes;
+  // if thread not exists
   if (!threadsById[threadID]) {
     let thread = new Thread();
     thread.id = threadID;
     thread.name = threadName;
     thread.isRead = false;
+    thread.lastUpdated = timestamp;
     threadIdsByUser[VIEWER_ID].push(thread.id);
     threadsById[thread.id] = thread;
   }
-
+  // if message are newer than lastUpdated, show update
+  if (timestamp > threadsById[threadID].lastUpdated) {
+    threadsById[threadID].lastUpdated = timestamp;
+  }
   let message = new Message();
-  let {id, authorName, text, timestamp} = mes;
+  let {id, authorName, text} = mes;
   message.id = id;
   message.authorName = authorName;
   message.text = text;
@@ -112,6 +117,7 @@ export function addMessage(text, currentThreadID) {
   message.text = text;
   message.timestamp = timestamp;
   threadsById[currentThreadID].isRead = true;
+  threadsById[currentThreadID].lastUpdated = timestamp;
 
   messagesById[message.id] = message;
   messageIdsByThread[currentThreadID].push(message.id);
@@ -126,7 +132,12 @@ export function getThread(id) {
 }
 
 export function getThreads() {
-  return threadIdsByUser[VIEWER_ID].map(id => getThread(id));
+  let orderedThreads = threadIdsByUser[VIEWER_ID].map(id => getThread(id));
+  orderedThreads.sort((x, y) => {
+    return x.lastUpdated < y.lastUpdated ?
+      -1 : x.lastUpdated > y.lastUpdated ? 1 : 0;
+  });
+  return orderedThreads;
 }
 
 export function getMessage(id) {
@@ -147,7 +158,7 @@ export function markThreadAsRead(id, isRead) {
 }
 
 export function getUser(id) {
-  return usersById[id];
+  return usersById[VIEWER_ID]; // FIXME
 }
 
 export function getViewer() {

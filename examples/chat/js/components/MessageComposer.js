@@ -10,22 +10,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var ChatMessageActionCreators = require('../actions/ChatMessageActionCreators');
-var React = require('react');
+import React from 'react';
+import AddMessageMutation from '../mutations/AddMessageMutation';
 
 var ENTER_KEY_CODE = 13;
 
-var MessageComposer = React.createClass({
+class MessageComposer extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     threadID: React.PropTypes.string.isRequired
-  },
+  }
 
-  getInitialState: function() {
-    return {text: ''};
-  },
+  state = {text: ''};
 
-  render: function() {
+  render() {
     return (
       <textarea
         className="message-composer"
@@ -35,23 +33,23 @@ var MessageComposer = React.createClass({
         onKeyDown={this._onKeyDown}
       />
     );
-  },
+  }
 
-  _onChange: function(event, value) {
+  _onChange = (event) => {
     this.setState({text: event.target.value});
-  },
+  }
 
-  _onKeyDown: function(event) {
+  _onKeyDown = (event) => {
     if (event.keyCode === ENTER_KEY_CODE) {
       event.preventDefault();
       var text = this.state.text.trim();
       if (text) {
-        ChatMessageActionCreators.createMessage(text, this.props.threadID);
+        Relay.store.update(new AddMessageMutation(text, this.props.threadID));
       }
       this.setState({text: ''});
     }
   }
 
-});
+}
 
 module.exports = MessageComposer;

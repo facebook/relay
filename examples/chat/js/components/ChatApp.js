@@ -10,13 +10,21 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var MessageSection = require('./MessageSection.react');
-var React = require('react');
-var ThreadSection = require('./ThreadSection.react');
+import React from 'react';
+import MessageSection from './MessageSection';
+import ThreadSection from './ThreadSection';
 
-var ChatApp = React.createClass({
+class ChatApp extends React.Component {
 
-  render: function() {
+  componentDidMount() {
+    // by default, set threads[0] to currentID that MessageSection will show
+    let currentThreadID = this.props.viewer.threads.edges[0].node.id;
+    if (!window.history.state) {
+      window.history.pushState({currentThreadID}, '');
+    }
+  }
+
+  render() {
     return (
       <div className="chatapp">
         <ThreadSection />
@@ -25,6 +33,23 @@ var ChatApp = React.createClass({
     );
   }
 
-});
+}
 
-module.exports = ChatApp;
+export default Relay.createContainer(ChatApp, {
+  fragments: {
+    viewer: () => Relay.QL`
+      fragment on User {
+        threads(first: 9007199254740991) {
+          edges {
+            node {
+              id,
+              ${MessageSection.getFragment('thread')}
+            },
+          },
+          ${ThreadSection.getFragment('threads')}
+        },
+        ${ThreadSection.getFragment('viewer')}
+      }
+    `,
+  },
+});

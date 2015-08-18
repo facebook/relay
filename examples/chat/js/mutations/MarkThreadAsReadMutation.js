@@ -1,6 +1,6 @@
-export default class ChangeTodoStatusMutation extends Relay.Mutation {
+export default class MarkThreadAsReadMutation extends Relay.Mutation {
   static fragments = {
-    todo: () => Relay.QL`
+    thread: () => Relay.QL`
       fragment on Thread {
         id,
         isRead
@@ -36,7 +36,7 @@ export default class ChangeTodoStatusMutation extends Relay.Mutation {
     return [{
       type: 'FIELDS_CHANGE',
       fieldIDs: {
-        todo: this.props.thread.id,
+        thread: this.props.thread.id,
         viewer: this.props.viewer.id,
       },
     }];
@@ -58,7 +58,7 @@ export default class ChangeTodoStatusMutation extends Relay.Mutation {
       }
     }
     return {
-      todo: {
+      thread: {
         isRead: this.props.isRead,
         id: this.props.thread.id,
       },

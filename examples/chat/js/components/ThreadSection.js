@@ -10,50 +10,24 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var React = require('react');
-var MessageStore = require('../stores/MessageStore');
-var ThreadListItem = require('../components/ThreadListItem.react');
-var ThreadStore = require('../stores/ThreadStore');
-var UnreadThreadStore = require('../stores/UnreadThreadStore');
+import React from 'react';
+import ThreadListItem from '../components/ThreadListItem';
 
-function getStateFromStores() {
-  return {
-    threads: ThreadStore.getAllChrono(),
-    currentThreadID: ThreadStore.getCurrentID(),
-    unreadCount: UnreadThreadStore.getCount()
-  };
-}
+class ThreadSection extends React.Component {
 
-var ThreadSection = React.createClass({
-
-  getInitialState: function() {
-    return getStateFromStores();
-  },
-
-  componentDidMount: function() {
-    ThreadStore.addChangeListener(this._onChange);
-    UnreadThreadStore.addChangeListener(this._onChange);
-  },
-
-  componentWillUnmount: function() {
-    ThreadStore.removeChangeListener(this._onChange);
-    UnreadThreadStore.removeChangeListener(this._onChange);
-  },
-
-  render: function() {
-    var threadListItems = this.state.threads.map(function(thread) {
+  render() {
+    var threadListItems = this.props.threads.edges.map(edge => {
       return (
         <ThreadListItem
-          key={thread.id}
-          thread={thread}
-          currentThreadID={this.state.currentThreadID}
+          key={edge.node.id}
+          thread={edge.node}
+          currentThreadID={window.history.state.currentThreadID}
         />
       );
     }, this);
-    var unread =
-      this.state.unreadCount === 0 ?
+    var unread = this.props.threads.unreadCount === 0 ?
       null :
-      <span>Unread threads: {this.state.unreadCount}</span>;
+      <span>Unread threads: {this.props.threads.unreadCount}</span>;
     return (
       <div className="thread-section">
         <div className="thread-count">
@@ -64,15 +38,26 @@ var ThreadSection = React.createClass({
           </ul>
       </div>
     );
-  },
-
-  /**
-   * Event handler for 'change' events coming from the stores
-   */
-  _onChange: function() {
-    this.setState(getStateFromStores());
   }
 
-});
+}
 
-module.exports = ThreadSection;
+export default Relay.createContainer(ThreadSection, {
+  fragments: {
+    threads: () => Relay.QL`
+      fragment on ThreadConnection {
+        unreadCount,
+        edges {
+          node {
+            ${ThreadListItem.getFragment('thread')}
+          }
+        }
+      }
+    `,
+    viewer: () => Relay.QL`
+      fragment on User {
+        ${ThreadListItem.getFragment('viewer')}
+      }
+    `
+  }
+});

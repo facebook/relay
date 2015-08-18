@@ -3,14 +3,14 @@ import graphQLHTTP from 'express-graphql';
 import path from 'path';
 import webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
-import {GraphQLTodoSchema} from './data/schema';
+import {GraphQLChatSchema} from './data/schema';
 
 const APP_PORT = 3000;
 const GRAPHQL_PORT = 8080;
 
 // Expose a GraphQL endpoint
 var graphQLServer = express();
-graphQLServer.use('/', graphQLHTTP({schema: GraphQLTodoSchema, pretty: true}));
+graphQLServer.use('/', graphQLHTTP({schema: GraphQLChatSchema, pretty: true}));
 graphQLServer.listen(GRAPHQL_PORT, () => console.log(
   `GraphQL Server is now running on http://localhost:${GRAPHQL_PORT}`
 ));
@@ -49,5 +49,5 @@ var app = new WebpackDevServer(compiler, {
 app.use('/', express.static('public'));
 app.use('/node_modules', express.static('node_modules'));
 app.listen(APP_PORT, () => {
-  console.log(`Relay TodoMVC is now running on http://localhost:${APP_PORT}`);
+  console.log(`Relay Chat is now running on http://localhost:${APP_PORT}`);
 });

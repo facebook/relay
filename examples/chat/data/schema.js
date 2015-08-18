@@ -103,6 +103,10 @@ var GraphQLThread = new GraphQLObjectType({
       resolve: (thread, args) => {
         return connectionFromArray(getMessagesByThreadId(thread.id), args);
       }
+    },
+    lastUpdated: {
+      type: GraphQLInt,
+      resolve: (obj) => obj.lastUpdated
     }
   },
   interfaces: [nodeInterface]
@@ -207,7 +211,7 @@ var Mutation = new GraphQLObjectType({
   },
 });
 
-export var GraphQLMessageSchema = new GraphQLSchema({
+export var GraphQLChatSchema = new GraphQLSchema({
   query: Root,
   mutation: Mutation
 });

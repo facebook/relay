@@ -32,6 +32,7 @@
       }
     }
   }
+}
 </code></pre>
       <p>In this case, <code>friends</code> is a connection. That query demonstrates the four features describe above:</p>
       <ul>
@@ -170,7 +171,7 @@
         <h4><span class="spec-secnum" title="link to this section"><a href="#sec-Node">3.1.1</a></span>Node</h4>
         <p>An &ldquo;Edge Type&rdquo; must contain a field called <code>node</code>. This field must return either a Scalar, Enum, Object, Interface, Union, or a Non&#8208;Null wrapper around one of those types. Notably, this field <em>cannot</em> return
           a list.</p>
-        <div class="spec-note">The naming echos that of the &ldquo;Node&rdquo; inferface and &ldquo;node&rdquo; root field as described in a later section of this spec. Relay can perform certain optimizations if this field returns an object that implements <code>Node</code>,
+        <div class="spec-note">The naming echoes that of the &ldquo;Node&rdquo; interface and &ldquo;node&rdquo; root field as described in a later section of this spec. Relay can perform certain optimizations if this field returns an object that implements <code>Node</code>,
           however, this is not a strict requirement for use of Relay.</div>
       </section>
       <section id="sec-Cursor">
@@ -204,12 +205,12 @@
         // May contain other items
         {
           "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"node"</span></span>,
-          "<span class="hljs-attribute">type</span>":
-            <span class="hljs-value"><span class="hljs-string">"name"</span>: <span class="hljs-string">"Example"</span></span>,
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Example"</span></span>,
             "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"OBJECT"</span></span>,
             "<span class="hljs-attribute">ofType</span>": <span class="hljs-value"><span class="hljs-literal">null</span>
           </span>}
-        },
+        </span>},
         {
           "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"cursor"</span></span>,
           "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
@@ -250,7 +251,7 @@
     </section>
     <section id="sec-Pagination-algorithm">
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Pagination-algorithm">4.3</a></span>Pagination algorithm</h3>
-      <p>To determine what edges to return, the connection evalutes the <code>before</code> and <code>after</code> cursors to filter the edges, then evaluates <code>first</code> to slice the edges, then <code>last</code> to slice the edges.</p>
+      <p>To determine what edges to return, the connection evaluates the <code>before</code> and <code>after</code> cursors to filter the edges, then evaluates <code>first</code> to slice the edges, then <code>last</code> to slice the edges.</p>
       <div class="spec-note">Including a value for both <code>first</code> and <code>last</code> is strongly discouraged, as it is likely to lead to confusing queries and results. The <code>PageInfo</code> section goes into more detail here.</div>
       <p>More formally:</p>
       <div class="spec-algo" id="EdgesToReturn()"><span class="spec-call"><a href="#EdgesToReturn()">EdgesToReturn</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>

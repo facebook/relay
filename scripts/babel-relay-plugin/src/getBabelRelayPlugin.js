@@ -148,6 +148,15 @@ function getBabelRelayPlugin(
                   }
                 });
               });
+            } else {
+              console.warn(
+                '\n-- Relay Transform Error -- %s --\n',
+                path.basename(filename)
+              );
+              console.warn(
+                'Error: ' + error.message + '\n' +
+                'File:  ' + filename + '\n'
+              );
             }
 
             var message = (

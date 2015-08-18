@@ -312,9 +312,9 @@
     <section id="sec-undefined.PageInfo.Fields">
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-undefined.PageInfo.Fields">5.1</a></span>Fields</h3>
       <p><code>PageInfo</code> must contain fields <code>hasPreviousPage</code> and <code>hasNextPage</code>, both of which return non&#8208;null booleans.</p>
-      <p><code>hasPreviousPage</code> will be <code>true</code> if the client is paginating with <code>last</code>, and the server has determined that the client has reached the end of the set of edges defined by their cursors. More formally:</p>
-      <div class="spec-algo"
-      id="HasPreviousPage()"><span class="spec-call"><a href="#HasPreviousPage()">HasPreviousPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
+      <p><code>hasPreviousPage</code> will be <code>false</code> if the client is not paginating with <code>last</code>, or if the client is paginating with <code>last</code>, and the server has determined that the client has reached the end of the set of
+        edges defined by their cursors. More formally:</p>
+      <div class="spec-algo" id="HasPreviousPage()"><span class="spec-call"><a href="#HasPreviousPage()">HasPreviousPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
         <ol>
           <li>If <var>last</var> was not set, return <span class="spec-keyword">false</span>.</li>
           <li>Let <var>edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()">ApplyCursorsToEdges</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>)</span>.</li>
@@ -322,9 +322,9 @@
           <li>Return <span class="spec-keyword">true</span>.</li>
         </ol>
       </div>
-      <p><code>hasNextPage</code> will be <code>true</code> if the client is paginating with <code>first</code>, and the server has determined that the client has reached the end of the set of edges defined by their cursors. More formally:</p>
-      <div class="spec-algo"
-      id="HasNextPage()"><span class="spec-call"><a href="#HasNextPage()">HasNextPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
+      <p><code>hasNextPage</code> will be <code>false</code> if the client is not paginating with <code>first</code>, or if the client is paginating with <code>first</code>, and the server has determined that the client has reached the end of the set of
+        edges defined by their cursors. More formally:</p>
+      <div class="spec-algo" id="HasNextPage()"><span class="spec-call"><a href="#HasNextPage()">HasNextPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
         <ol>
           <li>If <var>first</var> was not set, return <span class="spec-keyword">false</span>.</li>
           <li>Let <var>edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()">ApplyCursorsToEdges</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>)</span>.</li>

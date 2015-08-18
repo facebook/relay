@@ -299,9 +299,10 @@ The server must provide a type called `PageInfo`.
 `PageInfo` must contain fields `hasPreviousPage` and `hasNextPage`, both
 of which return non-null booleans.
 
-`hasPreviousPage` will be `true` if the client is paginating with `last`, and
-the server has determined that the client has reached the end of the set
-of edges defined by their cursors. More formally:
+`hasPreviousPage` will be `false` if the client is not paginating with `last`,
+or if the client is paginating with `last`, and the server has determined that
+the client has reached the end of the set of edges defined by their cursors.
+More formally:
 
 HasPreviousPage(allEdges, before, after, first, last):
   * If {last} was not set, return {false}.
@@ -309,9 +310,10 @@ HasPreviousPage(allEdges, before, after, first, last):
   * If {edges} contains more than {last} elements, return {false}.
   * Return {true}.
 
-`hasNextPage` will be `true` if the client is paginating with `first`, and
-the server has determined that the client has reached the end of the set
-of edges defined by their cursors. More formally:
+`hasNextPage` will be `false` if the client is not paginating with `first`, or
+if the client is paginating with `first`, and the server has determined that the
+client has reached the end of the set of edges defined by their cursors. More
+formally:
 
 HasNextPage(allEdges, before, after, first, last):
   * If {first} was not set, return {false}.

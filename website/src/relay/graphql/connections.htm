@@ -176,8 +176,8 @@
       </section>
       <section id="sec-Cursor">
         <h4><span class="spec-secnum" title="link to this section"><a href="#sec-Cursor">3.1.2</a></span>Cursor</h4>
-        <p>An &ldquo;Edge Type&rdquo; must contain a field called <code>cursor</code>. This field must return either a type that serializes as a String; this may be a String, a Non&#8208;Null wrapper around a String, a custom scalar that serializes as a
-          String, or a Non&#8208;Null wrapper around a custom scalar that serializes as a String.</p>
+        <p>An &ldquo;Edge Type&rdquo; must contain a field called <code>cursor</code>. This field must return a type that serializes as a String; this may be a String, a Non&#8208;Null wrapper around a String, a custom scalar that serializes as a String,
+          or a Non&#8208;Null wrapper around a custom scalar that serializes as a String.</p>
         <p>Whatever type this field returns will be referred to as the <em>cursor type</em> in the rest of this spec.</p>
         <p>The result of this field is considered opaque by Relay, but will be passed back to the server as described in the &ldquo;Arguments&rdquo; section below.</p>
       </section>

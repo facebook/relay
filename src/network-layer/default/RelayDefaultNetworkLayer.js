@@ -19,6 +19,7 @@ import type RelayQueryRequest from 'RelayQueryRequest';
 
 var fetch = require('fetch');
 var fetchWithRetries = require('fetchWithRetries');
+import type {InitWithRetries} from 'fetchWithRetries';
 
 type GraphQLError = {
   message: string;
@@ -31,13 +32,11 @@ type GraphQLErrorLocation = {
 
 class RelayDefaultNetworkLayer {
   _uri: string;
-  _timeout: number;
-  _retryDelays: Array<number>;
+  _init: $FlowIssue; // InitWithRetries
 
-  constructor(uri: string, timeout: number, retryDelays: Array<number>) {
+  constructor(uri: string, init?: ?InitWithRetries) {
     this._uri = uri;
-    this._timeout = timeout;
-    this._retryDelays = retryDelays;
+    this._init = {...init};
 
     // Bind instance methods to facilitate reuse when creating custom network
     // layers.
@@ -118,17 +117,21 @@ class RelayDefaultNetworkLayer {
         }
       }
       init = {
+        ...this._init,
         body: formData,
         method: 'POST',
       };
     } else {
       init = {
+        ...this._init,
         body: JSON.stringify({
           query: request.getQueryString(),
           variables: request.getVariables(),
         }),
-        credentials: 'same-origin',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          ...this._init.headers,
+          'Content-Type': 'application/json',
+        },
         method: 'POST',
       };
     }
@@ -140,15 +143,16 @@ class RelayDefaultNetworkLayer {
    */
   _sendQuery(request: RelayQueryRequest): Promise {
     return fetchWithRetries(this._uri, {
+      ...this._init,
       body: JSON.stringify({
         query: request.getQueryString(),
         variables: request.getVariables(),
       }),
-      credentials: 'same-origin',
-      fetchTimeout: this._timeout,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        ...this._init.headers,
+        'Content-Type': 'application/json',
+      },
       method: 'POST',
-      retryDelays: this._retryDelays,
     });
   }
 }

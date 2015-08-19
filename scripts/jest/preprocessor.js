@@ -23,7 +23,6 @@ var babelOpts = {
   plugins: [babelPluginModules, graphQLPlugin],
   retainLines: true,
   _moduleMap: objectAssign({}, require('fbjs/module-map'), {
-    'crc32': 'crc32',
     'React': 'react',
     'ReactUpdates': 'react/lib/ReactUpdates',
     'StaticContainer.react': 'react-static-container'

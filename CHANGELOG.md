@@ -3,6 +3,8 @@
 * Upgraded jest to 0.5 and switched Relay to use iojs v2+ only.
 * All fragments in a Relay.Container must now have a query with a matching
   name in any Relay.Route that uses it and vice versa.
+* Changed `Relay.DefaultNetworkLayer` constructor to take an `init` object
+  instead of `fetchTimeout` and `retryDelays`.
 
 ## 0.1.1 (August 14, 2015)
 

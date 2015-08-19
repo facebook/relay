@@ -151,7 +151,7 @@ var GraphQLAddMessageMutation = mutationWithClientMutationId({
   name: 'AddMessage',
   inputFields: {
     text: { type: new GraphQLNonNull(GraphQLString) },
-    currentThreadID: { type: GraphQLString }
+    id: { type: new GraphQLNonNull(GraphQLID) },
   },
   outputFields: {
     messageEdge: {
@@ -174,8 +174,8 @@ var GraphQLAddMessageMutation = mutationWithClientMutationId({
       resolve: () => getViewer(),
     },
   },
-  mutateAndGetPayload: ({text, currentThreadID}) => {
-    var {messageID, threadID} = addMessage(text, currentThreadID);
+  mutateAndGetPayload: ({text, id}) => {
+    var {messageID, threadID} = addMessage(text, id);
     return {messageID, threadID};
   }
 });
@@ -183,7 +183,6 @@ var GraphQLAddMessageMutation = mutationWithClientMutationId({
 var GraphQLMarkThreadAsReadMutation = mutationWithClientMutationId({
   name: 'MarkThreadAsRead',
   inputFields: {
-    isRead: { type: new GraphQLNonNull(GraphQLBoolean) },
     id: { type: new GraphQLNonNull(GraphQLID) },
   },
   outputFields: {
@@ -196,9 +195,9 @@ var GraphQLMarkThreadAsReadMutation = mutationWithClientMutationId({
       resolve: () => getViewer(),
     },
   },
-  mutateAndGetPayload: ({id, isRead}) => {
+  mutateAndGetPayload: ({id}) => {
     var localThreadId = fromGlobalId(id).id;
-    markThreadAsRead(localThreadId, isRead);
+    markThreadAsRead(localThreadId);
     return {localThreadId};
   },
 });

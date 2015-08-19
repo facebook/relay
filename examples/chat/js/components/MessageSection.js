@@ -14,11 +14,11 @@ import React from 'react';
 import MessageComposer from './MessageComposer';
 import MessageListItem from './MessageListItem';
 
-function getMessageListItem(message) {
+function getMessageListItem(edge) {
   return (
     <MessageListItem
-      key={message.id}
-      message={message}
+      key={edge.node.id}
+      message={edge.node}
     />
   );
 }
@@ -26,7 +26,7 @@ function getMessageListItem(message) {
 class MessageSection extends React.Component {
 
   render() {
-    var messageListItems = this.state.messages.map(getMessageListItem);
+    var messageListItems = this.props.messages.edges.map(getMessageListItem);
     return (
       <div className="message-section">
         <h3 className="message-thread-heading">{this.props.thread.name}</h3>
@@ -36,14 +36,6 @@ class MessageSection extends React.Component {
         <MessageComposer threadID={this.props.thread.id}/>
       </div>
     );
-  }
-
-  componentDidMount() {
-    window.addEventListener('popstate', () => {
-      this.props.relay.setVariables({
-        currentThreadID: window.history.state.currentThreadID
-      });
-    });
   }
 
   componentDidUpdate() {
@@ -58,14 +50,9 @@ class MessageSection extends React.Component {
 }
 
 export default Relay.createContainer(MessageSection, {
-
-  initialVariables: {
-    currentThreadID: 123 // hard-coded temporarily
-  },
-
   fragments: {
     thread: () => Relay.QL`
-      fragment on Thread(id: $currentThreadID) {
+      fragment on Thread {
         id,
         name
         messages {
@@ -75,6 +62,12 @@ export default Relay.createContainer(MessageSection, {
             }
           }
         }
+        ${MessageComposer.getFragment('thread')}
+      }
+    `,
+    viewer: () => Relay.QL`
+      fragment on User {
+        ${MessageComposer.getFragment('viewer')}
       }
     `
   }

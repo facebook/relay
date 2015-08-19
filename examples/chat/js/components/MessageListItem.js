@@ -14,10 +14,6 @@ import React from 'react';
 
 class MessageListItem extends React.Component {
 
-  static propTypes = {
-    message: React.PropTypes.object
-  }
-
   render() {
     var message = this.props.message;
     return (

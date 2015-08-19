@@ -21,7 +21,7 @@ class ThreadSection extends React.Component {
         <ThreadListItem
           key={edge.node.id}
           thread={edge.node}
-          currentThreadID={window.history.state.currentThreadID}
+          viewer={this.props.viewer}
         />
       );
     }, this);
@@ -35,7 +35,7 @@ class ThreadSection extends React.Component {
         </div>
         <ul className="thread-list">
           {threadListItems}
-          </ul>
+        </ul>
       </div>
     );
   }
@@ -49,6 +49,7 @@ export default Relay.createContainer(ThreadSection, {
         unreadCount,
         edges {
           node {
+            id,
             ${ThreadListItem.getFragment('thread')}
           }
         }

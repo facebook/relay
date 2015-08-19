@@ -747,12 +747,16 @@
               "defaultValue": null
             },
             {
-              "name": "currentThreadID",
+              "name": "id",
               "description": null,
               "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
               },
               "defaultValue": null
             },
@@ -844,20 +848,6 @@
           "description": null,
           "fields": null,
           "inputFields": [
-            {
-              "name": "isRead",
-              "description": null,
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null
-            },
             {
               "name": "id",
               "description": null,

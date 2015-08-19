@@ -43,7 +43,6 @@ export default class MarkThreadAsReadMutation extends Relay.Mutation {
   }
   getVariables() {
     return {
-      isRead: this.props.isRead,
       id: this.props.thread.id,
     };
   }

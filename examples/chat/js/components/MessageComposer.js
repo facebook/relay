@@ -52,4 +52,17 @@ class MessageComposer extends React.Component {
 
 }
 
-module.exports = MessageComposer;
+export default Relay.createContainer(MessageComposer, {
+  fragments: {
+    thread: () => Relay.QL`
+      fragment on Thread {
+        ${AddMessageMutation.getFragment('thread')}
+      }
+    `,
+    viewer: () => Relay.QL`
+      fragment on User {
+        ${AddMessageMutation.getFragment('viewer')}
+      }
+    `,
+  }
+});

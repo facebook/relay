@@ -100,8 +100,13 @@ export function addMessage(text, currentThreadID) {
   messageIdsByThread[currentThreadID].push(message.id);
   return {
     messageID: message.id,
-    currentThreadID
+    threadID: currentThreadID
   };
+}
+
+export function markThreadAsRead(id) {
+  var thread = getThread(id);
+  thread.isRead = true;
 }
 
 export function getThread(id) {
@@ -127,11 +132,6 @@ export function getMessagesByThreadId(threadID) {
     return x.timestamp < y.timestamp ? -1 : x.timestamp > y.timestamp ? 1 : 0;
   });
   return orderedMessages;
-}
-
-export function markThreadAsRead(id, isRead) {
-  var thread = getThread(id);
-  thread.isRead = isRead;
 }
 
 export function getUser(id) {

@@ -11,20 +11,24 @@
  */
 
 import React from 'react';
-import classNames from 'classnames';
+// import classNames from 'classnames';
 import MarkThreadAsReadMutation from '../mutations/MarkThreadAsReadMutation';
 
 class ThreadListItem extends React.Component {
 
+  static contextTypes = {
+    router: React.PropTypes.object.isRequired,
+  }
+
   render() {
     var thread = this.props.thread;
-    var lastMessage = thread.messages.edges.node;
+    var lastMessage = thread.messages.edges[0].node;
     return (
       <li
-        className={classNames({
-          'thread-list-item': true,
-          active: thread.id === this.props.currentThreadID
-        })}
+        // className={classNames({
+        //   'thread-list-item': true,
+        //   active: thread.id === this.props.currentThreadID
+        // })}
         onClick={this._onClick}>
         <h5 className="thread-name">{thread.name}</h5>
         <div className="thread-time">
@@ -38,8 +42,9 @@ class ThreadListItem extends React.Component {
   }
 
   _onClick = () => {
-    window.history.pushState({currentThreadID: this.props.thread.id}, '');
+    this.context.router.transitionTo(`/thread/${this.props.thread.id}`);
     Relay.Store.update(new MarkThreadAsReadMutation({
+      viewer: this.props.viewer,
       thread: this.props.thread,
       isRead: true
     }));

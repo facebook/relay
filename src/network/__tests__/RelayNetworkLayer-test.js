@@ -32,7 +32,7 @@ describe('RelayNetworkLayer', () => {
     injectedNetworkLayer = {
       sendMutation: jest.genMockFunction(),
       sendQueries: jest.genMockFunction(),
-      supports: jest.genMockFunction().mockReturnValue(true),
+      supports: jest.genMockFunction(),
     };
     RelayNetworkLayer.injectNetworkLayer(injectedNetworkLayer);
 

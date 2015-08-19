@@ -94,21 +94,19 @@ class RelayFragmentReference {
   _fragment: ?GraphQL.QueryFragment;
   _fragmentGetter: FragmentGetter;
   _isDeferred: boolean;
-  _isTypeConditional: boolean;
   _variableMapping: ?VariableMapping;
   _prepareVariables: ?PrepareVariablesCallback;
 
   constructor(
     fragmentGetter: FragmentGetter,
-    initialVariables?: ?Variables,
+    defaultVariables: Variables,
     variableMapping?: ?VariableMapping,
     prepareVariables?: ?PrepareVariablesCallback
   ) {
-    this._initialVariables = initialVariables || {};
+    this._initialVariables = defaultVariables;
     this._fragment = undefined;
     this._fragmentGetter = fragmentGetter;
     this._isDeferred = false;
-    this._isTypeConditional = false;
     this._variableMapping = variableMapping;
     this._prepareVariables = prepareVariables;
 
@@ -133,14 +131,6 @@ class RelayFragmentReference {
    */
   defer(): RelayFragmentReference {
     this._isDeferred = true;
-    return this;
-  }
-
-  /**
-   * Mark this usage of the fragment as conditional on its type.
-   */
-  conditionOnType(): RelayFragmentReference {
-    this._isTypeConditional = true;
     return this;
   }
 
@@ -230,10 +220,6 @@ class RelayFragmentReference {
 
   getFragmentName(): string {
     return getWeakIdForObject(this._getFragment());
-  }
-
-  isTypeConditional(): boolean {
-    return this._isTypeConditional;
   }
 
   isDeferred(): boolean {

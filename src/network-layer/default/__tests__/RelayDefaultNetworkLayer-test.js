@@ -54,24 +54,15 @@ describe('RelayDefaultNetworkLayer', () => {
 
     networkConfig = {
       uri: '/graphql',
-      init: {
-        fetchTimeout: 15000,
-        headers: {
-          // This should be merged into headers.
-          'Content-Encoding': 'gzip',
-          // This should always be ignored.
-          'Content-Type': 'application/bogus',
-        },
-        // This should always be ignored.
-        method: 'GET',
-        retryDelays: [1000, 3000],
-      },
+      timeout: 15000,
+      retryDelays: [1000, 3000],
     };
     // Spread properties to test that functions are bound correctly.
     networkLayer = {
       ...new RelayDefaultNetworkLayer(
         networkConfig.uri,
-        networkConfig.init
+        networkConfig.timeout,
+        networkConfig.retryDelays
       ),
     };
 
@@ -116,7 +107,6 @@ describe('RelayDefaultNetworkLayer', () => {
 
       expect(method).toBe('POST');
       expect(headers).toEqual({
-        'Content-Encoding': 'gzip',
         'Content-Type': 'application/json'
       });
       expect(body).toEqual(JSON.stringify({
@@ -202,18 +192,14 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(fetchWithRetries).toBeCalled();
       var call = fetchWithRetries.mock.calls[0];
       expect(call[0]).toBe(networkConfig.uri);
-      var {body, fetchTimeout, headers, method, retryDelays} = call[1];
+      var {body, fetchTimeout, method, retryDelays} = call[1];
       expect(body).toBe(JSON.stringify({
         query: requestA.getQueryString(),
         variables: queryA.getVariables(),
       }));
-      expect(fetchTimeout).toBe(networkConfig.init.fetchTimeout);
-      expect(headers).toEqual({
-        'Content-Encoding': 'gzip',
-        'Content-Type': 'application/json',
-      });
+      expect(fetchTimeout).toBe(networkConfig.timeout);
       expect(method).toBe('POST');
-      expect(retryDelays).toEqual(networkConfig.init.retryDelays);
+      expect(retryDelays).toEqual(networkConfig.retryDelays);
     });
 
     it('resolves with fetched response payloads', () => {

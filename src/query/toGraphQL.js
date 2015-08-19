@@ -136,6 +136,7 @@ function toGraphQLChildren(
 function toGraphQLMetadata(node: RelayQuery.Node): ?Object {
   var metadata = {
     ...node.__concreteNode__.__metadata__,
+    ...node.__metadata__,
   };
   if (Object.keys(metadata).length) {
     return metadata;

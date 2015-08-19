@@ -19,7 +19,6 @@ import type RelayQueryRequest from 'RelayQueryRequest';
 
 var fetch = require('fetch');
 var fetchWithRetries = require('fetchWithRetries');
-import type {InitWithRetries} from 'fetchWithRetries';
 
 type GraphQLError = {
   message: string;
@@ -30,13 +29,18 @@ type GraphQLErrorLocation = {
   line: number;
 };
 
+var DEFAULT_FETCH_TIMEOUT = 15000;
+var DEFAULT_RETRY_DELAYS = [1000, 3000];
+
 class RelayDefaultNetworkLayer {
   _uri: string;
-  _init: $FlowIssue; // InitWithRetries
+  _timeout: number;
+  _retryDelays: Array<number>;
 
-  constructor(uri: string, init?: ?InitWithRetries) {
+  constructor(uri: string, timeout?: number, retryDelays?: Array<number>) {
     this._uri = uri;
-    this._init = {...init};
+    this._timeout = typeof timeout === 'number' ? timeout : DEFAULT_FETCH_TIMEOUT;
+    this._retryDelays = retryDelays || DEFAULT_RETRY_DELAYS;
 
     // Bind instance methods to facilitate reuse when creating custom network
     // layers.
@@ -117,21 +121,17 @@ class RelayDefaultNetworkLayer {
         }
       }
       init = {
-        ...this._init,
         body: formData,
         method: 'POST',
       };
     } else {
       init = {
-        ...this._init,
         body: JSON.stringify({
           query: request.getQueryString(),
           variables: request.getVariables(),
         }),
-        headers: {
-          ...this._init.headers,
-          'Content-Type': 'application/json',
-        },
+        credentials: 'same-origin',
+        headers: {'Content-Type': 'application/json'},
         method: 'POST',
       };
     }
@@ -143,16 +143,15 @@ class RelayDefaultNetworkLayer {
    */
   _sendQuery(request: RelayQueryRequest): Promise {
     return fetchWithRetries(this._uri, {
-      ...this._init,
       body: JSON.stringify({
         query: request.getQueryString(),
         variables: request.getVariables(),
       }),
-      headers: {
-        ...this._init.headers,
-        'Content-Type': 'application/json',
-      },
+      credentials: 'same-origin',
+      fetchTimeout: this._timeout,
+      headers: {'Content-Type': 'application/json'},
       method: 'POST',
+      retryDelays: this._retryDelays,
     });
   }
 }

@@ -38,7 +38,7 @@ function generateRQLFieldAlias(input) {
     return input;
   }
 
-  return PREFIX + input.substr(0, index) + crc32(input).toString(36);
+  return PREFIX + input.substr(0, index) + Math.abs(crc32(input)).toString(36);
 }
 
 module.exports = generateRQLFieldAlias;

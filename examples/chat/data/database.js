@@ -12,102 +12,79 @@ var usersById = {
   [VIEWER_ID]: viewer
 };
 
-var threadsById = {};
+var threadsById = {
+  t_1: {
+    id: 't_1',
+    name: 'Jing and me',
+    isRead: false,
+    lastUpdated: 1439961049573
+  },
+  t_2: {
+    id: 't_2',
+    name: 'Dave and me',
+    isRead: false,
+    lastUpdated: 1439961069573
+  },
+  t_3: {
+    id: 't_3',
+    name: 'Brian and me',
+    isRead: false,
+    lastUpdated: 1439961089573
+  }
+};
 var threadIdsByUser = {
-  [VIEWER_ID]: []
+  [VIEWER_ID]: [ 't_1', 't_2', 't_3' ]
 };
 
-var messagesById = {};
-var messageIdsByThread = {};
-
-// Mock message data
-var messages = [
-  {
+var messagesById = {
+  m_1: {
     id: 'm_1',
-    threadID: 't_1',
-    threadName: 'Jing and Me',
     authorName: 'me',
     text: 'Hey Jing, want to give a Flux talk at ForwardJS?',
-    timestamp: Date.now() - 99999
+    timestamp: 1439961029573
   },
-  {
+  m_2: {
     id: 'm_2',
-    threadID: 't_1',
-    threadName: 'Jing and me',
     authorName: 'me',
     text: 'Seems like a pretty cool conference.',
-    timestamp: Date.now() - 89999
+    timestamp: 1439961039573
   },
-  {
+  m_3: {
     id: 'm_3',
-    threadID: 't_1',
-    threadName: 'Jing and me',
     authorName: 'Jing',
     text: 'Sounds good.  Will they be serving dessert?',
-    timestamp: Date.now() - 79999
+    timestamp: 1439961049573
   },
-  {
+  m_4: {
     id: 'm_4',
-    threadID: 't_2',
-    threadName: 'Dave and me',
     authorName: 'me',
     text: 'Hey Dave, want to get a beer after the conference?',
-    timestamp: Date.now() - 69999
+    timestamp: 1439961059573
   },
-  {
+  m_5: {
     id: 'm_5',
-    threadID: 't_2',
-    threadName: 'Dave and me',
     authorName: 'Dave',
     text: 'Totally!  Meet you at the hotel bar.',
-    timestamp: Date.now() - 59999
+    timestamp: 1439961069573
   },
-  {
+  m_6: {
     id: 'm_6',
-    threadID: 't_3',
-    threadName: 'Functional Heads',
     authorName: 'me',
     text: 'Hey Brian, are you going to be talking about functional stuff?',
-    timestamp: Date.now() - 49999
+    timestamp: 1439961079573
   },
-  {
+  m_7: {
     id: 'm_7',
-    threadID: 't_3',
-    threadName: 'me and Brian',
     authorName: 'Brian',
     text: 'At ForwardJS?  Yeah, of course.  See you there!',
-    timestamp: Date.now() - 39999
+    timestamp: 1439961089573
   }
-];
-// inject raw messages into database
-messages.map(mes => {
-  let {threadID, threadName, timestamp} = mes;
-  // if thread not exists
-  if (!threadsById[threadID]) {
-    let thread = new Thread();
-    thread.id = threadID;
-    thread.name = threadName;
-    thread.isRead = false;
-    thread.lastUpdated = timestamp;
-    threadIdsByUser[VIEWER_ID].push(thread.id);
-    threadsById[thread.id] = thread;
-  }
-  // if message are newer than lastUpdated, show update
-  if (timestamp > threadsById[threadID].lastUpdated) {
-    threadsById[threadID].lastUpdated = timestamp;
-  }
-  let message = new Message();
-  let {id, authorName, text} = mes;
-  message.id = id;
-  message.authorName = authorName;
-  message.text = text;
-  message.timestamp = timestamp;
-  messagesById[message.id] = message;
-  if (!messageIdsByThread[threadID]) {
-    messageIdsByThread[threadID] = [];
-  }
-  messageIdsByThread[threadID].push(message.id);
-});
+};
+var messageIdsByThread = {
+  t_1: [ 'm_1', 'm_2', 'm_3' ],
+  t_2: [ 'm_4', 'm_5' ],
+  t_3: [ 'm_6', 'm_7' ]
+};
 
 export function addMessage(text, currentThreadID) {
   var timestamp = Date.now();

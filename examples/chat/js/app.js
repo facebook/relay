@@ -1,3 +1,6 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Relay from 'react-relay';
 import {Router, Route} from 'react-router';
 import BrowserHistory from 'react-router/lib/BrowserHistory';
 import relayNestedRoutes from 'relay-nested-routes';
@@ -33,7 +36,7 @@ var MessageSectionQueries = {
   `,
 };
 
-React.render(
+ReactDOM.render(
   <Router history={new BrowserHistory()}>
     <Route component={NestedRootContainer}>
       <Route path="/" component={ChatApp} queries={HomeQueries}>

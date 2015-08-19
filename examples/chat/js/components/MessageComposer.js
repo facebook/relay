@@ -11,15 +11,12 @@
  */
 
 import React from 'react';
+import Relay from 'react-relay';
 import AddMessageMutation from '../mutations/AddMessageMutation';
 
 var ENTER_KEY_CODE = 13;
 
 class MessageComposer extends React.Component {
-
-  static propTypes = {
-    threadID: React.PropTypes.string.isRequired
-  }
 
   state = {text: ''};
 
@@ -44,7 +41,11 @@ class MessageComposer extends React.Component {
       event.preventDefault();
       var text = this.state.text.trim();
       if (text) {
-        Relay.store.update(new AddMessageMutation(text, this.props.threadID));
+        Relay.Store.update(new AddMessageMutation({
+          text,
+          viewer: this.props.viewer,
+          thread: this.props.thread
+        }));
       }
       this.setState({text: ''});
     }
@@ -56,11 +57,13 @@ export default Relay.createContainer(MessageComposer, {
   fragments: {
     thread: () => Relay.QL`
       fragment on Thread {
+        id
         ${AddMessageMutation.getFragment('thread')}
       }
     `,
     viewer: () => Relay.QL`
       fragment on User {
+        id
         ${AddMessageMutation.getFragment('viewer')}
       }
     `,

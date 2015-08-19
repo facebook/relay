@@ -175,7 +175,10 @@ var GraphQLAddMessageMutation = mutationWithClientMutationId({
     },
   },
   mutateAndGetPayload: ({text, id}) => {
-    var {messageID, threadID} = addMessage(text, id);
+    // important, else it would be encoded client id,
+    // then database don't know how to handle
+    var localThreadId = fromGlobalId(id).id;
+    var {messageID, threadID} = addMessage(text, localThreadId);
     return {messageID, threadID};
   }
 });

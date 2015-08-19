@@ -11,7 +11,8 @@
  */
 
 import React from 'react';
-// import classNames from 'classnames';
+import Relay from 'react-relay';
+import classNames from 'classnames';
 import MarkThreadAsReadMutation from '../mutations/MarkThreadAsReadMutation';
 
 class ThreadListItem extends React.Component {
@@ -25,10 +26,10 @@ class ThreadListItem extends React.Component {
     var lastMessage = thread.messages.edges[0].node;
     return (
       <li
-        // className={classNames({
-        //   'thread-list-item': true,
-        //   active: thread.id === this.props.currentThreadID
-        // })}
+        className={classNames({
+          'thread-list-item': true,
+          active: thread.id === this.props.currentThreadID
+        })}
         onClick={this._onClick}>
         <h5 className="thread-name">{thread.name}</h5>
         <div className="thread-time">
@@ -71,6 +72,7 @@ export default Relay.createContainer(ThreadListItem, {
     `,
     viewer: () => Relay.QL`
       fragment on User {
+        id
         ${MarkThreadAsReadMutation.getFragment('viewer')}
       }
     `

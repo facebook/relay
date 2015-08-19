@@ -1,3 +1,5 @@
+import Relay from 'react-relay';
+
 export default class MarkThreadAsReadMutation extends Relay.Mutation {
   static fragments = {
     thread: () => Relay.QL`
@@ -48,12 +50,12 @@ export default class MarkThreadAsReadMutation extends Relay.Mutation {
   }
   getOptimisticResponse() {
     var viewerPayload;
-    if (this.props.viewer.threads) {
+    var threads = this.props.viewer.threads;
+    if (threads) {
       viewerPayload = {id: this.props.viewer.id, threads: {}};
-      if (this.props.viewer.threads.unreadCount != null) {
-        viewerPayload.threads.unreadCount = this.props.isRead
-          ? this.props.viewer.threads.unreadCount + 1
-          : this.props.viewer.threads.unreadCount - 1;
+      if (threads.unreadCount != null) {
+        viewerPayload.threads.unreadCount = threads.unreadCount > 0 ?
+          threads.unreadCount - 1 : 0;
       }
     }
     return {

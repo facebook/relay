@@ -1,7 +1,10 @@
+import Relay from 'react-relay';
+
 export default class AddMessageMutation extends Relay.Mutation {
   static fragments = {
     thread: () => Relay.QL`
       fragment on Thread {
+        id,
         isRead,
         lastUpdated
       }
@@ -49,9 +52,11 @@ export default class AddMessageMutation extends Relay.Mutation {
   getVariables() {
     return {
       text: this.props.text,
+      id: this.props.thread.id
     };
   }
   getOptimisticResponse() {
+    console.log('AddMessageMutation getOptimisticResponse', this.props);
     let timestamp = Date.now();
     return {
       messageEdge: {
@@ -63,7 +68,7 @@ export default class AddMessageMutation extends Relay.Mutation {
         },
       },
       thread: {
-        id: this.props.currentThreadID,
+        id: this.props.thread.id,
         isRead: true,
         lastUpdated: timestamp
       },

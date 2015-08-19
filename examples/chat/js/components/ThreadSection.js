@@ -11,20 +11,25 @@
  */
 
 import React from 'react';
+import Relay from 'react-relay';
 import ThreadListItem from '../components/ThreadListItem';
 
 class ThreadSection extends React.Component {
 
   render() {
+    // hacky here!
+    let currentThreadID = this.props.relay.route.params.id;
+
     var threadListItems = this.props.threads.edges.map(edge => {
       return (
         <ThreadListItem
           key={edge.node.id}
           thread={edge.node}
           viewer={this.props.viewer}
+          currentThreadID={currentThreadID}
         />
       );
-    }, this);
+    });
     var unread = this.props.threads.unreadCount === 0 ?
       null :
       <span>Unread threads: {this.props.threads.unreadCount}</span>;

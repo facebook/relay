@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+import Relay from 'react-relay';
 
 class MessageListItem extends React.Component {
 

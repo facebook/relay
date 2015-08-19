@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+import Relay from 'react-relay';
 import ThreadSection from './ThreadSection';
 import MessageSection from './MessageSection';
 
@@ -31,8 +32,6 @@ class ChatApp extends React.Component {
 
   render() {
     let {viewer} = this.props;
-    console.log('MessageSection', MessageSection);
-    console.log('ChatApp.props.children', this.props.children);
     return (
       <div className="chatapp">
         <ThreadSection threads={viewer.threads} viewer={viewer}/>

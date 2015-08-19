@@ -32,6 +32,7 @@
       }
     }
   }
+}
 </code></pre>
       <p>In this case, <code>friends</code> is a connection. That query demonstrates the four features describe above:</p>
       <ul>
@@ -170,7 +171,7 @@
         <h4><span class="spec-secnum" title="link to this section"><a href="#sec-Node">3.1.1</a></span>Node</h4>
         <p>An &ldquo;Edge Type&rdquo; must contain a field called <code>node</code>. This field must return either a Scalar, Enum, Object, Interface, Union, or a Non&#8208;Null wrapper around one of those types. Notably, this field <em>cannot</em> return
           a list.</p>
-        <div class="spec-note">The naming echos that of the &ldquo;Node&rdquo; inferface and &ldquo;node&rdquo; root field as described in a later section of this spec. Relay can perform certain optimizations if this field returns an object that implements <code>Node</code>,
+        <div class="spec-note">The naming echoes that of the &ldquo;Node&rdquo; interface and &ldquo;node&rdquo; root field as described in a later section of this spec. Relay can perform certain optimizations if this field returns an object that implements <code>Node</code>,
           however, this is not a strict requirement for use of Relay.</div>
       </section>
       <section id="sec-Cursor">
@@ -204,12 +205,12 @@
         // May contain other items
         {
           "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"node"</span></span>,
-          "<span class="hljs-attribute">type</span>":
-            <span class="hljs-value"><span class="hljs-string">"name"</span>: <span class="hljs-string">"Example"</span></span>,
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Example"</span></span>,
             "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"OBJECT"</span></span>,
             "<span class="hljs-attribute">ofType</span>": <span class="hljs-value"><span class="hljs-literal">null</span>
           </span>}
-        },
+        </span>},
         {
           "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"cursor"</span></span>,
           "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
@@ -250,7 +251,7 @@
     </section>
     <section id="sec-Pagination-algorithm">
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Pagination-algorithm">4.3</a></span>Pagination algorithm</h3>
-      <p>To determine what edges to return, the connection evalutes the <code>before</code> and <code>after</code> cursors to filter the edges, then evaluates <code>first</code> to slice the edges, then <code>last</code> to slice the edges.</p>
+      <p>To determine what edges to return, the connection evaluates the <code>before</code> and <code>after</code> cursors to filter the edges, then evaluates <code>first</code> to slice the edges, then <code>last</code> to slice the edges.</p>
       <div class="spec-note">Including a value for both <code>first</code> and <code>last</code> is strongly discouraged, as it is likely to lead to confusing queries and results. The <code>PageInfo</code> section goes into more detail here.</div>
       <p>More formally:</p>
       <div class="spec-algo" id="EdgesToReturn()"><span class="spec-call"><a href="#EdgesToReturn()">EdgesToReturn</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
@@ -311,9 +312,9 @@
     <section id="sec-undefined.PageInfo.Fields">
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-undefined.PageInfo.Fields">5.1</a></span>Fields</h3>
       <p><code>PageInfo</code> must contain fields <code>hasPreviousPage</code> and <code>hasNextPage</code>, both of which return non&#8208;null booleans.</p>
-      <p><code>hasPreviousPage</code> will be <code>true</code> if the client is paginating with <code>last</code>, and the server has determined that the client has reached the end of the set of edges defined by their cursors. More formally:</p>
-      <div class="spec-algo"
-      id="HasPreviousPage()"><span class="spec-call"><a href="#HasPreviousPage()">HasPreviousPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
+      <p><code>hasPreviousPage</code> will be <code>false</code> if the client is not paginating with <code>last</code>, or if the client is paginating with <code>last</code>, and the server has determined that the client has reached the end of the set of
+        edges defined by their cursors. More formally:</p>
+      <div class="spec-algo" id="HasPreviousPage()"><span class="spec-call"><a href="#HasPreviousPage()">HasPreviousPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
         <ol>
           <li>If <var>last</var> was not set, return <span class="spec-keyword">false</span>.</li>
           <li>Let <var>edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()">ApplyCursorsToEdges</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>)</span>.</li>
@@ -321,9 +322,9 @@
           <li>Return <span class="spec-keyword">true</span>.</li>
         </ol>
       </div>
-      <p><code>hasNextPage</code> will be <code>true</code> if the client is paginating with <code>first</code>, and the server has determined that the client has reached the end of the set of edges defined by their cursors. More formally:</p>
-      <div class="spec-algo"
-      id="HasNextPage()"><span class="spec-call"><a href="#HasNextPage()">HasNextPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
+      <p><code>hasNextPage</code> will be <code>false</code> if the client is not paginating with <code>first</code>, or if the client is paginating with <code>first</code>, and the server has determined that the client has reached the end of the set of
+        edges defined by their cursors. More formally:</p>
+      <div class="spec-algo" id="HasNextPage()"><span class="spec-call"><a href="#HasNextPage()">HasNextPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
         <ol>
           <li>If <var>first</var> was not set, return <span class="spec-keyword">false</span>.</li>
           <li>Let <var>edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()">ApplyCursorsToEdges</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>)</span>.</li>

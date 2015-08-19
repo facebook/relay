@@ -26,8 +26,8 @@ var RelayTaskScheduler = require('RelayTaskScheduler');
 var getRelayQueries = require('getRelayQueries');
 var isRelayContainer = require('isRelayContainer');
 
-if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
-  __REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = {
+if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
+  global.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = {
     NetworkLayer: require('RelayNetworkLayer'),
     DefaultStoreData: require('RelayStoreData').getDefaultInstance(),
   };

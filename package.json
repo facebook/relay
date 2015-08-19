@@ -23,10 +23,8 @@
     "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",
     "prepublish": "npm run build",
     "lint": "eslint .",
-    "test": "NODE_ENV=test jest"
-  },
-  "engines": {
-    "node": ">=2"
+    "test": "NODE_ENV=test jest",
+    "update-schema": "babel-node ./scripts/jest/updateSchema.js"
   },
   "dependencies": {
     "babel-runtime": "5.8.20",
@@ -46,6 +44,7 @@
     "envify": "^3.4.0",
     "eslint": "^1.1.0",
     "eslint-plugin-react": "^3.2.3",
+    "graphql": "^0.2.6",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.1.0",
     "gulp-derequire": "^2.1.0",

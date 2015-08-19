@@ -845,7 +845,7 @@ describe('RelayQuery', () => {
       var variables = {};
       var pictureField = getNode(pictureFragment, variables).getChildren()[0];
       expect(() => pictureField.getCallsWithValues()).toFailInvariant(
-        'callsFromGraphQL(): Expected a declared value for variable, `<width>`.'
+        'callsFromGraphQL(): Expected a declared value for variable, `$width`.'
       );
     });
 

@@ -11,12 +11,15 @@
         {
           "kind": "OBJECT",
           "name": "Root",
+          "description": null,
           "fields": [
             {
               "name": "checkinSearchQuery",
+              "description": null,
               "args": [
                 {
                   "name": "query",
+                  "description": null,
                   "type": {
                     "kind": "INPUT_OBJECT",
                     "name": "CheckinSearchInput",
@@ -35,9 +38,11 @@
             },
             {
               "name": "settings",
+              "description": null,
               "args": [
                 {
                   "name": "environment",
+                  "description": null,
                   "type": {
                     "kind": "ENUM",
                     "name": "Environment",
@@ -56,6 +61,7 @@
             },
             {
               "name": "me",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -67,6 +73,7 @@
             },
             {
               "name": "story",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -78,9 +85,11 @@
             },
             {
               "name": "node",
+              "description": null,
               "args": [
                 {
                   "name": "id",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "ID",
@@ -99,9 +108,11 @@
             },
             {
               "name": "nodes",
+              "description": null,
               "args": [
                 {
                   "name": "ids",
+                  "description": null,
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -132,9 +143,11 @@
             },
             {
               "name": "username",
+              "description": null,
               "args": [
                 {
                   "name": "name",
+                  "description": null,
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
@@ -157,9 +170,11 @@
             },
             {
               "name": "usernames",
+              "description": null,
               "args": [
                 {
                   "name": "names",
+                  "description": null,
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
@@ -193,6 +208,7 @@
             },
             {
               "name": "viewer",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -204,6 +220,7 @@
             },
             {
               "name": "_mutation",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -222,10 +239,12 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "CheckinSearchInput",
+          "description": null,
           "fields": null,
           "inputFields": [
             {
               "name": "query",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -241,9 +260,11 @@
         {
           "kind": "OBJECT",
           "name": "CheckinSearchResult",
+          "description": null,
           "fields": [
             {
               "name": "query",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -262,6 +283,7 @@
         {
           "kind": "SCALAR",
           "name": "String",
+          "description": null,
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -271,17 +293,20 @@
         {
           "kind": "ENUM",
           "name": "Environment",
+          "description": null,
           "fields": null,
           "inputFields": null,
           "interfaces": null,
           "enumValues": [
             {
               "name": "WEB",
+              "description": null,
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "MOBILE",
+              "description": null,
               "isDeprecated": false,
               "deprecationReason": null
             }
@@ -291,9 +316,11 @@
         {
           "kind": "OBJECT",
           "name": "Settings",
+          "description": null,
           "fields": [
             {
               "name": "notificationSounds",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -312,6 +339,7 @@
         {
           "kind": "SCALAR",
           "name": "Boolean",
+          "description": null,
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -321,9 +349,11 @@
         {
           "kind": "OBJECT",
           "name": "User",
+          "description": null,
           "fields": [
             {
               "name": "address",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -335,6 +365,7 @@
             },
             {
               "name": "allPhones",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -350,6 +381,7 @@
             },
             {
               "name": "birthdate",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -361,6 +393,7 @@
             },
             {
               "name": "emailAddresses",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -376,9 +409,11 @@
             },
             {
               "name": "firstName",
+              "description": null,
               "args": [
                 {
                   "name": "if",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -388,6 +423,7 @@
                 },
                 {
                   "name": "unless",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -406,9 +442,11 @@
             },
             {
               "name": "friends",
+              "description": null,
               "args": [
                 {
                   "name": "after",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -418,6 +456,7 @@
                 },
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -427,6 +466,7 @@
                 },
                 {
                   "name": "orderby",
+                  "description": null,
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -440,6 +480,7 @@
                 },
                 {
                   "name": "find",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -449,6 +490,7 @@
                 },
                 {
                   "name": "isViewerFriend",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -458,6 +500,7 @@
                 },
                 {
                   "name": "if",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -467,6 +510,7 @@
                 },
                 {
                   "name": "unless",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -485,6 +529,7 @@
             },
             {
               "name": "hometown",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -496,6 +541,7 @@
             },
             {
               "name": "id",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -511,6 +557,7 @@
             },
             {
               "name": "lastName",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -522,6 +569,7 @@
             },
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -533,9 +581,11 @@
             },
             {
               "name": "profilePicture",
+              "description": null,
               "args": [
                 {
                   "name": "size",
+                  "description": null,
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -558,6 +608,7 @@
             },
             {
               "name": "screennames",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -573,9 +624,11 @@
             },
             {
               "name": "url",
+              "description": null,
               "args": [
                 {
                   "name": "site",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -594,6 +647,7 @@
             },
             {
               "name": "websites",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -609,6 +663,7 @@
             },
             {
               "name": "username",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -638,9 +693,11 @@
         {
           "kind": "INTERFACE",
           "name": "Node",
+          "description": null,
           "fields": [
             {
               "name": "actor",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "INTERFACE",
@@ -652,6 +709,7 @@
             },
             {
               "name": "actors",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -667,6 +725,7 @@
             },
             {
               "name": "actorCount",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -678,6 +737,7 @@
             },
             {
               "name": "address",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -689,6 +749,7 @@
             },
             {
               "name": "allPhones",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -704,6 +765,7 @@
             },
             {
               "name": "birthdate",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -715,6 +777,7 @@
             },
             {
               "name": "canViewerLike",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -726,9 +789,11 @@
             },
             {
               "name": "comments",
+              "description": null,
               "args": [
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -738,6 +803,7 @@
                 },
                 {
                   "name": "last",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",
@@ -747,6 +813,7 @@
                 },
                 {
                   "name": "orderby",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -765,6 +832,7 @@
             },
             {
               "name": "doesViewerLike",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -776,6 +844,7 @@
             },
             {
               "name": "emailAddresses",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -791,6 +860,7 @@
             },
             {
               "name": "feedback",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -802,9 +872,11 @@
             },
             {
               "name": "firstName",
+              "description": null,
               "args": [
                 {
                   "name": "if",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -814,6 +886,7 @@
                 },
                 {
                   "name": "unless",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -832,9 +905,11 @@
             },
             {
               "name": "friends",
+              "description": null,
               "args": [
                 {
                   "name": "after",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -844,6 +919,7 @@
                 },
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -853,6 +929,7 @@
                 },
                 {
                   "name": "orderby",
+                  "description": null,
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -866,6 +943,7 @@
                 },
                 {
                   "name": "find",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -875,6 +953,7 @@
                 },
                 {
                   "name": "isViewerFriend",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -884,6 +963,7 @@
                 },
                 {
                   "name": "if",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -893,6 +973,7 @@
                 },
                 {
                   "name": "unless",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -911,6 +992,7 @@
             },
             {
               "name": "hometown",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -922,6 +1004,7 @@
             },
             {
               "name": "id",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -937,6 +1020,7 @@
             },
             {
               "name": "lastName",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -948,9 +1032,11 @@
             },
             {
               "name": "likers",
+              "description": null,
               "args": [
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -969,6 +1055,7 @@
             },
             {
               "name": "likeSentence",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -980,6 +1067,7 @@
             },
             {
               "name": "message",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -991,6 +1079,7 @@
             },
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1002,9 +1091,11 @@
             },
             {
               "name": "profilePicture",
+              "description": null,
               "args": [
                 {
                   "name": "size",
+                  "description": null,
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -1027,9 +1118,11 @@
             },
             {
               "name": "segments",
+              "description": null,
               "args": [
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -1048,6 +1141,7 @@
             },
             {
               "name": "screennames",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -1063,9 +1157,11 @@
             },
             {
               "name": "topLevelComments",
+              "description": null,
               "args": [
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -1084,6 +1180,7 @@
             },
             {
               "name": "tracking",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1095,9 +1192,11 @@
             },
             {
               "name": "url",
+              "description": null,
               "args": [
                 {
                   "name": "site",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -1116,6 +1215,7 @@
             },
             {
               "name": "websites",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -1131,6 +1231,7 @@
             },
             {
               "name": "username",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1142,6 +1243,7 @@
             },
             {
               "name": "viewerSavedState",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1158,7 +1260,7 @@
           "possibleTypes": [
             {
               "kind": "OBJECT",
-              "name": "User",
+              "name": "Comment",
               "ofType": null
             },
             {
@@ -1173,17 +1275,99 @@
             },
             {
               "kind": "OBJECT",
-              "name": "Comment",
+              "name": "User",
               "ofType": null
             }
           ]
         },
         {
+          "kind": "OBJECT",
+          "name": "Comment",
+          "description": null,
+          "fields": [
+            {
+              "name": "author",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "INTERFACE",
+                "name": "Actor",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "body",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Text",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "id",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "url",
+              "description": null,
+              "args": [
+                {
+                  "name": "site",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
+              "ofType": null
+            }
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "INTERFACE",
           "name": "Actor",
+          "description": null,
           "fields": [
             {
               "name": "address",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1195,6 +1379,7 @@
             },
             {
               "name": "allPhones",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -1210,6 +1395,7 @@
             },
             {
               "name": "birthdate",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1221,6 +1407,7 @@
             },
             {
               "name": "emailAddresses",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -1236,9 +1423,11 @@
             },
             {
               "name": "firstName",
+              "description": null,
               "args": [
                 {
                   "name": "if",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -1248,6 +1437,7 @@
                 },
                 {
                   "name": "unless",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -1266,9 +1456,11 @@
             },
             {
               "name": "friends",
+              "description": null,
               "args": [
                 {
                   "name": "after",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -1278,6 +1470,7 @@
                 },
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -1287,6 +1480,7 @@
                 },
                 {
                   "name": "orderby",
+                  "description": null,
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -1300,6 +1494,7 @@
                 },
                 {
                   "name": "find",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -1309,6 +1504,7 @@
                 },
                 {
                   "name": "isViewerFriend",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -1318,6 +1514,7 @@
                 },
                 {
                   "name": "if",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -1327,6 +1524,7 @@
                 },
                 {
                   "name": "unless",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -1345,6 +1543,7 @@
             },
             {
               "name": "hometown",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1356,6 +1555,7 @@
             },
             {
               "name": "id",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -1371,6 +1571,7 @@
             },
             {
               "name": "lastName",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1382,6 +1583,7 @@
             },
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1393,9 +1595,11 @@
             },
             {
               "name": "profilePicture",
+              "description": null,
               "args": [
                 {
                   "name": "size",
+                  "description": null,
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -1418,6 +1622,7 @@
             },
             {
               "name": "screennames",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -1433,6 +1638,7 @@
             },
             {
               "name": "subscribeStatus",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1444,9 +1650,11 @@
             },
             {
               "name": "subscribers",
+              "description": null,
               "args": [
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -1465,9 +1673,11 @@
             },
             {
               "name": "url",
+              "description": null,
               "args": [
                 {
                   "name": "site",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -1486,6 +1696,7 @@
             },
             {
               "name": "websites",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -1501,6 +1712,7 @@
             },
             {
               "name": "username",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1517,12 +1729,12 @@
           "possibleTypes": [
             {
               "kind": "OBJECT",
-              "name": "User",
+              "name": "Page",
               "ofType": null
             },
             {
               "kind": "OBJECT",
-              "name": "Page",
+              "name": "User",
               "ofType": null
             }
           ]
@@ -1530,9 +1742,11 @@
         {
           "kind": "OBJECT",
           "name": "Page",
+          "description": null,
           "fields": [
             {
               "name": "address",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1544,9 +1758,11 @@
             },
             {
               "name": "backgroundImage",
+              "description": null,
               "args": [
                 {
                   "name": "size",
+                  "description": null,
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -1569,6 +1785,7 @@
             },
             {
               "name": "id",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -1584,6 +1801,7 @@
             },
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1595,9 +1813,11 @@
             },
             {
               "name": "profilePicture",
+              "description": null,
               "args": [
                 {
                   "name": "size",
+                  "description": null,
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -1620,6 +1840,7 @@
             },
             {
               "name": "websites",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -1635,9 +1856,11 @@
             },
             {
               "name": "url",
+              "description": null,
               "args": [
                 {
                   "name": "site",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -1674,9 +1897,11 @@
         {
           "kind": "OBJECT",
           "name": "StreetAddress",
+          "description": null,
           "fields": [
             {
               "name": "city",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1688,6 +1913,7 @@
             },
             {
               "name": "country",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1699,6 +1925,7 @@
             },
             {
               "name": "postal_code",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1710,6 +1937,7 @@
             },
             {
               "name": "street",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1728,6 +1956,7 @@
         {
           "kind": "SCALAR",
           "name": "Int",
+          "description": null,
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -1737,9 +1966,11 @@
         {
           "kind": "OBJECT",
           "name": "Image",
+          "description": null,
           "fields": [
             {
               "name": "uri",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1751,6 +1982,7 @@
             },
             {
               "name": "width",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1762,6 +1994,7 @@
             },
             {
               "name": "height",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1780,6 +2013,7 @@
         {
           "kind": "SCALAR",
           "name": "ID",
+          "description": null,
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -1789,9 +2023,11 @@
         {
           "kind": "OBJECT",
           "name": "Phone",
+          "description": null,
           "fields": [
             {
               "name": "isVerified",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1803,6 +2039,7 @@
             },
             {
               "name": "phoneNumber",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1821,9 +2058,11 @@
         {
           "kind": "OBJECT",
           "name": "PhoneNumber",
+          "description": null,
           "fields": [
             {
               "name": "displayNumber",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1835,6 +2074,7 @@
             },
             {
               "name": "countryCode",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1853,9 +2093,11 @@
         {
           "kind": "OBJECT",
           "name": "Date",
+          "description": null,
           "fields": [
             {
               "name": "day",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1867,6 +2109,7 @@
             },
             {
               "name": "month",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1878,6 +2121,7 @@
             },
             {
               "name": "year",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1896,9 +2140,11 @@
         {
           "kind": "OBJECT",
           "name": "FriendsConnection",
+          "description": null,
           "fields": [
             {
               "name": "count",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1910,6 +2156,7 @@
             },
             {
               "name": "edges",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -1925,6 +2172,7 @@
             },
             {
               "name": "pageInfo",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1943,9 +2191,11 @@
         {
           "kind": "OBJECT",
           "name": "FriendsEdge",
+          "description": null,
           "fields": [
             {
               "name": "cursor",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1957,6 +2207,7 @@
             },
             {
               "name": "node",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1968,6 +2219,7 @@
             },
             {
               "name": "source",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1986,9 +2238,11 @@
         {
           "kind": "OBJECT",
           "name": "PageInfo",
+          "description": null,
           "fields": [
             {
               "name": "hasPreviousPage",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2000,6 +2254,7 @@
             },
             {
               "name": "hasNextPage",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2011,6 +2266,7 @@
             },
             {
               "name": "endCursor",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2022,6 +2278,7 @@
             },
             {
               "name": "startCursor",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2040,9 +2297,11 @@
         {
           "kind": "OBJECT",
           "name": "Screenname",
+          "description": null,
           "fields": [
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2054,6 +2313,7 @@
             },
             {
               "name": "service",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2072,9 +2332,11 @@
         {
           "kind": "OBJECT",
           "name": "SubscribersConnection",
+          "description": null,
           "fields": [
             {
               "name": "count",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2086,6 +2348,7 @@
             },
             {
               "name": "edges",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -2101,6 +2364,7 @@
             },
             {
               "name": "pageInfo",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -2113,179 +2377,17 @@
           ],
           "inputFields": null,
           "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "CommentsConnection",
-          "fields": [
-            {
-              "name": "count",
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "edges",
-              "args": [],
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "CommentsEdge",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "pageInfo",
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "PageInfo",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "CommentsEdge",
-          "fields": [
-            {
-              "name": "cursor",
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "node",
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Comment",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "source",
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Feedback",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "Comment",
-          "fields": [
-            {
-              "name": "author",
-              "args": [],
-              "type": {
-                "kind": "INTERFACE",
-                "name": "Actor",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "body",
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Text",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "id",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "url",
-              "args": [
-                {
-                  "name": "site",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                }
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "Node",
-              "ofType": null
-            }
-          ],
           "enumValues": null,
           "possibleTypes": null
         },
         {
           "kind": "OBJECT",
           "name": "Text",
+          "description": null,
           "fields": [
             {
               "name": "text",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2304,9 +2406,11 @@
         {
           "kind": "OBJECT",
           "name": "Feedback",
+          "description": null,
           "fields": [
             {
               "name": "id",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -2322,6 +2426,7 @@
             },
             {
               "name": "canViewerLike",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2333,6 +2438,7 @@
             },
             {
               "name": "canViewerComment",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2344,9 +2450,11 @@
             },
             {
               "name": "comments",
+              "description": null,
               "args": [
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -2356,6 +2464,7 @@
                 },
                 {
                   "name": "last",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",
@@ -2365,6 +2474,7 @@
                 },
                 {
                   "name": "orderby",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -2383,6 +2493,7 @@
             },
             {
               "name": "doesViewerLike",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2394,9 +2505,11 @@
             },
             {
               "name": "likers",
+              "description": null,
               "args": [
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -2415,6 +2528,7 @@
             },
             {
               "name": "likeSentence",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -2426,9 +2540,11 @@
             },
             {
               "name": "topLevelComments",
+              "description": null,
               "args": [
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -2447,9 +2563,11 @@
             },
             {
               "name": "url",
+              "description": null,
               "args": [
                 {
                   "name": "site",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -2480,10 +2598,12 @@
         },
         {
           "kind": "OBJECT",
-          "name": "LikersOfContentConnection",
+          "name": "CommentsConnection",
+          "description": null,
           "fields": [
             {
               "name": "count",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2495,6 +2615,105 @@
             },
             {
               "name": "edges",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "CommentsEdge",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "PageInfo",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "CommentsEdge",
+          "description": null,
+          "fields": [
+            {
+              "name": "cursor",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Comment",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "source",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Feedback",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "LikersOfContentConnection",
+          "description": null,
+          "fields": [
+            {
+              "name": "count",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "edges",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -2510,6 +2729,7 @@
             },
             {
               "name": "pageInfo",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -2528,9 +2748,11 @@
         {
           "kind": "OBJECT",
           "name": "LikersEdge",
+          "description": null,
           "fields": [
             {
               "name": "cursor",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2542,6 +2764,7 @@
             },
             {
               "name": "node",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "INTERFACE",
@@ -2560,9 +2783,11 @@
         {
           "kind": "OBJECT",
           "name": "TopLevelCommentsConnection",
+          "description": null,
           "fields": [
             {
               "name": "count",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2574,6 +2799,7 @@
             },
             {
               "name": "edges",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -2589,6 +2815,7 @@
             },
             {
               "name": "pageInfo",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -2600,6 +2827,7 @@
             },
             {
               "name": "totalCount",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2618,9 +2846,11 @@
         {
           "kind": "OBJECT",
           "name": "Segments",
+          "description": null,
           "fields": [
             {
               "name": "edges",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -2639,9 +2869,11 @@
         {
           "kind": "OBJECT",
           "name": "SegmentsEdge",
+          "description": null,
           "fields": [
             {
               "name": "node",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2660,9 +2892,11 @@
         {
           "kind": "OBJECT",
           "name": "Story",
+          "description": null,
           "fields": [
             {
               "name": "actor",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "INTERFACE",
@@ -2674,6 +2908,7 @@
             },
             {
               "name": "actors",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -2689,6 +2924,7 @@
             },
             {
               "name": "actorCount",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2700,6 +2936,7 @@
             },
             {
               "name": "canViewerDelete",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2711,6 +2948,7 @@
             },
             {
               "name": "feedback",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -2722,6 +2960,7 @@
             },
             {
               "name": "id",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -2737,6 +2976,7 @@
             },
             {
               "name": "message",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -2748,6 +2988,7 @@
             },
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2759,9 +3000,11 @@
             },
             {
               "name": "profilePicture",
+              "description": null,
               "args": [
                 {
                   "name": "size",
+                  "description": null,
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -2784,6 +3027,7 @@
             },
             {
               "name": "seenState",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2795,6 +3039,7 @@
             },
             {
               "name": "tracking",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2806,6 +3051,7 @@
             },
             {
               "name": "websites",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -2834,9 +3080,11 @@
         {
           "kind": "INTERFACE",
           "name": "FeedUnit",
+          "description": null,
           "fields": [
             {
               "name": "actor",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "INTERFACE",
@@ -2848,6 +3096,7 @@
             },
             {
               "name": "actorCount",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2859,6 +3108,7 @@
             },
             {
               "name": "feedback",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -2870,6 +3120,7 @@
             },
             {
               "name": "id",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -2885,6 +3136,7 @@
             },
             {
               "name": "message",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -2896,6 +3148,7 @@
             },
             {
               "name": "tracking",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2920,12 +3173,15 @@
         {
           "kind": "OBJECT",
           "name": "Viewer",
+          "description": null,
           "fields": [
             {
               "name": "__configs__",
+              "description": null,
               "args": [
                 {
                   "name": "named",
+                  "description": null,
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -2948,6 +3204,7 @@
             },
             {
               "name": "__type__",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -2959,6 +3216,7 @@
             },
             {
               "name": "actor",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "INTERFACE",
@@ -2970,6 +3228,7 @@
             },
             {
               "name": "isFbEmployee",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2981,9 +3240,11 @@
             },
             {
               "name": "newsFeed",
+              "description": null,
               "args": [
                 {
                   "name": "after",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -2993,6 +3254,7 @@
                 },
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -3002,6 +3264,7 @@
                 },
                 {
                   "name": "find",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "ID",
@@ -3020,9 +3283,11 @@
             },
             {
               "name": "notificationStories",
+              "description": null,
               "args": [
                 {
                   "name": "after",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -3032,6 +3297,7 @@
                 },
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -3050,9 +3316,11 @@
             },
             {
               "name": "pendingPosts",
+              "description": null,
               "args": [
                 {
                   "name": "first",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -3071,6 +3339,7 @@
             },
             {
               "name": "primaryEmail",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3082,6 +3351,7 @@
             },
             {
               "name": "timezoneEstimate",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -3100,9 +3370,11 @@
         {
           "kind": "OBJECT",
           "name": "ConfigsConnection",
+          "description": null,
           "fields": [
             {
               "name": "edges",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -3118,6 +3390,7 @@
             },
             {
               "name": "pageInfo",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -3136,9 +3409,11 @@
         {
           "kind": "OBJECT",
           "name": "ConfigsConnectionEdge",
+          "description": null,
           "fields": [
             {
               "name": "node",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -3157,9 +3432,11 @@
         {
           "kind": "OBJECT",
           "name": "Config",
+          "description": null,
           "fields": [
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3171,6 +3448,7 @@
             },
             {
               "name": "isEnabled",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3189,9 +3467,11 @@
         {
           "kind": "OBJECT",
           "name": "Type",
+          "description": null,
           "fields": [
             {
               "name": "id",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -3207,6 +3487,7 @@
             },
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3225,9 +3506,11 @@
         {
           "kind": "OBJECT",
           "name": "NewsFeedConnection",
+          "description": null,
           "fields": [
             {
               "name": "edges",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -3243,6 +3526,7 @@
             },
             {
               "name": "pageInfo",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -3261,9 +3545,11 @@
         {
           "kind": "OBJECT",
           "name": "NewsFeedEdge",
+          "description": null,
           "fields": [
             {
               "name": "cursor",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3275,6 +3561,7 @@
             },
             {
               "name": "node",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "INTERFACE",
@@ -3286,6 +3573,7 @@
             },
             {
               "name": "sortKey",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3297,6 +3585,7 @@
             },
             {
               "name": "showBeeper",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3315,9 +3604,11 @@
         {
           "kind": "OBJECT",
           "name": "PendingPostsConnection",
+          "description": null,
           "fields": [
             {
               "name": "count",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3329,6 +3620,7 @@
             },
             {
               "name": "edges",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -3344,6 +3636,7 @@
             },
             {
               "name": "pageInfo",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -3362,9 +3655,11 @@
         {
           "kind": "OBJECT",
           "name": "PendingPostsConnectionEdge",
+          "description": null,
           "fields": [
             {
               "name": "cursor",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3376,6 +3671,7 @@
             },
             {
               "name": "node",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -3394,9 +3690,11 @@
         {
           "kind": "OBJECT",
           "name": "PendingPost",
+          "description": null,
           "fields": [
             {
               "name": "text",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3415,9 +3713,11 @@
         {
           "kind": "OBJECT",
           "name": "TimezoneInfo",
+          "description": null,
           "fields": [
             {
               "name": "timezone",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3436,12 +3736,15 @@
         {
           "kind": "OBJECT",
           "name": "Mutation",
+          "description": null,
           "fields": [
             {
               "name": "actorSubscribe",
+              "description": null,
               "args": [
                 {
                   "name": "input",
+                  "description": null,
                   "type": {
                     "kind": "INPUT_OBJECT",
                     "name": "ActorSubscribeInput",
@@ -3460,9 +3763,11 @@
             },
             {
               "name": "applicationRequestDeleteAll",
+              "description": null,
               "args": [
                 {
                   "name": "input",
+                  "description": null,
                   "type": {
                     "kind": "INPUT_OBJECT",
                     "name": "ApplicationRequestDeleteAllInput",
@@ -3481,9 +3786,11 @@
             },
             {
               "name": "commentCreate",
+              "description": null,
               "args": [
                 {
                   "name": "input",
+                  "description": null,
                   "type": {
                     "kind": "INPUT_OBJECT",
                     "name": "CommentCreateInput",
@@ -3502,9 +3809,11 @@
             },
             {
               "name": "commentDelete",
+              "description": null,
               "args": [
                 {
                   "name": "input",
+                  "description": null,
                   "type": {
                     "kind": "INPUT_OBJECT",
                     "name": "CommentDeleteInput",
@@ -3523,9 +3832,11 @@
             },
             {
               "name": "feedbackLike",
+              "description": null,
               "args": [
                 {
                   "name": "input",
+                  "description": null,
                   "type": {
                     "kind": "INPUT_OBJECT",
                     "name": "FeedbackLikeInput",
@@ -3544,9 +3855,11 @@
             },
             {
               "name": "feedbackLikeSubscribe",
+              "description": null,
               "args": [
                 {
                   "name": "input",
+                  "description": null,
                   "type": {
                     "kind": "INPUT_OBJECT",
                     "name": "FeedbackLikeInput",
@@ -3565,9 +3878,11 @@
             },
             {
               "name": "nodeSavedState",
+              "description": null,
               "args": [
                 {
                   "name": "input",
+                  "description": null,
                   "type": {
                     "kind": "INPUT_OBJECT",
                     "name": "NodeSaveStateInput",
@@ -3586,9 +3901,11 @@
             },
             {
               "name": "viewerNotificationsUpdateAllSeenState",
+              "description": null,
               "args": [
                 {
                   "name": "input",
+                  "description": null,
                   "type": {
                     "kind": "INPUT_OBJECT",
                     "name": "UpdateAllSeenStateInput",
@@ -3614,10 +3931,12 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "ActorSubscribeInput",
+          "description": null,
           "fields": null,
           "inputFields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -3627,6 +3946,7 @@
             },
             {
               "name": "subscribeeId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
@@ -3642,9 +3962,11 @@
         {
           "kind": "OBJECT",
           "name": "ActorSubscribeResponsePayload",
+          "description": null,
           "fields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3656,6 +3978,7 @@
             },
             {
               "name": "subscribee",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "INTERFACE",
@@ -3674,10 +3997,12 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "ApplicationRequestDeleteAllInput",
+          "description": null,
           "fields": null,
           "inputFields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -3687,6 +4012,7 @@
             },
             {
               "name": "deletedRequestIds",
+              "description": null,
               "type": {
                 "kind": "LIST",
                 "name": null,
@@ -3706,9 +4032,11 @@
         {
           "kind": "OBJECT",
           "name": "ApplicationRequestDeleteAllResponsePayload",
+          "description": null,
           "fields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3720,6 +4048,7 @@
             },
             {
               "name": "deletedRequestIds",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -3742,10 +4071,12 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "CommentCreateInput",
+          "description": null,
           "fields": null,
           "inputFields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -3755,6 +4086,7 @@
             },
             {
               "name": "feedbackId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
@@ -3770,9 +4102,11 @@
         {
           "kind": "OBJECT",
           "name": "CommentCreateResponsePayload",
+          "description": null,
           "fields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3784,6 +4118,7 @@
             },
             {
               "name": "comment",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -3795,6 +4130,7 @@
             },
             {
               "name": "feedback",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -3806,6 +4142,7 @@
             },
             {
               "name": "feedbackCommentEdge",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -3824,10 +4161,12 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "CommentDeleteInput",
+          "description": null,
           "fields": null,
           "inputFields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -3837,6 +4176,7 @@
             },
             {
               "name": "commentId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
@@ -3852,9 +4192,11 @@
         {
           "kind": "OBJECT",
           "name": "CommentDeleteResponsePayload",
+          "description": null,
           "fields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3866,6 +4208,7 @@
             },
             {
               "name": "deletedCommentId",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3877,6 +4220,7 @@
             },
             {
               "name": "feedback",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -3895,10 +4239,12 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "FeedbackLikeInput",
+          "description": null,
           "fields": null,
           "inputFields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -3908,6 +4254,7 @@
             },
             {
               "name": "feedbackId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
@@ -3923,9 +4270,11 @@
         {
           "kind": "OBJECT",
           "name": "FeedbackLikeResponsePayload",
+          "description": null,
           "fields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3937,6 +4286,7 @@
             },
             {
               "name": "clientSubscriptionId",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -3948,6 +4298,7 @@
             },
             {
               "name": "feedback",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -3966,10 +4317,12 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "NodeSaveStateInput",
+          "description": null,
           "fields": null,
           "inputFields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -3979,6 +4332,7 @@
             },
             {
               "name": "nodeId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
@@ -3994,9 +4348,11 @@
         {
           "kind": "OBJECT",
           "name": "NodeSavedStateResponsePayload",
+          "description": null,
           "fields": [
             {
               "name": "node",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "INTERFACE",
@@ -4015,10 +4371,12 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "UpdateAllSeenStateInput",
+          "description": null,
           "fields": null,
           "inputFields": [
             {
               "name": "clientMutationId",
+              "description": null,
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -4028,6 +4386,7 @@
             },
             {
               "name": "storyIds",
+              "description": null,
               "type": {
                 "kind": "LIST",
                 "name": null,
@@ -4047,9 +4406,11 @@
         {
           "kind": "OBJECT",
           "name": "ViewerNotificationsUpdateAllSeenStateResponsePayload",
+          "description": null,
           "fields": [
             {
               "name": "stories",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -4072,9 +4433,11 @@
         {
           "kind": "OBJECT",
           "name": "__Schema",
+          "description": "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query and mutation operations.",
           "fields": [
             {
               "name": "types",
+              "description": "A list of all types supported by this server.",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4097,6 +4460,7 @@
             },
             {
               "name": "queryType",
+              "description": "The type that query operations will be rooted at.",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4112,6 +4476,7 @@
             },
             {
               "name": "mutationType",
+              "description": "If this server supports mutation, the type that mutation operations will be rooted at.",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -4123,6 +4488,7 @@
             },
             {
               "name": "directives",
+              "description": "A list of all directives supported by this server.",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4152,9 +4518,11 @@
         {
           "kind": "OBJECT",
           "name": "__Type",
+          "description": null,
           "fields": [
             {
               "name": "kind",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4170,6 +4538,7 @@
             },
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -4181,6 +4550,7 @@
             },
             {
               "name": "description",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -4192,9 +4562,11 @@
             },
             {
               "name": "fields",
+              "description": null,
               "args": [
                 {
                   "name": "includeDeprecated",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -4221,6 +4593,7 @@
             },
             {
               "name": "interfaces",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -4240,6 +4613,7 @@
             },
             {
               "name": "possibleTypes",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -4259,9 +4633,11 @@
             },
             {
               "name": "enumValues",
+              "description": null,
               "args": [
                 {
                   "name": "includeDeprecated",
+                  "description": null,
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -4288,6 +4664,7 @@
             },
             {
               "name": "inputFields",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -4307,6 +4684,7 @@
             },
             {
               "name": "ofType",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -4325,47 +4703,56 @@
         {
           "kind": "ENUM",
           "name": "__TypeKind",
+          "description": "An enum describing what kind of type a given __Type is",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
           "enumValues": [
             {
               "name": "SCALAR",
+              "description": "Indicates this type is a scalar.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "OBJECT",
+              "description": "Indicates this type is an object. `fields` and `interfaces` are valid fields.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "INTERFACE",
+              "description": "Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "UNION",
+              "description": "Indicates this type is a union. `possibleTypes` is a valid field.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "ENUM",
+              "description": "Indicates this type is an enum. `enumValues` is a valid field.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "INPUT_OBJECT",
+              "description": "Indicates this type is an input object. `inputFields` is a valid field.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "LIST",
+              "description": "Indicates this type is a list. `ofType` is a valid field.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "NON_NULL",
+              "description": "Indicates this type is a non-null. `ofType` is a valid field.",
               "isDeprecated": false,
               "deprecationReason": null
             }
@@ -4375,9 +4762,11 @@
         {
           "kind": "OBJECT",
           "name": "__Field",
+          "description": null,
           "fields": [
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4393,6 +4782,7 @@
             },
             {
               "name": "description",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -4404,6 +4794,7 @@
             },
             {
               "name": "args",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4426,6 +4817,7 @@
             },
             {
               "name": "type",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4441,6 +4833,7 @@
             },
             {
               "name": "isDeprecated",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4456,6 +4849,7 @@
             },
             {
               "name": "deprecationReason",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -4474,9 +4868,11 @@
         {
           "kind": "OBJECT",
           "name": "__InputValue",
+          "description": null,
           "fields": [
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4492,6 +4888,7 @@
             },
             {
               "name": "description",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -4503,6 +4900,7 @@
             },
             {
               "name": "type",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4518,6 +4916,7 @@
             },
             {
               "name": "defaultValue",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -4536,9 +4935,11 @@
         {
           "kind": "OBJECT",
           "name": "__EnumValue",
+          "description": null,
           "fields": [
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4554,6 +4955,7 @@
             },
             {
               "name": "description",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -4565,6 +4967,7 @@
             },
             {
               "name": "isDeprecated",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4580,6 +4983,7 @@
             },
             {
               "name": "deprecationReason",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -4598,9 +5002,11 @@
         {
           "kind": "OBJECT",
           "name": "__Directive",
+          "description": null,
           "fields": [
             {
               "name": "name",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4616,6 +5022,7 @@
             },
             {
               "name": "description",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -4627,6 +5034,7 @@
             },
             {
               "name": "args",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4649,6 +5057,7 @@
             },
             {
               "name": "onOperation",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4664,6 +5073,7 @@
             },
             {
               "name": "onFragment",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4679,6 +5089,7 @@
             },
             {
               "name": "onField",
+              "description": null,
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -4702,9 +5113,11 @@
       "directives": [
         {
           "name": "include",
+          "description": "Directs the executor to include this field or fragment only when the `if` argument is true.",
           "args": [
             {
               "name": "if",
+              "description": "Included when true.",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -4723,9 +5136,11 @@
         },
         {
           "name": "skip",
+          "description": "Directs the executor to skip this field or fragment when the `if` argument is true.",
           "args": [
             {
               "name": "if",
+              "description": "Skipped when true.",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,

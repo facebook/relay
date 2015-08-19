@@ -990,7 +990,7 @@ function create(
     invariant(
       typeof fragmentBuilder === 'function',
       'RelayContainer: Expected `%s.fragments.%s` to be a function returning '+
-      'a fragment. Example: `%s: () => Relay.QL`fragment on ...`',
+      'a fragment. Example: `%s: () => Relay.QL`fragment on ... .`',
       containerName,
       fragmentName,
       fragmentName

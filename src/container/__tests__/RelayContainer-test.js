@@ -131,7 +131,7 @@ describe('RelayContainer', function() {
       }).toFailInvariant(
         'RelayContainer: Expected `Relay(MockComponent).fragments.viewer` to ' +
         'be a function returning a fragment. Example: ' +
-        '`viewer: () => Relay.QL`fragment on ...`'
+        '`viewer: () => Relay.QL`fragment on ... .`'
       );
     });
 

@@ -94,6 +94,23 @@ var RelayTestUtils = {
     };
   },
 
+  conditionOnType(fragment) {
+    var GraphQL = require('GraphQL');
+    var RelayFragmentReference = require('RelayFragmentReference');
+    var invariant = require('invariant');
+
+    invariant(
+      GraphQL.isFragment(fragment),
+      'conditionOnType(): Argument must be a GraphQL.QueryFragment.'
+    );
+    var reference = new RelayFragmentReference(
+      () => fragment,
+      {}
+    );
+    reference.conditionOnType();
+    return reference;
+  },
+
   defer(fragment) {
     var GraphQL = require('GraphQL');
     var RelayFragmentReference = require('RelayFragmentReference');

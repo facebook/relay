@@ -26,13 +26,6 @@ var RelayTaskScheduler = require('RelayTaskScheduler');
 var getRelayQueries = require('getRelayQueries');
 var isRelayContainer = require('isRelayContainer');
 
-if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
-  global.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = {
-    NetworkLayer: require('RelayNetworkLayer'),
-    DefaultStoreData: require('RelayStoreData').getDefaultInstance(),
-  };
-}
-
 /**
  * Relay contains the set of public methods used to initialize and orchestrate
  * a React application that uses GraphQL to declare data dependencies.

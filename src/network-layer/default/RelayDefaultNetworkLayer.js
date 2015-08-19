@@ -32,7 +32,7 @@ type GraphQLErrorLocation = {
 
 class RelayDefaultNetworkLayer {
   _uri: string;
-  _init: InitWithRetries;
+  _init: $FlowIssue; // InitWithRetries
 
   constructor(uri: string, init?: ?InitWithRetries) {
     this._uri = uri;

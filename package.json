@@ -23,7 +23,8 @@
     "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",
     "prepublish": "npm run build",
     "lint": "eslint .",
-    "test": "NODE_ENV=test jest",
+    "test": "npm run typecheck && NODE_ENV=test jest",
+    "typecheck": "flow check src/",
     "update-schema": "babel-node ./scripts/jest/updateSchema.js"
   },
   "dependencies": {
@@ -42,8 +43,12 @@
     "babel-relay-plugin": "^0.1.2",
     "del": "^1.2.0",
     "envify": "^3.4.0",
+<<<<<<< HEAD
     "eslint": "^1.1.0",
     "eslint-plugin-react": "^3.2.3",
+=======
+    "flow-bin": "0.14.0",
+>>>>>>> master
     "graphql": "^0.2.6",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.1.0",

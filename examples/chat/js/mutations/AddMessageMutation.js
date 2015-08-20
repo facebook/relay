@@ -12,8 +12,13 @@ export default class AddMessageMutation extends Relay.Mutation {
     viewer: () => Relay.QL`
       fragment on User {
         id,
-        threads {
+        threads(first: 9007199254740991) {
           unreadCount,
+          edges {
+            node {
+              id
+            }
+          }
         },
       }
     `,
@@ -30,8 +35,13 @@ export default class AddMessageMutation extends Relay.Mutation {
           lastUpdated
         },
         viewer {
-          threads {
+          threads(first: 9007199254740991) {
             unreadCount,
+            edges {
+              node {
+                id
+              }
+            }
           },
         },
       }
@@ -39,6 +49,15 @@ export default class AddMessageMutation extends Relay.Mutation {
   }
   getConfigs() {
     return [{
+      // use FIELDS_CHANGE here to make unreadCount and thread order
+      // changeed as adding new message
+      type: 'FIELDS_CHANGE',
+      fieldIDs: {
+        thread: this.props.thread.id,
+        viewer: this.props.viewer.id,
+      },
+    },
+    {
       type: 'RANGE_ADD',
       parentName: 'thread',
       parentID: this.props.thread.id,
@@ -56,7 +75,19 @@ export default class AddMessageMutation extends Relay.Mutation {
     };
   }
   getOptimisticResponse() {
-    console.log('AddMessageMutation getOptimisticResponse', this.props);
+    let viewerPayload;
+    const {id, threads} = this.props.viewer;
+    const {unreadCount} = threads;
+    if (threads) {
+      viewerPayload = {id: id, threads: {}};
+      if (unreadCount != null) {
+        viewerPayload.threads.unreadCount = unreadCount > 0 ?
+          !this.props.thread.isRead ? unreadCount - 1 : unreadCount
+          : 0;
+  // make sure no double decrementing on same thread and no minus unreadCount
+  // copied from MarkThreadAsReadMutation, see if we can do something better
+      }
+    }
     let timestamp = Date.now();
     return {
       messageEdge: {
@@ -72,9 +103,7 @@ export default class AddMessageMutation extends Relay.Mutation {
         isRead: true,
         lastUpdated: timestamp
       },
-      viewer: {
-        id: this.props.viewer.id
-      },
+      viewer: viewerPayload
     };
   }
 }

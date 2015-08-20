@@ -49,13 +49,16 @@ export default class MarkThreadAsReadMutation extends Relay.Mutation {
     };
   }
   getOptimisticResponse() {
-    var viewerPayload;
-    var threads = this.props.viewer.threads;
+    let viewerPayload;
+    const {id, threads} = this.props.viewer;
+    const {unreadCount} = threads;
     if (threads) {
-      viewerPayload = {id: this.props.viewer.id, threads: {}};
-      if (threads.unreadCount != null) {
-        viewerPayload.threads.unreadCount = threads.unreadCount > 0 ?
-          threads.unreadCount - 1 : 0;
+      viewerPayload = {id: id, threads: {}};
+      if (unreadCount != null) {
+        viewerPayload.threads.unreadCount = unreadCount > 0 ?
+          !this.props.thread.isRead ? unreadCount - 1 : unreadCount
+          : 0;
+    // make sure no double decrementing on same thread and no minus unreadCount
       }
     }
     return {
@@ -63,7 +66,7 @@ export default class MarkThreadAsReadMutation extends Relay.Mutation {
         isRead: this.props.isRead,
         id: this.props.thread.id,
       },
-      viewer: viewerPayload,
+      viewer: viewerPayload
     };
   }
 }

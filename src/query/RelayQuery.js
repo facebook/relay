@@ -37,6 +37,11 @@ type BatchCall = {
   sourceQueryPath: string;
 };
 type ConcreteQueryObject = any;
+type FragmentMetadata = {
+  isDeferred: boolean;
+  isReferenceFragment: boolean;
+  isTypeConditional: boolean;
+};
 type FragmentNames = {[key: string]: string};
 type RootCallValue = string | GraphQL.BatchCallVariable;
 // TODO: replace once #6525923 is resolved
@@ -52,6 +57,12 @@ var QUERY_ID_PREFIX = 'q';
 var REF_PARAM_PREFIX = 'ref_';
 
 var _nextQueryID = 0;
+
+var DEFAULT_FRAGMENT_METADATA = {
+  isDeferred: false,
+  isReferenceFragment: false,
+  isTypeConditional: false,
+};
 
 /**
  * @internal
@@ -84,7 +95,6 @@ class RelayQueryNode {
   __fieldMap__: ?{[key: string]: RelayQueryField};
   __hasDeferredDescendant__: ?boolean;
   __hasValidatedConnectionCalls__: ?boolean;
-  __metadata__: ?{[key: string]: mixed};
   __route__: RelayMetaRoute;
   __serializationKey__: ?string;
   __storageKey__: ?string;
@@ -157,8 +167,11 @@ class RelayQueryNode {
       concreteFragment,
       RelayMetaRoute.get('$RelayQuery'),
       {},
-      !!(metadata && metadata.isDeferred),
-      !!(metadata && metadata.isReferenceFragment),
+      {
+        isDeferred: !!(metadata && metadata.isDeferred),
+        isReferenceFragment: !!(metadata && metadata.isReferenceFragment),
+        isTypeConditional: !!(metadata && metadata.isTypeConditional),
+      }
     );
     fragment.__children__ = nextChildren;
     return fragment;
@@ -227,7 +240,7 @@ class RelayQueryNode {
     concreteNode: ConcreteQueryObject,
     route: RelayMetaRoute,
     variables: Variables,
-    isDeferred?: boolean
+    metadata?: ?FragmentMetadata
   ): RelayQueryFragment {
     invariant(
       GraphQL.isFragment(concreteNode),
@@ -238,8 +251,7 @@ class RelayQueryNode {
       concreteNode,
       route,
       variables,
-      !!isDeferred,
-      false
+      metadata || DEFAULT_FRAGMENT_METADATA
     );
   }
 
@@ -284,7 +296,6 @@ class RelayQueryNode {
     this.__fieldMap__ = null;
     this.__hasDeferredDescendant__ = null;
     this.__hasValidatedConnectionCalls__ = null;
-    this.__metadata__ = null;
     this.__serializationKey__ = null;
     this.__storageKey__ = null;
 
@@ -694,20 +705,17 @@ class RelayQuerySubscription extends RelayQueryOperation {
  */
 class RelayQueryFragment extends RelayQueryNode {
   __fragmentID__: ?string;
-  __isDeferred__: boolean;
-  __isReferenceFragment__: boolean;
+  __metadata__: FragmentMetadata;
 
   constructor(
     concreteNode: ConcreteQueryObject,
     route: RelayMetaRoute,
     variables: Variables,
-    isDeferred?: boolean,
-    isReferenceFragment?: boolean,
+    metadata?: FragmentMetadata
   ) {
     super(concreteNode, route, variables);
     this.__fragmentID__ = null;
-    this.__isDeferred__ = !!isDeferred;
-    this.__isReferenceFragment__ = !!isReferenceFragment;
+    this.__metadata__ = metadata || DEFAULT_FRAGMENT_METADATA;
   }
 
   getDebugName(): string {
@@ -744,6 +752,10 @@ class RelayQueryFragment extends RelayQueryNode {
     return this.__concreteNode__.type;
   }
 
+  isDeferred(): boolean {
+    return this.__metadata__.isDeferred;
+  }
+
   isPlural(): boolean {
     return !!(
       (this.__concreteNode__.isPlural || // RQLPrinter
@@ -752,21 +764,23 @@ class RelayQueryFragment extends RelayQueryNode {
   }
 
   isReferenceFragment(): boolean {
-    return this.__isReferenceFragment__;
+    return this.__metadata__.isReferenceFragment;
+  }
+
+  isTypeConditional(): boolean {
+    return this.__metadata__.isTypeConditional;
   }
 
   hasDeferredDescendant(): boolean {
     return this.isDeferred() || super.hasDeferredDescendant();
   }
 
-  isDeferred(): boolean {
-    return this.__isDeferred__;
-  }
-
   clone(children: NextChildren): ?RelayQueryNode {
     var clone = super.clone(children);
     if (clone instanceof RelayQueryFragment) {
-      clone.__isDeferred__ = this.__isDeferred__;
+      clone.__metadata__ = {
+        ...this.__metadata__
+      };
     }
     return clone;
   }
@@ -793,6 +807,17 @@ class RelayQueryFragment extends RelayQueryNode {
  * Note: place proxy methods for `GraphQL.Field` here.
  */
 class RelayQueryField extends RelayQueryNode {
+  __isRefQueryDependency__: boolean;
+
+  constructor(
+    concreteNode: ConcreteQueryObject,
+    route: RelayMetaRoute,
+    variables: Variables
+  ) {
+    super(concreteNode, route, variables);
+    this.__isRefQueryDependency__ = false;
+  }
+
   isRequisite(): boolean {
     return this.__concreteNode__.metadata.isRequisite;
   }
@@ -814,7 +839,7 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   isRefQueryDependency(): boolean {
-    return !!(this.__metadata__ && this.__metadata__.isRefQueryDependency);
+    return this.__isRefQueryDependency__;
   }
 
   isScalar(): boolean {
@@ -969,10 +994,7 @@ class RelayQueryField extends RelayQueryNode {
       this.__variables__
     );
     field.__children__ = [];
-    field.__metadata__ = {
-      ...field.__metadata__,
-      isRefQueryDependency: true,
-    };
+    field.__isRefQueryDependency__ = true;
     return field;
   }
 
@@ -1055,8 +1077,11 @@ function createNode(
         fragment,
         route,
         fragmentVariables,
-        concreteNode.isDeferred(),
-        true
+        {
+          isDeferred: concreteNode.isDeferred(),
+          isReferenceFragment: true,
+          isTypeConditional: concreteNode.isTypeConditional(),
+        }
       );
     }
     return null;
@@ -1078,11 +1103,10 @@ function createMemoizedFragment(
   concreteFragment: GraphQL.QueryFragment,
   route: RelayMetaRoute,
   variables: Variables,
-  isDeferred: boolean,
-  isReferenceFragment: boolean,
+  metadata: FragmentMetadata
 ): RelayQueryFragment {
   var cacheKey = route.name + ':' + stableStringify(variables) + ':' +
-    String(isDeferred) + ':' + String(isReferenceFragment);
+    stableStringify(metadata);
   var fragment = concreteFragment.__cachedFragment__;
   var fragmentCacheKey = concreteFragment.__cacheKey__;
   if (!fragment || fragmentCacheKey !== cacheKey) {
@@ -1090,8 +1114,7 @@ function createMemoizedFragment(
       concreteFragment,
       route,
       variables,
-      isDeferred,
-      isReferenceFragment
+      metadata
     );
     concreteFragment.__cachedFragment__ = fragment;
     concreteFragment.__cacheKey__ = cacheKey;

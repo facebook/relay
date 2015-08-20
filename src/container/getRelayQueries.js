@@ -46,15 +46,11 @@ function getRelayQueries(
     return cache[cacheKey];
   }
   var querySet = {};
-  var unmatchedNameMap = {};
-  Object.keys(route.queries).forEach(queryName => {
-    unmatchedNameMap[queryName] = true;
-  });
   Component.getFragmentNames().forEach(fragmentName => {
+    // TODO: Fix this. It relies on the query and fragment names matching.
     var queryName = fragmentName;
     var queryBuilder = route.queries[queryName];
     if (queryBuilder) {
-      delete unmatchedNameMap[queryName];
       var concreteQuery = buildRQL.Query(
         queryBuilder,
         Component,
@@ -79,20 +75,9 @@ function getRelayQueries(
           return;
         }
       }
-    } else {
-      unmatchedNameMap[queryName] = true;
     }
     querySet[fragmentName] = null;
   });
-  var unmatchedNames = Object.keys(unmatchedNameMap);
-  invariant(
-    unmatchedNames.length === 0,
-    'getRelayQueries: %s.fragments and %s.queries have unmatched fragment ' +
-    'names. Make sure that both define: %s',
-    Component.displayName,
-    route.name,
-    unmatchedNames.join(', ')
-  );
   cache[cacheKey] = querySet;
   return querySet;
 }

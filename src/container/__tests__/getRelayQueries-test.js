@@ -20,7 +20,6 @@ describe('getRelayQueries', () => {
 
   var getRelayQueries;
 
-  var MockPageComponent;
   var MockPageContainer;
 
   var makeRoute;
@@ -35,7 +34,7 @@ describe('getRelayQueries', () => {
 
     getRelayQueries = require('getRelayQueries');
 
-    MockPageComponent = class MockPageComponent extends React.Component {
+    class MockPageComponent extends React.Component {
       render() {
         return <div/>;
       }
@@ -121,25 +120,6 @@ describe('getRelayQueries', () => {
     }).toFailInvariant(
       'Relay.QL defined on route `BadRoute` named `first` is not a valid ' +
       'query. A typical query is defined using: Relay.QL`query {...}`'
-    );
-  });
-
-  it('throws if there are unmatched query/fragment names', () => {
-    var MockRoute = makeRoute();
-    var route = new MockRoute({id: '123'});
-
-    var AnotherMockContainer = Relay.createContainer(MockPageComponent, {
-      fragments: {
-        middle: () => Relay.QL`fragment on Node{id}`,
-      }
-    });
-
-    expect(() => {
-      getRelayQueries(AnotherMockContainer, route);
-    }).toFailInvariant(
-      'getRelayQueries: Relay(MockPageComponent).fragments and ' +
-      'MockRoute.queries have unmatched fragment names. Make sure that both ' +
-      'define: first, last, middle'
     );
   });
 });

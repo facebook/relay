@@ -13,6 +13,8 @@
 
 'use strict';
 
+import type RelayQuery from 'RelayQuery'; // eslint-disable-line
+
 var RelayQueryVisitor = require('RelayQueryVisitor');
 
 /**

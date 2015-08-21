@@ -53,7 +53,6 @@ export default class AddMessageMutation extends Relay.Mutation {
       // changeed as adding new message
       type: 'FIELDS_CHANGE',
       fieldIDs: {
-        thread: this.props.thread.id,
         viewer: this.props.viewer.id,
       },
     },
@@ -92,7 +91,6 @@ export default class AddMessageMutation extends Relay.Mutation {
     return {
       messageEdge: {
         node: {
-          id: 'm_' + timestamp,
           authorName: 'me', // hard coded for the example
           timestamp: timestamp,
           text: this.props.text,

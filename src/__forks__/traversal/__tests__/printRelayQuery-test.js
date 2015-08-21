@@ -53,7 +53,8 @@ describe('printRelayQuery', () => {
           }
         }
       `);
-      expect(printRelayQuery(query)).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(query);
+      expect(text).toEqual(trimQuery(`
         query UnknownFile {
           me {
             firstName,
@@ -62,6 +63,7 @@ describe('printRelayQuery', () => {
           }
         }
       `));
+      expect(variables).toEqual({});
     });
 
     it('prints a query with one root argument', () => {
@@ -72,7 +74,8 @@ describe('printRelayQuery', () => {
           }
         }
       `);
-      expect(printRelayQuery(query)).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(query);
+      expect(text).toEqual(trimQuery(`
         query UnknownFile {
           node(id:"123") {
             name,
@@ -80,6 +83,7 @@ describe('printRelayQuery', () => {
           }
         }
       `));
+      expect(variables).toEqual({});
     });
 
     it('prints a query with one root numeric argument', () => {
@@ -91,7 +95,8 @@ describe('printRelayQuery', () => {
           },
         }
       `);
-      expect(printRelayQuery(query)).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(query);
+      expect(text).toEqual(trimQuery(`
         query FooQuery {
           node(id:123) {
             name,
@@ -99,6 +104,7 @@ describe('printRelayQuery', () => {
           }
         }
       `));
+      expect(variables).toEqual({});
     });
 
     it('prints a query with multiple root arguments', () => {
@@ -110,7 +116,8 @@ describe('printRelayQuery', () => {
           }
         }
       `);
-      expect(printRelayQuery(query)).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(query);
+      expect(text).toEqual(trimQuery(`
         query UnknownFile {
           usernames(names:["a","b","c"]) {
             firstName,
@@ -119,6 +126,7 @@ describe('printRelayQuery', () => {
           }
         }
       `));
+      expect(variables).toEqual({});
     });
 
     it('prints a query with multiple numeric arguments', () => {
@@ -130,7 +138,8 @@ describe('printRelayQuery', () => {
           }
         }
       `);
-      expect(printRelayQuery(query)).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(query);
+      expect(text).toEqual(trimQuery(`
         query FooQuery {
           nodes(ids:[123,456]) {
             name,
@@ -138,6 +147,7 @@ describe('printRelayQuery', () => {
           }
         }
       `));
+      expect(variables).toEqual({});
     });
 
     it('prints enum call values', () => {
@@ -151,13 +161,15 @@ describe('printRelayQuery', () => {
       `, {
         env: value
       });
-      expect(printRelayQuery(query)).toEqual(trimQuery(`
-        query FooQuery {
-          settings(environment:WEB) {
+      var {text, variables} = printRelayQuery(query);
+      expect(text).toEqual(trimQuery(`
+        query FooQuery($0:Environment) {
+          settings(environment:$0) {
             notificationSounds
           }
         }
       `));
+      expect(variables).toEqual({});
     });
 
     it('prints object call values', () => {
@@ -172,13 +184,15 @@ describe('printRelayQuery', () => {
         q: value,
       });
 
-      expect(printRelayQuery(query)).toEqual(trimQuery(`
-        query UnknownFile {
-          checkinSearchQuery(query: {query:"Menlo Park"}) {
+      var {text, variables} = printRelayQuery(query);
+      expect(text).toEqual(trimQuery(`
+        query UnknownFile($0:CheckinSearchInput) {
+          checkinSearchQuery(query:$0) {
             query
           }
         }
       `));
+      expect(variables).toEqual({});
     });
 
     it('throws for ref queries', () => {
@@ -196,7 +210,8 @@ describe('printRelayQuery', () => {
         },
         'RefQueryName'
       );
-      expect(() => printRelayQuery(query)).toFailInvariant(
+      var {text, variables} = printRelayQuery(query);
+      expect(() => text).toFailInvariant(
         'printRelayQuery(): Deferred queries are not supported.'
       );
     });
@@ -214,7 +229,8 @@ describe('printRelayQuery', () => {
         }
       `);
       var fragmentID = getNode(fragment).getFragmentID();
-      expect(trimQuery(printRelayQuery(query))).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(query);
+      expect(trimQuery(text)).toEqual(trimQuery(`
         query UnknownFile {
           node(id:"123") {
             id,
@@ -227,6 +243,7 @@ describe('printRelayQuery', () => {
           id
         }
       `));
+      expect(variables).toEqual({});
     });
   });
 
@@ -239,13 +256,15 @@ describe('printRelayQuery', () => {
           },
         }
       `);
-      expect(printRelayQuery(fragment)).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(fragment);
+      expect(text).toEqual(trimQuery(`
         fragment UnknownFile on Viewer {
           actor {
             id
           }
         }
       `));
+      expect(variables).toEqual({});
     });
 
     it('prints inline fragments as references', () => {
@@ -258,7 +277,8 @@ describe('printRelayQuery', () => {
         }
       `);
       var fragmentID = getNode(nestedFragment).getFragmentID();
-      expect(trimQuery(printRelayQuery(fragment))).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(fragment);
+      expect(trimQuery(text)).toEqual(trimQuery(`
         fragment UnknownFile on Node {
           id,
           ...${fragmentID},
@@ -269,6 +289,7 @@ describe('printRelayQuery', () => {
           id
         }
       `));
+      expect(variables).toEqual({});
     });
   });
 
@@ -286,7 +307,8 @@ describe('printRelayQuery', () => {
           }
         }
       `, {first: 10});
-      expect(printRelayQuery(fragment)).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(query);
+      expect(text).toEqual(trimQuery(`
         fragment UnknownFile on Viewer {
           ${alias}:newsFeed(first:10) {
             edges {
@@ -302,6 +324,7 @@ describe('printRelayQuery', () => {
           }
         }
       `));
+      expect(variables).toEqual({});
     });
 
     it('prints a field with multiple arguments', () => {
@@ -313,7 +336,8 @@ describe('printRelayQuery', () => {
           }
         }
       `);
-      expect(printRelayQuery(fragment)).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(query);
+      expect(text).toEqual(trimQuery(`
         fragment UnknownFile on Actor {
           ${alias}:profilePicture(size:["32","64"]) {
             uri
@@ -321,6 +345,7 @@ describe('printRelayQuery', () => {
           id
         }
       `));
+      expect(variables).toEqual({});
     });
 
     it('prints a field with multiple variable arguments', () => {
@@ -336,7 +361,8 @@ describe('printRelayQuery', () => {
           }
         }
       `, variables);
-      expect(printRelayQuery(fragment)).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(query);
+      expect(text).toEqual(trimQuery(`
         fragment UnknownFile on Actor {
           ${alias}:profilePicture(size:[32,64]) {
             uri
@@ -344,6 +370,7 @@ describe('printRelayQuery', () => {
           id
         }
       `));
+      expect(variables).toEqual({});
     });
 
     it('prints scalar arguments', () => {
@@ -367,7 +394,8 @@ describe('printRelayQuery', () => {
         isViewerFriend: false,
       });
       var alias = fragment.getChildren()[0].getSerializationKey();
-      expect(printRelayQuery(fragment)).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(query);
+      expect(text).toEqual(trimQuery(`
         fragment UnknownFile on Actor {
           ${alias}:friends(first:10,orderby:["name"],isViewerFriend:false) {
             edges {
@@ -384,7 +412,8 @@ describe('printRelayQuery', () => {
           id
         }
       `));
-    })
+      expect(variables).toEqual({});
+    });
 
     it('prints inline fragments as references', () => {
       // these fragments have different types and cannot be flattened
@@ -399,7 +428,8 @@ describe('printRelayQuery', () => {
         }
       `);
       var fragmentID = getNode(nestedFragment).getFragmentID();
-      expect(trimQuery(printRelayQuery(fragment))).toEqual(trimQuery(`
+      var {text, variables} = printRelayQuery(query);
+      expect(trimQuery(text)).toEqual(trimQuery(`
         fragment UnknownFile on Viewer {
           actor {
             id,
@@ -412,6 +442,7 @@ describe('printRelayQuery', () => {
           id
         }
       `));
+      expect(variables).toEqual({});
     });
   });
 
@@ -431,7 +462,8 @@ describe('printRelayQuery', () => {
       {input: ''}
     );
 
-    expect(printRelayQuery(mutation)).toEqual(trimQuery(`
+    var {text, variables} = printRelayQuery(query);
+    expect(text).toEqual(trimQuery(`
       mutation UnknownFile($input:FeedbackLikeInput) {
         feedbackLike(input:$input) {
           clientMutationId,
@@ -443,5 +475,6 @@ describe('printRelayQuery', () => {
         }
       }
     `));
+    expect(variables).toEqual({});
   });
 });

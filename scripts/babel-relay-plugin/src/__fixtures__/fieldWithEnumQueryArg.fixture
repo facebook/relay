@@ -1,9 +1,9 @@
 Input:
 var Relay = require('react-relay');
 var x = Relay.QL`
-  query {
+  query($gender_0:Gender) {
     node(id: 123) {
-      friends(gender: MALE) {
+      friends(gender: $gender_0) {
         edges {
           node {
             id
@@ -45,7 +45,7 @@ var x = (function () {
     'parentType': 'UserConnection',
     'generated': true,
     'requisite': true
-  })], null, [new GraphQL.Callv('gender', 'MALE', {
+  })], null, [new GraphQL.Callv('gender', new GraphQL.CallVariable('gender_0'), {
     'type': 'Gender'
   })], null, null, {
     'parentType': 'Node',
@@ -56,5 +56,5 @@ var x = (function () {
     'requisite': true
   })], null, {
     'rootArg': 'id'
-  }, 'FieldWithEnumArg');
+  }, 'FieldWithEnumQueryArg');
 })();

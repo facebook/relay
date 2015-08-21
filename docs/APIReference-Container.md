@@ -55,22 +55,22 @@ These are the methods and properties that the container will provide as `this.pr
     </a>
   </li>
   <li>
-    <a href="#setVariables">
+    <a href="#setvariables">
       <pre>setVariables([partialVariables, [onReadyStateChange]])</pre>
     </a>
   </li>
   <li>
-    <a href="#forceFetch">
+    <a href="#forcefetch">
       <pre>forceFetch([partialVariables, [onReadyStateChange]]) </pre>
     </a>
   </li>
   <li>
-    <a href="#hasOptimisticUpdate">
+    <a href="#hasoptimisticupdate">
       <pre>hasOptimisticUpdate(record)</pre>
     </a>
   </li>
   <li>
-    <a href="#getPendingTransactions">
+    <a href="#getpendingtransactions">
       <pre>getPendingTransactions(record) </pre>
     </a>
   </li>

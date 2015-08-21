@@ -16,6 +16,6 @@ var q = (function () {
     'parentType': 'SearchResult'
   })], null, {
     'rootArg': 'query',
-    'rootCallType': 'object'
+    'rootCallType': 'SearchInput'
   }, 'QueryWithObjectArgument');
 })();

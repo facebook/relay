@@ -53,7 +53,7 @@ var foo = (function () {
     "generated": true,
     "requisite": true
   })], null, [new GraphQL.Callv("first", 10), new GraphQL.Callv("orderby", "Name"), new GraphQL.Callv("find", "cursor1"), new GraphQL.Callv("isViewerFriend", true), new GraphQL.Callv("gender", "MALE", {
-    "type": "enum"
+    "type": "Gender"
   })], null, null, {
     "parentType": "Node",
     "connection": true

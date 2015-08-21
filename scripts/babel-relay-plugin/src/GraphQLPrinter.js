@@ -135,7 +135,7 @@ function printQuery(query, options) {
     metadata.rootArg = rootCallDecl.args[0].name;
 
     var rootCallTypeName = getTypeForMetadata(rootCallDecl.args[0].type);
-    if (rootCallTypeName !== 'scalar') {
+    if (rootCallTypeName) {
       metadata.rootCallType = rootCallTypeName;
     }
   }
@@ -474,7 +474,7 @@ function printCalls(field, fieldDecl, options) {
 
     var metadata = {};
     var typeName = getTypeForMetadata(callDecl.type);
-    if (typeName !== 'scalar') {
+    if (typeName) {
       metadata.type = typeName;
     }
     return (
@@ -538,11 +538,11 @@ function getScalarValue(node) {
 function getTypeForMetadata(type) {
   type = types.getNamedType(type);
   if (type instanceof types.GraphQLEnumType) {
-    return 'enum';
+    return type.name;
   } else if (type instanceof types.GraphQLInputObjectType) {
-    return 'object';
+    return type.name;
   } else if (type instanceof types.GraphQLScalarType) {
-    return 'scalar';
+    return null;
   }
   throw new Error('Unsupported call value type ' + type.name);
 }

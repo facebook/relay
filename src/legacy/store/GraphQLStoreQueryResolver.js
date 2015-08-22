@@ -201,8 +201,13 @@ class GraphQLStoreSingleQueryResolver {
       prevID != null &&
       getCanonicalID(prevID) === getCanonicalID(nextID)
     ) {
-      if (this._hasDataChanged || !nextFragment.isEquivalent(prevFragment)) {
-        // same ID but the data, route and/or variables have changed
+      if (
+        prevID !== nextID ||
+        this._hasDataChanged ||
+        !nextFragment.isEquivalent(prevFragment)
+      ) {
+        // same canonical ID,
+        // but the data, call(s), route, and/or variables have changed
         [nextResult, subscribedIDs] = resolveFragment(nextFragment, nextID);
         nextResult = recycleNodesInto(prevResult, nextResult);
       } else {

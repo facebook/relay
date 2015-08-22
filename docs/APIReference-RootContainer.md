@@ -65,7 +65,7 @@ next: api-reference-relay-ql
 Component: RelayContainer
 ```
 
-Must be a valid `RelayContainer`. Relay will attempt to fulfill its data requirements befor rendering it.
+Must be a valid `RelayContainer`. Relay will attempt to fulfill its data requirements before rendering it.
 
 See also: [Root Container > Component and Route](guides-root-container.html#component-and-route)
 

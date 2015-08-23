@@ -34,8 +34,8 @@ class LikeStoryMutation extends Relay.Mutation {
   // story or not. Relay will intersect this query with a ‘tracked query’
   // that represents the data that your application actually uses, and
   // instruct the server to include only those fields in its response.
-  getFatQuery(): {
-    Relay.QL`
+  getFatQuery() {
+    return Relay.QL`
       fragment on LikeStoryPayload {
         story {
           likers {
@@ -441,8 +441,8 @@ Let's craft an optimistic response for the `LikeStoryMutation` example above:
 class LikeStoryMutation extends Relay.Mutation {
   /* ... */
   // Here's the fat query from before
-  getFatQuery(): {
-    Relay.QL`
+  getFatQuery() {
+    return Relay.QL`
       fragment on LikeStoryPayload {
         story {
           likers {
@@ -471,7 +471,7 @@ class LikeStoryMutation extends Relay.Mutation {
   // bit, we need to ensure that those pieces of data will be available to
   // this mutation, in addition to the ID of the story.
   static fragments = {
-    story: Relay.QL`
+    story: () => Relay.QL`
       fragment on Story {
         id,
         likers { count },

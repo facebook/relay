@@ -1,5 +1,4 @@
 export default class extends Relay.Route {
-  static path = '/';
   static queries = {
     factions: (Component) => Relay.QL`
       query {

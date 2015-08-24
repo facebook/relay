@@ -55,22 +55,22 @@ These are the methods and properties that the container will provide as `this.pr
     </a>
   </li>
   <li>
-    <a href="#setVariables">
+    <a href="#setvariables">
       <pre>setVariables([partialVariables, [onReadyStateChange]])</pre>
     </a>
   </li>
   <li>
-    <a href="#forceFetch">
+    <a href="#forcefetch">
       <pre>forceFetch([partialVariables, [onReadyStateChange]]) </pre>
     </a>
   </li>
   <li>
-    <a href="#hasOptimisticUpdate">
+    <a href="#hasoptimisticupdate">
       <pre>hasOptimisticUpdate(record)</pre>
     </a>
   </li>
   <li>
-    <a href="#getPendingTransactions">
+    <a href="#getpendingtransactions">
       <pre>getPendingTransactions(record) </pre>
     </a>
   </li>
@@ -421,4 +421,4 @@ module.exports = Relay.createContainer(ProfilePicture, {
 - `COMMIT_QUEUED` —  Transaction was committed but another transaction with the same collision key is pending, so the transaction has been queued to send to the server.
 - `COLLISION_COMMIT_FAILED` — Transaction was queued for commit but another transaction with the same collision key failed. All transactions in the collision queue, including this one, have been failed. Transaction can be recommitted or rolled back.
 - `COMMITTING` — Transaction is waiting for the server to respond.
-- `COMMIT_FAILED` — Transaction was sent to the server for comitting but was failed.
+- `COMMIT_FAILED` — Transaction was sent to the server for comitting but failed.

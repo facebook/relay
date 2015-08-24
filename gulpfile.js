@@ -53,7 +53,6 @@ var babelOpts = {
   optional: ['runtime'],
   plugins: [babelPluginDEV, babelPluginModules],
   _moduleMap: objectAssign({}, require('fbjs/module-map'), {
-    'crc32': 'crc32',
     'React': 'react',
     'StaticContainer.react': 'react-static-container'
   })

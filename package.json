@@ -29,8 +29,7 @@
   },
   "dependencies": {
     "babel-runtime": "5.8.20",
-    "crc32": "^0.2.2",
-    "fbjs": "0.1.0-alpha.7",
+    "fbjs": "0.1.0-alpha.10",
     "react-static-container": "^1.0.0-alpha.1"
   },
   "peerDependencies": {
@@ -79,7 +78,6 @@
       "<rootDir>/src/"
     ],
     "unmockedModulePathPatterns": [
-      "<rootDir>/node_modules/crc32/",
       "<rootDir>/node_modules/fbjs/node_modules/core-js/",
       "<rootDir>/node_modules/fbjs/node_modules/promise/",
       "<rootDir>/node_modules/fbjs/lib/(?!(ErrorUtils.js$|fetch.js$|fetchWithRetries.js$))",

@@ -14,6 +14,7 @@
 'use strict';
 
 var Deferred = require('Deferred');
+import type {PrintedQuery} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type {QueryResult, Variables} from 'RelayTypes';
 
@@ -25,10 +26,12 @@ var printRelayQuery = require('printRelayQuery');
  * Instances of these are made available via `RelayNetworkLayer.sendQueries`.
  */
 class RelayQueryRequest extends Deferred<QueryResult, Error> {
+  _printedQuery: ?PrintedQuery;
   _query: RelayQuery.Root;
 
   constructor(query: RelayQuery.Root) {
     super();
+    this._printedQuery = null;
     this._query = query;
   }
 
@@ -59,7 +62,12 @@ class RelayQueryRequest extends Deferred<QueryResult, Error> {
    * and send in the GraphQL request.
    */
   getVariables(): Variables {
-    return this._query.getVariables();
+    var printedQuery = this._printedQuery;
+    if (!printedQuery) {
+      printedQuery = printRelayQuery(this._query);
+      this._printedQuery = printedQuery;
+    }
+    return printedQuery.variables;
   }
 
   /**
@@ -68,7 +76,12 @@ class RelayQueryRequest extends Deferred<QueryResult, Error> {
    * Gets a string representation of the GraphQL query.
    */
   getQueryString(): string {
-    return printRelayQuery(this._query);
+    var printedQuery = this._printedQuery;
+    if (!printedQuery) {
+      printedQuery = printRelayQuery(this._query);
+      this._printedQuery = printedQuery;
+    }
+    return printedQuery.text;
   }
 
   /**

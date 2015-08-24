@@ -19,6 +19,8 @@ import type {MutationVariables} from 'RelayMutationTransaction';
 import type RelayQuery from 'RelayQuery';
 import type {MutationResult} from 'RelayTypes';
 
+var invariant = require('invariant');
+var isEmpty = require('isEmpty');
 var printRelayQuery = require('printRelayQuery');
 
 /**
@@ -76,7 +78,14 @@ class RelayMutationRequest extends Deferred<MutationResult, Error> {
    * Gets a string representation of the GraphQL mutation.
    */
   getQueryString(): string {
-    return printRelayQuery(this._mutation);
+    var printedQuery = printRelayQuery(this._mutation);
+    invariant(
+      isEmpty(printedQuery.variables),
+      'RelayMutationRequest: Expected mutation `%s` to have exactly one ' +
+      'variable, `$input`.',
+      this.getDebugName()
+    );
+    return printedQuery.text;
   }
 
   /**

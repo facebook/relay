@@ -34,6 +34,11 @@ export type DataID = string;
 
 export type FieldValue = mixed;
 
+export type PrintedQuery = {
+  text: string;
+  variables: {[key: string]: mixed};
+};
+
 export type RelayQuerySet = {[queryName: string]: ?RelayQuery.Root};
 
 export type UpdateOptions = {

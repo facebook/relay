@@ -17,11 +17,14 @@ RelayTestUtils.unmockRelay();
 describe('checkRelayQueryData', () => {
   var GraphQL;
   var GraphQLRange;
+  var GraphQLStoreRangeUtils;
   var Relay;
   var RelayConnectionInterface;
+  var RelayQuery;
   var RelayRecordStore;
 
   var checkRelayQueryData;
+  var emptyFunction;
 
   var {getNode} = RelayTestUtils;
   var HAS_NEXT_PAGE, HAS_PREV_PAGE;
@@ -44,11 +47,14 @@ describe('checkRelayQueryData', () => {
 
     GraphQL = require('GraphQL');
     GraphQLRange = require('GraphQLRange');
+    GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
     Relay = require('Relay');
     RelayConnectionInterface = require('RelayConnectionInterface');
+    RelayQuery = require('RelayQuery');
     RelayRecordStore = require('RelayRecordStore');
 
     checkRelayQueryData = require('checkRelayQueryData');
+    emptyFunction = require('emptyFunction');
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
   });

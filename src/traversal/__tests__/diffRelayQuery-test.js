@@ -15,15 +15,18 @@ var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 describe('diffRelayQuery', () => {
+  var GraphQL;
   var GraphQLRange;
   var Relay;
   var RelayConnectionInterface;
   var RelayQuery;
+  var RelayQueryPath;
   var RelayQueryTracker;
   var RelayRecordStore;
 
   var diffRelayQuery;
   var filterRelayQuery;
+  var printRelayQuery;
 
   var {defer, getNode, getVerbatimNode} = RelayTestUtils;
 
@@ -32,15 +35,18 @@ describe('diffRelayQuery', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
+    GraphQL = require('GraphQL');
     GraphQLRange = require('GraphQLRange');
     Relay = require('Relay');
     RelayConnectionInterface = require('RelayConnectionInterface');
     RelayQuery = require('RelayQuery');
+    RelayQueryPath = require('RelayQueryPath');
     RelayQueryTracker = require('RelayQueryTracker');
     RelayRecordStore = require('RelayRecordStore');
 
     diffRelayQuery = require('diffRelayQuery');
     filterRelayQuery = require('filterRelayQuery');
+    printRelayQuery = require('printRelayQuery');
 
     rootCallMap = {
       viewer: {'': 'client:viewer'},

@@ -15,6 +15,7 @@ var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 describe('toGraphQL', function() {
+  var GraphQL;
   var Relay;
 
   var fromGraphQL;
@@ -26,6 +27,7 @@ describe('toGraphQL', function() {
   beforeEach(function() {
     jest.resetModuleRegistry();
 
+    GraphQL = require('GraphQL');
     Relay = require('Relay');
 
     fromGraphQL = require('fromGraphQL');

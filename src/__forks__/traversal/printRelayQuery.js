@@ -13,6 +13,7 @@
 
 'use strict';
 
+import type {Call} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 

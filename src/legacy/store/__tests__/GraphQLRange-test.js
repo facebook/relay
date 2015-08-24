@@ -72,6 +72,7 @@ var last5Edges = [edge96, edge97, edge98, edge99, edge100];
 describe('GraphQLRange', () => {
   var GraphQLRange;
   var GraphQLStoreDataHandler;
+  var GraphQL;
   var RelayConnectionInterface;
 
   var origConsoleError;
@@ -86,6 +87,7 @@ describe('GraphQLRange', () => {
     origConsoleWarn = console.warn;
 
     GraphQLRange = require('GraphQLRange');
+    GraphQL = require('GraphQL');
     GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
     RelayConnectionInterface = require('RelayConnectionInterface');
 

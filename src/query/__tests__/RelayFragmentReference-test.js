@@ -19,6 +19,9 @@ describe('RelayFragmentReference', () => {
   var Relay;
   var RelayFragmentReference;
   var RelayMetaRoute;
+  var RelayQuery;
+
+  var generateRQLFieldAlias;
 
   var route;
 
@@ -27,6 +30,9 @@ describe('RelayFragmentReference', () => {
     Relay = require('Relay');
     RelayFragmentReference = require('RelayFragmentReference');
     RelayMetaRoute = require('RelayMetaRoute');
+    RelayQuery = require('RelayQuery');
+
+    generateRQLFieldAlias = require('generateRQLFieldAlias');
 
     route = new RelayMetaRoute('');
   });

@@ -16,6 +16,7 @@ RelayTestUtils.unmockRelay();
 
 describe('RelayQueryPath', () => {
   var Relay;
+  var RelayQuery;
   var RelayQueryPath;
 
   var fromJSON;
@@ -36,6 +37,7 @@ describe('RelayQueryPath', () => {
     jest.resetModuleRegistry();
 
     Relay = require('Relay');
+    RelayQuery = require('RelayQuery');
     RelayQueryPath = require('RelayQueryPath');
 
     fromJSON = RelayQueryPath.fromJSON;

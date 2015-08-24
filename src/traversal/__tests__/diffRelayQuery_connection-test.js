@@ -22,6 +22,7 @@ jest
 describe('diffRelayQuery', () => {
   var Relay;
   var RelayConnectionInterface;
+  var RelayQuery;
   var RelayQueryTracker;
   var RelayRecordStore;
 
@@ -38,6 +39,7 @@ describe('diffRelayQuery', () => {
 
     Relay = require('Relay');
     RelayConnectionInterface = require('RelayConnectionInterface');
+    RelayQuery = require('RelayQuery');
     RelayQueryTracker = require('RelayQueryTracker');
     RelayRecordStore = require('RelayRecordStore');
 

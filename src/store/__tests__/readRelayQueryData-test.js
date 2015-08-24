@@ -21,6 +21,7 @@ describe('readRelayQueryData', () => {
   var Relay;
   var RelayConnectionInterface;
   var RelayFragmentReference;
+  var RelayQuery;
   var RelayRecordStore;
   var callsToGraphQL;
   var readRelayQueryData;
@@ -46,6 +47,7 @@ describe('readRelayQueryData', () => {
     Relay = require('Relay');
     RelayConnectionInterface = require('RelayConnectionInterface');
     RelayFragmentReference = require('RelayFragmentReference');
+    RelayQuery = require('RelayQuery');
     RelayRecordStore = require('RelayRecordStore');
     callsToGraphQL = require('callsToGraphQL');
     readRelayQueryData = require('readRelayQueryData');

@@ -21,6 +21,7 @@ jest
 describe('RelayMutation', function() {
   var MockMutation;
   var Relay;
+  var RelayQuery;
 
   var buildRQL;
   var fromGraphQL;
@@ -33,6 +34,7 @@ describe('RelayMutation', function() {
     jest.resetModuleRegistry();
 
     Relay = require('Relay');
+    RelayQuery = require('RelayQuery');
 
     buildRQL = require('buildRQL');
     fromGraphQL = require('fromGraphQL');

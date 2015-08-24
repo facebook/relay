@@ -17,10 +17,12 @@ RelayTestUtils.unmockRelay();
 describe('observeRelayQueryData', () => {
   var GraphQLStoreChangeEmitter;
   var Relay;
+  var RelayQuery;
   var RelayRecordStore;
 
   var addListenerForIDs;
   var observeRelayQueryData;
+  var readRelayQueryData;
 
   var firstMockCallback;
   var secondMockCallback;
@@ -41,10 +43,12 @@ describe('observeRelayQueryData', () => {
 
     GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
     Relay = require('Relay');
+    RelayQuery = require('RelayQuery');
     RelayRecordStore = require('RelayRecordStore');
 
     addListenerForIDs = GraphQLStoreChangeEmitter.addListenerForIDs;
     observeRelayQueryData = require('observeRelayQueryData');
+    readRelayQueryData = require('readRelayQueryData');
 
     firstMockCallback = jest.genMockFunction();
     secondMockCallback = jest.genMockFunction();

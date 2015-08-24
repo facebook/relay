@@ -22,7 +22,7 @@ describe('inferRelayFieldsFromData', function() {
   var inferRelayFieldsFromData;
 
   var {getNode, matchers} = RelayTestUtils;
-  var HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
+  var END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO, START_CURSOR;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
@@ -34,9 +34,11 @@ describe('inferRelayFieldsFromData', function() {
     inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 
     ({
+      END_CURSOR,
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
-      PAGE_INFO
+      PAGE_INFO,
+      START_CURSOR
     } = RelayConnectionInterface);
 
     jest.addMatchers({

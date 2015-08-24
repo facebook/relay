@@ -32,10 +32,8 @@ rules:
   strict: [2, global]
   # Make this a warning for now. We do this in a few places so we might need to
   # disable
-  eol-last: 2
   dot-notation: 2
   dot-location: [2, property]
-  no-unused-vars: [2, args: none]
   quotes: [2, single, avoid-escape]
   no-multi-spaces: 2
 

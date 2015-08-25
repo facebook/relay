@@ -391,7 +391,7 @@ describe('RelayRootContainer', function() {
 
     it('aborts loading requests', () => {
       function mockLoading(request) {
-       request.block();
+        request.block();
       }
       expect(mockLoading).toAbortOnUpdate();
       expect(mockLoading).toAbortOnUnmount();

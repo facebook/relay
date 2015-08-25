@@ -106,7 +106,7 @@ describe('inferRelayFieldsFromData', function() {
       id: '123',
       screennames: [
         {service: 'GTALK'},
-        {service: "TWITTER"},
+        {service: 'TWITTER'},
       ],
     })).toEqualFields(Relay.QL`  fragment on Actor {
             id,

@@ -270,7 +270,7 @@ describe('GraphQLSegment', () => {
   it('rolls back bumped edges from failed concatSegment operations', () => {
     console.error = jest.genMockFunction();
     segment.addEdgesAfterCursor(edges.slice(0, 2), null);
-    expect(segment.__debug().idToIndices['edge2'].length).toBe(1);
+    expect(segment.__debug().idToIndices.edge2.length).toBe(1);
 
     var otherSegment = new GraphQLSegment();
     var edge2 = edges.slice(1, 2);
@@ -286,7 +286,7 @@ describe('GraphQLSegment', () => {
       'edge2'
     );
     // Make sure it rolled back the deleted edge from indices map
-    expect(segment.__debug().idToIndices['edge2'].length).toBe(1);
+    expect(segment.__debug().idToIndices.edge2.length).toBe(1);
   });
 
   it('should check for valid id in segment', () => {

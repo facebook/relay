@@ -367,39 +367,41 @@ describe('RelayRecordStore', () => {
 
     it('falls through to existing records for fields not in the queued record',
       () => {
-      var record = {
-        id: '4',
-        name: 'Zuck',
-        __dataID__: '4',
-      };
-      var queuedRecord = {
-        id: '4',
-        __dataID__: '4',
-      };
-      var store = new RelayRecordStore({
-        records: {'4': record},
-        queuedRecords: {'4': queuedRecord},
-      });
-      expect(store.getField('4', 'name')).toBe('Zuck');
-    });
+        var record = {
+          id: '4',
+          name: 'Zuck',
+          __dataID__: '4',
+        };
+        var queuedRecord = {
+          id: '4',
+          __dataID__: '4',
+        };
+        var store = new RelayRecordStore({
+          records: {'4': record},
+          queuedRecords: {'4': queuedRecord},
+        });
+        expect(store.getField('4', 'name')).toBe('Zuck');
+      }
+    );
 
     it('falls through to cached records for fields not in the existing record',
       () => {
-      var record = {
-        id: '4',
-        __dataID__: '4',
-      };
-      var cachedRecord = {
-        id: '4',
-        name: 'Mark',
-        __dataID__: '4',
-      };
-      var store = new RelayRecordStore({
-        cachedRecords: {'4': cachedRecord},
-        records: {'4': record},
-      });
-      expect(store.getField('4', 'name')).toBe('Mark');
-    });
+        var record = {
+          id: '4',
+          __dataID__: '4',
+        };
+        var cachedRecord = {
+          id: '4',
+          name: 'Mark',
+          __dataID__: '4',
+        };
+        var store = new RelayRecordStore({
+          cachedRecords: {'4': cachedRecord},
+          records: {'4': record},
+        });
+        expect(store.getField('4', 'name')).toBe('Mark');
+      }
+    );
   });
 
   describe('getLinkedRecordID()', () => {

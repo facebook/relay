@@ -731,7 +731,7 @@ describe('RelayQuery', () => {
       `;
       var variables = {size: '32'};
       var pictureVariable =
-        getNode(pictureVariableRQL,  variables).getChildren()[0];
+        getNode(pictureVariableRQL, variables).getChildren()[0];
       expect(pictureScalar.equals(pictureVariable)).toBe(true);
 
       var diffId = getNode(generatedIdRQL).getChildren()[1];

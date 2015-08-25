@@ -12,6 +12,7 @@
  */
 
 'use strict';
+
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var RelayError = require('RelayError');
 import type {DataID} from 'RelayInternalTypes';

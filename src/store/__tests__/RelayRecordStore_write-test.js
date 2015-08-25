@@ -420,7 +420,7 @@ describe('RelayRecordStore', () => {
       );
     });
 
-    it('overwrites ranges if present',  () => {
+    it('overwrites ranges if present', () => {
       var cache = RelayMockCacheManager.genCacheManager();
       var records = {};
       var store = new RelayRecordStore({records}, null, null, cache);

@@ -397,7 +397,7 @@ var RelayTestUtils = {
      * when the objects match.
      */
     toMatchQueryJSON(expected) {
-      var matchQueryJSON = (actual, expected, path) =>  {
+      var matchQueryJSON = (actual, expected, path) => {
         if (typeof actual !== 'object') {
           if (actual === expected) {
             return true;

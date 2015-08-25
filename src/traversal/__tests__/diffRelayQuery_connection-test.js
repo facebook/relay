@@ -330,231 +330,233 @@ describe('diffRelayQuery', () => {
 
   it('fetches missing `node` data via a `node()` query and missing `edges` '+
     'data via a `connection.find()` query if connection is findable', () => {
-    var records = {};
-    var store = new RelayRecordStore({records}, {map: rootCallMap});
-    var tracker = new RelayQueryTracker();
+      var records = {};
+      var store = new RelayRecordStore({records}, {map: rootCallMap});
+      var tracker = new RelayQueryTracker();
 
-    var alias = generateRQLFieldAlias('newsFeed.first(3)');
-    var payload = {
-      viewer: {
-        [alias]: {
-          edges: [
-            {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
-            {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
-            {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}},
-          ],
-          [PAGE_INFO]: {
-            [HAS_NEXT_PAGE]: true,
-            [HAS_PREV_PAGE]: false,
+      var alias = generateRQLFieldAlias('newsFeed.first(3)');
+      var payload = {
+        viewer: {
+          [alias]: {
+            edges: [
+              {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
+              {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
+              {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}},
+            ],
+            [PAGE_INFO]: {
+              [HAS_NEXT_PAGE]: true,
+              [HAS_PREV_PAGE]: false,
+            },
           },
         },
-      },
-    };
-    var writeQuery = getNode(Relay.QL`
-      query {
-        viewer {
-          newsFeed(first:"3") {
-            edges {
-              node {
-                message {
-                  text
+      };
+      var writeQuery = getNode(Relay.QL`
+        query {
+          viewer {
+            newsFeed(first:"3") {
+              edges {
+                node {
+                  message {
+                    text
+                  }
                 }
               }
             }
           }
         }
-      }
-    `);
-    writePayload(store, writeQuery, payload, tracker);
+      `);
+      writePayload(store, writeQuery, payload, tracker);
 
-    // node: `feedback{id}` is missing (fetch via node() query)
-    // edges: `sortKey` is missing (fetch via .find() query)
-    var fetchQuery = getNode(Relay.QL`
-      query {
-        viewer {
-          newsFeed(first:"3") {
-            edges {
-              sortKey,
-              node {
-                feedback {
-                  id
+      // node: `feedback{id}` is missing (fetch via node() query)
+      // edges: `sortKey` is missing (fetch via .find() query)
+      var fetchQuery = getNode(Relay.QL`
+        query {
+          viewer {
+            newsFeed(first:"3") {
+              edges {
+                sortKey,
+                node {
+                  feedback {
+                    id
+                  }
                 }
               }
             }
           }
         }
-      }
-    `);
-    var diffQueries = diffRelayQuery(fetchQuery, store, tracker);
-    expect(diffQueries.length).toBe(6);
-    expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
-      query {
-        node(id:"s1") {
-          feedback {
-            id
-          }
-        }
-      }
-    `));
-    expect(diffQueries[1]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
-      query {
-        viewer {
-          newsFeed(find:"s1") {
-            edges {
-              cursor,
-              node {
-                id
-              },
-              sortKey,
+      `);
+      var diffQueries = diffRelayQuery(fetchQuery, store, tracker);
+      expect(diffQueries.length).toBe(6);
+      expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
+        query {
+          node(id:"s1") {
+            feedback {
+              id
             }
           }
         }
-      }
-    `));
-    expect(diffQueries[2]).toEqualQueryRoot(getNode(Relay.QL`
-      query {
-        node(id:"s2") {
-          feedback {
-            id
-          }
-        }
-      }
-    `));
-    expect(diffQueries[3]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
-      query {
-        viewer {
-          newsFeed(find:"s2") {
-            edges {
-              cursor,
-              node {
-                id
-              },
-              sortKey,
+      `));
+      expect(diffQueries[1]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+        query {
+          viewer {
+            newsFeed(find:"s1") {
+              edges {
+                cursor,
+                node {
+                  id
+                },
+                sortKey,
+              }
             }
           }
         }
-      }
-    `));
-    expect(diffQueries[4]).toEqualQueryRoot(getNode(Relay.QL`
-      query {
-        node(id:"s3") {
-          feedback {
-            id
-          }
-        }
-      }
-    `));
-    expect(diffQueries[5]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
-      query {
-        viewer {
-          newsFeed(find:"s3") {
-            edges {
-              cursor,
-              node {
-                id
-              },
-              sortKey,
+      `));
+      expect(diffQueries[2]).toEqualQueryRoot(getNode(Relay.QL`
+        query {
+          node(id:"s2") {
+            feedback {
+              id
             }
           }
         }
-      }
-    `));
-  });
+      `));
+      expect(diffQueries[3]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+        query {
+          viewer {
+            newsFeed(find:"s2") {
+              edges {
+                cursor,
+                node {
+                  id
+                },
+                sortKey,
+              }
+            }
+          }
+        }
+      `));
+      expect(diffQueries[4]).toEqualQueryRoot(getNode(Relay.QL`
+        query {
+          node(id:"s3") {
+            feedback {
+              id
+            }
+          }
+        }
+      `));
+      expect(diffQueries[5]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+        query {
+          viewer {
+            newsFeed(find:"s3") {
+              edges {
+                cursor,
+                node {
+                  id
+                },
+                sortKey,
+              }
+            }
+          }
+        }
+      `));
+    }
+  );
 
   it('fetches missing `node` data via a `node()` query and warns about ' +
     'unfetchable `edges` data if connection is not findable', () => {
-    var records = {};
-    var store = new RelayRecordStore({records}, {map: rootCallMap});
-    var tracker = new RelayQueryTracker();
+      var records = {};
+      var store = new RelayRecordStore({records}, {map: rootCallMap});
+      var tracker = new RelayQueryTracker();
 
-    var alias = generateRQLFieldAlias('notificationStories.first(3)');
-    var payload = {
-      viewer: {
-        [alias]: {
-          edges: [
-            {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
-            {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
-            {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}},
-          ],
-          [PAGE_INFO]: {
-            [HAS_NEXT_PAGE]: true,
-            [HAS_PREV_PAGE]: false,
+      var alias = generateRQLFieldAlias('notificationStories.first(3)');
+      var payload = {
+        viewer: {
+          [alias]: {
+            edges: [
+              {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
+              {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
+              {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}},
+            ],
+            [PAGE_INFO]: {
+              [HAS_NEXT_PAGE]: true,
+              [HAS_PREV_PAGE]: false,
+            },
           },
         },
-      },
-    };
-    var writeQuery = getNode(Relay.QL`
-      query {
-        viewer {
-          notificationStories(first:"3") {
-            edges {
-              node {
-                message {
-                  text
+      };
+      var writeQuery = getNode(Relay.QL`
+        query {
+          viewer {
+            notificationStories(first:"3") {
+              edges {
+                node {
+                  message {
+                    text
+                  }
                 }
               }
             }
           }
         }
-      }
-    `);
-    writePayload(store, writeQuery, payload, tracker);
+      `);
+      writePayload(store, writeQuery, payload, tracker);
 
-    // node: `feedback{id}` is missing (fetch via node() query)
-    // edges: `showBeeper` is missing but cannot be refetched because
-    // `notificationStories` does not support `.find()`
-    var fetchQuery = getNode(Relay.QL`
-      query {
-        viewer {
-          notificationStories(first:"3") {
-            edges {
-              showBeeper,
-              node {
-                feedback {
-                  id
+      // node: `feedback{id}` is missing (fetch via node() query)
+      // edges: `showBeeper` is missing but cannot be refetched because
+      // `notificationStories` does not support `.find()`
+      var fetchQuery = getNode(Relay.QL`
+        query {
+          viewer {
+            notificationStories(first:"3") {
+              edges {
+                showBeeper,
+                node {
+                  feedback {
+                    id
+                  }
                 }
               }
             }
           }
         }
-      }
-    `);
-    var diffQueries = diffRelayQuery(fetchQuery, store, tracker);
-    expect(diffQueries.length).toBe(3);
-    expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
-      query {
-        node(id:"s1") {
-          feedback {
-            id
+      `);
+      var diffQueries = diffRelayQuery(fetchQuery, store, tracker);
+      expect(diffQueries.length).toBe(3);
+      expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
+        query {
+          node(id:"s1") {
+            feedback {
+              id
+            }
           }
         }
-      }
-    `));
-    expect(diffQueries[1]).toEqualQueryRoot(getNode(Relay.QL`
-      query {
-        node(id:"s2") {
-          feedback {
-            id
+      `));
+      expect(diffQueries[1]).toEqualQueryRoot(getNode(Relay.QL`
+        query {
+          node(id:"s2") {
+            feedback {
+              id
+            }
           }
         }
-      }
-    `));
-    expect(diffQueries[2]).toEqualQueryRoot(getNode(Relay.QL`
-      query {
-        node(id:"s3") {
-          feedback {
-            id
+      `));
+      expect(diffQueries[2]).toEqualQueryRoot(getNode(Relay.QL`
+        query {
+          node(id:"s3") {
+            feedback {
+              id
+            }
           }
         }
-      }
-    `));
-    expect([
-      'RelayDiffQueryBuilder: connection `edges{*}` fields can only be ' +
-      'refetched if the connection supports the `find` call. Cannot ' +
-      'refetch data for field `%s`.',
-      'notificationStories',
-    ]).toBeWarnedNTimes(3);
-  });
+      `));
+      expect([
+        'RelayDiffQueryBuilder: connection `edges{*}` fields can only be ' +
+        'refetched if the connection supports the `find` call. Cannot ' +
+        'refetch data for field `%s`.',
+        'notificationStories',
+      ]).toBeWarnedNTimes(3);
+    }
+  );
 
   it('does not flatten fragments when creating new root queries', () => {
     var records = {};

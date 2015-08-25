@@ -161,7 +161,7 @@ class RelayDefaultNetworkLayer {
  * Rejects HTTP responses with a status code that is not >= 200 and < 300.
  * This is done to follow the internal behavior of `fetchWithRetries`.
  */
-function throwOnServerError(response: any): any  {
+function throwOnServerError(response: any): any {
   if (response.status >= 200 && response.status < 300) {
     return response;
   } else {

@@ -155,7 +155,7 @@ describe('GraphQLFragmentPointer', () => {
     });
 
     it('throws when creating a singular pointer with multiple IDs', () => {
-      expect(() =>{
+      expect(() => {
         new GraphQLFragmentPointer(['123'], singularFragment);
       }).toFailInvariant(
         'GraphQLFragmentPointer: Wrong plurality, array of data IDs ' +
@@ -164,7 +164,7 @@ describe('GraphQLFragmentPointer', () => {
     });
 
     it('throws when creating a plural pointer with a single ID', () => {
-      expect(() =>{
+      expect(() => {
         new GraphQLFragmentPointer('123', pluralFragment);
       }).toFailInvariant(
         'GraphQLFragmentPointer: Wrong plurality, single data ID supplied ' +

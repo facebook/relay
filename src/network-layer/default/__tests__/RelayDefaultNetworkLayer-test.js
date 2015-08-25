@@ -45,7 +45,7 @@ describe('RelayDefaultNetworkLayer', () => {
     RelayConnectionInterface = require('RelayConnectionInterface');
     RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
     RelayMetaRoute = require('RelayMetaRoute');
-    RelayMutationRequest =  require('RelayMutationRequest');
+    RelayMutationRequest = require('RelayMutationRequest');
     RelayQuery = require('RelayQuery');
     RelayQueryRequest = require('RelayQueryRequest');
 

@@ -542,7 +542,7 @@ class GraphQLMutation extends GraphQLOperation {
   /**
    * @return {number}
    */
-  getJSONType()  {
+  getJSONType() {
     return JSON_TYPES.MUTATION;
   }
 }
@@ -587,7 +587,7 @@ class GraphQLSubscription extends GraphQLOperation {
   /**
    * @return {number}
    */
-  getJSONType()  {
+  getJSONType() {
     return JSON_TYPES.SUBSCRIPTION;
   }
 }

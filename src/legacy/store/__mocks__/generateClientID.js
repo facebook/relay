@@ -12,7 +12,7 @@
 var count = 1;
 
 var generateClientID = jest.genMockFunction().mockImplementation(
-  () => { return 'client:' + count++;}
+  () => 'client:' + count++
 );
 
 module.exports = generateClientID;

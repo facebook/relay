@@ -8,6 +8,7 @@
  */
 
 'use strict';
+
 var actualImplementation = require.requireActual('observeRelayQueryData');
 
 var mockImplementation = jest.genMockFunction().mockImplementation(

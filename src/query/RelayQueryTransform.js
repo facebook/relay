@@ -14,6 +14,7 @@
 'use strict';
 
 import type RelayQuery from 'RelayQuery';
+
 var RelayQueryVisitor = require('RelayQueryVisitor');
 
 /**

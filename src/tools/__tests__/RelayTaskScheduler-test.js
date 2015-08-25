@@ -112,7 +112,9 @@ describe('RelayTaskScheduler', () => {
 
       RelayTaskScheduler.await(
         () => 'foo',
-        () => { throw mockError; },
+        () => {
+          throw mockError;
+        },
         mockCallback,
       ).catch(mockFailureCallback);
 
@@ -129,7 +131,9 @@ describe('RelayTaskScheduler', () => {
       var mockSuccessCallback = jest.genMockFunction();
 
       RelayTaskScheduler.await(
-        () => { throw mockError; },
+        () => {
+          throw mockError;
+        },
       ).catch(mockFailureCallback);
 
       RelayTaskScheduler.await(

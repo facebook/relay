@@ -838,35 +838,36 @@ describe('readRelayQueryData', () => {
 
   it('does not clobber previously-read sibling fields when a linked dataID ' +
      'is `null` or `undefined`', () => {
-    var query = getNode(Relay.QL`
-      fragment on User {
-        id,
-        address {
-          city,
-        },
-      }
-    `);
-    var records = {
-      user_id: {
-        __dataID__: 'user_id',
-        id: 'user_id',
-        address: null,
-      },
-    };
-    var data = getData({records}, query, 'user_id');
-    expect(data.address).toBeNull();
-    expect(data.id).toBe('user_id');
+       var query = getNode(Relay.QL`
+         fragment on User {
+           id,
+           address {
+             city,
+           },
+         }
+       `);
+       var records = {
+         user_id: {
+           __dataID__: 'user_id',
+           id: 'user_id',
+           address: null,
+         },
+       };
+       var data = getData({records}, query, 'user_id');
+       expect(data.address).toBeNull();
+       expect(data.id).toBe('user_id');
 
-    records = {
-      user_id: {
-        __dataID__: 'user_id',
-        id: 'user_id',
-      },
-    };
-    data = getData({records}, query, 'user_id');
-    expect(data.address).toBeUndefined();
-    expect(data.id).toBe('user_id');
-  });
+       records = {
+         user_id: {
+           __dataID__: 'user_id',
+           id: 'user_id',
+         },
+       };
+       data = getData({records}, query, 'user_id');
+       expect(data.address).toBeUndefined();
+       expect(data.id).toBe('user_id');
+     }
+  );
 
   it('does not set undefined value if linked dataID missing', () => {
     var query = getNode(Relay.QL`

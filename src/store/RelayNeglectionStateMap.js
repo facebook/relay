@@ -59,7 +59,7 @@ class RelayNeglectionStateMap {
       dataID
     );
     data.subscriptions--;
-    this._map.set(dataID,  data);
+    this._map.set(dataID, data);
   }
 
   increaseSubscriptionsFor(dataID: DataID): void {
@@ -70,7 +70,7 @@ class RelayNeglectionStateMap {
     }
     var data = this._map.get(dataID);
     data.subscriptions++;
-    this._map.set(dataID,  data);
+    this._map.set(dataID, data);
   }
 
   register(dataID: DataID): void {

@@ -258,9 +258,9 @@ class GraphQLSegment {
         index +
         ' to (' +
         this._minIndex +
-        ", " +
+        ', ' +
         this._maxIndex +
-        ")"
+        ')'
       );
 
       return;

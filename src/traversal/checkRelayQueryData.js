@@ -145,7 +145,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
       return;
     }
     if (dataIDs) {
-      for (var ii = 0; ii < dataIDs.length; ii++){
+      for (var ii = 0; ii < dataIDs.length; ii++) {
         if (!state.result) {
           break;
         }
@@ -192,8 +192,8 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
       return;
     }
     var edges = rangeInfo.requestedEdges;
-    for (var ii = 0; ii < edges.length; ii++){
-      if (!state.result){
+    for (var ii = 0; ii < edges.length; ii++) {
+      if (!state.result) {
         break;
       }
       var nextState = {

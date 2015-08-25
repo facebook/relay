@@ -88,7 +88,7 @@ describe('checkRelayQueryData', () => {
     expect(result).toEqual(true);
   });
 
- it('returns true when checking basic id query', () => {
+  it('returns true when checking basic id query', () => {
     var records = {
       1055790163: {
         id: '1055790163',

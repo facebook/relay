@@ -16,7 +16,7 @@
 var GraphQL = require('GraphQL');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayFragmentReference = require('RelayFragmentReference');
-import type {Call}  from 'RelayInternalTypes';
+import type {Call} from 'RelayInternalTypes';
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayRouteFragment = require('RelayRouteFragment');
 import type {Variables} from 'RelayTypes';

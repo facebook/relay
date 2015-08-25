@@ -274,8 +274,9 @@ describe('splitDeferredRelayQueries()', () => {
     // field has two `node` children:
     // - the requisite `node{id}`
     // - the nested deferred fragment
-    expect(flattenRelayQuery(deferred[0].deferred[0].required)).
-      toEqualQueryRoot(flattenRelayQuery(getNode(Relay.QL`
+    expect(
+      flattenRelayQuery(deferred[0].deferred[0].required)
+    ).toEqualQueryRoot(flattenRelayQuery(getNode(Relay.QL`
       query {
         viewer {
           newsFeed {

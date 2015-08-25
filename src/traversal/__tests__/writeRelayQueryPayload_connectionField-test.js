@@ -411,7 +411,7 @@ describe('writeRelayQueryPayload()', () => {
                 id: 'friend1ID'
               },
               source: {
-               id: '123'
+                id: '123'
               }
             }
           ],

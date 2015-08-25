@@ -152,6 +152,31 @@ describe('GraphQLStoreQueryResolver', () => {
     expect(resolvedB).toBe(mockResultB);
   });
 
+  it('should re-resolve pointers whose calls differ', () => {
+    var fragmentPointerA = new GraphQLFragmentPointer(
+      'client:123_first(10)',
+      mockQueryFragment
+    );
+    var fragmentPointerB = new GraphQLFragmentPointer(
+      'client:123_first(20)',
+      mockQueryFragment
+    );
+
+    var resolver = new GraphQLStoreQueryResolver(
+      fragmentPointerA,
+      mockCallback
+    );
+
+    require('GraphQLStoreRangeUtils').getCanonicalClientID =
+      // The canonical ID of a range customarily excludes the calls
+      jest.genMockFunction().mockReturnValue('client:123');
+
+    resolver.resolve(fragmentPointerA);
+    resolver.resolve(fragmentPointerB);
+
+    expect(readRelayQueryData.mock.calls.length).toBe(2);
+  });
+
   it('should invoke the callback when change events fire', () => {
     var fragmentPointer = new GraphQLFragmentPointer(
       '1038750002',

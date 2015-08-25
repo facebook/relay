@@ -116,7 +116,7 @@ function diffRelayQuery(
  * to `RelayQueryTransform` with the main differences as follows:
  * - there is no `state` (which allowed for passing data up and down the tree).
  * - data is passed down via `scope`, which flows from a parent field down
- *   through interemediary fragments to the nearest child field.
+ *   through intermediary fragments to the nearest child field.
  * - data is passed up via the return type `{diffNode, trackedNode}`, where:
  *   - `diffNode`: subset of the input that could not diffed out
  *   - `trackedNode`: subset of the input that must be tracked

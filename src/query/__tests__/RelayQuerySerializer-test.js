@@ -61,25 +61,6 @@ describe('RelayQuerySerializer', () => {
     jest.addMatchers(RelayTestUtils.matchers);
   });
 
-  describe('toJSON', () => {
-    it('throws for unsupported node types', () => {
-      var mutation = getNode(Relay.QL`
-        mutation {
-          commentCreate(input:$input) {
-            feedback {
-              id,
-            },
-          }
-        }
-      `);
-      expect(() => toJSON(mutation)).toThrow(
-        'Invariant Violation: RelayQuerySerializer.toJSON(): invalid node ' +
-        'type, only `Field`, `Fragment`, and `Root` are supported, got ' +
-        '`RelayQueryMutation`.'
-      );
-    });
-  });
-
   describe('Root', () => {
     it('serializes argument-less root fields', () => {
       var query = getNode(Relay.QL`
@@ -333,6 +314,49 @@ describe('RelayQuerySerializer', () => {
         metadata: {connection: true, parentType: 'User'},
       });
       expect(fromJSON(toJSON(field)).equals(field)).toBe(true);
+    });
+  });
+
+  describe('Mutation', () => {
+    it('serializes mutation', () => {
+      var mutation = getNode(Relay.QL`
+        mutation {
+          commentCreate(input:$input) {
+            feedback {
+              id
+            }
+          }
+        }
+      `, {input: {feedback: '123', text: 'comment'}});
+      expect(toJSON(mutation)).toMatchQueryJSON({
+        kind: 'Mutation',
+        name: 'UnknownFile',
+        calls: [{
+          name: 'commentCreate',
+          value: {feedback: '123', text: 'comment'}
+        }],
+        children: [
+          {
+            kind: 'Field',
+            name: 'feedback',
+            alias: null,
+            calls: [],
+            children: [
+              idField('Feedback'),
+            ],
+            metadata: {
+              dynamic: false,
+              pk: 'id',
+              rootCall: 'node',
+              parentType: 'CommentCreateResponsePayload',
+            },
+          },
+        ],
+        type: 'CommentCreateResponsePayload',
+      });
+      var clone = fromJSON(toJSON(mutation));
+      expect(clone.equals(mutation)).toBe(true);
+      expect(clone.getName()).toBe(mutation.getName());
     });
   });
 });

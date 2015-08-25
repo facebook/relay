@@ -277,6 +277,7 @@ var RelayMutationQuery = {
       'OptimisticQuery',
       fatQuery.getType(),
       mutation.calls[0].name,
+      null,
       children
     )));
   },
@@ -364,6 +365,7 @@ var RelayMutationQuery = {
       mutationName,
       fatQuery.getType(),
       mutation.calls[0].name,
+      null,
       children,
       mutation.metadata
     )));

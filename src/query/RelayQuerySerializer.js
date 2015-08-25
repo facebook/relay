@@ -48,6 +48,7 @@ type Selection = Field | FragmentDefinition;
 var FIELD = 'Field';
 var FRAGMENT_DEFINITION = 'FragmentDefinition';
 var QUERY = 'Query';
+var MUTATION = 'Mutation';
 
 /**
  * @internal
@@ -119,12 +120,7 @@ var RelayQuerySerializer = {
         'RelayQuerySerializer.fromJSON(): expected a `Fragment`.'
       );
       return fragment;
-    } else {
-      invariant(
-        kind === QUERY,
-        'RelayQuerySerializer.fromJSON(): invalid kind %s.',
-        kind
-      );
+    } else if (kind === QUERY) {
       var rootCall = calls[0];
       var root = RelayQuery.Node.buildRoot(
         rootCall.name,
@@ -138,6 +134,30 @@ var RelayQuerySerializer = {
         'RelayQuerySerializer.fromJSON(): expected a `Root`.'
       );
       return root;
+    } else if (kind === MUTATION) {
+      invariant(
+        typeof type === 'string',
+        'RelayQuerySerializer.fromJSON(): expected `type` to be a string.'
+      );
+      var mutationCall = calls[0];
+      var mutation = RelayQuery.Node.buildMutation(
+        name,
+        type,
+        mutationCall.name,
+        mutationCall.value,
+        children,
+      );
+      invariant(
+        mutation != null,
+        'RelayQuerySerializer.fromJSON(): expected a `Mutation`.'
+      );
+      return mutation;
+    } else {
+      invariant(
+        false,
+        'RelayQuerySerializer.fromJSON(): invalid kind %s.',
+        kind
+      );
     }
   },
 
@@ -166,13 +186,7 @@ var RelayQuerySerializer = {
           isReferenceFragment: node.isReferenceFragment(),
         },
       };
-    } else {
-      invariant(
-        node instanceof RelayQuery.Root,
-        'RelayQuerySerializer.toJSON(): invalid node type, only `Field`, ' +
-        '`Fragment`, and `Root` are supported, got `%s`.',
-        node.constructor.name
-      );
+    } else if (node instanceof RelayQuery.Root) {
       var rootCall = node.getRootCall();
       return {
         kind: QUERY,
@@ -181,6 +195,22 @@ var RelayQuerySerializer = {
         children,
         metadata: node.__concreteNode__.__metadata__,
       };
+    } else if (node instanceof RelayQuery.Mutation) {
+      var mutationCall = node.getCall();
+      return {
+        kind: MUTATION,
+        name: node.getName(),
+        calls: [mutationCall],
+        children,
+        type: node.getResponseType(),
+      };
+    } else {
+      invariant(
+        false,
+        'RelayQuerySerializer.toJSON(): invalid node type, only `Field`, ' +
+        '`Fragment`, `Mutation`, and `Root` are supported, got `%s`.',
+        node.constructor.name
+      );
     }
   },
 };

@@ -92,6 +92,7 @@ describe('RelayDefaultNetworkLayer', () => {
         'FeedbackLikeMutation',
         'FeedbackLikeResponsePayload',
         'feedback_like',
+        null,
         [RelayQuery.Node.buildField('does_viewer_like')],
         {inputType: 'FeedbackLikeInput'}
       );

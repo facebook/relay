@@ -215,6 +215,7 @@ class RelayQueryNode {
     mutationName: string,
     responseType: string,
     callName: string,
+    callValue?: ?mixed,
     children?: ?Array<RelayQueryNode>,
     metadata?: ?{[key: string]: mixed}
   ): RelayQueryMutation {
@@ -230,7 +231,7 @@ class RelayQueryNode {
     var mutation = new RelayQueryMutation(
       concreteMutation,
       RelayMetaRoute.get('$RelayQuery'),
-      {input: ''}
+      {input: callValue || ''}
     );
     mutation.__children__ = nextChildren;
     return mutation;

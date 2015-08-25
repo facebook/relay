@@ -235,12 +235,13 @@ describe('RelayQuery', () => {
   });
 
   describe('buildMutation()', () => {
-    it('builds mutation', () => {
-      var field = RelayQuery.Node.buildField('doesViewerLike');
+    it('builds mutation with value', () => {
+      var field = RelayQuery.Node.buildField('does_viewer_like');
       var mutation = RelayQuery.Node.buildMutation(
         'FeedbackLikeMutation',
         'FeedbackLikeResponsePayload',
-        'feedbackLike',
+        'feedback_like',
+        {feedback_id:'123'},
         [field]
       );
 
@@ -249,7 +250,28 @@ describe('RelayQuery', () => {
       expect(mutation.getResponseType()).toBe('FeedbackLikeResponsePayload');
       expect(mutation.getChildren().length).toBe(1);
       expect(mutation.getChildren()[0]).toBe(field);
-      expect(mutation.getCall()).toEqual({name: 'feedbackLike', value: ''});
+      expect(mutation.getCall())
+        .toEqual({name: 'feedback_like', value: {feedback_id:'123'}});
+      expect(mutation.getCallVariableName()).toEqual('input');
+    });
+
+    it('builds mutation with variable', () => {
+      var field = RelayQuery.Node.buildField('does_viewer_like');
+      var mutation = RelayQuery.Node.buildMutation(
+        'FeedbackLikeMutation',
+        'FeedbackLikeResponsePayload',
+        'feedback_like',
+        undefined,
+        [field]
+      );
+
+      expect(mutation instanceof RelayQuery.Mutation).toBe(true);
+      expect(mutation.getName()).toBe('FeedbackLikeMutation');
+      expect(mutation.getResponseType()).toBe('FeedbackLikeResponsePayload');
+      expect(mutation.getChildren().length).toBe(1);
+      expect(mutation.getChildren()[0]).toBe(field);
+      expect(mutation.getCall())
+        .toEqual({name: 'feedback_like', value: ''});
       expect(mutation.getCallVariableName()).toEqual('input');
     });
   });

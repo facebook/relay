@@ -32,6 +32,7 @@
       }
     }
   }
+}
 </code></pre>
       <p>In this case, <code>friends</code> is a connection. That query demonstrates the four features describe above:</p>
       <ul>
@@ -170,12 +171,14 @@
         <h4><span class="spec-secnum" title="link to this section"><a href="#sec-Node">3.1.1</a></span>Node</h4>
         <p>An &ldquo;Edge Type&rdquo; must contain a field called <code>node</code>. This field must return either a Scalar, Enum, Object, Interface, Union, or a Non&#8208;Null wrapper around one of those types. Notably, this field <em>cannot</em> return
           a list.</p>
-        <div class="spec-note">The naming echos that of the &ldquo;Node&rdquo; inferface and &ldquo;node&rdquo; root field as described in a later section of this spec. Relay can perform certain optimizations if this field returns an object that implements <code>Node</code>,
+        <div class="spec-note">The naming echoes that of the &ldquo;Node&rdquo; interface and &ldquo;node&rdquo; root field as described in a later section of this spec. Relay can perform certain optimizations if this field returns an object that implements <code>Node</code>,
           however, this is not a strict requirement for use of Relay.</div>
       </section>
       <section id="sec-Cursor">
         <h4><span class="spec-secnum" title="link to this section"><a href="#sec-Cursor">3.1.2</a></span>Cursor</h4>
-        <p>An &ldquo;Edge Type&rdquo; must contain a field called <code>cursor</code>. This field must return either a String or a Non&#8208;Null wrapper around a String.</p>
+        <p>An &ldquo;Edge Type&rdquo; must contain a field called <code>cursor</code>. This field must return a type that serializes as a String; this may be a String, a Non&#8208;Null wrapper around a String, a custom scalar that serializes as a String,
+          or a Non&#8208;Null wrapper around a custom scalar that serializes as a String.</p>
+        <p>Whatever type this field returns will be referred to as the <em>cursor type</em> in the rest of this spec.</p>
         <p>The result of this field is considered opaque by Relay, but will be passed back to the server as described in the &ldquo;Arguments&rdquo; section below.</p>
       </section>
     </section>
@@ -198,33 +201,34 @@
 }
 </code></pre>
       <p>returns</p><pre><code>{
-  "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
-    "<span class="hljs-attribute">__type</span>": <span class="hljs-value">{
-      "<span class="hljs-attribute">fields</span>": <span class="hljs-value">[
+  "data": {
+    "__type": {
+      "fields": [
         // May contain other items
         {
-          "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"node"</span></span>,
-          "<span class="hljs-attribute">type</span>":
-            <span class="hljs-value"><span class="hljs-string">"name"</span>: <span class="hljs-string">"Example"</span></span>,
-            "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"OBJECT"</span></span>,
-            "<span class="hljs-attribute">ofType</span>": <span class="hljs-value"><span class="hljs-literal">null</span>
-          </span>}
+          "name": "node",
+          "type": {
+            "name": "Example",
+            "kind": "OBJECT",
+            "ofType": null
+          }
         },
         {
-          "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"cursor"</span></span>,
-          "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
-            "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
-            "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"NON_NULL"</span></span>,
-            "<span class="hljs-attribute">ofType</span>": <span class="hljs-value">{
-              "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"String"</span></span>,
-              "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"SCALAR"</span>
-            </span>}
-          </span>}
-        </span>}
+          "name": "cursor",
+          "type": {
+            // This shows the cursor type as String!, other types are possible
+            "name": null,
+            "kind": "NON_NULL",
+            "ofType": {
+              "name": "String",
+              "kind": "SCALAR"
+            }
+          }
+        }
       ]
-    </span>}
-  </span>}
-</span>}
+    }
+  }
+}
 </code></pre></section>
   </section>
   <section id="sec-Arguments">
@@ -235,7 +239,7 @@
       <p>To enable forward pagination, two arguments are required.</p>
       <ul>
         <li><code>first</code> takes an integer.</li>
-        <li><code>after</code> takes a string.</li>
+        <li><code>after</code> takes the <em>cursor type</em> as described in the <code>cursor</code> field section.</li>
       </ul>
       <p>The server should use those two arguments to modify the edges returned by the connection, returning edges after the <code>after</code> cursor, and returning at most <code>first</code> edges. More formally:</p>
     </section>
@@ -244,13 +248,13 @@
       <p>To enable backward pagination, two arguments are required.</p>
       <ul>
         <li><code>last</code> takes an integer.</li>
-        <li><code>before</code> takes a string.</li>
+        <li><code>before</code> takes the <em>cursor type</em> as described in the <code>cursor</code> field section.</li>
       </ul>
       <p>The server should use those two arguments to modify the edges returned by the connection, returning edges before the <code>before</code> cursor, and returning at most <code>last</code> edges. More formally:</p>
     </section>
     <section id="sec-Pagination-algorithm">
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Pagination-algorithm">4.3</a></span>Pagination algorithm</h3>
-      <p>To determine what edges to return, the connection evalutes the <code>before</code> and <code>after</code> cursors to filter the edges, then evaluates <code>first</code> to slice the edges, then <code>last</code> to slice the edges.</p>
+      <p>To determine what edges to return, the connection evaluates the <code>before</code> and <code>after</code> cursors to filter the edges, then evaluates <code>first</code> to slice the edges, then <code>last</code> to slice the edges.</p>
       <div class="spec-note">Including a value for both <code>first</code> and <code>last</code> is strongly discouraged, as it is likely to lead to confusing queries and results. The <code>PageInfo</code> section goes into more detail here.</div>
       <p>More formally:</p>
       <div class="spec-algo" id="EdgesToReturn()"><span class="spec-call"><a href="#EdgesToReturn()">EdgesToReturn</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
@@ -311,9 +315,9 @@
     <section id="sec-undefined.PageInfo.Fields">
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-undefined.PageInfo.Fields">5.1</a></span>Fields</h3>
       <p><code>PageInfo</code> must contain fields <code>hasPreviousPage</code> and <code>hasNextPage</code>, both of which return non&#8208;null booleans.</p>
-      <p><code>hasPreviousPage</code> will be <code>true</code> if the client is paginating with <code>last</code>, and the server has determined that the client has reached the end of the set of edges defined by their cursors. More formally:</p>
-      <div class="spec-algo"
-      id="HasPreviousPage()"><span class="spec-call"><a href="#HasPreviousPage()">HasPreviousPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
+      <p><code>hasPreviousPage</code> will be <code>false</code> if the client is not paginating with <code>last</code>, or if the client is paginating with <code>last</code>, and the server has determined that the client has reached the end of the set of
+        edges defined by their cursors. More formally:</p>
+      <div class="spec-algo" id="HasPreviousPage()"><span class="spec-call"><a href="#HasPreviousPage()">HasPreviousPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
         <ol>
           <li>If <var>last</var> was not set, return <span class="spec-keyword">false</span>.</li>
           <li>Let <var>edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()">ApplyCursorsToEdges</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>)</span>.</li>
@@ -321,9 +325,9 @@
           <li>Return <span class="spec-keyword">true</span>.</li>
         </ol>
       </div>
-      <p><code>hasNextPage</code> will be <code>true</code> if the client is paginating with <code>first</code>, and the server has determined that the client has reached the end of the set of edges defined by their cursors. More formally:</p>
-      <div class="spec-algo"
-      id="HasNextPage()"><span class="spec-call"><a href="#HasNextPage()">HasNextPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
+      <p><code>hasNextPage</code> will be <code>false</code> if the client is not paginating with <code>first</code>, or if the client is paginating with <code>first</code>, and the server has determined that the client has reached the end of the set of
+        edges defined by their cursors. More formally:</p>
+      <div class="spec-algo" id="HasNextPage()"><span class="spec-call"><a href="#HasNextPage()">HasNextPage</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>, <var>first</var>, <var>last</var>)</span>
         <ol>
           <li>If <var>first</var> was not set, return <span class="spec-keyword">false</span>.</li>
           <li>Let <var>edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()">ApplyCursorsToEdges</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>)</span>.</li>

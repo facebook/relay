@@ -25,7 +25,7 @@
   fragment on User {
     # Set the `</span></span>size<span class="token template-string"><span class="token string">` argument to a GraphQL variable named `</span></span>$size<span class="token template-string"><span class="token string">` so that we can
     # later change its value via the slider.
-    profilePicture(size: $size) {
+    profilePhoto(size: $size) {
       # Get the apppropriate URI for the given size, for example on a CDN.
       uri,
     },
@@ -44,7 +44,7 @@ module<span class="token punctuation">.</span>exports <span class="token operato
   fragments<span class="token punctuation">:</span> <span class="token punctuation">{</span>
     user<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
       fragment on User {
-        profilePicture(size: $size) {
+        profilePhoto(size: $size) {
           uri,
         },
       }

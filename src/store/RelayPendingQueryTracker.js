@@ -28,7 +28,6 @@ var everyObject = require('everyObject');
 var fetchRelayQuery = require('fetchRelayQuery');
 var invariant = require('invariant');
 var subtractRelayQuery = require('subtractRelayQuery');
-var warning = require('warning');
 
 type PendingQueryParameters = {
   fetchMode: DliteFetchModeConstants;
@@ -208,7 +207,7 @@ class PendingFetch {
     var queryID = this.getQuery().getID();
     delete pendingFetchMap[queryID];
 
-    warning(false, error.message);
+    console.error(error.message);
 
     this._errors.push(error);
     this._updateResolvedDeferred();

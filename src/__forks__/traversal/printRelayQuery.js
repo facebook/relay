@@ -17,6 +17,7 @@ import type {Call, PrintedQuery} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 
+var forEachObject = require('forEachObject');
 var invariant = require('invariant');
 var mapObject = require('mapObject');
 
@@ -58,8 +59,7 @@ function printRelayQuery(node: RelayQuery.Node): PrintedQuery {
   );
   // Reassign to preserve Flow type refinement within closure.
   var text = queryText;
-  Object.keys(printerState.fragmentMap).forEach(fragmentID => {
-    var fragmentText = printerState.fragmentMap[fragmentID];
+  forEachObject(printerState.fragmentMap, (fragmentText, fragmentID) => {
     if (fragmentText) {
       text = text + ' ' + fragmentText;
     }
@@ -105,8 +105,7 @@ function printRoot(
   }
 
   var argStrings = null;
-  Object.keys(printerState.variableMap).forEach(variableID => {
-    var variable = printerState.variableMap[variableID];
+  forEachObject(printerState.variableMap, (variable, variableID) => {
     if (variable) {
       argStrings = argStrings || [];
       argStrings.push('$' + variableID + ':' + variable.type);
@@ -221,7 +220,7 @@ function printArgument(
     return value;
   }
   if (type != null) {
-    var variableID = createVariable(name, value, type, printerState);
+    var variableID = createVariable(value, type, printerState);
     stringValue = '$' + variableID;
   } else {
     stringValue = JSON.stringify(value);
@@ -230,7 +229,6 @@ function printArgument(
 }
 
 function createVariable(
-  name: string,
   value: mixed,
   type: string,
   printerState: PrinterState

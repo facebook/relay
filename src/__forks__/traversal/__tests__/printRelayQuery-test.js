@@ -151,7 +151,7 @@ describe('printRelayQuery', () => {
     });
 
     it('prints enum call values', () => {
-      var value = 'WEB';
+      var enumValue = 'WEB';
       var query = getNode(Relay.QL`
         query FooQuery {
           settings(environment: $env) {
@@ -159,7 +159,7 @@ describe('printRelayQuery', () => {
           },
         }
       `, {
-        env: value
+        env: enumValue
       });
       var {text, variables} = printRelayQuery(query);
       expect(text).toEqual(trimQuery(`
@@ -169,11 +169,13 @@ describe('printRelayQuery', () => {
           }
         }
       `));
-      expect(variables).toEqual({});
+      expect(variables).toEqual({
+        0: enumValue,
+      });
     });
 
     it('prints object call values', () => {
-      var value = {query: 'Menlo Park'};
+      var objectValue = {query: 'Menlo Park'};
       var query = getNode(Relay.QL`
         query {
           checkinSearchQuery(query: $q) {
@@ -181,7 +183,7 @@ describe('printRelayQuery', () => {
           }
         }
       `, {
-        q: value,
+        q: objectValue,
       });
 
       var {text, variables} = printRelayQuery(query);
@@ -192,7 +194,9 @@ describe('printRelayQuery', () => {
           }
         }
       `));
-      expect(variables).toEqual({});
+      expect(variables).toEqual({
+        0: objectValue,
+      });
     });
 
     it('throws for ref queries', () => {
@@ -210,8 +214,7 @@ describe('printRelayQuery', () => {
         },
         'RefQueryName'
       );
-      var {text, variables} = printRelayQuery(query);
-      expect(() => text).toFailInvariant(
+      expect(() => printRelayQuery(query)).toFailInvariant(
         'printRelayQuery(): Deferred queries are not supported.'
       );
     });
@@ -307,7 +310,7 @@ describe('printRelayQuery', () => {
           }
         }
       `, {first: 10});
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayQuery(fragment);
       expect(text).toEqual(trimQuery(`
         fragment UnknownFile on Viewer {
           ${alias}:newsFeed(first:10) {
@@ -336,7 +339,7 @@ describe('printRelayQuery', () => {
           }
         }
       `);
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayQuery(fragment);
       expect(text).toEqual(trimQuery(`
         fragment UnknownFile on Actor {
           ${alias}:profilePicture(size:["32","64"]) {
@@ -361,7 +364,7 @@ describe('printRelayQuery', () => {
           }
         }
       `, variables);
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayQuery(fragment);
       expect(text).toEqual(trimQuery(`
         fragment UnknownFile on Actor {
           ${alias}:profilePicture(size:[32,64]) {
@@ -394,7 +397,7 @@ describe('printRelayQuery', () => {
         isViewerFriend: false,
       });
       var alias = fragment.getChildren()[0].getSerializationKey();
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayQuery(fragment);
       expect(text).toEqual(trimQuery(`
         fragment UnknownFile on Actor {
           ${alias}:friends(first:10,orderby:["name"],isViewerFriend:false) {
@@ -428,7 +431,7 @@ describe('printRelayQuery', () => {
         }
       `);
       var fragmentID = getNode(nestedFragment).getFragmentID();
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayQuery(fragment);
       expect(trimQuery(text)).toEqual(trimQuery(`
         fragment UnknownFile on Viewer {
           actor {
@@ -462,7 +465,7 @@ describe('printRelayQuery', () => {
       {input: ''}
     );
 
-    var {text, variables} = printRelayQuery(query);
+    var {text, variables} = printRelayQuery(mutation);
     expect(text).toEqual(trimQuery(`
       mutation UnknownFile($input:FeedbackLikeInput) {
         feedbackLike(input:$input) {

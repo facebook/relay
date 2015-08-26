@@ -52,7 +52,7 @@ sendMutation(mutationRequest) {
     if (result.errors) {
       mutationRequest.reject(new Error(...))
     } else {
-      mutationRequest.resolve(result.data);
+      mutationRequest.resolve({response: result.data});
     }
   });
 }
@@ -81,7 +81,7 @@ sendQueries(queryRequests) {
       if (result.errors) {
         queryRequest.reject(new Error(...));
       } else {
-        queryRequest.resolve(result.data);
+        queryRequest.resolve({response: result.data});
       }
     })
   ));

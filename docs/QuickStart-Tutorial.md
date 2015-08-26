@@ -14,7 +14,7 @@ In this tutorial, we will build a game using GraphQL mutations. The goal of the 
 Let's start a project using the Relay Starter Kit as a base.
 
 ```
-git clone git@github.com:facebook/relay-starter-kit.git relay-treasurehunt
+git clone https://github.com/relayjs/relay-starter-kit.git relay-treasurehunt
 cd relay-treasurehunt
 npm install
 ```

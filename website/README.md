@@ -15,16 +15,6 @@ Open http://localhost:8080/relay/index.html
 
 Anytime you change the contents, just refresh the page and it's going to be updated
 
-# Build the GraphQL Relay Spec
-
-Build the GraphQL Relay spec via
-
-```
-npm run build-spec
-```
-
-Anytime you change the contents of `relay/website/graphql`, you must re-build.
-
 # Publish the Website
 
 First setup your environment by having two folders, one `relay` and one `relay-gh-pages`. The publish script expects those exact names.

@@ -22,7 +22,7 @@
   "scripts": {
     "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",
     "prepublish": "npm run build",
-    "test": "EXIT=0; npm run typecheck || EXIT=$?; NODE_ENV=test jest || EXIT=$?; exit $EXIT",
+    "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; NODE_ENV=test jest $@ || EXIT=$?; exit $EXIT; }; f",
     "typecheck": "flow check src/",
     "update-schema": "babel-node ./scripts/jest/updateSchema.js"
   },

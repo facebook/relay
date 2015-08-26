@@ -537,9 +537,10 @@ function getScalarValue(node) {
 
 function getTypeForMetadata(type) {
   type = types.getNamedType(type);
-  if (type instanceof types.GraphQLEnumType) {
-    return type.name;
-  } else if (type instanceof types.GraphQLInputObjectType) {
+  if (
+    type instanceof types.GraphQLEnumType ||
+    type instanceof types.GraphQLInputObjectType
+  ) {
     return type.name;
   } else if (type instanceof types.GraphQLScalarType) {
     return null;

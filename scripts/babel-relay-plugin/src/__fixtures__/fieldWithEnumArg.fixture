@@ -46,7 +46,7 @@ var x = (function () {
     'generated': true,
     'requisite': true
   })], null, [new GraphQL.Callv('gender', 'MALE', {
-    'type': 'enum'
+    'type': 'Gender'
   })], null, null, {
     'parentType': 'Node',
     'connection': true

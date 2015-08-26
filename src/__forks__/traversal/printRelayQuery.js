@@ -13,13 +13,23 @@
 
 'use strict';
 
-import type {Call} from 'RelayInternalTypes';
+import type {Call, PrintedQuery} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 
+var forEachObject = require('forEachObject');
 var invariant = require('invariant');
+var mapObject = require('mapObject');
 
-type FragmentMap = {[key: string]: string};
+type PrinterState = {
+  fragmentMap: {[fragmentID: string]: string};
+  nextVariableID: number;
+  variableMap: {[variableID: string]: Variable};
+};
+type Variable = {
+  type: string;
+  value: mixed;
+};
 
 /**
  * @internal
@@ -27,42 +37,53 @@ type FragmentMap = {[key: string]: string};
  * `printRelayQuery(query)` returns a string representation of the query. The
  * supplied `node` must be flattened (and not contain fragments).
  */
-function printRelayQuery(node: RelayQuery.Node): string {
-  var fragmentMap = {};
+function printRelayQuery(node: RelayQuery.Node): PrintedQuery {
+  var printerState = {
+    fragmentMap: {},
+    nextVariableID: 0,
+    variableMap: {},
+  };
   var queryText = null;
   if (node instanceof RelayQuery.Root) {
-    queryText = printRoot(node, fragmentMap);
+    queryText = printRoot(node, printerState);
   } else if (node instanceof RelayQuery.Fragment) {
-    queryText = printFragment(node, fragmentMap);
+    queryText = printFragment(node, printerState);
   } else if (node instanceof RelayQuery.Field) {
-    queryText = printField(node, fragmentMap);
+    queryText = printField(node, printerState);
   } else if (node instanceof RelayQuery.Mutation) {
-    queryText = printMutation(node, fragmentMap);
+    queryText = printMutation(node, printerState);
   }
   invariant(
     queryText,
     'printRelayQuery(): Unsupported node type.'
   );
   // Reassign to preserve Flow type refinement within closure.
-  var query = queryText;
-  Object.keys(fragmentMap).forEach(fragmentID => {
-    var fragmentText = fragmentMap[fragmentID];
+  var text = queryText;
+  forEachObject(printerState.fragmentMap, (fragmentText, fragmentID) => {
     if (fragmentText) {
-      query = query + ' ' + fragmentText;
+      text = text + ' ' + fragmentText;
     }
   });
-  return query;
+  var variables = mapObject(
+    printerState.variableMap,
+    variable => variable.value
+  );
+  return {
+    text,
+    variables,
+  };
 }
 
 function printRoot(
   node: RelayQuery.Root,
-  fragmentMap: FragmentMap
+  printerState: PrinterState
 ): string {
   invariant(
     !node.getBatchCall(),
     'printRelayQuery(): Deferred queries are not supported.'
   );
 
+  var queryString = node.getName();
   var rootCall = node.getRootCall();
   var rootArgumentName = node.getRootCallArgument();
   var rootFieldString = rootCall.name;
@@ -72,52 +93,68 @@ function printRoot(
       'printRelayQuery(): Expected an argument name for root field `%s`.',
       rootCall.name
     );
-    var rootArgString =
-      printArgument(rootArgumentName, rootCall.value, node.getCallType());
+    var rootArgString = printArgument(
+      rootArgumentName,
+      rootCall.value,
+      node.getCallType(),
+      printerState
+    );
     if (rootArgString) {
       rootFieldString += '(' + rootArgString + ')';
     }
   }
 
-  return 'query ' + node.getName() + '{' +
-    rootFieldString + printChildren(node, fragmentMap) + '}';
+  var argStrings = null;
+  forEachObject(printerState.variableMap, (variable, variableID) => {
+    if (variable) {
+      argStrings = argStrings || [];
+      argStrings.push('$' + variableID + ':' + variable.type);
+    }
+  });
+  if (argStrings) {
+    queryString += '(' + argStrings.join(',') + ')';
+  }
+
+  return 'query ' + queryString + '{' +
+    rootFieldString + printChildren(node, printerState) + '}';
 }
 
 function printMutation(
   node: RelayQuery.Mutation,
-  fragmentMap: FragmentMap
+  printerState: PrinterState
 ): string {
   var inputName = node.getCallVariableName();
   var call = '(' + inputName + ':$' + inputName + ')';
   return 'mutation ' + node.getName() + '($' + inputName + ':' +
     node.getInputType() + ')' + '{' +
     node.getCall().name + call +
-    printChildren(node, fragmentMap) + '}';
+    printChildren(node, printerState) + '}';
 }
 
 function printFragment(
   node: RelayQuery.Fragment,
-  fragmentMap: FragmentMap
+  printerState: PrinterState
 ): string {
   return 'fragment ' + node.getDebugName() + ' on ' +
-    node.getType() + printChildren(node, fragmentMap);
+    node.getType() + printChildren(node, printerState);
 }
 
 function printInlineFragment(
   node: RelayQuery.Fragment,
-  fragmentMap: FragmentMap
+  printerState: PrinterState
 ): string {
   var fragmentID = node.getFragmentID();
+  var {fragmentMap} = printerState;
   if (!(fragmentID in fragmentMap)) {
     fragmentMap[fragmentID] = 'fragment ' + fragmentID + ' on ' +
-      node.getType() + printChildren(node, fragmentMap);
+      node.getType() + printChildren(node, printerState);
   }
   return '...' + fragmentID;
 }
 
 function printField(
   node: RelayQuery.Field,
-  fragmentMap: FragmentMap
+  printerState: PrinterState
 ): string {
   invariant(
     node instanceof RelayQuery.Field,
@@ -130,7 +167,12 @@ function printField(
   var argStrings = null;
   if (callsWithValues.length) {
     callsWithValues.forEach(({name, value}) => {
-      var argString = printArgument(name, value, node.getCallType(name));
+      var argString = printArgument(
+        name,
+        value,
+        node.getCallType(name),
+        printerState
+      );
       if (argString) {
         argStrings = argStrings || [];
         argStrings.push(argString);
@@ -141,16 +183,16 @@ function printField(
     }
   }
   return (serializationKey !== schemaName ? serializationKey + ':' : '') +
-    fieldString + printChildren(node, fragmentMap);
+    fieldString + printChildren(node, printerState);
 }
 
 function printChildren(
   node: RelayQuery.Node,
-  fragmentMap: FragmentMap
+  printerState: PrinterState
 ): string {
   var children = node.getChildren().map(node => {
     if (node instanceof RelayQuery.Field) {
-      return printField(node, fragmentMap);
+      return printField(node, printerState);
     } else {
       invariant(
         node instanceof RelayQuery.Fragment,
@@ -158,7 +200,7 @@ function printChildren(
         '`Fragment`, got `%s`.',
         node.constructor.name
       );
-      return printInlineFragment(node, fragmentMap);
+      return printInlineFragment(node, printerState);
     }
   });
   if (!children.length) {
@@ -167,51 +209,37 @@ function printChildren(
   return '{' + children.join(',') + '}';
 }
 
-function printArgument(name: string, value: mixed, type: ?string): ?string {
+function printArgument(
+  name: string,
+  value: mixed,
+  type: ?string,
+  printerState: PrinterState
+): ?string {
   var stringValue;
   if (value == null) {
     return value;
   }
-  if (type === 'enum') {
-    invariant(
-      typeof value === 'string',
-      'RelayQuery: Expected enum argument `%s` to be a string, got `%s`.',
-      name,
-      value
-    );
-    stringValue = value;
-  } else if (type === 'object') {
-    invariant(
-      typeof value === 'object' && !Array.isArray(value) && value !== null,
-      'RelayQuery: Expected object argument `%s` to be an object, got `%s`.',
-      name,
-      value
-    );
-    stringValue = stringifyInputObject(name, value);
+  if (type != null) {
+    var variableID = createVariable(value, type, printerState);
+    stringValue = '$' + variableID;
   } else {
     stringValue = JSON.stringify(value);
   }
   return name + ':' + stringValue;
 }
 
-function stringifyInputObject(name: string, value: mixed): string {
-  invariant(
-    value != null,
-    'RelayQuery: Expected input object `%s` to have non-null values.',
-    name
-  );
-  if (typeof value !== 'object') {
-    return JSON.stringify(value);
-  }
-  if (Array.isArray(value)) {
-    return '[' +
-      value.map(stringifyInputObject.bind(null, name)).join(',') + ']';
-  }
-  // Reassign to preserve Flow type refinement within closure.
-  var objectValue: Object = (value: $FlowIssue); // non-null object
-  return '{' + Object.keys(objectValue).map(key => {
-    return key + ':' + stringifyInputObject(name, objectValue[key]);
-  }).join(',') + '}';
+function createVariable(
+  value: mixed,
+  type: string,
+  printerState: PrinterState
+): string {
+  var variableID = printerState.nextVariableID.toString(36);
+  printerState.nextVariableID++;
+  printerState.variableMap[variableID] = {
+    type,
+    value,
+  };
+  return variableID;
 }
 
 module.exports = RelayProfiler.instrument(

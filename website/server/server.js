@@ -38,6 +38,7 @@ var buildOptions = {
 };
 
 var app = connect()
+  .use(serveStatic(FILE_SERVE_ROOT))
   .use(function(req, res, next) {
     // convert all the md files on every request. This is not optimal
     // but fast enough that we don't really need to care right now.
@@ -45,7 +46,6 @@ var app = connect()
     next();
   })
   .use(reactMiddleware.provide(buildOptions))
-  .use(serveStatic(FILE_SERVE_ROOT))
   .use(morgan('combined'))
   .use(compression())
   .use(errorHandler());

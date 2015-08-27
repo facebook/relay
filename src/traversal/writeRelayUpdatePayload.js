@@ -70,10 +70,12 @@ function writeRelayUpdatePayload(
   payload: {[key: string]: mixed},
   {configs, isOptimisticUpdate}: UpdateOptions
 ): void {
+  var fieldsRequiringIDs = {};
   configs.forEach(config => {
     switch (config.type) {
       case RelayMutationType.NODE_DELETE:
         handleNodeDelete(writer, payload, config);
+        fieldsRequiringIDs[config.parentName] = true;
         break;
       case RelayMutationType.RANGE_ADD:
         handleRangeAdd(
@@ -83,11 +85,16 @@ function writeRelayUpdatePayload(
           config,
           isOptimisticUpdate
         );
+        fieldsRequiringIDs[config.parentName] = true;
         break;
       case RelayMutationType.RANGE_DELETE:
         handleRangeDelete(writer, payload, config);
+        fieldsRequiringIDs[config.parentName] = true;
         break;
       case RelayMutationType.FIELDS_CHANGE:
+        Object.keys(config.fieldIDs).forEach(fieldName => {
+          fieldsRequiringIDs[fieldName] = true;
+        });
       case RelayMutationType.REQUIRED_CHILDREN:
         break;
       default:
@@ -98,7 +105,13 @@ function writeRelayUpdatePayload(
     }
   });
 
-  handleMerge(writer, payload, operation);
+  handleMerge(
+    writer,
+    payload,
+    operation,
+    isOptimisticUpdate,
+    fieldsRequiringIDs
+  );
 }
 
 /**
@@ -168,7 +181,9 @@ function deleteRecord(
 function handleMerge(
   writer: RelayQueryWriter,
   payload: Payload,
-  operation: RelayQuery.Operation
+  operation: RelayQuery.Operation,
+  isOptimisticUpdate: boolean,
+  fieldsRequiringIDs: {[key: string]: boolean}
 ): void {
   var store = writer.getRecordStore();
 
@@ -199,6 +214,15 @@ function handleMerge(
         fieldName,
         (payloadData: $FixMe), // checked above: != null and typeof object
         operation
+      );
+    } else {
+      warning(
+        isOptimisticUpdate && fieldsRequiringIDs[fieldName],
+        'writeRelayUpdatePayload(): Unable to optimistically merge field ' +
+        '`%s` on mutation: Did you forget to include an %s field in your ' +
+        'optimistic response?',
+        fieldName,
+        ID
       );
     }
   }

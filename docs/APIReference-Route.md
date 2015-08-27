@@ -74,27 +74,19 @@ class ProfileRoute extends Relay.Route {
 
 ```
 static queries: {
-  [queryName: string]: (
-    Component: RelayContainer,
-    params: {[name: string]: mixed}
-  ) => Relay.QL`query ...`
+  [queryName: string]: () => Relay.QL`query { ... }`
 }
 ```
 
-Routes must declare a set of query roots using `Relay.QL`. These queries are expected to compose a fragment on the Relay container supplied via the `Component` argument.
+Routes must declare a set of query roots using `Relay.QL`. These queries will automatically compose a matching fragment named `queryName` on
+the Relay container used with this route on a **Relay.RootContainer**.
 
 #### Example
 
 ```
 class ProfileRoute extends Relay.Route {
   static queries = {
-    user: Component => Relay.QL`
-      query {
-        user(id: $userID) {
-          ${Component.getFragment('user')},
-        },
-      }
-    `,
+    user: () => Relay.QL`query { user(id: $userID) }`,
   },
   // ...
 }

@@ -65,20 +65,17 @@ Since Relay containers define fragments and not queries, they can be easily embe
 
 ## Routes and Queries
 
-Routes are objects that define a set of root queries and input parameters. Here is a simple route that renders user `123`'s profile photo:
+Routes are objects that define a set of root queries and input parameters. Here is a simple route that might be used to render user `123`'s profile:
 
 ```
 var profileRoute = {
   queries: {
-    // Routes declare queries using functions that receive the top-level Relay
-    // container and return a query root that composes one of its fragments.
-    user: Component => Relay.QL`
+    // Routes declare queries using functions that return a query root. Relay
+    // will automatically compose the `user` fragment from the Relay container
+    // paired with this route on a Relay.RootContainer
+    user: () => Relay.QL`
       # In Relay, the GraphQL query name can be optionally omitted.
-      query {
-        user(id: $userID) {
-          ${Component.getFragment('user')}
-        }
-      }
+      query { user(id: $userID) }
     `,
   },
   params: {
@@ -95,12 +92,8 @@ If we wanted to create an instance of this route for arbitrary users, we can sub
 ```
 class ProfileRoute extends Relay.Route {
   static queries = {
-    user: Component => Relay.QL`
-      query {
-        user(id: $userID) {
-          ${Component.getFragment('user')}
-        }
-      }
+    user: () => Relay.QL`
+      query { user(id: $userID) }
     `,
   };
   static paramDefinitions = {

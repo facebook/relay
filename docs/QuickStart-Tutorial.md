@@ -155,7 +155,7 @@ var hidingSpotType = new GraphQLObjectType({
     id: globalIdField('HidingSpot'),
     hasBeenChecked: {
       type: GraphQLBoolean,
-      description: 'True this spot has already been checked for treasure',
+      description: 'True if this spot has already been checked for treasure',
       resolve: (hidingSpot) => hidingSpot.hasBeenChecked,
     },
     hasTreasure: {

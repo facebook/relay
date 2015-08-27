@@ -32,13 +32,14 @@ type Hobby implements Node {
 
 interface Node {
   id: ID!
-  type: String
+  type: String!
 }
 
 type RootMutation {
-  addUser(name: String!, surname: String!, age: Int): User
+  addUser(name: String!, surname: String!, age: Int, hobbies: [ID], friends: [ID]): User
   updateUser(id: ID, name: String, surname: String, age: Int): User
   addHobby(title: String!, description: String!): Hobby
+  updateHobby(id: ID!, title: String, description: String): Hobby
 }
 
 type RootQuery {
@@ -55,8 +56,10 @@ type User implements Node {
   surname: String
   age: Int
   hobbies: [Hobby]
+  friends: [User]
   type: String!
 }
+
 ```
 As you can see, there is a hobby and user types that implements the node interface. Then you can find 5 queries:
 
@@ -125,6 +128,7 @@ Will return
   * *`age`* as optional int. For example: `30`
 2. **`updateUser(id: ID, name: String, surname: String, age: Int): User`**
 3. **`addHobby(title: String!, description: String!): Hobby`**
+4. **`updateHobby(id: ID!, title: String, description: String): Hobby`**
 
 ## Writing the schema
 
@@ -261,6 +265,109 @@ let HobbyQueries = {
 Hobbies queries are pretty similar to user queries:
 1. **hobbies** do not accepts arguments and returns a list of users `new GraphQLList(HobbyType)`. Resolve makes the query on MongoDB using Mongoose and returns the list of hobbies as a Promise.
 2. **hobby** needs one argument: the mongodb id to query. Returns a HobbyType and it's resolve method returns a promise with the content of the hobby
+
+### Mutations
+Mutations of user are like follows:
+```javascript
+let UserMutations = {
+  addUser: {
+    type: UserType,
+    args: {
+      name: {
+        name: 'name',
+        type: new GraphQLNonNull(GraphQLString)
+      },
+      surname: {
+        name: 'surname',
+        type: new GraphQLNonNull(GraphQLString)
+      },
+      age: {
+        name: 'age',
+        type: GraphQLInt
+      },
+      hobbies: {
+        name: 'hobbies',
+        type: new GraphQLList(GraphQLID)
+      },
+      friends: {
+        name: 'friends',
+        type: new GraphQLList(GraphQLID)
+      }
+    },
+    resolve: User.addUser,
+    resolveType: UserType
+  },
+  updateUser: {
+    type: UserType,
+    args: {
+      id: {
+        name: 'id',
+        type: GraphQLID
+      },
+      name: {
+        name: 'name',
+        type: GraphQLString
+      },
+      surname: {
+        name: 'surname',
+        type: GraphQLString
+      },
+      age: {
+        name: 'age',
+        type: GraphQLInt
+      }
+    },
+    resolve: User.updateUser,
+    resolveType: UserType
+  }
+};
+```
+* **addUser** needs minimum a name and surname string fields and accepts as optional "age", a friends list (id's of MongoDB) and a hobbies list (also id's). Returns, of course, a User type.
+* **updateUser** needs minimum an id to find the user to update. Then any parameter to updated can be passed as optional.
+
+Now the mutations of hobbies, that are really similar to User.
+```javascript
+let HobbyMutations = {
+  addHobby: {
+    type: HobbyType,
+    args: {
+      title: {
+        name: 'title',
+        type: new GraphQLNonNull(GraphQLString)
+      },
+      description: {
+        name: 'description',
+        type: new GraphQLNonNull(GraphQLString)
+      }
+    },
+    resolve: Hobby.addHobby,
+    resolveType: HobbyType
+  },
+  updateHobby: {
+    type: HobbyType,
+    args: {
+      id: {
+        name: 'id',
+        type: new GraphQLNonNull(GraphQLID)
+      },
+      title: {
+        name: 'title',
+        type: GraphQLString
+      },
+      description: {
+        name: 'description',
+        type: GraphQLString
+      }
+    },
+    resolve: Hobby.updateHobby,
+    resolveType: HobbyType
+  }
+};
+```
+* **addHobby** Works similarly to the previous addUser. Needs the title and description of the hobby as minimum arguments. It will return the new hobby type as result.
+* **updateHobby** Only needs the id of the hobby to update, then you can pass a title or a description (or both) as arguments to update.
+
+## React side
 
 ### Declaring RootQuery
 ```javascript

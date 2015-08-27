@@ -1,7 +1,7 @@
 
 var request = require('request');
 var glob = require('glob');
-var fs = require('fs.extra');
+var fs = require('fs-extra');
 var mkdirp = require('mkdirp');
 var server = require('./server.js');
 

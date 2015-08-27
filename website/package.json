@@ -2,14 +2,13 @@
   "repository": "facebook/relay",
   "license": "BSD-3-Clause",
   "scripts": {
-    "start": "node server/server.js",
-    "build-spec": "mkdir -p src/relay/graphql; cp node_modules/spec-md/css/* src/relay/graphql; spec-md graphql/Mutations.md > src/relay/graphql/mutations.htm; spec-md graphql/ObjectIdentification.md > src/relay/graphql/objectidentification.htm; spec-md graphql/Connections.md > src/relay/graphql/connections.htm"
+    "start": "node server/server.js"
   },
   "dependencies": {
     "compression": "1.2.2",
     "connect": "3.3.3",
     "errorhandler": "1.3.0",
-    "fs.extra": "*",
+    "fs-extra": "0.23.1",
     "glob": "*",
     "mkdirp": "*",
     "morgan": "1.5.0",

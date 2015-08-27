@@ -967,6 +967,7 @@ function create(
     now: componentName + '.getFragmentNames',
     adapter: ContainerConstructor.getFragmentNames,
   });
+  ContainerConstructor.hasFragment = fragmentName => !!fragments[fragmentName];
 
   /**
    * Retrieves a reference to the fragment by name. An optional second argument

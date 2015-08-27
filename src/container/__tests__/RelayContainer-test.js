@@ -195,6 +195,12 @@ describe('RelayContainer', function() {
         ])
       ));
     });
+
+    it('returns whether a named fragment is defined', () => {
+      expect(MockContainer.hasFragment('foo')).toBe(true);
+      expect(MockContainer.hasFragment('bar')).toBe(true);
+      expect(MockContainer.hasFragment('baz')).toBe(false);
+    });
   });
 
   describe('conditional fragments', () => {

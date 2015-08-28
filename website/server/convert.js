@@ -1,5 +1,4 @@
 var buildGraphQLSpec = require('./buildGraphQLSpec');
-var exec = require('execSync').exec
 var fs = require('fs-extra');
 var glob = require('glob');
 var mkdirp = require('mkdirp');

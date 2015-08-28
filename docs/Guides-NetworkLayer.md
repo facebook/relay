@@ -21,15 +21,26 @@ Relay.injectNetworkLayer(
 );
 ```
 
-Underneath the hood, the default network layer uses `fetch`. When it sends queries, it will automatically fail requests after a 15 second timeout. Also, failed requests are automatically retried twice, with a 1 second delay and a 3 second delay, respectively.
+Underneath the hood, the default network layer uses `fetch` ([Living Standard](https://fetch.spec.whatwg.org)). The constructor for `Relay.DefaultNetworkLayer` takes an optional second argument that accepts any valid initialization property that `fetch` accepts.
+
+```{3}
+Relay.injectNetworkLayer(
+  new Relay.DefaultNetworkLayer('http://example.com/graphql', {
+    credentials: 'same-origin',
+  })
+);
+```
+
+When it sends queries, it will automatically fail requests after a 15 second timeout. Also, failed requests are automatically retried twice, with a 1 second delay and a 3 second delay, respectively.
 
 Like the GraphQL URI, the timeout and retry behavior can be configured:
 
 ```{3-4}
 Relay.injectNetworkLayer(
-  new Relay.DefaultNetworkLayer('http://example.com/graphql'),
-  30000,    // Timeout after 30s.
-  [5000]    // Only retry once after a 5s delay.
+  new Relay.DefaultNetworkLayer('http://example.com/graphql', {
+    fetchTimeout: 30000,   // Timeout after 30s.
+    retryDelays: [5000],   // Only retry once after a 5s delay.
+  })
 );
 ```
 

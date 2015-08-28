@@ -8,8 +8,6 @@
 * Scalars other than strings are now allowed as cursors, so long as they
   serialize to strings.
 * Added `npm run update-schema` to update the test schema.
-* Added support for printing type-conditional fragments via
-  RelayFragmentReference.conditionOnType().
 
 ## 0.1.1 (August 14, 2015)
 

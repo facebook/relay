@@ -1,4 +1,5 @@
-var exec = require('execSync').exec;
+var buildGraphQLSpec = require('./buildGraphQLSpec');
+var exec = require('execSync').exec
 var fs = require('fs-extra');
 var glob = require('glob');
 var mkdirp = require('mkdirp');
@@ -110,16 +111,7 @@ function execute() {
     'module.exports = ' + JSON.stringify(metadatas, null, 2) + ';'
   );
 
-  fs.copySync('node_modules/spec-md/css', 'src/relay/graphql');
-  glob.sync('graphql/*.md').forEach(function(file) {
-    var html = exec('spec-md', [file]).toString();
-    var outFilename = (
-      'src/relay/graphql/' +
-      path.basename(file, '.md').toLowerCase() +
-      '.htm'
-    );
-    fs.writeFileSync(outFilename, html);
-  });
+  buildGraphQLSpec('src');
 }
 
 if (argv.convert) {

@@ -1,4 +1,4 @@
-
+var buildGraphQLSpec = require('./buildGraphQLSpec');
 var request = require('request');
 var glob = require('glob');
 var fs = require('fs-extra');
@@ -31,6 +31,8 @@ var queue = (function() {
   }
   return {push: push};
 })();
+
+buildGraphQLSpec('build');
 
 glob('src/**/*.*', function(er, files) {
   var count = files.length;

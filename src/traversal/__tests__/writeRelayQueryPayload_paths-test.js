@@ -11,12 +11,12 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
-
 jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
+
+var RelayTestUtils = require('RelayTestUtils');
+RelayTestUtils.unmockRelay();
 
 describe('writePayload()', () => {
   var Relay;
@@ -48,7 +48,6 @@ describe('writePayload()', () => {
     RelayQueryPath = require('RelayQueryPath');
     RelayQueryTracker = require('RelayQueryTracker');
     RelayRecordStore = require('RelayRecordStore');
-    RelayTestUtils = require('RelayTestUtils');
 
     invariant = require('invariant');
     generateRQLFieldAlias = require('generateRQLFieldAlias');

@@ -11,14 +11,14 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
-
 jest
   .dontMock('GraphQLMutatorConstants')
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment')
   .mock('warning');
+
+var RelayTestUtils = require('RelayTestUtils');
+RelayTestUtils.unmockRelay();
 
 describe('writePayload()', () => {
   var Relay;
@@ -46,7 +46,6 @@ describe('writePayload()', () => {
     RelayMutationType = require('RelayMutationType');
     RelayQueryWriter = require('RelayQueryWriter');
     RelayRecordStore = require('RelayRecordStore');
-    RelayTestUtils = require('RelayTestUtils');
     GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 
     generateClientEdgeID = require('generateClientEdgeID');

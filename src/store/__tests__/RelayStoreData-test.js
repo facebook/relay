@@ -19,21 +19,20 @@ jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayQueryPath = require('RelayQueryPath');
+var RelayStoreData = require('RelayStoreData');
+
 describe('RelayStoreData', () => {
   var Relay;
-  var RelayConnectionInterface;
-  var RelayQueryPath;
-  var RelayStoreData;
 
   var {getNode, getVerbatimNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
+    // @side-effect related to garbage collection
     Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayQueryPath = require('RelayQueryPath');
-    RelayStoreData = require('RelayStoreData');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

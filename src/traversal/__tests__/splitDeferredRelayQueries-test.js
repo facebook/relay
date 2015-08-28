@@ -41,7 +41,6 @@ describe('splitDeferredRelayQueries()', () => {
 
     Relay = require('Relay');
     RelayQuery = require('RelayQuery');
-    RelayTestUtils = require('RelayTestUtils');
     flattenRelayQuery = require('flattenRelayQuery');
     generateRQLFieldAlias = require('generateRQLFieldAlias');
     splitDeferredRelayQueries = require('splitDeferredRelayQueries');

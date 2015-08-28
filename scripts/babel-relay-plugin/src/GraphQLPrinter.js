@@ -376,7 +376,8 @@ function printField(
     metadata.pk = 'id';
   }
 
-  if (isConnection(options.schema, fieldDecl)) {
+  var connectionMetadata = getConnectionMetadata(options.schema, fieldDecl);
+  if (connectionMetadata) {
     metadata.connection = true;
 
     if (!getArgNamed(fieldDecl, 'find')) {
@@ -387,15 +388,22 @@ function printField(
     var selections = getSelections(field);
     selections.forEach(function(subfield) {
       var subfieldName = getName(subfield);
-      if (subfieldName === 'nodes') {
-        throw new Error(util.format(
-          'Unsupported "nodes" field on connection, `%s`. Instead, use ' +
-          '"edges{node{...}}".',
-          fieldName
-        ));
-      }
+      var subfieldDecl =
+        types.getNamedType(fieldDecl.type).getFields()[subfieldName];
+      var subfieldType = types.getNamedType(subfieldDecl.type);
       if (subfieldName === 'edges') {
         hasEdgesSelection = true;
+      } else if (
+        isList(subfieldDecl.type) &&
+        subfieldType.name === connectionMetadata.nodeType.name
+      ) {
+        // Detect eg `nodes{...}` instead of `edges{node{...}}`
+        throw new Error(util.format(
+          'Unsupported `%s{...}` field on connection `%s`. Use ' +
+          '`edges{node{...}}` instead.',
+          subfieldName,
+          fieldName
+        ));
       }
     });
     if (hasEdgesSelection && !!fieldDecl.type.getFields()['pageInfo']) {
@@ -647,46 +655,53 @@ function getArgNamed(field, name) {
   return remaining.length === 1 ? remaining[0] : null;
 }
 
-function isConnection(schema, fieldDecl) {
+function getConnectionMetadata(schema, fieldDecl) {
   if (!isConnectionType(fieldDecl.type)) {
-    return false;
+    return null;
   }
   // Connections must be limitable.
   if (!getArgNamed(fieldDecl, 'first') && !getArgNamed(fieldDecl, 'last')) {
-    return false;
+    return null;
   }
   var fieldType = types.getNamedType(fieldDecl.type);
 
   // Connections must have a non-scalar `edges` field.
   var edgesField = fieldType.getFields()['edges'];
   if (!edgesField) {
-    return false;
+    return null;
   }
   var edgesType = types.getNamedType(edgesField.type);
   if (edgesType instanceof types.GraphQLScalarType) {
-    return false;
+    return null;
   }
 
   // Connections' `edges` field must have a non-scalar `node` field.
   var edgesType = types.getNamedType(edgesField.type);
   var nodeField = edgesType.getFields()['node'];
   if (!nodeField) {
-    return false;
+    return null;
   }
   var nodeType = types.getNamedType(nodeField.type);
   if (nodeType instanceof types.GraphQLScalarType) {
-    return false;
+    return null;
   }
   // Connections' `edges` field must have a scalar `cursor` field.
   var cursorField = edgesType.getFields()['cursor'];
   if (!cursorField) {
-    return false;
+    return null;
   }
   var cursorType = types.getNamedType(cursorField.type);
   if (!(cursorType instanceof types.GraphQLScalarType)) {
-    return false;
+    return null;
   }
-  return true;
+  return {
+    cursorType,
+    cursorField,
+    edgesType,
+    edgesField,
+    nodeType,
+    nodeField,
+  };
 }
 
 function trimArray(arr) {

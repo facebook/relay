@@ -89,6 +89,7 @@ type PendingPost {
 type UserConnection {
   count: Int
   edges: [UserConnectionEdge]
+  nodes: [User]
   pageInfo: PageInfo
 }
 

@@ -1,0 +1,19 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  query {
+    node(id: 123) {
+      friends(first: 3) {
+        nodes {
+          id
+        }
+      }
+    }
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  throw new Error('Encountered a GraphQL validation error processing file `connectionWithNodesField.fixture`. Check your terminal for details.');
+})();

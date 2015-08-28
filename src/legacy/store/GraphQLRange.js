@@ -1048,7 +1048,7 @@ class GraphQLRange {
     return range;
   }
 
-  toJSON(){
+  toJSON() {
     return [
       this._hasFirst,
       this._hasLast,

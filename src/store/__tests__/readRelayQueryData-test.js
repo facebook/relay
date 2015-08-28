@@ -21,7 +21,6 @@ describe('readRelayQueryData', () => {
   var Relay;
   var RelayConnectionInterface;
   var RelayFragmentReference;
-  var RelayQuery;
   var RelayRecordStore;
   var callsToGraphQL;
   var readRelayQueryData;
@@ -47,7 +46,6 @@ describe('readRelayQueryData', () => {
     Relay = require('Relay');
     RelayConnectionInterface = require('RelayConnectionInterface');
     RelayFragmentReference = require('RelayFragmentReference');
-    RelayQuery = require('RelayQuery');
     RelayRecordStore = require('RelayRecordStore');
     callsToGraphQL = require('callsToGraphQL');
     readRelayQueryData = require('readRelayQueryData');
@@ -836,8 +834,7 @@ describe('readRelayQueryData', () => {
     expect(data.actor).toBeUndefined();
   });
 
-  it('does not clobber previously-read sibling fields when a linked dataID ' +
-     'is `null` or `undefined`', () => {
+  it('does not clobber previously-read sibling fields when a linked dataID is `null` or `undefined`', () => {
     var query = getNode(Relay.QL`
       fragment on User {
         id,

@@ -254,13 +254,8 @@ class GraphQLSegment {
       this._maxIndex = index;
     } else {
       console.error(
-        'Attempted to add noncontiguous index to GraphQLSegment: ' +
-        index +
-        ' to (' +
-        this._minIndex +
-        ", " +
-        this._maxIndex +
-        ")"
+        `Attempted to add noncontiguous index to GraphQLSegment: ${index} to ` +
+        `(${this._minIndex}, ${this._maxIndex})`
       );
 
       return;

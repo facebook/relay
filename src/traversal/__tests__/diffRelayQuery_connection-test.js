@@ -22,7 +22,6 @@ jest
 describe('diffRelayQuery', () => {
   var Relay;
   var RelayConnectionInterface;
-  var RelayQuery;
   var RelayQueryTracker;
   var RelayRecordStore;
 
@@ -39,7 +38,6 @@ describe('diffRelayQuery', () => {
 
     Relay = require('Relay');
     RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayQuery = require('RelayQuery');
     RelayQueryTracker = require('RelayQueryTracker');
     RelayRecordStore = require('RelayRecordStore');
 
@@ -328,8 +326,7 @@ describe('diffRelayQuery', () => {
     `));
   });
 
-  it('fetches missing `node` data via a `node()` query and missing `edges` '+
-    'data via a `connection.find()` query if connection is findable', () => {
+  it('fetches missing `node` data via a `node()` query and missing `edges` data via a `connection.find()` query if connection is findable', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {map: rootCallMap});
     var tracker = new RelayQueryTracker();
@@ -461,8 +458,7 @@ describe('diffRelayQuery', () => {
     `));
   });
 
-  it('fetches missing `node` data via a `node()` query and warns about ' +
-    'unfetchable `edges` data if connection is not findable', () => {
+  it('fetches missing `node` data via a `node()` query and warns about unfetchable `edges` data if connection is not findable', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {map: rootCallMap});
     var tracker = new RelayQueryTracker();

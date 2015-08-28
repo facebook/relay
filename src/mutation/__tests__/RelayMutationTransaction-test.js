@@ -297,8 +297,7 @@ describe('RelayMutationTransaction', () => {
       expect(RelayNetworkLayer.sendMutation.mock.calls.length).toBe(2);
     });
 
-    it('auto-rollbacks colliding queued transactions upon failure, unless ' +
-      'prevented', () => {
+    it('auto-rollbacks colliding queued transactions upon failure, unless prevented', () => {
 
       var failureCallback1 = jest.genMockFunction().mockImplementation(
         (transaction, preventAutoRollback) => {

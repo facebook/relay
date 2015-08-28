@@ -32,7 +32,6 @@ var GraphQLStoreTestUtils = {
      * Checks that two query fragments match.
      */
     toMatchQueryFragment: function(expected) {
-      /* jslint loopfunc:true */
       var GraphQL = require('GraphQL');
 
       var actual = this.actual;

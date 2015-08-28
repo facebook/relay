@@ -160,7 +160,7 @@ class RelayQueryPath {
   toJSON(): mixed {
     var path = [];
     var next = this;
-    while (!!next) {
+    while (next) {
       path.unshift(RelayQuerySerializer.toJSON(getShallowClone(next._node)));
       next = next._parent;
     }

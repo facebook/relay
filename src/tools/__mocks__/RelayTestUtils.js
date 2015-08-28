@@ -498,7 +498,6 @@ var RelayTestUtils = {
  * @private
  */
 function checkQueryType(expected, ExpectedClass) {
-  /* jslint validthis:true */
   var expectedType = ExpectedClass.name;
   if (!(expected && expected instanceof ExpectedClass)) {
     throw new Error('expect(...): Requires a `' + expectedType + '`.');
@@ -520,8 +519,6 @@ function checkQueryType(expected, ExpectedClass) {
  * @private
  */
 function checkQueryEquality(expected, toBe) {
-  /* jslint validthis:true */
-
   var flatActual = sortRelayQuery(this.actual);
   var flatExpected = sortRelayQuery(expected);
 

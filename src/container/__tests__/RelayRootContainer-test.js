@@ -24,7 +24,6 @@ describe('RelayRootContainer', function() {
   var RelayRootContainer;
   var RelayRoute;
   var RelayStore;
-  var RelayTypes;
 
   var ReactComponent;
   var RelayContainer;
@@ -44,7 +43,6 @@ describe('RelayRootContainer', function() {
     RelayRootContainer = require('RelayRootContainer');
     RelayRoute = require('RelayRoute');
     RelayStore = require('RelayStore');
-    RelayTypes = require('RelayTypes');
 
     ReactComponent = React.createClass({render: () => <div />});
     RelayContainer = Relay.createContainer(ReactComponent, {
@@ -69,7 +67,6 @@ describe('RelayRootContainer', function() {
     var RouteAwareComponent;
 
     beforeEach(() => {
-      /* jslint validthis: true */
       RouteAwareComponent = React.createClass({
         contextTypes: {
           route: Relay.PropTypes.QueryConfig.isRequired,
@@ -384,14 +381,13 @@ describe('RelayRootContainer', function() {
     });
 
     it('aborts incomplete requests', () => {
-      /* jslint unused: false */
       expect(request => {}).toAbortOnUpdate();
       expect(request => {}).toAbortOnUnmount();
     });
 
     it('aborts loading requests', () => {
       function mockLoading(request) {
-       request.block();
+        request.block();
       }
       expect(mockLoading).toAbortOnUpdate();
       expect(mockLoading).toAbortOnUnmount();

@@ -194,7 +194,7 @@ describe('observeRelayQueryData', () => {
     ]);
   });
 
-  it('calls the callback with data in the same order the dataIDs are', () =>{
+  it('calls the callback with data in the same order the dataIDs are', () => {
     var query = getNode(Relay.QL`fragment on Node @relay(plural:true){id}`);
     var records = {
       a: {__dataID__: 'a', id: 1},

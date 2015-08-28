@@ -14,7 +14,6 @@
 jest.autoMockOff();
 
 describe('RelayRecordStore', () => {
-  var GraphQL;
   var GraphQLRange;
   var RelayConnectionInterface;
   var RelayMockCacheManager;
@@ -26,7 +25,6 @@ describe('RelayRecordStore', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL');
     GraphQLRange = require('GraphQLRange');
     RelayConnectionInterface = require('RelayConnectionInterface');
     RelayMockCacheManager = require('RelayMockCacheManager');

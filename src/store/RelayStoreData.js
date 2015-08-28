@@ -162,7 +162,7 @@ class RelayStoreData {
    * Runs the callback after all data has been read out from diskc cache into
    * cachedRecords
    */
-  runWithDiskCache(callback: () => void): void{
+  runWithDiskCache(callback: () => void): void {
     if (this._cachePopulated || !this._cacheManager) {
       resolveImmediate(callback);
     } else {

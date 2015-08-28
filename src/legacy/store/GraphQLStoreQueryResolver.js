@@ -24,7 +24,6 @@ import type RelayQuery from 'RelayQuery';
 var RelayStoreData = require('RelayStoreData');
 import type {StoreReaderData} from 'RelayTypes';
 
-var invariant = require('invariant');
 var filterExclusiveKeys = require('filterExclusiveKeys');
 var readRelayQueryData = require('readRelayQueryData');
 var recycleNodesInto = require('recycleNodesInto');

@@ -365,8 +365,7 @@ describe('RelayRecordStore', () => {
       expect(store.getField('4', 'name')).toBe('Zuck');
     });
 
-    it('falls through to existing records for fields not in the queued record',
-      () => {
+    it('falls through to existing records for fields not in the queued record', () => {
       var record = {
         id: '4',
         name: 'Zuck',
@@ -383,8 +382,7 @@ describe('RelayRecordStore', () => {
       expect(store.getField('4', 'name')).toBe('Zuck');
     });
 
-    it('falls through to cached records for fields not in the existing record',
-      () => {
+    it('falls through to cached records for fields not in the existing record', () => {
       var record = {
         id: '4',
         __dataID__: '4',

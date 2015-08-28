@@ -14,7 +14,6 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-/* jslint -W040 */
 describe('validateRelayReadQuery', () => {
   // Modules.
   var Relay;

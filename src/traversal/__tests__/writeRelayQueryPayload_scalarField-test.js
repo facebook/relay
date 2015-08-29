@@ -18,8 +18,9 @@ jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
+var Relay = require('Relay');
+
 describe('writeRelayQueryPayload()', () => {
-  var Relay;
   var RelayRecordStore;
 
   var {getNode, writePayload} = RelayTestUtils;
@@ -27,7 +28,6 @@ describe('writeRelayQueryPayload()', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    Relay = require('Relay');
     RelayRecordStore = require('RelayRecordStore');
 
     jest.addMatchers(RelayTestUtils.matchers);

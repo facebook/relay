@@ -14,17 +14,14 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('RelayRoute', () => {
-  var Relay;
-  var RelayRoute;
+var Relay = require('Relay');
+var RelayRoute = require('RelayRoute');
 
+describe('RelayRoute', () => {
   var makeRoute;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    RelayRoute = require('RelayRoute');
 
     makeRoute = function() {
       class MockRoute extends RelayRoute {}

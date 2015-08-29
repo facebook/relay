@@ -14,11 +14,10 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Relay = require('Relay');
+var containsRelayQueryRootCall = require('containsRelayQueryRootCall');
+
 describe('containsRelayQueryRootCall', function() {
-  var Relay = require('Relay');
-
-  var containsRelayQueryRootCall = require('containsRelayQueryRootCall');
-
   var {getNode} = RelayTestUtils;
 
   beforeEach(function() {

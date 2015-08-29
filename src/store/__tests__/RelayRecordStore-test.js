@@ -16,10 +16,11 @@ RelayTestUtils.unmockRelay();
 
 jest.mock('warning');
 
+var GraphQLRange = require('GraphQLRange');
+var Relay = require('Relay');
+var RelayQueryPath = require('RelayQueryPath');
+
 describe('RelayRecordStore', () => {
-  var GraphQLRange;
-  var Relay;
-  var RelayQueryPath;
   var RelayRecordStore;
 
 
@@ -28,9 +29,6 @@ describe('RelayRecordStore', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQLRange = require('GraphQLRange');
-    Relay = require('Relay');
-    RelayQueryPath = require('RelayQueryPath');
     RelayRecordStore = require('RelayRecordStore');
 
     jest.addMatchers(RelayTestUtils.matchers);

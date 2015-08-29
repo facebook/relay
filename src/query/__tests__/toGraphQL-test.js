@@ -14,23 +14,16 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Relay = require('Relay');
+var fromGraphQL = require('fromGraphQL');
+var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
+var toGraphQL = require('toGraphQL');
+
 describe('toGraphQL', function() {
-  var Relay;
-
-  var fromGraphQL;
-  var splitDeferredRelayQueries;
-  var toGraphQL;
-
   var {defer, getNode} = RelayTestUtils;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-
-    fromGraphQL = require('fromGraphQL');
-    splitDeferredRelayQueries = require('splitDeferredRelayQueries');
-    toGraphQL = require('toGraphQL');
 
     jest.addMatchers({
       toConvert(query) {

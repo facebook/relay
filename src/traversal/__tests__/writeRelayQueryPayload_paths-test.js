@@ -18,14 +18,14 @@ jest
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('writePayload()', () => {
-  var Relay;
-  var RelayQueryPath;
-  var RelayQueryTracker;
-  var RelayRecordStore;
+var Relay = require('Relay');
+var RelayQueryPath = require('RelayQueryPath');
+var RelayQueryTracker = require('RelayQueryTracker');
+var invariant = require('invariant');
+var generateRQLFieldAlias = require('generateRQLFieldAlias');
 
-  var invariant;
-  var generateRQLFieldAlias;
+describe('writePayload()', () => {
+  var RelayRecordStore;
 
   var {getNode, writePayload} = RelayTestUtils;
 
@@ -44,13 +44,7 @@ describe('writePayload()', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    Relay = require('Relay');
-    RelayQueryPath = require('RelayQueryPath');
-    RelayQueryTracker = require('RelayQueryTracker');
     RelayRecordStore = require('RelayRecordStore');
-
-    invariant = require('invariant');
-    generateRQLFieldAlias = require('generateRQLFieldAlias');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

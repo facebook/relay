@@ -11,12 +11,11 @@
 
 'use strict';
 
-describe('getWeakIdForObject', () => {
-  var getWeakIdForObject;
+var getWeakIdForObject = require('getWeakIdForObject');
 
+describe('getWeakIdForObject', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
-    getWeakIdForObject = require('getWeakIdForObject');
   });
 
   it('creates persistent IDs for nodes', () => {

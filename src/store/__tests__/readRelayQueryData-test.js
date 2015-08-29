@@ -14,16 +14,17 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+var GraphQLRange = require('GraphQLRange');
+var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayFragmentReference = require('RelayFragmentReference');
+var callsToGraphQL = require('callsToGraphQL');
+var readRelayQueryData = require('readRelayQueryData');
+
 describe('readRelayQueryData', () => {
-  var GraphQLFragmentPointer;
-  var GraphQLRange;
-  var GraphQLStoreRangeUtils;
-  var Relay;
-  var RelayConnectionInterface;
-  var RelayFragmentReference;
   var RelayRecordStore;
-  var callsToGraphQL;
-  var readRelayQueryData;
 
   var {getNode} = RelayTestUtils;
   var END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO, START_CURSOR;
@@ -40,15 +41,7 @@ describe('readRelayQueryData', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-    GraphQLRange = require('GraphQLRange');
-    GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayFragmentReference = require('RelayFragmentReference');
     RelayRecordStore = require('RelayRecordStore');
-    callsToGraphQL = require('callsToGraphQL');
-    readRelayQueryData = require('readRelayQueryData');
 
     ({
       END_CURSOR,

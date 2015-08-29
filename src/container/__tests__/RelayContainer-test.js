@@ -18,16 +18,16 @@ jest
   .dontMock('RelayContainerComparators')
   .mock('warning');
 
-describe('RelayContainer', function() {
-  var GraphQL;
-  var GraphQLStoreQueryResolver;
-  var GraphQLStoreTestUtils;
-  var React;
-  var ReactTestUtils;
-  var Relay;
-  var RelayQuery;
-  var RelayRoute;
+var GraphQL = require('GraphQL');
+var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+var GraphQLStoreTestUtils = require('GraphQLStoreTestUtils');
+var React = require('React');
+var ReactTestUtils = require('ReactTestUtils');
+var Relay = require('Relay');
+var RelayQuery = require('RelayQuery');
+var RelayRoute = require('RelayRoute');
 
+describe('RelayContainer', function() {
   var MockContainer;
   var MockComponent;
   var RelayTestRenderer;
@@ -42,15 +42,6 @@ describe('RelayContainer', function() {
 
   beforeEach(function() {
     jest.resetModuleRegistry();
-
-    GraphQL = require('GraphQL');
-    GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-    GraphQLStoreTestUtils = require('GraphQLStoreTestUtils');
-    React = require('React');
-    ReactTestUtils = require('ReactTestUtils');
-    Relay = require('Relay');
-    RelayQuery = require('RelayQuery');
-    RelayRoute = require('RelayRoute');
 
     var render = jest.genMockFunction().mockImplementation(function() {
       // Make it easier to expect prop values.

@@ -16,14 +16,15 @@ RelayTestUtils.unmockRelay();
 
 jest.dontMock('GraphQLStoreQueryResolver');
 
+var Relay = require('Relay');
+var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
+var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+var readRelayQueryData = require('readRelayQueryData');
+var RelayStoreData = require('RelayStoreData');
+var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
+
 describe('GraphQLStoreQueryResolver', () => {
-  var Relay;
-  var GraphQLFragmentPointer;
-  var GraphQLStoreChangeEmitter;
-  var GraphQLStoreQueryResolver;
-
-  var readRelayQueryData;
-
   var mockCallback;
   var mockQueryFragment;
   var mockPluralQueryFragment;
@@ -41,13 +42,6 @@ describe('GraphQLStoreQueryResolver', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-    GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
-    GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-
-    readRelayQueryData = require('readRelayQueryData');
 
     mockCallback = jest.genMockFunction();
     mockQueryFragment = getNode(Relay.QL`fragment on Node{id,name}`);
@@ -315,9 +309,6 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   describe('garbage collection', () => {
-    var RelayStoreData;
-    var RelayStoreGarbageCollector;
-
     var garbageCollector;
 
     /**
@@ -345,9 +336,6 @@ describe('GraphQLStoreQueryResolver', () => {
     }
 
     beforeEach(() => {
-      RelayStoreData = require('RelayStoreData');
-      RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
-
       // Prepare mock garbage collector and mock observable
       garbageCollector = new RelayStoreGarbageCollector();
 

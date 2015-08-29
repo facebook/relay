@@ -14,20 +14,15 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('RelayFragmentReference', () => {
-  var GraphQL;
-  var Relay;
-  var RelayFragmentReference;
-  var RelayMetaRoute;
+var GraphQL = require('GraphQL');
+var Relay = require('Relay');
+var RelayFragmentReference = require('RelayFragmentReference');
+var RelayMetaRoute = require('RelayMetaRoute');
 
+describe('RelayFragmentReference', () => {
   var route;
 
   beforeEach(() => {
-    GraphQL = require('GraphQL');
-    Relay = require('Relay');
-    RelayFragmentReference = require('RelayFragmentReference');
-    RelayMetaRoute = require('RelayMetaRoute');
-
     route = new RelayMetaRoute('');
   });
 

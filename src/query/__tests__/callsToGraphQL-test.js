@@ -14,19 +14,11 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var GraphQL = require('GraphQL');
+var callsFromGraphQL = require('callsFromGraphQL');
+var callsToGraphQL = require('callsToGraphQL');
+
 describe('callsToGraphQL', function() {
-  var GraphQL;
-
-  var callsFromGraphQL;
-  var callsToGraphQL;
-
-  beforeEach(() => {
-    GraphQL = require('GraphQL');
-
-    callsFromGraphQL = require('callsFromGraphQL');
-    callsToGraphQL = require('callsToGraphQL');
-  });
-
   it('converts array calls with null values', () => {
     var relayCalls = [{
       name: 'size',

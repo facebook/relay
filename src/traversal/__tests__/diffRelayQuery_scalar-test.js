@@ -18,23 +18,19 @@ jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
-describe('diffRelayQuery', () => {
-  var Relay;
-  var RelayQueryTracker;
-  var RelayRecordStore;
+var Relay = require('Relay');
+var RelayQueryTracker = require('RelayQueryTracker');
+var diffRelayQuery = require('diffRelayQuery');
 
-  var diffRelayQuery;
+describe('diffRelayQuery', () => {
+  var RelayRecordStore;
 
   var {getNode, writePayload} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    Relay = require('Relay');
-    RelayQueryTracker = require('RelayQueryTracker');
     RelayRecordStore = require('RelayRecordStore');
-
-    diffRelayQuery = require('diffRelayQuery');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

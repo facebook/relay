@@ -14,15 +14,14 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var GraphQL = require('GraphQL');
+var Relay = require('Relay');
+var RelayNodeInterface = require('RelayNodeInterface');
+var RelayQuery = require('RelayQuery');
+var generateRQLFieldAlias = require('generateRQLFieldAlias');
+var printRelayQuery = require('printRelayQuery');
+
 describe('printRelayQuery', () => {
-  var GraphQL;
-  var Relay;
-  var RelayNodeInterface;
-  var RelayQuery;
-
-  var generateRQLFieldAlias;
-  var printRelayQuery;
-
   var {getNode} = RelayTestUtils;
 
   function trimQuery(str) {
@@ -31,14 +30,6 @@ describe('printRelayQuery', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    GraphQL = require('GraphQL');
-    Relay = require('Relay');
-    RelayNodeInterface = require('RelayNodeInterface');
-    RelayQuery = require('RelayQuery');
-
-    generateRQLFieldAlias = require('generateRQLFieldAlias');
-    printRelayQuery = require('printRelayQuery');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

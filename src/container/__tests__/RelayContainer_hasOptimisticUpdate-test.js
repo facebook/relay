@@ -16,22 +16,17 @@ RelayTestUtils.unmockRelay();
 
 jest.dontMock('RelayContainer');
 
-describe('RelayContainer.hasOptimisticUpdate', () => {
-  var GraphQLStoreQueryResolver;
-  var React;
-  var Relay;
-  var RelayStoreData;
+var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+var React = require('React');
+var Relay = require('Relay');
+var RelayStoreData = require('RelayStoreData');
 
+describe('RelayContainer.hasOptimisticUpdate', () => {
   var MockContainer;
   var RelayTestRenderer;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-    React = require('React');
-    Relay = require('Relay');
-    RelayStoreData = require('RelayStoreData');
 
     class MockComponent extends React.Component {
       render() {

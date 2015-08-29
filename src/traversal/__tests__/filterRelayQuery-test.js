@@ -14,23 +14,17 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Relay = require('Relay');
+var RelayQuery = require('RelayQuery');
+var filterRelayQuery = require('filterRelayQuery');
+
 describe('filterRelayQuery()', () => {
-  var Relay;
-  var RelayQuery;
-
-  var filterRelayQuery;
-
   var query;
 
   var {getNode} = RelayTestUtils;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    RelayQuery = require('RelayQuery');
-
-    filterRelayQuery = require('filterRelayQuery');
 
     query = getNode(Relay.QL`
       query {

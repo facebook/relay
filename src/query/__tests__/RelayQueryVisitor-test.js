@@ -14,19 +14,15 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('RelayQueryVisitor', () => {
-  var Relay;
-  var RelayQuery;
-  var RelayQueryVisitor;
+var Relay = require('Relay');
+var RelayQuery = require('RelayQuery');
+var RelayQueryVisitor = require('RelayQueryVisitor');
 
+describe('RelayQueryVisitor', () => {
   var {getNode} = RelayTestUtils;
   var query;
 
   beforeEach(() => {
-    Relay = require('Relay');
-    RelayQuery = require('RelayQuery');
-    RelayQueryVisitor = require('RelayQueryVisitor');
-
     var variables = {
       first: 10,
       after: 'offset',

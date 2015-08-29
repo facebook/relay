@@ -19,6 +19,10 @@ jest
   .dontMock('GraphQL')
   .mock('warning');
 
+var GraphQLRange = require('GraphQLRange');
+var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+
 function getFirstSegment(range) {
   return range.__debug().orderedSegments[0];
 }
@@ -70,10 +74,6 @@ var last3Edges = [edge98, edge99, edge100];
 var last5Edges = [edge96, edge97, edge98, edge99, edge100];
 
 describe('GraphQLRange', () => {
-  var GraphQLRange;
-  var GraphQLStoreDataHandler;
-  var RelayConnectionInterface;
-
   var origConsoleError;
   var origConsoleWarn;
   var range;
@@ -84,10 +84,6 @@ describe('GraphQLRange', () => {
     jest.resetModuleRegistry();
     origConsoleError = console.error;
     origConsoleWarn = console.warn;
-
-    GraphQLRange = require('GraphQLRange');
-    GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-    RelayConnectionInterface = require('RelayConnectionInterface');
 
     GraphQLStoreDataHandler.getID.mockImplementation(function(data) {
       return data.__dataID__;

@@ -14,24 +14,17 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var flattenRelayQuery = require('flattenRelayQuery');
+var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
+
 describe('inferRelayFieldsFromData', function() {
-  var Relay;
-  var RelayConnectionInterface;
-
-  var flattenRelayQuery;
-  var inferRelayFieldsFromData;
-
   var {getNode, matchers} = RelayTestUtils;
   var HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-
-    flattenRelayQuery = require('flattenRelayQuery');
-    inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 
     ({
       HAS_NEXT_PAGE,

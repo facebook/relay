@@ -16,13 +16,12 @@ RelayTestUtils.unmockRelay();
 
 jest.dontMock('RelayQueryTracker');
 
+var Relay = require('Relay');
+var RelayQueryPath = require('RelayQueryPath');
+var RelayQueryTracker = require('RelayQueryTracker');
+var invariant = require('invariant');
+
 describe('RelayQueryTracker', () => {
-  var Relay;
-  var RelayQueryPath;
-  var RelayQueryTracker;
-
-  var invariant;
-
   var {getNode} = RelayTestUtils;
 
   function getField(node, ...fieldNames) {
@@ -39,12 +38,6 @@ describe('RelayQueryTracker', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    RelayQueryPath = require('RelayQueryPath');
-    RelayQueryTracker = require('RelayQueryTracker');
-
-    invariant = require('invariant');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

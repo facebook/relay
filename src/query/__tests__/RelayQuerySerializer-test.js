@@ -14,11 +14,11 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('RelayQuerySerializer', () => {
-  var Relay;
-  var RelayFragmentReference;
-  var RelayQuerySerializer;
+var Relay = require('Relay');
+var RelayFragmentReference = require('RelayFragmentReference');
+var RelayQuerySerializer = require('RelayQuerySerializer');
 
+describe('RelayQuerySerializer', () => {
   var fromJSON;
   var toJSON;
 
@@ -55,9 +55,6 @@ describe('RelayQuerySerializer', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    Relay = require('Relay');
-    RelayFragmentReference = require('RelayFragmentReference');
-    RelayQuerySerializer = require('RelayQuerySerializer');
     ({fromJSON, toJSON} = RelayQuerySerializer);
 
     jest.addMatchers(RelayTestUtils.matchers);

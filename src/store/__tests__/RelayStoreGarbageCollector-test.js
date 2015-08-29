@@ -16,18 +16,16 @@ jest
   .dontMock('RelayStoreGarbageCollector')
   .dontMock('performanceNow');
 
+var GraphQLRange = require('GraphQLRange');
+var RelayBufferedNeglectionStateMap = require('RelayBufferedNeglectionStateMap');
+var RelayNeglectionStateMap = require('RelayNeglectionStateMap');
+var RelayStoreData = require('RelayStoreData');
+var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
+var RelayTaskScheduler = require('RelayTaskScheduler');
+var RelayTestUtils = require('RelayTestUtils');
+var forEachObject = require('forEachObject');
+
 describe('RelayStoreGarbageCollector', () => {
-  var GraphQLRange;
-  var RelayBufferedNeglectionStateMap;
-  var RelayNeglectionStateMap;
-  var RelayStoreData;
-  var RelayStoreGarbageCollector;
-  var RelayTaskScheduler;
-
-  var RelayTestUtils = require('RelayTestUtils');
-
-  var forEachObject = require('forEachObject');
-
   function createRelayStoreGarbageCollector(records, stepLength) {
     var relayStoreData = new RelayStoreData();
     var nodeData = relayStoreData.getNodeData();
@@ -87,14 +85,6 @@ describe('RelayStoreGarbageCollector', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    GraphQLRange = require('GraphQLRange');
-    RelayBufferedNeglectionStateMap =
-      require('RelayBufferedNeglectionStateMap');
-    RelayNeglectionStateMap = require('RelayNeglectionStateMap');
-    RelayStoreData = require('RelayStoreData');
-    RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
-    RelayTaskScheduler = require('RelayTaskScheduler');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

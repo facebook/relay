@@ -14,11 +14,10 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Relay = require('Relay');
+var flattenSplitRelayQueries = require('flattenSplitRelayQueries');
+
 describe('flattenSplitRelayQueries', () => {
-  var Relay = require('Relay');
-
-  var flattenSplitRelayQueries = require('flattenSplitRelayQueries');
-
   function getQuery() {
     return RelayTestUtils.getNode(Relay.QL`query{node(id:"4"){id}}`);
   }

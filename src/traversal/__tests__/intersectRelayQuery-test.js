@@ -14,11 +14,10 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Relay = require('Relay');
+var intersectRelayQuery = require('intersectRelayQuery');
+
 describe('intersectRelayQuery', () => {
-  var Relay = require('Relay');
-
-  var intersectRelayQuery = require('intersectRelayQuery');
-
   var {getNode} = RelayTestUtils;
 
   beforeEach(() => {

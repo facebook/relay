@@ -14,19 +14,15 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('RelayQueryTransform', () => {
-  var Relay;
-  var RelayQuery;
-  var RelayQueryTransform;
+var Relay = require('Relay');
+var RelayQuery = require('RelayQuery');
+var RelayQueryTransform = require('RelayQueryTransform');
 
+describe('RelayQueryTransform', () => {
   var {getNode} = RelayTestUtils;
   var query;
 
   beforeEach(() => {
-    Relay = require('Relay');
-    RelayQuery = require('RelayQuery');
-    RelayQueryTransform = require('RelayQueryTransform');
-
     var variables = {
       first: 10,
       after: 'offset',

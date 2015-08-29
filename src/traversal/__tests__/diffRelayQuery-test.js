@@ -14,16 +14,16 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('diffRelayQuery', () => {
-  var GraphQLRange;
-  var Relay;
-  var RelayConnectionInterface;
-  var RelayQuery;
-  var RelayQueryTracker;
-  var RelayRecordStore;
+var GraphQLRange = require('GraphQLRange');
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayQuery = require('RelayQuery');
+var RelayQueryTracker = require('RelayQueryTracker');
+var diffRelayQuery = require('diffRelayQuery');
+var filterRelayQuery = require('filterRelayQuery');
 
-  var diffRelayQuery;
-  var filterRelayQuery;
+describe('diffRelayQuery', () => {
+  var RelayRecordStore;
 
   var {defer, getNode, getVerbatimNode} = RelayTestUtils;
 
@@ -32,15 +32,7 @@ describe('diffRelayQuery', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQLRange = require('GraphQLRange');
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayQuery = require('RelayQuery');
-    RelayQueryTracker = require('RelayQueryTracker');
     RelayRecordStore = require('RelayRecordStore');
-
-    diffRelayQuery = require('diffRelayQuery');
-    filterRelayQuery = require('filterRelayQuery');
 
     rootCallMap = {
       viewer: {'': 'client:viewer'},
@@ -1249,7 +1241,6 @@ describe('diffRelayQuery', () => {
   });
 
   it('fetches an extension of a range', () => {
-    var GraphQLRange = require('GraphQLRange');
     var mockRange = new GraphQLRange();
     var records = {
       '4': {
@@ -1323,7 +1314,6 @@ describe('diffRelayQuery', () => {
   });
 
   it('fetches missing parts of a range and diffs nodes it has', () => {
-    var GraphQLRange = require('GraphQLRange');
     var mockRange = new GraphQLRange();
     var mockEdge = {
       __dataID__: 'client:4:4808495',
@@ -1430,7 +1420,6 @@ describe('diffRelayQuery', () => {
   });
 
   it('skips known-deleted nodes from ranges', () => {
-    var GraphQLRange = require('GraphQLRange');
     var mockRange = new GraphQLRange();
     var mockEdges = [
       {
@@ -1546,8 +1535,6 @@ describe('diffRelayQuery', () => {
   });
 
   it('splits out node() queries inside viewer-rooted queries', () => {
-    var GraphQLRange = require('GraphQLRange');
-
     var mockEdge = {
       __dataID__: 'client:viewer:4808495',
       node: {__dataID__: '4808495'},
@@ -1633,7 +1620,6 @@ describe('diffRelayQuery', () => {
   });
 
   it('splits out node() queries inside fragments', () => {
-    var GraphQLRange = require('GraphQLRange');
     var mockRange = new GraphQLRange();
     var records = {
       '4': {
@@ -1711,7 +1697,6 @@ describe('diffRelayQuery', () => {
   });
 
   it('creates a find() query for edges', () => {
-    var GraphQLRange = require('GraphQLRange');
     var mockRange = new GraphQLRange();
     var mockEdge = {
       __dataID__: 'client:4:4808495',
@@ -1788,7 +1773,6 @@ describe('diffRelayQuery', () => {
   });
 
   it('supports diff queries inside find() queries', () => {
-    var GraphQLRange = require('GraphQLRange');
     var mockRange = new GraphQLRange();
     var mockEdge = {
       __dataID__: 'client:4:4808495',

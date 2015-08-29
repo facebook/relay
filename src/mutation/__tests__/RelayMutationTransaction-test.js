@@ -17,17 +17,17 @@ jest
   .dontMock('RelayMutationTransaction')
   .dontMock('RelayMutationTransactionStatus');
 
-describe('RelayMutationTransaction', () => {
-  var Relay;
-  var RelayConnectionInterface;
-  var RelayMutation;
-  var RelayMutationQuery;
-  var RelayMutationTransaction;
-  var RelayMutationTransactionStatus;
-  var RelayNetworkLayer;
-  var RelayStoreData;
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayMutation = require('RelayMutation');
+var RelayMutationQuery = require('RelayMutationQuery');
+var RelayMutationTransaction = require('RelayMutationTransaction');
+var RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
+var RelayStoreData = require('RelayStoreData');
+var fromGraphQL = require('fromGraphQL');
 
-  var fromGraphQL;
+describe('RelayMutationTransaction', () => {
+  var RelayNetworkLayer;
   var storeData;
 
   beforeEach(() => {
@@ -36,15 +36,6 @@ describe('RelayMutationTransaction', () => {
     RelayNetworkLayer = jest.genMockFromModule('RelayNetworkLayer');
     jest.setMock('RelayNetworkLayer', RelayNetworkLayer);
 
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayMutation = require('RelayMutation');
-    RelayMutationQuery = require('RelayMutationQuery');
-    RelayMutationTransaction = require('RelayMutationTransaction');
-    RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-    RelayStoreData = require('RelayStoreData');
-
-    fromGraphQL = require('fromGraphQL');
     fromGraphQL.Fragment = jest.genMockFunction().mockImplementation(f => f);
 
     RelayStoreData.prototype.handleUpdatePayload = jest.genMockFunction();

@@ -11,18 +11,15 @@
 
 'use strict';
 
-describe('isRelayContainer', function() {
-  var React;
-  var Relay;
+var React = require('React');
+var Relay = require('Relay');
 
+describe('isRelayContainer', function() {
   var MockComponent;
   var MockContainer;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
-
-    React = require('React');
-    Relay = require('Relay');
 
     MockComponent = React.createClass({
       render: () => <div />
@@ -38,5 +35,4 @@ describe('isRelayContainer', function() {
 
     expect(Relay.isContainer(MockComponent)).toBe(false);
   });
-
 });

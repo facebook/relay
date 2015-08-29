@@ -14,11 +14,11 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('RelayQueryRoot', () => {
-  var GraphQL;
-  var Relay;
-  var RelayQuery;
+var GraphQL = require('GraphQL');
+var Relay = require('Relay');
+var RelayQuery = require('RelayQuery');
 
+describe('RelayQueryRoot', () => {
   var {defer, getNode} = RelayTestUtils;
 
   var me;
@@ -26,10 +26,6 @@ describe('RelayQueryRoot', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    GraphQL = require('GraphQL');
-    Relay = require('Relay');
-    RelayQuery = require('RelayQuery');
 
     jest.addMatchers(RelayTestUtils.matchers);
 
@@ -374,5 +370,4 @@ describe('RelayQueryRoot', () => {
     `);
     expect(query.getDeferredFragmentNames()).toEqual({});
   });
-
 });

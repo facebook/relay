@@ -13,14 +13,13 @@
 
 require('RelayTestUtils').unmockRelay();
 
+var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+var React = require('React');
+var Relay = require('Relay');
+var RelayTestUtils = require('RelayTestUtils');
+var reactComponentExpect = require('reactComponentExpect');
+
 describe('RelayContainer', function() {
-  var GraphQLStoreQueryResolver;
-  var React;
-  var Relay;
-  var RelayTestUtils;
-
-  var reactComponentExpect;
-
   var MockComponent;
   var MockContainer;
   var mockCreateContainer;
@@ -28,13 +27,6 @@ describe('RelayContainer', function() {
 
   beforeEach(function() {
     jest.resetModuleRegistry();
-
-    GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-    React = require('React');
-    Relay = require('Relay');
-    RelayTestUtils = require('RelayTestUtils');
-
-    reactComponentExpect = require('reactComponentExpect');
 
     MockComponent = React.createClass({
       render: jest.genMockFunction().mockImplementation(() => <div />)
@@ -110,5 +102,4 @@ describe('RelayContainer', function() {
       .expectRenderedChild()
       .toBeDOMComponentWithTag('span');
   });
-
 });

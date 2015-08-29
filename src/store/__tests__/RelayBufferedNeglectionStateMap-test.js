@@ -11,20 +11,15 @@
 
 'use strict';
 
-describe('RelayNeglectionStateMap', () => {
-  var RelayBufferedNeglectionStateMap;
-  var RelayNeglectionStateMap;
-  var RelayTestUtils;
+var RelayBufferedNeglectionStateMap = require('RelayBufferedNeglectionStateMap');
+var RelayNeglectionStateMap = require('RelayNeglectionStateMap');
+var RelayTestUtils = require('RelayTestUtils');
 
+describe('RelayNeglectionStateMap', () => {
   var neglectionStateMap;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    RelayBufferedNeglectionStateMap =
-      require('RelayBufferedNeglectionStateMap');
-    RelayNeglectionStateMap = require('RelayNeglectionStateMap');
-    RelayTestUtils = require('RelayTestUtils');
 
     neglectionStateMap = new RelayNeglectionStateMap();
 

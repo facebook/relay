@@ -20,6 +20,7 @@ var getRelayQueries = require('getRelayQueries');
 
 describe('getRelayQueries', () => {
   var MockPageContainer;
+  var MockPageComponent;
 
   var makeRoute;
 
@@ -28,7 +29,7 @@ describe('getRelayQueries', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    class MockPageComponent extends React.Component {
+    MockPageComponent = class MockPageComponent extends React.Component {
       render() {
         return <div/>;
       }
@@ -112,8 +113,26 @@ describe('getRelayQueries', () => {
     expect(() => {
       getRelayQueries(MockPageContainer, badRoute);
     }).toFailInvariant(
-      'Relay.QL defined on route `BadRoute` named `first` is not a valid ' +
-      'query. A typical query is defined using: Relay.QL`query {...}`'
+      'Relay.QL: query `BadRoute.queries.first` is invalid, a typical ' +
+      'query is defined using: () => Relay.QL`query { ... }`.'
+    );
+  });
+
+  it('throws if a container does not include a required fragment', () => {
+    var MockRoute = makeRoute();
+    var route = new MockRoute({id: '123'});
+
+    var AnotherMockContainer = Relay.createContainer(MockPageComponent, {
+      fragments: {
+        first: () => Relay.QL`fragment on Node{id}`,
+      }
+    });
+
+    expect(() => {
+      getRelayQueries(AnotherMockContainer, route);
+    }).toFailInvariant(
+      'Relay.QL: query `MockRoute.queries.last` is invalid, expected ' +
+      'fragment `Relay(MockPageComponent).fragments.last` to be defined.'
     );
   });
 });

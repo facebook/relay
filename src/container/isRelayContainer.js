@@ -14,7 +14,12 @@
 'use strict';
 
 function isRelayContainer(component: any): boolean {
-  return !!(component && component.getFragmentNames && component.getFragment);
+  return !!(
+    component &&
+    component.getFragmentNames &&
+    component.getFragment &&
+    component.hasFragment
+  );
 }
 
 module.exports = isRelayContainer;

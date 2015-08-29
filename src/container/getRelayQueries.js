@@ -46,9 +46,16 @@ function getRelayQueries(
     return cache[cacheKey];
   }
   var querySet = {};
-  Component.getFragmentNames().forEach(fragmentName => {
-    // TODO: Fix this. It relies on the query and fragment names matching.
-    var queryName = fragmentName;
+  Object.keys(route.queries).forEach(queryName => {
+    invariant(
+      Component.hasFragment(queryName),
+      'Relay.QL: query `%s.queries.%s` is invalid, expected fragment ' +
+      '`%s.fragments.%s` to be defined.',
+      route.name,
+      queryName,
+      Component.displayName,
+      queryName
+    );
     var queryBuilder = route.queries[queryName];
     if (queryBuilder) {
       var concreteQuery = buildRQL.Query(
@@ -58,8 +65,8 @@ function getRelayQueries(
       );
       invariant(
         concreteQuery !== undefined,
-        'Relay.QL defined on route `%s` named `%s` is not a valid query. ' +
-        'A typical query is defined using: Relay.QL`query {...}`',
+        'Relay.QL: query `%s.queries.%s` is invalid, a typical query is ' +
+        'defined using: () => Relay.QL`query { ... }`.',
         route.name,
         queryName
       );
@@ -71,12 +78,12 @@ function getRelayQueries(
         );
         var rootCall = rootQuery.getRootCall();
         if (rootCall.value !== undefined) {
-          querySet[fragmentName] = rootQuery;
+          querySet[queryName] = rootQuery;
           return;
         }
       }
     }
-    querySet[fragmentName] = null;
+    querySet[queryName] = null;
   });
   cache[cacheKey] = querySet;
   return querySet;

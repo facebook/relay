@@ -19,14 +19,14 @@ jest
   .dontMock('GraphQLSegment')
   .mock('warning');
 
-describe('diffRelayQuery', () => {
-  var Relay;
-  var RelayConnectionInterface;
-  var RelayQueryTracker;
-  var RelayRecordStore;
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayQueryTracker = require('RelayQueryTracker');
+var diffRelayQuery = require('diffRelayQuery');
+var generateRQLFieldAlias = require('generateRQLFieldAlias');
 
-  var diffRelayQuery;
-  var generateRQLFieldAlias;
+describe('diffRelayQuery', () => {
+  var RelayRecordStore;
 
   var {getNode, getVerbatimNode, writePayload} = RelayTestUtils;
   var HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
@@ -36,13 +36,7 @@ describe('diffRelayQuery', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayQueryTracker = require('RelayQueryTracker');
     RelayRecordStore = require('RelayRecordStore');
-
-    diffRelayQuery = require('diffRelayQuery');
-    generateRQLFieldAlias = require('generateRQLFieldAlias');
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
 

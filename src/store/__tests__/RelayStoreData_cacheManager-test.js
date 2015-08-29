@@ -19,16 +19,15 @@ jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
+var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayMockCacheManager = require('RelayMockCacheManager');
+var RelayMutationType = require('RelayMutationType');
+var RelayStoreData = require('RelayStoreData');
+var generateRQLFieldAlias = require('generateRQLFieldAlias');
+
 describe('RelayStoreData', function() {
-  var GraphQLMutatorConstants;
-  var Relay;
-  var RelayConnectionInterface;
-  var RelayMockCacheManager;
-  var RelayMutationType;
-  var RelayStoreData;
-
-  var generateRQLFieldAlias;
-
   var cacheManager;
   var storeData;
 
@@ -47,15 +46,6 @@ describe('RelayStoreData', function() {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayMockCacheManager = require('RelayMockCacheManager');
-    RelayMutationType = require('RelayMutationType');
-    RelayStoreData = require('RelayStoreData');
-
-    generateRQLFieldAlias = require('generateRQLFieldAlias');
 
     ({
       CLIENT_MUTATION_ID,

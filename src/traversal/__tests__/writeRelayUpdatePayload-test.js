@@ -20,37 +20,26 @@ jest
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('writePayload()', () => {
-  var Relay;
-  var RelayConnectionInterface;
-  var RelayQueryTracker;
-  var RelayChangeTracker;
-  var RelayMutationType;
-  var RelayQueryWriter;
-  var RelayRecordStore;
-  var GraphQLMutatorConstants;
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayQueryTracker = require('RelayQueryTracker');
+var RelayChangeTracker = require('RelayChangeTracker');
+var RelayMutationType = require('RelayMutationType');
+var RelayQueryWriter = require('RelayQueryWriter');
+var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+var generateClientEdgeID = require('generateClientEdgeID');
+var generateRQLFieldAlias = require('generateRQLFieldAlias');
+var writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
-  var generateClientEdgeID;
-  var generateRQLFieldAlias;
-  var writeRelayUpdatePayload;
+describe('writePayload()', () => {
+  var RelayRecordStore;
 
   var {getNode, writePayload} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayQueryTracker = require('RelayQueryTracker');
-    RelayChangeTracker = require('RelayChangeTracker');
-    RelayMutationType = require('RelayMutationType');
-    RelayQueryWriter = require('RelayQueryWriter');
     RelayRecordStore = require('RelayRecordStore');
-    GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-
-    generateClientEdgeID = require('generateClientEdgeID');
-    generateRQLFieldAlias = require('generateRQLFieldAlias');
-    writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

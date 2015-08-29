@@ -14,19 +14,15 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('refragmentRelayQuery', () => {
-  var Relay;
-  var flattenRelayQuery;
-  var refragmentRelayQuery;
+var Relay = require('Relay');
+var flattenRelayQuery = require('flattenRelayQuery');
+var refragmentRelayQuery = require('refragmentRelayQuery');
 
+describe('refragmentRelayQuery', () => {
   var {getVerbatimNode, matchers} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    flattenRelayQuery = require('flattenRelayQuery');
-    refragmentRelayQuery = require('refragmentRelayQuery');
 
     jest.addMatchers({
       toRefragmentTo: function(expected) {

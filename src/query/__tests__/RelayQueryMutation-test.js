@@ -14,17 +14,14 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('RelayQueryMutation', () => {
-  var Relay;
-  var RelayConnectionInterface;
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
 
+describe('RelayQueryMutation', () => {
   var {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

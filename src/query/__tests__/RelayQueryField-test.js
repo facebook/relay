@@ -14,13 +14,12 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayQuery = require('RelayQuery');
+var generateRQLFieldAlias = require('generateRQLFieldAlias');
+
 describe('RelayQueryField', () => {
-  var Relay;
-  var RelayConnectionInterface;
-  var RelayQuery;
-
-  var generateRQLFieldAlias;
-
   var {getNode} = RelayTestUtils;
 
   var nodeId;
@@ -35,12 +34,6 @@ describe('RelayQueryField', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayQuery = require('RelayQuery');
-
-    generateRQLFieldAlias = require('generateRQLFieldAlias');
 
     jest.addMatchers(RelayTestUtils.matchers);
 

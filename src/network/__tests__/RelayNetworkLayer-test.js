@@ -14,9 +14,10 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Deferred = require('Deferred');
+var RelayNetworkLayer = require('RelayNetworkLayer');
+
 describe('RelayNetworkLayer', () => {
-  var Deferred;
-  var RelayNetworkLayer;
   var RelayQuery;
 
   var injectedNetworkLayer;
@@ -24,10 +25,8 @@ describe('RelayNetworkLayer', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    Deferred = require('Deferred');
     RelayQuery = jest.genMockFromModule('RelayQuery');
     jest.setMock('RelayQuery', RelayQuery);
-    RelayNetworkLayer = require('RelayNetworkLayer');
 
     injectedNetworkLayer = {
       sendMutation: jest.genMockFunction(),

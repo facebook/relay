@@ -13,23 +13,21 @@
 
 jest.autoMockOff();
 
+var GraphQLRange = require('GraphQLRange');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayMockCacheManager = require('RelayMockCacheManager');
+var RelayTestUtils = require('RelayTestUtils');
+var {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
+
 describe('RelayRecordStore', () => {
-  var GraphQLRange;
-  var RelayConnectionInterface;
-  var RelayMockCacheManager;
   var RelayRecordStore;
-  var RelayTestUtils;
 
   var HAS_NEXT_PAGE, HAS_PREV_PAGE;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQLRange = require('GraphQLRange');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayMockCacheManager = require('RelayMockCacheManager');
     RelayRecordStore = require('RelayRecordStore');
-    RelayTestUtils = require('RelayTestUtils');
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
 
@@ -569,7 +567,6 @@ describe('RelayRecordStore', () => {
   });
 
   describe('applyRangeUpdate()', () => {
-    var {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
     var cache;
     var connectionID;
     var firstEdgeID;

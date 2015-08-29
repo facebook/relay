@@ -14,12 +14,11 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var React = require('React');
+var Relay = require('Relay');
+var getRelayQueries = require('getRelayQueries');
+
 describe('getRelayQueries', () => {
-  var React;
-  var Relay;
-
-  var getRelayQueries;
-
   var MockPageContainer;
 
   var makeRoute;
@@ -28,11 +27,6 @@ describe('getRelayQueries', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    React = require('React');
-    Relay = require('Relay');
-
-    getRelayQueries = require('getRelayQueries');
 
     class MockPageComponent extends React.Component {
       render() {

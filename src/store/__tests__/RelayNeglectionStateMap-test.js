@@ -11,15 +11,12 @@
 
 'use strict';
 
-describe('RelayNeglectionStateMap', () => {
-  var RelayNeglectionStateMap;
-  var RelayTestUtils;
+var RelayNeglectionStateMap = require('RelayNeglectionStateMap');
+var RelayTestUtils = require('RelayTestUtils');
 
+describe('RelayNeglectionStateMap', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    RelayNeglectionStateMap = require('RelayNeglectionStateMap');
-    RelayTestUtils = require('RelayTestUtils');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

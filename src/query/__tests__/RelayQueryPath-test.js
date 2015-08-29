@@ -14,10 +14,10 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('RelayQueryPath', () => {
-  var Relay;
-  var RelayQueryPath;
+var Relay = require('Relay');
+var RelayQueryPath = require('RelayQueryPath');
 
+describe('RelayQueryPath', () => {
   var fromJSON;
   var {getNode} = RelayTestUtils;
 
@@ -34,9 +34,6 @@ describe('RelayQueryPath', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    RelayQueryPath = require('RelayQueryPath');
 
     fromJSON = RelayQueryPath.fromJSON;
 

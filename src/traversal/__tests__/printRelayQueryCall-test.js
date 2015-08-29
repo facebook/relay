@@ -11,9 +11,9 @@
 
 'use strict';
 
-describe('printRelayQueryCall', () => {
-  var printRelayQueryCall = require('printRelayQueryCall');
+var printRelayQueryCall = require('printRelayQueryCall');
 
+describe('printRelayQueryCall', () => {
   it('prints a call with a null argument', () => {
     var call = {
       name: 'me',

@@ -14,27 +14,19 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Relay = require('Relay');
+var RelayMetaRoute = require('RelayMetaRoute');
+var RelayQuery = require('RelayQuery');
+var generateRQLFieldAlias = require('generateRQLFieldAlias');
+var getWeakIdForObject = require('getWeakIdForObject');
+
 describe('RelayQueryFragment', () => {
-  var Relay;
-  var RelayMetaRoute;
-  var RelayQuery;
-
-  var generateRQLFieldAlias;
-  var getWeakIdForObject;
-
   var {getNode} = RelayTestUtils;
 
   var fragment;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    RelayMetaRoute = require('RelayMetaRoute');
-    RelayQuery = require('RelayQuery');
-
-    generateRQLFieldAlias = require('generateRQLFieldAlias');
-    getWeakIdForObject = require('getWeakIdForObject');
 
     jest.addMatchers(RelayTestUtils.matchers);
 
@@ -232,5 +224,4 @@ describe('RelayQueryFragment', () => {
     expect(node.getRoute()).toBe(fragment.getRoute());
     expect(node.getVariables()).toBe(fragment.getVariables());
   });
-
 });

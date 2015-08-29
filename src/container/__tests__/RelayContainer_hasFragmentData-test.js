@@ -14,25 +14,19 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('RelayContainer.hasFragmentData', function() {
-  var GraphQLDeferredQueryTracker;
-  var GraphQLStoreQueryResolver;
-  var React;
-  var Relay;
-  var RelayPendingQueryTracker;
+var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
+var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+var React = require('React');
+var Relay = require('Relay');
+var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 
+describe('RelayContainer.hasFragmentData', function() {
   var MockContainer;
   var mockRender;
   var mockPointer;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
-
-    GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
-    GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-    React = require('React');
-    Relay = require('Relay');
-    RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 
     var render = jest.genMockFunction().mockImplementation(() => <div />);
     var MockComponent = React.createClass({render});

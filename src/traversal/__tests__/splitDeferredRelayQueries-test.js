@@ -14,15 +14,13 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Relay = require('Relay');
+var RelayQuery = require('RelayQuery');
+var flattenRelayQuery = require('flattenRelayQuery');
+var generateRQLFieldAlias = require('generateRQLFieldAlias');
+var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
+
 describe('splitDeferredRelayQueries()', () => {
-  // modules
-  var Relay;
-  var RelayQuery;
-
-  var flattenRelayQuery;
-  var generateRQLFieldAlias;
-  var splitDeferredRelayQueries;
-
   // helper functions
   var {defer, getNode, getRefNode} = RelayTestUtils;
 
@@ -38,12 +36,6 @@ describe('splitDeferredRelayQueries()', () => {
   beforeEach(() => {
     // Reset query numbers back to q0.
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    RelayQuery = require('RelayQuery');
-    flattenRelayQuery = require('flattenRelayQuery');
-    generateRQLFieldAlias = require('generateRQLFieldAlias');
-    splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

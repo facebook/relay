@@ -16,15 +16,15 @@ RelayTestUtils.unmockRelay();
 
 jest.dontMock('RelayStore');
 
-describe('RelayStore', () => {
-  var GraphQLQueryRunner;
-  var Relay;
-  var RelayStore;
-  var RelayStoreData;
+var GraphQLQueryRunner = require('GraphQLQueryRunner');
+var Relay = require('Relay');
+var RelayStoreData = require('RelayStoreData');
+var observeAllRelayQueryData = require('observeAllRelayQueryData');
+var observeRelayQueryData = require('observeRelayQueryData');
+var readRelayQueryData = require('readRelayQueryData');
 
-  var observeAllRelayQueryData;
-  var observeRelayQueryData;
-  var readRelayQueryData;
+describe('RelayStore', () => {
+  var RelayStore;
 
   var filter;
   var dataIDs;
@@ -37,14 +37,7 @@ describe('RelayStore', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQLQueryRunner = require('GraphQLQueryRunner');
-    Relay = require('Relay');
-    RelayStoreData = require('RelayStoreData');
     RelayStore = require('RelayStore');
-
-    observeAllRelayQueryData = require('observeAllRelayQueryData');
-    observeRelayQueryData = require('observeRelayQueryData');
-    readRelayQueryData = require('readRelayQueryData');
 
     filter = () => true;
     dataIDs = ['feedback_id', 'likers_id'];

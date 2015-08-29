@@ -18,12 +18,14 @@ jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
-describe('writeRelayQueryPayload()', () => {
-  var Relay;
-  var RelayConnectionInterface;
-  var RelayRecordStore;
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var generateRQLFieldAlias = require('generateRQLFieldAlias');
+var RelayMetaRoute = require('RelayMetaRoute');
+var RelayQuery = require('RelayQuery');
 
-  var generateRQLFieldAlias;
+describe('writeRelayQueryPayload()', () => {
+  var RelayRecordStore;
 
   var {getNode, writePayload} = RelayTestUtils;
   var END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO, START_CURSOR;
@@ -31,11 +33,7 @@ describe('writeRelayQueryPayload()', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
     RelayRecordStore = require('RelayRecordStore');
-
-    generateRQLFieldAlias = require('generateRQLFieldAlias');
 
     ({
       END_CURSOR,
@@ -590,8 +588,6 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('updates the range when edge data changes', () => {
-      var RelayMetaRoute = require('RelayMetaRoute');
-      var RelayQuery = require('RelayQuery');
       // NOTE: Hack to preserve `source{id}` in all environments for now.
       var query = RelayQuery.Node.create(Relay.QL`
         query {

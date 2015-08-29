@@ -14,19 +14,18 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Promise = require('Promise');
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
+var RelayMetaRoute = require('RelayMetaRoute');
+var RelayMutationRequest = require('RelayMutationRequest');
+var RelayQuery = require('RelayQuery');
+var RelayQueryRequest = require('RelayQueryRequest');
+var fetch = require('fetch');
+var fetchWithRetries = require('fetchWithRetries');
+
 describe('RelayDefaultNetworkLayer', () => {
-  var Promise;
-  var Relay;
-  var RelayConnectionInterface;
-  var RelayDefaultNetworkLayer;
-  var RelayMetaRoute;
-  var RelayMutationRequest;
-  var RelayQuery;
-  var RelayQueryRequest;
-
-  var fetch;
-  var fetchWithRetries;
-
   var networkConfig;
   var networkLayer;
 
@@ -39,18 +38,6 @@ describe('RelayDefaultNetworkLayer', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Promise = require('Promise');
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
-    RelayMetaRoute = require('RelayMetaRoute');
-    RelayMutationRequest =  require('RelayMutationRequest');
-    RelayQuery = require('RelayQuery');
-    RelayQueryRequest = require('RelayQueryRequest');
-
-    fetch = require('fetch');
-    fetchWithRetries = require('fetchWithRetries');
 
     networkConfig = {
       uri: '/graphql',

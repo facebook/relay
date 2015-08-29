@@ -11,13 +11,11 @@
 
 'use strict';
 
-describe('filterExclusiveKeys', () => {
-  var filterExclusiveKeys;
+var filterExclusiveKeys = require('filterExclusiveKeys');
 
+describe('filterExclusiveKeys', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    filterExclusiveKeys = require('filterExclusiveKeys');
   });
 
   it('computes exclusive keys between two objects with overlap', () => {

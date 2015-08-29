@@ -16,19 +16,19 @@ RelayTestUtils.unmockRelay();
 
 jest.dontMock('RelayMutationQuery');
 
+var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayMutationQuery = require('RelayMutationQuery');
+var RelayMutationType = require('RelayMutationType');
+var RelayQueryTracker = require('RelayQueryTracker');
+var filterRelayQuery = require('filterRelayQuery');
+var flattenRelayQuery = require('flattenRelayQuery');
+var fromGraphQL = require('fromGraphQL');
+var intersectRelayQuery = require('intersectRelayQuery');
+var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
+
 describe('RelayMutationQuery', () => {
-  var GraphQLMutatorConstants;
-  var Relay;
-  var RelayConnectionInterface;
-  var RelayMutationQuery;
-  var RelayMutationType;
-  var RelayQueryTracker;
-
-  var filterRelayQuery;
-  var flattenRelayQuery;
-  var fromGraphQL;
-  var intersectRelayQuery;
-
   function getNodeChildren(query) {
     return fromGraphQL.Node(query).getChildren();
   }
@@ -43,18 +43,6 @@ describe('RelayMutationQuery', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-    RelayConnectionInterface = require('RelayConnectionInterface');
-    RelayMutationQuery = require('RelayMutationQuery');
-    RelayMutationType = require('RelayMutationType');
-    RelayQueryTracker = require('RelayQueryTracker');
-
-    filterRelayQuery = require('filterRelayQuery');
-    flattenRelayQuery = require('flattenRelayQuery');
-    fromGraphQL = require('fromGraphQL');
-    intersectRelayQuery = require('intersectRelayQuery');
 
     tracker = new RelayQueryTracker();
 
@@ -282,12 +270,9 @@ describe('RelayMutationQuery', () => {
   });
 
   describe('edge insertion', () => {
-    var GraphQLMutatorConstants;
     var fatQuery, rangeBehaviors;
 
     beforeEach(() => {
-      GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-
       fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
@@ -557,12 +542,6 @@ describe('RelayMutationQuery', () => {
   });
 
   describe('optimistic update', () => {
-    var inferRelayFieldsFromData;
-
-    beforeEach(() => {
-      inferRelayFieldsFromData = require('inferRelayFieldsFromData');
-    });
-
     it('infers fields', () => {
       var fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on FeedbackLikeResponsePayload {

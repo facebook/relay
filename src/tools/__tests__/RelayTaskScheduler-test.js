@@ -13,16 +13,13 @@
 
 jest.dontMock('RelayTaskScheduler');
 
-describe('RelayTaskScheduler', () => {
-  var RelayTaskScheduler;
-  var RelayTestUtils;
-  var resolveImmediate;
+var RelayTaskScheduler = require('RelayTaskScheduler');
+var RelayTestUtils = require('RelayTestUtils');
+var resolveImmediate = require('resolveImmediate');
 
+describe('RelayTaskScheduler', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
-    RelayTaskScheduler = require('RelayTaskScheduler');
-    RelayTestUtils = require('RelayTestUtils');
-    resolveImmediate = require('resolveImmediate');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

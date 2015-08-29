@@ -11,9 +11,9 @@
 
 'use strict';
 
-describe('sortTypeFirst', () => {
-  var sortTypeFirst = require('sortTypeFirst');
+var sortTypeFirst = require('sortTypeFirst');
 
+describe('sortTypeFirst', () => {
   it('considers `__type__` to be the smallest', () => {
     expect(sortTypeFirst('__type__', '_')).toBe(-1);
     expect(sortTypeFirst('_', '__type__')).toBe(1);

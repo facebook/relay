@@ -13,19 +13,16 @@
 
 jest.dontMock('GraphQLStoreChangeEmitter');
 
-describe('GraphQLStoreChangeEmitter', () => {
-  var ErrorUtils;
-  var GraphQLStoreChangeEmitter;
-  var GraphQLStoreRangeUtils;
+var ErrorUtils = require('ErrorUtils');
+var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
+var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 
+describe('GraphQLStoreChangeEmitter', () => {
   var mockCallback;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    ErrorUtils = require('ErrorUtils');
-    GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
-    GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
     GraphQLStoreRangeUtils.getCanonicalClientID.mockImplementation(id => id);
 
     ErrorUtils.applyWithGuard.mockImplementation(callback => {

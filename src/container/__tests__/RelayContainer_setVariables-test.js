@@ -13,15 +13,15 @@
 
 require('RelayTestUtils').unmockRelay();
 
-describe('RelayContainer.setVariables', function() {
-  var GraphQL;
-  var GraphQLStoreQueryResolver;
-  var React;
-  var ReactDOM;
-  var Relay;
-  var RelayMetaRoute;
-  var RelayTestUtils;
+var GraphQL = require('GraphQL');
+var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+var React = require('React');
+var ReactDOM = require('ReactDOM');
+var Relay = require('Relay');
+var RelayMetaRoute = require('RelayMetaRoute');
+var RelayTestUtils = require('RelayTestUtils');
 
+describe('RelayContainer.setVariables', function() {
   var MockComponent;
   var MockContainer;
 
@@ -33,14 +33,6 @@ describe('RelayContainer.setVariables', function() {
 
   beforeEach(function() {
     jest.resetModuleRegistry();
-
-    GraphQL = require('GraphQL');
-    GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-    React = require('React');
-    ReactDOM = require('ReactDOM');
-    Relay = require('Relay');
-    RelayMetaRoute = require('RelayMetaRoute');
-    RelayTestUtils = require('RelayTestUtils');
 
     entityQuery = jest.genMockFunction().mockImplementation(
       variables => Relay.QL`fragment on Node{url(site:$site)}`

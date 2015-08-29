@@ -16,12 +16,12 @@ require('RelayTestUtils').unmockRelay();
 jest
   .dontMock('GraphQLStoreRangeUtils');
 
+var GraphQL = require('GraphQL');
+var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+
 describe('GraphQLStoreRangeUtils', () => {
 
   it('should encode and decode', () => {
-    var GraphQL = require('GraphQL');
-    var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
-
     var id = 'client:1';
     var callValues = {count: '1', cursor: '123456'};
 

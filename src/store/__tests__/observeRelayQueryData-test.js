@@ -14,13 +14,16 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
+var Relay = require('Relay');
+var observeRelayQueryData = require('observeRelayQueryData');
+var RelayStoreData = require('RelayStoreData');
+var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
+
 describe('observeRelayQueryData', () => {
-  var GraphQLStoreChangeEmitter;
-  var Relay;
   var RelayRecordStore;
 
   var addListenerForIDs;
-  var observeRelayQueryData;
 
   var firstMockCallback;
   var secondMockCallback;
@@ -39,12 +42,9 @@ describe('observeRelayQueryData', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
-    Relay = require('Relay');
     RelayRecordStore = require('RelayRecordStore');
 
     addListenerForIDs = GraphQLStoreChangeEmitter.addListenerForIDs;
-    observeRelayQueryData = require('observeRelayQueryData');
 
     firstMockCallback = jest.genMockFunction();
     secondMockCallback = jest.genMockFunction();
@@ -230,9 +230,6 @@ describe('observeRelayQueryData', () => {
   });
 
   describe('garbage collection', () => {
-    var RelayStoreData;
-    var RelayStoreGarbageCollector;
-
     var garbageCollector;
     var observable;
     var recordsStore;
@@ -262,9 +259,6 @@ describe('observeRelayQueryData', () => {
     }
 
     beforeEach(() => {
-      RelayStoreData = require('RelayStoreData');
-      RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
-
       // Prepare mock garbage collector and mock observable
       garbageCollector = new RelayStoreGarbageCollector();
 

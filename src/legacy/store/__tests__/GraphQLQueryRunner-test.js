@@ -21,22 +21,21 @@ jest
   .dontMock('GraphQLDeferredQueryTracker')
   .dontMock('GraphQLQueryRunner');
 
+var DliteFetchModeConstants = require('DliteFetchModeConstants');
+var GraphQL = require('GraphQL');
+var GraphQLQueryRunner = require('GraphQLQueryRunner');
+var Relay = require('Relay');
+var RelayNetworkLayer = require('RelayNetworkLayer');
+var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
+var RelayStoreData = require('RelayStoreData');
+var checkRelayQueryData = require('checkRelayQueryData');
+var diffRelayQuery = require('diffRelayQuery');
+var resolveImmediate = require('resolveImmediate');
+var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
+var toGraphQL = require('toGraphQL');
+var warning = require('warning');
+
 describe('GraphQLQueryRunner', () => {
-  var DliteFetchModeConstants;
-  var GraphQL;
-  var GraphQLQueryRunner;
-  var Relay;
-  var RelayNetworkLayer;
-  var RelayPendingQueryTracker;
-  var RelayStoreData;
-
-  var checkRelayQueryData;
-  var diffRelayQuery;
-  var resolveImmediate;
-  var splitDeferredRelayQueries;
-  var toGraphQL;
-  var warning;
-
   var mockCallback;
   var mockQuerySet;
 
@@ -68,21 +67,6 @@ describe('GraphQLQueryRunner', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    DliteFetchModeConstants = require('DliteFetchModeConstants');
-    GraphQL = require('GraphQL');
-    GraphQLQueryRunner = require('GraphQLQueryRunner');
-    Relay = require('Relay');
-    RelayNetworkLayer = require('RelayNetworkLayer');
-    RelayPendingQueryTracker = require('RelayPendingQueryTracker');
-    RelayStoreData = require('RelayStoreData');
-
-    checkRelayQueryData = require('checkRelayQueryData');
-    diffRelayQuery = require('diffRelayQuery');
-    resolveImmediate = require('resolveImmediate');
-    splitDeferredRelayQueries = require('splitDeferredRelayQueries');
-    toGraphQL = require('toGraphQL');
-    warning = require('warning');
 
     RelayNetworkLayer.injectNetworkLayer({
       supports: () => true,

@@ -16,27 +16,19 @@ RelayTestUtils.unmockRelay();
 
 jest.mock('warning');
 
+var GraphQL = require('GraphQL');
+var React = require('React');
+var Relay = require('Relay');
+var RelayQuery = require('RelayQuery');
+var buildRQL = require('buildRQL');
+
 describe('buildRQL', () => {
-  var GraphQL;
-  var React;
-  var Relay;
-  var RelayQuery;
-
-  var buildRQL;
-
   var {getNode} = RelayTestUtils;
 
   var MockComponent;
   var MockContainer;
 
   beforeEach(() => {
-    GraphQL = require('GraphQL');
-    React = require('React');
-    Relay = require('Relay');
-    RelayQuery = require('RelayQuery');
-
-    buildRQL = require('buildRQL');
-
     var render = jest.genMockFunction().mockImplementation(function() {
       // Make it easier to expect prop values.
       render.mock.calls[render.mock.calls.length - 1].props = this.props;

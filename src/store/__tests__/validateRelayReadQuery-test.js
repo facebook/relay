@@ -14,13 +14,11 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Relay = require('Relay');
+var RelayFragmentReference = require('RelayFragmentReference');
+var validateRelayReadQuery = require('validateRelayReadQuery');
+
 describe('validateRelayReadQuery', () => {
-  // Modules.
-  var Relay;
-  var RelayFragmentReference;
-
-  var validateRelayReadQuery;
-
   // Helper functions.
   var {getNode} = RelayTestUtils;
 
@@ -30,11 +28,6 @@ describe('validateRelayReadQuery', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-    RelayFragmentReference = require('RelayFragmentReference');
-
-    validateRelayReadQuery = require('validateRelayReadQuery');
 
     realConsoleError = console.error;
     mockConsoleError = console.error = jest.genMockFunction();

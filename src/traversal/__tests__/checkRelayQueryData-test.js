@@ -14,14 +14,14 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('checkRelayQueryData', () => {
-  var GraphQL;
-  var GraphQLRange;
-  var Relay;
-  var RelayConnectionInterface;
-  var RelayRecordStore;
+var GraphQL = require('GraphQL');
+var GraphQLRange = require('GraphQLRange');
+var Relay = require('Relay');
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var checkRelayQueryData = require('checkRelayQueryData');
 
-  var checkRelayQueryData;
+describe('checkRelayQueryData', () => {
+  var RelayRecordStore;
 
   var {getNode} = RelayTestUtils;
   var HAS_NEXT_PAGE, HAS_PREV_PAGE;
@@ -42,13 +42,7 @@ describe('checkRelayQueryData', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQL = require('GraphQL');
-    GraphQLRange = require('GraphQLRange');
-    Relay = require('Relay');
-    RelayConnectionInterface = require('RelayConnectionInterface');
     RelayRecordStore = require('RelayRecordStore');
-
-    checkRelayQueryData = require('checkRelayQueryData');
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
   });

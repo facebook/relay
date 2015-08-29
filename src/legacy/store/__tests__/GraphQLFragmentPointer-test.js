@@ -16,16 +16,15 @@ RelayTestUtils.unmockRelay();
 
 jest.dontMock('GraphQLFragmentPointer');
 
-describe('GraphQLFragmentPointer', () => {
-  var GraphQLFragmentPointer;
-  var Relay;
+var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+var Relay = require('Relay');
+var RelayRecordStore = require('RelayRecordStore');
 
+describe('GraphQLFragmentPointer', () => {
   var {getNode, getRefNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-    GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-    Relay = require('Relay');
 
     jest.addMatchers(RelayTestUtils.matchers);
     jest.addMatchers({
@@ -39,8 +38,6 @@ describe('GraphQLFragmentPointer', () => {
     var recordStore;
 
     beforeEach(() => {
-      var RelayRecordStore = require('RelayRecordStore');
-
       var records = {};
       recordStore = new RelayRecordStore({records});
     });

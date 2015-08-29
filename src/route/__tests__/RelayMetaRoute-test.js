@@ -11,13 +11,11 @@
 
 'use strict';
 
-describe('RelayMetaRoute', () => {
-  var RelayMetaRoute;
+var RelayMetaRoute = require('RelayMetaRoute');
 
+describe('RelayMetaRoute', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    RelayMetaRoute = require('RelayMetaRoute');
   });
 
   it('is immutable', () => {
@@ -38,5 +36,4 @@ describe('RelayMetaRoute', () => {
       RelayMetaRoute.get('TestRoute2')
     ).toBe(RelayMetaRoute.get('TestRoute2'));
   });
-
 });

@@ -13,13 +13,11 @@
 
 var RelayTestUtils = require('RelayTestUtils');
 
-describe('RelayQL', () => {
-  var Relay;
+var Relay = require('Relay');
 
+describe('RelayQL', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

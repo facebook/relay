@@ -18,12 +18,12 @@ jest
   .dontMock('RelayMutation')
   .dontMock('buildRQL');
 
+var Relay = require('Relay');
+var buildRQL = require('buildRQL');
+var fromGraphQL = require('fromGraphQL');
+
 describe('RelayMutation', function() {
   var MockMutation;
-  var Relay;
-
-  var buildRQL;
-  var fromGraphQL;
   var mockBarPointer;
   var mockFooPointer;
 
@@ -31,11 +31,6 @@ describe('RelayMutation', function() {
 
   beforeEach(function() {
     jest.resetModuleRegistry();
-
-    Relay = require('Relay');
-
-    buildRQL = require('buildRQL');
-    fromGraphQL = require('fromGraphQL');
 
     var makeMockMutation = () => {
       class MockMutationClass extends Relay.Mutation {}

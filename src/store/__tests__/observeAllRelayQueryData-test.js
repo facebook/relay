@@ -14,13 +14,14 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+var Relay = require('Relay');
+var observeAllRelayQueryData = require('observeAllRelayQueryData');
+var observeRelayQueryData = require('observeRelayQueryData');
+
 describe('observeRelayQueryData', () => {
-  var Relay;
   var RelayRecordStore;
 
   var emptyFunction;
-  var observeAllRelayQueryData;
-  var observeRelayQueryData;
 
   var mockCallsbacks;
 
@@ -41,11 +42,7 @@ describe('observeRelayQueryData', () => {
     Object.assign(emptyFunction, require.requireActual('emptyFunction'));
     jest.setMock('emptyFunction', emptyFunction);
 
-    Relay = require('Relay');
     RelayRecordStore = require('RelayRecordStore');
-
-    observeAllRelayQueryData = require('observeAllRelayQueryData');
-    observeRelayQueryData = require('observeRelayQueryData');
 
     mockCallsbacks = {
       onCompleted: jest.genMockFunction(),

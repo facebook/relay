@@ -16,14 +16,13 @@ RelayTestUtils.unmockRelay();
 
 jest.dontMock('recycleNodesInto');
 
-describe('recycleNodesInto', () => {
-  var Relay;
-  var recycleNodesInto;
+var Relay = require('Relay');
+var recycleNodesInto = require('recycleNodesInto');
+var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 
+describe('recycleNodesInto', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
-    Relay = require('Relay');
-    recycleNodesInto = require('recycleNodesInto');
   });
 
   describe('scalars', () => {
@@ -182,8 +181,6 @@ describe('recycleNodesInto', () => {
     var getPointer;
 
     beforeEach(() => {
-      var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-
       var {getNode} = RelayTestUtils;
 
       var fragment = getNode(Relay.QL`fragment on Node{id}`);

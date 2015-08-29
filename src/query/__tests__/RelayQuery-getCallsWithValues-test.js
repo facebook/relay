@@ -14,9 +14,9 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
-  var GraphQL;
+var GraphQL = require('GraphQL');
 
+describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
   var {getNode} = RelayTestUtils;
 
   function getProfilePicture(callValue, variables) {
@@ -30,10 +30,6 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
       variables || {}
     );
   }
-
-  beforeEach(() => {
-    GraphQL = require('GraphQL');
-  });
 
   describe('scalar-valued calls', () => {
     describe('with inline values', () => {

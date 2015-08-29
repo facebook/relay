@@ -23,6 +23,8 @@ var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayQueryPath = require('RelayQueryPath');
 var RelayStoreData = require('RelayStoreData');
 
+var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
+
 describe('RelayStoreData', () => {
   var Relay;
 
@@ -331,12 +333,6 @@ describe('RelayStoreData', () => {
   });
 
   describe('garbage collection', () => {
-    var RelayStoreGarbageCollector;
-
-    beforeEach(() => {
-      RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
-    });
-
     it('initializes the garbage collector if no data has been added', () => {
       var data = new RelayStoreData();
       expect(RelayStoreGarbageCollector.mock.instances.length).toBe(0);

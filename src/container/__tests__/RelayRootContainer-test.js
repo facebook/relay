@@ -16,32 +16,27 @@ RelayTestUtils.unmockRelay();
 
 jest.dontMock('RelayRootContainer');
 
+var React = require('React');
+var ReactDOM = require('ReactDOM');
+var ReactTestUtils = require('ReactTestUtils');
+var Relay = require('Relay');
+var RelayRootContainer = require('RelayRootContainer');
+var RelayRoute = require('RelayRoute');
+var getRelayQueries = require('getRelayQueries');
+var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+
 describe('RelayRootContainer', function() {
-  var React;
-  var ReactDOM;
-  var ReactTestUtils;
-  var Relay;
-  var RelayRootContainer;
-  var RelayRoute;
   var RelayStore;
 
   var ReactComponent;
   var RelayContainer;
   var ShallowRenderer;
 
-  var getRelayQueries;
-
   var route;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    React = require('React');
-    ReactDOM = require('ReactDOM');
-    ReactTestUtils = require('ReactTestUtils');
-    Relay = require('Relay');
-    RelayRootContainer = require('RelayRootContainer');
-    RelayRoute = require('RelayRoute');
     RelayStore = require('RelayStore');
 
     ReactComponent = React.createClass({render: () => <div />});
@@ -163,10 +158,6 @@ describe('RelayRootContainer', function() {
   });
 
   describe('mounting', () => {
-    beforeEach(() => {
-      getRelayQueries = require('getRelayQueries');
-    });
-
     it('creates and primes cache for queries from the component', () => {
       ShallowRenderer.render(
         <RelayRootContainer Component={RelayContainer} route={route} />
@@ -216,8 +207,6 @@ describe('RelayRootContainer', function() {
 
   describe('updating', () => {
     beforeEach(() => {
-      getRelayQueries = require('getRelayQueries');
-
       // We're testing updates, so start with an initial render.
       ShallowRenderer.render(
         <RelayRootContainer Component={RelayContainer} route={route} />
@@ -422,16 +411,10 @@ describe('RelayRootContainer', function() {
   });
 
   describe('rendering', () => {
-    var GraphQLFragmentPointer;
-
     var elements;
     var callbacks;
 
     beforeEach(() => {
-      GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-
-      getRelayQueries = require('getRelayQueries');
-
       elements = {
         loading: <div />,
         resolve: <div />,

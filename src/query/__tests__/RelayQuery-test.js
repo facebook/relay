@@ -14,23 +14,17 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-describe('RelayQuery', () => {
-  var GraphQL;
-  var Relay;
-  var RelayFragmentReference;
-  var RelayMetaRoute;
-  var RelayQuery;
+var GraphQL = require('GraphQL');
+var Relay = require('Relay');
+var RelayFragmentReference = require('RelayFragmentReference');
+var RelayMetaRoute = require('RelayMetaRoute');
+var RelayQuery = require('RelayQuery');
 
+describe('RelayQuery', () => {
   var {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    GraphQL = require('GraphQL');
-    Relay = require('Relay');
-    RelayFragmentReference = require('RelayFragmentReference');
-    RelayMetaRoute = require('RelayMetaRoute');
-    RelayQuery = require('RelayQuery');
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

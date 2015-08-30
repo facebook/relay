@@ -16,7 +16,7 @@ Custom network layers that must conform to the `RelayNetworkLayer` interface.
 <ul class="apiIndex">
   <li>
     <a href="#sendmutation">
-      <pre>sendMutations(mutationRequest)</pre>
+      <pre>sendMutation(mutationRequest)</pre>
     </a>
   </li>
   <li>

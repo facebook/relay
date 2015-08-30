@@ -23,7 +23,7 @@ The most-used function is [`createContainer()`](#createcontainer-static-method) 
 <ul class="apiIndex">
   <li>
     <a href="guides-network-layer.html">
-      <pre>static DefaultNetworkLayer</pre>
+      <pre>static DefaultNetworkLayer &rarr;</pre>
     </a>
   </li>
   <li>

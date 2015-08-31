@@ -46,6 +46,9 @@ function getRelayQueries(
     return cache[cacheKey];
   }
   var querySet = {};
+  Component.getFragmentNames().forEach(fragmentName => {
+    querySet[fragmentName] = null;
+  });
   Object.keys(route.queries).forEach(queryName => {
     invariant(
       Component.hasFragment(queryName),

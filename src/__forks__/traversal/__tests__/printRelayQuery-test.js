@@ -409,6 +409,40 @@ describe('printRelayQuery', () => {
       expect(variables).toEqual({});
     });
 
+    it('prints object call values', () => {
+      var enumValue = 'WEB';
+      var fragment = Relay.QL`
+        fragment on Settings {
+          notifications(environment: $env)
+        }
+      `;
+      var query = getNode(Relay.QL`
+        query {
+          defaultSettings {
+            ${fragment},
+          }
+        }
+      `, {
+        env: enumValue,
+      });
+      var fragmentID = getNode(fragment, {env: enumValue}).getFragmentID();
+      var alias = generateRQLFieldAlias('notifications.environment(WEB)');
+      var {text, variables} = printRelayQuery(query);
+      expect(trimQuery(text)).toEqual(trimQuery(`
+        query UnknownFile($environment_0:Environment) {
+          defaultSettings {
+            ...${fragmentID}
+          }
+        }
+        fragment ${fragmentID} on Settings {
+          ${alias}:notifications(environment:$environment_0)
+        }
+      `));
+      expect(variables).toEqual({
+        environment_0: enumValue,
+      });
+    });
+
     it('prints inline fragments as references', () => {
       // these fragments have different types and cannot be flattened
       var nestedFragment = Relay.QL`fragment on User{name}`;

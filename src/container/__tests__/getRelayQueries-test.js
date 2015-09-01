@@ -11,6 +11,8 @@
 
 'use strict';
 
+jest.mock('warning');
+
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
@@ -130,7 +132,7 @@ describe('getRelayQueries', () => {
     );
   });
 
-  it('throws if a container does not include a required fragment', () => {
+  it('warns if a container does not include a required fragment', () => {
     var MockRoute = makeRoute();
     var route = new MockRoute({id: '123'});
 
@@ -140,12 +142,17 @@ describe('getRelayQueries', () => {
       }
     });
 
-    expect(() => {
-      getRelayQueries(AnotherMockContainer, route);
-    }).toFailInvariant(
-      'Relay.QL: query `MockRoute.queries.last` is invalid, expected ' +
-      'fragment `Relay(MockPageComponent).fragments.last` to be defined.'
-    );
+    var queries = getRelayQueries(AnotherMockContainer, route);
+    expect(queries.last).toBe(undefined);
+
+    expect([
+      'Relay.QL: query `%s.queries.%s` is invalid, expected fragment ' +
+      '`%s.fragments.%s` to be defined.',
+      'MockRoute',
+      'last',
+      'Relay(MockPageComponent)',
+      'last'
+    ]).toBeWarnedNTimes(1);
   });
 
   it('includes route parameters when building component fragment', () => {

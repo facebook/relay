@@ -25,6 +25,7 @@ var RelayQuery = require('RelayQuery');
 var buildRQL = require('buildRQL');
 var invariant = require('invariant');
 var stableStringify = require('stableStringify');
+var warning = require('warning');
 
 var queryCache = new Map();
 
@@ -50,15 +51,18 @@ function getRelayQueries(
     querySet[fragmentName] = null;
   });
   Object.keys(route.queries).forEach(queryName => {
-    invariant(
-      Component.hasFragment(queryName),
-      'Relay.QL: query `%s.queries.%s` is invalid, expected fragment ' +
-      '`%s.fragments.%s` to be defined.',
-      route.name,
-      queryName,
-      Component.displayName,
-      queryName
-    );
+    if (!Component.hasFragment(queryName)) {
+      warning(
+        false,
+        'Relay.QL: query `%s.queries.%s` is invalid, expected fragment ' +
+        '`%s.fragments.%s` to be defined.',
+        route.name,
+        queryName,
+        Component.displayName,
+        queryName
+      );
+      return;
+    }
     var queryBuilder = route.queries[queryName];
     if (queryBuilder) {
       var concreteQuery = buildRQL.Query(

@@ -23,7 +23,7 @@ and `IntroduceShipPayload`:
 ```
 input IntroduceShipInput {
   factionId: ID!
-  shipNamed: String!
+  shipName: String!
   clientMutationId: String!
 }
 

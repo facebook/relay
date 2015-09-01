@@ -12,8 +12,8 @@
 
 var assign = require('object-assign');
 var babel = require('babel-core');
-var babelDefaultOptions = require('fbjs/scripts/babel/default-options');
-var createCacheKeyFunction = require('fbjs/scripts/jest/createCacheKeyFunction');
+var babelDefaultOptions = require('fbjs-scripts/babel/default-options');
+var createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
 var fs = require('fs');
 var getBabelRelayPlugin = require('babel-relay-plugin');
 var path = require('path');

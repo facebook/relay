@@ -103,20 +103,18 @@ function printRoot(
       rootFieldString += '(' + rootArgString + ')';
     }
   }
+  var children = printChildren(node, printerState);
 
   var argStrings = null;
   forEachObject(printerState.variableMap, (variable, variableID) => {
-    if (variable) {
-      argStrings = argStrings || [];
-      argStrings.push('$' + variableID + ':' + variable.type);
-    }
+    argStrings = argStrings || [];
+    argStrings.push('$' + variableID + ':' + variable.type);
   });
   if (argStrings) {
     queryString += '(' + argStrings.join(',') + ')';
   }
 
-  return 'query ' + queryString + '{' +
-    rootFieldString + printChildren(node, printerState) + '}';
+  return 'query ' + queryString + '{' + rootFieldString + children + '}';
 }
 
 function printMutation(

@@ -102,6 +102,18 @@ describe('getRelayQueries', () => {
     });
   });
 
+  it('returns null for fragments without a matching route query', () => {
+    class FirstRoute extends Relay.Route {}
+    FirstRoute.routeName = 'BadRoute';
+    FirstRoute.queries = {
+      first: (Component, params) => Relay.QL`query { node(id:"123") }`,
+    };
+    var route = new FirstRoute({});
+    var queries = getRelayQueries(MockPageContainer, route);
+
+    expect(queries.last).toBe(null);
+  });
+
   it('throws for invalid `Relay.QL` queries', () => {
     class BadRoute extends Relay.Route {}
     BadRoute.routeName = 'BadRoute';

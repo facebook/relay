@@ -1,6 +1,12 @@
 export default class extends Relay.Route {
   static queries = {
-    viewer: () => Relay.QL`query RootQuery { viewer }`,
+    viewer: Component => Relay.QL`
+      query RootQuery {
+        viewer {
+          ${Component.getFragment('viewer')},
+        }
+      }
+    `,
   };
   static routeName = 'TodosHomeRoute';
 }

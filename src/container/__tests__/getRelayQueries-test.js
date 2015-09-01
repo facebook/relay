@@ -135,4 +135,16 @@ describe('getRelayQueries', () => {
       'fragment `Relay(MockPageComponent).fragments.last` to be defined.'
     );
   });
+
+  it('includes route parameters when building component fragment', () => {
+    var MockRoute = makeRoute();
+    var params = {id: '123'};
+    var route = new MockRoute(params);
+    MockPageContainer.getFragment = jest.genMockFunction();
+
+    getRelayQueries(MockPageContainer, route);
+
+    expect(MockPageContainer.getFragment.mock.calls.length).toBe(4);
+    expect(MockPageContainer.getFragment.mock.calls[0][1]).toBe(params);
+  });
 });

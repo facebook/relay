@@ -1,5 +1,7 @@
 ## master
 
+* Route queries will now automatically compose fragments from containers.
+
 ## 0.2.0 (August 28, 2015)
 
 * Upgraded jest to 0.5 and switched Relay to use iojs v2+ only.

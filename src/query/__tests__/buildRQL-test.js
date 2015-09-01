@@ -36,11 +36,10 @@ describe('buildRQL', () => {
     });
     MockComponent = React.createClass({render});
     MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {},
+      fragments: {
+        foo: () => Relay.QL`fragment on Node { name }`
+      },
     });
-    MockContainer.getQuery = jest.genMockFunction().mockReturnValue(
-      Relay.QL`fragment on Node { name }`
-    );
 
     jest.addMatchers(RelayTestUtils.matchers);
   });
@@ -127,7 +126,7 @@ describe('buildRQL', () => {
         query {
           node(id:$id) {
             id,
-            ${Component.getQuery('foo')}
+            ${Component.getFragment('foo')}
           }
         }
       `;
@@ -144,7 +143,7 @@ describe('buildRQL', () => {
         value: '123',
       });
       expect(query.getChildren()[1].equals(
-        getNode(MockContainer.getQuery(), variables)
+        getNode(MockContainer.getFragment('foo'), variables)
       )).toBe(true);
     });
 
@@ -152,7 +151,7 @@ describe('buildRQL', () => {
       var builder = (Component, variables) => Relay.QL`
         query {
           node(id:$id) {
-            ${Component.getQuery('foo')}
+            ${Component.getFragment('foo')}
           }
         }
       `;
@@ -163,22 +162,71 @@ describe('buildRQL', () => {
 
     it('returns different queries for different components', () => {
       var MockContainer2 = Relay.createContainer(MockComponent, {
-        fragments: {},
+        fragments: {
+          foo: () => Relay.QL`fragment on Node { name }`
+        },
       });
-      MockContainer2.getQuery = jest.genMockFunction().mockReturnValue(
-        Relay.QL`fragment on Node { name }`
-      );
 
       var builder = (Component, variables) => Relay.QL`
         query {
           node(id:$id) {
-            ${Component.getQuery('foo')}
+            ${Component.getFragment('foo')}
           }
         }
       `;
       var node1 = buildRQL.Query(builder, MockContainer, ['id']);
       var node2 = buildRQL.Query(builder, MockContainer2, ['id']);
       expect(node1 === node2).toBe(false);
+    });
+
+    it('implicitly adds component fragments if not provided', () => {
+      var builder = () => Relay.QL`
+        query {
+          node(id:$id)
+        }
+      `;
+      var node = buildRQL.Query(
+        builder,
+        MockContainer,
+        ['id'],
+        MockContainer.getFragment('foo')
+      );
+      expect(GraphQL.isQuery(node)).toBe(true);
+
+      // Confirm that `${variables.id}` is a variable by applying
+      // variable values using `RelayQuery`:
+      var variables = {id: '123'};
+      var query = getNode(node, variables);
+      expect(query instanceof RelayQuery.Root).toBe(true);
+      expect(query.getRootCall()).toEqual({
+        name: 'node',
+        value: '123',
+      });
+      expect(query.getChildren()[1].equals(
+        getNode(MockContainer.getFragment('foo'), variables)
+      )).toBe(true);
+    });
+
+    it('throws if non-scalar fields are given', () => {
+      var builder = () => Relay.QL`
+        query {
+          viewer {
+            actor
+          }
+        }
+      `;
+
+      expect(() => {
+        buildRQL.Query(
+          builder,
+          MockContainer,
+          [],
+          MockContainer.getFragment('foo')
+        );
+      }).toFailInvariant(
+        'Relay.QL: Expected query `viewer` to be empty. For example, use ' +
+        '`node(id: $id)`, not `node(id: $id) { ... }`.'
+      )
     });
   });
 });

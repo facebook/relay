@@ -743,6 +743,7 @@ function Parser(options) {
   this.tokens = [];
   this.token = null;
   this.options = options || marked.defaults;
+  this.headings = [];
 }
 
 /**
@@ -813,8 +814,12 @@ Parser.prototype.tok = function() {
       return React.DOM.hr(null, null);
     }
     case 'heading': {
+      this.headings.splice(this.token.depth, this.headings.length);
+      this.headings[this.token.depth - 1] = this.token.text;
+      var slug = this.token.depth > 3 ? this.headings.slice(2).join('-') :
+        this.token.text;
       return (
-        <Header level={this.token.depth} toSlug={this.token.text}>
+        <Header level={this.token.depth} toSlug={slug}>
           {this.inline.output(this.token.text)}
         </Header>
       );

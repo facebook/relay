@@ -729,7 +729,7 @@ class RelayQueryFragment extends RelayQueryNode {
    * fragment, regardless of params/route.
    */
   getConcreteFragmentID(): string {
-    return getWeakIdForObject(this.__concreteNode__);
+    return '_RelayQueryFragment' + getWeakIdForObject(this.__concreteNode__);
   }
 
   /**

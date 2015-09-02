@@ -346,7 +346,7 @@ class IntroduceShipMutation extends Relay.Mutation {
   // specify the faction's ships connection as part of the fat query.
   getFatQuery() {
     return Relay.QL`
-      fragment on IntroduceShipMutation {
+      fragment on IntroduceShipPayload {
         faction { ships },
         newShipEdge,
       }

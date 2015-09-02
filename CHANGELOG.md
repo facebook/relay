@@ -1,6 +1,8 @@
 ## master
 
-* Route queries will now automatically compose fragments from containers.
+## 0.2.1 (September 1, 2015)
+
+* Support simplified route query definitions (previous API still supported).
 
 ## 0.2.0 (August 28, 2015)
 

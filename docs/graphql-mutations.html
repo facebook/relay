@@ -6,7 +6,7 @@ responses.</p><p>By convention, mutations are named as verbs, their inputs are t
 &quot;Payload&quot; appended.</p><p>So for our <code>introduceShip</code> mutation, we create two types: <code>IntroduceShipInput</code>
 and <code>IntroduceShipPayload</code>:</p><pre class="prism language-javascript">input IntroduceShipInput <span class="token punctuation">{</span>
   factionId<span class="token punctuation">:</span> ID<span class="token operator">!</span>
-  shipNamed<span class="token punctuation">:</span> String<span class="token operator">!</span>
+  shipName<span class="token punctuation">:</span> String<span class="token operator">!</span>
   clientMutationId<span class="token punctuation">:</span> String<span class="token operator">!</span>
 <span class="token punctuation">}</span>
 

@@ -49,8 +49,8 @@ ID, and we can refetch it as well:</p><pre class="prism language-javascript">que
     <span class="token string">&quot;name&quot;</span><span class="token punctuation">:</span> <span class="token string">&quot;Galactic Empire&quot;</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span></pre><p>The <code>Node</code> interface and <code>node</code> field assume globally unique IDs for this
-refetching. A system without globally unique IDs can usually create one
-by combining the type with the type specific ID, which is what was done
+refetching. A system without globally unique IDs can usually synthesize them
+by combining the type with the type-specific ID, which is what was done
 in this example.</p><p>The IDs we got back were base64 strings. IDs are designed to be opaque (the
 only thing that should be passed to the <code>id</code> argument on <code>node</code> is the
 unaltered result of querying <code>id</code> on some object in the system), and base64ing

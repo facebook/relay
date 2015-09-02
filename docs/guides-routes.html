@@ -20,18 +20,15 @@
       <span class="token punctuation">}</span><span class="token punctuation">,</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
-<span class="token punctuation">}</span></pre><p>Since Relay containers define fragments and not queries, they can be easily embedded in multiple contexts. Like React components, Relay containers are highly reusable.</p><h2><a class="anchor" name="routes-and-queries"></a>Routes and Queries <a class="hash-link" href="#routes-and-queries">#</a></h2><p>Routes are objects that define a set of root queries and input parameters. Here is a simple route that renders user <code>123</code>&#x27;s profile photo:</p><pre class="prism language-javascript"><span class="token keyword">var</span> profileRoute <span class="token operator">=</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span></pre><p>Since Relay containers define fragments and not queries, they can be easily embedded in multiple contexts. Like React components, Relay containers are highly reusable.</p><h2><a class="anchor" name="routes-and-queries"></a>Routes and Queries <a class="hash-link" href="#routes-and-queries">#</a></h2><p>Routes are objects that define a set of root queries and input parameters. Here is a simple route that might be used to render user <code>123</code>&#x27;s profile:</p><pre class="prism language-javascript"><span class="token keyword">var</span> profileRoute <span class="token operator">=</span> <span class="token punctuation">{</span>
   queries<span class="token punctuation">:</span> <span class="token punctuation">{</span>
-    <span spellcheck="true" class="token comment">// Routes declare queries using functions that receive the top-level Relay</span>
-    <span spellcheck="true" class="token comment">// container and return a query root that composes one of its fragments.</span>
-    user<span class="token punctuation">:</span> Component <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL`
-      # In Relay<span class="token punctuation">,</span> the GraphQL query name can be optionally omitted<span class="token punctuation">.</span>
-      query <span class="token punctuation">{</span>
-        <span class="token function">user</span><span class="token punctuation">(</span>id<span class="token punctuation">:</span> $userID<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-          $<span class="token punctuation">{</span>Component<span class="token punctuation">.</span><span class="token function">getFragment</span><span class="token punctuation">(</span><span class="token string">&#x27;user&#x27;</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-      <span class="token punctuation">}</span>
-    `<span class="token punctuation">,</span>
+    <span spellcheck="true" class="token comment">// Routes declare queries using functions that return a query root. Relay</span>
+    <span spellcheck="true" class="token comment">// will automatically compose the `user` fragment from the Relay container</span>
+    <span spellcheck="true" class="token comment">// paired with this route on a Relay.RootContainer</span>
+    user<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      # In Relay, the GraphQL query name can be optionally omitted.
+      query { user(id: $userID) }
+    `</span></span><span class="token punctuation">,</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
   params<span class="token punctuation">:</span> <span class="token punctuation">{</span>
     <span spellcheck="true" class="token comment">// This `userID` parameter will populate the `$userID` variable above.</span>
@@ -41,13 +38,9 @@
   name<span class="token punctuation">:</span> <span class="token string">&#x27;ProfileRoute&#x27;</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span></pre><p>If we wanted to create an instance of this route for arbitrary users, we can subclass the <code>Relay.Route</code> abstract class. <code>Relay.Route</code> makes it easy to define a set of queries and required parameters to be re-used multiple times:</p><pre class="prism language-javascript"><span class="token keyword">class</span> <span class="token class-name">ProfileRoute</span> <span class="token keyword">extends</span> <span class="token class-name">Relay<span class="token punctuation">.</span>Route</span> <span class="token punctuation">{</span>
   <span class="token keyword">static</span> queries <span class="token operator">=</span> <span class="token punctuation">{</span>
-    user<span class="token punctuation">:</span> Component <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL`
-      query <span class="token punctuation">{</span>
-        <span class="token function">user</span><span class="token punctuation">(</span>id<span class="token punctuation">:</span> $userID<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-          $<span class="token punctuation">{</span>Component<span class="token punctuation">.</span><span class="token function">getFragment</span><span class="token punctuation">(</span><span class="token string">&#x27;user&#x27;</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-      <span class="token punctuation">}</span>
-    `<span class="token punctuation">,</span>
+    user<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      query { user(id: $userID) }
+    `</span></span><span class="token punctuation">,</span>
   <span class="token punctuation">}</span><span class="token punctuation">;</span>
   <span class="token keyword">static</span> paramDefinitions <span class="token operator">=</span> <span class="token punctuation">{</span>
     <span spellcheck="true" class="token comment">// By setting `required` to true, `ProfileRoute` will throw if a `userID`</span>

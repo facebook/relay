@@ -23,7 +23,7 @@ The most-used function is [`createContainer()`](#createcontainer-static-method) 
 <ul class="apiIndex">
   <li>
     <a href="guides-network-layer.html">
-      <pre>static DefaultNetworkLayer</pre>
+      <pre>static DefaultNetworkLayer &rarr;</pre>
     </a>
   </li>
   <li>
@@ -74,7 +74,7 @@ The most-used function is [`createContainer()`](#createcontainer-static-method) 
     </a>
   </li>
   <li>
-    <a href="#injec-taskscheduler-static-method">
+    <a href="#injecttaskscheduler-static-method">
       <pre>static injectTaskScheduler(scheduler)</pre>
       Configure when Relay processing occurs.
     </a>

@@ -246,7 +246,7 @@ Implement this required method to design a ‘fat query’ – one that represen
 class BuySongMutation extends Relay.Mutation {
   getFatQuery() {
     return Relay.QL`
-      fragment on Collection {
+      fragment on BuySongPayload {
         songs {
           count,
           edges,

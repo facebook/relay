@@ -38,12 +38,13 @@ var createURI: $FlowIssue = () => null;
 class RelayRoute {
   name: string;
   params: Params;
-  prepareParams: ?(prevParams: Params) => Params;
   queries: RootQueries;
   uri: ?StringOrURI;
 
   static path: ?string;
   static paramDefinitions: ?ParamDefinitions;
+  static prepareParams: ?(prevParams: Params) => Params;
+  static processQueryParams: ?(prevParams: Params) => Params;
   static queries: ?Object;
   static routeName: string;
 

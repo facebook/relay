@@ -698,12 +698,12 @@ function getConnectionMetadata(schema, fieldDecl) {
     return null;
   }
   return {
-    cursorType,
-    cursorField,
-    edgesType,
-    edgesField,
-    nodeType,
-    nodeField,
+    cursorType: cursorType,
+    cursorField: cursorField,
+    edgesType: edgesType,
+    edgesField: edgesField,
+    nodeType: nodeType,
+    nodeField: nodeField
   };
 }
 

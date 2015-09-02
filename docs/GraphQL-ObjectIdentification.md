@@ -111,8 +111,8 @@ yields
 ```
 
 The `Node` interface and `node` field assume globally unique IDs for this
-refetching. A system without globally unique IDs can usually create one
-by combining the type with the type specific ID, which is what was done
+refetching. A system without globally unique IDs can usually synthesize them
+by combining the type with the type-specific ID, which is what was done
 in this example.
 
 The IDs we got back were base64 strings. IDs are designed to be opaque (the

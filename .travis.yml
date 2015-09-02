@@ -5,4 +5,4 @@ node_js:
 env:
 - TEST_DIR=.
 - TEST_DIR=scripts/babel-relay-plugin
-script: cd $TEST_DIR && npm install && npm run lint && npm test
+script: cd $TEST_DIR && npm install && npm test

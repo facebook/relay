@@ -296,7 +296,7 @@ class DestroyShipMutation extends Relay.Mutation {
   }
   getConfigs() {
     return [{
-      type: 'DELETE_NODE',
+      type: 'NODE_DELETE',
       parentName: 'faction',
       parentID: this.props.ship.faction.id,
       connectionName: 'ships',

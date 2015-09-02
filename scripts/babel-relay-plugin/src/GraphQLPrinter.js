@@ -387,6 +387,9 @@ function printField(
     var hasEdgesSelection = false;
     var selections = getSelections(field);
     selections.forEach(function(subfield) {
+      if (subfield.kind !== kinds.FIELD) {
+        return;
+      }
       var subfieldName = getName(subfield);
       var subfieldDecl =
         types.getNamedType(fieldDecl.type).getFields()[subfieldName];

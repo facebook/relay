@@ -43,11 +43,7 @@ var babelOptions = assign(
       'React': 'react',
       'ReactUpdates': 'react/lib/ReactUpdates',
       'StaticContainer.react': 'react-static-container'
-    })),
-    extra: {
-      debug: false, // enable to debug the relay babel transform
-      documentName: 'UnknownFile'
-    },
+    }))
   }
 );
 

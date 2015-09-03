@@ -74,7 +74,7 @@ describe('RelayQuerySerializer', () => {
 
       expect(toJSON(query)).toMatchQueryJSON({
         kind: 'Query',
-        name: 'UnknownFile',
+        name: 'RelayQuerySerializer',
         calls: [{name: 'viewer', value: null}],
         children: [
           {
@@ -112,7 +112,7 @@ describe('RelayQuerySerializer', () => {
 
       expect(toJSON(query)).toMatchQueryJSON({
         kind: 'Query',
-        name: 'UnknownFile',
+        name: 'RelayQuerySerializer',
         calls: [{name: 'node', value: '123'}],
         children: [
           scalarField('name', 'Node'),
@@ -136,7 +136,7 @@ describe('RelayQuerySerializer', () => {
 
       expect(toJSON(query)).toMatchQueryJSON({
         kind: 'Query',
-        name: 'UnknownFile',
+        name: 'RelayQuerySerializer',
         calls: [{name: 'nodes', value: ['1', '2', '3']}],
         children: [
           scalarField('name', 'Node'),
@@ -156,7 +156,7 @@ describe('RelayQuerySerializer', () => {
 
       expect(toJSON(fragment)).toMatchQueryJSON({
         kind: 'FragmentDefinition',
-        name: 'UnknownFile',
+        name: 'RelayQuerySerializer',
         type: 'Node',
         children: [{
           ...idField('Node'),
@@ -183,7 +183,7 @@ describe('RelayQuerySerializer', () => {
 
       expect(toJSON(fragment)).toMatchQueryJSON({
         kind: 'FragmentDefinition',
-        name: 'UnknownFile',
+        name: 'RelayQuerySerializer',
         type: 'Node',
         children: [{
           ...idField('Node'),
@@ -329,7 +329,7 @@ describe('RelayQuerySerializer', () => {
       `, {input: {feedback: '123', text: 'comment'}});
       expect(toJSON(mutation)).toMatchQueryJSON({
         kind: 'Mutation',
-        name: 'UnknownFile',
+        name: 'RelayQuerySerializer',
         calls: [{
           name: 'commentCreate',
           value: {feedback: '123', text: 'comment'}

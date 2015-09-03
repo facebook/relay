@@ -46,7 +46,7 @@ describe('RelayQueryMutation', () => {
         }
       }
     `, {input});
-    expect(mutationQuery.getName()).toBe('UnknownFile');
+    expect(mutationQuery.getName()).toBe('RelayQueryMutation');
     expect(mutationQuery.getResponseType()).toBe(
       'CommentCreateResponsePayload'
     );

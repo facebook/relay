@@ -197,7 +197,7 @@ describe('RelayQueryPath', () => {
 
     expect(root.toJSON()).toMatchQueryJSON([{
       kind: 'Query',
-      name: 'UnknownFile',
+      name: 'RelayQueryPath',
       calls: [{name: 'node', value: '123'}],
       children: [
         {
@@ -244,7 +244,7 @@ describe('RelayQueryPath', () => {
 
     expect(root.toJSON()).toMatchQueryJSON([{
       kind: 'Query',
-      name: 'UnknownFile',
+      name: 'RelayQueryPath',
       calls: [{name: 'viewer', value: null}],
       children: [EMPTY_FRAGMENT],
       metadata: {},
@@ -286,7 +286,7 @@ describe('RelayQueryPath', () => {
     expect(path.toJSON()).toMatchQueryJSON([
       {
         kind: 'Query',
-        name: 'UnknownFile',
+        name: 'RelayQueryPath',
         calls: [{name: 'node', value: '123'}],
         children: [{
           kind: 'Field',

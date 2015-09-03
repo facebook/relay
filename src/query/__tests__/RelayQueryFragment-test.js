@@ -117,7 +117,7 @@ describe('RelayQueryFragment', () => {
       }
     `;
     var fragment = getNode(node);
-    expect(fragment.getDebugName()).toBe('UnknownFile');
+    expect(fragment.getDebugName()).toBe('RelayQueryFragment');
     expect(fragment.getType()).toBe('StreetAddress');
     expect(fragment.getFragmentID()).toBe(generateRQLFieldAlias(
       '_RelayQueryFragment' + getWeakIdForObject(node) + '.$RelayTestUtils.{}'
@@ -168,7 +168,7 @@ describe('RelayQueryFragment', () => {
     var children = fragment.getChildren();
     expect(children.length).toBe(2);
     expect(children[0].getSchemaName()).toBe('country');
-    expect(children[1].getDebugName()).toBe('UnknownFile');
+    expect(children[1].getDebugName()).toBe('RelayQueryFragment');
   });
 
   it('returns same object when cloning with same children', () => {

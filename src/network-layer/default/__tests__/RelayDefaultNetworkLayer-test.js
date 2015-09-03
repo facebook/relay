@@ -272,8 +272,8 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(rejectCallback).toBeCalled();
       var error = rejectCallback.mock.calls[0][0];
       expect(error.message).toEqual([
-        'Server request for query `UnknownFile` failed for the following ' +
-          'reasons:',
+        'Server request for query `RelayDefaultNetworkLayer` failed for the ' +
+          'following reasons:',
         '',
         '1. Something went wrong.',
         '   ' + requestA.getQueryString().substr(0, 60),
@@ -300,7 +300,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(resolveBCallback).toBeCalled();
       expect(rejectACallback).toBeCalled();
       expect(rejectACallback.mock.calls[0][0].message).toEqual(
-        'Server response was missing for query `UnknownFile`.'
+        'Server response was missing for query `RelayDefaultNetworkLayer`.'
       );
     });
   });

@@ -4,6 +4,6 @@ examples/
 node_modules/
 lib/
 scripts/
-# for disable website but should be done as well
+# TODO: Enable ESLint for website.
 website/
 *.md

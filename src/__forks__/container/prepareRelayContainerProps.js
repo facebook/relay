@@ -7,22 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule prepareRelayContainerProps
- * @typechecks
- * @flow
  */
 
 'use strict';
 
-/**
- * @internal
- *
- * Provides an opportunity for Relay to fork how RelayContainer props are spread
- * into the inner component.
- */
-function prepareRelayContainerProps(
-  relayProps: {[propName: string]: mixed}
-): {[propName: string]: mixed} {
-  return {relay: relayProps};
-}
-
-module.exports = prepareRelayContainerProps;
+module.exports = require.requireActual('prepareRelayOSSContainerProps');

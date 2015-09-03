@@ -6,13 +6,23 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
+ * @providesModule RelayOSSContainerProxy
  * @typechecks
  * @flow
  */
 
 'use strict';
 
+import type {RelayContainer} from 'RelayTypes';
+
 /**
- * TODO: Unify the two versions of `RelayNodeInterface`.
+ * This feature is deprecated and unavailable in open source.
  */
-module.exports = require('RelayFBNodeInterface');
+var RelayOSSContainerProxy = {
+  proxyMethods(
+    RelayContainer: RelayContainer,
+    Component: ReactClass
+  ): void {}
+};
+
+module.exports = RelayOSSContainerProxy;

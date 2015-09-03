@@ -212,9 +212,19 @@ class RelayStoreData {
     {configs, isOptimisticUpdate}: UpdateOptions
   ): void {
     var changeTracker = new RelayChangeTracker();
-    var store = isOptimisticUpdate ?
-      this.getRecordStoreForOptimisticMutation(payload[CLIENT_MUTATION_ID]) :
-      this._recordStore;
+    var store;
+    if (isOptimisticUpdate) {
+      var clientMutationID = payload[CLIENT_MUTATION_ID];
+      invariant(
+        typeof clientMutationID === 'string',
+        'RelayStoreData.handleUpdatePayload(): Expected optimistic payload ' +
+        'to have a valid `%s`.',
+        CLIENT_MUTATION_ID
+      );
+      store = this.getRecordStoreForOptimisticMutation(clientMutationID);
+    } else {
+      store = this._recordStore;
+    }
     var writer = new RelayQueryWriter(
       store,
       this._queryTracker,

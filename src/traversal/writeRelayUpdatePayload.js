@@ -37,8 +37,14 @@ var invariant = require('invariant');
 var printRelayQueryCall = require('printRelayQueryCall');
 var warning = require('warning');
 
-type OperationConfig = {[key: string]: mixed};
-type Payload = {[key: string]: mixed};
+// TODO: Replace with enumeration for possible config types.
+/* OperationConfig was originally typed such that each property had the type
+ * mixed.  Mixed is safer than any, but that safety comes from Flow forcing you
+ * to inspect a mixed value at runtime before using it.  However these mixeds
+ * are ending up everywhere and are not being inspected */
+type OperationConfig = {[key: string]: $FlowFixMe};
+
+type Payload = Object;
 
 var {CLIENT_MUTATION_ID, EDGES} = RelayConnectionInterface;
 var {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
@@ -472,6 +478,7 @@ function handleRangeDelete(
   var store = writer.getRecordStore();
   var connectionName = config.pathToConnection.pop();
   var connectionParentID =
+    // $FlowFixedInNextDeploy
     getIDFromPath(store, config.pathToConnection, payload);
   // Restore pathToConnection to its original state
   config.pathToConnection.push(connectionName);
@@ -556,7 +563,7 @@ function getIDFromPath(
     if (!payload || typeof payload !== 'object') {
       return null;
     }
-    payload = (payload[step]: any); // $FlowIssue: `payload` is an object
+    payload = payload[step];
   }
   if (payload && typeof payload === 'object') {
     return payload.id;

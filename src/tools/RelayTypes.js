@@ -94,7 +94,7 @@ export type StoreReaderOptions = {
 
 // Network requests
 export type RequestOptions = {
-  data?: mixed;
+  data?: ?{[key: string]: mixed};
   errorHandler?: ?(error: XHRErrorData) => void;
   headers?: ?{[key: string]: string};
   method: string;

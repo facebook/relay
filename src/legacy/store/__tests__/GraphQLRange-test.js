@@ -1823,6 +1823,41 @@ describe('GraphQLRange', () => {
     expect(result.diffCalls.length).toBe(0);
   });
 
+  it('should retrieve optimistically appended edges when the last edge has been fetched', () => {
+    var queryCalls = [
+      {name: 'first', value: 3}
+    ];
+
+    // No next page means we have the very last edge.
+    var pageInfo = {
+      [HAS_NEXT_PAGE]: false,
+      [HAS_PREV_PAGE]: false,
+    };
+
+    range.addItems(queryCalls, first3Edges, pageInfo);
+
+    var result = range.retrieveRangeInfoForQuery(
+      [{name: 'first', value: 4}],
+      {'append': [edge4.__dataID__]}
+    );
+
+    expect(result.requestedEdgeIDs).toEqual(
+      [edge1.__dataID__, edge2.__dataID__, edge3.__dataID__, edge4.__dataID__]
+    );
+    expect(result.diffCalls.length).toBe(0);
+
+    // Should not return extra edges
+    result = range.retrieveRangeInfoForQuery(
+      [{name: 'first', value: 3}],
+      {'append': [edge4.__dataID__]}
+    );
+
+    expect(result.requestedEdgeIDs).toEqual(
+      [edge1.__dataID__, edge2.__dataID__, edge3.__dataID__]
+    );
+    expect(result.diffCalls.length).toBe(0);
+  });
+
   it('should retrieve info for last() query given optimistic data', () => {
     var queryCalls = [
       {name: 'last', value: 3}
@@ -1887,6 +1922,46 @@ describe('GraphQLRange', () => {
     expect(result.requestedEdgeIDs).toEqual(
       [edge98.__dataID__, edge99.__dataID__, edge97.__dataID__]
     );
+    expect(result.diffCalls.length).toBe(0);
+  });
+
+  it('should retrieve optimistically prepended edges when the first edge has been fetched', () => {
+    var queryCalls = [
+      {name: 'last', value: 3}
+    ];
+
+    // No previous page means we have the very first edge.
+    var pageInfo = {
+      [HAS_NEXT_PAGE]: false,
+      [HAS_PREV_PAGE]: false,
+    };
+
+    range.addItems(queryCalls, last3Edges, pageInfo);
+
+    var result = range.retrieveRangeInfoForQuery(
+      [{name: 'last', value: 4}],
+      {'prepend': [edge97.__dataID__]}
+    );
+
+    expect(result.requestedEdgeIDs).toEqual([
+      edge97.__dataID__,
+      edge98.__dataID__,
+      edge99.__dataID__,
+      edge100.__dataID__,
+    ]);
+    expect(result.diffCalls.length).toBe(0);
+
+    // Should not return extra edges
+    result = range.retrieveRangeInfoForQuery(
+      [{name: 'last', value: 3}],
+      {'prepend': [edge97.__dataID__]}
+    );
+
+    expect(result.requestedEdgeIDs).toEqual([
+      edge98.__dataID__,
+      edge99.__dataID__,
+      edge100.__dataID__,
+    ]);
     expect(result.diffCalls.length).toBe(0);
   });
 

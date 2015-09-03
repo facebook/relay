@@ -22,15 +22,13 @@ var RelayRootContainer = require('RelayRootContainer');
 var RelayRoute = require('RelayRoute');
 var RelayStore = require('RelayStore');
 var RelayTaskScheduler = require('RelayTaskScheduler');
+var RelayInternals = require('RelayInternals');
 
 var getRelayQueries = require('getRelayQueries');
 var isRelayContainer = require('isRelayContainer');
 
 if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
-  global.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = {
-    NetworkLayer: require('RelayNetworkLayer'),
-    DefaultStoreData: require('RelayStoreData').getDefaultInstance(),
-  };
+  global.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = RelayInternals;
 }
 
 /**

@@ -834,9 +834,11 @@ class GraphQLRange {
     queryCalls,
     optimisticData
   ) {
+    var appendEdgeIDs = [];
     var prependEdgeIDs = [];
     var deleteIDs = [];
     if (optimisticData) {
+      appendEdgeIDs = optimisticData[GraphQLMutatorConstants.APPEND] || [];
       prependEdgeIDs = optimisticData[GraphQLMutatorConstants.PREPEND] || [];
       deleteIDs = optimisticData[GraphQLMutatorConstants.REMOVE] || [];
     }
@@ -912,14 +914,21 @@ class GraphQLRange {
       }
     }
 
-    if (!calls.after) {
-      requestedEdgeIDs = prependEdgeIDs.concat(requestedEdgeIDs);
-    }
-
-    if (deleteIDs.length) {
-      requestedEdgeIDs = requestedEdgeIDs.filter(function(edgeID) {
-        return (deleteIDs.indexOf(edgeID) == -1);
-      });
+    if (optimisticData) {
+      if (prependEdgeIDs.length && !calls.after) {
+        requestedEdgeIDs = prependEdgeIDs.concat(requestedEdgeIDs);
+      }
+      if (appendEdgeIDs.length && !pageInfo[HAS_NEXT_PAGE]) {
+        requestedEdgeIDs = requestedEdgeIDs.concat(appendEdgeIDs);
+      }
+      if (deleteIDs.length) {
+        requestedEdgeIDs = requestedEdgeIDs.filter(function(edgeID) {
+          return (deleteIDs.indexOf(edgeID) == -1);
+        });
+      }
+      if (requestedEdgeIDs.length > calls.first) {
+        requestedEdgeIDs = requestedEdgeIDs.slice(0, calls.first);
+      }
     }
 
     return {
@@ -939,9 +948,11 @@ class GraphQLRange {
     optimisticData
   ) {
     var appendEdgeIDs = [];
+    var prependEdgeIDs = [];
     var deleteIDs = [];
     if (optimisticData) {
       appendEdgeIDs = optimisticData[GraphQLMutatorConstants.APPEND] || [];
+      prependEdgeIDs = optimisticData[GraphQLMutatorConstants.PREPEND] || [];
       deleteIDs = optimisticData[GraphQLMutatorConstants.REMOVE] || [];
     }
     var calls = callsArrayToObject(queryCalls);
@@ -1015,14 +1026,22 @@ class GraphQLRange {
       }
     }
 
-    if (!calls.before) {
-      requestedEdgeIDs = requestedEdgeIDs.concat(appendEdgeIDs);
-    }
-
-    if (deleteIDs.length) {
-      requestedEdgeIDs = requestedEdgeIDs.filter(function(edgeID) {
-        return (deleteIDs.indexOf(edgeID) == -1);
-      });
+    if (optimisticData) {
+      if (appendEdgeIDs.length && !calls.before) {
+        requestedEdgeIDs = requestedEdgeIDs.concat(appendEdgeIDs);
+      }
+      if (prependEdgeIDs.length && !pageInfo[HAS_PREV_PAGE]) {
+        requestedEdgeIDs = prependEdgeIDs.concat(requestedEdgeIDs);
+      }
+      if (deleteIDs.length) {
+        requestedEdgeIDs = requestedEdgeIDs.filter(function(edgeID) {
+          return (deleteIDs.indexOf(edgeID) == -1);
+        });
+      }
+      if (requestedEdgeIDs.length > calls.last) {
+        var length = requestedEdgeIDs.length;
+        requestedEdgeIDs = requestedEdgeIDs.slice(length - calls.last, length);
+      }
     }
 
     return {

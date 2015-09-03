@@ -66,8 +66,11 @@ class GraphQLFragmentPointer {
     }
     invariant(
       typeof rootCallArgs === 'string' || rootCallArgs == null,
-      'GraphQLFragmentPointer: Expected the root field argument to be a ' +
-      'string, got `%s`.',
+      'GraphQLFragmentPointer: Value for the argument to `%s` on query `%s` ' +
+      'should be a string, but it was set to `%s`. Check that the value is a ' +
+      'string.',
+      rootCallName,
+      query.getName(),
       rootCallArgs
     );
     var dataIDOrIDs = store.getRootCallID(rootCallName, rootCallArgs);

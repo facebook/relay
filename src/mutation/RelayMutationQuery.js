@@ -296,7 +296,12 @@ var RelayMutationQuery = {
       mutation,
       tracker,
     }: {
-      configs: Array<{[key: string]: mixed}>;
+      /* Previously each element of configs had the type mixed, which meant
+       * that they couldn't be used in configs.forEach without being
+       * inspected at runtime. I think this is probably a good use case for
+       * disjoin unions (flowtype.org/blog/2015/07/03/Disjoint-Unions.html)
+       */
+      configs: Array<{[key: string]: $FlowFixMe}>;
       fatQuery: RelayQuery.Fragment;
       mutationName: string;
       mutation: GraphQL.Mutation;

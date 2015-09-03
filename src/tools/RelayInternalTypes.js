@@ -19,7 +19,7 @@
  * These are types shared across multiple files within Relay internals.
  */
 
-import type GraphQLMutatorConstants from 'GraphQLMutatorConstants';
+import typeof GraphQLMutatorConstants from 'GraphQLMutatorConstants';
 import type RelayQuery from 'RelayQuery';
 
 export type Call = {
@@ -47,5 +47,5 @@ export type UpdateOptions = {
 };
 
 export type RangeBehaviors = {
-  [key: string]: $Enum<typeof GraphQLMutatorConstants.RANGE_OPERATIONS>;
+  [key: string]: $Enum<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 };

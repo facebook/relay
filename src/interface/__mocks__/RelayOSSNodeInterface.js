@@ -10,10 +10,6 @@
  * @flow
  */
 
-/**
- * TODO: Unify the two versions of `RelayNodeInterface`.
- */
-
 'use strict';
 
 import type {DataID} from 'RelayInternalTypes';
@@ -34,7 +30,7 @@ type PayloadResult = {
  *
  * Defines logic relevant to the informal "Node" GraphQL interface.
  */
-var RelayFBNodeInterface = {
+var RelayOSSNodeInterface = {
   ID: 'id',
   NODE: 'node',
   NODE_TYPE: 'Node',
@@ -42,8 +38,8 @@ var RelayFBNodeInterface = {
 
   isNodeRootCall(rootCallName: string): boolean {
     return (
-      rootCallName === RelayFBNodeInterface.NODE ||
-      rootCallName === RelayFBNodeInterface.NODES
+      rootCallName === RelayOSSNodeInterface.NODE ||
+      rootCallName === RelayOSSNodeInterface.NODES
     );
   },
 
@@ -60,9 +56,9 @@ var RelayFBNodeInterface = {
         var result = payload[dataID];
         if (typeof result === 'object' && result !== null) {
           invariant(
-            result[RelayFBNodeInterface.ID] === dataID,
-            'RelayFBNodeInterface.getResultsFromPayload(): Expected each ' +
-            'batch response for query `%s()` to have an `id`.',
+            result[RelayOSSNodeInterface.ID] === dataID,
+            'RelayOSSNodeInterface.getResultsFromPayload(): Expected each batch ' +
+            'response for query `%s()` to have an `id`.',
             query.getName()
           );
           results.push({dataID, result});
@@ -79,7 +75,7 @@ var RelayFBNodeInterface = {
 
         if (dataID == null) {
           var payloadID = typeof result === 'object' && result ?
-            result[RelayFBNodeInterface.ID] :
+            result[RelayOSSNodeInterface.ID] :
             null;
           if (payloadID != null) {
             // any root call where the response has an `id` field:
@@ -134,4 +130,4 @@ function getPayloadKey(
   return payloadKey;
 }
 
-module.exports = RelayFBNodeInterface;
+module.exports = RelayOSSNodeInterface;

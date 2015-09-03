@@ -246,7 +246,7 @@ Implement this required method to design a ‘fat query’ – one that represen
 class BuySongMutation extends Relay.Mutation {
   getFatQuery() {
     return Relay.QL`
-      fragment on Collection {
+      fragment on BuySongPayload {
         songs {
           count,
           edges,
@@ -418,7 +418,7 @@ class FileUploader extends React.Component {
 getOptimisticConfigs(): Array<{[key: string]: mixed}>
 ```
 
-Implement this method in cases where the mutator configuration needed to handle the optimistic response need be different than the one that handles the server response.
+Implement this method in cases where the mutator configuration needed to handle the optimistic response needs to be different than the one that handles the server response.
 
 See also: [Relay.Mutation::getConfigs()](#getconfigs-abstract-method)
 

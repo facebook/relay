@@ -19,9 +19,9 @@ var Relay = require('Relay');
 var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQuery = require('RelayQuery');
 var generateRQLFieldAlias = require('generateRQLFieldAlias');
-var printRelayQuery = require('printRelayQuery');
+var printRelayOSSQuery = require('printRelayOSSQuery');
 
-describe('printRelayQuery', () => {
+describe('printRelayOSSQuery', () => {
   var {getNode} = RelayTestUtils;
 
   function trimQuery(str) {
@@ -44,9 +44,9 @@ describe('printRelayQuery', () => {
           }
         }
       `);
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqual(trimQuery(`
-        query UnknownFile {
+        query PrintRelayQuery {
           me {
             firstName,
             lastName,
@@ -65,9 +65,9 @@ describe('printRelayQuery', () => {
           }
         }
       `);
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqual(trimQuery(`
-        query UnknownFile {
+        query PrintRelayQuery {
           node(id:"123") {
             name,
             id
@@ -86,7 +86,7 @@ describe('printRelayQuery', () => {
           },
         }
       `);
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqual(trimQuery(`
         query FooQuery {
           node(id:123) {
@@ -107,9 +107,9 @@ describe('printRelayQuery', () => {
           }
         }
       `);
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqual(trimQuery(`
-        query UnknownFile {
+        query PrintRelayQuery {
           usernames(names:["a","b","c"]) {
             firstName,
             lastName,
@@ -129,7 +129,7 @@ describe('printRelayQuery', () => {
           }
         }
       `);
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqual(trimQuery(`
         query FooQuery {
           nodes(ids:[123,456]) {
@@ -152,7 +152,7 @@ describe('printRelayQuery', () => {
       `, {
         env: enumValue
       });
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqual(trimQuery(`
         query FooQuery($environment_0:Environment) {
           settings(environment:$environment_0) {
@@ -177,9 +177,9 @@ describe('printRelayQuery', () => {
         q: objectValue,
       });
 
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqual(trimQuery(`
-        query UnknownFile($query_0:CheckinSearchInput) {
+        query PrintRelayQuery($query_0:CheckinSearchInput) {
           checkinSearchQuery(query:$query_0) {
             query
           }
@@ -205,8 +205,8 @@ describe('printRelayQuery', () => {
         },
         'RefQueryName'
       );
-      expect(() => printRelayQuery(query)).toFailInvariant(
-        'printRelayQuery(): Deferred queries are not supported.'
+      expect(() => printRelayOSSQuery(query)).toFailInvariant(
+        'printRelayOSSQuery(): Deferred queries are not supported.'
       );
     });
 
@@ -223,9 +223,9 @@ describe('printRelayQuery', () => {
         }
       `);
       var fragmentID = getNode(fragment).getFragmentID();
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayOSSQuery(query);
       expect(trimQuery(text)).toEqual(trimQuery(`
-        query UnknownFile {
+        query PrintRelayQuery {
           node(id:"123") {
             id,
             ...${fragmentID},
@@ -250,9 +250,9 @@ describe('printRelayQuery', () => {
           },
         }
       `);
-      var {text, variables} = printRelayQuery(fragment);
+      var {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqual(trimQuery(`
-        fragment UnknownFile on Viewer {
+        fragment PrintRelayQuery on Viewer {
           actor {
             id
           }
@@ -271,9 +271,9 @@ describe('printRelayQuery', () => {
         }
       `);
       var fragmentID = getNode(nestedFragment).getFragmentID();
-      var {text, variables} = printRelayQuery(fragment);
+      var {text, variables} = printRelayOSSQuery(fragment);
       expect(trimQuery(text)).toEqual(trimQuery(`
-        fragment UnknownFile on Node {
+        fragment PrintRelayQuery on Node {
           id,
           ...${fragmentID},
           ...${fragmentID}
@@ -301,9 +301,9 @@ describe('printRelayQuery', () => {
           }
         }
       `, {first: 10});
-      var {text, variables} = printRelayQuery(fragment);
+      var {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqual(trimQuery(`
-        fragment UnknownFile on Viewer {
+        fragment PrintRelayQuery on Viewer {
           ${alias}:newsFeed(first:10) {
             edges {
               node {
@@ -330,9 +330,9 @@ describe('printRelayQuery', () => {
           }
         }
       `);
-      var {text, variables} = printRelayQuery(fragment);
+      var {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqual(trimQuery(`
-        fragment UnknownFile on Actor {
+        fragment PrintRelayQuery on Actor {
           ${alias}:profilePicture(size:["32","64"]) {
             uri
           },
@@ -355,9 +355,9 @@ describe('printRelayQuery', () => {
           }
         }
       `, variables);
-      var {text, variables} = printRelayQuery(fragment);
+      var {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqual(trimQuery(`
-        fragment UnknownFile on Actor {
+        fragment PrintRelayQuery on Actor {
           ${alias}:profilePicture(size:[32,64]) {
             uri
           },
@@ -388,9 +388,9 @@ describe('printRelayQuery', () => {
         isViewerFriend: false,
       });
       var alias = fragment.getChildren()[0].getSerializationKey();
-      var {text, variables} = printRelayQuery(fragment);
+      var {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqual(trimQuery(`
-        fragment UnknownFile on Actor {
+        fragment PrintRelayQuery on Actor {
           ${alias}:friends(first:10,orderby:["name"],isViewerFriend:false) {
             edges {
               node {
@@ -427,9 +427,9 @@ describe('printRelayQuery', () => {
       });
       var fragmentID = getNode(fragment, {env: enumValue}).getFragmentID();
       var alias = generateRQLFieldAlias('notifications.environment(WEB)');
-      var {text, variables} = printRelayQuery(query);
+      var {text, variables} = printRelayOSSQuery(query);
       expect(trimQuery(text)).toEqual(trimQuery(`
-        query UnknownFile($environment_0:Environment) {
+        query PrintRelayQuery($environment_0:Environment) {
           defaultSettings {
             ...${fragmentID}
           }
@@ -456,9 +456,9 @@ describe('printRelayQuery', () => {
         }
       `);
       var fragmentID = getNode(nestedFragment).getFragmentID();
-      var {text, variables} = printRelayQuery(fragment);
+      var {text, variables} = printRelayOSSQuery(fragment);
       expect(trimQuery(text)).toEqual(trimQuery(`
-        fragment UnknownFile on Viewer {
+        fragment PrintRelayQuery on Viewer {
           actor {
             id,
             ...${fragmentID},
@@ -490,9 +490,9 @@ describe('printRelayQuery', () => {
       {input: ''}
     );
 
-    var {text, variables} = printRelayQuery(mutation);
+    var {text, variables} = printRelayOSSQuery(mutation);
     expect(text).toEqual(trimQuery(`
-      mutation UnknownFile($input:FeedbackLikeInput) {
+      mutation PrintRelayQuery($input:FeedbackLikeInput) {
         feedbackLike(input:$input) {
           clientMutationId,
           feedback {

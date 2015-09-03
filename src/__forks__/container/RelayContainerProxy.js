@@ -7,22 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule RelayContainerProxy
- * @typechecks
- * @flow
  */
 
 'use strict';
 
-import type {RelayContainer} from 'RelayTypes';
-
-/**
- * This feature is deprecated and unavailable in open source.
- */
-var RelayContainerProxy = {
-  proxyMethods(
-    RelayContainer: RelayContainer,
-    Component: ReactClass
-  ): void {}
-};
-
-module.exports = RelayContainerProxy;
+module.exports = require.requireActual('RelayOSSContainerProxy');

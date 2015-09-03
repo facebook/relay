@@ -117,10 +117,10 @@ describe('RelayQueryFragment', () => {
       }
     `;
     var fragment = getNode(node);
-    expect(fragment.getDebugName()).toBe('UnknownFile');
+    expect(fragment.getDebugName()).toBe('RelayQueryFragment');
     expect(fragment.getType()).toBe('StreetAddress');
     expect(fragment.getFragmentID()).toBe(generateRQLFieldAlias(
-      getWeakIdForObject(node) + '.$RelayTestUtils.{}'
+      '_RelayQueryFragment' + getWeakIdForObject(node) + '.$RelayTestUtils.{}'
     ));
   });
 
@@ -129,17 +129,17 @@ describe('RelayQueryFragment', () => {
     var route = RelayMetaRoute.get('Foo');
     var variables = {};
     var fragment = RelayQuery.Node.create(node, route, variables);
-    var fragmentID = generateRQLFieldAlias('0.Foo.{}');
+    var fragmentID = generateRQLFieldAlias('_RelayQueryFragment0.Foo.{}');
     expect(fragment.getFragmentID()).toBe(fragmentID);
 
     route = RelayMetaRoute.get('Bar');
     fragment = RelayQuery.Node.create(node, route, variables);
-    fragmentID = generateRQLFieldAlias('0.Bar.{}');
+    fragmentID = generateRQLFieldAlias('_RelayQueryFragment0.Bar.{}');
     expect(fragment.getFragmentID()).toBe(fragmentID);
 
     variables = {foo: 'bar'};
     fragment = RelayQuery.Node.create(node, route, variables);
-    fragmentID = generateRQLFieldAlias('0.Bar.{foo:"bar"}');
+    fragmentID = generateRQLFieldAlias('_RelayQueryFragment0.Bar.{foo:"bar"}');
     expect(fragment.getFragmentID()).toBe(fragmentID);
   });
 
@@ -149,7 +149,7 @@ describe('RelayQueryFragment', () => {
     var variables = {};
     var fragment1 = RelayQuery.Node.create(node, route, variables);
     var fragment2 = RelayQuery.Node.create(node, route, variables);
-    var fragmentID = generateRQLFieldAlias('0.Foo.{}');
+    var fragmentID = generateRQLFieldAlias('_RelayQueryFragment0.Foo.{}');
 
     expect(fragment1).not.toBe(fragment2);
     expect(fragment1.getFragmentID()).toBe(fragmentID);
@@ -168,7 +168,7 @@ describe('RelayQueryFragment', () => {
     var children = fragment.getChildren();
     expect(children.length).toBe(2);
     expect(children[0].getSchemaName()).toBe('country');
-    expect(children[1].getDebugName()).toBe('UnknownFile');
+    expect(children[1].getDebugName()).toBe('RelayQueryFragment');
   });
 
   it('returns same object when cloning with same children', () => {

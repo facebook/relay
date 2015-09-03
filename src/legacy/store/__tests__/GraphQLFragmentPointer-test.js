@@ -70,8 +70,8 @@ describe('GraphQLFragmentPointer', () => {
         GraphQLFragmentPointer.createForRoot(recordStore, root);
       }).toFailInvariant(
         'Queries supplied at the root should contain exactly one fragment ' +
-        '(e.g. `${Component.getFragment(\'...\')}`). Query `UnknownFile` ' +
-        'contains more than one fragment.'
+        '(e.g. `${Component.getFragment(\'...\')}`). Query ' +
+        '`GraphQLFragmentPointer` contains more than one fragment.'
       );
     });
 
@@ -82,8 +82,9 @@ describe('GraphQLFragmentPointer', () => {
         GraphQLFragmentPointer.createForRoot(recordStore, root);
       }).toFailInvariant(
         'Queries supplied at the root should contain exactly one fragment ' +
-        'and no fields. Query `UnknownFile` contains a field, `name`. If ' +
-        'you need to fetch fields, declare them in a Relay container.',
+        'and no fields. Query `GraphQLFragmentPointer` contains a field, ' +
+        '`name`. If you need to fetch fields, declare them in a Relay ' +
+        'container.',
       );
     });
 

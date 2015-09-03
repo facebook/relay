@@ -142,6 +142,6 @@ describe('RelayQueryVisitor', () => {
     var transform = new NoTraversal();
     var fields = [];
     transform.visit(query, fields);
-    expect(fields).toEqual(['UnknownFile']);
+    expect(fields).toEqual(['RelayQueryVisitor']);
   });
 });

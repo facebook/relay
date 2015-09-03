@@ -21,7 +21,7 @@ The core team will be monitoring for pull requests. When we get one, we'll run s
 *Before* submitting a pull request, please make sure the following is done…
 
 1. Fork the repo and create your branch from `master`.
-2. If you've added code that should be tested, add tests!
+2. If you've added code that should be tested, add tests.
 3. If you've changed APIs, update the documentation.
 4. Ensure the test suite passes (`npm test`).
 5. Ensure there are no Flow errors (`flow relay/src`).
@@ -57,11 +57,11 @@ We will eventually have a linter that will catch most styling issues that may ex
 
 ### Code Conventions
 
-* 2 spaces for indentation (no tabs)
-* 80 character line length strong preferred.
-* Prefer `'` over `"`
+* 2 spaces for indentation (no tabs).
+* 80 character line length strongly preferred.
+* Prefer `'` over `"`.
 * ES2015 syntax when possible.
-* `'use strict';`
+* `'use strict';`.
 * Use [Flow types](http://flowtype.org/).
 * Use semicolons;
 * Trailing commas,

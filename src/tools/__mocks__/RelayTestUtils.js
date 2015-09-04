@@ -453,6 +453,11 @@ var RelayTestUtils = {
     }
   },
 
+  unmockRelayForFB() {
+    RelayTestUtils.unmockRelay();
+    global.__RELAYFB__ = true;
+  },
+
   unmockRelay() {
     jest
       // Utilities

@@ -46,10 +46,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
     route: RelayMetaRoute
   ) => Variables;
 
-  /* Originally each property in props had the type mixed, but that means
-   * whenever someone did this.props.foo it had type mixed and they would need
-   * to inspect it at runtime. This should probably be a better type. */
-  props: {[key: $Enum<Tp>]: $FlowFixMe};
+  props: Tp;
   _didShowFakeDataWarning: boolean;
 
   constructor(props: Tp) {

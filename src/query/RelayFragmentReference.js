@@ -111,21 +111,6 @@ class RelayFragmentReference {
     this._isTypeConditional = false;
     this._variableMapping = variableMapping;
     this._prepareVariables = prepareVariables;
-
-    // Help find `getFragment` calls with undefined variable values.
-    // For example, `${Child.getFragment('foo', {variable: undefined})}`.
-    if (__DEV__) {
-      if (variableMapping) {
-        forEachObject(variableMapping, (variableValue, variableName) => {
-          if (variableValue === undefined) {
-            console.error(
-              'RelayFragmentReference: Variable `%s` cannot be undefined.',
-              variableName
-            );
-          }
-        });
-      }
-    }
   }
 
   /**

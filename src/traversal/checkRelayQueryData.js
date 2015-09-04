@@ -18,7 +18,7 @@ import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 var RelayQueryVisitor = require('RelayQueryVisitor');
-var RelayRecordStatus = require('RelayRecordStatus');
+var RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
@@ -106,11 +106,11 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     state: CheckerState
   ): ?RelayQuery.Node {
     var dataID = state.dataID;
-    var recordStatus = dataID && this._store.getRecordStatus(dataID);
-    if (recordStatus === RelayRecordStatus.UNKNOWN) {
+    var recordStatus = dataID && this._store.getRecordState(dataID);
+    if (recordStatus === RelayRecordState.UNKNOWN) {
       state.result = false;
       return;
-    } else if (recordStatus === RelayRecordStatus.NONEXISTENT) {
+    } else if (recordStatus === RelayRecordState.NONEXISTENT) {
       return;
     }
     var rangeInfo = state.rangeInfo;

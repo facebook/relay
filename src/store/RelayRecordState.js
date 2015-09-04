@@ -6,16 +6,16 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayRecordStatus
+ * @providesModule RelayRecordState
  * @flow
  * @typechecks
  */
 
 'use strict';
 
-export type RecordStatus = $Enum<typeof RelayRecordStatus>;
+export type RecordState = $Enum<typeof RelayRecordState>;
 
-var RelayRecordStatus = {
+var RelayRecordState = {
   /**
    * Record exists (either fetched from the server or produced by a local,
    * optimistic update).
@@ -29,10 +29,10 @@ var RelayRecordStatus = {
   NONEXISTENT: 'NONEXISTENT',
 
   /**
-   * Record status is unknown because it has not yet been fetched from the
+   * Record State is unknown because it has not yet been fetched from the
    * server.
    */
   UNKNOWN: 'UNKNOWN',
 };
 
-module.exports = RelayRecordStatus;
+module.exports = RelayRecordState;

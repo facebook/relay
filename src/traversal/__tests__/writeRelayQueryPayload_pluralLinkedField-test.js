@@ -116,7 +116,7 @@ describe('writeRelayQueryPayload()', () => {
       var phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
       expect(phoneIDs).toEqual(['client:1']);
       var phoneID = phoneIDs[0];
-      expect(store.getRecordStatus(phoneID)).toBe('EXISTENT');
+      expect(store.getRecordState(phoneID)).toBe('EXISTENT');
       expect(store.getField(phoneID, 'id')).toBe(undefined);
       expect(store.getField(phoneID, 'isVerified')).toBe(true);
       var phoneNumberID = store.getLinkedRecordID(phoneID, 'phoneNumber');
@@ -193,7 +193,7 @@ describe('writeRelayQueryPayload()', () => {
       var phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
       expect(phoneIDs).toEqual(['client:1']);
       var phoneID = phoneIDs[0];
-      expect(store.getRecordStatus(phoneID)).toBe('EXISTENT');
+      expect(store.getRecordState(phoneID)).toBe('EXISTENT');
       expect(store.getField(phoneID, 'id')).toBe(undefined);
       expect(store.getField(phoneID, 'isVerified')).toBe(true);
       var phoneNumberID = store.getLinkedRecordID(phoneID, 'phoneNumber');
@@ -260,7 +260,7 @@ describe('writeRelayQueryPayload()', () => {
       var phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
       expect(phoneIDs).toEqual(['client:1']);
       var phoneID = phoneIDs[0];
-      expect(store.getRecordStatus(phoneID)).toBe('EXISTENT');
+      expect(store.getRecordState(phoneID)).toBe('EXISTENT');
       expect(store.getField(phoneID, 'id')).toBe(undefined);
       expect(store.getField(phoneID, 'isVerified')).toBe(true);
       var phoneNumberID = store.getLinkedRecordID(phoneID, 'phoneNumber');

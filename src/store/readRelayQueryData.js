@@ -21,7 +21,7 @@ import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 var RelayQueryVisitor = require('RelayQueryVisitor');
-var RelayRecordStatus = require('RelayRecordStatus');
+var RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 import type {
@@ -101,10 +101,10 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       dataIDs: ({}: $FlowIssue),
     };
     var rangeData = GraphQLStoreRangeUtils.parseRangeClientID(dataID);
-    var status = this._recordStore.getRecordStatus(
+    var status = this._recordStore.getRecordState(
       rangeData ? rangeData.dataID : dataID
     );
-    if (status === RelayRecordStatus.EXISTENT) {
+    if (status === RelayRecordState.EXISTENT) {
       var state = {
         componentDataID: null,
         data: undefined,
@@ -115,7 +115,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       };
       this.visit(queryNode, state);
       result.data = state.data;
-    } else if (status === RelayRecordStatus.NONEXISTENT) {
+    } else if (status === RelayRecordState.NONEXISTENT) {
       result.data = null;
     }
     return result;
@@ -329,8 +329,8 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       seenDataIDs: state.seenDataIDs,
       storeDataID: dataID,
     };
-    var status = this._recordStore.getRecordStatus(dataID);
-    if (status === RelayRecordStatus.EXISTENT) {
+    var status = this._recordStore.getRecordState(dataID);
+    if (status === RelayRecordState.EXISTENT) {
       // Make sure we return at least the __dataID__.
       getDataObject(nextState);
     }

@@ -28,7 +28,7 @@ var RelayQuery = require('RelayQuery');
 var RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryWriter from 'RelayQueryWriter';
 var RelayProfiler = require('RelayProfiler');
-var RelayRecordStatus = require('RelayRecordStatus');
+var RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 
 var generateClientEdgeID = require('generateClientEdgeID');
@@ -143,8 +143,8 @@ function deleteRecord(
 ): void {
   var store = writer.getRecordStore();
   // skip if already deleted
-  var status = store.getRecordStatus(recordID);
-  if (status === RelayRecordStatus.NONEXISTENT) {
+  var status = store.getRecordState(recordID);
+  if (status === RelayRecordState.NONEXISTENT) {
     return;
   }
 

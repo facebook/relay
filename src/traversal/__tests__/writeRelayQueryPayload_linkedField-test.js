@@ -60,7 +60,7 @@ describe('writeRelayQueryPayload()', () => {
         },
         updated: {},
       });
-      expect(store.getRecordStatus(VIEWER_ID)).toBe('EXISTENT');
+      expect(store.getRecordState(VIEWER_ID)).toBe('EXISTENT');
       expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(null);
     });
 
@@ -99,7 +99,7 @@ describe('writeRelayQueryPayload()', () => {
           'client:viewer': true,
         },
       });
-      expect(store.getRecordStatus(VIEWER_ID)).toBe('EXISTENT');
+      expect(store.getRecordState(VIEWER_ID)).toBe('EXISTENT');
       expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(null);
     });
 
@@ -121,7 +121,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       writePayload(store, query, payload);
-      expect(store.getRecordStatus(VIEWER_ID)).toBe('EXISTENT');
+      expect(store.getRecordState(VIEWER_ID)).toBe('EXISTENT');
       expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(undefined);
     });
 
@@ -154,9 +154,9 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       writePayload(store, query, payload);
-      expect(store.getRecordStatus(VIEWER_ID)).toBe('EXISTENT');
+      expect(store.getRecordState(VIEWER_ID)).toBe('EXISTENT');
       expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe('123');
-      expect(store.getRecordStatus('123')).toBe('EXISTENT');
+      expect(store.getRecordState('123')).toBe('EXISTENT');
       expect(store.getField('123', 'id')).toBe('123');
     });
 
@@ -189,7 +189,7 @@ describe('writeRelayQueryPayload()', () => {
         updated: {},
       });
       expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(actorID);
-      expect(store.getRecordStatus(actorID)).toBe('EXISTENT');
+      expect(store.getRecordState(actorID)).toBe('EXISTENT');
     });
 
     it('updates the parent if the id changes', () => {
@@ -233,8 +233,8 @@ describe('writeRelayQueryPayload()', () => {
         },
       });
       expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(nextActorID);
-      expect(store.getRecordStatus(nextActorID)).toBe('EXISTENT');
-      expect(store.getRecordStatus(actorID)).toBe('EXISTENT'); // unlinked only
+      expect(store.getRecordState(nextActorID)).toBe('EXISTENT');
+      expect(store.getRecordState(actorID)).toBe('EXISTENT'); // unlinked only
     });
 
     it('are created with a generated id if none is present', () => {
@@ -268,7 +268,7 @@ describe('writeRelayQueryPayload()', () => {
         updated: {},
       });
       expect(store.getLinkedRecordID('123', 'address')).toBe(addressID);
-      expect(store.getRecordStatus(addressID)).toBe('EXISTENT');
+      expect(store.getRecordState(addressID)).toBe('EXISTENT');
       expect(store.getField(addressID, 'city')).toBe('San Francisco');
     });
 

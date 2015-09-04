@@ -80,7 +80,7 @@ describe('writePayload()', () => {
 
       // viewer has a client id and must be refetched by the original root call
       var path = new RelayQueryPath(query);
-      expect(store.getRecordStatus('client:viewer')).toBe('EXISTENT');
+      expect(store.getRecordState('client:viewer')).toBe('EXISTENT');
       expect(store.getPathToRecord('client:viewer')).toMatchPath(path);
 
       // actor is refetchable by ID
@@ -110,7 +110,7 @@ describe('writePayload()', () => {
         updated: {}
       });
 
-      expect(store.getRecordStatus('123')).toBe('EXISTENT');
+      expect(store.getRecordState('123')).toBe('EXISTENT');
       expect(store.getPathToRecord('123')).toBe(undefined);
     });
 

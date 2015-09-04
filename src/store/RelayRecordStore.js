@@ -27,7 +27,7 @@ import type {
 } from 'RelayInternalTypes';
 var RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
-import type {RecordStatus} from 'RelayRecordStatus';
+import type {RecordState} from 'RelayRecordState';
 
 var forEachObject = require('forEachObject');
 var invariant = require('invariant');
@@ -216,7 +216,7 @@ class RelayRecordStore {
   /**
    * Returns the status of the record stored at `dataID`.
    */
-  getRecordStatus(dataID: DataID): RecordStatus {
+  getRecordState(dataID: DataID): RecordState {
     var record = this._getRecord(dataID);
     if (record === null) {
       return 'NONEXISTENT';

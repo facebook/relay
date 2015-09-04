@@ -57,7 +57,7 @@ describe('writeRelayQueryPayload()', () => {
         },
         updated: {},
       });
-      expect(store.getRecordStatus('123')).toBe('EXISTENT');
+      expect(store.getRecordState('123')).toBe('EXISTENT');
       expect(store.getField('123', 'id')).toBe('123');
       expect(store.getRootCallID('me', null)).toBe('123');
     });
@@ -89,7 +89,7 @@ describe('writeRelayQueryPayload()', () => {
         },
         updated: {},
       });
-      expect(store.getRecordStatus('client:viewer')).toBe('EXISTENT');
+      expect(store.getRecordState('client:viewer')).toBe('EXISTENT');
       expect(store.getLinkedRecordID('client:viewer', 'actor')).toBe('123');
       expect(store.getRootCallID('viewer', null)).toBe('client:viewer');
     });
@@ -116,7 +116,7 @@ describe('writeRelayQueryPayload()', () => {
         },
         updated: {},
       });
-      expect(store.getRecordStatus('1055790163')).toBe('EXISTENT');
+      expect(store.getRecordState('1055790163')).toBe('EXISTENT');
       expect(store.getField('1055790163', 'id')).toBe('1055790163');
       expect(store.getRootCallID('username', 'yuzhi')).toBe('1055790163');
     });
@@ -147,7 +147,7 @@ describe('writeRelayQueryPayload()', () => {
         },
         updated: {},
       });
-      expect(store.getRecordStatus('client:1')).toBe('EXISTENT');
+      expect(store.getRecordState('client:1')).toBe('EXISTENT');
       expect(store.getField('client:1', 'name')).toBe('Yuzhi Zheng');
       expect(store.getRootCallID('username', 'yuzhi')).toBe('client:1');
     });
@@ -174,7 +174,7 @@ describe('writeRelayQueryPayload()', () => {
         },
         updated: {},
       });
-      expect(store.getRecordStatus('123')).toBe('EXISTENT');
+      expect(store.getRecordState('123')).toBe('EXISTENT');
       expect(store.getField('123', 'id')).toBe('123');
     });
 
@@ -217,7 +217,7 @@ describe('writeRelayQueryPayload()', () => {
         created: {},
         updated: {},
       });
-      expect(store.getRecordStatus('123')).toBe('NONEXISTENT');
+      expect(store.getRecordState('123')).toBe('NONEXISTENT');
     });
 
     it('is deleted when a response returns null', () => {
@@ -245,7 +245,7 @@ describe('writeRelayQueryPayload()', () => {
           '123': true,
         },
       });
-      expect(store.getRecordStatus('123')).toBe('NONEXISTENT');
+      expect(store.getRecordState('123')).toBe('NONEXISTENT');
     });
 
     it('requires an unambiguous response', () => {
@@ -300,9 +300,9 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       writePayload(store, query, payload);
-      expect(store.getRecordStatus('123')).toBe('EXISTENT');
+      expect(store.getRecordState('123')).toBe('EXISTENT');
       expect(store.getField('123', 'name')).toBe('Yuzhi');
-      expect(store.getRecordStatus('456')).toBe('EXISTENT');
+      expect(store.getRecordState('456')).toBe('EXISTENT');
       expect(store.getField('456', 'name')).toBe('Jing');
     });
 
@@ -325,7 +325,7 @@ describe('writeRelayQueryPayload()', () => {
         'RelayQueryWriter: Unexpectedly encountered `undefined` in payload. ' +
         'Cannot set root record `123` to undefined.'
       );
-      expect(store.getRecordStatus('123')).toBe('UNKNOWN');
+      expect(store.getRecordState('123')).toBe('UNKNOWN');
     });
 
     it('is not deleted when the response is undefined', () => {
@@ -354,7 +354,7 @@ describe('writeRelayQueryPayload()', () => {
         'RelayQueryWriter: Unexpectedly encountered `undefined` in payload. ' +
         'Cannot set root record `123` to undefined.'
       );
-      expect(store.getRecordStatus('123')).toBe('EXISTENT');
+      expect(store.getRecordState('123')).toBe('EXISTENT');
     });
 
     it('is created when a new record returns a value', () => {
@@ -379,7 +379,7 @@ describe('writeRelayQueryPayload()', () => {
         },
         updated: {},
       });
-      expect(store.getRecordStatus('123')).toBe('EXISTENT');
+      expect(store.getRecordState('123')).toBe('EXISTENT');
     });
 
     it('is not updated if the record exists and has no changes', () => {
@@ -407,7 +407,7 @@ describe('writeRelayQueryPayload()', () => {
         created: {},
         updated: {},
       });
-      expect(store.getRecordStatus('123')).toBe('EXISTENT');
+      expect(store.getRecordState('123')).toBe('EXISTENT');
     });
 
     it('is updated if the record has changes', () => {
@@ -440,7 +440,7 @@ describe('writeRelayQueryPayload()', () => {
           '123': true,
         },
       });
-      expect(store.getRecordStatus('123')).toBe('EXISTENT');
+      expect(store.getRecordState('123')).toBe('EXISTENT');
       expect(store.getField('123', 'name')).toBe('Joseph');
     });
 
@@ -470,7 +470,7 @@ describe('writeRelayQueryPayload()', () => {
         created: {},
         updated: {},
       });
-      expect(store.getRecordStatus('123')).toBe('EXISTENT');
+      expect(store.getRecordState('123')).toBe('EXISTENT');
       expect(store.getField('123', 'name')).toBe(undefined);
     });
   });

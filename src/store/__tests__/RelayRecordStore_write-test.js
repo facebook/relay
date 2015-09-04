@@ -76,10 +76,10 @@ describe('RelayRecordStore', () => {
       };
       var store = new RelayRecordStore({records}, null, null, cache);
       store.deleteRecord('1');
-      expect(store.getRecordStatus('1')).toBe('NONEXISTENT');
+      expect(store.getRecordState('1')).toBe('NONEXISTENT');
       expect(cache.cacheNode).toBeCalledWith('1', null);
       store.deleteRecord('2');
-      expect(store.getRecordStatus('2')).toBe('NONEXISTENT');
+      expect(store.getRecordState('2')).toBe('NONEXISTENT');
       expect(cache.cacheNode).toBeCalledWith('2', null);
     });
 
@@ -100,12 +100,12 @@ describe('RelayRecordStore', () => {
       );
 
       queuedStore.deleteRecord('a');
-      expect(recordStore.getRecordStatus('a')).toBe('EXISTENT');
-      expect(queuedStore.getRecordStatus('a')).toBe('NONEXISTENT');
+      expect(recordStore.getRecordState('a')).toBe('EXISTENT');
+      expect(queuedStore.getRecordState('a')).toBe('NONEXISTENT');
 
       recordStore.deleteRecord('b');
-      expect(recordStore.getRecordStatus('b')).toBe('NONEXISTENT');
-      expect(queuedStore.getRecordStatus('b')).toBe('NONEXISTENT');
+      expect(recordStore.getRecordState('b')).toBe('NONEXISTENT');
+      expect(queuedStore.getRecordState('b')).toBe('NONEXISTENT');
     });
   });
 
@@ -115,7 +115,7 @@ describe('RelayRecordStore', () => {
       var records = {};
       var store = new RelayRecordStore({records}, null, null, cache);
       store.putRecord('1');
-      expect(store.getRecordStatus('1')).toBe('EXISTENT');
+      expect(store.getRecordState('1')).toBe('EXISTENT');
       expect(cache.cacheField).toBeCalledWith('1', '__dataID__', '1');
     });
 
@@ -133,12 +133,12 @@ describe('RelayRecordStore', () => {
       );
 
       recordStore.putRecord('a');
-      expect(recordStore.getRecordStatus('a')).toBe('EXISTENT');
-      expect(queuedStore.getRecordStatus('a')).toBe('EXISTENT');
+      expect(recordStore.getRecordState('a')).toBe('EXISTENT');
+      expect(queuedStore.getRecordState('a')).toBe('EXISTENT');
 
       queuedStore.putRecord('b');
-      expect(recordStore.getRecordStatus('b')).toBe('UNKNOWN');
-      expect(queuedStore.getRecordStatus('b')).toBe('EXISTENT');
+      expect(recordStore.getRecordState('b')).toBe('UNKNOWN');
+      expect(queuedStore.getRecordState('b')).toBe('EXISTENT');
     });
   });
 
@@ -467,7 +467,7 @@ describe('RelayRecordStore', () => {
       store.putRecord('1');
       store.putRange('1', []);
       store.deleteRecord('1');
-      expect(store.getRecordStatus('1')).toBe('NONEXISTENT');
+      expect(store.getRecordState('1')).toBe('NONEXISTENT');
       expect(store.getRangeForceIndex('1')).toBe(-1);
     });
 

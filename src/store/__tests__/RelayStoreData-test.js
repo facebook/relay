@@ -67,7 +67,7 @@ describe('RelayStoreData', () => {
 
       // results are written to `records`
       var recordStore = storeData.getRecordStore();
-      expect(recordStore.getRecordStatus('123')).toBe('EXISTENT');
+      expect(recordStore.getRecordState('123')).toBe('EXISTENT');
       expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
       var commentsID =
         recordStore.getLinkedRecordID('123', 'topLevelComments');
@@ -115,7 +115,7 @@ describe('RelayStoreData', () => {
 
       // results are written to `records`
       var recordStore = storeData.getRecordStore();
-      expect(recordStore.getRecordStatus('123')).toBe('EXISTENT');
+      expect(recordStore.getRecordState('123')).toBe('EXISTENT');
       expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
       var commentsID =
         recordStore.getLinkedRecordID('123', 'topLevelComments');
@@ -162,7 +162,7 @@ describe('RelayStoreData', () => {
 
       // results are written to `queuedRecords`
       var queuedStore = storeData.getQueuedStore();
-      expect(queuedStore.getRecordStatus('123')).toBe('EXISTENT');
+      expect(queuedStore.getRecordState('123')).toBe('EXISTENT');
       expect(queuedStore.getField('123', 'doesViewerLike')).toBe(false);
       var commentsID =
         queuedStore.getLinkedRecordID('123', 'topLevelComments');

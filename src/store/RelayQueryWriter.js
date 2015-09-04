@@ -19,7 +19,7 @@ var RelayConnectionInterface = require('RelayConnectionInterface');
 import type RelayQueryPath from 'RelayQueryPath';
 import type RelayQueryTracker from 'RelayQueryTracker';
 var RelayQueryVisitor = require('RelayQueryVisitor');
-var RelayRecordStatus = require('RelayRecordStatus');
+var RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 
 var generateClientEdgeID = require('generateClientEdgeID');
@@ -144,8 +144,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     recordID: DataID,
     path: RelayQueryPath
   ): void {
-    var recordStatus = this._store.getRecordStatus(recordID);
-    if (recordStatus !== RelayRecordStatus.EXISTENT) {
+    var recordStatus = this._store.getRecordState(recordID);
+    if (recordStatus !== RelayRecordState.EXISTENT) {
       this._store.putRecord(recordID, path);
       this.recordCreate(recordID);
     }
@@ -159,7 +159,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     state: WriterState
   ): ?RelayQuery.Node {
     var {path, recordID, responseData} = state;
-    var recordStatus = this._store.getRecordStatus(recordID);
+    var recordStatus = this._store.getRecordState(recordID);
 
     // GraphQL should never return undefined for a field
     if (responseData == null) {
@@ -170,12 +170,12 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         recordID
       );
       this._store.deleteRecord(recordID);
-      if (recordStatus === RelayRecordStatus.EXISTENT) {
+      if (recordStatus === RelayRecordState.EXISTENT) {
         this.recordUpdate(recordID);
       }
       return;
     }
-    if (recordStatus !== RelayRecordStatus.EXISTENT) {
+    if (recordStatus !== RelayRecordState.EXISTENT) {
       this._store.putRecord(recordID, path);
       this.recordCreate(recordID);
     }
@@ -194,7 +194,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       responseData,
     } = state;
     invariant(
-      this._store.getRecordStatus(recordID) === RelayRecordStatus.EXISTENT,
+      this._store.getRecordState(recordID) === RelayRecordState.EXISTENT,
       'RelayQueryWriter: Cannot update a non-existent record, `%s`.',
       recordID
     );
@@ -277,7 +277,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     if (!connectionID) {
       connectionID = generateClientID();
     }
-    var connectionRecordStatus = this._store.getRecordStatus(connectionID);
+    var connectionRecordState = this._store.getRecordState(connectionID);
     var hasEdges = !!(
       field.getFieldByStorageKey(EDGES) ||
       (
@@ -293,7 +293,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this._store.putRecord(connectionID, path);
     this._store.putLinkedRecordID(recordID, storageKey, connectionID);
     // record the create/update only if something changed
-    if (connectionRecordStatus !== RelayRecordStatus.EXISTENT) {
+    if (connectionRecordState !== RelayRecordState.EXISTENT) {
       this.recordUpdate(recordID);
       this.recordCreate(connectionID);
     }

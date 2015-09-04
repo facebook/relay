@@ -34,17 +34,17 @@ describe('RelayRecordStore', () => {
     jest.addMatchers(RelayTestUtils.matchers);
   });
 
-  describe('getRecordStatus()', () => {
+  describe('getRecordState()', () => {
     it('returns "UNKNOWN" if an ID is unfetched', () => {
       var records = {};
       var store = new RelayRecordStore({records});
-      expect(store.getRecordStatus('4')).toBe('UNKNOWN');
+      expect(store.getRecordState('4')).toBe('UNKNOWN');
     });
 
     it('returns "NONEXISTENT" if an ID is deleted', () => {
       var records = {'4': null};
       var store = new RelayRecordStore({records});
-      expect(store.getRecordStatus('4')).toBe('NONEXISTENT');
+      expect(store.getRecordState('4')).toBe('NONEXISTENT');
     });
 
     it('returns "EXISTENT" if the record exists', () => {
@@ -55,7 +55,7 @@ describe('RelayRecordStore', () => {
         },
       };
       var store = new RelayRecordStore({records});
-      expect(store.getRecordStatus('4')).toBe('EXISTENT');
+      expect(store.getRecordState('4')).toBe('EXISTENT');
     });
 
     it('prefers queued records over non-existent records', () => {
@@ -67,7 +67,7 @@ describe('RelayRecordStore', () => {
         records: {},
         queuedRecords: {'4': queuedRecord},
       });
-      expect(store.getRecordStatus('4')).toBe('EXISTENT');
+      expect(store.getRecordState('4')).toBe('EXISTENT');
     });
 
     it('prefers queued records over deleted records', () => {
@@ -79,7 +79,7 @@ describe('RelayRecordStore', () => {
         records: {'4': null},
         queuedRecords: {'4': queuedRecord},
       });
-      expect(store.getRecordStatus('4')).toBe('EXISTENT');
+      expect(store.getRecordState('4')).toBe('EXISTENT');
     });
 
     it('prefers queued records when they are deleted', () => {
@@ -91,7 +91,7 @@ describe('RelayRecordStore', () => {
         records: {'4': record},
         queuedRecords: {'4': null},
       });
-      expect(store.getRecordStatus('4')).toBe('NONEXISTENT');
+      expect(store.getRecordState('4')).toBe('NONEXISTENT');
     });
 
     it('prefers queued records over cached records', () => {
@@ -104,7 +104,7 @@ describe('RelayRecordStore', () => {
         records: {},
         cachedRecords: {'4': null},
       });
-      expect(store.getRecordStatus('4')).toBe('EXISTENT');
+      expect(store.getRecordState('4')).toBe('EXISTENT');
     });
 
     it('prefers existing records over cached records', () => {
@@ -116,7 +116,7 @@ describe('RelayRecordStore', () => {
         records: {'4': record},
         cachedRecords: {'4': null},
       });
-      expect(store.getRecordStatus('4')).toBe('EXISTENT');
+      expect(store.getRecordState('4')).toBe('EXISTENT');
     });
 
     it('falls back to cached records when necessary', () => {
@@ -128,7 +128,7 @@ describe('RelayRecordStore', () => {
         records: {},
         cachedRecords: {'4': record},
       });
-      expect(store.getRecordStatus('4')).toBe('EXISTENT');
+      expect(store.getRecordState('4')).toBe('EXISTENT');
     });
   });
 

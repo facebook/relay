@@ -106,11 +106,11 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     state: CheckerState
   ): ?RelayQuery.Node {
     var dataID = state.dataID;
-    var recordStatus = dataID && this._store.getRecordState(dataID);
-    if (recordStatus === RelayRecordState.UNKNOWN) {
+    var recordState = dataID && this._store.getRecordState(dataID);
+    if (recordState === RelayRecordState.UNKNOWN) {
       state.result = false;
       return;
-    } else if (recordStatus === RelayRecordState.NONEXISTENT) {
+    } else if (recordState === RelayRecordState.NONEXISTENT) {
       return;
     }
     var rangeInfo = state.rangeInfo;

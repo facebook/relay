@@ -144,8 +144,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     recordID: DataID,
     path: RelayQueryPath
   ): void {
-    var recordStatus = this._store.getRecordState(recordID);
-    if (recordStatus !== RelayRecordState.EXISTENT) {
+    var recordState = this._store.getRecordState(recordID);
+    if (recordState !== RelayRecordState.EXISTENT) {
       this._store.putRecord(recordID, path);
       this.recordCreate(recordID);
     }
@@ -159,7 +159,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     state: WriterState
   ): ?RelayQuery.Node {
     var {path, recordID, responseData} = state;
-    var recordStatus = this._store.getRecordState(recordID);
+    var recordState = this._store.getRecordState(recordID);
 
     // GraphQL should never return undefined for a field
     if (responseData == null) {
@@ -170,12 +170,12 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         recordID
       );
       this._store.deleteRecord(recordID);
-      if (recordStatus === RelayRecordState.EXISTENT) {
+      if (recordState === RelayRecordState.EXISTENT) {
         this.recordUpdate(recordID);
       }
       return;
     }
-    if (recordStatus !== RelayRecordState.EXISTENT) {
+    if (recordState !== RelayRecordState.EXISTENT) {
       this._store.putRecord(recordID, path);
       this.recordCreate(recordID);
     }

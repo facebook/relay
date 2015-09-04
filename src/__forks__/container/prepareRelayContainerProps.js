@@ -11,4 +11,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('prepareRelayOSSContainerProps');
+module.exports = require('prepareRelayOSSContainerProps');

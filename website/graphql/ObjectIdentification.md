@@ -67,7 +67,7 @@ introspection query, and return the provided response:
 }
 ```
 
-yields 
+yields
 
 ```json
 {
@@ -138,7 +138,7 @@ provided response.
 }
 ```
 
-yields 
+yields
 
 ```json
 {
@@ -182,7 +182,7 @@ For the purposes of this definition, object equality is defined as follows:
 the first object must be equal to the result of querying that field on the
 second object.
    - If the field returns a scalar, equality is defined as is appropriate for
-   that scalar.  
+   that scalar.
    - If the field returns an enum, equality is defined as both fields returning
    the same enum value.
    - If the field returns an object, equality is defined recursively as per the

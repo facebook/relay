@@ -9,7 +9,7 @@ var x = Relay.QL`
             name
           }
         },
-        pageInfo 
+        pageInfo
       }
     }
   }

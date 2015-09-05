@@ -48,6 +48,7 @@ class App extends React.Component {
         <div
           onClick={this._handleHidingSpotClick.bind(this, edge.node)}
           style={this._getHidingSpotStyle(edge.node)}
+          key={edge.node.id}
         />
       );
     });

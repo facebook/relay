@@ -11,4 +11,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('printRelayOSSQuery');
+module.exports = require('printRelayOSSQuery');

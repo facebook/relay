@@ -11,4 +11,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayOSSContainerProxy');
+module.exports = require('RelayOSSContainerProxy');

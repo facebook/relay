@@ -11,4 +11,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayOSSNodeInterface');
+module.exports = require('RelayOSSNodeInterface');

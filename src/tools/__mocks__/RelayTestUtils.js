@@ -455,10 +455,11 @@ var RelayTestUtils = {
 
   unmockRelayForFB() {
     RelayTestUtils.unmockRelay();
-    global.__RELAYFB__ = true;
+    global.__RELAYOSS__ = false;
   },
 
   unmockRelay() {
+    global.__RELAYOSS__ = true;
     jest
       // Utilities
       .dontMock('areEqual')

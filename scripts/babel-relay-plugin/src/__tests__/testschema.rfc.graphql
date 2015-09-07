@@ -64,7 +64,7 @@ type NewsFeedConnectionEdge {
 }
 
 type Story implements Node {
-  friends(first: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender): UserConnection
+  friends(first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender, before: String, after: String): UserConnection
   id: String
   name: String
   profilePicture(size: Int): ProfilePicture
@@ -100,7 +100,7 @@ type UserConnectionEdge {
 }
 
 interface Node {
-  friends(first: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender): UserConnection
+  friends(first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender, before: String, after: String): UserConnection
   id: String
   name: String
   profilePicture(size: Int): ProfilePicture
@@ -108,7 +108,7 @@ interface Node {
 }
 
 type User implements Node {
-  friends(first: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender): UserConnection
+  friends(first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender, before: String, after: String): UserConnection
   id: String
   name: String
   profilePicture(size: Int): ProfilePicture
@@ -129,7 +129,7 @@ type FakeEdge {
 }
 
 type FakeNode implements Node {
-  friends(first: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender): UserConnection
+  friends(first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender, before: String, after: String): UserConnection
   id: String
   name: String
   profilePicture(size: Int): ProfilePicture

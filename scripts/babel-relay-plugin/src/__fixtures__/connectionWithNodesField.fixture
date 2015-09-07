@@ -15,5 +15,5 @@ var x = Relay.QL`
 Output:
 var Relay = require('react-relay');
 var x = (function () {
-  throw new Error('Encountered a GraphQL validation error processing file `connectionWithNodesField.fixture`. Check your terminal for details.');
+  throw new Error('GraphQL validation/transform error ``Unsupported `nodes{...}` field on connection `friends`. Use `edges{node{...}}` instead.`` in file `connectionWithNodesField.fixture`.');
 })();

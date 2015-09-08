@@ -82,6 +82,8 @@ export default class RelayPlayground extends React.Component {
   static propTypes = {
     initialAppSource: PropTypes.string,
     initialSchemaSource: PropTypes.string,
+    onAppSourceChange: PropTypes.func,
+    onSchemaSourceChange: PropTypes.func,
   };
   state = {
     appElement: null,
@@ -216,6 +218,12 @@ export default class RelayPlayground extends React.Component {
   _updateCode = (newSource) => {
     var sourceStorageKey = `${this.state.editTarget}Source`;
     this.setState({[sourceStorageKey]: newSource});
+    if (this.state.editTarget === 'app' && this.props.onAppSourceChange) {
+      this.props.onAppSourceChange(newSource);
+    }
+    if (this.state.editTarget === 'schema' && this.props.onSchemaSourceChange) {
+      this.props.onSchemaSourceChange(newSource);
+    }
   }
   _updateEditTarget = (editTarget) => {
     this.setState({editTarget});

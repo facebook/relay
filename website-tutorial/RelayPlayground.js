@@ -36,6 +36,7 @@ const CODE_EDITOR_OPTIONS = {
 };
 const ERROR_TYPES = {
   graphql: 'GraphQL Validation',
+  query: 'Query',
   runtime: 'Runtime',
   schema: 'Schema',
   syntax: 'Syntax',
@@ -242,6 +243,10 @@ export default class RelayPlayground extends React.Component {
           graphql(Schema, graphQLQuery, null, variables).then(result => {
             if (result.errors) {
               mutationRequest.reject(new Error(result.errors));
+              this.setState({
+                error: {stack: result.errors.map(e => e.message).join('\n')},
+                errorType: ERROR_TYPES.query,
+              });
             } else {
               mutationRequest.resolve({response: result.data});
             }
@@ -253,6 +258,10 @@ export default class RelayPlayground extends React.Component {
             graphql(Schema, graphQLQuery).then(result => {
               if (result.errors) {
                 queryRequest.reject(new Error(result.errors));
+                this.setState({
+                  error: {stack: result.errors.map(e => e.message).join('\n')},
+                  errorType: ERROR_TYPES.query,
+                });
               } else {
                 queryRequest.resolve({response: result.data});
               }

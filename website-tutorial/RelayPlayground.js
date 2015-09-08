@@ -237,7 +237,15 @@ export default class RelayPlayground extends React.Component {
       this._babelRelayPlugin = getBabelRelayPlugin(result.data);
       Relay.injectNetworkLayer({
         sendMutation: (mutationRequest) => {
-          // TODO
+          var graphQLQuery = mutationRequest.getQueryString();
+          var variables = mutationRequest.getVariables();
+          graphql(Schema, graphQLQuery, null, variables).then(result => {
+            if (result.errors) {
+              mutationRequest.reject(new Error(result.errors));
+            } else {
+              mutationRequest.resolve({response: result.data});
+            }
+          });
         },
         sendQueries: (queryRequests) => {
           return Promise.all(queryRequests.map(queryRequest => {

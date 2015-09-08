@@ -10,6 +10,7 @@ var optimist = require('optimist');
 var path = require('path');
 var reactMiddleware = require('react-page-middleware');
 var serveStatic = require('serve-static');
+var spawn = require('child_process').spawn;
 
 var argv = optimist.argv;
 
@@ -21,6 +22,12 @@ if (argv.$0.indexOf('./server/generate.js') !== -1) {
   // Using a different port so that you can publish the website
   // and keeping the server up at the same time.
   port = 8079;
+} else {
+  // Build (and watch) the prototyping tools
+  spawn('npm', ['start'], {
+    cwd: path.resolve(__dirname, '../../website-prototyping-tools'),
+    stdio: 'inherit'
+  });
 }
 
 var buildOptions = {

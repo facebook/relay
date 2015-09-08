@@ -140,10 +140,11 @@ body {
 .rpResultOutput {
   bottom: 0;
   left: 0;
+  overflow: auto;
+  padding: 10px;
   position: absolute;
   right: 0;
   top: 30px;
-  padding: 10px;
 }
 .rpError {
   background-color: rgb(204, 0, 0);

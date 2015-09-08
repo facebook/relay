@@ -33,7 +33,9 @@ var queue = (function() {
   return {push: push};
 })();
 
-exec('npm run build', {cwd: path.resolve(__dirname, '../../website-tutorial')});
+exec('npm run build', {
+  cwd: path.resolve(__dirname, '../../website-prototyping-tools')
+});
 
 buildGraphQLSpec('build');
 

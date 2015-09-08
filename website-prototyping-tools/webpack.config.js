@@ -30,7 +30,7 @@ module.exports = {
     ],
   },
   output: {
-    path: path.resolve(__dirname, '../website', BUILD_DIR, 'relay/tutorial'),
+    path: path.resolve(__dirname, '../website', BUILD_DIR, 'relay/prototyping'),
     filename: '[name].js'
   },
   plugins: [

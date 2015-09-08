@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "relay-tutorial",
-  "description": "Code to support the tutorial on the Relay website",
+  "name": "relay-prototyping-tools",
+  "description": "In-browser prototyping tools for Relay applications",
   "version": "0.2.0",
   "repository": "facebook/relay",
   "license": "BSD-3-Clause",

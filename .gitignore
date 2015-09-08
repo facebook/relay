@@ -5,5 +5,5 @@ npm-debug.log
 website/build
 website/src/relay/docs
 website/src/relay/graphql
-website/src/relay/tutorial
+website/src/relay/prototyping
 .nvmrc

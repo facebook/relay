@@ -23,9 +23,9 @@ if (argv.$0.indexOf('./server/generate.js') !== -1) {
   // and keeping the server up at the same time.
   port = 8079;
 } else {
-  // Build (and watch) the tutorial support material
+  // Build (and watch) the prototyping tools
   spawn('npm', ['start'], {
-    cwd: path.resolve(__dirname, '../../website-tutorial'),
+    cwd: path.resolve(__dirname, '../../website-prototyping-tools'),
     stdio: 'inherit'
   });
 }

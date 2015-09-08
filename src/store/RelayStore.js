@@ -66,7 +66,7 @@ var queuedStore = RelayStoreData.getDefaultInstance().getQueuedStore();
  *    if (readyState.aborted) {
  *      // Request was aborted.
  *    } else if (readyState.error) {
- *      // Failure occured.
+ *      // Failure occurred.
  *    } else if (readyState.ready) {
  *      // Queries are at least partially resolvable.
  *      if (readyState.done) {

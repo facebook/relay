@@ -96,7 +96,7 @@ class RelayQueryDataObservable {
       this._watchQueryData();
     }
 
-    // An error occured earlier, we immediately inform the new subscriber
+    // An error occurred earlier, we immediately inform the new subscriber
     // and return a function that does nothing
     if (this._lastError) {
       callbacks.onError(this._lastError);
@@ -207,7 +207,7 @@ class RelayQueryDataObservable {
         this._dataID
       );
 
-      // Stop watching for data once an error occured, the store is in an
+      // Stop watching for data once an error occurred, the store is in an
       // invalid state and it is not guaranteed it will ever recover
       this._unregisterChangeListener();
       // Decrease count for all dataIDs observed by this observable

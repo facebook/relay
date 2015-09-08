@@ -238,7 +238,7 @@ describe('observeRelayQueryData', () => {
       b: {__dataID__: 'b', id: 2},
     };
 
-    var error = new Error('An error occured');
+    var error = new Error('An error occurred');
     var observer = observeAllData(records, query, ['a', 'b']);
     observer.subscribe(mockCallsbacks);
     expect(mockCallsbacks.onError).not.toBeCalled();

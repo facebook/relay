@@ -273,13 +273,14 @@ var RelayMutationQuery = {
       })),
     ];
     // TODO: Can this method ever return null? Task #7705258.
-    return nullthrows(flattenRelayQuery(RelayQuery.Node.buildMutation(
+    return nullthrows(RelayQuery.Node.buildMutation(
       'OptimisticQuery',
       fatQuery.getType(),
       mutation.calls[0].name,
       null,
-      children
-    )));
+      children,
+      mutation.metadata
+    ));
   },
 
   /**
@@ -365,15 +366,24 @@ var RelayMutationQuery = {
       }
     });
 
+    // create a dummy field to re-fragment the input `fields`
+    var fragmentedFields = children.length ?
+      refragmentRelayQuery(RelayQuery.Node.buildField(
+        'build_mutation_field',
+        null,
+        children
+      )) :
+      null;
+
     // TODO: Can this method ever return null? Task #7705258.
-    return nullthrows(flattenRelayQuery(RelayQuery.Node.buildMutation(
+    return nullthrows(RelayQuery.Node.buildMutation(
       mutationName,
       fatQuery.getType(),
       mutation.calls[0].name,
       null,
-      children,
+      fragmentedFields ? fragmentedFields.getChildren() : null,
       mutation.metadata
-    )));
+    ));
   }
 };
 
@@ -394,19 +404,10 @@ function buildMutationFragment(
   fatQuery: RelayQuery.Fragment,
   fields: Array<RelayQuery.Node>
 ): ?RelayQuery.Fragment {
-  // create a dummy field to re-fragment the input `fields`
-  var fragmentedFields = fields.length ?
-    refragmentRelayQuery(RelayQuery.Node.buildField(
-      'build_mutation_fragment',
-      null,
-      fields
-    )) :
-    null;
-
   var fragment = RelayQuery.Node.buildFragment(
     'MutationQuery',
     fatQuery.getType(),
-    fragmentedFields ? fragmentedFields.getChildren() : null
+    fields
   );
   if (fragment) {
     invariant(
@@ -437,11 +438,16 @@ function buildEdgeField(
     );
   }
   fields.push(...edgeFields);
-  return RelayQuery.Node.buildField(
+  var edgeField = flattenRelayQuery(RelayQuery.Node.buildField(
     edgeName,
     null,
     fields
+  ));
+  invariant(
+    edgeField instanceof RelayQuery.Field,
+    'RelayMutationQuery: Expected a field.'
   );
+  return edgeField;
 }
 
 function getRangeBehaviorKey(connectionField: RelayQuery.Field): string {

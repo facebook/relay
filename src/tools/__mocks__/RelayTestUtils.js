@@ -382,9 +382,9 @@ var RelayTestUtils = {
       if (!actualQuery.equals(expectedQuery)) {
         this.message = () => [
           'Expected:',
-          '  ' + printRelayQuery(actualQuery),
+          '  ' + printRelayQuery(actualQuery).text,
           '\ntoMatchPath:',
-          '  ' + printRelayQuery(expectedQuery),
+          '  ' + printRelayQuery(expectedQuery).text,
         ].filter(token => token).join('\n');
 
         return false;
@@ -554,10 +554,10 @@ function printQueryComparison(actual, expected, message) {
 
   return [
     'Expected:',
-    '  ' + printRelayQuery(actual),
+    '  ' + printRelayQuery(actual).text,
     formatRefParam(actual),
     message + ':',
-    '  ' + printRelayQuery(expected),
+    '  ' + printRelayQuery(expected).text,
     formatRefParam(expected),
   ].filter(line => !!line).join('\n');
 }

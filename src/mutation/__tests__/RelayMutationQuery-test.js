@@ -23,7 +23,6 @@ var RelayMutationQuery = require('RelayMutationQuery');
 var RelayMutationType = require('RelayMutationType');
 var RelayQueryTracker = require('RelayQueryTracker');
 var filterRelayQuery = require('filterRelayQuery');
-var flattenRelayQuery = require('flattenRelayQuery');
 var fromGraphQL = require('fromGraphQL');
 var intersectRelayQuery = require('intersectRelayQuery');
 var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
@@ -101,8 +100,8 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      expect(flattenRelayQuery(node))
-        .toEqualQueryNode(flattenRelayQuery(expected));
+      expect(node)
+        .toEqualQueryNode(expected);
       expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([
         ['123']
       ]);
@@ -138,8 +137,8 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      expect(flattenRelayQuery(node))
-        .toEqualQueryNode(flattenRelayQuery(expected));
+      expect(node)
+        .toEqualQueryNode(expected);
       expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([
         ['123']
       ]);
@@ -181,20 +180,27 @@ describe('RelayMutationQuery', () => {
         }
       });
       var node = intersectRelayQuery.mock.calls[0][0];
-      var expected = getNodeWithoutSource(Relay.QL`
+      var expected = RelayTestUtils.getVerbatimNode(Relay.QL`
         fragment on Story {
-          actors {
-            name
+          ... on Story {
+            id,
+            message {
+              text
+            },
           },
-          message {
-            text
-          },
-          seenState
+          ... on Story {
+            id,
+            actors {
+              id,
+              name
+            },
+            seenState
+          }
         }
       `);
       // Clone because the root node will differ, but that's okay.
-      expect(flattenRelayQuery(expected.clone(node.getChildren())))
-        .toEqualQueryNode(flattenRelayQuery(expected));
+      expect(expected.clone(node.getChildren()))
+        .toEqualQueryNode(expected);
       expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([
         ['123'],
         ['456']
@@ -261,8 +267,8 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      expect(flattenRelayQuery(node))
-        .toEqualQueryNode(flattenRelayQuery(expected));
+      expect(node)
+        .toEqualQueryNode(expected);
       expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([
         ['123']
       ]);
@@ -331,8 +337,8 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      expect(flattenRelayQuery(node))
-        .toEqualQueryNode(flattenRelayQuery(expected));
+      expect(node)
+        .toEqualQueryNode(expected);
       expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([
         ['123']
       ]);
@@ -389,8 +395,8 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      expect(flattenRelayQuery(node))
-        .toEqualQueryNode(flattenRelayQuery(expected));
+      expect(node)
+        .toEqualQueryNode(expected);
     });
 
     it('excludes fields from tracked edges with different filters', () => {
@@ -441,8 +447,8 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      expect(flattenRelayQuery(node))
-        .toEqualQueryNode(flattenRelayQuery(expected));
+      expect(node)
+        .toEqualQueryNode(expected);
     });
 
     it('refetches connections in the absence of a range config', () => {
@@ -483,8 +489,8 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      expect(flattenRelayQuery(node))
-        .toEqualQueryNode(flattenRelayQuery(expected));
+      expect(node)
+        .toEqualQueryNode(expected);
     });
 
     it('includes non-edge fields for connections', () => {
@@ -513,8 +519,8 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      expect(flattenRelayQuery(node))
-        .toEqualQueryNode(flattenRelayQuery(expected));
+      expect(node)
+        .toEqualQueryNode(expected);
     });
 
     it('throws for invalid parent name', () => {
@@ -589,23 +595,30 @@ describe('RelayMutationQuery', () => {
       });
 
       var variables = {input: ''};
-      var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
-        mutation {
-          feedbackLike(input:$input) {
-            clientMutationId,
-            feedback {
-              doesViewerLike,
-              id,
-              likers {
-                count,
-              },
-            },
+      var expectedMutationQuery = filterRelayQuery(
+          getNodeWithoutSource(Relay.QL`
+          mutation {
+            feedbackLike(input:$input) {
+              ${Relay.QL`
+                fragment on FeedbackLikeResponsePayload {
+                  clientMutationId,
+                  feedback {
+                    doesViewerLike,
+                    id,
+                    likers {
+                      count,
+                    },
+                  }
+                }
+              `},
+            }
           }
-        }
-      `, variables);
+        `, variables),
+        (node) => !node.isGenerated()
+      );
 
-      expect(flattenRelayQuery(query))
-        .toEqualQueryNode(flattenRelayQuery(expectedMutationQuery));
+      expect(query)
+        .toEqualQueryNode(expectedMutationQuery);
     });
   });
 
@@ -670,27 +683,31 @@ describe('RelayMutationQuery', () => {
         mutation {
           commentCreate(input:$input) {
             clientMutationId,
-            feedback {
-              id
-            },
-            feedbackCommentEdge {
-              cursor,
-              node {
-                body {
-                  text
+            ${Relay.QL`
+              fragment on CommentCreateResponsePayload {
+                feedback {
+                  id
                 },
-                id
-              },
-              source{
-                id
+                feedbackCommentEdge {
+                  cursor,
+                  node {
+                    body {
+                      text
+                    },
+                    id
+                  },
+                  source{
+                    id
+                  }
+                }
               }
-            }
+            `},
           }
         }
       `, variables);
 
-      expect(flattenRelayQuery(query))
-        .toEqualQueryNode(flattenRelayQuery(expectedMutationQuery));
+      expect(query)
+        .toEqualQueryNode(expectedMutationQuery);
     });
 
     it('creates a query for NODE_DELETE', () => {
@@ -745,15 +762,19 @@ describe('RelayMutationQuery', () => {
           commentDelete(input:$input) {
             clientMutationId,
             deletedCommentId,
-            feedback {
-              id
-            }
+            ${Relay.QL`
+              fragment on CommentDeleteResponsePayload {
+                feedback {
+                  id
+                }
+              }
+            `},
           }
         }
       `, variables);
 
-      expect(flattenRelayQuery(query))
-        .toEqualQueryNode(flattenRelayQuery(expectedMutationQuery));
+      expect(query)
+        .toEqualQueryNode(expectedMutationQuery);
     });
 
     it('creates a query for RANGE_DELETE', () => {
@@ -808,15 +829,19 @@ describe('RelayMutationQuery', () => {
           commentDelete(input:$input) {
             clientMutationId,
             deletedCommentId,
-            feedback {
-              id
-            }
+            ${Relay.QL`
+              fragment on CommentDeleteResponsePayload {
+                feedback {
+                  id
+                }
+              }
+            `},
           }
         }
       `, variables);
 
-      expect(flattenRelayQuery(query))
-        .toEqualQueryNode(flattenRelayQuery(expectedMutationQuery));
+      expect(query)
+        .toEqualQueryNode(expectedMutationQuery);
     });
 
     it('creates a query for FIELDS_CHANGE', () => {
@@ -859,16 +884,20 @@ describe('RelayMutationQuery', () => {
         mutation {
           feedbackLike(input:$input) {
             clientMutationId,
-            feedback {
-              id,
-              likers
-            }
+            ${Relay.QL`
+              fragment on FeedbackLikeResponsePayload {
+                feedback {
+                  id,
+                  likers
+                }
+              }
+            `},
           }
         }
       `, variables);
 
-      expect(flattenRelayQuery(query))
-        .toEqualQueryNode(flattenRelayQuery(expectedMutationQuery));
+      expect(query)
+        .toEqualQueryNode(expectedMutationQuery);
     });
 
     it('creates a query with additional required fragments', () => {
@@ -941,28 +970,38 @@ describe('RelayMutationQuery', () => {
         mutation {
           commentCreate(input:$input) {
             clientMutationId,
-            feedback {
-              doesViewerLike,
-              id
-            },
-            feedbackCommentEdge {
-              cursor,
-              node {
-                body {
-                  text
+            ${Relay.QL`
+              fragment on CommentCreateResponsePayload {
+                feedback {
+                  id
                 },
-                id
-              },
-              source {
-                id
+                feedbackCommentEdge {
+                  cursor,
+                  node {
+                    body {
+                      text
+                    },
+                    id
+                  },
+                  source {
+                    id
+                  }
+                }
               }
-            }
+            `},
+            ${Relay.QL`
+              fragment on CommentCreateResponsePayload {
+                feedback {
+                  doesViewerLike,
+                },
+              }
+            `},
           }
         }
       `, variables);
 
-      expect(flattenRelayQuery(query))
-        .toEqualQueryNode(flattenRelayQuery(expectedMutationQuery));
+      expect(query)
+        .toEqualQueryNode(expectedMutationQuery);
     });
 
     it('creates a query for RANGE_ADD and FIELDS_CHANGE', () => {
@@ -1037,43 +1076,55 @@ describe('RelayMutationQuery', () => {
         mutation {
           commentCreate(input:$input) {
             clientMutationId,
-            feedback {
-              comments(first:"10") {
-                edges {
+            ${Relay.QL`
+              fragment on CommentCreateResponsePayload {
+                feedback {
+                  id,
+                  likers,
+                },
+                feedbackCommentEdge {
                   cursor,
                   node {
                     body {
                       text
                     },
                     id
+                  },
+                  source {
+                    id
                   }
-                },
-                pageInfo {
-                  hasNextPage,
-                  hasPreviousPage
                 }
-              },
-              id,
-              likers
-            },
-            feedbackCommentEdge {
-              cursor,
-              node {
-                body {
-                  text
-                },
-                id
-              },
-              source {
-                id
               }
-            }
+            `},
+            ${Relay.QL`
+              fragment on CommentCreateResponsePayload {
+                feedback {
+                  comments(first:"10") {
+                    edges {
+                      cursor,
+                      node {
+                        body {
+                          text
+                        },
+                        id
+                      }
+                    },
+                    pageInfo {
+                      hasNextPage,
+                      hasPreviousPage
+                    }
+                  },
+                  id,
+                  likers,
+                }
+              }
+            `},
           }
         }
       `, variables);
 
-      expect(flattenRelayQuery(query))
-        .toEqualQueryNode(flattenRelayQuery(expectedMutationQuery));
+      expect(query)
+        .toEqualQueryNode(expectedMutationQuery);
     });
   });
 });

@@ -242,7 +242,6 @@ export default class RelayPlayground extends React.Component {
         sendQueries: (queryRequests) => {
           return Promise.all(queryRequests.map(queryRequest => {
             var graphQLQuery = queryRequest.getQueryString();
-            console.log(graphQLQuery);
             graphql(Schema, graphQLQuery).then(result => {
               if (result.errors) {
                 queryRequest.reject(new Error(result.errors));

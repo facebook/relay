@@ -14,17 +14,21 @@ body {
 }
 .rpCodeEditor {
   bottom: 0;
-  border-right: 1px solid #eee8d5;
   left: 0;
   position: absolute;
   right: 50%;
-  right: calc(50% + 1px);
   top: 0;
 }
 .rpCodeEditorNav, .rpResultHeader {
   background-color: hsl(345, 7%, 23%);
   height: 30px;
   line-height: 30px;
+}
+.rpCodeEditorNav {
+  border-right: 1px solid hsl(345, 7%, 13%);
+}
+.rpResultHeader {
+  border-left: 1px solid hsl(345, 7%, 33%);
 }
 .rpCodeEditorNav button {
   background-color: hsl(345, 7%, 63%);
@@ -169,6 +173,7 @@ body {
   top: 52px;
 }
 .ReactCodeMirror {
+  border-right: 1px solid #eee8d5;
   border-top: 1px solid #eee8d5;
   bottom: 0;
   left: 0;

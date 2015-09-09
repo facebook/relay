@@ -6,7 +6,7 @@ import RelayPlayground from './RelayPlayground';
 
 import queryString from 'query-string';
 
-var queryParams = queryString.parse(location.search);
+var queryParams = queryString.parse(location.hash);
 
 if (
   /^https?:\/\/facebook.github.io\//.test(document.referrer) ||

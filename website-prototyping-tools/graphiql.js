@@ -16,7 +16,7 @@ if (
   var {
     query,
     schema: schemaSource,
-  } = queryString.parse(location.search);
+  } = queryString.parse(location.hash);
 }
 
 var Schema;

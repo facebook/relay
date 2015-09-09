@@ -377,7 +377,7 @@ function buildMutationFragment(
 ): GraphQL.Fragment {
   var fragment = buildRQL.Fragment(
     fragmentBuilder,
-    Object.keys(variables)
+    variables
   );
   invariant(
     fragment,

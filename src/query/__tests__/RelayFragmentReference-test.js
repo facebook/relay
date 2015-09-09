@@ -14,6 +14,8 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+jest.mock('warning');
+
 var GraphQL = require('GraphQL');
 var Relay = require('Relay');
 var RelayFragmentReference = require('RelayFragmentReference');
@@ -23,7 +25,10 @@ describe('RelayFragmentReference', () => {
   var route;
 
   beforeEach(() => {
+    jest.resetModuleRegistry();
+
     route = new RelayMetaRoute('');
+    jest.addMatchers(RelayTestUtils.matchers);
   });
 
   it('creates fragments with default variables', () => {
@@ -135,5 +140,30 @@ describe('RelayFragmentReference', () => {
     expect(reference.getFragment(variables)).toBe(node);
     expect(reference.getVariables(route, variables)).toEqual(customVariables);
     expect(prepareVariables).toBeCalledWith({size: 'default'}, route);
+  });
+
+  it('warns if a variable is undefined', () => {
+    var node = Relay.QL`fragment on Node{id}`;
+    var reference = new RelayFragmentReference(
+      () => node,
+      {},
+      {
+        dynamic: new GraphQL.CallVariable('dynamic'),
+        static: undefined,
+      }
+    );
+    var variables = {};
+    expect(reference.getFragment(variables)).toBe(node);
+    expect(reference.getVariables(route, variables)).toEqual({});
+    expect([
+      'RelayFragmentReference: Variable `%s` is undefined in fragment `%s`.',
+      'static',
+      node.name
+    ]).toBeWarnedNTimes(1);
+    expect([
+      'RelayFragmentReference: Variable `%s` is undefined in fragment `%s`.',
+      'dynamic',
+      node.name
+    ]).toBeWarnedNTimes(1);
   });
 });

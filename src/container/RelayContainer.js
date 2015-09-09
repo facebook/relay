@@ -916,7 +916,7 @@ function buildContainerFragment(
 ): GraphQL.Fragment {
   var fragment = buildRQL.Fragment(
     fragmentBuilder,
-    Object.keys(variables)
+    variables
   );
   invariant(
     fragment,
@@ -968,6 +968,8 @@ function create(
     adapter: ContainerConstructor.getFragmentNames,
   });
   ContainerConstructor.hasFragment = fragmentName => !!fragments[fragmentName];
+  ContainerConstructor.hasVariable = variableName =>
+    Object.prototype.hasOwnProperty.call(initialVariables, variableName);
 
   /**
    * Retrieves a reference to the fragment by name. An optional second argument

@@ -16,18 +16,17 @@
 var GraphQL = require('GraphQL');
 var Map = require('Map');
 var RelayQL = require('RelayQL');
-var RelayFragmentReference = require('RelayFragmentReference');
 import type {RelayConcreteNode} from 'RelayQL';
 import type {Params} from 'RelayRoute';
 import type {RelayContainer, Variables} from 'RelayTypes';
 
+var filterObject = require('filterObject');
 var invariant = require('invariant');
+var mapObject = require('mapObject');
 
 export type FragmentBuilder = (variables: Variables) => RelayConcreteNode;
 export type QueryBuilder =
-  (Component: RelayContainer, params: Params) => RelayConcreteNode;
-
-type VariableNames = Array<string>;
+  (Component?: RelayContainer, params?: Params) => RelayConcreteNode;
 
 // Cache results of executing fragment query builders.
 var fragmentCache = new Map();
@@ -65,11 +64,11 @@ function isDeprecatedCallWithArgCountGreaterThan(
 var buildRQL = {
   Fragment(
     fragmentBuilder: FragmentBuilder,
-    variableNames: VariableNames
+    values: Variables
   ): ?GraphQL.QueryFragment {
     var node = fragmentCache.get(fragmentBuilder);
     if (!node) {
-      var variables = toVariables(variableNames);
+      var variables = toVariables(values);
       if (isDeprecatedCallWithArgCountGreaterThan(fragmentBuilder, 1)) {
         // TODO: Delete legacy support, (_, query, variables) => query`...`.
         node = (fragmentBuilder: any)(undefined, RelayQL, variables);
@@ -84,8 +83,8 @@ var buildRQL = {
   Query(
     queryBuilder: QueryBuilder,
     Component: any,
-    variableNames: VariableNames,
-    fragmentReference: RelayFragmentReference
+    queryName: string,
+    values: Variables
   ): ?GraphQL.Query {
     var componentCache = queryCache.get(queryBuilder);
     var node;
@@ -96,14 +95,14 @@ var buildRQL = {
       node = componentCache.get(Component);
     }
     if (!node) {
-      var variables = toVariables(variableNames);
+      var variables = toVariables(values);
       if (isDeprecatedCallWithArgCountGreaterThan(queryBuilder, 2)) {
         // TODO: Delete legacy support, (Component, variables, rql) => rql`...`.
         node = queryBuilder(Component, variables, RelayQL);
       } else if (isDeprecatedCallWithArgCountGreaterThan(queryBuilder, 0)) {
         node = queryBuilder(Component, variables);
       } else {
-        node = queryBuilder(Component, variables);
+        node = queryBuilder();
         if (GraphQL.isQuery(node) && node.fragments.length === 0) {
           var rootCall = node.calls[0];
           if (!node.fields.every(field => field.fields.length === 0)) {
@@ -114,11 +113,14 @@ var buildRQL = {
               rootCall.name
             );
           }
+          var fragmentValues = filterObject(values, (_, name) =>
+            Component.hasVariable(name)
+          );
           node = new GraphQL.Query(
             rootCall.name,
             rootCall.value,
             node.fields,
-            [fragmentReference],
+            [Component.getFragment(queryName, fragmentValues)],
             node.metadata,
             node.name
           );
@@ -133,14 +135,10 @@ var buildRQL = {
   },
 };
 
-function toVariables(variableNames: VariableNames): {
+function toVariables(variables: Variables): {
   [key: string]: GraphQL.CallVariable;
 } {
-  var variables = {};
-  variableNames.forEach(name => {
-    variables[name] = new GraphQL.CallVariable(name);
-  });
-  return variables;
+  return mapObject(variables, (_, name) => new GraphQL.CallVariable(name));
 }
 
 module.exports = buildRQL;

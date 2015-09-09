@@ -18,8 +18,8 @@ import type RelayMetaRoute from 'RelayMetaRoute';
 import type {Variables} from 'RelayTypes';
 
 var forEachObject = require('forEachObject');
-var getWeakIdForObject = require('getWeakIdForObject');
 var invariant = require('invariant');
+var warning = require('warning');
 
 type Condition = (variables: Variables) => boolean;
 type FragmentGetter = () => GraphQL.QueryFragment;
@@ -199,7 +199,15 @@ class RelayFragmentReference {
         if (GraphQL.isCallVariable(value)) {
           value = variables[value.callVariableName];
         }
-        if (value !== undefined) {
+        if (value === undefined) {
+          warning(
+            false,
+            'RelayFragmentReference: Variable `%s` is undefined in fragment ' +
+            '`%s`.',
+            name,
+            this._getFragment().name
+          );
+        } else {
           innerVariables[name] = value;
         }
       });
@@ -211,10 +219,6 @@ class RelayFragmentReference {
     }
 
     return innerVariables;
-  }
-
-  getFragmentName(): string {
-    return getWeakIdForObject(this._getFragment());
   }
 
   isTypeConditional(): boolean {

@@ -45,7 +45,7 @@ describe('buildRQL', () => {
   });
 
   describe('Fragment()', () => {
-    it('throws if the node is not a fragment', () => {
+    it('returns undefined if the node is not a fragment', () => {
       var builder = () => Relay.QL`
         query {
           node(id:"123") {
@@ -63,7 +63,7 @@ describe('buildRQL', () => {
           ${invalid},
         }
       `;
-      expect(() => buildRQL.Fragment(builder, [])).toFailInvariant(
+      expect(() => buildRQL.Fragment(builder, {})).toFailInvariant(
         'RelayQL: Invalid fragment composition, use ' +
         '`${Child.getFragment(\'name\')}`.'
       );
@@ -78,7 +78,7 @@ describe('buildRQL', () => {
           },
         }
       `;
-      var node = buildRQL.Fragment(builder, ['sizeVariable']);
+      var node = buildRQL.Fragment(builder, {sizeVariable: null});
       expect(GraphQL.isFragment(node)).toBe(true);
 
       // Confirm that `${variables.sizeVariable}` is a variable by applying
@@ -105,20 +105,22 @@ describe('buildRQL', () => {
           },
         }
       `;
-      var node1 = buildRQL.Fragment(builder, ['sizeVariable']);
-      var node2 = buildRQL.Fragment(builder, ['sizeVariable']);
+      var node1 = buildRQL.Fragment(builder, {sizeVariable: null});
+      var node2 = buildRQL.Fragment(builder, {sizeVariable: null});
       expect(node1 === node2).toBe(true);
     });
   });
 
   describe('Query()', () => {
-    it('throws if the node is not a query', () => {
+    it('returns undefined if the node is not a query', () => {
       var builder = (Component, variables) => Relay.QL`
         fragment on Node {
           id,
         }
       `;
-      expect(buildRQL.Query(builder, MockContainer, ['id'])).toBe(undefined);
+      expect(
+        buildRQL.Query(builder, MockContainer, 'foo', {})
+      ).toBe(undefined);
     });
 
     it('creates queries with components and variables', () => {
@@ -130,7 +132,7 @@ describe('buildRQL', () => {
           }
         }
       `;
-      var node = buildRQL.Query(builder, MockContainer, ['id']);
+      var node = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
       expect(GraphQL.isQuery(node)).toBe(true);
 
       // Confirm that `${variables.id}` is a variable by applying variable
@@ -155,8 +157,8 @@ describe('buildRQL', () => {
           }
         }
       `;
-      var node1 = buildRQL.Query(builder, MockContainer, ['id']);
-      var node2 = buildRQL.Query(builder, MockContainer, ['id']);
+      var node1 = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
+      var node2 = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
       expect(node1 === node2).toBe(true);
     });
 
@@ -174,8 +176,8 @@ describe('buildRQL', () => {
           }
         }
       `;
-      var node1 = buildRQL.Query(builder, MockContainer, ['id']);
-      var node2 = buildRQL.Query(builder, MockContainer2, ['id']);
+      var node1 = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
+      var node2 = buildRQL.Query(builder, MockContainer2, 'foo', {id: null});
       expect(node1 === node2).toBe(false);
     });
 
@@ -188,8 +190,8 @@ describe('buildRQL', () => {
       var node = buildRQL.Query(
         builder,
         MockContainer,
-        ['id'],
-        MockContainer.getFragment('foo')
+        'foo',
+        {id: null},
       );
       expect(GraphQL.isQuery(node)).toBe(true);
 
@@ -220,8 +222,8 @@ describe('buildRQL', () => {
         buildRQL.Query(
           builder,
           MockContainer,
-          [],
-          MockContainer.getFragment('foo')
+          'foo',
+          {}
         );
       }).toFailInvariant(
         'Relay.QL: Expected query `viewer` to be empty. For example, use ' +

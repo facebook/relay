@@ -35,7 +35,7 @@ describe('getRelayQueries', () => {
       render() {
         return <div/>;
       }
-    }
+    };
 
     MockPageContainer = Relay.createContainer(MockPageComponent, {
       fragments: {
@@ -155,15 +155,40 @@ describe('getRelayQueries', () => {
     ]).toBeWarnedNTimes(1);
   });
 
-  it('includes route parameters when building component fragment', () => {
-    var MockRoute = makeRoute();
-    var params = {id: '123'};
-    var route = new MockRoute(params);
-    MockPageContainer.getFragment = jest.genMockFunction();
+  it('sets root fragment variables to route params', () => {
+    class MockRoute extends Relay.Route {}
+    MockRoute.routeName = 'MockRoute';
+    MockRoute.path = '/';
+    MockRoute.paramDefinitions = {};
+    MockRoute.queries = {
+      first: () => Relay.QL`
+        query {
+          viewer
+        }
+      `,
+    };
 
-    getRelayQueries(MockPageContainer, route);
+    var route = new MockRoute({
+      fragmentParam: 'foo',
+      otherParam: 'bar',
+    });
 
-    expect(MockPageContainer.getFragment.mock.calls.length).toBe(4);
-    expect(MockPageContainer.getFragment.mock.calls[0][1]).toBe(params);
+    var AnotherMockContainer = Relay.createContainer(MockPageComponent, {
+      initialVariables: {
+        fragmentParam: null,
+      },
+      fragments: {
+        first: () => Relay.QL`fragment on Node{id}`,
+      },
+    });
+
+    var queries = getRelayQueries(AnotherMockContainer, route);
+
+    expect(queries.first.getVariables()).toEqual(route.params);
+    // `otherParam` is not passed to the root fragment since the variable
+    // is not defined in the component's `initialVariables`.
+    expect(queries.first.getChildren()[0].getVariables()).toEqual({
+      fragmentParam: 'foo',
+    });
   });
 });

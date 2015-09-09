@@ -441,11 +441,14 @@ h1:hover .hash-link, h2:hover .hash-link, h3:hover .hash-link, h4:hover .hash-li
 
 #examples p {
   margin: 0 0 25px 0;
-  max-width: 600px;
 }
 
 #examples .example {
   margin-top: 60px;
+}
+
+.example iframe {
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.07);
 }
 
 #examples #todoExample {

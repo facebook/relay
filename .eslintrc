@@ -1,0 +1,18 @@
+---
+parser: babel-eslint
+
+extends:
+  - ./node_modules/fbjs-scripts/eslint/.eslintrc
+
+plugins:
+  - react
+
+globals:
+  $Enum: true
+  $FixMe: true
+  $FlowFixMe: true
+  $FlowIssue: true
+  Iterator: true
+  IteratorResult: true
+  ReactClass: true
+  ReactElement: true

@@ -25,6 +25,9 @@ var support = React.createClass({
               <strong>Relay</strong> is worked on full-time by Facebook&#39;s product infrastructure engineering teams. They&#39;re often around and available for questions.
             </p>
 
+            <H2>Stack Overflow</H2>
+            <p>Many members of the community use Stack Overflow to ask questions. Read through the <a href="https://stackoverflow.com/questions/tagged/reactjs?sort=active" rel="nofollow">existing questions</a> tagged with <strong>#relayjs</strong> or <a href="https://stackoverflow.com/questions/ask?tags=relayjs" rel="nofollow">ask your own</a>!</p>
+
             <H2>Slack</H2>
             <p>Many developers and users idle on Slack in <strong><a href="https://reactiflux.slack.com/messages/relay/">#relay on Reactiflux</a></strong>. <a href="http://www.reactiflux.com/">Get your invite here!</a></p>
 

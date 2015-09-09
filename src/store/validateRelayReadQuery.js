@@ -111,7 +111,7 @@ if (__DEV__) {
         node: RelayQuery.Fragment,
         aliasMap: AliasMap
       ): ?RelayQuery.Node {
-        if (this._traverseFragmentReferences || !node.isReferenceFragment()) {
+        if (this._traverseFragmentReferences || !node.isContainerFragment()) {
           this.traverse(node, aliasMap);
         }
       }

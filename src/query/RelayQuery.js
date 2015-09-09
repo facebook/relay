@@ -39,7 +39,7 @@ type BatchCall = {
 type ConcreteQueryObject = any;
 type FragmentMetadata = {
   isDeferred: boolean;
-  isReferenceFragment: boolean;
+  isContainerFragment: boolean;
   isTypeConditional: boolean;
 };
 type FragmentNames = {[key: string]: string};
@@ -60,7 +60,7 @@ var _nextQueryID = 0;
 
 var DEFAULT_FRAGMENT_METADATA = {
   isDeferred: false,
-  isReferenceFragment: false,
+  isContainerFragment: false,
   isTypeConditional: false,
 };
 
@@ -169,7 +169,7 @@ class RelayQueryNode {
       {},
       {
         isDeferred: !!(metadata && metadata.isDeferred),
-        isReferenceFragment: !!(metadata && metadata.isReferenceFragment),
+        isContainerFragment: !!(metadata && metadata.isContainerFragment),
         isTypeConditional: !!(metadata && metadata.isTypeConditional),
       }
     );
@@ -764,8 +764,8 @@ class RelayQueryFragment extends RelayQueryNode {
     );
   }
 
-  isReferenceFragment(): boolean {
-    return this.__metadata__.isReferenceFragment;
+  isContainerFragment(): boolean {
+    return this.__metadata__.isContainerFragment;
   }
 
   isTypeConditional(): boolean {
@@ -1080,7 +1080,7 @@ function createNode(
         fragmentVariables,
         {
           isDeferred: concreteNode.isDeferred(),
-          isReferenceFragment: true,
+          isContainerFragment: concreteNode.isContainerFragment(),
           isTypeConditional: concreteNode.isTypeConditional(),
         }
       );

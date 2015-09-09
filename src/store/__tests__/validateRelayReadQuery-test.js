@@ -308,7 +308,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error for a non-local fragment which would collide', () => {
-    var fragment = new RelayFragmentReference(
+    var fragment = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on User {profilePicture(size:"100"){height}}`,
       {}
     );

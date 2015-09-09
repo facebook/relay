@@ -167,7 +167,7 @@ describe('RelayQuerySerializer', () => {
         }],
         metadata: {
           isDeferred: false,
-          isReferenceFragment: false,
+          isContainerFragment: false,
         },
       });
       expect(fromJSON(toJSON(fragment)).equals(fragment)).toBe(true);
@@ -175,7 +175,7 @@ describe('RelayQuerySerializer', () => {
 
     it('serializes deferred fragment references', () => {
       var node = Relay.QL`fragment on Node { id }`;
-      var reference = new RelayFragmentReference(
+      var reference = RelayFragmentReference.createForContainer(
         () => node,
         {}
       );
@@ -194,14 +194,14 @@ describe('RelayQuerySerializer', () => {
         }],
         metadata: {
           isDeferred: true,
-          isReferenceFragment: true,
+          isContainerFragment: true,
         },
       });
 
       var deserialized = fromJSON(toJSON(fragment));
       expect(deserialized.equals(fragment)).toBe(true);
       expect(deserialized.isDeferred()).toBe(true);
-      expect(deserialized.isReferenceFragment()).toBe(true);
+      expect(deserialized.isContainerFragment()).toBe(true);
     });
   });
 

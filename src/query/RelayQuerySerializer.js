@@ -175,7 +175,7 @@ var RelayQuerySerializer = {
         metadata: {
           ...node.__concreteNode__.__metadata__,
           isDeferred: node.isDeferred(),
-          isReferenceFragment: node.isReferenceFragment(),
+          isContainerFragment: node.isContainerFragment(),
         },
       };
     } else if (node instanceof RelayQuery.Root) {

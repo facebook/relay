@@ -998,7 +998,7 @@ function create(
       fragmentName,
       fragmentName
     );
-    return new RelayFragmentReference(
+    return RelayFragmentReference.createForContainer(
       () => buildContainerFragment(
         containerName,
         fragmentName,

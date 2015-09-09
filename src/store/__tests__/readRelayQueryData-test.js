@@ -232,7 +232,7 @@ describe('readRelayQueryData', () => {
         firstName: 'Greg',
       },
     };
-    var fragmentReference = new RelayFragmentReference(
+    var fragmentReference = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on Viewer{actor{firstName}}`,
       {}
     );
@@ -241,6 +241,34 @@ describe('readRelayQueryData', () => {
     var pointer = data[getNode(fragmentReference).getConcreteFragmentID()];
     expect(pointer instanceof GraphQLFragmentPointer).toBe(true);
     expect(data.__dataID__).toBe('client:viewer');
+  });
+
+  it('reads data for non-container fragment references', () => {
+    var records = {
+      'client:viewer': {
+        __dataID__: 'client:viewer',
+        actor: {
+          __dataID__: '660361306',
+        },
+      },
+      660361306: {
+        __dataID__: '660361306',
+        firstName: 'Greg',
+      },
+    };
+    var fragmentReference = new RelayFragmentReference(
+      () => Relay.QL`fragment on Viewer{actor{firstName}}`,
+      {}
+    );
+    var query = getNode(Relay.QL`query{viewer{${fragmentReference}}}`);
+    var data = getData({records}, query, 'client:viewer');
+    expect(data).toEqual({
+      __dataID__: 'client:viewer',
+      actor: {
+        __dataID__: '660361306',
+        firstName: 'Greg',
+      },
+    });
   });
 
   it('merges data from multiple fragments that reference the same node', () => {
@@ -499,7 +527,7 @@ describe('readRelayQueryData', () => {
       'Fields `edges` and `pageInfo` cannot be fetched without a ' +
       '`first`, `last` or `find` argument.';
 
-    var fragmentReference = new RelayFragmentReference(
+    var fragmentReference = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on LikersOfContentConnection{edges{node{name}}}`,
       {}
     );
@@ -602,7 +630,7 @@ describe('readRelayQueryData', () => {
         __range__: new GraphQLRange(),
       },
     };
-    var fragmentReference = new RelayFragmentReference(
+    var fragmentReference = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on PageInfo{hasNextPage}`,
       {}
     );
@@ -674,7 +702,7 @@ describe('readRelayQueryData', () => {
         cursor: 'cursor',
       }
     };
-    var fragmentReference = new RelayFragmentReference(
+    var fragmentReference = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on CommentsConnection{edges{node{id}}}`,
       {}
     );
@@ -762,7 +790,7 @@ describe('readRelayQueryData', () => {
         name: '123'
       }
     };
-    var fragmentReference = new RelayFragmentReference(
+    var fragmentReference = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on Screenname {service, name}`,
       {}
     );
@@ -1018,7 +1046,7 @@ describe('readRelayQueryData', () => {
   });
 
   it('parses range client IDs', () => {
-    var fragmentReference = new RelayFragmentReference(
+    var fragmentReference = RelayFragmentReference.createForContainer(
       () => Relay.QL`
         fragment on FriendsConnection {
           edges {
@@ -1213,7 +1241,7 @@ describe('readRelayQueryData', () => {
 
     // If we did traverse, this fragment reference would lead us to create an
     // object with a __dataID__ instead of the desired `undefined`.
-    var fragmentReference = new RelayFragmentReference(
+    var fragmentReference = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on User{name}`,
       {}
     );
@@ -1227,7 +1255,7 @@ describe('readRelayQueryData', () => {
 
     // If we did traverse, this fragment reference would lead us to create an
     // object with a __dataID__ instead of the desired `null`.
-    var fragmentReference = new RelayFragmentReference(
+    var fragmentReference = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on User{name}`,
       {}
     );

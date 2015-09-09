@@ -341,7 +341,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
       RelayDeprecated.getMutationInitialVariables(this) || {};
     var prepareVariables = this.prepareVariables;
 
-    return new RelayFragmentReference(
+    return RelayFragmentReference.createForContainer(
       () => buildMutationFragment(
         this.name,
         fragmentName,

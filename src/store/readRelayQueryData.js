@@ -158,7 +158,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
   }
 
   visitFragment(node: RelayQuery.Fragment, state: State): ?RelayQuery.Node {
-    if (node.isReferenceFragment() && !this._traverseFragmentReferences) {
+    if (node.isContainerFragment() && !this._traverseFragmentReferences) {
       var dataID = getComponentDataID(state);
       var fragmentPointer = new GraphQLFragmentPointer(
         node.isPlural() ? [dataID] : dataID,
@@ -282,7 +282,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     // for the normal traversal.
     var read = child => {
       if (child instanceof RelayQuery.Fragment) {
-        if (child.isReferenceFragment() && !this._traverseFragmentReferences) {
+        if (child.isContainerFragment() && !this._traverseFragmentReferences) {
           var fragmentPointer = new GraphQLFragmentPointer(
             getComponentDataID(state),
             child

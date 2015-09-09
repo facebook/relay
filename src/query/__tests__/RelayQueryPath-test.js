@@ -28,7 +28,7 @@ describe('RelayQueryPath', () => {
     children: [],
     metadata: {
       isDeferred: false,
-      isReferenceFragment: false,
+      isContainerFragment: false,
     },
   };
 

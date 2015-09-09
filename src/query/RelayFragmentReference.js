@@ -93,10 +93,27 @@ class RelayFragmentReference {
   _initialVariables: Variables;
   _fragment: ?GraphQL.QueryFragment;
   _fragmentGetter: FragmentGetter;
+  _isContainerFragment: boolean;
   _isDeferred: boolean;
   _isTypeConditional: boolean;
   _variableMapping: ?VariableMapping;
   _prepareVariables: ?PrepareVariablesCallback;
+
+  static createForContainer(
+    fragmentGetter: FragmentGetter,
+    initialVariables?: ?Variables,
+    variableMapping?: ?VariableMapping,
+    prepareVariables?: ?PrepareVariablesCallback
+  ): RelayFragmentReference {
+    var reference = new RelayFragmentReference(
+      fragmentGetter,
+      initialVariables,
+      variableMapping,
+      prepareVariables
+    );
+    reference._isContainerFragment = true;
+    return reference;
+  }
 
   constructor(
     fragmentGetter: FragmentGetter,
@@ -107,6 +124,7 @@ class RelayFragmentReference {
     this._initialVariables = initialVariables || {};
     this._fragment = undefined;
     this._fragmentGetter = fragmentGetter;
+    this._isContainerFragment = false;
     this._isDeferred = false;
     this._isTypeConditional = false;
     this._variableMapping = variableMapping;
@@ -221,12 +239,16 @@ class RelayFragmentReference {
     return innerVariables;
   }
 
-  isTypeConditional(): boolean {
-    return this._isTypeConditional;
+  isContainerFragment(): boolean {
+    return this._isContainerFragment;
   }
 
   isDeferred(): boolean {
     return this._isDeferred;
+  }
+
+  isTypeConditional(): boolean {
+    return this._isTypeConditional;
   }
 
   _addCondition(condition: Condition): void {

@@ -135,9 +135,12 @@ function getBabelRelayPlugin(
             var filename = state.opts.filename || 'UnknownFile';
             var sourceText = error.sourceText;
             var validationErrors = error.validationErrors;
+            var errorMessages;
             if (validationErrors && sourceText) {
               var sourceLines = sourceText.split('\n');
               validationErrors.forEach(function(validationError) {
+                errorMessages = errorMessages || [];
+                errorMessages.push(validationError.message);
                 console.warn(
                   '\n-- GraphQL Validation Error -- %s --\n',
                   path.basename(filename)
@@ -159,6 +162,7 @@ function getBabelRelayPlugin(
                 });
               });
             } else {
+              errorMessages = [error.message];
               console.warn(
                 '\n-- Relay Transform Error -- %s --\n',
                 path.basename(filename)
@@ -170,9 +174,11 @@ function getBabelRelayPlugin(
             }
 
             var message = (
-              'Encountered a GraphQL validation error processing file `' +
+              'GraphQL validation/transform error ``' +
+              errorMessages.join(' ') +
+              '`` in file `' +
               filename +
-              '`. Check your terminal for details.'
+              '`.'
             );
             code = (
               'function() { throw new Error(\'' +

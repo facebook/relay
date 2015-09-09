@@ -96,7 +96,7 @@ function getFragmentCode(fragment, options) {
 function printQuery(query, options) {
   var selections = getSelections(query);
   if (selections.length !== 1) {
-    throw new Error('expected only single top level query');
+    throw new Error('Expected only single top level query');
   }
 
   // Validate the name of the root call. Throws if it doesn't exist.
@@ -164,7 +164,7 @@ function printQuery(query, options) {
 function printOperation(operation, options) {
   var selections = getSelections(operation);
   if (selections.length !== 1) {
-    throw new Error('expected only single top level field on operation');
+    throw new Error('Expected only single top level field on operation');
   }
   var rootField = selections[0];
 
@@ -382,6 +382,23 @@ function printField(
 
     if (!getArgNamed(fieldDecl, 'find')) {
       metadata.nonFindable = true;
+    }
+
+    if (hasArgument(field, 'first') && hasArgument(field, 'before')) {
+      throw new Error(util.format(
+        'Connections arguments `%s(before: <cursor>, first: <count>)` are ' +
+        'not supported. Use `(first: <count>)` or ' +
+        '`(after: <cursor>, first: <count>)`. ',
+        fieldName
+      ));
+    }
+    if (hasArgument(field, 'last') && hasArgument(field, 'after')) {
+      throw new Error(util.format(
+        'Connections arguments `%s(after: <cursor>, last: <count>)` are ' +
+        'not supported. Use `(last: <count>)` or ' +
+        '`(before: <cursor>, last: <count>)`. ',
+        fieldName
+      ));
     }
 
     var hasEdgesSelection = false;
@@ -741,6 +758,15 @@ function getSelections(node) {
     return node.selectionSet.selections;
   }
   return [];
+}
+
+function hasArgument(field, argumentName) {
+  for (var ix = 0; ix < field.arguments.length; ix++) {
+    if (getName(field.arguments[ix]) === argumentName) {
+      return true;
+    }
+  }
+  return false;
 }
 
 module.exports = GraphQLPrinter;

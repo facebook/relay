@@ -45,18 +45,18 @@ var index = React.createClass({
 
           <hr className="home-divider" />
 
-          <section className="home-bottom-section">
-            <div className="buttons-unit">
-              <a className="button" href="docs/getting-started.html">
-                Get Started
-              </a>
-              <a
-                className="button"
-                href={'https://github.com/facebook/relay/releases/tag/v' + SiteData.version}>
-                Download the Technical Preview
-              </a>
-            </div>
+          <section className="buttons-unit">
+            <a className="button" href="docs/getting-started.html">
+              Get Started
+            </a>
+            <a
+              className="button"
+              href={'https://github.com/facebook/relay/releases/tag/v' + SiteData.version}>
+              Download the Technical Preview
+            </a>
           </section>
+
+          <hr className="home-divider" />
 
           <section className="home-section">
             <section id="examples">
@@ -112,6 +112,19 @@ var index = React.createClass({
                 />
               </div>
             </section>
+          </section>
+
+          <hr className="home-divider" />
+
+          <section className="buttons-unit">
+            <a className="button" href="docs/getting-started.html">
+              Get Started
+            </a>
+            <a
+              className="button"
+              href={'https://github.com/facebook/relay/releases/tag/v' + SiteData.version}>
+              Download the Technical Preview
+            </a>
           </section>
         </section>
       </Site>

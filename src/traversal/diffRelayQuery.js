@@ -28,10 +28,14 @@ var invariant = require('invariant');
 var warning = require('warning');
 
 var {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
+var idField = RelayQuery.Node.buildField('id', null, null, {
+  parentType: RelayNodeInterface.NODE_TYPE,
+  requisite: true,
+});
 var nodeWithID = RelayQuery.Node.buildField(
   RelayNodeInterface.NODE,
   null,
-  [RelayQuery.Node.buildField('id', null, null, {requisite: true})],
+  [idField],
 );
 
 import type {DataID} from 'RelayInternalTypes';

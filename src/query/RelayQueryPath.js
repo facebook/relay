@@ -101,11 +101,13 @@ class RelayQueryPath {
     if (GraphQLStoreDataHandler.isClientID(dataID)) {
       return new RelayQueryPath(node, this);
     } else {
-      // refetchable ID
+      var idField = RelayQuery.Node.buildField('id', null, null, {
+        parentType: RelayNodeInterface.NODE_TYPE,
+      });
       var root = RelayQuery.Node.buildRoot(
         RelayNodeInterface.NODE,
         dataID,
-        [RelayQuery.Node.buildField('id')],
+        [idField],
         {rootArg: RelayNodeInterface.ID},
         this.getName()
       );

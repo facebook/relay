@@ -15,6 +15,7 @@ var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 var Relay = require('Relay');
+var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQueryPath = require('RelayQueryPath');
 
 describe('RelayQueryPath', () => {
@@ -53,8 +54,12 @@ describe('RelayQueryPath', () => {
         name
       }
     `;
+
     var path = new RelayQueryPath(query);
-    expect(path.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
+    expect(path.getName()).toBe(query.getName());
+
+    var pathQuery = path.getQuery(getNode(fragment));
+    expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"123") {
           id,
@@ -62,7 +67,10 @@ describe('RelayQueryPath', () => {
         }
       }
     `));
-    expect(path.getName()).toBe(query.getName());
+
+    // Ensure that the generated `id` field contains necessary metadata.
+    var idField = pathQuery.getFieldByStorageKey('id');
+    expect(idField.getParentType()).toBe(RelayNodeInterface.NODE_TYPE);
   });
 
   it('creates root paths for argument-less root calls with IDs', () => {

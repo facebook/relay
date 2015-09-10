@@ -21,6 +21,7 @@ jest
 
 var Relay = require('Relay');
 var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQueryTracker = require('RelayQueryTracker');
 var diffRelayQuery = require('diffRelayQuery');
 var generateRQLFieldAlias = require('generateRQLFieldAlias');
@@ -320,7 +321,8 @@ describe('diffRelayQuery', () => {
     `));
   });
 
-  it('fetches missing `node` data via a `node()` query and missing `edges` data via a `connection.find()` query if connection is findable', () => {
+  it('fetches missing `node` data via a `node()` query and missing `edges` ' +
+     'data via a `connection.find()` query if connection is findable', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {map: rootCallMap});
     var tracker = new RelayQueryTracker();
@@ -450,9 +452,18 @@ describe('diffRelayQuery', () => {
         }
       }
     `));
+
+    // Ensure that the generated `id` field contains necessary metadata.
+    var idField = diffQueries[5]
+      .getFieldByStorageKey('newsFeed')
+      .getFieldByStorageKey('edges')
+      .getFieldByStorageKey('node')
+      .getFieldByStorageKey('id');
+    expect(idField.getParentType()).toBe(RelayNodeInterface.NODE_TYPE);
   });
 
-  it('fetches missing `node` data via a `node()` query and warns about unfetchable `edges` data if connection is not findable', () => {
+  it('fetches missing `node` data via a `node()` query and warns about ' +
+     'unfetchable `edges` data if connection is not findable', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {map: rootCallMap});
     var tracker = new RelayQueryTracker();

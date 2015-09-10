@@ -21,8 +21,10 @@
   "repository": "facebook/relay",
   "scripts": {
     "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",
+    "preinstall": "cd scripts/babel-relay-plugin && npm install",
     "prepublish": "npm run build",
-    "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; NODE_ENV=test jest $@ || EXIT=$?; exit $EXIT; }; f",
+    "test": "f() { EXIT=0; npm run test-plugin || EXIT=$?; npm run typecheck || EXIT=$?; NODE_ENV=test jest $@ || EXIT=$?; exit $EXIT; }; f",
+    "test-plugin": "cd scripts/babel-relay-plugin && npm test",
     "typecheck": "flow check src/",
     "update-schema": "babel-node ./scripts/jest/updateSchema.js",
     "lint": "eslint ."

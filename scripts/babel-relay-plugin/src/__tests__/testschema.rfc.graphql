@@ -1,6 +1,7 @@
 type Root {
   node(id: Int): Node
   nodes(ids: [Int]): [Node]
+  media(id: Int): Media
   viewer: Viewer
   search(query: SearchInput): [SearchResult]
 }
@@ -154,3 +155,5 @@ enum Gender {
   FEMALE,
   UNKNOWN
 }
+
+union Media = Story | ProfilePicture

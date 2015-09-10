@@ -3,8 +3,13 @@
 
 var kinds = require('graphql/language/kinds');
 var types = require('graphql/type');
+var typeIntrospection = require('graphql/type/introspection');
 
 var util = require('util');
+
+var SchemaMetaFieldDef = typeIntrospection.SchemaMetaFieldDef;
+var TypeMetaFieldDef = typeIntrospection.TypeMetaFieldDef;
+var TypeNameMetaFieldDef = typeIntrospection.TypeNameMetaFieldDef;
 
 /**
  * This is part of the Babel transform to convert embedded GraphQL RFC to
@@ -102,7 +107,11 @@ function printQuery(query, options) {
   // Validate the name of the root call. Throws if it doesn't exist.
   var rootField = selections[0];
   var rootCallName = getName(rootField);
-  var rootCallDecl = options.schema.getQueryType().getFields()[rootCallName];
+  var rootCallDecl = getFieldDef(
+    options.schema,
+    options.schema.getQueryType(),
+    rootField
+  );
   var type = rootCallDecl.type;
 
   var requisiteFields = {};
@@ -173,7 +182,11 @@ function printOperation(operation, options) {
   }
 
   var className = 'Mutation';
-  var field = options.schema.getMutationType().getFields()[getName(rootField)];
+  var field = getFieldDef(
+    options.schema,
+    options.schema.getMutationType(),
+    rootField
+  );
   if (!field) {
     throw new Error(
       'Provided mutation ' + getName(rootField) + ' does not exist in schema.'
@@ -344,7 +357,7 @@ function printField(
   parentType
 ) {
   var fieldName = getName(field);
-  var fieldDecl = types.getNamedType(type).getFields()[fieldName];
+  var fieldDecl = getFieldDef(options.schema, type, field);
   var metadata = {
     parentType: parentType,
   };
@@ -722,6 +735,33 @@ function getConnectionMetadata(schema, fieldDecl) {
     nodeType: nodeType,
     nodeField: nodeField
   };
+}
+
+/**
+ * Returns the definition of the given `field` within the parent type,
+ * or introspection types for `__type`, `__schema`, and `__typename` fields.
+ *
+ * Note: this is adapted from `graphql`:
+ * https://github.com/graphql/graphql-js/blob/81a7d7add03adbb14dc852bbe45ab030c0601489/src/utilities/TypeInfo.js#L212-L237
+ */
+function getFieldDef(schema, parentType, field) {
+  var fieldName = getName(field);
+  if (fieldName === SchemaMetaFieldDef.name &&
+      schema.getQueryType() === parentType) {
+    return SchemaMetaFieldDef;
+  }
+  if (fieldName === TypeMetaFieldDef.name &&
+      schema.getQueryType() === parentType) {
+    return TypeMetaFieldDef;
+  }
+  if (fieldName === TypeNameMetaFieldDef.name &&
+      (parentType instanceof types.GraphQLObjectType ||
+       parentType instanceof types.GraphQLInterfaceType ||
+       parentType instanceof types.GraphQLUnionType)
+  ) {
+    return TypeNameMetaFieldDef;
+  }
+  return types.getNamedType(parentType).getFields()[fieldName];
 }
 
 function trimArray(arr) {

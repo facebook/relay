@@ -2,6 +2,7 @@
 "use strict";
 
 var kinds = require('graphql/language/kinds');
+var printer = require('graphql/language/printer');
 var types = require('graphql/type');
 var typeIntrospection = require('graphql/type/introspection');
 
@@ -577,16 +578,16 @@ function getScalarValue(node) {
 }
 
 function getTypeForMetadata(type) {
-  type = types.getNamedType(type);
+  var namedType = types.getNamedType(type);
   if (
-    type instanceof types.GraphQLEnumType ||
-    type instanceof types.GraphQLInputObjectType
+    namedType instanceof types.GraphQLEnumType ||
+    namedType instanceof types.GraphQLInputObjectType
   ) {
-    return type.name;
-  } else if (type instanceof types.GraphQLScalarType) {
+    return String(type);
+  } else if (namedType instanceof types.GraphQLScalarType) {
     return null;
   }
-  throw new Error('Unsupported call value type ' + type.name);
+  throw new Error('Unsupported call value type ' + namedType.name);
 }
 
 function isEnum(type) {

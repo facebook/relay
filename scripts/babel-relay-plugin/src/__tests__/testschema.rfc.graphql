@@ -3,7 +3,7 @@ type Root {
   nodes(ids: [Int]): [Node]
   media(id: Int): Media
   viewer: Viewer
-  search(query: SearchInput): [SearchResult]
+  search(query: [SearchInput!]): [SearchResult]
 }
 
 type SearchResult {

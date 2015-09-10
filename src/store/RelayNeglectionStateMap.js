@@ -102,11 +102,11 @@ class RelayNeglectionStateMap {
      * assuming a generator transform is available.
      */
     return {
-      next(): IteratorResult<NeglectionState> {
+      next(): IteratorResult<NeglectionState, void> {
         if (done || ii === states.length) {
           done = true;
           states = [];
-          return ({done}: $FlowIssue);
+          return {done};
         }
         var value = states[ii++];
         return {done, value};

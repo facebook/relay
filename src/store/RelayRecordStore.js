@@ -804,10 +804,6 @@ class RelayRecordStore {
     );
     var record = this._queuedRecords[connectionID];
     if (!record) {
-      /* $FlowIssue #5995526 - Ideally we want to do something like
-       * record = ({ ... }: Record)
-       * however a bug in Flow is preventing that from working.
-       */
       record = {__dataID__: connectionID};
       this._queuedRecords[connectionID] = record;
     }

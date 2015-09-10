@@ -478,7 +478,6 @@ function handleRangeDelete(
   var store = writer.getRecordStore();
   var connectionName = config.pathToConnection.pop();
   var connectionParentID =
-    // $FlowFixedInNextDeploy
     getIDFromPath(store, config.pathToConnection, payload);
   // Restore pathToConnection to its original state
   config.pathToConnection.push(connectionName);

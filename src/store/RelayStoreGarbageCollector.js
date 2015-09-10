@@ -101,7 +101,7 @@ class RelayStoreGarbageCollector {
   _collectGarbageStep(
     currentCycle: number,
     remainingDataIDs: Iterator<NeglectionState>,
-    offset: IteratorResult<NeglectionState>,
+    offset: IteratorResult<NeglectionState, void>,
     stepLength?: number,
   ): void {
     var iterator = offset;

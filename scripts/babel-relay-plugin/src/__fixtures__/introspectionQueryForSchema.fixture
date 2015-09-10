@@ -1,0 +1,21 @@
+Input:
+var foo = Relay.QL`
+  query IntrospectionQueryFroSchema {
+    __schema {
+      types {
+        name
+      }
+    }
+  }
+`;
+
+Output:
+var foo = (function () {
+  var GraphQL = Relay.QL.__GraphQL;
+  return new GraphQL.Query("__schema", null, [new GraphQL.Field("types", [new GraphQL.Field("name", null, null, null, null, null, {
+    "parentType": "__Type"
+  })], null, null, null, null, {
+    "parentType": "__Schema",
+    "plural": true
+  })], null, null, "IntrospectionQueryFroSchema");
+})();

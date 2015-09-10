@@ -21,6 +21,7 @@ var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
+var ReactDOM = require('ReactDOM');
 var RelayContainerComparators = require('RelayContainerComparators');
 var RelayContainerProxy = require('RelayContainerProxy');
 var RelayDeprecated = require('RelayDeprecated');
@@ -74,7 +75,7 @@ export type RootQueries = {
 };
 
 GraphQLStoreChangeEmitter.injectBatchingStrategy(
-  (React: $FlowIssue /* #7887700 */).unstable_batchedUpdates
+  ReactDOM.unstable_batchedUpdates
 );
 
 var containerContextTypes = {
@@ -291,7 +292,7 @@ function createContainerComponent(
         var mounted = this.mounted;
         if (mounted) {
           var updateProfiler = RelayProfiler.profile('RelayContainer.update');
-          (React: $FlowIssue /* #7887700 */).unstable_batchedUpdates(() => {
+          ReactDOM.unstable_batchedUpdates(() => {
             this.setState(partialState, () => {
               updateProfiler.stop();
               if (isComplete) {

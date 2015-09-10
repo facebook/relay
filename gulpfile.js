@@ -52,6 +52,7 @@ var babelOpts = {
   plugins: [babelPluginDEV, babelPluginModules],
   _moduleMap: objectAssign({}, require('fbjs/module-map'), {
     'React': 'react',
+    'ReactDOM': 'react-dom',
     'StaticContainer.react': 'react-static-container'
   })
 };
@@ -60,7 +61,8 @@ var buildDist = function(opts) {
   var webpackOpts = {
     debug: opts.debug,
     externals: {
-      react: 'React'
+      'react': 'React',
+      'react-dom': 'ReactDOM'
     },
     module: {
       loaders: [

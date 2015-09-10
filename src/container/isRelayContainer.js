@@ -18,7 +18,8 @@ function isRelayContainer(component: any): boolean {
     component &&
     component.getFragmentNames &&
     component.getFragment &&
-    component.hasFragment
+    component.hasFragment &&
+    component.hasVariable
   );
 }
 

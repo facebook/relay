@@ -761,10 +761,6 @@ class GraphQLRange {
     }
     if ((calls.first && calls.before) || (calls.last && calls.after)) {
       // TODO #7556678: add support for first/before and last/after
-      console.warn(
-        'GraphQLRange does not currently handle retrieval for ' +
-        'before(<cursor>).first(<count>) and after(<cursor>).last(<count>)'
-      );
       return {
         requestedEdgeIDs: [],
         diffCalls: [],

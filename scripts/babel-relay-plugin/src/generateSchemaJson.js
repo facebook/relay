@@ -14,7 +14,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var parser = require('graphql/language').parser;
+var parse = require('graphql/language').parse;
 var utilities = require('graphql/utilities');
 var graphql = require('graphql');
 
@@ -23,7 +23,7 @@ try {
   var outFile = path.resolve(__dirname, '__tests__', 'testschema.rfc.json');
 
   var body = fs.readFileSync(inFile, 'utf8');
-  var ast = parser.parseSchemaIntoAST(body);
+  var ast = parse(body);
   var astSchema = utilities.buildASTSchema(ast, 'Root', 'Mutation');
   graphql.graphql(astSchema, utilities.introspectionQuery).then(
     function(result) {

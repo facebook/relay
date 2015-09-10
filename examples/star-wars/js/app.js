@@ -2,7 +2,7 @@ import 'babel/polyfill';
 import StarWarsApp from './components/StarWarsApp';
 import StarWarsAppHomeRoute from './routes/StarWarsAppHomeRoute';
 
-React.render(
+ReactDOM.render(
   <Relay.RootContainer
     Component={StarWarsApp}
     route={new StarWarsAppHomeRoute({

@@ -26,7 +26,7 @@
     "normalize.css": "3.0.3",
     "query-string": "2.4.0",
     "raw-loader": "0.5.1",
-    "react": "^0.14.0-beta3",
+    "react": "^0.14.0-rc",
     "react-codemirror": "0.1.5",
     "react-relay": "../",
     "style-loader": "0.12.3",

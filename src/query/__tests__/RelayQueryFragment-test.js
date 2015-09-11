@@ -224,4 +224,31 @@ describe('RelayQueryFragment', () => {
     expect(node.getRoute()).toBe(fragment.getRoute());
     expect(node.getVariables()).toBe(fragment.getVariables());
   });
+
+  it('returns directives', () => {
+    var fragment = getNode(Relay.QL`
+      fragment on Story
+        @include(if: $cond)
+        @foo(int: 10, bool: true, str: "string")
+      {
+        feedback
+      }
+    `, {cond: true});
+    expect(fragment.getDirectives()).toEqual([
+      {
+        name: 'include',
+        arguments: [
+          {name: 'if', value: true},
+        ],
+      },
+      {
+        name: 'foo',
+        arguments: [
+          {name: 'int', value: 10},
+          {name: 'bool', value: true},
+          {name: 'str', value: 'string'},
+        ],
+      }
+    ]);
+  });
 });

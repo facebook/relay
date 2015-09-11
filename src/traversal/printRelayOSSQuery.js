@@ -103,6 +103,7 @@ function printRoot(
       rootFieldString += '(' + rootArgString + ')';
     }
   }
+  rootFieldString += printDirectives(node);
   var children = printChildren(node, printerState);
 
   var argStrings = null;
@@ -133,8 +134,9 @@ function printFragment(
   node: RelayQuery.Fragment,
   printerState: PrinterState
 ): string {
+  var directives = printDirectives(node);
   return 'fragment ' + node.getDebugName() + ' on ' +
-    node.getType() + printChildren(node, printerState);
+    node.getType() + directives + printChildren(node, printerState);
 }
 
 function printInlineFragment(
@@ -144,8 +146,9 @@ function printInlineFragment(
   var fragmentID = node.getFragmentID();
   var {fragmentMap} = printerState;
   if (!(fragmentID in fragmentMap)) {
-    fragmentMap[fragmentID] = 'fragment ' + fragmentID + ' on ' +
-      node.getType() + printChildren(node, printerState);
+    var directives = printDirectives(node);
+    fragmentMap[fragmentID] = 'fragment ' + node.getFragmentID() + ' on ' +
+      node.getType() + directives + printChildren(node, printerState);
   }
   return '...' + fragmentID;
 }
@@ -180,8 +183,9 @@ function printField(
       fieldString += '(' + argStrings.join(',') + ')';
     }
   }
+  var directives = printDirectives(node);
   return (serializationKey !== schemaName ? serializationKey + ':' : '') +
-    fieldString + printChildren(node, printerState);
+    fieldString + directives + printChildren(node, printerState);
 }
 
 function printChildren(
@@ -205,6 +209,36 @@ function printChildren(
     return '';
   }
   return '{' + children.join(',') + '}';
+}
+
+function printDirectives(node) {
+  var directiveStrings;
+  node.getDirectives().forEach(directive => {
+    var dirString = '@' + directive.name;
+    if (directive.arguments.length) {
+      dirString +=
+        '(' + directive.arguments.map(printDirective).join(',') + ')';
+    }
+    directiveStrings = directiveStrings || [];
+    directiveStrings.push(dirString);
+  });
+  if (!directiveStrings) {
+    return '';
+  }
+  return ' ' + directiveStrings.join(' ');
+}
+
+function printDirective({name,value}) {
+  invariant(
+    typeof value === 'boolean' ||
+    typeof value === 'number' ||
+    typeof value === 'string',
+    'printRelayOSSQuery(): Relay only supports directives with scalar values ' +
+    '(boolean, number, or string), got `%s: %s`.',
+    name,
+    value
+  );
+  return name + ':' + JSON.stringify(value);
 }
 
 function printArgument(

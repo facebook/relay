@@ -11,6 +11,7 @@ env:
 globals:
   document: false
   React: false
+  ReactDOM: false
   Relay: false
 
 arrowFunctions: true

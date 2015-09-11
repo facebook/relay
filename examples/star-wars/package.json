@@ -18,7 +18,8 @@
     "express-graphql": "^0.3.0",
     "graphql": "^0.4.2",
     "graphql-relay": "^0.3.1",
-    "react": "^0.14.0-beta3",
+    "react": "^0.14.0-rc",
+    "react-dom": "^0.14.0-rc",
     "react-relay": "file:../../",
     "webpack": "^1.10.5",
     "webpack-dev-server": "^1.10.1"

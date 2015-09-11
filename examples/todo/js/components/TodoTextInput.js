@@ -21,7 +21,7 @@ export default class TodoTextInput extends React.Component {
     text: this.props.initialValue || '',
   };
   componentDidMount() {
-    React.findDOMNode(this).focus();
+    ReactDOM.findDOMNode(this).focus();
   }
   _commitChanges = () => {
     var newText = this.state.text.trim();

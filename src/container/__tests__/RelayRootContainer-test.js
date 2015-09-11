@@ -22,6 +22,7 @@ var ReactTestUtils = require('ReactTestUtils');
 var Relay = require('Relay');
 var RelayRootContainer = require('RelayRootContainer');
 var RelayRoute = require('RelayRoute');
+var RelayStoreData = require('RelayStoreData');
 var getRelayQueries = require('getRelayQueries');
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 
@@ -483,8 +484,10 @@ describe('RelayRootContainer', function() {
       RelayStore.primeCache.mock.requests[0].block();
       RelayStore.primeCache.mock.requests[0].resolve();
 
-      expect(GraphQLFragmentPointer.createForRoot).toBeCalled();
-      expect(GraphQLFragmentPointer.createForRoot.mock.calls[0][1]).toBe(query);
+      expect(GraphQLFragmentPointer.createForRoot).toBeCalledWith(
+        RelayStoreData.getDefaultInstance().getQueuedStore(),
+        query
+      );
 
       expect(callbacks.renderFetched).toBeCalled();
       expect(callbacks.renderFetched.mock.calls[0][0].viewer)

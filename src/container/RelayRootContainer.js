@@ -160,7 +160,7 @@ class RelayRootContainer extends React.Component {
           querySet,
           query => query ?
             GraphQLFragmentPointer.createForRoot(
-              storeData.getRecordStore(),
+              storeData.getQueuedStore(),
               query
             ) :
             null

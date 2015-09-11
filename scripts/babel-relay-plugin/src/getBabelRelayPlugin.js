@@ -48,7 +48,8 @@ function extractTemplate(node) {
  * GraphQL queries.
  */
 function getBabelRelayPlugin(
-  schemaProvider /*: Object | Function */
+  schemaProvider, /*: Object | Function */
+  options /*: ?Object */
 ) /*: Object */ {
   return function(babel) {
     var Plugin = babel.Plugin;
@@ -190,6 +191,11 @@ function getBabelRelayPlugin(
             if (state.opts.extra.debug) {
               console.log(error.message);
               console.log(error.stack);
+            }
+            if (options && options.abortOnError) {
+              throw new Error(
+                'Aborting due to GraphQL validation/transform error(s).'
+              );
             }
           }
           code = '(' + code + ')';

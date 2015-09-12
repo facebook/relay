@@ -1,5 +1,18 @@
 ## master
 
+## 0.3.0 (September 11, 2015)
+
+* Fix query variable printing for non-null and list types (#203).
+* Bumped React dependency to v0.14.0-rc.
+* Switched to using `ReactDOM` rather than `React` for performing batched
+  updates (via `unstable_batchedUpdates`).
+* Updated the babel-relay-plugin to v0.2.3:
+  * Added support for compiling queries containing introspection fields such as
+    `__schema`, `__typename` and such.
+  * Use of `field(before: ..., first: ...)` or `field(after: ..., last: ...)` is
+    now an error.
+* Various improvements to documentation, warnings and error messages.
+
 ## 0.2.1 (September 1, 2015)
 
 * Support simplified route query definitions (previous API still supported).

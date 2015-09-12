@@ -187,7 +187,7 @@ module<span class="token punctuation">.</span>exports <span class="token operato
   <span class="token punctuation">}</span>
   <span class="token function">getConfigs</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
-      type<span class="token punctuation">:</span> <span class="token string">&#x27;DELETE_NODE&#x27;</span><span class="token punctuation">,</span>
+      type<span class="token punctuation">:</span> <span class="token string">&#x27;NODE_DELETE&#x27;</span><span class="token punctuation">,</span>
       parentName<span class="token punctuation">:</span> <span class="token string">&#x27;faction&#x27;</span><span class="token punctuation">,</span>
       parentID<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>ship<span class="token punctuation">.</span>faction<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
       connectionName<span class="token punctuation">:</span> <span class="token string">&#x27;ships&#x27;</span><span class="token punctuation">,</span>
@@ -205,7 +205,7 @@ module<span class="token punctuation">.</span>exports <span class="token operato
   <span spellcheck="true" class="token comment">// specify the faction&#x27;s ships connection as part of the fat query.</span>
   <span class="token function">getFatQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
-      fragment on IntroduceShipMutation {
+      fragment on IntroduceShipPayload {
         faction { ships },
         newShipEdge,
       }

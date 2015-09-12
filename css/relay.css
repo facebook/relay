@@ -310,7 +310,8 @@ h1:hover .hash-link, h2:hover .hash-link, h3:hover .hash-link, h4:hover .hash-li
 }
 
 .buttons-unit {
-  margin-top: 60px;
+  margin-bottom: 50px;
+  margin-top: 50px;
   text-align: center;
 }
 
@@ -444,7 +445,7 @@ h1:hover .hash-link, h2:hover .hash-link, h3:hover .hash-link, h4:hover .hash-li
 }
 
 #examples .example {
-  margin-top: 60px;
+  margin-top: 50px;
 }
 
 .example iframe {
@@ -478,10 +479,6 @@ h1:hover .hash-link, h2:hover .hash-link, h3:hover .hash-link, h4:hover .hash-li
   font: 14px proxima-nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin-bottom: 10px;
   padding: 5px;
-}
-
-.home-bottom-section {
-  margin-bottom: 100px;
 }
 
 .docs-nextprev {

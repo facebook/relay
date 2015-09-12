@@ -1,36 +1,55 @@
-# Run the Server
+# Prerequisites
 
-The first time, get all the dependencies loaded via
+Install the supporting infrastructure.
 
 ```
-npm install
+(../; npm install) && (../website-prototyping-tools; npm install) && npm install
 ```
 
-Then, run the server via
+# Developing
+
+Launch a development server that you can use to preview edits.
 
 ```
 npm start
-Open http://localhost:8080/relay/index.html
+# Then open http://localhost:8080/relay/
 ```
 
-Anytime you change the contents, just refresh the page and it's going to be updated
+Anytime you change the contents, just refresh the page to rebuild the site.
 
-# Publish the Website
+# Publish the website
 
-First setup your environment by having two folders, one `relay` and one `relay-gh-pages`. The publish script expects those exact names.
+## First time setup
 
-```
-cd ../../
-git clone git@github.com:facebook/relay.git relay-gh-pages
-cd relay-gh-pages
-git checkout origin/gh-pages
-git checkout -b gh-pages
-git push --set-upstream origin gh-pages
-cd ../relay/website
-```
-
-Then, after you've done changes, just run the command and it'll automatically build the static version of the site and publish it to gh-pages.
+The publish script expects you to have two sibling folders named `relay` and `relay-gh-pages`.
 
 ```
-./publish.sh
+# From relay/website/
+(
+  cd ../../
+  git clone git@github.com:facebook/relay.git relay-gh-pages
+  cd relay-gh-pages
+  git checkout gh-pages
+)
+```
+
+## Building
+
+It's important that you run the server and hit the site at least once before you build. See ‘Developing,’ above. After that's done, build the website.
+
+```
+# From relay/website/
+(cd ../; ./website/publish.sh)
+```
+
+## Publishing
+
+The build system has now built the website into `relay-gh-pages`. All that's left to do is to check it over, commit it, and push it to `origin/gh-pages`.
+
+```
+cd ../../relay-gh-pages
+git status  # Check it over to see if the changes look right
+git diff --word-diff=color  # Or go over it in detail
+git add --all && git commit -m "Updating the website in preparation for v0.3.0"
+git push
 ```

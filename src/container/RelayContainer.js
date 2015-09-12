@@ -783,7 +783,7 @@ function createContainerComponent(
         <Component
           {...this.props}
           {...this.state.queryData}
-          {...prepareRelayContainerProps(relayProps)}
+          {...prepareRelayContainerProps(relayProps, this)}
           ref="component"
         />
       );

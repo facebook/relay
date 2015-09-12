@@ -1,5 +1,9 @@
 ## master
 
+## 0.3.1 (September 11, 2015)
+
+* Rebuild to replace faulty NPM package (no code changes).
+
 ## 0.3.0 (September 11, 2015)
 
 * Fix query variable printing for non-null and list types (#203).

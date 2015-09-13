@@ -409,16 +409,18 @@ function printField(
     if (hasArgument(field, 'first') && hasArgument(field, 'before')) {
       throw new Error(util.format(
         'Connections arguments `%s(before: <cursor>, first: <count>)` are ' +
-        'not supported. Use `(first: <count>)` or ' +
-        '`(after: <cursor>, first: <count>)`. ',
+        'not supported. Use `(first: <count>)`, ' +
+        '`(after: <cursor>, first: <count>)`, or ' +
+        '`(before: <cursor>, last: <count>)`.',
         fieldName
       ));
     }
     if (hasArgument(field, 'last') && hasArgument(field, 'after')) {
       throw new Error(util.format(
         'Connections arguments `%s(after: <cursor>, last: <count>)` are ' +
-        'not supported. Use `(last: <count>)` or ' +
-        '`(before: <cursor>, last: <count>)`. ',
+        'not supported. Use `(last: <count>)`, ' +
+        '`(before: <cursor>, last: <count>)`, or ' +
+        '`(after: <cursor>, first: <count>)`.',
         fieldName
       ));
     }

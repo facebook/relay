@@ -1,12 +1,21 @@
+/**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
 import 'babel/polyfill';
 
 import React from 'react'; window.React = React;
 import ReactDOM from 'react/lib/ReactDOM';
 import RelayPlayground from './RelayPlayground';
 
-import queryString from 'query-string';
+import queryString from 'querystring';
 
-var queryParams = queryString.parse(location.hash);
+var queryParams = queryString.parse(location.hash.slice(1));
 
 if (
   /^https?:\/\/facebook.github.io\//.test(document.referrer) ||

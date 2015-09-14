@@ -52,7 +52,7 @@ var index = React.createClass({
             <a
               className="button"
               href={'https://github.com/facebook/relay/releases/tag/v' + SiteData.version}>
-              Download the Technical Preview
+              Download
             </a>
           </section>
 

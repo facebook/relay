@@ -398,7 +398,7 @@ type SegmentsEdge {
   node: String
 }
 
-type Story implements FeedUnit {
+type Story implements FeedUnit Node {
   actor: Actor
   actors: [Actor]
   actorCount: Int
@@ -411,6 +411,33 @@ type Story implements FeedUnit {
   seenState: String
   tracking: String
   websites: [String]
+
+  # Node minus FeedUnit
+  address: StreetAddress
+  allPhones: [Phone]
+  author: User
+  backgroundImage: Image
+  birthdate: Date
+  body: Text
+  canViewerComment: Boolean
+  canViewerLike: Boolean
+  comments(first: String, last: Int, orderby: String): CommentsConnection
+  doesViewerLike: Boolean
+  emailAddresses: [String]
+  firstName(if: Boolean, unless: Boolean): String
+  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
+  hometown: Page
+  lastName: String
+  likers(first: String): LikersOfContentConnection
+  likeSentence: Text
+  segments(first: String): Segments
+  screennames: [Screenname]
+  subscribeStatus: String
+  subscribers(first: String): SubscribersConnection
+  topLevelComments(first: String): TopLevelCommentsConnection
+  url(site: String): String
+  username: String
+  viewerSavedState: String
 }
 
 type StreetAddress {

@@ -100,7 +100,7 @@ var buildDist = function(opts) {
       throw new gulpUtil.PluginError('webpack', err);
     }
     if (stats.compilation.errors.length) {
-      gulpUtil.log('webpack', '\n' + stats.toString({colors: true}));
+      throw new gulpUtil.PluginError('webpack', stats.toString());
     }
   });
 };

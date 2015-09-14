@@ -7,7 +7,7 @@ var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.QueryFragment('Fragment', 'Node', [new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'Node',
-    'requisite': true
+    parentType: 'Node',
+    requisite: true
   })]);
 })();

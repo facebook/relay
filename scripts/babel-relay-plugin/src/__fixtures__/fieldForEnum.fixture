@@ -15,16 +15,16 @@ var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.Query('node', 123, [new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'Node',
-    'generated': true,
-    'requisite': true
+    parentType: 'Node',
+    generated: true,
+    requisite: true
   })], [new GraphQL.QueryFragment('User', 'User', [new GraphQL.Field('gender', null, null, null, null, null, {
-    'parentType': 'User'
+    parentType: 'User'
   }), new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'User',
-    'generated': true,
-    'requisite': true
+    parentType: 'User',
+    generated: true,
+    requisite: true
   })])], {
-    'rootArg': 'id'
+    rootArg: 'id'
   }, 'FieldForEnum');
 })();

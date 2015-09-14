@@ -19,42 +19,42 @@ var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.Query('node', 123, [new GraphQL.Field('friends', [new GraphQL.Field('edges', [new GraphQL.Field('node', [new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'User',
-    'requisite': true
+    parentType: 'User',
+    requisite: true
   })], null, null, null, null, {
-    'parentType': 'UserConnectionEdge',
-    'rootCall': 'node',
-    'pk': 'id',
-    'requisite': true
+    parentType: 'UserConnectionEdge',
+    rootCall: 'node',
+    pk: 'id',
+    requisite: true
   }), new GraphQL.Field('cursor', null, null, null, null, null, {
-    'parentType': 'UserConnectionEdge',
-    'generated': true,
-    'requisite': true
+    parentType: 'UserConnectionEdge',
+    generated: true,
+    requisite: true
   })], null, null, null, null, {
-    'parentType': 'UserConnection',
-    'plural': true
+    parentType: 'UserConnection',
+    plural: true
   }), new GraphQL.Field('pageInfo', [new GraphQL.Field('hasNextPage', null, null, null, null, null, {
-    'parentType': 'PageInfo',
-    'generated': true,
-    'requisite': true
+    parentType: 'PageInfo',
+    generated: true,
+    requisite: true
   }), new GraphQL.Field('hasPreviousPage', null, null, null, null, null, {
-    'parentType': 'PageInfo',
-    'generated': true,
-    'requisite': true
+    parentType: 'PageInfo',
+    generated: true,
+    requisite: true
   })], null, null, null, null, {
-    'parentType': 'UserConnection',
-    'generated': true,
-    'requisite': true
+    parentType: 'UserConnection',
+    generated: true,
+    requisite: true
   })], null, [new GraphQL.Callv('gender', 'MALE', {
-    'type': 'Gender'
+    type: 'Gender'
   })], null, null, {
-    'parentType': 'Node',
-    'connection': true
+    parentType: 'Node',
+    connection: true
   }), new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'Node',
-    'generated': true,
-    'requisite': true
+    parentType: 'Node',
+    generated: true,
+    requisite: true
   })], null, {
-    'rootArg': 'id'
+    rootArg: 'id'
   }, 'FieldWithEnumArg');
 })();

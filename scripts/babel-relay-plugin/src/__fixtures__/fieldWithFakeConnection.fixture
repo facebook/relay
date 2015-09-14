@@ -17,25 +17,25 @@ var Relay = require('Relay');
 var foo = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.QueryFragment('FieldWithFakeConnection', 'User', [new GraphQL.Field('fakeConnection', [new GraphQL.Field('edges', [new GraphQL.Field('node', [new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'FakeNode',
-    'requisite': true
+    parentType: 'FakeNode',
+    requisite: true
   })], null, null, null, null, {
-    'parentType': 'FakeEdge',
-    'rootCall': 'node',
-    'pk': 'id',
-    'requisite': true
+    parentType: 'FakeEdge',
+    rootCall: 'node',
+    pk: 'id',
+    requisite: true
   }), new GraphQL.Field('cursor', null, null, null, null, null, {
-    'parentType': 'FakeEdge',
-    'generated': true,
-    'requisite': true
+    parentType: 'FakeEdge',
+    generated: true,
+    requisite: true
   })], null, null, null, null, {
-    'parentType': 'FakeConnection',
-    'plural': true
+    parentType: 'FakeConnection',
+    plural: true
   })], null, null, null, null, {
-    'parentType': 'User'
+    parentType: 'User'
   }), new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'User',
-    'generated': true,
-    'requisite': true
+    parentType: 'User',
+    generated: true,
+    requisite: true
   })]);
 })();

@@ -13,9 +13,9 @@ var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.Query('nodes', [123, 456], [new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'Node',
-    'requisite': true
+    parentType: 'Node',
+    requisite: true
   })], null, {
-    'rootArg': 'ids'
+    rootArg: 'ids'
   }, 'QueryWithVarArgs');
 })();

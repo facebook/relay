@@ -27,14 +27,14 @@ var Relay = require('react-relay');
 var x = (function (sub_0, sub_1, sub_2, sub_3, sub_4, sub_5, sub_6, sub_7, sub_8, sub_9, sub_10, sub_11) {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.Query('node', 123, [new GraphQL.Field('profilePicture', [new GraphQL.Field('uri', null, null, null, null, null, {
-    'parentType': 'ProfilePicture'
+    parentType: 'ProfilePicture'
   })], [Relay.QL.__frag(sub_4), Relay.QL.__frag(sub_5), Relay.QL.__frag(sub_6), Relay.QL.__frag(sub_7)], null, null, null, {
-    'parentType': 'Node'
+    parentType: 'Node'
   }), new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'Node',
-    'generated': true,
-    'requisite': true
+    parentType: 'Node',
+    generated: true,
+    requisite: true
   })], [Relay.QL.__frag(sub_0), Relay.QL.__frag(sub_1), Relay.QL.__frag(sub_2), Relay.QL.__frag(sub_3), Relay.QL.__frag(sub_8), Relay.QL.__frag(sub_9), Relay.QL.__frag(sub_10), Relay.QL.__frag(sub_11)], {
-    'rootArg': 'id'
+    rootArg: 'id'
   }, 'QueryWithNestedFragments');
 })(frag1, frag2, frag3, frag4, frag5, frag6, frag7, frag8, frag9, frag10, frag11, frag12);

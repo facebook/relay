@@ -14,12 +14,12 @@ Relay.createContainer(Component, {
       return (function () {
         var GraphQL = Relay.QL.__GraphQL;
         return new GraphQL.QueryFragment('Container', 'Viewer', [new GraphQL.Field('actor', [new GraphQL.Field('id', null, null, null, null, null, {
-          'parentType': 'User',
-          'requisite': true
+          parentType: 'User',
+          requisite: true
         })], null, null, null, null, {
-          'parentType': 'Viewer',
-          'rootCall': 'node',
-          'pk': 'id'
+          parentType: 'Viewer',
+          rootCall: 'node',
+          pk: 'id'
         })]);
       })();
     }

@@ -53,17 +53,7 @@ function getBabelRelayPlugin(
 ) /*: Object */ {
   return function(babel) {
     var Plugin = babel.Plugin;
-    var parse = babel.parse;
     var t = babel.types;
-    var traverse = babel.traverse;
-
-    /**
-     * Same as `babel.util.parseTemplate`.
-     */
-    function parseTemplate(loc, code) {
-      var ast = parse(code, {filename: loc, looseModules: true}).program;
-      return traverse.removeProperties(ast);
-    }
 
     return new Plugin('relay-query', {
       visitor: {
@@ -181,10 +171,17 @@ function getBabelRelayPlugin(
               filename +
               '`.'
             );
-            code = (
-              'function() { throw new Error(\'' +
-                message.replace(/\'/g, '\\\'') +
-              '\'); }'
+            code = t.functionExpression(
+              null,
+              [],
+              t.blockStatement([
+                t.throwStatement(
+                  t.newExpression(
+                    t.identifier('Error'),
+                    [t.literal(message)]
+                  )
+                )
+              ])
             );
 
             // also log the full error if `debug` option is set
@@ -198,19 +195,10 @@ function getBabelRelayPlugin(
               );
             }
           }
-          code = '(' + code + ')';
-          var funcExpr = parseTemplate('Relay.QL', code).body[0].expression;
 
           // Immediately invoke the function with substitutions as arguments.
           var substitutions = node.quasi.expressions;
-          var funcCall = t.callExpression(
-            t.functionExpression(
-              null,
-              funcExpr.params,
-              funcExpr.body
-            ),
-            substitutions
-          );
+          var funcCall = t.callExpression(code, substitutions);
           this.replaceWith(funcCall);
         }
       }

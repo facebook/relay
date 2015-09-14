@@ -13,9 +13,9 @@ var Relay = require('Relay');
 var q = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.Query('search', new GraphQL.CallVariable('query'), [new GraphQL.Field('title', null, null, null, null, null, {
-    'parentType': 'SearchResult'
+    parentType: 'SearchResult'
   })], null, {
-    'rootArg': 'query',
-    'rootCallType': '[SearchInput!]'
+    rootArg: 'query',
+    rootCallType: '[SearchInput!]'
   }, 'QueryWithObjectArgument');
 })();

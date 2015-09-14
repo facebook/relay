@@ -13,13 +13,13 @@ var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.Query('node', 123, [new GraphQL.Field('websites', null, null, null, null, null, {
-    'parentType': 'Node',
-    'plural': true
+    parentType: 'Node',
+    plural: true
   }), new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'Node',
-    'generated': true,
-    'requisite': true
+    parentType: 'Node',
+    generated: true,
+    requisite: true
   })], null, {
-    'rootArg': 'id'
+    rootArg: 'id'
   }, 'MetadataPlural');
 })();

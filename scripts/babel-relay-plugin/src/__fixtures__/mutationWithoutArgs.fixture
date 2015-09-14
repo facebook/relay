@@ -11,10 +11,10 @@ var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.Mutation('MutationWithoutArgs', 'ActorSubscribeResponsePayload', new GraphQL.Callv('actorSubscribe', new GraphQL.CallVariable('input')), [new GraphQL.Field('clientMutationId', null, null, null, null, null, {
-    'parentType': 'ActorSubscribeResponsePayload',
-    'generated': true,
-    'requisite': true
+    parentType: 'ActorSubscribeResponsePayload',
+    generated: true,
+    requisite: true
   })], null, {
-    'inputType': 'ActorSubscribeInput'
+    inputType: 'ActorSubscribeInput'
   });
 })();

@@ -7,11 +7,11 @@ var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.QueryFragment('FragmentDirectives', 'Node', [new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'Node',
-    'requisite': true
+    parentType: 'Node',
+    requisite: true
   })], null, {
-    'plural': true,
-    'count': 1,
-    'name': 'Foo'
+    plural: true,
+    count: 1,
+    name: 'Foo'
   });
 })();

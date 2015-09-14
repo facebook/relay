@@ -19,18 +19,18 @@ var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.Query('viewer', null, [new GraphQL.Field('__configs__', [new GraphQL.Field('edges', [new GraphQL.Field('node', [new GraphQL.Field('name', null, null, null, null, null, {
-    'parentType': 'Config'
+    parentType: 'Config'
   })], null, null, null, null, {
-    'parentType': 'ConfigsConnectionEdge',
-    'requisite': true
+    parentType: 'ConfigsConnectionEdge',
+    requisite: true
   }), new GraphQL.Field('cursor', null, null, null, null, null, {
-    'parentType': 'ConfigsConnectionEdge',
-    'generated': true,
-    'requisite': true
+    parentType: 'ConfigsConnectionEdge',
+    generated: true,
+    requisite: true
   })], null, null, null, null, {
-    'parentType': 'ConfigsConnection',
-    'plural': true
+    parentType: 'ConfigsConnection',
+    plural: true
   })], null, null, null, null, {
-    'parentType': 'Viewer'
+    parentType: 'Viewer'
   })], null, null, 'MetadataConnectionLimitable');
 })();

@@ -15,14 +15,14 @@ var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.Query('node', 123, [new GraphQL.Field('profilePicture', [new GraphQL.Field('uri', null, null, null, null, null, {
-    'parentType': 'ProfilePicture'
+    parentType: 'ProfilePicture'
   })], null, null, null, null, {
-    'parentType': 'Node'
+    parentType: 'Node'
   }), new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'Node',
-    'generated': true,
-    'requisite': true
+    parentType: 'Node',
+    generated: true,
+    requisite: true
   })], null, {
-    'rootArg': 'id'
+    rootArg: 'id'
   }, 'QueryNameHere');
 })();

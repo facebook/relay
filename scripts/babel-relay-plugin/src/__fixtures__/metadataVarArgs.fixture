@@ -13,13 +13,13 @@ var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.QueryFragment('MetadataVarArgs', 'User', [new GraphQL.Field('friends', [new GraphQL.Field('count', null, null, null, null, null, {
-    'parentType': 'UserConnection'
+    parentType: 'UserConnection'
   })], null, [new GraphQL.Callv('orderby', new GraphQL.CallVariable('order'))], null, null, {
-    'parentType': 'User',
-    'connection': true
+    parentType: 'User',
+    connection: true
   }), new GraphQL.Field('id', null, null, null, null, null, {
-    'parentType': 'User',
-    'generated': true,
-    'requisite': true
+    parentType: 'User',
+    generated: true,
+    requisite: true
   })]);
 })();

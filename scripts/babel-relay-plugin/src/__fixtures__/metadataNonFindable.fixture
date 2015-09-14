@@ -15,10 +15,10 @@ var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
   return new GraphQL.Query('viewer', null, [new GraphQL.Field('pendingPosts', [new GraphQL.Field('count', null, null, null, null, null, {
-    'parentType': 'PendingPostsConnection'
+    parentType: 'PendingPostsConnection'
   })], null, null, null, null, {
-    'parentType': 'Viewer',
-    'connection': true,
-    'nonFindable': true
+    parentType: 'Viewer',
+    connection: true,
+    nonFindable: true
   })], null, null, 'MetadataNonFindable');
 })();

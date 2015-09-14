@@ -11,6 +11,7 @@
 
 var kinds = require('graphql/language/kinds');
 var printer = require('graphql/language/printer');
+var t = require('babel-core').types;
 var types = require('graphql/type');
 var typeIntrospection = require('graphql/type/introspection');
 
@@ -19,6 +20,8 @@ var util = require('util');
 var SchemaMetaFieldDef = typeIntrospection.SchemaMetaFieldDef;
 var TypeMetaFieldDef = typeIntrospection.TypeMetaFieldDef;
 var TypeNameMetaFieldDef = typeIntrospection.TypeNameMetaFieldDef;
+
+var NULL = t.literal(null);
 
 /**
  * This is part of the Babel transform to convert embedded GraphQL RFC to
@@ -36,38 +39,50 @@ GraphQLPrinter.prototype.getCode = function(ast, substitutions) {
     substitutions: substitutions
   };
 
+  var printedDocument;
   switch (ast.kind) {
     case kinds.OPERATION_DEFINITION:
       switch (ast.operation) {
         case 'query':
-          return printQuery(ast, options);
+          printedDocument = printQuery(ast, options);
+          break;
         case 'mutation':
-          return printOperation(ast, options);
+          printedDocument = printOperation(ast, options);
+          break;
       }
       break;
     case kinds.FRAGMENT_DEFINITION:
-      return printQueryFragment(ast, options);
+      printedDocument = printQueryFragment(ast, options);
+      break;
   }
-  throw new Error('unexpected type: ' + ast.kind);
+  if (!printedDocument) {
+    throw new Error('unexpected type: ' + ast.kind);
+  }
+
+  return t.functionExpression(
+    null,
+    options.substitutions.map(function(sub) {
+      return t.identifier(sub);
+    }),
+    t.blockStatement([
+      t.variableDeclaration(
+        'var',
+        [
+          t.variableDeclarator(
+            t.identifier('GraphQL'),
+            t.memberExpression(
+              identify(options.rqlFunctionName),
+              t.identifier('__GraphQL')
+            )
+          )
+        ]
+      ),
+      t.returnStatement(printedDocument),
+    ])
+  );
 };
 
 function printQueryFragment(fragment, options) {
-  var argsCode = getFragmentCode(fragment, options);
-  var substitutionNames = options.substitutions.join(', ');
-  return [
-    'function(' + substitutionNames + ') {',
-      'var GraphQL = ' + options.rqlFunctionName + '.__GraphQL;',
-      'return new GraphQL.QueryFragment(' + argsCode + ');',
-    '}'
-  ].join('');
-}
-
-function printInlineFragment(fragment, options) {
-  var argsCode = getFragmentCode(fragment, options);
-  return 'new GraphQL.QueryFragment(' + argsCode + ')';
-}
-
-function getFragmentCode(fragment, options) {
   var typeName = getTypeName(fragment);
   var type = options.schema.getType(typeName);
   if (!type) {
@@ -91,15 +106,19 @@ function getFragmentCode(fragment, options) {
   var fragments = fieldsAndFragments.fragments;
   var metadata = getRelayDirectiveMetadata(fragment);
 
-  var metadataCode = stringifyObject(metadata);
-
-  return getFunctionArgCode([
-    JSON.stringify(getName(fragment)),
-    JSON.stringify(getTypeName(fragment)),
-    fields,
-    fragments,
-    metadataCode
-  ]);
+  return t.newExpression(
+    t.memberExpression(
+      t.identifier('GraphQL'),
+      t.identifier('QueryFragment')
+    ),
+    trimArguments([
+      t.literal(getName(fragment)),
+      t.literal(getTypeName(fragment)),
+      fields,
+      fragments,
+      objectify(metadata)
+    ])
+  );
 }
 
 /**
@@ -129,7 +148,7 @@ function printQuery(query, options) {
     requisiteFields[rootCall.arg] = true;
   }
 
-  var callArgsCode = printArguments(rootField.arguments[0], options);
+  var printedArgs = printArguments(rootField.arguments[0], options);
 
   var fieldsAndFragments = printFieldsAndFragments(
     rootField.selectionSet,
@@ -158,24 +177,19 @@ function printQuery(query, options) {
     }
   }
 
-  var metadataCode = stringifyObject(metadata);
-
-  var argsCode = getFunctionArgCode([
-    JSON.stringify(getName(rootField)),
-    callArgsCode,
-    fields,
-    fragments,
-    metadataCode,
-    JSON.stringify(getName(query))
-  ]);
-
-  var substitutionNames = options.substitutions.join(', ');
-
-  return (
-    'function(' + substitutionNames + ') {' +
-      'var GraphQL = ' + options.rqlFunctionName + '.__GraphQL;' +
-      'return new GraphQL.Query(' + argsCode + ');' +
-    '}'
+  return t.newExpression(
+    t.memberExpression(
+      t.identifier('GraphQL'),
+      t.identifier('Query')
+    ),
+    trimArguments([
+      t.literal(getName(rootField)),
+      printedArgs,
+      fields,
+      fragments,
+      objectify(metadata),
+      t.literal(getName(query))
+    ])
   );
 }
 
@@ -204,13 +218,16 @@ function printOperation(operation, options) {
   var type = types.getNamedType(field.type);
   var requisiteFields = {clientMutationId: true};
 
-  var callCode =
-    'new GraphQL.Callv(' +
-    getFunctionArgCode([
-      JSON.stringify(getName(rootField)),
+  var printedCall = t.newExpression(
+    t.memberExpression(
+      t.identifier('GraphQL'),
+      t.identifier('Callv')
+    ),
+    trimArguments([
+      t.literal(getName(rootField)),
       printCallVariable('input')
-    ]) +
-    ')';
+    ])
+  );
 
   if (field.args.length !== 1) {
     throw new Error(util.format(
@@ -231,22 +248,19 @@ function printOperation(operation, options) {
   var fields = fieldsAndFragments.fields;
   var fragments = fieldsAndFragments.fragments;
 
-  var argsCode = getFunctionArgCode([
-    JSON.stringify(getName(operation)),
-    JSON.stringify(type.name),
-    callCode,
-    fields,
-    fragments,
-    stringifyObject(metadata)
-  ]);
-
-  var substitutionNames = options.substitutions.join(', ');
-
-  return (
-    'function(' + substitutionNames + ') {' +
-      'var GraphQL = ' + options.rqlFunctionName + '.__GraphQL;' +
-      'return new GraphQL.' + className + '(' + argsCode + ');' +
-    '}'
+  return t.newExpression(
+    t.memberExpression(
+      t.identifier('GraphQL'),
+      t.identifier(className)
+    ),
+    trimArguments([
+      t.literal(getName(operation)),
+      t.literal(type.name),
+      printedCall,
+      fields,
+      fragments,
+      objectify(metadata)
+    ])
   );
 }
 
@@ -265,7 +279,7 @@ function printFieldsAndFragments(
         // We assume that all spreads were added by us
         fragments.push(printFragmentReference(getName(selection), options));
       } else if (selection.kind === kinds.INLINE_FRAGMENT) {
-        fragments.push(printInlineFragment(selection, options));
+        fragments.push(printQueryFragment(selection, options));
       } else if (selection.kind === kinds.FIELD) {
         fields.push(selection);
       } else {
@@ -276,41 +290,45 @@ function printFieldsAndFragments(
       }
     });
   }
-  var fragmentsCode = null;
-  if (fragments.length) {
-    fragmentsCode = '[' + fragments.join(',') + ']';
-  }
 
   return {
     fields: printFields(fields, type, options, requisiteFields, parentType),
-    fragments: fragmentsCode,
+    fragments: fragments.length ?
+      t.arrayExpression(fragments) :
+      NULL,
   };
 }
 
-function printArguments(args, options) {
+function printArguments(args) {
   if (!args) {
-    return null;
+    return NULL;
   }
   var value = args.value;
   if (value.kind === kinds.LIST) {
-    return '[' + value.values.map(function(arg) {
-      return printArgument(arg, options)
-    }).join(', ') + ']';
+    return t.arrayExpression(
+      value.values.map(function(arg) {
+        return printArgument(arg);
+      })
+    );
   } else {
-    return printArgument(value, options);
+    return printArgument(value);
   }
 }
 
-function printArgument(arg, options) {
+function printArgument(arg) {
+  var value;
   switch (arg.kind) {
     case kinds.INT:
-      return JSON.stringify(parseInt(arg.value, 10));
+      value = parseInt(arg.value, 10);
+      break;
     case kinds.FLOAT:
-      return JSON.stringify(parseFloat(arg.value));
+      value = parseFloat(arg.value);
+      break;
     case kinds.STRING:
     case kinds.ENUM:
     case kinds.BOOLEAN:
-      return JSON.stringify(arg.value);
+      value = arg.value;
+      break;
     case kinds.VARIABLE:
       if (!arg.name || arg.name.kind !== kinds.NAME) {
         throw new Error('Expected variable to have a name');
@@ -319,10 +337,21 @@ function printArgument(arg, options) {
     default:
       throw new Error('Unexpected arg kind: ' + arg.kind);
   }
+  return printCallValue(value);
 }
 
 function printCallVariable(name) {
-  return 'new GraphQL.CallVariable(' + JSON.stringify(name) + ')';
+  return t.newExpression(
+    t.memberExpression(
+      t.identifier('GraphQL'),
+      t.identifier('CallVariable')
+    ),
+    [t.literal(name)]
+  );
+}
+
+function printCallValue(value) {
+  return t.literal(value);
 }
 
 function printFields(fields, type, options, requisiteFields, parentType) {
@@ -331,7 +360,7 @@ function printFields(fields, type, options, requisiteFields, parentType) {
     generateFields[name] = true;
   });
 
-  var fieldStrings = fields.map(function(field) {
+  var printedFields = fields.map(function(field) {
     var fieldName = getName(field);
     delete generateFields[fieldName];
     return printField(field, type, options, requisiteFields, false, parentType);
@@ -343,18 +372,24 @@ function printFields(fields, type, options, requisiteFields, parentType) {
       selectionSet: {selections: []},
       arguments: [],
     };
-    fieldStrings.push(
+    printedFields.push(
       printField(generatedAST, type, options, requisiteFields, true, parentType)
     );
   });
-  if (fieldStrings.length === 0) {
-    return null;
+  if (printedFields.length === 0) {
+    return NULL;
   }
-  return '[' + fieldStrings.join(', ') + ']';
+  return t.arrayExpression(printedFields);
 }
 
 function printFragmentReference(substitutionName, options) {
-  return options.rqlFunctionName + '.__frag(' + substitutionName + ')';
+  return t.callExpression(
+    t.memberExpression(
+      identify(options.rqlFunctionName),
+      t.identifier('__frag')
+    ),
+    [t.identifier(substitutionName)]
+  );
 }
 
 function printField(
@@ -486,29 +521,29 @@ function printField(
     metadata.requisite = true;
   }
 
-  var callsCode = printCalls(field, fieldDecl, options);
+  var calls = printCalls(field, fieldDecl);
+  var fieldAlias = field.alias ? field.alias.value : null;
 
-  var fieldAliasCode = field.alias ?
-    JSON.stringify(field.alias.value) :
-    null;
-  var metadataCode = stringifyObject(metadata);
-
-  var argsCode = getFunctionArgCode([
-    JSON.stringify(fieldName),
-    fields,
-    fragments,
-    callsCode,
-    fieldAliasCode,
-    null,
-    metadataCode
-  ]);
-
-  return 'new GraphQL.Field(' + argsCode + ')';
+  return t.newExpression(
+    t.memberExpression(
+      t.identifier('GraphQL'),
+      t.identifier('Field')
+    ),
+    trimArguments([
+      t.literal(fieldName),
+      fields,
+      fragments,
+      calls,
+      t.literal(fieldAlias),
+      NULL,
+      objectify(metadata)
+    ])
+  );
 }
 
 function printCalls(field, fieldDecl, options) {
   if (field.arguments.length === 0) {
-    return null;
+    return NULL;
   }
 
   // Each GraphQL RFC argument is mapped to a separate call. For GraphQL FB
@@ -529,17 +564,19 @@ function printCalls(field, fieldDecl, options) {
     if (typeName) {
       metadata.type = typeName;
     }
-    return (
-      'new GraphQL.Callv(' +
-        getFunctionArgCode([
-          JSON.stringify(callName),
-          printArguments(arg, options),
-          stringifyObject(metadata),
-        ]) +
-      ')'
+    return t.newExpression(
+      t.memberExpression(
+        t.identifier('GraphQL'),
+        t.identifier('Callv')
+      ),
+      trimArguments([
+        t.literal(callName),
+        printArguments(arg),
+        objectify(metadata)
+      ])
     );
   });
-  return '[' + callStrings.join(', ') + ']';
+  return t.arrayExpression(callStrings);
 }
 
 /**
@@ -775,33 +812,44 @@ function getFieldDef(schema, parentType, field) {
   return types.getNamedType(parentType).getFields()[fieldName];
 }
 
-function trimArray(arr) {
+function objectify(obj) {
+  if (obj == null) {
+    return NULL;
+  }
+  var keys = Object.keys(obj);
+  if (!keys.length) {
+    return NULL;
+  }
+  return t.objectExpression(
+    keys.map(function(key) {
+      return t.property('init', t.identifier(key), t.literal(obj[key]));
+    })
+  );
+}
+
+function identify(str) {
+  return str.split('.').reduce(function(acc, name) {
+    if (!acc) {
+      return t.identifier(name);
+    }
+    return t.memberExpression(acc, t.identifier(name));
+  }, null);
+}
+
+function trimArguments(args) {
   var lastIndex = -1;
-  for (var ii = arr.length - 1; ii >= 0; ii--) {
-    if (arr[ii] !== null) {
+  for (var ii = args.length - 1; ii >= 0; ii--) {
+    if (args[ii] == null) {
+      throw new Error(
+        'Use `NULL` to indicate that output should be the literal value `null`.'
+      );
+    }
+    if (args[ii] !== NULL) {
       lastIndex = ii;
       break;
     }
   }
-  arr.length = lastIndex + 1;
-  return arr;
-}
-
-function stringifyObject(obj) {
-  for (var ii in obj) {
-    if (obj.hasOwnProperty(ii)) {
-      return JSON.stringify(obj);
-    }
-  }
-  return null;
-}
-
-function getFunctionArgCode(arr) {
-  return trimArray(arr)
-    .map(function(arg) {
-      return arg === null ? 'null' : arg;
-    })
-    .join(', ');
+  return args.slice(0, lastIndex + 1);
 }
 
 function getSelections(node) {

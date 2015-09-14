@@ -6,7 +6,7 @@ import React from 'react'; window.React = React;
 import ReactDOM from 'react/lib/ReactDOM';
 
 import evalSchema from './evalSchema';
-import queryString from 'query-string';
+import queryString from 'querystring';
 import {graphql} from 'graphql';
 
 if (
@@ -16,7 +16,7 @@ if (
   var {
     query,
     schema: schemaSource,
-  } = queryString.parse(location.hash);
+  } = queryString.parse(location.hash.slice(1));
 }
 
 var Schema;

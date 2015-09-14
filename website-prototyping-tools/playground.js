@@ -4,9 +4,9 @@ import React from 'react'; window.React = React;
 import ReactDOM from 'react/lib/ReactDOM';
 import RelayPlayground from './RelayPlayground';
 
-import queryString from 'query-string';
+import queryString from 'querystring';
 
-var queryParams = queryString.parse(location.hash);
+var queryParams = queryString.parse(location.hash.slice(1));
 
 if (
   /^https?:\/\/facebook.github.io\//.test(document.referrer) ||

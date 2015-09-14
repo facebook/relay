@@ -73,7 +73,7 @@ describe('writeRelayQueryPayload()', () => {
 
     var alias = generateRQLFieldAlias('friends.first(3)');
     var payload = {
-      '123': {
+      node: {
         id: '123',
         [alias]: {
           edges: [],
@@ -133,12 +133,12 @@ describe('writeRelayQueryPayload()', () => {
       }
     `);
     var payload = {
-      '123': {
+      node: {
         id: '123'
       }
     };
     var alias = generateRQLFieldAlias('friends.first(3)');
-    payload['123'][alias] = {
+    payload.node[alias] = {
       edges: [
         {
           cursor: 'friend1',
@@ -231,12 +231,12 @@ describe('writeRelayQueryPayload()', () => {
       }
     `);
     var payload = {
-      '123': {
+      node: {
         id: '123'
       }
     };
     var alias = generateRQLFieldAlias('friends.first(3)');
-    payload['123'][alias] = {
+    payload.node[alias] = {
       edges: [
         null,
         {
@@ -294,7 +294,7 @@ describe('writeRelayQueryPayload()', () => {
       }
     `);
     var payload = {
-      '123': {
+      node: {
         id: '123',
         friends: {count: 5}
       }
@@ -323,12 +323,12 @@ describe('writeRelayQueryPayload()', () => {
       }
     `);
     payload = {
-      '123': {
+      node: {
         id: '123'
       }
     };
     var alias = generateRQLFieldAlias('friends.first(1)');
-    payload['123'][alias] = {
+    payload.node[alias] = {
       edges: [
         {
           cursor: 'friend1',
@@ -399,7 +399,7 @@ describe('writeRelayQueryPayload()', () => {
     `);
     var alias = generateRQLFieldAlias('friends.isViewerFriend(true)');
     var payload = {
-      '123': {
+      node: {
         id: '123',
         [alias]: {
           edges: [
@@ -445,12 +445,12 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123'
         }
       };
       var alias = generateRQLFieldAlias('friends.first(1)');
-      payload['123'][alias] = {
+      payload.node[alias] = {
         edges: [{
           node: {
             id: 'node1'
@@ -482,12 +482,12 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123'
         }
       };
       var alias = generateRQLFieldAlias('friends.first(1).after(cursor1)');
-      payload['123'][alias] = {
+      payload.node[alias] = {
         edges: [{
           node: {
             id: 'node2'
@@ -543,12 +543,12 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123'
         }
       };
       var alias = generateRQLFieldAlias('friends.find(node1)');
-      payload['123'][alias] = {
+      payload.node[alias] = {
         edges: [{
           node: {
             id: 'node1',
@@ -606,12 +606,12 @@ describe('writeRelayQueryPayload()', () => {
         }
       `, RelayMetaRoute.get('$RelayTest'), {});
       var payload = {
-        '123': {
+        node: {
           id: '123'
         }
       };
       var alias = generateRQLFieldAlias('friends.find(node1)');
-      payload['123'][alias] = {
+      payload.node[alias] = {
         edges: [{
           node: {
             id: 'node1',
@@ -671,12 +671,12 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123'
         }
       };
       var alias = generateRQLFieldAlias('friends.first(1)');
-      payload['123'][alias] = {
+      payload.node[alias] = {
         edges: [{
           node: {
             id: 'node1b'
@@ -731,12 +731,12 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123'
         }
       };
       var alias = generateRQLFieldAlias('friends.first(1)');
-      payload['123'][alias] = {
+      payload.node[alias] = {
         edges: [{
           node: {
             id: 'node1b'

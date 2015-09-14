@@ -51,7 +51,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           emailAddresses: [newEmail]
         }
@@ -85,7 +85,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           emailAddresses: [newEmail, email]
         }
@@ -120,7 +120,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           emailAddresses: [email, newEmail]
         }
@@ -155,7 +155,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           emailAddresses: [email]
         }

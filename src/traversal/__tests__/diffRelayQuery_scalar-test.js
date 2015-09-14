@@ -86,7 +86,7 @@ describe('diffRelayQuery', () => {
       }
     `);
     var payload = {
-      '123': {
+      node: {
         id: '123',
         firstName: 'Joe'
       }

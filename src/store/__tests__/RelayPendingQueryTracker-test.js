@@ -27,6 +27,10 @@ var writeRelayQueryPayload = require('writeRelayQueryPayload');
 describe('RelayPendingQueryTracker', () => {
   var addPending;
 
+  var consoleError;
+  var expectConsoleError;
+  var expectedConsoleErrors;
+
   var {getNode} = RelayTestUtils;
 
   beforeEach(() => {
@@ -41,10 +45,25 @@ describe('RelayPendingQueryTracker', () => {
         fetchMode,
         forceIndex: null,
         storeData: RelayStoreData.getDefaultInstance(),
-      });
+      }).getResolvedPromise();
+    };
+
+    consoleError = console.error;
+    console.error = (message, ...args) => {
+      if (!expectedConsoleErrors.hasOwnProperty(message)) {
+        consoleError(message, ...args);
+      }
+    };
+    expectedConsoleErrors = {};
+    expectConsoleError = message => {
+      expectedConsoleErrors[message] = true;
     };
 
     jest.addMatchers(RelayTestUtils.matchers);
+  });
+
+  afterEach(() => {
+    console.error = consoleError;
   });
 
   it('subtracts pending queries that share root call', () => {
@@ -86,7 +105,7 @@ describe('RelayPendingQueryTracker', () => {
       [mockQueryC, mockQueryA],
     ]);
 
-    fetchRelayQuery.mock.requests[1].resolve({});
+    fetchRelayQuery.mock.requests[1].resolve({node: {}});
     jest.runAllTimers();
 
     subtractRelayQuery.mockClear();
@@ -162,16 +181,17 @@ describe('RelayPendingQueryTracker', () => {
         viewer{actor{id,name}}
       }
     `);
+
     addPending({query: mockQueryA});
     jest.runAllTimers();
 
-    fetchRelayQuery.mock.requests[0].resolve({});
+    fetchRelayQuery.mock.requests[0].resolve({viewer:{}});
     jest.runAllTimers();
 
     var writeCalls = writeRelayQueryPayload.mock.calls;
     expect(writeCalls.length).toBe(1);
     expect(writeCalls[0][1]).toEqualQueryRoot(mockQueryA);
-    expect(writeCalls[0][2]).toEqual({});
+    expect(writeCalls[0][2]).toEqual({viewer:{}});
   });
 
   it('resolves after dependencies are ready', () => {
@@ -193,7 +213,7 @@ describe('RelayPendingQueryTracker', () => {
 
     var pendingA = addPending({query: mockQueryA});
     var mockSuccessA = jest.genMockFunction();
-    pendingA.getResolvedPromise().then(mockSuccessA);
+    pendingA.done(mockSuccessA);
 
     // Simulates: B - A = C
     subtractRelayQuery.mockImplementation((query, subQuery) => {
@@ -204,15 +224,15 @@ describe('RelayPendingQueryTracker', () => {
 
     var pendingB = addPending({query: mockQueryB});
     var mockSuccessB = jest.genMockFunction();
-    pendingB.getResolvedPromise().then(mockSuccessB);
+    pendingB.done(mockSuccessB);
 
-    fetchRelayQuery.mock.requests[1].resolve({});
+    fetchRelayQuery.mock.requests[1].resolve({viewer:{}});
     jest.runAllTimers();
 
     expect(mockSuccessA).not.toBeCalled();
     expect(mockSuccessB).not.toBeCalled();
 
-    fetchRelayQuery.mock.requests[0].resolve({});
+    fetchRelayQuery.mock.requests[0].resolve({viewer:{}});
     jest.runAllTimers();
 
     expect(mockSuccessA).toBeCalled();
@@ -248,7 +268,7 @@ describe('RelayPendingQueryTracker', () => {
 
     var pendingA = addPending({query: mockQueryA});
     var mockFailureA = jest.genMockFunction();
-    pendingA.getResolvedPromise().catch(mockFailureA);
+    pendingA.catch(mockFailureA);
     jest.runAllTimers();
 
     // Simulates: B - A = B'
@@ -260,7 +280,7 @@ describe('RelayPendingQueryTracker', () => {
 
     var pendingB = addPending({query: mockQueryB});
     var mockFailureB = jest.genMockFunction();
-    pendingB.getResolvedPromise().catch(mockFailureB);
+    pendingB.catch(mockFailureB);
     jest.runAllTimers();
 
     // Simulates: C - A = C, C - B' = C'
@@ -272,22 +292,23 @@ describe('RelayPendingQueryTracker', () => {
 
     var pendingC = addPending({query: mockQueryC});
     var mockSuccessC = jest.genMockFunction();
-    pendingC.getResolvedPromise().then(mockSuccessC);
+    pendingC.done(mockSuccessC);
     jest.runAllTimers();
 
     var mockFetchError = new Error('Expected `fetchRelayQuery` error.');
-    fetchRelayQuery.mock.requests[1].resolve({});
+    fetchRelayQuery.mock.requests[1].resolve({viewer:{}});
     fetchRelayQuery.mock.requests[0].reject(mockFetchError);
-    fetchRelayQuery.mock.requests[2].resolve({});
+    fetchRelayQuery.mock.requests[2].resolve({viewer:{}});
+    expectConsoleError(mockFetchError.message);
 
     jest.runAllTimers();
 
     var writeCalls = writeRelayQueryPayload.mock.calls;
     expect(writeCalls.length).toBe(2);
     expect(writeCalls[0][1]).toEqualQueryRoot(mockQueryBPrime);
-    expect(writeCalls[0][2]).toEqual({});
+    expect(writeCalls[0][2]).toEqual({viewer:{}});
     expect(writeCalls[1][1]).toEqualQueryRoot(mockQueryCPrime);
-    expect(writeCalls[1][2]).toEqual({});
+    expect(writeCalls[1][2]).toEqual({viewer:{}});
 
     expect(mockFailureA).toBeCalled();
     expect(mockFailureB).toBeCalled();
@@ -302,10 +323,11 @@ describe('RelayPendingQueryTracker', () => {
     `);
     var pendingA = addPending({query: mockQuery});
     var mockFailureA = jest.genMockFunction();
-    pendingA.getResolvedPromise().catch(mockFailureA);
+    pendingA.catch(mockFailureA);
 
     var mockError = new Error('Expected error.');
     fetchRelayQuery.mock.requests[0].reject(mockError);
+    expectConsoleError(mockError.message);
     jest.runAllTimers();
 
     expect(mockFailureA).toBeCalledWith(mockError);
@@ -319,13 +341,14 @@ describe('RelayPendingQueryTracker', () => {
     `);
     var pendingA = addPending({query: mockQuery});
     var mockFailureA = jest.genMockFunction();
-    pendingA.getResolvedPromise().catch(mockFailureA);
+    pendingA.catch(mockFailureA);
 
     var mockError = new Error('Expected error.');
-    fetchRelayQuery.mock.requests[0].resolve({});
+    fetchRelayQuery.mock.requests[0].resolve({viewer:{}});
     writeRelayQueryPayload.mockImplementation(() => {
       throw mockError;
     });
+    expectConsoleError(mockError.message);
     jest.runAllTimers();
 
     expect(mockFailureA).toBeCalledWith(mockError);
@@ -345,7 +368,7 @@ describe('RelayPendingQueryTracker', () => {
 
     RelayPendingQueryTracker.resolvePreloadQuery(
       mockQuery.getID(),
-      {response: {}}
+      {response: {viewer:{}}}
     );
 
     jest.runAllTimers();
@@ -354,7 +377,7 @@ describe('RelayPendingQueryTracker', () => {
     var writeCalls = writeRelayQueryPayload.mock.calls;
     expect(writeCalls.length).toBe(1);
     expect(writeCalls[0][1]).toEqualQueryRoot(mockQuery);
-    expect(writeCalls[0][2]).toEqual({});
+    expect(writeCalls[0][2]).toEqual({viewer:{}});
   });
 
   it('can resolve preload queries *before* they are added', () => {
@@ -366,7 +389,7 @@ describe('RelayPendingQueryTracker', () => {
 
     RelayPendingQueryTracker.resolvePreloadQuery(
       mockQuery.getID(),
-      {response: {}}
+      {response: {viewer:{}}}
     );
 
     addPending({
@@ -380,7 +403,7 @@ describe('RelayPendingQueryTracker', () => {
     var writeCalls = writeRelayQueryPayload.mock.calls;
     expect(writeCalls.length).toBe(1);
     expect(writeCalls[0][1]).toEqualQueryRoot(mockQuery);
-    expect(writeCalls[0][2]).toEqual({});
+    expect(writeCalls[0][2]).toEqual({viewer:{}});
   });
 
   it('can reject preloaded pending queries by id', () => {
@@ -395,13 +418,14 @@ describe('RelayPendingQueryTracker', () => {
       fetchMode: DliteFetchModeConstants.FETCH_MODE_PRELOAD,
     });
     var mockCallback = jest.genMockFunction();
-    mockPending.getResolvedPromise().catch(mockCallback);
+    mockPending.catch(mockCallback);
 
     var mockError = new Error('Expected error.');
     RelayPendingQueryTracker.rejectPreloadQuery(
       mockQuery.getID(),
       mockError
     );
+    expectConsoleError(mockError.message);
 
     jest.runAllTimers();
 
@@ -430,7 +454,7 @@ describe('RelayPendingQueryTracker', () => {
     addPending({query: mockQueryA});
     jest.runAllTimers();
 
-    fetchRelayQuery.mock.requests[0].resolve({});
+    fetchRelayQuery.mock.requests[0].resolve({viewer:{}});
     jest.runAllTimers();
 
     expect(RelayPendingQueryTracker.hasPendingQueries()).toBeFalsy();

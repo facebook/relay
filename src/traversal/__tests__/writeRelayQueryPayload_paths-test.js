@@ -63,7 +63,7 @@ describe('writePayload()', () => {
         }
       `);
       var payload = {
-        'viewer': {
+        viewer: {
           actor: {
             id: '123',
           },
@@ -98,7 +98,7 @@ describe('writePayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
         },
       };
@@ -129,7 +129,7 @@ describe('writePayload()', () => {
         }
       `);
       var payload = {
-        'viewer': {
+        viewer: {
           'actor': {
             id: '123',
             address: {
@@ -180,7 +180,7 @@ describe('writePayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           allPhones: [phone],
         },
@@ -225,7 +225,7 @@ describe('writePayload()', () => {
       `);
       var alias = generateRQLFieldAlias('friends.first(1)');
       var payload = {
-        '123': {
+        node: {
           id: '123',
           [alias]: {
             edges: [
@@ -279,7 +279,7 @@ describe('writePayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           name: 'Joe',
         },
@@ -307,7 +307,7 @@ describe('writePayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           address: {
             city: 'San Francisco',
@@ -386,7 +386,7 @@ describe('writePayload()', () => {
         },
       };
       var payload = {
-        '123': {
+        node: {
           id: '123',
           allPhones: [phone],
         },
@@ -429,7 +429,7 @@ describe('writePayload()', () => {
       `);
       var alias = generateRQLFieldAlias('friends.first(1)');
       var payload = {
-        '123': {
+        node: {
           id: '123',
           [alias]: {
             edges: [
@@ -489,7 +489,7 @@ describe('writePayload()', () => {
       `);
       var alias = generateRQLFieldAlias('friends.first(1)');
       var payload = {
-        '123': {
+        node: {
           id: '123',
           [alias]: {
             edges: [
@@ -525,7 +525,7 @@ describe('writePayload()', () => {
       `);
       alias = generateRQLFieldAlias('friends.after(c1).first(1)');
       payload = {
-        '123': {
+        node: {
           id: '123',
           [alias]: {
             edges: [
@@ -581,7 +581,7 @@ describe('writePayload()', () => {
       `);
       var alias = generateRQLFieldAlias('friends.first(1)');
       var payload = {
-        '123': {
+        node: {
           id: '123',
           name: 'Joe',
           allPhones: [

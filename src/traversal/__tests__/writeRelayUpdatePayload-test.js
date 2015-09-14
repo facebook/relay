@@ -83,7 +83,7 @@ describe('writePayload()', () => {
         }
       `);
       var payload = {
-        feedback_id: {
+        node: {
           id: 'feedback_id',
           [generateRQLFieldAlias('topLevelComments.first(1)')]: {
             count: 1,
@@ -305,7 +305,7 @@ describe('writePayload()', () => {
       `);
       var alias = generateRQLFieldAlias('topLevelComments.first(1)');
       var payload = {
-        feedback123: {
+        node: {
           id: feedbackID,
           [alias]: {
             count: 1,
@@ -510,6 +510,7 @@ describe('writePayload()', () => {
       expect(store.getField(connectionID, 'count')).toBe(0);
     });
   });
+
   describe('plural node delete mutation', () => {
     var store, queueStore, firstRequestID, secondRequestID, thirdRequestID;
 
@@ -543,15 +544,11 @@ describe('writePayload()', () => {
         }
       `);
       var payload = {
-        request1: {
-          id: firstRequestID,
-        },
-        request2: {
-          id: secondRequestID,
-        },
-        request3: {
-          id: secondRequestID,
-        },
+        nodes: [
+          {id: firstRequestID},
+          {id: secondRequestID},
+          {id: thirdRequestID},
+        ],
       };
 
       writePayload(store, query, payload);
@@ -720,7 +717,7 @@ describe('writePayload()', () => {
       `);
       var alias = generateRQLFieldAlias('topLevelComments.first(1)');
       var payload = {
-        feedback123: {
+        node: {
           id: feedbackID,
           [alias]: {
             count: 1,

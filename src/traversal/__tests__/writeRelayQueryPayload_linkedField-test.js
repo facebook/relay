@@ -251,7 +251,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           // address has no id and receives a generated client id
           address: {
@@ -298,7 +298,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           // the address record has no id but should reuse the previously
           // generated client id
@@ -339,7 +339,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        'user:1': {
+        node: {
           id: 'user:1',
           'hometown': {
             id: 'hometown:1',

@@ -55,7 +55,7 @@ describe('RelayStoreData', () => {
         }
       `);
       var response = {
-        '123': {
+        node: {
           id: '123',
           doesViewerLike: false,
           topLevelComments: {
@@ -198,7 +198,7 @@ describe('RelayStoreData', () => {
           }
         `);
         var response = {
-          '123': {
+          node: {
             id: '123',
             doesViewerLike: false,
             topLevelComments: {
@@ -241,7 +241,7 @@ describe('RelayStoreData', () => {
 
         // simulate a server response with different data
         response = {
-          '123': {
+          node: {
             id: '123',
             doesViewerLike: true, // inverted
             topLevelComments: null, // delete
@@ -340,12 +340,10 @@ describe('RelayStoreData', () => {
       expect(RelayStoreGarbageCollector.mock.instances.length).toBe(1);
     });
 
-    it(
-      'warns when garbage collection is initialized after data has been added',
-      () => {
+    it('warns if initialized after data has been added', () => {
         // Mock console.error so we can spy on it
         console.error = jest.genMockFunction();
-        var response = {a: {id: 0}};
+        var response = {node: {id: 0}};
         var data = new RelayStoreData();
         var query = getNode(Relay.QL`query{node(id:"a") {id}}`);
         data.handleQueryPayload(query, response);
@@ -363,7 +361,7 @@ describe('RelayStoreData', () => {
       'registers created dataIDs in the garbage collector if it has been ' +
       'initialized',
       () => {
-        var response = {a: {id: 0}};
+        var response = {node: {id: 0}};
         var data = new RelayStoreData();
         data.initializeGarbageCollector();
         var query = getNode(Relay.QL`query{node(id:"a") {id}}`);

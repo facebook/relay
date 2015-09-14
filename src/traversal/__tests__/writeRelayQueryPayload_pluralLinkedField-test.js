@@ -53,7 +53,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           allPhones: [],
         }
@@ -98,7 +98,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           allPhones: [phone]
         }
@@ -177,7 +177,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           allPhones: [newPhone]
         }
@@ -247,7 +247,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           allPhones: [phone]
         }
@@ -293,7 +293,7 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
-        '123': {
+        node: {
           id: '123',
           allPhones: [],
         }

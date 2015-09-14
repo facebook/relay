@@ -13,10 +13,12 @@ if (
   /^https?:\/\/facebook.github.io\//.test(document.referrer) ||
   /^localhost/.test(document.location.host)
 ) {
+  // Don't trust location.hash not to have been unencoded by the browser
+  var hash = window.location.href.split('#')[1];
   var {
     query,
     schema: schemaSource,
-  } = queryString.parse(location.hash);
+  } = queryString.parse(hash);
 }
 
 var Schema;

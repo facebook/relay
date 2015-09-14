@@ -46,6 +46,18 @@ Relay.injectNetworkLayer(
 
 Unlike queries, failed requests for mutations are not automatically retried.
 
+Custom HTTP headers can be configured by providing a `headers` object:
+
+```{3-5}
+Relay.injectNetworkLayer(
+  new Relay.DefaultNetworkLayer('http://example.com/graphql', {
+    headers: {
+      Authorization: 'Basic SSdsbCBmaW5kIHNvbWV0aGluZyB0byBwdXQgaGVyZQ==',
+    },
+  })
+);
+```
+
 ## Custom Network Layers
 
 Relay also lets us completely replace the default network layer.

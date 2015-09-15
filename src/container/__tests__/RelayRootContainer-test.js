@@ -113,12 +113,14 @@ describe('RelayRootContainer', function() {
   });
 
   describe('validation', () => {
-    var error = console.error;
-
+    var {error} = console;
     beforeEach(() => {
-      console.error = message => {
+      console.error = jest.genMockFunction().mockImplementation(message => {
         throw new Error(message.replace(/Composite propType/, 'propType'));
-      };
+      });
+    });
+    afterEach(() => {
+      console.error = error;
     });
 
     it('requires a valid `Component` prop', () => {
@@ -151,10 +153,6 @@ describe('RelayRootContainer', function() {
         'Warning: Failed propType: Required prop `route.name` was not ' +
         'specified in `RelayRootContainer`.'
       );
-    });
-
-    afterEach(() => {
-      console.error = error;
     });
   });
 

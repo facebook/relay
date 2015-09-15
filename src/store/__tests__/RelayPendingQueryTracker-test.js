@@ -49,11 +49,13 @@ describe('RelayPendingQueryTracker', () => {
     };
 
     consoleError = console.error;
-    console.error = (message, ...args) => {
-      if (!expectedConsoleErrors.hasOwnProperty(message)) {
-        consoleError(message, ...args);
+    console.error = jest.genMockFunction().mockImplementation(
+      (message, ...args) => {
+        if (!expectedConsoleErrors.hasOwnProperty(message)) {
+          consoleError(message, ...args);
+        }
       }
-    };
+    );
     expectedConsoleErrors = {};
     expectConsoleError = message => {
       expectedConsoleErrors[message] = true;

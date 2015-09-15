@@ -461,7 +461,7 @@ class LikeStoryMutation extends Relay.Mutation {
       story: {
         id: this.props.story.id,
         likers: {
-          count: this.props.story.likers.count + 1,
+          count: this.props.story.likers.count + (this.props.story.viewerDoesLike ? -1 : 1),
         },
         viewerDoesLike: !this.props.story.viewerDoesLike,
       },

@@ -1007,22 +1007,28 @@ describe('diffRelayQuery', () => {
     var diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
-    expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
+    expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495") {
           id,
-          name,
-          lastName,
+          ... on Actor {
+            id,
+            lastName,
+            name,
+          },
         }
       }
     `));
     expect(diffQueries[1].getName()).toBe(query.getName());
-    expect(diffQueries[1]).toEqualQueryRoot(getNode(Relay.QL`
+    expect(diffQueries[1]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"1023896548") {
           id,
-          firstName,
-          lastName,
+          ... on Actor {
+            firstName,
+            id,
+            lastName,
+          },
         }
       }
     `));
@@ -1033,9 +1039,9 @@ describe('diffRelayQuery', () => {
           id,
           actors {
             id,
-            name,
             firstName,
-            lastName
+            lastName,
+            name,
           }
         }
       }
@@ -1366,11 +1372,14 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var expected2 = getNode(Relay.QL`
+    var expected2 = getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495") {
           id,
-          name
+          ... on User {
+            id,
+            name,
+          },
         }
       }
     `);
@@ -1480,11 +1489,14 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var expected2 = getNode(Relay.QL`
+    var expected2 = getVerbatimNode(Relay.QL`
       query {
         node(id:"660361306") {
           id,
-          name
+          ... on User {
+            id,
+            name,
+          },
         }
       }
     `);
@@ -1589,9 +1601,17 @@ describe('diffRelayQuery', () => {
     var diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
-    expect(diffQueries[0]).toEqualQueryRoot(getNode(
-      Relay.QL`query{node(id:"4808495"){name}}`
-    ));
+    expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+      query {
+        node(id:"4808495"){
+          id,
+          ... on User {
+            id,
+            name,
+          },
+        }
+      }
+    `));
 
     var trackedQuery = getNode(Relay.QL`
       query {
@@ -1648,10 +1668,14 @@ describe('diffRelayQuery', () => {
       diffCalls: null
     });
 
-    var expected = getNode(Relay.QL`
+    var expected = getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495") {
-          lastName,
+          id,
+          ... on User {
+            id,
+            lastName,
+          },
         }
       }
     `);
@@ -1803,11 +1827,14 @@ describe('diffRelayQuery', () => {
       diffCalls: null
     });
 
-    var expected = getNode(Relay.QL`
+    var expected = getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495") {
           id,
-          lastName
+          ... on User {
+            id,
+            lastName,
+          },
         }
       }
     `);

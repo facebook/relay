@@ -83,7 +83,10 @@ function diffRelayQuery(
         rootCallName,
         rootCallArg,
         root.getChildren(),
-        {rootArg: root.getRootCallArgument()},
+        {
+          rootArg: root.getRootCallArgument(),
+          rootCallType: root.getCallType(),
+        },
         root.getName()
       );
     } else {
@@ -390,11 +393,9 @@ class RelayDiffQueryBuilder {
             hasSplitQueries || !!itemState.trackedNode || !!itemState.diffNode;
           // split diff nodes into root queries
           if (itemState.diffNode) {
-            this.splitQuery(RelayQuery.Node.buildRoot(
-              NODE,
+            this.splitQuery(buildRoot(
               itemID,
               itemState.diffNode.getChildren(),
-              {rootArg: RelayNodeInterface.ID},
               path.getName()
             ));
           }
@@ -572,11 +573,9 @@ class RelayDiffQueryBuilder {
       // split missing `node` fields into a `node(id)` root query
       if (diffNodeField) {
         hasSplitQueries = true;
-        this.splitQuery(RelayQuery.Node.buildRoot(
-          NODE,
+        this.splitQuery(buildRoot(
           nodeID,
           diffNodeField.getChildren(),
-          {rootArg: RelayNodeInterface.ID},
           path.getName()
         ));
       }
@@ -724,6 +723,40 @@ function splitNodeAndEdgesFields(
     edges: hasEdgeChild ? edgeOrFragment.clone(edgeChildren) : null,
     node: hasNodeChild ? edgeOrFragment.clone(nodeChildren) : null,
   };
+}
+
+function buildRoot(
+  rootID: DataID,
+  children: Array<RelayQuery.Node>,
+  name: string
+): RelayQuery.Root {
+  // Child fields are always collapsed into fragments so a root `id` field
+  // must be added.
+  var fragments = [idField];
+  var childTypes = {};
+  children.forEach(child => {
+    if (child instanceof RelayQuery.Field) {
+      var parentType = child.getParentType();
+      childTypes[parentType] = childTypes[parentType] || [];
+      childTypes[parentType].push(child);
+    } else {
+      fragments.push(child);
+    }
+  });
+  Object.keys(childTypes).map(type => {
+    fragments.push(RelayQuery.Node.buildFragment(
+      'diffRelayQuery',
+      type,
+      childTypes[type]
+    ));
+  });
+  return RelayQuery.Node.buildRoot(
+    NODE,
+    rootID,
+    fragments,
+    {rootArg: RelayNodeInterface.ID},
+    name
+  );
 }
 
 module.exports = RelayProfiler.instrument('diffRelayQuery', diffRelayQuery);

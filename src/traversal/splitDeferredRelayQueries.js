@@ -117,7 +117,7 @@ function wrapNode(
     'splitDeferredRelayQueries(): Cannot build query without a root node.'
   );
   var rootCall = node.getRootCall();
-  return RelayQuery.Node.buildRoot(
+  return RelayQuery.Root.build(
     rootCall.name,
     rootCall.value,
     node.getChildren(),
@@ -217,7 +217,7 @@ function createRefQuery(
   path.push(primaryKey);
 
   // Create the wrapper root query.
-  var root = RelayQuery.Node.buildRoot(
+  var root = RelayQuery.Root.build(
     RelayNodeInterface.NODES,
     new GraphQL.BatchCallVariable(context.getID(), path.join('.')),
     [node],

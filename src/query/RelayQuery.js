@@ -116,127 +116,6 @@ class RelayQueryNode {
     return node;
   }
 
-  /**
-   * Helper to construct a new root query with the given attributes and 'empty'
-   * route/variables.
-   */
-  static buildRoot(
-    rootCall: string,
-    rootCallValue?: ?Array<RootCallValue> | ?RootCallValue,
-    children?: ?Array<RelayQueryNode>,
-    metadata?: ?{[key: string]: mixed},
-    name?: ?string
-  ): RelayQueryRoot {
-    var nextChildren = children ? children.filter(child => !!child) : [];
-    var concreteRoot = new GraphQL.Query(
-      rootCall,
-      rootCallValue || null,
-      null,
-      null,
-      metadata,
-      name
-    );
-    var root = new RelayQueryRoot(
-      concreteRoot,
-      RelayMetaRoute.get('$RelayQuery'),
-      {}
-    );
-    root.__children__ = nextChildren;
-    return root;
-  }
-
-  /**
-   * Helper to construct a new fragment with the given attributes and 'empty'
-   * route/variables.
-   */
-  static buildFragment(
-    name: string,
-    type: string,
-    children?: ?Array<RelayQueryNode>,
-    metadata?: ?{[key: string]: mixed}
-  ): RelayQueryFragment {
-    var nextChildren = children ? children.filter(child => !!child) : [];
-    var concreteFragment = new GraphQL.QueryFragment(
-      name,
-      type,
-      null,
-      null,
-      metadata
-    );
-    var fragment = new RelayQueryFragment(
-      concreteFragment,
-      RelayMetaRoute.get('$RelayQuery'),
-      {},
-      {
-        isDeferred: !!(metadata && metadata.isDeferred),
-        isContainerFragment: !!(metadata && metadata.isContainerFragment),
-        isTypeConditional: !!(metadata && metadata.isTypeConditional),
-      }
-    );
-    fragment.__children__ = nextChildren;
-    return fragment;
-  }
-
-  /**
-   * Helper to construct a new field with the given attributes and 'empty'
-   * route/variables.
-   */
-  static buildField(
-    fieldName: string,
-    calls?: ?Array<Call>,
-    children?: ?NextChildren,
-    metadata?: ?{[key: string]: mixed},
-    alias?: ?string
-  ): RelayQueryField {
-    var nextChildren = children ? children.filter(child => !!child) : [];
-    var concreteField = new GraphQL.Field(
-      fieldName,
-      null,
-      null,
-      calls ? callsToGraphQL(calls) : null,
-      alias,
-      null,
-      metadata
-    );
-    var field = new RelayQueryField(
-      concreteField,
-      RelayMetaRoute.get('$RelayQuery'),
-      {}
-    );
-    field.__children__ = nextChildren;
-    return field;
-  }
-
-  /**
-   * Helper to construct a new mutation with the given attributes and 'empty'
-   * route/variables.
-   */
-  static buildMutation(
-    mutationName: string,
-    responseType: string,
-    callName: string,
-    callValue?: ?mixed,
-    children?: ?Array<RelayQueryNode>,
-    metadata?: ?{[key: string]: mixed}
-  ): RelayQueryMutation {
-    var nextChildren = children ? children.filter(child => !!child) : [];
-    var concreteMutation = new GraphQL.Mutation(
-      mutationName,
-      responseType,
-      new GraphQL.Callv(callName, new GraphQL.CallVariable('input')),
-      null,
-      null,
-      metadata
-    );
-    var mutation = new RelayQueryMutation(
-      concreteMutation,
-      RelayMetaRoute.get('$RelayQuery'),
-      {input: callValue || ''}
-    );
-    mutation.__children__ = nextChildren;
-    return mutation;
-  }
-
   static createFragment(
     concreteNode: ConcreteQueryObject,
     route: RelayMetaRoute,
@@ -472,6 +351,35 @@ class RelayQueryRoot extends RelayQueryNode {
   __deferredFragmentNames__: ?FragmentNames;
   __id__: ?string;
 
+  /**
+   * Helper to construct a new root query with the given attributes and 'empty'
+   * route/variables.
+   */
+  static build(
+    rootCall: string,
+    rootCallValue?: ?Array<RootCallValue> | ?RootCallValue,
+    children?: ?Array<RelayQueryNode>,
+    metadata?: ?{[key: string]: mixed},
+    name?: ?string
+  ): RelayQueryRoot {
+    var nextChildren = children ? children.filter(child => !!child) : [];
+    var concreteRoot = new GraphQL.Query(
+      rootCall,
+      rootCallValue || null,
+      null,
+      null,
+      metadata,
+      name
+    );
+    var root = new RelayQueryRoot(
+      concreteRoot,
+      RelayMetaRoute.get('$RelayQuery'),
+      {}
+    );
+    root.__children__ = nextChildren;
+    return root;
+  }
+
   constructor(
     concreteNode: ConcreteQueryObject,
     route: RelayMetaRoute,
@@ -651,6 +559,36 @@ class RelayQueryOperation extends RelayQueryNode {
  * Represents a GraphQL mutation.
  */
 class RelayQueryMutation extends RelayQueryOperation {
+  /**
+   * Helper to construct a new mutation with the given attributes and 'empty'
+   * route/variables.
+   */
+  static build(
+    mutationName: string,
+    responseType: string,
+    callName: string,
+    callValue?: ?mixed,
+    children?: ?Array<RelayQueryNode>,
+    metadata?: ?{[key: string]: mixed}
+  ): RelayQueryMutation {
+    var nextChildren = children ? children.filter(child => !!child) : [];
+    var concreteMutation = new GraphQL.Mutation(
+      mutationName,
+      responseType,
+      new GraphQL.Callv(callName, new GraphQL.CallVariable('input')),
+      null,
+      null,
+      metadata
+    );
+    var mutation = new RelayQueryMutation(
+      concreteMutation,
+      RelayMetaRoute.get('$RelayQuery'),
+      {input: callValue || ''}
+    );
+    mutation.__children__ = nextChildren;
+    return mutation;
+  }
+
   equals(that: RelayQueryNode): boolean {
     if (this === that) {
       return true;
@@ -707,6 +645,38 @@ class RelayQuerySubscription extends RelayQueryOperation {
 class RelayQueryFragment extends RelayQueryNode {
   __fragmentID__: ?string;
   __metadata__: FragmentMetadata;
+
+  /**
+   * Helper to construct a new fragment with the given attributes and 'empty'
+   * route/variables.
+   */
+  static build(
+    name: string,
+    type: string,
+    children?: ?Array<RelayQueryNode>,
+    metadata?: ?{[key: string]: mixed}
+  ): RelayQueryFragment {
+    var nextChildren = children ? children.filter(child => !!child) : [];
+    var concreteFragment = new GraphQL.QueryFragment(
+      name,
+      type,
+      null,
+      null,
+      metadata
+    );
+    var fragment = new RelayQueryFragment(
+      concreteFragment,
+      RelayMetaRoute.get('$RelayQuery'),
+      {},
+      {
+        isDeferred: !!(metadata && metadata.isDeferred),
+        isContainerFragment: !!(metadata && metadata.isContainerFragment),
+        isTypeConditional: !!(metadata && metadata.isTypeConditional),
+      }
+    );
+    fragment.__children__ = nextChildren;
+    return fragment;
+  }
 
   constructor(
     concreteNode: ConcreteQueryObject,
@@ -809,6 +779,36 @@ class RelayQueryFragment extends RelayQueryNode {
  */
 class RelayQueryField extends RelayQueryNode {
   __isRefQueryDependency__: boolean;
+
+  /**
+   * Helper to construct a new field with the given attributes and 'empty'
+   * route/variables.
+   */
+  static build(
+    fieldName: string,
+    calls?: ?Array<Call>,
+    children?: ?NextChildren,
+    metadata?: ?{[key: string]: mixed},
+    alias?: ?string
+  ): RelayQueryField {
+    var nextChildren = children ? children.filter(child => !!child) : [];
+    var concreteField = new GraphQL.Field(
+      fieldName,
+      null,
+      null,
+      calls ? callsToGraphQL(calls) : null,
+      alias,
+      null,
+      metadata
+    );
+    var field = new RelayQueryField(
+      concreteField,
+      RelayMetaRoute.get('$RelayQuery'),
+      {}
+    );
+    field.__children__ = nextChildren;
+    return field;
+  }
 
   constructor(
     concreteNode: ConcreteQueryObject,

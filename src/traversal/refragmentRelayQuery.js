@@ -87,7 +87,7 @@ function refragmentRelayQuery<Tn: RelayQuery.Node>(node: Tn): ?Tn {
     }
   });
   Object.keys(fieldsByType).forEach(type => {
-    children.push(RelayQuery.Node.buildFragment(
+    children.push(RelayQuery.Fragment.build(
       'refragmentRelayQuery',
       type,
       fieldsByType[type]

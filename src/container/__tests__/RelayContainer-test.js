@@ -244,7 +244,7 @@ describe('RelayContainer', function() {
         }),
         {sideshow: true}
       );
-      var expected = RelayQuery.Node.buildFragment(
+      var expected = RelayQuery.Fragment.build(
         'Test',
         'Viewer',
         [getNode(feedFragment)]
@@ -289,7 +289,7 @@ describe('RelayContainer', function() {
         MockSideshow.getQuery('viewer', {hasSideshow: false}),
         {}
       );
-      var expected = RelayQuery.Node.buildFragment(
+      var expected = RelayQuery.Fragment.build(
         'Test',
         'Viewer',
         [getNode(feedFragment)],

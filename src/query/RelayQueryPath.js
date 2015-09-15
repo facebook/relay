@@ -23,7 +23,7 @@ var invariant = require('invariant');
 import type {DataID} from 'RelayInternalTypes';
 
 // Placeholder to mark fields as non-scalar
-var EMPTY_FRAGMENT = RelayQuery.Node.buildFragment(
+var EMPTY_FRAGMENT = RelayQuery.Fragment.build(
   '$RelayQueryPath',
   'Node'
 );
@@ -101,10 +101,10 @@ class RelayQueryPath {
     if (GraphQLStoreDataHandler.isClientID(dataID)) {
       return new RelayQueryPath(node, this);
     } else {
-      var idField = RelayQuery.Node.buildField('id', null, null, {
+      var idField = RelayQuery.Field.build('id', null, null, {
         parentType: RelayNodeInterface.NODE_TYPE,
       });
-      var root = RelayQuery.Node.buildRoot(
+      var root = RelayQuery.Root.build(
         RelayNodeInterface.NODE,
         dataID,
         [idField],
@@ -147,7 +147,7 @@ class RelayQueryPath {
       'RelayQueryPath: Expected a root node.'
     );
     var rootCall = node.getRootCall();
-    return RelayQuery.Node.buildRoot(
+    return RelayQuery.Root.build(
       rootCall.name,
       rootCall.value,
       [child, (node: $FlowIssue).getFieldByStorageKey('id')],

@@ -75,12 +75,12 @@ describe('RelayDefaultNetworkLayer', () => {
       responseCallback = jest.genMockFunction();
       rejectCallback = jest.genMockFunction();
 
-      var mutation = RelayQuery.Node.buildMutation(
+      var mutation = RelayQuery.Mutation.build(
         'FeedbackLikeMutation',
         'FeedbackLikeResponsePayload',
         'feedback_like',
         null,
-        [RelayQuery.Node.buildField('does_viewer_like')],
+        [RelayQuery.Field.build('does_viewer_like')],
         {inputType: 'FeedbackLikeInput'}
       );
       variables = {

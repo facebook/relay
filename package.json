@@ -20,7 +20,7 @@
   "main": "lib/Relay.js",
   "repository": "facebook/relay",
   "scripts": {
-    "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",
+    "build": "gulp",
     "prepublish": "npm run build",
     "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; NODE_ENV=test jest $@ || EXIT=$?; exit $EXIT; }; f",
     "typecheck": "flow check src/",

@@ -18,7 +18,7 @@ Output:
 var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.Query('node', 123, [new GraphQL.Field('friends', [new GraphQL.Field('edges', [new GraphQL.Field('node', [new GraphQL.Field('id', null, null, null, null, null, {
+  return new GraphQL.Query('node', new GraphQL.CallValue(123), [new GraphQL.Field('friends', [new GraphQL.Field('edges', [new GraphQL.Field('node', [new GraphQL.Field('id', null, null, null, null, null, {
     parentType: 'User',
     requisite: true
   })], null, null, null, null, {

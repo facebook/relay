@@ -1,0 +1,57 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  query {
+    node(id: 123) @source(uri: "facebook.com") {
+      ... on User @include(if: $foo) {
+        name @skip(if: $bar) @meta(data: $data, length: 50)
+      }
+    }
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  var GraphQL = Relay.QL.__GraphQL;
+  return new GraphQL.Query('node', new GraphQL.CallValue(123), [new GraphQL.Field('id', null, null, null, null, null, {
+    parentType: 'Node',
+    generated: true,
+    requisite: true
+  })], [new GraphQL.QueryFragment('User', 'User', [new GraphQL.Field('name', null, null, null, null, null, {
+    parentType: 'User'
+  }, [{
+    name: 'skip',
+    arguments: [{
+      name: 'if',
+      value: new GraphQL.CallVariable('bar')
+    }]
+  }, {
+    name: 'meta',
+    arguments: [{
+      name: 'data',
+      value: new GraphQL.CallVariable('data')
+    }, {
+      name: 'length',
+      value: new GraphQL.CallValue(50)
+    }]
+  }]), new GraphQL.Field('id', null, null, null, null, null, {
+    parentType: 'User',
+    generated: true,
+    requisite: true
+  })], null, null, [{
+    name: 'include',
+    arguments: [{
+      name: 'if',
+      value: new GraphQL.CallVariable('foo')
+    }]
+  }])], {
+    rootArg: 'id'
+  }, 'QueryWithDirectives', [{
+    name: 'source',
+    arguments: [{
+      name: 'uri',
+      value: new GraphQL.CallValue('facebook.com')
+    }]
+  }]);
+})();

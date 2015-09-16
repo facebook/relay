@@ -101,9 +101,9 @@ function printQueryFragment(fragment, options) {
     requisiteFields,
     typeName
   );
-
   var fields = fieldsAndFragments.fields;
   var fragments = fieldsAndFragments.fragments;
+  var directives = printDirectives(fragment.directives);
   var metadata = getRelayDirectiveMetadata(fragment);
 
   return t.newExpression(
@@ -116,7 +116,8 @@ function printQueryFragment(fragment, options) {
       t.literal(getTypeName(fragment)),
       fields,
       fragments,
-      objectify(metadata)
+      objectify(metadata),
+      directives
     ])
   );
 }
@@ -159,7 +160,7 @@ function printQuery(query, options) {
   );
   var fields = fieldsAndFragments.fields;
   var fragments = fieldsAndFragments.fragments;
-
+  var directives = printDirectives(rootField.directives);
   var metadata = {};
 
   if (rootCallDecl.args.length > 1) {
@@ -188,7 +189,8 @@ function printQuery(query, options) {
       fields,
       fragments,
       objectify(metadata),
-      t.literal(getName(query))
+      t.literal(getName(query)),
+      directives
     ])
   );
 }
@@ -277,6 +279,12 @@ function printFieldsAndFragments(
     selectionSet.selections.forEach(function(selection) {
       if (selection.kind === kinds.FRAGMENT_SPREAD) {
         // We assume that all spreads were added by us
+        if (selection.directives && selection.directives.length) {
+          throw new Error(
+            'Directives are not yet supported for `${fragment}`-style ' +
+            'fragment references.'
+          );
+        }
         fragments.push(printFragmentReference(getName(selection), options));
       } else if (selection.kind === kinds.INLINE_FRAGMENT) {
         fragments.push(printQueryFragment(selection, options));
@@ -351,7 +359,13 @@ function printCallVariable(name) {
 }
 
 function printCallValue(value) {
-  return t.literal(value);
+  return t.newExpression(
+    t.memberExpression(
+      t.identifier('GraphQL'),
+      t.identifier('CallValue')
+    ),
+    [t.literal(value)]
+  );
 }
 
 function printFields(fields, type, options, requisiteFields, parentType) {
@@ -513,6 +527,7 @@ function printField(
   );
   var fields = fieldsAndFragments.fields;
   var fragments = fieldsAndFragments.fragments;
+  var directives = printDirectives(field.directives);
 
   if (isGenerated) {
     metadata.generated = true;
@@ -536,9 +551,39 @@ function printField(
       calls,
       t.literal(fieldAlias),
       NULL,
-      objectify(metadata)
+      objectify(metadata),
+      directives
     ])
   );
+}
+
+function printDirectives(directives) {
+  if (!directives || !directives.length) {
+    return NULL;
+  }
+  var printedDirectives;
+  directives.forEach(function(directive) {
+    var name = getName(directive);
+    if (name === 'relay') {
+      return;
+    }
+    printedDirectives = printedDirectives || [];
+    printedDirectives.push(t.objectExpression([
+      property('name', t.literal(getName(directive))),
+      property('arguments', t.arrayExpression(
+        directive.arguments.map(function(argument) {
+          return t.objectExpression([
+            property('name', t.literal(getName(argument))),
+            property('value', printArgument(argument.value)),
+          ]);
+        })
+      )),
+    ]));
+  });
+  if (!printedDirectives) {
+    return NULL;
+  }
+  return t.arrayExpression(printedDirectives);
 }
 
 function printCalls(field, fieldDecl, options) {
@@ -822,7 +867,7 @@ function objectify(obj) {
   }
   return t.objectExpression(
     keys.map(function(key) {
-      return t.property('init', t.identifier(key), t.literal(obj[key]));
+      return property(key, t.literal(obj[key]));
     })
   );
 }
@@ -834,6 +879,10 @@ function identify(str) {
     }
     return t.memberExpression(acc, t.identifier(name));
   }, null);
+}
+
+function property(name, value) {
+  return t.property('init', t.identifier(name), value);
 }
 
 function trimArguments(args) {

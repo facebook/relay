@@ -23,10 +23,10 @@ var foo = Relay.QL`
 Output:
 var foo = (function () {
   var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.Query("node", 123, [new GraphQL.Field("friends", [new GraphQL.Field("edges", [new GraphQL.Field("node", [new GraphQL.Field("id", null, null, null, null, null, {
+  return new GraphQL.Query("node", new GraphQL.CallValue(123), [new GraphQL.Field("friends", [new GraphQL.Field("edges", [new GraphQL.Field("node", [new GraphQL.Field("id", null, null, null, null, null, {
     parentType: "User",
     requisite: true
-  }), new GraphQL.Field("firstName", null, null, [new GraphQL.Callv("if", true), new GraphQL.Callv("unless", false)], null, null, {
+  }), new GraphQL.Field("firstName", null, null, [new GraphQL.Callv("if", new GraphQL.CallValue(true)), new GraphQL.Callv("unless", new GraphQL.CallValue(false))], null, null, {
     parentType: "User"
   })], null, null, null, null, {
     parentType: "UserConnectionEdge",
@@ -52,7 +52,7 @@ var foo = (function () {
     parentType: "UserConnection",
     generated: true,
     requisite: true
-  })], null, [new GraphQL.Callv("first", 10), new GraphQL.Callv("orderby", "Name"), new GraphQL.Callv("find", "cursor1"), new GraphQL.Callv("isViewerFriend", true), new GraphQL.Callv("gender", "MALE", {
+  })], null, [new GraphQL.Callv("first", new GraphQL.CallValue(10)), new GraphQL.Callv("orderby", new GraphQL.CallValue("Name")), new GraphQL.Callv("find", new GraphQL.CallValue("cursor1")), new GraphQL.Callv("isViewerFriend", new GraphQL.CallValue(true)), new GraphQL.Callv("gender", new GraphQL.CallValue("MALE"), {
     type: "Gender"
   })], null, null, {
     parentType: "Node",

@@ -10,7 +10,7 @@ var foo = Relay.QL`
 Output:
 var foo = (function () {
   var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.Query("__type", "Root", [new GraphQL.Field("name", null, null, null, null, null, {
+  return new GraphQL.Query("__type", new GraphQL.CallValue("Root"), [new GraphQL.Field("name", null, null, null, null, null, {
     parentType: "__Type"
   })], null, {
     rootArg: "name"

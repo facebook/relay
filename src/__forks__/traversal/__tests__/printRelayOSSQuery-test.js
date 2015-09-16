@@ -25,7 +25,12 @@ describe('printRelayOSSQuery', () => {
   var {getNode} = RelayTestUtils;
 
   function trimQuery(str) {
-    return str.replace(/\s*(\{|\})\s*/g, '$1').replace(/,\s+/g, ',').trim();
+    return str
+      .replace(/\s*(\{|\})\s*/g, '$1')
+      .replace(/,\s+/g, ',')
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   beforeEach(() => {
@@ -504,5 +509,57 @@ describe('printRelayOSSQuery', () => {
       }
     `));
     expect(variables).toEqual({});
+  });
+
+  it('prints directives', () => {
+    var params = {cond: true};
+    var nestedFragment = Relay.QL`
+      fragment on User
+        @include(if: $cond)
+        @foo(int: 10, bool: true, str: "string")
+      {
+        name @skip(if: $cond)
+      }
+    `;
+    var query = getNode(Relay.QL`
+      query {
+        node(id: 123) @source(uri: "facebook.com") {
+          ${nestedFragment}
+        }
+      }
+    `, params);
+    var fragmentID = getNode(nestedFragment, params).getFragmentID();
+    var {text, variables} = printRelayOSSQuery(query);
+    expect(trimQuery(text)).toEqual(trimQuery(`
+      query PrintRelayOSSQuery {
+        node(id:123) @source(uri:"facebook.com") {
+          id,
+          ...${fragmentID}
+        }
+      }
+      fragment ${fragmentID} on User
+        @include(if:true)
+        @foo(int:10, bool:true, str:"string")
+      {
+        name @skip(if:true),
+        id
+      }
+    `));
+    expect(variables).toEqual({});
+  });
+
+  it('throws for directives with complex values', () => {
+    var params = {data: {foo: 'bar'}};
+    var query = getNode(Relay.QL`
+      query {
+        node(id: 123) @meta(data: $data) {
+          id
+        }
+      }
+    `, params);
+    expect(() => printRelayOSSQuery(query)).toFailInvariant(
+      'printRelayOSSQuery(): Relay only supports directives with scalar ' +
+      'values (boolean, number, or string), got `data: [object Object]`.'
+    );
   });
 });

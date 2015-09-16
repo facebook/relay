@@ -16,7 +16,7 @@
 var GraphQL = require('GraphQL');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayFragmentReference = require('RelayFragmentReference');
-import type {Call}  from 'RelayInternalTypes';
+import type {Call, Directive}  from 'RelayInternalTypes';
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayRouteFragment = require('RelayRouteFragment');
 import type {Variables} from 'RelayTypes';
@@ -366,6 +366,13 @@ class RelayQueryNode {
       children = nextChildren;
     }
     return children;
+  }
+
+  getDirectives(): Array<Directive> {
+    return this.__concreteNode__.directives.map(directive => ({
+      name: directive.name,
+      arguments: callsFromGraphQL(directive.arguments, this.__variables__),
+    }));
   }
 
   getField(field: RelayQueryField): ?RelayQueryField {

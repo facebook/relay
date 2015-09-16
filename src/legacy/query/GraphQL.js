@@ -245,8 +245,9 @@ class GraphQLFieldNode extends GraphQLNode {
    * @param {?string} alias
    * @param {?string} condition
    * @param {?object} metadata
+   * @param {?array} directives
    */
-  constructor(fieldName, fields, fragments, calls, alias, condition, metadata) {
+  constructor(fieldName, fields, fragments, calls, alias, condition, metadata, directives) {
     super(fields, fragments);
 
     this.kind = FIELD;
@@ -269,6 +270,7 @@ class GraphQLFieldNode extends GraphQLNode {
       isUnionOrInterface: !!metadata.dynamic,
       parentType: metadata.parentType,
     };
+    this.directives = directives || EMPTY_ARRAY;
   }
 
   /**
@@ -284,7 +286,8 @@ class GraphQLFieldNode extends GraphQLNode {
       calls,
       alias,
       condition,
-      metadata
+      metadata,
+      directives
     ] = descriptor;
     invariant(type === JSON_TYPES.FIELD, 'Expected field descriptor');
     return new GraphQLFieldNode(
@@ -294,7 +297,8 @@ class GraphQLFieldNode extends GraphQLNode {
       calls ? calls.map(GraphQLCallvNode.fromJSON) : null,
       alias,
       condition,
-      metadata
+      metadata,
+      directives
     );
   }
 
@@ -307,7 +311,8 @@ class GraphQLFieldNode extends GraphQLNode {
       this.calls.length ? this._calls : null,
       this.alias,
       this.condition,
-      this.__metadata__ === EMPTY_OBJECT ? null : this.__metadata__
+      this.__metadata__ === EMPTY_OBJECT ? null : this.__metadata__,
+      this.directives === EMPTY_ARRAY ? null : this.directives,
     ]);
   }
 }
@@ -324,12 +329,13 @@ class GraphQLQueryFragment extends GraphQLNode {
    * @param {?array<GraphQLFieldNode>} fields
    * @param {?array<GraphQLQueryFragment|RelayRouteFragment|RelayFragmentReference>} fragments
    */
-  constructor(name, type, fields, fragments, metadata) {
+  constructor(name, type, fields, fragments, metadata, directives) {
     super(fields, fragments);
     this.kind = FRAGMENT;
     this.name = name;
     this.type = type;
     this.metadata = this.__metadata__ = metadata || EMPTY_OBJECT;
+    this.directives = directives || EMPTY_ARRAY;
     this.isPlural = !!this.metadata.isPlural;
   }
 
@@ -338,14 +344,16 @@ class GraphQLQueryFragment extends GraphQLNode {
    * @return {GraphQLQueryFragment}
    */
   static fromJSON(descriptor) {
-    var [type, name, fragmentType, fields, fragments, metadata] = descriptor;
+    var [type, name, fragmentType, fields, fragments, metadata, directives] =
+      descriptor;
     invariant(type === JSON_TYPES.FRAGMENT, 'Expected fragment descriptor');
     var frag = new GraphQLQueryFragment(
       name,
       fragmentType,
       fields ? fields.map(GraphQLFieldNode.fromJSON) : null,
       fragments ? fragments.map(GraphQLQueryFragment.fromJSON) : null,
-      metadata
+      metadata,
+      directives
     );
     return frag;
   }
@@ -357,7 +365,8 @@ class GraphQLQueryFragment extends GraphQLNode {
       this.type,
       this.fields.length ? this.fields : null,
       this.fragments.length ? this.fragments : null,
-      this.metadata
+      this.metadata,
+      this.directives === EMPTY_ARRAY ? null : this.directives,
     ]);
   }
 }
@@ -375,8 +384,9 @@ class GraphQLQuery extends GraphQLNode {
    * @param {?array<GraphQLQueryFragment|RelayRouteFragment|RelayFragmentReference>} fragments
    * @param {?object} metadata
    * @param {?string} queryName
+   * @param {?array} directives
    */
-  constructor(rootCall, value, fields, fragments, metadata, queryName) {
+  constructor(rootCall, value, fields, fragments, metadata, queryName, directives) {
     super(fields, fragments);
     this.__metadata__ = metadata || EMPTY_OBJECT;
     var rootArg = this.__metadata__.rootArg;
@@ -388,6 +398,7 @@ class GraphQLQuery extends GraphQLNode {
       ...this.__metadata__,
       rootArg,
     };
+    this.directives = directives || EMPTY_ARRAY;
     this.name = queryName;
     this.fieldName = rootCall;
     this.isDeferred = !!this.__metadata__.isDeferred;
@@ -403,8 +414,8 @@ class GraphQLQuery extends GraphQLNode {
    * @return {GraphQLQuery}
    */
   static fromJSON(descriptor) {
-    var [type, name, value, fields, fragments, metadata, queryName] =
-      descriptor;
+    var [type, name, value, fields, fragments, metadata, queryName, directives]
+      = descriptor;
     invariant(type === JSON_TYPES.QUERY, 'Expected query descriptor');
     return new GraphQLQuery(
       name,
@@ -412,7 +423,8 @@ class GraphQLQuery extends GraphQLNode {
       fields ? fields.map(GraphQLFieldNode.fromJSON) : null,
       fragments ? fragments.map(GraphQLQueryFragment.fromJSON) : null,
       metadata,
-      queryName
+      queryName,
+      directives
     );
   }
 
@@ -423,8 +435,9 @@ class GraphQLQuery extends GraphQLNode {
       this.calls[0].value,
       this.fields.length ? this.fields : null,
       this.fragments.length ? this.fragments : null,
-      this.__metadata__ !== EMPTY_OBJECT ? this.__metadata__ : null,
-      this.name || null
+      this.__metadata__ === EMPTY_OBJECT ? null: this.__metadata__,
+      this.name || null,
+      this.directives === EMPTY_ARRAY ? null : this.directives,
     ]);
   }
 }
@@ -615,6 +628,8 @@ function map(value, fn) {
 
 /**
  * @param {*} arg
+ *
+ * TODO: Stop casting args once internal plugin prints call values.
  */
 function castArg(arg) {
   if (

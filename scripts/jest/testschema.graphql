@@ -398,6 +398,15 @@ type SegmentsEdge {
   node: String
 }
 
+type NonNodeStory implements FeedUnit {
+  actor: Actor
+  actorCount: Int
+  feedback: Feedback
+  id: ID!
+  message: Text
+  tracking: String
+}
+
 type Story implements FeedUnit Node {
   # FeedUnit
   canViewerDelete: Boolean

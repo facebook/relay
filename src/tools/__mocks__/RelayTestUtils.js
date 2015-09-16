@@ -34,7 +34,7 @@ var RelayTestUtils = {
     var RelayPropTypes = require('RelayPropTypes');
     var RelayRoute = require('RelayRoute');
 
-    class ContextSetter {
+    class ContextSetter extends React.Component {
       getChildContext() {
         return this.props.context;
       }

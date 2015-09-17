@@ -11,7 +11,7 @@
 
 var kinds = require('graphql/language/kinds');
 var printer = require('graphql/language/printer');
-var t = require('babel-core').types;
+var t = require('babel-core/lib/types');
 var types = require('graphql/type');
 var typeIntrospection = require('graphql/type/introspection');
 

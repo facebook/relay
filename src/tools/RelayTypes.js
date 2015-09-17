@@ -58,7 +58,7 @@ export type RelayMutationTransactionCommitFailureCallback = (
   preventAutoRollback: () => void,
 ) => void;
 export type RelayMutationTransactionCommitSuccessCallback = (
-  response: {[key: string]: {[key: string]: mixed}}
+  response: {[key: string]: Object}
 ) => void;
 export type RelayMutationTransactionCommitCallbacks = {
   onFailure?: ?RelayMutationTransactionCommitFailureCallback;

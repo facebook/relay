@@ -24,6 +24,10 @@ module.exports = {
         loader: 'babel?stage=0',
       },
       {
+        test: /\.json$/,
+        loader: 'json',
+      },
+      {
         test: /\.svg$/,
         loader: 'file-loader',
       },

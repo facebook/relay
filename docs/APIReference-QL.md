@@ -103,3 +103,33 @@ Relay.createContainer(Story, {
 ```
 
 Note that it is *highly* recommended that `Relay.Container`s define their own fragments and avoid sharing inline `var fragment = Relay.QL...` values between containers or files. If you find yourself wanting to share inline fragments, it's likely a sign that it's time to refactor and introduce a new container.
+
+### Conditional fields
+
+You can conditionally include or skip a field based on the value of a boolean variable.
+
+```{4,9}
+Relay.createContainer(Story, {
+  initialVariables: {
+    numCommentsToShow: 10,
+    showComments: false,
+  },
+  fragments: {
+    story: (variables) => Relay.QL`
+      fragment on Story {
+        comments(first: $numCommentsToShow) @include(if: $showComments) {
+          edges {
+            node {
+              author { name },
+              id,
+              text,
+            },
+          },
+        },
+      }
+    `,
+  }
+});
+```
+
+Wherever the inverse grammar serves you better, you can use `@skip(if: ...)` instead of `@include(if: ...)`.

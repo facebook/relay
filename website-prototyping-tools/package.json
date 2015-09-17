@@ -19,6 +19,7 @@
     "graphql": "0.4.2",
     "graphql-relay": "0.3.2",
     "html-webpack-plugin": "1.6.1",
+    "json-loader": "0.5.3",
     "lodash.debounce": "3.1.1",
     "lodash.defer": "3.1.0",
     "lodash.delay": "3.1.0",

@@ -1,3 +1,12 @@
+/**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
 var DefinePlugin = require('webpack/lib/DefinePlugin');
 var HTMLWebpackPlugin = require('html-webpack-plugin');
 var UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin');
@@ -22,6 +31,10 @@ module.exports = {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
         loader: 'babel?stage=0',
+      },
+      {
+        test: /\.json$/,
+        loader: 'json',
       },
       {
         test: /\.svg$/,

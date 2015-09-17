@@ -167,6 +167,33 @@ describe('RelayDefaultNetworkLayer', () => {
       ].join('\n'));
       expect(error.source).toEqual(response);
     });
+
+    it('handles custom errors', () => {
+      var response = {
+        errors: [{
+          message: 'Something went wrong.'
+        }]
+      };
+
+      expect(fetch).not.toBeCalled();
+      networkLayer.sendMutation(request);
+      expect(fetch).toBeCalled();
+
+      fetch.mock.deferreds[0].resolve(genResponse(response));
+      jest.runAllTimers();
+
+      expect(rejectCallback.mock.calls.length).toBe(1);
+      var error = rejectCallback.mock.calls[0][0];
+      expect(error instanceof Error).toBe(true);
+      expect(error.message).toEqual([
+        'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+          'following reasons:',
+        '',
+        '1. Something went wrong.'
+      ].join('\n'));
+      expect(error.source).toEqual(response);
+    })
+
   });
 
   describe('sendQueries', () => {

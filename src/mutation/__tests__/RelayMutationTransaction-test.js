@@ -63,6 +63,8 @@ describe('RelayMutationTransaction', () => {
     });
 
     it('updates store if there is a optimistic response', () => {
+      var input = {foo: 'bar'};
+      mockMutation.getVariables.mockReturnValue(input);
       mockMutation.getOptimisticResponse.mockReturnValue({});
       mockMutation.getOptimisticConfigs.mockReturnValue('optimisticConfigs');
       RelayMutationQuery.buildQuery.mockReturnValue('optimisticQuery');
@@ -75,6 +77,10 @@ describe('RelayMutationTransaction', () => {
       expect(RelayMutationQuery.buildQuery.mock.calls).toEqual([[{
         configs: 'optimisticConfigs',
         fatQuery: 'fatQuery',
+        input: {
+          ...input,
+          [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        },
         mutation: mutationNode,
         mutationName: 'RelayMutation',
       }]]);

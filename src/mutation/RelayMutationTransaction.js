@@ -28,7 +28,8 @@ import type {ClientMutationID} from 'RelayInternalTypes';
 import type {
   RelayMutationTransactionCommitCallbacks,
   RelayMutationTransactionCommitFailureCallback,
-  RelayMutationTransactionCommitSuccessCallback
+  RelayMutationTransactionCommitSuccessCallback,
+  Variables
 } from 'RelayTypes';
 
 var fromGraphQL = require('fromGraphQL');
@@ -38,9 +39,6 @@ var resolveImmediate = require('resolveImmediate');
 
 type CollisionQueueMap = {[key: string]: Array<RelayMutationTransaction>};
 type MutationTransactionQueue = Array<RelayMutationTransaction>;
-export type MutationVariables = {
-  input: {[key: string]: mixed};
-};
 type PendingTransactionMap = {
   [key: ClientMutationID]: RelayMutationTransaction;
 };
@@ -68,13 +66,13 @@ class RelayMutationTransaction {
   _error: ?Error;
   _fatQuery: RelayQuery.Fragment;
   _files: ?FileMap;
+  _inputVariable: Variables;
   _mutationNode: GraphQL.Mutation;
   _onCommitFailureCallback: ?RelayMutationTransactionCommitFailureCallback;
   _onCommitSuccessCallback: ?RelayMutationTransactionCommitSuccessCallback;
   _optimisticConfigs: ?Array<{[key: string]: mixed}>;
   _optimisticQuery: ?RelayQuery.Mutation;
   _optimisticResponse: ?Object;
-  _variables: MutationVariables;
   _query: RelayQuery.Mutation;
 
   constructor(mutation: RelayMutation) {
@@ -198,21 +196,22 @@ class RelayMutationTransaction {
         fatQuery: this._getFatQuery(),
         mutationName: this._mutation.constructor.name,
         mutation: this._getMutationNode(),
+        input: this._getInputVariable(),
       });
     }
     return this._query;
   }
 
-  _getVariables(): MutationVariables {
-    if (!this._variables) {
-      var input = {
+  _getInputVariable(): Variables  {
+    if (!this._inputVariable) {
+      var inputVariable = {
         ...this._mutation.getVariables(),
         /* $FlowIssue #7728187 - Computed Property */
         [CLIENT_MUTATION_ID]: this._id,
       };
-      this._variables = {input};
+      this._inputVariable = inputVariable;
     }
-    return this._variables;
+    return this._inputVariable;
   }
 
   _getFiles(): ?FileMap {
@@ -238,6 +237,7 @@ class RelayMutationTransaction {
           this._optimisticQuery = RelayMutationQuery.buildQuery({
             configs: optimisticConfigs,
             fatQuery: this._getFatQuery(),
+            input: this._getInputVariable(),
             mutationName: this._mutation.constructor.name,
             mutation: this._getMutationNode(),
           });
@@ -306,7 +306,6 @@ class RelayMutationTransaction {
 
     var request = new RelayMutationRequest(
       this._getQuery(),
-      this._getVariables(),
       this._getFiles()
     );
     RelayNetworkLayer.sendMutation(request);

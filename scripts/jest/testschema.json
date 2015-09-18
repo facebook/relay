@@ -845,6 +845,16 @@
                     }
                   },
                   "defaultValue": null
+                },
+                {
+                  "name": "preset",
+                  "description": null,
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "PhotoSize",
+                    "ofType": null
+                  },
+                  "defaultValue": null
                 }
               ],
               "type": {
@@ -1506,6 +1516,16 @@
                       "name": "String",
                       "ofType": null
                     }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "preset",
+                  "description": null,
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "PhotoSize",
+                    "ofType": null
                   },
                   "defaultValue": null
                 }
@@ -2186,6 +2206,16 @@
                     }
                   },
                   "defaultValue": null
+                },
+                {
+                  "name": "preset",
+                  "description": null,
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "PhotoSize",
+                    "ofType": null
+                  },
+                  "defaultValue": null
                 }
               ],
               "type": {
@@ -2628,6 +2658,16 @@
                       "name": "String",
                       "ofType": null
                     }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "preset",
+                  "description": null,
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "PhotoSize",
+                    "ofType": null
                   },
                   "defaultValue": null
                 }
@@ -3221,6 +3261,16 @@
                       "name": "String",
                       "ofType": null
                     }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "preset",
+                  "description": null,
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "PhotoSize",
+                    "ofType": null
                   },
                   "defaultValue": null
                 }
@@ -4240,6 +4290,16 @@
                     }
                   },
                   "defaultValue": null
+                },
+                {
+                  "name": "preset",
+                  "description": null,
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "PhotoSize",
+                    "ofType": null
+                  },
+                  "defaultValue": null
                 }
               ],
               "type": {
@@ -4685,6 +4745,29 @@
           "inputFields": null,
           "interfaces": [],
           "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "PhotoSize",
+          "description": null,
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "SMALL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LARGE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
           "possibleTypes": null
         },
         {
@@ -5368,6 +5451,16 @@
                       "name": "String",
                       "ofType": null
                     }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "preset",
+                  "description": null,
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "PhotoSize",
+                    "ofType": null
                   },
                   "defaultValue": null
                 }

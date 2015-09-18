@@ -14,10 +14,10 @@
 'use strict';
 
 var Deferred = require('Deferred');
+import type {PrintedQuery} from 'RelayInternalTypes';
 import type {FileMap} from 'RelayMutation';
-import type {MutationVariables} from 'RelayMutationTransaction';
 import type RelayQuery from 'RelayQuery';
-import type {MutationResult} from 'RelayTypes';
+import type {MutationResult, Variables} from 'RelayTypes';
 
 var invariant = require('invariant');
 var isEmpty = require('isEmpty');
@@ -30,17 +30,16 @@ var printRelayQuery = require('printRelayQuery');
  */
 class RelayMutationRequest extends Deferred<MutationResult, Error> {
   _mutation: RelayQuery.Mutation;
-  _variables: MutationVariables;
+  _printedQuery: ?PrintedQuery;
   _files: ?FileMap;
 
   constructor(
     mutation: RelayQuery.Mutation,
-    variables: MutationVariables,
     files: ?FileMap
   ) {
     super();
     this._mutation = mutation;
-    this._variables = variables;
+    this._printedQuery = null;
     this._files = files;
   }
 
@@ -66,10 +65,15 @@ class RelayMutationRequest extends Deferred<MutationResult, Error> {
    * @public
    *
    * Gets the variables used by the mutation. These variables should be
-   * serialized and send in the GraphQL request.
+   * serialized and sent in the GraphQL request.
    */
-  getVariables(): MutationVariables {
-    return this._variables;
+  getVariables(): Variables {
+    var printedQuery = this._printedQuery;
+    if (!printedQuery) {
+      printedQuery = printRelayQuery(this._mutation);
+      this._printedQuery = printedQuery;
+    }
+    return printedQuery.variables;
   }
 
   /**
@@ -78,13 +82,11 @@ class RelayMutationRequest extends Deferred<MutationResult, Error> {
    * Gets a string representation of the GraphQL mutation.
    */
   getQueryString(): string {
-    var printedQuery = printRelayQuery(this._mutation);
-    invariant(
-      isEmpty(printedQuery.variables),
-      'RelayMutationRequest: Expected mutation `%s` to have exactly one ' +
-      'variable, `$input`.',
-      this.getDebugName()
-    );
+    var printedQuery = this._printedQuery;
+    if (!printedQuery) {
+      printedQuery = printRelayQuery(this._mutation);
+      this._printedQuery = printedQuery;
+    }
     return printedQuery.text;
   }
 

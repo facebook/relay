@@ -26,10 +26,9 @@ describe('printRelayOSSQuery', () => {
 
   function trimQuery(str) {
     return str
-      .replace(/\s*(\{|\})\s*/g, '$1')
-      .replace(/,\s+/g, ',')
       .replace(/\n/g, ' ')
       .replace(/\s+/g, ' ')
+      .replace(/\s*([\{\}\(\):,])\s*/g, '$1')
       .trim();
   }
 
@@ -480,35 +479,55 @@ describe('printRelayOSSQuery', () => {
   });
 
   it('prints a mutation', () => {
+    var inputValue = {
+      clientMutationId: '123',
+      foo: 'bar',
+    };
     var mutation = getNode(Relay.QL`
       mutation {
         feedbackLike(input:$input) {
           clientMutationId,
           feedback {
             id,
+            actor {
+              profilePicture(preset: SMALL) {
+                uri,
+              },
+            },
             likeSentence,
-            likers
-          }
-        }
+            likers,
+          },
+        },
       }
-    `,
-      {input: ''}
-    );
+    `, {input: inputValue});
 
+    var alias = generateRQLFieldAlias('profilePicture.preset(SMALL)');
     var {text, variables} = printRelayOSSQuery(mutation);
-    expect(text).toEqual(trimQuery(`
-      mutation PrintRelayOSSQuery($input:FeedbackLikeInput) {
-        feedbackLike(input:$input) {
+    expect(trimQuery(text)).toEqual(trimQuery(`
+      mutation PrintRelayOSSQuery(
+        $input_0: FeedbackLikeInput,
+        $preset_1: PhotoSize
+      ) {
+        feedbackLike(input: $input_0) {
           clientMutationId,
           feedback {
             id,
+            actor {
+              ${alias}: profilePicture(preset: $preset_1) {
+                uri
+              },
+              id
+            },
             likeSentence,
             likers
           }
         }
       }
     `));
-    expect(variables).toEqual({});
+    expect(variables).toEqual({
+      input_0: inputValue,
+      preset_1: 'SMALL',
+    });
   });
 
   it('prints directives', () => {

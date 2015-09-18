@@ -78,16 +78,6 @@ var {
 } = connectionDefinitions({
   name: 'Todo',
   nodeType: GraphQLTodo,
-  connectionFields: () => ({
-    totalCount: {
-      type: GraphQLInt,
-      resolve: (conn) => conn.edges.length,
-    },
-    completedCount: {
-      type: GraphQLInt,
-      resolve: (conn) => conn.edges.filter(edge => edge.node.complete).length
-    },
-  })
 });
 
 var GraphQLUser = new GraphQLObjectType({
@@ -96,9 +86,24 @@ var GraphQLUser = new GraphQLObjectType({
     id: globalIdField('User'),
     todos: {
       type: TodosConnection,
-      args: connectionArgs,
-      resolve: (obj, args) => connectionFromArray(getTodos(), args),
-    }
+      args: {
+        status: {
+          type: GraphQLString,
+          defaultValue: 'any',
+        },
+        ...connectionArgs,
+      },
+      resolve: (obj, {status, ...args}) =>
+        connectionFromArray(getTodos(status), args),
+    },
+    totalCount: {
+      type: GraphQLInt,
+      resolve: () => getTodos().length
+    },
+    completedCount: {
+      type: GraphQLInt,
+      resolve: () => getTodos('completed').length
+    },
   },
   interfaces: [nodeInterface]
 });

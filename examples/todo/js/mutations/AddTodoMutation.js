@@ -3,9 +3,7 @@ export default class AddTodoMutation extends Relay.Mutation {
     viewer: () => Relay.QL`
       fragment on User {
         id,
-        todos {
-          totalCount,
-        },
+        totalCount,
       }
     `,
   };
@@ -17,9 +15,8 @@ export default class AddTodoMutation extends Relay.Mutation {
       fragment on AddTodoPayload {
         todoEdge,
         viewer {
-          todos {
-            totalCount,
-          },
+          todos,
+          totalCount,
         },
       }
     `;
@@ -33,6 +30,9 @@ export default class AddTodoMutation extends Relay.Mutation {
       edgeName: 'todoEdge',
       rangeBehaviors: {
         '': 'append',
+        'status(any)': 'append',
+        'status(active)': 'append',
+        'status(completed)': null,
       },
     }];
   }
@@ -53,9 +53,7 @@ export default class AddTodoMutation extends Relay.Mutation {
       },
       viewer: {
         id: this.props.viewer.id,
-        todos: {
-          totalCount: this.props.viewer.todos.totalCount + 1,
-        },
+        totalCount: this.props.viewer.totalCount + 1,
       },
     };
   }

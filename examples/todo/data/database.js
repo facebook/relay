@@ -39,8 +39,12 @@ export function getTodo(id) {
   return todosById[id];
 }
 
-export function getTodos() {
-  return todoIdsByUser[VIEWER_ID].map((id) => todosById[id]);
+export function getTodos(status = 'any') {
+  var todos = todoIdsByUser[VIEWER_ID].map((id) => todosById[id]);
+  if (status === 'any') {
+    return todos;
+  }
+  return todos.filter(todo => todo.complete === (status === 'completed'));
 }
 
 export function getUser(id) {

@@ -28,11 +28,11 @@ var invariant = require('invariant');
 var warning = require('warning');
 
 var {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
-var idField = RelayQuery.Node.buildField('id', null, null, {
+var idField = RelayQuery.Field.build('id', null, null, {
   parentType: RelayNodeInterface.NODE_TYPE,
   requisite: true,
 });
-var nodeWithID = RelayQuery.Node.buildField(
+var nodeWithID = RelayQuery.Field.build(
   RelayNodeInterface.NODE,
   null,
   [idField],
@@ -79,7 +79,7 @@ function diffRelayQuery(
         'argument array for query, `%s(...).',
         rootCallName
       );
-      nodeRoot = RelayQuery.Node.buildRoot(
+      nodeRoot = RelayQuery.Root.build(
         rootCallName,
         rootCallArg,
         root.getChildren(),
@@ -744,13 +744,13 @@ function buildRoot(
     }
   });
   Object.keys(childTypes).map(type => {
-    fragments.push(RelayQuery.Node.buildFragment(
+    fragments.push(RelayQuery.Fragment.build(
       'diffRelayQuery',
       type,
       childTypes[type]
     ));
   });
-  return RelayQuery.Node.buildRoot(
+  return RelayQuery.Root.build(
     NODE,
     rootID,
     fragments,

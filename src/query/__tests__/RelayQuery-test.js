@@ -29,121 +29,171 @@ describe('RelayQuery', () => {
     jest.addMatchers(RelayTestUtils.matchers);
   });
 
-  describe('buildRoot()', () => {
-    it('creates roots', () => {
-      var field = RelayQuery.Node.buildField('id');
-      var root = RelayQuery.Node.buildRoot(
-        'node',
-        '4',
-        [field]
-      );
-      expect(root instanceof RelayQuery.Root).toBe(true);
-      expect(root.getRootCall()).toEqual({
-        name: 'node',
-        value: '4'
+  describe('Root', () => {
+    describe('build()', () => {
+      it('creates roots', () => {
+        var field = RelayQuery.Field.build('id');
+        var root = RelayQuery.Root.build(
+          'node',
+          '4',
+          [field]
+        );
+        expect(root instanceof RelayQuery.Root).toBe(true);
+        expect(root.getRootCall()).toEqual({
+          name: 'node',
+          value: '4'
+        });
+        expect(root.getChildren().length).toBe(1);
+        expect(root.getChildren()[0]).toBe(field);
       });
-      expect(root.getChildren().length).toBe(1);
-      expect(root.getChildren()[0]).toBe(field);
-    });
 
-    it('creates deferred roots', () => {
-      var field = RelayQuery.Node.buildField('id');
-      var root = RelayQuery.Node.buildRoot(
-        'node',
-        '4',
-        [field],
-        {isDeferred: true}
-      );
-      expect(root instanceof RelayQuery.Root).toBe(true);
-      expect(root.getRootCall()).toEqual({
-        name: 'node',
-        value: '4'
+      it('creates deferred roots', () => {
+        var field = RelayQuery.Field.build('id');
+        var root = RelayQuery.Root.build(
+          'node',
+          '4',
+          [field],
+          {isDeferred: true}
+        );
+        expect(root instanceof RelayQuery.Root).toBe(true);
+        expect(root.getRootCall()).toEqual({
+          name: 'node',
+          value: '4'
+        });
+        expect(root.getChildren().length).toBe(1);
+        expect(root.getChildren()[0]).toBe(field);
       });
-      expect(root.getChildren().length).toBe(1);
-      expect(root.getChildren()[0]).toBe(field);
-    });
 
-    it('creates roots with batch calls', () => {
-      var root = RelayQuery.Node.buildRoot(
-        'node',
-        new GraphQL.BatchCallVariable('q0', '$.*.id'),
-        []
-      );
-      expect(root instanceof RelayQuery.Root).toBe(true);
-      expect(root.getBatchCall()).toEqual({
-        refParamName: 'ref_q0',
-        sourceQueryID: 'q0',
-        sourceQueryPath: '$.*.id',
+      it('creates roots with batch calls', () => {
+        var root = RelayQuery.Root.build(
+          'node',
+          new GraphQL.BatchCallVariable('q0', '$.*.id'),
+          []
+        );
+        expect(root instanceof RelayQuery.Root).toBe(true);
+        expect(root.getBatchCall()).toEqual({
+          refParamName: 'ref_q0',
+          sourceQueryID: 'q0',
+          sourceQueryPath: '$.*.id',
+        });
       });
     });
   });
 
-  describe('buildFragment()', () => {
-    it('creates empty fragments', () => {
-      var fragment = RelayQuery.Node.buildFragment(
-        'TestFragment',
-        'Node',
-        []
-      );
-      expect(fragment instanceof RelayQuery.Fragment).toBe(true);
-      expect(fragment.getDebugName()).toBe('TestFragment');
-      expect(fragment.getType()).toBe('Node');
-      expect(fragment.getChildren().length).toBe(0);
-      expect(fragment.isPlural()).toBe(false);
-    });
+  describe('Fragment', () => {
+    describe('build()', () => {
+      it('creates empty fragments', () => {
+        var fragment = RelayQuery.Fragment.build(
+          'TestFragment',
+          'Node',
+          []
+        );
+        expect(fragment instanceof RelayQuery.Fragment).toBe(true);
+        expect(fragment.getDebugName()).toBe('TestFragment');
+        expect(fragment.getType()).toBe('Node');
+        expect(fragment.getChildren().length).toBe(0);
+        expect(fragment.isPlural()).toBe(false);
+      });
 
-    it('creates fragments', () => {
-      var field = RelayQuery.Node.buildField('id');
-      var fragment = RelayQuery.Node.buildFragment(
-        'TestFragment',
-        'Node',
-        [field],
-        {isPlural: true, scope: 'RelayQuery_Foo'}
-      );
-      expect(fragment instanceof RelayQuery.Fragment).toBe(true);
-      expect(fragment.getDebugName()).toBe('TestFragment');
-      expect(fragment.getType()).toBe('Node');
-      expect(fragment.getChildren().length).toBe(1);
-      expect(fragment.getChildren()[0]).toBe(field);
-      expect(fragment.isPlural()).toBe(true);
+      it('creates fragments', () => {
+        var field = RelayQuery.Field.build('id');
+        var fragment = RelayQuery.Fragment.build(
+          'TestFragment',
+          'Node',
+          [field],
+          {isPlural: true, scope: 'RelayQuery_Foo'}
+        );
+        expect(fragment instanceof RelayQuery.Fragment).toBe(true);
+        expect(fragment.getDebugName()).toBe('TestFragment');
+        expect(fragment.getType()).toBe('Node');
+        expect(fragment.getChildren().length).toBe(1);
+        expect(fragment.getChildren()[0]).toBe(field);
+        expect(fragment.isPlural()).toBe(true);
+      });
     });
   });
 
-  describe('buildField()', () => {
-    it('builds scalar fields', () => {
-      var field = RelayQuery.Node.buildField('id');
-      expect(field instanceof RelayQuery.Field).toBe(true);
-      expect(field.getSchemaName()).toBe('id');
-      expect(field.getApplicationName()).toBe('id');
-      expect(field.isScalar()).toBe(true);
-      expect(field.getChildren().length).toBe(0);
-      expect(field.getCallsWithValues()).toEqual([]);
-    });
+  describe('Field', () => {
+    describe('build()', () => {
+      it('builds scalar fields', () => {
+        var field = RelayQuery.Field.build('id');
+        expect(field instanceof RelayQuery.Field).toBe(true);
+        expect(field.getSchemaName()).toBe('id');
+        expect(field.getApplicationName()).toBe('id');
+        expect(field.isScalar()).toBe(true);
+        expect(field.getChildren().length).toBe(0);
+        expect(field.getCallsWithValues()).toEqual([]);
+      });
 
-    it('builds fields with children', () => {
-      var child = RelayQuery.Node.buildField('id');
-      var fragment = getNode(Relay.QL`fragment on Node{id}`);
-      var field = RelayQuery.Node.buildField('node', null, [child, fragment]);
-      expect(field.isScalar()).toBe(false);
-      var children = field.getChildren();
-      expect(children.length).toBe(2);
-      expect(children[0]).toBe(child);
-      expect(children[1]).toBe(fragment);
-    });
+      it('builds fields with children', () => {
+        var child = RelayQuery.Field.build('id');
+        var fragment = getNode(Relay.QL`fragment on Node{id}`);
+        var field = RelayQuery.Field.build('node', null, [child, fragment]);
+        expect(field.isScalar()).toBe(false);
+        var children = field.getChildren();
+        expect(children.length).toBe(2);
+        expect(children[0]).toBe(child);
+        expect(children[1]).toBe(fragment);
+      });
 
-    it('builds fields with calls', () => {
-      var field = RelayQuery.Node.buildField('profilePicture', [
-        {name: 'size', value: 32},
-      ]);
-      expect(field.getCallsWithValues()).toEqual([
-        {name: 'size', value: 32},
-      ]);
-      field = RelayQuery.Node.buildField('profilePicture', [
-        {name: 'size', value: ['32']},
-      ]);
-      expect(field.getCallsWithValues()).toEqual([
-        {name: 'size', value: ['32']},
-      ]);
+      it('builds fields with calls', () => {
+        var field = RelayQuery.Field.build('profilePicture', [
+          {name: 'size', value: 32},
+        ]);
+        expect(field.getCallsWithValues()).toEqual([
+          {name: 'size', value: 32},
+        ]);
+        field = RelayQuery.Field.build('profilePicture', [
+          {name: 'size', value: ['32']},
+        ]);
+        expect(field.getCallsWithValues()).toEqual([
+          {name: 'size', value: ['32']},
+        ]);
+      });
+    });
+  });
+
+  describe('Mutation', () => {
+    describe('buildMutation()', () => {
+      it('builds mutation with value', () => {
+        var field = RelayQuery.Field.build('does_viewer_like');
+        var mutation = RelayQuery.Mutation.build(
+          'FeedbackLikeMutation',
+          'FeedbackLikeResponsePayload',
+          'feedback_like',
+          {feedback_id:'123'},
+          [field]
+        );
+
+        expect(mutation instanceof RelayQuery.Mutation).toBe(true);
+        expect(mutation.getName()).toBe('FeedbackLikeMutation');
+        expect(mutation.getResponseType()).toBe('FeedbackLikeResponsePayload');
+        expect(mutation.getChildren().length).toBe(1);
+        expect(mutation.getChildren()[0]).toBe(field);
+        expect(mutation.getCall())
+          .toEqual({name: 'feedback_like', value: {feedback_id:'123'}});
+        expect(mutation.getCallVariableName()).toEqual('input');
+      });
+
+      it('builds mutation with variable', () => {
+        var field = RelayQuery.Field.build('does_viewer_like');
+        var mutation = RelayQuery.Mutation.build(
+          'FeedbackLikeMutation',
+          'FeedbackLikeResponsePayload',
+          'feedback_like',
+          undefined,
+          [field]
+        );
+
+        expect(mutation instanceof RelayQuery.Mutation).toBe(true);
+        expect(mutation.getName()).toBe('FeedbackLikeMutation');
+        expect(mutation.getResponseType()).toBe('FeedbackLikeResponsePayload');
+        expect(mutation.getChildren().length).toBe(1);
+        expect(mutation.getChildren()[0]).toBe(field);
+        expect(mutation.getCall())
+          .toEqual({name: 'feedback_like', value: ''});
+        expect(mutation.getCallVariableName()).toEqual('input');
+      });
     });
   });
 
@@ -225,48 +275,6 @@ describe('RelayQuery', () => {
       expect(grandchildren[1].getCallsWithValues()).toEqual([
         {name: 'size', value: 'override'},
       ]);
-    });
-  });
-
-  describe('buildMutation()', () => {
-    it('builds mutation with value', () => {
-      var field = RelayQuery.Node.buildField('does_viewer_like');
-      var mutation = RelayQuery.Node.buildMutation(
-        'FeedbackLikeMutation',
-        'FeedbackLikeResponsePayload',
-        'feedback_like',
-        {feedback_id:'123'},
-        [field]
-      );
-
-      expect(mutation instanceof RelayQuery.Mutation).toBe(true);
-      expect(mutation.getName()).toBe('FeedbackLikeMutation');
-      expect(mutation.getResponseType()).toBe('FeedbackLikeResponsePayload');
-      expect(mutation.getChildren().length).toBe(1);
-      expect(mutation.getChildren()[0]).toBe(field);
-      expect(mutation.getCall())
-        .toEqual({name: 'feedback_like', value: {feedback_id:'123'}});
-      expect(mutation.getCallVariableName()).toEqual('input');
-    });
-
-    it('builds mutation with variable', () => {
-      var field = RelayQuery.Node.buildField('does_viewer_like');
-      var mutation = RelayQuery.Node.buildMutation(
-        'FeedbackLikeMutation',
-        'FeedbackLikeResponsePayload',
-        'feedback_like',
-        undefined,
-        [field]
-      );
-
-      expect(mutation instanceof RelayQuery.Mutation).toBe(true);
-      expect(mutation.getName()).toBe('FeedbackLikeMutation');
-      expect(mutation.getResponseType()).toBe('FeedbackLikeResponsePayload');
-      expect(mutation.getChildren().length).toBe(1);
-      expect(mutation.getChildren()[0]).toBe(field);
-      expect(mutation.getCall())
-        .toEqual({name: 'feedback_like', value: ''});
-      expect(mutation.getCallVariableName()).toEqual('input');
     });
   });
 });

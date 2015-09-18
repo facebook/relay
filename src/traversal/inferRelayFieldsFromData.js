@@ -59,9 +59,9 @@ function inferField(value: mixed, key: string): RelayQuery.Field {
     children = [];
   }
   if (key === NODE) {
-    children.push(RelayQuery.Node.buildField('id'));
+    children.push(RelayQuery.Field.build('id'));
   } else if (key === EDGES) {
-    children.push(RelayQuery.Node.buildField('cursor'));
+    children.push(RelayQuery.Field.build('cursor'));
   }
   return buildField(key, children, metadata);
 }
@@ -90,7 +90,7 @@ function buildField(
       };
     });
   }
-  return RelayQuery.Node.buildField(
+  return RelayQuery.Field.build(
     fieldName,
     calls,
     children,

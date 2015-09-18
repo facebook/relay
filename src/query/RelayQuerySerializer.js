@@ -84,7 +84,7 @@ var RelayQuerySerializer = {
     children = children.map(RelayQuerySerializer.fromJSON);
 
     if (kind === FIELD) {
-      var field = RelayQuery.Node.buildField(
+      var field = RelayQuery.Field.build(
         name,
         calls,
         children,
@@ -101,7 +101,7 @@ var RelayQuerySerializer = {
         typeof type === 'string',
         'RelayQuerySerializer.fromJSON(): expected `type` to be a string.'
       );
-      var fragment = RelayQuery.Node.buildFragment(
+      var fragment = RelayQuery.Fragment.build(
         name,
         type,
         children,
@@ -114,7 +114,7 @@ var RelayQuerySerializer = {
       return fragment;
     } else if (kind === QUERY) {
       var rootCall = calls[0];
-      var root = RelayQuery.Node.buildRoot(
+      var root = RelayQuery.Root.build(
         rootCall.name,
         rootCall.value,
         children,
@@ -132,7 +132,7 @@ var RelayQuerySerializer = {
         'RelayQuerySerializer.fromJSON(): expected `type` to be a string.'
       );
       var mutationCall = calls[0];
-      var mutation = RelayQuery.Node.buildMutation(
+      var mutation = RelayQuery.Mutation.build(
         name,
         type,
         mutationCall.name,

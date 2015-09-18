@@ -49,7 +49,7 @@ type Payload = Object;
 var {CLIENT_MUTATION_ID, EDGES} = RelayConnectionInterface;
 var {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 
-var EDGES_FIELD = RelayQuery.Node.buildField(
+var EDGES_FIELD = RelayQuery.Field.build(
   EDGES,
   null,
   null,
@@ -238,7 +238,7 @@ function mergeField(
 
   if (recordID) {
     path = new RelayQueryPath(
-      RelayQuery.Node.buildRoot(
+      RelayQuery.Root.build(
         RelayNodeInterface.NODE,
         recordID,
         null,
@@ -248,7 +248,7 @@ function mergeField(
   } else {
     recordID = store.getRootCallID(fieldName, EMPTY);
     // Root fields that do not accept arguments
-    path = new RelayQueryPath(RelayQuery.Node.buildRoot(fieldName));
+    path = new RelayQueryPath(RelayQuery.Root.build(fieldName));
   }
   invariant(
     recordID,

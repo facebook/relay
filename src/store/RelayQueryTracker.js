@@ -84,7 +84,7 @@ class RelayQueryTracker {
       });
       trackedNodes.length = 0;
       trackedNodesByID.isFlattened = true;
-      var containerNode = RelayQuery.Node.buildFragment(
+      var containerNode = RelayQuery.Fragment.build(
         'RelayQueryTracker',
         'Node',
         trackedChildren

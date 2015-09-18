@@ -53,12 +53,12 @@
   <section id="sec-Mutation-inputs">
     <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Mutation-inputs">1</a></span>Mutation inputs</h2>
     <p>In particular, all mutations must expose exactly one argument, named <code>input</code>. This argument&rsquo;s type must be a <code>NON_NULL</code> wrapper around an <code>INPUT_OBJECT</code>. That input object type must contain an argument named
-      <code>clientMutationId</code>. That argument must be a non&#8208;null <code>String</code>.</p>
+      <code>clientMutationId</code>. That argument must be a <code>String</code>. That argument may be non&#8208;null.</p>
     <p>Clients may use whatever identifier they see fit for their <code>clientMutationId</code>s; Version 4 UUIDs are a reasonable choice.</p>
   </section>
   <section id="sec-Mutation-fields">
     <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Mutation-fields">2</a></span>Mutation fields</h2>
-    <p>The return type of any mutation field must be an object. That object must contain a field named <code>clientMutationId</code> which is a non&#8208;null <code>String</code>. The value of this field must be the value of the <code>clientMutationId</code>      input argument defined above.</p>
+    <p>The return type of any mutation field must be an object. That object must contain a field named <code>clientMutationId</code> which is a <code>String</code>. If <code>input</code> <code>clientMutationId</code> is non&#8208;null, then mutation <code>clientMutationId</code>      must also be non&#8208;null. The value of this field must be the value of the <code>clientMutationId</code> input argument defined above.</p>
   </section>
   <section id="sec-Introspection">
     <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Introspection">3</a></span>Introspection</h2>
@@ -104,56 +104,52 @@
 }
 </code></pre>
     <p>yields</p><pre><code>{
-  "<span class="hljs-attribute">__schema</span>": <span class="hljs-value">{
-    "<span class="hljs-attribute">mutationType</span>": <span class="hljs-value">{
-      "<span class="hljs-attribute">fields</span>": <span class="hljs-value">[
+  "__schema": {
+    "mutationType": {
+      "fields": [
         // May contain many instances of this
         {
-          "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
-            "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"OBJECT"</span></span>,
-            "<span class="hljs-attribute">fields</span>": <span class="hljs-value">[
+          "type": {
+            "kind": "OBJECT",
+            "fields": [
               // May contain more fields here.
               {
-                "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"clientMutationId"</span></span>,
-                "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
-                  "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"NON_NULL"</span></span>,
-                  "<span class="hljs-attribute">ofType</span>": <span class="hljs-value">{
-                    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"String"</span></span>,
-                    "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"SCALAR"</span>
-                  </span>}
-                </span>}
-              </span>}
+                "name": "clientMutationId",
+                // May also be NON_NULL, must match args
+                "type": {
+                  "name": "String",
+                  "kind": "SCALAR"
+                }
+              }
             ]
-          </span>}</span>,
-          "<span class="hljs-attribute">args</span>": <span class="hljs-value">[
+          },
+          "args": [
             {
-              "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"input"</span></span>,
-              "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
-                "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"NON_NULL"</span></span>,
-                "<span class="hljs-attribute">ofType</span>": <span class="hljs-value">{
-                  "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"INPUT_OBJECT"</span></span>,
-                  "<span class="hljs-attribute">inputFields</span>": <span class="hljs-value">[
+              "name": "input",
+              "type": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "inputFields": [
                     // May contain more fields here
                     {
-                      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"clientMutationId"</span></span>,
-                      "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
-                        "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"NON_NULL"</span></span>,
-                        "<span class="hljs-attribute">ofType</span>": <span class="hljs-value">{
-                          "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"String"</span></span>,
-                          "<span class="hljs-attribute">kind</span>": <span class="hljs-value"><span class="hljs-string">"SCALAR"</span>
-                        </span>}
-                      </span>}
-                    </span>}
+                      "name": "clientMutationId",
+                      // May also be NON_NULL, must match payload
+                      "type": {
+                        "name": "String",
+                        "kind": "SCALAR"
+                      }
+                    }
                   ]
-                </span>}
-              </span>}
-            </span>}
+                }
+              }
+            }
           ]
-        </span>}
+        }
       ]
-    </span>}
-  </span>}
-</span>}
+    }
+  }
+}
 </code></pre></section>
   <footer>Written in <a href="http://leebyron.com/spec-md/" target="_blank">Spec Markdown</a>.</footer>
 </body>

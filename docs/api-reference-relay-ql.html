@@ -58,6 +58,26 @@ Relay<span class="token punctuation">.</span><span class="token function">create
       }
     `</span></span><span class="token punctuation">,</span>
   <span class="token punctuation">}</span>
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><div class="line-highlight" style="height:20px;top:40px;"></div><div class="line-highlight" style="height:20px;top:60px;"></div><div class="line-highlight" style="height:20px;top:80px;"></div><div class="line-highlight" style="height:20px;top:100px;"></div><div class="line-highlight" style="height:20px;top:120px;"></div><div class="line-highlight" style="height:20px;top:260px;"></div><div class="line-highlight" style="height:20px;top:400px;"></div></pre><p>Note that it is <em>highly</em> recommended that <code>Relay.Container</code>s define their own fragments and avoid sharing inline <code>var fragment = Relay.QL...</code> values between containers or files. If you find yourself wanting to share inline fragments, it&#x27;s likely a sign that it&#x27;s time to refactor and introduce a new container.</p></div><div class="docs-prevnext"><a class="docs-next" href="api-reference-relay-mutation.html#content">Next →</a></div></div></section><footer class="wrap"><div class="right">©2015 Facebook Inc.</div></footer></div><div id="fb-root"></div><script>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><div class="line-highlight" style="height:20px;top:40px;"></div><div class="line-highlight" style="height:20px;top:60px;"></div><div class="line-highlight" style="height:20px;top:80px;"></div><div class="line-highlight" style="height:20px;top:100px;"></div><div class="line-highlight" style="height:20px;top:120px;"></div><div class="line-highlight" style="height:20px;top:260px;"></div><div class="line-highlight" style="height:20px;top:400px;"></div></pre><p>Note that it is <em>highly</em> recommended that <code>Relay.Container</code>s define their own fragments and avoid sharing inline <code>var fragment = Relay.QL...</code> values between containers or files. If you find yourself wanting to share inline fragments, it&#x27;s likely a sign that it&#x27;s time to refactor and introduce a new container.</p><h3><a class="anchor" name="conditional-fields"></a>Conditional fields <a class="hash-link" href="#conditional-fields">#</a></h3><p>You can conditionally include or skip a field based on the value of a boolean variable.</p><pre class="prism language-javascript">Relay<span class="token punctuation">.</span><span class="token function">createContainer</span><span class="token punctuation">(</span>Story<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  initialVariables<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    numCommentsToShow<span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+    showComments<span class="token punctuation">:</span> <span class="token keyword">false</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  fragments<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    story<span class="token punctuation">:</span> <span class="token punctuation">(</span>variables<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+      fragment on Story {
+        comments(first: $numCommentsToShow) @include(if: $showComments) {
+          edges {
+            node {
+              author { name },
+              id,
+              text,
+            },
+          },
+        },
+      }
+    `</span></span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><div class="line-highlight" style="height:20px;top:60px;"></div><div class="line-highlight" style="height:20px;top:160px;"></div></pre><p>Wherever the inverse grammar serves you better, you can use <code>@skip(if: ...)</code> instead of <code>@include(if: ...)</code>.</p></div><div class="docs-prevnext"><a class="docs-next" href="api-reference-relay-mutation.html#content">Next →</a></div></div></section><footer class="wrap"><div class="right">©2015 Facebook Inc.</div></footer></div><div id="fb-root"></div><script>
             !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
           </script></body></html>

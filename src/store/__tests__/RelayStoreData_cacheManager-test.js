@@ -25,7 +25,8 @@ var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayMockCacheManager = require('RelayMockCacheManager');
 var RelayMutationType = require('RelayMutationType');
 var RelayStoreData = require('RelayStoreData');
-var generateRQLFieldAlias = require('generateRQLFieldAlias');
+
+var transformRelayClientPayload = require('transformRelayClientPayload');
 
 describe('RelayStoreData', function() {
   var cacheManager;
@@ -274,10 +275,10 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var response = {
+    var response = transformRelayClientPayload(query, {
       node: {
         id: '123',
-        [generateRQLFieldAlias('friends.first(2)')]: {
+        friends: {
           edges: [
             {
               node: {
@@ -298,7 +299,7 @@ describe('RelayStoreData', function() {
           },
         },
       },
-    };
+    });
     storeData.handleQueryPayload(query, response);
 
     expect(cacheManager).toContainCalledMethods({
@@ -362,10 +363,10 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var response = {
+    var response = transformRelayClientPayload(query, {
       node: {
         id: '123',
-        [generateRQLFieldAlias('friends.first(2)')]: {
+        friends: {
           edges: [],
           [PAGE_INFO]: {
             [HAS_PREV_PAGE]: false,
@@ -373,7 +374,7 @@ describe('RelayStoreData', function() {
           },
         },
       },
-    };
+    });
     storeData.handleQueryPayload(query, response);
 
     expect(cacheManager).toContainCalledMethods({
@@ -460,10 +461,10 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var response = {
+    var response = transformRelayClientPayload(query, {
       node: {
         id: '123',
-        [generateRQLFieldAlias('comments.first(1)')]: {
+        comments: {
           count: 2,
           edges: [
             {
@@ -479,7 +480,7 @@ describe('RelayStoreData', function() {
           },
         },
       }
-    };
+    });
     storeData.handleQueryPayload(query, response);
 
     var configs = [{
@@ -581,10 +582,10 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var response = {
+    var response = transformRelayClientPayload(query, {
       node: {
         id: '123',
-        [generateRQLFieldAlias('comments.first(1)')]: {
+        comments: {
           count: 2,
           edges: [
             {
@@ -600,7 +601,7 @@ describe('RelayStoreData', function() {
           },
         },
       }
-    };
+    });
     storeData.handleQueryPayload(query, response);
 
     var configs = [{

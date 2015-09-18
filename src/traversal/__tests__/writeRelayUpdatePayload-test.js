@@ -28,7 +28,6 @@ var RelayMutationType = require('RelayMutationType');
 var RelayQueryWriter = require('RelayQueryWriter');
 var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 var generateClientEdgeID = require('generateClientEdgeID');
-var generateRQLFieldAlias = require('generateRQLFieldAlias');
 var writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 describe('writePayload()', () => {
@@ -85,7 +84,7 @@ describe('writePayload()', () => {
       var payload = {
         node: {
           id: 'feedback_id',
-          [generateRQLFieldAlias('topLevelComments.first(1)')]: {
+          topLevelComments: {
             count: 1,
             edges: [
               {
@@ -303,11 +302,10 @@ describe('writePayload()', () => {
           }
         }
       `);
-      var alias = generateRQLFieldAlias('topLevelComments.first(1)');
       var payload = {
         node: {
           id: feedbackID,
-          [alias]: {
+          topLevelComments: {
             count: 1,
             edges: [
               {
@@ -715,11 +713,10 @@ describe('writePayload()', () => {
           }
         }
       `);
-      var alias = generateRQLFieldAlias('topLevelComments.first(1)');
       var payload = {
         node: {
           id: feedbackID,
-          [alias]: {
+          topLevelComments: {
             count: 1,
             edges: [
               {

@@ -103,17 +103,10 @@ function printRoot(
       rootFieldString += '(' + rootArgString + ')';
     }
   }
-  rootFieldString += printDirectives(node);
+  // Note: children must be traversed before printing variable definitions
   var children = printChildren(node, printerState);
-
-  var argStrings = null;
-  forEachObject(printerState.variableMap, (variable, variableID) => {
-    argStrings = argStrings || [];
-    argStrings.push('$' + variableID + ':' + variable.type);
-  });
-  if (argStrings) {
-    queryString += '(' + argStrings.join(',') + ')';
-  }
+  queryString += printVariableDefinitions(printerState);
+  rootFieldString += printDirectives(node);
 
   return 'query ' + queryString + '{' + rootFieldString + children + '}';
 }
@@ -122,12 +115,37 @@ function printMutation(
   node: RelayQuery.Mutation,
   printerState: PrinterState
 ): string {
-  var inputName = node.getCallVariableName();
-  var call = '(' + inputName + ':$' + inputName + ')';
-  return 'mutation ' + node.getName() + '($' + inputName + ':' +
-    node.getInputType() + ')' + '{' +
-    node.getCall().name + call +
-    printChildren(node, printerState) + '}';
+  var call = node.getCall();
+  var inputString = printArgument(
+    node.getCallVariableName(),
+    call.value,
+    node.getInputType(),
+    printerState
+  );
+  invariant(
+    inputString,
+    'printRelayOSSQuery(): Expected mutation `%s` to have a value for `%s`.',
+    node.getName(),
+    node.getCallVariableName()
+  );
+  // Note: children must be traversed before printing variable definitions
+  var children = printChildren(node, printerState);
+  var mutationString = node.getName() + printVariableDefinitions(printerState);
+  var rootFieldString = call.name + '(' + inputString + ')';
+
+  return 'mutation ' + mutationString + '{' + rootFieldString + children + '}';
+}
+
+function printVariableDefinitions(printerState: PrinterState): string {
+  var argStrings = null;
+  forEachObject(printerState.variableMap, (variable, variableID) => {
+    argStrings = argStrings || [];
+    argStrings.push('$' + variableID + ':' + variable.type);
+  });
+  if (argStrings) {
+    return '(' + argStrings.join(',') + ')';
+  }
+  return '';
 }
 
 function printFragment(

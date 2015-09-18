@@ -75,21 +75,21 @@ describe('RelayDefaultNetworkLayer', () => {
       responseCallback = jest.genMockFunction();
       rejectCallback = jest.genMockFunction();
 
-      var mutation = RelayQuery.Node.buildMutation(
-        'FeedbackLikeMutation',
-        'FeedbackLikeResponsePayload',
-        'feedback_like',
-        null,
-        [RelayQuery.Node.buildField('does_viewer_like')],
-        {inputType: 'FeedbackLikeInput'}
-      );
       variables = {
         input: {
           [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'client:a',
           actor_id: 4,
         },
       };
-      request = new RelayMutationRequest(mutation, variables);
+      var mutation = RelayQuery.Node.buildMutation(
+        'FeedbackLikeMutation',
+        'FeedbackLikeResponsePayload',
+        'feedback_like',
+        variables.input,
+        [RelayQuery.Node.buildField('does_viewer_like')],
+        {inputType: 'FeedbackLikeInput'}
+      );
+      request = new RelayMutationRequest(mutation);
       request.getPromise().then(responseCallback).catch(rejectCallback);
     });
 
@@ -109,7 +109,9 @@ describe('RelayDefaultNetworkLayer', () => {
       });
       expect(body).toEqual(JSON.stringify({
         query: request.getQueryString(),
-        variables: variables,
+        variables: {
+          input_0: variables.input,
+        },
       }));
     });
 

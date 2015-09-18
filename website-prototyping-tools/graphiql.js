@@ -18,10 +18,17 @@ import evalSchema from './evalSchema';
 import queryString from 'querystring';
 import {graphql} from 'graphql';
 
-if (
-  /^https?:\/\/facebook.github.io\//.test(document.referrer) ||
-  /^localhost/.test(document.location.host)
-) {
+const IS_TRUSTED = (
+  (
+    // Running in an iframe on the Relay website
+    window.self !== window.top &&
+    /^https?:\/\/facebook.github.io\//.test(document.referrer)
+  ) ||
+  // Running locally
+  /^(127\.0\.0\.1|localhost)/.test(document.location.host)
+);
+
+if (IS_TRUSTED) {
   // Don't trust location.hash not to have been unencoded by the browser
   var hash = window.location.href.split('#')[1];
   var {

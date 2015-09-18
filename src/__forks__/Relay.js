@@ -17,6 +17,7 @@ var RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
 var RelayPublic = require('RelayPublic');
 
 // By default, assume that GraphQL is served at `/graphql` on the same domain.
+// $FlowFixMe(>=0.16.0)
 RelayPublic.injectNetworkLayer(new RelayDefaultNetworkLayer('/graphql'));
 
 module.exports = {

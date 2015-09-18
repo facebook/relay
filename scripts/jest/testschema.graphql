@@ -101,7 +101,7 @@ type Comment implements Node {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: [String]): Image
+  profilePicture(size: [String], preset: PhotoSize): Image
   segments(first: String): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -184,7 +184,7 @@ type Feedback implements Node {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: [String]): Image
+  profilePicture(size: [String], preset: PhotoSize): Image
   segments(first: String): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -278,7 +278,7 @@ interface Node {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: [String]): Image
+  profilePicture(size: [String], preset: PhotoSize): Image
   segments(first: String): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -302,7 +302,7 @@ interface Actor {
   id: ID!
   lastName: String
   name: String
-  profilePicture(size: [String]): Image
+  profilePicture(size: [String], preset: PhotoSize): Image
   screennames: [Screenname]
   subscribeStatus: String
   subscribers(first: String): SubscribersConnection
@@ -340,7 +340,7 @@ type Page implements Node Actor {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: [String]): Image
+  profilePicture(size: [String], preset: PhotoSize): Image
   segments(first: String): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -437,7 +437,7 @@ type Story implements FeedUnit Node {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: [String]): Image
+  profilePicture(size: [String], preset: PhotoSize): Image
   segments(first: String): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -515,7 +515,7 @@ type User implements Node Actor {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: [String]): Image
+  profilePicture(size: [String], preset: PhotoSize): Image
   segments(first: String): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -547,6 +547,11 @@ type ViewerNotificationsUpdateAllSeenStateResponsePayload {
 enum Environment {
   WEB
   MOBILE
+}
+
+enum PhotoSize {
+  SMALL
+  LARGE
 }
 
 type Settings {

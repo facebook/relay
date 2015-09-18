@@ -39,6 +39,10 @@ export type Directive = {
 
 export type FieldValue = mixed;
 
+export type MutationVariables = {
+  input: {[key: string]: mixed};
+};
+
 export type PrintedQuery = {
   text: string;
   variables: {[key: string]: mixed};

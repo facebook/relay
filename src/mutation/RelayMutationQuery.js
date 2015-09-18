@@ -22,6 +22,7 @@ var RelayMutationType = require('RelayMutationType');
 var RelayQuery = require('RelayQuery');
 import type RelayQueryTracker from 'RelayQueryTracker';
 var RelayStoreData = require('RelayStoreData');
+import type {Variables} from 'RelayTypes';
 
 var flattenRelayQuery = require('flattenRelayQuery');
 var forEachObject = require('forEachObject');
@@ -295,6 +296,7 @@ var RelayMutationQuery = {
       mutationName,
       mutation,
       tracker,
+      input,
     }: {
       /* Previously each element of configs had the type mixed, which meant
        * that they couldn't be used in configs.forEach without being
@@ -303,6 +305,7 @@ var RelayMutationQuery = {
        */
       configs: Array<{[key: string]: $FlowFixMe}>;
       fatQuery: RelayQuery.Fragment;
+      input: Variables,
       mutationName: string;
       mutation: GraphQL.Mutation;
       tracker?: RelayQueryTracker;
@@ -378,7 +381,7 @@ var RelayMutationQuery = {
       mutationName,
       fatQuery.getType(),
       mutation.calls[0].name,
-      null,
+      input,
       fragmentedFields ? fragmentedFields.getChildren() : null,
       mutation.metadata
     );

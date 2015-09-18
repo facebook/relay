@@ -44,7 +44,7 @@ export function getTodos() {
 }
 
 export function getUser(id) {
-  return usersById[VIEWER_ID];
+  return usersById[id];
 }
 
 export function getViewer() {

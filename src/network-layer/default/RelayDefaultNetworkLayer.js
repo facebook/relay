@@ -185,20 +185,19 @@ function formatRequestErrors(
     var indent = ' '.repeat(prefix.length);
 
     //custom errors thrown in graphql-server may not have locations
-    var locationMessage = locations
-      ? ('\n' + locations.map(({column, line}) => {
+    var locationMessage = locations ?
+      ('\n' + locations.map(({column, line}) => {
         var queryLine = queryLines[line - 1];
         var offset = Math.min(column - 1, CONTEXT_BEFORE);
         return [
           queryLine.substr(column - 1 - offset, CONTEXT_LENGTH),
           ' '.repeat(offset) + '^^^'
         ].map(messageLine => indent + messageLine).join('\n');
-        }).join('\n'))
-      : '';
+        }).join('\n')) :
+      '';
 
-    return (
-      prefix + message + locationMessage
-    );
+      return prefix + message + locationMessage;
+
   }).join('\n');
 }
 

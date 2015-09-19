@@ -14,6 +14,7 @@ import Codemirror from 'react-codemirror';
 import React from 'react';
 import ReactDOM from 'react/lib/ReactDOM';
 import Relay from 'react-relay'; window.Relay = Relay;
+import RelayLocalSchema from 'relay-local-schema';
 
 import babel from 'babel-core/browser';
 import babelRelayPlaygroundPlugin from './babelRelayPlaygroundPlugin';
@@ -58,6 +59,20 @@ const RENDER_STEP_EXAMPLE_CODE =
   />,
   mountNode
 );`;
+
+function errorFromGraphQLResultAndQuery(errors, request) {
+  var queryString = request.getQueryString();
+  var variables = request.getVariables();
+  var errorText = `
+${errors.map(e => e.message).join('\n')}
+
+Query: ${queryString}
+`;
+  if (variables) {
+    errorText += `Variables: ${JSON.stringify(variables)}`;
+  }
+  return {stack: errorText.trim()};
+}
 
 class PlaygroundRenderer extends React.Component {
   componentDidMount() {
@@ -270,40 +285,17 @@ export default class RelayPlayground extends React.Component {
         return;
       }
       this._babelRelayPlugin = getBabelRelayPlugin(result.data);
-      Relay.injectNetworkLayer({
-        sendMutation: (mutationRequest) => {
-          var graphQLQuery = mutationRequest.getQueryString();
-          var variables = mutationRequest.getVariables();
-          graphql(Schema, graphQLQuery, null, variables).then(result => {
-            if (result.errors) {
-              mutationRequest.reject(new Error(result.errors));
-              this.setState({
-                error: {stack: result.errors.map(e => e.message).join('\n')},
-                errorType: ERROR_TYPES.query,
-              });
-            } else {
-              mutationRequest.resolve({response: result.data});
-            }
-          });
-        },
-        sendQueries: (queryRequests) => {
-          return Promise.all(queryRequests.map(queryRequest => {
-            var graphQLQuery = queryRequest.getQueryString();
-            graphql(Schema, graphQLQuery).then(result => {
-              if (result.errors) {
-                queryRequest.reject(new Error(result.errors));
-                this.setState({
-                  error: {stack: result.errors.map(e => e.message).join('\n')},
-                  errorType: ERROR_TYPES.query,
-                });
-              } else {
-                queryRequest.resolve({response: result.data});
-              }
+      Relay.injectNetworkLayer(
+        new RelayLocalSchema.NetworkLayer({
+          schema: Schema,
+          onError: (errors, request) => {
+            this.setState({
+              error: errorFromGraphQLResultAndQuery(errors, request),
+              errorType: ERROR_TYPES.query,
             });
-          }));
-        },
-        supports: () => false,
-      });
+          },
+        })
+      );
       this._updateApp(appSource);
     });
   }

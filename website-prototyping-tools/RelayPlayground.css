@@ -172,6 +172,48 @@ body {
   right: 0;
   top: 52px;
 }
+.rpExecutionGuard {
+  align-items: center;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.rpExecutionGuardMessage {
+  background-color: hsl(345, 7%, 23%);
+  box-shadow: 1px 1px 3px hsla(0, 0%, 0%, 0.25);
+  color: white;
+  margin: 30px;
+  max-width: 480px;
+  padding: 16px;
+  text-shadow: 0 -1px hsl(345, 7%, 3%);
+}
+.rpExecutionGuardMessage h2 {
+  font-size: 18px;
+  font-weight: 400;
+  margin: 0;
+}
+.rpExecutionGuardMessage p {
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.rpExecutionGuardMessage button {
+  background-color: hsl(26.5, 100%, 47.5%);
+  border-color:
+    hsl(26.5, 100%, 80%)
+    hsl(26.5, 100%, 30%)
+    hsl(26.5, 100%, 30%)
+    hsl(26.5, 100%, 80%);
+  border-style: solid;
+  border-width: 1px;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
 .ReactCodeMirror {
   border-right: 1px solid #eee8d5;
   border-top: 1px solid #eee8d5;

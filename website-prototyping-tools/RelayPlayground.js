@@ -1,3 +1,12 @@
+/**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
 import './RelayPlayground.css';
 import 'codemirror/mode/javascript/javascript';
 
@@ -79,7 +88,11 @@ class PlaygroundRenderer extends React.Component {
 }
 
 export default class RelayPlayground extends React.Component {
+  static defaultProps = {
+    autoExecute: false,
+  };
   static propTypes = {
+    autoExecute: PropTypes.bool.isRequired,
     initialAppSource: PropTypes.string,
     initialSchemaSource: PropTypes.string,
     onAppSourceChange: PropTypes.func,
@@ -92,6 +105,7 @@ export default class RelayPlayground extends React.Component {
     editTarget: 'app',
     error: null,
     schemaSource: this.props.initialSchemaSource,
+    shouldExecuteCode: this.props.autoExecute,
   };
   componentDidMount() {
     // Hijack console.warn to collect GraphQL validation warnings (we hope)
@@ -121,16 +135,25 @@ export default class RelayPlayground extends React.Component {
       collectedWarnings = [];
       return false;
     };
-    this._updateSchema(this.state.schemaSource, this.state.appSource);
+    if (this.state.shouldExecuteCode) {
+      this._updateSchema(this.state.schemaSource, this.state.appSource);
+    }
   }
   componentDidUpdate(prevProps, prevState) {
+    var recentlyEnabledCodeExecution =
+      !prevState.shouldExecuteCode && this.state.shouldExecuteCode;
     var appChanged = this.state.appSource !== prevState.appSource;
     var schemaChanged = this.state.schemaSource !== prevState.schemaSource;
-    if (appChanged || schemaChanged) {
+    if (
+      this.state.shouldExecuteCode &&
+      (recentlyEnabledCodeExecution || appChanged || schemaChanged)
+    ) {
       this.setState({busy: true});
       this._handleSourceCodeChange(
         this.state.appSource,
-        schemaChanged ? this.state.schemaSource : null,
+        recentlyEnabledCodeExecution || schemaChanged
+          ? this.state.schemaSource
+          : null,
       );
     }
   }
@@ -140,6 +163,9 @@ export default class RelayPlayground extends React.Component {
     this._handleSourceCodeChange.cancel();
     console.warn = this._originalConsoleWarn;
     window.onerror = this._originalWindowOnerror;
+  }
+  _handleExecuteClick = () => {
+    this.setState({shouldExecuteCode: true});
   }
   _handleSourceCodeChange = debounce((appSource, schemaSource) => {
     if (schemaSource != null) {
@@ -281,6 +307,32 @@ export default class RelayPlayground extends React.Component {
       this._updateApp(appSource);
     });
   }
+  renderApp() {
+    if (!this.state.shouldExecuteCode) {
+      return (
+        <div className="rpExecutionGuard">
+          <div className="rpExecutionGuardMessage">
+            <h2>For your security, this playground did not auto-execute</h2>
+            <p>
+              Clicking <strong>execute</strong> will run the code in the two
+              tabs to the left.
+            </p>
+            <button onClick={this._handleExecuteClick}>Execute</button>
+          </div>
+        </div>
+      );
+    } else if (this.state.error) {
+      return (
+        <div className="rpError">
+          <h1>{this.state.errorType} Error</h1>
+          <pre className="rpErrorStack">{this.state.error.stack}</pre>
+        </div>
+      );
+    } else if (this.state.appElement) {
+      return <PlaygroundRenderer>{this.state.appElement}</PlaygroundRenderer>;
+    }
+    return null;
+  }
   render() {
     var sourceCode = this.state.editTarget === 'schema'
       ? this.state.schemaSource
@@ -300,9 +352,16 @@ export default class RelayPlayground extends React.Component {
               Schema
             </button>
           </nav>
+          {/* What is going on with the choice of key in Codemirror?
+            * https://github.com/JedWatson/react-codemirror/issues/12
+            */}
           <Codemirror
+            key={`${this.state.editTarget}-${this.state.shouldExecuteCode}`}
             onChange={this._updateCode}
-            options={CODE_EDITOR_OPTIONS}
+            options={{
+              ...CODE_EDITOR_OPTIONS,
+              readOnly: !this.state.shouldExecuteCode,
+            }}
             value={sourceCode}
           />
         </section>
@@ -314,13 +373,7 @@ export default class RelayPlayground extends React.Component {
             } />
           </h1>
           <div className="rpResultOutput">
-            {this.state.error
-              ? <div className="rpError">
-                  <h1>{this.state.errorType} Error</h1>
-                  <pre className="rpErrorStack">{this.state.error.stack}</pre>
-                </div>
-              : <PlaygroundRenderer>{this.state.appElement}</PlaygroundRenderer>
-            }
+            {this.renderApp()}
           </div>
         </section>
       </div>

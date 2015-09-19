@@ -34,7 +34,8 @@ var queue = (function() {
 })();
 
 exec('npm run build', {
-  cwd: path.resolve(__dirname, '../../website-prototyping-tools')
+  cwd: path.resolve(__dirname, '../../website-prototyping-tools'),
+  stdio: 'inherit',
 });
 
 buildGraphQLSpec('build');

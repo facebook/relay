@@ -202,12 +202,12 @@ body {
   margin-bottom: 16px;
 }
 .rpExecutionGuardMessage button {
-  background-color: hsl(26.5, 100%, 47.5%);
+  background-color: hsl(26, 100%, 47.5%);
   border-color:
-    hsl(26.5, 100%, 80%)
-    hsl(26.5, 100%, 30%)
-    hsl(26.5, 100%, 30%)
-    hsl(26.5, 100%, 80%);
+    hsl(26, 100%, 80%)
+    hsl(26, 100%, 30%)
+    hsl(26, 100%, 30%)
+    hsl(26, 100%, 80%);
   border-style: solid;
   border-width: 1px;
   font-size: 13px;

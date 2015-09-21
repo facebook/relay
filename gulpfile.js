@@ -14,7 +14,6 @@ var babelPluginDEV = require('fbjs-scripts/babel/dev-expression');
 var babelPluginModules = require('fbjs-scripts/babel/rewrite-modules');
 var del = require('del');
 var derequire = require('gulp-derequire');
-var envify = require('envify/custom');
 var flatten = require('gulp-flatten');
 var gulp = require('gulp');
 var gulpUtil = require('gulp-util');

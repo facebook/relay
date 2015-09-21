@@ -41,14 +41,14 @@ describe('RelayRoute', () => {
         required: (Component, params) => Relay.QL`
           query {
             node(id:$required) {
-              ${Component.getQuery('required')}
+              ${Component.getFragment('required')}
             }
           }
         `,
         optional: (Component, params) => Relay.QL`
           query {
             node(id:$optional) {
-              ${Component.getQuery('optional')}
+              ${Component.getFragment('optional')}
             }
           }
         `

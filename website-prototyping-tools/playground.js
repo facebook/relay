@@ -33,8 +33,14 @@ var sourceWasInjected = false;
 var hash = window.location.href.split('#')[1];
 var queryParams = queryString.parse(hash);
 
-var {cacheKey} = queryParams;
-if (!cacheKey) {
+var {
+  cacheKey,
+  noCache,
+} = queryParams;
+noCache = (noCache !== undefined) && (noCache !== 'false');
+if (noCache) {
+  cacheKey = undefined;
+} else if (!cacheKey) {
   cacheKey = DEFAULT_CACHE_KEY;
 }
 var appSourceCacheKey = `rp-${cacheKey}-source`;
@@ -44,8 +50,16 @@ var initialAppSource;
 var initialSchemaSource;
 var storedAppSource = localStorage.getItem(appSourceCacheKey);
 var storedSchemaSource = localStorage.getItem(schemaSourceCacheKey);
-if (cacheKey === DEFAULT_CACHE_KEY) {
+if (noCache) {
   // Use case #1
+  // We use the noCache param to force a playground to have certain contents.
+  // eg. static example apps
+  initialAppSource = queryParams.source || '';
+  initialSchemaSource = queryParams.schema || '';
+  sourceWasInjected = true;
+  queryParams = {};
+} else if (cacheKey === DEFAULT_CACHE_KEY) {
+  // Use case #2
   // The user loaded the playground without a custom cache key.
   //   Allow code injection via the URL
   //   OR load code from localStorage
@@ -70,8 +84,8 @@ if (cacheKey === DEFAULT_CACHE_KEY) {
     source: queryParams.source,
     schema: queryParams.schema,
   }, v => v !== undefined);
-} else {
-  // Use case #2
+} else if (cacheKey) {
+  // Use case #3
   // Custom cache keys are useful in cases where you want to embed a playground
   // that features both custom boilerplate code AND saves the developer's
   // progress, without overwriting the default code cache. eg. a tutorial.

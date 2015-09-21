@@ -81,7 +81,7 @@ function diffRelayQuery(
       );
       nodeRoot = RelayQuery.Root.build(
         rootCallName,
-        rootCallArg,
+        [rootCallArg],
         root.getChildren(),
         {
           rootArg: root.getRootCallArgument(),

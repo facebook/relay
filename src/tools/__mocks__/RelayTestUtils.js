@@ -480,7 +480,11 @@ var RelayTestUtils = {
     var RelayChangeTracker = require('RelayChangeTracker');
     var RelayQueryTracker = require('RelayQueryTracker');
     var RelayQueryWriter = require('RelayQueryWriter');
+    var transformRelayClientPayload = require('transformRelayClientPayload');
     var writeRelayQueryPayload = require('writeRelayQueryPayload');
+
+    // rewrite any plain name/alias property names into storage keys
+    payload = transformRelayClientPayload(query, payload);
 
     tracker = tracker || new RelayQueryTracker();
     options = options || {};

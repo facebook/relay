@@ -24,7 +24,6 @@ var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQueryTracker = require('RelayQueryTracker');
 var diffRelayQuery = require('diffRelayQuery');
-var generateRQLFieldAlias = require('generateRQLFieldAlias');
 
 describe('diffRelayQuery', () => {
   var RelayRecordStore;
@@ -76,10 +75,9 @@ describe('diffRelayQuery', () => {
     var store = new RelayRecordStore({records}, {map: rootCallMap});
     var tracker = new RelayQueryTracker();
 
-    var alias = generateRQLFieldAlias('newsFeed.first(3)');
     var payload = {
       viewer: {
-        [alias]: {
+        newsFeed: {
           edges: [
             {cursor: 'c1', node: {id: 's1'}},
             {cursor: 'c2', node: {id: 's2'}},
@@ -119,10 +117,9 @@ describe('diffRelayQuery', () => {
     var tracker = new RelayQueryTracker();
 
     // Write full data for 3 of 5 records, nothing for edges 4-5
-    var alias = generateRQLFieldAlias('newsFeed.first(5)');
     var payload = {
       viewer: {
-        [alias]: {
+        newsFeed: {
           edges: [
             {cursor: 'c1', node: {id: 's1'}},
             {cursor: 'c2', node: {id: 's2'}},
@@ -176,22 +173,6 @@ describe('diffRelayQuery', () => {
     var tracker = new RelayQueryTracker();
 
     // Provide empty IDs to simulate non-refetchable nodes
-    var alias = generateRQLFieldAlias('newsFeed.first(3)');
-    var payload = {
-      viewer: {
-        [alias]: {
-          edges: [
-            {cursor: 'c1', node: {id:'', message:{text:'s1'}}},
-            {cursor: 'c2', node: {id:'', message:{text:'s1'}}},
-            {cursor: 'c3', node: {id:'', message:{text:'s1'}}},
-          ],
-          [PAGE_INFO]: {
-            [HAS_NEXT_PAGE]: true,
-            [HAS_PREV_PAGE]: false,
-          },
-        },
-      },
-    };
     var writeQuery = getNode(Relay.QL`
       query {
         viewer {
@@ -207,6 +188,21 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var payload = {
+      viewer: {
+        newsFeed: {
+          edges: [
+            {cursor: 'c1', node: {id:'', message:{text:'s1'}}},
+            {cursor: 'c2', node: {id:'', message:{text:'s1'}}},
+            {cursor: 'c3', node: {id:'', message:{text:'s1'}}},
+          ],
+          [PAGE_INFO]: {
+            [HAS_NEXT_PAGE]: true,
+            [HAS_PREV_PAGE]: false,
+          },
+        },
+      },
+    };
     writePayload(store, writeQuery, payload, tracker);
 
     // `feedback{id}` is missing but there is no way to refetch it
@@ -241,10 +237,9 @@ describe('diffRelayQuery', () => {
     var store = new RelayRecordStore({records}, {map: rootCallMap});
     var tracker = new RelayQueryTracker();
 
-    var alias = generateRQLFieldAlias('newsFeed.first(3)');
     var payload = {
       viewer: {
-        [alias]: {
+        newsFeed: {
           edges: [
             {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
             {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
@@ -339,10 +334,9 @@ describe('diffRelayQuery', () => {
     var store = new RelayRecordStore({records}, {map: rootCallMap});
     var tracker = new RelayQueryTracker();
 
-    var alias = generateRQLFieldAlias('newsFeed.first(3)');
     var payload = {
       viewer: {
-        [alias]: {
+        newsFeed: {
           edges: [
             {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
             {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
@@ -492,10 +486,9 @@ describe('diffRelayQuery', () => {
     var store = new RelayRecordStore({records}, {map: rootCallMap});
     var tracker = new RelayQueryTracker();
 
-    var alias = generateRQLFieldAlias('notificationStories.first(3)');
     var payload = {
       viewer: {
-        [alias]: {
+        notificationStories: {
           edges: [
             {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
             {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
@@ -598,10 +591,9 @@ describe('diffRelayQuery', () => {
     var store = new RelayRecordStore({records}, {map: rootCallMap});
     var tracker = new RelayQueryTracker();
 
-    var alias = generateRQLFieldAlias('newsFeed.first(1)');
     var payload = {
       viewer: {
-        [alias]: {
+        newsFeed: {
           edges: [
             {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
           ],

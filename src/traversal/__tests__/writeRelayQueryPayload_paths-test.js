@@ -22,7 +22,6 @@ var Relay = require('Relay');
 var RelayQueryPath = require('RelayQueryPath');
 var RelayQueryTracker = require('RelayQueryTracker');
 var invariant = require('invariant');
-var generateRQLFieldAlias = require('generateRQLFieldAlias');
 
 describe('writePayload()', () => {
   var RelayRecordStore;
@@ -223,11 +222,10 @@ describe('writePayload()', () => {
           }
         }
       `);
-      var alias = generateRQLFieldAlias('friends.first(1)');
       var payload = {
         node: {
           id: '123',
-          [alias]: {
+          friends: {
             edges: [
               {
                 cursor: 'cursor1',
@@ -427,11 +425,10 @@ describe('writePayload()', () => {
           }
         }
       `);
-      var alias = generateRQLFieldAlias('friends.first(1)');
       var payload = {
         node: {
           id: '123',
-          [alias]: {
+          friends: {
             edges: [
               {
                 cursor: 'c1',
@@ -487,11 +484,10 @@ describe('writePayload()', () => {
           }
         }
       `);
-      var alias = generateRQLFieldAlias('friends.first(1)');
       var payload = {
         node: {
           id: '123',
-          [alias]: {
+          friends: {
             edges: [
               {
                 cursor: 'c1',
@@ -523,11 +519,10 @@ describe('writePayload()', () => {
           }
         }
       `);
-      alias = generateRQLFieldAlias('friends.after(c1).first(1)');
       payload = {
         node: {
           id: '123',
-          [alias]: {
+          friends: {
             edges: [
               {
                 cursor: 'c2',
@@ -579,7 +574,6 @@ describe('writePayload()', () => {
           }
         }
       `);
-      var alias = generateRQLFieldAlias('friends.first(1)');
       var payload = {
         node: {
           id: '123',
@@ -591,7 +585,7 @@ describe('writePayload()', () => {
               },
             },
           ],
-          [alias]: {
+          friends: {
             edges: [
               {
                 cursor: 'c1',

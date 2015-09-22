@@ -93,7 +93,11 @@ describe('RelayContainer.setVariables', function() {
         }];
       });
       var pluralEntityQuery = jest.genMockFunction().mockImplementation(
-        variables => Relay.QL`fragment on Node @relay(plural:true){url(site:$site)}`
+        variables => Relay.QL`
+          fragment on Node @relay(plural:true) {
+            url(site: $site)
+          }
+        `
       );
       MockContainer = Relay.createContainer(MockComponent, {
         fragments: {
@@ -501,8 +505,8 @@ describe('RelayContainer.setVariables', function() {
       MockContainer = Relay.createContainer(MockWrapperComponent, {
         fragments: {
           entity: variables => Relay.QL`  fragment on Node{
-                        ${MockInnerContainer.getFragment('entity', {site: variables.site})}
-                      }`
+            ${MockInnerContainer.getFragment('entity', {site: variables.site})}
+          }`
         },
         initialVariables: {site: 'mobile'}
       });
@@ -558,8 +562,8 @@ describe('RelayContainer.setVariables', function() {
       MockContainer = Relay.createContainer(MockWrapperComponent, {
         fragments: {
           entity: variables => Relay.QL`  fragment on Actor {
-                        ${MockInnerContainer.getFragment('entity', {site: variables.site})}
-                      }`
+            ${MockInnerContainer.getFragment('entity', {site: variables.site})}
+          }`
         },
         initialVariables: {site: 'mobile'}
       });

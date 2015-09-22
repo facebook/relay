@@ -82,8 +82,20 @@ describe('getRelayQueries', () => {
     var queries = getRelayQueries(MockPageContainer, route);
 
     var expected = {
-      first: getNode(Relay.QL`query{node(id:"123"){${Relay.QL`fragment on Node{id,firstName}`}}}`),
-      last: getNode(Relay.QL`query{node(id:"123"){${Relay.QL`fragment on Node{id,lastName}`}}}`),
+      first: getNode(Relay.QL`
+        query {
+          node(id: "123") {
+            ${Relay.QL`fragment on Node{id,firstName}`}
+          }
+        }
+      `),
+      last: getNode(Relay.QL`
+        query {
+          node(id: "123") {
+            ${Relay.QL`fragment on Node{id,lastName}`}
+          }
+        }
+      `),
     };
 
     expect(queries.first).toEqualQueryRoot(expected.first);

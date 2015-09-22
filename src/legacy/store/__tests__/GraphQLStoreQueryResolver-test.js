@@ -45,7 +45,12 @@ describe('GraphQLStoreQueryResolver', () => {
 
     mockCallback = jest.genMockFunction();
     mockQueryFragment = getNode(Relay.QL`fragment on Node{id,name}`);
-    mockPluralQueryFragment = getNode(Relay.QL`fragment on Node @relay(plural:true){id,name}`);
+    mockPluralQueryFragment = getNode(Relay.QL`
+      fragment on Node @relay(plural:true) {
+        id,
+        name,
+      }
+    `);
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

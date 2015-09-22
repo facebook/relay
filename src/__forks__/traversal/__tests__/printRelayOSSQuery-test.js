@@ -348,17 +348,16 @@ describe('printRelayOSSQuery', () => {
 
     it('prints a field with multiple variable arguments', () => {
       var alias = generateRQLFieldAlias('profilePicture.size(32,64)');
-      var variables = {
-        height: 64,
-        width: 32,
-      };
       var fragment = getNode(Relay.QL`
         fragment on Actor {
           profilePicture(size:[$width,$height]) {
             uri
           }
         }
-      `, variables);
+      `, {
+        height: 64,
+        width: 32,
+      });
       var {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqual(trimQuery(`
         fragment PrintRelayOSSQuery on Actor {

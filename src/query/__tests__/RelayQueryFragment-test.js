@@ -208,7 +208,9 @@ describe('RelayQueryFragment', () => {
     expect(fragment.isScalar()).toBe(false);
 
     // fragment without children
-    expect(getNode(Relay.QL`fragment on Viewer{${null}}`).isScalar()).toBe(false);
+    expect(
+      getNode(Relay.QL`fragment on Viewer{${null}}`).isScalar()
+    ).toBe(false);
   });
 
   it('creates nodes', () => {

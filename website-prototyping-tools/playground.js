@@ -29,6 +29,11 @@ const IS_TRUSTED = (
 
 var sourceWasInjected = false;
 
+function setHash(object) {
+  // Caution: setting it to nothing causes the page to jump to the top, hence /.
+  window.location.hash = queryString.stringify(object) || '/';
+}
+
 // Don't trust location.hash not to have been unencoded by the browser
 var hash = window.location.href.split('#')[1];
 var queryParams = queryString.parse(hash);
@@ -107,7 +112,7 @@ if (noCache) {
   }
   queryParams = {};
 }
-window.location.hash = queryString.stringify(queryParams);
+setHash(queryParams);
 
 var mountPoint = document.createElement('div');
 document.body.appendChild(mountPoint);
@@ -121,14 +126,14 @@ ReactDOM.render(
       localStorage.setItem(schemaSourceCacheKey, source);
       if (cacheKey === DEFAULT_CACHE_KEY) {
         queryParams.schema = source;
-        window.location.hash = queryString.stringify(queryParams);
+        setHash(queryParams);
       }
     }}
     onAppSourceChange={function(source) {
       localStorage.setItem(appSourceCacheKey, source);
       if (cacheKey === DEFAULT_CACHE_KEY) {
         queryParams.source = source;
-        window.location.hash = queryString.stringify(queryParams);
+        setHash(queryParams);
       }
     }}
   />,

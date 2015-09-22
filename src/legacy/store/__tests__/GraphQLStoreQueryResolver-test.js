@@ -64,7 +64,10 @@ describe('GraphQLStoreQueryResolver', () => {
     readRelayQueryData.mockReturnValue({data: mockResult});
 
     var resolver = new GraphQLStoreQueryResolver(
-      fragmentPointer, mockCallback);
+      RelayStoreData.getDefaultInstance().getQueuedStore(),
+      fragmentPointer,
+      mockCallback
+    );
     var resolved = resolver.resolve(fragmentPointer);
 
     expect(resolved).toBe(mockResult);
@@ -87,6 +90,7 @@ describe('GraphQLStoreQueryResolver', () => {
     mockReader(mockResult);
 
     var resolver = new GraphQLStoreQueryResolver(
+      RelayStoreData.getDefaultInstance().getQueuedStore(),
       fragmentPointer,
       mockCallback
     );
@@ -106,6 +110,7 @@ describe('GraphQLStoreQueryResolver', () => {
     var mockResultB = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
 
     var resolver = new GraphQLStoreQueryResolver(
+      RelayStoreData.getDefaultInstance().getQueuedStore(),
       fragmentPointer,
       mockCallback
     );
@@ -129,6 +134,7 @@ describe('GraphQLStoreQueryResolver', () => {
     var mockResultB = {__dataID__: '1038750002', id: '1038750002', name: 'Tee'};
 
     var resolver = new GraphQLStoreQueryResolver(
+      RelayStoreData.getDefaultInstance().getQueuedStore(),
       fragmentPointer,
       mockCallback
     );
@@ -162,6 +168,7 @@ describe('GraphQLStoreQueryResolver', () => {
     );
 
     var resolver = new GraphQLStoreQueryResolver(
+      RelayStoreData.getDefaultInstance().getQueuedStore(),
       fragmentPointerA,
       mockCallback
     );
@@ -186,6 +193,7 @@ describe('GraphQLStoreQueryResolver', () => {
     };
 
     var resolver = new GraphQLStoreQueryResolver(
+      RelayStoreData.getDefaultInstance().getQueuedStore(),
       fragmentPointer,
       mockCallback
     );
@@ -211,6 +219,7 @@ describe('GraphQLStoreQueryResolver', () => {
     mockReader(mockResults);
 
     var resolver = new GraphQLStoreQueryResolver(
+      RelayStoreData.getDefaultInstance().getQueuedStore(),
       fragmentPointer,
       mockCallback
     );
@@ -240,6 +249,7 @@ describe('GraphQLStoreQueryResolver', () => {
     mockReader(mockResults);
 
     var resolver = new GraphQLStoreQueryResolver(
+      RelayStoreData.getDefaultInstance().getQueuedStore(),
       fragmentPointer,
       mockCallback
     );
@@ -262,6 +272,7 @@ describe('GraphQLStoreQueryResolver', () => {
     mockReader(mockResults);
 
     var resolver = new GraphQLStoreQueryResolver(
+      RelayStoreData.getDefaultInstance().getQueuedStore(),
       fragmentPointer,
       mockCallback
     );
@@ -300,6 +311,7 @@ describe('GraphQLStoreQueryResolver', () => {
     mockReader(mockResults);
 
     var resolver = new GraphQLStoreQueryResolver(
+      RelayStoreData.getDefaultInstance().getQueuedStore(),
       fragmentPointer,
       mockCallback
     );
@@ -374,6 +386,7 @@ describe('GraphQLStoreQueryResolver', () => {
       });
 
       var resolver = new GraphQLStoreQueryResolver(
+        RelayStoreData.getDefaultInstance().getQueuedStore(),
         fragmentPointer,
         mockCallback
       );

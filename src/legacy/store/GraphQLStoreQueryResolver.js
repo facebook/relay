@@ -21,6 +21,7 @@ import type RelayStoreGarbageCollector from 'RelayStoreGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
+import type RelayRecordStore from 'RelayRecordStore';
 var RelayStoreData = require('RelayStoreData');
 import type {StoreReaderData} from 'RelayTypes';
 
@@ -39,18 +40,24 @@ type DataIDSet = {[dataID: DataID]: any};
  * invocation to `resolve` has changed.
  */
 class GraphQLStoreQueryResolver {
-  _fragmentPointer: GraphQLFragmentPointer;
   _callback: Function;
+  _fragmentPointer: GraphQLFragmentPointer;
   _resolver: ?(
     GraphQLStorePluralQueryResolver |
     GraphQLStoreSingleQueryResolver
   );
+  _store: RelayRecordStore;
 
-  constructor(fragmentPointer: GraphQLFragmentPointer, callback: Function) {
+  constructor(
+    store: RelayRecordStore,
+    fragmentPointer: GraphQLFragmentPointer,
+    callback: Function
+  ) {
     this.reset();
-    this._fragmentPointer = fragmentPointer;
     this._callback = callback;
+    this._fragmentPointer = fragmentPointer;
     this._resolver = null;
+    this._store = store;
   }
 
   /**
@@ -69,8 +76,8 @@ class GraphQLStoreQueryResolver {
     var resolver = this._resolver;
     if (!resolver) {
       resolver = this._fragmentPointer.getFragment().isPlural() ?
-        new GraphQLStorePluralQueryResolver(this._callback) :
-        new GraphQLStoreSingleQueryResolver(this._callback);
+        new GraphQLStorePluralQueryResolver(this._store, this._callback) :
+        new GraphQLStoreSingleQueryResolver(this._store, this._callback);
       this._resolver = resolver;
     }
     return resolver.resolve(fragmentPointer);
@@ -84,10 +91,12 @@ class GraphQLStorePluralQueryResolver {
   _callback: Function;
   _resolvers: Array<GraphQLStoreSingleQueryResolver>;
   _results: Array<?StoreReaderData>;
+  _store: RelayRecordStore;
 
-  constructor(callback: Function) {
+  constructor(store: RelayRecordStore, callback: Function) {
     this.reset();
     this._callback = callback;
+    this._store = store;
   }
 
   reset(): void {
@@ -117,7 +126,7 @@ class GraphQLStorePluralQueryResolver {
     // Ensure that we have exactly `nextLength` resolvers.
     while (resolvers.length < nextLength) {
       resolvers.push(
-        new GraphQLStoreSingleQueryResolver(this._callback)
+        new GraphQLStoreSingleQueryResolver(this._store, this._callback)
       );
     }
     while (resolvers.length > nextLength) {
@@ -153,14 +162,16 @@ class GraphQLStoreSingleQueryResolver {
   _hasDataChanged: boolean;
   _result: ?StoreReaderData;
   _resultID: ?DataID;
+  _store: RelayRecordStore;
   _subscribedIDs: DataIDSet;
   _subscription: ?ChangeSubscription;
 
-  constructor(callback: Function) {
+  constructor(store: RelayRecordStore, callback: Function) {
     this.reset();
     this._callback = callback;
     this._garbageCollector =
       RelayStoreData.getDefaultInstance().getGarbageCollector();
+      this._store = store;
     this._subscribedIDs = {};
   }
 
@@ -207,7 +218,11 @@ class GraphQLStoreSingleQueryResolver {
       ) {
         // same canonical ID,
         // but the data, call(s), route, and/or variables have changed
-        [nextResult, subscribedIDs] = resolveFragment(nextFragment, nextID);
+        [nextResult, subscribedIDs] = resolveFragment(
+          this._store,
+          nextFragment,
+          nextID
+        );
         nextResult = recycleNodesInto(prevResult, nextResult);
       } else {
         // same id, route, variables, and data
@@ -215,7 +230,11 @@ class GraphQLStoreSingleQueryResolver {
       }
     } else {
       // Pointer has a different ID or is/was fake data.
-      [nextResult, subscribedIDs] = resolveFragment(nextFragment, nextID);
+      [nextResult, subscribedIDs] = resolveFragment(
+        this._store,
+        nextFragment,
+        nextID
+      );
     }
 
     // update subscriptions whenever results change
@@ -268,10 +287,10 @@ class GraphQLStoreSingleQueryResolver {
 }
 
 function resolveFragment(
+  store: RelayRecordStore,
   fragment: RelayQuery.Fragment,
   dataID: DataID
 ): [StoreReaderData, DataIDSet] {
-  var store = RelayStoreData.getDefaultInstance().getQueuedStore();
   var {data, dataIDs} = readRelayQueryData(store, fragment, dataID);
   return [data, dataIDs];
 }

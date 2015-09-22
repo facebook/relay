@@ -119,7 +119,7 @@ export type SubscriptionCallbacks<T> = {
 };
 
 // Store
-export type StoreReaderData = Object;
+export type StoreReaderData = mixed;
 export type StoreReaderOptions = {
   traverseFragmentReferences?: boolean;
   traverseGeneratedFields?: boolean;

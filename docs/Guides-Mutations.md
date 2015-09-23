@@ -364,7 +364,7 @@ class IntroduceShipMutation extends Relay.Mutation {
         // of any call, append the ship to the end of the connection
         '': 'append',
         // Prepend the ship, wherever the connection is sorted by age
-        'orderby:newest': 'prepend',
+        'orderby(newest)': 'prepend',
       },
     }];
   }

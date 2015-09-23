@@ -9,12 +9,12 @@ export default class MarkAllTodosMutation extends Relay.Mutation {
             id,
           },
         },
-        totalCount,
       }
     `,
     viewer: () => Relay.QL`
       fragment on User {
         id,
+        totalCount,
       }
     `,
   };
@@ -25,14 +25,8 @@ export default class MarkAllTodosMutation extends Relay.Mutation {
     return Relay.QL`
       fragment on MarkAllTodosPayload {
         viewer {
-          todos {
-            completedCount,
-            edges {
-              node {
-                complete,
-              },
-            },
-          },
+          completedCount,
+          todos,
         },
       }
     `;
@@ -51,24 +45,23 @@ export default class MarkAllTodosMutation extends Relay.Mutation {
     };
   }
   getOptimisticResponse() {
-    var viewerPayload;
-    if (this.props.todos) {
-      viewerPayload = {id: this.props.viewer.id, todos: {}};
-      if (this.props.todos.edges) {
-        viewerPayload.todos.edges = this.props.todos.edges
+    var viewerPayload = {id: this.props.viewer.id};
+    if (this.props.todos && this.props.todos.edges) {
+      viewerPayload.todos = {
+        edges: this.props.todos.edges
           .filter(edge => edge.node.complete !== this.props.complete)
           .map(edge => ({
             node: {
               complete: this.props.complete,
               id: edge.node.id,
             },
-          }));
-      }
-      if (this.props.todos.totalCount != null) {
-        viewerPayload.todos.completedCount = this.props.complete
-          ? this.props.todos.totalCount
-          : 0;
-      }
+          }))
+      };
+    }
+    if (this.props.viewer.totalCount != null) {
+      viewerPayload.completedCount = this.props.complete ?
+        this.props.viewer.totalCount :
+        0;
     }
     return {
       viewer: viewerPayload,

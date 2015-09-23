@@ -10,11 +10,9 @@ export default class RemoveTodoMutation extends Relay.Mutation {
     // TODO: Mark completedCount and totalCount as optional
     viewer: () => Relay.QL`
       fragment on User {
+        completedCount,
         id,
-        todos {
-          completedCount,
-          totalCount,
-        },
+        totalCount,
       }
     `,
   };
@@ -26,10 +24,8 @@ export default class RemoveTodoMutation extends Relay.Mutation {
       fragment on RemoveTodoPayload {
         deletedTodoId,
         viewer {
-          todos {
-            completedCount,
-            totalCount,
-          },
+          completedCount,
+          totalCount,
         },
       }
     `;
@@ -49,17 +45,14 @@ export default class RemoveTodoMutation extends Relay.Mutation {
     };
   }
   getOptimisticResponse() {
-    var viewerPayload;
-    if (this.props.viewer.todos) {
-      viewerPayload = {id: this.props.viewer.id, todos: {}};
-      if (this.props.viewer.todos.completedCount != null) {
-        viewerPayload.todos.completedCount = this.props.todo.complete === true
-          ? this.props.viewer.todos.completedCount - 1
-          : this.props.viewer.todos.completedCount;
-      }
-      if (this.props.viewer.todos.totalCount != null) {
-        viewerPayload.todos.totalCount = this.props.viewer.todos.totalCount - 1;
-      }
+    var viewerPayload = {id: this.props.viewer.id};
+    if (this.props.viewer.completedCount != null) {
+      viewerPayload.completedCount = this.props.todo.complete === true ?
+        this.props.viewer.completedCount - 1 :
+        this.props.viewer.completedCount;
+    }
+    if (this.props.viewer.totalCount != null) {
+      viewerPayload.totalCount = this.props.viewer.totalCount - 1;
     }
     return {
       deletedTodoId: this.props.todo.id,

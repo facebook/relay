@@ -9,9 +9,7 @@ export default class ChangeTodoStatusMutation extends Relay.Mutation {
     viewer: () => Relay.QL`
       fragment on User {
         id,
-        todos {
-          completedCount,
-        },
+        completedCount,
       }
     `,
   };
@@ -25,9 +23,8 @@ export default class ChangeTodoStatusMutation extends Relay.Mutation {
           complete,
         },
         viewer {
-          todos {
-            completedCount,
-          },
+          completedCount,
+          todos,
         },
       }
     `;
@@ -48,14 +45,11 @@ export default class ChangeTodoStatusMutation extends Relay.Mutation {
     };
   }
   getOptimisticResponse() {
-    var viewerPayload;
-    if (this.props.viewer.todos) {
-      viewerPayload = {id: this.props.viewer.id, todos: {}};
-      if (this.props.viewer.todos.completedCount != null) {
-        viewerPayload.todos.completedCount = this.props.complete
-          ? this.props.viewer.todos.completedCount + 1
-          : this.props.viewer.todos.completedCount - 1;
-      }
+    var viewerPayload = {id: this.props.viewer.id};
+    if (this.props.viewer.completedCount != null) {
+      viewerPayload.completedCount = this.props.complete ?
+        this.props.viewer.completedCount + 1 :
+        this.props.viewer.completedCount - 1;
     }
     return {
       todo: {

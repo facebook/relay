@@ -1,6 +1,6 @@
 Input:
 var foo = Relay.QL`
-  query IntrospectionQueryFroSchema {
+  query IntrospectionQueryForSchema {
     __schema {
       types {
         name
@@ -17,5 +17,5 @@ var foo = (function () {
   })], null, null, null, null, {
     parentType: "__Schema",
     plural: true
-  })], null, null, "IntrospectionQueryFroSchema");
+  })], null, null, "IntrospectionQueryForSchema");
 })();

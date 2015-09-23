@@ -47,9 +47,9 @@ export default class ChangeTodoStatusMutation extends Relay.Mutation {
   getOptimisticResponse() {
     var viewerPayload = {id: this.props.viewer.id};
     if (this.props.viewer.completedCount != null) {
-      viewerPayload.completedCount = this.props.complete
-        ? this.props.viewer.completedCount + 1
-        : this.props.viewer.completedCount - 1;
+      viewerPayload.completedCount = this.props.complete ?
+        this.props.viewer.completedCount + 1 :
+        this.props.viewer.completedCount - 1;
     }
     return {
       todo: {

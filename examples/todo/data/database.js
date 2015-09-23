@@ -40,7 +40,7 @@ export function getTodo(id) {
 }
 
 export function getTodos(status = 'any') {
-  var todos = todoIdsByUser[VIEWER_ID].map((id) => todosById[id]);
+  var todos = todoIdsByUser[VIEWER_ID].map(id => todosById[id]);
   if (status === 'any') {
     return todos;
   }
@@ -75,8 +75,8 @@ export function removeTodo(id) {
 }
 
 export function removeCompletedTodos() {
-  var todosToRemove = getTodos().filter((todo) => todo.complete);
-  todosToRemove.forEach((todo) => removeTodo(todo.id));
+  var todosToRemove = getTodos().filter(todo => todo.complete);
+  todosToRemove.forEach(todo => removeTodo(todo.id));
   return todosToRemove.map(todo => todo.id);
 }
 

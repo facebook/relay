@@ -49,7 +49,7 @@ export default Relay.createContainer(TodoList, {
   },
 
   prepareVariables({status}) {
-    let nextStatus;
+    var nextStatus;
     if (status === 'active' || status === 'completed') {
       nextStatus = status;
     } else {
@@ -57,14 +57,17 @@ export default Relay.createContainer(TodoList, {
       // invalid route.
       nextStatus = 'any';
     }
-    return {status: nextStatus};
+    return {
+      status: nextStatus,
+      limit: Number.MAX_SAFE_INTEGER || 9007199254740991,
+    };
   },
 
   fragments: {
     viewer: () => Relay.QL`
       fragment on User {
         completedCount,
-        todos(status: $status, first: 9007199254740991) {
+        todos(status: $status, first: $limit) {
           edges {
             node {
               id,

@@ -59,9 +59,9 @@ export default class MarkAllTodosMutation extends Relay.Mutation {
       };
     }
     if (this.props.viewer.totalCount != null) {
-      viewerPayload.completedCount = this.props.complete
-        ? this.props.viewer.totalCount
-        : 0;
+      viewerPayload.completedCount = this.props.complete ?
+        this.props.viewer.totalCount :
+        0;
     }
     return {
       viewer: viewerPayload,

@@ -7,14 +7,15 @@ var HeaderLinks = require('HeaderLinks');
 
 var Site = React.createClass({
   render: function() {
+    var title = this.props.title ? this.props.title : 'Relay | A JavaScript framework for building data-driven React applications';
     return (
       <html>
         <head>
           <meta charSet="utf-8" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-          <title>Relay | A JavaScript framework for building data-driven React applications</title>
+          <title>{title}</title>
           <meta name="viewport" content="width=device-width" />
-          <meta property="og:title" content="Relay | A JavaScript framework for building data-driven React applications" />
+          <meta property="og:title" content={title} />
           <meta property="og:type" content="website" />
           <meta property="og:url" content="http://facebook.github.io/relay/index.html" />
           <meta property="og:description" content="A JavaScript framework for building data-driven React applications" />

@@ -292,9 +292,9 @@ function printFieldsAndFragments(
         fields.push(selection);
 
         if (
-          isConnectionType(type) &&
+          getConnectionMetadataForType(type) &&
           getName(selection) === 'edges' &&
-          !!type.getFields()['pageInfo']
+          type.getFields()['pageInfo']
         ) {
           requisiteFields.pageInfo = true;
         }
@@ -455,7 +455,7 @@ function printField(
     metadata.pk = 'id';
   }
 
-  var connectionMetadata = getConnectionMetadata(options.schema, fieldDecl);
+  var connectionMetadata = getConnectionMetadata(fieldDecl);
   if (connectionMetadata) {
     metadata.connection = true;
 
@@ -785,15 +785,21 @@ function getArgNamed(field, name) {
   return remaining.length === 1 ? remaining[0] : null;
 }
 
-function getConnectionMetadata(schema, fieldDecl) {
-  if (!isConnectionType(fieldDecl.type)) {
-    return null;
-  }
+function getConnectionMetadata(fieldDecl) {
   // Connections must be limitable.
   if (!getArgNamed(fieldDecl, 'first') && !getArgNamed(fieldDecl, 'last')) {
     return null;
   }
-  var fieldType = types.getNamedType(fieldDecl.type);
+
+  return getConnectionMetadataForType(fieldDecl.type);
+}
+
+function getConnectionMetadataForType(fieldDeclType) {
+  if (!isConnectionType(fieldDeclType)) {
+    return null;
+  }
+
+  var fieldType = types.getNamedType(fieldDeclType);
 
   // Connections must have a non-scalar `edges` field.
   var edgesField = fieldType.getFields()['edges'];

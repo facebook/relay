@@ -30,6 +30,18 @@ var x = (function () {
   })], null, null, null, null, {
     parentType: 'ConfigsConnection',
     plural: true
+  }), new GraphQL.Field('pageInfo', [new GraphQL.Field('hasNextPage', null, null, null, null, null, {
+    parentType: 'PageInfo',
+    generated: true,
+    requisite: true
+  }), new GraphQL.Field('hasPreviousPage', null, null, null, null, null, {
+    parentType: 'PageInfo',
+    generated: true,
+    requisite: true
+  })], null, null, null, null, {
+    parentType: 'ConfigsConnection',
+    generated: true,
+    requisite: true
   })], null, null, null, null, {
     parentType: 'Viewer'
   })], null, null, 'MetadataConnectionLimitable');

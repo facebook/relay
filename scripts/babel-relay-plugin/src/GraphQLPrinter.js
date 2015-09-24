@@ -290,6 +290,14 @@ function printFieldsAndFragments(
         fragments.push(printQueryFragment(selection, options));
       } else if (selection.kind === kinds.FIELD) {
         fields.push(selection);
+
+        if (
+          isConnectionType(type) &&
+          getName(selection) === 'edges' &&
+          !!type.getFields()['pageInfo']
+        ) {
+          requisiteFields.pageInfo = true;
+        }
       } else {
         throw new Error(util.format(
           'Unsupported selection type `%s`.',
@@ -484,9 +492,8 @@ function printField(
       var subfieldDecl =
         types.getNamedType(fieldDecl.type).getFields()[subfieldName];
       var subfieldType = types.getNamedType(subfieldDecl.type);
-      if (subfieldName === 'edges') {
-        hasEdgesSelection = true;
-      } else if (
+      if (
+        subfieldName !== 'edges' &&
         isList(subfieldDecl.type) &&
         subfieldType.name === connectionMetadata.nodeType.name
       ) {
@@ -499,9 +506,6 @@ function printField(
         ));
       }
     });
-    if (hasEdgesSelection && !!fieldDecl.type.getFields()['pageInfo']) {
-      subRequisiteFields.pageInfo = true;
-    }
   } else if (types.getNamedType(fieldDecl.type).name === 'PageInfo') {
     subRequisiteFields.hasNextPage = true;
     subRequisiteFields.hasPreviousPage = true;

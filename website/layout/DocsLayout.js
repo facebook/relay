@@ -10,8 +10,9 @@ var DocsLayout = React.createClass({
   render: function() {
     var metadata = this.props.metadata;
     var content = this.props.children;
+    var title = metadata.title + ' | Relay Docs';
     return (
-      <Site section="docs">
+      <Site section="docs" title={title}>
         <section className="content wrap documentationContent">
           <DocsSidebar metadata={metadata} />
           <div className="inner-content">

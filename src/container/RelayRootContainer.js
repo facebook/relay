@@ -16,7 +16,7 @@
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var React = require('React');
 var RelayDeprecated = require('RelayDeprecated');
-import type {RelayQueryConfig} from 'RelayContainer';
+import type {RelayQueryConfigSpec} from 'RelayContainer';
 var RelayStore = require('RelayStore');
 var RelayStoreData = require('RelayStoreData');
 var RelayPropTypes = require('RelayPropTypes');
@@ -46,11 +46,11 @@ type RootContainerProps = {
     fetchState: ComponentFetchState
   ) => ReactElement;
   renderLoading?: ?() => ReactElement;
-  route: RelayQueryConfig;
+  route: RelayQueryConfigSpec;
 };
 type RootContainerState = {
   activeComponent: ?RelayContainer;
-  activeRoute: ?RelayQueryConfig;
+  activeRoute: ?RelayQueryConfigSpec;
   error: ?Error;
   fragmentPointers: ?GraphQLFragmentPointers;
   pendingRequest: ?Abortable;

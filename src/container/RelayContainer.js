@@ -33,7 +33,6 @@ var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 var RelayPropTypes = require('RelayPropTypes');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
-import type {Params} from 'RelayRoute';
 var RelayStore = require('RelayStore');
 var RelayStoreData = require('RelayStoreData');
 import type {
@@ -64,9 +63,9 @@ export type RelayContainerSpec = {
   };
 };
 export type RelayLazyContainer = Function;
-export type RelayQueryConfig = {
+export type RelayQueryConfigSpec = {
   name: string;
-  params: Params;
+  params: Variables;
   queries: RootQueries;
   uri?: ?URI;
 };
@@ -561,7 +560,7 @@ function createContainerComponent(
 
     _updateFragmentPointers(
       props: Object,
-      route: RelayQueryConfig,
+      route: RelayQueryConfigSpec,
       variables: Variables
     ): void {
       var fragmentPointers = this._fragmentPointers;
@@ -792,7 +791,7 @@ function createContainerComponent(
 
   function getFragment(
     fragmentName: string,
-    route: RelayQueryConfig,
+    route: RelayQueryConfigSpec,
     variables: Variables
   ): RelayQuery.Fragment {
     var fragmentBuilder = fragments[fragmentName];

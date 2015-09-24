@@ -97,7 +97,7 @@ describe('RelayRoute', () => {
       new MockRoute({});
     }).toFailInvariant(
       'RelayRoute: Missing required parameter `required` in `MockRoute`. ' +
-      'Check the supplied params or URI (null).'
+      'Check the supplied params or URI.'
     );
   });
 

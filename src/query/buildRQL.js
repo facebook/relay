@@ -17,7 +17,6 @@ var GraphQL = require('GraphQL');
 var Map = require('Map');
 var RelayQL = require('RelayQL');
 import type {RelayConcreteNode} from 'RelayQL';
-import type {Params} from 'RelayRoute';
 import type {RelayContainer, Variables} from 'RelayTypes';
 
 var filterObject = require('filterObject');
@@ -26,7 +25,7 @@ var mapObject = require('mapObject');
 
 export type FragmentBuilder = (variables: Variables) => RelayConcreteNode;
 export type QueryBuilder =
-  (Component?: RelayContainer, params?: Params) => RelayConcreteNode;
+  (Component?: RelayContainer, params?: Variables) => RelayConcreteNode;
 
 // Cache results of executing fragment query builders.
 var fragmentCache = new Map();

@@ -207,7 +207,7 @@ class PendingFetch {
     var queryID = this.getQuery().getID();
     delete pendingFetchMap[queryID];
 
-    console.error(error.message);
+    console.warn(error.message);
 
     this._errors.push(error);
     this._updateResolvedDeferred();

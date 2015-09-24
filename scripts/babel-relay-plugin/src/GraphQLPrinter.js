@@ -148,6 +148,9 @@ function printQuery(query, options) {
   if (rootCall) {
     requisiteFields[rootCall.arg] = true;
   }
+  if (types.isAbstractType(type)) {
+    requisiteFields.__typename = true;
+  }
 
   var printedArgs = printArguments(rootField.arguments[0], options);
 
@@ -512,6 +515,7 @@ function printField(
 
   if (types.isAbstractType(fieldDecl.type)) {
     metadata.dynamic = true;
+    subRequisiteFields.__typename = true;
   }
 
   if (isList(fieldDecl.type)) {

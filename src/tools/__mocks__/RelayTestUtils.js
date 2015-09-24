@@ -315,6 +315,23 @@ var RelayTestUtils = {
       return true;
     },
 
+    toEqualPrintedQuery(expected) {
+      var minifiedActual = RelayTestUtils.minifyQueryText(this.actual);
+      var minifiedExpected = RelayTestUtils.minifyQueryText(expected);
+
+      if (minifiedActual !== minifiedExpected) {
+        this.message = () => {
+          return [
+            minifiedActual,
+            'to equal',
+            minifiedExpected,
+          ].join('\n');
+        };
+        return false;
+      }
+      return true;
+    },
+
     /**
      * Checks if a RelayQuery.Node is `equals()` to another.
      */
@@ -451,6 +468,17 @@ var RelayTestUtils = {
       };
       return matchQueryJSON(this.actual, expected, []);
     }
+  },
+
+  /**
+   * Returns a version of the query text with extraneous whitespace removed.
+   */
+  minifyQueryText(queryText) {
+    return queryText
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .replace(/\s*([\{\}\(\):,])\s*/g, '$1')
+      .trim();
   },
 
   unmockRelayForFB() {

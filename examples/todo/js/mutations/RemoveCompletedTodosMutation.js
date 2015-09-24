@@ -12,19 +12,19 @@ export default class RemoveCompletedTodosMutation extends Relay.Mutation {
     // TODO: Make completedCount, edges, and totalCount optional
     todos: () => Relay.QL`
       fragment on TodoConnection {
-        completedCount,
         edges {
           node {
             complete,
             id,
           },
         },
-        totalCount,
       }
     `,
     viewer: () => Relay.QL`
       fragment on User {
+        completedCount,
         id,
+        totalCount,
       }
     `,
   };
@@ -36,10 +36,8 @@ export default class RemoveCompletedTodosMutation extends Relay.Mutation {
       fragment on RemoveCompletedTodosPayload {
         deletedTodoIds,
         viewer {
-          todos {
-            completedCount,
-            totalCount,
-          },
+          completedCount,
+          totalCount,
         },
       }
     `;
@@ -59,25 +57,21 @@ export default class RemoveCompletedTodosMutation extends Relay.Mutation {
   getOptimisticResponse() {
     var deletedTodoIds;
     var newTotalCount;
-    if (this.props.todos) {
-      var {completedCount, totalCount} = this.props.todos;
-      if (completedCount != null && totalCount != null) {
-        newTotalCount = totalCount - completedCount;
-      }
-      if (this.props.todos.edges) {
-        deletedTodoIds = this.props.todos.edges
-          .filter(edge => edge.node.complete)
-          .map(edge => edge.node.id);
-      }
+    if (this.props.todos && this.props.todos.edges) {
+      deletedTodoIds = this.props.todos.edges
+        .filter(edge => edge.node.complete)
+        .map(edge => edge.node.id);
+    }
+    var {completedCount, totalCount} = this.props.viewer;
+    if (completedCount != null && totalCount != null) {
+      newTotalCount = totalCount - completedCount;
     }
     return {
       deletedTodoIds,
       viewer: {
+        completedCount: 0,
         id: this.props.viewer.id,
-        todos: {
-          completedCount: 0,
-          totalCount: newTotalCount,
-        },
+        totalCount: newTotalCount,
       },
     };
   }

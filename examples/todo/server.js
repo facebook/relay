@@ -46,6 +46,10 @@ var compiler = webpack({
       }
     ]
   },
+  externals: {
+    react: 'React',
+    'react-relay': 'Relay'
+  },
   output: {filename: 'app.js', path: '/'}
 });
 var app = new WebpackDevServer(compiler, {

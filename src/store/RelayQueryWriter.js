@@ -84,15 +84,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     responseData: mixed,
     path: RelayQueryPath
   ): void {
-
-
-    invariant(
-      typeof recordID === 'string',
-      'RelayQueryWriter: Expected id `%s` to be string' +
-      ', instead received a %s',
-      recordID, typeof recordID
-    );
-
     var state = {
       nodeID: null,
       recordID,

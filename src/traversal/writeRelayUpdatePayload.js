@@ -76,6 +76,15 @@ function writeRelayUpdatePayload(
   payload: {[key: string]: mixed},
   {configs, isOptimisticUpdate}: UpdateOptions
 ): void {
+  invariant(
+    typeof payload[CLIENT_MUTATION_ID] === 'string',
+    'writeRelayUpdatePayload: expected clientMutationID on the payload for mutation `%s` to be string' +
+    ', instead received the `%s` `%s`.',
+    operation.getName(),
+    typeof payload[CLIENT_MUTATION_ID],
+    payload[CLIENT_MUTATION_ID]
+  );
+
   configs.forEach(config => {
     switch (config.type) {
       case RelayMutationType.NODE_DELETE:
@@ -141,6 +150,14 @@ function deleteRecord(
   writer: RelayQueryWriter,
   recordID: DataID
 ): void {
+  invariant(
+    typeof recordID === 'string',
+    'deleteRecord: expected recordID to be string' +
+    ', instead received the `%s` `%s`.',
+    typeof recordID,
+    recordID
+);
+
   var store = writer.getRecordStore();
   // skip if already deleted
   var status = store.getRecordState(recordID);
@@ -237,6 +254,13 @@ function mergeField(
   var path;
 
   if (recordID) {
+    invariant(
+      typeof recordID === 'string',
+      'mergeField: expected recordID to be string' +
+      ', instead received the `%s` `%s`.',
+      typeof recordID,
+      recordID
+    );
     path = new RelayQueryPath(
       RelayQuery.Root.build(
         RelayNodeInterface.NODE,
@@ -302,6 +326,15 @@ function handleRangeAdd(
 ): void {
   var clientMutationID = payload[CLIENT_MUTATION_ID];
   var store = writer.getRecordStore();
+
+  invariant(
+    typeof clientMutationID === 'string',
+    'handleRangeAdd: expected recordID to be string' +
+    ', instead received the `%s` `%s`.',
+    typeof clientMutationID,
+    clientMutationID
+  );
+
 
   // Extracts the new edge from the payload
   var edge = payload[config.edgeName];

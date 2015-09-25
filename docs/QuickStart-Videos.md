@@ -18,3 +18,5 @@ next: guides-containers
 ## [@Scale September 2015](http://www.atscaleconference.com/)
 
 <iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/Pxdgu2XIAAg?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+
+Now that we've gone end-to-end with Relay, let's dive into more detail in the guides section.

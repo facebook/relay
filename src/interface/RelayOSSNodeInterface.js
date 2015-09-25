@@ -36,6 +36,7 @@ var RelayOSSNodeInterface = {
   NODE: 'node',
   NODE_TYPE: 'Node',
   NODES: 'nodes',
+  TYPENAME: '__typename',
 
   isNodeRootCall(rootCallName: string): boolean {
     return (

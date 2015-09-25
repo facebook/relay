@@ -1011,6 +1011,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4808495") {
           id,
+          __typename,
           ... on Actor {
             id,
             lastName,
@@ -1024,6 +1025,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"1023896548") {
           id,
+          __typename,
           ... on Actor {
             firstName,
             id,
@@ -1376,6 +1378,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4808495") {
           id,
+          __typename,
           ... on User {
             id,
             name,
@@ -1493,6 +1496,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"660361306") {
           id,
+          __typename,
           ... on User {
             id,
             name,
@@ -1605,6 +1609,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4808495"){
           id,
+          __typename,
           ... on User {
             id,
             name,
@@ -1672,6 +1677,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4808495") {
           id,
+          __typename,
           ... on User {
             id,
             lastName,
@@ -1779,11 +1785,13 @@ describe('diffRelayQuery', () => {
       query {
         nodes(ids:"4") {
           id,
+          __typename,
           friends(find:"4808495") {
             edges {
               cursor,
               node {
                 id,
+                __typename, # not strictly required here
               },
               source {
                 id,
@@ -1831,6 +1839,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4808495") {
           id,
+          __typename,
           ... on User {
             id,
             lastName,

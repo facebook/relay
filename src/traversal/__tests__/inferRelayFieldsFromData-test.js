@@ -20,7 +20,7 @@ var flattenRelayQuery = require('flattenRelayQuery');
 var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 
 describe('inferRelayFieldsFromData', function() {
-  var {getNode, matchers} = RelayTestUtils;
+  var {getVerbatimNode, matchers} = RelayTestUtils;
   var HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
 
   beforeEach(function() {
@@ -35,7 +35,7 @@ describe('inferRelayFieldsFromData', function() {
     jest.addMatchers({
       ...RelayTestUtils.matchers,
       toEqualFields(expected) {
-        expected = flattenRelayQuery(getNode(expected));
+        expected = flattenRelayQuery(getVerbatimNode(expected));
         this.actual = flattenRelayQuery(expected.clone(this.actual));
         // NOTE: Generated fields might get in the way.
         return matchers.toEqualQueryNode.call(this, expected);
@@ -169,6 +169,10 @@ describe('inferRelayFieldsFromData', function() {
                   name,
                 },
                 cursor,
+              },
+              pageInfo {
+                hasNextPage,
+                hasPreviousPage,
               },
             },
           }`);

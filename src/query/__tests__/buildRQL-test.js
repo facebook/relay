@@ -88,7 +88,7 @@ describe('buildRQL', () => {
       });
       expect(fragment instanceof RelayQuery.Fragment).toBe(true);
       var children = fragment.getChildren();
-      expect(children.length).toBe(2);
+      expect(children.length).toBe(3);
       expect(children[1].getSchemaName()).toBe('profilePicture');
       // Variable has the applied value, not initial value.
       expect(children[1].getCallsWithValues()).toEqual([
@@ -144,7 +144,7 @@ describe('buildRQL', () => {
         name: 'node',
         value: '123',
       });
-      expect(query.getChildren()[1].equals(
+      expect(query.getChildren()[2].equals(
         getNode(MockContainer.getFragment('foo'), variables)
       )).toBe(true);
     });
@@ -204,7 +204,7 @@ describe('buildRQL', () => {
         name: 'node',
         value: '123',
       });
-      expect(query.getChildren()[1].equals(
+      expect(query.getChildren()[2].equals(
         getNode(MockContainer.getFragment('foo'), variables)
       )).toBe(true);
     });

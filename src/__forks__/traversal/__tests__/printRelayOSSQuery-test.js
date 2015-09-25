@@ -66,7 +66,8 @@ describe('printRelayOSSQuery', () => {
         query PrintRelayOSSQuery {
           node(id:"123") {
             name,
-            id
+            id,
+            __typename
           }
         }
       `);
@@ -87,7 +88,8 @@ describe('printRelayOSSQuery', () => {
         query FooQuery {
           node(id:123) {
             name,
-            id
+            id,
+            __typename
           }
         }
       `);
@@ -109,7 +111,8 @@ describe('printRelayOSSQuery', () => {
           usernames(names:["a","b","c"]) {
             firstName,
             lastName,
-            id
+            id,
+            __typename
           }
         }
       `);
@@ -130,7 +133,8 @@ describe('printRelayOSSQuery', () => {
         query FooQuery {
           nodes(ids:[123,456]) {
             name,
-            id
+            id,
+            __typename
           }
         }
       `);
@@ -224,6 +228,7 @@ describe('printRelayOSSQuery', () => {
         query PrintRelayOSSQuery {
           node(id:"123") {
             id,
+            __typename,
             ...${fragmentID},
             ...${fragmentID}
           }
@@ -250,7 +255,8 @@ describe('printRelayOSSQuery', () => {
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Viewer {
           actor {
-            id
+            id,
+            __typename
           }
         }
       `);
@@ -271,6 +277,7 @@ describe('printRelayOSSQuery', () => {
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Node {
           id,
+          __typename,
           ...${fragmentID},
           ...${fragmentID}
         }
@@ -303,7 +310,8 @@ describe('printRelayOSSQuery', () => {
           ${alias}:newsFeed(first:10) {
             edges {
               node {
-                id
+                id,
+                __typename
               },
               cursor
             },
@@ -332,7 +340,8 @@ describe('printRelayOSSQuery', () => {
           ${alias}:profilePicture(size:["32","64"]) {
             uri
           },
-          id
+          id,
+          __typename
         }
       `);
       expect(variables).toEqual({});
@@ -356,7 +365,8 @@ describe('printRelayOSSQuery', () => {
           ${alias}:profilePicture(size:[32,64]) {
             uri
           },
-          id
+          id,
+          __typename
         }
       `);
       expect(variables).toEqual({});
@@ -398,7 +408,8 @@ describe('printRelayOSSQuery', () => {
               hasPreviousPage
             }
           },
-          id
+          id,
+          __typename
         }
       `);
       expect(variables).toEqual({});
@@ -456,6 +467,7 @@ describe('printRelayOSSQuery', () => {
         fragment PrintRelayOSSQuery on Viewer {
           actor {
             id,
+            __typename,
             ...${fragmentID},
             ...${fragmentID}
           }
@@ -507,7 +519,8 @@ describe('printRelayOSSQuery', () => {
               ${alias}: profilePicture(preset: $preset_1) {
                 uri
               },
-              id
+              id,
+              __typename
             },
             likeSentence,
             likers
@@ -544,6 +557,7 @@ describe('printRelayOSSQuery', () => {
       query PrintRelayOSSQuery {
         node(id:123) @source(uri:"facebook.com") {
           id,
+          __typename,
           ...${fragmentID}
         }
       }

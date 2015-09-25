@@ -121,9 +121,27 @@ describe('diffRelayQuery', () => {
       viewer: {
         newsFeed: {
           edges: [
-            {cursor: 'c1', node: {id: 's1'}},
-            {cursor: 'c2', node: {id: 's2'}},
-            {cursor: 'c3', node: {id: 's3'}},
+            {
+              cursor: 'c1',
+              node: {
+                id: 's1',
+                __typename: 'Story',
+              },
+            },
+            {
+              cursor: 'c2',
+              node: {
+                id: 's2',
+                __typename: 'Story',
+              },
+            },
+            {
+              cursor: 'c3',
+              node: {
+                id: 's3',
+                __typename: 'Story',
+              },
+            },
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
@@ -192,9 +210,27 @@ describe('diffRelayQuery', () => {
       viewer: {
         newsFeed: {
           edges: [
-            {cursor: 'c1', node: {id:'', message:{text:'s1'}}},
-            {cursor: 'c2', node: {id:'', message:{text:'s1'}}},
-            {cursor: 'c3', node: {id:'', message:{text:'s1'}}},
+            {
+              cursor: 'c1',
+              node: {
+                __typename: 'Story',
+                message: {text: 's1'},
+              },
+            },
+            {
+              cursor: 'c2',
+              node: {
+                __typename: 'Story',
+                message: {text: 's2'},
+              },
+            },
+            {
+              cursor: 'c3',
+              node: {
+                __typename: 'Story',
+                message: {text: 's3'},
+              },
+            },
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
@@ -241,9 +277,30 @@ describe('diffRelayQuery', () => {
       viewer: {
         newsFeed: {
           edges: [
-            {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
-            {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
-            {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}},
+            {
+              cursor: 'c1',
+              node: {
+                id: 's1',
+                __typename: 'Story',
+                message: {text: 's1'},
+              },
+            },
+            {
+              cursor: 'c2',
+              node: {
+                id: 's2',
+                __typename: 'Story',
+                message: {text: 's2'},
+              },
+            },
+            {
+              cursor: 'c3',
+              node: {
+                id: 's3',
+                __typename: 'Story',
+                message: {text: 's3'},
+              },
+            },
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
@@ -291,11 +348,13 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"s1") {
           id,
+          __typename,
           ... on FeedUnit {
             feedback {
               id,
             },
             id,
+            __typename,
           },
         }
       }
@@ -304,11 +363,13 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"s2") {
           id,
+          __typename,
           ... on FeedUnit {
             feedback {
               id,
             },
             id,
+            __typename,
           },
         }
       }
@@ -317,11 +378,13 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"s3") {
           id,
+          __typename,
           ... on FeedUnit {
             feedback {
               id,
             },
             id,
+            __typename,
           },
         }
       }
@@ -338,9 +401,30 @@ describe('diffRelayQuery', () => {
       viewer: {
         newsFeed: {
           edges: [
-            {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
-            {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
-            {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}},
+            {
+              cursor: 'c1',
+              node: {
+                id: 's1',
+                __typename: 'Story',
+                message: {text: 's1'},
+              },
+            },
+            {
+              cursor: 'c2',
+              node: {
+                id: 's2',
+                __typename: 'Story',
+                message: {text: 's2'},
+              },
+            },
+            {
+              cursor: 'c3',
+              node: {
+                id: 's3',
+                __typename: 'Story',
+                message: {text: 's3'},
+              },
+            },
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
@@ -375,6 +459,8 @@ describe('diffRelayQuery', () => {
             edges {
               sortKey,
               node {
+                id,
+                __typename,
                 feedback {
                   id
                 }
@@ -390,11 +476,13 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"s1") {
           id,
+          __typename,
           ... on FeedUnit {
             feedback {
               id,
             },
             id,
+            __typename,
           },
         }
       }
@@ -407,6 +495,7 @@ describe('diffRelayQuery', () => {
               cursor,
               node {
                 id
+                __typename,
               },
               sortKey,
             }
@@ -418,11 +507,13 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"s2") {
           id,
+          __typename,
           ... on FeedUnit {
             feedback {
               id,
             },
             id,
+            __typename,
           },
         }
       }
@@ -435,6 +526,7 @@ describe('diffRelayQuery', () => {
               cursor,
               node {
                 id
+                __typename,
               },
               sortKey,
             }
@@ -446,11 +538,13 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"s3") {
           id,
+          __typename,
           ... on FeedUnit {
             feedback {
               id,
             },
             id,
+            __typename,
           },
         }
       }
@@ -462,7 +556,8 @@ describe('diffRelayQuery', () => {
             edges {
               cursor,
               node {
-                id
+                id,
+                __typename,
               },
               sortKey,
             }
@@ -490,9 +585,30 @@ describe('diffRelayQuery', () => {
       viewer: {
         notificationStories: {
           edges: [
-            {cursor: 'c1', node: {id:'s1', message:{text:'s1'}}},
-            {cursor: 'c2', node: {id:'s2', message:{text:'s1'}}},
-            {cursor: 'c3', node: {id:'s3', message:{text:'s1'}}},
+            {
+              cursor: 'c1',
+              node: {
+                id: 's1',
+                __typename: 'Story',
+                message: {text: 's1'},
+              },
+            },
+            {
+              cursor: 'c2',
+              node: {
+                id: 's2',
+                __typename: 'Story',
+                message: {text: 's2'},
+              },
+            },
+            {
+              cursor: 'c3',
+              node: {
+                id: 's3',
+                __typename: 'Story',
+                message: {text: 's3'},
+              },
+            },
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
@@ -543,11 +659,13 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"s1") {
           id,
+          __typename,
           ... on FeedUnit {
             feedback {
               id,
             },
             id,
+            __typename,
           },
         }
       }
@@ -556,11 +674,13 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"s2") {
           id,
+          __typename,
           ... on FeedUnit {
             feedback {
               id,
             },
             id,
+            __typename,
           },
         }
       }
@@ -569,11 +689,13 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"s3") {
           id,
+          __typename,
           ... on FeedUnit {
             feedback {
               id,
             },
             id,
+            __typename,
           },
         }
       }

@@ -93,6 +93,9 @@ function printQueryFragment(fragment, options) {
   if (hasIdField(type)) {
     requisiteFields.id = true;
   }
+  if (types.isAbstractType(type)) {
+    requisiteFields.__typename = true;
+  }
 
   var fieldsAndFragments = printFieldsAndFragments(
     fragment.selectionSet,
@@ -141,7 +144,7 @@ function printQuery(query, options) {
     options.schema.getQueryType(),
     rootField
   );
-  var type = rootCallDecl.type;
+  var type = types.getNamedType(rootCallDecl.type);
 
   var requisiteFields = {};
   var rootCall = getRootCallForType(options.schema, type);
@@ -425,7 +428,7 @@ function printField(
 
   if (!fieldDecl) {
     throw new Error(util.format(
-      'Type "%s" doesn\'t have a field "%s".',
+      'Type `%s` doesn\'t have a field `%s`.',
       type.name,
       fieldName
     ));

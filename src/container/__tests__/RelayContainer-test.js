@@ -151,7 +151,10 @@ describe('RelayContainer', function() {
           ),
           new GraphQL.Field(
             'id', null, null, null, null, null, {generated: true}
-          )
+          ),
+          new GraphQL.Field(
+            '__typename', null, null, null, null, null, {generated: true}
+          ),
         ])
       ));
     });
@@ -186,10 +189,12 @@ describe('RelayContainer', function() {
       expect(fragment).toEqualQueryNode(getNode(
         new GraphQL.QueryFragment('Test', 'Actor', [
           new GraphQL.Field('id'),
+          new GraphQL.Field('__typename'),
           new GraphQL.Field('name')
         ], [
           new GraphQL.QueryFragment('Test', 'Actor', [
             new GraphQL.Field('id'),
+            new GraphQL.Field('__typename'),
             new GraphQL.Field('url')
           ])
         ])

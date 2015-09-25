@@ -36,6 +36,16 @@ describe('RelayQueryTracker', () => {
     return node;
   }
 
+  function sortChildren(children) {
+    return children.sort((a, b) => {
+      var aKey = a.getSerializationKey();
+      var bKey = b.getSerializationKey();
+      return aKey < bKey ?
+        -1 :
+        (aKey > bKey ? 1 : 0);
+    });
+  }
+
   beforeEach(() => {
     jest.resetModuleRegistry();
 
@@ -58,7 +68,8 @@ describe('RelayQueryTracker', () => {
     tracker.trackNodeForID(query, 'client:viewer', path);
     var trackedChildren = tracker.getTrackedChildrenForID('client:viewer');
     expect(trackedChildren.length).toBe(1);
-    expect(trackedChildren[0]).toEqualQueryNode(query.getChildren()[0]);
+    expect(trackedChildren[0])
+      .toEqualQueryNode(query.getFieldByStorageKey('actor'));
   });
 
   it('tracks queries for refetchable root records', () => {
@@ -76,9 +87,10 @@ describe('RelayQueryTracker', () => {
     var tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(query, nodeID, path);
-    var trackedChildren = tracker.getTrackedChildrenForID(nodeID);
-    expect(trackedChildren.length).toBe(2);
-    query.getChildren().forEach((child, ii) => {
+    var trackedChildren = sortChildren(tracker.getTrackedChildrenForID(nodeID));
+    var children = sortChildren(query.getChildren());
+    expect(trackedChildren.length).toBe(3);
+    children.forEach((child, ii) => {
       expect(trackedChildren[ii]).toEqualQueryNode(child);
     });
   });
@@ -102,8 +114,10 @@ describe('RelayQueryTracker', () => {
     var tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(actor, actorID, path);
-    var trackedChildren = tracker.getTrackedChildrenForID(actorID);
-    actor.getChildren().forEach((child, ii) => {
+    var children = sortChildren(actor.getChildren());
+    var trackedChildren =
+      sortChildren(tracker.getTrackedChildrenForID(actorID));
+    children.forEach((child, ii) => {
       expect(trackedChildren[ii]).toEqualQueryNode(child);
     });
   });

@@ -11,7 +11,7 @@ In this tutorial, we will build a game using GraphQL mutations. The goal of the 
 
 ## Warm up
 
-Let's start a project using the Relay Starter Kit as a base.
+Let's start a project using the [Relay Starter Kit](https://github.com/relayjs/relay-starter-kit) as a base.
 
 ```
 git clone https://github.com/relayjs/relay-starter-kit.git relay-treasurehunt
@@ -431,4 +431,4 @@ export default Relay.createContainer(App, {
 
 A working copy of the treasure hunt can be found in the `./examples/` directory.
 
-Now that we've gone end-to-end with Relay, let's dive into more detail in the guides section.
+Now that we've gone through this tutorial, let's dive into some videos from conferences where GraphQL and Relay were introduced and explained.

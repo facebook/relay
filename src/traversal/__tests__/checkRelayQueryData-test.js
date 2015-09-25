@@ -81,6 +81,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
+        __typename: 'User',
       }
     };
 
@@ -101,6 +102,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
+        __typename: 'User',
       }
     };
 
@@ -121,6 +123,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
+        __typename: 'User',
       }
     };
 
@@ -143,6 +146,7 @@ describe('checkRelayQueryData', () => {
         id: '1055790163',
         firstName: 'Yuzhi',
         __dataID__: '1055790163',
+        __typename: 'User',
       }
     };
 
@@ -189,6 +193,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
+        __typename: 'User',
         friends: { __dataID__: 'friends_id'},
       },
       friends_id: {
@@ -268,6 +273,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
+        __typename: 'User',
         screennames: [{__dataID__: 'client:screenname1'}],
       },
       'client:screenname1': {
@@ -296,6 +302,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
+        __typename: 'User',
         screennames: [{__dataID__: 'client:screenname1'}],
       }
     };
@@ -320,6 +327,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
+        __typename: 'User',
         screennames: [{__dataID__: 'client:screenname1'}],
       },
       'client:screenname1': {
@@ -347,6 +355,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
+        __typename: 'User',
         friends: { __dataID__: 'friends_id'},
       },
       friends_id: {
@@ -381,6 +390,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
+        __typename: 'User',
         friends: { __dataID__: 'friends_id'},
       },
       friends_id: {
@@ -456,6 +466,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
+        __typename: 'User',
         friends: { __dataID__: 'friends_id'},
       },
       friends_id: {
@@ -468,6 +479,7 @@ describe('checkRelayQueryData', () => {
       },
       node_id: {
         __dataID__: 'node_id',
+        __typename: 'User',
         id: 'node_id',
       }
     };
@@ -511,6 +523,7 @@ describe('checkRelayQueryData', () => {
       },
       node_id: {
         __dataID__: 'node_id',
+        __typename: 'User',
       }
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
@@ -540,6 +553,7 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
+        __typename: 'User',
         username: 'yuzhi',
       }
     };

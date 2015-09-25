@@ -408,66 +408,6 @@ var RelayTestUtils = {
       }
       return true;
     },
-
-    /**
-     * Compares a JSON object of RelayQuery with a JSON object. Succeeds when
-     * when the objects match.
-     */
-    toMatchQueryJSON(expected) {
-      var matchQueryJSON = (actual, expected, path) =>  {
-        if (typeof actual !== 'object') {
-          if (actual === expected) {
-            return true;
-          } else {
-            this.message = () => {
-              return 'Expected ' + path.join('.') + ' to be ' + expected +
-                ', but got ' + actual;
-            };
-            return false;
-          }
-        }
-        for (var key in actual) {
-          // Skip extra fields in actual that is under metadata.
-          if (expected.hasOwnProperty(key) !== actual.hasOwnProperty(key) &&
-              (path.length == 0 || path[path.length-1] !== 'metadata')) {
-            this.message = () => {
-              return 'Expected ' + path.join('.') + ' to not have key: ' +
-                key;
-            };
-            return false;
-          }
-        }
-        for (var k in expected) {
-          if (expected.hasOwnProperty(k) !== actual.hasOwnProperty(k)) {
-            if (path.length > 0 && path[path.length-1] === 'metadata') {
-              continue;
-            }
-            this.message = () => {
-              return 'Expected ' + path.join('.') + ' to have key: ' + k;
-            };
-            return false;
-          }
-          var value = expected[k];
-          var result;
-          if (Array.isArray(value)) {
-            for (var jj = 0; jj < value.length; jj++) {
-              path.push(k + '[' + jj + ']');
-              result = matchQueryJSON(actual[k][jj], value[jj], path);
-            }
-          } else {
-            path.push(k);
-            result = matchQueryJSON(actual[k], expected[k], path);
-          }
-          if (result) {
-            path.pop();
-          } else {
-            return result;
-          }
-        }
-        return true;
-      };
-      return matchQueryJSON(this.actual, expected, []);
-    }
   },
 
   /**

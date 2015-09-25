@@ -203,7 +203,7 @@ describe('RelayQueryPath', () => {
     `);
     var root = new RelayQueryPath(query);
 
-    expect(root.toJSON()).toMatchQueryJSON([{
+    expect(root.toJSON()).toEqual([{
       kind: 'Query',
       name: 'RelayQueryPath',
       calls: [{name: 'node', value: '123'}],
@@ -219,8 +219,22 @@ describe('RelayQueryPath', () => {
             parentType: 'Node'
           },
         },
+        {
+          kind: 'Field',
+          name: '__typename',
+          alias: null,
+          calls: [],
+          children: [],
+          metadata: {
+            generated: true,
+            requisite: true,
+            parentType: 'Node'
+          },
+        },
       ],
-      metadata: {},
+      metadata: {
+        rootArg: 'id',
+      },
     }]);
 
     var fragment = Relay.QL`fragment on Node { name }`;
@@ -250,7 +264,7 @@ describe('RelayQueryPath', () => {
     `);
     var root = new RelayQueryPath(query);
 
-    expect(root.toJSON()).toMatchQueryJSON([{
+    expect(root.toJSON()).toEqual([{
       kind: 'Query',
       name: 'RelayQueryPath',
       calls: [{name: 'viewer', value: null}],
@@ -291,23 +305,39 @@ describe('RelayQueryPath', () => {
     var root = new RelayQueryPath(query);
     var path = root.getPath(address, 'client:1');
 
-    expect(path.toJSON()).toMatchQueryJSON([
+    expect(path.toJSON()).toEqual([
       {
         kind: 'Query',
         name: 'RelayQueryPath',
         calls: [{name: 'node', value: '123'}],
-        children: [{
-          kind: 'Field',
-          name: 'id',
-          alias: null,
-          calls: [],
-          children: [],
-          metadata: {
-            requisite: true,
-            parentType: 'Node'
+        children: [
+          {
+            kind: 'Field',
+            name: 'id',
+            alias: null,
+            calls: [],
+            children: [],
+            metadata: {
+              requisite: true,
+              parentType: 'Node'
+            },
           },
-        }],
-        metadata: {},
+          {
+            kind: 'Field',
+            name: '__typename',
+            alias: null,
+            calls: [],
+            children: [],
+            metadata: {
+              generated: true,
+              requisite: true,
+              parentType: 'Node'
+            },
+          }
+        ],
+        metadata: {
+          rootArg: 'id',
+        },
       },
       {
         kind: 'Field',

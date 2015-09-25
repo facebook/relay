@@ -11,7 +11,7 @@ Routes are responsible for defining the entry points into a Relay application. B
 
 > Note
 >
-> Relay routes don't really implement any URL routing specific logic or work with History API. In the future we will maybe rename RelayRoute to be something more like RelayQueryRoots or RelayQueryConfig.
+> Relay routes don't really implement any URL routing specific logic or work with History API. In the future we will maybe rename RelayRoute to be something more like RelayQueryRoots or RelayQueryConfig. For more information around why Relay doesn't provide URL-routing features, and suggestions for such solutions, see [this post](https://medium.com/@cpojer/relay-and-routing-36b5439bad9).
 
 ## Queries vs. Fragments
 

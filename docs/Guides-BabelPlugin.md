@@ -31,7 +31,7 @@ This gets converted into an immediately-invoked function:
 
 ## Usage
 
-The easiest way to get started for now is with the [Relay Starter Kit](https://github.com/facebook/relay-starter-kit) - this includes an example schema file and configures the `babel-relay-plugin` npm module to transpile queries.
+The easiest way to get started for now is with the [Relay Starter Kit](https://github.com/facebook/relay-starter-kit) - this includes an example schema file and configures the [`babel-relay-plugin`](https://www.npmjs.com/package/babel-relay-plugin) npm module to transpile queries.
 
 ## Advanced Usage
 

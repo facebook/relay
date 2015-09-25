@@ -1,5 +1,4 @@
 #!/usr/bin/env babel-node --optional es7.asyncFunctions
-
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.

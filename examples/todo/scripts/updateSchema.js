@@ -1,3 +1,4 @@
+#!/usr/bin/env babel-node --optional es7.asyncFunctions
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -7,12 +8,10 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#!/usr/bin/env babel-node --optional es7.asyncFunctions
-
 import fs from 'fs';
 import path from 'path';
 import { GraphQLTodoSchema } from '../data/schema';
-import { graphql }  from 'graphql';
+import { graphql } from 'graphql';
 import { introspectionQuery, printSchema } from 'graphql/utilities';
 
 // Save JSON of full schema introspection for Babel Relay Plugin to use

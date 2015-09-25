@@ -78,7 +78,7 @@ When all data necessary to render becomes available, **Relay.RootContainer** wil
 
 This snippet configures **Relay.RootContainer** to render `ProfilePicture` within a `ScrollView` component as soon as data is ready.
 
-The `renderFetched` callback is always called with a `data` argument, which is an object mapping from `propName` to query data. It is expected that the `renderFetched` callback renders the supplied `Component` with them (e.g. using the JSX spread attributes feature).
+The `renderFetched` callback is always called with a `data` argument, which is an object mapping from `propName` to query data. It is expected that the `renderFetched` callback renders the supplied `Component` with them (e.g. using the [JSX spread attributes feature](https://facebook.github.io/react/docs/jsx-spread.html)).
 
 > Note
 >

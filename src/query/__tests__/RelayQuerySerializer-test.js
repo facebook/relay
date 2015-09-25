@@ -24,18 +24,19 @@ describe('RelayQuerySerializer', () => {
 
   var {filterGeneratedFields, getNode} = RelayTestUtils;
 
-  function idField(parentType) {
+  function idField(parentType, customMetadata) {
+    var metadata = {
+      requisite: true,
+      parentType,
+      ...customMetadata,
+    };
     return {
       kind: 'Field',
       name: 'id',
       alias: null,
       calls: [],
       children: [],
-      metadata: {
-        generated: true,
-        requisite: true,
-        parentType,
-      },
+      metadata,
     };
   }
 
@@ -47,6 +48,21 @@ describe('RelayQuerySerializer', () => {
       calls: [],
       children: [],
       metadata: {
+        parentType,
+      },
+    };
+  }
+
+  function typeField(parentType) {
+    return {
+      kind: 'Field',
+      name: '__typename',
+      alias: null,
+      calls: [],
+      children: [],
+      metadata: {
+        generated: true,
+        requisite: true,
         parentType,
       },
     };
@@ -72,7 +88,7 @@ describe('RelayQuerySerializer', () => {
         }
       `);
 
-      expect(toJSON(query)).toMatchQueryJSON({
+      expect(toJSON(query)).toEqual({
         kind: 'Query',
         name: 'RelayQuerySerializer',
         calls: [{name: 'viewer', value: null}],
@@ -84,7 +100,8 @@ describe('RelayQuerySerializer', () => {
             calls: [],
             children: [
               scalarField('name', 'Actor'),
-              idField('Actor'),
+              idField('Actor', {generated: true}),
+              typeField('Actor'),
             ],
             metadata: {
               dynamic: true,
@@ -110,15 +127,18 @@ describe('RelayQuerySerializer', () => {
         }
       `);
 
-      expect(toJSON(query)).toMatchQueryJSON({
+      expect(toJSON(query)).toEqual({
         kind: 'Query',
         name: 'RelayQuerySerializer',
         calls: [{name: 'node', value: '123'}],
         children: [
           scalarField('name', 'Node'),
-          idField('Node'),
+          idField('Node', {generated: true}),
+          typeField('Node'),
         ],
-        metadata: {},
+        metadata: {
+          rootArg: 'id',
+        },
       });
       var clone = fromJSON(toJSON(query));
       expect(clone.equals(query)).toBe(true);
@@ -134,15 +154,18 @@ describe('RelayQuerySerializer', () => {
         }
       `);
 
-      expect(toJSON(query)).toMatchQueryJSON({
+      expect(toJSON(query)).toEqual({
         kind: 'Query',
         name: 'RelayQuerySerializer',
         calls: [{name: 'nodes', value: ['1', '2', '3']}],
         children: [
           scalarField('name', 'Node'),
-          idField('Node'),
+          idField('Node', {generated: true}),
+          typeField('Node'),
         ],
-        metadata: {varargs: 1},
+        metadata: {
+          rootArg: 'ids',
+        },
       });
       var clone = fromJSON(toJSON(query));
       expect(clone.equals(query)).toBe(true);
@@ -154,17 +177,14 @@ describe('RelayQuerySerializer', () => {
     it('serializes inline fragments', () => {
       var fragment = getNode(Relay.QL`fragment on Node { id }`);
 
-      expect(toJSON(fragment)).toMatchQueryJSON({
+      expect(toJSON(fragment)).toEqual({
         kind: 'FragmentDefinition',
         name: 'RelayQuerySerializer',
         type: 'Node',
-        children: [{
-          ...idField('Node'),
-          metadata: {
-            requisite: true,
-            parentType: 'Node',
-          }
-        }],
+        children: [
+          idField('Node'),
+          typeField('Node'),
+        ],
         metadata: {
           isDeferred: false,
           isContainerFragment: false,
@@ -181,17 +201,14 @@ describe('RelayQuerySerializer', () => {
       );
       var fragment = getNode(reference.defer());
 
-      expect(toJSON(fragment)).toMatchQueryJSON({
+      expect(toJSON(fragment)).toEqual({
         kind: 'FragmentDefinition',
         name: 'RelayQuerySerializer',
         type: 'Node',
-        children: [{
-          ...idField('Node'),
-          metadata: {
-            requisite: true,
-            parentType: 'Node',
-          }
-        }],
+        children: [
+          idField('Node'),
+          typeField('Node'),
+        ],
         metadata: {
           isDeferred: true,
           isContainerFragment: true,
@@ -215,7 +232,7 @@ describe('RelayQuerySerializer', () => {
         }
       `).getChildren()[0];
 
-      expect(toJSON(field)).toMatchQueryJSON({
+      expect(toJSON(field)).toEqual({
         kind: 'Field',
         name: 'profilePicture',
         alias: 'photo',
@@ -244,7 +261,7 @@ describe('RelayQuerySerializer', () => {
         }
       `).getChildren()[0];
 
-      expect(toJSON(field)).toMatchQueryJSON({
+      expect(toJSON(field)).toEqual({
         kind: 'Field',
         name: 'profilePicture',
         alias: 'photo',
@@ -277,7 +294,7 @@ describe('RelayQuerySerializer', () => {
         }
       `).getChildren()[0]);
 
-      expect(toJSON(field)).toMatchQueryJSON({
+      expect(toJSON(field)).toEqual({
         kind: 'Field',
         name: 'friends',
         alias: null,
@@ -327,7 +344,7 @@ describe('RelayQuerySerializer', () => {
           }
         }
       `, {input: {feedback: '123', text: 'comment'}});
-      expect(toJSON(mutation)).toMatchQueryJSON({
+      expect(toJSON(mutation)).toEqual({
         kind: 'Mutation',
         name: 'RelayQuerySerializer',
         calls: [{
@@ -344,11 +361,22 @@ describe('RelayQuerySerializer', () => {
               idField('Feedback'),
             ],
             metadata: {
-              dynamic: false,
               pk: 'id',
               rootCall: 'node',
               parentType: 'CommentCreateResponsePayload',
             },
+          },
+          {
+            kind: 'Field',
+            name: 'clientMutationId',
+            alias: null,
+            calls: [],
+            children: [],
+            metadata: {
+              generated: true,
+              parentType: 'CommentCreateResponsePayload',
+              requisite: true,
+            }
           },
         ],
         type: 'CommentCreateResponsePayload',

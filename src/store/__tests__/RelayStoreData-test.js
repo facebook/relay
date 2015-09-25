@@ -267,6 +267,7 @@ describe('RelayStoreData', () => {
       var fragment = Relay.QL`
         fragment on Node {
           id,
+          __typename,
           name,
         }
       `;

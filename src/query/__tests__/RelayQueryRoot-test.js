@@ -65,10 +65,12 @@ describe('RelayQueryRoot', () => {
     expect(children[2].isGenerated()).toBe(true);
 
     children = usernames.getChildren();
-    expect(children.length).toBe(2);
+    expect(children.length).toBe(3);
     expect(children[0].getSchemaName()).toBe('firstName');
     expect(children[1].getSchemaName()).toBe('id');
     expect(children[1].isGenerated()).toBe(true);
+    expect(children[2].getSchemaName()).toBe('__typename');
+    expect(children[2].isGenerated()).toBe(true);
   });
 
   it('returns same object when cloning with same fields', () => {

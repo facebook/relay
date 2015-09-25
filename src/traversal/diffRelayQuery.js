@@ -27,15 +27,20 @@ var forEachRootCallArg = require('forEachRootCallArg');
 var invariant = require('invariant');
 var warning = require('warning');
 
+var {ID, TYPENAME} = RelayNodeInterface;
 var {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
-var idField = RelayQuery.Field.build('id', null, null, {
+var idField = RelayQuery.Field.build(ID, null, null, {
+  parentType: RelayNodeInterface.NODE_TYPE,
+  requisite: true,
+});
+var typeField = RelayQuery.Field.build(TYPENAME, null, null, {
   parentType: RelayNodeInterface.NODE_TYPE,
   requisite: true,
 });
 var nodeWithID = RelayQuery.Field.build(
   RelayNodeInterface.NODE,
   null,
-  [idField],
+  [idField, typeField],
 );
 
 import type {DataID} from 'RelayInternalTypes';
@@ -732,7 +737,7 @@ function buildRoot(
 ): RelayQuery.Root {
   // Child fields are always collapsed into fragments so a root `id` field
   // must be added.
-  var fragments = [idField];
+  var fragments = [idField, typeField];
   var childTypes = {};
   children.forEach(child => {
     if (child instanceof RelayQuery.Field) {

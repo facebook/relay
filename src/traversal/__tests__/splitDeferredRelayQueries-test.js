@@ -25,10 +25,10 @@ describe('splitDeferredRelayQueries()', () => {
   var {defer, getNode, getRefNode} = RelayTestUtils;
 
   // remove the root `id` field
-  function filterGeneratedRootIDField(node) {
+  function filterGeneratedRootFields(node) {
     var children = node.getChildren().filter(node => !(
       node instanceof RelayQuery.Field &&
-      node.getSchemaName() === 'id'
+      node.isGenerated()
     ));
     return node.clone(children);
   }
@@ -310,8 +310,8 @@ describe('splitDeferredRelayQueries()', () => {
     expect(required.getID()).toBe('q1');
     expect(
       required
-        .getChildren()[0] // node(4){hometown} (field)
-        .getChildren()[0] // node(4){hometown{id}} (field)
+        .getFieldByStorageKey('hometown')
+        .getFieldByStorageKey('id')
         .isRefQueryDependency()
     ).toBe(true);
 
@@ -319,7 +319,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred.length).toBe(1);
     expect(deferred[0].required.getName()).toBe(queryNode.getName());
     expect(deferred[0].required).toEqualQueryRoot(
-      filterGeneratedRootIDField(getRefNode(
+      filterGeneratedRootFields(getRefNode(
         Relay.QL`
           query {
             nodes(ids:$ref_q1) {
@@ -392,7 +392,7 @@ describe('splitDeferredRelayQueries()', () => {
       queryNode.getName()
     );
     expect(deferred[0].deferred[0].required).toEqualQueryRoot(
-      filterGeneratedRootIDField(getRefNode(
+      filterGeneratedRootFields(getRefNode(
         Relay.QL`
           query {
             nodes(ids:$ref_q2) {
@@ -442,8 +442,8 @@ describe('splitDeferredRelayQueries()', () => {
     );
     expect(
       required
-        .getChildren()[0] // node(4){hometown} (field)
-        .getChildren()[0] // node(4){hometown{id}} (field)
+        .getFieldByStorageKey('hometown')
+        .getFieldByStorageKey('id')
         .isRefQueryDependency()
     ).toBe(true);
     expect(required.getID()).toBe('q1');
@@ -452,7 +452,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred.length).toBe(1);
     expect(deferred[0].required.getName()).toBe(queryNode.getName());
     expect(deferred[0].required).toEqualQueryRoot(
-      filterGeneratedRootIDField(getRefNode(
+      filterGeneratedRootFields(getRefNode(
         Relay.QL`
           query {
             nodes(ids:$ref_q1) {
@@ -472,7 +472,7 @@ describe('splitDeferredRelayQueries()', () => {
       queryNode.getName()
     );
     expect(deferred[0].deferred[0].required).toEqualQueryRoot(
-      filterGeneratedRootIDField(getRefNode(
+      filterGeneratedRootFields(getRefNode(
         Relay.QL`
           query {
             nodes(ids:$ref_q2) {
@@ -610,8 +610,8 @@ describe('splitDeferredRelayQueries()', () => {
     expect(required.getID()).toBe('q1');
     expect(
       required
-        .getChildren()[0] // viewer(){actor} (field)
-        .getChildren()[0] // viewer(){actor{id}} (field)
+        .getFieldByStorageKey('actor')
+        .getFieldByStorageKey('id')
         .isRefQueryDependency()
     ).toBe(true);
 
@@ -625,7 +625,7 @@ describe('splitDeferredRelayQueries()', () => {
       queryNode.getName()
     );
     expect(deferred[0].deferred[0].required).toEqualQueryRoot(
-      filterGeneratedRootIDField(getRefNode(
+      filterGeneratedRootFields(getRefNode(
         Relay.QL`
           query {
             nodes(ids:$ref_q1) {
@@ -674,7 +674,7 @@ describe('splitDeferredRelayQueries()', () => {
     // deferred part
     expect(deferred.length).toBe(1);
     expect(deferred[0].required.getName()).toBe(queryNode.getName());
-    expect(deferred[0].required).toEqualQueryRoot(filterGeneratedRootIDField(
+    expect(deferred[0].required).toEqualQueryRoot(filterGeneratedRootFields(
       getRefNode(
         Relay.QL`
           query {
@@ -729,7 +729,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred.length).toBe(1);
     expect(deferred[0].required.getName()).toBe(queryNode.getName());
     expect(deferred[0].required).toEqualQueryRoot(
-      filterGeneratedRootIDField(getRefNode(
+      filterGeneratedRootFields(getRefNode(
         Relay.QL`
           query {
             nodes(ids:$ref_q1) {
@@ -791,7 +791,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred[0].required.getName()).toBe(
       queryNode.getName()
     );
-    expect(deferred[0].required).toEqualQueryRoot(filterGeneratedRootIDField(
+    expect(deferred[0].required).toEqualQueryRoot(filterGeneratedRootFields(
       getRefNode(
         Relay.QL`
           query {
@@ -851,7 +851,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred[0].required.getName()).toBe(
       queryNode.getName()
     );
-    expect(deferred[0].required).toEqualQueryRoot(filterGeneratedRootIDField(
+    expect(deferred[0].required).toEqualQueryRoot(filterGeneratedRootFields(
       getRefNode(
         Relay.QL`
           query {
@@ -944,11 +944,15 @@ describe('splitDeferredRelayQueries()', () => {
     // case, we create such a query by hand.
     var fragment = Relay.QL`fragment on Node{name}`;
     var id = RelayQuery.Field.build('id', null, null, {requisite: true});
+    var typename = RelayQuery.Field.build('__typename', null, null, {
+      requisite: true
+    });
     var queryNode = RelayQuery.Root.build(
       'node',
       '4',
       [
         id,
+        typename,
         RelayQuery.Field.build(
           'hometown',
           null,
@@ -988,16 +992,16 @@ describe('splitDeferredRelayQueries()', () => {
         node(id:"4"){hometown{id},id}
       }
     `));
-    expect(required.getID()).toBe('q2');
+    expect(required.getID()).toBe('q1');
 
     // deferred part
     expect(deferred.length).toBe(1);
     expect(deferred[0].required.getName()).toBe(queryNode.getName());
     expect(deferred[0].required).toEqualQueryRoot(
-      filterGeneratedRootIDField(getRefNode(
+      filterGeneratedRootFields(getRefNode(
         Relay.QL`
           query {
-            nodes(ids:$ref_q2) {
+            nodes(ids:$ref_q1) {
               ${fragment},
             }
           }
@@ -1005,7 +1009,7 @@ describe('splitDeferredRelayQueries()', () => {
         {path: '$.*.hometown.id'}
       ))
     );
-    expect(deferred[0].required.getID()).toBe('q3');
+    expect(deferred[0].required.getID()).toBe('q2');
     expect(deferred[0].required.isDeferred()).toBe(true);
 
     // no nested deferreds

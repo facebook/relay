@@ -22,6 +22,7 @@ var invariant = require('invariant');
 
 import type {DataID} from 'RelayInternalTypes';
 
+var {ID, TYPENAME} = RelayNodeInterface;
 // Placeholder to mark fields as non-scalar
 var EMPTY_FRAGMENT = RelayQuery.Fragment.build(
   '$RelayQueryPath',
@@ -101,13 +102,16 @@ class RelayQueryPath {
     if (GraphQLStoreDataHandler.isClientID(dataID)) {
       return new RelayQueryPath(node, this);
     } else {
-      var idField = RelayQuery.Field.build('id', null, null, {
+      var idField = RelayQuery.Field.build(ID, null, null, {
+        parentType: RelayNodeInterface.NODE_TYPE,
+      });
+      var typeField = RelayQuery.Field.build(TYPENAME, null, null, {
         parentType: RelayNodeInterface.NODE_TYPE,
       });
       var root = RelayQuery.Root.build(
         RelayNodeInterface.NODE,
         dataID,
-        [idField],
+        [idField, typeField],
         {rootArg: RelayNodeInterface.ID},
         this.getName()
       );
@@ -130,7 +134,11 @@ class RelayQueryPath {
     while (node instanceof RelayQuery.Field) {
       var idFieldName = node.getInferredPrimaryKey();
       if (idFieldName) {
-        child = node.clone([child, node.getFieldByStorageKey(idFieldName)]);
+        child = node.clone([
+          child,
+          node.getFieldByStorageKey(idFieldName),
+          node.getFieldByStorageKey(TYPENAME),
+        ]);
       } else {
         child = node.clone([child]);
       }
@@ -150,7 +158,11 @@ class RelayQueryPath {
     return RelayQuery.Root.build(
       rootCall.name,
       rootCall.value,
-      [child, (node: $FlowIssue).getFieldByStorageKey('id')],
+      [
+        child,
+        (node: $FlowIssue).getFieldByStorageKey(ID),
+        (node: $FlowIssue).getFieldByStorageKey(TYPENAME),
+      ],
       {
         ...node.__concreteNode__.metatada,
         rootArg: node.getRootCallArgument(),
@@ -203,13 +215,24 @@ class RelayQueryPath {
 function getShallowClone(
   node: RelayQuery.Root | RelayQuery.Field
 ): RelayQuery.Node {
-  // cloning with non-empty children guarantees result is non-null
-  if (node instanceof RelayQuery.Field) {
-    var idFieldName = node.getInferredPrimaryKey();
-    var idField = idFieldName && node.getFieldByStorageKey(idFieldName);
-    return (node.clone([idField || EMPTY_FRAGMENT]): any);
+  var idFieldName = node instanceof RelayQuery.Field ?
+    node.getInferredPrimaryKey() :
+    ID;
+  var children = [];
+  var idField = idFieldName && node.getFieldByStorageKey(idFieldName);
+  if (idField) {
+    children.push(idField);
   }
-  return (node.clone([node.getFieldByStorageKey('id') || EMPTY_FRAGMENT]): any);
+  var typeField = node.getFieldByStorageKey(TYPENAME);
+  if (typeField) {
+    children.push(typeField);
+  }
+  // Add an empty fragment if children are empty to ensure the clone result
+  // is non-null.
+  if (!children.length) {
+    children.push(EMPTY_FRAGMENT);
+  }
+  return (node.clone(children): any);
 }
 
 module.exports = RelayQueryPath;

@@ -63,11 +63,6 @@ var buildDist = function(opts) {
       'react': 'React',
       'react-dom': 'ReactDOM'
     },
-    module: {
-      loaders: [
-        {test: /\.js$/, loader: 'babel'}
-      ],
-    },
     output: {
       filename: opts.output,
       libraryTarget: 'umd',
@@ -127,7 +122,7 @@ gulp.task('modules', function() {
     .pipe(gulp.dest(paths.lib));
 });
 
-gulp.task('dist', ['modules'], function () {
+gulp.task('dist', ['modules'], function() {
   var distOpts = {
     debug: true,
     output: 'relay.js'
@@ -141,7 +136,7 @@ gulp.task('dist', ['modules'], function () {
     .pipe(gulp.dest(paths.dist));
 });
 
-gulp.task('dist:min', ['modules'], function () {
+gulp.task('dist:min', ['modules'], function() {
   var distOpts = {
     debug: false,
     output: 'relay.min.js'
@@ -170,5 +165,5 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', function(cb) {
-  runSequence('clean', 'website:check-version', 'modules', ['dist', 'dist:min'], cb);
+  runSequence('clean', 'website:check-version', ['dist', 'dist:min'], cb);
 });

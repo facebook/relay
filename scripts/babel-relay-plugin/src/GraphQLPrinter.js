@@ -296,6 +296,14 @@ function printFieldsAndFragments(
         fragments.push(printQueryFragment(selection, options));
       } else if (selection.kind === kinds.FIELD) {
         fields.push(selection);
+
+        if (
+          getConnectionMetadataForType(type) &&
+          getName(selection) === 'edges' &&
+          type.getFields()['pageInfo']
+        ) {
+          requisiteFields.pageInfo = true;
+        }
       } else {
         throw new Error(util.format(
           'Unsupported selection type `%s`.',
@@ -453,7 +461,7 @@ function printField(
     metadata.pk = 'id';
   }
 
-  var connectionMetadata = getConnectionMetadata(options.schema, fieldDecl);
+  var connectionMetadata = getConnectionMetadata(fieldDecl);
   if (connectionMetadata) {
     metadata.connection = true;
 
@@ -490,9 +498,8 @@ function printField(
       var subfieldDecl =
         types.getNamedType(fieldDecl.type).getFields()[subfieldName];
       var subfieldType = types.getNamedType(subfieldDecl.type);
-      if (subfieldName === 'edges') {
-        hasEdgesSelection = true;
-      } else if (
+      if (
+        subfieldName !== 'edges' &&
         isList(subfieldDecl.type) &&
         subfieldType.name === connectionMetadata.nodeType.name
       ) {
@@ -505,9 +512,6 @@ function printField(
         ));
       }
     });
-    if (hasEdgesSelection && !!fieldDecl.type.getFields()['pageInfo']) {
-      subRequisiteFields.pageInfo = true;
-    }
   } else if (types.getNamedType(fieldDecl.type).name === 'PageInfo') {
     subRequisiteFields.hasNextPage = true;
     subRequisiteFields.hasPreviousPage = true;
@@ -788,15 +792,20 @@ function getArgNamed(field, name) {
   return remaining.length === 1 ? remaining[0] : null;
 }
 
-function getConnectionMetadata(schema, fieldDecl) {
-  if (!isConnectionType(fieldDecl.type)) {
-    return null;
-  }
+function getConnectionMetadata(fieldDecl) {
   // Connections must be limitable.
   if (!getArgNamed(fieldDecl, 'first') && !getArgNamed(fieldDecl, 'last')) {
     return null;
   }
-  var fieldType = types.getNamedType(fieldDecl.type);
+  return getConnectionMetadataForType(fieldDecl.type);
+}
+
+function getConnectionMetadataForType(type) {
+  if (!isConnectionType(type)) {
+    return null;
+  }
+
+  var fieldType = types.getNamedType(type);
 
   // Connections must have a non-scalar `edges` field.
   var edgesField = fieldType.getFields()['edges'];

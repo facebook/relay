@@ -42,7 +42,6 @@ type Viewer {
 
 type ConfigsConnection {
   edges: [ConfigsConnectionEdge]
-  pageInfo: PageInfo
 }
 
 type ConfigsConnectionEdge {

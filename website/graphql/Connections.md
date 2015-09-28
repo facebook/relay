@@ -313,8 +313,8 @@ More formally:
 HasPreviousPage(allEdges, before, after, first, last):
   * If {last} was not set, return {false}.
   * Let {edges} be the result of calling {ApplyCursorsToEdges(allEdges, before, after)}.
-  * If {edges} contains more than {last} elements, return {false}.
-  * Return {true}.
+  * If {edges} contains more than {last} elements, return {true}.
+  * Return {false}.
 
 `hasNextPage` will be `false` if the client is not paginating with `first`, or
 if the client is paginating with `first`, and the server has determined that the
@@ -324,8 +324,8 @@ formally:
 HasNextPage(allEdges, before, after, first, last):
   * If {first} was not set, return {false}.
   * Let {edges} be the result of calling {ApplyCursorsToEdges(allEdges, before, after)}.
-  * If {edges} contains more than {first} elements, return {false}.
-  * Return {true}.
+  * If {edges} contains more than {first} elements, return {true}.
+  * Return {false}.
 
 NOTE `hasPreviousPage` is only meaningful when `last` is included, as it is
 always false otherwise. `hasNextPage` is only meaningful when `first` is

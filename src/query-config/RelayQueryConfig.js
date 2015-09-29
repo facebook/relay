@@ -15,9 +15,10 @@
 
 import type {RootQueries} from 'RelayContainer';
 
+import type {QueryBuilder} from 'buildRQL';
 var invariant = require('invariant');
 
-export type ConfigQueries = {[queryName: string]: $FlowFixMe};
+export type ConfigQueries = {[queryName: string]: QueryBuilder};
 
 /**
  * Configures the root queries and initial variables that define the context in

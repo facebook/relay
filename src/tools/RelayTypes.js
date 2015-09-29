@@ -18,6 +18,8 @@
  */
 import type URI from 'URI';
 import type {DataID} from 'RelayInternalTypes';
+import type RelayFragmentReference from 'RelayFragmentReference';
+import type RelayMetaRoute from 'RelayMetaRoute';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 
 // Routes and variables
@@ -51,6 +53,31 @@ export type ReadyStateChangeCallback = (readyState: ReadyState) => void;
 
 // Containers
 export type RelayContainer = ReactClass<any, any, any>;
+
+export type RelayProp = {
+  forceFetch: (
+    partialVariables?: ?Variables,
+    callback?: ?ComponentReadyStateChangeCallback
+  ) => void,
+  getFragmentError: (
+    fragmentReference: RelayFragmentReference,
+    record: Object
+  ) => ?Error,
+  getPendingTransactions: (record: Object) => ?Array<RelayMutationTransaction>,
+  hasFragmentData: (
+    fragmentReference: RelayFragmentReference,
+    record: Object
+  ) => boolean,
+  hasOptimisticUpdate: (
+    record: Object
+  ) => boolean,
+  route: RelayMetaRoute,
+  setVariables: (
+    partialVariables?: ?Variables,
+    callback?: ?ComponentReadyStateChangeCallback
+  ) => void,
+  variables: Variables,
+};
 
 // Mutations
 export type RelayMutationTransactionCommitFailureCallback = (

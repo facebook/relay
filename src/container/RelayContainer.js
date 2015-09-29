@@ -39,6 +39,7 @@ import type {
   Abortable,
   ComponentReadyStateChangeCallback,
   RelayContainer,
+  RelayProp,
   Variables
 } from 'RelayTypes';
 import type URI from 'URI';
@@ -768,7 +769,7 @@ function createContainerComponent(
     }
 
     render(): ReactElement {
-      var relayProps = {
+      var relayProps: RelayProp = {
         forceFetch: this.forceFetch,
         getFragmentError: this.getFragmentError,
         getPendingTransactions: this.getPendingTransactions,

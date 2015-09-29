@@ -7,6 +7,9 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import React from 'react';
+import Relay from 'react-relay';
+
 class StarWarsShip extends React.Component {
   render() {
     var {ship} = this.props;

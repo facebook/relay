@@ -55,8 +55,7 @@ var app = new WebpackDevServer(compiler, {
   stats: {colors: true}
 });
 // Serve static resources
-app.use('/', express.static('public'));
-app.use('/node_modules', express.static('node_modules'));
+app.use('/', express.static(path.resolve(__dirname, 'public')));
 app.listen(APP_PORT, () => {
   console.log(`Relay Star Wars is now running on http://localhost:${APP_PORT}`);
 });

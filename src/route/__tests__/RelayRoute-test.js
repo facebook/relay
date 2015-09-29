@@ -38,14 +38,14 @@ describe('RelayRoute', () => {
         }
       };
       MockRoute.queries = {
-        required: (Component, params) => Relay.QL`
+        required: Component => Relay.QL`
           query {
             node(id:$required) {
               ${Component.getFragment('required')}
             }
           }
         `,
-        optional: (Component, params) => Relay.QL`
+        optional: Component => Relay.QL`
           query {
             node(id:$optional) {
               ${Component.getFragment('optional')}

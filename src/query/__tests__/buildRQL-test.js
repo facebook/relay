@@ -70,7 +70,7 @@ describe('buildRQL', () => {
     });
 
     it('creates fragments with variables', () => {
-      var builder = variables => Relay.QL`
+      var builder = () => Relay.QL`
         fragment on Node {
           id,
           profilePicture(size:$sizeVariable) {
@@ -97,7 +97,7 @@ describe('buildRQL', () => {
     });
 
     it('returns === fragments', () => {
-      var builder = variables => Relay.QL`
+      var builder = () => Relay.QL`
         fragment on Node {
           id,
           profilePicture(size:$sizeVariable) {
@@ -113,7 +113,7 @@ describe('buildRQL', () => {
 
   describe('Query()', () => {
     it('returns undefined if the node is not a query', () => {
-      var builder = (Component, variables) => Relay.QL`
+      var builder = () => Relay.QL`
         fragment on Node {
           id,
         }
@@ -124,7 +124,7 @@ describe('buildRQL', () => {
     });
 
     it('creates queries with components and variables', () => {
-      var builder = (Component, variables) => Relay.QL`
+      var builder = Component => Relay.QL`
         query {
           node(id:$id) {
             id,
@@ -150,7 +150,7 @@ describe('buildRQL', () => {
     });
 
     it('returns === queries for the same component', () => {
-      var builder = (Component, variables) => Relay.QL`
+      var builder = Component => Relay.QL`
         query {
           node(id:$id) {
             ${Component.getFragment('foo')}
@@ -169,7 +169,7 @@ describe('buildRQL', () => {
         },
       });
 
-      var builder = (Component, variables) => Relay.QL`
+      var builder = Component => Relay.QL`
         query {
           node(id:$id) {
             ${Component.getFragment('foo')}

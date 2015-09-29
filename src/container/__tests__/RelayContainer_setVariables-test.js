@@ -35,7 +35,7 @@ describe('RelayContainer.setVariables', function() {
     jest.resetModuleRegistry();
 
     entityQuery = jest.genMockFunction().mockImplementation(
-      variables => Relay.QL`fragment on Node{url(site:$site)}`
+      () => Relay.QL`fragment on Node{url(site:$site)}`
     );
     render = jest.genMockFunction().mockImplementation(() => <div />);
 
@@ -93,7 +93,7 @@ describe('RelayContainer.setVariables', function() {
         }];
       });
       var pluralEntityQuery = jest.genMockFunction().mockImplementation(
-        variables => Relay.QL`
+        () => Relay.QL`
           fragment on Node @relay(plural:true) {
             url(site: $site)
           }
@@ -397,7 +397,7 @@ describe('RelayContainer.setVariables', function() {
 
     beforeEach(() => {
       entityQuery = jest.genMockFunction().mockImplementation(
-        variables => Relay.QL`fragment on Node{url(site:$site)}`
+        () => Relay.QL`fragment on Node{url(site:$site)}`
       );
       render = jest.genMockFunction().mockImplementation(() => <div />);
       prepareVariables = jest.genMockFunction().mockImplementation(
@@ -485,7 +485,7 @@ describe('RelayContainer.setVariables', function() {
 
       var MockInnerContainer = Relay.createContainer(MockInnerComponent, {
         fragments: {
-          entity: variables => Relay.QL`fragment on Node{url(site:$site)}`
+          entity: () => Relay.QL`fragment on Node{url(site:$site)}`
         },
         initialVariables: {site: undefined}
       });
@@ -534,7 +534,7 @@ describe('RelayContainer.setVariables', function() {
 
       var MockInnerContainer = Relay.createContainer(MockInnerComponent, {
         fragments: {
-          entity: variables => Relay.QL`  fragment on Actor {
+          entity: () => Relay.QL`  fragment on Actor {
                         url(site:$site),
                         profilePicture(size:$size) {
                           uri,

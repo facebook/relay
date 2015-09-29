@@ -30,14 +30,14 @@ describe('RelayQueryConfig', () => {
       }> {}
       MockConfig.routeName = 'MockConfig';
       MockConfig.queries = {
-        required: (Component, params) => Relay.QL`
+        required: Component => Relay.QL`
           query {
             node(id:$required) {
               ${Component.getQuery('required')}
             }
           }
         `,
-        optional: (Component, params) => Relay.QL`
+        optional: Component => Relay.QL`
           query {
             node(id:$optional) {
               ${Component.getQuery('optional')}

@@ -37,7 +37,7 @@ describe('RelayContainer', function() {
         initialVariables: {site: 'mobile'},
         fragments: {
           foo: jest.genMockFunction().mockImplementation(
-            variables => Relay.QL`fragment on Node{id,url(site:$site)}`
+            () => Relay.QL`fragment on Node{id,url(site:$site)}`
           )
         }
       });

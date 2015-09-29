@@ -128,7 +128,7 @@ describe('RelayContainer', function() {
           testPhotoSize: TEST_PHOTO_SIZE,
         },
         fragments: {
-          photo: variables => Relay.QL`
+          photo: () => Relay.QL`
             fragment on Actor {
               profilePicture(size:$testPhotoSize) {
                 uri
@@ -215,7 +215,7 @@ describe('RelayContainer', function() {
     beforeEach(() => {
       MockFeed = Relay.createContainer(MockComponent, {
         fragments: {
-          viewer: variables => Relay.QL`
+          viewer: () => Relay.QL`
             fragment on Viewer {
               newsFeed,
             }

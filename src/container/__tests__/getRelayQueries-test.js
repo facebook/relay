@@ -55,14 +55,14 @@ describe('getRelayQueries', () => {
         },
       };
       MockRoute.queries = {
-        first: (Component, params) => Relay.QL`
+        first: Component => Relay.QL`
           query {
             node(id:$id) {
               ${Component.getFragment('first')}
             }
           }
         `,
-        last: (Component, params) => Relay.QL`
+        last: Component => Relay.QL`
           query {
             node(id:$id) {
               ${Component.getFragment('last')}
@@ -120,7 +120,7 @@ describe('getRelayQueries', () => {
     class FirstRoute extends Relay.Route {}
     FirstRoute.routeName = 'BadRoute';
     FirstRoute.queries = {
-      first: (Component, params) => Relay.QL`query { node(id:"123") }`,
+      first: () => Relay.QL`query { node(id:"123") }`,
     };
     var route = new FirstRoute({});
     var queries = getRelayQueries(MockPageContainer, route);

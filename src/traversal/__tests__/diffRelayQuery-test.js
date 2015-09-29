@@ -20,7 +20,6 @@ var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayQuery = require('RelayQuery');
 var RelayQueryTracker = require('RelayQueryTracker');
 var diffRelayQuery = require('diffRelayQuery');
-var filterRelayQuery = require('filterRelayQuery');
 
 describe('diffRelayQuery', () => {
   var RelayRecordStore;
@@ -280,7 +279,6 @@ describe('diffRelayQuery', () => {
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
     expect(diffQueries.length).toBe(1);
-    // the transform only adds `pageInfo` if `edges` is a direct descendant
     var edgesFragment = Relay.QL`
       fragment on TopLevelCommentsConnection {
         edges {
@@ -290,7 +288,7 @@ describe('diffRelayQuery', () => {
         },
       }
     `;
-    var expectedQuery = filterRelayQuery(getNode(Relay.QL`
+    var expectedQuery = getNode(Relay.QL`
       query {
         node(id:"story") {
           feedback {
@@ -300,12 +298,7 @@ describe('diffRelayQuery', () => {
           }
         }
       }
-    `), (node) => {
-      return !(
-        node instanceof RelayQuery.Field &&
-        node.getSchemaName() === RelayConnectionInterface.PAGE_INFO
-      );
-    });
+    `);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expectedQuery);
   });

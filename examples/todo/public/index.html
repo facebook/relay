@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Relay • TodoMVC</title>
-    <link rel="stylesheet" href="node_modules/todomvc-common/base.css">
-    <link rel="stylesheet" href="node_modules/todomvc-app-css/index.css">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="index.css">
   </head>
   <body>
     <div id="root"></div>
@@ -13,21 +13,8 @@
       // Force `fetch` polyfill to workaround Chrome not displaying request body
       // in developer tools for the native `fetch`.
       self.fetch = null;
-      function warnRelayMissing() {
-        document.body.innerHTML = (
-          '<h2>Could not find relay.js</h2>' +
-          '<p>' +
-            'Be sure to run <code>npm run build</code> ' +
-            'in the <code>relay/</code> directory.' +
-          '</p>'
-        );
-      }
     </script>
     <script src="http://localhost:3000/webpack-dev-server.js"></script>
-    <script src="node_modules/todomvc-common/base.js"></script>
-    <script src="node_modules/react/dist/react.min.js"></script>
-    <script src="node_modules/react/dist/react-dom.min.js"></script>
-    <script src="node_modules/react-relay/dist/relay.js" onerror="warnRelayMissing()"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

@@ -12,6 +12,8 @@ import RemoveTodoMutation from '../mutations/RemoveTodoMutation';
 import RenameTodoMutation from '../mutations/RenameTodoMutation';
 import TodoTextInput from './TodoTextInput';
 
+import React from 'react';
+import Relay from 'react-relay';
 import classnames from 'classnames';
 
 class Todo extends React.Component {

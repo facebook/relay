@@ -272,7 +272,7 @@ var Mutation = new GraphQLObjectType({
   },
 });
 
-export var GraphQLTodoSchema = new GraphQLSchema({
+export var schema = new GraphQLSchema({
   query: Root,
   mutation: Mutation
 });

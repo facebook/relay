@@ -11,6 +11,9 @@ import AddTodoMutation from '../mutations/AddTodoMutation';
 import TodoListFooter from './TodoListFooter';
 import TodoTextInput from './TodoTextInput';
 
+import React from 'react';
+import Relay from 'react-relay';
+
 class TodoApp extends React.Component {
   _handleTextInputSave = (text) => {
     Relay.Store.update(

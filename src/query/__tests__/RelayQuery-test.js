@@ -218,8 +218,8 @@ describe('RelayQuery', () => {
       var route1 = RelayMetaRoute.get('route1');
       var route2 = RelayMetaRoute.get('route2');
 
-      var node1 = RelayQuery.Node.create(fragment, route1, variables);
-      var node2 = RelayQuery.Node.create(fragment, route2, variables);
+      var node1 = RelayQuery.Fragment.create(fragment, route1, variables);
+      var node2 = RelayQuery.Fragment.create(fragment, route2, variables);
       expect(node1.isEquivalent(node2)).toBe(false);
     });
 
@@ -228,8 +228,8 @@ describe('RelayQuery', () => {
       var variables = {a: false};
       var route = RelayMetaRoute.get('route1');
 
-      var node1 = RelayQuery.Node.create(fragment, route, variables);
-      var node2 = RelayQuery.Node.create(fragment, route, variables);
+      var node1 = RelayQuery.Fragment.create(fragment, route, variables);
+      var node2 = RelayQuery.Fragment.create(fragment, route, variables);
       expect(node1.isEquivalent(node2)).toBe(true);
     });
   });

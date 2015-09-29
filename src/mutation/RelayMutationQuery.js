@@ -326,7 +326,7 @@ var RelayMutationQuery = {
       switch (config.type) {
         case RelayMutationType.REQUIRED_CHILDREN:
           children = children.concat(config.children.map(child =>
-             RelayQuery.Node.create(
+             RelayQuery.Fragment.create(
               child,
               RelayMetaRoute.get('$buildQuery'),
               {}

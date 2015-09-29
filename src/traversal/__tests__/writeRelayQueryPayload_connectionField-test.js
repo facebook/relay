@@ -580,7 +580,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('updates the range when edge data changes', () => {
       // NOTE: Hack to preserve `source{id}` in all environments for now.
-      var query = RelayQuery.Node.create(Relay.QL`
+      var query = RelayQuery.Root.create(Relay.QL`
         query {
           node(id:"123") {
             friends(find:"node1") {

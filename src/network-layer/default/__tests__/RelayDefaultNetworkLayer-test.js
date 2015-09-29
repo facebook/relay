@@ -207,10 +207,10 @@ describe('RelayDefaultNetworkLayer', () => {
 
     beforeEach(() => {
       route = RelayMetaRoute.get('$fetchRelayQuery');
-      queryA = RelayQuery.Node.create(
+      queryA = RelayQuery.Root.create(
         Relay.QL`query{node(id:"123"){id}}`, route, {}
       );
-      queryB = RelayQuery.Node.create(
+      queryB = RelayQuery.Root.create(
         Relay.QL`query{node(id:"456"){id}}`, route, {}
       );
       requestA = new RelayQueryRequest(queryA);

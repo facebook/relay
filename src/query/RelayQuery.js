@@ -119,42 +119,6 @@ class RelayQueryNode {
     return node;
   }
 
-  static createFragment(
-    concreteNode: ConcreteQueryObject,
-    route: RelayMetaRoute,
-    variables: Variables,
-    metadata?: ?FragmentMetadata
-  ): RelayQueryFragment {
-    invariant(
-      GraphQL.isFragment(concreteNode),
-      'RelayQuery.createQuery(): Expected a concrete query fragment, got: %s',
-      concreteNode
-    );
-    return createMemoizedFragment(
-      concreteNode,
-      route,
-      variables,
-      metadata || DEFAULT_FRAGMENT_METADATA
-    );
-  }
-
-  static createQuery(
-    concreteNode: ConcreteQueryObject,
-    route: RelayMetaRoute,
-    variables: Variables
-  ): RelayQueryRoot {
-    invariant(
-      GraphQL.isQuery(concreteNode),
-      'RelayQuery.createQuery(): Expected a concrete query, got: %s',
-      concreteNode
-    );
-    return new RelayQueryRoot(
-      concreteNode,
-      route,
-      variables
-    );
-  }
-
   /**
    * @private
    *
@@ -390,6 +354,23 @@ class RelayQueryRoot extends RelayQueryNode {
     return root;
   }
 
+  static create(
+    concreteNode: ConcreteQueryObject,
+    route: RelayMetaRoute,
+    variables: Variables
+  ): RelayQueryRoot {
+    invariant(
+      GraphQL.isQuery(concreteNode),
+      'RelayQueryRoot.create(): Expected a concrete query, got: %s',
+      concreteNode
+    );
+    return new RelayQueryRoot(
+      concreteNode,
+      route,
+      variables
+    );
+  }
+
   constructor(
     concreteNode: ConcreteQueryObject,
     route: RelayMetaRoute,
@@ -622,6 +603,24 @@ class RelayQueryMutation extends RelayQueryOperation {
  * Represents a GraphQL subscription.
  */
 class RelayQuerySubscription extends RelayQueryOperation {
+  static create(
+    concreteNode: ConcreteQueryObject,
+    route: RelayMetaRoute,
+    variables: Variables
+  ): RelayQuerySubscription {
+    invariant(
+      GraphQL.isSubscription(concreteNode),
+      'RelayQuerySubscription.create(): ' +
+      'Expected a concrete subscription, got: %s',
+      concreteNode
+    );
+    return new RelayQuerySubscription(
+      concreteNode,
+      route,
+      variables
+    );
+  }
+
   getPublishedPayloadType(): string {
     return this.getResponseType();
   }
@@ -686,6 +685,26 @@ class RelayQueryFragment extends RelayQueryNode {
     );
     fragment.__children__ = nextChildren;
     return fragment;
+  }
+
+  static create(
+    concreteNode: ConcreteQueryObject,
+    route: RelayMetaRoute,
+    variables: Variables,
+    metadata?: ?FragmentMetadata
+  ): RelayQueryFragment {
+    invariant(
+      GraphQL.isFragment(concreteNode),
+      'RelayQueryFragment.create(): ' +
+      'Expected a concrete query fragment, got: %s',
+      concreteNode
+    );
+    return createMemoizedFragment(
+      concreteNode,
+      route,
+      variables,
+      metadata || DEFAULT_FRAGMENT_METADATA
+    );
   }
 
   constructor(

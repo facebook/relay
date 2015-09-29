@@ -12,7 +12,7 @@
 
 'use strict';
 
-import type GraphQL from 'GraphQL';
+var GraphQL = require('GraphQL');
 var RelayQuery = require('RelayQuery');
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayProfiler = require('RelayProfiler');
@@ -27,6 +27,12 @@ type ConcreteQueryObject = (
   GraphQL.QueryWithValues |
   GraphQL.Subscription
 );
+type QueryClass = (
+  typeof RelayQuery.Field |
+  typeof RelayQuery.Fragment |
+  typeof RelayQuery.Operation |
+  typeof RelayQuery.Root
+);
 
 /**
  * @internal
@@ -34,13 +40,8 @@ type ConcreteQueryObject = (
  * Converts GraphQL nodes to RelayQuery nodes.
  */
 var fromGraphQL = {
-  Node(query: ConcreteQueryObject): RelayQuery.Node {
-    var variables = {};
-    var route = RelayMetaRoute.get('$fromGraphQL');
-    return RelayQuery.Node.create(query, route, variables);
-  },
   Field(query: ConcreteQueryObject): RelayQuery.Field {
-    var node = fromGraphQL.Node(query);
+    var node = createNode(query, RelayQuery.Field);
     invariant(
       node instanceof RelayQuery.Field,
       'fromGraphQL.Field(): Expected a GraphQL field node.'
@@ -48,23 +49,26 @@ var fromGraphQL = {
     return node;
   },
   Fragment(query: ConcreteQueryObject): RelayQuery.Fragment {
-    var node = fromGraphQL.Node(query);
+    var node = createNode(query, RelayQuery.Fragment);
     invariant(
       node instanceof RelayQuery.Fragment,
-      'fromGraphQL.Fragment(): Expected a GraphQL fragment node.',
+      'fromGraphQL.Field(): Expected a GraphQL fragment node.'
     );
     return node;
   },
   Query(query: ConcreteQueryObject): RelayQuery.Root {
-    var node = fromGraphQL.Node(query);
+    // For convenience, we handle both GraphQL.Query and GraphQL.QueryWithValues
+    // transparently.
+    query = GraphQL.isQueryWithValues(query) ? query.query : query;
+    var node = createNode(query, RelayQuery.Root);
     invariant(
       node instanceof RelayQuery.Root,
-      'fromGraphQL.Query(): Expected a GraphQL query root node.',
+      'fromGraphQL.Operation(): Expected a root node.'
     );
     return node;
   },
   Operation(query: ConcreteQueryObject): RelayQuery.Operation {
-    var node = fromGraphQL.Node(query);
+    var node = createNode(query, RelayQuery.Operation);
     invariant(
       node instanceof RelayQuery.Operation,
       'fromGraphQL.Operation(): Expected a mutation/subscription node.'
@@ -73,8 +77,16 @@ var fromGraphQL = {
   }
 };
 
+function createNode(
+  query: ConcreteQueryObject,
+  desiredType: QueryClass
+): RelayQuery.Node {
+  var variables = {};
+  var route = RelayMetaRoute.get('$fromGraphQL');
+  return desiredType.create(query, route, variables);
+}
+
 RelayProfiler.instrumentMethods(fromGraphQL, {
-  Node: 'fromGraphQL.Node',
   Field: 'fromGraphQL.Field',
   Fragment: 'fromGraphQL.Fragment',
   Query: 'fromGraphQL.Query',

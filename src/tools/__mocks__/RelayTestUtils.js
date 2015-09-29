@@ -187,7 +187,7 @@ var RelayTestUtils = {
     // e.g. `{ref_q0: '<ref_q0>'}`
     var variables = {[name]: '<' + callValue.callVariableName + '>'};
 
-    return RelayQuery.Node.create(
+    return RelayQuery.Root.create(
       new GraphQL.Query(
         'nodes',
         new GraphQL.BatchCallVariable(id, refParam.path),
@@ -386,7 +386,7 @@ var RelayTestUtils = {
         };
         return false;
       }
-      var fragment = RelayQuery.Node.create(
+      var fragment = RelayQuery.Fragment.create(
         new GraphQL.QueryFragment('Test', 'Node', [
           new GraphQL.Field('__test__')
         ]),

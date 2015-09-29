@@ -376,9 +376,9 @@ function createContainerComponent(
         );
         return null;
       }
-      var fragment = RelayQuery.Node.create(
-        fragmentReference.defer(),
-        RelayMetaRoute.get(this.context.route.name),
+      var fragment = getDeferredFragment(
+        fragmentReference,
+        this.context,
         this.state.variables
       );
       invariant(
@@ -418,9 +418,9 @@ function createContainerComponent(
         componentName,
         componentName
       );
-      var fragment = RelayQuery.Node.create(
-        fragmentReference.defer(),
-        RelayMetaRoute.get(this.context.route.name),
+      var fragment = getDeferredFragment(
+        fragmentReference,
+        this.context,
         this.state.variables
       );
       invariant(
@@ -813,7 +813,7 @@ function createContainerComponent(
     if (prepareVariables) {
       variables = prepareVariables(variables, metaRoute);
     }
-    return RelayQuery.Node.createFragment(
+    return RelayQuery.Fragment.create(
       fragment,
       metaRoute,
       variables
@@ -927,6 +927,26 @@ function buildContainerFragment(
     fragmentName
   );
   return fragment;
+}
+
+function getDeferredFragment(
+  fragmentReference: RelayFragmentReference,
+  context: Object,
+  variables: Variables
+): RelayQuery.Fragment {
+  var route = RelayMetaRoute.get(context.route.name);
+  var concreteFragment = fragmentReference.getFragment(variables);
+  var concreteVariables = fragmentReference.getVariables(route, variables);
+  return RelayQuery.Fragment.create(
+    concreteFragment,
+    route,
+    concreteVariables,
+    {
+      isDeferred: true,
+      isContainerFragment: fragmentReference.isContainerFragment(),
+      isTypeConditional: fragmentReference.isTypeConditional(),
+    }
+  );
 }
 
 /**

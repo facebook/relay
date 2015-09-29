@@ -28,8 +28,8 @@ var intersectRelayQuery = require('intersectRelayQuery');
 var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 
 describe('RelayMutationQuery', () => {
-  function getNodeChildren(query) {
-    return fromGraphQL.Node(query).getChildren();
+  function getNodeChildren(fragment) {
+    return fromGraphQL.Fragment(fragment).getChildren();
   }
   function getNodeWithoutSource(...args) {
     var filterCallback = RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD ?
@@ -153,14 +153,14 @@ describe('RelayMutationQuery', () => {
         }
       `);
       var trackedNodes = {
-        '123': fromGraphQL.Node(Relay.QL`
+        '123': fromGraphQL.Fragment(Relay.QL`
           fragment on Story {
             message {
               text
             }
           }
         `),
-        '456': fromGraphQL.Node(Relay.QL`
+        '456': fromGraphQL.Fragment(Relay.QL`
           fragment on Story {
             actors {
               name

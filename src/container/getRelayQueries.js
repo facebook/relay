@@ -79,7 +79,7 @@ function getRelayQueries(
         queryName
       );
       if (concreteQuery) {
-        var rootQuery = RelayQuery.Node.createQuery(
+        var rootQuery = RelayQuery.Root.create(
           concreteQuery,
           RelayMetaRoute.get(route.name),
           route.params

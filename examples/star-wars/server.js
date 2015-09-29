@@ -12,14 +12,14 @@ import graphQLHTTP from 'express-graphql';
 import path from 'path';
 import webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
-import {StarWarsSchema} from './data/starWarsSchema';
+import {schema} from './data/schema';
 
 const APP_PORT = 3000;
 const GRAPHQL_PORT = 8080;
 
 // Expose a GraphQL endpoint
 var graphQLServer = express();
-graphQLServer.use('/', graphQLHTTP({schema: StarWarsSchema, pretty: true}));
+graphQLServer.use('/', graphQLHTTP({schema, pretty: true}));
 graphQLServer.listen(GRAPHQL_PORT, () => console.log(
   `GraphQL Server is now running on http://localhost:${GRAPHQL_PORT}`
 ));
@@ -35,15 +35,8 @@ var compiler = webpack({
       {
         test: /\.js$/,
         loader: 'babel',
-        query: {
-          stage: 0,
-          plugins: ['./build/babelRelayPlugin']
-        }
+        query: {stage: 0, plugins: ['./build/babelRelayPlugin']}
       },
-      {
-        test: /\.js$/,
-        loader: 'eslint'
-      }
     ]
   },
   output: {filename: 'app.js', path: '/'}
@@ -57,5 +50,5 @@ var app = new WebpackDevServer(compiler, {
 // Serve static resources
 app.use('/', express.static(path.resolve(__dirname, 'public')));
 app.listen(APP_PORT, () => {
-  console.log(`Relay Star Wars is now running on http://localhost:${APP_PORT}`);
+  console.log(`App is now running on http://localhost:${APP_PORT}`);
 });

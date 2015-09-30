@@ -12,10 +12,8 @@
 var fs = require('fs');
 var path = require('path');
 
-var FIXTURE_PATH = path.join(__dirname, '__fixtures__');
-
-function readFixtures() {
-  var fileNames = fs.readdirSync(FIXTURE_PATH);
+function readFixtures(fixturePath) {
+  var fileNames = fs.readdirSync(fixturePath);
   var fixtures = {};
   fileNames.forEach(function(filename) {
     var match = filename.match(/^\w+\.fixture$/);
@@ -24,7 +22,7 @@ function readFixtures() {
     }
     var name = match[0];
     var data = fs.readFileSync(
-      path.join(FIXTURE_PATH, filename),
+      path.join(fixturePath, filename),
       {encoding: 'utf8'}
     );
     var parts;

@@ -14,7 +14,7 @@ var fs = require('fs');
 var path = require('path');
 var util = require('util');
 
-var getBabelRelayPlugin = require('./getBabelRelayPlugin');
+var getBabelRelayPlugin = require('../getBabelRelayPlugin');
 
 var _schemas = {};
 function getSchema(schemaPath) {

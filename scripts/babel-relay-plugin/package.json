@@ -7,8 +7,8 @@
   "main": "src/getBabelRelayPlugin.js",
   "scripts": {
     "test": "./testjs",
-    "update-schema": "node ./src/generateSchemaJson.js",
-    "update-fixtures": "node ./src/regenerateFixtures.js"
+    "update-schema": "node ./src/tools/generateSchemaJson.js",
+    "update-fixtures": "node ./src/tools/regenerateFixtures.js"
   },
   "files": [
     "LICENSE",

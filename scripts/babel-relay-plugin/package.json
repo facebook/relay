@@ -6,7 +6,7 @@
   "repository": "facebook/relay",
   "main": "lib/getBabelRelayPlugin.js",
   "scripts": {
-    "build": "babel src --out-dir lib --ignore __tests__",
+    "build": "rm -rf lib; babel src --out-dir lib --ignore __tests__",
     "prepublish": "npm run build",
     "test": "./testjs",
     "update-schema": "babel-node ./src/tools/generateSchemaJson.js",

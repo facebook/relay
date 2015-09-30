@@ -12,6 +12,9 @@ import IndexLink from 'react-router/lib/IndexLink';
 import Link from 'react-router/lib/Link';
 import RemoveCompletedTodosMutation from '../mutations/RemoveCompletedTodosMutation';
 
+import React from 'react';
+import Relay from 'react-relay';
+
 class TodoListFooter extends React.Component {
   _handleRemoveCompletedTodosClick = () => {
     Relay.Store.update(

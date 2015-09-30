@@ -31,7 +31,7 @@ import {
   getShip,
   getFactions,
   createShip,
-} from './starWarsDatabase';
+} from './database';
 
 /**
  * This is a basic end-to-end test, designed to demonstrate the various
@@ -294,7 +294,7 @@ var mutationType = new GraphQLObjectType({
  * Finally, we construct our schema (whose starting query type is the query
  * type we defined above) and export it.
  */
-export var StarWarsSchema = new GraphQLSchema({
+export var schema = new GraphQLSchema({
   query: queryType,
   mutation: mutationType
 });

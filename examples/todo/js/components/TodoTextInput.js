@@ -7,6 +7,9 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 var {PropTypes} = React;
 
 var ENTER_KEY_CODE = 13;

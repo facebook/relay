@@ -7,6 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+import Relay from 'react-relay';
+
 export default class AddTodoMutation extends Relay.Mutation {
   static fragments = {
     viewer: () => Relay.QL`

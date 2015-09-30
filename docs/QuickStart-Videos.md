@@ -15,6 +15,10 @@ next: guides-containers
 
 <iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/IrgHurBjQbg?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
 
+## [JSConf US May 2015](https://www.react-europe.org/2015/2015.html)
+
+<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/mmke4w4gc6c?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+
 ## [React.js Conf January 2015](http://conf.reactjs.com/)
 
 <iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/9sc8Pyc51uU?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>

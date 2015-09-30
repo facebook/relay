@@ -27,12 +27,12 @@ var NULL = t.literal(null);
  * This is part of the Babel transform to convert embedded GraphQL RFC to
  * JavaScript. It converts from GraphQL AST to a string of JavaScript code.
  */
-function GraphQLPrinter(schema, rqlFunctionName) {
+function RelayQLPrinter(schema, rqlFunctionName) {
   this.rqlFunctionName = rqlFunctionName;
   this.schema = schema;
 }
 
-GraphQLPrinter.prototype.getCode = function(ast, substitutions) {
+RelayQLPrinter.prototype.getCode = function(ast, substitutions) {
   var options = {
     rqlFunctionName: this.rqlFunctionName,
     schema: this.schema,
@@ -933,4 +933,4 @@ function hasArgument(field, argumentName) {
   return false;
 }
 
-module.exports = GraphQLPrinter;
+module.exports = RelayQLPrinter;

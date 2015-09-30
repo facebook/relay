@@ -11,28 +11,28 @@
 
 var assert = require('assert');
 var formatError = require('graphql/error').formatError;
-var GraphQLPrinter = require('./GraphQLPrinter');
+var RelayQLPrinter = require('./RelayQLPrinter');
 var parser = require('graphql/language/parser');
 var Source = require('graphql/language/source').Source;
 var validate = require('graphql/validation/validate').validate;
 var util = require('util');
 
-function GraphQLDocumentTransformer(schema /*: GraphQLSchema */) {
+function RelayQLTransformer(schema /*: GraphQLSchema */) {
   this.schema = schema;
 }
 
-GraphQLDocumentTransformer.prototype.transformQuery = function(
+RelayQLTransformer.prototype.transformQuery = function(
   queryAndSubstitutions,
   documentName, /*: string */
   tagName /*: string */
 ) /*: string */ {
   var queryDocument =
     this.parseDocument(queryAndSubstitutions.text, documentName);
-  var printer = new GraphQLPrinter(this.schema, tagName);
+  var printer = new RelayQLPrinter(this.schema, tagName);
   return printer.getCode(queryDocument, queryAndSubstitutions.substitutions);
 };
 
-GraphQLDocumentTransformer.prototype.parseDocument = function(
+RelayQLTransformer.prototype.parseDocument = function(
   query, /*: string */
   documentName /*: string */
 ) /*: string */ {
@@ -60,13 +60,11 @@ GraphQLDocumentTransformer.prototype.parseDocument = function(
   return parse(type, queryText, this.schema).definitions[0];
 };
 
-GraphQLDocumentTransformer.prototype.getName = function(
+RelayQLTransformer.prototype.getName = function(
   documentName /*: string */
 ) /*: string */ {
   if (!documentName || !documentName.length) {
-    throw new Error(
-      'GraphQLDocumentTransformer: expected document to have a name.'
-    );
+    throw new Error('RelayQLTransformer: expected document to have a name.');
   }
   return documentName[0].toUpperCase() + documentName.slice(1);
 };
@@ -129,4 +127,4 @@ function parse(
   return documentAST;
 }
 
-module.exports = GraphQLDocumentTransformer;
+module.exports = RelayQLTransformer;

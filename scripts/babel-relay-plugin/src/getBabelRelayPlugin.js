@@ -9,7 +9,7 @@
 
 'use strict';
 
-var GraphQLDocumentTransformer = require('./GraphQLDocumentTransformer');
+var RelayQLTransformer = require('./RelayQLTransformer');
 var buildClientSchema =
   require('graphql/utilities/buildClientSchema').buildClientSchema;
 
@@ -102,11 +102,11 @@ function getBabelRelayPlugin(
           var documentTransformer = state.opts.extra.documentTransformer;
           if (!documentTransformer) {
             var schema = getSchema(schemaProvider);
-            documentTransformer = new GraphQLDocumentTransformer(schema);
+            documentTransformer = new RelayQLTransformer(schema);
             state.opts.extra.documentTransformer = documentTransformer;
           }
           assert(
-            documentTransformer instanceof GraphQLDocumentTransformer,
+            documentTransformer instanceof RelayQLTransformer,
             'getBabelRelayPlugin(): Expected a document transformer to be ' +
             'configured for this instance of the plugin.'
           );
@@ -184,7 +184,6 @@ function getBabelRelayPlugin(
               ])
             );
 
-            // also log the full error if `debug` option is set
             if (state.opts.extra.debug) {
               console.log(error.message);
               console.log(error.stack);

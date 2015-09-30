@@ -321,8 +321,8 @@
         <ol>
           <li>If <var>last</var> was not set, return <span class="spec-keyword">false</span>.</li>
           <li>Let <var>edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()">ApplyCursorsToEdges</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>)</span>.</li>
-          <li>If <var>edges</var> contains more than <var>last</var> elements, return <span class="spec-keyword">false</span>.</li>
-          <li>Return <span class="spec-keyword">true</span>.</li>
+          <li>If <var>edges</var> contains more than <var>last</var> elements, return <span class="spec-keyword">true</span>.</li>
+          <li>Return <span class="spec-keyword">false</span>.</li>
         </ol>
       </div>
       <p><code>hasNextPage</code> will be <code>false</code> if the client is not paginating with <code>first</code>, or if the client is paginating with <code>first</code>, and the server has determined that the client has reached the end of the set of
@@ -331,8 +331,8 @@
         <ol>
           <li>If <var>first</var> was not set, return <span class="spec-keyword">false</span>.</li>
           <li>Let <var>edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()">ApplyCursorsToEdges</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>)</span>.</li>
-          <li>If <var>edges</var> contains more than <var>first</var> elements, return <span class="spec-keyword">false</span>.</li>
-          <li>Return <span class="spec-keyword">true</span>.</li>
+          <li>If <var>edges</var> contains more than <var>first</var> elements, return <span class="spec-keyword">true</span>.</li>
+          <li>Return <span class="spec-keyword">false</span>.</li>
         </ol>
       </div>
       <div class="spec-note"><code>hasPreviousPage</code> is only meaningful when <code>last</code> is included, as it is always false otherwise. <code>hasNextPage</code> is only meaningful when <code>first</code> is included, as it is always false otherwise. When both <code>first</code>        and <code>last</code> are included, both of the fields are set according to the above algorithms, but their meaning as it relates to pagination becomes unclear. This is among the reasons that pagination with both <code>first</code> and <code>last</code>        is discouraged.</div>

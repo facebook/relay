@@ -36,7 +36,10 @@ function getSchema(schemaPath) {
 }
 
 function transformGraphQL(schemaPath, source, filename) {
-  var plugin = getBabelRelayPlugin(getSchema(schemaPath));
+  var plugin = getBabelRelayPlugin(getSchema(schemaPath), {
+    abortOnError: false,
+    suppressWarnings: true,
+  });
   return babel.transform(source, {
     compact: false,
     filename: filename,

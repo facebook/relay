@@ -55,6 +55,10 @@ function getBabelRelayPlugin(
     var Plugin = babel.Plugin;
     var t = babel.types;
 
+    var warning = options && options.suppressWarnings ?
+      function() {} :
+      console.warn.bind(console);
+
     return new Plugin('relay-query', {
       visitor: {
         /**
@@ -132,11 +136,11 @@ function getBabelRelayPlugin(
               validationErrors.forEach(function(validationError) {
                 errorMessages = errorMessages || [];
                 errorMessages.push(validationError.message);
-                console.warn(
+                warning(
                   '\n-- GraphQL Validation Error -- %s --\n',
                   path.basename(filename)
                 );
-                console.warn(
+                warning(
                   'Error: ' + validationError.message + '\n' +
                   'File:  ' + filename + '\n' +
                   'Source:'
@@ -146,19 +150,19 @@ function getBabelRelayPlugin(
                   var prefix = '> ';
                   var highlight = repeat(' ', location.column - 1) + '^^^';
                   if (preview) {
-                    console.warn(prefix);
-                    console.warn(prefix + preview);
-                    console.warn(prefix + highlight);
+                    warning(prefix);
+                    warning(prefix + preview);
+                    warning(prefix + highlight);
                   }
                 });
               });
             } else {
               errorMessages = [error.message];
-              console.warn(
+              warning(
                 '\n-- Relay Transform Error -- %s --\n',
                 path.basename(filename)
               );
-              console.warn(
+              warning(
                 'Error: ' + error.message + '\n' +
                 'File:  ' + filename + '\n'
               );

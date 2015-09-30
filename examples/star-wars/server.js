@@ -30,9 +30,10 @@ var compiler = webpack({
   module: {
     loaders: [
       {
-        test: /\.js$/,
+        exclude: /node_modules/,
         loader: 'babel',
         query: {stage: 0, plugins: ['./build/babelRelayPlugin']}
+        test: /\.js$/,
       },
     ]
   },

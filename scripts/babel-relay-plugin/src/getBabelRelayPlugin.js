@@ -55,7 +55,9 @@ function getBabelRelayPlugin(
     var Plugin = babel.Plugin;
     var t = babel.types;
 
-    var warning = options && options.suppressWarnings ?
+    options = options || {};
+
+    var warning = options.suppressWarnings ?
       function() {} :
       console.warn.bind(console);
 
@@ -188,11 +190,11 @@ function getBabelRelayPlugin(
               ])
             );
 
-            if (state.opts.extra.debug) {
+            if (options.debug) {
               console.log(error.message);
               console.log(error.stack);
             }
-            if (options && options.abortOnError) {
+            if (options.abortOnError) {
               throw new Error(
                 'Aborting due to GraphQL validation/transform error(s).'
               );

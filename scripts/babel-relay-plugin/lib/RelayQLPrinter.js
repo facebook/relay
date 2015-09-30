@@ -630,6 +630,7 @@ function getConnectionMetadataForType(type) {
  * https://github.com/graphql/graphql-js/blob/81a7d7add03adbb14dc852bbe45ab030c0601489/src/utilities/TypeInfo.js#L212-L237
  */
 function getFieldDef(schema, parentType, field) {
+  parentType = types.getNamedType(parentType);
   var fieldName = getName(field);
   if (fieldName === SchemaMetaFieldDef.name && schema.getQueryType() === parentType) {
     return SchemaMetaFieldDef;

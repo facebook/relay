@@ -84,6 +84,7 @@ export type Record = {
   __mutationIDs__?: Array<ClientMutationID>;
   __range__?: GraphQLRange;
   __path__?: RelayQueryPath;
+  __typename?: ?string;
 
   /**
    * $FlowIssue: the catch-all "mixed" type above should allow us to set
@@ -231,6 +232,7 @@ class RelayRecordStore {
    */
   putRecord(
     dataID: DataID,
+    typeName: ?string,
     path?: RelayQueryPath
   ): void {
     var target = this._queuedRecords || this._records;
@@ -243,6 +245,7 @@ class RelayRecordStore {
     }
     var nextRecord: Record = ({
       __dataID__: dataID,
+      __typename: typeName,
     }: $FixMe);
     if (target === this._queuedRecords) {
       this._setClientMutationID(nextRecord);
@@ -259,10 +262,10 @@ class RelayRecordStore {
     target[dataID] = nextRecord;
     var cacheManager = this._cacheManager;
     if (!this._queuedRecords && cacheManager) {
-      cacheManager.cacheField(dataID, '__dataID__', dataID);
+      cacheManager.cacheField(dataID, '__dataID__', dataID, typeName);
       var cachedPath = nextRecord[PATH];
       if (cachedPath) {
-        cacheManager.cacheField(dataID, '__path__', cachedPath);
+        cacheManager.cacheField(dataID, '__path__', cachedPath, typeName);
       }
     }
   }
@@ -355,6 +358,11 @@ class RelayRecordStore {
     }
   }
 
+  getType(dataID: DataID): ?string {
+    // `__typename` property is typed as `string`
+    return (this._getField(dataID, '__typename'): any);
+  }
+
   /**
    * Returns the value of the field for the given dataID.
    */
@@ -383,7 +391,8 @@ class RelayRecordStore {
     );
     record[storageKey] = value;
     if (!this._queuedRecords && this._cacheManager) {
-      this._cacheManager.cacheField(dataID, storageKey, value);
+      var typeName = record.__typename;
+      this._cacheManager.cacheField(dataID, storageKey, value, typeName);
     }
   }
 

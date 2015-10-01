@@ -13,9 +13,11 @@
 
 'use strict';
 
+var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayQuery = require('RelayQuery');
 import type RelayChangeTracker from 'RelayChangeTracker';
 var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
 import type RelayQueryTracker from 'RelayQueryTracker';
 var RelayQueryVisitor = require('RelayQueryVisitor');
@@ -40,8 +42,8 @@ type WriterState = {
   path: RelayQueryPath;
 };
 
+var {ID, TYPENAME} = RelayNodeInterface;
 var {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
-var ID = 'id';
 
 /**
  * @internal
@@ -72,6 +74,29 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
 
   getRecordStore(): RelayRecordStore {
     return this._store;
+  }
+
+  getRecordTypeName(
+    field: RelayQuery.Node,
+    recordID: DataID,
+    payload: Object
+  ): ?string {
+    if (GraphQLStoreDataHandler.isClientID(recordID)) {
+      return null;
+    }
+    var typeName = payload[TYPENAME];
+    if (typeName == null) {
+      var idField = field.getFieldByStorageKey(ID);
+      if (idField) {
+        typeName = idField.getParentType();
+      }
+    }
+    warning(
+      typeName,
+      'RelayQueryWriter: Could not find a type name for record `%s`.',
+      recordID
+    );
+    return typeName || null;
   }
 
   /**
@@ -142,11 +167,12 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   createRecordIfMissing(
     node: RelayQuery.Node,
     recordID: DataID,
+    typeName: ?string,
     path: RelayQueryPath
   ): void {
     var recordState = this._store.getRecordState(recordID);
     if (recordState !== RelayRecordState.EXISTENT) {
-      this._store.putRecord(recordID, path);
+      this._store.putRecord(recordID, typeName, path);
       this.recordCreate(recordID);
     }
     if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
@@ -175,8 +201,15 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       }
       return;
     }
+    invariant(
+      typeof responseData === 'object' && responseData !== null,
+      'RelayQueryWriter: Cannot update record `%s`, expected response to be ' +
+      'an array or object.',
+      recordID
+    );
     if (recordState !== RelayRecordState.EXISTENT) {
-      this._store.putRecord(recordID, path);
+      var typeName = this.getRecordTypeName(root, recordID, responseData);
+      this._store.putRecord(recordID, typeName, path);
       this.recordCreate(recordID);
     }
     if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
@@ -290,7 +323,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // always update the store to ensure the value is present in the appropriate
     // data sink (records/queuedRecords), but only record an update if the value
     // changed.
-    this._store.putRecord(connectionID, path);
+    this._store.putRecord(connectionID, null, path);
     this._store.putLinkedRecordID(recordID, storageKey, connectionID);
     // record the create/update only if something changed
     if (connectionRecordState !== RelayRecordState.EXISTENT) {
@@ -453,7 +486,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // TODO: Flow: `nodeID` is `string`
       var edgeID = generateClientEdgeID(connectionID, (nodeID: any));
       var path = state.path.getPath(edges, edgeID);
-      this.createRecordIfMissing(edges, edgeID, path);
+      this.createRecordIfMissing(edges, edgeID, null, path);
       fetchedEdgeIDs.push(edgeID);
 
       // Write data for the edge, using `nodeID` as the id for direct descendant
@@ -532,7 +565,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       nextLinkedIDs.push(nextLinkedID);
 
       var path = state.path.getPath(field, nextLinkedID);
-      this.createRecordIfMissing(field, nextLinkedID, path);
+      var typeName = this.getRecordTypeName(field, nextLinkedID, nextRecord);
+      this.createRecordIfMissing(field, nextLinkedID, typeName, path);
       isUpdate = (
         isUpdate ||
         nextLinkedID !== prevLinkedID ||
@@ -571,7 +605,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     var {nodeID} = state;
     var storageKey = field.getStorageKey();
     invariant(
-      typeof fieldData === 'object',
+      typeof fieldData === 'object' && fieldData !== null,
       'RelayQueryWriter: Expected data for non-scalar field `%s` on record ' +
       '`%s` to be an object.',
       storageKey,
@@ -592,7 +626,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     );
 
     var path = state.path.getPath(field, nextLinkedID);
-    this.createRecordIfMissing(field, nextLinkedID, path);
+    var typeName = this.getRecordTypeName(field, nextLinkedID, fieldData);
+    this.createRecordIfMissing(field, nextLinkedID, typeName, path);
     // always update the store to ensure the value is present in the appropriate
     // data sink (record/queuedRecords), but only record an update if the value
     // changed.

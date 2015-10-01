@@ -303,6 +303,7 @@ describe('RelayStoreData', () => {
       path = path.getPath(getNode(addressFragment).getChildren()[1], addressID);
       recordStore.putRecord(
         addressID,
+        'Type',
         path
       );
 

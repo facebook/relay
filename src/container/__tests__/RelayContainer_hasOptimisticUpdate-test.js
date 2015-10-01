@@ -61,7 +61,7 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
   it('is only true for queued records', () => {
     var storeData = RelayStoreData.getDefaultInstance();
     var recordStore = storeData.getRecordStoreForOptimisticMutation('mutation');
-    recordStore.putRecord('123');
+    recordStore.putRecord('123', 'Type');
     var instance = RelayTestRenderer.render(genMockPointer => {
       return <MockContainer foo={genMockPointer('123')} />;
     });
@@ -70,7 +70,8 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
   });
 
   it('is false for non-queued records', () => {
-    RelayStoreData.getDefaultInstance().getRecordStore().putRecord('123');
+    RelayStoreData.getDefaultInstance().getRecordStore()
+      .putRecord('123', 'Type');
 
     var instance = RelayTestRenderer.render(genMockPointer => {
       return <MockContainer foo={genMockPointer('123')} />;

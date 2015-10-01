@@ -158,7 +158,7 @@ describe('observeRelayQueryData', () => {
     var handleUpdate = addListenerForIDs.mock.calls[0][1];
 
     // Mutate birthdate record
-    recordsStore.putRecord('date');
+    recordsStore.putRecord('date', 'Type');
     recordsStore.putField('date', 'day', 30);
     handleUpdate();
 

@@ -231,9 +231,11 @@ function mergeField(
     });
     return;
   }
+  // reassign to preserve type information in below closure
+  var payloadData = payload;
 
   var store = writer.getRecordStore();
-  var recordID = payload[ID];
+  var recordID = payloadData[ID];
   var path;
 
   if (recordID) {
@@ -268,16 +270,22 @@ function mergeField(
       ) {
         // for flow: types are lost in closures
         if (path && recordID) {
+          var typeName = writer.getRecordTypeName(
+            child,
+            recordID,
+            payloadData
+          );
           // ensure the record exists and then update it
           writer.createRecordIfMissing(
             child,
             recordID,
+            typeName,
             path
           );
           writer.writePayload(
             child,
             recordID,
-            payload,
+            payloadData,
             path
           );
         }
@@ -406,7 +414,8 @@ function addRangeNode(
   path = path.getPath(EDGES_FIELD, edgeID);
 
   // create the edge record
-  writer.createRecordIfMissing(EDGES_FIELD, edgeID, path);
+  var typeName = writer.getRecordTypeName(EDGES_FIELD, edgeID, edgeData);
+  writer.createRecordIfMissing(EDGES_FIELD, edgeID, typeName, path);
 
   // write data for all `edges` fields
   // TODO #7167718: more efficient mutation/subscription writes

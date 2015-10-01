@@ -276,7 +276,7 @@ describe('RelayRecordStore', () => {
         query.getFieldByStorageKey('actor').getFieldByStorageKey('address'),
         addressID
       );
-      store.putRecord(addressID, path);
+      store.putRecord(addressID, 'Type', path);
       expect(store.getPathToRecord(addressID)).toMatchPath(path);
     });
   });
@@ -710,7 +710,7 @@ describe('RelayRecordStore', () => {
     it('returns undefined if the connection is unfetched', () => {
       var records = {};
       var store = new RelayRecordStore({records});
-      store.putRecord('1');
+      store.putRecord('1', 'Type');
       expect(store.getConnectionIDsForField('1', 'news_feed')).toBe(undefined);
     });
 

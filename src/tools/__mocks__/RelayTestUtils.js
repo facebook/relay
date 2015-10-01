@@ -442,17 +442,31 @@ var RelayTestUtils = {
 
   /**
    * Helper to write the result payload of a (root) query into a store,
-   * returning created/updated ID sets.
+   * returning created/updated ID sets. The payload is transformed before
+   * writing; property keys are rewritten from application names into
+   * serialization keys matching the fields in the query.
    */
   writePayload(store, query, payload, tracker, options) {
+    var transformRelayQueryPayload = require('transformRelayQueryPayload');
+
+    return RelayTestUtils.writeVerbatimPayload(
+      store,
+      query,
+      transformRelayQueryPayload(query, payload),
+      tracker,
+      options
+    );
+  },
+
+  /**
+   * Helper to write the result payload into a store. Unlike `writePayload`,
+   * the payload is not transformed first.
+   */
+  writeVerbatimPayload(store, query, payload, tracker, options) {
     var RelayChangeTracker = require('RelayChangeTracker');
     var RelayQueryTracker = require('RelayQueryTracker');
     var RelayQueryWriter = require('RelayQueryWriter');
-    var transformRelayQueryPayload = require('transformRelayQueryPayload');
     var writeRelayQueryPayload = require('writeRelayQueryPayload');
-
-    // rewrite any plain name/alias property names into storage keys
-    payload = transformRelayQueryPayload(query, payload);
 
     tracker = tracker || new RelayQueryTracker();
     options = options || {};

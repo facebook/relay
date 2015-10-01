@@ -19,8 +19,6 @@ import type {FileMap} from 'RelayMutation';
 import type RelayQuery from 'RelayQuery';
 import type {MutationResult, Variables} from 'RelayTypes';
 
-var invariant = require('invariant');
-var isEmpty = require('isEmpty');
 var printRelayQuery = require('printRelayQuery');
 
 /**

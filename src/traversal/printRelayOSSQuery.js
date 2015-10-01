@@ -246,7 +246,7 @@ function printDirectives(node) {
   return ' ' + directiveStrings.join(' ');
 }
 
-function printDirective({name,value}) {
+function printDirective({ name, value }) {
   invariant(
     typeof value === 'boolean' ||
     typeof value === 'number' ||

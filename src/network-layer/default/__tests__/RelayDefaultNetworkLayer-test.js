@@ -194,7 +194,7 @@ describe('RelayDefaultNetworkLayer', () => {
         '1. Something went wrong.'
       ].join('\n'));
       expect(error.source).toEqual(response);
-    })
+    });
 
   });
 

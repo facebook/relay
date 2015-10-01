@@ -7,6 +7,9 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-eval */
+
 import './RelayPlayground.css';
 import 'codemirror/mode/javascript/javascript';
 
@@ -20,7 +23,6 @@ import babel from 'babel-core/browser';
 import babelRelayPlaygroundPlugin from './babelRelayPlaygroundPlugin';
 import debounce from 'lodash.debounce';
 import defer from 'lodash.defer';
-import delay from 'lodash.delay';
 import errorCatcher from 'babel-plugin-react-error-catcher/error-catcher';
 import errorCatcherPlugin from 'babel-plugin-react-error-catcher';
 import evalSchema from './evalSchema';
@@ -92,7 +94,7 @@ class PlaygroundRenderer extends React.Component {
     }
     try {
       ReactDOM.unmountComponentAtNode(this._container);
-    } catch(e) {}
+    } catch (e) {}
   }
   _update = () => {
     ReactDOM.render(React.Children.only(this.props.children), this._container);
@@ -129,7 +131,7 @@ export default class RelayPlayground extends React.Component {
     console.warn = (...args) => {
       collectedWarnings.push([Date.now(), args]);
       this._originalConsoleWarn.apply(console, args);
-    }
+    };
     // Hijack window.onerror to catch any stray fatals
     this._originalWindowOnerror = window.onerror;
     window.onerror = (message, url, lineNumber, something, error) => {
@@ -251,7 +253,7 @@ export default class RelayPlayground extends React.Component {
         });
       }
       this.setState({error: null});
-    } catch(error) {
+    } catch (error) {
       this.setState({error, errorType: ERROR_TYPES.syntax});
     }
     this.setState({busy: false});
@@ -272,7 +274,7 @@ export default class RelayPlayground extends React.Component {
   _updateSchema = (schemaSource, appSource) => {
     try {
       var Schema = evalSchema(schemaSource);
-    } catch(error) {
+    } catch (error) {
       this.setState({error, errorType: ERROR_TYPES.schema});
       return;
     }

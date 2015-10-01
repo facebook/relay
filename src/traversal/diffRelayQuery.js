@@ -11,6 +11,8 @@
  * @typechecks
  */
 
+/* eslint-disable consistent-return */
+
 'use strict';
 
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');

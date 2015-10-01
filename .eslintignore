@@ -6,4 +6,5 @@ lib/
 scripts/
 # TODO: Enable ESLint for website.
 website/
+website-prototyping-tools/HelloApp.js
 *.md

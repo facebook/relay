@@ -58,7 +58,7 @@ describe('RelayRecordStore', () => {
       var cache = RelayMockCacheManager.genCacheManager();
       var rootCallMap = {};
       var store =
-        new RelayRecordStore({records: {}}, {map: rootCallMap}, null, cache);
+        new RelayRecordStore({records: {}}, {rootCallMap}, null, cache);
       store.putRootCallID('node', '4', 'node:4');
       store.putRootCallID('nodes', '4', 'node:4');
       expect(rootCallMap).toEqual({});

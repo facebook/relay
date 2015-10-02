@@ -15,7 +15,7 @@ next: guides-containers
 
 <iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/IrgHurBjQbg?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
 
-## [JSConf US May 2015](https://www.react-europe.org/2015/2015.html)
+## [JSConf US May 2015](http://2015.jsconf.us/)
 
 <iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/mmke4w4gc6c?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
 

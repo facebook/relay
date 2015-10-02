@@ -16,6 +16,7 @@ jest.autoMockOff();
 var GraphQLRange = require('GraphQLRange');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayMockCacheManager = require('RelayMockCacheManager');
+var RelayRecordStatusMap = require('RelayRecordStatusMap');
 var RelayTestUtils = require('RelayTestUtils');
 var {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
 
@@ -140,6 +141,8 @@ describe('RelayRecordStore', () => {
       queuedStore.putRecord('b', 'Type');
       expect(recordStore.getRecordState('b')).toBe('UNKNOWN');
       expect(queuedStore.getRecordState('b')).toBe('EXISTENT');
+      expect(queuedRecords['b'].__status__)
+        .toBe(RelayRecordStatusMap.setOptimisticStatus(0, true));
     });
   });
 

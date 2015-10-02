@@ -20,6 +20,7 @@ var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 var Relay = require('Relay');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayFragmentReference = require('RelayFragmentReference');
+var RelayRecordStatusMap = require('RelayRecordStatusMap');
 var callsToGraphQL = require('callsToGraphQL');
 var readRelayQueryData = require('readRelayQueryData');
 
@@ -195,8 +196,10 @@ describe('readRelayQueryData', () => {
   });
 
   it('retrieves status information for nodes with queued changes', () => {
-    // TODO: Deprecate and delete `__status__`.
-    var ERROR = 'ERROR';
+    var STATUS = RelayRecordStatusMap.setOptimisticStatus(
+      RelayRecordStatusMap.setErrorStatus(0, true),
+      0
+    );
     var records = {
       660361306: {
         __dataID__: '660361306',
@@ -206,7 +209,7 @@ describe('readRelayQueryData', () => {
     var queuedRecords = {
       660361306: {
         __dataID__: '660361306',
-        __status__: ERROR,
+        __status__: STATUS,
         firstName: 'Snoop Lion',
       },
     };
@@ -214,7 +217,7 @@ describe('readRelayQueryData', () => {
     var data = getData({records, queuedRecords}, query, '660361306');
     expect(data).toEqual({
       __dataID__: '660361306',
-      __status__: ERROR,
+      __status__: STATUS,
       firstName: 'Snoop Lion',
     });
   });

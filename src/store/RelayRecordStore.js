@@ -28,6 +28,7 @@ import type {
 var RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
 import type {RecordState} from 'RelayRecordState';
+var RelayRecordStatusMap = require('RelayRecordStatusMap');
 
 var forEachObject = require('forEachObject');
 var invariant = require('invariant');
@@ -80,10 +81,10 @@ export type Record = {
   __dataID__: string;
   __filterCalls__?: Array<Call>;
   __forceIndex__?: number;
-  __hasError__?: boolean;
   __mutationIDs__?: Array<ClientMutationID>;
   __range__?: GraphQLRange;
   __path__?: RelayQueryPath;
+  __status__?: number;
   __typename?: ?string;
 
   /**
@@ -249,6 +250,10 @@ class RelayRecordStore {
     }: $FixMe);
     if (target === this._queuedRecords) {
       this._setClientMutationID(nextRecord);
+      nextRecord.__status__ = RelayRecordStatusMap.setOptimisticStatus(
+        0,
+        true
+      );
     }
     if (GraphQLStoreDataHandler.isClientID(dataID)) {
       invariant(
@@ -316,7 +321,9 @@ class RelayRecordStore {
   hasMutationError(dataID: DataID): boolean {
     if (this._queuedRecords) {
       var record = this._queuedRecords[dataID];
-      return !!(record && record.__hasError__);
+      return !!(
+        record && RelayRecordStatusMap.isErrorStatus(record.__status__)
+      );
     }
     return false;
   }
@@ -337,7 +344,10 @@ class RelayRecordStore {
       'exist before settings its mutation error status.',
       dataID
     );
-    record.__hasError__ = hasError;
+    record.__status__ = RelayRecordStatusMap.setErrorStatus(
+      record.__status__,
+      hasError
+    );
   }
 
   /**

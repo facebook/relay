@@ -196,7 +196,7 @@ describe('inferRelayFieldsFromData', function() {
     expect(inferRelayFieldsFromData({
       __dataID__: '123',
       __range__: null,
-      __status__: null,
+      __status__: 0,
       id: '123',
       name: 'Alice',
     })).toEqualFields(Relay.QL`  fragment on Node {

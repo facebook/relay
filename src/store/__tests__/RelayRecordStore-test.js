@@ -19,10 +19,10 @@ jest.mock('warning');
 var GraphQLRange = require('GraphQLRange');
 var Relay = require('Relay');
 var RelayQueryPath = require('RelayQueryPath');
+var RelayRecordStatusMap = require('RelayRecordStatusMap');
 
 describe('RelayRecordStore', () => {
   var RelayRecordStore;
-
 
   var {getNode} = RelayTestUtils;
 
@@ -167,7 +167,7 @@ describe('RelayRecordStore', () => {
       var queuedRecords = {
         '1': {
           __dataID__: '1',
-          __hasError__: true,
+          __status__: RelayRecordStatusMap.setErrorStatus(0, true),
         },
       };
       var store = new RelayRecordStore({queuedRecords});
@@ -178,7 +178,7 @@ describe('RelayRecordStore', () => {
       var queuedRecords = {
         '1': {
           __dataID__: '1',
-          __hasError__: false,
+          __status__: 0,
         },
       };
       var store = new RelayRecordStore({queuedRecords});

@@ -585,6 +585,12 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
 
     this._store.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
 
+    // Check if length has changed
+    isUpdate = (
+      isUpdate || 
+      (prevLinkedIDs && prevLinkedIDs.length || 0) !== nextLinkedIDs.length
+    );
+
     // Only broadcast a list-level change if a record was changed/added
     if (isUpdate) {
       this.recordUpdate(recordID);

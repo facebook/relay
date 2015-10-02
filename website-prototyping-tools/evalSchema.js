@@ -7,8 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-eval */
+/* eslint-disable no-unused-vars, no-eval */
 
 import babel from 'babel-core/browser';
 
@@ -25,6 +24,6 @@ export default function(source) {
       default: throw new Error(`Cannot find module "${path}"`);
     }
   }
-  var { code } = babel.transform(source, {code: true, ast: false});
+  var {code} = babel.transform(source, {code: true, ast: false});
   return eval(code);
 }

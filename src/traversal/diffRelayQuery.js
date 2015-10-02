@@ -11,8 +11,6 @@
  * @typechecks
  */
 
-/* eslint-disable consistent-return */
-
 'use strict';
 
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
@@ -621,10 +619,12 @@ class RelayDiffQueryBuilder {
     // The returned `trackedNode` is never tracked directly: instead it serves
     // as an indicator to `diffConnection` that the entire connection field must
     // be tracked.
+    /* eslint-disable consistent-return */
     return {
       diffNode: null,
       trackedNode: hasSplitQueries ? edgeField : trackedNode,
     };
+    /* eslint-enable consistent-return */
   }
 }
 

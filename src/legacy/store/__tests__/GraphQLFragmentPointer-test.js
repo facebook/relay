@@ -152,6 +152,7 @@ describe('GraphQLFragmentPointer', () => {
       );
     });
 
+    /* eslint-disable no-new */
     it('throws when creating a singular pointer with multiple IDs', () => {
       expect(() => {
         new GraphQLFragmentPointer(['123'], singularFragment);
@@ -169,6 +170,7 @@ describe('GraphQLFragmentPointer', () => {
         'with plural fragment.'
       );
     });
+    /* eslint-enable no-new */
 
     it('singular pointers are equals() to matching pointers', () => {
       var pointer = new GraphQLFragmentPointer('123', singularFragment);

@@ -16,7 +16,3 @@ globals:
   IteratorResult: true
   ReactClass: true
   ReactElement: true
-
-rules:
-  # allow use constructors for side-effects
-  no-new: 0

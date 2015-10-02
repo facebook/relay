@@ -7,8 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-eval */
+/* eslint-disable no-unused-vars, no-eval */
 
 import './RelayPlayground.css';
 import 'codemirror/mode/javascript/javascript';

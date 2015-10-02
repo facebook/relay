@@ -17,6 +17,7 @@ import type GraphQL from 'GraphQL';
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
+var RelayNodeInterface = require('RelayNodeInterface');
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayMutationType = require('RelayMutationType');
 var RelayNodeInterface = require('RelayNodeInterface');

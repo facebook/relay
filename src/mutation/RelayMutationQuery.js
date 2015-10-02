@@ -19,6 +19,7 @@ var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayMutationType = require('RelayMutationType');
+var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQuery = require('RelayQuery');
 import type RelayQueryTracker from 'RelayQueryTracker';
 var RelayStoreData = require('RelayStoreData');
@@ -434,7 +435,9 @@ function buildEdgeField(
       RelayQuery.Field.build(
         'source',
         null,
-        [RelayQuery.Field.build('id')]
+        [RelayQuery.Field.build('id', null, null, {
+          parentType: RelayNodeInterface.NODE_TYPE,
+        })]
       )
     );
   }

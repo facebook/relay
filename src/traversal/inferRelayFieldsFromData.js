@@ -15,6 +15,7 @@
 
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQuery = require('RelayQuery');
 
 var forEachObject = require('forEachObject');
@@ -22,6 +23,7 @@ var invariant = require('invariant');
 
 var FIELD_ARGUMENT_ENCODING = /^(\w+)\((.*?)\)$/;
 var {NODE, EDGES} = RelayConnectionInterface;
+var {ID, NODE_TYPE} = RelayNodeInterface;
 
 /**
  * @internal
@@ -59,9 +61,15 @@ function inferField(value: mixed, key: string): RelayQuery.Field {
     children = [];
   }
   if (key === NODE) {
-    children.push(RelayQuery.Field.build('id'));
+    children.push(RelayQuery.Field.build('id', null, null, {
+      parentType: NODE_TYPE,
+    }));
   } else if (key === EDGES) {
     children.push(RelayQuery.Field.build('cursor'));
+  } else if (key === ID) {
+    metadata = {
+      parentType: NODE_TYPE,
+    };
   }
   return buildField(key, children, metadata);
 }

@@ -204,6 +204,60 @@ describe('writeRelayQueryPayload()', () => {
         .toBe(newPhone.phoneNumber.countryCode);
     });
 
+    it('updates if length changes', () => {
+      var records = {
+        '123': {
+          __dataID__: '123',
+          id: '123',
+          allPhones: [
+            {__dataID__: 'client:1'},
+            {__dataID__: 'client:2'}
+          ]
+        },
+        'client:1': {
+          __dataID__: 'client:1',
+          displayNumber: '1-800-555-1212',
+          countryCode: '1'
+        },
+        'client:2': {
+          __dataID__: 'client:2',
+          displayNumber: '1-800-555-1313',
+          countryCode: '2'
+        }
+      };
+      var store = new RelayRecordStore({records});
+      var query = getNode(Relay.QL`
+        query {
+          node(id:"123") {
+            allPhones {
+              phoneNumber {
+                displayNumber,
+                countryCode,
+              }
+            }
+          }
+        }
+      `);
+      var payload = {
+        node: {
+          id: '123',
+          allPhones: [{
+            displayNumber: '1-800-555-1212',
+            countryCode: '1'
+          }]
+        }
+      };
+      var results = writePayload(store, query, payload);
+      expect(results).toEqual({
+        created: {},
+        updated: {
+          '123': true
+        }
+      });
+      var phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
+      expect(phoneIDs).toEqual(['client:1']);
+    });
+
     it('does not update if response does not change', () => {
       var phone = {
         isVerified: true,

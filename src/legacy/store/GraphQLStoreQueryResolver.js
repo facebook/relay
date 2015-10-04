@@ -17,7 +17,6 @@ import type {ChangeSubscription} from 'GraphQLStoreChangeEmitter';
 import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
-import type RelayStoreGarbageCollector from 'RelayStoreGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
@@ -149,7 +148,6 @@ class GraphQLStorePluralQueryResolver {
 class GraphQLStoreSingleQueryResolver {
   _callback: Function;
   _fragment: ?RelayQuery.Fragment;
-  _garbageCollector: ?RelayStoreGarbageCollector;
   _hasDataChanged: boolean;
   _result: ?StoreReaderData;
   _resultID: ?DataID;
@@ -159,8 +157,6 @@ class GraphQLStoreSingleQueryResolver {
   constructor(callback: Function) {
     this.reset();
     this._callback = callback;
-    this._garbageCollector =
-      RelayStoreData.getDefaultInstance().getGarbageCollector();
     this._subscribedIDs = {};
   }
 
@@ -173,7 +169,7 @@ class GraphQLStoreSingleQueryResolver {
     this._result = null;
     this._resultID = null;
     this._subscription = null;
-    this._updateGarbageCollectorSubscriptionCount({});
+    this._updateSubscriptionCount({});
     this._subscribedIDs = {};
   }
 
@@ -229,7 +225,7 @@ class GraphQLStoreSingleQueryResolver {
           Object.keys(subscribedIDs),
           this._handleChange.bind(this)
         );
-        this._updateGarbageCollectorSubscriptionCount(subscribedIDs);
+        this._updateSubscriptionCount(subscribedIDs);
         this._subscribedIDs = subscribedIDs;
       }
       this._resultID = nextID;
@@ -252,18 +248,16 @@ class GraphQLStoreSingleQueryResolver {
   /**
    * Updates bookkeeping about the number of subscribers on each record.
    */
-  _updateGarbageCollectorSubscriptionCount(
+  _updateSubscriptionCount(
     nextDataIDs: {[dataID: DataID]: boolean},
   ): void {
-    if (this._garbageCollector) {
-      var garbageCollector = this._garbageCollector;
+    var storeData = RelayStoreData.getDefaultInstance();
 
-      var prevDataIDs = this._subscribedIDs;
-      var [removed, added] = filterExclusiveKeys(prevDataIDs, nextDataIDs);
+    var prevDataIDs = this._subscribedIDs;
+    var [removed, added] = filterExclusiveKeys(prevDataIDs, nextDataIDs);
 
-      added.forEach(id => garbageCollector.increaseSubscriptionsFor(id));
-      removed.forEach(id => garbageCollector.decreaseSubscriptionsFor(id));
-    }
+    added.forEach(id => storeData.increaseSubscriptionsFor(id));
+    removed.forEach(id => storeData.decreaseSubscriptionsFor(id));
   }
 }
 

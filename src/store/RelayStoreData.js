@@ -371,6 +371,26 @@ class RelayStoreData {
       clientMutationID
     );
   }
+
+  /**
+   * Decreases the number of subscriptions for the given dataID by 1
+   */
+  decreaseSubscriptionsFor(dataID: DataID): void {
+    if (this._garbageCollector) {
+      this._garbageCollector.decreaseSubscriptionsFor(dataID);
+    }
+  }
+
+  /**
+   * Increases the number of subscriptions for the given dataID by 1. If the
+   * dataID is not yet registered it will be registered.
+   */
+  increaseSubscriptionsFor(dataID: DataID): void {
+    if (this._garbageCollector) {
+      this._garbageCollector.increaseSubscriptionsFor(dataID);
+    }
+  }
+
 }
 
 RelayProfiler.instrumentMethods(RelayStoreData.prototype, {

@@ -22,7 +22,6 @@ var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var readRelayQueryData = require('readRelayQueryData');
 var RelayStoreData = require('RelayStoreData');
-var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
 
 describe('GraphQLStoreQueryResolver', () => {
   var mockCallback;
@@ -313,17 +312,17 @@ describe('GraphQLStoreQueryResolver', () => {
     expect(resolvedB.length).toBe(1);
   });
 
-  describe('garbage collection', () => {
-    var garbageCollector;
+  describe('subscription tracking', () => {
+    var relayStoreDataInstance;
 
     /**
      * Gets the first parameter passed into increaseSubscriptionsFor.
      */
     function getIncreaseSubscriptionsParameters(count) {
       expect(
-        garbageCollector.increaseSubscriptionsFor.mock.calls.length
+        relayStoreDataInstance.increaseSubscriptionsFor.mock.calls.length
       ).toBe(count);
-      return garbageCollector.increaseSubscriptionsFor.mock.calls.map(
+      return relayStoreDataInstance.increaseSubscriptionsFor.mock.calls.map(
         call => call[0]
       ).sort();
     }
@@ -333,20 +332,25 @@ describe('GraphQLStoreQueryResolver', () => {
      */
     function getDecreaseSubscriptionsParameters(count) {
       expect(
-        garbageCollector.decreaseSubscriptionsFor.mock.calls.length
+        relayStoreDataInstance.decreaseSubscriptionsFor.mock.calls.length
       ).toBe(count);
-      return garbageCollector.decreaseSubscriptionsFor.mock.calls.map(
+      return relayStoreDataInstance.decreaseSubscriptionsFor.mock.calls.map(
         call => call[0]
       ).sort();
     }
 
     beforeEach(() => {
-      // Prepare mock garbage collector and mock observable
-      garbageCollector = new RelayStoreGarbageCollector();
+      relayStoreDataInstance = RelayStoreData.getDefaultInstance();
+      var decreaseSubscriptionsFor = relayStoreDataInstance.
+        decreaseSubscriptionsFor.bind(relayStoreDataInstance);
+      var increaseSubscriptionsFor = relayStoreDataInstance.
+        increaseSubscriptionsFor.bind(relayStoreDataInstance);
 
-      RelayStoreData.prototype.getGarbageCollector =
-        jest.genMockFunction().mockReturnValue(garbageCollector);
-
+      relayStoreDataInstance.decreaseSubscriptionsFor = jest.genMockFunction().
+        mockImplementation(decreaseSubscriptionsFor);
+      relayStoreDataInstance.increaseSubscriptionsFor = jest.genMockFunction().
+        mockImplementation(increaseSubscriptionsFor);
+        
       mockQueryFragment = getNode(Relay.QL`
         fragment on User {
           birthdate {
@@ -359,7 +363,7 @@ describe('GraphQLStoreQueryResolver', () => {
       `);
     });
 
-    it('should adjust subscription-count in the garbage collector', () => {
+    it('should adjust subscription-count in the RelayStoreData-instance', () => {
       var fragmentPointer = new GraphQLFragmentPointer(
         'chris',
         mockQueryFragment
@@ -402,10 +406,10 @@ describe('GraphQLStoreQueryResolver', () => {
       // We called this twice before, for chris and ship
       resolver.resolve(fragmentPointer);
       expect(
-        garbageCollector.increaseSubscriptionsFor.mock.calls.length
+        relayStoreDataInstance.increaseSubscriptionsFor.mock.calls.length
       ).toBe(3);
       expect(
-        garbageCollector.increaseSubscriptionsFor.mock.calls[2][0]
+        relayStoreDataInstance.increaseSubscriptionsFor.mock.calls[2][0]
       ).toBe('date');
       expect(getDecreaseSubscriptionsParameters(1)).toEqual(['address']);
     });

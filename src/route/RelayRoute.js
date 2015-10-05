@@ -90,6 +90,7 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
     }
     var params = prevVariables;
     if (prepareParams) {
+      /* $FlowFixMe(>=0.17.0) - params is ?Tv but prepareParams expects Tv */
       params = prepareParams(params);
     }
     forEachObject(paramDefinitions, (paramDefinition, paramName) => {

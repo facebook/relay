@@ -965,6 +965,7 @@ class RelayQueryField extends RelayQueryNode {
       }
       this.__storageKey__ = storageKey;
     }
+    /* $FlowIssue(>=0.17.0) #8020073 */
     return storageKey;
   }
 

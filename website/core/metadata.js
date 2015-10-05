@@ -226,12 +226,30 @@ module.exports = {
       "source": "QuickStart-GettingStarted.md"
     },
     {
+      "id": "thinking-in-graphql",
+      "title": "Thinking in GraphQL",
+      "layout": "docs",
+      "category": "Quick Start",
+      "permalink": "docs/thinking-in-graphql.html",
+      "next": "thinking-in-relay",
+      "source": "QuickStart-ThinkingInGraphQL.md"
+    },
+    {
+      "id": "thinking-in-relay",
+      "title": "Thinking In Relay",
+      "layout": "docs",
+      "category": "Quick Start",
+      "permalink": "docs/thinking-in-relay.html",
+      "next": "videos",
+      "source": "QuickStart-ThinkingInRelay.md"
+    },
+    {
       "id": "tutorial",
       "title": "Tutorial",
       "layout": "docs",
       "category": "Quick Start",
       "permalink": "docs/tutorial.html",
-      "next": "videos",
+      "next": "thinking-in-graphql",
       "source": "QuickStart-Tutorial.md"
     },
     {

@@ -4,7 +4,7 @@ title: Tutorial
 layout: docs
 category: Quick Start
 permalink: docs/tutorial.html
-next: videos
+next: thinking-in-graphql
 ---
 
 In this tutorial, we will build a game using GraphQL mutations. The goal of the game is to find a hidden treasure in a grid of 9 squares. We will give players three tries to find the treasure. This should give us an end-to-end look at Relay – from the GraphQL schema on the server, to the React application on the client.

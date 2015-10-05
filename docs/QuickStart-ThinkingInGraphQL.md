@@ -25,7 +25,7 @@ rest.get('/stories').then(stories =>
   ))
 ).then(stories => {
   // This resolves to a list of story items:
-  // `[ { id: "...", message: "..." } ]`
+  // `[ { id: "...", text: "..." } ]`
   console.log(stories);
 });
 ```
@@ -33,10 +33,10 @@ rest.get('/stories').then(stories =>
 Note that this approach requires *n+1* requests to the server: 1 to fetch the list, and *n* to fetch each item. With GraphQL we can fetch the same data in a single network request to the server (without creating a custom endpoint that we'd then have to maintain):
 
 ```javascript
-graphql.get(`query { stories { id, message } }`).then(
+graphql.get(`query { stories { id, text } }`).then(
   stories => {
     // A list of story items:
-    // `[ { id: "...", message: "..." } ]`
+    // `[ { id: "...", text: "..." } ]`
     console.log(stories);
   }
 );
@@ -83,13 +83,13 @@ Now, requests for previously cached data can be answered immediately without mak
 With GraphQL it is very common for the results of multiple queries to overlap. However, our response cache from the previous section doesn't account for this overlap - it caches based on distinct queries. For example, if we issue a query to fetch stories:
 
 ```
-query { stories { id, message, likeCount } }
+query { stories { id, text, likeCount } }
 ```
 
 and then later refetch one of the stories whose `likeCount` has since been incremented:
 
 ```
-query { story(id: "123") { id, message, likeCount } }
+query { story(id: "123") { id, text, likeCount } }
 ```
 
 We'll now see different `likeCount`s depending on how the story is accessed. A view that uses the first query will see an outdated count, while a view using the second query will see the updated count.
@@ -116,7 +116,7 @@ And here's a possible response:
 ```
 query: {
   story: {
-     message: "Relay is open-source!",
+     text: "Relay is open-source!",
      author: {
        name: "Jan"
      }
@@ -130,7 +130,7 @@ Although the response is hierarchical, we'll cache it by flattening all the reco
 Map {
   // `story(id: "1")`
   1: Map {
-    message: 'Relay is open-source!',
+    text: 'Relay is open-source!',
     author: Link(2),
   },
   // `story.author`
@@ -165,7 +165,7 @@ Note that this normalized cache structure allows overlapping results to be cache
 The first query was for a list of stories:
 
 ```
-query { stories { id, message, likeCount } }
+query { stories { id, text, likeCount } }
 ```
 
 With a normalized response cache, a record would be created for each story in the list. The `stories` field would store links to each of these records.
@@ -173,7 +173,7 @@ With a normalized response cache, a record would be created for each story in th
 The second query refetched the information for one of those stories:
 
 ```
-query { story(id: "123") { id, message, likeCount } }
+query { story(id: "123") { id, text, likeCount } }
 ```
 
 When this response is normalized, Relay can detect that this result overlaps with existing data based on its `id`. Rather than create a new record, Relay will update the existing `123` record. The new `likeCount` is therefore available to *both* queries, as well as any other query that might reference this story.

@@ -7,7 +7,7 @@ permalink: docs/thinking-in-relay.html
 next: videos
 ---
 
-Relay's approach to data-fetching is heavily inspired by our experience with React. In particular, React breaks complex interfaces into reusable **components**, allowing developers to reason about discrete units of an application in isolation, and reducing the coupling between disparate parts of an application. Even more important is that these components are **declarative**: they allow developers to specify *what* the UI should like look for a given state, and not have to worry about *how* to show that UI. Unlike previous approaches that used imperative commands to manipulate native views (e.g. the DOM), React uses a UI description to automatically determine the necessary commands.
+Relay's approach to data-fetching is heavily inspired by our experience with React. In particular, React breaks complex interfaces into reusable **components**, allowing developers to reason about discrete units of an application in isolation, and reducing the coupling between disparate parts of an application. Even more important is that these components are **declarative**: they allow developers to specify *what* the UI should look like for a given state, and not have to worry about *how* to show that UI. Unlike previous approaches that used imperative commands to manipulate native views (e.g. the DOM), React uses a UI description to automatically determine the necessary commands.
 
 Let's look at some product use-cases to understand how we incorporated these ideas into Relay. We'll assume a basic familiarity with React.
 
@@ -27,7 +27,7 @@ Relay allows developers to annotate their React components with data dependencie
 
 ```
 fragment on Story {
-  message,
+  text,
   author {
     name,
     photo
@@ -48,7 +48,7 @@ var StoryContainer = Relay.createContainer(Story, {
     // Define a fragment with a name matching the `story` prop expected above
     story: () => Relay.QL`
       fragment on Story {
-        message,
+        text,
         author { ... }
       }
     `

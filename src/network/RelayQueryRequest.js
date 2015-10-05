@@ -59,7 +59,7 @@ class RelayQueryRequest extends Deferred<QueryResult, Error> {
    * @public
    *
    * Gets the variables used by the query. These variables should be serialized
-   * and send in the GraphQL request.
+   * and sent in the GraphQL request.
    */
   getVariables(): Variables {
     var printedQuery = this._printedQuery;

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+ROOT_DIR=$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)
+
+cd $ROOT_DIR
+rm -r lib
+babel src --out-dir lib --ignore __tests__,tools
+for file in $(find lib -name \*.js); do
+  sed -i '1i // @''generated' $file
+done

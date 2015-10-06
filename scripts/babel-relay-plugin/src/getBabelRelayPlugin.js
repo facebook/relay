@@ -191,8 +191,8 @@ function getBabelRelayPlugin(
             );
 
             if (options.debug) {
-              console.log(error.message);
-              console.log(error.stack);
+              console.error(error.message);
+              console.error(error.stack);
             }
             if (options.abortOnError) {
               throw new Error(

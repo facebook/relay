@@ -9,22 +9,48 @@
 
 'use strict';
 
-var path = require('path');
-var readFixtures = require('../tools/readFixtures');
-var transformGraphQL = require('../tools/transformGraphQL');
+const path = require('path');
+const readFixtures = require('../tools/readFixtures');
+const transformGraphQL = require('../tools/transformGraphQL');
 
-var FIXTURE_PATH = path.resolve(__dirname, '..', '__fixtures__');
-var SCHEMA_PATH = path.resolve(__dirname, 'testschema.rfc.json');
+const FIXTURE_PATTERN = process.env.FIXTURE;
+const FIXTURE_PATH = path.resolve(__dirname, '..', '__fixtures__');
+const SCHEMA_PATH = path.resolve(__dirname, 'testschema.rfc.json');
 
-var transform = transformGraphQL.bind(null, SCHEMA_PATH);
+const transform = transformGraphQL.bind(null, SCHEMA_PATH);
 
-describe('getBabelRelayPlugin', function() {
-  var fixtures = readFixtures(FIXTURE_PATH);
+const ConsoleErrorQueue = {
+  print: console.error.bind(console),
+  queue: [],
+  clear() {
+    ConsoleErrorQueue.queue = [];
+  },
+  enqueue(...args) {
+    ConsoleErrorQueue.queue.push(args);
+  },
+  flush() {
+    ConsoleErrorQueue.queue.forEach(args => {
+      ConsoleErrorQueue.print(...args);
+    });
+    ConsoleErrorQueue.clear();
+  },
+};
 
-  Object.keys(fixtures).forEach(function(testName) {
-    var fixture = fixtures[testName];
+describe('getBabelRelayPlugin', () => {
+  const fixtures = readFixtures(FIXTURE_PATH);
+
+  // Only print debug errors if test fails.
+  console.error = ConsoleErrorQueue.enqueue;
+
+  Object.keys(fixtures).forEach(testName => {
+    if (FIXTURE_PATTERN && testName.indexOf(FIXTURE_PATTERN) < 0) {
+      return;
+    }
+    ConsoleErrorQueue.clear();
+
+    const fixture = fixtures[testName];
     if (fixture.output !== undefined) {
-      var expected;
+      let expected;
       try {
         expected = trimCode(transform(fixture.output, testName));
       } catch (e) {
@@ -34,15 +60,29 @@ describe('getBabelRelayPlugin', function() {
         );
       }
 
-      it('transforms GraphQL RFC for `' + testName + '`', function() {
-        var actual = trimCode(transform(fixture.input, testName));
-        expect('\n' + actual + '\n').toBe('\n' + expected + '\n');
+      it('transforms GraphQL RFC for `' + testName + '`', () => {
+        const actual = trimCode(transform(fixture.input, testName));
+        if (actual !== expected) {
+          ConsoleErrorQueue.flush();
+          expect('\n' + actual + '\n').toBe('\n' + expected + '\n');
+        }
       });
     } else {
-      it('throws for GraphQL fixture: ' + testName, function() {
-        expect(function() {
+      it('throws for GraphQL fixture: ' + testName, () => {
+        let expected;
+        try {
           transform(fixture.input, testName);
-        }).toThrow(fixtures.error);
+        } catch (e) {
+          expected = e;
+        }
+        if (!expected || expected.message !== fixtures.error.message) {
+          ConsoleErrorQueue.flush();
+          expect(() => {
+            if (expected) {
+              throw expected;
+            }
+          }).toThrow(fixtures.error);
+        }
       });
     }
   });

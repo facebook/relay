@@ -149,8 +149,8 @@ options /*: ?Object */
             code = t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.literal(message)]))]));
 
             if (options.debug) {
-              console.log(error.message);
-              console.log(error.stack);
+              console.error(error.message);
+              console.error(error.stack);
             }
             if (options.abortOnError) {
               throw new Error('Aborting due to GraphQL validation/transform error(s).');

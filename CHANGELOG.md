@@ -1,5 +1,8 @@
 ## master
 
+* Bump the `babel-relay-plugin` version to vX.Y.Z.
+  * Fixed the metadata for fields on abstract types.
+
 ## 0.3.2 (September 18, 2015)
 
 * Bump the `babel-relay-plugin` version to v0.2.5.

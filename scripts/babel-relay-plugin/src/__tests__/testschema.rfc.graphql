@@ -65,6 +65,7 @@ type NewsFeedConnectionEdge {
 
 type Story implements Node {
   actors: [User]
+  attachments: [Node]
   id: String
 }
 

@@ -191,6 +191,7 @@ describe('RelayMutationQuery', () => {
           ... on Story {
             id,
             actors {
+              __typename,
               id,
               name
             },

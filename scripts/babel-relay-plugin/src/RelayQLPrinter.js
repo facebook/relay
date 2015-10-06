@@ -522,7 +522,7 @@ function printField(
     subRequisiteFields.node = true;
   }
 
-  if (types.isAbstractType(fieldDecl.type)) {
+  if (types.isAbstractType(types.getNamedType(fieldDecl.type))) {
     metadata.dynamic = true;
     subRequisiteFields.__typename = true;
   }

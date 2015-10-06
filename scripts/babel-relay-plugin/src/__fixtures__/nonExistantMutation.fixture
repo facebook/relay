@@ -4,9 +4,9 @@ var x = Relay.QL`
   mutation {
     fakeMutation(input: $input) {
       actor {
-        profilePicture
-      }
-    }
+        profilePicture,
+      },
+    },
   }
 `;
 

@@ -4,9 +4,9 @@ var x = Relay.QL`
   query {
     node(id: 123) @source(uri: "facebook.com") {
       ... on User @include(if: $foo) {
-        name @skip(if: $bar) @meta(data: $data, length: 50)
-      }
-    }
+        name @skip(if: $bar),
+      },
+    },
   }
 `;
 
@@ -29,15 +29,6 @@ var x = (function () {
     arguments: [{
       name: 'if',
       value: new GraphQL.CallVariable('bar')
-    }]
-  }, {
-    name: 'meta',
-    arguments: [{
-      name: 'data',
-      value: new GraphQL.CallVariable('data')
-    }, {
-      name: 'length',
-      value: new GraphQL.CallValue(50)
     }]
   }]), new GraphQL.Field('id', null, null, null, null, null, {
     parentType: 'User',

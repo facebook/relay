@@ -2,16 +2,18 @@ Input:
 var foo = Relay.QL`
   query CallValues {
     node(id: 123) {
-      friends(
-        first: "10",
-        orderby: Name,
-        find: cursor1,
-        isViewerFriend: "true",
-        gender: "MALE",
-      ) {
-        edges {
-          node {
-            id,
+      ... on User {
+        friends(
+          first: "10",
+          orderby: Name,
+          find: cursor1,
+          isViewerFriend: "true",
+          gender: "MALE",
+        ) {
+          edges {
+            node {
+              id,
+            },
           },
         },
       },

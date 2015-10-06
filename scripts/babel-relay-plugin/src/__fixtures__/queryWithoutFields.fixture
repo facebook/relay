@@ -1,6 +1,6 @@
 Input:
 var Relay = require('react-relay');
-var x = Relay.QL`query{viewer}`;
+var x = Relay.QL`query { viewer }`;
 
 Output:
 var Relay = require('react-relay');

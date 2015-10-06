@@ -3,10 +3,12 @@ var Relay = require('react-relay');
 var x = Relay.QL`
   query {
     node(id: 123) {
-      profilePicture {
-        uri
-      }
-    }
+      ... on User {
+        profilePicture {
+          uri,
+        },
+      },
+    },
   }
 `;
 
@@ -14,11 +16,7 @@ Output:
 var Relay = require('react-relay');
 var x = (function () {
   var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.Query('node', new GraphQL.CallValue(123), [new GraphQL.Field('profilePicture', [new GraphQL.Field('uri', null, null, null, null, null, {
-    parentType: 'ProfilePicture'
-  })], null, null, null, null, {
-    parentType: 'Node'
-  }), new GraphQL.Field('id', null, null, null, null, null, {
+  return new GraphQL.Query('node', new GraphQL.CallValue(123), [new GraphQL.Field('id', null, null, null, null, null, {
     parentType: 'Node',
     generated: true,
     requisite: true
@@ -26,7 +24,15 @@ var x = (function () {
     parentType: 'Node',
     generated: true,
     requisite: true
-  })], null, {
+  })], [new GraphQL.QueryFragment('User', 'User', [new GraphQL.Field('profilePicture', [new GraphQL.Field('uri', null, null, null, null, null, {
+    parentType: 'ProfilePicture'
+  })], null, null, null, null, {
+    parentType: 'User'
+  }), new GraphQL.Field('id', null, null, null, null, null, {
+    parentType: 'User',
+    generated: true,
+    requisite: true
+  })])], {
     rootArg: 'id'
   }, 'QueryWithNestedFields');
 })();

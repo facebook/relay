@@ -2,7 +2,7 @@ Input:
 var Relay = require('react-relay');
 var x = Relay.QL`
   mutation {
-    actorSubscribe
+    actorSubscribe,
   }
 `;
 

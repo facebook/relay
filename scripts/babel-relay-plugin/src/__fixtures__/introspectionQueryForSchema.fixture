@@ -3,9 +3,9 @@ var foo = Relay.QL`
   query IntrospectionQueryForSchema {
     __schema {
       types {
-        name
-      }
-    }
+        name,
+      },
+    },
   }
 `;
 

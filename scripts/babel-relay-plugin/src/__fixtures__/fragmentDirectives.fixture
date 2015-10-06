@@ -1,6 +1,6 @@
 Input:
 var Relay = require('react-relay');
-var x = Relay.QL`fragment on Node @relay(plural: true, count: 1, name: "Foo") {id}`;
+var x = Relay.QL`fragment on Node @relay(plural: true) { id }`;
 
 Output:
 var Relay = require('react-relay');
@@ -14,8 +14,6 @@ var x = (function () {
     generated: true,
     requisite: true
   })], null, {
-    plural: true,
-    count: 1,
-    name: 'Foo'
+    plural: true
   });
 })();

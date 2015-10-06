@@ -4,9 +4,9 @@ var x = Relay.QL`
   query {
     viewer {
       pendingPosts {
-        count
-      }
-    }
+        count,
+      },
+    },
   }
 `;
 

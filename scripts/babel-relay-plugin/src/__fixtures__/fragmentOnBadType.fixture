@@ -1,6 +1,6 @@
 Input:
 var Relay = require('react-relay');
-var x = Relay.QL`fragment on NotAType{id}`;
+var x = Relay.QL`fragment on NotAType { id }`;
 
 Output:
 var Relay = require('react-relay');

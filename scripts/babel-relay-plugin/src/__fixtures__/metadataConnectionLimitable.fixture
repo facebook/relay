@@ -3,14 +3,14 @@ var Relay = require('react-relay');
 var x = Relay.QL`
   query {
     viewer {
-      __configs__{
+      __configs__ {
         edges {
           node {
-            name
-          }
-        }
-      }
-    }
+            name,
+          },
+        },
+      },
+    },
   }
 `;
 

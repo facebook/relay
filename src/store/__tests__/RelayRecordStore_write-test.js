@@ -211,6 +211,8 @@ describe('RelayRecordStore', () => {
       queuedStore.putField('b', 'name', 'd');
       expect(recordStore.getField('b', 'name')).toBe(undefined);
       expect(queuedStore.getField('b', 'name')).toBe('d');
+      expect(queuedRecords['b'].__status__)
+        .toBe(RelayRecordStatusMap.setOptimisticStatus(0, true));
     });
   });
 

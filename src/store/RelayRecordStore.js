@@ -250,10 +250,6 @@ class RelayRecordStore {
     }: $FixMe);
     if (target === this._queuedRecords) {
       this._setClientMutationID(nextRecord);
-      nextRecord.__status__ = RelayRecordStatusMap.setOptimisticStatus(
-        0,
-        true
-      );
     }
     if (GraphQLStoreDataHandler.isClientID(dataID)) {
       invariant(
@@ -982,6 +978,10 @@ class RelayRecordStore {
       mutationIDs.push(clientMutationID);
       record.__mutationIDs__ = mutationIDs;
     }
+    record.__status__ = RelayRecordStatusMap.setOptimisticStatus(
+      0,
+      true
+    );
   }
 }
 

@@ -1,0 +1,48 @@
+#!/usr/bin/env node
+/**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+const minimist = require('minimist');
+const fs = require('fs');
+const transformGraphQL = require('../src/tools/transformGraphQL');
+
+function main(argv) {
+  if (!argv.schema) {
+    console.warn('Usage: transform --file [file] --schema [schema]');
+    process.exit(1);
+  }
+  if (!fs.existsSync(argv.schema)) {
+    console.warn('Invalid schema: %s', argv.schema);
+    process.exit(1);
+  }
+
+  if (argv.file) {
+    if (!fs.existsSync(argv.file)) {
+      console.warn('Invalid file: %s', argv.schema);
+      process.exit(1);
+    }
+    transformSource(fs.readFileSync(argv.file, 'utf8'), argv.file);
+  } else {
+    var input = '';
+    process.stdin.resume();
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', function(chunk) {
+      input += chunk;
+    });
+    process.stdin.on('end', function() {
+      transformSource(input, 'stdin');
+    });
+  }
+
+  function transformSource(source, name) {
+    process.stdout.write(transformGraphQL(argv.schema, source, name));
+  }
+}
+
+main(minimist(process.argv));

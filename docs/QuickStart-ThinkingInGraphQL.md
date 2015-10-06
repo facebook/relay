@@ -43,6 +43,7 @@ graphql.get(`query { stories { id, text } }`).then(
 ```
 
 So far we're just using GraphQL as a more efficient version of typical REST approaches. Note two important benefits in the GraphQL version:
+
 - All data is fetched in a single round trip.
 - The client and server are decoupled: the client specifies the data needed instead of *relying on* the server endpoint to return the correct data.
 
@@ -80,7 +81,7 @@ Now, requests for previously cached data can be answered immediately without mak
 
 ## Cache Consistency
 
-With GraphQL it is very common for the results of multiple queries to overlap. However, our response cache from the previous section doesn't account for this overlap - it caches based on distinct queries. For example, if we issue a query to fetch stories:
+With GraphQL it is very common for the results of multiple queries to overlap. However, our response cache from the previous section doesn't account for this overlap — it caches based on distinct queries. For example, if we issue a query to fetch stories:
 
 ```
 query { stories { id, text, likeCount } }
@@ -148,13 +149,13 @@ So how do we use this cache? Let's look at two operations: writing to the cache 
 
 ### Populating The Cache
 
-Populating the cache involves walking a hierarchical GraphQL response and creating or updating normalized cache records. At first it may seem that the response alone is sufficient to process the response, but in fact this is only true for very simple queries. Consider `user(id: "456") { photo(size: 32) { uri } }` - how should we store `photo`? Using `photo` as the field name in the cache won't work because a different query might fetch the same field but with different argument values (e.g. `photo(size: 64) {...}`). A similar issue occurs with pagination. If we fetch the 11th to 20th stories with `stories(first: 10, offset: 10)`, these new results should be *appended* to the existing list.
+Populating the cache involves walking a hierarchical GraphQL response and creating or updating normalized cache records. At first it may seem that the response alone is sufficient to process the response, but in fact this is only true for very simple queries. Consider `user(id: "456") { photo(size: 32) { uri } }` — how should we store `photo`? Using `photo` as the field name in the cache won't work because a different query might fetch the same field but with different argument values (e.g. `photo(size: 64) {...}`). A similar issue occurs with pagination. If we fetch the 11th to 20th stories with `stories(first: 10, offset: 10)`, these new results should be *appended* to the existing list.
 
 Therefore, a normalized response cache for GraphQL requires processing payloads and queries in parallel. For example, the `photo` field from above might be cached with a generated field name such as `photo_size(32)` in order to uniquely identify the field and its argument values.
 
 ### Reading From Cache
 
-To read from the cache we can walk a query and resolve each field. But wait: that sounds *exactly* like what a GraphQL server does when it processes a query. And it is! Reading from the cache is a special case of an executor where a) there's no need for user-defined field functions because all results come from a fixed data structure and b) results are always synchronous - we either have the data cached or we don't.
+To read from the cache we can walk a query and resolve each field. But wait: that sounds *exactly* like what a GraphQL server does when it processes a query. And it is! Reading from the cache is a special case of an executor where a) there's no need for user-defined field functions because all results come from a fixed data structure and b) results are always synchronous — we either have the data cached or we don't.
 
 Relay implements several variations of **query traversal**: operations that walk a query alongside some other data such as the cache or a response payload. For example, when a query is fetched Relay performs a "diff" traversal to determine what fields are missing (much like React diffs virtual DOM trees). This can reduce the amount of data fetched in many common cases and even allow Relay to avoid network requests at all when queries are fully cached.
 
@@ -220,7 +221,7 @@ Map {
 }
 ```
 
-The author of this story also commented on it - quite common. Now imagine that some other view fetches new information about the author, and her profile photo has changed to a new URI. Here's the *only* part of our cached data that changes:
+The author of this story also commented on it — quite common. Now imagine that some other view fetches new information about the author, and her profile photo has changed to a new URI. Here's the *only* part of our cached data that changes:
 
 ```
 Map {
@@ -234,7 +235,7 @@ Map {
 
 The value of the `photo` field has changed; and therefore the record `2` has also changed. And that's it. Nothing else in the *cache* is affected. But clearly our *view* needs to reflect the update: both instances of the author in the UI (as story author and comment author) need to show the new photo.
 
-A standard response is to "just use immutable data structures" - but let's see what would happen if we did:
+A standard response is to "just use immutable data structures" — but let's see what would happen if we did:
 
 ```
 ImmutableMap {
@@ -275,8 +276,7 @@ Notice that we're querying for data that *may* have changed as a result of the m
 
 We've found that it's common for the GraphQL schema to differ slightly or even substantially from the form in which data is stored on disk. Put simply: there isn't always a 1:1 correspondence between data changes in your underlying *data storage* (disk) and data changes in your *product-visible schema* (GraphQL). The perfect example of this is privacy: returning a user-facing field such as `age` might require accessing numerous records in our data-storage layer to determine if the active user is even allowed to *see* that `age` (Are we friends? Is my age shared? Did I block you? etc.).
 
-Given these real-world constraints, the approach in GraphQL is for clients to query for things that may change after a mutation. But what exactly do we put in that query? During the development of Relay we explored several ideas - let's look at them briefly in order to understand why Relay uses the approach that it does:
-
+Given these real-world constraints, the approach in GraphQL is for clients to query for things that may change after a mutation. But what exactly do we put in that query? During the development of Relay we explored several ideas — let's look at them briefly in order to understand why Relay uses the approach that it does:
 
 - Option 1: Re-fetch everything that the app has ever queried. Even though only a small subset of this data will actually change, we'll still have to wait for the server to execute the *entire* query, wait to download the results, and wait to process them again. This is very inefficient.
 
@@ -298,4 +298,4 @@ So far we looked at the lower-level aspects of data-fetching and saw how various
 - Queuing mutations to avoid race conditions.
 - Optimistically updating the UI while waiting for the server to respond to mutations.
 
-We've found that typical approaches to data-fetching - with imperative APIs - force developers to deal with too much of this non-essential complexity. For example, consider *optimistic UI updates*. This is a way of giving the user feedback while waiting for a server response. The logic of *what* to do can be quite clear: when the user clicks "like", mark the story as being liked and send the request to the server. But the implementation is often much more complex. Imperative approaches require us to implement all of those steps: reach into the UI and toggle the button, initiate a network request, retry it if necessary, show an error if it fails (and untoggle the button), etc. The same goes for data-fetching: specifying *what* data we need often dictates *how* and *when* it is fetched. Next, we'll explore our approach to solving these concerns with **Relay**.
+We've found that typical approaches to data-fetching — with imperative APIs — force developers to deal with too much of this non-essential complexity. For example, consider *optimistic UI updates*. This is a way of giving the user feedback while waiting for a server response. The logic of *what* to do can be quite clear: when the user clicks "like", mark the story as being liked and send the request to the server. But the implementation is often much more complex. Imperative approaches require us to implement all of those steps: reach into the UI and toggle the button, initiate a network request, retry it if necessary, show an error if it fails (and untoggle the button), etc. The same goes for data-fetching: specifying *what* data we need often dictates *how* and *when* it is fetched. Next, we'll explore our approach to solving these concerns with **Relay**.

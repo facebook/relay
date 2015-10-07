@@ -40,7 +40,7 @@ function getSchema(schemaPath) {
 function transformGraphQL(schemaPath, source, filename) {
   var plugin = getBabelRelayPlugin(getSchema(schemaPath), {
     abortOnError: false,
-    debug: false,
+    debug: true,
     suppressWarnings: true,
   });
   return babel.transform(source, {

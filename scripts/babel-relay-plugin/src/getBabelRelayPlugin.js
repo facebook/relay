@@ -193,7 +193,6 @@ function getBabelRelayPlugin(
             );
 
             if (options.debug) {
-              console.error(error.message);
               console.error(error.stack);
             }
             if (options.abortOnError) {

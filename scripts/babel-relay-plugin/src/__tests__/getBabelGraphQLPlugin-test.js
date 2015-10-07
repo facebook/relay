@@ -34,7 +34,6 @@ const ConsoleErrorQueue = {
     ConsoleErrorQueue.queue.forEach(args => {
       ConsoleErrorQueue.print(...args);
     });
-    ConsoleErrorQueue.clear();
   },
 };
 
@@ -48,7 +47,6 @@ describe('getBabelRelayPlugin', () => {
     if (FIXTURE_PATTERN && testName.indexOf(FIXTURE_PATTERN) < 0) {
       return;
     }
-    ConsoleErrorQueue.clear();
 
     const fixture = fixtures[testName];
     if (fixture.output !== undefined) {
@@ -68,6 +66,7 @@ describe('getBabelRelayPlugin', () => {
           ConsoleErrorQueue.flush();
           expect('\n' + actual + '\n').toBe('\n' + expected + '\n');
         }
+        ConsoleErrorQueue.clear();
       });
     } else {
       it('throws for GraphQL fixture: ' + testName, () => {
@@ -85,6 +84,7 @@ describe('getBabelRelayPlugin', () => {
             }
           }).toThrow(fixtures.error);
         }
+        ConsoleErrorQueue.clear();
       });
     }
   });

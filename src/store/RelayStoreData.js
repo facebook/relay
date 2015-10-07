@@ -21,6 +21,9 @@ import type {ChangeSet} from 'RelayChangeTracker';
 import type {
   ClientMutationID,
   DataID,
+  NodeRangeMap,
+  Records,
+  RootCallMap,
   UpdateOptions
 } from 'RelayInternalTypes';
 var RelayNodeInterface = require('RelayNodeInterface');
@@ -29,13 +32,8 @@ var RelayQuery = require('RelayQuery');
 var RelayQueryTracker = require('RelayQueryTracker');
 var RelayQueryWriter = require('RelayQueryWriter');
 var RelayRecordStore = require('RelayRecordStore');
-import type {
-  CacheManager,
-  NodeRangeMap,
-  Records,
-  RootCallMap
-} from 'RelayRecordStore';
 var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
+import type {CacheManager} from 'RelayTypes';
 
 var forEachObject = require('forEachObject');
 var invariant = require('invariant');

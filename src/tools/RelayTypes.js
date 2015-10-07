@@ -17,7 +17,13 @@
  * Types that Relay framework users may find useful.
  */
 import type URI from 'URI';
-import type {DataID} from 'RelayInternalTypes';
+import type {
+  DataID,
+  FieldValue,
+  Record,
+  Records,
+  RootCallMap
+} from 'RelayInternalTypes';
 import type RelayFragmentReference from 'RelayFragmentReference';
 import type RelayMetaRoute from 'RelayMetaRoute';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
@@ -117,6 +123,22 @@ export type StoreReaderData = Object;
 export type StoreReaderOptions = {
   traverseFragmentReferences?: boolean;
   traverseGeneratedFields?: boolean;
+};
+
+// Disk Cache
+export type CacheManager = {
+  cacheNode: (dataID: DataID, record: ?Record) => void;
+  cacheField: (dataID: DataID, field: string, value: ?FieldValue) => void;
+  cacheRootCall: (
+    rootCallName: string,
+    rootCallValue: string,
+    dataID: DataID
+  ) => void;
+  readAllData: (
+    cachedRecords: Records,
+    rootCallData: RootCallMap,
+    callback: Function
+  ) => void;
 };
 
 // Network requests

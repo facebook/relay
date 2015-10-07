@@ -18,12 +18,12 @@ var RelayBufferedNeglectionStateMap =
   require('RelayBufferedNeglectionStateMap');
 import type {
   DataID,
-  FieldValue
+  FieldValue,
+  Record
 } from 'RelayInternalTypes';
 var RelayNeglectionStateMap = require('RelayNeglectionStateMap');
 import type {NeglectionState} from 'RelayNeglectionStateMap';
 var RelayProfiler = require('RelayProfiler');
-import type {Record} from 'RelayRecordStore';
 import type RelayStoreData from 'RelayStoreData';
 var RelayTaskScheduler = require('RelayTaskScheduler');
 

@@ -23,12 +23,17 @@ import type {
   Call,
   ClientMutationID,
   DataID,
-  FieldValue
+  FieldValue,
+  NodeRangeMap,
+  Record,
+  Records,
+  RootCallMap
 } from 'RelayInternalTypes';
 var RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
 import type {RecordState} from 'RelayRecordState';
 var RelayRecordStatusMap = require('RelayRecordStatusMap');
+import type {CacheManager} from 'RelayTypes';
 
 var forEachObject = require('forEachObject');
 var invariant = require('invariant');
@@ -42,21 +47,6 @@ var RANGE = '__range__';
 var PATH = '__path__';
 var {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 
-export type CacheManager = {
-  cacheNode: (dataID: DataID, record: ?Record) => void;
-  cacheField: (dataID: DataID, field: string, value: ?FieldValue) => void;
-  cacheRootCall: (
-    rootCallName: string,
-    rootCallValue: string,
-    dataID: DataID
-  ) => void;
-  readAllData: (
-    cachedRecords: Records,
-    rootCallData: RootCallMap,
-    callback: Function
-  ) => void;
-};
-export type NodeRangeMap = {[key:string]: {[key:string]: boolean}};
 type EdgeData = {
   __dataID__: DataID;
   cursor: mixed;
@@ -76,31 +66,6 @@ export type RangeInfo = {
   requestedEdges: Array<RangeEdge>;
 };
 type RangeOperation = 'append' | 'prepend' | 'remove';
-export type Record = {
-  [key: string]: mixed;
-  __dataID__: string;
-  __filterCalls__?: Array<Call>;
-  __forceIndex__?: number;
-  __mutationIDs__?: Array<ClientMutationID>;
-  __range__?: GraphQLRange;
-  __path__?: RelayQueryPath;
-  __status__?: number;
-  __typename?: ?string;
-
-  /**
-   * $FlowIssue: the catch-all "mixed" type above should allow us to set
-   * "append", "prepend" etc as keys in _applyOptimisticRangeUpdate, but it does
-   * not.
-   */
-  prepend?: mixed;
-  append?: mixed;
-  remove?: mixed;
-};
-export type Records = {[key: DataID]: ?Record};
-
-// maps root call args to IDs. ex `username(joe)` -> 123`
-type RootCallArgsMap = {[rootCallValue: string]: DataID};
-export type RootCallMap = {[rootCallName: string]: RootCallArgsMap};
 
 type RecordCollection = {
   cachedRecords?: Records;
@@ -817,9 +782,11 @@ class RelayRecordStore {
       operation,
       connectionID
     );
-    var record = this._queuedRecords[connectionID];
+    var record: ?Record = this._queuedRecords[connectionID];
     if (!record) {
-      record = {__dataID__: connectionID};
+      // $FlowIssue: this fails with:
+      // "property `append/prepend/remove` not found in object literal"
+      record = ({__dataID__: connectionID}: $FlowIssue);
       this._queuedRecords[connectionID] = record;
     }
     this._setClientMutationID(record);

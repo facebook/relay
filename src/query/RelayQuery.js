@@ -97,9 +97,6 @@ class RelayQueryNode {
   __hasValidatedConnectionCalls__: ?boolean;
   __route__: RelayMetaRoute;
   __serializationKey__: ?string;
-  /* $FlowFixMe(>=0.16.0) - This comment suppresses an error on the following
-   * line that was uncovered when Flow 0.16 was deployed.
-   */
   __storageKey__: ?string;
   __variables__: Variables;
 

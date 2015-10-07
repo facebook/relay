@@ -537,16 +537,13 @@ describe('printRelayOSSQuery', () => {
   it('prints directives', () => {
     var params = {cond: true};
     var nestedFragment = Relay.QL`
-      fragment on User
-        @include(if: $cond)
-        @foo(int: 10, bool: true, str: "string")
-      {
+      fragment on User @include(if: $cond) {
         name @skip(if: $cond)
       }
     `;
     var query = getNode(Relay.QL`
       query {
-        node(id: 123) @source(uri: "facebook.com") {
+        node(id: 123) @skip(if: true) {
           ${nestedFragment}
         }
       }
@@ -555,17 +552,14 @@ describe('printRelayOSSQuery', () => {
     var {text, variables} = printRelayOSSQuery(query);
     expect(text).toEqualPrintedQuery(`
       query PrintRelayOSSQuery {
-        node(id:123) @source(uri:"facebook.com") {
+        node(id: 123) @skip(if: true) {
           id,
           __typename,
           ...${fragmentID}
         }
       }
-      fragment ${fragmentID} on User
-        @include(if:true)
-        @foo(int:10, bool:true, str:"string")
-      {
-        name @skip(if:true),
+      fragment ${fragmentID} on User @include(if: true) {
+        name @skip(if: true),
         id
       }
     `);
@@ -576,14 +570,14 @@ describe('printRelayOSSQuery', () => {
     var params = {data: {foo: 'bar'}};
     var query = getNode(Relay.QL`
       query {
-        node(id: 123) @meta(data: $data) {
+        node(id: 123) @include(if: $data) {
           id
         }
       }
     `, params);
     expect(() => printRelayOSSQuery(query)).toFailInvariant(
       'printRelayOSSQuery(): Relay only supports directives with scalar ' +
-      'values (boolean, number, or string), got `data: [object Object]`.'
+      'values (boolean, number, or string), got `if: [object Object]`.'
     );
   });
 });

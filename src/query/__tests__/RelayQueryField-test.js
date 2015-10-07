@@ -563,7 +563,7 @@ describe('RelayQueryField', () => {
   it('returns directives', () => {
     var field = getNode(Relay.QL`
       fragment on Story {
-        feedback @include(if: $cond) @foo(int: 10, bool: true, str: "string")
+        feedback @include(if: $cond)
       }
     `, {cond: true}).getChildren()[0];
     expect(field.getDirectives()).toEqual([
@@ -573,14 +573,6 @@ describe('RelayQueryField', () => {
           {name: 'if', value: true},
         ],
       },
-      {
-        name: 'foo',
-        arguments: [
-          {name: 'int', value: 10},
-          {name: 'bool', value: true},
-          {name: 'str', value: 'string'},
-        ],
-      }
     ]);
   });
 });

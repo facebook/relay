@@ -2,6 +2,9 @@
 
 * Bump the `babel-relay-plugin` version to vX.Y.Z.
   * Fixed the metadata for fields on abstract types.
+  * Directives are now validated against the schema.
+  * Mutations field arguments are now validated.
+  * Improvements to validation and error messages.
 
 ## 0.3.2 (September 18, 2015)
 

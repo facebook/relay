@@ -1,0 +1,15 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  mutation MutationNameHere {
+    actorSubscribe(input: $input, extra: $extra) {
+      ${reference},
+    },
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  throw new Error('GraphQL validation/transform error ``Unknown argument "extra" on field "actorSubscribe" of type "Mutation".`` in file `mutationWithExtraArgs.fixture`.');
+})(reference);

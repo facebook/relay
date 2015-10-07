@@ -347,10 +347,10 @@ describe('RelayQueryRoot', () => {
           actor {
             ${defer(fragment1a)},
             ${Relay.QL`
-      fragment on User {
-        ${defer(fragment1b)},
-      }
-    `}
+              fragment on User {
+                ${defer(fragment1b)},
+              }
+            `}
           }
         }
       }
@@ -376,10 +376,7 @@ describe('RelayQueryRoot', () => {
   it('returns directives', () => {
     var query = getNode(Relay.QL`
       query {
-        me
-          @include(if: $cond)
-          @foo(int: 10, bool: true, str: "string")
-        {
+        me @include(if: $cond) {
           id
         }
       }
@@ -389,14 +386,6 @@ describe('RelayQueryRoot', () => {
         name: 'include',
         arguments: [
           {name: 'if', value: true},
-        ],
-      },
-      {
-        name: 'foo',
-        arguments: [
-          {name: 'int', value: 10},
-          {name: 'bool', value: true},
-          {name: 'str', value: 'string'},
         ],
       }
     ]);

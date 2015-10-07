@@ -1,0 +1,15 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  query {
+    node(id: 123) @if(bad: $foo) {
+      id
+    }
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  throw new Error('GraphQL validation/transform error ``You supplied a directive named `if`, but no such directive exists.`` in file `queryWithBadDirectiveArgs.fixture`.');
+})();

@@ -152,7 +152,6 @@ options /*: ?Object */
             code = t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.literal(message)]))]));
 
             if (options.debug) {
-              console.error(error.message);
               console.error(error.stack);
             }
             if (options.abortOnError) {

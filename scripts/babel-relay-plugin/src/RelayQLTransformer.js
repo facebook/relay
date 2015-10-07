@@ -11,9 +11,15 @@
 
 'use strict';
 
+var RelayQLPrinter = require('./RelayQLPrinter');
+var {
+  RelayQLFragment,
+  RelayQLMutation,
+  RelayQLQuery,
+} = require('./RelayQLAST');
+
 var assert = require('assert');
 var formatError = require('graphql/error').formatError;
-var RelayQLPrinter = require('./RelayQLPrinter');
 var parser = require('graphql/language/parser');
 var Source = require('graphql/language/source').Source;
 var validate = require('graphql/validation/validate').validate;
@@ -28,17 +34,19 @@ RelayQLTransformer.prototype.transformQuery = function(
   documentName, /*: string */
   tagName /*: string */
 ) /*: string */ {
-  var queryDocument =
-    this.parseDocument(queryAndSubstitutions.text, documentName);
-  var printer = new RelayQLPrinter(this.schema, tagName);
-  return printer.getCode(queryDocument, queryAndSubstitutions.substitutions);
+  const substitutions = queryAndSubstitutions.substitutions;
+  const text = queryAndSubstitutions.text;
+
+  const document = this.parseDocument(text, documentName);
+  const printer = new RelayQLPrinter(tagName);
+  return printer.print(document, substitutions);
 };
 
 RelayQLTransformer.prototype.parseDocument = function(
   query, /*: string */
   documentName /*: string */
 ) /*: string */ {
-  var match = /^(fragment|mutation|query)\s*(\w*)?([\s\S]*)/.exec(query)
+  const match = /^(fragment|mutation|query)\s*(\w*)?([\s\S]*)/.exec(query)
   assert(
     match,
     util.format(
@@ -47,9 +55,9 @@ RelayQLTransformer.prototype.parseDocument = function(
       query.substr(0, 20)
     )
   );
-  var type = match[1];
-  var name = match[2] || documentName;
-  var rest = match[3];
+  const type = match[1];
+  let name = match[2] || documentName;
+  let rest = match[3];
 
   if (type === 'fragment' && name === 'on') {
     // Allow `fragment on User {...}`
@@ -58,8 +66,22 @@ RelayQLTransformer.prototype.parseDocument = function(
   }
 
   name = this.getName(name);
-  var queryText = type + ' ' + name + ' ' + rest;
-  return parse(type, queryText, this.schema).definitions[0];
+  const queryText = type + ' ' + name + ' ' + rest;
+  const ast = parse(type, queryText, this.schema).definitions[0];
+
+  const context = {
+    documentName: name,
+    schema: this.schema,
+  };
+  switch (type) {
+    case 'fragment':
+      return new RelayQLFragment(context, ast);
+    case 'mutation':
+      return new RelayQLMutation(context, ast);
+    case 'query':
+      return new RelayQLQuery(context, ast);
+  }
+  throw new Error(util.format('Unsupported type: %s', type));
 };
 
 RelayQLTransformer.prototype.getName = function(

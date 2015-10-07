@@ -1,0 +1,27 @@
+Input:
+var foo = Relay.QL`
+  query Args {
+    node(id: 123) {
+      ... on User {
+        friends(
+          first: "10",
+          orderby: Name,
+          find: cursor1,
+          isViewerFriend: "true",
+          gender: "MALE",
+        ) {
+          edges {
+            node {
+              id,
+            },
+          },
+        },
+      },
+    },
+  }
+`;
+
+Output:
+var foo = (function () {
+  throw new Error("GraphQL validation/transform error ``Argument \"first\" expected type \"Int\" but got: \"10\". Argument \"orderby\" expected type \"[String]\" but got: Name. Argument \"find\" expected type \"String\" but got: cursor1. Argument \"isViewerFriend\" expected type \"Boolean\" but got: \"true\". Argument \"gender\" expected type \"Gender\" but got: \"MALE\".`` in file `argsInvalidValues.fixture`.");
+})();

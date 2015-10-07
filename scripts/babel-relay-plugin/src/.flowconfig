@@ -1,0 +1,14 @@
+[ignore]
+.*/__fixtures__/.*
+.*/__tests__/.*
+
+[include]
+../node_modules/
+
+[libs]
+../interfaces
+
+[options]
+
+[version]
+0.16.0

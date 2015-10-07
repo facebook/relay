@@ -17,5 +17,5 @@ var q = (function () {
   })], null, {
     rootArg: 'query',
     rootCallType: '[SearchInput!]'
-  }, 'QueryWithObjectArgument');
+  }, 'QueryWithObjectArg');
 })();

@@ -12,9 +12,16 @@
 
 'use strict';
 
+var RelayQLPrinter = require('./RelayQLPrinter');
+
+var _require = require('./RelayQLAST');
+
+var RelayQLFragment = _require.RelayQLFragment;
+var RelayQLMutation = _require.RelayQLMutation;
+var RelayQLQuery = _require.RelayQLQuery;
+
 var assert = require('assert');
 var formatError = require('graphql/error').formatError;
-var RelayQLPrinter = require('./RelayQLPrinter');
 var parser = require('graphql/language/parser');
 var Source = require('graphql/language/source').Source;
 var validate = require('graphql/validation/validate').validate;
@@ -27,9 +34,12 @@ function RelayQLTransformer(schema /*: GraphQLSchema */) {
 RelayQLTransformer.prototype.transformQuery = function (queryAndSubstitutions, documentName, /*: string */
 tagName /*: string */
 ) /*: string */{
-  var queryDocument = this.parseDocument(queryAndSubstitutions.text, documentName);
-  var printer = new RelayQLPrinter(this.schema, tagName);
-  return printer.getCode(queryDocument, queryAndSubstitutions.substitutions);
+  var substitutions = queryAndSubstitutions.substitutions;
+  var text = queryAndSubstitutions.text;
+
+  var document = this.parseDocument(text, documentName);
+  var printer = new RelayQLPrinter(tagName);
+  return printer.print(document, substitutions);
 };
 
 RelayQLTransformer.prototype.parseDocument = function (query, /*: string */
@@ -49,7 +59,21 @@ documentName /*: string */
 
   name = this.getName(name);
   var queryText = type + ' ' + name + ' ' + rest;
-  return parse(type, queryText, this.schema).definitions[0];
+  var ast = parse(type, queryText, this.schema).definitions[0];
+
+  var context = {
+    documentName: name,
+    schema: this.schema
+  };
+  switch (type) {
+    case 'fragment':
+      return new RelayQLFragment(context, ast);
+    case 'mutation':
+      return new RelayQLMutation(context, ast);
+    case 'query':
+      return new RelayQLQuery(context, ast);
+  }
+  throw new Error(util.format('Unsupported type: %s', type));
 };
 
 RelayQLTransformer.prototype.getName = function (documentName /*: string */

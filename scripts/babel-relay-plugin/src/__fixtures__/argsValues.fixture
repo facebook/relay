@@ -1,6 +1,6 @@
 Input:
 var foo = Relay.QL`
-  query CallValues {
+  query Args {
     node(id: 123) {
       ... on User {
         friends(
@@ -73,5 +73,5 @@ var foo = (function () {
     requisite: true
   })])], {
     rootArg: "id"
-  }, "CallValues");
+  }, "Args");
 })();

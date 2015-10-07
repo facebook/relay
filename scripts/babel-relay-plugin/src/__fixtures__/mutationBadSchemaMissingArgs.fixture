@@ -1,0 +1,13 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  mutation {
+    mutationMissingArg,
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  throw new Error('GraphQL validation/transform error ``Your schema defines a mutation field `mutationMissingArg` that takes 0 arguments, but mutation fields must have exactly one argument named `input`.`` in file `mutationBadSchemaMissingArgs.fixture`.');
+})();

@@ -17,6 +17,8 @@ input SearchInput {
 type Mutation {
   actorSubscribe(input: ActorSubscribeInput): ActorSubscribeResponsePayload
   actorSubscribeSubscribe(input: ActorSubscribeInput!): ActorSubscribeResponsePayload
+  mutationMissingArg: FakeResponsePayload
+  mutationWrongArgs(foo: String): FakeResponsePayload
 }
 
 input ActorSubscribeInput {
@@ -27,6 +29,10 @@ input ActorSubscribeInput {
 type ActorSubscribeResponsePayload {
   clientMutationId: String
   actor: User
+}
+
+type FakeResponsePayload {
+  clientMutationId: String
 }
 
 type ActorSubscribeSubscription {

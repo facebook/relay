@@ -234,7 +234,6 @@ describe('RelayQueryFragment', () => {
     var fragment = getNode(Relay.QL`
       fragment on Story
         @include(if: $cond)
-        @foo(int: 10, bool: true, str: "string")
       {
         feedback
       }
@@ -244,14 +243,6 @@ describe('RelayQueryFragment', () => {
         name: 'include',
         arguments: [
           {name: 'if', value: true},
-        ],
-      },
-      {
-        name: 'foo',
-        arguments: [
-          {name: 'int', value: 10},
-          {name: 'bool', value: true},
-          {name: 'str', value: 'string'},
         ],
       }
     ]);

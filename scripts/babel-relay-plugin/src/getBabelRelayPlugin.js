@@ -29,19 +29,14 @@ function extractTemplate(node) {
   var templateElements = node.quasi.quasis;
   for (var ii = 0; ii < templateElements.length; ii++) {
     var template = templateElements[ii];
-    text += template.value.cooked.trim();
+    text += template.value.cooked;
     if (!template.tail) {
       var sub = 'sub_' + ii;
       substitutions.push(sub);
       text += '...' + sub;
-
-      var nextTemplate = templateElements[ii + 1];
-      if (nextTemplate && !/^\s*[,\}]/.test(nextTemplate)) {
-        text += ',';
-      }
     }
   }
-  return {text: text, substitutions: substitutions};
+  return {text: text.trim(), substitutions: substitutions};
 }
 
 /**

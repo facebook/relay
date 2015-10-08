@@ -145,14 +145,15 @@ class RelayStoreData {
     this._queuedStore = new RelayRecordStore(
       ({cachedRecords, queuedRecords, records}: $FixMe),
       ({cachedRootCallMap, rootCallMap}: $FixMe),
-      (this._nodeRangeMap: $FixMe),
-      cacheManager
+      (this._nodeRangeMap: $FixMe)
     );
     this._recordStore = new RelayRecordStore(
       ({records}: $FixMe),
       ({rootCallMap}: $FixMe),
       (this._nodeRangeMap: $FixMe),
-      cacheManager
+      cacheManager ?
+        cacheManager.getQueryWriter() :
+        null
     );
   }
 
@@ -221,7 +222,7 @@ class RelayStoreData {
       );
       store = this.getRecordStoreForOptimisticMutation(clientMutationID);
     } else {
-      store = this._recordStore;
+      store = this._getRecordStoreForMutation();
     }
     var writer = new RelayQueryWriter(
       store,
@@ -352,6 +353,20 @@ class RelayStoreData {
     }
   }
 
+  _getRecordStoreForMutation(): RelayRecordStore {
+    var records = this._records;
+    var rootCallMap = this._rootCalls;
+
+    return new RelayRecordStore(
+      ({records}: $FixMe),
+      ({rootCallMap}: $FixMe),
+      (this._nodeRangeMap: $FixMe),
+      this._cacheManager ?
+        this._cacheManager.getMutationWriter() :
+        null
+    );
+  }
+
   getRecordStoreForOptimisticMutation(
     clientMutationID: ClientMutationID
   ): RelayRecordStore {
@@ -365,7 +380,7 @@ class RelayStoreData {
       ({cachedRecords, queuedRecords, records}: $FixMe),
       ({cachedRootCallMap, rootCallMap}: $FixMe),
       (this._nodeRangeMap: $FixMe),
-      (this._cacheManager: ?CacheManager),
+      null, // don't cache optimistic data
       clientMutationID
     );
   }

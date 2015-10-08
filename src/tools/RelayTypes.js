@@ -127,17 +127,28 @@ export type StoreReaderOptions = {
 
 // Disk Cache
 export type CacheManager = {
-  cacheNode: (dataID: DataID, record: ?Record) => void;
-  cacheField: (dataID: DataID, field: string, value: ?FieldValue) => void;
-  cacheRootCall: (
-    rootCallName: string,
-    rootCallValue: string,
-    dataID: DataID
-  ) => void;
+  getMutationWriter: () => CacheWriter;
+  getQueryWriter: () => CacheWriter;
   readAllData: (
     cachedRecords: Records,
     rootCallData: RootCallMap,
     callback: Function
+  ) => void;
+  reset: () => void;
+};
+
+export type CacheWriter = {
+  writeField: (
+    dataID: DataID,
+    field: string,
+    value: ?FieldValue,
+    typeName: ?string
+  ) => void;
+  writeNode: (dataID: DataID, record: ?Record) => void;
+  writeRootCall: (
+    rootCallName: string,
+    rootCallValue: string,
+    dataID: DataID
   ) => void;
 };
 

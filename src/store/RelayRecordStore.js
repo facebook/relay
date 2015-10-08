@@ -33,7 +33,7 @@ var RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
 import type {RecordState} from 'RelayRecordState';
 var RelayRecordStatusMap = require('RelayRecordStatusMap');
-import type {CacheManager} from 'RelayTypes';
+import type {CacheWriter} from 'RelayTypes';
 
 var forEachObject = require('forEachObject');
 var invariant = require('invariant');
@@ -88,7 +88,7 @@ type RootCallMapCollection = {
  * TODO: #6584253 Mediate access to node/cached/queued data via RelayRecordStore
  */
 class RelayRecordStore {
-  _cacheManager: ?CacheManager;
+  _cacheWriter: ?CacheWriter;
   _cachedRecords: ?Records;
   _cachedRootCallMap: RootCallMap;
   _clientMutationID: ?ClientMutationID;
@@ -102,10 +102,10 @@ class RelayRecordStore {
     records: RecordCollection,
     rootCallMaps?: ?RootCallMapCollection,
     nodeConnectionMap?: ?NodeRangeMap,
-    cacheManager?: ?CacheManager,
+    cacheWriter?: ?CacheWriter,
     clientMutationID?: ?ClientMutationID
   ) {
-    this._cacheManager = cacheManager;
+    this._cacheWriter = cacheWriter;
     this._cachedRecords = records.cachedRecords;
     this._cachedRootCallMap =
       (rootCallMaps && rootCallMaps.cachedRootCallMap) || {};
@@ -175,8 +175,8 @@ class RelayRecordStore {
     }
     this._rootCallMap[rootCall] = this._rootCallMap[rootCall] || {};
     this._rootCallMap[rootCall][rootCallArg] = dataID;
-    if (this._cacheManager) {
-      this._cacheManager.cacheRootCall(rootCall, rootCallArg, dataID);
+    if (this._cacheWriter) {
+      this._cacheWriter.writeRootCall(rootCall, rootCallArg, dataID);
     }
   }
 
@@ -226,12 +226,12 @@ class RelayRecordStore {
       nextRecord[PATH] = path;
     }
     target[dataID] = nextRecord;
-    var cacheManager = this._cacheManager;
-    if (!this._queuedRecords && cacheManager) {
-      cacheManager.cacheField(dataID, '__dataID__', dataID, typeName);
+    var cacheWriter = this._cacheWriter;
+    if (!this._queuedRecords && cacheWriter) {
+      cacheWriter.writeField(dataID, '__dataID__', dataID, typeName);
       var cachedPath = nextRecord[PATH];
       if (cachedPath) {
-        cacheManager.cacheField(dataID, '__path__', cachedPath, typeName);
+        cacheWriter.writeField(dataID, '__path__', cachedPath, typeName);
       }
     }
   }
@@ -323,8 +323,8 @@ class RelayRecordStore {
     // Remove any links for this record
     if (!this._queuedRecords) {
       delete this._nodeConnectionMap[dataID];
-      if (this._cacheManager) {
-        this._cacheManager.cacheNode(dataID, null);
+      if (this._cacheWriter) {
+        this._cacheWriter.writeNode(dataID, null);
       }
     }
   }
@@ -361,9 +361,9 @@ class RelayRecordStore {
       storageKey
     );
     record[storageKey] = value;
-    if (!this._queuedRecords && this._cacheManager) {
+    if (!this._queuedRecords && this._cacheWriter) {
       var typeName = record.__typename;
-      this._cacheManager.cacheField(dataID, storageKey, value, typeName);
+      this._cacheWriter.writeField(dataID, storageKey, value, typeName);
     }
   }
 
@@ -383,8 +383,8 @@ class RelayRecordStore {
       storageKey
     );
     record[storageKey] = null;
-    if (!this._queuedRecords && this._cacheManager) {
-      this._cacheManager.cacheField(dataID, storageKey, null);
+    if (!this._queuedRecords && this._cacheWriter) {
+      this._cacheWriter.writeField(dataID, storageKey, null);
     }
   }
 
@@ -440,8 +440,8 @@ class RelayRecordStore {
       __dataID__: recordID,
     };
     parent[storageKey] = fieldValue;
-    if (!this._queuedRecords && this._cacheManager) {
-      this._cacheManager.cacheField(parentID, storageKey, fieldValue);
+    if (!this._queuedRecords && this._cacheWriter) {
+      this._cacheWriter.writeField(parentID, storageKey, fieldValue);
     }
   }
 
@@ -506,8 +506,8 @@ class RelayRecordStore {
       };
     });
     parent[storageKey] = records;
-    if (!this._queuedRecords && this._cacheManager) {
-      this._cacheManager.cacheField(parentID, storageKey, records);
+    if (!this._queuedRecords && this._cacheWriter) {
+      this._cacheWriter.writeField(parentID, storageKey, records);
     }
   }
 
@@ -675,11 +675,11 @@ class RelayRecordStore {
     record.__forceIndex__ = forceIndex;
     record.__range__ = range;
 
-    var cacheManager = this._cacheManager;
-    if (!this._queuedRecords && cacheManager) {
-      cacheManager.cacheField(connectionID, FILTER_CALLS, filterCalls);
-      cacheManager.cacheField(connectionID, FORCE_INDEX, forceIndex);
-      cacheManager.cacheField(connectionID, RANGE, range);
+    var cacheWriter = this._cacheWriter;
+    if (!this._queuedRecords && cacheWriter) {
+      cacheWriter.writeField(connectionID, FILTER_CALLS, filterCalls);
+      cacheWriter.writeField(connectionID, FORCE_INDEX, forceIndex);
+      cacheWriter.writeField(connectionID, RANGE, range);
     }
   }
 
@@ -717,8 +717,8 @@ class RelayRecordStore {
       edgesData,
       pageInfo
     );
-    if (!this._queuedRecords && this._cacheManager) {
-      this._cacheManager.cacheField(connectionID, RANGE, range);
+    if (!this._queuedRecords && this._cacheWriter) {
+      this._cacheWriter.writeField(connectionID, RANGE, range);
     }
   }
 
@@ -837,8 +837,8 @@ class RelayRecordStore {
         range.prependEdge(this._getRangeEdgeData(edgeID));
       }
     }
-    if (this._cacheManager) {
-      this._cacheManager.cacheField(connectionID, RANGE, range);
+    if (this._cacheWriter) {
+      this._cacheWriter.writeField(connectionID, RANGE, range);
     }
   }
 

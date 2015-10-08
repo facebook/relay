@@ -107,13 +107,14 @@ describe('RelayStoreData', function() {
     var query = getNode(Relay.QL`query{node(id:"123"){id}}`);
     var response = {node: {id: '123'}};
     storeData.handleQueryPayload(query, response);
+    var {queryWriter} = cacheManager.mocks;
 
-    expect(cacheManager).toContainCalledMethods({
-      cacheNode: 0,
-      cacheField: 2,
-      cacheRootCall: 0,
+    expect(queryWriter).toContainCalledMethods({
+      writeNode: 0,
+      writeField: 2,
+      writeRootCall: 0,
     });
-    expect(cacheManager.cacheField).toBeCalledWithNodeFields({
+    expect(queryWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
         id: '123',
@@ -125,18 +126,19 @@ describe('RelayStoreData', function() {
     var query = getNode(Relay.QL`query{username(name:"yuzhi"){id}}`);
     var response = {username: {id: '123'}};
     storeData.handleQueryPayload(query, response);
+    var {queryWriter} = cacheManager.mocks;
 
-    expect(cacheManager).toContainCalledMethods({
-      cacheNode: 0,
-      cacheField: 2,
-      cacheRootCall: 1,
+    expect(queryWriter).toContainCalledMethods({
+      writeNode: 0,
+      writeField: 2,
+      writeRootCall: 1,
     });
-    expect(cacheManager.cacheRootCall).toBeCalledWith(
+    expect(queryWriter.writeRootCall).toBeCalledWith(
       'username',
       'yuzhi',
       '123'
     );
-    expect(cacheManager.cacheField).toBeCalledWithNodeFields({
+    expect(queryWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
         id: '123',
@@ -148,13 +150,14 @@ describe('RelayStoreData', function() {
     var query = getNode(Relay.QL`query{viewer{isFbEmployee}}`);
     var response = {viewer: {isFbEmployee: true}};
     storeData.handleQueryPayload(query, response);
+    var {queryWriter} = cacheManager.mocks;
 
-    expect(cacheManager).toContainCalledMethods({
-      cacheNode: 0,
-      cacheField: 3,
-      cacheRootCall: 1,
+    expect(queryWriter).toContainCalledMethods({
+      writeNode: 0,
+      writeField: 3,
+      writeRootCall: 1,
     });
-    expect(cacheManager.cacheField).toBeCalledWithNodeFields({
+    expect(queryWriter.writeField).toBeCalledWithNodeFields({
       'client:viewer': {
         __dataID__: 'client:viewer',
         __path__: getPathToRecord('client:viewer'),
@@ -185,13 +188,14 @@ describe('RelayStoreData', function() {
       },
     };
     storeData.handleQueryPayload(query, response);
+    var {queryWriter} = cacheManager.mocks;
 
-    expect(cacheManager).toContainCalledMethods({
-      cacheNode: 0,
-      cacheField: 6,
-      cacheRootCall: 0,
+    expect(queryWriter).toContainCalledMethods({
+      writeNode: 0,
+      writeField: 6,
+      writeRootCall: 0,
     });
-    expect(cacheManager.cacheField).toBeCalledWithNodeFields({
+    expect(queryWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
         id: '123',
@@ -226,14 +230,15 @@ describe('RelayStoreData', function() {
       }
     };
     storeData.handleQueryPayload(query, response);
+    var {queryWriter} = cacheManager.mocks;
 
     expect(getPathToRecord('client:1')).toEqual(getPathToRecord('client:2'));
-    expect(cacheManager).toContainCalledMethods({
-      cacheNode: 0,
-      cacheField: 9,
-      cacheRootCall: 0,
+    expect(queryWriter).toContainCalledMethods({
+      writeNode: 0,
+      writeField: 9,
+      writeRootCall: 0,
     });
-    expect(cacheManager.cacheField).toBeCalledWithNodeFields({
+    expect(queryWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
         id: '123',
@@ -301,13 +306,14 @@ describe('RelayStoreData', function() {
       },
     });
     storeData.handleQueryPayload(query, response);
+    var {queryWriter} = cacheManager.mocks;
 
-    expect(cacheManager).toContainCalledMethods({
-      cacheNode: 0,
-      cacheField: 21,
-      cacheRootCall: 0,
+    expect(queryWriter).toContainCalledMethods({
+      writeNode: 0,
+      writeField: 21,
+      writeRootCall: 0,
     });
-    expect(cacheManager.cacheField).toBeCalledWithNodeFields({
+    expect(queryWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
         id: '123',
@@ -376,13 +382,14 @@ describe('RelayStoreData', function() {
       },
     });
     storeData.handleQueryPayload(query, response);
+    var {queryWriter} = cacheManager.mocks;
 
-    expect(cacheManager).toContainCalledMethods({
-      cacheNode: 0,
-      cacheField: 9,
-      cacheRootCall: 0,
+    expect(queryWriter).toContainCalledMethods({
+      writeNode: 0,
+      writeField: 9,
+      writeRootCall: 0,
     });
-    expect(cacheManager.cacheField).toBeCalledWithNodeFields({
+    expect(queryWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
         id: '123',
@@ -402,8 +409,8 @@ describe('RelayStoreData', function() {
     var query = getNode(Relay.QL`query{node(id:"123"){id,doesViewerLike}}`);
     var response = {node: {id: '123', doesViewerLike: false}};
     storeData.handleQueryPayload(query, response);
+    var {mutationWriter} = cacheManager.mocks;
 
-    var prevCallCount = cacheManager.cacheField.mock.calls.length;
     var mutationQuery = getNode(Relay.QL`
       mutation {
         feedbackLike(input:$input) {
@@ -428,12 +435,12 @@ describe('RelayStoreData', function() {
       {configs: [], isOptimisticUpdate: false}
     );
 
-    expect(cacheManager).toContainCalledMethods({
-      cacheNode: 0,
-      cacheField: prevCallCount + 2, // both scalar fields are updated
-      cacheRootCall: 0,
+    expect(mutationWriter).toContainCalledMethods({
+      writeNode: 0,
+      writeField: 2, // both scalar fields are updated
+      writeRootCall: 0,
     });
-    expect(cacheManager.cacheField).toBeCalledWithNodeFields({
+    expect(mutationWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         doesViewerLike: true,
       },
@@ -482,6 +489,7 @@ describe('RelayStoreData', function() {
       }
     });
     storeData.handleQueryPayload(query, response);
+    var {mutationWriter} = cacheManager.mocks;
 
     var configs = [{
       type: RelayMutationType.RANGE_ADD,
@@ -490,7 +498,6 @@ describe('RelayStoreData', function() {
       rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
     }];
 
-    var prevCallCount = cacheManager.cacheField.mock.calls.length;
     var mutationQuery = getNode(Relay.QL`
       mutation {
         commentCreate(input:$input) {
@@ -537,12 +544,12 @@ describe('RelayStoreData', function() {
       {configs, isOptimisticUpdate: false}
     );
 
-    expect(cacheManager).toContainCalledMethods({
-      cacheNode: 0,
-      cacheField: prevCallCount + 12,
-      cacheRootCall: 0,
+    expect(mutationWriter).toContainCalledMethods({
+      writeNode: 0,
+      writeField: 12,
+      writeRootCall: 0,
     });
-    expect(cacheManager.cacheField).toBeCalledWithNodeFields({
+    expect(mutationWriter.writeField).toBeCalledWithNodeFields({
       'client:1': {
         __range__: getRangeForRecord('client:1'),
         count: 3,
@@ -603,6 +610,7 @@ describe('RelayStoreData', function() {
       }
     });
     storeData.handleQueryPayload(query, response);
+    var {mutationWriter} = cacheManager.mocks;
 
     var configs = [{
       type: RelayMutationType.RANGE_DELETE,
@@ -610,7 +618,6 @@ describe('RelayStoreData', function() {
       deletedIDFieldName: 'deletedCommentId',
     }];
 
-    var prevCallCount = cacheManager.cacheField.mock.calls.length;
     var mutationQuery = getNode(Relay.QL`
       mutation {
         commentDelete(input:$input) {
@@ -641,12 +648,12 @@ describe('RelayStoreData', function() {
       {configs, isOptimisticUpdate: false}
     );
 
-    expect(cacheManager).toContainCalledMethods({
-      cacheNode: 1,
-      cacheField: prevCallCount + 4,
-      cacheRootCall: 0,
+    expect(mutationWriter).toContainCalledMethods({
+      writeNode: 1,
+      writeField: 4,
+      writeRootCall: 0,
     });
-    expect(cacheManager.cacheField).toBeCalledWithNodeFields({
+    expect(mutationWriter.writeField).toBeCalledWithNodeFields({
       'client:1': {
         __range__: getRangeForRecord('client:1'),
         count: 1,

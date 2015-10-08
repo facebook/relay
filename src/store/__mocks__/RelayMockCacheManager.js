@@ -11,13 +11,28 @@
 
 var RelayMockCacheManager = {
   genCacheManager: function() {
+    var mutationWriter = genMockWriter();
+    var queryWriter = genMockWriter();
     return {
-      cacheNode: jest.genMockFunction(),
-      cacheField: jest.genMockFunction(),
-      cacheRootCall: jest.genMockFunction(),
+      mocks: {
+        mutationWriter,
+        queryWriter,
+      },
+      getMutationWriter:
+        jest.genMockFunction().mockReturnValue(mutationWriter),
+      getQueryWriter:
+        jest.genMockFunction().mockReturnValue(queryWriter),
       readAllData: jest.genMockFunction(),
     };
   },
 };
+
+function genMockWriter() {
+  return {
+    writeField: jest.genMockFunction(),
+    writeNode: jest.genMockFunction(),
+    writeRootCall: jest.genMockFunction(),
+  };
+}
 
 module.exports = RelayMockCacheManager;

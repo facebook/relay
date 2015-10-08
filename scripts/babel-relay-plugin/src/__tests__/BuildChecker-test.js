@@ -40,8 +40,9 @@ describe('babel-relay-plugin', () => {
           path.relative(ROOT_DIR, libPath),
           path.relative(ROOT_DIR, srcPath)
         );
+        const transformed = babel.transform(srcCode, {optional: ['runtime']});
         // Cannot use a `===` because of generated comment, newlines, etc.
-        return libCode.indexOf(babel.transform(srcCode).code) >= 0;
+        return libCode.indexOf(transformed.code) >= 0;
       }
     });
   });

@@ -8,7 +8,8 @@
   "scripts": {
     "build": "scripts/build-lib",
     "prepublish": "npm run build",
-    "test": "jest",
+    "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; NODE_ENV=test jest $@ || EXIT=$?; exit $EXIT; }; f",
+    "typecheck": "flow check src/",
     "update-schema": "babel-node ./src/tools/generateSchemaJson.js",
     "update-fixtures": "babel-node ./src/tools/regenerateFixtures.js"
   },
@@ -21,6 +22,7 @@
   "devDependencies": {
     "babel": "^5.8.23",
     "babel-jest": "^5.3.0",
+    "flow-bin": "0.17.0",
     "jest-cli": "^0.5.8",
     "minimist": "^1.1.3"
   },

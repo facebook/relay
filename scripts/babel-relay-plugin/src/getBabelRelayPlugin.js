@@ -12,6 +12,8 @@
 
 'use strict';
 
+require('babel/polyfill');
+
 const RelayQLTransformer = require('./RelayQLTransformer');
 const {buildClientSchema} = require('graphql/utilities/buildClientSchema');
 const invariant = require('./invariant');

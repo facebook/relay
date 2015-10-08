@@ -4,7 +4,7 @@ ROOT_DIR=$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)
 
 cd $ROOT_DIR
 rm -r lib
-babel src --out-dir lib --ignore __tests__,tools
+babel src --ignore __tests__,tools --optional runtime --out-dir lib
 for file in $(find lib -name \*.js); do
   echo '// @''generated' > $file.generated
   cat $file >> $file.generated

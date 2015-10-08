@@ -7,106 +7,157 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
+ * 
  * @fullSyntaxTransform
  */
 
 'use strict';
 
-var RelayQLPrinter = require('./RelayQLPrinter');
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 var _require = require('./RelayQLAST');
 
+var RelayQLDefinition = _require.RelayQLDefinition;
 var RelayQLFragment = _require.RelayQLFragment;
 var RelayQLMutation = _require.RelayQLMutation;
 var RelayQLQuery = _require.RelayQLQuery;
 
-var assert = require('assert');
+var RelayQLPrinter = require('./RelayQLPrinter');
+
 var formatError = require('graphql/error').formatError;
 var parser = require('graphql/language/parser');
 var Source = require('graphql/language/source').Source;
 var validate = require('graphql/validation/validate').validate;
+var invariant = require('./invariant');
 var util = require('util');
 
-function RelayQLTransformer(schema /*: GraphQLSchema */) {
-  this.schema = schema;
-}
-
-RelayQLTransformer.prototype.transformQuery = function (queryAndSubstitutions, documentName, /*: string */
-tagName /*: string */
-) /*: string */{
-  var substitutions = queryAndSubstitutions.substitutions;
-  var text = queryAndSubstitutions.text;
-
-  var document = this.parseDocument(text, documentName);
-  var printer = new RelayQLPrinter(tagName);
-  return printer.print(document, substitutions);
-};
-
-RelayQLTransformer.prototype.parseDocument = function (query, /*: string */
-documentName /*: string */
-) /*: string */{
-  var match = /^(fragment|mutation|query)\s*(\w*)?([\s\S]*)/.exec(query);
-  assert(match, util.format('GraphQL: expected query `%s...` to start with a document type. ' + 'Specify `fragment`, `mutation`, or `query`.', query.substr(0, 20)));
-  var type = match[1];
-  var name = match[2] || documentName;
-  var rest = match[3];
-
-  if (type === 'fragment' && name === 'on') {
-    // Allow `fragment on User {...}`
-    rest = 'on' + rest;
-    name = documentName;
-  }
-
-  name = this.getName(name);
-  var queryText = type + ' ' + name + ' ' + rest;
-  var ast = parse(type, queryText, this.schema).definitions[0];
-
-  var context = {
-    documentName: name,
-    schema: this.schema
-  };
-  switch (type) {
-    case 'fragment':
-      return new RelayQLFragment(context, ast);
-    case 'mutation':
-      return new RelayQLMutation(context, ast);
-    case 'query':
-      return new RelayQLQuery(context, ast);
-  }
-  throw new Error(util.format('Unsupported type: %s', type));
-};
-
-RelayQLTransformer.prototype.getName = function (documentName /*: string */
-) /*: string */{
-  if (!documentName || !documentName.length) {
-    throw new Error('RelayQLTransformer: expected document to have a name.');
-  }
-  return documentName[0].toUpperCase() + documentName.slice(1);
-};
-
 /**
- * Parses a query document into an AST, returning the AST plus any validation
- * errors.
+ * Transforms a TemplateLiteral node into a RelayQLDefinition, which is then
+ * transformed into a Babel AST via RelayQLPrinter.
  */
-function parse(type, /*: string */
-text, /*: string */
-schema /*: GraphQLSchema */
-) /*: any */{
-  var source = new Source(text, 'GraphQL Document');
-  var documentAST = parser.parse(source);
-  var rules = [require('graphql/validation/rules/ArgumentsOfCorrectType').ArgumentsOfCorrectType, require('graphql/validation/rules/DefaultValuesOfCorrectType').DefaultValuesOfCorrectType, require('graphql/validation/rules/FieldsOnCorrectType').FieldsOnCorrectType, require('graphql/validation/rules/FragmentsOnCompositeTypes').FragmentsOnCompositeTypes, require('graphql/validation/rules/KnownArgumentNames').KnownArgumentNames, require('graphql/validation/rules/KnownTypeNames').KnownTypeNames, require('graphql/validation/rules/PossibleFragmentSpreads').PossibleFragmentSpreads, require('graphql/validation/rules/PossibleFragmentSpreads').PossibleFragmentSpreads, require('graphql/validation/rules/VariablesInAllowedPosition').VariablesInAllowedPosition];
-  if (type !== 'mutation') {
-    rules.push(require('graphql/validation/rules/ProvidedNonNullArguments').ProvidedNonNullArguments);
+
+var RelayQLTransformer = (function () {
+  function RelayQLTransformer(schema) {
+    _classCallCheck(this, RelayQLTransformer);
+
+    this.schema = schema;
   }
-  var validationErrors = validate(schema, documentAST, rules);
-  if (validationErrors && validationErrors.length > 0) {
-    validationErrors = validationErrors.map(formatError);
-    var error = new Error('This document is invalid');
-    error.validationErrors = validationErrors;
-    error.sourceText = text;
-    throw error;
-  }
-  return documentAST;
+
+  _createClass(RelayQLTransformer, [{
+    key: 'transform',
+    value: function transform(node, documentName, tagName) {
+      var _processTemplateLiteral = this.processTemplateLiteral(node);
+
+      var templateText = _processTemplateLiteral.templateText;
+      var substitutions = _processTemplateLiteral.substitutions;
+
+      var documentText = this.processTemplateText(templateText, documentName);
+      var definition = this.processDocumentText(documentText, documentName);
+      return new RelayQLPrinter(tagName).print(definition, substitutions);
+    }
+
+    /**
+     * Convert TemplateLiteral into a single template string with substitution
+     * names and a matching array of substituted values.
+     */
+  }, {
+    key: 'processTemplateLiteral',
+    value: function processTemplateLiteral(node) {
+      var chunks = [];
+      var substitutions = [];
+      node.quasis.forEach(function (element, ii) {
+        chunks.push(element.value.cooked);
+        if (!element.tail) {
+          var _name = 'sub_' + ii;
+          var _value = node.expressions[ii];
+          substitutions.push({ name: _name, value: _value });
+          chunks.push('...' + _name);
+        }
+      });
+      return { substitutions: substitutions, templateText: chunks.join('').trim() };
+    }
+
+    /**
+     * Converts the template string into a valid GraphQL document string.
+     */
+  }, {
+    key: 'processTemplateText',
+    value: function processTemplateText(templateText, documentName) {
+      var matches = /^(fragment|mutation|query)\s*(\w*)?([\s\S]*)/.exec(templateText);
+      invariant(matches, 'You supplied a GraphQL document named `%s` with invalid syntax. It ' + 'must start with `fragment`, `mutation`, or `query`.', documentName);
+      var type = matches[1];
+      var name = matches[2] || documentName;
+      var rest = matches[3];
+      // Allow `fragment on Type {...}`.
+      if (type === 'fragment' && name === 'on') {
+        name = documentName;
+        rest = 'on' + rest;
+      }
+      var definitionName = capitalize(name);
+      return type + ' ' + definitionName + ' ' + rest;
+    }
+
+    /**
+     * Parses the GraphQL document string into a RelayQLDocument.
+     */
+  }, {
+    key: 'processDocumentText',
+    value: function processDocumentText(documentText, documentName) {
+      var document = parser.parse(new Source(documentText, documentName));
+      var validationErrors = this.validateDocument(document);
+      if (validationErrors) {
+        var error = new Error(util.format('You supplied a GraphQL document named `%s` with validation errors.', documentName));
+        error.validationErrors = validationErrors;
+        error.sourceText = documentText;
+        throw error;
+      }
+      var definition = document.definitions[0];
+
+      var context = {
+        definitionName: capitalize(documentName),
+        schema: this.schema
+      };
+      if (definition.kind === 'FragmentDefinition') {
+        return new RelayQLFragment(context, definition);
+      } else if (definition.kind === 'OperationDefinition') {
+        if (definition.operation === 'mutation') {
+          return new RelayQLMutation(context, definition);
+        } else if (definition.operation === 'query') {
+          return new RelayQLQuery(context, definition);
+        } else {
+          invariant(false, 'Unsupported operation: %s', definition.operation);
+        }
+      } else {
+        console.log(definition);
+        invariant(false, 'Unsupported definition kind: %s', definition.kind);
+      }
+    }
+  }, {
+    key: 'validateDocument',
+    value: function validateDocument(document) {
+      invariant(document.definitions.length === 1, 'You supplied a GraphQL document named `%s` with %d definitions, but ' + 'it must have exactly one definition.', document.definitions.length);
+      var definition = document.definitions[0];
+      var isMutation = definition.kind === 'OperationDefinition' && definition.operation === 'mutation';
+
+      var rules = [require('graphql/validation/rules/ArgumentsOfCorrectType').ArgumentsOfCorrectType, require('graphql/validation/rules/DefaultValuesOfCorrectType').DefaultValuesOfCorrectType, require('graphql/validation/rules/FieldsOnCorrectType').FieldsOnCorrectType, require('graphql/validation/rules/FragmentsOnCompositeTypes').FragmentsOnCompositeTypes, require('graphql/validation/rules/KnownArgumentNames').KnownArgumentNames, require('graphql/validation/rules/KnownTypeNames').KnownTypeNames, require('graphql/validation/rules/PossibleFragmentSpreads').PossibleFragmentSpreads, require('graphql/validation/rules/PossibleFragmentSpreads').PossibleFragmentSpreads, require('graphql/validation/rules/VariablesInAllowedPosition').VariablesInAllowedPosition];
+      if (!isMutation) {
+        rules.push(require('graphql/validation/rules/ProvidedNonNullArguments').ProvidedNonNullArguments);
+      }
+      var validationErrors = validate(this.schema, document, rules);
+      if (validationErrors && validationErrors.length > 0) {
+        return validationErrors.map(formatError);
+      }
+      return null;
+    }
+  }]);
+
+  return RelayQLTransformer;
+})();
+
+function capitalize(string) {
+  return string[0].toUpperCase() + string.slice(1);
 }
 
 module.exports = RelayQLTransformer;

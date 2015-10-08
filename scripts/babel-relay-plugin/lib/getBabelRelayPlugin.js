@@ -7,51 +7,35 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
+ * 
  * @fullSyntaxTransform
  */
 
 'use strict';
 
 var RelayQLTransformer = require('./RelayQLTransformer');
-var buildClientSchema = require('graphql/utilities/buildClientSchema').buildClientSchema;
 
-var assert = require('assert');
+var _require = require('graphql/utilities/buildClientSchema');
+
+var buildClientSchema = _require.buildClientSchema;
+
+var invariant = require('./invariant');
 var path = require('path');
+var util = require('util');
 
 var PROVIDES_MODULE = 'providesModule';
-
-/**
- * Extract text from a template string.
- */
-function extractTemplate(node) {
-  var text = '';
-  var substitutions = [];
-  var templateElements = node.quasi.quasis;
-  for (var ii = 0; ii < templateElements.length; ii++) {
-    var template = templateElements[ii];
-    text += template.value.cooked;
-    if (!template.tail) {
-      var sub = 'sub_' + ii;
-      substitutions.push(sub);
-      text += '...' + sub;
-    }
-  }
-  return { text: text.trim(), substitutions: substitutions };
-}
 
 /**
  * Returns a new Babel Transformer that uses the supplied schema to transform
  * template strings tagged with `Relay.QL` into an internal representation of
  * GraphQL queries.
  */
-function getBabelRelayPlugin(schemaProvider, /*: Object | Function */
-options /*: ?Object */
-) {
+function getBabelRelayPlugin(schemaProvider, pluginOptions) {
+  var options = pluginOptions || {};
+
   return function (babel) {
     var Plugin = babel.Plugin;
     var t = babel.types;
-
-    options = options || {};
 
     var warning = options.suppressWarnings ? function () {} : console.warn.bind(console);
 
@@ -64,14 +48,14 @@ options /*: ?Object */
           if (state.opts.extra.documentName) {
             return;
           }
-          var documentName;
+          var documentName = undefined;
           if (parent.comments && parent.comments.length) {
             var docblock = parent.comments[0].value || '';
             var propertyRegex = /@(\S+) *(\S*)/g;
-            var match;
-            while (match = propertyRegex.exec(docblock)) {
-              var property = match[1];
-              var value = match[2];
+            var captures = undefined;
+            while (captures = propertyRegex.exec(docblock)) {
+              var property = captures[1];
+              var value = captures[2];
               if (property === PROVIDES_MODULE) {
                 documentName = value.replace(/[\.-:]/g, '_');
                 break;
@@ -86,9 +70,7 @@ options /*: ?Object */
               documentName = captures[0];
             }
           }
-          if (documentName) {
-            state.opts.extra.documentName = documentName;
-          }
+          state.opts.extra.documentName = documentName || 'UnknownFile';
         },
 
         /**
@@ -96,61 +78,57 @@ options /*: ?Object */
          */
         TaggedTemplateExpression: function TaggedTemplateExpression(node, parent, scope, state) {
           var tag = this.get('tag');
-          var tagName;
-          if (tag.matchesPattern('Relay.QL')) {
-            tagName = 'Relay.QL';
-          } else if (tag.isIdentifier({ name: 'RelayQL' })) {
-            tagName = 'RelayQL';
-          } else {
+          var tagName = tag.matchesPattern('Relay.QL') ? 'Relay.QL' : tag.isIdentifier({ name: 'RelayQL' }) ? 'RelayQL' : null;
+          if (!tagName) {
             return;
           }
 
-          var documentTransformer = state.opts.extra.documentTransformer;
-          if (!documentTransformer) {
+          var transformer = state.opts.extra.transformer;
+          if (!transformer) {
             var schema = getSchema(schemaProvider);
-            documentTransformer = new RelayQLTransformer(schema);
-            state.opts.extra.documentTransformer = documentTransformer;
+            transformer = new RelayQLTransformer(schema);
+            state.opts.extra.transformer = transformer;
           }
-          assert(documentTransformer instanceof RelayQLTransformer, 'getBabelRelayPlugin(): Expected a document transformer to be ' + 'configured for this instance of the plugin.');
+          invariant(transformer instanceof RelayQLTransformer, 'getBabelRelayPlugin(): Expected RQLTransformer to be configured ' + 'for this instance of the plugin.');
 
-          var extractedTemplate = extractTemplate(node);
-          var documentName = state.opts.extra.documentName || 'UnknownFile';
-          var code;
+          var documentName = state.opts.extra.documentName;
+
+          invariant(documentName, 'Expected `documentName` to have been set.');
+
+          var result = undefined;
           try {
-            code = documentTransformer.transformQuery(extractedTemplate, documentName, tagName);
+            result = transformer.transform(node.quasi, documentName, tagName);
           } catch (error) {
             // Print a console warning and replace the code with a function
             // that will immediately throw an error in the browser.
-            var filename = state.opts.filename || 'UnknownFile';
             var sourceText = error.sourceText;
             var validationErrors = error.validationErrors;
-            var errorMessages;
+
+            var filename = state.opts.filename || 'UnknownFile';
+            var errorMessages = [];
             if (validationErrors && sourceText) {
               var sourceLines = sourceText.split('\n');
-              validationErrors.forEach(function (validationError) {
-                errorMessages = errorMessages || [];
-                errorMessages.push(validationError.message);
+              validationErrors.forEach(function (_ref) {
+                var message = _ref.message;
+                var locations = _ref.locations;
+
+                errorMessages.push(message);
                 warning('\n-- GraphQL Validation Error -- %s --\n', path.basename(filename));
-                warning('Error: ' + validationError.message + '\n' + 'File:  ' + filename + '\n' + 'Source:');
-                validationError.locations.forEach(function (location) {
+                warning(['Error: ' + message, 'File:  ' + filename, 'Source:'].join('\n'));
+                locations.forEach(function (location) {
                   var preview = sourceLines[location.line - 1];
-                  var prefix = '> ';
-                  var highlight = repeat(' ', location.column - 1) + '^^^';
                   if (preview) {
-                    warning(prefix);
-                    warning(prefix + preview);
-                    warning(prefix + highlight);
+                    warning(['> ', '> ' + preview, '> ' + ' '.repeat(location.column - 1) + '^^^'].join('\n'));
                   }
                 });
               });
             } else {
-              errorMessages = [error.message];
+              errorMessages.push(error.message);
               warning('\n-- Relay Transform Error -- %s --\n', path.basename(filename));
-              warning('Error: ' + error.message + '\n' + 'File:  ' + filename + '\n');
+              warning(['Error: ' + error.message, 'File:  ' + filename].join('\n'));
             }
-
-            var message = 'GraphQL validation/transform error ``' + errorMessages.join(' ') + '`` in file `' + filename + '`.';
-            code = t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.literal(message)]))]));
+            var runtimeMessage = util.format('GraphQL validation/transform error ``%s`` in file `%s`.', errorMessages.join(' '), filename);
+            result = t.callExpression(t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.literal(runtimeMessage)]))])), []);
 
             if (options.debug) {
               console.error(error.stack);
@@ -159,31 +137,17 @@ options /*: ?Object */
               throw new Error('Aborting due to GraphQL validation/transform error(s).');
             }
           }
-
-          // Immediately invoke the function with substitutions as arguments.
-          var substitutions = node.quasi.expressions;
-          var funcCall = t.callExpression(code, substitutions);
-          this.replaceWith(funcCall);
+          this.replaceWith(result);
         }
       }
     });
   };
 }
 
-function repeat(char, count) {
-  var str = '';
-  while (str.length < count) {
-    str += char;
-  }
-  return str;
-}
-
-function getSchema(schemaProvider /*: Object | Function */
-) /*: GraphQLSchema */{
+function getSchema(schemaProvider) {
   var schemaData = typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
-  assert(typeof schemaData === 'object' && schemaData !== null && typeof schemaData.__schema === 'object' && schemaData.__schema !== null, 'getBabelRelayPlugin(): Expected schema to be an object with a ' + '`__schema` property.');
+  invariant(typeof schemaData === 'object' && schemaData !== null && typeof schemaData.__schema === 'object' && schemaData.__schema !== null, 'getBabelRelayPlugin(): Expected schema to be an object with a ' + '`__schema` property.');
   return buildClientSchema(schemaData);
 }
 
 module.exports = getBabelRelayPlugin;
-/*: Object */

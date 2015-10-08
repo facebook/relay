@@ -13,6 +13,10 @@
 
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -39,10 +43,10 @@ var util = require('util');
 var NULL = t.literal(null);
 
 var RelayQLPrinter = (function () {
-  function RelayQLPrinter(functionName) {
+  function RelayQLPrinter(tagName) {
     _classCallCheck(this, RelayQLPrinter);
 
-    this.functionName = functionName;
+    this.tagName = tagName;
   }
 
   _createClass(RelayQLPrinter, [{
@@ -58,9 +62,11 @@ var RelayQLPrinter = (function () {
       } else {
         invariant(false, 'Unsupported definition: %s', definition);
       }
-      return t.functionExpression(null, substitutions.map(function (sub) {
-        return t.identifier(sub);
-      }), t.blockStatement([t.variableDeclaration('var', [t.variableDeclarator(t.identifier('GraphQL'), t.memberExpression(identify(this.functionName), t.identifier('__GraphQL')))]), t.returnStatement(printedDocument)]));
+      return t.callExpression(t.functionExpression(null, substitutions.map(function (substitution) {
+        return t.identifier(substitution.name);
+      }), t.blockStatement([t.variableDeclaration('var', [t.variableDeclarator(t.identifier('GraphQL'), t.memberExpression(identify(this.tagName), t.identifier('__GraphQL')))]), t.returnStatement(printedDocument)])), substitutions.map(function (substitution) {
+        return substitution.value;
+      }));
     }
   }, {
     key: 'printQuery',
@@ -242,7 +248,7 @@ var RelayQLPrinter = (function () {
   }, {
     key: 'printFragmentReference',
     value: function printFragmentReference(fragmentReference) {
-      return t.callExpression(t.memberExpression(identify(this.functionName), t.identifier('__frag')), [t.identifier(fragmentReference.getName())]);
+      return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__frag')), [t.identifier(fragmentReference.getName())]);
     }
   }, {
     key: 'printArgument',

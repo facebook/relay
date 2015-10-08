@@ -41,7 +41,7 @@ type GraphQLSchemaField = Object;
 type GraphQLSchemaType = Object;
 
 type RelayQLContext = {
-  documentName: string;
+  definitionName: string;
   schema: GraphQLSchema;
 };
 type RelayQLSelection =
@@ -116,7 +116,7 @@ class RelayQLNode<T> {
 
 class RelayQLDefinition<T> extends RelayQLNode<T> {
   getName(): ?string {
-    return this.ast.name ? this.ast.name.value : this.getType().getName({modifiers: false}); // TODO: this.context.documentName;
+    return this.ast.name ? this.ast.name.value : this.getType().getName({modifiers: false}); // TODO: this.context.definitionName;
   }
 }
 

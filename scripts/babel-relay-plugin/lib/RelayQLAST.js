@@ -120,7 +120,7 @@ var RelayQLDefinition = (function (_RelayQLNode) {
   _createClass(RelayQLDefinition, [{
     key: 'getName',
     value: function getName() {
-      return this.ast.name ? this.ast.name.value : this.getType().getName({ modifiers: false }); // TODO: this.context.documentName;
+      return this.ast.name ? this.ast.name.value : this.getType().getName({ modifiers: false }); // TODO: this.context.definitionName;
     }
   }]);
 

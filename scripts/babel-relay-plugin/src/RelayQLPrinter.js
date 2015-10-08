@@ -29,20 +29,24 @@ const invariant = require('./invariant');
 const t = require('babel-core/lib/types');
 const util = require('util');
 
-type Printable = Object;
+export type Printable = Object;
+export type Substitution = {
+  name: string;
+  value: Printable;
+};
 
 const NULL = t.literal(null);
 
 class RelayQLPrinter {
-  functionName: string;
+  tagName: string;
 
-  constructor(functionName: string) {
-    this.functionName = functionName;
+  constructor(tagName: string) {
+    this.tagName = tagName;
   }
 
   print(
     definition: RelayQLDefinition,
-    substitutions: Array<string>
+    substitutions: Array<Substitution>
   ): Printable {
     let printedDocument;
     if (definition instanceof RelayQLQuery) {
@@ -54,24 +58,27 @@ class RelayQLPrinter {
     } else {
       invariant(false, 'Unsupported definition: %s', definition);
     }
-    return t.functionExpression(
-      null,
-      substitutions.map(sub => t.identifier(sub)),
-      t.blockStatement([
-        t.variableDeclaration(
-          'var',
-          [
-            t.variableDeclarator(
-              t.identifier('GraphQL'),
-              t.memberExpression(
-                identify(this.functionName),
-                t.identifier('__GraphQL')
+    return t.callExpression(
+      t.functionExpression(
+        null,
+        substitutions.map(substitution => t.identifier(substitution.name)),
+        t.blockStatement([
+          t.variableDeclaration(
+            'var',
+            [
+              t.variableDeclarator(
+                t.identifier('GraphQL'),
+                t.memberExpression(
+                  identify(this.tagName),
+                  t.identifier('__GraphQL')
+                )
               )
-            )
-          ]
-        ),
-        t.returnStatement(printedDocument),
-      ])
+            ]
+          ),
+          t.returnStatement(printedDocument),
+        ])
+      ),
+      substitutions.map(substitution => substitution.value)
     );
   }
 
@@ -359,7 +366,7 @@ class RelayQLPrinter {
   printFragmentReference(fragmentReference: RelayQLFragmentSpread): Printable {
     return t.callExpression(
       t.memberExpression(
-        identify(this.functionName),
+        identify(this.tagName),
         t.identifier('__frag')
       ),
       [t.identifier(fragmentReference.getName())]

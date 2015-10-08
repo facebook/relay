@@ -100,7 +100,13 @@ options /*: ?Object */
          * Transform Relay.QL`...`.
          */
         TaggedTemplateExpression: function TaggedTemplateExpression(node, parent, scope, state) {
-          if (!this.get('tag').matchesPattern('Relay.QL')) {
+          var tag = this.get('tag');
+          var tagName;
+          if (tag.matchesPattern('Relay.QL')) {
+            tagName = 'Relay.QL';
+          } else if (tag.isIdentifier({ name: 'RelayQL' })) {
+            tagName = 'RelayQL';
+          } else {
             return;
           }
 
@@ -116,7 +122,7 @@ options /*: ?Object */
           var documentName = state.opts.extra.documentName || 'UnknownFile';
           var code;
           try {
-            code = documentTransformer.transformQuery(extractedTemplate, documentName, 'Relay.QL');
+            code = documentTransformer.transformQuery(extractedTemplate, documentName, tagName);
           } catch (error) {
             // Print a console warning and replace the code with a function
             // that will immediately throw an error in the browser.

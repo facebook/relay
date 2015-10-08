@@ -103,7 +103,13 @@ function getBabelRelayPlugin(
          * Transform Relay.QL`...`.
          */
         TaggedTemplateExpression: function(node, parent, scope, state) {
-          if (!this.get('tag').matchesPattern('Relay.QL')) {
+          var tag = this.get('tag');
+          var tagName;
+          if (tag.matchesPattern('Relay.QL')) {
+            tagName = 'Relay.QL';
+          } else if (tag.isIdentifier({name: 'RelayQL'})) {
+            tagName = 'RelayQL';
+          } else {
             return;
           }
 
@@ -126,7 +132,7 @@ function getBabelRelayPlugin(
             code = documentTransformer.transformQuery(
               extractedTemplate,
               documentName,
-              'Relay.QL'
+              tagName
             );
           } catch (error) {
             // Print a console warning and replace the code with a function

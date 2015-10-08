@@ -564,7 +564,7 @@ function createContainerComponent(
       route: RelayQueryConfigSpec,
       variables: Variables
     ): void {
-      var fragmentPointers = this._fragmentPointers;
+      const fragmentPointers = this._fragmentPointers;
       fragmentNames.forEach(fragmentName => {
         var propValue = props[fragmentName];
         warning(
@@ -576,7 +576,7 @@ function createContainerComponent(
           componentName
         );
         if (!propValue) {
-          fragmentPointers[fragmentName] = null;
+          fragmentPointers[fragmentName] = null;;
           return;
         }
         var fragment = getFragment(fragmentName, route, variables);
@@ -646,6 +646,29 @@ function createContainerComponent(
           new GraphQLFragmentPointer(dataIDOrIDs, fragment) :
           null;
       });
+      if (__DEV__) {
+        // If a fragment pointer is null, warn if it was found on another prop.
+        fragmentNames.forEach(fragmentName => {
+          if (fragmentPointers[fragmentName]) {
+            return;
+          }
+          const fragment = getFragment(fragmentName, route, variables);
+          const concreteFragmentID = fragment.getConcreteFragmentID();
+          Object.keys(props).forEach(propName => {
+            warning(
+              fragmentPointers[propName] ||
+              !props[propName] ||
+              !props[propName][concreteFragmentID],
+              'RelayContainer: Expected record data for prop `%s` on `%s`, ' +
+              'but it was instead on prop `%s`. Did you misspell a prop or ' +
+              'pass record data into the wrong prop?',
+              fragmentName,
+              componentName,
+              propName
+            );
+          });
+        });
+      }
     }
 
     _getQueryData(

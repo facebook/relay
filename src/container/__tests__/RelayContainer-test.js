@@ -443,6 +443,24 @@ describe('RelayContainer', function() {
     ]).toBeWarnedNTimes(1);
   });
 
+  it('warns if fragment pointer exists on a different prop', () => {
+    var mockFooPointer = getPointer('42', mockFooFragment);
+
+    RelayTestRenderer.render(
+      () => <MockContainer baz={mockFooPointer} />,
+      mockRoute
+    );
+
+    expect([
+      'RelayContainer: Expected record data for prop `%s` on `%s`, ' +
+      'but it was instead on prop `%s`. Did you misspell a prop or ' +
+      'pass record data into the wrong prop?',
+      'foo',
+      'MockComponent',
+      'baz',
+    ]).toBeWarnedNTimes(1);
+  });
+
   it('warns if a query is not passed in', () => {
     RelayTestRenderer.render(
       () => <MockContainer foo={null} />,

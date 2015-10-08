@@ -29,7 +29,7 @@ ReactDOM.render(
       <IndexRoute
         component={TodoList}
         queries={ViewerQueries}
-        queryParams={['status']}
+        prepareParams={() => ({status: 'any'})}
       />
       <Route
         path=":status" component={TodoList}

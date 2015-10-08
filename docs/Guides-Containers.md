@@ -46,7 +46,7 @@ class ProfilePicture extends React.Component {
 
 ### Data Dependencies With GraphQL
 
-In Relay, data dependecies are described using [GraphQL](https://github.com/facebook/graphql). For `<ProfilePicture>`, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the `user` prop.
+In Relay, data dependencies are described using [GraphQL](https://github.com/facebook/graphql). For `<ProfilePicture>`, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the `user` prop.
 
 ```
 Relay.QL`
@@ -55,7 +55,7 @@ Relay.QL`
     # Set the `size` argument to a GraphQL variable named `$size` so that we can
     # later change its value via the slider.
     profilePhoto(size: $size) {
-      # Get the apppropriate URI for the given size, for example on a CDN.
+      # Get the appropriate URI for the given size, for example on a CDN.
       uri,
     },
   }

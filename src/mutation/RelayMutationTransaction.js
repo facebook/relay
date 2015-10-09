@@ -194,7 +194,7 @@ class RelayMutationTransaction {
       this._query = RelayMutationQuery.buildQuery({
         configs: this._getConfigs(),
         fatQuery: this._getFatQuery(),
-        mutationName: this._mutation.constructor.name,
+        mutationName: this._getMutationNode().name,
         mutation: this._getMutationNode(),
         input: this._getInputVariable(),
       });

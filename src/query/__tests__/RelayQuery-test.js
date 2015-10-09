@@ -18,6 +18,7 @@ var GraphQL = require('GraphQL');
 var Relay = require('Relay');
 var RelayFragmentReference = require('RelayFragmentReference');
 var RelayMetaRoute = require('RelayMetaRoute');
+var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQuery = require('RelayQuery');
 
 describe('RelayQuery', () => {
@@ -33,11 +34,7 @@ describe('RelayQuery', () => {
     describe('build()', () => {
       it('creates roots', () => {
         var field = RelayQuery.Field.build('id');
-        var root = RelayQuery.Root.build(
-          'node',
-          '4',
-          [field]
-        );
+        var root = RelayNodeInterface.buildQuery('4', [field]);
         expect(root instanceof RelayQuery.Root).toBe(true);
         expect(root.getChildren().length).toBe(1);
         expect(root.getChildren()[0]).toBe(field);
@@ -45,8 +42,7 @@ describe('RelayQuery', () => {
 
       it('creates deferred roots', () => {
         var field = RelayQuery.Field.build('id');
-        var root = RelayQuery.Root.build(
-          'node',
+        var root = RelayNodeInterface.buildQuery(
           '4',
           [field],
           {isDeferred: true}
@@ -57,8 +53,7 @@ describe('RelayQuery', () => {
       });
 
       it('creates roots with batch calls', () => {
-        var root = RelayQuery.Root.build(
-          'node',
+        var root = RelayNodeInterface.buildQuery(
           new GraphQL.BatchCallVariable('q0', '$.*.id'),
           []
         );

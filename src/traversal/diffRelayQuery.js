@@ -764,11 +764,10 @@ function buildRoot(
       childTypes[type]
     ));
   });
-  return RelayQuery.Root.build(
-    NODE,
+  return RelayNodeInterface.buildQuery(
     rootID,
     fragments,
-    {identifyingArgName: RelayNodeInterface.ID},
+    null,
     name
   );
 }

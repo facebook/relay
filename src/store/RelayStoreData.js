@@ -269,11 +269,10 @@ class RelayStoreData {
     }
     // Fragment fields cannot be spread directly into the root because they
     // may not exist on the `Node` type.
-    return RelayQuery.Root.build(
-      RelayNodeInterface.NODE,
+    return RelayNodeInterface.buildQuery(
       dataID,
       [fragment],
-      {identifyingArgName: RelayNodeInterface.ID},
+      null,
       fragment.getDebugName() || 'UnknownQuery'
     );
   }

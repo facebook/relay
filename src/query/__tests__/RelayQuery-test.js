@@ -39,10 +39,6 @@ describe('RelayQuery', () => {
           [field]
         );
         expect(root instanceof RelayQuery.Root).toBe(true);
-        expect(root.getRootCall()).toEqual({
-          name: 'node',
-          value: '4'
-        });
         expect(root.getChildren().length).toBe(1);
         expect(root.getChildren()[0]).toBe(field);
       });
@@ -56,10 +52,6 @@ describe('RelayQuery', () => {
           {isDeferred: true}
         );
         expect(root instanceof RelayQuery.Root).toBe(true);
-        expect(root.getRootCall()).toEqual({
-          name: 'node',
-          value: '4'
-        });
         expect(root.getChildren().length).toBe(1);
         expect(root.getChildren()[0]).toBe(field);
       });
@@ -77,6 +69,84 @@ describe('RelayQuery', () => {
           sourceQueryPath: '$.*.id',
         });
       });
+    });
+
+    describe('getCallsWithValues()', () => {
+      it('returns an empty array when there are no arguments', () => {
+        const root = RelayQuery.Root.build('viewer');
+        expect(root.getCallsWithValues()).toEqual([]);
+      });
+
+      it('returns an array including the identifying argument', () => {
+        const root = RelayQuery.Root.build(
+          'foo',
+          '123',
+          null,
+          {identifyingArgName: 'id'}
+        );
+        expect(root.getCallsWithValues()).toEqual([
+          {name: 'id', value: '123'},
+        ]);
+      });
+
+      // it('returns an array of every argument', () => {
+      //   //   TODO: When it's possible to do so, create a root with both
+      //   //         identifying and non-identifying arguments.
+      //   const root;
+      //   expect(root.getCallsWithValues()).toEqual([
+      //     /* all of the arguments */
+      //   ]);
+      // });
+    });
+
+    describe('getFieldName()', () => {
+      it('returns the name of the root field', () => {
+        const root = RelayQuery.Root.build('viewer');
+        expect(root.getFieldName()).toBe('viewer');
+      });
+    });
+
+    describe('getIdentifyingArg()', () => {
+      it('returns nothing when there is no identifying argument', () => {
+        const root = RelayQuery.Root.build('viewer');
+        expect(root.getIdentifyingArg()).toBeUndefined();
+      });
+
+      it('returns the sole identifying argument', () => {
+        const root = RelayQuery.Root.build(
+          'foo',
+          '123',
+          null,
+          {identifyingArgName: 'id'}
+        );
+        expect(root.getIdentifyingArg()).toEqual({
+          name: 'id',
+          value: '123',
+        });
+      });
+
+      it('returns the identifying argument with type', () => {
+        const root = RelayQuery.Root.build(
+          'foo',
+          '123',
+          null,
+          {identifyingArgName: 'id', identifyingArgType: 'scalar'}
+        );
+        expect(root.getIdentifyingArg()).toEqual({
+          name: 'id',
+          type: 'scalar',
+          value: '123',
+        });
+      });
+
+      // it('returns only the identifying argument', () => {
+      //   TODO: When it's possible to do so, create a root with both
+      //         identifying and non-identifying arguments.
+      //   const root;
+      //   expect(root.getIdentifyingArg()).toBe({
+      //    /* only the identifying one */
+      //   });
+      // });
     });
   });
 

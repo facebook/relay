@@ -134,9 +134,9 @@ var RelayStore = {
     options?: StoreReaderOptions
   ): Array<?StoreReaderData> {
     var results = [];
-    forEachRootCallArg(root, (rootCallArg, rootCallName) => {
+    forEachRootCallArg(root, (identifyingArgValue, fieldName) => {
       var data;
-      var dataID = queuedStore.getRootCallID(rootCallName, rootCallArg);
+      var dataID = queuedStore.getRootCallID(fieldName, identifyingArgValue);
       if (dataID != null) {
         data = RelayStore.read(root, dataID, options);
       }

@@ -62,6 +62,6 @@ var x = (function () {
     generated: true,
     requisite: true
   })])], {
-    rootArg: 'id'
+    identifyingArgName: 'id'
   }, 'ConnectionWithoutNodeField');
 })();

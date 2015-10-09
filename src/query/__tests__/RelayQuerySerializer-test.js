@@ -91,7 +91,8 @@ describe('RelayQuerySerializer', () => {
       expect(toJSON(query)).toEqual({
         kind: 'Query',
         name: 'RelayQuerySerializer',
-        calls: [{name: 'viewer', value: null}],
+        fieldName: 'viewer',
+        calls: [],
         children: [
           {
             kind: 'Field',
@@ -130,14 +131,15 @@ describe('RelayQuerySerializer', () => {
       expect(toJSON(query)).toEqual({
         kind: 'Query',
         name: 'RelayQuerySerializer',
-        calls: [{name: 'node', value: '123'}],
+        fieldName: 'node',
+        calls: [{name: 'id', value: '123'}],
         children: [
           scalarField('name', 'Node'),
           idField('Node', {generated: true}),
           typeField('Node'),
         ],
         metadata: {
-          rootArg: 'id',
+          identifyingArgName: 'id',
         },
       });
       var clone = fromJSON(toJSON(query));
@@ -157,14 +159,15 @@ describe('RelayQuerySerializer', () => {
       expect(toJSON(query)).toEqual({
         kind: 'Query',
         name: 'RelayQuerySerializer',
-        calls: [{name: 'nodes', value: ['1', '2', '3']}],
+        fieldName: 'nodes',
+        calls: [{name: 'ids', value: ['1', '2', '3']}],
         children: [
           scalarField('name', 'Node'),
           idField('Node', {generated: true}),
           typeField('Node'),
         ],
         metadata: {
-          rootArg: 'ids',
+          identifyingArgName: 'ids',
         },
       });
       var clone = fromJSON(toJSON(query));

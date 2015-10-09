@@ -495,13 +495,13 @@ function getRootCallToIDMap(
 ): {[key: string]: string} {
   var mapping = {};
   if (!query.getBatchCall()) {
-    forEachRootCallArg(query, (rootCallArg, rootCallName) => {
-      var rootCallString = rootCallArg == null ?
-        rootCallName + '()' :
-        rootCallName + '(' + rootCallArg + ')';
+    forEachRootCallArg(query, (identifyingArgValue, fieldName) => {
+      var rootCallString = identifyingArgValue == null ?
+        fieldName + '()' :
+        fieldName + '(' + identifyingArgValue + ')';
 
       mapping[rootCallString] =
-        recordStore.getRootCallID(rootCallName, rootCallArg);
+        recordStore.getRootCallID(fieldName, identifyingArgValue);
     });
   }
   return mapping;

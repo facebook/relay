@@ -145,7 +145,9 @@ describe('toGraphQL', function() {
     `, {
       q: value,
     });
-    expect(relayQuery.getRootCall().value).toEqual(value);
+    const identifyingArg = relayQuery.getIdentifyingArg();
+    expect(identifyingArg).toBeDefined();
+    expect(identifyingArg.value).toEqual(value);
     var convertedQuery = toGraphQL.Query(relayQuery);
     expect(convertedQuery.calls[0].value.callValue).toBe(value);
   });
@@ -161,7 +163,9 @@ describe('toGraphQL', function() {
     `, {
       q: value,
     });
-    expect(relayQuery.getRootCall().value).toEqual(value);
+    const identifyingArg = relayQuery.getIdentifyingArg();
+    expect(identifyingArg).toBeDefined();
+    expect(identifyingArg.value).toEqual(value);
     var convertedQuery = toGraphQL.Query(relayQuery);
     expect(convertedQuery.calls[0].value.callValue).toBe(value);
   });

@@ -53,7 +53,16 @@ var RelayQuerySerializer = {
       typeof data === 'object' && data !== null && !Array.isArray(data),
       'RelayQuerySerializer.fromJSON(): expected an object.'
     );
-    var {alias, calls, children, kind, metadata, name, type} = data;
+    var {
+      alias,
+      calls,
+      children,
+      fieldName,
+      kind,
+      metadata,
+      name,
+      type,
+    } = data;
 
     invariant(
       alias == null || typeof alias === 'string',
@@ -113,10 +122,14 @@ var RelayQuerySerializer = {
       );
       return fragment;
     } else if (kind === QUERY) {
-      var rootCall = calls[0];
+      invariant(
+        fieldName != null,
+        'RelayQuerySerializer.fromJSON(): expected `fieldName` to be ' +
+        'non-null for a root node'
+      );
       var root = RelayQuery.Root.build(
-        rootCall.name,
-        rootCall.value,
+        fieldName,
+        (calls[0] && calls[0].value) || null,
         children,
         metadata,
         name
@@ -179,11 +192,11 @@ var RelayQuerySerializer = {
         },
       };
     } else if (node instanceof RelayQuery.Root) {
-      var rootCall = node.getRootCall();
       return {
         kind: QUERY,
         name: node.getName(),
-        calls: [rootCall],
+        fieldName: node.getFieldName(),
+        calls: node.getCallsWithValues(),
         children,
         metadata: node.__concreteNode__.__metadata__,
       };

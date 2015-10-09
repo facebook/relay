@@ -15,7 +15,7 @@ var q = (function () {
   return new GraphQL.Query('search', new GraphQL.CallVariable('query'), [new GraphQL.Field('title', null, null, null, null, null, {
     parentType: 'SearchResult'
   })], null, {
-    rootArg: 'query',
-    rootCallType: '[SearchInput!]'
+    identifyingArgName: 'query',
+    identifyingArgType: '[SearchInput!]'
   }, 'QueryWithObjectArg');
 })();

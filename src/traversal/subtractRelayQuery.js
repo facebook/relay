@@ -198,15 +198,18 @@ function isEmptyField(
 }
 
 /**
- * Determine if the two queries have the same root call & args.
+ * Determine if the two queries have the same root field and identifying arg.
  */
 function canSubtractRoot(
   min: RelayQuery.Root,
   sub: RelayQuery.Root
 ): boolean {
-  var minArg = min.getRootCall();
-  var subArg = sub.getRootCall();
-  return areEqual(minArg, subArg);
+  var minIdentifyingCall = min.getIdentifyingArg();
+  var subIdentifyingCall = sub.getIdentifyingArg();
+  return (
+    min.getFieldName() === sub.getFieldName() &&
+    areEqual(minIdentifyingCall, subIdentifyingCall)
+  );
 }
 
 /**

@@ -84,8 +84,8 @@ function getRelayQueries(
           RelayMetaRoute.get(route.name),
           route.params
         );
-        var rootCall = rootQuery.getRootCall();
-        if (rootCall.value !== undefined) {
+        const identifyingArg = rootQuery.getIdentifyingArg();
+        if (!identifyingArg || identifyingArg.value !== undefined) {
           querySet[queryName] = rootQuery;
           return;
         }

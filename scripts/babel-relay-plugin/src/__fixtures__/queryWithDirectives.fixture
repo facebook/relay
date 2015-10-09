@@ -41,7 +41,7 @@ var x = (function () {
       value: new GraphQL.CallVariable('bar')
     }]
   }])], {
-    rootArg: 'id'
+    identifyingArgName: 'id'
   }, 'QueryWithDirectives', [{
     name: 'include',
     arguments: [{

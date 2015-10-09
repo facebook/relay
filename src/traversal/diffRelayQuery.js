@@ -72,26 +72,35 @@ function diffRelayQuery(
   var queries = [];
 
   var visitor = new RelayDiffQueryBuilder(store, tracker);
-  var rootCallValue = root.getRootCall().value;
-  var isPluralCall = Array.isArray(rootCallValue) && rootCallValue.length > 1;
-
-  forEachRootCallArg(root, (rootCallArg, rootCallName) => {
+  const rootIdentifyingArg = root.getIdentifyingArg();
+  const rootIdentifyingArgValue =
+    (rootIdentifyingArg && rootIdentifyingArg.value) || null;
+  var isPluralCall = (
+    Array.isArray(rootIdentifyingArgValue) &&
+    rootIdentifyingArgValue.length > 1
+  );
+  let metadata;
+  if (rootIdentifyingArg != null) {
+    metadata = {};
+    metadata.identifyingArgName = rootIdentifyingArg.name;
+    if (rootIdentifyingArg.type != null) {
+      metadata.identifyingArgType = rootIdentifyingArg.type;
+    }
+  }
+  forEachRootCallArg(root, (identifyingArgValue, fieldName) => {
     var nodeRoot;
     if (isPluralCall) {
       invariant(
-        rootCallArg != null,
+        identifyingArgValue != null,
         'diffRelayQuery(): Unexpected null or undefined value in root call ' +
         'argument array for query, `%s(...).',
-        rootCallName
+        fieldName
       );
       nodeRoot = RelayQuery.Root.build(
-        rootCallName,
-        [rootCallArg],
+        fieldName,
+        [identifyingArgValue],
         root.getChildren(),
-        {
-          rootArg: root.getRootCallArgument(),
-          rootCallType: root.getCallType(),
-        },
+        metadata,
         root.getName()
       );
     } else {
@@ -100,7 +109,7 @@ function diffRelayQuery(
     }
 
     // The whole query must be fetched if the root dataID is unknown.
-    var dataID = store.getRootCallID(rootCallName, rootCallArg);
+    var dataID = store.getRootCallID(fieldName, identifyingArgValue);
     if (dataID == null) {
       queries.push(nodeRoot);
       return;
@@ -759,7 +768,7 @@ function buildRoot(
     NODE,
     rootID,
     fragments,
-    {rootArg: RelayNodeInterface.ID},
+    {identifyingArgName: RelayNodeInterface.ID},
     name
   );
 }

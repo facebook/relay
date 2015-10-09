@@ -104,21 +104,20 @@ var buildRQL = {
       } else {
         node = queryBuilder(Component, variables);
         if (GraphQL.isQuery(node) && node.fragments.length === 0) {
-          var rootCall = node.calls[0];
           if (!node.fields.every(field => field.fields.length === 0)) {
             invariant(
               false,
               'Relay.QL: Expected query `%s` to be empty. For example, use ' +
               '`node(id: $id)`, not `node(id: $id) { ... }`.',
-              rootCall.name
+              node.fieldName
             );
           }
           var fragmentValues = filterObject(values, (_, name) =>
             Component.hasVariable(name)
           );
           node = new GraphQL.Query(
-            rootCall.name,
-            rootCall.value,
+            node.fieldName,
+            (node.calls[0] && node.calls[0].value) || null,
             node.fields,
             [Component.getFragment(queryName, fragmentValues)],
             node.metadata,

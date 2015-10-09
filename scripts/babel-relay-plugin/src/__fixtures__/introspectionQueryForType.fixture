@@ -13,6 +13,6 @@ var foo = (function () {
   return new GraphQL.Query("__type", new GraphQL.CallValue("Root"), [new GraphQL.Field("name", null, null, null, null, null, {
     parentType: "__Type"
   })], null, {
-    rootArg: "name"
+    identifyingArgName: "name"
   }, "IntrospectionQueryForType");
 })();

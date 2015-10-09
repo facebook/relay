@@ -200,7 +200,7 @@ describe('printRelayOSSQuery', () => {
         ],
         {
           isDeferred: true,
-          rootArg: RelayNodeInterface.ID,
+          identifyingArgName: RelayNodeInterface.ID,
           type: RelayNodeInterface.NODE_TYPE,
         },
         'RefQueryName'

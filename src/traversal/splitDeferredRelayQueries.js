@@ -116,15 +116,19 @@ function wrapNode(
     node instanceof RelayQuery.Root,
     'splitDeferredRelayQueries(): Cannot build query without a root node.'
   );
-  var rootCall = node.getRootCall();
+  const identifyingArg = node.getIdentifyingArg();
+  const identifyingArgName = (identifyingArg && identifyingArg.name) || null;
+  const identifyingArgValue = (identifyingArg && identifyingArg.value) || null;
+  const metadata = {};
+  metadata.isDeferred = true;
+  if (identifyingArgName != null) {
+    metadata.identifyingArgName = identifyingArgName;
+  }
   return RelayQuery.Root.build(
-    rootCall.name,
-    rootCall.value,
+    node.getFieldName(),
+    identifyingArgValue,
     node.getChildren(),
-    {
-      isDeferred: true,
-      rootArg: node.getRootCallArgument()
-    },
+    metadata,
     node.getName()
   );
 }
@@ -223,7 +227,7 @@ function createRefQuery(
     [node],
     {
       isDeferred: true,
-      rootArg: RelayNodeInterface.ID,
+      identifyingArgName: RelayNodeInterface.ID,
     },
     context.getName()
   );

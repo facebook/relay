@@ -321,22 +321,23 @@ class RelayQueryRoot extends RelayQueryNode {
   __batchCall__: ?BatchCall;
   __deferredFragmentNames__: ?FragmentNames;
   __id__: ?string;
+  __identifyingArg__: ?Call;
 
   /**
    * Helper to construct a new root query with the given attributes and 'empty'
    * route/variables.
    */
   static build(
-    rootCall: string,
-    rootCallValue?: ?Array<RootCallValue> | ?RootCallValue,
+    fieldName: string,
+    identifyingArgValue?: ?Array<RootCallValue> | ?RootCallValue,
     children?: ?Array<RelayQueryNode>,
     metadata?: ?{[key: string]: mixed},
     name?: ?string
   ): RelayQueryRoot {
     var nextChildren = children ? children.filter(child => !!child) : [];
     var concreteRoot = new GraphQL.Query(
-      rootCall,
-      rootCallValue || null,
+      fieldName,
+      identifyingArgValue || null,
       null,
       null,
       metadata,
@@ -377,6 +378,7 @@ class RelayQueryRoot extends RelayQueryNode {
     this.__batchCall__ = undefined;
     this.__deferredFragmentNames__ = undefined;
     this.__id__ = undefined;
+    this.__identifyingArg__ = undefined;
 
     // Ensure IDs are generated in the order that queries are created
     this.getID();
@@ -404,8 +406,8 @@ class RelayQueryRoot extends RelayQueryNode {
     var batchCall = this.__batchCall__;
     if (batchCall === undefined) {
       var concreteCalls = this.__concreteNode__.calls;
-      var callArg = concreteCalls[0].value;
-      if (GraphQL.isBatchCallVariable(callArg)) {
+      var callArg = concreteCalls[0] && concreteCalls[0].value;
+      if (callArg != null && GraphQL.isBatchCallVariable(callArg)) {
         batchCall = {
           refParamName: REF_PARAM_PREFIX + callArg.sourceQueryID,
           sourceQueryID: callArg.sourceQueryID,
@@ -419,24 +421,35 @@ class RelayQueryRoot extends RelayQueryNode {
     return batchCall;
   }
 
-  getRootCall(): Call {
+  getCallsWithValues(): Array<Call> {
     var calls = this.__calls__;
     if (!calls) {
       var concreteCalls = this.__concreteNode__.calls;
       calls = callsFromGraphQL(concreteCalls, this.__variables__);
       this.__calls__ = calls;
     }
-    return calls[0];
+    return calls;
   }
 
-  getCallType(): ?string {
-    if (this.__concreteNode__.calls.length > 0) {
-      return this.__concreteNode__.metadata.rootCallType;
+  getFieldName(): string {
+    return this.__concreteNode__.fieldName;
+  }
+
+  getIdentifyingArg(): ?Call {
+    let identifyingArg = this.__identifyingArg__;
+    if (!identifyingArg) {
+      const metadata = this.__concreteNode__.metadata;
+      const identifyingArgName = metadata.identifyingArgName;
+      if (identifyingArgName != null) {
+        identifyingArg =
+          this.getCallsWithValues().find(c => c.name === identifyingArgName);
+        if (identifyingArg && metadata.identifyingArgType != null) {
+          identifyingArg.type = metadata.identifyingArgType;
+        }
+        this.__identifyingArg__ = identifyingArg;
+      }
     }
-  }
-
-  getRootCallArgument(): ?string {
-    return this.__concreteNode__.metadata.rootArg;
+    return identifyingArg;
   }
 
   hasDeferredDescendant(): boolean {
@@ -464,13 +477,13 @@ class RelayQueryRoot extends RelayQueryNode {
     if (!(that instanceof RelayQueryRoot)) {
       return false;
     }
-    if (!areEqual(this.getRootCall(), that.getRootCall())) {
-      return false;
-    }
     if (!areEqual(this.getBatchCall(), that.getBatchCall())) {
       return false;
     }
-    if (this.getRootCallArgument() !== that.getRootCallArgument()) {
+    if (
+      this.getFieldName() !== that.getFieldName() ||
+      !areEqual(this.getCallsWithValues(), that.getCallsWithValues())
+    ) {
       return false;
     }
     return super.equals(that);

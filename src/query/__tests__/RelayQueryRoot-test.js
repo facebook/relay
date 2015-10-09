@@ -45,7 +45,7 @@ describe('RelayQueryRoot', () => {
         }
       }
     `);
-    usernames.__concreteNode__.metadata = {rootArg: 'names'};
+    usernames.__concreteNode__.metadata = {identifyingArgName: 'names'};
   });
 
   it('has a unique ID', () => {
@@ -116,12 +116,10 @@ describe('RelayQueryRoot', () => {
   });
 
   it('returns root calls with values', () => {
-    expect(me.getRootCall()).toEqual(
-      {name: 'me', value: null}
-    );
+    expect(me.getIdentifyingArg()).toEqual(undefined);
 
-    expect(usernames.getRootCall()).toEqual(
-      {name: 'usernames', value: 'mroch'}
+    expect(usernames.getIdentifyingArg()).toEqual(
+      {name: 'names', value: 'mroch'}
     );
 
     expect(getNode(Relay.QL`
@@ -130,8 +128,8 @@ describe('RelayQueryRoot', () => {
           firstName
         }
       }
-    `).getRootCall()).toEqual(
-      {name: 'usernames', value: ['a', 'b', 'c']}
+    `).getIdentifyingArg()).toEqual(
+      {name: 'names', value: ['a', 'b', 'c']}
     );
   });
 
@@ -202,7 +200,7 @@ describe('RelayQueryRoot', () => {
         }
       }
     `);
-    usernames2.__concreteNode__.metadata = {rootArg: 'names'};
+    usernames2.__concreteNode__.metadata = {identifyingArgName: 'names'};
 
     expect(me.equals(me2)).toBe(true);
     expect(usernames.equals(usernames2)).toBe(true);
@@ -290,13 +288,19 @@ describe('RelayQueryRoot', () => {
     expect(getNode(new GraphQL.Query('node')).isScalar()).toBe(false);
   });
 
-  it('returns the call type', () => {
-    var query = getNode(Relay.QL`query{node(id:"123"){id}}`);
-    query.__concreteNode__.metadata = {rootCallType: 'scalar'};
-    expect(query.getCallType()).toBe('scalar');
+  it('returns the identifying argument type', () => {
+    var nodeQuery = getNode(Relay.QL`query{node(id:"123"){id}}`);
+    nodeQuery.__concreteNode__.metadata = {
+      identifyingArgName: 'id',
+      identifyingArgType: 'scalar',
+    };
+    const nodeIdentifyingArg = nodeQuery.getIdentifyingArg();
+    expect(nodeIdentifyingArg).toBeDefined();
+    expect(nodeIdentifyingArg.type).toBe('scalar');
 
     var me = getNode(Relay.QL`query{me{id}}`);
-    expect(me.getCallType()).toBe(undefined);
+    const meIdentifyingArg = me.getIdentifyingArg();
+    expect(meIdentifyingArg).toBeUndefined();
   });
 
   it('creates nodes', () => {

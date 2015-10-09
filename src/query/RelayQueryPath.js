@@ -112,7 +112,7 @@ class RelayQueryPath {
         RelayNodeInterface.NODE,
         dataID,
         [idField, typeField],
-        {rootArg: RelayNodeInterface.ID},
+        {identifyingArgName: RelayNodeInterface.ID},
         this.getName()
       );
       return new RelayQueryPath(root);
@@ -154,19 +154,20 @@ class RelayQueryPath {
       node instanceof RelayQuery.Root,
       'RelayQueryPath: Expected a root node.'
     );
-    var rootCall = node.getRootCall();
+    const metadata = {...node.__concreteNode__.metadata};
+    const identifyingArg = node.getIdentifyingArg();
+    if (identifyingArg && identifyingArg.name != null) {
+      metadata.identifyingArgName = identifyingArg.name;
+    }
     return RelayQuery.Root.build(
-      rootCall.name,
-      rootCall.value,
+      node.getFieldName(),
+      (identifyingArg && identifyingArg.value) || null,
       [
         child,
         (node: $FlowIssue).getFieldByStorageKey(ID),
         (node: $FlowIssue).getFieldByStorageKey(TYPENAME),
       ],
-      {
-        ...node.__concreteNode__.metatada,
-        rootArg: node.getRootCallArgument(),
-      },
+      metadata,
       this.getName()
     );
   }

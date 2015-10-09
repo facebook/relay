@@ -14,6 +14,6 @@ var foo = (function () {
     parentType: "Media",
     requisite: true
   })], null, {
-    rootArg: "id"
+    identifyingArgName: "id"
   }, "UnionWithTypename");
 })();

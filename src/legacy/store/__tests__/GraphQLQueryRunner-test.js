@@ -49,7 +49,7 @@ describe('GraphQLQueryRunner', () => {
     var query = toGraphQL.Query(relayQuery);
     return getNode(new GraphQL.Query(
       query.fieldName,
-      query.calls[0].args,
+      (query.calls[0] && query.calls[0].args) || null,
       query.fields,
       query.fragments,
       {isDeferred: true}
@@ -222,7 +222,7 @@ describe('GraphQLQueryRunner', () => {
   it('calls the callback for each deferred query', () => {
     diffRelayQuery.mockImplementation(query => [query]);
     splitDeferredRelayQueries.mockImplementation(query => {
-      if (query.getRootCall().name === 'viewer') {
+      if (query.getFieldName() === 'viewer') {
         return {
           required: query,
           deferred: [],

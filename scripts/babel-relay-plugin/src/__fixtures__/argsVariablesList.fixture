@@ -18,6 +18,6 @@ var foo = (function () {
     generated: true,
     requisite: true
   })], null, {
-    rootArg: "ids"
+    identifyingArgName: "ids"
   }, "Args");
 })();

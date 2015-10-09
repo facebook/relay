@@ -273,7 +273,7 @@ class RelayStoreData {
       RelayNodeInterface.NODE,
       dataID,
       [fragment],
-      {rootArg: RelayNodeInterface.ID},
+      {identifyingArgName: RelayNodeInterface.ID},
       fragment.getDebugName() || 'UnknownQuery'
     );
   }

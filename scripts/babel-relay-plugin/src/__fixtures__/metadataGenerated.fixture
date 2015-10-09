@@ -19,6 +19,6 @@ var x = (function () {
     generated: true,
     requisite: true
   })], null, {
-    rootArg: 'id'
+    identifyingArgName: 'id'
   }, 'MetadataGenerated');
 })();

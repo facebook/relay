@@ -82,33 +82,33 @@ function printRoot(
     !node.getBatchCall(),
     'printRelayOSSQuery(): Deferred queries are not supported.'
   );
-
-  var queryString = node.getName();
-  var rootCall = node.getRootCall();
-  var rootArgumentName = node.getRootCallArgument();
-  var rootFieldString = rootCall.name;
-  if (rootCall.value != null) {
+  const identifyingArg = node.getIdentifyingArg();
+  const identifyingArgName = (identifyingArg && identifyingArg.name) || null;
+  const identifyingArgType = (identifyingArg && identifyingArg.type) || null;
+  const identifyingArgValue = (identifyingArg && identifyingArg.value) || null;
+  var fieldName = node.getFieldName();
+  if (identifyingArgValue != null) {
     invariant(
-      rootArgumentName,
+      identifyingArgName,
       'printRelayOSSQuery(): Expected an argument name for root field `%s`.',
-      rootCall.name
+      fieldName
     );
     var rootArgString = printArgument(
-      rootArgumentName,
-      rootCall.value,
-      node.getCallType(),
+      identifyingArgName,
+      identifyingArgValue,
+      identifyingArgType,
       printerState
     );
     if (rootArgString) {
-      rootFieldString += '(' + rootArgString + ')';
+      fieldName += '(' + rootArgString + ')';
     }
   }
   // Note: children must be traversed before printing variable definitions
   var children = printChildren(node, printerState);
-  queryString += printVariableDefinitions(printerState);
-  rootFieldString += printDirectives(node);
+  var queryString = node.getName() + printVariableDefinitions(printerState);
+  fieldName += printDirectives(node);
 
-  return 'query ' + queryString + '{' + rootFieldString + children + '}';
+  return 'query ' + queryString + '{' + fieldName + children + '}';
 }
 
 function printMutation(
@@ -131,9 +131,9 @@ function printMutation(
   // Note: children must be traversed before printing variable definitions
   var children = printChildren(node, printerState);
   var mutationString = node.getName() + printVariableDefinitions(printerState);
-  var rootFieldString = call.name + '(' + inputString + ')';
+  var fieldName = call.name + '(' + inputString + ')';
 
-  return 'mutation ' + mutationString + '{' + rootFieldString + children + '}';
+  return 'mutation ' + mutationString + '{' + fieldName + children + '}';
 }
 
 function printVariableDefinitions(printerState: PrinterState): string {

@@ -206,7 +206,8 @@ describe('RelayQueryPath', () => {
     expect(root.toJSON()).toEqual([{
       kind: 'Query',
       name: 'RelayQueryPath',
-      calls: [{name: 'node', value: '123'}],
+      fieldName: 'node',
+      calls: [{name: 'id', value: '123'}],
       children: [
         {
           kind: 'Field',
@@ -233,7 +234,7 @@ describe('RelayQueryPath', () => {
         },
       ],
       metadata: {
-        rootArg: 'id',
+        identifyingArgName: 'id',
       },
     }]);
 
@@ -267,7 +268,8 @@ describe('RelayQueryPath', () => {
     expect(root.toJSON()).toEqual([{
       kind: 'Query',
       name: 'RelayQueryPath',
-      calls: [{name: 'viewer', value: null}],
+      fieldName: 'viewer',
+      calls: [],
       children: [EMPTY_FRAGMENT],
       metadata: {},
     }]);
@@ -309,7 +311,8 @@ describe('RelayQueryPath', () => {
       {
         kind: 'Query',
         name: 'RelayQueryPath',
-        calls: [{name: 'node', value: '123'}],
+        fieldName: 'node',
+        calls: [{name: 'id', value: '123'}],
         children: [
           {
             kind: 'Field',
@@ -336,7 +339,7 @@ describe('RelayQueryPath', () => {
           }
         ],
         metadata: {
-          rootArg: 'id',
+          identifyingArgName: 'id',
         },
       },
       {

@@ -113,12 +113,15 @@ class RelayQLPrinter {
       rootField.getName()
     );
     if (rootFieldArgs.length === 1) {
+      // Until such time as a root field's 'identifying argument' (one that has
+      // a 1-1 correspondence with a Relay record, or null) has a formal type,
+      // assume that the lone arg in a root field's call is the identifying one.
       const identifyingArg = rootFieldArgs[0];
-      metadata.rootArg = identifyingArg.getName();
-      const identifyingArgTypeName =
+      metadata.identifyingArgName = identifyingArg.getName();
+      const identifyingArgType =
         this.printArgumentTypeForMetadata(identifyingArg.getType());
-      if (identifyingArgTypeName) {
-        metadata.rootCallType = identifyingArgTypeName;
+      if (identifyingArgType) {
+        metadata.identifyingArgType = identifyingArgType;
       }
       printedArg = this.printArgumentValue(identifyingArg);
     } else {

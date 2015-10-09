@@ -378,7 +378,7 @@ class GraphQLQueryFragment extends GraphQLNode {
  */
 class GraphQLQuery extends GraphQLNode {
   /**
-   * @param {string} rootCall
+   * @param {string} fieldName
    * @param {*} value
    * @param {?array<GraphQLFieldNode>} fields
    * @param {?array<GraphQLQueryFragment|RelayRouteFragment|RelayFragmentReference>} fragments
@@ -386,27 +386,42 @@ class GraphQLQuery extends GraphQLNode {
    * @param {?string} queryName
    * @param {?array} directives
    */
-  constructor(rootCall, value, fields, fragments, metadata, queryName, directives) {
+  constructor(
+    fieldName,
+    value,
+    fields,
+    fragments,
+    metadata,
+    queryName,
+    directives
+  ) {
     super(fields, fragments);
     this.__metadata__ = metadata || EMPTY_OBJECT;
-    var rootArg = this.__metadata__.rootArg;
-    if (rootArg == null && RelayNodeInterface.isNodeRootCall(rootCall)) {
-      rootArg = RelayNodeInterface.ID;
+    var identifyingArgName = this.__metadata__.identifyingArgName;
+    if (
+      identifyingArgName == null &&
+      RelayNodeInterface.isNodeRootCall(fieldName)
+    ) {
+      identifyingArgName = RelayNodeInterface.ID;
     }
     this.kind = QUERY;
-    this.metadata = {
-      ...this.__metadata__,
-      rootArg,
-    };
+    this.metadata = {...this.__metadata__};
+    if (identifyingArgName !== undefined) {
+      this.metadata.identifyingArgName = identifyingArgName;
+    }
     this.directives = directives || EMPTY_ARRAY;
     this.name = queryName;
-    this.fieldName = rootCall;
+    this.fieldName = fieldName;
     this.isDeferred = !!this.__metadata__.isDeferred;
 
-    var callMetadata = this.__metadata__.varargs ?
-      {varargs: this.__metadata__.varargs} :
-      null;
-    this.calls = [new GraphQLCallvNode(rootCall, value, callMetadata)];
+    this.calls = [];
+    // In the future, the constructor for a `GraphQLQuery` will accept an
+    // arbitrary number of `arguments` for the root field and pass them all
+    // through to `this.calls`. In the meantime we synthesize an identifying
+    // argument, if an `identifyingArgName` exists.
+    if (identifyingArgName != null) {
+      this.calls.push(new GraphQLCallvNode(identifyingArgName, value));
+    }
   }
 
   /**
@@ -432,7 +447,7 @@ class GraphQLQuery extends GraphQLNode {
     return trimArray([
       JSON_TYPES.QUERY,
       this.fieldName,
-      this.calls[0].value,
+      (this.calls[0] && this.calls[0].value) || null,
       this.fields.length ? this.fields : null,
       this.fragments.length ? this.fragments : null,
       this.__metadata__ === EMPTY_OBJECT ? null: this.__metadata__,

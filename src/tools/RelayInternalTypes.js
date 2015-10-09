@@ -26,6 +26,7 @@ import type RelayQueryPath from 'RelayQueryPath';
 
 export type Call = {
   name: string;
+  type?: string;
   value: CallValue;
 };
 export type CallValue = mixed;

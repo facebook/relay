@@ -72,6 +72,6 @@ var foo = (function () {
     generated: true,
     requisite: true
   })])], {
-    rootArg: "id"
+    identifyingArgName: "id"
   }, "Args");
 })();

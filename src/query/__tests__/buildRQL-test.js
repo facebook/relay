@@ -140,8 +140,8 @@ describe('buildRQL', () => {
       var variables = {id: '123'};
       var query = getNode(node, variables);
       expect(query instanceof RelayQuery.Root).toBe(true);
-      expect(query.getRootCall()).toEqual({
-        name: 'node',
+      expect(query.getIdentifyingArg()).toEqual({
+        name: 'id',
         value: '123',
       });
       expect(query.getChildren()[2].equals(
@@ -200,8 +200,8 @@ describe('buildRQL', () => {
       var variables = {id: '123'};
       var query = getNode(node, variables);
       expect(query instanceof RelayQuery.Root).toBe(true);
-      expect(query.getRootCall()).toEqual({
-        name: 'node',
+      expect(query.getIdentifyingArg()).toEqual({
+        name: 'id',
         value: '123',
       });
       expect(query.getChildren()[2].equals(

@@ -244,7 +244,7 @@ function mergeField(
         RelayNodeInterface.NODE,
         recordID,
         null,
-        {rootArg: RelayNodeInterface.ID}
+        {identifyingArgName: RelayNodeInterface.ID}
       )
     );
   } else {

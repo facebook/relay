@@ -28,19 +28,22 @@ function containsRelayQueryRootCall(
   if (thisRoot === thatRoot) {
     return true;
   }
-  var thisCall = thisRoot.getRootCall();
-  var thatCall = thatRoot.getRootCall();
-  if (getCanonicalName(thisCall.name) !== getCanonicalName(thatCall.name)) {
+  if (
+    getCanonicalName(thisRoot.getFieldName()) !==
+    getCanonicalName(thatRoot.getFieldName())
+  ) {
     return false;
   }
-  if (thisCall.value == null && thatCall.value == null) {
+  const thisIdentifyingArg = thisRoot.getIdentifyingArg();
+  const thatIdentifyingArg = thatRoot.getIdentifyingArg();
+  const thisValue = (thisIdentifyingArg && thisIdentifyingArg.value) || null;
+  const thatValue = (thatIdentifyingArg && thatIdentifyingArg.value) || null;
+  if (thisValue == null && thatValue == null) {
     return true;
   }
-  if (thisCall.value == null || thatCall.value == null) {
+  if (thisValue == null || thatValue == null) {
     return false;
   }
-  var thisValue = thisCall.value;
-  var thatValue = thatCall.value;
   if (Array.isArray(thisValue)) {
     var thisArray = thisValue;
     if (Array.isArray(thatValue)) {

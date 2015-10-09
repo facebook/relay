@@ -48,13 +48,14 @@ class GraphQLFragmentPointer {
       return null;
     }
     var concreteFragmentID = fragment.getConcreteFragmentID();
-    var rootCall = query.getRootCall();
-    var rootCallName = rootCall.name;
-    var rootCallArgs = rootCall.value;
-    if (Array.isArray(rootCallArgs)) {
+    var fieldName = query.getFieldName();
+    const identifyingArg = query.getIdentifyingArg();
+    const identifyingArgValue =
+      (identifyingArg && identifyingArg.value) || null;
+    if (Array.isArray(identifyingArgValue)) {
       var rootFragment = fragment; // for Flow
-      return rootCallArgs.map(rootCallArg => {
-        var dataID = store.getRootCallID(rootCallName, rootCallArg);
+      return identifyingArgValue.map(singleIdentifyingArgValue => {
+        var dataID = store.getRootCallID(fieldName, singleIdentifyingArgValue);
         if (!dataID) {
           return null;
         }
@@ -65,15 +66,15 @@ class GraphQLFragmentPointer {
       });
     }
     invariant(
-      typeof rootCallArgs === 'string' || rootCallArgs == null,
+      typeof identifyingArgValue === 'string' || identifyingArgValue == null,
       'GraphQLFragmentPointer: Value for the argument to `%s` on query `%s` ' +
       'should be a string, but it was set to `%s`. Check that the value is a ' +
       'string.',
-      rootCallName,
+      fieldName,
       query.getName(),
-      rootCallArgs
+      identifyingArgValue
     );
-    var dataIDOrIDs = store.getRootCallID(rootCallName, rootCallArgs);
+    var dataIDOrIDs = store.getRootCallID(fieldName, identifyingArgValue);
     if (!dataIDOrIDs) {
       return null;
     }

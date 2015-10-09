@@ -47,7 +47,6 @@ var toGraphQL = {
   Query(node: RelayQuery.Root): GraphQL.Query {
     return node.getConcreteQueryNode(() => {
       var batchCall = node.getBatchCall();
-      var rootCall = node.getRootCall();
       var calls;
       if (batchCall) {
         calls = [new GraphQL.BatchCallVariable(
@@ -55,12 +54,13 @@ var toGraphQL = {
           batchCall.sourceQueryPath
         )];
       } else {
-        calls = rootCall.value;
+        const identifyingArg = node.getIdentifyingArg();
+        calls = (identifyingArg && identifyingArg.value) || null;
       }
 
       var [fields, fragments] = toGraphQLChildren(node.getChildren());
       var query = new GraphQL.Query(
-        rootCall.name,
+        node.getFieldName(),
         calls,
         fields,
         fragments,

@@ -38,10 +38,10 @@ var RelayOSSNodeInterface = {
   NODES: 'nodes',
   TYPENAME: '__typename',
 
-  isNodeRootCall(rootCallName: string): boolean {
+  isNodeRootCall(fieldName: string): boolean {
     return (
-      rootCallName === RelayOSSNodeInterface.NODE ||
-      rootCallName === RelayOSSNodeInterface.NODES
+      fieldName === RelayOSSNodeInterface.NODE ||
+      fieldName === RelayOSSNodeInterface.NODES
     );
   },
 
@@ -71,21 +71,21 @@ var RelayOSSNodeInterface = {
     } else {
       var records = getPayloadRecords(query, payload);
       var ii = 0;
-      forEachRootCallArg(query, (rootCallArg, rootCallName) => {
+      forEachRootCallArg(query, (identifyingArgValue, fieldName) => {
         var result = records[ii++];
-        var dataID = store.getRootCallID(rootCallName, rootCallArg);
+        var dataID = store.getRootCallID(fieldName, identifyingArgValue);
         if (dataID == null) {
           var payloadID = typeof result === 'object' && result ?
             result[RelayOSSNodeInterface.ID] :
             null;
           if (payloadID != null) {
             dataID = payloadID;
-          } else if (rootCallArg == null) {
-            dataID = 'client:' + rootCallName;
+          } else if (identifyingArgValue == null) {
+            dataID = 'client:' +  fieldName;
           } else {
             dataID = generateClientID();
           }
-          store.putRootCallID(rootCallName, rootCallArg, dataID);
+          store.putRootCallID(fieldName, identifyingArgValue, dataID);
         }
         results.push({dataID, result});
       });
@@ -99,23 +99,25 @@ function getPayloadRecords(
   query: RelayQuery.Root,
   payload: {[key: string]: mixed}
 ): Array<mixed> {
-  var records = payload[query.getRootCall().name];
+  var fieldName = query.getFieldName();
+  const identifyingArg = query.getIdentifyingArg();
+  const identifyingArgValue = (identifyingArg && identifyingArg.value) || null;
+  var records = payload[fieldName];
   if (!query.getBatchCall()) {
-    var rootCall = query.getRootCall();
-    if (Array.isArray(rootCall.value)) {
+    if (Array.isArray(identifyingArgValue)) {
       invariant(
         Array.isArray(records),
         'RelayOSSNodeInterface: Expected payload for root field `%s` to be ' +
         'an array with %s results, instead received a single non-array result.',
-        rootCall.name,
-        rootCall.value.length
+        fieldName,
+        identifyingArgValue.length
       );
       invariant(
-        records.length === rootCall.value.length,
+        records.length === identifyingArgValue.length,
         'RelayOSSNodeInterface: Expected payload for root field `%s` to be ' +
         'an array with %s results, instead received an array with %s results.',
-        rootCall.name,
-        rootCall.value.length,
+        fieldName,
+        identifyingArgValue.length,
         records.length
       );
     } else if (Array.isArray(records)) {
@@ -123,7 +125,7 @@ function getPayloadRecords(
         false,
         'RelayOSSNodeInterface: Expected payload for root field `%s` to be ' +
         'a single non-array result, instead received an array with %s results.',
-        rootCall.name,
+        fieldName,
         records.length
       );
     }

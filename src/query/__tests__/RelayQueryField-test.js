@@ -458,8 +458,8 @@ describe('RelayQueryField', () => {
         }
       }
     `, variables);
-    expect(usernamesQuery.getRootCall()).toEqual(
-      {name: 'usernames', value: ['a', 'b', 'c']}
+    expect(usernamesQuery.getIdentifyingArg()).toEqual(
+      {name: 'names', value: ['a', 'b', 'c']}
     );
   });
 

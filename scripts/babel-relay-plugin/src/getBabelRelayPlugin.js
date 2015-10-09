@@ -25,6 +25,7 @@ const util = require('util');
 const PROVIDES_MODULE = 'providesModule';
 
 type GraphQLSchema = Object;
+type GraphQLSchemaProvider = (Object | () => Object);
 
 /**
  * Returns a new Babel Transformer that uses the supplied schema to transform
@@ -32,23 +33,22 @@ type GraphQLSchema = Object;
  * GraphQL queries.
  */
 function getBabelRelayPlugin(
-  schemaProvider: Object | Function,
+  schemaProvider: GraphQLSchemaProvider,
   pluginOptions?: ?{
     abortOnError?: ?boolean;
     debug?: ?boolean;
     suppressWarnings?: ?boolean;
   }
 ): Function {
+  const schema = getSchema(schemaProvider);
+  const transformer = new RelayQLTransformer(schema);
+
   const options = pluginOptions || {};
+  const warning = options.suppressWarnings ?
+    function() {} :
+    console.warn.bind(console);
 
-  return babel => {
-    const Plugin = babel.Plugin;
-    const t = babel.types;
-
-    const warning = options.suppressWarnings ?
-      function() {} :
-      console.warn.bind(console);
-
+  return function({Plugin, types: t}) {
     return new Plugin('relay-query', {
       visitor: {
         /**
@@ -95,18 +95,6 @@ function getBabelRelayPlugin(
           if (!tagName) {
             return;
           }
-
-          let transformer = state.opts.extra.transformer;
-          if (!transformer) {
-            const schema = getSchema(schemaProvider);
-            transformer = new RelayQLTransformer(schema);
-            state.opts.extra.transformer = transformer;
-          }
-          invariant(
-            transformer instanceof RelayQLTransformer,
-            'getBabelRelayPlugin(): Expected RQLTransformer to be configured ' +
-            'for this instance of the plugin.'
-          );
 
           const {documentName} = state.opts.extra;
           invariant(documentName, 'Expected `documentName` to have been set.');
@@ -189,24 +177,20 @@ function getBabelRelayPlugin(
         }
       }
     });
-  }
+  };
 }
 
-function getSchema(
-  schemaProvider: Object | Function
-): GraphQLSchema {
-  const schemaData = typeof schemaProvider === 'function' ?
+function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
+  const introspection = typeof schemaProvider === 'function' ?
     schemaProvider() :
     schemaProvider;
   invariant(
-    typeof schemaData === 'object' &&
-    schemaData !== null &&
-    typeof schemaData.__schema === 'object' &&
-    schemaData.__schema !== null,
-    'getBabelRelayPlugin(): Expected schema to be an object with a ' +
-    '`__schema` property.'
+    typeof introspection === 'object' && introspection &&
+    typeof introspection.__schema === 'object' && introspection.__schema,
+    'Invalid introspection data supplied to `getBabelRelayPlugin()`. The ' +
+    'resulting schema is not an object with a `__schema` property.'
   );
-  return buildClientSchema(schemaData);
+  return buildClientSchema(introspection);
 }
 
 module.exports = getBabelRelayPlugin;

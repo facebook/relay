@@ -35,13 +35,15 @@ var PROVIDES_MODULE = 'providesModule';
  * GraphQL queries.
  */
 function getBabelRelayPlugin(schemaProvider, pluginOptions) {
+  var schema = getSchema(schemaProvider);
+  var transformer = new RelayQLTransformer(schema);
+
   var options = pluginOptions || {};
+  var warning = options.suppressWarnings ? function () {} : console.warn.bind(console);
 
-  return function (babel) {
-    var Plugin = babel.Plugin;
-    var t = babel.types;
-
-    var warning = options.suppressWarnings ? function () {} : console.warn.bind(console);
+  return function (_ref) {
+    var Plugin = _ref.Plugin;
+    var t = _ref.types;
 
     return new Plugin('relay-query', {
       visitor: {
@@ -87,14 +89,6 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
             return;
           }
 
-          var transformer = state.opts.extra.transformer;
-          if (!transformer) {
-            var schema = getSchema(schemaProvider);
-            transformer = new RelayQLTransformer(schema);
-            state.opts.extra.transformer = transformer;
-          }
-          invariant(transformer instanceof RelayQLTransformer, 'getBabelRelayPlugin(): Expected RQLTransformer to be configured ' + 'for this instance of the plugin.');
-
           var documentName = state.opts.extra.documentName;
 
           invariant(documentName, 'Expected `documentName` to have been set.');
@@ -112,9 +106,9 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
             var errorMessages = [];
             if (validationErrors && sourceText) {
               var sourceLines = sourceText.split('\n');
-              validationErrors.forEach(function (_ref) {
-                var message = _ref.message;
-                var locations = _ref.locations;
+              validationErrors.forEach(function (_ref2) {
+                var message = _ref2.message;
+                var locations = _ref2.locations;
 
                 errorMessages.push(message);
                 warning('\n-- GraphQL Validation Error -- %s --\n', path.basename(filename));
@@ -149,9 +143,9 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
 }
 
 function getSchema(schemaProvider) {
-  var schemaData = typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
-  invariant(typeof schemaData === 'object' && schemaData !== null && typeof schemaData.__schema === 'object' && schemaData.__schema !== null, 'getBabelRelayPlugin(): Expected schema to be an object with a ' + '`__schema` property.');
-  return buildClientSchema(schemaData);
+  var introspection = typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
+  invariant(typeof introspection === 'object' && introspection && typeof introspection.__schema === 'object' && introspection.__schema, 'Invalid introspection data supplied to `getBabelRelayPlugin()`. The ' + 'resulting schema is not an object with a `__schema` property.');
+  return buildClientSchema(introspection);
 }
 
 module.exports = getBabelRelayPlugin;

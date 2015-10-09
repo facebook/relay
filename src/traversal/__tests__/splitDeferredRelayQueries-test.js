@@ -15,7 +15,6 @@ var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 var Relay = require('Relay');
-var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQuery = require('RelayQuery');
 var flattenRelayQuery = require('flattenRelayQuery');
 var generateRQLFieldAlias = require('generateRQLFieldAlias');
@@ -948,7 +947,8 @@ describe('splitDeferredRelayQueries()', () => {
     var typename = RelayQuery.Field.build('__typename', null, null, {
       requisite: true
     });
-    var queryNode = RelayNodeInterface.buildQuery(
+    var queryNode = RelayQuery.Root.build(
+      'node',
       '4',
       [
         id,

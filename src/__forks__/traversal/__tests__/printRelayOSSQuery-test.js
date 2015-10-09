@@ -191,7 +191,8 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('throws for ref queries', () => {
-      var query = RelayNodeInterface.buildQuery(
+      var query = RelayQuery.Root.build(
+        RelayNodeInterface.NODE,
         new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
         [
           RelayQuery.Field.build('id'),
@@ -199,6 +200,7 @@ describe('printRelayOSSQuery', () => {
         ],
         {
           isDeferred: true,
+          identifyingArgName: RelayNodeInterface.ID,
           type: RelayNodeInterface.NODE_TYPE,
         },
         'RefQueryName'

@@ -239,7 +239,14 @@ function mergeField(
   var path;
 
   if (recordID) {
-    path = new RelayQueryPath(RelayNodeInterface.buildQuery(recordID));
+    path = new RelayQueryPath(
+      RelayQuery.Root.build(
+        RelayNodeInterface.NODE,
+        recordID,
+        null,
+        {identifyingArgName: RelayNodeInterface.ID}
+      )
+    );
   } else {
     recordID = store.getRootCallID(fieldName, EMPTY);
     // Root fields that do not accept arguments

@@ -108,10 +108,11 @@ class RelayQueryPath {
       var typeField = RelayQuery.Field.build(TYPENAME, null, null, {
         parentType: RelayNodeInterface.NODE_TYPE,
       });
-      var root = RelayNodeInterface.buildQuery(
+      var root = RelayQuery.Root.build(
+        RelayNodeInterface.NODE,
         dataID,
         [idField, typeField],
-        null,
+        {identifyingArgName: RelayNodeInterface.ID},
         this.getName()
       );
       return new RelayQueryPath(root);

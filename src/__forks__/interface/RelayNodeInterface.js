@@ -11,11 +11,4 @@
 
 'use strict';
 
-const RelayNodeInterface = require('RelayOSSNodeInterface');
-
-const getQueryBuilderForNodeInterface = require('getQueryBuilderForNodeInterface');
-
-module.exports = {
-  ...RelayNodeInterface,
-  buildQuery: getQueryBuilderForNodeInterface(RelayNodeInterface),
-};
+module.exports = require('RelayOSSNodeInterface');

@@ -43,7 +43,7 @@ type FragmentMetadata = {
   isTypeConditional: boolean;
 };
 type FragmentNames = {[key: string]: string};
-export type RootCallValue = string | GraphQL.BatchCallVariable;
+type RootCallValue = string | GraphQL.BatchCallVariable;
 // TODO: replace once #6525923 is resolved
 type NextChildren = Array<any>;
 

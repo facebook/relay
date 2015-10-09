@@ -12,7 +12,9 @@
 
 'use strict';
 
-require('babel/polyfill');
+if (!(process.version && process.version.match(/^v4/))) {
+  require('babel/polyfill');
+}
 
 const RelayQLTransformer = require('./RelayQLTransformer');
 const {buildClientSchema} = require('graphql/utilities/buildClientSchema');

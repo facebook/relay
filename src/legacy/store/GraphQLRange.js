@@ -415,7 +415,7 @@ class GraphQLRange {
     if (firstSegment.concatSegment(secondSegment)) {
       this._orderedSegments.splice(segmentIndex + 1, 1);
     } else {
-      console.error(
+      console.warn(
         'GraphQLRange was unable to concat segment %d and segment %d',
         segmentIndex,
         segmentIndex + 1
@@ -525,7 +525,7 @@ class GraphQLRange {
     }
     if (beforeCursor !== undefined) {
       if (segmentIndex === this._orderedSegments.length - 1) {
-        console.error(
+        console.warn(
           'GraphQLRange cannot add because there is no next segment'
         );
         return;
@@ -648,7 +648,7 @@ class GraphQLRange {
 
     if (afterCursor !== undefined) {
       if (segmentIndex === 0) {
-        console.error(
+        console.warn(
           'GraphQLRange cannot add because there is no previous segment'
         );
         return;
@@ -851,7 +851,7 @@ class GraphQLRange {
     if (afterCursor !== undefined) {
       segmentIndex = this._getSegmentIndexByCursor(afterCursor);
       if (segmentIndex == null) {
-        console.error(
+        console.warn(
           'GraphQLRange cannot find a segment that has the cursor: ' +
           afterCursor
         );
@@ -963,7 +963,7 @@ class GraphQLRange {
     if (beforeCursor !== undefined) {
       segmentIndex = this._getSegmentIndexByCursor(beforeCursor);
       if (segmentIndex == null) {
-        console.error(
+        console.warn(
           'GraphQLRange cannot find a segment that has the cursor: ' +
           beforeCursor
         );

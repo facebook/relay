@@ -11,8 +11,7 @@
 
 'use strict';
 
-jest
-  .dontMock('GraphQLSegment');
+jest.dontMock('GraphQLSegment');
 
 var GraphQLSegment = require('GraphQLSegment');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
@@ -105,15 +104,15 @@ function getAllMetadata(segment) {
 
 describe('GraphQLSegment', () => {
   var segment;
-  var origConsoleError;
+  var consoleWarn;
 
   beforeEach(() => {
     segment = new GraphQLSegment();
-    origConsoleError = console.error;
+    consoleWarn = console.warn;
   });
 
   afterEach(() => {
-    console.error = origConsoleError;
+    console.warn = consoleWarn;
   });
 
   it('should add after', () => {
@@ -249,7 +248,7 @@ describe('GraphQLSegment', () => {
   });
 
   it('rolls back failed concatSegment operations', () => {
-    console.error = jest.genMockFunction();
+    console.warn = jest.genMockFunction();
     segment.addEdgesAfterCursor(edges.slice(0, 2), null);
     expect(segment.getCount()).toBe(2);
     expect(segment.getLength()).toBe(2);
@@ -259,7 +258,7 @@ describe('GraphQLSegment', () => {
 
     var concatResult = segment.concatSegment(otherSegment);
     expect(concatResult).toBe(false);
-    expect(console.error).toBeCalledWith(
+    expect(console.warn).toBeCalledWith(
       'Attempt to concat an ID already in GraphQLSegment: %s',
       'edge2'
     );
@@ -268,7 +267,7 @@ describe('GraphQLSegment', () => {
   });
 
   it('rolls back bumped edges from failed concatSegment operations', () => {
-    console.error = jest.genMockFunction();
+    console.warn = jest.genMockFunction();
     segment.addEdgesAfterCursor(edges.slice(0, 2), null);
     expect(segment.__debug().idToIndices.edge2.length).toBe(1);
 
@@ -281,7 +280,7 @@ describe('GraphQLSegment', () => {
 
     var concatResult = segment.concatSegment(otherSegment);
     expect(concatResult).toBe(false);
-    expect(console.error).toBeCalledWith(
+    expect(console.warn).toBeCalledWith(
       'Attempt to concat an ID already in GraphQLSegment: %s',
       'edge2'
     );

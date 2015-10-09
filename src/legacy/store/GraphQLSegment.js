@@ -168,7 +168,7 @@ class GraphQLSegment {
     if (cursor) {
       var index = this._getIndexForCursor(cursor);
       if (index === undefined) {
-        console.error('This segment does not have a cursor %s', cursor);
+        console.warn('This segment does not have a cursor %s', cursor);
         return {
           edgeIDs: [],
           cursors: []
@@ -212,7 +212,7 @@ class GraphQLSegment {
     if (cursor) {
       var index = this._getIndexForCursor(cursor);
       if (index === undefined) {
-        console.error('This segment does not have a cursor %s', cursor);
+        console.warn('This segment does not have a cursor %s', cursor);
         return {
           edgeIDs: [],
           cursors: []
@@ -253,7 +253,7 @@ class GraphQLSegment {
     } else if (this._maxIndex == index - 1) {
       this._maxIndex = index;
     } else {
-      console.error(
+      console.warn(
         `Attempted to add noncontiguous index to GraphQLSegment: ${index} to ` +
         `(${this._minIndex}, ${this._maxIndex})`
       );
@@ -266,7 +266,7 @@ class GraphQLSegment {
     var idIndex = this._getIndexForID(edgeID);
     // If the id is has an index and is not deleted
     if (idIndex !== undefined && this._getEdgeAtIndex(idIndex)) {
-      console.error(
+      console.warn(
         'Attempted to add an ID already in GraphQLSegment: %s',
         edgeID
       );
@@ -315,7 +315,7 @@ class GraphQLSegment {
   removeEdge(id) {
     var index = this._getIndexForID(id);
     if (index === undefined) {
-      console.error(
+      console.warn(
         'Attempted to remove edge with ID that was never in GraphQLSegment: ' +
         id
       );
@@ -323,7 +323,7 @@ class GraphQLSegment {
     }
     var data = this._indexToMetadataMap[index];
     if (data.deleted) {
-      console.error(
+      console.warn(
         'Attempted to remove edge with ID that was already removed: ' +
         id
       );
@@ -365,7 +365,7 @@ class GraphQLSegment {
     if (cursor) {
       index = this._getIndexForCursor(cursor);
       if (index === undefined) {
-        console.error('This segment does not have a cursor %s', cursor);
+        console.warn('This segment does not have a cursor %s', cursor);
         return;
       }
     }
@@ -377,7 +377,7 @@ class GraphQLSegment {
       if (data.deleted) {
         index++;
       } else {
-        console.error(
+        console.warn(
           'Attempted to do an overwrite to GraphQLSegment: ' +
           'last index is ' + this._maxIndex +
           ' trying to add edges before ' + index
@@ -407,7 +407,7 @@ class GraphQLSegment {
     if (cursor) {
       index = this._getIndexForCursor(cursor);
       if (index === undefined) {
-        console.error('This segment does not have a cursor %s', cursor);
+        console.warn('This segment does not have a cursor %s', cursor);
         return;
       }
     }
@@ -419,7 +419,7 @@ class GraphQLSegment {
       if (data.deleted) {
         index--;
       } else {
-        console.error(
+        console.warn(
           'Attempted to do an overwrite to GraphQLSegment: ' +
           'first index is ' + this._minIndex +
           ' trying to add edges after ' + index
@@ -537,7 +537,7 @@ class GraphQLSegment {
           // time.
           this._idToIndicesMap[newEdge.edgeID].unshift(index);
         } else if (!newEdge.deleted) {
-          console.error(
+          console.warn(
             'Attempt to concat an ID already in GraphQLSegment: %s',
             newEdge.edgeID
           );
@@ -567,7 +567,7 @@ class GraphQLSegment {
             this._cursorToIndexMap[newEdge.cursor];
           this._cursorToIndexMap[newEdge.cursor] = index;
         } else if (!newEdge.deleted) {
-          console.error(
+          console.warn(
             'Attempt to concat a cursor already in GraphQLSegment: %s',
             newEdge.cursor
           );

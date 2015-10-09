@@ -74,16 +74,16 @@ var last3Edges = [edge98, edge99, edge100];
 var last5Edges = [edge96, edge97, edge98, edge99, edge100];
 
 describe('GraphQLRange', () => {
-  var origConsoleError;
-  var origConsoleWarn;
+  var consoleError;
+  var consoleWarn;
   var range;
 
   var HAS_NEXT_PAGE, HAS_PREV_PAGE;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-    origConsoleError = console.error;
-    origConsoleWarn = console.warn;
+    consoleError = console.error;
+    consoleWarn = console.warn;
 
     GraphQLStoreDataHandler.getID.mockImplementation(function(data) {
       return data.__dataID__;
@@ -96,8 +96,8 @@ describe('GraphQLRange', () => {
   });
 
   afterEach(() => {
-    console.error = origConsoleError;
-    console.warn = origConsoleWarn;
+    console.error = consoleError;
+    console.warn = consoleWarn;
   });
 
   it('should add for first() query', () => {

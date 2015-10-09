@@ -73,7 +73,7 @@ var RelayOSSNodeInterface = {
       var ii = 0;
       forEachRootCallArg(query, (identifyingArgValue, fieldName) => {
         var result = records[ii++];
-        var dataID = store.getRootCallID(fieldName, identifyingArgValue);
+        var dataID = store.getDataID(fieldName, identifyingArgValue);
         if (dataID == null) {
           var payloadID = typeof result === 'object' && result ?
             result[RelayOSSNodeInterface.ID] :
@@ -85,7 +85,7 @@ var RelayOSSNodeInterface = {
           } else {
             dataID = generateClientID();
           }
-          store.putRootCallID(fieldName, identifyingArgValue, dataID);
+          store.putDataID(fieldName, identifyingArgValue, dataID);
         }
         results.push({dataID, result});
       });

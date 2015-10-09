@@ -735,7 +735,7 @@ describe('RelayRecordStore', () => {
     it('returns undefined if unfetched and not cached', () => {
       var records = {};
       var store = new RelayRecordStore({records});
-      expect(store.getRootCallID('viewer', null)).toBe(undefined);
+      expect(store.getDataID('viewer')).toBe(undefined);
     });
 
     it('returns cached id if unfetched', () => {
@@ -748,7 +748,7 @@ describe('RelayRecordStore', () => {
         {records},
         {rootCallMap, cachedRootCallMap}
       );
-      expect(store.getRootCallID('viewer', null)).toBe(id);
+      expect(store.getDataID('viewer')).toBe(id);
     });
 
     it('returns fetched id over cached id', () => {
@@ -762,7 +762,7 @@ describe('RelayRecordStore', () => {
         {records},
         {rootCallMap, cachedRootCallMap}
       );
-      expect(store.getRootCallID('viewer', null)).toBe(id);
+      expect(store.getDataID('viewer')).toBe(id);
     });
   });
 

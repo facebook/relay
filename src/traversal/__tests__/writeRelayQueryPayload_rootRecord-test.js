@@ -66,7 +66,7 @@ describe('writeRelayQueryPayload()', () => {
       });
       expect(store.getRecordState('123')).toBe('EXISTENT');
       expect(store.getField('123', 'id')).toBe('123');
-      expect(store.getRootCallID('me', null)).toBe('123');
+      expect(store.getDataID('me')).toBe('123');
     });
 
     it('is created for argument-less custom root calls without an id', () => {
@@ -98,7 +98,7 @@ describe('writeRelayQueryPayload()', () => {
       });
       expect(store.getRecordState('client:viewer')).toBe('EXISTENT');
       expect(store.getLinkedRecordID('client:viewer', 'actor')).toBe('123');
-      expect(store.getRootCallID('viewer', null)).toBe('client:viewer');
+      expect(store.getDataID('viewer')).toBe('client:viewer');
     });
 
     it('is created for custom root calls with an id', () => {
@@ -125,7 +125,7 @@ describe('writeRelayQueryPayload()', () => {
       });
       expect(store.getRecordState('1055790163')).toBe('EXISTENT');
       expect(store.getField('1055790163', 'id')).toBe('1055790163');
-      expect(store.getRootCallID('username', 'yuzhi')).toBe('1055790163');
+      expect(store.getDataID('username', 'yuzhi')).toBe('1055790163');
     });
 
     it('is created for custom root calls without an id', () => {
@@ -156,7 +156,7 @@ describe('writeRelayQueryPayload()', () => {
       });
       expect(store.getRecordState('client:1')).toBe('EXISTENT');
       expect(store.getField('client:1', 'name')).toBe('Yuzhi Zheng');
-      expect(store.getRootCallID('username', 'yuzhi')).toBe('client:1');
+      expect(store.getDataID('username', 'yuzhi')).toBe('client:1');
     });
 
     it('is created for custom root calls with batch call variables', () => {
@@ -203,7 +203,7 @@ describe('writeRelayQueryPayload()', () => {
       expect(() => {
         writePayload(store, query, payload);
       }).toFailInvariant(
-        'RelayRecordStore.getRootCallID(): Argument to `node()` cannot be ' +
+        'RelayRecordStore.getDataID(): Argument to `node()` cannot be ' +
         'null or undefined.'
       );
     });

@@ -109,7 +109,7 @@ function diffRelayQuery(
     }
 
     // The whole query must be fetched if the root dataID is unknown.
-    var dataID = store.getRootCallID(fieldName, identifyingArgValue);
+    var dataID = store.getDataID(fieldName, identifyingArgValue);
     if (dataID == null) {
       queries.push(nodeRoot);
       return;

@@ -102,7 +102,7 @@ describe('RelayStore', () => {
 
   describe('readQuery', () => {
     it('accepts a query with no arguments', () => {
-      recordStore.putRootCallID('viewer', null, 'client:viewer');
+      recordStore.putDataID('viewer', null, 'client:viewer');
       RelayStore.readQuery(getNode(Relay.QL`query{viewer{actor{id}}}`));
       expect(readRelayQueryData.mock.calls.length).toBe(1);
       expect(readRelayQueryData.mock.calls[0][2]).toBe('client:viewer');

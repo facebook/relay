@@ -127,56 +127,58 @@ class RelayRecordStore {
   }
 
   /**
-   * Get the data ID associated with this root call/value pair.
+   * Get the data ID associated with a storage key (and optionally an
+   * identifying argument value) for a root query.
    */
-  getRootCallID(
-    rootCall: string,
-    rootCallArg: ?string
+  getDataID(
+    storageKey: string,
+    identifyingArgValue: ?string
   ): ?DataID {
-    if (RelayNodeInterface.isNodeRootCall(rootCall)) {
+    if (RelayNodeInterface.isNodeRootCall(storageKey)) {
       invariant(
-        rootCallArg != null,
-        'RelayRecordStore.getRootCallID(): Argument to `%s()` cannot be null ' +
-        'or undefined.',
-        rootCall
+        identifyingArgValue != null,
+        'RelayRecordStore.getDataID(): Argument to `%s()` ' +
+        'cannot be null or undefined.',
+        storageKey
       );
-      return rootCallArg;
+      return identifyingArgValue;
     }
-    if (rootCallArg == null) {
-      rootCallArg = EMPTY;
+    if (identifyingArgValue == null) {
+      identifyingArgValue = EMPTY;
     }
-    if (this._rootCallMap.hasOwnProperty(rootCall) &&
-        this._rootCallMap[rootCall].hasOwnProperty(rootCallArg)) {
-      return this._rootCallMap[rootCall][rootCallArg];
-    } else if (this._cachedRootCallMap.hasOwnProperty(rootCall)) {
-      return this._cachedRootCallMap[rootCall][rootCallArg];
+    if (this._rootCallMap.hasOwnProperty(storageKey) &&
+        this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)) {
+      return this._rootCallMap[storageKey][identifyingArgValue];
+    } else if (this._cachedRootCallMap.hasOwnProperty(storageKey)) {
+      return this._cachedRootCallMap[storageKey][identifyingArgValue];
     }
   }
 
   /**
-   * Associate a data ID with the given root call/value pair.
+   * Associate a data ID with a storage key (and optionally an identifying
+   * argument value) for a root query.
    */
-  putRootCallID(
-    rootCall: string,
-    rootCallArg: ?string,
+  putDataID(
+    storageKey: string,
+    identifyingArgValue: ?string,
     dataID: DataID
   ): void {
-    if (RelayNodeInterface.isNodeRootCall(rootCall)) {
+    if (RelayNodeInterface.isNodeRootCall(storageKey)) {
       invariant(
-        rootCallArg != null,
-        'RelayRecordStore.putRootCallID(): Argument to `%s()` cannot be null ' +
-        'or undefined.',
-        rootCall
+        identifyingArgValue != null,
+        'RelayRecordStore.putDataID(): Argument to `%s()` ' +
+        'cannot be null or undefined.',
+        storageKey
       );
       return;
     }
-    if (rootCallArg == null) {
-      rootCallArg = EMPTY;
+    if (identifyingArgValue == null) {
+      identifyingArgValue = EMPTY;
     }
-    this._rootCallMap[rootCall] = this._rootCallMap[rootCall] || {};
-    this._rootCallMap[rootCall][rootCallArg] = dataID;
+    this._rootCallMap[storageKey] = this._rootCallMap[storageKey] || {};
+    this._rootCallMap[storageKey][identifyingArgValue] = dataID;
     if (this._cacheWriter) {
-      this._cacheWriter.writeRootCall(rootCall, rootCallArg, dataID);
+      this._cacheWriter.writeRootCall(storageKey, identifyingArgValue, dataID);
     }
   }
 

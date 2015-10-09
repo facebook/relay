@@ -65,9 +65,12 @@ export type Record = {
 
 export type Records = {[key: DataID]: ?Record};
 
-// maps root call args to IDs. ex `username(joe)` -> 123`
-type RootCallArgsMap = {[rootCallValue: string]: DataID};
-export type RootCallMap = {[rootCallName: string]: RootCallArgsMap};
+// Maps root calls to a single data ID through an indentifying arg (or EMPTY)
+// eg. username(name: "joe")   => '123'
+//     username(name: "steve") => '456'
+//     viewer                  => '456'
+type IdentifyingArgsMap = {[identifyingArgName: string]: DataID};
+export type RootCallMap = {[storageKey: string]: IdentifyingArgsMap};
 
 // maps node IDs to the IDs of the connections that contain them
 export type NodeRangeMap = {

@@ -146,8 +146,8 @@ export type CacheWriter = {
   ) => void;
   writeNode: (dataID: DataID, record: ?Record) => void;
   writeRootCall: (
-    rootCallName: string,
-    rootCallValue: string,
+    storageKey: string,
+    identifyingArgValue: string,
     dataID: DataID
   ) => void;
 };

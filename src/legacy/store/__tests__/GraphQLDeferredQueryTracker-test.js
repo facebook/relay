@@ -229,7 +229,7 @@ describe('GraphQLDeferredQueryTracker', () => {
 
       // resolving the parent query allows the tracker to determine the ID of
       // the unresolved deferred query
-      recordStore.putRootCallID('me', null, dataID);
+      recordStore.putDataID('me', null, dataID);
       GraphQLDeferredQueryTracker.resolveQuery(mockRequired);
       expect(
         GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
@@ -271,7 +271,7 @@ describe('GraphQLDeferredQueryTracker', () => {
 
       // the root call ID can also be resolved via the deferred query,
       // and we now know that the query is not pending.
-      recordStore.putRootCallID('me', null, dataID);
+      recordStore.putDataID('me', null, dataID);
       GraphQLDeferredQueryTracker.resolveQuery(mockDeferred);
       expect(
         GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
@@ -302,7 +302,7 @@ describe('GraphQLDeferredQueryTracker', () => {
         GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
 
         GraphQLDeferredQueryTracker.rejectQuery(mockDeferred, new Error('wtf'));
-        recordStore.putRootCallID('me', null, dataID);
+        recordStore.putDataID('me', null, dataID);
         GraphQLDeferredQueryTracker.resolveQuery(mockRequired);
 
         // deferred query should not be considered pending
@@ -422,7 +422,7 @@ describe('GraphQLDeferredQueryTracker', () => {
       var mockDeferred = split[1];
 
       var dataID = '4';
-      recordStore.putRootCallID('me', null, dataID);
+      recordStore.putDataID('me', null, dataID);
 
       var fragmentID = getNode(mockFragment).getFragmentID();
       GraphQLDeferredQueryTracker.recordQuery(mockDeferred);

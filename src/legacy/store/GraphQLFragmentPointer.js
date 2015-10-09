@@ -55,7 +55,7 @@ class GraphQLFragmentPointer {
     if (Array.isArray(identifyingArgValue)) {
       var rootFragment = fragment; // for Flow
       return identifyingArgValue.map(singleIdentifyingArgValue => {
-        var dataID = store.getRootCallID(fieldName, singleIdentifyingArgValue);
+        var dataID = store.getDataID(fieldName, singleIdentifyingArgValue);
         if (!dataID) {
           return null;
         }
@@ -74,7 +74,7 @@ class GraphQLFragmentPointer {
       query.getName(),
       identifyingArgValue
     );
-    var dataIDOrIDs = store.getRootCallID(fieldName, identifyingArgValue);
+    var dataIDOrIDs = store.getDataID(fieldName, identifyingArgValue);
     if (!dataIDOrIDs) {
       return null;
     }

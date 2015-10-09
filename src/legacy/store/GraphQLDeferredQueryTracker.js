@@ -501,7 +501,7 @@ function getRootCallToIDMap(
         fieldName + '(' + identifyingArgValue + ')';
 
       mapping[rootCallString] =
-        recordStore.getRootCallID(fieldName, identifyingArgValue);
+        recordStore.getDataID(fieldName, identifyingArgValue);
     });
   }
   return mapping;

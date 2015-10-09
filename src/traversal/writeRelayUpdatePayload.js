@@ -55,7 +55,6 @@ var EDGES_FIELD = RelayQuery.Field.build(
   null,
   {plural: true}
 );
-var EMPTY = '';
 var ID = 'id';
 var IGNORED_KEYS = {
   error: true,
@@ -193,7 +192,7 @@ function handleMerge(
     }
     // if the field is an argument-less root call, determine the corresponding
     // root record ID
-    var rootID = store.getRootCallID(fieldName, EMPTY);
+    var rootID = store.getDataID(fieldName);
     // check for valid data (has an ID or is an array) and write the field
     if (
       ID in payloadData ||
@@ -248,7 +247,7 @@ function mergeField(
       )
     );
   } else {
-    recordID = store.getRootCallID(fieldName, EMPTY);
+    recordID = store.getDataID(fieldName);
     // Root fields that do not accept arguments
     path = new RelayQueryPath(RelayQuery.Root.build(fieldName));
   }
@@ -561,7 +560,7 @@ function getIDFromPath(
   // ['viewer']. We try to match it up with something in the root call mapping
   // first.
   if (path.length === 1) {
-    var rootCallID = store.getRootCallID(path[0], EMPTY);
+    var rootCallID = store.getDataID(path[0]);
     if (rootCallID) {
       return rootCallID;
     }

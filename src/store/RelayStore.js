@@ -136,7 +136,7 @@ var RelayStore = {
     var results = [];
     forEachRootCallArg(root, (identifyingArgValue, fieldName) => {
       var data;
-      var dataID = queuedStore.getRootCallID(fieldName, identifyingArgValue);
+      var dataID = queuedStore.getDataID(fieldName, identifyingArgValue);
       if (dataID != null) {
         data = RelayStore.read(root, dataID, options);
       }

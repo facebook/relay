@@ -35,24 +35,24 @@ describe('RelayRecordStore', () => {
     jest.addMatchers(RelayTestUtils.matchers);
   });
 
-  describe('getRootCallID()', () => {
+  describe('getDataID()', () => {
     it('returns undefined for unknown root call ids', () => {
       var store = new RelayRecordStore({records: {}});
-      expect(store.getRootCallID('username', 'zuck')).toBe(undefined);
+      expect(store.getDataID('username', 'zuck')).toBe(undefined);
     });
     it('returns id for node/nodes root call ids', () => {
       var store = new RelayRecordStore({records: {}});
-      expect(store.getRootCallID('node', '4')).toBe('4');
-      expect(store.getRootCallID('nodes', '4')).toBe('4');
+      expect(store.getDataID('node', '4')).toBe('4');
+      expect(store.getDataID('nodes', '4')).toBe('4');
     });
   });
 
-  describe('putRootCallID()', () => {
+  describe('putDataID()', () => {
     it('sets root call ids', () => {
       var cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
       var store = new RelayRecordStore({records: {}}, null, null, cache);
-      store.putRootCallID('username', 'zuck', 'node:4');
-      expect(store.getRootCallID('username', 'zuck')).toBe('node:4');
+      store.putDataID('username', 'zuck', 'node:4');
+      expect(store.getDataID('username', 'zuck')).toBe('node:4');
       expect(cache.writeRootCall).toBeCalledWith('username', 'zuck', 'node:4');
     });
     it('does not set ids for node/nodes root calls', () => {
@@ -60,8 +60,8 @@ describe('RelayRecordStore', () => {
       var rootCallMap = {};
       var store =
         new RelayRecordStore({records: {}}, {rootCallMap}, null, cache);
-      store.putRootCallID('node', '4', 'node:4');
-      store.putRootCallID('nodes', '4', 'node:4');
+      store.putDataID('node', '4', 'node:4');
+      store.putDataID('nodes', '4', 'node:4');
       expect(rootCallMap).toEqual({});
       expect(cache.writeRootCall).not.toBeCalled();
     });

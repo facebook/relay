@@ -23,6 +23,7 @@ const {
   RelayQLInlineFragment,
   RelayQLMutation,
   RelayQLQuery,
+  RelayQLType
 } = require('./RelayQLAST');
 
 const invariant = require('./invariant');
@@ -305,6 +306,8 @@ class RelayQLPrinter {
       requisiteFields.id = true;
     }
 
+    validateField(field, parent.getType());
+
     // TODO: Generalize to non-`Node` types.
     if (fieldType.alwaysImplements('Node')) {
       metadata.rootCall = 'node';
@@ -490,6 +493,21 @@ class RelayQLPrinter {
       return null;
     }
     invariant(false, 'Unsupported input type: %s', argType);
+  }
+}
+
+function validateField(field: RelayQLField, parentType: RelayQLType): void {
+  if (field.getName() === 'node') {
+    var args = field.getArguments();
+    invariant(
+      args.length !== 1 || args[0].getName() !== 'id',
+      'You defined a `node(id: %s)` field on type `%s`, but Relay requires ' +
+      'the `node` field to be defined on the root type. See the Object ' +
+      'Identification Guide: \n' +
+      'http://facebook.github.io/relay/docs/graphql-object-identification.html',
+      args[0] && args[0].getType().getName({modifiers: true}),
+      parentType.getName({modifiers: false})
+    );
   }
 }
 

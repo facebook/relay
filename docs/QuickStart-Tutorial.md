@@ -253,7 +253,7 @@ npm start
 
 ## Writing the game
 
-Let's tweak the file `./routes/AppHomeRoute.js` to anchor our game to the `game` root field of the schema:
+Let's tweak the file `./js/routes/AppHomeRoute.js` to anchor our game to the `game` root field of the schema:
 
 ```
 export default class extends Relay.Route {
@@ -265,7 +265,7 @@ export default class extends Relay.Route {
 }
 ```
 
-Next, let's create a file in `./mutations/CheckHidingSpotForTreasureMutation.js` and create subclass of `Relay.Mutation` called `CheckHidingSpotForTreasureMutation` to hold our mutation implementation:
+Next, let's create a file in `./js/mutations/CheckHidingSpotForTreasureMutation.js` and create subclass of `Relay.Mutation` called `CheckHidingSpotForTreasureMutation` to hold our mutation implementation:
 
 ```
 export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
@@ -329,7 +329,7 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
 }
 ```
 
-Finally, let's tie it all together in `./components/App.js`:
+Finally, let's tie it all together in `./js/components/App.js`:
 
 ```
 import CheckHidingSpotForTreasureMutation from '../mutations/CheckHidingSpotForTreasureMutation';

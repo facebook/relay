@@ -98,7 +98,7 @@ describe('RelayMetricsRecorder', () => {
 
     mockPerformanceNowSequence([1, 1001]);
     fetchRelayQuery(query);
-    jest.runOnlyPendingTimers();
+    jest.runAllTimers();
     var requests = RelayNetworkLayer.sendQueries.mock.calls[0][0];
     expect(requests.length).toBe(1);
     requests[0].resolve();

@@ -19,6 +19,7 @@ import type {
 } from 'RelayInternalTypes';
 
 var flattenArray = require('flattenArray');
+var stableStringify = require('stableStringify');
 
 /**
  * @internal
@@ -43,7 +44,7 @@ function sanitizeCallValue(value: CallValue): string {
     return '';
   }
   if (typeof value !== 'string') {
-    value = JSON.stringify(value);
+    value = stableStringify(value);
   }
   value = value.replace(/[)(}{><,.\\]/g, '\\$&');
   // Works around a bug in Legacy GraphQL, see Task #7599025.

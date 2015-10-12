@@ -951,13 +951,13 @@ class RelayQueryField extends RelayQueryNode {
    * `'news_feed.orderby(TOP_STORIES)'`
    */
   getStorageKey(): string {
-    var storageKey = this.__storageKey__;
+    let storageKey = this.__storageKey__;
     if (!storageKey) {
-      var isConnection = this.isConnection();
-      storageKey = this.getSchemaName();
-      var calls = this.getCallsWithValues();
-      for (var ii = 0; ii < calls.length; ii++) {
-        var call = calls[ii];
+      const isConnection = this.isConnection();
+      const argsToPrint = [];
+      const calls = this.getCallsWithValues();
+      for (let i = 0; i < calls.length; i++) {
+        const call = calls[i];
         if (isConnection && RelayConnectionInterface.isConnectionCall(call)) {
           continue;
         } else if (
@@ -968,14 +968,14 @@ class RelayQueryField extends RelayQueryNode {
           // equivalent fields.
           continue;
         }
-        /* $FlowFixMe(>=0.16.0) - This comment suppresses an error on the
-         * following line that was uncovered when Flow 0.16 was deployed.
-         */
-        storageKey += printRelayQueryCall(call);
+        argsToPrint.push(call);
       }
+      storageKey =
+        this.getSchemaName() +
+        argsToPrint.map(printRelayQueryCall).sort().join('');
       this.__storageKey__ = storageKey;
     }
-    /* $FlowIssue(>=0.17.0) #8020073 */
+    // $FlowIssue #8688673 - The for loop above triggers a flow error
     return storageKey;
   }
 

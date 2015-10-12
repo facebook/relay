@@ -11,6 +11,8 @@
  * @typechecks
  */
 
+/* eslint-disable no-unused-vars */
+
 'use strict';
 
 import type RelayQuery from 'RelayQuery';

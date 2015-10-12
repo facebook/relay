@@ -268,6 +268,8 @@ export default class extends Relay.Route {
 Next, let's create a file in `./js/mutations/CheckHidingSpotForTreasureMutation.js` and create subclass of `Relay.Mutation` called `CheckHidingSpotForTreasureMutation` to hold our mutation implementation:
 
 ```
+import Relay from 'react-relay';
+
 export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
   static fragments = {
     game: () => Relay.QL`

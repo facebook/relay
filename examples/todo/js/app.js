@@ -14,6 +14,7 @@ import 'babel/polyfill';
 import 'todomvc-common';
 import createHashHistory from 'history/lib/createHashHistory';
 import {IndexRoute, Route, Router} from 'react-router';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactRouterRelay from 'react-router-relay';
 import TodoApp from './components/TodoApp';

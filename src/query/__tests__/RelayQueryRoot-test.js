@@ -394,4 +394,35 @@ describe('RelayQueryRoot', () => {
       }
     ]);
   });
+
+  describe('getStorageKey()', () => {
+    it('delegates to RelayQueryField::getStorageKey', () => {
+      const query = getNode(Relay.QL`query { settings(environment: MOBILE) }`);
+      // Inherit all of the other RelayQueryField::getStorageKey() behavior,
+      // like stripping out spurious if/unless and connection args.
+      const mockField = {getStorageKey: jest.genMockFunction()};
+      RelayQuery.Field.build = jest.genMockFn().mockReturnValue(mockField);
+      query.getStorageKey();
+      expect(RelayQuery.Field.build).toBeCalled();
+      expect(mockField.getStorageKey).toBeCalled();
+    });
+
+    it('strips identifying arguments', () => {
+      const identifyingQuery = getNode(
+        Relay.QL`query { username(name:"yuzhi") }`
+      );
+      identifyingQuery.__concreteNode__.metadata = {identifyingArgName: 'name'};
+      expect(identifyingQuery.getStorageKey()).toBe('username');
+    });
+
+    /*
+    Come a time when root fields support more than just identifying arguments,
+    write a test to ensure that non-identifying args don't get stripped out.
+
+    it('does not strip out non-identifying arguments', () => {
+      const query = getNode(Relay.QL`query { settings(environment: MOBILE) }`);
+      expect(query.getStorageKey()).toBe('settings.environment(MOBILE)');
+    });
+    */
+  });
 });

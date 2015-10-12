@@ -322,6 +322,7 @@ class RelayQueryRoot extends RelayQueryNode {
   __deferredFragmentNames__: ?FragmentNames;
   __id__: ?string;
   __identifyingArg__: ?Call;
+  __storageKey__: ?string;
 
   /**
    * Helper to construct a new root query with the given attributes and 'empty'
@@ -379,6 +380,7 @@ class RelayQueryRoot extends RelayQueryNode {
     this.__deferredFragmentNames__ = undefined;
     this.__id__ = undefined;
     this.__identifyingArg__ = undefined;
+    this.__storageKey__ = undefined;
 
     // Ensure IDs are generated in the order that queries are created
     this.getID();
@@ -450,6 +452,26 @@ class RelayQueryRoot extends RelayQueryNode {
       }
     }
     return identifyingArg;
+  }
+
+  getStorageKey(): string {
+    let storageKey = this.__storageKey__;
+    if (!storageKey) {
+      let args = this.getCallsWithValues();
+      const identifyingArg = this.getIdentifyingArg();
+      if (identifyingArg) {
+        args = args.filter(arg => arg !== identifyingArg);
+      }
+      const field = RelayQueryField.build(
+        this.getFieldName(),
+        args,
+        null,
+        this.__concreteNode__.metadata
+      );
+      storageKey = field.getStorageKey();
+      this.__storageKey__ = storageKey;
+    }
+    return storageKey;
   }
 
   hasDeferredDescendant(): boolean {

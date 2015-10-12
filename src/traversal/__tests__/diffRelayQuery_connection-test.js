@@ -9,6 +9,8 @@
  * @emails oncall+relay
  */
 
+/* eslint-disable indent */
+
 'use strict';
 
 var RelayTestUtils = require('RelayTestUtils');

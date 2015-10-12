@@ -94,7 +94,9 @@ describe('RelayRoute', () => {
   it('throws if a requires param is not supplied', () => {
     var MockRoute = makeRoute();
     expect(() => {
+      /* eslint-disable no-new */
       new MockRoute({});
+      /* eslint-enable no-new */
     }).toFailInvariant(
       'RelayRoute: Missing required parameter `required` in `MockRoute`. ' +
       'Check the supplied params or URI.'
@@ -140,7 +142,9 @@ describe('RelayRoute', () => {
     class InvalidRoute extends RelayRoute {}
 
     expect(() => {
+      /* eslint-disable no-new */
       new InvalidRoute();
+      /* eslint-enable no-new */
     }).toFailInvariant(
       'InvalidRoute: Subclasses of RelayRoute must define a `routeName`.'
     );

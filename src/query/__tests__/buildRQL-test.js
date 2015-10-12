@@ -228,7 +228,7 @@ describe('buildRQL', () => {
       }).toFailInvariant(
         'Relay.QL: Expected query `viewer` to be empty. For example, use ' +
         '`node(id: $id)`, not `node(id: $id) { ... }`.'
-      )
+      );
     });
   });
 });

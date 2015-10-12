@@ -16,7 +16,6 @@ RelayTestUtils.unmockRelay();
 
 var GraphQLRange = require('GraphQLRange');
 var Relay = require('Relay');
-var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayQuery = require('RelayQuery');
 var RelayQueryTracker = require('RelayQueryTracker');
 var diffRelayQuery = require('diffRelayQuery');

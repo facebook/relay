@@ -7,6 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+/* eslint-disable no-unused-vars, no-eval */
+
 import babel from 'babel-core/browser';
 
 var GraphQL = require('graphql');
@@ -15,7 +17,7 @@ var GraphQLRelay = require('graphql-relay');
 export default function(source) {
   // Make these modules available to the schema author through a require shim.
   function require(path) {
-    switch(path) {
+    switch (path) {
       case 'graphql': return GraphQL;
       case 'graphql-relay': return GraphQLRelay;
 

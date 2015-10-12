@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-export default function ({Plugin, types: t}) {
+export default function({Plugin, types: t}) {
   return new Plugin('babel-relay-playground', {
     visitor: {
       CallExpression(node) {

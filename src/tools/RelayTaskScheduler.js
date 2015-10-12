@@ -110,7 +110,7 @@ var RelayTaskScheduler = {
               var nextCallback = callbacks[nextIndex++];
               try {
                 value = nextCallback(value);
-              } catch(e) {
+              } catch (e) {
                 error = e;
                 value = undefined;
               }

@@ -566,7 +566,7 @@ class RelayDiffQueryBuilder {
         '`%s`.',
         connectionField.getStorageKey()
       );
-      return;
+      return null;
     }
 
     var hasSplitQueries = false;

@@ -61,10 +61,12 @@ describe('RelayMutation', function() {
   });
 
   it('resolves props', () => {
+    /* eslint-disable no-new */
     new MockMutation({
       bar: mockBarPointer,
       foo: mockFooPointer,
     });
+    /* eslint-enable no-new */
     expect(Relay.Store.read.mock.calls.length).toBe(2);
 
     var mockBarRequiredFragment = fromGraphQL.Fragment(buildRQL.Fragment(

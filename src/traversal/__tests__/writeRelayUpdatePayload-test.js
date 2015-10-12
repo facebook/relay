@@ -63,7 +63,7 @@ describe('writePayload()', () => {
         {records, queuedRecords},
         rootCallMaps,
         nodeConnectionMap,
-        undefined /* cacheManager */,
+        undefined, /* cacheManager */
         'mutationID'
       );
 
@@ -284,7 +284,7 @@ describe('writePayload()', () => {
         {records, queuedRecords},
         rootCallMaps,
         nodeConnectionMap,
-        undefined /* cacheManager */,
+        undefined, /* cacheManager */
         'mutationID'
       );
 
@@ -530,7 +530,7 @@ describe('writePayload()', () => {
         {records, queuedRecords},
         rootCallMaps,
         {},
-        undefined /* cacheManager */,
+        undefined, /* cacheManager */
         'mutationID'
       );
 
@@ -695,7 +695,7 @@ describe('writePayload()', () => {
         {records, queuedRecords},
         rootCallMaps,
         nodeConnectionMap,
-        undefined /* cacheManager */,
+        undefined, /* cacheManager */
         'mutationID'
       );
 

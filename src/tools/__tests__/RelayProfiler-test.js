@@ -25,6 +25,8 @@ describe('RelayProfiler', function() {
   };
 
   beforeEach(() => {
+    jest.resetModuleRegistry();
+
     mockMethod = jest.genMockFunction();
     mockObject = {mockMethod: RelayProfiler.instrument('mock', mockMethod)};
   });
@@ -221,26 +223,20 @@ describe('RelayProfiler', function() {
     it('invokes attached profile handlers', () => {
       var actualOrdering = [];
 
-      RelayProfiler.attachProfileHandler('mockBehavior', {
-        onStart(name) {
-          expect(name).toBe('mockBehavior');
-          actualOrdering.push('1: beforeEnd');
-        },
-        onStop(name) {
-          expect(name).toBe('mockBehavior');
+      RelayProfiler.attachProfileHandler('mockBehavior', (name) => {
+        expect(name).toBe('mockBehavior');
+        actualOrdering.push('1: beforeEnd');
+        return () => {
           actualOrdering.push('1: afterEnd');
-        },
+        };
       });
 
-      RelayProfiler.attachProfileHandler('mockBehavior', {
-        onStart(name) {
-          expect(name).toBe('mockBehavior');
-          actualOrdering.push('2: beforeEnd');
-        },
-        onStop(name) {
-          expect(name).toBe('mockBehavior');
+      RelayProfiler.attachProfileHandler('mockBehavior', (name) => {
+        expect(name).toBe('mockBehavior');
+        actualOrdering.push('2: beforeEnd');
+        return () => {
           actualOrdering.push('2: afterEnd');
-        },
+        };
       });
 
       var profiler = RelayProfiler.profile('mockBehavior');
@@ -261,32 +257,29 @@ describe('RelayProfiler', function() {
     });
 
     it('does not invoke detached profile handlers', () => {
-      var mockHandlers = {
-        onStart: jest.genMockFunction(),
-        onStop: jest.genMockFunction(),
-      };
+      var mockStop = jest.genMockFunction();
+      var mockStart = jest.genMockFunction().mockReturnValue(mockStop);
 
-      RelayProfiler.attachProfileHandler('mockBehavior', mockHandlers);
-      RelayProfiler.detachProfileHandler('mockBehavior', mockHandlers);
+      RelayProfiler.attachProfileHandler('mockBehavior', mockStart);
+      RelayProfiler.detachProfileHandler('mockBehavior', mockStart);
       RelayProfiler.profile('mockBehavior');
 
-      expect(mockHandlers.onStart).not.toBeCalled();
-      expect(mockHandlers.onStop).not.toBeCalled();
+      expect(mockStop).not.toBeCalled();
+      expect(mockStart).not.toBeCalled();
     });
 
     it('passes state to each profile handler', () => {
-      var mockHandlers = {
-        onStart: jest.genMockFunction(),
-        onStop: jest.genMockFunction(),
-      };
+      var mockStop = jest.genMockFunction();
+      var mockStart = jest.genMockFunction().mockReturnValue(mockStop);
       var state = {};
 
-      RelayProfiler.attachProfileHandler('mockBehavior', mockHandlers);
+      RelayProfiler.attachProfileHandler('mockBehavior', mockStart);
       var profiler = RelayProfiler.profile('mockBehavior', state);
       profiler.stop();
 
-      expect(mockHandlers.onStart).toBeCalledWith('mockBehavior', state);
-      expect(mockHandlers.onStop).toBeCalledWith('mockBehavior', state);
+      expect(mockStart).toBeCalledWith('mockBehavior', state);
+      expect(mockStop).toBeCalled();
+      expect(mockStop.mock.calls[0].length).toBe(0);
     });
   });
 });

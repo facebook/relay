@@ -18,10 +18,7 @@ var forEachObject = require('forEachObject');
 var removeFromArray = require('removeFromArray');
 
 type Handler = (name: string, callback: () => void) => void;
-type ProfileHandler = {
-  onStart?: (name: string, state?: any) => void;
-  onStop?: (name: string, state?: any) => void;
-};
+type ProfileHandler = (name: string, state?: any) => () => void;
 
 var aggregateHandlersByName: {[name: string]: Array<Handler>} = {};
 var profileHandlersByName: {[name: string]: Array<ProfileHandler>} = {};
@@ -197,19 +194,18 @@ var RelayProfiler = {
     if (enableProfile) {
       if (profileHandlersByName.hasOwnProperty(name)) {
         var profileHandlers = profileHandlersByName[name];
+        var stopHandlers;
         for (var ii = profileHandlers.length - 1; ii >= 0; ii--) {
           var profileHandler = profileHandlers[ii];
-          if (profileHandler.onStart) {
-            profileHandler.onStart(name, state);
-          }
+          var stopHandler = profileHandler(name, state);
+          stopHandlers = stopHandlers || [];
+          stopHandlers.unshift(stopHandler);
         }
         return {
           stop(): void {
-            profileHandlersByName[name].forEach(profileHandler => {
-              if (profileHandler.onStop) {
-                profileHandler.onStop(name, state);
-              }
-            });
+            if (stopHandlers) {
+              stopHandlers.forEach(stopHandler => stopHandler());
+            }
           }
         };
       }

@@ -35,6 +35,7 @@ var RelayQLFragmentSpread = _require.RelayQLFragmentSpread;
 var RelayQLInlineFragment = _require.RelayQLInlineFragment;
 var RelayQLMutation = _require.RelayQLMutation;
 var RelayQLQuery = _require.RelayQLQuery;
+var RelayQLType = _require.RelayQLType;
 
 var invariant = require('./invariant');
 var t = require('babel-core/lib/types');
@@ -206,6 +207,8 @@ var RelayQLPrinter = (function () {
         requisiteFields.id = true;
       }
 
+      validateField(field, parent.getType());
+
       // TODO: Generalize to non-`Node` types.
       if (fieldType.alwaysImplements('Node')) {
         metadata.rootCall = 'node';
@@ -343,6 +346,14 @@ var RelayQLPrinter = (function () {
 
   return RelayQLPrinter;
 })();
+
+function validateField(field, parentType) {
+  if (field.getName() === 'node') {
+    var argTypes = field.getDeclaredArguments();
+    var argNames = Object.keys(argTypes);
+    invariant(argNames.length !== 1 || argNames[0] !== 'id', 'You defined a `node(id: %s)` field on type `%s`, but Relay requires ' + 'the `node` field to be defined on the root type. See the Object ' + 'Identification Guide: \n' + 'http://facebook.github.io/relay/docs/graphql-object-identification.html', argNames[0] && argTypes[argNames[0]].getName({ modifiers: true }), parentType.getName({ modifiers: false }));
+  }
+}
 
 function validateConnectionField(field) {
   invariant(!field.hasArgument('first') || !field.hasArgument('before'), 'Connection arguments `%s(before: <cursor>, first: <count>)` are ' + 'not supported. Use `(first: <count>)`, ' + '`(after: <cursor>, first: <count>)`, or ' + '`(before: <cursor>, last: <count>)`.', field.getName());

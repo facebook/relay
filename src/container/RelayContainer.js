@@ -576,7 +576,7 @@ function createContainerComponent(
           componentName
         );
         if (!propValue) {
-          fragmentPointers[fragmentName] = null;;
+          fragmentPointers[fragmentName] = null;
           return;
         }
         var fragment = getFragment(fragmentName, route, variables);

@@ -53,7 +53,7 @@ var {nodeInterface, nodeField} = nodeDefinitions(
   (obj) => {
     if (obj instanceof Game) {
       return gameType;
-    } else if (obj instanceof HidingSpot)  {
+    } else if (obj instanceof HidingSpot) {
       return hidingSpotType;
     } else {
       return null;

@@ -99,34 +99,4 @@ describe('printRelayQueryCall', () => {
       expect(printRelayQueryCall(call)).toEqual('.node(' + expected + ')');
     });
   });
-
-  it('produces stable keys from object values in the pathological case', () => {
-    var callA = {
-      name: 'pathological',
-      value: {a: 'string', b: [1, {baseball: 'bat', fruit: 'bat'}, 3]},
-    };
-    var callB = {
-      name: 'pathological',
-      value: {b: [1, {fruit: 'bat', baseball: 'bat'}, 3], a: 'string'},
-    };
-    const expectedOutput = '.pathological(\\{' +
-      'a:"string"\\,' +
-      'b:[0:1\\,1:\\{baseball:"bat"\\,fruit:"bat"\\}\\,2:3]' +
-    '\\})';
-    expect(printRelayQueryCall(callA)).toEqual(expectedOutput);
-    expect(printRelayQueryCall(callB)).toEqual(expectedOutput);
-  });
-
-  it('preserves the order of array argument values', () => {
-    var callA = {
-      name: 'arrayLike',
-      value: [1, [2, 3], 4],
-    };
-    var callB = {
-      name: 'arrayLike',
-      value: [4, [3, 2], 1],
-    };
-    expect(printRelayQueryCall(callA)).toEqual('.arrayLike(1,2,3,4)');
-    expect(printRelayQueryCall(callB)).toEqual('.arrayLike(4,3,2,1)');
-  });
 });

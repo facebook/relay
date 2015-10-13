@@ -44,7 +44,7 @@ function sanitizeCallValue(value: CallValue): string {
     return '';
   }
   if (typeof value !== 'string') {
-    value = stableStringify(value);
+    value = JSON.stringify(value);
   }
   value = value.replace(/[)(}{><,.\\]/g, '\\$&');
   // Works around a bug in Legacy GraphQL, see Task #7599025.

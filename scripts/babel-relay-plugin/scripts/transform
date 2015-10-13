@@ -10,7 +10,7 @@
 
 const minimist = require('minimist');
 const fs = require('fs');
-const transformGraphQL = require('../src/tools/transformGraphQL');
+const transformGraphQL = require('../lib/tools/transformGraphQL');
 
 function main(argv) {
   if (!argv.schema) {
@@ -24,7 +24,7 @@ function main(argv) {
 
   if (argv.file) {
     if (!fs.existsSync(argv.file)) {
-      console.warn('Invalid file: %s', argv.schema);
+      console.warn('Invalid file: %s', argv.file);
       process.exit(1);
     }
     transformSource(fs.readFileSync(argv.file, 'utf8'), argv.file);

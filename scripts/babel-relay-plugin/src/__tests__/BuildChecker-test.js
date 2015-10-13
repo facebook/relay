@@ -27,19 +27,18 @@ const SRC_DIR = path.join(ROOT_DIR, 'src');
 describe('babel-relay-plugin', () => {
   beforeEach(() => {
     jest.addMatchers({
-      toExist() {
-        const libPath = this.actual;
-        return fs.existsSync(libPath);
-      },
-      toTransformInto(libPath) {
-        const srcPath = this.actual;
-        const libCode = fs.readFileSync(libPath);
-        const srcCode = fs.readFileSync(srcPath);
+      toTransformInto(libFile) {
+        const srcFile = this.actual;
         this.message = () => util.format(
           'Expected `%s` to transform into `%s`. Try running: npm run build',
-          path.relative(ROOT_DIR, libPath),
-          path.relative(ROOT_DIR, srcPath)
+          path.relative(ROOT_DIR, libFile),
+          path.relative(ROOT_DIR, srcFile)
         );
+        if (!fs.existsSync(libFile)) {
+          return false;
+        }
+        const libCode = fs.readFileSync(libFile);
+        const srcCode = fs.readFileSync(srcFile);
         const transformed = babel.transform(srcCode);
         // Cannot use a `===` because of generated comment, newlines, etc.
         return libCode.indexOf(transformed.code) >= 0;
@@ -48,14 +47,18 @@ describe('babel-relay-plugin', () => {
   });
 
   it('has been built properly', () => {
-    fs.readdirSync(SRC_DIR).forEach(filename => {
-      if (!filename.endsWith('.js')) {
-        return;
-      }
-      const libPath = path.join(LIB_DIR, filename);
-      const srcPath = path.join(SRC_DIR, filename);
-      expect(libPath).toExist();
-      expect(srcPath).toTransformInto(libPath);
+    ['', 'tools'].forEach(dirname => {
+      const libPath = path.join(LIB_DIR, dirname);
+      const srcPath = path.join(SRC_DIR, dirname);
+
+      fs.readdirSync(srcPath).forEach(filename => {
+        if (!filename.endsWith('.js')) {
+          return;
+        }
+        const libFile = path.join(libPath, filename);
+        const srcFile = path.join(srcPath, filename);
+        expect(srcFile).toTransformInto(libFile);
+      });
     });
   });
 });

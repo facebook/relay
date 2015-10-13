@@ -37,9 +37,9 @@ var RelayQLMutation = _require.RelayQLMutation;
 var RelayQLQuery = _require.RelayQLQuery;
 var RelayQLType = _require.RelayQLType;
 
+var find = require('./find');
 var invariant = require('./invariant');
 var t = require('babel-core/lib/types');
-var util = require('util');
 
 var NULL = t.literal(null);
 
@@ -312,7 +312,7 @@ var RelayQLPrinter = (function () {
     key: 'printRelayDirectiveMetadata',
     value: function printRelayDirectiveMetadata(node) {
       var metadata = {};
-      var relayDirective = node.getDirectives().find(function (directive) {
+      var relayDirective = find(node.getDirectives(), function (directive) {
         return directive.getName() === 'relay';
       });
       if (relayDirective) {

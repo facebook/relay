@@ -32,8 +32,8 @@ var SchemaMetaFieldDef = _require.SchemaMetaFieldDef;
 var TypeMetaFieldDef = _require.TypeMetaFieldDef;
 var TypeNameMetaFieldDef = _require.TypeNameMetaFieldDef;
 
+var find = require('./find');
 var invariant = require('./invariant');
-var util = require('util');
 
 var GraphQLRelayDirective = {
   name: 'relay',
@@ -59,7 +59,7 @@ var RelayQLNode = (function () {
   }, {
     key: 'getField',
     value: function getField(fieldName) {
-      return this.getFields().find(function (field) {
+      return find(this.getFields(), function (field) {
         return field.getName() === fieldName;
       });
     }
@@ -512,7 +512,7 @@ var RelayQLType = (function () {
   }, {
     key: 'isConnection',
     value: function isConnection() {
-      if (!this.getName({ modifiers: false }).endsWith('Connection')) {
+      if (!/Connection$/.test(this.getName({ modifiers: false }))) {
         return false;
       }
       var edges = this.getFieldDefinition('edges');
@@ -532,7 +532,8 @@ var RelayQLType = (function () {
   }, {
     key: 'isConnectionEdge',
     value: function isConnectionEdge() {
-      return this.getName({ modifiers: false }).endsWith('Edge') && this.hasField('node') && this.hasField('cursor');
+      return (/Edge$/.test(this.getName({ modifiers: false })) && this.hasField('node') && this.hasField('cursor')
+      );
     }
   }, {
     key: 'isConnectionPageInfo',
@@ -593,7 +594,7 @@ var RelayQLFieldDefinition = (function () {
   }, {
     key: 'getArgument',
     value: function getArgument(argName) {
-      var schemaArg = this.schemaFieldDef.args.find(function (schemaArg) {
+      var schemaArg = find(this.schemaFieldDef.args, function (schemaArg) {
         return schemaArg.name === argName;
       });
       invariant(schemaArg, 'You tried to get an argument named `%s` on field `%s`, but no such ' + 'argument exists on that field.', argName, this.getName());

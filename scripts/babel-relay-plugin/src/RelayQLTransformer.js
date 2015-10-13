@@ -30,7 +30,6 @@ const util = require('util');
 import type {Document as GraphQLDocument} from 'GraphQLAST';
 import type {Printable, Substitution} from './RelayQLPrinter';
 
-type GraphQLAST = Object;
 type GraphQLLocation = {
   column: number;
   line: number;

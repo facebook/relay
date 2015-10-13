@@ -23,12 +23,12 @@ const {
   RelayQLInlineFragment,
   RelayQLMutation,
   RelayQLQuery,
-  RelayQLType
+  RelayQLType,
 } = require('./RelayQLAST');
 
+const find = require('./find');
 const invariant = require('./invariant');
 const t = require('babel-core/lib/types');
-const util = require('util');
 
 export type Printable = Object;
 export type Substitution = {
@@ -460,7 +460,8 @@ class RelayQLPrinter {
     node: RelayQLField | RelayQLFragment
   ): {[name: string]: mixed} {
     const metadata = {};
-    const relayDirective = node.getDirectives().find(
+    const relayDirective = find(
+      node.getDirectives(),
       directive => directive.getName() === 'relay'
     );
     if (relayDirective) {

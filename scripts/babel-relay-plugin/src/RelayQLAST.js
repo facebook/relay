@@ -19,8 +19,8 @@ const {
   TypeNameMetaFieldDef,
 } = require('graphql/type/introspection');
 
+const find = require('./find');
 const invariant = require('./invariant');
-const util = require('util');
 
 import type {
   Argument as GraphQLArgument,
@@ -30,13 +30,11 @@ import type {
   FragmentSpread as GraphQLFragmentSpread,
   InlineFragment as GraphQLInlineFragment,
   OperationDefinition as GraphQLOperationDefinition,
-  Node as GraphQLNode,
 } from 'GraphQLAST';
 
 // TODO: Import types from `graphql`.
 type GraphQLSchema = Object;
 type GraphQLSchemaArgumentType = Object;
-type GraphQLSchemaDirective = Object;
 type GraphQLSchemaField = Object;
 type GraphQLSchemaType = Object;
 
@@ -73,7 +71,7 @@ class RelayQLNode<T> {
   }
 
   getField(fieldName: string): ?RelayQLField {
-    return this.getFields().find(field => field.getName() === fieldName);
+    return find(this.getFields(), field => field.getName() === fieldName);
   }
 
   getFields(): Array<RelayQLField> {
@@ -377,7 +375,7 @@ class RelayQLType {
 
   constructor(context: RelayQLContext, schemaModifiedType: GraphQLSchemaType) {
     this.context = context;
-    let {
+    const {
       isListType,
       isNonNullType,
       schemaUnmodifiedType,
@@ -467,7 +465,7 @@ class RelayQLType {
   }
 
   isConnection(): boolean {
-    if (!this.getName({modifiers: false}).endsWith('Connection')) {
+    if (!/Connection$/.test(this.getName({modifiers: false}))) {
       return false;
     }
     const edges = this.getFieldDefinition('edges');
@@ -487,7 +485,7 @@ class RelayQLType {
 
   isConnectionEdge(): boolean {
     return (
-      this.getName({modifiers: false}).endsWith('Edge') &&
+      /Edge$/.test(this.getName({modifiers: false})) &&
       this.hasField('node') &&
       this.hasField('cursor')
     );
@@ -549,7 +547,8 @@ class RelayQLFieldDefinition {
   }
 
   getArgument(argName: string): RelayQLArgumentType {
-    const schemaArg = this.schemaFieldDef.args.find(
+    const schemaArg = find(
+      this.schemaFieldDef.args,
       schemaArg => schemaArg.name === argName
     );
     invariant(
@@ -578,7 +577,7 @@ class RelayQLArgumentType {
   schemaUnmodifiedArgType: GraphQLSchemaArgumentType;
 
   constructor(schemaModifiedArgType: GraphQLSchemaArgumentType) {
-    let {
+    const {
       isListType,
       isNonNullType,
       schemaUnmodifiedType,

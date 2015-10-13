@@ -14,6 +14,16 @@
 var stableStringify = require('stableStringify');
 
 describe('stableStringify', () => {
+  it('stringifies non-objects', () => {
+    expect(stableStringify('foo')).toBe('"foo"');
+    expect(stableStringify(1)).toBe('1');
+    expect(stableStringify(-1)).toBe('-1');
+    expect(stableStringify(true)).toBe('true');
+    expect(stableStringify(false)).toBe('false');
+    expect(stableStringify(null)).toBe('null');
+    expect(stableStringify()).toBe(undefined);
+  });
+
   it('stringifies empty objects', () => {
     expect(stableStringify({})).toBe('{}');
   });

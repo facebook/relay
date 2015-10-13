@@ -52,30 +52,34 @@ function isObject(value: mixed) {
  *      top2:{middle:{inner:[0:1,1:"foo",2:[0:"bar",1:2]],other:false}}
  *    }
  */
-function stableStringify(object: any): string {
-  var keys = Object.keys(object);
-  if (keys.length) {
-    var result = [];
-    keys.sort();
+function stableStringify(input: any): string {
+  const inputIsArray = Array.isArray(input);
+  const inputIsObject = isObject(input);
+  if (inputIsArray || inputIsObject) {
+    var keys = Object.keys(input);
+    if (keys.length) {
+      var result = [];
+      keys.sort();
 
-    for (var i = 0; i < keys.length; i++) {
-      var key = keys[i];
-      var value = object[key];
-      if (isObject(value) || Array.isArray(value)) {
-        value = stableStringify(value);
-      } else {
-        value = JSON.stringify(value);
+      for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        var value = input[key];
+        if (isObject(value) || Array.isArray(value)) {
+          value = stableStringify(value);
+        } else {
+          value = JSON.stringify(value);
+        }
+        result.push(key + ':' + value);
       }
-      result.push(key + ':' + value);
-    }
 
-    if (Array.isArray(object)) {
-      return '[' + result.join(',') + ']';
-    } else {
-      return '{' + result.join(',') + '}';
+      if (inputIsArray) {
+        return '[' + result.join(',') + ']';
+      } else {
+        return '{' + result.join(',') + '}';
+      }
     }
   }
-  return JSON.stringify(object);
+  return JSON.stringify(input);
 }
 
 module.exports = stableStringify;

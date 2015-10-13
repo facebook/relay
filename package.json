@@ -33,8 +33,8 @@
     "react-static-container": "^1.0.0-alpha.1"
   },
   "peerDependencies": {
-    "react": "^0.14.0-rc",
-    "react-dom": "^0.14.0-rc"
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
   },
   "devDependencies": {
     "babel-core": "^5.8.25",

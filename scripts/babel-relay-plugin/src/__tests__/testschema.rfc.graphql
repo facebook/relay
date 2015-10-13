@@ -4,6 +4,11 @@ type Root {
   media(id: Int): Media
   viewer: Viewer
   search(query: [SearchInput!]): [SearchResult]
+  _invalid: InvalidType
+}
+
+type InvalidType {
+  node(id: Int): Node
 }
 
 type SearchResult {

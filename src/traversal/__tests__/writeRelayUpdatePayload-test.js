@@ -175,7 +175,7 @@ describe('writePayload()', () => {
       expect(queueStore.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '1'}]
-      ).requestedEdges.map(edge => edge.edgeID)).toEqual([]);
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([]);
 
       expect(store.getField(connectionID, 'count')).toBe(1);
       expect(store.getRecordState(edgeID)).toBe('EXISTENT');
@@ -183,7 +183,7 @@ describe('writePayload()', () => {
       expect(store.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '1'}]
-      ).requestedEdges.map(edge => edge.edgeID)).toEqual([
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([
         edgeID,
       ]);
     });
@@ -258,7 +258,7 @@ describe('writePayload()', () => {
       expect(store.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '1'}]
-      ).requestedEdges.map(edge => edge.edgeID)).toEqual([]);
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([]);
     });
   });
 
@@ -405,7 +405,7 @@ describe('writePayload()', () => {
       expect(queueStore.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '2'}]
-      ).requestedEdges.map(edge => edge.edgeID)).toEqual([
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([
         secondEdgeID,
       ]);
       // connection metadata is merged into the queued store
@@ -421,7 +421,7 @@ describe('writePayload()', () => {
       expect(store.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '2'}]
-      ).requestedEdges.map(edge => edge.edgeID)).toEqual([
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([
         firstEdgeID,
         secondEdgeID,
       ]);
@@ -501,7 +501,7 @@ describe('writePayload()', () => {
       expect(store.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '1'}]
-      ).requestedEdges.map(edge => edge.edgeID)).toEqual([
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([
         secondEdgeID,
       ]);
       // connection metadata is merged into the queued store
@@ -799,7 +799,7 @@ describe('writePayload()', () => {
       expect(queueStore.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '2'}]
-      ).requestedEdges.map(edge => edge.edgeID)).toEqual([edgeID]);
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([edgeID]);
     });
 
     it('optimistically prepends comments', () => {
@@ -914,7 +914,7 @@ describe('writePayload()', () => {
       expect(queueStore.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '2'}]
-      ).requestedEdges.map(edge => edge.edgeID)).toEqual([
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([
         nextEdgeID,
         edgeID
       ]);
@@ -927,7 +927,7 @@ describe('writePayload()', () => {
       expect(store.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '2'}]
-      ).requestedEdges.map(edge => edge.edgeID)).toEqual([
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([
         edgeID
       ]);
     });
@@ -1045,7 +1045,7 @@ describe('writePayload()', () => {
       expect(store.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '2'}]
-      ).requestedEdges.map(edge => edge.edgeID)).toEqual([
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([
         nextEdgeID,
         edgeID
       ]);

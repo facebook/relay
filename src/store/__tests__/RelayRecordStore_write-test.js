@@ -562,7 +562,7 @@ describe('RelayRecordStore', () => {
       var rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.diffCalls).toEqual([]);
       expect(rangeInfo.filterCalls).toEqual([]);
-      expect(rangeInfo.requestedEdges).toEqual([
+      expect(rangeInfo.filteredEdges).toEqual([
         {edgeID: 'edge0', nodeID: 'node0'},
         {edgeID: 'edge1', nodeID: 'node1'},
         {edgeID: 'edge2', nodeID: 'node2'},
@@ -668,7 +668,7 @@ describe('RelayRecordStore', () => {
       // contains prepended edge
       var calls = [{name: 'first', value: 2}];
       var rangeInfo = store.getRangeMetadata(connectionID, calls);
-      expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
+      expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         edgeID,
         firstEdgeID
       ]);
@@ -687,7 +687,7 @@ describe('RelayRecordStore', () => {
       // contains prepended edge
       var calls = [{name: 'first', value: 2}];
       var rangeInfo = queuedStore.getRangeMetadata(connectionID, calls);
-      expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
+      expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         edgeID,
         firstEdgeID
       ]);
@@ -700,7 +700,7 @@ describe('RelayRecordStore', () => {
 
       // base store is unchanged
       rangeInfo = store.getRangeMetadata(connectionID, calls);
-      expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
+      expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         firstEdgeID
       ]);
       expect(store.getConnectionIDsForRecord(nodeID)).toEqual(null);
@@ -713,7 +713,7 @@ describe('RelayRecordStore', () => {
       // contains appended edge
       var calls = [{name: 'last', value: 2}];
       var rangeInfo = store.getRangeMetadata(connectionID, calls);
-      expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
+      expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         lastEdgeID,
         edgeID
       ]);
@@ -732,7 +732,7 @@ describe('RelayRecordStore', () => {
       // contains appended edge
       var calls = [{name: 'last', value: 2}];
       var rangeInfo = queuedStore.getRangeMetadata(connectionID, calls);
-      expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
+      expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         lastEdgeID,
         edgeID
       ]);
@@ -745,7 +745,7 @@ describe('RelayRecordStore', () => {
 
       // base store is unchanged
       rangeInfo = store.getRangeMetadata(connectionID, calls);
-      expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
+      expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         lastEdgeID
       ]);
       expect(store.getConnectionIDsForRecord(nodeID)).toEqual(null);
@@ -760,7 +760,7 @@ describe('RelayRecordStore', () => {
       // does not contain removed edge
       var calls = [{name: 'first', value: 2}];
       var rangeInfo = store.getRangeMetadata(connectionID, calls);
-      expect(rangeInfo.requestedEdges).toEqual([]);
+      expect(rangeInfo.filteredEdges).toEqual([]);
       expect(store.getConnectionIDsForRecord(firstNodeID)).toEqual(null);
       expect(cache.writeField).toBeCalledWith(
         connectionID,
@@ -775,7 +775,7 @@ describe('RelayRecordStore', () => {
       // does not contain removed edge
       var calls = [{name: 'first', value: 2}];
       var rangeInfo = queuedStore.getRangeMetadata(connectionID, calls);
-      expect(rangeInfo.requestedEdges).toEqual([]);
+      expect(rangeInfo.filteredEdges).toEqual([]);
       // cache not updated on optimistic range update
       expect(cache.writeField).not.toBeCalledWith(
         connectionID,
@@ -785,7 +785,7 @@ describe('RelayRecordStore', () => {
 
       // base store is unchanged
       rangeInfo = store.getRangeMetadata(connectionID, calls);
-      expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
+      expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         firstEdgeID
       ]);
       expect(store.getConnectionIDsForRecord(firstNodeID)).toEqual([
@@ -801,7 +801,7 @@ describe('RelayRecordStore', () => {
       // does not contain prepended & removed edge
       var calls = [{name: 'first', value: 1}];
       var rangeInfo = queuedStore.getRangeMetadata(connectionID, calls);
-      expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
+      expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         firstEdgeID
       ]);
     });
@@ -814,7 +814,7 @@ describe('RelayRecordStore', () => {
       // does not contain prepended & removed edge
       var calls = [{name: 'last', value: 1}];
       var rangeInfo = queuedStore.getRangeMetadata(connectionID, calls);
-      expect(rangeInfo.requestedEdges.map(edge => edge.edgeID)).toEqual([
+      expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         lastEdgeID
       ]);
     });

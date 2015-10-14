@@ -102,7 +102,8 @@ describe('writeRelayQueryPayload()', () => {
         [HAS_PREV_PAGE]: false,
         [START_CURSOR]: undefined,
       },
-      requestedEdges: []
+      requestedEdgeIDs: [],
+      filteredEdges: []
     });
   });
 
@@ -198,7 +199,12 @@ describe('writeRelayQueryPayload()', () => {
         [HAS_PREV_PAGE]: false,
         [START_CURSOR]: 'friend1',
       },
-      requestedEdges: [
+      requestedEdgeIDs: [
+        'client:client:1:friend1ID',
+        'client:client:1:friend2ID',
+        'client:client:1:friend3ID'
+      ],
+      filteredEdges: [
         {edgeID: 'client:client:1:friend1ID', nodeID: 'friend1ID'},
         {edgeID: 'client:client:1:friend2ID', nodeID: 'friend2ID'},
         {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'},
@@ -273,7 +279,8 @@ describe('writeRelayQueryPayload()', () => {
         [HAS_PREV_PAGE]: false,
         [START_CURSOR]: 'friend3',
       },
-      requestedEdges: [
+      requestedEdgeIDs: ['client:client:1:friend3ID'],
+      filteredEdges: [
         {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'},
       ]
     });
@@ -362,7 +369,8 @@ describe('writeRelayQueryPayload()', () => {
         [HAS_PREV_PAGE]: false,
         [START_CURSOR]: 'friend1',
       },
-      requestedEdges: [
+      requestedEdgeIDs: ['client:client:1:friend1ID'],
+      filteredEdges: [
         {edgeID: 'client:client:1:friend1ID', nodeID: 'friend1ID'},
       ]
     });
@@ -512,7 +520,11 @@ describe('writeRelayQueryPayload()', () => {
           [HAS_PREV_PAGE]: false,
           [START_CURSOR]: 'cursor1',
         },
-        requestedEdges: [
+        requestedEdgeIDs: [
+          'client:client:1:node1',
+          'client:client:1:node2'
+        ],
+        filteredEdges: [
           {edgeID: 'client:client:1:node1', nodeID: 'node1'},
           {edgeID: 'client:client:1:node2', nodeID: 'node2'},
         ],
@@ -572,7 +584,8 @@ describe('writeRelayQueryPayload()', () => {
           [HAS_PREV_PAGE]: false,
           [START_CURSOR]: 'cursor1',
         },
-        requestedEdges: [
+        requestedEdgeIDs: ['client:client:1:node1'],
+        filteredEdges: [
           {edgeID: 'client:client:1:node1', nodeID: 'node1'},
         ],
       });
@@ -637,7 +650,8 @@ describe('writeRelayQueryPayload()', () => {
           [HAS_PREV_PAGE]: false,
           [START_CURSOR]: 'cursor1',
         },
-        requestedEdges: [
+        requestedEdgeIDs: ['client:client:1:node1'],
+        filteredEdges: [
           {edgeID: 'client:client:1:node1', nodeID: 'node1'},
         ],
       });
@@ -699,7 +713,8 @@ describe('writeRelayQueryPayload()', () => {
           [HAS_PREV_PAGE]: false,
           [START_CURSOR]: 'cursor1',
         },
-        requestedEdges: [
+        requestedEdgeIDs: ['client:client:1:node1'],
+        filteredEdges: [
           {edgeID: 'client:client:1:node1', nodeID: 'node1'},
         ],
       });
@@ -758,7 +773,8 @@ describe('writeRelayQueryPayload()', () => {
           [HAS_PREV_PAGE]: false,
           [START_CURSOR]: 'cursor1b',
         },
-        requestedEdges: [
+        requestedEdgeIDs: ['client:client:1:node1b'],
+        filteredEdges: [
           {edgeID: 'client:client:1:node1b', nodeID: 'node1b'},
         ],
       });

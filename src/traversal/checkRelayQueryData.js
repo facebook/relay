@@ -191,7 +191,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
       state.result = false;
       return;
     }
-    var edges = rangeInfo.requestedEdges;
+    var edges = rangeInfo.filteredEdges;
     for (var ii = 0; ii < edges.length; ii++) {
       if (!state.result) {
         break;

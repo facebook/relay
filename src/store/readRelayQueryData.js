@@ -244,7 +244,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
 
   _readEdges(node: RelayQuery.Field, rangeInfo: RangeInfo, state: State): void {
     var previousData = getDataValue(state, EDGES);
-    var edges = rangeInfo.requestedEdges.map((edgeData, ii) => {
+    var edges = rangeInfo.filteredEdges.map((edgeData, ii) => {
       var data;
       if (previousData instanceof Object) {
         data = previousData[ii];

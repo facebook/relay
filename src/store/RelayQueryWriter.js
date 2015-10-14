@@ -446,7 +446,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     var fetchedEdgeIDs = [];
     var isUpdate = false;
     var nextIndex = 0;
-    var requestedEdges = rangeInfo.requestedEdges;
+    var filteredEdges = rangeInfo.filteredEdges;
     // Traverse connection edges, reusing existing edges if they exist
     edgesData.forEach(edgeData => {
       // validate response data
@@ -477,7 +477,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // For consistency, edge IDs are calculated from the connection & node ID.
       // A node ID is only generated if the node does not have an id and
       // there is no existing edge.
-      var prevEdge = requestedEdges[nextIndex++];
+      var prevEdge = filteredEdges[nextIndex++];
       var nodeID = (
         (nodeData && nodeData[ID]) ||
         (prevEdge && this._store.getLinkedRecordID(prevEdge.edgeID, NODE)) ||

@@ -476,11 +476,11 @@ class RelayDiffQueryBuilder {
         makeScope(connectionID)
       );
     }
-    var {diffCalls, requestedEdges} = rangeInfo;
+    var {diffCalls, filteredEdges} = rangeInfo;
 
     // check existing edges for missing fields
     var hasSplitQueries = false;
-    requestedEdges.forEach(edge => {
+    filteredEdges.forEach(edge => {
       // Flow loses type information in closures
       if (rangeInfo && connectionID) {
         var scope = {

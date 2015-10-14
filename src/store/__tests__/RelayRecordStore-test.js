@@ -571,7 +571,7 @@ describe('RelayRecordStore', () => {
         'client:1',
         [{name: 'first', value: 1}]
       );
-      expect(metadata.requestedEdges).toEqual([]);
+      expect(metadata.filteredEdges).toEqual([]);
     });
 
     it('returns empty diff calls if range is already fetched', () => {
@@ -581,7 +581,7 @@ describe('RelayRecordStore', () => {
       var rangeInfo = store.getRangeMetadata('client:1', []);
       expect(rangeInfo.diffCalls).toEqual([]);
       expect(rangeInfo.filterCalls).toEqual([]);
-      expect(rangeInfo.requestedEdges).toEqual([]);
+      expect(rangeInfo.filteredEdges).toEqual([]);
     });
 
     it('returns diff/filter calls and requested edges from the range', () => {
@@ -603,7 +603,7 @@ describe('RelayRecordStore', () => {
         {name: 'first', value: '1'},
         {name: 'after', value: 'edge:1'},
       ]);
-      expect(rangeInfo.requestedEdges).toEqual([{
+      expect(rangeInfo.filteredEdges).toEqual([{
         edgeID: 'edge:1',
         nodeID: 'node:1'
       }]);

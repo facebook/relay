@@ -404,7 +404,7 @@ describe('diffRelayQuery', () => {
     var mockRange = new GraphQLRange();
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       diffCalls: [],
-      requestedEdges: [],
+      filteredEdges: [],
     });
     var records = {
       story: {

@@ -63,7 +63,8 @@ export type RangeInfo = {
   diffCalls: Array<GraphQL.Call>;
   filterCalls: Array<GraphQL.Call>;
   pageInfo: ?PageInfo;
-  requestedEdges: Array<RangeEdge>;
+  requestedEdgeIDs: Array<string>;
+  filteredEdges: Array<RangeEdge>;
 };
 type RangeOperation = 'append' | 'prepend' | 'remove';
 
@@ -581,7 +582,7 @@ class RelayRecordStore {
 
   /**
    * Returns range information for the given connection field:
-   * - `requestedEdges`: any edges already fetched for the given `calls`.
+   * - `filteredEdges`: any edges already fetched for the given `calls`.
    * - `diffCalls`: an array of calls describing the difference
    *   between the given `calls` and already fetched data. Includes conditional
    *   calls (`orderby`) and range/offset calls (`first`, `after`).
@@ -614,7 +615,8 @@ class RelayRecordStore {
         diffCalls: calls,
         filterCalls,
         pageInfo: undefined,
-        requestedEdges: [],
+        requestedEdgeIDs: [],
+        filteredEdges: [],
       };
     }
     // Convert ordered `{name,value}` objects to `GraphQL.Call`s
@@ -632,22 +634,23 @@ class RelayRecordStore {
     } else {
       diffCalls = [];
     }
-    var requestedEdges;
+    var filteredEdges;
     if (requestedEdgeIDs) {
-      requestedEdges = requestedEdgeIDs
+      filteredEdges = requestedEdgeIDs
         .map(edgeID => ({
           edgeID,
           nodeID: this.getLinkedRecordID(edgeID, NODE),
         }))
         .filter(edge => this._getRecord(edge.nodeID));
     } else {
-      requestedEdges = [];
+      filteredEdges = [];
     }
     return {
       diffCalls,
       filterCalls,
       pageInfo,
-      requestedEdges,
+      requestedEdgeIDs,
+      filteredEdges,
     };
   }
 

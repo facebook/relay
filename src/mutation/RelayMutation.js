@@ -18,7 +18,10 @@ var RelayDeprecated = require('RelayDeprecated');
 var RelayFragmentReference = require('RelayFragmentReference');
 import type RelayMetaRoute from 'RelayMetaRoute';
 var RelayStore = require('RelayStore');
-import type {Variables} from 'RelayTypes';
+import type {
+  RelayMutationConfig,
+  Variables,
+} from 'RelayTypes';
 
 var buildRQL = require('buildRQL');
 import type {FragmentBuilder} from 'buildRQL';
@@ -164,7 +167,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
    *      children: Array<RelayQuery.Node>;
    *    }
    */
-  getConfigs(): Array<{[key: string]: mixed}> {
+  getConfigs(): Array<RelayMutationConfig> {
     invariant(
       false,
       '%s: Expected abstract method `getConfigs` to be implemented.',

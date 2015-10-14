@@ -27,6 +27,7 @@ import type {
 import type RelayFragmentReference from 'RelayFragmentReference';
 import type RelayMetaRoute from 'RelayMetaRoute';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
+import type RelayQuery from 'RelayQuery';
 
 // Routes and variables
 export type Variables = {[name: string]: mixed};
@@ -96,6 +97,34 @@ export type RelayMutationTransactionCommitSuccessCallback = (
 export type RelayMutationTransactionCommitCallbacks = {
   onFailure?: ?RelayMutationTransactionCommitFailureCallback;
   onSuccess?: ?RelayMutationTransactionCommitSuccessCallback;
+};
+export type RelayMutationConfig = {
+  type: 'FIELDS_CHANGE',
+  fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
+} | {
+  type: 'RANGE_ADD',
+  parentName: string,
+  parentID: string,
+  connectionName: string,
+  edgeName: string,
+  // from GraphQLMutatorConstants.RANGE_OPERATIONS
+  rangeBehaviors: {[call: string]: 'append' | 'prepend' | 'remove'},
+} | {
+  type: 'NODE_DELETE',
+  parentName: string;
+  parentID: string;
+  connectionName: string;
+  deletedIDFieldName: string;
+} | {
+  type: 'RANGE_DELETE';
+  parentName: string;
+  parentID: string;
+  connectionName: string;
+  deletedIDFieldName: string;
+  pathToConnection: Array<string>;
+} | {
+  type: 'REQUIRED_CHILDREN',
+  children: Array<RelayQuery.Node>,
 };
 
 // Observable

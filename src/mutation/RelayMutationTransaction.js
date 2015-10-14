@@ -26,6 +26,7 @@ import type RelayMutation from 'RelayMutation';
 import type RelayQuery from 'RelayQuery';
 import type {ClientMutationID} from 'RelayInternalTypes';
 import type {
+  RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
   RelayMutationTransactionCommitFailureCallback,
   RelayMutationTransactionCommitSuccessCallback,
@@ -161,7 +162,7 @@ class RelayMutationTransaction {
     return this._callName;
   }
 
-  _getConfigs(): Array<{[key: string]: mixed}> {
+  _getConfigs(): Array<RelayMutationConfig> {
     if (!this._configs) {
       this._configs = this._mutation.getConfigs();
     }

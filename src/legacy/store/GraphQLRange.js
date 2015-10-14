@@ -585,12 +585,9 @@ class GraphQLRange {
 
     for (var ii = 0; ii < edgeIDs.length; ii++) {
       if (edgeIDs[ii] !== GraphQLStoreDataHandler.getID(edges[ii])) {
-        warning(
-          false,
-          'Relay was unable to reconcile edges on a connection. This most ' +
-          'likely occurred while trying to handle a server response that ' +
-          'includes connection edges with nodes that lack an `id` field.'
-        );
+        // Relay was unable to reconcile edges on a connection. This most
+        // likely occurred while trying to handle a server response that
+        // includes connection edges with nodes that lack an `id` field.
         return undefined;
       }
     }
@@ -706,12 +703,9 @@ class GraphQLRange {
     for (var ii = 1; ii <= edgeIDs.length; ii++) {
       if (edgeIDs[edgeIDs.length - ii] !==
           GraphQLStoreDataHandler.getID(edges[edges.length - ii])) {
-        warning(
-          false,
-          'Relay was unable to reconcile edges on a connection. This most ' +
-          'likely occurred while trying to handle a server response that ' +
-          'includes connection edges with nodes that lack an `id` field.'
-        );
+        // Relay was unable to reconcile edges on a connection. This most
+        // likely occurred while trying to handle a server response that
+        // includes connection edges with nodes that lack an `id` field.
         return undefined;
       }
     }

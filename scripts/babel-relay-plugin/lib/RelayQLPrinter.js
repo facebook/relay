@@ -40,6 +40,7 @@ var RelayQLType = _require.RelayQLType;
 var find = require('./find');
 var invariant = require('./invariant');
 var t = require('babel-core/lib/types');
+var util = require('util');
 
 var NULL = t.literal(null);
 
@@ -367,6 +368,10 @@ function validateConnectionField(field) {
     var isNodesLikeField = subfield.getName() !== 'edges' && subfieldType.isList() && subfieldType.getName({ modifiers: false }) === connectionNodeType.getName({ modifiers: false });
     invariant(!isNodesLikeField, 'You supplied a field named `%s` on a connection named `%s`, but ' + 'pagination is not supported on connections without using edges. Use ' + '`%s{edges{node{...}}}` instead.', subfield.getName(), field.getName(), field.getName());
   });
+
+  if (!connectionNodeType.alwaysImplements('Node')) {
+    console.warn(util.format('You queried a connection named `%s` for which the `node`s do not have ' + 'a unique `id`, which can cause items to appear out of order. To ' + 'ensure that items always appear in the correct order and to ' + 'refetch missing information more efficiently, we recommend changing ' + '`%s` to implement the `Node` interface.', field.getName(), connectionNodeType.getName({ modifiers: false }), connectionNodeType.getName({ modifiers: false })));
+  }
 }
 
 function validateMutationField(rootField) {

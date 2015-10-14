@@ -7,6 +7,9 @@ extends:
 plugins:
   - react
 
+rules:
+  react/jsx-uses-react: 2
+
 globals:
   $Enum: true
   $FixMe: true

@@ -1,7 +1,7 @@
 dist/
 docs/
-examples/
-node_modules/
+**/node_modules/
+examples/**/updateSchema.js
 lib/
 scripts/
 # TODO: Enable ESLint for website.

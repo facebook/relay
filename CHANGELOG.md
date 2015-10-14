@@ -1,10 +1,20 @@
 ## master
 
-* Bump the `babel-relay-plugin` version to vX.Y.Z.
+## 0.4.0 (October 13, 2015)
+
+* Bump the `babel-relay-plugin` version to v0.3.0.
   * Fixed the metadata for fields on abstract types.
   * Directives are now validated against the schema.
   * Mutations field arguments are now validated.
+  * Non-root `node(id: ...)` fields are now invalid.
+  * Added support for `RelayQL` template tag.
   * Improvements to validation and error messages.
+* The `__typename` of all records are now fetched and stored locally.
+* Fixed `hasOptimisticUpdate` returning true after mutation succeeds (#86).
+* Fixed printing mutations with generated `id` fields (#414).
+* Fixed updating views when removing the last element in a plural field (#401).
+* Fixed sending mutations via classes without invalid GraphQL characters (#448).
+* Added a `__DEV__`-only warning when data is passed down via the wrong prop.
 
 ## 0.3.2 (September 18, 2015)
 

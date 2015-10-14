@@ -19,6 +19,8 @@ import type RelayQuery from 'RelayQuery';
 var RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryWriter from 'RelayQueryWriter';
 
+var invariant = require('invariant');
+
 /**
  * @internal
  *
@@ -33,8 +35,17 @@ function writeRelayQueryPayload(
   var store = writer.getRecordStore();
   var path = new RelayQueryPath(query);
 
+
   RelayNodeInterface.getResultsFromPayload(store, query, payload)
     .forEach(({dataID, result}) => {
+      invariant(
+        typeof dataID === 'string',
+        'writeRelayQueryPayload: expected ID on the payload for query `%s` to be string' +
+        ', instead received the `%s` `%s`.',
+        path.getName(),
+        typeof dataID,
+        dataID
+      );
       writer.writePayload(query, dataID, result, path);
     });
 }

@@ -10,9 +10,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// IndexLink isn't exported in main package on React Router 1.0.0-rc1.
-import IndexLink from 'react-router/lib/IndexLink';
-import Link from 'react-router/lib/Link';
+import {IndexLink, Link} from 'react-router';
 import RemoveCompletedTodosMutation from '../mutations/RemoveCompletedTodosMutation';
 
 import React from 'react';

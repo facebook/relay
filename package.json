@@ -1,7 +1,7 @@
 {
   "name": "react-relay",
   "description": "A framework for building data-driven React applications.",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "keywords": [
     "graphql",
     "react",

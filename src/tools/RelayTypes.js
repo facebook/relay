@@ -156,6 +156,7 @@ export type StoreReaderOptions = {
 
 // Disk Cache
 export type CacheManager = {
+  clear: () => void;
   getMutationWriter: () => CacheWriter;
   getQueryWriter: () => CacheWriter;
   readAllData: (
@@ -163,7 +164,6 @@ export type CacheManager = {
     rootCallData: RootCallMap,
     callback: Function
   ) => void;
-  reset: () => void;
 };
 
 export type CacheWriter = {

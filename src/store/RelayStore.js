@@ -13,15 +13,16 @@
 
 'use strict';
 
+var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var GraphQLQueryRunner = require('GraphQLQueryRunner');
 import type RelayMutation from 'RelayMutation';
 var RelayMutationTransaction = require('RelayMutationTransaction');
-import type RelayQuery from 'RelayQuery';
+var RelayQuery = require('RelayQuery');
+var RelayQueryResultObserver = require('RelayQueryResultObserver');
 var RelayStoreData = require('RelayStoreData');
 
 var forEachRootCallArg = require('forEachRootCallArg');
-var observeAllRelayQueryData = require('observeAllRelayQueryData');
-var observeRelayQueryData = require('observeRelayQueryData');
+var invariant = require('invariant');
 var readRelayQueryData = require('readRelayQueryData');
 
 import type {
@@ -152,22 +153,29 @@ var RelayStore = {
    */
   observe(
     node: RelayQuery.Node,
-    dataID: DataID,
-    options?: StoreReaderOptions
-  ): Observable<?StoreReaderData> {
-    return observeRelayQueryData(queuedStore, node, dataID, options);
-  },
+    dataID: DataID
+  ): Observable<StoreReaderData> {
+    var fragment = node;
+    if (node instanceof RelayQuery.Root) {
+      var fragments = node.getChildren().filter(child =>
+        child instanceof RelayQuery.Fragment
+      );
+      invariant(
+        fragments.length === 1,
+        'RelayStore: Can only observe() queries with one root fragment.'
+      );
+      fragment = fragments[0];
+    }
+    invariant(
+      fragment instanceof RelayQuery.Fragment,
+      'RelayStore: Can only observe() fragments or queries.'
+    );
 
-  /**
-   * Reads and subscribes to query data anchored at the supplied data IDs. The
-   * returned observable emits updates as the data changes over time.
-   */
-  observeAll(
-    node: RelayQuery.Node,
-    dataIDs: Array<DataID>,
-    options?: StoreReaderOptions
-  ): MultiObservable<?StoreReaderData> {
-    return observeAllRelayQueryData(queuedStore, node, dataIDs, options);
+    var fragmentPointer = new GraphQLFragmentPointer(
+      dataID,
+      fragment
+    );
+    return new RelayQueryResultObserver(queuedStore, fragmentPointer);
   },
 
   update(

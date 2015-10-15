@@ -11,16 +11,16 @@
 
 'use strict';
 
+jest.dontMock('RelayStore');
+
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-jest.dontMock('RelayStore');
-
 var GraphQLQueryRunner = require('GraphQLQueryRunner');
+var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var Relay = require('Relay');
+var RelayQueryResultObserver = require('RelayQueryResultObserver');
 var RelayStoreData = require('RelayStoreData');
-var observeAllRelayQueryData = require('observeAllRelayQueryData');
-var observeRelayQueryData = require('observeRelayQueryData');
 var readRelayQueryData = require('readRelayQueryData');
 
 describe('RelayStore', () => {
@@ -123,34 +123,29 @@ describe('RelayStore', () => {
   });
 
   describe('observe', () => {
-    it('invokes `observeRelayQueryData`', () => {
-      RelayStore.observe(queries, dataIDs[0]);
-      expect(observeRelayQueryData).toBeCalled();
-      expect(observeRelayQueryData.mock.calls[0][1]).toEqual(queries);
-      expect(observeRelayQueryData.mock.calls[0][2]).toEqual(dataIDs[0]);
-      expect(observeRelayQueryData.mock.calls[0][3]).toBeUndefined();
-    });
+    it('instantiates RelayQueryResultObserver', () => {
+      var fragment = getNode(Relay.QL`
+        fragment on Node {
+          id
+        }
+      `);
+      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
+        expect(pointer.getFragment()).toBe(fragment);
+        expect(pointer.getDataID()).toBe('123');
+        return {
+          __dataID__: '123',
+          id: '123',
+        }
+      });
 
-    it('invokes `observeRelayQueryData` with filter', () => {
-      RelayStore.observe(queries, dataIDs[0], filter);
-      expect(observeRelayQueryData).toBeCalled();
-      expect(observeRelayQueryData.mock.calls[0][3]).toBe(filter);
-    });
-  });
-
-  describe('observeAll', () => {
-    it('invokes `observeAllRelayQueryData`', () => {
-      RelayStore.observeAll(queries, dataIDs);
-      expect(observeAllRelayQueryData).toBeCalled();
-      expect(observeAllRelayQueryData.mock.calls[0][1]).toEqual(queries);
-      expect(observeAllRelayQueryData.mock.calls[0][2]).toEqual(dataIDs);
-      expect(observeAllRelayQueryData.mock.calls[0][3]).toBeUndefined();
-    });
-
-    it('invokes `observeAllRelayQueryData` with filter', () => {
-      RelayStore.observeAll(queries, dataIDs, filter);
-      expect(observeAllRelayQueryData).toBeCalled();
-      expect(observeAllRelayQueryData.mock.calls[0][3]).toBe(filter);
+      var observer = RelayStore.observe(fragment, '123');
+      var onNext = jest.genMockFunction();
+      expect(observer instanceof RelayQueryResultObserver).toBe(true);
+      observer.subscribe({onNext});
+      expect(onNext).toBeCalledWith({
+        __dataID__: '123',
+        id: '123',
+      });
     });
   });
 });

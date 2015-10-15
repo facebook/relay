@@ -13,8 +13,6 @@ var RelayStore = jest.genMockFromModule('RelayStore');
 var RelayRecordStore = require('RelayRecordStore');
 
 var resolveImmediate = require('resolveImmediate');
-var observeAllRelayQueryData = require('observeAllRelayQueryData');
-var observeRelayQueryData = require('observeRelayQueryData');
 
 /**
  * Mock object to simulate the behavior of a request. Example usage:
@@ -87,15 +85,5 @@ RelayStore.mock = {
   },
   recordStore: null,
 };
-
-RelayStore.observe.mockImplementation((...args) => {
-  return observeRelayQueryData(RelayStore.mock.recordStore, ...args);
-});
-RelayStore.observe.mock.observers = observeRelayQueryData.mock.observers;
-
-RelayStore.observeAll.mockImplementation((...args) => {
-  return observeAllRelayQueryData(RelayStore.mock.recordStore, ...args);
-});
-RelayStore.observeAll.mock.observers = observeAllRelayQueryData.mock.observers;
 
 module.exports = RelayStore;

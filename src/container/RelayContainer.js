@@ -543,6 +543,7 @@ function createContainerComponent(
           }
         } else if (!queryResolver) {
           queryResolver = new GraphQLStoreQueryResolver(
+            storeData.getQueuedStore(),
             fragmentPointer,
             this._handleFragmentDataUpdate.bind(this)
           );

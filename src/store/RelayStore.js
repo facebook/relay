@@ -13,20 +13,19 @@
 
 'use strict';
 
+var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var GraphQLQueryRunner = require('GraphQLQueryRunner');
 import type RelayMutation from 'RelayMutation';
 var RelayMutationTransaction = require('RelayMutationTransaction');
-import type RelayQuery from 'RelayQuery';
+var RelayQuery = require('RelayQuery');
+var RelayQueryResultObservable = require('RelayQueryResultObservable');
 var RelayStoreData = require('RelayStoreData');
 
 var forEachRootCallArg = require('forEachRootCallArg');
-var observeAllRelayQueryData = require('observeAllRelayQueryData');
-var observeRelayQueryData = require('observeRelayQueryData');
 var readRelayQueryData = require('readRelayQueryData');
 
 import type {
   Abortable,
-  MultiObservable,
   Observable,
   RelayMutationTransactionCommitCallbacks,
   ReadyStateChangeCallback,
@@ -151,23 +150,14 @@ var RelayStore = {
    * returned observable emits updates as the data changes over time.
    */
   observe(
-    node: RelayQuery.Node,
-    dataID: DataID,
-    options?: StoreReaderOptions
-  ): Observable<?StoreReaderData> {
-    return observeRelayQueryData(queuedStore, node, dataID, options);
-  },
-
-  /**
-   * Reads and subscribes to query data anchored at the supplied data IDs. The
-   * returned observable emits updates as the data changes over time.
-   */
-  observeAll(
-    node: RelayQuery.Node,
-    dataIDs: Array<DataID>,
-    options?: StoreReaderOptions
-  ): MultiObservable<?StoreReaderData> {
-    return observeAllRelayQueryData(queuedStore, node, dataIDs, options);
+    fragment: RelayQuery.Fragment,
+    dataID: DataID
+  ): Observable<StoreReaderData> {
+    var fragmentPointer = new GraphQLFragmentPointer(
+      fragment.isPlural()? [dataID] : dataID,
+      fragment
+    );
+    return new RelayQueryResultObservable(queuedStore, fragmentPointer);
   },
 
   update(

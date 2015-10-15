@@ -30,20 +30,11 @@ var executingIDs = {};
 var scheduledIDs = null;
 
 /**
- * Asynchronous change emitter for nodes stored in GraphQLStore.
+ * Asynchronous change emitter for nodes stored in the Relay cache.
  *
- * Callers which broadcast changes include:
- *
- * - `GraphQLStore`: broadcasts status changes when mutations have an error or
- *   are retried
- * - `GraphQLWriter`: broadcasts when changes are written to the store (such as
- *   nodes being added or deleted)
- *
- * Callers which add listeners include:
- *
- * - `GraphQLStoreQueryResolver`: sets up listeners when resolving (retrieving)
- *   data from the store; called via Relay containers as part of the React
- *   lifecycle (ie. in `componentWillMount` and `componentWillReceiveProps`)
+ * Changes are produced by `RelayStoreData` after writing query and mutation
+ * payloads into the store and consumed by `GraphQLStoreQueryResolver`, which
+ * subscribes to all records that are part of an active query result set.
  *
  * @internal
  */

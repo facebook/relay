@@ -44,9 +44,12 @@ var warning = require('warning');
  * are ending up everywhere and are not being inspected */
 type OperationConfig = {[key: string]: $FlowFixMe};
 
-type Payload = Object;
+type Payload = mixed | PayloadObject | PayloadArray;
+type PayloadArray = Array<Payload>;
+type PayloadObject = {[key: string]: Payload};
 
 var {CLIENT_MUTATION_ID, EDGES} = RelayConnectionInterface;
+var {ID, NODE} = RelayNodeInterface;
 var {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 
 var EDGES_FIELD = RelayQuery.Field.build(
@@ -55,7 +58,6 @@ var EDGES_FIELD = RelayQuery.Field.build(
   null,
   {plural: true}
 );
-var ID = 'id';
 var IGNORED_KEYS = {
   error: true,
   /* $FlowIssue #7728187 - Computed Property */
@@ -72,7 +74,7 @@ var STUB_CURSOR_ID = 'client:cursor';
 function writeRelayUpdatePayload(
   writer: RelayQueryWriter,
   operation: RelayQuery.Operation,
-  payload: {[key: string]: mixed},
+  payload: PayloadObject,
   {configs, isOptimisticUpdate}: UpdateOptions
 ): void {
   configs.forEach(config => {
@@ -113,7 +115,7 @@ function writeRelayUpdatePayload(
  */
 function handleNodeDelete(
   writer: RelayQueryWriter,
-  payload: Payload,
+  payload: PayloadObject,
   config: OperationConfig
 ): void {
   var recordIDs = payload[config.deletedIDFieldName];
@@ -172,7 +174,7 @@ function deleteRecord(
  */
 function handleMerge(
   writer: RelayQueryWriter,
-  payload: Payload,
+  payload: PayloadObject,
   operation: RelayQuery.Operation
 ): void {
   var store = writer.getRecordStore();
@@ -187,7 +189,7 @@ function handleMerge(
       continue;
     }
     var payloadData = payload[fieldName];
-    if (payloadData == null || typeof payloadData !== 'object') {
+    if (typeof payloadData !== 'object' || payloadData == null) {
       continue;
     }
     // if the field is an argument-less root call, determine the corresponding
@@ -202,7 +204,7 @@ function handleMerge(
       mergeField(
         writer,
         fieldName,
-        (payloadData: $FixMe), // checked above: != null and typeof object
+        payloadData,
         operation
       );
     }
@@ -215,7 +217,7 @@ function handleMerge(
 function mergeField(
   writer: RelayQueryWriter,
   fieldName: string,
-  payload: Payload | Array<Payload>,
+  payload: PayloadObject | PayloadArray,
   operation: RelayQuery.Operation
 ): void {
   // don't write mutation/subscription metadata fields
@@ -224,8 +226,10 @@ function mergeField(
   }
   if (Array.isArray(payload)) {
     payload.forEach(item => {
-      if (item[ID]) {
-        mergeField(writer, fieldName, item, operation);
+      if (typeof item === 'object' && item != null && !Array.isArray(item)) {
+        if (getString(item, ID)) {
+          mergeField(writer, fieldName, item, operation);
+        }
       }
     });
     return;
@@ -234,16 +238,16 @@ function mergeField(
   var payloadData = payload;
 
   var store = writer.getRecordStore();
-  var recordID = payloadData[ID];
+  var recordID = getString(payloadData, ID);
   var path;
 
-  if (recordID) {
+  if (recordID != null) {
     path = new RelayQueryPath(
       RelayQuery.Root.build(
-        RelayNodeInterface.NODE,
+        NODE,
         recordID,
         null,
-        {identifyingArgName: RelayNodeInterface.ID}
+        {identifyingArgName: ID}
       )
     );
   } else {
@@ -302,17 +306,24 @@ function mergeField(
  */
 function handleRangeAdd(
   writer: RelayQueryWriter,
-  payload: Payload,
+  payload: PayloadObject,
   operation: RelayQuery.Operation,
   config: OperationConfig,
   isOptimisticUpdate: boolean
 ): void {
-  var clientMutationID = payload[CLIENT_MUTATION_ID];
+  var clientMutationID = getString(payload, CLIENT_MUTATION_ID);
+  invariant(
+    clientMutationID,
+    'writeRelayUpdatePayload(): Expected operation `%s` to have a `%s`.',
+    operation.getName(),
+    CLIENT_MUTATION_ID
+  );
   var store = writer.getRecordStore();
 
   // Extracts the new edge from the payload
-  var edge = payload[config.edgeName];
-  if (!edge || !edge.node) {
+  var edge = getObject(payload, config.edgeName);
+  var edgeNode = edge && getObject(edge, NODE);
+  if (!edge || !edgeNode) {
     warning(
       false,
       'writeRelayUpdatePayload(): Expected response payload to include the ' +
@@ -324,7 +335,13 @@ function handleRangeAdd(
   }
 
   // Extract the id of the node with the connection that we are adding to.
-  var connectionParentID = config.parentID || (edge.source && edge.source.id);
+  var connectionParentID = config.parentID;
+  if (!connectionParentID) {
+    var edgeSource = getObject(edge, 'source');
+    if (edgeSource) {
+      connectionParentID = getString(edgeSource, ID);
+    }
+  }
   invariant(
     connectionParentID,
     'writeRelayUpdatePayload(): Cannot insert edge without a configured ' +
@@ -332,13 +349,13 @@ function handleRangeAdd(
     config.edgeName
   );
 
-  var nodeID = edge.node.id || generateClientID();
+  var nodeID = getString(edgeNode, ID) || generateClientID();
   var cursor = edge.cursor || STUB_CURSOR_ID;
   var edgeData = {
     ...edge,
     cursor: cursor,
     node: {
-      ...edge.node,
+      ...edgeNode,
       id: nodeID
     }
   };
@@ -472,15 +489,16 @@ function addRangeNode(
  */
 function handleRangeDelete(
   writer: RelayQueryWriter,
-  payload: Payload,
+  payload: PayloadObject,
   config: OperationConfig
 ): void {
-  var recordID = payload[config.deletedIDFieldName];
+  var maybeRecordID = getString(payload, config.deletedIDFieldName);
   invariant(
-    recordID !== undefined,
+    maybeRecordID != null,
     'writeRelayUpdatePayload(): Missing ID for deleted record at field `%s`.',
     config.deletedIDFieldName
   );
+  var recordID = maybeRecordID; // Flow loses type refinements in closures
 
   // Extract the id of the node with the connection that we are deleting from.
   var store = writer.getRecordStore();
@@ -554,7 +572,7 @@ function getRangeBehavior(
 function getIDFromPath(
   store: RelayRecordStore,
   path: Array<string>,
-  payload: Payload
+  payload: PayloadObject
 ): ?string {
   // We have a special case for the path for root nodes without ids like
   // ['viewer']. We try to match it up with something in the root call mapping
@@ -565,17 +583,58 @@ function getIDFromPath(
       return rootCallID;
     }
   }
-  for (var ii = 0; ii < path.length; ii++) {
-    var step = path[ii];
-    if (!payload || typeof payload !== 'object') {
-      return null;
-    }
-    payload = payload[step];
-  }
-  if (payload && typeof payload === 'object') {
-    return payload.id;
+  const payloadItem = path.reduce((payloadItem, step) => {
+    return payloadItem ? getObject(payloadItem, step) : null;
+  }, payload);
+  if (payloadItem) {
+    var id = getString(payloadItem, ID);
+    invariant(
+      id != null,
+      'writeRelayUpdatePayload(): Expected `%s.id` to be a string.',
+      path.join('.')
+    );
+    return id;
   }
   return null;
+}
+
+function getString(
+  payload: PayloadObject,
+  field: string
+): ?string {
+  var value = payload[field];
+  // Coerce numbers to strings for backwards compatibility.
+  if (typeof value === 'number') {
+    warning(
+      false,
+      'writeRelayUpdatePayload(): Expected `%s` to be a string, got the ' +
+      'number `%s`.',
+      field,
+      value
+    );
+    value = '' + value;
+  }
+  invariant(
+    value == null || typeof value === 'string',
+    'writeRelayUpdatePayload(): Expected `%s` to be a string, got `%s`.',
+    field,
+    JSON.stringify(value)
+  );
+  return value;
+}
+
+function getObject(
+  payload: PayloadObject,
+  field: string
+): ?PayloadObject {
+  var value = payload[field];
+  invariant(
+    value == null || (typeof value === 'object' && !Array.isArray(value)),
+    'writeRelayUpdatePayload(): Expected `%s` to be an object, got `%s`.',
+    field,
+    JSON.stringify(value)
+  );
+  return value;
 }
 
 module.exports = RelayProfiler.instrument(

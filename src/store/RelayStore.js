@@ -133,10 +133,11 @@ var RelayStore = {
     root: RelayQuery.Root,
     options?: StoreReaderOptions
   ): Array<?StoreReaderData> {
+    const storageKey = root.getStorageKey();
     var results = [];
-    forEachRootCallArg(root, (identifyingArgValue, fieldName) => {
+    forEachRootCallArg(root, identifyingArgValue => {
       var data;
-      var dataID = queuedStore.getDataID(fieldName, identifyingArgValue);
+      var dataID = queuedStore.getDataID(storageKey, identifyingArgValue);
       if (dataID != null) {
         data = RelayStore.read(root, dataID, options);
       }

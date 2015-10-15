@@ -48,14 +48,14 @@ class GraphQLFragmentPointer {
       return null;
     }
     var concreteFragmentID = fragment.getConcreteFragmentID();
-    var fieldName = query.getFieldName();
+    const storageKey = query.getStorageKey();
     const identifyingArg = query.getIdentifyingArg();
     const identifyingArgValue =
       (identifyingArg && identifyingArg.value) || null;
     if (Array.isArray(identifyingArgValue)) {
       var rootFragment = fragment; // for Flow
       return identifyingArgValue.map(singleIdentifyingArgValue => {
-        var dataID = store.getDataID(fieldName, singleIdentifyingArgValue);
+        var dataID = store.getDataID(storageKey, singleIdentifyingArgValue);
         if (!dataID) {
           return null;
         }
@@ -70,11 +70,11 @@ class GraphQLFragmentPointer {
       'GraphQLFragmentPointer: Value for the argument to `%s` on query `%s` ' +
       'should be a string, but it was set to `%s`. Check that the value is a ' +
       'string.',
-      fieldName,
+      query.getFieldName(),
       query.getName(),
       identifyingArgValue
     );
-    var dataIDOrIDs = store.getDataID(fieldName, identifyingArgValue);
+    var dataIDOrIDs = store.getDataID(storageKey, identifyingArgValue);
     if (!dataIDOrIDs) {
       return null;
     }

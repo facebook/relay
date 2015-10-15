@@ -26,28 +26,27 @@ var invariant = require('invariant');
  */
 function forEachRootCallArg(
   query: RelayQuery.Root,
-  callback: (identifyingArgValue: ?string, fieldName: string) => void
+  callback: (identifyingArgValue: ?string) => void
 ): void {
   invariant(
     !query.getBatchCall(),
     'forEachRootCallArg(): Cannot iterate over batch call variables.'
   );
-  var fieldName = query.getFieldName();
   function each(identifyingArgValue, fn) {
     if (Array.isArray(identifyingArgValue)) {
       identifyingArgValue.forEach(value => each(value, fn));
     } else if (identifyingArgValue == null) {
-      fn(identifyingArgValue, fieldName);
+      fn(identifyingArgValue);
     } else {
       invariant(
         typeof identifyingArgValue === 'string' ||
         typeof identifyingArgValue === 'number',
         'Relay: Expected arguments to root field `%s` to each be strings/' +
         'numbers, got `%s`.',
-        fieldName,
+        query.getFieldName(),
         JSON.stringify(identifyingArgValue)
       );
-      fn('' + identifyingArgValue, fieldName);
+      fn('' + identifyingArgValue);
     }
   }
   const identifyingArg = query.getIdentifyingArg();

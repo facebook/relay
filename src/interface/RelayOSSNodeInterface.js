@@ -71,9 +71,10 @@ var RelayOSSNodeInterface = {
     } else {
       var records = getPayloadRecords(query, payload);
       var ii = 0;
-      forEachRootCallArg(query, (identifyingArgValue, fieldName) => {
+      const storageKey = query.getStorageKey();
+      forEachRootCallArg(query, identifyingArgValue => {
         var result = records[ii++];
-        var dataID = store.getDataID(fieldName, identifyingArgValue);
+        var dataID = store.getDataID(storageKey, identifyingArgValue);
         if (dataID == null) {
           var payloadID = typeof result === 'object' && result ?
             result[RelayOSSNodeInterface.ID] :
@@ -81,11 +82,11 @@ var RelayOSSNodeInterface = {
           if (payloadID != null) {
             dataID = payloadID;
           } else if (identifyingArgValue == null) {
-            dataID = 'client:' +  fieldName;
+            dataID = `client:${query.getFieldName()}`;
           } else {
             dataID = generateClientID();
           }
-          store.putDataID(fieldName, identifyingArgValue, dataID);
+          store.putDataID(storageKey, identifyingArgValue, dataID);
         }
         results.push({dataID, result});
       });

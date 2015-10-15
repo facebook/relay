@@ -84,9 +84,9 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     state: CheckerState
   ): ?RelayQuery.Node {
     var nextState;
-
-    forEachRootCallArg(root, (identifyingArgValue, fieldName) => {
-      var dataID = this._store.getDataID(fieldName, identifyingArgValue);
+    const storageKey = root.getStorageKey();
+    forEachRootCallArg(root, identifyingArgValue => {
+      var dataID = this._store.getDataID(storageKey, identifyingArgValue);
       if (dataID == null) {
         state.result = false;
       } else {

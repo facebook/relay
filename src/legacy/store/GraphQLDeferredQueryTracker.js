@@ -134,16 +134,16 @@ var GraphQLDeferredQueryTracker = {
       if (deferredFragmentNames) {
         // deferred query: record ID => fragment set
         var dataIDs = getRootCallToIDMap(query);
-        forEachObject(dataIDs, (dataID, rootCall) => {
+        forEachObject(dataIDs, (dataID, storageKey) => {
           if (dataID) {
             var dataIDSet = dataIDToFragmentNameMap.get(dataID) || {};
             Object.assign(dataIDSet, deferredFragmentNames); // set union
             dataIDToFragmentNameMap.set(dataID, dataIDSet);
           } else {
             var rootCallSet =
-              rootCallToFragmentNameMap.get(rootCall) || {};
+              rootCallToFragmentNameMap.get(storageKey) || {};
             Object.assign(rootCallSet, deferredFragmentNames);
-            rootCallToFragmentNameMap.set(rootCall, rootCallSet);
+            rootCallToFragmentNameMap.set(storageKey, rootCallSet);
           }
         });
       }
@@ -308,13 +308,13 @@ function resolveFragmentsForRootCall(
   query: RelayQuery.Root
 ): void {
   var rootCallMap = getRootCallToIDMap(query);
-  forEachObject(rootCallMap, (dataID, rootCall) => {
-    if (dataID && rootCallToFragmentNameMap.has(rootCall)) {
-      var rootCallSet = rootCallToFragmentNameMap.get(rootCall) || {};
+  forEachObject(rootCallMap, (dataID, storageKey) => {
+    if (dataID && rootCallToFragmentNameMap.has(storageKey)) {
+      var rootCallSet = rootCallToFragmentNameMap.get(storageKey) || {};
       var dataIDSet = dataIDToFragmentNameMap.get(dataID) || {};
       Object.assign(dataIDSet, rootCallSet);
       dataIDToFragmentNameMap.set(dataID, dataIDSet);
-      rootCallToFragmentNameMap.delete(rootCall);
+      rootCallToFragmentNameMap.delete(storageKey);
     }
   });
 }
@@ -327,16 +327,16 @@ function rejectDeferredFragmentsForRootCall(
 ): void {
   var rootCallMap = getRootCallToIDMap(query);
   var deferredFragmentNames = query.getDeferredFragmentNames();
-  forEachObject(rootCallMap, (dataID, rootCall) => {
-    if (rootCallToFragmentNameMap.has(rootCall)) {
-      var rootCallSet = rootCallToFragmentNameMap.get(rootCall) || {};
+  forEachObject(rootCallMap, (dataID, storageKey) => {
+    if (rootCallToFragmentNameMap.has(storageKey)) {
+      var rootCallSet = rootCallToFragmentNameMap.get(storageKey) || {};
       forEachObject(deferredFragmentNames, (fragmentID) => {
         delete rootCallSet[fragmentID];
       });
       if (!isEmpty(rootCallSet)) {
-        rootCallToFragmentNameMap.delete(rootCall);
+        rootCallToFragmentNameMap.delete(storageKey);
       } else {
-        rootCallToFragmentNameMap.set(rootCall, rootCallSet);
+        rootCallToFragmentNameMap.set(storageKey, rootCallSet);
       }
     }
   });
@@ -495,13 +495,13 @@ function getRootCallToIDMap(
 ): {[key: string]: string} {
   var mapping = {};
   if (!query.getBatchCall()) {
-    forEachRootCallArg(query, (identifyingArgValue, fieldName) => {
-      var rootCallString = identifyingArgValue == null ?
-        fieldName + '()' :
-        fieldName + '(' + identifyingArgValue + ')';
-
-      mapping[rootCallString] =
-        recordStore.getDataID(fieldName, identifyingArgValue);
+    const storageKey = query.getStorageKey();
+    forEachRootCallArg(query, identifyingArgValue => {
+      const compositeStorageKey = identifyingArgValue == null ?
+        storageKey :
+        `${storageKey}:${identifyingArgValue}`;
+      mapping[compositeStorageKey] =
+        recordStore.getDataID(storageKey, identifyingArgValue);
     });
   }
   return mapping;

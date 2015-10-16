@@ -162,13 +162,16 @@ class RelayStoreData {
    * cachedRecords
    */
   runWithDiskCache(callback: () => void): void {
-    if (this._cachePopulated || !this._cacheManager) {
+    var cacheManager = this._cacheManager;
+    if (this._cachePopulated || !cacheManager) {
       resolveImmediate(callback);
     } else {
-      this._cacheManager.readAllData(
+      var profile = RelayProfiler.profile('RelayStoreData.runWithDiskCache');
+      cacheManager.readAllData(
         this._cachedRecords,
         this._cachedRootCalls,
         () => {
+          profile.stop();
           this._cachePopulated = true;
           callback();
         }
@@ -388,6 +391,7 @@ class RelayStoreData {
 
 RelayProfiler.instrumentMethods(RelayStoreData.prototype, {
   handleQueryPayload: 'RelayStoreData.prototype.handleQueryPayload',
+  handleUpdatePayload: 'RelayStoreData.prototype.handleUpdatePayload',
 });
 
 module.exports = RelayStoreData;

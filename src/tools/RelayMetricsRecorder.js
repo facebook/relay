@@ -57,10 +57,18 @@ var INSTRUMENTED_AGGREGATE_METHODS = [
 
 // Runtime "profiles" registered with `RelayProfiler.profile()`:
 var INSTRUMENTED_PROFILES = [
+  'fetchRelayQuery',
+  'GraphQLQueryRunner.primeCache',
+  'GraphQLQueryRunner.primeCache.done',
+  'GraphQLQueryRunner.primeCache.ready',
+  'GraphQLQueryRunner.forceFetch',
+  'GraphQLQueryRunner.forceFetch.done',
+  'GraphQLQueryRunner.forceFetch.ready',
   'RelayContainer.handleDeferredFailure',
   'RelayContainer.handleDeferredSuccess',
   'RelayContainer.handleFragmentDataUpdate',
   'RelayContainer.update',
+  'RelayStoreData.runWithDiskCache',
 ];
 
 var measurementDefaults = {
@@ -73,7 +81,6 @@ type Measurement = {
   callCount: number;
 };
 type Metrics = {
-  fetchTime: number;
   measurements: {[name: string]: Measurement};
   recordingTime: number;
   totalTime: number;
@@ -94,7 +101,6 @@ type Metrics = {
  * ```
  *
  * Metrics:
- * - `fetchTime`: the total time spent fetching data from the network.
  * - `recordingTime`: the total time spent recording (between calls to `start()`
  *   and `stop()`).
  * - `totalTime`: the total time spent inside profiled Relay functions.
@@ -104,28 +110,26 @@ type Metrics = {
  *   - `callCount`: number of times the method was called.
  */
 class RelayMetricsRecorder {
-  _fetchTime: number;
   _isEnabled: boolean;
   _measurements: {[key: string]: Measurement};
+  _profiles: {[key: string]: Measurement};
   _profileStack: Array<number>;
   _recordingStartTime: number;
   _recordingTotalTime: number;
   _startTimesStack: Array<number>;
 
   constructor() {
-    this._fetchTime = 0;
     this._isEnabled = false;
     this._measurements = {};
+    this._profiles = {};
     this._profileStack = [];
     this._recordingStartTime = 0;
     this._recordingTotalTime = 0;
     this._startTimesStack = [];
 
     (this: any)._measure = this._measure.bind(this);
-    (this: any)._profileFetchRelayQuery =
-      this._profileFetchRelayQuery.bind(this);
-    (this: any)._profileInstrumentedMethod =
-      this._profileInstrumentedMethod.bind(this);
+    (this: any)._instrumentProfile =
+      this._instrumentProfile.bind(this);
     (this: any)._startMeasurement = this._startMeasurement.bind(this);
     (this: any)._stopMeasurement = this._stopMeasurement.bind(this);
   }
@@ -154,13 +158,8 @@ class RelayMetricsRecorder {
       RelayProfiler.attachAggregateHandler(name, this._measure);
     });
     INSTRUMENTED_PROFILES.forEach(name => {
-      RelayProfiler.attachProfileHandler(name, this._profileInstrumentedMethod);
+      RelayProfiler.attachProfileHandler(name, this._instrumentProfile);
     });
-
-    RelayProfiler.attachProfileHandler(
-      'fetchRelayQuery',
-      this._profileFetchRelayQuery
-    );
   }
 
   stop(): void {
@@ -177,13 +176,8 @@ class RelayMetricsRecorder {
       RelayProfiler.detachAggregateHandler(name, this._measure);
     });
     INSTRUMENTED_PROFILES.forEach(name => {
-      RelayProfiler.detachProfileHandler(name, this._profileInstrumentedMethod);
+      RelayProfiler.detachProfileHandler(name, this._instrumentProfile);
     });
-
-    RelayProfiler.detachProfileHandler(
-      'fetchRelayQuery',
-      this._profileFetchRelayQuery
-    );
   }
 
   getMetrics(): Metrics {
@@ -200,8 +194,8 @@ class RelayMetricsRecorder {
       });
 
     return {
-      fetchTime: this._fetchTime,
       measurements: sortedMeasurements,
+      profiles: this._profiles,
       recordingTime: this._recordingTotalTime,
       totalTime,
     };
@@ -213,16 +207,14 @@ class RelayMetricsRecorder {
     this._stopMeasurement(name);
   }
 
-  _profileFetchRelayQuery(): () => void {
+  _instrumentProfile(name: string): () => void {
     var startTime = performanceNow();
     return () => {
-      this._fetchTime += performanceNow() - startTime;
+      this._profiles[name] =
+        this._profiles[name] || {...measurementDefaults};
+      this._profiles[name].aggregateTime += performanceNow() - startTime;
+      this._profiles[name].callCount++;
     };
-  }
-
-  _profileInstrumentedMethod(name: string): () => void {
-    this._startMeasurement(name);
-    return () => this._stopMeasurement(name);
   }
 
   _startMeasurement(name: string): void {

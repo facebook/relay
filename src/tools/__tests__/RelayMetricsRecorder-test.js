@@ -61,8 +61,8 @@ describe('RelayMetricsRecorder', () => {
     performanceNow.mockReturnValue(1000);
     recorder.stop();
     expect(recorder.getMetrics()).toEqual({
-      fetchTime: 0,
       measurements: {},
+      profiles: {},
       recordingTime: 1000,
       totalTime: 0,
     });
@@ -78,13 +78,13 @@ describe('RelayMetricsRecorder', () => {
     recorder.stop();
 
     expect(recorder.getMetrics()).toEqual({
-      fetchTime: 0,
       measurements: {
         flattenRelayQuery: {
           aggregateTime: 1000,
           callCount: 1,
         },
       },
+      profiles: {},
       recordingTime: 3000,
       totalTime: 1000,
     });
@@ -108,8 +108,13 @@ describe('RelayMetricsRecorder', () => {
     recorder.stop();
 
     expect(recorder.getMetrics()).toEqual({
-      fetchTime: 1000,
       measurements: {},
+      profiles: {
+        fetchRelayQuery: {
+          aggregateTime: 1000,
+          callCount: 1,
+        },
+      },
       recordingTime: 3000,
       totalTime: 0,
     });

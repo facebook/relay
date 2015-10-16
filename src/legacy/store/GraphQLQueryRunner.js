@@ -47,6 +47,12 @@ type PartialReadyState = {
   ready?: boolean;
   stale?: boolean;
 };
+type QueryRunnerProfiles = {
+  done: RelayProfileHandler;
+  initialize: RelayProfileHandler,
+  ready: RelayProfileHandler;
+};
+type RelayProfileHandler = {stop: () => void};
 
 // The source of truth for application data.
 var storeData = RelayStoreData.getDefaultInstance();
@@ -75,8 +81,8 @@ var GraphQLQueryRunner = {
     callback: ReadyStateChangeCallback,
     fetchMode?: string
   ): Abortable {
-    var profiler = RelayProfiler.profile('RelayStore.primeCache', querySet);
     fetchMode = fetchMode || DliteFetchModeConstants.FETCH_MODE_CLIENT;
+    var profilers = createProfiles(fetchMode);
 
     var diffQueries = [];
     if (fetchMode === DliteFetchModeConstants.FETCH_MODE_CLIENT) {
@@ -97,7 +103,7 @@ var GraphQLQueryRunner = {
       });
     }
 
-    return runQueries(diffQueries, callback, fetchMode, profiler);
+    return runQueries(diffQueries, callback, fetchMode, profilers);
   },
 
   /**
@@ -111,14 +117,14 @@ var GraphQLQueryRunner = {
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
-    var profiler = RelayProfiler.profile('RelayStore.forceFetch', querySet);
+    var fetchMode = DliteFetchModeConstants.FETCH_MODE_REFETCH;
+    var profilers = createProfiles(fetchMode);
     var queries = [];
     forEachObject(querySet, query => {
       query && queries.push(query);
     });
 
-    var fetchMode = DliteFetchModeConstants.FETCH_MODE_REFETCH;
-    return runQueries(queries, callback, fetchMode, profiler);
+    return runQueries(queries, callback, fetchMode, profilers);
   },
 
 };
@@ -132,6 +138,17 @@ function canResolve(fetch: PendingFetch): boolean {
 
 function hasItems(map: Object): boolean {
   return !!Object.keys(map).length;
+}
+
+function createProfiles(fetchMode: string): QueryRunnerProfiles {
+  var profileName = fetchMode === DliteFetchModeConstants.FETCH_MODE_REFETCH ?
+    'forceFetch' :
+    'primeCache';
+  return {
+    done: RelayProfiler.profile(`GraphQLQueryRunner.${profileName}.done`),
+    initialize: RelayProfiler.profile(`GraphQLQueryRunner.${profileName}`),
+    ready: RelayProfiler.profile(`GraphQLQueryRunner.${profileName}.ready`),
+  };
 }
 
 function splitAndFlattenQueries(
@@ -170,7 +187,7 @@ function runQueries(
   queries: Array<RelayQuery.Root>,
   callback: ReadyStateChangeCallback,
   fetchMode: string,
-  profiler: {stop: () => void}
+  profilers: QueryRunnerProfiles
 ): Abortable {
   var readyState = {
     aborted: false,
@@ -190,6 +207,12 @@ function runQueries(
         'GraphQLQueryRunner: Unexpected ready state change.'
       );
       return;
+    }
+    if (partial.ready && !readyState.ready) {
+      profilers.ready.stop();
+    }
+    if (partial.done && !readyState.done) {
+      profilers.done.stop();
     }
     readyState = {
       aborted: partial.aborted != null ? partial.aborted : readyState.aborted,
@@ -285,7 +308,7 @@ function runQueries(
   }).done();
 
   // Stop profiling when synchronous work has completed.
-  profiler.stop();
+  profilers.initialize.stop();
 
   return {
     abort(): void {

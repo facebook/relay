@@ -48,10 +48,10 @@ describe('RelayStoreGarbageCollector', () => {
 
   function isDataIDRegistered(dataID, collector) {
     var hasSubscriptions = true;
-    var unregisteredError = 'Invariant Violation: ' +
+    var unregisteredError =
       'RelayNeglectionStatesMap.decreaseSubscriptionsFor(): Cannot ' +
       'decrease subscriptions for unregistered record `' + dataID + '`.';
-    var belowZeroError = 'Invariant Violation: ' +
+    var belowZeroError =
       'RelayNeglectionStatesMap.decreaseSubscriptionsFor(): Cannot ' +
       'decrease subscriptions below 0 for record `' + dataID + '`.';
 

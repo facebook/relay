@@ -139,8 +139,8 @@ describe('RelayMutationTransaction', () => {
       var transaction = new RelayMutationTransaction(mockMutation1);
       transaction.commit();
       expect(() => transaction.commit()).toThrow(
-        'Invariant Violation: RelayMutationTransaction: Only transactions ' +
-        'with status `UNCOMMITTED` can be comitted.'
+        'RelayMutationTransaction: Only transactions with status ' +
+        '`UNCOMMITTED` can be comitted.'
       );
     });
 
@@ -280,8 +280,8 @@ describe('RelayMutationTransaction', () => {
       expect(failureCallback1).toBeCalled();
       expect(failureCallback2).toBeCalled();
       expect(() => transaction1.getStatus()).toThrow(
-        'Invariant Violation: RelayMutationTransaction: Only pending ' +
-        'transactions can be interacted with.'
+        'RelayMutationTransaction: Only pending transactions can be ' +
+        'interacted with.'
       );
       expect(transaction2.getStatus()).toBe(
         RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED
@@ -372,8 +372,8 @@ describe('RelayMutationTransaction', () => {
         RelayMutationTransactionStatus.COMMIT_FAILED
       );
       expect(() => transaction2.getStatus()).toThrow(
-        'Invariant Violation: RelayMutationTransaction: Only pending ' +
-        'transactions can be interacted with.'
+        'RelayMutationTransaction: Only pending transactions can be ' +
+        'interacted with.'
       );
       expect(transaction3.getStatus()).toBe(
         RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED

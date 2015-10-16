@@ -355,9 +355,7 @@ var RelayTestUtils = {
     },
 
     toFailInvariant(expected) {
-      this.env.currentSpec.expect(this.actual).toThrow(
-        'Invariant Violation: ' + expected
-      );
+      this.env.currentSpec.expect(this.actual).toThrow(expected);
       return true;
     },
 

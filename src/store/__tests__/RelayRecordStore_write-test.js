@@ -222,8 +222,8 @@ describe('RelayRecordStore', () => {
       expect(() => {
         store.deleteField('1', 'name', null);
       }).toThrow(
-        'Invariant Violation: RelayRecordStore.deleteField(): Expected ' +
-        'record `1` to exist before deleting field `name`.'
+        'RelayRecordStore.deleteField(): Expected record `1` to exist ' +
+        'before deleting field `name`.'
       );
     });
 

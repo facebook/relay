@@ -487,7 +487,6 @@ describe('readRelayQueryData', () => {
       },
     };
     var error =
-      'Invariant Violation: ' +
       'readRelayQueryData(): The field `likers` is a connection. ' +
       'Fields `edges` and `pageInfo` cannot be fetched without a ' +
       '`first`, `last` or `find` argument.';
@@ -525,7 +524,6 @@ describe('readRelayQueryData', () => {
       },
     };
     var error =
-      'Invariant Violation: ' +
       'readRelayQueryData(): The field `likers` is a connection. ' +
       'Fields `edges` and `pageInfo` cannot be fetched without a ' +
       '`first`, `last` or `find` argument.';

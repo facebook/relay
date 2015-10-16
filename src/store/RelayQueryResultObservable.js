@@ -49,7 +49,7 @@ class RelayQueryResultObservable {
   _fragmentPointer: GraphQLFragmentPointer;
   _queryResolver: ?GraphQLStoreQueryResolver;
   _store: RelayRecordStore;
-  _subscriptionCallbacks: Array<SubscriptionCallbacks<StoreReaderData>>;
+  _subscriptionCallbacks: Array<SubscriptionCallbacks<?StoreReaderData>>;
   _subscriptionCount: number;
 
   constructor(
@@ -64,7 +64,7 @@ class RelayQueryResultObservable {
     this._subscriptionCount = 0;
   }
 
-  subscribe(callbacks: SubscriptionCallbacks<StoreReaderData>): Subscription {
+  subscribe(callbacks: SubscriptionCallbacks<?StoreReaderData>): Subscription {
     this._subscriptionCount++;
     var subscriptionIndex = this._subscriptionCallbacks.length;
     var subscription = {
@@ -117,12 +117,17 @@ class RelayQueryResultObservable {
     this._subscriptionCallbacks.forEach(callbacks => this._fire(callbacks));
   }
 
-  _fire(callbacks: SubscriptionCallbacks<StoreReaderData>): void {
+  _fire(callbacks: SubscriptionCallbacks<?StoreReaderData>): void {
     callbacks.onNext && callbacks.onNext(this._data);
   }
 
   _resolveData(queryResolver: GraphQLStoreQueryResolver): void {
-    this._data = queryResolver.resolve(this._fragmentPointer);
+    var data = queryResolver.resolve(this._fragmentPointer);
+    invariant(
+      !Array.isArray(data),
+      'RelayQueryResultObservable: Plural fragments are not supported.'
+    );
+    this._data = data;
   }
 }
 

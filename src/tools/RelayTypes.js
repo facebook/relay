@@ -148,7 +148,7 @@ export type SubscriptionCallbacks<T> = {
 };
 
 // Store
-export type StoreReaderData = mixed;
+export type StoreReaderData = Object;
 export type StoreReaderOptions = {
   traverseFragmentReferences?: boolean;
   traverseGeneratedFields?: boolean;

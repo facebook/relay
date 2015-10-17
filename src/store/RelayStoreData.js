@@ -232,7 +232,6 @@ class RelayStoreData {
     var changeTracker = new RelayChangeTracker();
     var writer = new RelayQueryWriter(
       this._recordStore,
-      this._queryTracker,
       changeTracker,
       {
         forceIndex,
@@ -273,7 +272,6 @@ class RelayStoreData {
     }
     var writer = new RelayQueryWriter(
       store,
-      this._queryTracker,
       changeTracker,
       {
         forceIndex: generateForceIndex(),

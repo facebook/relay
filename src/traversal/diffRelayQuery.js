@@ -19,7 +19,6 @@ var RelayNodeInterface = require('RelayNodeInterface');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 var RelayQueryPath = require('RelayQueryPath');
-import type RelayQueryTracker from 'RelayQueryTracker';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
@@ -65,13 +64,12 @@ type DiffOutput = {
  */
 function diffRelayQuery(
   root: RelayQuery.Root,
-  store: RelayRecordStore,
-  tracker: RelayQueryTracker
+  store: RelayRecordStore
 ): Array<RelayQuery.Root> {
   var path = new RelayQueryPath(root);
   var queries = [];
 
-  var visitor = new RelayDiffQueryBuilder(store, tracker);
+  var visitor = new RelayDiffQueryBuilder(store);
   const rootIdentifyingArg = root.getIdentifyingArg();
   const rootIdentifyingArgValue =
     (rootIdentifyingArg && rootIdentifyingArg.value) || null;
@@ -151,12 +149,10 @@ function diffRelayQuery(
 class RelayDiffQueryBuilder {
   _store: RelayRecordStore;
   _splitQueries: Array<RelayQuery.Root>;
-  _tracker: RelayQueryTracker;
 
-  constructor(store: RelayRecordStore, tracker: RelayQueryTracker) {
+  constructor(store: RelayRecordStore) {
     this._store = store;
     this._splitQueries = [];
-    this._tracker = tracker;
   }
 
   splitQuery(
@@ -318,7 +314,8 @@ class RelayDiffQueryBuilder {
     // always be composed into, and therefore tracked by, their nearest
     // non-fragment parent.
     if (trackedNode && !(trackedNode instanceof RelayQuery.Fragment)) {
-      this._tracker.trackNodeForID(trackedNode, scope.dataID, path);
+      // TODO: DELETE
+      // this._tracker.trackNodeForID(trackedNode, scope.dataID, path);
     }
 
     return {

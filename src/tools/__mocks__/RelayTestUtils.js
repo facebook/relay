@@ -466,12 +466,10 @@ var RelayTestUtils = {
     var RelayQueryWriter = require('RelayQueryWriter');
     var writeRelayQueryPayload = require('writeRelayQueryPayload');
 
-    tracker = tracker || new RelayQueryTracker();
     options = options || {};
     var changeTracker = new RelayChangeTracker();
     var writer = new RelayQueryWriter(
       store,
-      tracker,
       changeTracker,
       options
     );

@@ -22,7 +22,6 @@ RelayTestUtils.unmockRelay();
 
 var Relay = require('Relay');
 var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayQueryTracker = require('RelayQueryTracker');
 var RelayChangeTracker = require('RelayChangeTracker');
 var RelayMutationType = require('RelayMutationType');
 var RelayQueryWriter = require('RelayQueryWriter');
@@ -145,10 +144,8 @@ describe('writePayload()', () => {
 
       // write to the queued store
       var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         queueStore,
-        queryTracker,
         changeTracker
       );
 
@@ -228,10 +225,8 @@ describe('writePayload()', () => {
 
       // write to the queued store
       var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         store,
-        queryTracker,
         changeTracker
       );
 
@@ -372,10 +367,8 @@ describe('writePayload()', () => {
 
       // write to the queued store
       var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         queueStore,
-        queryTracker,
         changeTracker
       );
 
@@ -468,10 +461,8 @@ describe('writePayload()', () => {
 
       // write to the base store
       var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         store,
-        queryTracker,
         changeTracker
       );
 
@@ -581,10 +572,8 @@ describe('writePayload()', () => {
 
       // write to the queued store
       var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         queueStore,
-        queryTracker,
         changeTracker
       );
 
@@ -645,10 +634,8 @@ describe('writePayload()', () => {
 
       // write to the base store
       var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         store,
-        queryTracker,
         changeTracker
       );
 
@@ -773,10 +760,8 @@ describe('writePayload()', () => {
 
       // write to queued store
       var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         queueStore,
-        queryTracker,
         changeTracker
       );
 
@@ -876,10 +861,8 @@ describe('writePayload()', () => {
 
       // write to queued store
       var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         queueStore,
-        queryTracker,
         changeTracker
       );
 
@@ -1006,10 +989,8 @@ describe('writePayload()', () => {
 
       // write to base store
       var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         store,
-        queryTracker,
         changeTracker
       );
 

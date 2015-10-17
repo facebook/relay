@@ -17,7 +17,6 @@ RelayTestUtils.unmockRelay();
 var GraphQLRange = require('GraphQLRange');
 var Relay = require('Relay');
 var RelayQuery = require('RelayQuery');
-var RelayQueryTracker = require('RelayQueryTracker');
 var diffRelayQuery = require('diffRelayQuery');
 
 describe('diffRelayQuery', () => {
@@ -50,8 +49,7 @@ describe('diffRelayQuery', () => {
     `);
     var records = {};
     var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
@@ -71,8 +69,7 @@ describe('diffRelayQuery', () => {
       },
     };
     var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -93,8 +90,7 @@ describe('diffRelayQuery', () => {
       },
     };
     var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -115,8 +111,7 @@ describe('diffRelayQuery', () => {
       }
     };
     var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -137,8 +132,7 @@ describe('diffRelayQuery', () => {
       }
     };
     var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
@@ -171,8 +165,7 @@ describe('diffRelayQuery', () => {
       },
     };
     var store = new RelayRecordStore({records}, {rootCallMap});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -218,8 +211,7 @@ describe('diffRelayQuery', () => {
       },
     };
     var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
     expect(diffQueries.length).toBe(1);
@@ -273,8 +265,7 @@ describe('diffRelayQuery', () => {
       }
     `);
     store = new RelayRecordStore({records});
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    diffQueries = diffRelayQuery(query, store);
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
     expect(diffQueries.length).toBe(1);
@@ -338,8 +329,7 @@ describe('diffRelayQuery', () => {
     `);
 
     // `topLevelComments.totalCount` is not fetched and should be retained
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -394,8 +384,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
@@ -445,8 +434,7 @@ describe('diffRelayQuery', () => {
 
     // `topLevelComments.count` is not fetched and should be retained,
     // `edges` is fetched and should be diffed out
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     // does not refetch `feedback.topLevelComments.edges` but keeps `count`
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
@@ -483,8 +471,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    diffQueries = diffRelayQuery(query, store);
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
     var edgesFragment = Relay.QL`
@@ -516,8 +503,7 @@ describe('diffRelayQuery', () => {
       }
     `);
     var store = new RelayRecordStore({records: {}});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
 
@@ -543,8 +529,7 @@ describe('diffRelayQuery', () => {
       }
     };
     store = new RelayRecordStore({records}, {rootCallMap});
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
@@ -565,8 +550,7 @@ describe('diffRelayQuery', () => {
       },
     };
     var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
 
@@ -593,8 +577,7 @@ describe('diffRelayQuery', () => {
       }
     };
     store = new RelayRecordStore({records}, {rootCallMap});
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
@@ -608,8 +591,7 @@ describe('diffRelayQuery', () => {
       }
     `);
     var store = new RelayRecordStore({records: {}});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
 
     var records = {
@@ -619,8 +601,7 @@ describe('diffRelayQuery', () => {
       }
     };
     store = new RelayRecordStore({records});
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -643,8 +624,7 @@ describe('diffRelayQuery', () => {
       }
     };
     var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -659,8 +639,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(
@@ -695,8 +674,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(
@@ -736,8 +714,7 @@ describe('diffRelayQuery', () => {
     var field = query.getFieldByStorageKey('actor');
     expect(field.getInferredRootCallName()).toBe('node');
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -765,8 +742,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
 
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
@@ -791,8 +767,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -823,8 +798,7 @@ describe('diffRelayQuery', () => {
     };
     var store = new RelayRecordStore({records});
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -854,8 +828,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
 
     query = getNode(Relay.QL`
@@ -865,8 +838,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -890,8 +862,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -933,8 +904,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -995,8 +965,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
@@ -1028,24 +997,6 @@ describe('diffRelayQuery', () => {
         }
       }
     `));
-
-    var trackedQuery = getNode(Relay.QL`
-      query {
-        node(id:"12345") {
-          id,
-          actors {
-            id,
-            firstName,
-            lastName,
-            name,
-          }
-        }
-      }
-    `);
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(1);
-    expect(trackedQueries[0][1]).toBe('12345');
-    expect(trackedQueries[0][0]).toEqualQueryNode(trackedQuery);
   });
 
   it('handles arrays containing non-Nodes', () => {
@@ -1092,8 +1043,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
@@ -1162,8 +1112,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
 
     expect(diffQueries.length).toBe(2);
 
@@ -1235,8 +1184,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
@@ -1308,8 +1256,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
@@ -1397,32 +1344,12 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected1);
     expect(diffQueries[1].getName()).toBe(query.getName());
     expect(diffQueries[1]).toEqualQueryRoot(expected2);
-
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(2);
-    expect(trackedQueries[1][1]).toBe('4');
-    expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
-      query {
-        node(id:"4") {
-          id,
-          friends(first:"5") {
-            edges {
-              node {
-                id,
-                name
-              }
-            }
-          }
-        }
-      }
-    `));
   });
 
   it('skips known-deleted nodes from ranges', () => {
@@ -1515,33 +1442,13 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
 
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected1);
     expect(diffQueries[1].getName()).toBe(query.getName());
     expect(diffQueries[1]).toEqualQueryRoot(expected2);
-
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(2);
-    expect(trackedQueries[1][1]).toBe('4');
-    expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
-      query {
-        node(id:"4") {
-          id,
-          friends(first:"5") {
-            edges {
-              node {
-                id,
-                name
-              }
-            }
-          }
-        }
-      }
-    `));
   });
 
   it('splits out node() queries inside viewer-rooted queries', () => {
@@ -1595,8 +1502,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
@@ -1611,31 +1517,6 @@ describe('diffRelayQuery', () => {
         }
       }
     `));
-
-    var trackedQuery = getNode(Relay.QL`
-      query {
-        viewer {
-          actor {
-            id,
-            friends(first:"1") {
-              edges {
-                node {
-                  id,
-                  name,
-                },
-              },
-            },
-          },
-        }
-      }
-    `);
-    var innerTrackedQuery = trackedQuery.getFieldByStorageKey('actor');
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(3);
-    expect(trackedQueries[1][1]).toBe('4');
-    expect(trackedQueries[1][0]).toEqualQueryNode(innerTrackedQuery);
-    expect(trackedQueries[2][1]).toBe('client:viewer');
-    expect(trackedQueries[2][0]).toEqualQueryNode(trackedQuery);
   });
 
   it('splits out node() queries inside fragments', () => {
@@ -1700,24 +1581,10 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
-
-    var trackedQuery = getNode(Relay.QL`
-      query {
-        node(id:"4") {
-          id,
-          ${fragment},
-        }
-      }
-    `);
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(2);
-    expect(trackedQueries[1][1]).toBe('4');
-    expect(trackedQueries[1][0]).toEqualQueryNode(trackedQuery);
   });
 
   it('creates a find() query for edges', () => {
@@ -1770,8 +1637,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
 
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
@@ -1868,55 +1734,9 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
-
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(5);
-    expect(trackedQueries[1][1]).toBe('4');
-    expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
-      fragment on FriendsEdge {
-        source {
-          id,
-          friends(first:"1") {
-            edges {
-              node {
-                id,
-                name,
-                lastName,
-              }
-            }
-          }
-        }
-      }
-    `).getChildren()[0]);
-
-    expect(trackedQueries[4][1]).toBe('4');
-    expect(trackedQueries[4][0]).toEqualQueryNode(getNode(Relay.QL`
-      query {
-        nodes(ids:"4") {
-          id,
-          friends(first:"1") {
-            edges {
-              source {
-                id,
-                friends(first:"1") {
-                  edges {
-                    node {
-                      id,
-                      name,
-                      lastName
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `));
   });
 });

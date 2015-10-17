@@ -19,7 +19,6 @@ import type RelayChangeTracker from 'RelayChangeTracker';
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
-import type RelayQueryTracker from 'RelayQueryTracker';
 var RelayQueryVisitor = require('RelayQueryVisitor');
 var RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
@@ -55,12 +54,10 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   _changeTracker: RelayChangeTracker;
   _forceIndex: number;
   _store: RelayRecordStore;
-  _queryTracker: RelayQueryTracker;
   _updateTrackedQueries: boolean;
 
   constructor(
     store: RelayRecordStore,
-    queryTracker: RelayQueryTracker,
     changeTracker: RelayChangeTracker,
     options?: WriterOptions
   ) {
@@ -68,7 +65,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this._changeTracker = changeTracker;
     this._forceIndex = options && options.forceIndex ? options.forceIndex : 0;
     this._store = store;
-    this._queryTracker = queryTracker;
     this._updateTrackedQueries = !!(options && options.updateTrackedQueries);
   }
 
@@ -175,9 +171,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       this._store.putRecord(recordID, typeName, path);
       this.recordCreate(recordID);
     }
-    if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
-      this._queryTracker.trackNodeForID(node, recordID, path);
-    }
   }
 
   visitRoot(
@@ -211,9 +204,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       var typeName = this.getRecordTypeName(root, recordID, responseData);
       this._store.putRecord(recordID, typeName, path);
       this.recordCreate(recordID);
-    }
-    if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
-      this._queryTracker.trackNodeForID(root, recordID, path);
     }
     this.traverse(root, state);
   }
@@ -329,9 +319,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     if (connectionRecordState !== RelayRecordState.EXISTENT) {
       this.recordUpdate(recordID);
       this.recordCreate(connectionID);
-    }
-    if (this.isNewRecord(connectionID) || this._updateTrackedQueries) {
-      this._queryTracker.trackNodeForID(field, connectionID, path);
     }
 
     // Only create a range if `edges` field is present

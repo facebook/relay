@@ -28,13 +28,13 @@ var RelayStoreData = require('RelayStoreData');
 var readRelayQueryData = require('readRelayQueryData');
 
 describe('RelayQueryResultObservable', () => {
-  var query;
-  var records;
+  var fragment;
   var results;
   var store;
+  var storeData;
 
   // helper functions
-  var {getNode} = RelayTestUtils;
+  var {getNode, writePayload} = RelayTestUtils;
 
   function genMockSubscriber() {
     var onCompleted = jest.genMockFunction();
@@ -54,29 +54,30 @@ describe('RelayQueryResultObservable', () => {
   function observeRelayQueryData(dataID) {
     var fragmentPointer = new GraphQLFragmentPointer(
       dataID,
-      query
+      fragment
     );
-    return new RelayQueryResultObservable(store, fragmentPointer);
+    return new RelayQueryResultObservable(storeData, fragmentPointer);
   }
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    query = getNode(Relay.QL`fragment on Node{id,name}`);
-    records = {
-      '123': {
-        __dataID__: '123',
-        id: '123',
-        name: 'Joe',
-        firstName: 'Joe',
-      },
-    };
+    var concreteFragment = Relay.QL`fragment on Node{id,name}`
+    var query = getNode(Relay.QL`
+      query {
+        node(id: "123") {
+          ${concreteFragment},
+        }
+      }
+    `);
     results = {
       __dataID__: '123',
       id: '123',
       name: 'Joe',
     };
-    store = new RelayRecordStore({records});
+    fragment = getNode(concreteFragment);
+    storeData = new RelayStoreData();
+    store = storeData.getRecordStore();
+    writePayload(store, query, {node: results});
 
     jest.addMatchers(RelayTestUtils.matchers);
   });
@@ -102,9 +103,9 @@ describe('RelayQueryResultObservable', () => {
     observer.subscribe(subscriber);
 
     expect(readRelayQueryData).toBeCalledWith(
-      store,
-      RelayStoreData.getDefaultInstance().getQueryTracker(),
-      query,
+      storeData.getQueuedStore(),
+      storeData.getQueryTracker(),
+      fragment,
       '123'
     );
     expect(subscriber.onNext).toBeCalledWith(results);

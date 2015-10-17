@@ -21,8 +21,7 @@ import type RelayStoreGarbageCollector from 'RelayStoreGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
-import type RelayRecordStore from 'RelayRecordStore';
-var RelayStoreData = require('RelayStoreData');
+import type RelayStoreData from 'RelayStoreData';
 import type {StoreReaderData} from 'RelayTypes';
 
 var filterExclusiveKeys = require('filterExclusiveKeys');
@@ -46,10 +45,10 @@ class GraphQLStoreQueryResolver {
     GraphQLStorePluralQueryResolver |
     GraphQLStoreSingleQueryResolver
   );
-  _store: RelayRecordStore;
+  _storeData: RelayStoreData;
 
   constructor(
-    store: RelayRecordStore,
+    storeData: RelayStoreData,
     fragmentPointer: GraphQLFragmentPointer,
     callback: Function
   ) {
@@ -57,7 +56,7 @@ class GraphQLStoreQueryResolver {
     this._callback = callback;
     this._fragmentPointer = fragmentPointer;
     this._resolver = null;
-    this._store = store;
+    this._storeData = storeData;
   }
 
   /**
@@ -76,8 +75,8 @@ class GraphQLStoreQueryResolver {
     var resolver = this._resolver;
     if (!resolver) {
       resolver = this._fragmentPointer.getFragment().isPlural() ?
-        new GraphQLStorePluralQueryResolver(this._store, this._callback) :
-        new GraphQLStoreSingleQueryResolver(this._store, this._callback);
+        new GraphQLStorePluralQueryResolver(this._storeData, this._callback) :
+        new GraphQLStoreSingleQueryResolver(this._storeData, this._callback);
       this._resolver = resolver;
     }
     return resolver.resolve(fragmentPointer);
@@ -91,12 +90,12 @@ class GraphQLStorePluralQueryResolver {
   _callback: Function;
   _resolvers: Array<GraphQLStoreSingleQueryResolver>;
   _results: Array<?StoreReaderData>;
-  _store: RelayRecordStore;
+  _storeData: RelayStoreData;
 
-  constructor(store: RelayRecordStore, callback: Function) {
+  constructor(storeData: RelayStoreData, callback: Function) {
     this.reset();
     this._callback = callback;
-    this._store = store;
+    this._storeData = storeData;
   }
 
   reset(): void {
@@ -126,7 +125,7 @@ class GraphQLStorePluralQueryResolver {
     // Ensure that we have exactly `nextLength` resolvers.
     while (resolvers.length < nextLength) {
       resolvers.push(
-        new GraphQLStoreSingleQueryResolver(this._store, this._callback)
+        new GraphQLStoreSingleQueryResolver(this._storeData, this._callback)
       );
     }
     while (resolvers.length > nextLength) {
@@ -162,16 +161,14 @@ class GraphQLStoreSingleQueryResolver {
   _hasDataChanged: boolean;
   _result: ?StoreReaderData;
   _resultID: ?DataID;
-  _store: RelayRecordStore;
+  _storeData: RelayStoreData;
   _subscribedIDs: DataIDSet;
   _subscription: ?ChangeSubscription;
 
-  constructor(store: RelayRecordStore, callback: Function) {
+  constructor(storeData: RelayStoreData, callback: Function) {
     this.reset();
     this._callback = callback;
-    this._garbageCollector =
-      RelayStoreData.getDefaultInstance().getGarbageCollector();
-    this._store = store;
+    this._storeData = storeData;
     this._subscribedIDs = {};
   }
 
@@ -219,7 +216,7 @@ class GraphQLStoreSingleQueryResolver {
         // same canonical ID,
         // but the data, call(s), route, and/or variables have changed
         [nextResult, subscribedIDs] = resolveFragment(
-          this._store,
+          this._storeData,
           nextFragment,
           nextID
         );
@@ -231,7 +228,7 @@ class GraphQLStoreSingleQueryResolver {
     } else {
       // Pointer has a different ID or is/was fake data.
       [nextResult, subscribedIDs] = resolveFragment(
-        this._store,
+        this._storeData,
         nextFragment,
         nextID
       );
@@ -276,9 +273,10 @@ class GraphQLStoreSingleQueryResolver {
   _updateGarbageCollectorSubscriptionCount(
     nextDataIDs: {[dataID: DataID]: boolean},
   ): void {
-    if (this._garbageCollector) {
-      var garbageCollector = this._garbageCollector;
-
+    var maybeGarbageCollector =
+      this._storeData && this._storeData.getGarbageCollector();
+    if (maybeGarbageCollector) {
+      var garbageCollector = maybeGarbageCollector;
       var prevDataIDs = this._subscribedIDs;
       var [removed, added] = filterExclusiveKeys(prevDataIDs, nextDataIDs);
 
@@ -289,13 +287,13 @@ class GraphQLStoreSingleQueryResolver {
 }
 
 function resolveFragment(
-  store: RelayRecordStore,
+  storeData: RelayStoreData,
   fragment: RelayQuery.Fragment,
   dataID: DataID
 ): [StoreReaderData, DataIDSet] {
   var {data, dataIDs} = readRelayQueryData(
-    store,
-    RelayStoreData.getDefaultInstance().getQueryTracker(),
+    storeData.getQueuedStore(),
+    storeData.getQueryTracker(),
     fragment,
     dataID
   );

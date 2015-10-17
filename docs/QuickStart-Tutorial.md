@@ -432,6 +432,6 @@ export default Relay.createContainer(App, {
 });
 ```
 
-A working copy of the treasure hunt can be found in the `./examples/` directory.
+A working copy of the treasure hunt can be found under the [`./examples/`](https://github.com/facebook/relay/tree/master/examples) directory in the Relay repository.
 
 Now that we've gone through this tutorial, let's dive into some videos from conferences where GraphQL and Relay were introduced and explained.

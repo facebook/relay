@@ -20,6 +20,7 @@ var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
+import type RelayQueryTracker from 'RelayQueryTracker';
 var RelayQueryVisitor = require('RelayQueryVisitor');
 var RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
@@ -58,11 +59,12 @@ var {EDGES, PAGE_INFO} = RelayConnectionInterface;
  */
 function readRelayQueryData(
   store: RelayRecordStore,
+  queryTracker: RelayQueryTracker,
   queryNode: RelayQuery.Node,
   dataID: DataID,
   options?: StoreReaderOptions
 ): StoreReaderResult {
-  var reader = new RelayStoreReader(store, options);
+  var reader = new RelayStoreReader(store, queryTracker, options);
   var data = reader.retrieveData(queryNode, dataID);
 
   // We validate only after retrieving the data, to give our `invariant`
@@ -73,15 +75,18 @@ function readRelayQueryData(
 }
 
 class RelayStoreReader extends RelayQueryVisitor<State> {
+  _queryTracker: RelayQueryTracker;
   _recordStore: RelayRecordStore;
   _traverseFragmentReferences: boolean;
   _traverseGeneratedFields: boolean;
 
   constructor(
     recordStore: RelayRecordStore,
+    queryTracker: RelayQueryTracker,
     options?: StoreReaderOptions
   ) {
     super();
+    this._queryTracker = queryTracker;
     this._recordStore = recordStore;
     this._traverseFragmentReferences =
       (options && options.traverseFragmentReferences) || false;
@@ -119,6 +124,20 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       result.data = null;
     }
     return result;
+  }
+
+  traverse<Tn: RelayQuery.Node>(
+    node: Tn,
+    state: State
+  ): ?Tn {
+    if (!node.isScalar()) {
+      this._queryTracker.trackNodeForID(
+        node,
+        state.storeDataID,
+        this._recordStore.getPathToRecord(state.storeDataID)
+      );
+    }
+    return super.traverse(node, state);
   }
 
   visitField(node: RelayQuery.Field, state: State): ?RelayQuery.Node {

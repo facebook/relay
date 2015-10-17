@@ -293,7 +293,12 @@ function resolveFragment(
   fragment: RelayQuery.Fragment,
   dataID: DataID
 ): [StoreReaderData, DataIDSet] {
-  var {data, dataIDs} = readRelayQueryData(store, fragment, dataID);
+  var {data, dataIDs} = readRelayQueryData(
+    store,
+    RelayStoreData.getDefaultInstance().getQueryTracker(),
+    fragment,
+    dataID
+  );
   return [data, dataIDs];
 }
 

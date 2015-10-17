@@ -20,6 +20,7 @@ var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 var Relay = require('Relay');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayFragmentReference = require('RelayFragmentReference');
+var RelayQueryTracker = require('RelayQueryTracker');
 var RelayRecordStatusMap = require('RelayRecordStatusMap');
 var callsToGraphQL = require('callsToGraphQL');
 var readRelayQueryData = require('readRelayQueryData');
@@ -31,8 +32,10 @@ describe('readRelayQueryData', () => {
   var END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO, START_CURSOR;
 
   function getData({records, queuedRecords}, queryNode, dataID, options) {
+    var queryTracker = new RelayQueryTracker();
     return readRelayQueryData(
       new RelayRecordStore({records, queuedRecords}),
+      queryTracker,
       queryNode,
       dataID,
       options
@@ -104,8 +107,14 @@ describe('readRelayQueryData', () => {
       address: null,
     };
     var query = getNode(Relay.QL`fragment on User{birthdate {day}, address {city}}`);
+    var queryTracker = new RelayQueryTracker();
     expect(
-      readRelayQueryData(new RelayRecordStore({records}), query, 'node').dataIDs
+      readRelayQueryData(
+        new RelayRecordStore({records}),
+        queryTracker,
+        query,
+        'node'
+      ).dataIDs
     ).toEqual({
       node: true,
       date: true,

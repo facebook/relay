@@ -23,6 +23,7 @@ var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var Relay = require('Relay');
 var RelayQueryResultObservable = require('RelayQueryResultObservable');
 var RelayRecordStore = require('RelayRecordStore');
+var RelayStoreData = require('RelayStoreData');
 
 var readRelayQueryData = require('readRelayQueryData');
 
@@ -102,6 +103,7 @@ describe('RelayQueryResultObservable', () => {
 
     expect(readRelayQueryData).toBeCalledWith(
       store,
+      RelayStoreData.getDefaultInstance().getQueryTracker(),
       query,
       '123'
     );

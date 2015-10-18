@@ -78,11 +78,10 @@ describe('readRelayQueryData() query tracking', () => {
     var records = {};
     var store = new RelayRecordStore({records});
     writePayload(store, query, payload);
-    var queryTracker = new RelayQueryTracker();
     var fragment = query.getChildren().find(
       child => child instanceof RelayQuery.Fragment
     );
-    readRelayQueryData(store, queryTracker, fragment, '123');
+    var {queryTracker} = readRelayQueryData(store, fragment, '123');
 
     var trackNodeCalls = queryTracker.trackNodeForID.mock.calls;
     expect(trackNodeCalls.length).toBe(4);

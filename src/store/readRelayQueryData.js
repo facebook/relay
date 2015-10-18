@@ -20,7 +20,7 @@ var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
-import type RelayQueryTracker from 'RelayQueryTracker';
+var RelayQueryTracker = require('RelayQueryTracker');
 var RelayQueryVisitor = require('RelayQueryVisitor');
 var RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
@@ -39,6 +39,7 @@ export type DataIDSet = {[key: string]: boolean};
 export type StoreReaderResult = {
   data: ?StoreReaderData;
   dataIDs: DataIDSet;
+  queryTracker: RelayQueryTracker;
 };
 
 type State = {
@@ -59,12 +60,11 @@ var {EDGES, PAGE_INFO} = RelayConnectionInterface;
  */
 function readRelayQueryData(
   store: RelayRecordStore,
-  queryTracker: RelayQueryTracker,
   queryNode: RelayQuery.Node,
   dataID: DataID,
   options?: StoreReaderOptions
 ): StoreReaderResult {
-  var reader = new RelayStoreReader(store, queryTracker, options);
+  var reader = new RelayStoreReader(store, options);
   var data = reader.retrieveData(queryNode, dataID);
 
   // We validate only after retrieving the data, to give our `invariant`
@@ -82,11 +82,10 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
 
   constructor(
     recordStore: RelayRecordStore,
-    queryTracker: RelayQueryTracker,
     options?: StoreReaderOptions
   ) {
     super();
-    this._queryTracker = queryTracker;
+    this._queryTracker = new RelayQueryTracker();
     this._recordStore = recordStore;
     this._traverseFragmentReferences =
       (options && options.traverseFragmentReferences) || false;
@@ -104,6 +103,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     var result = {
       data: (undefined: $FlowIssue),
       dataIDs: ({}: $FlowIssue),
+      queryTracker: this._queryTracker,
     };
     var rangeData = GraphQLStoreRangeUtils.parseRangeClientID(dataID);
     var status = this._recordStore.getRecordState(

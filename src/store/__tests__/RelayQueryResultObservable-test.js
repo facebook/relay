@@ -104,7 +104,6 @@ describe('RelayQueryResultObservable', () => {
 
     expect(readRelayQueryData).toBeCalledWith(
       storeData.getQueuedStore(),
-      storeData.getQueryTracker(),
       fragment,
       '123'
     );

@@ -21,6 +21,7 @@ import type RelayStoreGarbageCollector from 'RelayStoreGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
+import type RelayQueryTracker from 'RelayQueryTracker';
 import type RelayStoreData from 'RelayStoreData';
 import type {StoreReaderData} from 'RelayTypes';
 
@@ -290,14 +291,13 @@ function resolveFragment(
   storeData: RelayStoreData,
   fragment: RelayQuery.Fragment,
   dataID: DataID
-): [StoreReaderData, DataIDSet] {
-  var {data, dataIDs} = readRelayQueryData(
+): [StoreReaderData, DataIDSet, RelayQueryTracker] {
+  var {data, dataIDs, queryTracker} = readRelayQueryData(
     storeData.getQueuedStore(),
-    storeData.getQueryTracker(),
     fragment,
     dataID
   );
-  return [data, dataIDs];
+  return [data, dataIDs, queryTracker];
 }
 
 /**

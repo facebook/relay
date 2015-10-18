@@ -32,7 +32,7 @@ describe('GraphQLStoreQueryResolver', () => {
   var {getNode} = RelayTestUtils;
 
   function mockReader(mockResult) {
-    readRelayQueryData.mockImplementation((_, __, ___, dataID) => {
+    readRelayQueryData.mockImplementation((_, __, dataID) => {
       return {
         dataIDs: {[dataID]: true},
         data: mockResult[dataID],
@@ -73,8 +73,8 @@ describe('GraphQLStoreQueryResolver', () => {
     expect(resolved).toBe(mockResult);
 
     expect(readRelayQueryData).toBeCalled();
-    expect(readRelayQueryData.mock.calls[0][2]).toBe(mockQueryFragment);
-    expect(readRelayQueryData.mock.calls[0][3]).toEqual(
+    expect(readRelayQueryData.mock.calls[0][1]).toBe(mockQueryFragment);
+    expect(readRelayQueryData.mock.calls[0][2]).toEqual(
       fragmentPointer.getDataID()
     );
   });
@@ -229,10 +229,10 @@ describe('GraphQLStoreQueryResolver', () => {
     expect(resolved[0]).toBe(mockResults['1']);
     expect(resolved[1]).toBe(mockResults['2']);
 
-    expect(readRelayQueryData.mock.calls[0][3]).toEqual(
+    expect(readRelayQueryData.mock.calls[0][2]).toEqual(
       fragmentPointer.getDataIDs()[0]
     );
-    expect(readRelayQueryData.mock.calls[1][3]).toEqual(
+    expect(readRelayQueryData.mock.calls[1][2]).toEqual(
       fragmentPointer.getDataIDs()[1]
     );
   });
@@ -292,7 +292,7 @@ describe('GraphQLStoreQueryResolver', () => {
     expect(resolvedB[1]).toBe(mockResults['2']);
 
     expect(readRelayQueryData.mock.calls.length).toBe(3);
-    expect(readRelayQueryData.mock.calls[2][3]).toEqual('1');
+    expect(readRelayQueryData.mock.calls[2][2]).toEqual('1');
   });
 
   it('should create a new array if the pointer array shortens', () => {

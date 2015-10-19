@@ -49,7 +49,7 @@ Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe
 
 ## How to Get in Touch
 
-* Slack - [#relay](https://discordapp.com/channels/102860784329052160/102861057189490688) on [Reactiflux](http://www.reactiflux.com/)
+* Discord - [#relay](https://discordapp.com/channels/102860784329052160/102861057189490688) on [Reactiflux](http://www.reactiflux.com/)
 * Stack Overflow - [#relayjs](https://stackoverflow.com/questions/tagged/relayjs)
 
 ## Style Guide

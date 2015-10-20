@@ -21,6 +21,7 @@
   "repository": "facebook/relay",
   "scripts": {
     "build": "gulp",
+    "postinstall": "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
     "prepublish": "npm run build",
     "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; NODE_ENV=test jest $@ || EXIT=$?; exit $EXIT; }; f",
     "typecheck": "flow check src/",
@@ -60,6 +61,10 @@
     "run-sequence": "^1.1.2",
     "webpack": "1.11.0",
     "webpack-stream": "^2.1.0"
+  },
+  "devEngines": {
+    "node": "4.x",
+    "npm": "2.x"
   },
   "jest": {
     "rootDir": "",

@@ -11,4 +11,16 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayQueryConfig');
+var RelayQueryConfig = require.requireActual('RelayQueryConfig');
+
+RelayQueryConfig.genMock = jest.genMockFunction().mockImplementation(() => {
+  class MockQueryConfig extends RelayQueryConfig {}
+  MockQueryConfig.routeName = 'MockQueryConfig';
+  return MockQueryConfig;
+});
+
+RelayQueryConfig.genMockInstance = jest.genMockFunction().mockImplementation(
+  () => new (RelayQueryConfig.genMock())()
+);
+
+module.exports = RelayQueryConfig;

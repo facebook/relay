@@ -13,21 +13,26 @@
 
 'use strict';
 
-var {PropTypes} = require('React');
-var isRelayContainer = require('isRelayContainer');
+const {PropTypes} = require('React');
 
-var RelayPropTypes = {
-  Container: function(props: Object, propName: string): ?Error {
-    var component = props[propName];
+const isRelayContainer = require('isRelayContainer');
+const sprintf = require('sprintf');
+
+const RelayPropTypes = {
+  Container(props: Object, propName: string, componentName: string): ?Error {
+    const component = props[propName];
     if (component == null) {
-      return new Error(
-        'Required prop `Component` was not specified in `RelayRootContainer`.'
-      );
+      return new Error(sprintf(
+        'Required prop `%s` was not specified in `%s`.',
+        propName,
+        componentName
+      ));
     } else if (!isRelayContainer(component)) {
-      return new Error(
-        'Invalid prop `Component` supplied to `RelayRootContainer`, ' +
-        'expected a RelayContainer.'
-      );
+      return new Error(sprintf(
+        'Invalid prop `%s` supplied to `%s`, expected a RelayContainer.',
+        propName,
+        componentName
+      ));
     }
     return null;
   },

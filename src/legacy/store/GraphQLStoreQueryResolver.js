@@ -160,6 +160,7 @@ class GraphQLStoreSingleQueryResolver {
   _fragment: ?RelayQuery.Fragment;
   _garbageCollector: ?RelayStoreGarbageCollector;
   _hasDataChanged: boolean;
+  _queryTracker: ?RelayQueryTracker;
   _result: ?StoreReaderData;
   _resultID: ?DataID;
   _storeData: RelayStoreData;
@@ -179,6 +180,7 @@ class GraphQLStoreSingleQueryResolver {
     }
     this._hasDataChanged = false;
     this._fragment = null;
+    this._queryTracker = null;
     this._result = null;
     this._resultID = null;
     this._subscription = null;
@@ -202,6 +204,8 @@ class GraphQLStoreSingleQueryResolver {
     var prevID = this._resultID;
     var nextResult;
     var prevResult = this._result;
+    var nextTracker;
+    var prevTracker = this._queryTracker;
     var subscribedIDs;
 
     if (
@@ -216,11 +220,15 @@ class GraphQLStoreSingleQueryResolver {
       ) {
         // same canonical ID,
         // but the data, call(s), route, and/or variables have changed
-        [nextResult, subscribedIDs] = resolveFragment(
-          this._storeData,
+        ({
+          data: nextResult,
+          dataIDs: subscribedIDs,
+          queryTracker: nextTracker,
+        } = readRelayQueryData(
+          this._storeData.getQueuedStore(),
           nextFragment,
           nextID
-        );
+        ));
         nextResult = recycleNodesInto(prevResult, nextResult);
       } else {
         // same id, route, variables, and data
@@ -228,11 +236,15 @@ class GraphQLStoreSingleQueryResolver {
       }
     } else {
       // Pointer has a different ID or is/was fake data.
-      [nextResult, subscribedIDs] = resolveFragment(
-        this._storeData,
+      ({
+        data: nextResult,
+        dataIDs: subscribedIDs,
+        queryTracker: nextTracker,
+      } = readRelayQueryData(
+        this._storeData.getQueuedStore(),
         nextFragment,
         nextID
-      );
+      ));
     }
 
     // update subscriptions whenever results change
@@ -257,6 +269,7 @@ class GraphQLStoreSingleQueryResolver {
 
     this._hasDataChanged = false;
     this._fragment = nextFragment;
+    this._queryTracker = nextTracker;
 
     return this._result;
   }
@@ -285,19 +298,6 @@ class GraphQLStoreSingleQueryResolver {
       removed.forEach(id => garbageCollector.decreaseSubscriptionsFor(id));
     }
   }
-}
-
-function resolveFragment(
-  storeData: RelayStoreData,
-  fragment: RelayQuery.Fragment,
-  dataID: DataID
-): [StoreReaderData, DataIDSet, RelayQueryTracker] {
-  var {data, dataIDs, queryTracker} = readRelayQueryData(
-    storeData.getQueuedStore(),
-    fragment,
-    dataID
-  );
-  return [data, dataIDs, queryTracker];
 }
 
 /**

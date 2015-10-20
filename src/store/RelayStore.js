@@ -38,8 +38,6 @@ import type {
   RelayQuerySet
 } from 'RelayInternalTypes';
 
-var queuedStore = RelayStoreData.getDefaultInstance().getQueuedStore();
-
 /**
  * @public
  *
@@ -107,6 +105,7 @@ var RelayStore = {
     dataID: DataID,
     options?: StoreReaderOptions
   ): ?StoreReaderData {
+    const queuedStore = RelayStoreData.getDefaultInstance().getQueuedStore();
     return readRelayQueryData(queuedStore, node, dataID, options).data;
   },
 
@@ -118,6 +117,7 @@ var RelayStore = {
     dataIDs: Array<DataID>,
     options?: StoreReaderOptions
   ): Array<?StoreReaderData> {
+    const queuedStore = RelayStoreData.getDefaultInstance().getQueuedStore();
     return dataIDs.map(
       dataID => readRelayQueryData(queuedStore, node, dataID, options).data
     );
@@ -132,6 +132,7 @@ var RelayStore = {
     root: RelayQuery.Root,
     options?: StoreReaderOptions
   ): Array<?StoreReaderData> {
+    const queuedStore = RelayStoreData.getDefaultInstance().getQueuedStore();
     const storageKey = root.getStorageKey();
     var results = [];
     forEachRootCallArg(root, identifyingArgValue => {

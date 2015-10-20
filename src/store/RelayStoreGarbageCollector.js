@@ -303,7 +303,6 @@ class RelayStoreGarbageCollector {
    */
   _removeRecord(record : Record): void {
     var dataID = record.__dataID__;
-    this._relayStoreData.getQueryTracker().untrackNodesForID(dataID);
     this._relayStoreData.getQueuedStore().removeRecord(dataID);
     this._neglectionStates.remove(dataID);
   }

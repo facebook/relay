@@ -168,9 +168,6 @@ describe('RelayStoreGarbageCollector', () => {
 
       expect(storeData.getNodeData().a).toEqual({__dataID__: 'a'});
       expect(storeData.getQueuedData().a).toEqual({__dataID__: 'a'});
-      expect(
-        storeData.getQueryTracker().untrackNodesForID
-      ).not.toBeCalled();
       // DataID is still registered
       expect(isDataIDRegistered('a', garbageCollector)).toBe(true);
     });
@@ -184,9 +181,6 @@ describe('RelayStoreGarbageCollector', () => {
 
       expect(storeData.getNodeData().a).toBeUndefined();
       expect(storeData.getQueuedData().a).toBeUndefined();
-      expect(
-        storeData.getQueryTracker().untrackNodesForID
-      ).toBeCalledWith('a');
       expect(isDataIDRegistered('a', garbageCollector)).toBe(false);
     });
 
@@ -200,9 +194,6 @@ describe('RelayStoreGarbageCollector', () => {
 
       expect(storeData.getNodeData().a).toEqual({__dataID__: 'a'});
       expect(storeData.getQueuedData().a).toEqual({__dataID__: 'a'});
-      expect(
-        storeData.getQueryTracker().untrackNodesForID
-      ).not.toBeCalled();
       expect(isDataIDRegistered('a', garbageCollector)).toBe(true);
     });
 
@@ -220,9 +211,6 @@ describe('RelayStoreGarbageCollector', () => {
 
       expect(storeData.getNodeData().a).toBeUndefined();
       expect(storeData.getQueuedData().a).toBeUndefined();
-      expect(
-        storeData.getQueryTracker().untrackNodesForID
-      ).toBeCalledWith('a');
       expect(isDataIDRegistered('a', garbageCollector)).toBe(false);
     });
 

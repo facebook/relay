@@ -55,9 +55,18 @@ function processQueue(currentQueue: Array<RelayQueryRequest>): void {
  * Profiles time from request to receiving the first server response.
  */
 function profileQueue(currentQueue: Array<RelayQueryRequest>): void {
-  var profiler = RelayProfiler.profile('fetchRelayQuery');
-  var promises = currentQueue.map(request => request.getPromise());
-  Promise.race(promises).finally(profiler.stop);
+  // TODO #8783781: remove aggregate `fetchRelayQuery` profiler
+  var firstResultProfiler = RelayProfiler.profile('fetchRelayQuery');
+  currentQueue.forEach(query => {
+    var profiler = RelayProfiler.profile('fetchRelayQuery.query');
+    query.getPromise().finally(() => {
+      profiler.stop();
+      if (firstResultProfiler) {
+        firstResultProfiler.stop();
+        firstResultProfiler = null;
+      }
+    });
+  });
 }
 
 module.exports = fetchRelayQuery;

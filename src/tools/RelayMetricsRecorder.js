@@ -17,6 +17,7 @@ var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var RelayProfiler = require('RelayProfiler');
 
+var buildRQL = require('buildRQL');
 var checkRelayQueryData = require('checkRelayQueryData');
 var diffRelayQuery = require('diffRelayQuery');
 var flattenRelayQuery = require('flattenRelayQuery');
@@ -36,6 +37,8 @@ var INSTRUMENTED_METHODS = [
   GraphQLStoreChangeEmitter.broadcastChangeForID,
   GraphQLStoreChangeEmitter._processSubscribers,
   GraphQLStoreQueryResolver.prototype.resolve,
+  buildRQL.Fragment,
+  buildRQL.Query,
   checkRelayQueryData,
   diffRelayQuery,
   flattenRelayQuery,
@@ -53,11 +56,20 @@ var INSTRUMENTED_AGGREGATE_METHODS = [
   'RelayContainer.prototype.componentWillMount',
   'RelayContainer.prototype.componentWillReceiveProps',
   'RelayContainer.prototype.shouldComponentUpdate',
+  'RelayQueryField.prototype.getStorageKey',
+  'RelayQueryField.prototype.getSerializationKey',
+  'RelayQueryNode.prototype.clone',
+  'RelayQueryNode.prototype.equals',
+  'RelayQueryNode.prototype.getChildren',
+  'RelayQueryNode.prototype.getDirectives',
+  'RelayQueryNode.prototype.hasDeferredDescendant',
+  'RelayQueryNode.prototype.getFieldByStorageKey',
 ];
 
 // Runtime "profiles" registered with `RelayProfiler.profile()`:
 var INSTRUMENTED_PROFILES = [
   'fetchRelayQuery',
+  'fetchRelayQuery.query',
   'GraphQLQueryRunner.primeCache',
   'GraphQLQueryRunner.primeCache.done',
   'GraphQLQueryRunner.primeCache.ready',
@@ -82,13 +94,18 @@ type Measurement = {
 };
 type Metrics = {
   measurements: {[name: string]: Measurement};
+  profiles: Array<ProfileEvent>;
   recordingTime: number;
   totalTime: number;
 };
+type ProfileEvent = {
+  endTime: number;
+  name: string;
+  startTime: number;
+};
 
 /**
- * Collects timing information from key Relay subsystems. For metrics on all
- * functions, call `RelayProfiler.setEnableProfile(true)` on app initialization.
+ * Collects timing information from key Relay subsystems.
  *
  * Example:
  *
@@ -112,7 +129,7 @@ type Metrics = {
 class RelayMetricsRecorder {
   _isEnabled: boolean;
   _measurements: {[key: string]: Measurement};
-  _profiles: {[key: string]: Measurement};
+  _profiles: Array<ProfileEvent>;
   _profileStack: Array<number>;
   _recordingStartTime: number;
   _recordingTotalTime: number;
@@ -121,24 +138,19 @@ class RelayMetricsRecorder {
   constructor() {
     this._isEnabled = false;
     this._measurements = {};
-    this._profiles = {};
+    this._profiles = [];
     this._profileStack = [];
     this._recordingStartTime = 0;
     this._recordingTotalTime = 0;
     this._startTimesStack = [];
 
     (this: any)._measure = this._measure.bind(this);
-    (this: any)._instrumentProfile =
-      this._instrumentProfile.bind(this);
+    (this: any)._instrumentProfile = this._instrumentProfile.bind(this);
     (this: any)._startMeasurement = this._startMeasurement.bind(this);
     (this: any)._stopMeasurement = this._stopMeasurement.bind(this);
   }
 
   start(): void {
-    invariant(
-      __DEV__,
-      'RelayMetricsRecorder: Recording metrics requires `__DEV__`.'
-    );
     if (this._isEnabled) {
       return;
     }
@@ -166,8 +178,8 @@ class RelayMetricsRecorder {
     if (!this._isEnabled) {
       return;
     }
-    this._isEnabled = false;
     this._recordingTotalTime += performanceNow() - this._recordingStartTime;
+    this._isEnabled = false;
 
     INSTRUMENTED_METHODS.forEach(method => {
       (method: any).detachHandler(this._measure);
@@ -192,10 +204,20 @@ class RelayMetricsRecorder {
         totalTime += _measurements[name].aggregateTime;
         sortedMeasurements[name] = _measurements[name];
       });
+    var sortedProfiles = this._profiles.sort((a, b) => {
+      if (a.startTime < b.startTime) {
+        return -1;
+      } else if (a.startTime > b.startTime) {
+        return 1;
+      } else {
+        // lower duration first
+        return (a.endTime - a.startTime) - (b.endTime - b.startTime);
+      }
+    });
 
     return {
       measurements: sortedMeasurements,
-      profiles: this._profiles,
+      profiles: sortedProfiles,
       recordingTime: this._recordingTotalTime,
       totalTime,
     };
@@ -210,10 +232,11 @@ class RelayMetricsRecorder {
   _instrumentProfile(name: string): () => void {
     var startTime = performanceNow();
     return () => {
-      this._profiles[name] =
-        this._profiles[name] || {...measurementDefaults};
-      this._profiles[name].aggregateTime += performanceNow() - startTime;
-      this._profiles[name].callCount++;
+      this._profiles.push({
+        endTime: performanceNow(),
+        name,
+        startTime,
+      });
     };
   }
 

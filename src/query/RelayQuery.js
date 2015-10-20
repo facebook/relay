@@ -18,6 +18,7 @@ var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayFragmentReference = require('RelayFragmentReference');
 import type {Call, Directive}  from 'RelayInternalTypes';
 var RelayMetaRoute = require('RelayMetaRoute');
+var RelayProfiler = require('RelayProfiler');
 var RelayRouteFragment = require('RelayRouteFragment');
 import type {Variables} from 'RelayTypes';
 
@@ -1233,6 +1234,21 @@ function getDeferredFragmentNamesForField(
     child => getDeferredFragmentNamesForField(child, fragmentNames)
   );
 }
+
+
+RelayProfiler.instrumentMethods(RelayQueryNode.prototype, {
+  clone: 'RelayQueryNode.prototype.clone',
+  equals: 'RelayQueryNode.prototype.equals',
+  getChildren: 'RelayQueryNode.prototype.getChildren',
+  getDirectives: 'RelayQueryNode.prototype.getDirectives',
+  hasDeferredDescendant: 'RelayQueryNode.prototype.hasDeferredDescendant',
+  getFieldByStorageKey: 'RelayQueryNode.prototype.getFieldByStorageKey',
+});
+
+RelayProfiler.instrumentMethods(RelayQueryField.prototype, {
+  getStorageKey: 'RelayQueryField.prototype.getStorageKey',
+  getSerializationKey: 'RelayQueryField.prototype.getSerializationKey',
+});
 
 module.exports = {
   Field: RelayQueryField,

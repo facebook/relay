@@ -16,6 +16,7 @@
 var GraphQL = require('GraphQL');
 var Map = require('Map');
 import type {RelayConcreteNode} from 'RelayQL';
+var RelayProfiler = require('RelayProfiler');
 import type {RelayContainer, Variables} from 'RelayTypes';
 
 var filterObject = require('filterObject');
@@ -139,5 +140,10 @@ function toVariables(variables: Variables): {
 } {
   return mapObject(variables, (_, name) => new GraphQL.CallVariable(name));
 }
+
+RelayProfiler.instrumentMethods(buildRQL, {
+  Fragment: 'buildRQL.Fragment',
+  Query: 'buildRQL.Query',
+});
 
 module.exports = buildRQL;

@@ -71,7 +71,7 @@ describe('RelayProfiler', function() {
       expect(actualOrdering).toEqual([
         'beforeCallback',
         'mockMethod',
-        'afterCallback'
+        'afterCallback',
       ]);
     });
 
@@ -103,7 +103,7 @@ describe('RelayProfiler', function() {
         '1: beforeCallback',
         '0: mockMethod',
         '1: afterCallback',
-        '2: afterCallback'
+        '2: afterCallback',
       ]);
     });
 
@@ -128,13 +128,13 @@ describe('RelayProfiler', function() {
       }).toThrow('RelayProfiler: Handler did not invoke original function.');
     });
 
-    it('does nothing unless __DEV__', () => {
+    it('annotates function without __DEV__', () => {
       mockDisableDEV();
 
       mockMethod = jest.genMockFunction();
       mockObject = {mockMethod: RelayProfiler.instrument('mock', mockMethod)};
 
-      expect(mockObject.mockMethod).toBe(mockMethod);
+      expect(mockObject.mockMethod).not.toBe(mockMethod);
       expect(() => {
         mockObject.mockMethod.attachHandler();
         mockObject.mockMethod.detachHandler();
@@ -187,7 +187,7 @@ describe('RelayProfiler', function() {
         '1: afterCallback',
         '2: afterCallback',
         '3: afterCallback (aggregate)',
-        '4: afterCallback (aggregate)'
+        '4: afterCallback (aggregate)',
       ]);
     });
 
@@ -252,7 +252,7 @@ describe('RelayProfiler', function() {
         '2: beforeEnd',
         '1: beforeEnd',
         '1: afterEnd',
-        '2: afterEnd'
+        '2: afterEnd',
       ]);
     });
 

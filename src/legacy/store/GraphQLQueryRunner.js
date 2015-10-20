@@ -305,10 +305,9 @@ function runQueries(
         });
       }
     }
+    // Stop profiling when queries have been sent to the network layer.
+    profilers.initialize.stop();
   }).done();
-
-  // Stop profiling when synchronous work has completed.
-  profilers.initialize.stop();
 
   return {
     abort(): void {

@@ -18,14 +18,10 @@ jest
 var Relay = require('Relay');
 var RelayProfiler = require('RelayProfiler');
 var RelayMetricsRecorder = require('RelayMetricsRecorder');
-var RelayNetworkLayer = require('RelayNetworkLayer');
 var RelayTestUtils = require('RelayTestUtils');
 
-var fetchRelayQuery = require('fetchRelayQuery');
-var flattenRelayQuery = require('flattenRelayQuery');
 var performanceNow = require('performanceNow');
 
-RelayProfiler.setEnableProfile(true);
 
 describe('RelayMetricsRecorder', () => {
   var query;
@@ -62,60 +58,56 @@ describe('RelayMetricsRecorder', () => {
     recorder.stop();
     expect(recorder.getMetrics()).toEqual({
       measurements: {},
-      profiles: {},
+      profiles: [],
       recordingTime: 1000,
       totalTime: 0,
     });
   });
 
-  it('returns timing for executed methods', () => {
+  it('returns timing for synchronous methods', () => {
     var recorder = new RelayMetricsRecorder();
     performanceNow.mockReturnValue(0);
     recorder.start();
     mockPerformanceNowSequence([1, 1001]);
-    flattenRelayQuery(query);
+    query.getChildren();
     performanceNow.mockReturnValue(3000);
     recorder.stop();
 
     expect(recorder.getMetrics()).toEqual({
       measurements: {
-        flattenRelayQuery: {
+        'RelayQueryNode.prototype.getChildren': {
           aggregateTime: 1000,
           callCount: 1,
         },
       },
-      profiles: {},
+      profiles: [],
       recordingTime: 3000,
       totalTime: 1000,
     });
   });
 
-  it('returns total fetch time', () => {
+  it('returns timing for asynchronous events', () => {
     var recorder = new RelayMetricsRecorder();
-    RelayNetworkLayer.sendQueries = jest.genMockFunction();
     performanceNow.mockReturnValue(0);
     recorder.start();
 
-    mockPerformanceNowSequence([1, 1001]);
-    fetchRelayQuery(query);
-    jest.runAllTimers();
-    var requests = RelayNetworkLayer.sendQueries.mock.calls[0][0];
-    expect(requests.length).toBe(1);
-    requests[0].resolve();
-    jest.runAllTimers();
-
-    performanceNow.mockReturnValue(3000);
+    performanceNow.mockReturnValue(1);
+    var {stop} = RelayProfiler.profile('fetchRelayQuery');
+    performanceNow.mockReturnValue(1001);
+    stop();
+    performanceNow.mockReturnValue(2000);
     recorder.stop();
 
     expect(recorder.getMetrics()).toEqual({
       measurements: {},
-      profiles: {
-        fetchRelayQuery: {
-          aggregateTime: 1000,
-          callCount: 1,
+      profiles: [
+        {
+          endTime: 1001,
+          name: 'fetchRelayQuery',
+          startTime: 1,
         },
-      },
-      recordingTime: 3000,
+      ],
+      recordingTime: 2000,
       totalTime: 0,
     });
   });

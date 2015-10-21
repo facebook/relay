@@ -11,12 +11,13 @@
 
 'use strict';
 
-jest.dontMock('RelayStore');
+jest
+  .dontMock('RelayStore')
+  .dontMock('RelayStoreData');
 
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var Relay = require('Relay');
 var RelayQueryResultObservable = require('RelayQueryResultObservable');
 var RelayStoreData = require('RelayStoreData');
@@ -130,13 +131,12 @@ describe('RelayStore', () => {
           id
         }
       `);
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
-        expect(pointer.getFragment()).toBe(fragment);
-        expect(pointer.getDataID()).toBe('123');
-        return {
+      readRelayQueryData.mockReturnValue({
+        data: {
           __dataID__: '123',
           id: '123',
-        };
+        },
+        dataIDs: ['123'],
       });
 
       var observer = RelayStore.observe(fragment, '123');

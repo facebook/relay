@@ -14,7 +14,9 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-jest.dontMock('GraphQLDeferredQueryTracker');
+jest
+  .dontMock('GraphQLDeferredQueryTracker')
+  .dontMock('RelayStoreData');
 
 var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var Relay = require('Relay');

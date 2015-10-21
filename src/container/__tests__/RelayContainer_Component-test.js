@@ -13,9 +13,9 @@
 
 require('RelayTestUtils').unmockRelay();
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
 var Relay = require('Relay');
+var RelayStoreData = require('RelayStoreData');
 var RelayTestUtils = require('RelayTestUtils');
 var reactComponentExpect = require('reactComponentExpect');
 
@@ -46,7 +46,8 @@ describe('RelayContainer', function() {
     // Create default container for tests
     mockCreateContainer(MockComponent);
 
-    GraphQLStoreQueryResolver.mockDefaultResolveImplementation((pointer) => {
+    var storeData = RelayStoreData.getDefaultInstance();
+    storeData.readFragmentPointer.mockImplementation(pointer => {
       expect(pointer.getDataID()).toBe('42');
       return {__dataID__: '42', id: '42', url: null};
     });

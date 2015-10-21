@@ -158,6 +158,9 @@ var RelayTestUtils = {
       fragment.constructor.name
     );
 
+    if (Array.isArray(dataID)) {
+      return dataID.map(id => RelayTestUtils.getPointer(id, fragment));
+    }
     var fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
     return {[fragment.getConcreteFragmentID()]: fragmentPointer};
   },

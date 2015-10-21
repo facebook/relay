@@ -14,10 +14,12 @@
 'use strict';
 
 var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
+import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
 var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+var Map = require('Map');
 var RelayChangeTracker = require('RelayChangeTracker');
 import type {ChangeSet} from 'RelayChangeTracker';
 var RelayConnectionInterface = require('RelayConnectionInterface');
@@ -31,6 +33,7 @@ import type {
   RootCallMap,
   UpdateOptions,
 } from 'RelayInternalTypes';
+var RelayFragmentResolver = require('RelayFragmentResolver');
 var RelayNodeInterface = require('RelayNodeInterface');
 var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 var RelayProfiler = require('RelayProfiler');
@@ -39,7 +42,12 @@ var RelayQueryTracker = require('RelayQueryTracker');
 var RelayQueryWriter = require('RelayQueryWriter');
 var RelayRecordStore = require('RelayRecordStore');
 var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
-import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
+import type {
+  CacheManager,
+  CacheReadCallbacks,
+  StoreReaderData,
+  Subscription
+} from 'RelayTypes';
 
 var forEachObject = require('forEachObject');
 var invariant = require('invariant');
@@ -69,6 +77,7 @@ class RelayStoreData {
   _cachedRootCalls: RootCallMap;
   _changeEmitter: GraphQLStoreChangeEmitter;
   _deferredQueryTracker: GraphQLDeferredQueryTracker;
+  _fragmentResolvers: Map;
   _garbageCollector: ?RelayStoreGarbageCollector;
   _mutationQueue: RelayMutationQueue;
   _nodeRangeMap: NodeRangeMap;
@@ -179,6 +188,7 @@ class RelayStoreData {
     );
   }
 
+<<<<<<< HEAD
   clearCacheManager(): void {
     this._cacheManager = null;
     this._cachePopulated = false;
@@ -187,6 +197,47 @@ class RelayStoreData {
       ({rootCallMap: this._rootCalls}: $FixMe),
       (this._nodeRangeMap: $FixMe)
     );
+=======
+  readFragmentPointer(
+    pointer: GraphQLFragmentPointer | Array<GraphQLFragmentPointer>
+  ): ?(StoreReaderData | Array<StoreReaderData>) {
+    if (Array.isArray(pointer)) {
+      return (pointer.map(ptr => this.readFragmentPointer(ptr)): any);
+    }
+    var resolver = this._getResolver(pointer);
+    return resolver.read();
+  }
+
+  observeFragmentPointer(
+    pointer: GraphQLFragmentPointer | Array<GraphQLFragmentPointer>,
+    onNext: () => void
+  ): Subscription {
+    if (Array.isArray(pointer)) {
+      var subscriptions = pointer.map(ptr => this.observeFragmentPointer(
+        ptr,
+        onNext
+      ));
+      return {
+        dispose: () => {
+          subscriptions.forEach(({dispose}) => dispose());
+        },
+      };
+    }
+    var resolver = this._getResolver(pointer);
+    return resolver.subscribe({onNext});
+  }
+
+  _getResolver(
+    pointer: GraphQLFragmentPointer
+  ): RelayFragmentResolver {
+    var pointerID = pointer.getPointerID();
+    var resolver = this._fragmentResolvers.get(pointerID);
+    if (!resolver) {
+      resolver = new RelayFragmentResolver(this, pointer);
+      this._fragmentResolvers.set(pointerID, resolver);
+    }
+    return resolver;
+>>>>>>> Replace legacy QueryResolvers with RelayFragmentResolver
   }
 
   /**

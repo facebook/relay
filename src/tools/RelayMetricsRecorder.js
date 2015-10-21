@@ -34,7 +34,6 @@ const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 // Singleton methods:
 const INSTRUMENTED_METHODS = [
-  GraphQLStoreQueryResolver.prototype.resolve,
   buildRQL.Fragment,
   buildRQL.Query,
   checkRelayQueryData,
@@ -47,7 +46,6 @@ const INSTRUMENTED_METHODS = [
   subtractRelayQuery,
   writeRelayQueryPayload,
   writeRelayUpdatePayload,
-  GraphQLStoreQueryResolver.prototype.resolve,
   RelayQuery.Field.prototype.getStorageKey,
   RelayQuery.Field.prototype.getSerializationKey,
   RelayQuery.Node.prototype.clone,

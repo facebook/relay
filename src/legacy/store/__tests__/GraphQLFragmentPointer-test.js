@@ -14,7 +14,9 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-jest.dontMock('GraphQLFragmentPointer');
+jest
+  .dontMock('GraphQLFragmentPointer')
+  .dontMock('RelayStoreData');
 
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var Relay = require('Relay');
@@ -136,41 +138,15 @@ describe('GraphQLFragmentPointer', () => {
       expect(pointer.getDataID()).toBe('123');
       expect(pointer.getFragment()).toBe(singularFragment);
       expect(pointer.equals(pointer)).toBeTruthy();
-      expect(() => pointer.getDataIDs()).toFailInvariant(
-        'GraphQLFragmentPointer.getDataIDs(): Bad call for non-plural fragment.'
-      );
     });
 
     it('creates plural pointers', () => {
-      var pointer = new GraphQLFragmentPointer(['123'], pluralFragment);
+      var pointer = new GraphQLFragmentPointer('123', pluralFragment);
 
-      expect(pointer.getDataIDs()).toEqual(['123']);
+      expect(pointer.getDataID()).toEqual('123');
       expect(pointer.getFragment()).toBe(pluralFragment);
       expect(pointer.equals(pointer)).toBeTruthy();
-      expect(() => pointer.getDataID()).toFailInvariant(
-        'GraphQLFragmentPointer.getDataID(): Bad call for plural fragment.'
-      );
     });
-
-    /* eslint-disable no-new */
-    it('throws when creating a singular pointer with multiple IDs', () => {
-      expect(() => {
-        new GraphQLFragmentPointer(['123'], singularFragment);
-      }).toFailInvariant(
-        'GraphQLFragmentPointer: Wrong plurality, array of data IDs ' +
-        'supplied with non-plural fragment.'
-      );
-    });
-
-    it('throws when creating a plural pointer with a single ID', () => {
-      expect(() => {
-        new GraphQLFragmentPointer('123', pluralFragment);
-      }).toFailInvariant(
-        'GraphQLFragmentPointer: Wrong plurality, single data ID supplied ' +
-        'with plural fragment.'
-      );
-    });
-    /* eslint-enable no-new */
 
     it('singular pointers are equals() to matching pointers', () => {
       var pointer = new GraphQLFragmentPointer('123', singularFragment);

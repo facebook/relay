@@ -34,7 +34,7 @@ type Subscriber = {
  * Asynchronous change emitter for nodes stored in the Relay cache.
  *
  * Changes are produced by `RelayStoreData` after writing query and mutation
- * payloads into the store and consumed by `GraphQLStoreQueryResolver`, which
+ * payloads into the store and consumed by `RelayFragmentResolver`, which
  * subscribes to all records that are part of an active query result set.
  *
  * @internal

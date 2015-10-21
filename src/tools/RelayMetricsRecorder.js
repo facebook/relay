@@ -105,7 +105,8 @@ type ProfileEvent = {
 };
 
 /**
- * Collects timing information from key Relay subsystems.
+ * Collects timing information from key Relay subsystems. For metrics on all
+ * functions, call `RelayProfiler.setEnableProfile(true)` on app initialization.
  *
  * Example:
  *
@@ -136,6 +137,11 @@ class RelayMetricsRecorder {
   _startTimesStack: Array<number>;
 
   constructor() {
+    invariant(
+      __DEV__,
+      'RelayMetricsRecorder: Requires __DEV__.'
+    );
+
     this._isEnabled = false;
     this._measurements = {};
     this._profiles = [];

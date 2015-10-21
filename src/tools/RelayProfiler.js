@@ -25,6 +25,7 @@ var profileHandlersByName: {[name: string]: Array<ProfileHandler>} = {};
 
 var NOT_INVOKED = {};
 var defaultProfiler = {stop: emptyFunction};
+var enableProfile = !!__DEV__;
 
 /**
  * @public
@@ -60,6 +61,15 @@ var defaultProfiler = {stop: emptyFunction};
  */
 var RelayProfiler = {
   /**
+   * This only controls whether `profile()`, `attachProfileHandler()` and
+   * `detachProfileHandler` is enabled, normal instrument methods cannot be
+   * enabled if they're not enabled at module require time.
+   */
+  setEnableProfile(isEnabled: boolean): void {
+    enableProfile = isEnabled;
+  },
+
+  /**
    * Instruments methods on a class or object. This re-assigns the method in
    * order to preserve function names in stack traces (which are detected by
    * modern debuggers via heuristics). Example usage:
@@ -78,9 +88,11 @@ var RelayProfiler = {
     object: Function | Object,
     names: {[key: string]: string}
   ): void {
-    forEachObject(names, (name, key) => {
-      object[key] = RelayProfiler.instrument(name, object[key]);
-    });
+    if (__DEV__) {
+      forEachObject(names, (name, key) => {
+        object[key] = RelayProfiler.instrument(name, object[key]);
+      });
+    }
   },
 
   /**
@@ -94,36 +106,41 @@ var RelayProfiler = {
    *
    */
   instrument<T: Function>(name: string, originalFunction: T): T {
-    var handlers = [];
-    var instrumentedCallback = function() {
-      var originalReturn = NOT_INVOKED;
-      var boundArguments = arguments;
-      var invokeCallback = () => {
-        originalReturn = originalFunction.apply(this, boundArguments);
+    if (__DEV__) {
+      var handlers = [];
+      var instrumentedCallback = function() {
+        var originalReturn = NOT_INVOKED;
+        var boundArguments = arguments;
+        var invokeCallback = () => {
+          originalReturn = originalFunction.apply(this, boundArguments);
+        };
+        var wrapCallback = handler => {
+          invokeCallback = handler.bind(this, name, invokeCallback);
+        };
+        handlers.forEach(wrapCallback);
+        if (aggregateHandlersByName.hasOwnProperty(name)) {
+          aggregateHandlersByName[name].forEach(wrapCallback);
+        }
+        invokeCallback();
+        if (originalReturn === NOT_INVOKED) {
+          throw new Error(
+            'RelayProfiler: Handler did not invoke original function.'
+          );
+        }
+        return originalReturn;
       };
-      var wrapCallback = handler => {
-        invokeCallback = handler.bind(this, name, invokeCallback);
+      instrumentedCallback.attachHandler = function(handler: Handler): void {
+        handlers.push(handler);
       };
-      handlers.forEach(wrapCallback);
-      if (aggregateHandlersByName.hasOwnProperty(name)) {
-        aggregateHandlersByName[name].forEach(wrapCallback);
-      }
-      invokeCallback();
-      if (originalReturn === NOT_INVOKED) {
-        throw new Error(
-          'RelayProfiler: Handler did not invoke original function.'
-        );
-      }
-      return originalReturn;
-    };
-    instrumentedCallback.attachHandler = function(handler: Handler): void {
-      handlers.push(handler);
-    };
-    instrumentedCallback.detachHandler = function(handler: Handler): void {
-      removeFromArray(handlers, handler);
-    };
-    instrumentedCallback.displayName = '(instrumented ' + name + ')';
-    return (instrumentedCallback: any);
+      instrumentedCallback.detachHandler = function(handler: Handler): void {
+        removeFromArray(handlers, handler);
+      };
+      instrumentedCallback.displayName = '(instrumented ' + name + ')';
+      return (instrumentedCallback: any);
+    }
+    originalFunction.attachHandler = emptyFunction;
+    originalFunction.detachHandler = emptyFunction;
+    return originalFunction;
   },
 
   /**
@@ -143,18 +160,22 @@ var RelayProfiler = {
    *
    */
   attachAggregateHandler(name: string, handler: Handler): void {
-    if (!aggregateHandlersByName.hasOwnProperty(name)) {
-      aggregateHandlersByName[name] = [];
+    if (__DEV__) {
+      if (!aggregateHandlersByName.hasOwnProperty(name)) {
+        aggregateHandlersByName[name] = [];
+      }
+      aggregateHandlersByName[name].push(handler);
     }
-    aggregateHandlersByName[name].push(handler);
   },
 
   /**
    * Detaches a handler attached via `attachAggregateHandler`.
    */
   detachAggregateHandler(name: string, handler: Handler): void {
-    if (aggregateHandlersByName.hasOwnProperty(name)) {
-      removeFromArray(aggregateHandlersByName[name], handler);
+    if (__DEV__) {
+      if (aggregateHandlersByName.hasOwnProperty(name)) {
+        removeFromArray(aggregateHandlersByName[name], handler);
+      }
     }
   },
 
@@ -172,22 +193,24 @@ var RelayProfiler = {
    * attached profile handlers will receive this as the second argument.
    */
   profile(name: string, state?: any): {stop: () => void} {
-    if (profileHandlersByName.hasOwnProperty(name)) {
-      var profileHandlers = profileHandlersByName[name];
-      var stopHandlers;
-      for (var ii = profileHandlers.length - 1; ii >= 0; ii--) {
-        var profileHandler = profileHandlers[ii];
-        var stopHandler = profileHandler(name, state);
-        stopHandlers = stopHandlers || [];
-        stopHandlers.unshift(stopHandler);
-      }
-      return {
-        stop(): void {
-          if (stopHandlers) {
-            stopHandlers.forEach(stopHandler => stopHandler());
-          }
+    if (enableProfile) {
+      if (profileHandlersByName.hasOwnProperty(name)) {
+        var profileHandlers = profileHandlersByName[name];
+        var stopHandlers;
+        for (var ii = profileHandlers.length - 1; ii >= 0; ii--) {
+          var profileHandler = profileHandlers[ii];
+          var stopHandler = profileHandler(name, state);
+          stopHandlers = stopHandlers || [];
+          stopHandlers.unshift(stopHandler);
         }
-      };
+        return {
+          stop(): void {
+            if (stopHandlers) {
+              stopHandlers.forEach(stopHandler => stopHandler());
+            }
+          },
+        };
+      }
     }
     return defaultProfiler;
   },
@@ -196,18 +219,22 @@ var RelayProfiler = {
    * Attaches a handler to profiles with the supplied name.
    */
   attachProfileHandler(name: string, handler: ProfileHandler): void {
-    if (!profileHandlersByName.hasOwnProperty(name)) {
-      profileHandlersByName[name] = [];
+    if (enableProfile) {
+      if (!profileHandlersByName.hasOwnProperty(name)) {
+        profileHandlersByName[name] = [];
+      }
+      profileHandlersByName[name].push(handler);
     }
-    profileHandlersByName[name].push(handler);
   },
 
   /**
    * Detaches a handler attached via `attachProfileHandler`.
    */
   detachProfileHandler(name: string, handler: ProfileHandler): void {
-    if (profileHandlersByName.hasOwnProperty(name)) {
-      removeFromArray(profileHandlersByName[name], handler);
+    if (enableProfile) {
+      if (profileHandlersByName.hasOwnProperty(name)) {
+        removeFromArray(profileHandlersByName[name], handler);
+      }
     }
   },
 

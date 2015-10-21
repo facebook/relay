@@ -128,13 +128,13 @@ describe('RelayProfiler', function() {
       }).toThrow('RelayProfiler: Handler did not invoke original function.');
     });
 
-    it('annotates function without __DEV__', () => {
+    it('does nothing unless __DEV__', () => {
       mockDisableDEV();
 
       mockMethod = jest.genMockFunction();
       mockObject = {mockMethod: RelayProfiler.instrument('mock', mockMethod)};
 
-      expect(mockObject.mockMethod).not.toBe(mockMethod);
+      expect(mockObject.mockMethod).toBe(mockMethod);
       expect(() => {
         mockObject.mockMethod.attachHandler();
         mockObject.mockMethod.detachHandler();

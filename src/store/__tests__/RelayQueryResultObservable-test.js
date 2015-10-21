@@ -13,7 +13,7 @@
 
 jest
   .dontMock('GraphQLStoreChangeEmitter')
-  .dontMock('GraphQLStoreQueryResolver');
+  .dontMock('RelayStoreData');
 
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
@@ -93,7 +93,7 @@ describe('RelayQueryResultObservable', () => {
     var subscription = observer.subscribe(subscriber);
     subscription.dispose();
     expect(() => subscription.dispose()).toFailInvariant(
-      'RelayQueryResultObservable: Subscriptions may only be disposed once.'
+      'RelayFragmentResolver: Subscriptions may only be disposed once.'
     );
   });
 

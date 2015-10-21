@@ -12,7 +12,6 @@
  */
 
 'use strict';
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 
@@ -32,7 +31,6 @@ var writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 // Singleton methods:
 var INSTRUMENTED_METHODS = [
-  GraphQLStoreQueryResolver.prototype.resolve,
   buildRQL.Fragment,
   buildRQL.Query,
   checkRelayQueryData,
@@ -45,7 +43,6 @@ var INSTRUMENTED_METHODS = [
   subtractRelayQuery,
   writeRelayQueryPayload,
   writeRelayUpdatePayload,
-  GraphQLStoreQueryResolver.prototype.resolve,
   RelayQuery.Field.prototype.getStorageKey,
   RelayQuery.Field.prototype.getSerializationKey,
   RelayQuery.Node.prototype.clone,

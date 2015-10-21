@@ -13,6 +13,7 @@
 
 jest
   .dontMock('GraphQLStoreDataHandler')
+  .dontMock('RelayStoreData')
   .dontMock('RelayStoreGarbageCollector')
   .dontMock('performanceNow');
 

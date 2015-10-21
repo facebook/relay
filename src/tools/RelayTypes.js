@@ -143,8 +143,8 @@ export type Subscription = {
 
 export type SubscriptionCallbacks<T> = {
   onNext: ((value: T) => void);
-  onError: ((error: Error) => void);
-  onCompleted: (() => void);
+  onError?: ((error: Error) => void);
+  onCompleted?: (() => void);
 };
 
 // Store

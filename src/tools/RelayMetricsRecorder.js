@@ -137,11 +137,6 @@ class RelayMetricsRecorder {
   _startTimesStack: Array<number>;
 
   constructor() {
-    invariant(
-      __DEV__,
-      'RelayMetricsRecorder: Requires __DEV__.'
-    );
-
     this._isEnabled = false;
     this._measurements = {};
     this._profiles = [];

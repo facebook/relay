@@ -13,8 +13,8 @@
 
 'use strict';
 
-var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
+var RelayFragmentResolver = require('RelayFragmentResolver');
 import type RelayStoreData from 'RelayStoreData';
 import type {
   StoreReaderData,
@@ -45,89 +45,22 @@ var invariant = require('invariant');
  * @see http://reactivex.io/documentation/observable.html
  */
 class RelayQueryResultObservable {
-  _data: ?StoreReaderData;
-  _fragmentPointer: GraphQLFragmentPointer;
-  _queryResolver: ?GraphQLStoreQueryResolver;
-  _storeData: RelayStoreData;
-  _subscriptionCallbacks: Array<SubscriptionCallbacks<?StoreReaderData>>;
-  _subscriptionCount: number;
+  _fragmentResolver: RelayFragmentResolver;
 
   constructor(
     storeData: RelayStoreData,
     fragmentPointer: GraphQLFragmentPointer
   ) {
-    this._data = undefined;
-    this._fragmentPointer = fragmentPointer;
-    this._queryResolver = null;
-    this._storeData = storeData;
-    this._subscriptionCallbacks = [];
-    this._subscriptionCount = 0;
+    this._fragmentResolver = new RelayFragmentResolver(
+      storeData,
+      fragmentPointer
+    );
   }
 
   subscribe(callbacks: SubscriptionCallbacks<?StoreReaderData>): Subscription {
-    this._subscriptionCount++;
-    var subscriptionIndex = this._subscriptionCallbacks.length;
-    var subscription = {
-      dispose: () => {
-        invariant(
-          this._subscriptionCallbacks[subscriptionIndex],
-          'RelayQueryResultObservable: Subscriptions may only be disposed once.'
-        );
-        delete this._subscriptionCallbacks[subscriptionIndex];
-        this._subscriptionCount--;
-        if (this._subscriptionCount === 0) {
-          this._unobserve();
-        }
-      },
-    };
-    this._subscriptionCallbacks.push(callbacks);
-
-    if (this._subscriptionCount === 1) {
-      this._resolveData(this._observe());
-    }
-    this._fire(callbacks);
-
+    var subscription = this._fragmentResolver.subscribe(callbacks);
+    callbacks.onNext && callbacks.onNext(this._fragmentResolver.read());
     return subscription;
-  }
-
-  _observe(): GraphQLStoreQueryResolver {
-    invariant(
-      !this._queryResolver,
-      'RelayQueryResultObservable: Initialized twice.'
-    );
-    var queryResolver = new GraphQLStoreQueryResolver(
-      this._storeData,
-      this._fragmentPointer,
-      () => this._onUpdate(queryResolver)
-    );
-    this._queryResolver = queryResolver;
-    return queryResolver;
-  }
-
-  _unobserve(): void {
-    if (this._queryResolver) {
-      this._data = undefined;
-      this._queryResolver.reset();
-      this._queryResolver = null;
-    }
-  }
-
-  _onUpdate(queryResolver: GraphQLStoreQueryResolver): void {
-    this._resolveData(queryResolver);
-    this._subscriptionCallbacks.forEach(callbacks => this._fire(callbacks));
-  }
-
-  _fire(callbacks: SubscriptionCallbacks<?StoreReaderData>): void {
-    callbacks.onNext && callbacks.onNext(this._data);
-  }
-
-  _resolveData(queryResolver: GraphQLStoreQueryResolver): void {
-    var data = queryResolver.resolve(this._fragmentPointer);
-    invariant(
-      !Array.isArray(data),
-      'RelayQueryResultObservable: Plural fragments are not supported.'
-    );
-    this._data = data;
   }
 }
 

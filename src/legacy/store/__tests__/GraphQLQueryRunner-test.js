@@ -19,7 +19,8 @@ jest
   .dontMock('DliteFetchModeConstants')
   .dontMock('GraphQL_DEPRECATED')
   .dontMock('GraphQLDeferredQueryTracker')
-  .dontMock('GraphQLQueryRunner');
+  .dontMock('GraphQLQueryRunner')
+  .dontMock('RelayStoreData');
 
 var DliteFetchModeConstants = require('DliteFetchModeConstants');
 var GraphQLQueryRunner = require('GraphQLQueryRunner');

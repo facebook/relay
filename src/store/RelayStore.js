@@ -155,7 +155,7 @@ var RelayStore = {
     dataID: DataID
   ): Observable<?StoreReaderData> {
     var fragmentPointer = new GraphQLFragmentPointer(
-      fragment.isPlural()? [dataID] : dataID,
+      dataID,
       fragment
     );
     return new RelayQueryResultObservable(storeData, fragmentPointer);

@@ -13,7 +13,7 @@
 
 jest
   .dontMock('GraphQLStoreChangeEmitter')
-  .dontMock('GraphQLStoreQueryResolver');
+  .dontMock('RelayStoreData');
 
 const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();

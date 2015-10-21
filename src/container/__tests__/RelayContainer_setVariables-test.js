@@ -13,12 +13,11 @@
 
 require('RelayTestUtils').unmockRelay();
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var QueryBuilder = require('QueryBuilder');
 var React = require('React');
 var ReactDOM = require('ReactDOM');
 var Relay = require('Relay');
 var RelayMetaRoute = require('RelayMetaRoute');
+var RelayStoreData = require('RelayStoreData');
 var RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.setVariables', function() {
@@ -30,6 +29,7 @@ describe('RelayContainer.setVariables', function() {
   var entityQuery;
   var mockInstance;
   var render;
+  var storeData;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
@@ -49,7 +49,8 @@ describe('RelayContainer.setVariables', function() {
       initialVariables: {site: 'mobile'}
     });
 
-    GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
+    storeData = RelayStoreData.getDefaultInstance();
+    storeData.readFragmentPointer.mockImplementation(pointer => {
       expect(pointer.getDataID()).toBe('42');
       return {
         __dataID__: '42',
@@ -59,6 +60,9 @@ describe('RelayContainer.setVariables', function() {
           uri: '//url'
         }
       };
+    });
+    storeData.observeFragmentPointer.mockImplementation(() => {
+      return {dispose: jest.genMockFunction()};
     });
     defaultState = {
       aborted: false,
@@ -82,7 +86,7 @@ describe('RelayContainer.setVariables', function() {
 
     beforeEach(() => {
       ({getNode, getPointer} = RelayTestUtils);
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
+      storeData.readFragmentPointer.mockImplementation(pointer => {
         return [{
           __dataID__: '42',
           id: '42',
@@ -107,8 +111,9 @@ describe('RelayContainer.setVariables', function() {
       });
 
       // Return an array
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointers => {
-        expect(pointers.getDataIDs()).toEqual(['21', '42']);
+      storeData.readFragmentPointer.mockImplementation(pointers => {
+        expect(pointers.map(pointer => pointer.getDataID()))
+          .toEqual(['21', '42']);
         return [
           {
             __dataID__: '21',
@@ -135,7 +140,7 @@ describe('RelayContainer.setVariables', function() {
       );
       mockInstance = RelayTestUtils.createRenderer(domContainer).render(
         genMockPointer => (
-          <MockContainer entity={[mockPointer]} />
+          <MockContainer entity={mockPointer} />
         )
       );
     });
@@ -155,7 +160,7 @@ describe('RelayContainer.setVariables', function() {
         {__dataID__: '21', id: '21', url: '//www'},
         {id:'1336', name: 'Fake data', url: '//www'}
       ];
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
+      storeData.readFragmentPointer.mockImplementation(pointer => {
         return updatedQueryData;
       });
 
@@ -176,8 +181,12 @@ describe('RelayContainer.setVariables', function() {
         {__dataID__: '21', id: '21', url: '//www'},
         {__dataID__: '42', id: '42', url: '//www'},
       ];
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
-        expect(pointer.getFragment().getVariables()).toEqual({site: 'www'});
+      storeData.readFragmentPointer.mockImplementation(fragmentPointers => {
+        expect(Array.isArray(fragmentPointers)).toBe(true);
+        fragmentPointers.forEach(fragmentPointer => {
+          expect(fragmentPointer.getFragment().getVariables())
+            .toEqual({site: 'www'});
+        });
         return updatedQueryData;
       });
       Relay.Store.primeCache.mock.requests[0].succeed();
@@ -187,7 +196,7 @@ describe('RelayContainer.setVariables', function() {
 
     it('throws when the queryData is not an array', () => {
       var updatedQueryData = {__dataID__: '21', id: '21', url: '//www'};
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
+      storeData.readFragmentPointer.mockImplementation(pointer => {
         return updatedQueryData;
       });
 
@@ -263,7 +272,7 @@ describe('RelayContainer.setVariables', function() {
       jest.runAllTimers();
 
       var updatedQueryData = {__dataID__: '42', id: '42', url: '//www'};
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
+      storeData.readFragmentPointer.mockImplementation(pointer => {
         expect(pointer.getFragment().getVariables()).toEqual({site: 'www'});
         return updatedQueryData;
       });
@@ -422,6 +431,9 @@ describe('RelayContainer.setVariables', function() {
     it('calls `prepareVariables` when `setVariables` is called', () => {
       var nextVariables = {site: 'mobile'};
       prepareVariables.mockImplementation((variables, route) => nextVariables);
+      storeData.buildFragmentQueryForDataID.mockImplementation(
+        require.requireActual('RelayStoreData').prototype.buildFragmentQueryForDataID
+      );
       mockInstance.setVariables({site: 'www'});
 
       var calls = prepareVariables.mock.calls[1];

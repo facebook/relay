@@ -1,12 +1,46 @@
-#!/bin/bash
+#!/usr/bin/env node
 
-ROOT_DIR=$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)
+var FindFiles = require('node-find-files');
+var child_process = require('child_process');
+var fs = require('fs');
+var path = require('path');
+var rimraf = require('rimraf');
 
-cd $ROOT_DIR
-rm -r lib
-babel src --ignore __tests__ --out-dir lib
-for file in $(find lib -name \*.js); do
-  echo '// @''generated' > $file.generated
-  cat $file >> $file.generated
-  mv $file.generated $file
-done
+var root = path.resolve(__dirname, '..');
+var lib = path.join(root, 'lib');
+var src = path.join(root, 'src');
+
+// Blow away prior build artefacts.
+rimraf.sync(lib);
+
+// Transform with babel (src -> lib).
+var babel = child_process.spawn(
+  'babel', [src, '--ignore', '__tests__', '--out-dir', lib]
+);
+babel.stdout.on('data', process.stdout.write.bind(process.stdout));
+babel.stderr.on('data', process.stderr.write.bind(process.stderr));
+babel.on('close', function(status) {
+  if (status) {
+    process.exit(status);
+  }
+
+  // Prepend @generated annotations to all JS files.
+  var finder = new FindFiles({
+    rootFolder: lib,
+    filterFunction: function(pathName) {
+      return path.extname(pathName) === '.js';
+    },
+  });
+
+  finder.on('match', function(pathName) {
+    var data = fs.readFileSync(pathName);
+    var file = fs.openSync(pathName, 'w');
+    var buffer = new Buffer('// @generated\n');
+    fs.writeSync(file, buffer, 0, buffer.length);
+    fs.writeSync(file, data, 0, data.length);
+    fs.close(file);
+  });
+
+  finder.on('error', process.exit.bind(process, 1));
+  finder.startSearch();
+});

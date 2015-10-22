@@ -127,6 +127,8 @@ function RelayRootContainer({
         } else if (props) {
           if (renderFetched) {
             return renderFetched(props, {done, stale});
+          } else {
+            return <Component {...props} />;
           }
         } else {
           if (renderLoading) {

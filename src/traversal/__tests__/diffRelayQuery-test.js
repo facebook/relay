@@ -111,7 +111,7 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        'profilePicture.size(32)': 'https://facebook.com',
+        'profilePicture{size:"32"}': 'https://facebook.com',
       }
     };
     var store = new RelayRecordStore({records});
@@ -133,7 +133,7 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        'profilePicture.size(32)': 'https://facebook.com',
+        'profilePicture{size:"32"}': 'https://facebook.com',
       }
     };
     var store = new RelayRecordStore({records});

@@ -395,12 +395,11 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       recordID: connectionID,
       responseData: connectionData,
     } = state;
-    var storageKey = connection.getStorageKey();
     invariant(
       typeof connectionData === 'object' && connectionData !== null,
       'RelayQueryWriter: Cannot write edges for malformed connection `%s` on ' +
       'record `%s`, expected the response to be an object.',
-      storageKey,
+      connection.getDebugName(),
       connectionID
     );
     var edgesData = connectionData[EDGES];
@@ -411,7 +410,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         false,
         'RelayQueryWriter: Cannot write edges for connection `%s` on record ' +
         '`%s`, expected a response for field `edges`.',
-        storageKey,
+        connection.getDebugName(),
         connectionID
       );
       return;
@@ -420,7 +419,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       Array.isArray(edgesData),
       'RelayQueryWriter: Cannot write edges for connection `%s` on record ' +
       '`%s`, expected `edges` to be an array.',
-      storageKey,
+      connection.getDebugName(),
       connectionID
     );
 
@@ -429,7 +428,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       RelayConnectionInterface.hasRangeCalls(rangeCalls),
       'RelayQueryWriter: Cannot write edges for connection `%s` on record ' +
       '`%s` without `first`, `last`, or `find` argument.',
-      storageKey,
+      connection.getDebugName(),
       connectionID
     );
     var rangeInfo = this._store.getRangeMetadata(
@@ -440,7 +439,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       rangeInfo,
       'RelayQueryWriter: Expected a range to exist for connection field `%s` ' +
       'on record `%s`.',
-      storageKey,
+      connection.getDebugName(),
       connectionID
     );
     var fetchedEdgeIDs = [];
@@ -457,7 +456,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         typeof edgeData === 'object' && edgeData,
         'RelayQueryWriter: Cannot write edge for connection field `%s` on ' +
         'record `%s`, expected an object.',
-        storageKey,
+        connection.getDebugName(),
         connectionID
       );
 
@@ -470,7 +469,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         typeof nodeData === 'object',
         'RelayQueryWriter: Expected node to be an object for field `%s` on ' +
         'record `%s`.',
-        storageKey,
+        connection.getDebugName(),
         connectionID
       );
 
@@ -533,7 +532,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     invariant(
       Array.isArray(fieldData),
       'RelayQueryWriter: Expected array data for field `%s` on record `%s`.',
-      storageKey,
+      field.getDebugName(),
       recordID
     );
 
@@ -615,7 +614,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       typeof fieldData === 'object' && fieldData !== null,
       'RelayQueryWriter: Expected data for non-scalar field `%s` on record ' +
       '`%s` to be an object.',
-      storageKey,
+      field.getDebugName(),
       recordID
     );
 

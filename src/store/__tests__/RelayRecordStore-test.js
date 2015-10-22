@@ -721,7 +721,7 @@ describe('RelayRecordStore', () => {
           'photos': {
             __dataID__: '2'
           },
-          'photos.orderby(likes)': {
+          'photos{orderby:"likes"}': {
             __dataID__: '3'
           }
         },

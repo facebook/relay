@@ -423,7 +423,7 @@ describe('checkRelayQueryData', () => {
   it('returns true when `edges` is available on non-connections', () => {
     var records = {
       viewer_id: {
-        '__configs__.named(some_gk)': {__dataID__:'configs_id'},
+        '__configs__{named:"some_gk"}': {__dataID__:'configs_id'},
         __dataID__: 'viewer_id',
       },
       configs_id: {

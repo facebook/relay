@@ -840,7 +840,9 @@ class RelayQueryFragment extends RelayQueryNode {
  * Note: place proxy methods for `GraphQL.Field` here.
  */
 class RelayQueryField extends RelayQueryNode {
+  __debugName__: ?string;
   __isRefQueryDependency__: boolean;
+  __rangeBehaviorKey__: ?string;
 
   /**
    * Helper to construct a new field with the given attributes and 'empty'
@@ -878,7 +880,9 @@ class RelayQueryField extends RelayQueryNode {
     variables: Variables
   ) {
     super(concreteNode, route, variables);
+    this.__debugName__ = undefined;
     this.__isRefQueryDependency__ = false;
+    this.__rangeBehaviorKey__ = undefined;
   }
 
   isRequisite(): boolean {
@@ -916,6 +920,25 @@ class RelayQueryField extends RelayQueryNode {
     return this.__concreteNode__.metadata.isUnionOrInterface;
   }
 
+  getDebugName(): string {
+    let debugName = this.__debugName__;
+    if (!debugName) {
+      debugName = this.getSchemaName();
+      let printedCoreArgs;
+      this.getCallsWithValues().forEach(arg => {
+        if (this._isCoreArg(arg)) {
+          printedCoreArgs = printedCoreArgs || [];
+          printedCoreArgs.push(printRelayQueryCall(arg));
+        }
+      });
+      if (printedCoreArgs) {
+        debugName += printedCoreArgs.sort().join('');
+      }
+      this.__debugName__ = debugName;
+    }
+    return debugName;
+  }
+
   getParentType(): string {
     var parentType = this.__concreteNode__.metadata.parentType;
     invariant(
@@ -935,25 +958,57 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   /**
+   * A string representing the range behavior eligible arguments associated with
+   * this field. Arguments will be sorted.
+   *
+   * Non-core arguments (like connection and identifying arguments) are dropped.
+   *   `field(first: 10, foo: "bar", baz: "bat")` => `'baz(bat).foo(bar)'`
+   *   `username(name: "steve")`                  => `''`
+   */
+  getRangeBehaviorKey(): string {
+    invariant(
+      this.isConnection(),
+      'RelayQueryField: Range behavior keys are associated exclusively with ' +
+      'connection fields. `getRangeBehaviorKey()` was called on the ' +
+      'non-connection field `%s`.',
+      this.getSchemaName()
+    );
+    let rangeBehaviorKey = this.__rangeBehaviorKey__;
+    if (rangeBehaviorKey == null) {
+      const printedCoreArgs = [];
+      this.getCallsWithValues().forEach(arg => {
+        if (this._isCoreArg(arg)) {
+          printedCoreArgs.push(printRelayQueryCall(arg));
+        }
+      });
+      rangeBehaviorKey = printedCoreArgs.sort().join('').slice(1);
+      this.__rangeBehaviorKey__ = rangeBehaviorKey;
+    }
+    return rangeBehaviorKey;
+  }
+
+  /**
    * The name for the field when serializing the query or interpreting query
    * responses from the server. The serialization key is derived from
    * all calls/values and hashed for compactness.
    *
-   * Given the graphql
-   * `news_feed.first(10).orderby(TOP_STORIES)`
+   * Given the GraphQL
+   *   `field(first: 10, foo: "bar", baz: "bat")`, or
+   *   `field(baz: "bat", foo: "bar", first: 10)`
    *
-   * the serialization key is
-   * `generateRQLFieldAlias('news_feed.first(10).orderby(TOP_STORIES')`
+   * ...the following serialization key will be produced:
+   *   `generateRQLFieldAlias('field.bar(bat).first(10).foo(bar)')`
    */
   getSerializationKey(): string {
-    var serializationKey = this.__serializationKey__;
+    let serializationKey = this.__serializationKey__;
     if (!serializationKey) {
-      serializationKey = this.getSchemaName();
-      var calls = this.getCallsWithValues();
-      for (var ii = 0; ii < calls.length; ii++) {
-        serializationKey += printRelayQueryCall(calls[ii]);
-      }
-      serializationKey = generateRQLFieldAlias(serializationKey);
+      serializationKey = generateRQLFieldAlias(
+        this.getSchemaName() +
+        this.getCallsWithValues()
+          .map(printRelayQueryCall)
+          .sort()
+          .join('')
+      );
       this.__serializationKey__ = serializationKey;
     }
     return serializationKey;
@@ -961,44 +1016,31 @@ class RelayQueryField extends RelayQueryNode {
 
   /**
    * The name which Relay internals can use to reference this field, without
-   * collisions. The storage key is derived from arguments with the following
-   * exclusions:
+   * collisions.
    *
-   *  - Range calls such as `first` or `find` on connections.
-   *  - Conditionals when the field is present.
+   * Given the GraphQL
+   *   `field(first: 10, foo: "bar", baz: "bat")`, or
+   *   `field(baz: "bat", foo: "bar", first: 10)`
    *
-   * Given the graphql
-   * `news_feed.first(10).orderby(TOP_STORIES).if(true)`
-   *
-   * the storage key is
-   * `'news_feed.orderby(TOP_STORIES)'`
+   * ...the following storage key will be produced:
+   *   `'field{bar:"bat",foo:"bar"}'`
    */
   getStorageKey(): string {
     let storageKey = this.__storageKey__;
     if (!storageKey) {
-      const isConnection = this.isConnection();
-      const argsToPrint = [];
-      const calls = this.getCallsWithValues();
-      for (let i = 0; i < calls.length; i++) {
-        const call = calls[i];
-        if (isConnection && RelayConnectionInterface.isConnectionCall(call)) {
-          continue;
-        } else if (
-          (call.name === IF && (String(call.value) === TRUE)) ||
-          (call.name === UNLESS && (String(call.value) === FALSE))
-        ) {
-          // `name.if(true)`, `name.unless(false)`, and `name` are all
-          // equivalent fields.
-          continue;
+      storageKey = this.getSchemaName();
+      let coreArgsObj;
+      this.getCallsWithValues().forEach(arg => {
+        if (this._isCoreArg(arg)) {
+          coreArgsObj = coreArgsObj || {};
+          coreArgsObj[arg.name] = arg.value;
         }
-        argsToPrint.push(call);
+      });
+      if (coreArgsObj) {
+        storageKey += stableStringify(coreArgsObj);
       }
-      storageKey =
-        this.getSchemaName() +
-        argsToPrint.map(printRelayQueryCall).sort().join('');
       this.__storageKey__ = storageKey;
     }
-    // $FlowIssue #8688673 - The for loop above triggers a flow error
     return storageKey;
   }
 
@@ -1097,6 +1139,21 @@ class RelayQueryField extends RelayQueryNode {
     field.__calls__ = calls;
 
     return field;
+  }
+
+  /**
+   * The following types of arguments are non-core:
+   * - Range calls such as `first` or `find` on connections.
+   * - Conditionals when the field is present.
+   */
+  _isCoreArg(arg: Call): boolean {
+    return (
+      // `name(if:true)`, `name(unless:false)`, and `name` are equivalent.
+      !(arg.name === IF && (String(arg.value) === TRUE)) &&
+      !(arg.name === UNLESS && (String(arg.value) === FALSE)) &&
+      // Connection arguments can be stripped out.
+      !(this.isConnection() && RelayConnectionInterface.isConnectionCall(arg))
+    );
   }
 }
 

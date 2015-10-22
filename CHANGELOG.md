@@ -1,5 +1,9 @@
 ## master
 
+* `RelayQueryField#getStorageKey` will now produce the same key regardless of the
+  order of a field's arguments.
+* Range behavior keys in mutation configs are now guaranteed to be sorted.
+
 ## 0.4.0 (October 13, 2015)
 
 * Bump the `babel-relay-plugin` version to v0.3.0.

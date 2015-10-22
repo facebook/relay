@@ -17,6 +17,7 @@ import type GraphQL from 'GraphQL';
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
+var RelayDeprecated = require('RelayDeprecated');
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayMutationType = require('RelayMutationType');
 var RelayNodeInterface = require('RelayNodeInterface');
@@ -212,7 +213,7 @@ var RelayMutationQuery = {
         if (trackedEdge == null) {
           return;
         }
-        if (getRangeBehaviorKey(trackedConnection) in rangeBehaviors) {
+        if (trackedConnection.getRangeBehaviorKey() in rangeBehaviors) {
           // Include edges from all connections that exist in `rangeBehaviors`.
           // This may add duplicates, but they will eventually be flattened.
           mutatedEdgeFields.push(...trackedEdge.getChildren());
@@ -342,7 +343,8 @@ var RelayMutationQuery = {
             fatQuery,
             parentID: config.parentID,
             parentName: config.parentName,
-            rangeBehaviors: config.rangeBehaviors,
+            rangeBehaviors:
+              RelayDeprecated.upgradeRangeBehaviors(config.rangeBehaviors),
             tracker,
           }));
           break;
@@ -452,13 +454,6 @@ function buildEdgeField(
     'RelayMutationQuery: Expected a field.'
   );
   return edgeField;
-}
-
-function getRangeBehaviorKey(connectionField: RelayQuery.Field): string {
-  // TODO: Replace `rangeBehavior` keys with `getStorageKey()`.
-  return connectionField.getStorageKey().substr(
-    connectionField.getSchemaName().length + 1
-  );
 }
 
 module.exports = RelayMutationQuery;

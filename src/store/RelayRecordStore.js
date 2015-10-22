@@ -968,10 +968,11 @@ function getFilterCalls(calls: Array<Call>): Array<Call> {
 /**
  * Returns the field name based on the object key used to store the data in
  * nodeData. It returns the field name without any calls. For example, the
- * field name for 'profile_picture.size(50)' will be 'profile_picture'
+ * field name for 'profile_picture{size:"50"}' will be 'profile_picture'
  */
-function getFieldNameFromKey(key: string): string {
-  return (key.split('.')[0]: any);
+function getFieldNameFromKey(key: string): ?string {
+  // This is based on the GraphQL spec for what constitutes a valid field name.
+  return key.split(/(?![_A-Za-z][_0-9A-Za-z]*)/, 1)[0];
 }
 
 module.exports = RelayRecordStore;

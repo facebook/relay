@@ -168,7 +168,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
       state.result = false;
       return;
     }
-    var nextState = {
+    var nextState: CheckerState = {
       dataID,
       rangeInfo: null, // Flow rejects `undefined` here
       result: true,

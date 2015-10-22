@@ -186,11 +186,11 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       return;
     }
     if (dataID) {
-      var nextState = {
+      var nextState: FinderState = {
         dataID,
         missingData: false,
         rangeCalls: calls,
-        rangeInfo: null, // Flow rejects `undefined` here
+        rangeInfo: null,
       };
       var metadata = this._store.getRangeMetadata(dataID, calls);
       if (metadata) {

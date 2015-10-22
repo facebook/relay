@@ -283,7 +283,7 @@ class GraphQLSplitDeferredQueries extends RelayQueryTransform<SplitQueries> {
 
     if (node.isDeferred()) {
       var path = splitQueries.__path__;
-      var deferred = {
+      var deferred: SplitQueries = {
         __parent__: splitQueries,
         __path__: path,
         __refQuery__: null,

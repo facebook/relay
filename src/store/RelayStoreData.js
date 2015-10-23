@@ -23,6 +23,7 @@ import type {
   DataID,
   NodeRangeMap,
   Records,
+  RelayQuerySet,
   RootCallMap,
   UpdateOptions
 } from 'RelayInternalTypes';
@@ -33,11 +34,12 @@ var RelayQueryTracker = require('RelayQueryTracker');
 var RelayQueryWriter = require('RelayQueryWriter');
 var RelayRecordStore = require('RelayRecordStore');
 var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
-import type {CacheManager} from 'RelayTypes';
+import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
 var forEachObject = require('forEachObject');
 var invariant = require('invariant');
 var generateForceIndex = require('generateForceIndex');
+var readRelayDiskCache = require('readRelayDiskCache');
 var refragmentRelayQuery = require('refragmentRelayQuery');
 var resolveImmediate = require('resolveImmediate');
 var warning = require('warning');
@@ -177,6 +179,34 @@ class RelayStoreData {
         }
       );
     }
+  }
+
+  hasCacheManager(): boolean {
+    return !!this._cacheManager;
+  }
+
+  /**
+   * Reads data for queries incrementally from disk cache.
+   * It calls onSuccess when all the data has been loaded into memory.
+   * It calls onFailure when some data is unabled to be satisfied from disk.
+   */
+  readFromDiskCache(
+    queries: RelayQuerySet,
+    callbacks: CacheReadCallbacks
+  ): void {
+    invariant(
+      this._cacheManager,
+      'RelayStoreData: `readFromDiskCache` should only be called when cache ' +
+      'manager is available.'
+    );
+    readRelayDiskCache(
+      queries,
+      this._queuedStore,
+      this._cachedRecords,
+      this._cachedRootCalls,
+      this._cacheManager,
+      callbacks
+    );
   }
 
   /**

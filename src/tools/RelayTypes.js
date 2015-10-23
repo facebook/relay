@@ -164,6 +164,20 @@ export type CacheManager = {
     rootCallData: RootCallMap,
     callback: Function
   ) => void;
+  readNode: (
+    id: DataID,
+    callback: (error: any, value: any) => void
+  ) => void;
+   readRootCall: (
+    callName: string,
+    callValue: string,
+    callback: (error: any, value: any) => void
+  ) => void;
+};
+
+export type CacheReadCallbacks = {
+  onSuccess?: () => void;
+  onFailure?: () => void;
 };
 
 export type CacheWriter = {

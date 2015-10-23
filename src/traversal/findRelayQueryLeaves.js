@@ -217,7 +217,6 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       if (state.missingData) {
         break;
       }
-
       var nextState = {
         dataID: edgeIDs[ii],
         missingData: false,

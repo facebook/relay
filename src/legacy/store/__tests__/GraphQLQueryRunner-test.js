@@ -139,8 +139,6 @@ describe('GraphQLQueryRunner', () => {
   it('is not ready if required data is being fetched', () => {
     diffRelayQuery.mockImplementation(query => [query]);
     checkRelayQueryData.mockImplementation(() => false);
-    RelayStoreData.prototype.runWithDiskCache =
-      jest.genMockFunction().mockImplementation(resolveImmediate);
     mockSplitDeferredQueries();
 
     GraphQLQueryRunner.run(mockQuerySet, mockCallback);
@@ -360,6 +358,25 @@ describe('GraphQLQueryRunner', () => {
     ]);
   });
 
+  it('is ready if required data is in disk cache', () => {
+    diffRelayQuery.mockImplementation(query => [query]);
+    RelayStoreData.prototype.hasCacheManager =
+      jest.genMockFunction().mockImplementation(() => true);
+    RelayStoreData.prototype.readFromDiskCache =
+      jest.genMockFunction().mockImplementation((queries, callback) => {
+        callback.onSuccess();
+      });
+    mockSplitDeferredQueries();
+
+    GraphQLQueryRunner.run(mockQuerySet, mockCallback);
+    jest.runAllTimers();
+
+    expect(mockCallback.mock.calls).toEqual([
+      [{aborted: false, done: false, error: null, ready: false, stale: false}],
+      [{aborted: false, done: false, error: null, ready: true, stale: true}],
+    ]);
+  });
+
   it('adds query on `forceFetch` even if there are no diff queries', () => {
     diffRelayQuery.mockImplementation(query => []);
     mockSplitDeferredQueries();
@@ -376,10 +393,7 @@ describe('GraphQLQueryRunner', () => {
   it('is completely ready on `forceFetch` when all data is available', () => {
     diffRelayQuery.mockImplementation(() => []);
     checkRelayQueryData.mockImplementation(() => true);
-    RelayStoreData.prototype.runWithDiskCache =
-      jest.genMockFunction().mockImplementation(resolveImmediate);
     mockSplitDeferredQueries();
-
     var singleMockQuery = {foo: mockQuerySet.foo};
     GraphQLQueryRunner.forceFetch(singleMockQuery, mockCallback);
     jest.runAllTimers();

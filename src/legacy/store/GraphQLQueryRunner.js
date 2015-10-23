@@ -30,6 +30,7 @@ var flattenSplitRelayQueries = require('flattenSplitRelayQueries');
 var forEachObject = require('forEachObject');
 var generateForceIndex = require('generateForceIndex');
 var invariant = require('invariant');
+var mapObject = require('mapObject');
 var resolveImmediate = require('resolveImmediate');
 var someObject = require('someObject');
 var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
@@ -276,10 +277,24 @@ function runQueries(
         setReadyState({ready: true});
       } else {
         setReadyState({ready: false});
-        storeData.runWithDiskCache(() => {
-          if (hasItems(remainingRequiredFetchMap)) {
+        resolveImmediate(() => {
+          if (storeData.hasCacheManager()) {
+            var requiredQueryMap = mapObject(
+              remainingRequiredFetchMap,
+              value => value.getQuery()
+            );
+            storeData.readFromDiskCache(requiredQueryMap, {
+              onSuccess: () => {
+                if (hasItems(remainingRequiredFetchMap)) {
+                  setReadyState({ready: true, stale: true});
+                }
+              },
+            });
+          } else {
             if (everyObject(remainingRequiredFetchMap, canResolve)) {
-              setReadyState({ready: true, stale: true});
+              if (hasItems(remainingRequiredFetchMap)) {
+                setReadyState({ready: true, stale: true});
+              }
             }
           }
         });

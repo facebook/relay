@@ -15,7 +15,6 @@
 var GraphQL = require('GraphQL');
 var RelayQuery = require('RelayQuery');
 var RelayMetaRoute = require('RelayMetaRoute');
-var RelayProfiler = require('RelayProfiler');
 
 var invariant = require('invariant');
 
@@ -85,11 +84,5 @@ function createNode(
   var route = RelayMetaRoute.get('$fromGraphQL');
   return desiredType.create(query, route, variables);
 }
-
-RelayProfiler.instrumentMethods(fromGraphQL, {
-  Field: 'fromGraphQL.Field',
-  Fragment: 'fromGraphQL.Fragment',
-  Query: 'fromGraphQL.Query',
-});
 
 module.exports = fromGraphQL;

@@ -12,8 +12,6 @@
  */
 
 'use strict';
-
-var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var RelayProfiler = require('RelayProfiler');
 
@@ -33,9 +31,6 @@ var writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 // Singleton methods:
 var INSTRUMENTED_METHODS = [
-  GraphQLStoreChangeEmitter.addListenerForIDs,
-  GraphQLStoreChangeEmitter.broadcastChangeForID,
-  GraphQLStoreChangeEmitter._processSubscribers,
   GraphQLStoreQueryResolver.prototype.resolve,
   buildRQL.Fragment,
   buildRQL.Query,

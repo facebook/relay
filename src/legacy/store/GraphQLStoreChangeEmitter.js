@@ -15,7 +15,6 @@
 
 var ErrorUtils = require('ErrorUtils');
 var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
-var RelayProfiler = require('RelayProfiler');
 
 var resolveImmediate = require('resolveImmediate');
 
@@ -118,11 +117,5 @@ function processSubscriber({subscribedIDs, callback}, subscriberIndex): void {
 function getBroadcastID(id: string): string {
   return GraphQLStoreRangeUtils.getCanonicalClientID(id);
 }
-
-RelayProfiler.instrumentMethods(GraphQLStoreChangeEmitter, {
-  addListenerForIDs: 'GraphQLStoreChangeEmitter.addListenerForIDs',
-  broadcastChangeForID: 'GraphQLStoreChangeEmitter.broadcastChangeForID',
-  _processSubscribers: 'GraphQLStoreChangeEmitter.processSubscribers',
-});
 
 module.exports = GraphQLStoreChangeEmitter;

@@ -326,13 +326,4 @@ function getClientIDFromLinkedRecord(field: FieldValue): ?DataID {
   return null;
 }
 
-RelayProfiler.instrumentMethods(RelayStoreGarbageCollector.prototype, {
-  decreaseSubscriptionsFor:
-    'RelayStoreGarbageCollector.prototype.decreaseSubscriptionsFor',
-  increaseSubscriptionsFor:
-    'RelayStoreGarbageCollector.prototype.increaseSubscriptionsFor',
-  register:
-    'RelayStoreGarbageCollector.prototype.register',
-});
-
 module.exports = RelayStoreGarbageCollector;

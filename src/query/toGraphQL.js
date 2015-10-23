@@ -13,7 +13,6 @@
 'use strict';
 
 var GraphQL = require('GraphQL');
-var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 
 var invariant = require('invariant');
@@ -105,14 +104,6 @@ var toGraphQL = {
     });
   },
 };
-
-RelayProfiler.instrumentMethods(toGraphQL, {
-  Node: 'toGraphQL.Node',
-  QueryWithValues: 'toGraphQL.QueryWithValues',
-  Query: 'toGraphQL.Query',
-  Fragment: 'toGraphQL.Fragment',
-  Field: 'toGraphQL.Field',
-});
 
 function toGraphQLChildren(
   children: Array<RelayQuery.Node>

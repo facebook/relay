@@ -187,6 +187,7 @@ class RelayStoreData {
     response: {[key: string]: mixed},
     forceIndex: ?number
   ): void {
+    var profiler = RelayProfiler.profile('RelayStoreData.handleQueryPayload');
     var changeTracker = new RelayChangeTracker();
     var writer = new RelayQueryWriter(
       this._recordStore,
@@ -203,6 +204,7 @@ class RelayStoreData {
       response
     );
     this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
+    profiler.stop();
   }
 
   /**
@@ -213,6 +215,7 @@ class RelayStoreData {
     payload: {[key: string]: mixed},
     {configs, isOptimisticUpdate}: UpdateOptions
   ): void {
+    var profiler = RelayProfiler.profile('RelayStoreData.handleUpdatePayload');
     var changeTracker = new RelayChangeTracker();
     var store;
     if (isOptimisticUpdate) {
@@ -243,6 +246,7 @@ class RelayStoreData {
       {configs, isOptimisticUpdate}
     );
     this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
+    profiler.stop();
   }
 
   /**

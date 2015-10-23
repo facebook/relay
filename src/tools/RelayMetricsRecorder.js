@@ -66,16 +66,16 @@ var INSTRUMENTED_PROFILES = [
   'fetchRelayQuery',
   'fetchRelayQuery.query',
   'GraphQLQueryRunner.primeCache',
-  'GraphQLQueryRunner.primeCache.done',
-  'GraphQLQueryRunner.primeCache.ready',
   'GraphQLQueryRunner.forceFetch',
-  'GraphQLQueryRunner.forceFetch.done',
-  'GraphQLQueryRunner.forceFetch.ready',
   'RelayContainer.handleDeferredFailure',
   'RelayContainer.handleDeferredSuccess',
   'RelayContainer.handleFragmentDataUpdate',
   'RelayContainer.update',
+  'RelayNetworkLayer.sendMutation',
+  'RelayNetworkLayer.sendQueries',
   'RelayStoreData.runWithDiskCache',
+  'RelayStoreData.handleQueryPayload',
+  'RelayStoreData.handleUpdatePayload',
 ];
 
 var measurementDefaults = {

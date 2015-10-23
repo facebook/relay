@@ -28,6 +28,7 @@ describe('RelayMetricsRecorder', () => {
   var query;
 
   beforeEach(() => {
+    window.__DEV__ = true;
     jest.resetModuleRegistry();
 
     var {getNode} = RelayTestUtils;
@@ -110,6 +111,40 @@ describe('RelayMetricsRecorder', () => {
       ],
       recordingTime: 2000,
       totalTime: 0,
+    });
+  });
+
+  describe('__DEV__ false', () => {
+    beforeEach(() => {
+      window.__DEV__ = false;
+      jest.resetModuleRegistry();
+      RelayProfiler.setEnableProfile(true);
+    });
+
+    it('records profiles only', () => {
+      var recorder = new RelayMetricsRecorder();
+      performanceNow.mockReturnValue(0);
+      recorder.start();
+      query.getChildren(); // not recorded
+      performanceNow.mockReturnValue(1);
+      var {stop} = RelayProfiler.profile('fetchRelayQuery');
+      performanceNow.mockReturnValue(11);
+      stop();
+      performanceNow.mockReturnValue(1000);
+      recorder.stop();
+
+      expect(recorder.getMetrics()).toEqual({
+        measurements: {},
+        profiles: [
+          {
+            endTime: 11,
+            name: 'fetchRelayQuery',
+            startTime: 1,
+          },
+        ],
+        recordingTime: 1000,
+        totalTime: 0,
+      });
     });
   });
 });

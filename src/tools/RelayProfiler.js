@@ -88,11 +88,9 @@ const RelayProfiler = {
     object: Function | Object,
     names: {[key: string]: string}
   ): void {
-    if (__DEV__) {
-      forEachObject(names, (name, key) => {
-        object[key] = RelayProfiler.instrument(name, object[key]);
-      });
-    }
+    forEachObject(names, (name, key) => {
+      object[key] = RelayProfiler.instrument(name, object[key]);
+    });
   },
 
   /**

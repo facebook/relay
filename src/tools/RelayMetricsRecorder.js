@@ -14,6 +14,7 @@
 'use strict';
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var RelayProfiler = require('RelayProfiler');
+var RelayQuery = require('RelayQuery');
 
 var buildRQL = require('buildRQL');
 var checkRelayQueryData = require('checkRelayQueryData');
@@ -44,21 +45,23 @@ var INSTRUMENTED_METHODS = [
   subtractRelayQuery,
   writeRelayQueryPayload,
   writeRelayUpdatePayload,
+  GraphQLStoreQueryResolver.prototype.resolve,
+  RelayQuery.Field.prototype.getStorageKey,
+  RelayQuery.Field.prototype.getSerializationKey,
+  RelayQuery.Node.prototype.clone,
+  RelayQuery.Node.prototype.equals,
+  RelayQuery.Node.prototype.getChildren,
+  RelayQuery.Node.prototype.getDirectives,
+  RelayQuery.Node.prototype.hasDeferredDescendant,
+  RelayQuery.Node.prototype.getFieldByStorageKey,
 ];
 
-// Non-singleton (e.g. `prototype`) methods:
+// There is no static RelayContainer.prototype instance, so methods are
+// profiled by name:
 var INSTRUMENTED_AGGREGATE_METHODS = [
   'RelayContainer.prototype.componentWillMount',
   'RelayContainer.prototype.componentWillReceiveProps',
   'RelayContainer.prototype.shouldComponentUpdate',
-  'RelayQueryField.prototype.getStorageKey',
-  'RelayQueryField.prototype.getSerializationKey',
-  'RelayQueryNode.prototype.clone',
-  'RelayQueryNode.prototype.equals',
-  'RelayQueryNode.prototype.getChildren',
-  'RelayQueryNode.prototype.getDirectives',
-  'RelayQueryNode.prototype.hasDeferredDescendant',
-  'RelayQueryNode.prototype.getFieldByStorageKey',
 ];
 
 // Runtime "profiles" registered with `RelayProfiler.profile()`:

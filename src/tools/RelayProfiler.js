@@ -13,19 +13,19 @@
 
 'use strict';
 
-var emptyFunction = require('emptyFunction');
-var forEachObject = require('forEachObject');
-var removeFromArray = require('removeFromArray');
+const emptyFunction = require('emptyFunction');
+const forEachObject = require('forEachObject');
+const removeFromArray = require('removeFromArray');
 
 type Handler = (name: string, callback: () => void) => void;
 type ProfileHandler = (name: string, state?: any) => () => void;
 
-var aggregateHandlersByName: {[name: string]: Array<Handler>} = {};
-var profileHandlersByName: {[name: string]: Array<ProfileHandler>} = {};
+const aggregateHandlersByName: {[name: string]: Array<Handler>} = {};
+const profileHandlersByName: {[name: string]: Array<ProfileHandler>} = {};
 
-var NOT_INVOKED = {};
-var defaultProfiler = {stop: emptyFunction};
-var enableProfile = !!__DEV__;
+const NOT_INVOKED = {};
+const defaultProfiler = {stop: emptyFunction};
+let enableProfile = !!__DEV__;
 
 /**
  * @public
@@ -41,14 +41,14 @@ var enableProfile = !!__DEV__;
  * name and a callback that must be synchronously executed:
  *
  *   instrumentedMethod.attachHandler(function(name, callback) {
- *     var start = performance.now();
+ *     const start = performance.now();
  *     callback();
  *     console.log('Duration', performance.now() - start);
  *   });
  *
  * Handlers for profiles consist of callbacks for `onStart` and `onStop`:
  *
- *   var start;
+ *   const start;
  *   RelayProfiler.attachProfileHandler('profileName', {
  *     onStart: function(name, state) {
  *       start = performance.now();
@@ -59,7 +59,7 @@ var enableProfile = !!__DEV__;
  *   });
  *
  */
-var RelayProfiler = {
+const RelayProfiler = {
   /**
    * This only controls whether `profile()`, `attachProfileHandler()` and
    * `detachProfileHandler` is enabled, normal instrument methods cannot be
@@ -74,7 +74,7 @@ var RelayProfiler = {
    * order to preserve function names in stack traces (which are detected by
    * modern debuggers via heuristics). Example usage:
    *
-   *   var RelayStore = { primeCache: function() {...} };
+   *   const RelayStore = { primeCache: function() {...} };
    *   RelayProfiler.instrumentMethods(RelayStore, {
    *     primeCache: 'RelayStore.primeCache'
    *   });
@@ -99,35 +99,56 @@ var RelayProfiler = {
    * Wraps the supplied function with one that provides the `attachHandler` and
    * `detachHandler` methods. Example usage:
    *
-   *   var printRelayQuery =
+   *   const printRelayQuery =
    *     RelayProfiler.instrument('printRelayQuery', printRelayQuery);
    *
    *   printRelayQuery.attachHandler(...);
    *
+   * NOTE: The instrumentation assumes that no handlers are attached or detached
+   * in the course of executing another handler.
    */
   instrument<T: Function>(name: string, originalFunction: T): T {
     if (__DEV__) {
-      var handlers = [];
-      var instrumentedCallback = function() {
-        var originalReturn = NOT_INVOKED;
-        var boundArguments = arguments;
-        var invokeCallback = () => {
-          originalReturn = originalFunction.apply(this, boundArguments);
-        };
-        var wrapCallback = handler => {
-          invokeCallback = handler.bind(this, name, invokeCallback);
-        };
-        handlers.forEach(wrapCallback);
-        if (aggregateHandlersByName.hasOwnProperty(name)) {
-          aggregateHandlersByName[name].forEach(wrapCallback);
+      if (!aggregateHandlersByName.hasOwnProperty(name)) {
+        aggregateHandlersByName[name] = [];
+      }
+      const aggregateHandlers = aggregateHandlersByName[name];
+      const handlers: Array<Handler> = [];
+      const contexts: Array<[number, number, any, any, any, number]> = [];
+      const invokeHandlers = function() {
+        const context = contexts[contexts.length - 1];
+        if (context[0]) {
+          context[0]--;
+          aggregateHandlers[context[0]](name, invokeHandlers);
+        } else if (context[1]) {
+          context[1]--;
+          handlers[context[1]](name, invokeHandlers);
+        } else {
+          context[4] = originalFunction.apply(context[2], context[3]);
         }
-        invokeCallback();
-        if (originalReturn === NOT_INVOKED) {
-          throw new Error(
-            'RelayProfiler: Handler did not invoke original function.'
-          );
+      };
+      const instrumentedCallback = function() {
+        let returnValue;
+        if (aggregateHandlers.length === 0 && handlers.length === 0) {
+          returnValue = originalFunction.apply(this, arguments);
+        } else {
+          contexts.push([
+            aggregateHandlers.length,
+            handlers.length,
+            this,
+            arguments,
+            NOT_INVOKED,
+          ]);
+          invokeHandlers();
+          const context = contexts.pop();
+          returnValue = context[4];
+          if (returnValue === NOT_INVOKED) {
+            throw new Error(
+              'RelayProfiler: Handler did not invoke original function.'
+            );
+          }
         }
-        return originalReturn;
+        return returnValue;
       };
       instrumentedCallback.attachHandler = function(handler: Handler): void {
         handlers.push(handler);
@@ -149,8 +170,8 @@ var RelayProfiler = {
    *   function createRenderer() {
    *     return RelayProfiler.instrument('render', function() {...});
    *   }
-   *   var renderA = createRenderer();
-   *   var renderB = createRenderer();
+   *   const renderA = createRenderer();
+   *   const renderB = createRenderer();
    *
    *   // Only profiles `renderA`.
    *   renderA.attachHandler(...);
@@ -182,7 +203,7 @@ var RelayProfiler = {
   /**
    * Instruments profiling for arbitrarily asynchronous code by a name.
    *
-   *   var timerProfiler = RelayProfiler.profile('timeout');
+   *   const timerProfiler = RelayProfiler.profile('timeout');
    *   setTimeout(function() {
    *     timerProfiler.stop();
    *   }, 1000);
@@ -195,11 +216,11 @@ var RelayProfiler = {
   profile(name: string, state?: any): {stop: () => void} {
     if (enableProfile) {
       if (profileHandlersByName.hasOwnProperty(name)) {
-        var profileHandlers = profileHandlersByName[name];
-        var stopHandlers;
-        for (var ii = profileHandlers.length - 1; ii >= 0; ii--) {
-          var profileHandler = profileHandlers[ii];
-          var stopHandler = profileHandler(name, state);
+        const profileHandlers = profileHandlersByName[name];
+        let stopHandlers;
+        for (let ii = profileHandlers.length - 1; ii >= 0; ii--) {
+          const profileHandler = profileHandlers[ii];
+          const stopHandler = profileHandler(name, state);
           stopHandlers = stopHandlers || [];
           stopHandlers.unshift(stopHandler);
         }

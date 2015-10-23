@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-var FindFiles = require('node-find-files');
-var child_process = require('child_process');
+var babel = require('babel');
 var fs = require('fs');
+var glob = require('glob');
+var mkdirp = require('mkdirp');
 var path = require('path');
 var rimraf = require('rimraf');
 
@@ -13,34 +14,21 @@ var src = path.join(root, 'src');
 // Blow away prior build artifacts.
 rimraf.sync(lib);
 
-// Transform with babel (src -> lib).
-var babel = child_process.spawn(
-  'babel', [src, '--ignore', '__tests__', '--out-dir', lib]
+// Get the files to transform
+var files = glob.sync('**/*.js', {
+  cwd: src,
+  ignore: '**/__tests__/*'}
 );
-babel.stdout.on('data', process.stdout.write.bind(process.stdout));
-babel.stderr.on('data', process.stderr.write.bind(process.stderr));
-babel.on('close', function(status) {
-  if (status) {
-    process.exit(status);
-  }
+files.forEach((file) => {
+  // Make sure file is fully resolved
+  var srcFile = path.resolve(src, file);
+  var libFile = path.resolve(lib, file);
 
-  // Prepend @generated annotations to all JS files.
-  var finder = new FindFiles({
-    rootFolder: lib,
-    filterFunction: function(pathName) {
-      return path.extname(pathName) === '.js';
-    },
-  });
+  // Make sure the full path the destination file exists so we can write to it
+  mkdirp.sync(path.dirname(libFile));
+  var code = babel.transformFileSync(srcFile).code;
 
-  finder.on('match', function(pathName) {
-    var data = fs.readFileSync(pathName);
-    var file = fs.openSync(pathName, 'w');
-    var buffer = new Buffer('// @generated\n');
-    fs.writeSync(file, buffer, 0, buffer.length);
-    fs.writeSync(file, data, 0, data.length);
-    fs.close(file);
-  });
-
-  finder.on('error', process.exit.bind(process, 1));
-  finder.startSearch();
+  // Prepend @generated annotation
+  code = '// @generated\n' + code;
+  fs.writeFile(libFile, code, 'utf8');
 });

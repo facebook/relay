@@ -213,7 +213,7 @@ var factionType = new GraphQLObjectType({
  * This implements the following type system shorthand:
  *   type Query {
  *     factions(names: [FactionName]): [Faction]
- *     node(id: String!): Node
+ *     node(id: ID!): Node
  *   }
  */
 var queryType = new GraphQLObjectType({
@@ -283,7 +283,7 @@ var shipMutation = mutationWithClientMutationId({
  *
  * This implements the following type system shorthand:
  *   type Mutation {
- *     introduceShip(input IntroduceShipInput!): IntroduceShipPayload
+ *     introduceShip(input: IntroduceShipInput!): IntroduceShipPayload
  *   }
  */
 var mutationType = new GraphQLObjectType({

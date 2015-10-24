@@ -18,7 +18,6 @@ var RelayBufferedNeglectionStateMap =
   require('RelayBufferedNeglectionStateMap');
 import type {
   DataID,
-  FieldValue,
   Record
 } from 'RelayInternalTypes';
 var RelayNeglectionStateMap = require('RelayNeglectionStateMap');
@@ -245,7 +244,7 @@ class RelayStoreGarbageCollector {
     // If `field` contains a linked record and the linked record has a
     // client-site DataID the record will be added to `remainingRecords` and
     // it's DataID will be set to `true` in `removalStatusMap`.
-    function enqueueField(field: FieldValue): void {
+    function enqueueField(field: mixed): void {
       var dataID = getClientIDFromLinkedRecord(field);
       // If we have a dataID we haven't seen before we add it to the remaining
       // records
@@ -302,7 +301,7 @@ class RelayStoreGarbageCollector {
    * query-tracker, and the garbage-collector itself.
    */
   _removeRecord(record : Record): void {
-    var dataID = record.__dataID__;
+    var dataID: DataID = (record.__dataID__: any);
     this._relayStoreData.getQueuedStore().removeRecord(dataID);
     this._neglectionStates.remove(dataID);
   }
@@ -311,7 +310,7 @@ class RelayStoreGarbageCollector {
 /**
  * Checks if the given object is a linked record with a client-site DataID
  */
-function getClientIDFromLinkedRecord(field: FieldValue): ?DataID {
+function getClientIDFromLinkedRecord(field: mixed): ?DataID {
   if (!field || typeof field !== 'object') {
     return null;
   }

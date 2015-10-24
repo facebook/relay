@@ -253,11 +253,11 @@ describe('RelayRecordStore', () => {
       var cachedRecords = {
         'a': {
           __dataID__: 'a',
-          name: 'A',
+          name: {__value__: 'A'},
         },
         'b': {
           __dataID__: 'b',
-          name: 'B',
+          name: {__value__: 'B'},
         },
       };
       var records = {};
@@ -306,9 +306,7 @@ describe('RelayRecordStore', () => {
       store.putRecord('actorID', 'Type');
       store.putLinkedRecordID('viewerID', 'actor', 'actorID');
       expect(store.getLinkedRecordID('viewerID', 'actor')).toBe('actorID');
-      expect(cache.writeField).toBeCalledWith('viewerID', 'actor', {
-        __dataID__: 'actorID',
-      });
+      expect(cache.writeField).toBeCalledWith('viewerID', 'actor', 'actorID');
     });
 
     it('writes to queued data if available, otherwise base data', () => {
@@ -367,8 +365,8 @@ describe('RelayRecordStore', () => {
       expect(store.getLinkedRecordIDs('storyID', 'actors'))
         .toEqual(['actor1', 'actor2']);
       expect(cache.writeField).toBeCalledWith('storyID', 'actors', [
-        {__dataID__: 'actor1'},
-        {__dataID__: 'actor2'},
+        'actor1',
+        'actor2',
       ]);
     });
 

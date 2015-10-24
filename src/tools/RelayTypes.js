@@ -19,7 +19,6 @@
 import type URI from 'URI';
 import type {
   DataID,
-  FieldValue,
   Record,
   Records,
   RootCallMap
@@ -184,7 +183,7 @@ export type CacheWriter = {
   writeField: (
     dataID: DataID,
     field: string,
-    value: ?FieldValue,
+    value: mixed,
     typeName: ?string
   ) => void;
   writeNode: (dataID: DataID, record: ?Record) => void;

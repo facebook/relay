@@ -20,7 +20,6 @@ var Relay = require('Relay');
 var RelayRecordStore = require('RelayRecordStore');
 
 var readRelayDiskCache = require('readRelayDiskCache');
-var setImmediate = require('setImmediate');
 
 describe('readRelayDiskCache', () => {
   var {getNode} = RelayTestUtils;

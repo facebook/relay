@@ -130,6 +130,7 @@ class RelayDefaultNetworkLayer {
         }),
         headers: {
           ...this._init.headers,
+          'Accept': '*/*',
           'Content-Type': 'application/json',
         },
         method: 'POST',
@@ -150,6 +151,7 @@ class RelayDefaultNetworkLayer {
       }),
       headers: {
         ...this._init.headers,
+        'Accept': '*/*',
         'Content-Type': 'application/json',
       },
       method: 'POST',

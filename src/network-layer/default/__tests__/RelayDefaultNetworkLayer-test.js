@@ -104,6 +104,7 @@ describe('RelayDefaultNetworkLayer', () => {
 
       expect(method).toBe('POST');
       expect(headers).toEqual({
+        'Accept': '*/*',
         'Content-Encoding': 'gzip',
         'Content-Type': 'application/json'
       });
@@ -230,6 +231,7 @@ describe('RelayDefaultNetworkLayer', () => {
       }));
       expect(fetchTimeout).toBe(networkConfig.init.fetchTimeout);
       expect(headers).toEqual({
+        'Accept': '*/*',
         'Content-Encoding': 'gzip',
         'Content-Type': 'application/json',
       });

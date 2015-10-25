@@ -20,7 +20,7 @@ var Relay = require('Relay');
 var RelayRecordStore = require('RelayRecordStore');
 
 var readRelayDiskCache = require('readRelayDiskCache');
-var setImmediate = require('setImmediate');
+var resolveImmediate = require('resolveImmediate');
 
 describe('readRelayDiskCache', () => {
   var {getNode} = RelayTestUtils;
@@ -50,14 +50,14 @@ describe('readRelayDiskCache', () => {
 
     var cacheManager = {
       readNode: jest.genMockFunction().mockImplementation((id, callback) => {
-        setImmediate(() => {
+        resolveImmediate(() => {
           callback(undefined, diskCacheData[id]);
         });
       }),
       readRootCall: jest.genMockFunction().mockImplementation(
         (callName, callArg, callback) => {
           var rootKey = callName + '*' + callArg;
-          setImmediate(() => {
+          resolveImmediate(() => {
             callback(undefined, diskCacheData[rootKey]);
           });
         }

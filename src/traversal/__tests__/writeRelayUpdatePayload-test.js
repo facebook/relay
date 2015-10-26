@@ -69,7 +69,7 @@ describe('writePayload()', () => {
       var query = getNode(Relay.QL`
         query {
           node(id:"feedback_id") {
-            topLevelComments(first:"1") {
+            topLevelComments(first: 1) {
               count,
               edges {
                 node {
@@ -286,7 +286,7 @@ describe('writePayload()', () => {
       var query = getNode(Relay.QL`
         query {
           node(id:"feedback123") {
-            topLevelComments(first:"1") {
+            topLevelComments(first: 1) {
               count,
               edges {
                 node {
@@ -689,7 +689,7 @@ describe('writePayload()', () => {
       var query = getNode(Relay.QL`
         query {
           node(id:"feedback123") {
-            topLevelComments(first:"1") {
+            topLevelComments(first: 1) {
               count,
               edges {
                 node {

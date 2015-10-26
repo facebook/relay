@@ -752,7 +752,7 @@ describe('splitDeferredRelayQueries()', () => {
     var node = Relay.QL`
       query {
         node(id:"4") {
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 name,
@@ -772,7 +772,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(required).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"4") {
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id,

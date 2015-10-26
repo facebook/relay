@@ -182,7 +182,7 @@ describe('validateRelayReadQuery', () => {
     var query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          friends(first:"1") {
+          friends(first: 1) {
             pageInfo {
               my_cursor: startCursor,
               my_cursor: endCursor,
@@ -330,7 +330,7 @@ describe('validateRelayReadQuery', () => {
         profilePicture(size:"50") {
           height,
         },
-        friends(first:"1") {
+        friends(first: 1) {
           edges {
             node {
               profilePicture(size:"100") {

@@ -88,25 +88,25 @@ type Comment implements Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(first: String, last: Int, orderby: String): CommentsConnection
+  comments(first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
+  friends(after: String, first: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
-  likers(first: String): LikersOfContentConnection
+  likers(first: Int): LikersOfContentConnection
   likeSentence: Text
   message: Text
   name: String
   profilePicture(size: [String], preset: PhotoSize): Image
-  segments(first: String): Segments
+  segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
-  subscribers(first: String): SubscribersConnection
-  topLevelComments(first: String): TopLevelCommentsConnection
+  subscribers(first: Int): SubscribersConnection
+  topLevelComments(first: Int): TopLevelCommentsConnection
   tracking: String
   url(site: String): String
   websites: [String]
@@ -171,25 +171,25 @@ type Feedback implements Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(first: String, last: Int, orderby: String): CommentsConnection
+  comments(first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
+  friends(after: String, first: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
-  likers(first: String): LikersOfContentConnection
+  likers(first: Int): LikersOfContentConnection
   likeSentence: Text
   message: Text
   name: String
   profilePicture(size: [String], preset: PhotoSize): Image
-  segments(first: String): Segments
+  segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
-  subscribers(first: String): SubscribersConnection
-  topLevelComments(first: String): TopLevelCommentsConnection
+  subscribers(first: Int): SubscribersConnection
+  topLevelComments(first: Int): TopLevelCommentsConnection
   tracking: String
   url(site: String): String
   websites: [String]
@@ -265,25 +265,25 @@ interface Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(first: String, last: Int, orderby: String): CommentsConnection
+  comments(first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
+  friends(after: String, first: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
-  likers(first: String): LikersOfContentConnection
+  likers(first: Int): LikersOfContentConnection
   likeSentence: Text
   message: Text
   name: String
   profilePicture(size: [String], preset: PhotoSize): Image
-  segments(first: String): Segments
+  segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
-  subscribers(first: String): SubscribersConnection
-  topLevelComments(first: String): TopLevelCommentsConnection
+  subscribers(first: Int): SubscribersConnection
+  topLevelComments(first: Int): TopLevelCommentsConnection
   tracking: String
   url(site: String): String
   websites: [String]
@@ -297,7 +297,7 @@ interface Actor {
   birthdate: Date
   emailAddresses: [String]
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
+  friends(after: String, first: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -305,7 +305,7 @@ interface Actor {
   profilePicture(size: [String], preset: PhotoSize): Image
   screennames: [Screenname]
   subscribeStatus: String
-  subscribers(first: String): SubscribersConnection
+  subscribers(first: Int): SubscribersConnection
   url(site: String): String
   websites: [String]
   username: String
@@ -327,25 +327,25 @@ type Page implements Node Actor {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(first: String, last: Int, orderby: String): CommentsConnection
+  comments(first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
+  friends(after: String, first: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
-  likers(first: String): LikersOfContentConnection
+  likers(first: Int): LikersOfContentConnection
   likeSentence: Text
   message: Text
   name: String
   profilePicture(size: [String], preset: PhotoSize): Image
-  segments(first: String): Segments
+  segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
-  subscribers(first: String): SubscribersConnection
-  topLevelComments(first: String): TopLevelCommentsConnection
+  subscribers(first: Int): SubscribersConnection
+  topLevelComments(first: Int): TopLevelCommentsConnection
   tracking: String
   url(site: String): String
   websites: [String]
@@ -424,25 +424,25 @@ type Story implements FeedUnit Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(first: String, last: Int, orderby: String): CommentsConnection
+  comments(first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
+  friends(after: String, first: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
-  likers(first: String): LikersOfContentConnection
+  likers(first: Int): LikersOfContentConnection
   likeSentence: Text
   message: Text
   name: String
   profilePicture(size: [String], preset: PhotoSize): Image
-  segments(first: String): Segments
+  segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
-  subscribers(first: String): SubscribersConnection
-  topLevelComments(first: String): TopLevelCommentsConnection
+  subscribers(first: Int): SubscribersConnection
+  topLevelComments(first: Int): TopLevelCommentsConnection
   tracking: String
   url(site: String): String
   websites: [String]
@@ -502,25 +502,25 @@ type User implements Node Actor {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
-  comments(first: String, last: Int, orderby: String): CommentsConnection
+  comments(first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
+  friends(after: String, first: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
-  likers(first: String): LikersOfContentConnection
+  likers(first: Int): LikersOfContentConnection
   likeSentence: Text
   message: Text
   name: String
   profilePicture(size: [String], preset: PhotoSize): Image
-  segments(first: String): Segments
+  segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
-  subscribers(first: String): SubscribersConnection
-  topLevelComments(first: String): TopLevelCommentsConnection
+  subscribers(first: Int): SubscribersConnection
+  topLevelComments(first: Int): TopLevelCommentsConnection
   tracking: String
   url(site: String): String
   websites: [String]
@@ -533,9 +533,9 @@ type Viewer {
   __type__: Type
   actor: Actor
   isFbEmployee: Boolean
-  newsFeed(after: String, first: String, find: ID): NewsFeedConnection
-  notificationStories(after: String, first: String): NewsFeedConnection
-  pendingPosts(first: String): PendingPostsConnection
+  newsFeed(after: String, first: Int, find: ID): NewsFeedConnection
+  notificationStories(after: String, first: Int): NewsFeedConnection
+  pendingPosts(first: Int): PendingPostsConnection
   primaryEmail: String
   timezoneEstimate: TimezoneInfo
 }

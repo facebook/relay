@@ -48,7 +48,7 @@ describe('RelayQueryField', () => {
     var query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          friends(first:"1") {
+          friends(first: 1) {
             edges {
               node {
                 special_id: id,
@@ -75,7 +75,7 @@ describe('RelayQueryField', () => {
     var friendScalarRQL = Relay.QL`
       fragment on User {
         friend_scalar: friends
-          (first:"10",after:"offset",orderby:"name") {
+          (first: 10,after:"offset",orderby:"name") {
           edges {
             node {
               id
@@ -308,7 +308,7 @@ describe('RelayQueryField', () => {
   describe('getRangeBehaviorKey()', () => {
     it('strips range calls on connections', () => {
       var connectionField = getNode(
-        Relay.QL`fragment on User { friends(first:"10",isViewerFriend:true) }`
+        Relay.QL`fragment on User { friends(first: 10,isViewerFriend:true) }`
       ).getChildren()[0];
       expect(connectionField.getRangeBehaviorKey())
         .toBe('isViewerFriend(true)');
@@ -413,7 +413,7 @@ describe('RelayQueryField', () => {
     it('strips range calls on connections', () => {
       var connectionField = getNode(Relay.QL`
         fragment on User {
-          friends(first:"10",isViewerFriend:true) {
+          friends(first: 10,isViewerFriend:true) {
             edges { node { id } }
           }
         }
@@ -426,12 +426,12 @@ describe('RelayQueryField', () => {
       // NOTE: `segments.edges.node` is scalar.
       var nonConnectionField = getNode(Relay.QL`
         fragment on Node {
-          segments(first:"3") {
+          segments(first: 3) {
             edges { node }
           }
         }
       `).getChildren()[0];
-      expect(nonConnectionField.getStorageKey()).toBe('segments{first:"3"}');
+      expect(nonConnectionField.getStorageKey()).toBe('segments{first: 3}');
     });
 
     it('strips passing `if` calls', () => {

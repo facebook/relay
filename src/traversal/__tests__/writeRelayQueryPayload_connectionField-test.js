@@ -51,7 +51,7 @@ describe('writeRelayQueryPayload()', () => {
     var query = getNode(Relay.QL`
       query {
         node(id:"123") {
-          friends(first:"3") {
+          friends(first: 3) {
             edges {
               cursor,
               node {
@@ -113,7 +113,7 @@ describe('writeRelayQueryPayload()', () => {
     var query = getNode(Relay.QL`
       query {
         node(id:"123") {
-          friends(first:"3") {
+          friends(first: 3) {
             edges {
               cursor,
               node {
@@ -218,7 +218,7 @@ describe('writeRelayQueryPayload()', () => {
     var query = getNode(Relay.QL`
       query {
         node(id:"123") {
-          friends(first:"3") {
+          friends(first: 3) {
             edges {
               cursor,
               node {
@@ -307,7 +307,7 @@ describe('writeRelayQueryPayload()', () => {
     query = getNode(Relay.QL`
       query {
         node(id:"123") {
-          friends(first:"1") {
+          friends(first: 1) {
             edges {
               cursor,
               node {
@@ -436,7 +436,7 @@ describe('writeRelayQueryPayload()', () => {
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(first:"1") {
+            friends(first: 1) {
               edges {
                 node {
                   id
@@ -472,7 +472,7 @@ describe('writeRelayQueryPayload()', () => {
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(first:"1",after:"cursor1") {
+            friends(first: 1,after:"cursor1") {
               edges {
                 node {
                   id
@@ -664,7 +664,7 @@ describe('writeRelayQueryPayload()', () => {
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(first:"1") {
+            friends(first: 1) {
               edges {
                 node {
                   id
@@ -724,7 +724,7 @@ describe('writeRelayQueryPayload()', () => {
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(first:"1") {
+            friends(first: 1) {
               edges {
                 node {
                   id

@@ -44,7 +44,7 @@ describe('readRelayQueryData() query tracking', () => {
     var concreteFragment = Relay.QL`
       fragment on User {
         name,
-        friends(first: "1") {
+        friends(first: 1) {
           edges {
             node {
               name

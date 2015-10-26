@@ -221,7 +221,7 @@ class RelayRecordStore {
     }
     var nextRecord: Record = ({
       __dataID__: dataID,
-      __typename: typeName != null ? createField(typeName) : undefined,
+      __typename: typeName ? createField(typeName) : typeName,
     }: $FixMe);
     if (target === this._queuedRecords) {
       this._setClientMutationID(nextRecord);
@@ -545,9 +545,9 @@ class RelayRecordStore {
       return record;
     }
     var connectionIDs;
-    forEachObject(record, (datum, key) => {
-      if (datum && getFieldNameFromKey(key) === schemaName) {
-        var dataID = datum.__dataID__;
+    forEachObject(record, (field, key) => {
+      if (field && getFieldNameFromKey(key) === schemaName) {
+        var dataID: DataID = (field.__value__: any);
         if (dataID) {
           connectionIDs = connectionIDs || [];
           connectionIDs.push(dataID);

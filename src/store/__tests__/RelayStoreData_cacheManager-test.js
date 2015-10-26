@@ -266,7 +266,7 @@ describe('RelayStoreData', function() {
       query {
         node(id:"123") {
           id,
-          friends(first:"2") {
+          friends(first: 2) {
             edges {
               node {
                 id
@@ -355,7 +355,7 @@ describe('RelayStoreData', function() {
       query {
         node(id:"123") {
           id,
-          friends(first:"2") {
+          friends(first: 2) {
             edges {
               node {
                 id
@@ -453,7 +453,7 @@ describe('RelayStoreData', function() {
       query {
         node(id:"123") {
           id,
-          comments(first:"1") {
+          comments(first: 1) {
             count,
             edges {
               node {
@@ -574,7 +574,7 @@ describe('RelayStoreData', function() {
       query {
         node(id:"123") {
           id,
-          comments(first:"1") {
+          comments(first: 1) {
             count,
             edges {
               node {

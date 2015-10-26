@@ -34,15 +34,6 @@ describe('writeRelayQueryPayload()', () => {
   describe('plural scalar fields', () => {
     it('updates elements in a plural field', () => {
       var email = 'user@example.com';
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          emailAddresses: [email]
-        }
-      };
-      var store = new RelayRecordStore({records});
-      var newEmail = 'user2@example.com';
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -53,8 +44,18 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          emailAddresses: [newEmail]
-        }
+          emailAddresses: [email],
+        },
+      };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
+      var newEmail = 'user2@example.com';
+      payload = {
+        node: {
+          id: '123',
+          emailAddresses: [newEmail],
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
@@ -68,15 +69,6 @@ describe('writeRelayQueryPayload()', () => {
 
     it('prepends elements to a plural field', () => {
       var email = 'user@example.com';
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          emailAddresses: [email]
-        }
-      };
-      var store = new RelayRecordStore({records});
-      var newEmail = 'user2@example.com';
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -87,8 +79,18 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          emailAddresses: [newEmail, email]
-        }
+          emailAddresses: [email],
+        },
+      };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
+      var newEmail = 'user2@example.com';
+      payload = {
+        node: {
+          id: '123',
+          emailAddresses: [newEmail, email],
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
@@ -103,15 +105,6 @@ describe('writeRelayQueryPayload()', () => {
 
     it('appends elements to a plural field', () => {
       var email = 'user@example.com';
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          emailAddresses: [email]
-        }
-      };
-      var store = new RelayRecordStore({records});
-      var newEmail = 'user2@example.com';
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -122,8 +115,18 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          emailAddresses: [email, newEmail]
-        }
+          emailAddresses: [email],
+        },
+      };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
+      var newEmail = 'user2@example.com';
+      payload = {
+        node: {
+          id: '123',
+          emailAddresses: [email, newEmail],
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
@@ -138,15 +141,6 @@ describe('writeRelayQueryPayload()', () => {
 
     it('does not update if a plural field is unchanged', () => {
       var email = 'user@example.com';
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          emailAddresses: [email]
-        }
-      };
-      var store = new RelayRecordStore({records});
-
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -157,9 +151,12 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          emailAddresses: [email]
-        }
+          emailAddresses: [email],
+        },
       };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},

@@ -59,7 +59,7 @@ class RelayQLPrinter {
     } else {
       invariant(false, 'Unsupported definition: %s', definition);
     }
-    return t.callExpression(
+    const callExpression = t.callExpression(
       t.functionExpression(
         null,
         substitutions.map(substitution => t.identifier(substitution.name)),
@@ -81,6 +81,17 @@ class RelayQLPrinter {
       ),
       substitutions.map(substitution => substitution.value)
     );
+
+    if (this.tagName === 'Relay.Query') {
+      return t.callExpression(
+        identify('Relay.createQuery'),
+        [
+          callExpression,
+          t.objectExpression([])
+        ]
+      );
+    }
+    return callExpression;
   }
 
   printQuery(query: RelayQLQuery): Printable {

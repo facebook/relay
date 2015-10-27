@@ -80,7 +80,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
          */
         TaggedTemplateExpression: function TaggedTemplateExpression(node, parent, scope, state) {
           var tag = this.get('tag');
-          var tagName = tag.matchesPattern('Relay.QL') ? 'Relay.QL' : tag.isIdentifier({ name: 'RelayQL' }) ? 'RelayQL' : null;
+          var tagName = tag.matchesPattern('Relay.QL') ? 'Relay.QL' : tag.matchesPattern('Relay.Query') ? 'Relay.Query' : tag.isIdentifier({ name: 'RelayQL' }) ? 'RelayQL' : null;
           if (!tagName) {
             return;
           }

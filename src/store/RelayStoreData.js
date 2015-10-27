@@ -194,18 +194,29 @@ class RelayStoreData {
     queries: RelayQuerySet,
     callbacks: CacheReadCallbacks
   ): void {
+    var cacheManager = this._cacheManager;
     invariant(
-      this._cacheManager,
+      cacheManager,
       'RelayStoreData: `readFromDiskCache` should only be called when cache ' +
       'manager is available.'
     );
+    var profile = RelayProfiler.profile('RelayStoreData.readFromDiskCache');
     readRelayDiskCache(
       queries,
       this._queuedStore,
       this._cachedRecords,
       this._cachedRootCalls,
-      this._cacheManager,
-      callbacks
+      cacheManager,
+      {
+        onSuccess: () => {
+          profile.stop();
+          callbacks.onSuccess && callbacks.onSuccess();
+        },
+        onFailure: () => {
+          profile.stop();
+          callbacks.onFailure && callbacks.onFailure();
+        },
+      }
     );
   }
 

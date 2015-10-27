@@ -77,6 +77,7 @@ var INSTRUMENTED_PROFILES = [
   'RelayNetworkLayer.sendMutation',
   'RelayNetworkLayer.sendQueries',
   'RelayStoreData.runWithDiskCache',
+  'RelayStoreData.readFromDiskCache',
   'RelayStoreData.handleQueryPayload',
   'RelayStoreData.handleUpdatePayload',
 ];

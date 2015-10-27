@@ -12,7 +12,7 @@
 
 import 'babel/polyfill';
 import 'todomvc-common';
-import createHashHistory from 'history/lib/createHashHistory';
+import {createHashHistory} from 'history';
 import {IndexRoute, Route, Router} from 'react-router';
 import React from 'react';
 import ReactDOM from 'react-dom';

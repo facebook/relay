@@ -60,5 +60,5 @@ var onFailure = (transaction) => {
 };
 var mutation = new MyMutation({...});
 
-Relay.update(mutation, {onFailure, onSuccess});
+Relay.Store.update(mutation, {onFailure, onSuccess});
 ```

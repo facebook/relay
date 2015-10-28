@@ -343,7 +343,7 @@ describe('readRelayDiskCache', () => {
       q0: getNode(Relay.QL`
         query {
           node(id:"1055790163") {
-            friends(first:"5") {
+            friends(first: 5) {
               edges {
                 node {
                   name,
@@ -393,7 +393,7 @@ describe('readRelayDiskCache', () => {
       q0: getNode(Relay.QL`
         query {
           node(id:"1055790163") {
-            friends(first:"5") {
+            friends(first: 5) {
               edges {
                 node {
                   name,
@@ -447,7 +447,7 @@ describe('readRelayDiskCache', () => {
       q0: getNode(Relay.QL`
         query {
           node(id:"1055790163") {
-            friends(first:"5") {
+            friends(first: 5) {
               edges {
                 node {
                   name,
@@ -507,7 +507,7 @@ describe('readRelayDiskCache', () => {
       q0: getNode(Relay.QL`
         query {
           node(id:"1055790163") {
-            friends(first:"5") {
+            friends(first: 5) {
               edges {
                 node {
                   name,

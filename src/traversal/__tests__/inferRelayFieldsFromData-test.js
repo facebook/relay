@@ -174,7 +174,7 @@ describe('inferRelayFieldsFromData', function() {
       },
     })).toEqualFields(Relay.QL`  fragment on Actor {
             id,
-            friends(first:"2") {
+            friends(first: 2) {
               edges {
                 node {
                   id,

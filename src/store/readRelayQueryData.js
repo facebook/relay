@@ -20,6 +20,7 @@ var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
+var RelayQueryTracker = require('RelayQueryTracker');
 var RelayQueryVisitor = require('RelayQueryVisitor');
 var RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
@@ -38,6 +39,7 @@ export type DataIDSet = {[key: string]: boolean};
 export type StoreReaderResult = {
   data: ?StoreReaderData;
   dataIDs: DataIDSet;
+  queryTracker: RelayQueryTracker;
 };
 
 type State = {
@@ -73,6 +75,7 @@ function readRelayQueryData(
 }
 
 class RelayStoreReader extends RelayQueryVisitor<State> {
+  _queryTracker: RelayQueryTracker;
   _recordStore: RelayRecordStore;
   _traverseFragmentReferences: boolean;
   _traverseGeneratedFields: boolean;
@@ -82,6 +85,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     options?: StoreReaderOptions
   ) {
     super();
+    this._queryTracker = new RelayQueryTracker();
     this._recordStore = recordStore;
     this._traverseFragmentReferences =
       (options && options.traverseFragmentReferences) || false;
@@ -99,6 +103,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     var result = {
       data: (undefined: $FlowIssue),
       dataIDs: ({}: $FlowIssue),
+      queryTracker: this._queryTracker,
     };
     var rangeData = GraphQLStoreRangeUtils.parseRangeClientID(dataID);
     var status = this._recordStore.getRecordState(
@@ -119,6 +124,20 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       result.data = null;
     }
     return result;
+  }
+
+  traverse<Tn: RelayQuery.Node>(
+    node: Tn,
+    state: State
+  ): ?Tn {
+    if (!node.isScalar()) {
+      this._queryTracker.trackNodeForID(
+        node,
+        state.storeDataID,
+        this._recordStore.getPathToRecord(state.storeDataID)
+      );
+    }
+    return super.traverse(node, state);
   }
 
   visitField(node: RelayQuery.Field, state: State): ?RelayQuery.Node {
@@ -161,7 +180,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     if (node.isContainerFragment() && !this._traverseFragmentReferences) {
       var dataID = getComponentDataID(state);
       var fragmentPointer = new GraphQLFragmentPointer(
-        node.isPlural() ? [dataID] : dataID,
+        dataID,
         node
       );
       this._setDataValue(

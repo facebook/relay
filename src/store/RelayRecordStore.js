@@ -23,7 +23,6 @@ import type {
   Call,
   ClientMutationID,
   DataID,
-  FieldValue,
   NodeRangeMap,
   Record,
   Records,
@@ -46,6 +45,14 @@ var FORCE_INDEX = '__forceIndex__';
 var RANGE = '__range__';
 var PATH = '__path__';
 var {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
+
+type MixedField = Field<mixed>;
+type PluralStringField = Field<Array<string>>;
+type StringField = Field<string>;
+type Field<Tn> = {
+  __count__: number;
+  __value__: Tn;
+};
 
 type EdgeData = {
   __dataID__: DataID;
@@ -214,7 +221,7 @@ class RelayRecordStore {
     }
     var nextRecord: Record = ({
       __dataID__: dataID,
-      __typename: typeName,
+      __typename: typeName ? createField(typeName) : typeName,
     }: $FixMe);
     if (target === this._queuedRecords) {
       this._setClientMutationID(nextRecord);
@@ -334,7 +341,11 @@ class RelayRecordStore {
 
   getType(dataID: DataID): ?string {
     // `__typename` property is typed as `string`
-    return (this._getField(dataID, '__typename'): any);
+    var typeName: ?StringField = (this._getField(dataID, '__typename'): any);
+    if (typeName == null) {
+      return typeName;
+    }
+    return typeName.__value__;
   }
 
   /**
@@ -343,8 +354,12 @@ class RelayRecordStore {
   getField(
     dataID: DataID,
     storageKey: string
-  ): ?FieldValue {
-    return this._getField(dataID, storageKey);
+  ): mixed {
+    var field: ?MixedField = (this._getField(dataID, storageKey): any);
+    if (field == null) {
+      return field;
+    }
+    return field.__value__;
   }
 
   /**
@@ -353,7 +368,7 @@ class RelayRecordStore {
   putField(
     dataID: DataID,
     storageKey: string,
-    value: FieldValue
+    value: mixed
   ) {
     var record = this._getRecordForWrite(dataID);
     invariant(
@@ -363,9 +378,16 @@ class RelayRecordStore {
       dataID,
       storageKey
     );
-    record[storageKey] = value;
+    var field: ?MixedField = (record[storageKey]: any);
+    if (field) {
+      field.__value__ = value;
+    } else {
+      field = createField(value);
+    }
+    record[storageKey] = field;
     if (!this._queuedRecords && this._cacheWriter) {
-      var typeName = record.__typename;
+      var typeNameField: ?StringField = (record.__typename: any);
+      var typeName = typeNameField && typeNameField.__value__;
       this._cacheWriter.writeField(dataID, storageKey, value, typeName);
     }
   }
@@ -399,20 +421,11 @@ class RelayRecordStore {
     dataID: DataID,
     storageKey: string
   ): ?DataID {
-    var field = this._getField(dataID, storageKey);
+    var field: ?StringField = (this._getField(dataID, storageKey): any);
     if (field == null) {
       return field;
     }
-    invariant(
-      typeof field === 'object' &&
-        field !== null &&
-        !Array.isArray(field),
-      'RelayRecordStore.getLinkedRecordID(): Expected field `%s` for record ' +
-      '`%s` to have a linked record.',
-      storageKey,
-      dataID
-    );
-    return field.__dataID__;
+    return field.__value__;
   }
 
   /**
@@ -439,12 +452,15 @@ class RelayRecordStore {
       recordID,
       parentID
     );
-    var fieldValue = {
-      __dataID__: recordID,
-    };
-    parent[storageKey] = fieldValue;
+    var field: ?MixedField = (record[storageKey]: any);
+    if (field) {
+      field.__value__ = recordID;
+    } else {
+      field = createField(recordID);
+    }
+    parent[storageKey] = field;
     if (!this._queuedRecords && this._cacheWriter) {
-      this._cacheWriter.writeField(parentID, storageKey, fieldValue);
+      this._cacheWriter.writeField(parentID, storageKey, recordID);
     }
   }
 
@@ -456,28 +472,12 @@ class RelayRecordStore {
     dataID: DataID,
     storageKey: string
   ): ?Array<DataID> {
-    var field = this._getField(dataID, storageKey);
+    var field: ?PluralStringField = (this._getField(dataID, storageKey): any);
     if (field == null) {
       return field;
     }
-    invariant(
-      Array.isArray(field),
-      'RelayRecordStore.getLinkedRecordIDs(): Expected field `%s` for ' +
-      'record `%s` to have an array of linked records.',
-      storageKey,
-      dataID
-    );
-    return field.map((item, ii) => {
-      invariant(
-        typeof item === 'object' && item.__dataID__,
-        'RelayRecordStore.getLinkedRecordIDs(): Expected element at index %s ' +
-        'in field `%s` for record `%s` to be a linked record.',
-        ii,
-        storageKey,
-        dataID
-      );
-      return item.__dataID__;
-    });
+    // TODO: invariant shape `{__value__: Array<string>}`
+    return field.__value__;
   }
 
   /**
@@ -495,22 +495,24 @@ class RelayRecordStore {
       'before linking records.',
       parentID
     );
-    var records = recordIDs.map(recordID => {
-      var record = this._getRecord(recordID);
+    recordIDs.forEach(recordID => {
       invariant(
-        record,
+        this._getRecord(recordID),
         'RelayRecordStore.putLinkedRecordIDs(): Expected record `%s` to ' +
         'exist before linking from `%s`.',
         recordID,
         parentID
       );
-      return {
-        __dataID__: recordID,
-      };
     });
-    parent[storageKey] = records;
+    var field: ?MixedField = (parent[storageKey]: any);
+    if (field) {
+      field.__value__ = recordIDs;
+    } else {
+      field = createField(recordIDs)
+    }
+    parent[storageKey] = field;
     if (!this._queuedRecords && this._cacheWriter) {
-      this._cacheWriter.writeField(parentID, storageKey, records);
+      this._cacheWriter.writeField(parentID, storageKey, recordIDs);
     }
   }
 
@@ -543,9 +545,9 @@ class RelayRecordStore {
       return record;
     }
     var connectionIDs;
-    forEachObject(record, (datum, key) => {
-      if (datum && getFieldNameFromKey(key) === schemaName) {
-        var dataID = datum.__dataID__;
+    forEachObject(record, (field, key) => {
+      if (field && getFieldNameFromKey(key) === schemaName) {
+        var dataID: DataID = (field.__value__: any);
         if (dataID) {
           connectionIDs = connectionIDs || [];
           connectionIDs.push(dataID);
@@ -922,7 +924,7 @@ class RelayRecordStore {
    * the field is defined, returning `null` if the record has been deleted or
    * `undefined` if the record has not been fetched.
    */
-  _getField(dataID: DataID, storageKey: string): ?FieldValue {
+  _getField(dataID: DataID, storageKey: string): mixed {
     var storage = this._storage;
     for (var ii = 0; ii < storage.length; ii++) {
       var record = storage[ii][dataID];
@@ -945,7 +947,8 @@ class RelayRecordStore {
       clientMutationID,
       'RelayRecordStore: _clientMutationID cannot be null/undefined.'
     );
-    var mutationIDs: Array<ClientMutationID> = record.__mutationIDs__ || [];
+    var mutationIDs: Array<ClientMutationID> =
+      (record.__mutationIDs__: any) || [];
     if (mutationIDs.indexOf(clientMutationID) === -1) {
       mutationIDs.push(clientMutationID);
       record.__mutationIDs__ = mutationIDs;
@@ -955,6 +958,13 @@ class RelayRecordStore {
       true
     );
   }
+}
+
+function createField(value: mixed): MixedField {
+  return {
+    __count__: 0,
+    __value__: value,
+  };
 }
 
 /**

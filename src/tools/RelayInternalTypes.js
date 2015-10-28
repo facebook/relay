@@ -40,8 +40,6 @@ export type Directive = {
   arguments: Array<Call>;
 };
 
-export type FieldValue = mixed;
-
 export type MutationVariables = {
   input: {[key: string]: mixed};
 };
@@ -53,14 +51,14 @@ export type PrintedQuery = {
 
 export type Record = {
   [key: string]: mixed;
-  __dataID__: string;
-  __filterCalls__?: Array<Call>;
-  __forceIndex__?: number;
-  __mutationIDs__?: Array<ClientMutationID>;
-  __range__?: GraphQLRange;
-  __path__?: RelayQueryPath;
-  __status__?: number;
-  __typename?: ?string;
+  /*
+    __path__: RelayQueryPath;
+    __typename: string;
+    __dataID__: DataID;
+    __forceIndex__: number;
+    __filterCalls__: Array<Call>;
+    __range__: GraphQLRange;
+   */
 };
 
 export type Records = {[key: DataID]: ?Record};

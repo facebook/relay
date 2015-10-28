@@ -88,8 +88,7 @@ var GraphQLQueryRunner = {
         if (query) {
           diffQueries.push(...diffRelayQuery(
             query,
-            storeData.getRecordStore(),
-            storeData.getQueryTracker()
+            storeData.getRecordStore()
           ));
         }
       });

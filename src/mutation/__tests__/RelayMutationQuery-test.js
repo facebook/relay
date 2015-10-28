@@ -240,7 +240,7 @@ describe('RelayMutationQuery', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
           doesViewerLike,
-          comments(first:"10") {
+          comments(first: 10) {
             count,
             edges {
               node {
@@ -262,7 +262,7 @@ describe('RelayMutationQuery', () => {
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
-            comments(first:"10") {
+            comments(first: 10) {
               count
             }
           }
@@ -303,7 +303,7 @@ describe('RelayMutationQuery', () => {
     it('includes edge fields for connections with range config', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          comments(orderby:"toplevel",first:"10") {
+          comments(orderby:"toplevel",first: 10) {
             edges {
               node {
                 body {
@@ -348,7 +348,7 @@ describe('RelayMutationQuery', () => {
     it('includes fields from multiple tracked edges', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          comments(first:"10") {
+          comments(first: 10) {
             count,
             edges {
               node {
@@ -403,7 +403,7 @@ describe('RelayMutationQuery', () => {
     it('excludes fields from tracked edges with different filters', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          comments(first:"10") {
+          comments(first: 10) {
             count,
             edges {
               node {
@@ -413,7 +413,7 @@ describe('RelayMutationQuery', () => {
               }
             }
           },
-          comments(orderby:"ranked_threaded",first:"10") {
+          comments(orderby:"ranked_threaded",first: 10) {
             edges {
               node {
                 author {
@@ -455,7 +455,7 @@ describe('RelayMutationQuery', () => {
     it('refetches connections in the absence of a range config', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          comments(orderby:"ranked_threaded",first:"10") {
+          comments(orderby:"ranked_threaded",first: 10) {
             edges {
               node {
                 body {
@@ -478,7 +478,7 @@ describe('RelayMutationQuery', () => {
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
-            comments(orderby:"ranked_threaded",first:"10") {
+            comments(orderby:"ranked_threaded",first: 10) {
               edges {
                 node {
                   body {
@@ -627,7 +627,7 @@ describe('RelayMutationQuery', () => {
     it('creates a query for RANGE_ADD', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          comments(first:"10") {
+          comments(first: 10) {
             edges {
               node {
                 body {
@@ -714,7 +714,7 @@ describe('RelayMutationQuery', () => {
     it('creates a query for NODE_DELETE', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          comments(first:"10") {
+          comments(first: 10) {
             edges {
               node {
                 body {
@@ -781,7 +781,7 @@ describe('RelayMutationQuery', () => {
     it('creates a query for RANGE_DELETE', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          comments(first:"10") {
+          comments(first: 10) {
             edges {
               node {
                 body {
@@ -904,7 +904,7 @@ describe('RelayMutationQuery', () => {
     it('creates a query with additional required fragments', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          comments(first:"10") {
+          comments(first: 10) {
             edges {
               node {
                 body {
@@ -1009,7 +1009,7 @@ describe('RelayMutationQuery', () => {
       // Fictitious mutation that does multiple things
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          comments(first:"10") {
+          comments(first: 10) {
             edges {
               node {
                 body {
@@ -1100,7 +1100,7 @@ describe('RelayMutationQuery', () => {
             ${Relay.QL`
               fragment on CommentCreateResponsePayload {
                 feedback {
-                  comments(first:"10") {
+                  comments(first: 10) {
                     edges {
                       cursor,
                       node {

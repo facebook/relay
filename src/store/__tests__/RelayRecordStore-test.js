@@ -50,7 +50,7 @@ describe('RelayRecordStore', () => {
     it('returns "EXISTENT" if the record exists', () => {
       var records = {
         '4': {
-          id: '4',
+          id: {__value__: '4'},
           __dataID__: '4',
         },
       };
@@ -60,7 +60,7 @@ describe('RelayRecordStore', () => {
 
     it('prefers queued records over non-existent records', () => {
       var queuedRecord = {
-        id: '4',
+        id: {__value__: '4'},
         __dataID__: '4',
       };
       var store = new RelayRecordStore({
@@ -72,7 +72,7 @@ describe('RelayRecordStore', () => {
 
     it('prefers queued records over deleted records', () => {
       var queuedRecord = {
-        id: '4',
+        id: {__value__: '4'},
         __dataID__: '4',
       };
       var store = new RelayRecordStore({
@@ -84,7 +84,7 @@ describe('RelayRecordStore', () => {
 
     it('prefers queued records when they are deleted', () => {
       var record = {
-        id: '4',
+        id: {__value__: '4'},
         __dataID__: '4',
       };
       var store = new RelayRecordStore({
@@ -96,7 +96,7 @@ describe('RelayRecordStore', () => {
 
     it('prefers queued records over cached records', () => {
       var record = {
-        id: '4',
+        id: {__value__: '4'},
         __dataID__: '4',
       };
       var store = new RelayRecordStore({
@@ -109,7 +109,7 @@ describe('RelayRecordStore', () => {
 
     it('prefers existing records over cached records', () => {
       var record = {
-        id: '4',
+        id: {__value__: '4'},
         __dataID__: '4',
       };
       var store = new RelayRecordStore({
@@ -121,7 +121,7 @@ describe('RelayRecordStore', () => {
 
     it('falls back to cached records when necessary', () => {
       var record = {
-        id: '4',
+        id: {__value__: '4'},
         __dataID__: '4',
       };
       var store = new RelayRecordStore({
@@ -309,9 +309,9 @@ describe('RelayRecordStore', () => {
     it('returns field values for scalar fields', () => {
       var records = {
         '4': {
-          id: '4',
+          id: {__value__: '4'},
           __dataID__: '4',
-          name: 'Zuck',
+          name: {__value__: 'Zuck'},
         },
       };
       var store = new RelayRecordStore({records});
@@ -329,13 +329,13 @@ describe('RelayRecordStore', () => {
 
     it('prefers fields from queued records', () => {
       var record = {
-        id: '4',
-        name: 'Zuck',
+        id: {__value__: '4'},
+        name: {__value__: 'Zuck'},
         __dataID__: '4',
       };
       var queuedRecord = {
-        id: '4',
-        name: 'Mark',
+        id: {__value__: '4'},
+        name: {__value__: 'Mark'},
         __dataID__: '4',
       };
       var store = new RelayRecordStore({
@@ -347,13 +347,13 @@ describe('RelayRecordStore', () => {
 
     it('prefers fields from existing records over cached records', () => {
       var record = {
-        id: '4',
-        name: 'Zuck',
+        id: {__value__: '4'},
+        name: {__value__: 'Zuck'},
         __dataID__: '4',
       };
       var cachedRecord = {
-        id: '4',
-        name: 'Mark',
+        id: {__value__: '4'},
+        name: {__value__: 'Mark'},
         __dataID__: '4',
       };
       var store = new RelayRecordStore({
@@ -365,12 +365,12 @@ describe('RelayRecordStore', () => {
 
     it('falls through to existing records for fields not in the queued record', () => {
       var record = {
-        id: '4',
-        name: 'Zuck',
+        id: {__value__: '4'},
+        name: {__value__: 'Zuck'},
         __dataID__: '4',
       };
       var queuedRecord = {
-        id: '4',
+        id: {__value__: '4'},
         __dataID__: '4',
       };
       var store = new RelayRecordStore({
@@ -382,12 +382,12 @@ describe('RelayRecordStore', () => {
 
     it('falls through to cached records for fields not in the existing record', () => {
       var record = {
-        id: '4',
+        id: {__value__: '4'},
         __dataID__: '4',
       };
       var cachedRecord = {
-        id: '4',
-        name: 'Mark',
+        id: {__value__: '4'},
+        name: {__value__: 'Mark'},
         __dataID__: '4',
       };
       var store = new RelayRecordStore({
@@ -399,22 +399,12 @@ describe('RelayRecordStore', () => {
   });
 
   describe('getLinkedRecordID()', () => {
-    it('throws if the data is an unexpected format', () => {
-      var records = {
-        story: {
-          feedback: 'not an object'
-        }
-      };
-      var store = new RelayRecordStore({records});
-      expect(() => {
-        store.getLinkedRecordID('story', 'feedback');
-      }).toThrow();
-    });
-
     it('returns undefined for unfetched objects', () => {
       var records = {
         '4': {
-          id: '4',
+          id: {
+            __value__: '4',
+          },
           __dataID__: '4',
         }
       };
@@ -425,7 +415,9 @@ describe('RelayRecordStore', () => {
     it('returns null for deleted linked fields', () => {
       var records = {
         '4': {
-          id: '4',
+          id: {
+            __value__: '4',
+          },
           __dataID__: '4',
           address: null
         },
@@ -437,14 +429,18 @@ describe('RelayRecordStore', () => {
     it('returns the data ID for linked fields', () => {
       var records = {
         '4': {
-          id: '4',
+          id: {
+            __value__: '4',
+          },
           __dataID__: '4',
           address: {
-            __dataID__: 'client:1',
+            __value__: 'client:1',
           }
         },
         'client:1': {
-          street: '1 Hacker Way',
+          street: {
+            __value__: '1 Hacker Way',
+          },
         },
       };
       var store = new RelayRecordStore({records});
@@ -453,22 +449,12 @@ describe('RelayRecordStore', () => {
   });
 
   describe('getLinkedRecordIDs()', () => {
-    it('throws if the data is an unexpected format', () => {
-      var records = {
-        'story': {
-          actors: ['not an object']
-        }
-      };
-      var store = new RelayRecordStore({records});
-      expect(() => {
-        store.getLinkedRecordIDs('story', 'actors');
-      }).toThrow();
-    });
-
     it('returns undefined for unfetched fields', () => {
       var records = {
         '4': {
-          id: '4',
+          id: {
+            __value__: '4',
+          },
           __dataID__: '4'
         }
       };
@@ -479,7 +465,9 @@ describe('RelayRecordStore', () => {
     it('returns null for deleted linked fields', () => {
       var records = {
         '4': {
-          id: '4',
+          id: {
+            __value__: '4',
+          },
           __dataID__: '4',
           actors: null
         }
@@ -491,13 +479,17 @@ describe('RelayRecordStore', () => {
     it('returns an array of linked data IDs', () => {
       var records = {
         '4': {
-          id: '4',
+          id: {
+            __value__: '4',
+          },
           __dataID__: '4',
-          actors: [
-            {__dataID__: 'item:1'},
-            {__dataID__: 'item:2'},
-          ]
-        }
+          actors: {
+            __value__: [
+              'item:1',
+              'item:2',
+            ],
+          },
+        },
       };
       var store = new RelayRecordStore({records});
       expect(store.getLinkedRecordIDs('4', 'actors')).toEqual([
@@ -514,10 +506,12 @@ describe('RelayRecordStore', () => {
       mockRange = new GraphQLRange();
       records = {
         '4': {
-          id: '4',
+          id: {
+            __value__: '4',
+          },
           __dataID__: '4',
           'friends': {
-            __dataID__: 'client:1'
+            __value__: 'client:1'
           },
         },
         'client:1': {
@@ -526,8 +520,8 @@ describe('RelayRecordStore', () => {
         'edge:1': {
           __dataID__: 'edge:1',
           node: {
-            __dataID__: 'node:1'
-          }
+            __value__: 'node:1'
+          },
         },
         'node:1': {
           __dataID__: 'node:1',

@@ -64,7 +64,7 @@ describe('refragmentRelayQuery', () => {
     var messageFragment = Relay.QL`fragment on Story{message{text}}`;
     var fragment = getVerbatimNode(Relay.QL`
       fragment on Viewer {
-        newsFeed(first:"10") {
+        newsFeed(first: 10) {
           edges {
             cursor,
             node {

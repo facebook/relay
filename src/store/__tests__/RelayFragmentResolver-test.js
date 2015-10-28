@@ -21,13 +21,13 @@ RelayTestUtils.unmockRelay();
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var Relay = require('Relay');
-var RelayQueryResultObservable = require('RelayQueryResultObservable');
+var RelayFragmentResolver = require('RelayFragmentResolver');
 var RelayRecordStore = require('RelayRecordStore');
 var RelayStoreData = require('RelayStoreData');
 
 var readRelayQueryData = require('readRelayQueryData');
 
-describe('RelayQueryResultObservable', () => {
+describe('RelayFragmentResolver', () => {
   var fragment;
   var results;
   var store;
@@ -56,7 +56,7 @@ describe('RelayQueryResultObservable', () => {
       dataID,
       fragment
     );
-    return new RelayQueryResultObservable(storeData, fragmentPointer);
+    return new RelayFragmentResolver(storeData, fragmentPointer);
   }
 
   beforeEach(() => {
@@ -97,7 +97,7 @@ describe('RelayQueryResultObservable', () => {
     );
   });
 
-  it('immediately calls onNext of the first subscriber', () => {
+  it('does not immediately call onNext of the first subscriber', () => {
     var observer = observeRelayQueryData('123');
     var subscriber = genMockSubscriber();
     observer.subscribe(subscriber);
@@ -107,11 +107,12 @@ describe('RelayQueryResultObservable', () => {
       fragment,
       '123'
     );
-    expect(subscriber.onNext).toBeCalledWith(results);
+    expect(subscriber.onCompleted).not.toBeCalled();
     expect(subscriber.onError).not.toBeCalled();
+    expect(subscriber.onNext).not.toBeCalled();
   });
 
-  it('immediately calls onNext of subsequent subscribers', () => {
+  it('does not immediately call onNext of subsequent subscribers', () => {
     var observer = observeRelayQueryData('123');
     var firstSubscriber = genMockSubscriber();
     observer.subscribe(firstSubscriber);
@@ -122,7 +123,7 @@ describe('RelayQueryResultObservable', () => {
     observer.subscribe(secondSubscriber);
     expect(readRelayQueryData).not.toBeCalled();
     expect(firstSubscriber.onNext).not.toBeCalled();
-    expect(secondSubscriber.onNext).toBeCalledWith(results);
+    expect(secondSubscriber.onNext).not.toBeCalled();
     expect(secondSubscriber.onError).not.toBeCalled();
   });
 
@@ -164,27 +165,6 @@ describe('RelayQueryResultObservable', () => {
     expect(subscriber.onCompleted).not.toBeCalled();
     expect(subscriber.onError).not.toBeCalled();
     expect(subscriber.onNext).not.toBeCalled();
-  });
-
-  it('calls onNext if the record is initially unfetched', () => {
-    var observer = observeRelayQueryData('oops');
-    var subscriber = genMockSubscriber();
-    observer.subscribe(subscriber);
-
-    expect(subscriber.onCompleted).not.toBeCalled();
-    expect(subscriber.onError).not.toBeCalled();
-    expect(subscriber.onNext).toBeCalledWith(undefined);
-    subscriber.mockClear();
-
-    // fetching the record calls onNext
-    store.putRecord('oops');
-    GraphQLStoreChangeEmitter.broadcastChangeForID('oops');
-    jest.runAllTimers();
-    expect(subscriber.onCompleted).not.toBeCalled();
-    expect(subscriber.onError).not.toBeCalled();
-    expect(subscriber.onNext).toBeCalledWith({
-      __dataID__: 'oops',
-    });
   });
 
   it('calls onNext if the record is deleted', () => {

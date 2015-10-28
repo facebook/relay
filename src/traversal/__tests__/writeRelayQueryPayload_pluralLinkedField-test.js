@@ -33,14 +33,6 @@ describe('writeRelayQueryPayload()', () => {
 
   describe('plural linked fields', () => {
     it('creates empty linked records', () => {
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-        }
-      };
-      var store = new RelayRecordStore({records});
-
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -55,10 +47,19 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          allPhones: [],
+          __typename: 'User',
         }
       };
-      var results = writePayload(store, query, payload);
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
+      var results = writePayload(store, query, {
+        node: {
+          id: '123',
+          __typename: 'User',
+          allPhones: [],
+        }
+      });
       expect(results).toEqual({
         created: {},
         updated: {
@@ -70,20 +71,6 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('creates linked records', () => {
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-        }
-      };
-      var store = new RelayRecordStore({records});
-      var phone = {
-        isVerified: true,
-        phoneNumber: {
-          displayNumber: '1-800-555-1212', // directory assistance
-          countryCode: '1'
-        }
-      };
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -100,10 +87,26 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          allPhones: [phone]
+          __typename: 'User',
         }
       };
-      var results = writePayload(store, query, payload);
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
+      var phone = {
+        isVerified: true,
+        phoneNumber: {
+          displayNumber: '1-800-555-1212', // directory assistance
+          countryCode: '1'
+        }
+      };
+      var results = writePayload(store, query, {
+        node: {
+          id: '123',
+          __typename: 'User',
+          allPhones: [phone]
+        }
+      });
       expect(results).toEqual({
         created: {
           'client:1': true,
@@ -128,41 +131,6 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('updates if response changes', () => {
-      var phone = {
-        isVerified: true,
-        phoneNumber: {
-          displayNumber: '1-800-555-1212',
-          countryCode: '1'
-        }
-      };
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          allPhones: [
-            {__dataID__: 'client:1'}
-          ]
-        },
-        'client:1': {
-          isVerified: true,
-          phoneNumber: {
-            __dataID__: 'client:2'
-          }
-        },
-        'client:2': {
-          __dataID__: 'client:2',
-          displayNumber: phone.phoneNumber.displayNumber,
-          countryCode: phone.phoneNumber.countryCode,
-        }
-      };
-      var store = new RelayRecordStore({records});
-      var newPhone = {
-        isVerified: true,
-        phoneNumber: {
-          displayNumber: '1-800-555-1212',
-          countryCode: '*'                 // *changed*
-        }
-      };
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -176,13 +144,44 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
+      var phone = {
+        isVerified: true,
+        phoneNumber: {
+          displayNumber: '1-800-555-1212',
+          countryCode: '1'
+        }
+      };
       var payload = {
         node: {
           id: '123',
-          allPhones: [newPhone]
+          __typename: 'User',
+          allPhones: [
+            {
+              isVerified: true,
+              phoneNumber: {
+                displayNumber: phone.phoneNumber.displayNumber,
+                countryCode: phone.phoneNumber.countryCode,
+              },
+            },
+          ],
+        },
+      };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+      var newPhone = {
+        isVerified: true,
+        phoneNumber: {
+          displayNumber: '1-800-555-1212',
+          countryCode: '*'                 // *changed*
         }
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, query, {
+        node: {
+          id: '123',
+          __typename: 'User',
+          allPhones: [newPhone]
+        }
+      });
       expect(results).toEqual({
         created: {},
         updated: {
@@ -205,27 +204,6 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('updates if length changes', () => {
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          allPhones: [
-            {__dataID__: 'client:1'},
-            {__dataID__: 'client:2'}
-          ]
-        },
-        'client:1': {
-          __dataID__: 'client:1',
-          displayNumber: '1-800-555-1212',
-          countryCode: '1'
-        },
-        'client:2': {
-          __dataID__: 'client:2',
-          displayNumber: '1-800-555-1313',
-          countryCode: '2'
-        }
-      };
-      var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -241,13 +219,31 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
+          __typename: 'User',
+          allPhones: [
+            {
+              displayNumber: '1-800-555-1212',
+              countryCode: '1',
+            },
+            {
+              displayNumber: '1-800-555-1313',
+              countryCode: '2'
+            },
+          ],
+        },
+      };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+      var results = writePayload(store, query, {
+        node: {
+          id: '123',
+          __typename: 'User',
           allPhones: [{
             displayNumber: '1-800-555-1212',
             countryCode: '1'
           }]
         }
-      };
-      var results = writePayload(store, query, payload);
+      });
       expect(results).toEqual({
         created: {},
         updated: {
@@ -259,34 +255,6 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('does not update if response does not change', () => {
-      var phone = {
-        isVerified: true,
-        phoneNumber: {
-          displayNumber: '1-800-555-1212',
-          countryCode: '1'
-        }
-      };
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          allPhones: [
-            {__dataID__: 'client:1'}
-          ]
-        },
-        'client:1': {
-          isVerified: true,
-          phoneNumber: {
-            __dataID__: 'client:2'
-          }
-        },
-        'client:2': {
-          __dataID__: 'client:2',
-          displayNumber: phone.phoneNumber.displayNumber,
-          countryCode: phone.phoneNumber.countryCode,
-        }
-      };
-      var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -300,13 +268,37 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
+      var phone = {
+        isVerified: true,
+        phoneNumber: {
+          displayNumber: '1-800-555-1212',
+          countryCode: '1'
+        }
+      };
       var payload = {
         node: {
           id: '123',
+          __typename: 'User',
+          allPhones: [
+            {
+              isVerified: true,
+              phoneNumber: {
+                displayNumber: phone.phoneNumber.displayNumber,
+                countryCode: phone.phoneNumber.countryCode,
+              },
+            },
+          ],
+        },
+      };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+      var results = writePayload(store, query, {
+        node: {
+          id: '123',
+          __typename: 'User',
           allPhones: [phone]
         }
-      };
-      var results = writePayload(store, query, payload);
+      });
       expect(results).toEqual({
         created: {},
         updated: {}
@@ -326,15 +318,6 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('does not update if response remains empty', () => {
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          allPhones: [],
-        }
-      };
-      var store = new RelayRecordStore({records});
-
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -349,10 +332,20 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
+          __typename: 'User',
           allPhones: [],
         }
       };
-      var results = writePayload(store, query, payload);
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
+      var results = writePayload(store, query, {
+        node: {
+          id: '123',
+          __typename: 'User',
+          allPhones: [],
+        }
+      });
       expect(results).toEqual({
         created: {},
         updated: {},
@@ -362,8 +355,7 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('records the concrete type if `__typename` is present', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
+      var store = new RelayRecordStore({records: {}});
       var query = getNode(Relay.QL`
         query {
           node(id: "1") {
@@ -377,6 +369,7 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '1',
+          __typename: 'User',
           actors: [{
             id: '123',
             __typename: 'User',
@@ -387,9 +380,9 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getType('123')).toBe('User');
     });
 
+    // Note: The warning "Could not find a type name ..." is expected.
     it('records the parent field type if `__typename` is not present', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
+      var store = new RelayRecordStore({records: {}});
       var query = getVerbatimNode(Relay.QL`
         query {
           node(id: "1") {

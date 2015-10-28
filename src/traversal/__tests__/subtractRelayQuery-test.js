@@ -125,7 +125,7 @@ describe('subtractRelayQuery', () => {
       var minQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(first:"10") {
+            friends(first: 10) {
               edges {
                 live_cursor: cursor,
               },
@@ -136,7 +136,7 @@ describe('subtractRelayQuery', () => {
       var subQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(first:"1") {
+            friends(first: 1) {
               count,
             },
           }
@@ -145,7 +145,7 @@ describe('subtractRelayQuery', () => {
       var expected = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(first:"10") {
+            friends(first: 10) {
               edges {
                 live_cursor: cursor,
               },
@@ -161,7 +161,7 @@ describe('subtractRelayQuery', () => {
       var minQuery = getNode(Relay.QL`
         query {
           viewer {
-            newsFeed(first:"1") {
+            newsFeed(first: 1) {
               edges {
                 node {
                   special_id: id,
@@ -174,7 +174,7 @@ describe('subtractRelayQuery', () => {
       var subQuery = getNode(Relay.QL`
         query {
           viewer {
-            newsFeed(first:"1") {
+            newsFeed(first: 1) {
               edges {
                 node {
                   actor {
@@ -456,7 +456,7 @@ describe('subtractRelayQuery', () => {
             hometown {
               name
             },
-            friends(first:"5") {
+            friends(first: 5) {
               edges {
                 node {
                   id
@@ -469,7 +469,7 @@ describe('subtractRelayQuery', () => {
       var subQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(first:"5") {
+            friends(first: 5) {
               edges {
                 node {
                   id
@@ -756,7 +756,7 @@ describe('subtractRelayQuery', () => {
       var minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            friends(first:"3") {
+            friends(first: 3) {
               edges {
                 node {
                   name,
@@ -770,7 +770,7 @@ describe('subtractRelayQuery', () => {
       var subQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            friends(first:"5") {
+            friends(first: 5) {
               edges {
                 node {
                   name
@@ -783,7 +783,7 @@ describe('subtractRelayQuery', () => {
       var expected = getNode(Relay.QL`
         query {
           node(id:"4") {
-            friends(first:"3") {
+            friends(first: 3) {
               edges {
                 node {
                   firstName
@@ -802,7 +802,7 @@ describe('subtractRelayQuery', () => {
         query {
           node(id:"4") {
             id,
-            friends(first:"5") {
+            friends(first: 5) {
               edges {
                 cursor,
                 node {
@@ -821,7 +821,7 @@ describe('subtractRelayQuery', () => {
       var subQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            friends(first:"5") {
+            friends(first: 5) {
               edges {
                 cursor,
                 node {
@@ -844,7 +844,7 @@ describe('subtractRelayQuery', () => {
       var minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            friends(first:"5") {
+            friends(first: 5) {
               edges {
                 node {
                   name,
@@ -858,7 +858,7 @@ describe('subtractRelayQuery', () => {
       var subQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            friends(first:"3") {
+            friends(first: 3) {
               edges {
                 node {
                   name
@@ -875,7 +875,7 @@ describe('subtractRelayQuery', () => {
       var minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            friends(orderby:"importance",first:"3") {
+            friends(orderby:"importance",first: 3) {
               edges {
                 node {
                   name,
@@ -889,7 +889,7 @@ describe('subtractRelayQuery', () => {
       var subQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            friends(first:"3") {
+            friends(first: 3) {
               edges {
                 node {
                   name

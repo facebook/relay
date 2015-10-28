@@ -14,16 +14,21 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
+jest
+  .dontMock('GraphQLRange')
+  .dontMock('GraphQLSegment')
+  .dontMock('generateClientID');
+
 var GraphQLRange = require('GraphQLRange');
 var Relay = require('Relay');
 var RelayQuery = require('RelayQuery');
-var RelayQueryTracker = require('RelayQueryTracker');
+var generateClientEdgeID = require('generateClientEdgeID');
 var diffRelayQuery = require('diffRelayQuery');
 
 describe('diffRelayQuery', () => {
   var RelayRecordStore;
 
-  var {defer, getNode, getVerbatimNode} = RelayTestUtils;
+  var {defer, getNode, getVerbatimNode, writePayload} = RelayTestUtils;
 
   var rootCallMap;
 
@@ -48,10 +53,8 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var store = new RelayRecordStore({records: {}});
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
@@ -64,15 +67,14 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
       },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -85,16 +87,15 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
         name: 'Mark'
       },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -107,16 +108,15 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
-        'profilePicture{size:"32"}': 'https://facebook.com',
+        'profilePicture': 'https://facebook.com',
       }
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -125,22 +125,29 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id,
+          profilePicture(size:"32")
+        }
+      }
+    `);
+    var payload = {
+      node: {
+        id: '4',
+        'profilePicture': 'https://facebook.com',
+      },
+    };
+    var diffQuery = getNode(Relay.QL`
+      query {
+        node(id:"4") {
+          id,
           profilePicture(size:"64")
         }
       }
     `);
-    var records = {
-      '4': {
-        __dataID__: '4',
-        id: '4',
-        'profilePicture{size:"32"}': 'https://facebook.com',
-      }
-    };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+    var diffQueries = diffRelayQuery(diffQuery, store);
     expect(diffQueries.length).toBe(1);
-    expect(diffQueries[0]).toBeQueryRoot(query);
+    expect(diffQueries[0]).toBeQueryRoot(diffQuery);
   });
 
   it('removes fetched fragments', () => {
@@ -159,20 +166,17 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
-        actor: {__dataID__: '4808495'}
-      },
-      '4808495': {
-        __dataID__: '4808495',
-        id: '4808495',
-        name: 'Joe'
+    var payload = {
+      'viewer': {
+        actor: {
+          id: '4808495',
+          name: 'Joe',
+        },
       },
     };
-    var store = new RelayRecordStore({records}, {rootCallMap});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var store = new RelayRecordStore({records: {}}, {rootCallMap});
+    writePayload(store, query, payload);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -183,7 +187,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               count,
               edges {
                 node {
@@ -198,28 +202,19 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
-      story: {
-        __dataID__: 'story',
+    var payload = {
+      node: {
         id: 'story',
         feedback: {
-          __dataID__: 'story:feedback',
+          topLevelComments: {
+            count: 5,
+          },
         },
-      },
-      'story:feedback': {
-        __dataID__: 'story:feedback',
-        topLevelComments: {
-          __dataID__: 'story:feedback:comments',
-        },
-      },
-      'story:feedback:comments': {
-        __dataID__: 'story:feedback:comments',
-        count: 5,
       },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+    var diffQueries = diffRelayQuery(query, store);
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
     expect(diffQueries.length).toBe(1);
@@ -228,7 +223,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               edges {
                 node {
                   id,
@@ -265,16 +260,17 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               ${fragment},
             }
           }
         }
       }
     `);
-    store = new RelayRecordStore({records});
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+
+    diffQueries = diffRelayQuery(query, store);
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
     expect(diffQueries.length).toBe(1);
@@ -291,7 +287,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               ${edgesFragment},
             }
           }
@@ -303,27 +299,6 @@ describe('diffRelayQuery', () => {
   });
 
   it('diffs connection metadata when edges are unfetched', () => {
-    var records = {
-      story: {
-        __dataID__: 'story',
-        id: 'story',
-        feedback: {
-          __dataID__: 'story:feedback',
-        },
-      },
-      'story:feedback': {
-        __dataID__: 'story:feedback',
-        topLevelComments: {
-          __dataID__: 'story:feedback:comments',
-        },
-      },
-      'story:feedback:comments': {
-        __dataID__: 'story:feedback:comments',
-        count: 5,
-      },
-    };
-    var store = new RelayRecordStore({records});
-
     var query = getNode(Relay.QL`
       query {
         node(id:"story") {
@@ -336,10 +311,21 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var payload = {
+      node: {
+        id: 'story',
+        feedback: {
+          topLevelComments: {
+            count: 5,
+          },
+        },
+      },
+    };
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
     // `topLevelComments.totalCount` is not fetched and should be retained
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -356,29 +342,32 @@ describe('diffRelayQuery', () => {
   });
 
   it('keeps connection `edges` when only metadata is fetched', () => {
-    var records = {
-      story: {
-        __dataID__: 'story',
-        id: 'story',
-        feedback: {
-          __dataID__: 'story:feedback',
-        },
-      },
-      'story:feedback': {
-        __dataID__: 'story:feedback',
-        topLevelComments: {
-          __dataID__: 'story:feedback:comments',
-        },
-      },
-      'story:feedback:comments': {
-        __dataID__: 'story:feedback:comments',
-        count: 5,
-      },
-    };
-    var store = new RelayRecordStore({records});
-
     // `edges` have not been fetched, should be kept
     var query = getNode(Relay.QL`
+      query {
+        node(id:"story") {
+          feedback {
+            topLevelComments {
+              count
+            }
+          }
+        }
+      }
+    `);
+    var payload = {
+      node: {
+        id: 'story',
+        feedback: {
+          topLevelComments: {
+            count: 5,
+          },
+        },
+      },
+    };
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+
+    var diffQuery = getNode(Relay.QL`
       query {
         node(id:"story") {
           feedback {
@@ -393,44 +382,17 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(diffQuery, store);
     expect(diffQueries.length).toBe(1);
-    expect(diffQueries[0]).toBeQueryRoot(query);
+    expect(diffQueries[0]).toBeQueryRoot(diffQuery);
   });
 
   it('fetches missing connection metadata without fetched edges', () => {
-    var mockRange = new GraphQLRange();
-    mockRange.retrieveRangeInfoForQuery.mockReturnValue({
-      diffCalls: [],
-      filteredEdges: [],
-    });
-    var records = {
-      story: {
-        __dataID__: 'story',
-        id: 'story',
-        feedback: {
-          __dataID__: 'story:feedback',
-        },
-      },
-      'story:feedback': {
-        __dataID__: 'story:feedback',
-        topLevelComments: {
-          __dataID__: 'story:feedback:comments',
-        },
-      },
-      'story:feedback:comments': {
-        __dataID__: 'story:feedback:comments',
-        __range__: mockRange,
-      },
-    };
-    var store = new RelayRecordStore({records});
     var query = getNode(Relay.QL`
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               count,
               edges {
                 node {
@@ -442,11 +404,22 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var payload = {
+      node: {
+        id: 'story',
+        feedback: {
+          topLevelComments: {
+            edges: [],
+          },
+        },
+      },
+    };
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
     // `topLevelComments.count` is not fetched and should be retained,
     // `edges` is fetched and should be diffed out
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     // does not refetch `feedback.topLevelComments.edges` but keeps `count`
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
@@ -454,7 +427,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               count
             }
           }
@@ -476,15 +449,14 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               ${fragment},
             }
           }
         }
       }
     `);
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    diffQueries = diffRelayQuery(query, store);
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
     var edgesFragment = Relay.QL`
@@ -498,7 +470,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               ${edgesFragment},
             }
           }
@@ -516,8 +488,7 @@ describe('diffRelayQuery', () => {
       }
     `);
     var store = new RelayRecordStore({records: {}});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
 
@@ -530,21 +501,14 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
-        actor: {
-          __dataID__: 'actor'
-        }
+    var payload = {
+      'viewer': {
+        actor: {},
       },
-      'actor': {
-        __dataID__: 'actor',
-        // `id` should always be fetched, but should work correctly regardless
-      }
     };
-    store = new RelayRecordStore({records}, {rootCallMap});
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    store = new RelayRecordStore({records: {}}, {rootCallMap});
+    writePayload(store, query, payload);
+    diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
@@ -558,15 +522,14 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
       },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
 
@@ -580,21 +543,16 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+    payload = {
+      'viewer': {
         actor: {
-          __dataID__: 'actor'
-        }
+          id: 'actor',
+        },
       },
-      'client:actor': {
-        __dataID__: 'actor',
-        id: 'actor'
-      }
     };
-    store = new RelayRecordStore({records}, {rootCallMap});
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    store = new RelayRecordStore({records: {}}, {rootCallMap});
+    writePayload(store, query, payload);
+    diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
@@ -608,19 +566,17 @@ describe('diffRelayQuery', () => {
       }
     `);
     var store = new RelayRecordStore({records: {}});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
 
-    var records = {
-      '4': {
-        __dataID__: '4',
-        id: '4'
-      }
+    var payload = {
+      node: {
+        id: '4',
+      },
     };
-    store = new RelayRecordStore({records});
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+    diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
@@ -636,21 +592,19 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         friends: null,
-      }
+      },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
   it('splits multiple IDs into separate queries', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
+    var store = new RelayRecordStore({records: {}});
     var query = getNode(Relay.QL`
       query {
         nodes(ids:["4","4808495"]) {
@@ -659,8 +613,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(
@@ -673,17 +626,6 @@ describe('diffRelayQuery', () => {
   });
 
   it('splits viewer-rooted queries', () => {
-    var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
-        actor: {__dataID__: '4808495'}
-      },
-      '4808495': {
-        __dataID__: '4808495',
-        id: '4808495'
-      }
-    };
-    var store = new RelayRecordStore({records}, {rootCallMap});
     var query = getNode(Relay.QL`
       query {
         viewer {
@@ -694,9 +636,17 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var payload = {
+      'viewer': {
+        actor: {
+          id: '4808495',
+        },
+      },
+    };
+    var store = new RelayRecordStore({records: {}}, {rootCallMap});
+    writePayload(store, query, payload);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(
@@ -705,20 +655,14 @@ describe('diffRelayQuery', () => {
   });
 
   it('does not split refetchable fields', () => {
-    var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+    var payload = {
+      'viewer': {
         actor: {
-          __dataID__: '123'
-        }
+          id: '123',
+          name: 'Name',
+        },
       },
-      '123': {
-        __dataID__: '123',
-        id: '123',
-        name: 'Name'
-      }
     };
-    var store = new RelayRecordStore({records}, {rootCallMap});
     var query = getNode(Relay.QL`
       query {
         viewer {
@@ -732,12 +676,13 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var store = new RelayRecordStore({records: {}}, {rootCallMap});
+    writePayload(store, query, payload);
     // TODO: split lone-refetchable fields into node queries #6917343
     var field = query.getFieldByStorageKey('actor');
     expect(field.getInferredRootCallName()).toBe('node');
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -754,8 +699,7 @@ describe('diffRelayQuery', () => {
   });
 
   it('reuses fields and fragments if both unchanged', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
+    var store = new RelayRecordStore({records: {}});
     var frag = Relay.QL`fragment on Node {name}`;
     var query = getNode(Relay.QL`
       query {
@@ -765,23 +709,13 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
 
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
 
   it('reuses fields if unchanged', () => {
-    var records = {
-      '4': {
-        __dataID__: '4',
-        id: '4',
-        name: 'Mark Zuckerberg'
-      }
-    };
-    var store = new RelayRecordStore({records});
-    var frag = Relay.QL`fragment on Node {name}`;
     var query = getNode(Relay.QL`
       query {
         node(id:"4") {
@@ -790,9 +724,17 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var payload = {
+      node: {
+        id: '4',
+        name: 'Mark Zuckerberg',
+      },
+    };
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+    var frag = Relay.QL`fragment on Node {name}`;
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -814,17 +756,16 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
         firstName: 'Mark'
-      }
+      },
     };
-    var store = new RelayRecordStore({records});
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -837,14 +778,12 @@ describe('diffRelayQuery', () => {
   });
 
   it('returns no queries if everything exists', () => {
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
-        firstName: 'Mark'
-      }
+        firstName: 'Mark',
+      },
     };
-    var store = new RelayRecordStore({records});
     var query = getNode(Relay.QL`
       query {
         node(id:"4") {
@@ -853,9 +792,10 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
 
     query = getNode(Relay.QL`
@@ -865,21 +805,17 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    tracker = new RelayQueryTracker();
-    diffQueries = diffRelayQuery(query, store, tracker);
+    diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(0);
   });
 
   it('removes fields that have data, except id', () => {
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
-        firstName: 'Mark'
-      }
+        firstName: 'Mark',
+      },
     };
-    var store = new RelayRecordStore({records});
-
     var query = getNode(Relay.QL`
       query {
         node(id:"4") {
@@ -889,9 +825,10 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -905,21 +842,15 @@ describe('diffRelayQuery', () => {
   });
 
   it('recurses into subfields', () => {
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
         hometown: {
-          __dataID__: '1234'
-        }
+          id: '1234',
+          name: 'Palo Alto, California',
+        },
       },
-      '1234': {
-        __dataID__: '1234',
-        id: '1234',
-        name: 'Palo Alto, California'
-      }
     };
-    var store = new RelayRecordStore({records});
     var query = getNode(Relay.QL`
       query {
         node(id:"4") {
@@ -932,9 +863,10 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -951,36 +883,27 @@ describe('diffRelayQuery', () => {
   });
 
   it('handles arrays containing Nodes', () => {
-    var records = {
-      '12345': {
-        __dataID__: '12345',
+    var payload = {
+      node: {
         id: '12345',
         actors: [
-          {__dataID__: '4'},
-          {__dataID__: '4808495'},
-          {__dataID__: '1023896548'}
-        ]
+          {
+            id: '4',
+            name: 'Mark Zuckerberg',
+            firstName: 'Mark',
+            lastName: 'Zuckerberg',
+          },
+          {
+            id: '4808495',
+            firstName: 'Marshall',
+          },
+          {
+            id: '1023896548',
+            name: 'Laney Kuenzel',
+          },
+        ],
       },
-      '4': {
-        __dataID__: '4',
-        id: '4',
-        name: 'Mark Zuckerberg',
-        firstName: 'Mark',
-        lastName: 'Zuckerberg'
-      },
-      '4808495': {
-        __dataID__: '4808495',
-        id: '4808495',
-        firstName: 'Marshall'
-      },
-      '1023896548': {
-        __dataID__: '1023896548',
-        id: '1023896548',
-        name: 'Laney Kuenzel'
-      }
     };
-    var store = new RelayRecordStore({records});
-
     var query = getNode(Relay.QL`
       query {
         node(id:"12345") {
@@ -994,9 +917,10 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
@@ -1028,57 +952,18 @@ describe('diffRelayQuery', () => {
         }
       }
     `));
-
-    var trackedQuery = getNode(Relay.QL`
-      query {
-        node(id:"12345") {
-          id,
-          actors {
-            id,
-            firstName,
-            lastName,
-            name,
-          }
-        }
-      }
-    `);
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(1);
-    expect(trackedQueries[0][1]).toBe('12345');
-    expect(trackedQueries[0][0]).toEqualQueryNode(trackedQuery);
   });
 
   it('handles arrays containing non-Nodes', () => {
-    var records = {
-      '12345': {
-        __dataID__: '12345',
+    var payload = {
+      node: {
         id: '12345',
         screennames: [
-          {__dataID__: 'client:1'},
-          {__dataID__: 'client:2'}
-        ]
+          {service: 'GTALK'},
+          {service: 'TWITTER'},
+        ],
       },
-      'client:1': {
-        __dataID__: 'client:1',
-        service: 'GTALK'
-      },
-      'client:2': {
-        __dataID__: 'client:2',
-        service: 'TWITTER'
-      }
     };
-    var store = new RelayRecordStore({records});
-    var expected = getNode(Relay.QL`
-      query {
-        node(id:"12345") {
-          id,
-          screennames {
-            name,
-          },
-        }
-      }
-    `);
-
     // Assume node(12345) is a Story
     var query = getNode(Relay.QL`
       query {
@@ -1091,24 +976,36 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var expected = getNode(Relay.QL`
+      query {
+        node(id:"12345") {
+          id,
+          screennames {
+            name,
+          },
+        }
+      }
+    `);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
   });
 
   it('handles missing fields in fragments', () => {
-    var records = {
-      '4': {
-        __dataID__: '4',
-        id: '4',
-        name: 'Mark Zuckerberg',
-        lastName: 'Zuckerberg'
-      }
+    var payload = {
+      nodes: [
+        {
+          id: '4',
+          name: 'Mark Zuckerberg',
+          lastName: 'Zuckerberg',
+        },
+        {},
+      ],
     };
-    var store = new RelayRecordStore({records});
     var firstNameFrag = Relay.QL`
       fragment on Node {
         firstName
@@ -1136,6 +1033,9 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+
     var expectedFragment = Relay.QL`
       fragment on Node {
         ${firstNameFrag},
@@ -1162,8 +1062,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
 
     expect(diffQueries.length).toBe(2);
 
@@ -1190,20 +1089,35 @@ describe('diffRelayQuery', () => {
   });
 
   it('fetches the whole range if it is missing', () => {
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
-        name: 'Mark Zuckerberg'
-      }
+        name: 'Mark Zuckerberg',
+      },
     };
-    var store = new RelayRecordStore({records});
+    var query = getNode(Relay.QL`
+      query {
+        node(id:"4") {
+          id,
+          name,
+          friends(first: 5) {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+    `);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
     var expected = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id
@@ -1219,12 +1133,37 @@ describe('diffRelayQuery', () => {
       }
     `);
 
+    var diffQueries = diffRelayQuery(query, store);
+    expect(diffQueries.length).toBe(1);
+    expect(diffQueries[0].getName()).toBe(query.getName());
+    expect(diffQueries[0]).toEqualQueryRoot(expected);
+  });
+
+  it('fetches an extension of a range', () => {
+    var payload = {
+      node: {
+        id: '4',
+        friends: {
+          edges: [
+            {
+              cursor: 'cursor1',
+              node: {
+                id: '4808495',
+              },
+            },
+          ],
+          pageInfo: {
+            hasNextPage: true,
+            hasPreviousPage: false,
+          },
+        },
+      },
+    };
     var query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
-          name,
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id
@@ -1234,50 +1173,14 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
-    expect(diffQueries.length).toBe(1);
-    expect(diffQueries[0].getName()).toBe(query.getName());
-    expect(diffQueries[0]).toEqualQueryRoot(expected);
-  });
-
-  it('fetches an extension of a range', () => {
-    var mockRange = new GraphQLRange();
-    var records = {
-      '4': {
-        __dataID__: '4',
-        id: '4',
-        friends: {__dataID__: 'client:1'}
-      },
-      'client:1': {
-        __dataID__: 'client:1',
-        __range__: mockRange
-      },
-      'client:4:4808495': {
-        __dataID__: 'client:4:4808495',
-        node: {__dataID__: '4808495'},
-        cursor: 'cursor1'
-      },
-      '4808495': {
-        __dataID__: '4808495',
-        id: '4808495'
-      }
-    };
-    var store = new RelayRecordStore({records});
-    mockRange.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: ['client:4:4808495'],
-      diffCalls: [
-        {name: 'after', value: 'cursor1'},
-        {name: 'first', value: '4'}
-      ]
-    });
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
     var expected = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
-          friends(after:"cursor1",first:"4") {
+          friends(after:"cursor1",first: 4) {
             edges {
               cursor,
               node {
@@ -1293,65 +1196,55 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var query = getNode(Relay.QL`
-      query {
-        node(id:"4") {
-          id,
-          friends(first:"5") {
-            edges {
-              node {
-                id
-              }
-            }
-          }
-        }
-      }
-    `);
-
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
   });
 
   it('fetches missing parts of a range and diffs nodes it has', () => {
-    var mockRange = new GraphQLRange();
-    var mockEdge = {
-      __dataID__: 'client:4:4808495',
-      node: {__dataID__: '4808495'},
-      cursor: 'cursor1'
-    };
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
-        friends: {__dataID__: 'client:1'}
+        friends: {
+          edges: [
+            {
+              cursor: 'cursor1',
+              node: {
+                id: '4808495',
+              },
+            },
+          ],
+          pageInfo: {
+            hasNextPage: true,
+            hasPreviousPage: false,
+          },
+        },
       },
-      'client:1': {
-        __dataID__: 'client:1',
-        __range__: mockRange
-      },
-      'client:4:4808495': mockEdge,
-      '4808495': {
-        __dataID__: '4808495',
-        id: '4808495'
-      }
     };
-    var store = new RelayRecordStore({records});
-    mockRange.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: ['client:4:4808495'],
-      diffCalls: [
-        {name: 'after', value: 'cursor1'},
-        {name: 'first', value: '4'}
-      ]
-    });
+    var query = getNode(Relay.QL`
+      query {
+        node(id:"4") {
+          id,
+          friends(first: 5) {
+            edges {
+              node {
+                id,
+                name
+              }
+            }
+          }
+        }
+      }
+    `);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
     var expected1 = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
-          friends(after:"cursor1",first:"4") {
+          friends(after:"cursor1",first:4) {
             edges{
               cursor,
               node {
@@ -1381,11 +1274,45 @@ describe('diffRelayQuery', () => {
       }
     `);
 
+    var diffQueries = diffRelayQuery(query, store);
+    expect(diffQueries.length).toBe(2);
+    expect(diffQueries[0].getName()).toBe(query.getName());
+    expect(diffQueries[0]).toEqualQueryRoot(expected1);
+    expect(diffQueries[1].getName()).toBe(query.getName());
+    expect(diffQueries[1]).toEqualQueryRoot(expected2);
+  });
+
+  it('skips known-deleted nodes from ranges', () => {
+    var payload = {
+      node: {
+        id: '4',
+        friends: {
+          edges: [
+            {
+              cursor: 'cursor1',
+              node: {
+                id: 'deleteme',
+              },
+            },
+            {
+              cursor: 'cursor2',
+              node: {
+                id: '660361306',
+              },
+            },
+          ],
+          pageInfo: {
+            hasNextPage: true,
+            hasPreviousPage: false,
+          },
+        },
+      },
+    };
     var query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id,
@@ -1396,81 +1323,17 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
-    expect(diffQueries.length).toBe(2);
-    expect(diffQueries[0].getName()).toBe(query.getName());
-    expect(diffQueries[0]).toEqualQueryRoot(expected1);
-    expect(diffQueries[1].getName()).toBe(query.getName());
-    expect(diffQueries[1]).toEqualQueryRoot(expected2);
-
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(2);
-    expect(trackedQueries[1][1]).toBe('4');
-    expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
-      query {
-        node(id:"4") {
-          id,
-          friends(first:"5") {
-            edges {
-              node {
-                id,
-                name
-              }
-            }
-          }
-        }
-      }
-    `));
-  });
-
-  it('skips known-deleted nodes from ranges', () => {
-    var mockRange = new GraphQLRange();
-    var mockEdges = [
-      {
-        __dataID__: 'client:4:4808495',
-        node: {__dataID__: '4808495'},
-        cursor: 'cursor1'
-      },
-      {
-        __dataID__: 'client:4:660361306',
-        node: {__dataID__: '660361306'},
-        cursor: 'cursor1'
-      },
-    ];
-    var records = {
-      '4': {
-        __dataID__: '4',
-        id: '4',
-        friends: {__dataID__: 'client:1'}
-      },
-      'client:1': {
-        __dataID__: 'client:1',
-        __range__: mockRange
-      },
-      'client:4:4808495': mockEdges[0],
-      '4808495': null,
-      'client:4:660361306': mockEdges[1],
-      '660361306': {
-        __dataID__: '660361306',
-        id: '660361306'
-      }
-    };
-    var store = new RelayRecordStore({records});
-    mockRange.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: ['client:4:4808495', 'client:4:660361306'],
-      diffCalls: [
-        {name: 'after', value: 'cursor1'},
-        {name: 'first', value: '4'}
-      ]
-    });
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
+    var connectionID = store.getLinkedRecordID('4', 'friends');
+    var edgeID = generateClientEdgeID(connectionID, 'deleteme');
+    store.applyRangeUpdate(connectionID, edgeID, 'remove');
 
     var expected1 = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
-          friends(after:"cursor1",first:"4") {
+          friends(after:"cursor2",first: 4) {
             edges{
               cursor,
               node {
@@ -1499,49 +1362,12 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var query = getNode(Relay.QL`
-      query {
-        node(id:"4") {
-          id,
-          friends(first:"5") {
-            edges {
-              node {
-                id,
-                name
-              }
-            }
-          }
-        }
-      }
-    `);
-
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
-
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected1);
     expect(diffQueries[1].getName()).toBe(query.getName());
     expect(diffQueries[1]).toEqualQueryRoot(expected2);
-
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(2);
-    expect(trackedQueries[1][1]).toBe('4');
-    expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
-      query {
-        node(id:"4") {
-          id,
-          friends(first:"5") {
-            edges {
-              node {
-                id,
-                name
-              }
-            }
-          }
-        }
-      }
-    `));
   });
 
   it('splits out node() queries inside viewer-rooted queries', () => {
@@ -1551,40 +1377,29 @@ describe('diffRelayQuery', () => {
       cursor: 'cursor1'
     };
 
-    var mockRange = new GraphQLRange();
-    mockRange.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: ['client:viewer:4808495'],
-      diffCalls: null
-    });
-
-    var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
-        actor: {__dataID__: '4'},
+    var payload = {
+      'viewer': {
+        actor: {
+          id: '4',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor1',
+                node: {
+                  id: '4808495',
+                  firstName: 'Marshall',
+                },
+              },
+            ],
+          },
+        },
       },
-      '4': {
-        __dataID__: '4',
-        id: '4',
-        friends: {__dataID__: 'client:1'}
-      },
-      'client:1': {
-        __dataID__: 'client:1',
-        __range__: mockRange
-      },
-      'client:viewer:4808495': mockEdge,
-      '4808495': {
-        __dataID__: '4808495',
-        id: '4808495',
-        firstName: 'Marshall'
-      }
     };
-    var store = new RelayRecordStore({records}, {rootCallMap});
-
     var query = getNode(Relay.QL`
       query {
         viewer {
           actor {
-            friends(first:"1") {
+            friends(first: 1) {
               edges {
                 node {
                   name,
@@ -1595,8 +1410,10 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var store = new RelayRecordStore({records: {}}, {rootCallMap});
+    writePayload(store, query, payload);
+
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
@@ -1611,78 +1428,28 @@ describe('diffRelayQuery', () => {
         }
       }
     `));
-
-    var trackedQuery = getNode(Relay.QL`
-      query {
-        viewer {
-          actor {
-            id,
-            friends(first:"1") {
-              edges {
-                node {
-                  id,
-                  name,
-                },
-              },
-            },
-          },
-        }
-      }
-    `);
-    var innerTrackedQuery = trackedQuery.getFieldByStorageKey('actor');
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(3);
-    expect(trackedQueries[1][1]).toBe('4');
-    expect(trackedQueries[1][0]).toEqualQueryNode(innerTrackedQuery);
-    expect(trackedQueries[2][1]).toBe('client:viewer');
-    expect(trackedQueries[2][0]).toEqualQueryNode(trackedQuery);
   });
 
   it('splits out node() queries inside fragments', () => {
-    var mockRange = new GraphQLRange();
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
-        friends: {__dataID__: 'client:1'}
+        friends: {
+          edges: [
+            {
+              cursor: 'cursor1',
+              node: {
+                id: '4808495',
+                firstName: 'Marshall',
+              },
+            },
+          ],
+        },
       },
-      'client:1': {
-        __dataID__: 'client:1',
-        __range__: mockRange
-      },
-      'client:4:4808495': {
-        __dataID__: 'client:4:4808495',
-        node: {__dataID__: '4808495'},
-        cursor: 'cursor1'
-      },
-      '4808495': {
-        __dataID__: '4808495',
-        id: '4808495',
-        firstName: 'Marshall'
-      }
     };
-    var store = new RelayRecordStore({records});
-    mockRange.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: ['client:4:4808495'],
-      diffCalls: null
-    });
-
-    var expected = getVerbatimNode(Relay.QL`
-      query {
-        node(id:"4808495") {
-          id,
-          __typename,
-          ... on User {
-            id,
-            lastName,
-          },
-        }
-      }
-    `);
-
     var fragment = Relay.QL`
       fragment on User {
-        friends(first:"1") {
+        friends(first: 1) {
           edges {
             node {
               firstName,
@@ -1699,63 +1466,66 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
-    expect(diffQueries.length).toBe(1);
-    expect(diffQueries[0].getName()).toBe(query.getName());
-    expect(diffQueries[0]).toEqualQueryRoot(expected);
-
-    var trackedQuery = getNode(Relay.QL`
+    var expected = getVerbatimNode(Relay.QL`
       query {
-        node(id:"4") {
+        node(id:"4808495") {
           id,
-          ${fragment},
+          __typename,
+          ... on User {
+            id,
+            lastName,
+          },
         }
       }
     `);
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(2);
-    expect(trackedQueries[1][1]).toBe('4');
-    expect(trackedQueries[1][0]).toEqualQueryNode(trackedQuery);
+
+
+
+    var diffQueries = diffRelayQuery(query, store);
+    expect(diffQueries.length).toBe(1);
+    expect(diffQueries[0].getName()).toBe(query.getName());
+    expect(diffQueries[0]).toEqualQueryRoot(expected);
   });
 
   it('creates a find() query for edges', () => {
-    var mockRange = new GraphQLRange();
     var mockEdge = {
       __dataID__: 'client:4:4808495',
       node: {__dataID__: '4808495'},
       source: {__dataID__: '4'},
       cursor: 'cursor1'
     };
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
         name: 'Mark Zuckerberg',
-        friends: {__dataID__: 'client:1'}
+        friends: {
+          edges: [
+            {
+              cursor: 'cursor1',
+              node: {
+                id: '4808495',
+              },
+              source: {
+                id: '4',
+                name: 'Mark Zuckerberg',
+              },
+            },
+          ],
+          pageInfo: {
+            hasNextPage: true,
+            hasPreviousPage: false,
+          },
+        },
       },
-      'client:1': {
-        __dataID__: 'client:1',
-        __range__: mockRange
-      },
-      'client:4:4808495': mockEdge,
-      '4808495': {
-        __dataID__: '4808495',
-        id: '4808495'
-      }
     };
-    var store = new RelayRecordStore({records});
-    mockRange.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: ['client:4:4808495'],
-      diffCalls: null
-    });
-
     var query = getNode(Relay.QL`
       query {
-        nodes(ids:"4") {
+        node(id:"4") {
           id,
-          friends(first:"1") {
+          friends(first: 1) {
             edges {
               node {
                 id
@@ -1770,14 +1540,15 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var store = new RelayRecordStore({records: {}});
+    writePayload(store, query, payload);
 
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
-        nodes(ids:"4") {
+        node(id:"4") {
           id,
           __typename,
           friends(find:"4808495") {
@@ -1799,35 +1570,67 @@ describe('diffRelayQuery', () => {
   });
 
   it('supports diff queries inside find() queries', () => {
-    var mockRange = new GraphQLRange();
-    var mockEdge = {
-      __dataID__: 'client:4:4808495',
-      node: {__dataID__: '4808495'},
-      source: {__dataID__: '4'},
-      cursor: 'cursor1'
-    };
-    var records = {
-      '4': {
-        __dataID__: '4',
+    var payload = {
+      node: {
         id: '4',
-        friends: {__dataID__: 'client:1'}
+        friends: {
+          edges: [
+            {
+              cursor: 'cursor1',
+              node: {
+                id: '4808495',
+              },
+              source: {
+                id: '4',
+                friends: {
+                  edges: [
+                    {
+                      node: {
+                        id: '4808495',
+                        name: 'Marshall Roch',
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          pageInfo: {
+            hasNextPage: true,
+            hasPreviousPage: false,
+          },
+        },
       },
-      'client:1': {
-        __dataID__: 'client:1',
-        __range__: mockRange
-      },
-      'client:4:4808495': mockEdge,
-      '4808495': {
-        __dataID__: '4808495',
-        id: '4808495',
-        name: 'Marshall Roch'
-      }
     };
+    var query = getNode(Relay.QL`
+      query {
+        node(id:"4") {
+          id,
+          friends(first: 1) {
+            edges {
+              node {
+                id,
+              },
+              source {
+                id,
+                friends(first: 1) {
+                  edges {
+                    node {
+                      id,
+                      name,
+                      lastName
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+    var records = {};
     var store = new RelayRecordStore({records});
-    mockRange.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: ['client:4:4808495'],
-      diffCalls: null
-    });
+    writePayload(store, query, payload);
 
     var expected = getVerbatimNode(Relay.QL`
       query {
@@ -1842,81 +1645,9 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var query = getNode(Relay.QL`
-      query {
-        nodes(ids:"4") {
-          id,
-          friends(first:"1") {
-            edges {
-              node {
-                id,
-              },
-              source {
-                id,
-                friends(first:"1") {
-                  edges {
-                    node {
-                      id,
-                      name,
-                      lastName
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    var diffQueries = diffRelayQuery(query, store);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
-
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
-    expect(trackedQueries.length).toBe(5);
-    expect(trackedQueries[1][1]).toBe('4');
-    expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
-      fragment on FriendsEdge {
-        source {
-          id,
-          friends(first:"1") {
-            edges {
-              node {
-                id,
-                name,
-                lastName,
-              }
-            }
-          }
-        }
-      }
-    `).getChildren()[0]);
-
-    expect(trackedQueries[4][1]).toBe('4');
-    expect(trackedQueries[4][0]).toEqualQueryNode(getNode(Relay.QL`
-      query {
-        nodes(ids:"4") {
-          id,
-          friends(first:"1") {
-            edges {
-              source {
-                id,
-                friends(first:"1") {
-                  edges {
-                    node {
-                      id,
-                      name,
-                      lastName
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `));
   });
 });

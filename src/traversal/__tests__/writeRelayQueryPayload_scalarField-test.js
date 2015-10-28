@@ -35,8 +35,7 @@ describe('writeRelayQueryPayload()', () => {
 
   describe('scalar fields', () => {
     it('created with null when the response is null', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
+      var store = new RelayRecordStore({records: {}});
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -61,13 +60,6 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('adds null fields to an existing record when response is null', () => {
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-        }
-      };
-      var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -78,8 +70,16 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: null
-        }
+        },
+      };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
+      payload = {
+        node: {
+          id: '123',
+          name: null,
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
@@ -92,14 +92,6 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('updates fields when the response is null', () => {
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          name: 'Joe'
-        }
-      };
-      var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -110,8 +102,17 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: null
-        }
+          name: 'Joe',
+        },
+      };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
+      payload = {
+        node: {
+          id: '123',
+          name: null,
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
@@ -124,8 +125,7 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('does not add undefined fields to a new record', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
+      var store = new RelayRecordStore({records: {}});
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -136,8 +136,8 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: undefined
-        }
+          name: undefined,
+        },
       };
       writePayload(store, query, payload);
       expect(store.getField('123', 'id')).toBe('123');
@@ -145,13 +145,6 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('does not add undefined fields to an existing record', () => {
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-        }
-      };
-      var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -162,8 +155,16 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: undefined
-        }
+        },
+      };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
+      payload = {
+        node: {
+          id: '123',
+          name: undefined,
+        },
       };
       writePayload(store, query, payload);
       expect(store.getField('123', 'id')).toBe('123');
@@ -171,14 +172,6 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('does not update fields when the response is undefined', () => {
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          name: 'Joe'
-        }
-      };
-      var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -187,6 +180,15 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
+        node: {
+          id: '123',
+          name: 'Joe',
+        },
+      };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
+      payload = {
         node: {
           id: '123',
           name: undefined
@@ -197,14 +199,6 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('updates fields wth new scalar values', () => {
-      var records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          name: 'Joe'
-        }
-      };
-      var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -213,6 +207,15 @@ describe('writeRelayQueryPayload()', () => {
         }
       `);
       var payload = {
+        node: {
+          id: '123',
+          name: 'Joe',
+        },
+      };
+      var store = new RelayRecordStore({records: {}});
+      writePayload(store, query, payload);
+
+      payload = {
         node: {
           id: '123',
           name: 'Joseph'

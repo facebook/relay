@@ -19,7 +19,6 @@ var RelayNodeInterface = require('RelayNodeInterface');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 var RelayQueryPath = require('RelayQueryPath');
-import type RelayQueryTracker from 'RelayQueryTracker';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
@@ -51,10 +50,6 @@ type DiffScope = {
   edgeID: ?DataID,
   rangeInfo: ?RangeInfo;
 };
-type DiffOutput = {
-  diffNode: ?RelayQuery.Node;
-  trackedNode: ?RelayQuery.Node;
-};
 
 /**
  * @internal
@@ -65,13 +60,12 @@ type DiffOutput = {
  */
 function diffRelayQuery(
   root: RelayQuery.Root,
-  store: RelayRecordStore,
-  tracker: RelayQueryTracker
+  store: RelayRecordStore
 ): Array<RelayQuery.Root> {
   var path = new RelayQueryPath(root);
   var queries = [];
 
-  var visitor = new RelayDiffQueryBuilder(store, tracker);
+  var visitor = new RelayDiffQueryBuilder(store);
   const rootIdentifyingArg = root.getIdentifyingArg();
   const rootIdentifyingArgValue =
     (rootIdentifyingArg && rootIdentifyingArg.value) || null;
@@ -119,8 +113,7 @@ function diffRelayQuery(
 
     // Diff the current dataID
     var scope = makeScope(dataID);
-    var diffOutput = visitor.visit(nodeRoot, path, scope);
-    var diffNode = diffOutput ? diffOutput.diffNode : null;
+    var diffNode = visitor.visit(nodeRoot, path, scope);
     if (diffNode) {
       invariant(
         diffNode instanceof RelayQuery.Root,
@@ -135,28 +128,21 @@ function diffRelayQuery(
 /**
  * @internal
  *
- * A transform for (node + store) -> (diff + tracked queries). It is analagous
- * to `RelayQueryTransform` with the main differences as follows:
+ * A transform for (node + store) -> [diff query]. It is analagous to
+ * `RelayQueryTransform` with the main differences as follows:
  * - there is no `state` (which allowed for passing data up and down the tree).
  * - data is passed down via `scope`, which flows from a parent field down
  *   through intermediary fragments to the nearest child field.
- * - data is passed up via the return type `{diffNode, trackedNode}`, where:
- *   - `diffNode`: subset of the input that could not diffed out
- *   - `trackedNode`: subset of the input that must be tracked
  *
- * The provided `tracker` is updated whenever the traversal of a node results
- * in a `trackedNode` being created. New top-level queries are not returned
- * up the tree, and instead are available via `getSplitQueries()`.
+ * New top-level queries are available via `getSplitQueries()`.
  */
 class RelayDiffQueryBuilder {
   _store: RelayRecordStore;
   _splitQueries: Array<RelayQuery.Root>;
-  _tracker: RelayQueryTracker;
 
-  constructor(store: RelayRecordStore, tracker: RelayQueryTracker) {
+  constructor(store: RelayRecordStore) {
     this._store = store;
     this._splitQueries = [];
-    this._tracker = tracker;
   }
 
   splitQuery(
@@ -173,7 +159,7 @@ class RelayDiffQueryBuilder {
     node: RelayQuery.Node,
     path: RelayQueryPath,
     scope: DiffScope
-  ): ?DiffOutput {
+  ): ?RelayQuery.Node {
     if (node instanceof RelayQuery.Field) {
       return this.visitField(node, path, scope);
     } else if (node instanceof RelayQuery.Fragment) {
@@ -187,7 +173,7 @@ class RelayDiffQueryBuilder {
     node: RelayQuery.Root,
     path: RelayQueryPath,
     scope: DiffScope
-  ): ?DiffOutput {
+  ): ?RelayQuery.Node {
     return this.traverse(node, path, scope);
   }
 
@@ -195,7 +181,7 @@ class RelayDiffQueryBuilder {
     node: RelayQuery.Fragment,
     path: RelayQueryPath,
     scope: DiffScope
-  ): ?DiffOutput {
+  ): ?RelayQuery.Node {
     return this.traverse(node, path, scope);
   }
 
@@ -207,7 +193,7 @@ class RelayDiffQueryBuilder {
     node: RelayQuery.Field,
     path: RelayQueryPath,
     {connectionField, dataID, edgeID, rangeInfo}: DiffScope
-  ): ?DiffOutput {
+  ): ?RelayQuery.Node {
     // special case when inside a connection traversal
     if (connectionField && rangeInfo) {
       if (edgeID) {
@@ -231,12 +217,7 @@ class RelayDiffQueryBuilder {
           node.getSchemaName() === EDGES ||
           node.getSchemaName() === PAGE_INFO
         ) {
-          return rangeInfo.diffCalls.length > 0 ?
-            {
-              diffNode: node,
-              trackedNode: null
-            } :
-            null;
+          return rangeInfo.diffCalls.length > 0 ? node : null;
         }
       }
     }
@@ -245,10 +226,7 @@ class RelayDiffQueryBuilder {
     if (node.isScalar()) {
       return this.diffScalar(node, dataID);
     } else if (node.isGenerated()) {
-      return {
-        diffNode: node,
-        trackedNode: null,
-      };
+      return node;
     } else if (node.isConnection()) {
       return this.diffConnection(node, path, dataID);
     } else if (node.isPlural()) {
@@ -265,18 +243,13 @@ class RelayDiffQueryBuilder {
     node: RelayQuery.Node,
     path: RelayQueryPath,
     scope: DiffScope
-  ): ?DiffOutput {
+  ): ?RelayQuery.Node {
     var diffNode;
     var diffChildren;
-    var trackedNode;
-    var trackedChildren;
     var hasDiffField = false;
-    var hasTrackedField = false;
 
     node.getChildren().forEach(child => {
-      var diffOutput = this.visit(child, path, scope);
-      var diffChild = diffOutput ? diffOutput.diffNode : null;
-      var trackedChild = diffOutput ? diffOutput.trackedNode : null;
+      var diffChild = this.visit(child, path, scope);
 
       // Diff uses child nodes and keeps requisite fields
       if (diffChild) {
@@ -296,35 +269,14 @@ class RelayDiffQueryBuilder {
         diffChildren = diffChildren || [];
         diffChildren.push(child);
       }
-      // Tracker uses tracked children and keeps requisite fields
-      if (trackedChild) {
-        trackedChildren = trackedChildren || [];
-        trackedChildren.push(trackedChild);
-        hasTrackedField = hasTrackedField || !trackedChild.isGenerated();
-      } else if (child.isRequisite()) {
-        trackedChildren = trackedChildren || [];
-        trackedChildren.push(child);
-      }
     });
 
-    // Only return diff/tracked node if there are non-generated fields
+    // Only return diff node if there are non-generated fields
     if (diffChildren && hasDiffField) {
       diffNode = node.clone(diffChildren);
     }
-    if (trackedChildren && hasTrackedField) {
-      trackedNode = node.clone(trackedChildren);
-    }
-    // Record tracked nodes. Fragments can be skipped because these will
-    // always be composed into, and therefore tracked by, their nearest
-    // non-fragment parent.
-    if (trackedNode && !(trackedNode instanceof RelayQuery.Fragment)) {
-      this._tracker.trackNodeForID(trackedNode, scope.dataID, path);
-    }
 
-    return {
-      diffNode,
-      trackedNode,
-    };
+    return diffNode;
   }
 
   /**
@@ -333,12 +285,9 @@ class RelayDiffQueryBuilder {
   diffScalar(
     field: RelayQuery.Field,
     dataID: DataID,
-  ): ?DiffOutput {
+  ): ?RelayQuery.Node {
     if (this._store.getField(dataID, field.getStorageKey()) === undefined) {
-      return {
-        diffNode: field,
-        trackedNode: null,
-      };
+      return field;
     }
     return null;
   }
@@ -351,14 +300,11 @@ class RelayDiffQueryBuilder {
     field: RelayQuery.Field,
     path: RelayQueryPath,
     dataID: DataID,
-  ): ?DiffOutput {
+  ): ?RelayQuery.Node {
     var nextDataID =
       this._store.getLinkedRecordID(dataID, field.getStorageKey());
     if (nextDataID === undefined) {
-      return {
-        diffNode: field,
-        trackedNode: null,
-      };
+      return field;
     }
     if (nextDataID === null) {
       return null;
@@ -379,15 +325,12 @@ class RelayDiffQueryBuilder {
     field: RelayQuery.Field,
     path: RelayQueryPath,
     dataID: DataID
-  ): ?DiffOutput {
+  ): ?RelayQuery.Node {
     var linkedIDs =
       this._store.getLinkedRecordIDs(dataID, field.getStorageKey());
     if (linkedIDs === undefined) {
       // not fetched
-      return {
-        diffNode: field,
-        trackedNode: null,
-      };
+      return field;
     } else if (linkedIDs === null || linkedIDs.length === 0) {
       // empty array means nothing to fetch
       return null;
@@ -396,35 +339,20 @@ class RelayDiffQueryBuilder {
       // from other sources, so check them all. For example, `Story{actors}`
       // is an array (but not a range), and the Actors in that array likely
       // had data fetched for them elsewhere (like `viewer(){actor}`).
-      var hasSplitQueries = false;
       linkedIDs.forEach(itemID => {
-        var itemState = this.traverse(
+        var diffNode = this.traverse(
           field,
           path.getPath(field, itemID),
           makeScope(itemID)
         );
-        if (itemState) {
-          // If any child was tracked then `field` will also be tracked
-          hasSplitQueries =
-            hasSplitQueries || !!itemState.trackedNode || !!itemState.diffNode;
-          // split diff nodes into root queries
-          if (itemState.diffNode) {
-            this.splitQuery(buildRoot(
-              itemID,
-              itemState.diffNode.getChildren(),
-              path.getName()
-            ));
-          }
+        if (diffNode) {
+          this.splitQuery(buildRoot(
+            itemID,
+            diffNode.getChildren(),
+            path.getName()
+          ));
         }
       });
-      // if sub-queries are split then this *entire* field will be tracked,
-      // therefore we don't need to merge the `trackedNode` from each item
-      if (hasSplitQueries) {
-        return {
-          diffNode: null,
-          trackedNode: field,
-        };
-      }
     } else {
       // The items in this array are not fetchable by ID, so nothing else
       // could have fetched additional data for individual items. Therefore,
@@ -450,7 +378,7 @@ class RelayDiffQueryBuilder {
     field: RelayQuery.Field,
     path: RelayQueryPath,
     dataID: DataID,
-  ): ?DiffOutput {
+  ): ?RelayQuery.Node {
     var store: RelayRecordStore = this._store;
     var connectionID = store.getLinkedRecordID(dataID, field.getStorageKey());
     var rangeInfo = store.getRangeMetadata(
@@ -459,10 +387,7 @@ class RelayDiffQueryBuilder {
     );
     // Keep the field if the connection is unfetched
     if (connectionID === undefined) {
-      return {
-        diffNode: field,
-        trackedNode: null,
-      };
+      return field;
     }
     // Skip if the connection is deleted.
     if (connectionID === null) {
@@ -481,7 +406,6 @@ class RelayDiffQueryBuilder {
     var {diffCalls, filteredEdges} = rangeInfo;
 
     // check existing edges for missing fields
-    var hasSplitQueries = false;
     filteredEdges.forEach(edge => {
       // Flow loses type information in closures
       if (rangeInfo && connectionID) {
@@ -491,16 +415,13 @@ class RelayDiffQueryBuilder {
           edgeID: edge.edgeID,
           rangeInfo,
         };
-        var diffOutput = this.traverse(
+        // missing fields from edges will result in split queries and no
+        // diffed fields
+        this.traverse(
           field,
           path.getPath(field, edge.edgeID),
           scope
         );
-        // If any edges were missing data (resulting in a split query),
-        // then the entire original connection field must be tracked.
-        if (diffOutput) {
-          hasSplitQueries = hasSplitQueries || !!diffOutput.trackedNode;
-        }
       }
     });
 
@@ -512,38 +433,19 @@ class RelayDiffQueryBuilder {
       rangeInfo,
     };
     // diff non-`edges` fields such as `count`
-    var diffOutput = this.traverse(
+    var diffNode = this.traverse(
       field,
       path.getPath(field, connectionID),
       scope
     );
-    var diffNode = diffOutput ? diffOutput.diffNode : null;
-    var trackedNode = diffOutput ? diffOutput.trackedNode : null;
     if (diffCalls.length && diffNode instanceof RelayQuery.Field) {
       diffNode = diffNode.cloneFieldWithCalls(
         diffNode.getChildren(),
         diffCalls
       );
     }
-    // if a sub-query was split, then we must track the entire field, which will
-    // be a superset of the `trackedNode` from traversing any metadata fields.
-    // Example:
-    // dataID: `4`
-    // node: `friends.first(3)`
-    // diffNode: null
-    // splitQueries: `node(friend1) {...}`, `node(friend2) {...}`
-    //
-    // In this case the two fetched `node` queries do not reflect the fact that
-    // `friends.first(3)` were fetched for item `4`, so `friends.first(3)` has
-    // to be tracked as-is.
-    if (hasSplitQueries) {
-      trackedNode = field;
-    }
 
-    return {
-      diffNode,
-      trackedNode
-    };
+    return diffNode;
   }
 
   /**
@@ -558,7 +460,7 @@ class RelayDiffQueryBuilder {
     path: RelayQueryPath,
     edgeID: DataID,
     rangeInfo: RangeInfo
-  ): ?DiffOutput {
+  ): void {
     var nodeID = this._store.getLinkedRecordID(edgeID, NODE);
     if (!nodeID || GraphQLStoreDataHandler.isClientID(nodeID)) {
       warning(
@@ -568,17 +470,14 @@ class RelayDiffQueryBuilder {
         '`%s`.',
         connectionField.getStorageKey()
       );
-      return null;
+      return;
     }
 
-    var hasSplitQueries = false;
-    var diffOutput = this.traverse(
+    var diffNode = this.traverse(
       edgeField,
       path.getPath(edgeField, edgeID),
       makeScope(edgeID)
     );
-    var diffNode = diffOutput ? diffOutput.diffNode : null;
-    var trackedNode = diffOutput ? diffOutput.trackedNode : null;
 
     if (diffNode) {
       var {
@@ -588,7 +487,6 @@ class RelayDiffQueryBuilder {
 
       // split missing `node` fields into a `node(id)` root query
       if (diffNodeField) {
-        hasSplitQueries = true;
         this.splitQuery(buildRoot(
           nodeID,
           diffNodeField.getChildren(),
@@ -607,7 +505,6 @@ class RelayDiffQueryBuilder {
             rangeInfo.filterCalls.concat({name: 'find', value: nodeID})
           );
           if (connectionFind) {
-            hasSplitQueries = true;
             // current path has `parent`, `connection`, `edges`; pop to parent
             var connectionParent = path.getParent().getParent();
             this.splitQuery(connectionParent.getQuery(connectionFind));
@@ -624,16 +521,7 @@ class RelayDiffQueryBuilder {
       }
     }
 
-    // Connection edges will never return diff nodes; instead missing fields
-    // are fetched by new root queries. Tracked nodes are returned if either
-    // a child field was tracked or missing fields were split into a new query.
-    // The returned `trackedNode` is never tracked directly: instead it serves
-    // as an indicator to `diffConnection` that the entire connection field must
-    // be tracked.
-    return {
-      diffNode: null,
-      trackedNode: hasSplitQueries ? edgeField : trackedNode,
-    };
+    return;
   }
 }
 

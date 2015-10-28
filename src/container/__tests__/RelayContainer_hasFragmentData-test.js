@@ -15,10 +15,10 @@ var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
 var Relay = require('Relay');
 var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
+var RelayStoreData = require('RelayStoreData');
 
 describe('RelayContainer.hasFragmentData', function() {
   var MockContainer;
@@ -40,11 +40,13 @@ describe('RelayContainer.hasFragmentData', function() {
     });
     MockContainer.mock = {render};
 
-    var RelayTestRenderer = RelayTestUtils.createRenderer();
-    GraphQLStoreQueryResolver.mockDefaultResolveImplementation((pointer) => {
+    var storeData = RelayStoreData.getDefaultInstance();
+    storeData.readFragmentPointer.mockImplementation(pointer => {
       expect(pointer.getDataID()).toBe('42');
       return {__dataID__: '42', id: '42', url: null};
     });
+
+    var RelayTestRenderer = RelayTestUtils.createRenderer();
     mockRender = () => {
       return RelayTestRenderer.render(genMockPointer => {
         return <MockContainer foo={genMockPointer('42')} />;

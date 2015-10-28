@@ -148,6 +148,9 @@ var RelayTestUtils = {
       fragment.constructor.name
     );
 
+    if (Array.isArray(dataID)) {
+      return dataID.map(id => RelayTestUtils.getPointer(id, fragment));
+    }
     var fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
     return {[fragment.getConcreteFragmentID()]: fragmentPointer};
   },
@@ -466,12 +469,10 @@ var RelayTestUtils = {
     var RelayQueryWriter = require('RelayQueryWriter');
     var writeRelayQueryPayload = require('writeRelayQueryPayload');
 
-    tracker = tracker || new RelayQueryTracker();
     options = options || {};
     var changeTracker = new RelayChangeTracker();
     var writer = new RelayQueryWriter(
       store,
-      tracker,
       changeTracker,
       options
     );

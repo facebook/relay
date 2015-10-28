@@ -17,7 +17,8 @@ RelayTestUtils.unmockRelay();
 jest
   .dontMock('GraphQLMutatorConstants')
   .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment');
+  .dontMock('GraphQLSegment')
+  .dontMock('RelayStoreData');
 
 var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 var Relay = require('Relay');
@@ -265,7 +266,7 @@ describe('RelayStoreData', function() {
       query {
         node(id:"123") {
           id,
-          friends(first:"2") {
+          friends(first: 2) {
             edges {
               node {
                 id
@@ -354,7 +355,7 @@ describe('RelayStoreData', function() {
       query {
         node(id:"123") {
           id,
-          friends(first:"2") {
+          friends(first: 2) {
             edges {
               node {
                 id
@@ -452,7 +453,7 @@ describe('RelayStoreData', function() {
       query {
         node(id:"123") {
           id,
-          comments(first:"1") {
+          comments(first: 1) {
             count,
             edges {
               node {
@@ -573,7 +574,7 @@ describe('RelayStoreData', function() {
       query {
         node(id:"123") {
           id,
-          comments(first:"1") {
+          comments(first: 1) {
             count,
             edges {
               node {

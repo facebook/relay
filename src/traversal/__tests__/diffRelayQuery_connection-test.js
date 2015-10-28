@@ -57,7 +57,7 @@ describe('diffRelayQuery', () => {
     var query = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 id
@@ -95,7 +95,7 @@ describe('diffRelayQuery', () => {
     var query = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 id
@@ -155,7 +155,7 @@ describe('diffRelayQuery', () => {
     var query = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"5") {
+          newsFeed(first: 5) {
             edges {
               node {
                 id
@@ -196,7 +196,7 @@ describe('diffRelayQuery', () => {
     var writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 message {
@@ -248,7 +248,7 @@ describe('diffRelayQuery', () => {
     var fetchQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 feedback {
@@ -314,7 +314,7 @@ describe('diffRelayQuery', () => {
     var writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 message {
@@ -332,7 +332,7 @@ describe('diffRelayQuery', () => {
     var fetchQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 feedback {
@@ -438,7 +438,7 @@ describe('diffRelayQuery', () => {
     var writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 message {
@@ -457,7 +457,7 @@ describe('diffRelayQuery', () => {
     var fetchQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               sortKey,
               node {
@@ -622,7 +622,7 @@ describe('diffRelayQuery', () => {
     var writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          notificationStories(first:"3") {
+          notificationStories(first: 3) {
             edges {
               node {
                 message {
@@ -642,7 +642,7 @@ describe('diffRelayQuery', () => {
     var fetchQuery = getNode(Relay.QL`
       query {
         viewer {
-          notificationStories(first:"3") {
+          notificationStories(first: 3) {
             edges {
               showBeeper,
               node {
@@ -731,7 +731,7 @@ describe('diffRelayQuery', () => {
     var writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"1") {
+          newsFeed(first: 1) {
             edges {
               node {
                 message {
@@ -752,7 +752,7 @@ describe('diffRelayQuery', () => {
     var fetchQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"1") {
+          newsFeed(first: 1) {
             edges {
               ${edgeFragment},
               node {

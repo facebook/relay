@@ -44,7 +44,7 @@ function toQuery<Tn: RelayQuery.Node>(
   node: Tn,
   flattenedFieldMap: {[key: string]: FlattenedQuery}
 ): ?Tn {
-  var keys = Object.keys(flattenedFieldMap).sort(sortTypeFirst);
+  var keys = Object.keys(flattenedFieldMap);
   return node.clone(
     keys.map(alias => {
       var field = flattenedFieldMap[alias];

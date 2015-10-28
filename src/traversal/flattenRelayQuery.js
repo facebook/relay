@@ -19,9 +19,37 @@ var RelayQueryVisitor = require('RelayQueryVisitor');
 
 var sortTypeFirst = require('sortTypeFirst');
 
+/* @flow */
+class FlattenedMap {
+  hash:  { [key: string]: Object };
+  array: [ string ];
+
+  constructor() {
+    this.hash = {};
+    this.array = [];
+  }
+
+  get(key): FlattenedQuery {
+    var hashValue = this.hash[key];
+    return hashValue && hashValue.value || undefined;
+  }
+
+  set(key, value) {
+    var old = this.hash[key];
+    if (old) { this.array.splice(old.index, 1); }
+    this.hash[key] = { value: value, index: this.array.length };
+    this.array.push(key);
+  }
+
+  keys(): [ string ] {
+    return this.array;
+  }
+}
+
 type FlattenedQuery = {
   node: RelayQuery.Node;
-  flattenedFieldMap: {[key: string]: FlattenedQuery};
+  // flattenedFieldMap: {[key: string]: FlattenedQuery};
+  flattenedFieldMap: FlattenedMap;
 };
 
 /**
@@ -35,19 +63,19 @@ type FlattenedQuery = {
  */
 function flattenRelayQuery<Tn: RelayQuery.Node>(node: Tn): ?Tn {
   var flattener = new RelayQueryFlattener();
-  var flattenedFieldMap = {};
+  var flattenedFieldMap = new FlattenedMap();
   flattener.traverse(node, {node, flattenedFieldMap});
   return toQuery(node, flattenedFieldMap);
 }
 
 function toQuery<Tn: RelayQuery.Node>(
   node: Tn,
-  flattenedFieldMap: {[key: string]: FlattenedQuery}
+  flattenedFieldMap: FlattenedMap
 ): ?Tn {
-  var keys = Object.keys(flattenedFieldMap).sort(sortTypeFirst);
+  var keys = flattenedFieldMap.keys().sort(sortTypeFirst);
   return node.clone(
     keys.map(alias => {
-      var field = flattenedFieldMap[alias];
+      var field = flattenedFieldMap.get(alias);
       if (field) {
         return toQuery(field.node, field.flattenedFieldMap);
       }
@@ -61,13 +89,13 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
     state: FlattenedQuery
   ): ?RelayQuery.Node {
     var serializationKey = node.getSerializationKey();
-    var flattenedField = state.flattenedFieldMap[serializationKey];
+    var flattenedField = state.flattenedFieldMap.get(serializationKey);
     if (!flattenedField) {
       flattenedField = {
         node,
-        flattenedFieldMap: {}
+        flattenedFieldMap: new FlattenedMap()
       };
-      state.flattenedFieldMap[serializationKey] = flattenedField;
+      state.flattenedFieldMap.set(serializationKey, flattenedField);
     }
     this.traverse(node, flattenedField);
   }

@@ -63,11 +63,16 @@ var RelayQLPrinter = (function () {
       } else {
         invariant(false, 'Unsupported definition: %s', definition);
       }
-      return t.callExpression(t.functionExpression(null, substitutions.map(function (substitution) {
+      var callExpression = t.callExpression(t.functionExpression(null, substitutions.map(function (substitution) {
         return t.identifier(substitution.name);
       }), t.blockStatement([t.variableDeclaration('var', [t.variableDeclarator(t.identifier('GraphQL'), t.memberExpression(identify(this.tagName), t.identifier('__GraphQL')))]), t.returnStatement(printedDocument)])), substitutions.map(function (substitution) {
         return substitution.value;
       }));
+
+      if (this.tagName === 'Relay.Query') {
+        return t.callExpression(identify('Relay.createQuery'), [callExpression, t.objectExpression([])]);
+      }
+      return callExpression;
     }
   }, {
     key: 'printQuery',

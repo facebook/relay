@@ -1,34 +1,25 @@
 Input:
 var Relay = require('react-relay');
-var x = Relay.QL`
+var query = Relay.Query`
   query {
     node(id: 123) {
-      ... on User {
-        gender,
-      },
-    },
+      id
+    }
   }
 `;
 
 Output:
 var Relay = require('react-relay');
-var x = (function () {
-  var GraphQL = Relay.QL.__GraphQL;
+var query = Relay.createQuery((function () {
+  var GraphQL = Relay.Query.__GraphQL;
   return new GraphQL.Query('node', new GraphQL.CallValue(123), [new GraphQL.Field('id', null, null, null, null, null, {
     parentType: 'Node',
-    generated: true,
     requisite: true
   }), new GraphQL.Field('__typename', null, null, null, null, null, {
     parentType: 'Node',
     generated: true,
     requisite: true
-  })], [new GraphQL.QueryFragment('User', 'User', [new GraphQL.Field('gender', null, null, null, null, null, {
-    parentType: 'User'
-  }), new GraphQL.Field('id', null, null, null, null, null, {
-    parentType: 'User',
-    generated: true,
-    requisite: true
-  })])], {
+  })], null, {
     identifyingArgName: 'id'
-  }, 'FieldForEnum');
-})();
+  }, 'RelayQuery');
+})(), {});

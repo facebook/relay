@@ -112,7 +112,8 @@ class RelayQueryNode {
     var node = createNode(concreteNode, route, variables);
     invariant(
       node instanceof RelayQueryNode,
-      'RelayQueryNode.create(): Expected a node.'
+      'RelayQueryNode.create(): ' +
+      'Expected a GraphQL fragment, mutation, or query.'
     );
     return node;
   }
@@ -361,7 +362,7 @@ class RelayQueryRoot extends RelayQueryNode {
   ): RelayQueryRoot {
     invariant(
       GraphQL.isQuery(concreteNode),
-      'RelayQueryRoot.create(): Expected a concrete query, got: %s',
+      'RelayQueryRoot.create(): Expected a GraphQL `query { ... }`, got: %s',
       concreteNode
     );
     return new RelayQueryRoot(
@@ -644,7 +645,7 @@ class RelayQuerySubscription extends RelayQueryOperation {
     invariant(
       GraphQL.isSubscription(concreteNode),
       'RelayQuerySubscription.create(): ' +
-      'Expected a concrete subscription, got: %s',
+      'Expected a GraphQL `subscription { ... }`, got: %s',
       concreteNode
     );
     return new RelayQuerySubscription(
@@ -729,7 +730,7 @@ class RelayQueryFragment extends RelayQueryNode {
     invariant(
       GraphQL.isFragment(concreteNode),
       'RelayQueryFragment.create(): ' +
-      'Expected a concrete query fragment, got: %s',
+      'Expected a GraphQL `fragment { ... }`, got: %s',
       concreteNode
     );
     return createMemoizedFragment(
@@ -1210,7 +1211,10 @@ function createNode(
     }
     return null;
   } else {
-    invariant(false, 'RelayQueryNode: Invalid concrete node.');
+    invariant(
+      false,
+      'RelayQueryNode: Expected a GraphQL fragment, mutation, or query.'
+    );
   }
   return new type(
     concreteNode,

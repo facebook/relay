@@ -24,6 +24,7 @@ var RelayStore = require('RelayStore');
 var RelayTaskScheduler = require('RelayTaskScheduler');
 var RelayInternals = require('RelayInternals');
 
+var createRelayQuery = require('createRelayQuery');
 var getRelayQueries = require('getRelayQueries');
 var isRelayContainer = require('isRelayContainer');
 
@@ -39,11 +40,13 @@ var RelayPublic = {
   Mutation: RelayMutation,
   PropTypes: RelayPropTypes,
   QL: RelayQL,
+  Query: RelayQL,
   RootContainer: RelayRootContainer,
   Route: RelayRoute,
   Store: RelayStore,
 
   createContainer: RelayContainer.create,
+  createQuery: createRelayQuery,
   getQueries: getRelayQueries,
   injectNetworkLayer: RelayNetworkLayer.injectNetworkLayer,
   injectTaskScheduler: RelayTaskScheduler.injectScheduler,

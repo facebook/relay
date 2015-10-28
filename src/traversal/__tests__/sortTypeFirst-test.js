@@ -20,9 +20,9 @@ describe('sortTypeFirst', () => {
     expect(sortTypeFirst('__type__', '__type__')).toBe(0);
   });
 
-  it('compares non-`__type__` strings', () => {
-    expect(sortTypeFirst('a', 'b')).toBe(-1);
-    expect(sortTypeFirst('b', 'a')).toBe(1);
+  it('does not compare non-`__type__` strings', () => {
+    expect(sortTypeFirst('a', 'b')).toBe(0);
+    expect(sortTypeFirst('b', 'a')).toBe(0);
     expect(sortTypeFirst('a', 'a')).toBe(0);
   });
 });

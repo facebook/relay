@@ -11,25 +11,25 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var Relay = require('Relay');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var flattenRelayQuery = require('flattenRelayQuery');
-var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
+const Relay = require('Relay');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const flattenRelayQuery = require('flattenRelayQuery');
+const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 
-describe('inferRelayFieldsFromData', function() {
-  var {getVerbatimNode, matchers} = RelayTestUtils;
-  var HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
+describe('inferRelayFieldsFromData', () => {
+  const {getVerbatimNode, matchers} = RelayTestUtils;
+  let HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
 
-  beforeEach(function() {
+  beforeEach(() => {
     jest.resetModuleRegistry();
 
     ({
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
-      PAGE_INFO
+      PAGE_INFO,
     } = RelayConnectionInterface);
 
     jest.addMatchers({
@@ -39,12 +39,12 @@ describe('inferRelayFieldsFromData', function() {
         this.actual = flattenRelayQuery(expected.clone(this.actual));
         // NOTE: Generated fields might get in the way.
         return matchers.toEqualQueryNode.call(this, expected);
-      }
+      },
     });
   });
 
   it('generates metadata for `id` fields', () => {
-    var query = inferRelayFieldsFromData({
+    const query = inferRelayFieldsFromData({
       id: '123',
     });
     expect(query).toEqualFields(Relay.QL`
@@ -59,10 +59,12 @@ describe('inferRelayFieldsFromData', function() {
     expect(inferRelayFieldsFromData({
       id: '123',
       name: 'Alice',
-    })).toEqualFields(Relay.QL`  fragment on Actor {
-            id,
-            name,
-          }`);
+    })).toEqualFields(Relay.QL`
+      fragment on Actor {
+        id,
+        name,
+      }
+    `);
   });
 
   it('infers nested fields from objects', () => {
@@ -71,36 +73,42 @@ describe('inferRelayFieldsFromData', function() {
       address: {
         city: 'Menlo Park',
       },
-    })).toEqualFields(Relay.QL`  fragment on Actor {
-            id,
-            address {
-              city,
-            },
-          }`);
+    })).toEqualFields(Relay.QL`
+      fragment on Actor {
+        id,
+        address {
+          city,
+        },
+      }
+    `);
   });
 
   it('infers unterminated fields from null', () => {
     expect(inferRelayFieldsFromData({
       id: '123',
       address: null,
-    })).toEqualFields(Relay.QL`  fragment on Actor {
-            id,
-            address,
-          }`);
+    })).toEqualFields(Relay.QL`
+      fragment on Actor {
+        id,
+        address,
+      }
+    `);
   });
 
   it('infers plural fields from arrays of scalars', () => {
-    var fields = inferRelayFieldsFromData({
+    const fields = inferRelayFieldsFromData({
       id: '123',
       websites: [
         'facebook.com',
         'google.com',
       ],
     });
-    expect(fields).toEqualFields(Relay.QL`  fragment on Actor {
-            id,
-            websites,
-          }`);
+    expect(fields).toEqualFields(Relay.QL`
+      fragment on Actor {
+        id,
+        websites,
+      }
+    `);
     expect(fields[1].isPlural()).toBe(true);
   });
 
@@ -111,42 +119,50 @@ describe('inferRelayFieldsFromData', function() {
         {service: 'GTALK'},
         {service: 'TWITTER'},
       ],
-    })).toEqualFields(Relay.QL`  fragment on Actor {
-            id,
-            screennames {
-              service,
-            },
-          }`);
+    })).toEqualFields(Relay.QL`
+      fragment on Actor {
+        id,
+        screennames {
+          service,
+        },
+      }
+    `);
   });
 
   it('infers unterminated fields from empty arrays', () => {
     expect(inferRelayFieldsFromData({
       id: '123',
       websites: [],
-    })).toEqualFields(Relay.QL`  fragment on Actor {
-            id,
-            websites,
-          }`);
+    })).toEqualFields(Relay.QL`
+      fragment on Actor {
+        id,
+        websites,
+      }
+    `);
   });
 
   it('infers unterminated fields from null elements in arrays', () => {
     expect(inferRelayFieldsFromData({
       id: '123',
       websites: [null],
-    })).toEqualFields(Relay.QL`  fragment on Actor {
-            id,
-            websites,
-          }`);
+    })).toEqualFields(Relay.QL`
+      fragment on Actor {
+        id,
+        websites,
+      }
+    `);
   });
 
   it('infers field arguments from keys', () => {
     expect(inferRelayFieldsFromData({
       id: '123',
       'url.site(www)': 'https://...',
-    })).toEqualFields(Relay.QL`  fragment on Actor {
-            id,
-            url(site:"www"),
-          }`);
+    })).toEqualFields(Relay.QL`
+      fragment on Actor {
+        id,
+        url(site:"www"),
+      }
+    `);
   });
 
   it('throws for keys with invalid call encodings', () => {
@@ -172,22 +188,24 @@ describe('inferRelayFieldsFromData', function() {
           [HAS_PREV_PAGE]: false,
         },
       },
-    })).toEqualFields(Relay.QL`  fragment on Actor {
-            id,
-            friends(first:"2") {
-              edges {
-                node {
-                  id,
-                  name,
-                },
-                cursor,
-              },
-              pageInfo {
-                hasNextPage,
-                hasPreviousPage,
-              },
+    })).toEqualFields(Relay.QL`
+      fragment on Actor {
+        id,
+        friends(first:"2") {
+          edges {
+            node {
+              id,
+              name,
             },
-          }`);
+            cursor,
+          },
+          pageInfo {
+            hasNextPage,
+            hasPreviousPage,
+          },
+        },
+      }
+    `);
   });
 
   it('infers field for mutation field named `node`', () => {
@@ -195,13 +213,15 @@ describe('inferRelayFieldsFromData', function() {
       node: {
         id: '123',
         name: 'name',
+      },
+    })).toEqualFields(Relay.QL`
+      fragment on NodeSavedStateResponsePayload {
+        node {
+          id,
+          name
+        }
       }
-    })).toEqualFields(Relay.QL`  fragment on NodeSavedStateResponsePayload {
-            node {
-              id,
-              name
-            }
-          }`);
+    `);
   });
 
   it('ignores metadata fields', () => {
@@ -211,9 +231,11 @@ describe('inferRelayFieldsFromData', function() {
       __status__: 0,
       id: '123',
       name: 'Alice',
-    })).toEqualFields(Relay.QL`  fragment on Node {
-            id,
-            name,
-          }`);
+    })).toEqualFields(Relay.QL`
+      fragment on Node {
+        id,
+        name,
+      }
+    `);
   });
 });

@@ -29,7 +29,7 @@
     "raw-loader": "0.5.1",
     "react": "^0.14.0-rc",
     "react-codemirror": "0.1.5",
-    "relay-local-schema": "0.2.1",
+    "relay-local-schema": "0.3.0",
     "react-relay": "../",
     "style-loader": "0.12.3",
     "webpack": "1.12.0"

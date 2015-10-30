@@ -3,7 +3,7 @@
 Install the supporting infrastructure.
 
 ```
-(cd ../; npm install) && (cd ../website-prototyping-tools; npm install) && npm install
+(cd ../; npm install) && (cd ../scripts/babel-relay-plugin; npm install) && (cd ../website-prototyping-tools; npm install) && npm install
 ```
 
 # Developing

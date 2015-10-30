@@ -301,7 +301,7 @@ function createContainerComponent(
               }
             });
             if (callback) {
-              callback.call(this.refs.component, {...readyState, mounted});
+              callback.call(this.refs.component || null, {...readyState, mounted});
             }
           });
         } else {

@@ -44,7 +44,6 @@ import {
   getViewer,
   markAllTodos,
   removeCompletedTodos,
-  removeTodo,
   renameTodo,
 } from './database';
 

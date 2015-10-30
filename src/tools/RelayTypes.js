@@ -149,6 +149,7 @@ export type SubscriptionCallbacks<T> = {
 // Store
 export type StoreReaderData = Object;
 export type StoreReaderOptions = {
+  incrementReferenceCounts?: boolean;
   traverseFragmentReferences?: boolean;
   traverseGeneratedFields?: boolean;
 };

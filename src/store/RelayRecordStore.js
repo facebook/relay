@@ -392,6 +392,58 @@ class RelayRecordStore {
     }
   }
 
+  getReferenceCount(
+    dataID: DataID,
+    storageKey: string
+  ): number {
+    var field: ?MixedField = (this._getField(dataID, storageKey): any);
+    invariant(
+      field,
+      'RelayRecordStore.getReferenceCount(): Expected field `%s.%s` ' +
+      'to be fetched.',
+      dataID,
+      storageKey
+    );
+    return field.__count__;
+  }
+
+  decrementReferenceCount(
+    dataID: DataID,
+    storageKey: string
+  ): void {
+    var field: ?MixedField = (this._getField(dataID, storageKey): any);
+    invariant(
+      field,
+      'RelayRecordStore.decrementReferenceCount(): Expected field `%s.%s` ' +
+      'to be fetched before it is decremented.',
+      dataID,
+      storageKey
+    );
+    invariant(
+      field.__count__ > 0,
+      'RelayRecordStore.decrementReferenceCount(): Cannot decrement the ' +
+      'reference count for field `%s.%s` below 0.',
+      dataID,
+      storageKey
+    );
+    field.__count__--;
+  }
+
+  incrementReferenceCount(
+    dataID: DataID,
+    storageKey: string
+  ): void {
+    var field: ?MixedField = (this._getField(dataID, storageKey): any);
+    invariant(
+      field,
+      'RelayRecordStore.incrementReferenceCount(): Expected field `%s.%s` ' +
+      'to be fetched before it is incremented.',
+      dataID,
+      storageKey
+    );
+    field.__count__++;
+  }
+
   /**
    * Clears the value of a field by setting it to null/undefined.
    */

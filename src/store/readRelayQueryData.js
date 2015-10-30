@@ -75,6 +75,7 @@ function readRelayQueryData(
 }
 
 class RelayStoreReader extends RelayQueryVisitor<State> {
+  _incrementReferenceCounts: boolean;
   _queryTracker: RelayQueryTracker;
   _recordStore: RelayRecordStore;
   _traverseFragmentReferences: boolean;
@@ -85,6 +86,8 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     options?: StoreReaderOptions
   ) {
     super();
+    this._incrementReferenceCounts =
+      (options && options.incrementReferenceCounts) || false;
     this._queryTracker = new RelayQueryTracker();
     this._recordStore = recordStore;
     this._traverseFragmentReferences =
@@ -201,6 +204,12 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     } else if (field === null && !state.data) {
       state.data = null;
     } else {
+      if (this._incrementReferenceCounts) {
+        this._recordStore.incrementReferenceCount(
+          state.storeDataID,
+          storageKey
+        );
+      }
       this._setDataValue(
         state,
         node.getApplicationName(),
@@ -214,6 +223,12 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     var dataIDs =
       this._recordStore.getLinkedRecordIDs(state.storeDataID, storageKey);
     if (dataIDs) {
+      if (this._incrementReferenceCounts) {
+        this._recordStore.incrementReferenceCount(
+          state.storeDataID,
+          storageKey
+        );
+      }
       var applicationName = node.getApplicationName();
       var previousData = getDataValue(state, applicationName);
       var nextData = dataIDs.map((dataID, ii) => {
@@ -246,6 +261,12 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     );
     if (!dataID) {
       return;
+    }
+    if (this._incrementReferenceCounts) {
+      this._recordStore.incrementReferenceCount(
+        state.storeDataID,
+        storageKey
+      );
     }
     enforceRangeCalls(node);
     var metadata = this._recordStore.getRangeMetadata(dataID, calls);
@@ -339,6 +360,12 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     if (dataID == null) {
       this._setDataValue(state, applicationName, dataID);
       return;
+    }
+    if (this._incrementReferenceCounts) {
+      this._recordStore.incrementReferenceCount(
+        state.storeDataID,
+        storageKey
+      );
     }
     var nextState = {
       componentDataID: null,

@@ -17,11 +17,11 @@ var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 var RelayQueryVisitor = require('RelayQueryVisitor');
 
+var Map = require('Map');
 var sortTypeFirst = require('sortTypeFirst');
 
 type FlattenedQuery = {
   node: RelayQuery.Node;
-  // flattenedFieldMap: {[key: string]: FlattenedQuery};
   flattenedFieldMap: Map;
 };
 

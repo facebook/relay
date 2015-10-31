@@ -221,12 +221,7 @@ describe('RelayQueryPath', () => {
           fieldName: 'id',
           kind: 'Field',
           metadata: {
-            isConnection: false,
-            isFindable: false,
-            isGenerated: false,
-            isPlural: false,
             isRequisite: true,
-            isUnionOrInterface: false,
             parentType: 'Node',
           },
         }, {
@@ -237,12 +232,8 @@ describe('RelayQueryPath', () => {
           fieldName: '__typename',
           kind: 'Field',
           metadata: {
-            isConnection: false,
-            isFindable: false,
             isGenerated: true,
-            isPlural: false,
             isRequisite: true,
-            isUnionOrInterface: false,
             parentType: 'Node',
           },
         },
@@ -253,6 +244,7 @@ describe('RelayQueryPath', () => {
       kind: 'Query',
       metadata: {
         identifyingArgName: 'id',
+        identifyingArgType: null,
       },
       name: 'RelayQueryPath',
     }]);

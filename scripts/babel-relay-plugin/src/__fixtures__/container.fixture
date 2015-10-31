@@ -12,15 +12,40 @@ Relay.createContainer(Component, {
   queries: {
     viewer: function viewer() {
       return (function () {
-        var GraphQL = Relay.QL.__GraphQL;
-        return new GraphQL.QueryFragment('Container', 'Viewer', [new GraphQL.Field('actor', [new GraphQL.Field('id', null, null, null, null, null, {
-          parentType: 'User',
-          requisite: true
-        })], null, null, null, null, {
-          parentType: 'Viewer',
-          rootCall: 'node',
-          pk: 'id'
-        })]);
+        return {
+          children: [{
+            alias: null,
+            calls: [],
+            children: [{
+              alias: null,
+              calls: [],
+              children: [],
+              condition: null,
+              directives: [],
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                parentType: 'User',
+                isRequisite: true
+              }
+            }],
+            condition: null,
+            directives: [],
+            fieldName: 'actor',
+            kind: 'Field',
+            metadata: {
+              parentType: 'Viewer',
+              inferredRootCallName: 'node',
+              inferredPrimaryKey: 'id'
+            }
+          }],
+          directives: [],
+          isPlural: null,
+          kind: 'Fragment',
+          metadata: {},
+          name: 'Container',
+          type: 'Viewer'
+        };
       })();
     }
   }

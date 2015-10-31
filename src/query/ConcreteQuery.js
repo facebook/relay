@@ -76,14 +76,14 @@ export type ConcreteField = {
   fieldName: string;
   kind: 'Field';
   metadata: {
-    inferredRootCallName: ?string;
-    inferredPrimaryKey: ?string;
-    isConnection: boolean;
-    isFindable: boolean;
-    isGenerated: boolean;
-    isPlural: boolean;
-    isRequisite: boolean;
-    isUnionOrInterface: boolean;
+    inferredRootCallName?: ?string;
+    inferredPrimaryKey?: ?string;
+    isConnection?: boolean;
+    isFindable?: boolean;
+    isGenerated?: boolean;
+    isPlural?: boolean;
+    isRequisite?: boolean;
+    isUnionOrInterface?: boolean;
     parentType: ?string;
   };
 };

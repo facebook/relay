@@ -249,7 +249,7 @@ To enable forward pagination, two arguments are required.
 
 The server should use those two arguments to modify the edges returned by
 the connection, returning edges after the `after` cursor, and returning at
-most `first` edges. More formally:
+most `first` edges.
 
 ## Backward pagination arguments
 
@@ -260,7 +260,7 @@ To enable backward pagination, two arguments are required.
 
 The server should use those two arguments to modify the edges returned by
 the connection, returning edges before the `before` cursor, and returning at
-most `last` edges. More formally:
+most `last` edges.
 
 ## Pagination algorithm
 

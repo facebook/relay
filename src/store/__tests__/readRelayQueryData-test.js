@@ -27,7 +27,10 @@ var readRelayQueryData = require('readRelayQueryData');
 describe('readRelayQueryData', () => {
   var RelayRecordStore;
 
-  var {getNode} = RelayTestUtils;
+  var {
+    getNode,
+    writePayload,
+  } = RelayTestUtils;
   var END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO, START_CURSOR;
 
   function getData({records, queuedRecords}, queryNode, dataID, options) {
@@ -70,20 +73,20 @@ describe('readRelayQueryData', () => {
   });
 
   it('retrieves data that is in the store', () => {
-    var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var payloadQuery = getNode(Relay.QL`query{viewer{actor{firstName,id}}}`);
+    var payload = {
+      viewer: {
         actor: {
-          __dataID__: '660361306',
+          firstName: 'Greg',
+          id: '660361306',
         },
       },
-      660361306: {
-        __dataID__: '660361306',
-        firstName: 'Greg',
-      },
     };
-    var query = getNode(Relay.QL`query{viewer{actor{firstName}}}`);
-    var data = getData({records}, query, 'client:viewer');
+    writePayload(store, payloadQuery, payload);
+    var readQuery = getNode(Relay.QL`query{viewer{actor{firstName}}}`);
+    var data = getData({records}, readQuery, 'client:viewer');
     expect(data).toEqual({
       __dataID__: 'client:viewer',
       actor: {
@@ -94,33 +97,63 @@ describe('readRelayQueryData', () => {
   });
 
   it('returns the ids for all read data', () => {
-    var records = {
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var payloadQuery = getNode(
+      Relay.QL`
+        query {
+          node(id: "100001638324553") {
+            address {
+              city
+            }
+            birthdate {
+              day
+            }
+          }
+        }
+      `
+    );
+    var payload = {
       node: {
+        id: '100001638324553',
         name: 'Chris',
-        birthdate: {__dataID__: 'date'},
-        address: {__dataID__: 'address'},
+        birthdate: {
+          date: {
+            day: 21,
+          },
+        },
+        address: {
+          city: null,
+        },
       },
-      date: {day: 21},
-      address: null,
     };
-    var query = getNode(Relay.QL`fragment on User{birthdate {day}, address {city}}`);
+    writePayload(store, payloadQuery, payload);
+    var readQuery = getNode(
+      Relay.QL`fragment on User{birthdate {day}, address {city}}`
+    );
     expect(
-      readRelayQueryData(new RelayRecordStore({records}), query, 'node').dataIDs
+      readRelayQueryData(store, readQuery, '100001638324553').dataIDs
     ).toEqual({
-      node: true,
-      date: true,
-      address: true,
+      '100001638324553': true,
+      'client:1': true,
+      'client:2': true,
     });
   });
 
   it('retrieves data that references null nodes in the store', () => {
-    var records = {
-      1055790163: {
-        address: {__dataID__: 'client:1'},
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var payloadQuery = getNode(
+      Relay.QL`query{node(id: "1055790163"){address{city},firstName}}`
+    );
+    var payload = {
+      node: {
+        id: '1055790163',
+        address: null,
         firstName: 'Yuzhi',
       },
-      'client:1': null,
     };
+    writePayload(store, payloadQuery, payload);
     var query = getNode(Relay.QL`
       fragment on Actor {
         address {
@@ -138,13 +171,18 @@ describe('readRelayQueryData', () => {
   });
 
   it('includes `null` scalar values along with existing sibling fields', () => {
-    var records = {
-      feedbackID: {
-        __dataID__: 'feedbackID',
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var payloadQuery = getNode(
+      Relay.QL`query{node(id: "feedbackID"){id,doesViewerLike}}`
+    );
+    var payload = {
+      node: {
         doesViewerLike: null,
         id: 'feedbackID',
       },
     };
+    writePayload(store, payloadQuery, payload);
     var query = getNode(Relay.QL`
       fragment on Feedback {
         id,
@@ -155,12 +193,14 @@ describe('readRelayQueryData', () => {
     expect(data.id).toBe('feedbackID');
     expect(data.doesViewerLike).toBeNull();
 
-    records = {
-      feedbackID: {
-        __dataID__: 'feedbackID',
+    records = {};
+    store = new RelayRecordStore({records});
+    payload = {
+      node: {
         id: 'feedbackID',
       },
     };
+    writePayload(store, payloadQuery, payload);
     data = getData({records}, query, 'feedbackID');
     expect(data.id).toBe('feedbackID');
     expect(data.doesViewerLike).toBeUndefined();
@@ -168,53 +208,74 @@ describe('readRelayQueryData', () => {
   });
 
   it('retrieves empty plural fields', () => {
-    var records = {
-      user_id: {
-        id: 'user_id',
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var payloadQuery = getNode(Relay.QL`query{node(id: "4"){id,websites}}`);
+    var payload = {
+      node: {
+        id: '4',
         websites: [],
-      }
+      },
     };
+    writePayload(store, payloadQuery, payload);
     var query = getNode(Relay.QL`fragment on User{id,websites}`);
-    var data = getData({records}, query, 'user_id');
+    var data = getData({records}, query, '4');
     expect(data.websites).toEqual([]);
   });
 
   it('retrieves plural fields', () => {
+    var records = {};
+    var store = new RelayRecordStore({records});
     var websites = ['website1', 'website2'];
-
-    var records = {
-      user_id: {
-        id: 'user_id',
-        websites
+    var payloadQuery = getNode(Relay.QL`query{node(id: "4"){id,websites}}`);
+    var payload = {
+      node: {
+        id: '4',
+        websites,
       }
     };
+    writePayload(store, payloadQuery, payload);
     var query = getNode(Relay.QL`fragment on User{id,websites}`);
-    var data = getData({records}, query, 'user_id');
+    var data = getData({records}, query, '4');
     expect(data.websites).toEqual(
       ['website1', 'website2']
     );
   });
 
   it('retrieves status information for nodes with queued changes', () => {
+    // Set up normal data.
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var payloadQuery = getNode(
+      Relay.QL`query{node(id: "660361306"){id,firstName}}`
+    );
+    var payload = {
+      node: {
+        id: '660361306',
+        firstName: 'Greg',
+      },
+    };
+    writePayload(store, payloadQuery, payload);
+
+    // Set up queued data.
+    var queuedRecords = {};
+    var optimisticPayload = {
+      node: {
+        id: '660361306',
+        firstName: 'Snoop Lion',
+      },
+    };
+    store = new RelayRecordStore({records: queuedRecords});
+    writePayload(store, payloadQuery, optimisticPayload);
+    store = new RelayRecordStore({queuedRecords});
+    store.setMutationErrorStatus('660361306', true);
+
+    var query = getNode(Relay.QL`fragment on User{firstName}`);
+    var data = getData({records, queuedRecords}, query, '660361306');
     var STATUS = RelayRecordStatusMap.setOptimisticStatus(
       RelayRecordStatusMap.setErrorStatus(0, true),
       0
     );
-    var records = {
-      660361306: {
-        __dataID__: '660361306',
-        firstName: 'Greg',
-      },
-    };
-    var queuedRecords = {
-      660361306: {
-        __dataID__: '660361306',
-        __status__: STATUS,
-        firstName: 'Snoop Lion',
-      },
-    };
-    var query = getNode(Relay.QL`fragment on User{firstName}`);
-    var data = getData({records, queuedRecords}, query, '660361306');
     expect(data).toEqual({
       __dataID__: '660361306',
       __status__: STATUS,
@@ -223,18 +284,20 @@ describe('readRelayQueryData', () => {
   });
 
   it('populates data ID for nodes containing only non-local fragments', () => {
-    var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var payloadQuery = getNode(
+      Relay.QL`query{viewer{actor{firstName,id}}}`
+    );
+    var payload = {
+      viewer: {
         actor: {
-          __dataID__: '660361306',
+          firstName: 'Greg',
+          id: '660361306',
         },
       },
-      660361306: {
-        __dataID__: '660361306',
-        firstName: 'Greg',
-      },
     };
+    writePayload(store, payloadQuery, payload);
     var fragmentReference = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on Viewer{actor{firstName}}`,
       {}
@@ -247,18 +310,20 @@ describe('readRelayQueryData', () => {
   });
 
   it('reads data for non-container fragment references', () => {
-    var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var payloadQuery = getNode(
+      Relay.QL`query{viewer{actor{firstName,id}}}`
+    );
+    var payload = {
+      viewer: {
         actor: {
-          __dataID__: '660361306',
+          id: '660361306',
+          firstName: 'Greg',
         },
       },
-      660361306: {
-        __dataID__: '660361306',
-        firstName: 'Greg',
-      },
     };
+    writePayload(store, payloadQuery, payload);
     var fragmentReference = new RelayFragmentReference(
       () => Relay.QL`fragment on Viewer{actor{firstName}}`,
       {}
@@ -275,25 +340,28 @@ describe('readRelayQueryData', () => {
   });
 
   it('merges data from multiple fragments that reference the same node', () => {
-    var records = {
-      1055790163: {
-        __dataID__: '1055790163',
-        address: {__dataID__: 'client:1'},
-        last_name: 'Zheng',
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var payloadQuery = getNode(
+      Relay.QL`query{node(id: "1055790163"){address{city,country}}}`
+    );
+    var payload = {
+      node: {
+        id: '1055790163',
+        address: {
+          city: 'San Francisco',
+          country: 'US',
+        },
       },
-      'client:1': {
-        __dataID__: 'client:1',
-        city: 'San Francisco',
-        country: 'US',
-      }
     };
+    writePayload(store, payloadQuery, payload);
 
     var fragment1 = Relay.QL`fragment on Actor{address{city}}`;
     var fragment2 = Relay.QL`fragment on Actor{address{country}}`;
-    var query = getNode(Relay.QL`  fragment on Actor {
-            ${fragment1},
-            ${fragment2},
-          }`);
+    var query = getNode(Relay.QL`fragment on Actor {
+      ${fragment1},
+      ${fragment2},
+    }`);
     var data = getData({records}, query, '1055790163');
     expect(data).toEqual({
       __dataID__: '1055790163',

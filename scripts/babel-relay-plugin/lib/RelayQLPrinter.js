@@ -361,11 +361,17 @@ function validateConnectionField(field) {
 
   // Use `any` because we already check `isConnection` before validating.
   var connectionNodeType = field.getType().getFieldDefinition('edges').getType().getFieldDefinition('node').getType();
-  field.getFields().forEach(function (subfield) {
-    // Suggest `edges{node{...}}` instead of `nodes{...}`.
-    var subfieldType = subfield.getType();
-    var isNodesLikeField = subfield.getName() !== 'edges' && subfieldType.isList() && subfieldType.getName({ modifiers: false }) === connectionNodeType.getName({ modifiers: false });
-    invariant(!isNodesLikeField, 'You supplied a field named `%s` on a connection named `%s`, but ' + 'pagination is not supported on connections without using edges. Use ' + '`%s{edges{node{...}}}` instead.', subfield.getName(), field.getName(), field.getName());
+
+  // NOTE: These checks are imperfect because we cannot trace fragment spreads.
+  forEachRecursiveField(field, function (subfield) {
+    if (subfield.getName() === 'edges' || subfield.getName() === 'pageInfo') {
+      invariant(field.isPattern() || field.hasArgument('find') || field.hasArgument('first') || field.hasArgument('last'), 'You supplied the `%s` field on a connection named `%s`, but you did ' + 'not supply an argument necessary to do so. Use either the `find`, ' + '`first`, or `last` argument.', subfield.getName(), field.getName());
+    } else {
+      // Suggest `edges{node{...}}` instead of `nodes{...}`.
+      var subfieldType = subfield.getType();
+      var isNodesLikeField = subfieldType.isList() && subfieldType.getName({ modifiers: false }) === connectionNodeType.getName({ modifiers: false });
+      invariant(!isNodesLikeField, 'You supplied a field named `%s` on a connection named `%s`, but ' + 'pagination is not supported on connections without using edges. Use ' + '`%s{edges{node{...}}}` instead.', subfield.getName(), field.getName(), field.getName());
+    }
   });
 }
 
@@ -378,6 +384,17 @@ function validateMutationField(rootField) {
   var rootFieldArgs = rootField.getArguments();
   invariant(rootFieldArgs.length <= 1, 'There are %d arguments supplied to the mutation field named `%s`, ' + 'but mutation fields must have exactly one `input` argument.', rootFieldArgs.length, rootField.getName());
 }
+
+var forEachRecursiveField = function forEachRecursiveField(selection, callback) {
+  selection.getSelections().forEach(function (selection) {
+    if (selection instanceof RelayQLField) {
+      callback(selection);
+    } else if (selection instanceof RelayQLInlineFragment) {
+      forEachRecursiveField(selection.getFragment(), callback);
+    }
+    // Ignore `RelayQLFragmentSpread` selections.
+  });
+};
 
 function identify(str) {
   return str.split('.').reduce(function (acc, name) {

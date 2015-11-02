@@ -382,7 +382,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments {
+            topLevelComments(first: "10") {
               edges {
                 node {
                   id

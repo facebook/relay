@@ -355,7 +355,7 @@ describe('subtractRelayQuery', () => {
       var minQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends {
+            friends(first: "10") {
               edges {
                 node {
                   id,
@@ -369,7 +369,7 @@ describe('subtractRelayQuery', () => {
       var subQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends {
+            friends(first: "10") {
               edges {
                 node {
                   id,
@@ -393,7 +393,7 @@ describe('subtractRelayQuery', () => {
       var minQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends {
+            friends(first: "5") {
               edges {
                 node {
                   id,

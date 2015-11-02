@@ -4,7 +4,7 @@ var x = Relay.QL`
   query($gender_0: Gender) {
     node(id: 123) {
       ... on User {
-        friends(gender: $gender_0) {
+        friends(first: 5, gender: $gender_0) {
           edges {
             node {
               id,
@@ -55,7 +55,7 @@ var x = (function () {
     parentType: 'UserConnection',
     generated: true,
     requisite: true
-  })], null, [new GraphQL.Callv('gender', new GraphQL.CallVariable('gender_0'), {
+  })], null, [new GraphQL.Callv('first', new GraphQL.CallValue(5)), new GraphQL.Callv('gender', new GraphQL.CallVariable('gender_0'), {
     type: 'Gender'
   })], null, null, {
     parentType: 'User',

@@ -73,7 +73,7 @@ class RelayQLPrinter {
                   identify(this.tagName),
                   t.identifier('__GraphQL')
                 )
-              )
+              ),
             ]
           ),
           t.returnStatement(printedDocument),
@@ -141,7 +141,7 @@ class RelayQLPrinter {
         selection.fragments,
         objectify(metadata),
         t.literal(query.getName()),
-        this.printDirectives(rootField.getDirectives())
+        this.printDirectives(rootField.getDirectives()),
       ])
     );
   }
@@ -170,7 +170,7 @@ class RelayQLPrinter {
         selection.fields,
         selection.fragments,
         objectify(metadata),
-        this.printDirectives(fragment.getDirectives())
+        this.printDirectives(fragment.getDirectives()),
       ])
     );
   }
@@ -210,12 +210,12 @@ class RelayQLPrinter {
           ),
           trimArguments([
             t.literal(rootField.getName()),
-            this.printVariable('input')
+            this.printVariable('input'),
           ])
         ),
         selection.fields,
         selection.fragments,
-        objectify(metadata)
+        objectify(metadata),
       ])
     );
   }
@@ -364,7 +364,7 @@ class RelayQLPrinter {
           NULL,
         NULL,
         objectify(metadata),
-        this.printDirectives(field.getDirectives())
+        this.printDirectives(field.getDirectives()),
       ])
     );
   }
@@ -393,7 +393,7 @@ class RelayQLPrinter {
       trimArguments([
         t.literal(arg.getName()),
         this.printArgumentValue(arg),
-        objectify(metadata)
+        objectify(metadata),
       ])
     );
   }
@@ -535,23 +535,39 @@ function validateConnectionField(field: RelayQLField): void {
   const connectionNodeType = (field: any).getType()
     .getFieldDefinition('edges').getType()
     .getFieldDefinition('node').getType();
-  field.getFields().forEach(subfield => {
-    // Suggest `edges{node{...}}` instead of `nodes{...}`.
-    const subfieldType = subfield.getType();
-    const isNodesLikeField =
-      subfield.getName() !== 'edges' &&
-      subfieldType.isList() &&
-      subfieldType.getName({modifiers: false}) ===
-        connectionNodeType.getName({modifiers: false});
-    invariant(
-      !isNodesLikeField,
-      'You supplied a field named `%s` on a connection named `%s`, but ' +
-      'pagination is not supported on connections without using edges. Use ' +
-      '`%s{edges{node{...}}}` instead.',
-      subfield.getName(),
-      field.getName(),
-      field.getName()
-    );
+
+  // NOTE: These checks are imperfect because we cannot trace fragment spreads.
+  forEachRecursiveField(field, subfield => {
+    if (subfield.getName() === 'edges' ||
+        subfield.getName() === 'pageInfo') {
+      invariant(
+        field.isPattern() ||
+        field.hasArgument('find') ||
+        field.hasArgument('first') ||
+        field.hasArgument('last'),
+        'You supplied the `%s` field on a connection named `%s`, but you did ' +
+        'not supply an argument necessary to do so. Use either the `find`, ' +
+        '`first`, or `last` argument.',
+        subfield.getName(),
+        field.getName()
+      );
+    } else {
+      // Suggest `edges{node{...}}` instead of `nodes{...}`.
+      const subfieldType = subfield.getType();
+      const isNodesLikeField =
+        subfieldType.isList() &&
+        subfieldType.getName({modifiers: false}) ===
+          connectionNodeType.getName({modifiers: false});
+      invariant(
+        !isNodesLikeField,
+        'You supplied a field named `%s` on a connection named `%s`, but ' +
+        'pagination is not supported on connections without using edges. Use ' +
+        '`%s{edges{node{...}}}` instead.',
+        subfield.getName(),
+        field.getName(),
+        field.getName()
+      );
+    }
   });
 }
 
@@ -583,6 +599,20 @@ function validateMutationField(rootField: RelayQLField): void {
     rootField.getName()
   );
 }
+
+const forEachRecursiveField = function(
+  selection: RelayQLField | RelayQLFragment,
+  callback: (field: RelayQLField) => void
+): void {
+  selection.getSelections().forEach(selection => {
+    if (selection instanceof RelayQLField) {
+      callback(selection);
+    } else if (selection instanceof RelayQLInlineFragment) {
+      forEachRecursiveField(selection.getFragment(), callback);
+    }
+    // Ignore `RelayQLFragmentSpread` selections.
+  });
+};
 
 function identify(str: string): Printable {
   return str.split('.').reduce((acc, name) => {

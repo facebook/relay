@@ -287,7 +287,7 @@ describe('RelayQuerySerializer', () => {
     it('serializes fields with argument-less calls', () => {
       var field = filterGeneratedFields(getNode(Relay.QL`
         fragment on User {
-          friends(isViewerFriend:true) {
+          friends(first: "10", isViewerFriend: true) {
             edges {
               node {
                 id,
@@ -302,6 +302,7 @@ describe('RelayQuerySerializer', () => {
         name: 'friends',
         alias: null,
         calls: [
+          {name: 'first', value: '10'},
           {name: 'isViewerFriend', value: true},
         ],
         children: [{

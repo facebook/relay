@@ -70,7 +70,7 @@ describe('splitDeferredRelayQueries()', () => {
   it('splits a deferred fragment on the viewer root', () => {
     var fragment = Relay.QL`
       fragment on Viewer {
-        newsFeed {
+        newsFeed(first: "10") {
           edges {
             node {
               id,
@@ -118,7 +118,7 @@ describe('splitDeferredRelayQueries()', () => {
   it('splits a nested feed on the viewer root', () => {
     var nestedFragment = Relay.QL`
       fragment on Viewer {
-        newsFeed {
+        newsFeed(first: "10") {
           edges {
             node {
               id,
@@ -188,7 +188,7 @@ describe('splitDeferredRelayQueries()', () => {
     var nestedFragment = Relay.QL`fragment on NonNodeStory{message}`;
     var fragment = Relay.QL`
       fragment on Viewer {
-        newsFeed {
+        newsFeed(first: "10") {
           edges {
             node {
               tracking,
@@ -228,7 +228,7 @@ describe('splitDeferredRelayQueries()', () => {
         viewer {
           ${Relay.QL`
       fragment on Viewer {
-        newsFeed {
+        newsFeed(first: "10") {
           edges {
             cursor,
             node {
@@ -263,7 +263,7 @@ describe('splitDeferredRelayQueries()', () => {
       toEqualQueryRoot(flattenRelayQuery(getNode(Relay.QL`
       query {
         viewer {
-          newsFeed {
+          newsFeed(first: "10") {
             edges {
               cursor,
               node {
@@ -493,7 +493,7 @@ describe('splitDeferredRelayQueries()', () => {
   it('drops the required portion if it is empty', () => {
     var fragment = Relay.QL`
       fragment on Viewer {
-        newsFeed {
+        newsFeed(first: "10") {
           edges {
             node {
               id,
@@ -815,7 +815,7 @@ describe('splitDeferredRelayQueries()', () => {
     var node = Relay.QL`
       query {
         node(id:"4") {
-          friends {
+          friends(first: "5") {
             edges {
               node {
                 ${defer(fragment)},
@@ -834,7 +834,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(required).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"4") {
-          friends {
+          friends(first: "5") {
             edges {
               node {
                 id,
@@ -847,6 +847,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(required.getID()).toBe('q1');
 
     // deferred part
+    var alias = generateRQLFieldAlias('friends.first(5)');
     expect(deferred.length).toBe(1);
     expect(deferred[0].required.getName()).toBe(
       queryNode.getName()
@@ -860,7 +861,7 @@ describe('splitDeferredRelayQueries()', () => {
             }
           }
         `,
-        {path: '$.*.friends.edges.*.node.id'}
+        {path: '$.*.' + alias + '.edges.*.node.id'}
       )
     ));
     expect(deferred[0].required.getID()).toBe('q2');

@@ -38,7 +38,8 @@ function genFixtures() {
       try {
         var graphql = transform(fixture.input, filename);
         writeFixture(filename, ['Input:', fixture.input, '', // newline
-        'Output:', graphql].join('\n'));
+        'Output:', graphql, '']. // newline
+        join('\n'));
         console.log('Updated fixture `%s`.', filename);
       } catch (e) {
         console.error('Failed to transform fixture `%s`: %s: %s', filename, e.message, e.stack);

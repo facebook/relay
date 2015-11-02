@@ -1,0 +1,25 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  query {
+    node(id: 123) {
+      ... on User {
+        friends(last: 3, after: "foo") {
+          ... on UserConnection {
+            edges {
+              node {
+                id,
+              },
+            },
+          },
+        },
+      },
+    },
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  throw new Error('GraphQL validation/transform error ``Connection arguments `friends(after: <cursor>, last: <count>)` are not supported. Use `(last: <count>)`, `(before: <cursor>, last: <count>)`, or `(after: <cursor>, first: <count>)`.`` in file `connectionWithAfterLastArgsWithInlineFragment.fixture`.');
+})();

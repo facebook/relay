@@ -40,6 +40,7 @@ type GraphQLSchemaType = Object;
 
 type RelayQLContext = {
   definitionName: string;
+  isPattern: boolean;
   schema: GraphQLSchema;
 };
 type RelayQLSelection =
@@ -51,10 +52,14 @@ const GraphQLRelayDirective = {
   name: 'relay',
   args: [
     {
+      name: 'pattern',
+      type: types.GraphQLBoolean,
+    },
+    {
       name: 'plural',
-      type: types.GraphQLBoolean
-    }
-  ]
+      type: types.GraphQLBoolean,
+    },
+  ],
 };
 
 class RelayQLNode<T> {
@@ -110,6 +115,10 @@ class RelayQLNode<T> {
       directive => new RelayQLDirective(this.context, directive)
     );
   }
+
+  isPattern(): boolean {
+    return this.context.isPattern;
+  }
 }
 
 class RelayQLDefinition<T> extends RelayQLNode<T> {
@@ -129,7 +138,16 @@ class RelayQLFragment extends RelayQLDefinition<
     ast: GraphQLFragmentDefinition | GraphQLInlineFragment,
     parentType?: RelayQLType
   ) {
-    super(context, ast);
+    // @relay(pattern: true)
+    const isPattern = (ast.directives || []).some(directive => (
+      (directive.name.value === 'relay') &&
+      (directive.arguments || []).some(arg => (
+        arg.name.value === 'pattern' &&
+        arg.value.kind === 'BooleanValue' &&
+        arg.value.value
+      ))
+    ));
+    super({...context, isPattern}, ast);
     this.parentType = parentType;
   }
 

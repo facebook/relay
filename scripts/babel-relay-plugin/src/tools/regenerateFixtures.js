@@ -30,7 +30,7 @@ var transform = transformGraphQL.bind(null, SCHEMA_PATH);
 
 function genFixtures() {
   var fixtures = readFixtures(FIXTURE_PATH);
-  Object.keys(fixtures).forEach(function (filename) {
+  Object.keys(fixtures).forEach(filename => {
     var fixture = fixtures[filename];
     if (fixture.output !== undefined) {
       // fixture for valid input, update the expected output
@@ -43,7 +43,8 @@ function genFixtures() {
             fixture.input,
             '', // newline
             'Output:',
-            graphql
+            graphql,
+            '', // newline
           ].join('\n')
         );
         console.log('Updated fixture `%s`.', filename);

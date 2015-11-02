@@ -379,23 +379,28 @@ describe('writeRelayQueryPayload()', () => {
   it('should throw when connection is missing required calls', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var edgesFragment = Relay.QL`
+      fragment on FriendsConnection {
+        edges {
+          cursor,
+          node {
+            id
+          },
+          source {
+            id
+          }
+        },
+        pageInfo {
+          hasNextPage,
+          hasPreviousPage,
+        }
+      }
+    `;
     var query = getNode(Relay.QL`
       query {
         node(id:"123") {
           friends(isViewerFriend:true) {
-            edges {
-              cursor,
-              node {
-                id
-              },
-              source {
-                id
-              }
-            },
-            pageInfo {
-              hasNextPage,
-              hasPreviousPage,
-            }
+            ${edgesFragment}
           }
         }
       }

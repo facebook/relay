@@ -117,6 +117,7 @@ var RelayQLTransformer = (function () {
 
       var context = {
         definitionName: capitalize(documentName),
+        isPattern: false,
         schema: this.schema
       };
       if (definition.kind === 'FragmentDefinition') {

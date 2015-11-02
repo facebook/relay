@@ -179,7 +179,7 @@ describe('intersectRelayQuery', () => {
     it('includes range fields for connections without sub-fields', () => {
       var subjectNode = getNode(Relay.QL`
         fragment on Actor {
-          friends(first:"10") {
+          friends(first: "10") {
             edges {
               node {
                 id,
@@ -196,7 +196,7 @@ describe('intersectRelayQuery', () => {
       `);
       var expected = getNode(Relay.QL`
         fragment on Actor {
-          friends(first:"10") {
+          friends(first: "10") {
             edges {
               node {
                 id,
@@ -214,7 +214,7 @@ describe('intersectRelayQuery', () => {
     it('includes non-range connection fields', () => {
       var subjectNode = getNode(Relay.QL`
         fragment on Actor {
-          friends(first:"10") {
+          friends(first: "10") {
             count,
             edges {
               node {
@@ -227,7 +227,7 @@ describe('intersectRelayQuery', () => {
         }
       `);
       var patternNode = getNode(Relay.QL`
-        fragment on Actor {
+        fragment on Actor @relay(pattern: true) {
           friends {
             count
           }
@@ -235,7 +235,7 @@ describe('intersectRelayQuery', () => {
       `);
       var expected = getNode(Relay.QL`
         fragment on Actor {
-          friends(first:"10") {
+          friends(first: "10") {
             count
           }
         }
@@ -248,7 +248,7 @@ describe('intersectRelayQuery', () => {
     it('excludes filtered unterminated ranges', () => {
       var subjectNode = getNode(Relay.QL`
         fragment on Actor {
-          friends(first:"10") {
+          friends(first: "10") {
             count,
             edges {
               node {
@@ -266,7 +266,7 @@ describe('intersectRelayQuery', () => {
       `);
       var expected = getNode(Relay.QL`
         fragment on Actor {
-          friends(first:"10") {
+          friends(first: "10") {
             count
           }
         }
@@ -282,7 +282,7 @@ describe('intersectRelayQuery', () => {
     it('excludes filtered unterminated ranges with different arguments', () => {
       var subjectNode = getNode(Relay.QL`
         fragment on Actor {
-          friends(orderby:"name",first:"10") {
+          friends(orderby:"name",first: "10") {
             count,
             edges {
               node {
@@ -300,7 +300,7 @@ describe('intersectRelayQuery', () => {
       `);
       var expected = getNode(Relay.QL`
         fragment on Actor {
-          friends(orderby:"name",first:"10") {
+          friends(orderby:"name",first: "10") {
             count
           }
         }
@@ -316,7 +316,7 @@ describe('intersectRelayQuery', () => {
     it('does not exclude ranges from connections with sub-fields', () => {
       var subjectNode = getNode(Relay.QL`
         fragment on Actor {
-          friends(first:"10") {
+          friends(first: "10") {
             count,
             edges {
               node {
@@ -328,7 +328,7 @@ describe('intersectRelayQuery', () => {
         }
       `);
       var patternNode = getNode(Relay.QL`
-        fragment on Actor {
+        fragment on Actor @relay(pattern: true) {
           friends {
             count,
             edges {
@@ -342,7 +342,7 @@ describe('intersectRelayQuery', () => {
       `);
       var expected = getNode(Relay.QL`
         fragment on Actor {
-          friends(first:"10") {
+          friends(first: "10") {
             count,
             edges {
               node {

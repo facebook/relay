@@ -491,11 +491,44 @@ describe('readRelayQueryData', () => {
       'Fields `edges` and `pageInfo` cannot be fetched without a ' +
       '`first`, `last` or `find` argument.';
 
-    var query = getNode(Relay.QL`fragment on Story{feedback{likers{edges{node{name}}}}}`);
+    // Use fragment because all inline violations are caugh at transform time.
+    var edgesFragment = Relay.QL`
+      fragment on LikersOfContentConnection {
+        edges {
+          node {
+            name,
+          },
+        },
+      }
+    `;
+    var query = getNode(Relay.QL`
+      fragment on Story {
+        feedback {
+          likers {
+            ${edgesFragment}
+          },
+        },
+      }
+    `);
     expect(() => getData({records}, query, 'story_id')).toThrow(error);
 
     // Note that `pageInfo` also triggers the error...
-    query = getNode(Relay.QL`fragment on Story{feedback{likers{pageInfo}}}`);
+    var pageInfoFragment = Relay.QL`
+      fragment on LikersOfContentConnection {
+        pageInfo {
+          hasNextPage,
+        },
+      }
+    `;
+    query = getNode(Relay.QL`
+      fragment on Story {
+        feedback {
+          likers {
+            ${pageInfoFragment}
+          },
+        },
+      },
+    `);
     expect(() => getData({records}, query, 'story_id')).toThrow(error);
 
     // ...but not `count`:

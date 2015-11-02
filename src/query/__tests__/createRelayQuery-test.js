@@ -50,24 +50,4 @@ describe('createRelayQuery', () => {
       [{name: 'first', value: 10}]
     );
   });
-
-  it('creates queries with Relay.Query tag', () => {
-    var root = Relay.Query`
-      query {
-        viewer {
-          newsFeed(first: "10") {
-            edges {
-              node {
-                id
-              }
-            }
-          }
-        }
-      }
-    `;
-    expect(root instanceof RelayQuery.Root).toBe(true);
-    expect(root.getFieldByStorageKey('newsFeed').getCallsWithValues()).toEqual(
-      [{name: 'first', value: '10'}]
-    );
-  });
 });

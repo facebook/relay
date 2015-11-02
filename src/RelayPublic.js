@@ -40,7 +40,6 @@ var RelayPublic = {
   Mutation: RelayMutation,
   PropTypes: RelayPropTypes,
   QL: RelayQL,
-  Query: RelayQL,
   RootContainer: RelayRootContainer,
   Route: RelayRoute,
   Store: RelayStore,

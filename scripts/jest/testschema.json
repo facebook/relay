@@ -979,6 +979,16 @@
               "description": null,
               "args": [
                 {
+                  "name": "relative",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "site",
                   "description": null,
                   "type": {
@@ -1651,6 +1661,16 @@
               "name": "url",
               "description": null,
               "args": [
+                {
+                  "name": "relative",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
                 {
                   "name": "site",
                   "description": null,
@@ -2340,6 +2360,16 @@
               "description": null,
               "args": [
                 {
+                  "name": "relative",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "site",
                   "description": null,
                   "type": {
@@ -2735,6 +2765,16 @@
               "name": "url",
               "description": null,
               "args": [
+                {
+                  "name": "relative",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
                 {
                   "name": "site",
                   "description": null,
@@ -3396,6 +3436,16 @@
               "name": "url",
               "description": null,
               "args": [
+                {
+                  "name": "relative",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
                 {
                   "name": "site",
                   "description": null,
@@ -4423,6 +4473,16 @@
               "name": "url",
               "description": null,
               "args": [
+                {
+                  "name": "relative",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
                 {
                   "name": "site",
                   "description": null,
@@ -5586,6 +5646,16 @@
               "name": "url",
               "description": null,
               "args": [
+                {
+                  "name": "relative",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
                 {
                   "name": "site",
                   "description": null,

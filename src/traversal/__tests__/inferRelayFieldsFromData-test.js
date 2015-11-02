@@ -153,14 +153,38 @@ describe('inferRelayFieldsFromData', () => {
     `);
   });
 
-  it('infers field arguments from keys', () => {
+  it('infers String field arguments from keys', () => {
     expect(inferRelayFieldsFromData({
       id: '123',
-      'url.site(www)': 'https://...',
+      'url(site: "www")': 'https://...',
     })).toEqualFields(Relay.QL`
       fragment on Actor {
         id,
-        url(site:"www"),
+        url(site: "www"),
+      }
+    `);
+  });
+
+  it('infers Boolean field arguments from keys', () => {
+    expect(inferRelayFieldsFromData({
+      'url(relative: true)': '//...',
+    })).toEqualFields(Relay.QL`
+      fragment on Actor {
+        url(relative: true),
+      }
+    `);
+  });
+
+  it('infers Int field arguments from keys', () => {
+    expect(inferRelayFieldsFromData({
+      'comments(last: 10)': {
+        count: 20,
+      },
+    })).toEqualFields(Relay.QL`
+      fragment on Comment {
+        comments(last: 10) {
+          count,
+        }
       }
     `);
   });
@@ -173,12 +197,23 @@ describe('inferRelayFieldsFromData', () => {
     }).toFailInvariant(
       'inferRelayFieldsFromData(): Malformed data key, `url.site`.'
     );
+
+    expect(() => {
+      inferRelayFieldsFromData({
+        'url(site)': 'https://...',
+      });
+    }).toFailInvariant(
+      'inferRelayFieldsFromData(): Malformed or unsupported data key, ' +
+      '`url(site)`. Only booleans, strings, and numbers are currenly ' +
+      'supported, and commas are required. Parse failure reason was ' +
+      '`Unexpected token s`.'
+    );
   });
 
   it('infers `id` and `cursor` fields for `node` data', () => {
     expect(inferRelayFieldsFromData({
       id: '123',
-      'friends.first(2)': {
+      'friends(first: "2")': {
         edges: [
           {node: {name: 'Alice'}},
           {node: {name: 'Bob'}},
@@ -191,7 +226,7 @@ describe('inferRelayFieldsFromData', () => {
     })).toEqualFields(Relay.QL`
       fragment on Actor {
         id,
-        friends(first:"2") {
+        friends(first: "2") {
           edges {
             node {
               id,

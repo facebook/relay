@@ -13,17 +13,21 @@
 
 'use strict';
 
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayNodeInterface = require('RelayNodeInterface');
-var RelayQuery = require('RelayQuery');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayQuery = require('RelayQuery');
 
-var forEachObject = require('forEachObject');
-var invariant = require('invariant');
+const forEachObject = require('forEachObject');
+const invariant = require('invariant');
+const warning = require('warning');
 
-var FIELD_ARGUMENT_ENCODING = /^(\w+)\((.*?)\)$/;
-var {NODE, EDGES} = RelayConnectionInterface;
-var {ID, NODE_TYPE} = RelayNodeInterface;
+const ARGUMENTS = /^(\w+)(?:\((.+?)\))?$/;
+const ARGUMENT_NAME = /(\w+)(?=\s*:)/;
+const DEPRECATED_CALLS = /^\w+(?:\.\w+\(.*?\))+$/;
+const DEPRECATED_CALL = /^(\w+)\((.*?)\)$/;
+const {NODE, EDGES} = RelayConnectionInterface;
+const {ID, NODE_TYPE} = RelayNodeInterface;
 
 /**
  * @internal
@@ -35,7 +39,7 @@ var {ID, NODE_TYPE} = RelayNodeInterface;
 function inferRelayFieldsFromData(
   data: Object
 ): Array<RelayQuery.Field> {
-  var fields = [];
+  const fields = [];
   forEachObject(data, (value, key) => {
     if (!GraphQLStoreDataHandler.isMetadataKey(key)) {
       fields.push(inferField(value, key));
@@ -45,10 +49,10 @@ function inferRelayFieldsFromData(
 }
 
 function inferField(value: mixed, key: string): RelayQuery.Field {
-  var children;
-  var metadata;
+  let children;
+  let metadata;
   if (Array.isArray(value)) {
-    var element = value[0];
+    const element = value[0];
     if (element && typeof element === 'object') {
       children = inferRelayFieldsFromData(element);
     } else {
@@ -79,24 +83,58 @@ function buildField(
   children: Array<RelayQuery.Field>,
   metadata: ?{[key: string]: mixed}
 ): RelayQuery.Field {
-  var fieldName = key;
-  var calls = null;
-  var parts = key.split('.');
-  if (parts.length > 1) {
-    fieldName = parts.shift();
-    calls = parts.map(callString => {
-      var captures = callString.match(FIELD_ARGUMENT_ENCODING);
-      invariant(
-        captures,
-        'inferRelayFieldsFromData(): Malformed data key, `%s`.',
-        key
-      );
-      var value = captures[2].split(',');
-      return {
-        name: captures[1],
-        value: value.length === 1 ? value[0] : value,
-      };
-    });
+  let fieldName = key;
+  let calls = null;
+  if (DEPRECATED_CALLS.test(key)) {
+    warning(
+      false,
+      'inferRelayFieldsFromData(): Encountered an optimistic payload with ' +
+      'a deprecated field call string, `%s`. Use valid GraphQL OSS syntax.',
+      key
+    );
+    const parts = key.split('.');
+    if (parts.length > 1) {
+      fieldName = parts.shift();
+      calls = parts.map(callString => {
+        const captures = callString.match(DEPRECATED_CALL);
+        invariant(
+          captures,
+          'inferRelayFieldsFromData(): Malformed data key, `%s`.',
+          key
+        );
+        const value = captures[2].split(',');
+        return {
+          name: captures[1],
+          value: value.length === 1 ? value[0] : value,
+        };
+      });
+    }
+  } else {
+    const captures = key.match(ARGUMENTS);
+    invariant(
+      captures,
+      'inferRelayFieldsFromData(): Malformed data key, `%s`.',
+      key
+    );
+    fieldName = captures[1];
+    if (captures[2]) {
+      try {
+        // Relay does not currently have a GraphQL argument parser, so...
+        const args = JSON.parse(
+          '{' + captures[2].replace(ARGUMENT_NAME, '"$1"') + '}'
+        );
+        calls = Object.keys(args).map(name => ({name, value: args[name]}));
+      } catch (error) {
+        invariant(
+          false,
+          'inferRelayFieldsFromData(): Malformed or unsupported data key, ' +
+          '`%s`. Only booleans, strings, and numbers are currenly supported, ' +
+          'and commas are required. Parse failure reason was `%s`.',
+          key,
+          error.message
+        );
+      }
+    }
   }
   return RelayQuery.Field.build(
     fieldName,

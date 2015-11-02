@@ -108,7 +108,7 @@ type Comment implements Node {
   subscribers(first: String): SubscribersConnection
   topLevelComments(first: String): TopLevelCommentsConnection
   tracking: String
-  url(site: String): String
+  url(relative: Boolean, site: String): String
   websites: [String]
   username: String
   viewerSavedState: String
@@ -191,7 +191,7 @@ type Feedback implements Node {
   subscribers(first: String): SubscribersConnection
   topLevelComments(first: String): TopLevelCommentsConnection
   tracking: String
-  url(site: String): String
+  url(relative: Boolean, site: String): String
   websites: [String]
   username: String
   viewerSavedState: String
@@ -285,7 +285,7 @@ interface Node {
   subscribers(first: String): SubscribersConnection
   topLevelComments(first: String): TopLevelCommentsConnection
   tracking: String
-  url(site: String): String
+  url(relative: Boolean, site: String): String
   websites: [String]
   username: String
   viewerSavedState: String
@@ -306,7 +306,7 @@ interface Actor {
   screennames: [Screenname]
   subscribeStatus: String
   subscribers(first: String): SubscribersConnection
-  url(site: String): String
+  url(relative: Boolean, site: String): String
   websites: [String]
   username: String
 }
@@ -347,7 +347,7 @@ type Page implements Node Actor {
   subscribers(first: String): SubscribersConnection
   topLevelComments(first: String): TopLevelCommentsConnection
   tracking: String
-  url(site: String): String
+  url(relative: Boolean, site: String): String
   websites: [String]
   username: String
   viewerSavedState: String
@@ -444,7 +444,7 @@ type Story implements FeedUnit Node {
   subscribers(first: String): SubscribersConnection
   topLevelComments(first: String): TopLevelCommentsConnection
   tracking: String
-  url(site: String): String
+  url(relative: Boolean, site: String): String
   websites: [String]
   username: String
   viewerSavedState: String
@@ -522,7 +522,7 @@ type User implements Node Actor {
   subscribers(first: String): SubscribersConnection
   topLevelComments(first: String): TopLevelCommentsConnection
   tracking: String
-  url(site: String): String
+  url(relative: Boolean, site: String): String
   websites: [String]
   username: String
   viewerSavedState: String

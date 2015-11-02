@@ -1,10 +1,12 @@
 ## master
 
-* `RelayQueryField#getStorageKey` will now produce the same key regardless of the
-  order of a field's arguments.
+* `RelayQueryField#getStorageKey` will now produce the same key regardless of
+  the order of a field's arguments.
 * Range behavior keys in mutation configs are now guaranteed to be sorted.
 * Added the `Relay.createQuery()` function which returns a
   `RelayQuery.Root` (that can be used with `Relay.Store` methods).
+* Optimistic response keys now use GraphQL OSS syntax. (Usage of old, call-like
+  syntax is now deprecated and will warn.)
 
 ## 0.4.0 (October 13, 2015)
 

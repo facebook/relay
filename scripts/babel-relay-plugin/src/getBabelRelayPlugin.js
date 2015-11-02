@@ -86,7 +86,6 @@ function getBabelRelayPlugin(
           const tag = this.get('tag');
           const tagName =
             tag.matchesPattern('Relay.QL') ? 'Relay.QL' :
-            tag.matchesPattern('Relay.Query') ? 'Relay.Query' :
             tag.isIdentifier({name: 'RelayQL'}) ? 'RelayQL' :
             null;
           if (!tagName) {

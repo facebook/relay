@@ -69,6 +69,7 @@ export type RelayQueryConfigSpec = {
   params: Variables;
   queries: RootQueries;
   uri?: ?URI;
+  useMockData?: bool;
 };
 export type RootQueries = {
   [queryName: string]: QueryBuilder;
@@ -467,6 +468,9 @@ function createContainerComponent(
     }
 
     componentWillMount(): void {
+      if (this.context.route.useMockData) {
+        return;
+      }
       var variables =
         getVariablesWithPropOverrides(spec, this.props, initialVariables);
       this._updateFragmentPointers(this.props, this.context.route, variables);
@@ -484,6 +488,9 @@ function createContainerComponent(
       nextContext?: Object
     ): void {
       var {route} = nullthrows(nextContext);
+      if (route.useMockData) {
+        return;
+      }
       this.setState(state => {
         var variables = getVariablesWithPropOverrides(
           spec,
@@ -628,7 +635,7 @@ function createContainerComponent(
             // TODO: Throw when we have mock data validation, #6332949.
             dataIDOrIDs = null;
             if (__DEV__) {
-              if (!this._didShowFakeDataWarning) {
+              if (!route.useMockData && !this._didShowFakeDataWarning) {
                 this._didShowFakeDataWarning = true;
                 warning(
                   false,

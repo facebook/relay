@@ -166,7 +166,8 @@ class RelayQueryNode {
       // Compact new children *after* this check, for consistency.
       invariant(
         children.length === 0,
-        'RelayQueryNode: Cannot add children to scalar fields.'
+        'RelayQueryNode: Cannot add children to scalar field `%s`.',
+        this instanceof RelayQueryField ? this.getSchemaName() : null
       );
       return this;
     }

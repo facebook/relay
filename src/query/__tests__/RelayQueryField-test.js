@@ -217,7 +217,7 @@ describe('RelayQueryField', () => {
     expect(() => {
       nodeId.clone([null]);
     }).toFailInvariant(
-      'RelayQueryNode: Cannot add children to scalar fields.'
+      'RelayQueryNode: Cannot add children to scalar field `id`.'
     );
     expect(() => {
       nodeId.cloneFieldWithCalls([null], []);

@@ -78,11 +78,11 @@ describe('RelayQueryRoot', () => {
       query {
         me {
           id,
-          firstName @skip(if: $cond),
-          lastName @include(if: $cond2),
+          firstName @skip(if: $true),
+          lastName @include(if: $false),
         }
       }
-    `, {cond: true, cond2: false});
+    `, {true: true, false: false});
     var children = query.getChildren();
     expect(children.length).toBe(1);
     expect(children[0].getSchemaName()).toBe('id');
@@ -93,11 +93,11 @@ describe('RelayQueryRoot', () => {
       query {
         me {
           id,
-          firstName @skip(if: $cond),
-          lastName @include(if: $cond2),
+          firstName @skip(if: $false),
+          lastName @include(if: $true),
         }
       }
-    `, {cond: false, cond2: true});
+    `, {false: false, true: true});
     var children = query.getChildren();
     expect(children.length).toBe(3);
     expect(children[0].getSchemaName()).toBe('id');

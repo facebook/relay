@@ -208,7 +208,7 @@ class RelayQueryNode {
           this.__route__,
           this.__variables__
         );
-        if (node && node.shouldBeIncluded()) {
+        if (node && !node.isSkipped()) {
           nextChildren.push(node);
         }
       });
@@ -218,34 +218,32 @@ class RelayQueryNode {
     return children;
   }
 
-  shouldBeIncluded(): ?boolean {
-    var directives = this.getDirectives();
+  isSkipped(): boolean {
+    let directives = this.getDirectives();
+    let isSkipped = null;
+    let isIncluded = null;
 
-    var skipNode = directives.find(
-      directive => directive.name === SKIP
-    );
-    if (skipNode) {
-      var skipIf = skipNode.arguments.find(
-        arg => arg.name === IF
-      );
-      if (skipIf) {
-        return !skipIf.value;
+    directives.forEach(directive => {
+      if (directive.name === SKIP) {
+        let argument = directive.arguments.find(arg => arg.name === IF)
+        if (argument) {
+          isSkipped = Boolean(argument.value)
+        }
+      } else if (directive.name === INCLUDE) {
+        let argument = directive.arguments.find(arg => arg.name === IF)
+        if (argument) {
+          isIncluded = Boolean(argument.value)
+        }
       }
-    }
+    });
 
-    var includeNode = directives.find(
-      directive => directive.name === INCLUDE
-    );
-    if (includeNode) {
-      var includeIf = includeNode.arguments.find(
-        arg => arg.name === IF
-      );
-      if (includeIf) {
-        return Boolean(includeIf.value);
-      }
+    if (isSkipped !== null) {
+      return isSkipped;
+    } else if (isIncluded !== null) {
+      return !isIncluded;
+    } else {
+      return false;
     }
-
-    return true
   }
 
   getDirectives(): Array<Directive> {

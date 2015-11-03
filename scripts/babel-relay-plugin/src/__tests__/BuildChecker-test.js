@@ -31,8 +31,8 @@ describe('babel-relay-plugin', () => {
         const srcFile = this.actual;
         this.message = () => util.format(
           'Expected `%s` to transform into `%s`. Try running: npm run build',
-          path.relative(ROOT_DIR, libFile),
-          path.relative(ROOT_DIR, srcFile)
+          path.relative(ROOT_DIR, srcFile),
+          path.relative(ROOT_DIR, libFile)
         );
         if (!fs.existsSync(libFile)) {
           return false;

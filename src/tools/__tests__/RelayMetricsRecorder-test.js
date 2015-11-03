@@ -70,7 +70,7 @@ describe('RelayMetricsRecorder', () => {
     var recorder = new RelayMetricsRecorder();
     performanceNow.mockReturnValue(0);
     recorder.start();
-    mockPerformanceNowSequence([1, 1001]);
+    mockPerformanceNowSequence([1, 101, 201, 301, 401, 501, 601, 1001]);
     query.getChildren();
     performanceNow.mockReturnValue(3000);
     recorder.stop();
@@ -78,8 +78,12 @@ describe('RelayMetricsRecorder', () => {
     expect(recorder.getMetrics()).toEqual({
       measurements: {
         'RelayQueryNode.prototype.getChildren': {
-          aggregateTime: 1000,
+          aggregateTime: 700,
           callCount: 1,
+        },
+        'RelayQueryNode.prototype.getDirectives': {
+          aggregateTime: 300,
+          callCount: 3,
         },
       },
       profiles: [],

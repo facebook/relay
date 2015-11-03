@@ -73,6 +73,38 @@ describe('RelayQueryRoot', () => {
     expect(children[2].isGenerated()).toBe(true);
   });
 
+  it('does not return skipped children', () => {
+    var query = getNode(Relay.QL`
+      query {
+        me {
+          id,
+          firstName @skip(if: $cond),
+          lastName @include(if: $cond2),
+        }
+      }
+    `, {cond: true, cond2: false});
+    var children = query.getChildren();
+    expect(children.length).toBe(1);
+    expect(children[0].getSchemaName()).toBe('id');
+  });
+
+  it('does return included children', () => {
+    var query = getNode(Relay.QL`
+      query {
+        me {
+          id,
+          firstName @skip(if: $cond),
+          lastName @include(if: $cond2),
+        }
+      }
+    `, {cond: false, cond2: true});
+    var children = query.getChildren();
+    expect(children.length).toBe(3);
+    expect(children[0].getSchemaName()).toBe('id');
+    expect(children[1].getSchemaName()).toBe('firstName');
+    expect(children[2].getSchemaName()).toBe('lastName');
+  });
+
   it('returns same object when cloning with same fields', () => {
     var children = me.getChildren();
     expect(me.clone(children)).toBe(me);

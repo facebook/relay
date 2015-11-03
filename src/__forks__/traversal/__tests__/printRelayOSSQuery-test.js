@@ -559,7 +559,6 @@ describe('printRelayOSSQuery', () => {
         }
       }
       fragment ${fragmentID} on User @include(if: true) {
-        name @skip(if: true),
         id
       }
     `);

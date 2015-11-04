@@ -12,126 +12,104 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL');
+import type {
+  Field,
+  Fragment,
+  Query,
+  Selection,
+} from 'ConcreteQuery';
+var QueryBuilder = require('QueryBuilder');
 var RelayQuery = require('RelayQuery');
 
+var callsToGraphQL = require('callsToGraphQL');
 var invariant = require('invariant');
-
-type GraphQLNode = (
-  GraphQL.Field |
-  GraphQL.Query |
-  GraphQL.QueryFragment
-);
 
 /**
  * @internal
  *
- * Converts a RelayQuery.Node into its equivalent GraphQL.Node. This should only
- * be used to aid in iterative migration of Relay to use RelayQuery.
+ * Converts a RelayQuery.Node into a plain object representation. This is
+ * equivalent to the AST produced by `babel-relay-plugin` and is intended for
+ * use in serializing RelayQuery nodes.
  */
 var toGraphQL = {
-  Node(node: RelayQuery.Node): GraphQLNode {
-    if (node instanceof RelayQuery.Root) {
-      return toGraphQL.Query(node);
-    } else if (node instanceof RelayQuery.Fragment) {
-      return toGraphQL.Fragment(node);
-    } else {
-      invariant(node instanceof RelayQuery.Field, 'toGraphQL: Invalid node.');
-      return toGraphQL.Field(node);
-    }
-  },
-  Query(node: RelayQuery.Root): GraphQL.Query {
+  Query(node: RelayQuery.Root): Query {
     return node.getConcreteQueryNode(() => {
-      var batchCall = node.getBatchCall();
-      var calls;
+      const batchCall = node.getBatchCall();
+      let identifyingArgValue;
       if (batchCall) {
-        calls = [new GraphQL.BatchCallVariable(
+        identifyingArgValue = QueryBuilder.createBatchCallVariable(
           batchCall.sourceQueryID,
           batchCall.sourceQueryPath
-        )];
+        );
       } else {
         const identifyingArg = node.getIdentifyingArg();
-        calls = (identifyingArg && identifyingArg.value) || null;
+        if (identifyingArg) {
+          if (Array.isArray(identifyingArg.value)) {
+            identifyingArgValue = identifyingArg.value.map(
+              QueryBuilder.createCallValue
+            );
+          } else {
+            identifyingArgValue = QueryBuilder.createCallValue(
+              identifyingArg.value
+            );
+          }
+        }
       }
 
-      var [fields, fragments] = toGraphQLChildren(node.getChildren());
-      var query = new GraphQL.Query(
-        node.getFieldName(),
-        calls,
-        fields,
-        fragments,
-        toGraphQLMetadata(node),
-        node.getName()
-      );
-      // if (node.isDeferred()) {
-      //   query.isDeferred = true;
-      // }
-      return query;
-    });
-  },
-  Fragment(node: RelayQuery.Fragment): GraphQL.QueryFragment {
-    return node.getConcreteQueryNode(() => {
-      var [fields, fragments] = toGraphQLChildren(node.getChildren());
-      var fragment = new GraphQL.QueryFragment(
-        node.getDebugName(),
-        node.getType(),
-        fields,
-        fragments,
-        toGraphQLMetadata(node)
-      );
-      return fragment;
-    });
-  },
-  Field(node: RelayQuery.Field): GraphQL.Field {
-    return node.getConcreteQueryNode(() => {
-      var metadata = toGraphQLMetadata(node);
-      var calls = node.getCallsWithValues().map(call => {
-        return new GraphQL.Callv(
-          call.name,
-          call.value
-        );
+      const children = node.getChildren().map(toGraphQLSelection);
+      // Use `QueryBuilder` to generate the correct calls from the
+      // identifying argument & metadata.
+      return QueryBuilder.createQuery({
+        children,
+        fieldName: node.getFieldName(),
+        identifyingArgValue,
+        isDeferred: node.isDeferred(),
+        metadata: node.__concreteNode__.metadata,
+        name: node.getName(),
       });
-      var [fields, fragments] = toGraphQLChildren(node.getChildren());
-      return new GraphQL.Field(
-        node.getSchemaName(),
-        fields,
-        fragments,
+    });
+  },
+  Fragment(node: RelayQuery.Fragment): Fragment {
+    return node.getConcreteQueryNode(() => {
+      const children = node.getChildren().map(toGraphQLSelection);
+      return {
+        children,
+        directives: [],
+        kind: 'Fragment',
+        metadata: {
+          plural: node.isPlural(),
+        },
+        name: node.getDebugName(),
+        type: node.getType(),
+      };
+    });
+  },
+  Field(node: RelayQuery.Field): Field {
+    return node.getConcreteQueryNode(() => {
+      const calls = callsToGraphQL(node.getCallsWithValues());
+      const children = node.getChildren().map(toGraphQLSelection);
+      return {
+        alias: node.__concreteNode__.alias,
         calls,
-        node.__concreteNode__.alias,
-        node.__concreteNode__.condition,
-        metadata
-      );
+        children,
+        directives: [],
+        fieldName: node.getSchemaName(),
+        kind: 'Field',
+        metadata: node.__concreteNode__.metadata,
+      };
     });
   },
 };
 
-function toGraphQLChildren(
-  children: Array<RelayQuery.Node>
-): [Array<GraphQL.Field>, Array<GraphQL.QueryFragment>] {
-  var fields = [];
-  var fragments = [];
-  children.forEach(child => {
-    if (child instanceof RelayQuery.Field) {
-      fields.push(toGraphQL.Field(child));
-    } else {
-      invariant(
-        child instanceof RelayQuery.Fragment,
-        'toGraphQL: Invalid child node.'
-      );
-      fragments.push(toGraphQL.Fragment(child));
-    }
-  });
-  return [fields, fragments];
-}
-
-function toGraphQLMetadata(node: RelayQuery.Node): ?Object {
-  var metadata = {
-    ...node.__concreteNode__.__metadata__,
-  };
-  if (Object.keys(metadata).length) {
-    return metadata;
+function toGraphQLSelection(
+  node: RelayQuery.Node
+): Selection  {
+  if (node instanceof RelayQuery.Fragment) {
+    return toGraphQL.Fragment(node);
+  } else {
+    invariant(node instanceof RelayQuery.Field, 'toGraphQL: Invalid node.');
+    return toGraphQL.Field(node);
   }
-  return null;
 }
 
 module.exports = toGraphQL;

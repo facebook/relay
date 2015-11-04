@@ -27,6 +27,11 @@ export type Value =
   CallVariable |
   Array<CallValue>;
 
+export type DirectiveValue =
+  CallValue |
+  CallVariable |
+  Array<CallValue>;
+
 export type BatchCallVariable = {
   jsonPath: string;
   kind: 'BatchCallVariable';
@@ -55,7 +60,7 @@ export type CallVariable = {
 export type Directive = {
   arguments: ?Array<{
     name: string;
-    value: mixed;
+    value: ?DirectiveValue;
   }>;
   kind: 'Directive';
   name: string;
@@ -65,7 +70,6 @@ export type Field = {
   alias: ?string;
   calls: Array<Call>;
   children: Array<?Selection>;
-  condition: ?string; // ?????
   directives: Array<Directive>;
   fieldName: string;
   kind: 'Field';
@@ -85,10 +89,10 @@ export type Field = {
 export type Fragment = {
   children: Array<?Selection>;
   directives: Array<Directive>;
-  isPlural: boolean;
   kind: 'Fragment';
   metadata: {
-    plural: boolean;
+    isPlural?: boolean; // FB Printer
+    plural?: boolean;   // OSS Printer from `@relay`
   };
   name: string;
   type: string;

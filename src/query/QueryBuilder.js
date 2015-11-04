@@ -24,7 +24,7 @@ import type {
   Mutation,
   Query,
   Selection,
-  Value
+  Value,
 } from 'ConcreteQuery';
 const RelayNodeInterface = require('RelayNodeInterface');
 
@@ -111,11 +111,10 @@ const QueryBuilder = {
     };
   }): Field {
     const partialMetadata = partialField.metadata || EMPTY_METADATA;
-    const field = {
+    return {
       alias: partialField.alias,
       calls: partialField.calls || EMPTY_CALLS,
       children: partialField.children || EMPTY_CHILDREN,
-      condition: null,
       directives: partialField.directives || EMPTY_DIRECTIVES,
       fieldName: partialField.fieldName,
       kind: 'Field',
@@ -131,10 +130,6 @@ const QueryBuilder = {
         parentType: partialMetadata.parentType,
       },
     };
-    // TODO: #8909241 for backwards compatibility with GraphQL.Field and
-    // toGraphQL
-    (field: any).__metadata__ = field.metadata;
-    return field;
   },
 
   createFragment(partialFragment: {
@@ -151,10 +146,9 @@ const QueryBuilder = {
     return {
       children: partialFragment.children || EMPTY_CHILDREN,
       directives: partialFragment.directives || EMPTY_DIRECTIVES,
-      isPlural: !!(partialFragment.isPlural || metadata.plural),
       kind: 'Fragment',
       metadata: {
-        plural: !!metadata.plural,
+        plural: !!metadata.plural, // match the `@relay` argument name
       },
       name: partialFragment.name,
       type: partialFragment.type,
@@ -220,25 +214,19 @@ const QueryBuilder = {
         (partialQuery.identifyingArgValue: Value)
       )];
     }
-    const isDeferred = !!(partialQuery.isDeferred || metadata.isDeferred);
-    const query = {
+    return {
       calls,
       children: partialQuery.children || EMPTY_CHILDREN,
       directives: partialQuery.directives || EMPTY_DIRECTIVES,
       fieldName: partialQuery.fieldName,
-      isDeferred,
+      isDeferred: !!(partialQuery.isDeferred || metadata.isDeferred),
       kind: 'Query',
       metadata: {
         identifyingArgName,
         identifyingArgType: metadata.identifyingArgType,
-        isDeferred,
       },
       name: partialQuery.name,
     };
-    // TODO: #8909241 for backwards compatibility with GraphQL.Query and
-    // toGraphQL
-    (query: any).__metadata__ = query.metadata;
-    return query;
   },
 };
 

@@ -203,7 +203,9 @@ describe('RelayQueryPath', () => {
     expect(root).toSerializeTo([{
       calls: [{
         kind: 'Call',
-        metadata: {},
+        metadata: {
+          type: null,
+        },
         name: 'id',
         value: {
           callValue: '123',
@@ -215,7 +217,6 @@ describe('RelayQueryPath', () => {
           alias: null,
           calls: [],
           children: [],
-          condition: null,
           directives: [],
           fieldName: 'id',
           kind: 'Field',
@@ -232,7 +233,6 @@ describe('RelayQueryPath', () => {
           alias: null,
           calls: [],
           children: [],
-          condition: null,
           directives: [],
           fieldName: '__typename',
           kind: 'Field',
@@ -289,9 +289,10 @@ describe('RelayQueryPath', () => {
       children: [{
         children: [],
         directives: [],
-        isPlural: false,
         kind: 'Fragment',
-        metadata: {},
+        metadata: {
+          plural: false,
+        },
         name: '$RelayQueryPath',
         type: 'Node',
       }],

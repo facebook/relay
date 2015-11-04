@@ -14,8 +14,6 @@
 
 var RelayNodeInterface = require('RelayNodeInterface');
 
-var invariant = require('invariant');
-
 const EMPTY_OBJECT = {};
 const EMPTY_ARRAY = [];
 
@@ -74,24 +72,6 @@ class GraphQLCallvNode {
     this.name = name;
     this.metadata = metadata || EMPTY_OBJECT;
   }
-
-  /**
-   * @param {array} descriptor
-   * @return {GraphQLCallvNode}
-   */
-  static fromJSON(node) {
-    invariant(node.kind === CALL, 'Expected call descriptor');
-    return node;
-  }
-
-  toJSON() {
-    return {
-      kind: CALL,
-      metadata: this.metadata,
-      name: this.name,
-      value: this.value,
-    };
-  }
 }
 
 /**
@@ -105,22 +85,6 @@ class GraphQLCallValue {
   constructor(value) {
     this.kind = CALL_VALUE;
     this.callValue = value;
-  }
-
-  /**
-   * @param {array} descriptor
-   * @return {GraphQLCallValue}
-   */
-  static fromJSON(node) {
-    invariant(node.kind === CALL_VALUE, 'Expected value descriptor');
-    return node;
-  }
-
-  toJSON() {
-    return {
-      kind: CALL_VALUE,
-      callValue: this.callValue,
-    };
   }
 }
 
@@ -150,26 +114,6 @@ class GraphQLBatchCallVariable {
     this.sourceQueryID = sourceQueryID;
     this.jsonPath = jsonPath;
   }
-
-  /**
-   * @param {array} descriptor
-   * @return {GraphQLBatchCallVariable}
-   */
-  static fromJSON(node) {
-    invariant(
-      node.kind === BATCH_CALL_VARIABLE,
-      'Expected batch variable descriptor'
-    );
-    return node;
-  }
-
-  toJSON() {
-    return {
-      jsonPath: this.jsonPath,
-      kind: BATCH_CALL_VARIABLE,
-      sourceQueryID: this.sourceQueryID,
-    };
-  }
 }
 
 /**
@@ -186,25 +130,6 @@ class GraphQLCallVariable {
   constructor(variableName) {
     this.kind = CALL_VARIABLE;
     this.callVariableName = variableName;
-  }
-
-  /**
-   * @param {array} descriptor
-   * @return {GraphQLCallVariable}
-   */
-  static fromJSON(node) {
-    invariant(
-      node.kind === CALL_VARIABLE,
-      'Expected variable descriptor'
-    );
-    return node;
-  }
-
-  toJSON() {
-    return {
-      callVariableName: this.callVariableName,
-      kind: CALL_VARIABLE,
-    };
   }
 }
 
@@ -250,28 +175,6 @@ class GraphQLFieldNode extends GraphQLNode {
     };
     this.directives = directives || EMPTY_ARRAY;
   }
-
-  /**
-   * @param {array} descriptor
-   * @return {GraphQLFieldNode}
-   */
-  static fromJSON(node) {
-    invariant(node.kind === FIELD, 'Expected field descriptor');
-    return node;
-  }
-
-  toJSON() {
-    return {
-      alias: this.alias,
-      calls: this.calls,
-      children: this.children,
-      condition: null,
-      directives: this.directives,
-      fieldName: this.fieldName,
-      kind: FIELD,
-      metadata: this.metadata,
-    };
-  }
 }
 
 /**
@@ -293,28 +196,6 @@ class GraphQLQueryFragment extends GraphQLNode {
     this.type = type;
     this.metadata = this.__metadata__ = metadata || EMPTY_OBJECT;
     this.directives = directives || EMPTY_ARRAY;
-    this.isPlural = !!this.metadata.isPlural;
-  }
-
-  /**
-   * @param {array} descriptor
-   * @return {GraphQLQueryFragment}
-   */
-  static fromJSON(node) {
-    invariant(node.kind === FRAGMENT, 'Expected fragment descriptor');
-    return node;
-  }
-
-  toJSON() {
-    return {
-      children: this.children,
-      directives: this.directives,
-      isPlural: this.isPlural,
-      kind: FRAGMENT,
-      metadata: this.metadata,
-      name: this.name,
-      type: this.type,
-    };
   }
 }
 
@@ -370,28 +251,6 @@ class GraphQLQuery extends GraphQLNode {
       this.calls.push(new GraphQLCallvNode(identifyingArgName, value));
     }
   }
-
-  /**
-   * @param {array} descriptor
-   * @return {GraphQLQuery}
-   */
-  static fromJSON(node) {
-    invariant(node.kind === QUERY, 'Expected query descriptor');
-    return node;
-  }
-
-  toJSON() {
-    return {
-      calls: this.calls,
-      children: this.children,
-      directives: this.directives,
-      fieldName: this.fieldName,
-      isDeferred: this.isDeferred,
-      kind: QUERY,
-      metadata: this.metadata,
-      name: this.name,
-    };
-  }
 }
 
 /**
@@ -410,17 +269,6 @@ class GraphQLOperation extends GraphQLNode {
     this.calls = [call];
     this.metadata = metadata || EMPTY_OBJECT;
   }
-
-  toJSON() {
-    return {
-      calls: this.calls,
-      children: this.children,
-      kind: this.kind,
-      metadata: this.metadata,
-      name: this.name,
-      responseType: this.responseType,
-    };
-  }
 }
 
 /**
@@ -431,15 +279,6 @@ class GraphQLMutation extends GraphQLOperation {
     super(...args);
     this.kind = MUTATION;
   }
-
-  /**
-   * @param {array} descriptor
-   * @return {GraphQLMutation}
-   */
-  static fromJSON(node) {
-    invariant(node.kind === MUTATION, 'Expected mutation descriptor');
-    return node;
-  }
 }
 
 /**
@@ -449,18 +288,6 @@ class GraphQLSubscription extends GraphQLOperation {
   constructor(...args) {
     super(...args);
     this.kind = SUBSCRIPTION;
-  }
-
-  /**
-   * @param {array} descriptor
-   * @return {GraphQLSubscription}
-   */
-  static fromJSON(node) {
-    invariant(
-      node.kind === SUBSCRIPTION,
-      'Expected subscription descriptor'
-    );
-    return node;
   }
 }
 
@@ -555,7 +382,7 @@ function isSubscription(node) {
  * @see https://our.intern.facebook.com/intern/dex/introduction-to-graphql/
  * @internal
  */
-var GraphQL = {
+const GraphQL = {
   BatchCallVariable: GraphQLBatchCallVariable,
   Callv: GraphQLCallvNode,
   CallValue: GraphQLCallValue,

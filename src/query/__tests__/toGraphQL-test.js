@@ -14,8 +14,8 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQL = require('GraphQL');
 var Relay = require('Relay');
+var filterObject = require('filterObject');
 var fromGraphQL = require('fromGraphQL');
 var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 var toGraphQL = require('toGraphQL');
@@ -23,23 +23,60 @@ var toGraphQL = require('toGraphQL');
 describe('toGraphQL', function() {
   var {defer, getNode} = RelayTestUtils;
 
+  const CONCRETE_KEYS = {
+    alias: true,
+    arguments: true,
+    calls: true,
+    children: true,
+    directives: true,
+    fieldName: true,
+    isDeferred: true,
+    jsonPath: true,
+    kind: true,
+    metadata: true,
+    name: true,
+    responseType: true,
+    sourceQueryID: true,
+    type: true,
+    value: true,
+  };
+
+  function filterGraphQLNode(node) {
+    node = filterObject(
+      node,
+      (_, key) => CONCRETE_KEYS[key]
+    );
+    if (node.calls) {
+      node.calls = node.calls.map(filterGraphQLNode);
+    }
+    if (node.children) {
+      node.children = node.children.map(filterGraphQLNode);
+    }
+    if (node.directives) {
+      node.directives = node.directives.map(filterGraphQLNode);
+    }
+    if (node.metadata) {
+      node.metadata = filterObject(
+        node.metadata,
+        value => !!value
+      );
+    }
+    return node;
+  }
+
   beforeEach(function() {
     jest.resetModuleRegistry();
 
     jest.addMatchers({
       toConvert(query) {
-        var expected = JSON.stringify(query);
-        var node = this.actual(
-          query instanceof GraphQL.Query ?
-          fromGraphQL.Query(query) :
-          fromGraphQL.Fragment(query)
-        );
-        var actual = JSON.stringify(node);
-        var not = this.isNot ? 'not ' : ' ';
-        this.message = () =>
-          'Expected ' + expected + not +
-          'to equal ' + actual;
-        return expected === actual;
+        // This filters out extraneous properties from `GraphQL.*` nodes such as
+        // `fields` or `fragments`, and reduces metadata down to compare only
+        // truthy values. Once the printer outputs plain values the filter step
+        // can be removed or simplified (might want to still filter metadata).
+        var expected = filterGraphQLNode(query);
+        var actual = filterGraphQLNode(this.actual(getNode(query)));
+        expect(actual).toEqual(expected);
+        return true;
       },
     });
   });
@@ -126,8 +163,8 @@ describe('toGraphQL', function() {
       }
     `;
     var splitQueries = splitDeferredRelayQueries(getNode(query));
-    var deferredQuery = toGraphQL.Node(splitQueries.deferred[0].required);
-    var batchCall = deferredQuery.calls[0].value[0];
+    var deferredQuery = toGraphQL.Query(splitQueries.deferred[0].required);
+    var batchCall = deferredQuery.calls[0].value;
 
     expect(deferredQuery.isDeferred).toBe(true);
     expect(batchCall.sourceQueryID).toBe('q1');
@@ -135,24 +172,6 @@ describe('toGraphQL', function() {
   });
 
   it('does not double-encode argument values', () => {
-    var value = {query: 'Menlo Park'};
-    var relayQuery = getNode(Relay.QL`
-      query {
-        checkinSearchQuery(query:$q) {
-          query,
-        }
-      }
-    `, {
-      q: value,
-    });
-    const identifyingArg = relayQuery.getIdentifyingArg();
-    expect(identifyingArg).toBeDefined();
-    expect(identifyingArg.value).toEqual(value);
-    var convertedQuery = toGraphQL.Query(relayQuery);
-    expect(convertedQuery.calls[0].value.callValue).toBe(value);
-  });
-
-  it('supports object argument values', () => {
     var value = {query: 'Menlo Park'};
     var relayQuery = getNode(Relay.QL`
       query {

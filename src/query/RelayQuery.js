@@ -800,8 +800,8 @@ class RelayQueryFragment extends RelayQueryNode {
 
   isPlural(): boolean {
     return !!(
-      (this.__concreteNode__.isPlural || // RQLPrinter
-      this.__concreteNode__.metadata.plural) // GraphQLPrinter
+      this.__concreteNode__.metadata.isPlural ||  // FB Printer
+      this.__concreteNode__.metadata.plural       // OSS Printer from `@relay`
     );
   }
 

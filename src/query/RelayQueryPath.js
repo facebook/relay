@@ -175,10 +175,15 @@ class RelayQueryPath {
   }
 
   toJSON(): mixed {
-    var path = [];
-    var next = this;
+    const path = [];
+    let next = this;
     while (next) {
-      path.unshift(toGraphQL.Node(getShallowClone(next._node)));
+      let node = getShallowClone(next._node);
+      if (node instanceof RelayQuery.Root) {
+        path.unshift(toGraphQL.Query(node));
+      } else {
+        path.unshift(toGraphQL.Field(node));
+      }
       next = next._parent;
     }
     return path;
@@ -190,7 +195,7 @@ class RelayQueryPath {
       'RelayQueryPath.fromJSON(): expected an array with at least one item.'
     );
     var root = RelayQuery.Root.create(
-      GraphQL.Query.fromJSON(data[0]),
+      data[0],
       RelayMetaRoute.get('$RelayQueryPath'),
       {}
     );
@@ -198,7 +203,7 @@ class RelayQueryPath {
 
     for (var ii = 1; ii < data.length; ii++) {
       var field = RelayQuery.Field.create(
-        GraphQL.Field.fromJSON(data[ii]),
+        data[ii],
         RelayMetaRoute.get('$RelayQueryPath'),
         {}
       );
@@ -214,7 +219,7 @@ class RelayQueryPath {
  */
 function getShallowClone(
   node: RelayQuery.Root | RelayQuery.Field
-): RelayQuery.Node {
+): RelayQuery.Root | RelayQuery.Field {
   var idFieldName = node instanceof RelayQuery.Field ?
     node.getInferredPrimaryKey() :
     ID;

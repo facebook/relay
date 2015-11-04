@@ -60,7 +60,6 @@ var RelayDeprecated = {
     var deprecatedProperties = [
       'queries',
       'queryParams',
-      'processQueryParams',
     ].filter(property => maybeSpec.hasOwnProperty(property));
 
     var modernProperties = [
@@ -89,10 +88,6 @@ var RelayDeprecated = {
           break;
         case 'queryParams':
           spec.initialVariables = property;
-          break;
-        case 'processQueryParams':
-          spec.prepareVariables =
-            (prevVariables, route) => property(route, prevVariables);
           break;
       }
     });

@@ -330,16 +330,6 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
       );
     }
 
-    // $FlowFixMe - Deprecated APIs.
-    var processQueryParams = this.processQueryParams;
-    if (processQueryParams && !this.prepareVariables) {
-      RelayDeprecated.warn({
-        was: this.name + '.getQuery',
-        now: this.name + '.getFragment',
-      });
-      this.prepareVariables =
-        (prevVariables, route) => processQueryParams(route, prevVariables);
-    }
     var initialVariables =
       RelayDeprecated.getMutationInitialVariables(this) || {};
     var prepareVariables = this.prepareVariables;

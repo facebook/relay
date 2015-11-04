@@ -41,7 +41,6 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
   static path: ?string;
   static paramDefinitions: ?ParamDefinitions;
   static prepareParams: ?(prevParams: Tv) => Tv;
-  static processQueryParams: ?(prevParams: Tv) => Tv;
   static queries: ?ConfigQueries;
   static routeName: string;
 
@@ -78,16 +77,8 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
     var {
       paramDefinitions,
       prepareParams,
-      processQueryParams,
       routeName,
     } = this.constructor;
-    if (processQueryParams && !prepareParams) {
-      RelayDeprecated.warn({
-        was: routeName + '.processQueryParams',
-        now: routeName + '.prepareParams',
-      });
-      prepareParams = processQueryParams;
-    }
     var params = prevVariables;
     if (prepareParams) {
       /* $FlowFixMe(>=0.17.0) - params is ?Tv but prepareParams expects Tv */

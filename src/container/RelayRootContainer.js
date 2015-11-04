@@ -14,13 +14,12 @@
 'use strict';
 
 const React = require('React');
-const RelayDeprecated = require('RelayDeprecated');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
 const RelayPropTypes = require('RelayPropTypes');
 import type {
   ComponentFetchState,
   ReadyState,
-  RelayContainer
+  RelayContainer,
 } from 'RelayTypes';
 const RelayRenderer = require('RelayRenderer');
 
@@ -28,7 +27,6 @@ type RootContainerProps = {
   Component: RelayContainer;
   forceFetch?: ?boolean;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
-  refetchRoute?: ?boolean; // TODO: Deprecate, #6247867.
   renderFailure?: ?(error: Error, retry: () => void) => ReactElement;
   renderFetched?: ?(
     data: Object,
@@ -100,19 +98,11 @@ function RelayRootContainer({
   Component,
   forceFetch,
   onReadyStateChange,
-  refetchRoute,
   renderFailure,
   renderFetched,
   renderLoading,
   route,
 }: RootContainerProps): ReactElement {
-  if (typeof refetchRoute !== 'undefined') {
-    RelayDeprecated.warn({
-      was: 'RelayRootContainer.refetchRoute',
-      now: 'RelayRootContainer.forceFetch',
-    });
-    forceFetch = refetchRoute;
-  }
   return (
     <RelayRenderer
       Component={Component}

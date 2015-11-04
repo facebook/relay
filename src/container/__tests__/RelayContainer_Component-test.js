@@ -76,8 +76,8 @@ describe('RelayContainer', function() {
   it('provides Relay statics', () => {
     // The correct implementation of these is asserted in other tests. This
     // test merely checks if the public API exists.
-    expect(typeof MockContainer.getQueryNames).toEqual('function');
-    expect(typeof MockContainer.getQuery).toEqual('function');
+    expect(typeof MockContainer.getFragmentNames).toEqual('function');
+    expect(typeof MockContainer.getFragment).toEqual('function');
   });
 
   it('has the correct displayName based on the inner component', () => {

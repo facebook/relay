@@ -1014,11 +1014,6 @@ function create(
   }
 
   ContainerConstructor.getFragmentNames = () => fragmentNames;
-  ContainerConstructor.getQueryNames = RelayDeprecated.createWarning({
-    was: componentName + '.getQueryNames',
-    now: componentName + '.getFragmentNames',
-    adapter: ContainerConstructor.getFragmentNames,
-  });
   ContainerConstructor.hasFragment = fragmentName => !!fragments[fragmentName];
   ContainerConstructor.hasVariable = variableName =>
     Object.prototype.hasOwnProperty.call(initialVariables, variableName);

@@ -25,11 +25,7 @@ function sortTypeFirst(a: string, b: string): number {
   if (b === TYPE) {
     return 1;
   }
-  if (a < b) {
-    return -1;
-  }
-  // a > b
-  return 1;
+  return 0;
 }
 
 module.exports = sortTypeFirst;

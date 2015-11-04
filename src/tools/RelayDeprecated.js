@@ -27,7 +27,7 @@ var warning = require('warning');
 /**
  * @internal
  */
-var RelayDeprecated = {
+const RelayDeprecated = {
 
   /**
    * Prints a deprecation warning.
@@ -37,20 +37,6 @@ var RelayDeprecated = {
     now: string
   }): void {
     warning(false, 'Relay: `%s` is deprecated; use `%s`.', was, now);
-  },
-
-  /**
-   * Wraps a deprecated method to warn when invoked.
-   */
-  createWarning({was, now, adapter}: {
-    was: string,
-    now: string,
-    adapter: Function
-  }): Function {
-    return function() {
-      RelayDeprecated.warn({was, now});
-      return adapter.apply(this, arguments);
-    };
   },
 
   /**

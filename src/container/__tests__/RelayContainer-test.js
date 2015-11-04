@@ -63,9 +63,9 @@ describe('RelayContainer', function() {
     MockContainer.mock = {render};
 
     mockRoute = RelayRoute.genMockInstance();
-    mockFooFragment = getNode(MockContainer.getQuery('foo').getFragment({}));
+    mockFooFragment = getNode(MockContainer.getFragment('foo').getFragment({}));
     mockFooPointer = getPointer('42', mockFooFragment);
-    mockBarFragment = getNode(MockContainer.getQuery('bar').getFragment());
+    mockBarFragment = getNode(MockContainer.getFragment('bar').getFragment());
     mockBarPointer = getPointer(['42'], mockBarFragment);
 
     RelayTestRenderer = RelayTestUtils.createRenderer();
@@ -138,7 +138,7 @@ describe('RelayContainer', function() {
         }
       });
       var fragment = getNode(
-        MockProfilePhoto.getQuery('photo'),
+        MockProfilePhoto.getFragment('photo'),
         {}
       );
       expect(fragment).toEqualQueryNode(getNode(Relay.QL`
@@ -158,7 +158,7 @@ describe('RelayContainer', function() {
             fragment on Actor {
               id,
               name,
-              ${MockProfileLink.getQuery('user')}
+              ${MockProfileLink.getFragment('user')}
             }
           `
         }
@@ -174,7 +174,7 @@ describe('RelayContainer', function() {
         }
       });
       var fragment = getNode(
-        MockProfile.getQuery('user'),
+        MockProfile.getFragment('user'),
         {}
       );
       expect(fragment).toEqualQueryNode(getNode(Relay.QL`
@@ -229,7 +229,7 @@ describe('RelayContainer', function() {
         fragments: {
           viewer: variables => Relay.QL`
             fragment on Viewer {
-              ${MockFeed.getQuery('viewer').if(variables.hasSideshow)},
+              ${MockFeed.getFragment('viewer').if(variables.hasSideshow)},
             }
           `
         }
@@ -237,7 +237,7 @@ describe('RelayContainer', function() {
 
       // hasSideshow: true
       var fragment = getNode(
-        MockSideshow.getQuery('viewer', {
+        MockSideshow.getFragment('viewer', {
           hasSideshow: new GraphQL.CallVariable('sideshow')
         }),
         {sideshow: true}
@@ -251,7 +251,7 @@ describe('RelayContainer', function() {
 
       // hasSideshow: false
       fragment = getNode(
-        MockSideshow.getQuery('viewer', {
+        MockSideshow.getFragment('viewer', {
           hasSideshow: new GraphQL.CallVariable('sideshow')
         }),
         {sideshow: false}
@@ -268,7 +268,7 @@ describe('RelayContainer', function() {
           viewer: variables => Relay.QL`
             fragment on Viewer {
               ${MockFeed
-            .getQuery('viewer')
+            .getFragment('viewer')
             .unless(variables.hasSideshow)},
             }
           `
@@ -277,14 +277,14 @@ describe('RelayContainer', function() {
 
       // hasSideshow: true
       var fragment = getNode(
-        MockSideshow.getQuery('viewer', {hasSideshow: true}),
+        MockSideshow.getFragment('viewer', {hasSideshow: true}),
         {}
       );
       expect(fragment.getChildren().length).toBe(0);
 
       // hasSideshow: false
       fragment = getNode(
-        MockSideshow.getQuery('viewer', {hasSideshow: false}),
+        MockSideshow.getFragment('viewer', {hasSideshow: false}),
         {}
       );
       var expected = RelayQuery.Fragment.build(
@@ -585,7 +585,7 @@ describe('RelayContainer', function() {
       return mockDataSet[pointer.getDataID()];
     });
     mockFooFragment =
-      getNode(MockFastContainer.getQuery('foo').getFragment({}));
+      getNode(MockFastContainer.getFragment('foo').getFragment({}));
     var mockPointerA = getPointer('42', mockFooFragment);
     var mockPointerB = getPointer('43', mockFooFragment);
     var mockPointerC = getPointer('44', mockFooFragment);

@@ -415,7 +415,7 @@ function createContainerComponent(
         dataID != null,
         'RelayContainer.hasFragmentData(): Second argument is not a valid ' +
         'record. For `<%s X={this.props.X} />`, use ' +
-        '`this.props.hasFragmentData(%s.getQuery(\'X\'), this.props.X)`.',
+        '`this.props.hasFragmentData(%s.getFragment(\'X\'), this.props.X)`.',
         componentName,
         componentName
       );
@@ -1057,11 +1057,14 @@ function create(
       prepareVariables
     );
   };
-  ContainerConstructor.getQuery = RelayDeprecated.createWarning({
-    was: componentName + '.getQuery',
-    now: componentName + '.getFragment',
-    adapter: ContainerConstructor.getFragment,
-  });
+  ContainerConstructor.getQuery = () => {
+    invariant(
+      false,
+      'RelayContainer: `%s.getQuery` no longer exists; use `%s.getFragment`.',
+      componentName,
+      componentName
+    );
+  };
 
   ContainerConstructor.contextTypes = containerContextTypes;
   ContainerConstructor.displayName = containerName;

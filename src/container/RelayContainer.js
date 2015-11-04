@@ -1058,6 +1058,7 @@ function create(
     );
   };
   ContainerConstructor.getQuery = () => {
+    // TODO(jkassens, #8978552): delete this
     invariant(
       false,
       'RelayContainer: `%s.getQuery` no longer exists; use `%s.getFragment`.',

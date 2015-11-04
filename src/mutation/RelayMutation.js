@@ -230,11 +230,10 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
   }
 
   _resolveProps(props: Tp): void {
-    var fragments = RelayDeprecated.getMutationFragments(this.constructor);
-    var initialVariables =
-      RelayDeprecated.getMutationInitialVariables(this.constructor) || {};
+    const fragments = this.constructor.fragments;
+    const initialVariables = this.constructor.initialVariables || {};
 
-    var resolvedProps = {...props};
+    const resolvedProps = {...props};
     forEachObject(fragments, (fragmentBuilder, fragmentName) => {
       var propValue = props[fragmentName];
       warning(
@@ -317,7 +316,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
     variableMapping?: Variables
   ): RelayFragmentReference {
     // TODO: Unify fragment API for containers and mutations, #7860172.
-    var fragments = RelayDeprecated.getMutationFragments(this);
+    var fragments = this.fragments;
     var fragmentBuilder = fragments[fragmentName];
     if (!fragmentBuilder) {
       invariant(
@@ -330,8 +329,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
       );
     }
 
-    var initialVariables =
-      RelayDeprecated.getMutationInitialVariables(this) || {};
+    const initialVariables = this.initialVariables || {};
     var prepareVariables = this.prepareVariables;
 
     return RelayFragmentReference.createForContainer(
@@ -349,13 +347,16 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
 
   /**
    * @deprecated
+   *
+   * TODO(jkassens, #8978552): delete this
    */
   static getQuery(): RelayFragmentReference {
-    RelayDeprecated.warn({
-      was: this.name + '.getQuery',
-      now: this.name + '.getFragment',
-    });
-    return this.getFragment.apply(this, arguments);
+    invariant(
+      false,
+      'RelayMutation: `%s.getQuery` no longer exists; use `%s.getFragment`.',
+      this.name,
+      this.name
+    );
   }
 }
 

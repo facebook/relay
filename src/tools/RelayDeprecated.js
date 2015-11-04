@@ -14,14 +14,10 @@
 'use strict';
 
 import type {RelayContainerSpec} from 'RelayContainer';
-import type {RelayMutationFragments} from 'RelayMutation';
-import type {Variables} from 'RelayTypes';
 import type {RangeBehaviors} from 'RelayInternalTypes';
-var RelayQL = require('RelayQL');
 
 var forEachObject = require('forEachObject');
 var invariant = require('invariant');
-var mapObject = require('mapObject');
 var warning = require('warning');
 
 /**
@@ -30,52 +26,17 @@ var warning = require('warning');
 const RelayDeprecated = {
 
   /**
-   * Prints a deprecation warning.
+   * Detects deprecated API usage.
+   *
+   * TODO(jkassens, #8978552): delete this
    */
-  warn({was, now}: {
-    was: string,
-    now: string
-  }): void {
-    warning(false, 'Relay: `%s` is deprecated; use `%s`.', was, now);
-  },
-
-  /**
-   * Upgrades a deprecated RelayContainer spec.
-   */
-  upgradeContainerSpec(maybeSpec: any): RelayContainerSpec {
-    var deprecatedProperties = [
-      'queries',
-      'queryParams',
-    ].filter(property => maybeSpec.hasOwnProperty(property));
-
-    var modernProperties = [
-      'fragments',
-      'initialVariables',
-      'prepareVariables',
-    ].filter(property => maybeSpec.hasOwnProperty(property));
-
-    if (modernProperties.length) {
+  upgradeContainerSpec(spec: RelayContainerSpec): RelayContainerSpec {
+    ['queries', 'queryParams'].forEach(property => {
       invariant(
-        deprecatedProperties.length === 0,
-        'Relay.createContainer(...): Spec contains a mixture of valid and ' +
-        'deprecated properties: %s',
-        deprecatedProperties.join(', ')
+        !spec.hasOwnProperty(property),
+        'Relay.createContainer(...): Found no longer supported property: %s',
+        property
       );
-      return (maybeSpec: RelayContainerSpec);
-    }
-
-    var spec = {};
-    forEachObject(maybeSpec, (property, name) => {
-      switch (name) {
-        case 'queries':
-          spec.fragments = mapObject(property, (queryBuilder, propName) => {
-            return variables => queryBuilder(undefined, RelayQL, variables);
-          });
-          break;
-        case 'queryParams':
-          spec.initialVariables = property;
-          break;
-      }
     });
     return spec;
   },
@@ -114,30 +75,6 @@ const RelayDeprecated = {
       rangeBehaviorsWithSortedKeys[sortedKey] = value;
     });
     return rangeBehaviorsWithSortedKeys;
-  },
-
-  getMutationInitialVariables(Mutation: $FlowFixMe): Variables {
-    var queryParams = Mutation.queryParams;
-    if (queryParams && !Mutation.initialVariables) {
-      RelayDeprecated.warn({
-        was: Mutation.name + '.queryParams',
-        now: Mutation.name + '.initialVariables',
-      });
-      Mutation.initialVariables = queryParams;
-    }
-    return Mutation.initialVariables;
-  },
-
-  getMutationFragments<Tk>(Mutation: $FlowFixMe): RelayMutationFragments<Tk> {
-    var queries = Mutation.queries;
-    if (queries && !Mutation.fragments) {
-      RelayDeprecated.warn({
-        was: Mutation.name + '.queries',
-        now: Mutation.name + '.fragments',
-      });
-      Mutation.fragments = queries;
-    }
-    return Mutation.fragments;
   },
 
 };

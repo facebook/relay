@@ -54,6 +54,10 @@ var UNLESS = 'unless';
 var TRUE = 'true';
 var FALSE = 'false';
 
+// directive names
+var SKIP = 'skip';
+var INCLUDE = 'include';
+
 var QUERY_ID_PREFIX = 'q';
 var REF_PARAM_PREFIX = 'ref_';
 
@@ -204,7 +208,7 @@ class RelayQueryNode {
           this.__route__,
           this.__variables__
         );
-        if (node) {
+        if (node && !node.isSkipped()) {
           nextChildren.push(node);
         }
       });
@@ -212,6 +216,34 @@ class RelayQueryNode {
       children = nextChildren;
     }
     return children;
+  }
+
+  isSkipped(): boolean {
+    let directives = this.getDirectives();
+    let isSkipped = null;
+    let isIncluded = null;
+
+    directives.forEach(directive => {
+      if (directive.name === SKIP) {
+        let argument = directive.arguments.find(arg => arg.name === IF)
+        if (argument) {
+          isSkipped = Boolean(argument.value)
+        }
+      } else if (directive.name === INCLUDE) {
+        let argument = directive.arguments.find(arg => arg.name === IF)
+        if (argument) {
+          isIncluded = Boolean(argument.value)
+        }
+      }
+    });
+
+    if (isSkipped !== null) {
+      return isSkipped;
+    } else if (isIncluded !== null) {
+      return !isIncluded;
+    } else {
+      return false;
+    }
   }
 
   getDirectives(): Array<Directive> {

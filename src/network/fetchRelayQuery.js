@@ -13,15 +13,15 @@
 
 'use strict';
 
-var Promise = require('Promise');
-var RelayNetworkLayer = require('RelayNetworkLayer');
-var RelayProfiler = require('RelayProfiler');
-var RelayQueryRequest = require('RelayQueryRequest');
+const Promise = require('Promise');
+const RelayNetworkLayer = require('RelayNetworkLayer');
+const RelayProfiler = require('RelayProfiler');
+const RelayQueryRequest = require('RelayQueryRequest');
 import type RelayQuery from 'RelayQuery';
 
-var resolveImmediate = require('resolveImmediate');
+const resolveImmediate = require('resolveImmediate');
 
-var queue: ?Array<RelayQueryRequest> = null;
+let queue: ?Array<RelayQueryRequest> = null;
 
 /**
  * @internal
@@ -35,14 +35,14 @@ var queue: ?Array<RelayQueryRequest> = null;
 function fetchRelayQuery(query: RelayQuery.Root): Promise {
   if (!queue) {
     queue = [];
-    var currentQueue = queue;
+    const currentQueue = queue;
     resolveImmediate(() => {
       queue = null;
       profileQueue(currentQueue);
       processQueue(currentQueue);
     });
   }
-  var request = new RelayQueryRequest(query);
+  const request = new RelayQueryRequest(query);
   queue.push(request);
   return request.getPromise();
 }
@@ -56,16 +56,17 @@ function processQueue(currentQueue: Array<RelayQueryRequest>): void {
  */
 function profileQueue(currentQueue: Array<RelayQueryRequest>): void {
   // TODO #8783781: remove aggregate `fetchRelayQuery` profiler
-  var firstResultProfiler = RelayProfiler.profile('fetchRelayQuery');
+  let firstResultProfiler = RelayProfiler.profile('fetchRelayQuery');
   currentQueue.forEach(query => {
-    var profiler = RelayProfiler.profile('fetchRelayQuery.query');
-    query.getPromise().finally(() => {
+    const profiler = RelayProfiler.profile('fetchRelayQuery.query');
+    const onSettle = () => {
       profiler.stop();
       if (firstResultProfiler) {
         firstResultProfiler.stop();
         firstResultProfiler = null;
       }
-    });
+    };
+    query.getPromise().done(onSettle, onSettle);
   });
 }
 

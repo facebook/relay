@@ -814,7 +814,7 @@ class RelayQueryFragment extends RelayQueryNode {
     var clone = super.clone(children);
     if (clone instanceof RelayQueryFragment) {
       clone.__metadata__ = {
-        ...this.__metadata__
+        ...this.__metadata__,
       };
     }
     return clone;
@@ -845,6 +845,23 @@ class RelayQueryField extends RelayQueryNode {
   __debugName__: ?string;
   __isRefQueryDependency__: boolean;
   __rangeBehaviorKey__: ?string;
+
+  static create(
+    concreteNode: ConcreteQueryObject,
+    route: RelayMetaRoute,
+    variables: Variables
+  ): RelayQueryField {
+    invariant(
+      GraphQL.isField(concreteNode),
+      'RelayQueryField.create(): Expected a GraphQL field, got: %s',
+      concreteNode
+    );
+    return new RelayQueryField(
+      concreteNode,
+      route,
+      variables
+    );
+  }
 
   /**
    * Helper to construct a new field with the given attributes and 'empty'

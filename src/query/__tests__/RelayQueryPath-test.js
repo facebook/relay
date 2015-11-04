@@ -19,26 +19,23 @@ var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQueryPath = require('RelayQueryPath');
 
 describe('RelayQueryPath', () => {
-  var fromJSON;
   var {getNode} = RelayTestUtils;
 
-  var EMPTY_FRAGMENT = {
-    kind: 'FragmentDefinition',
-    name: '$RelayQueryPath',
-    type: 'Node',
-    children: [],
-    metadata: {
-      isDeferred: false,
-      isContainerFragment: false,
-    },
-  };
+  function fromJSON(path) {
+    // NOTE: This is needed to force `toJSON`-ing the entire path recursively.
+    return RelayQueryPath.fromJSON(JSON.parse(JSON.stringify(path)));
+  }
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    fromJSON = RelayQueryPath.fromJSON;
-
     jest.addMatchers(RelayTestUtils.matchers);
+    jest.addMatchers({
+      toSerializeTo(expected) {
+        expect(JSON.parse(JSON.stringify(this.actual))).toEqual(expected);
+        return true;
+      },
+    });
   });
 
   it('creates root paths', () => {
@@ -203,43 +200,65 @@ describe('RelayQueryPath', () => {
     `);
     var root = new RelayQueryPath(query);
 
-    expect(root.toJSON()).toEqual([{
-      kind: 'Query',
-      name: 'RelayQueryPath',
-      fieldName: 'node',
-      calls: [{name: 'id', value: '123'}],
+    expect(root).toSerializeTo([{
+      calls: [{
+        kind: 'Call',
+        metadata: {},
+        name: 'id',
+        value: {
+          callValue: '123',
+          kind: 'CallValue',
+        },
+      }],
       children: [
         {
-          kind: 'Field',
-          name: 'id',
           alias: null,
           calls: [],
           children: [],
+          condition: null,
+          directives: [],
+          fieldName: 'id',
+          kind: 'Field',
           metadata: {
-            requisite: true,
-            parentType: 'Node'
+            isConnection: false,
+            isFindable: false,
+            isGenerated: false,
+            isPlural: false,
+            isRequisite: true,
+            isUnionOrInterface: false,
+            parentType: 'Node',
           },
-        },
-        {
-          kind: 'Field',
-          name: '__typename',
+        }, {
           alias: null,
           calls: [],
           children: [],
+          condition: null,
+          directives: [],
+          fieldName: '__typename',
+          kind: 'Field',
           metadata: {
-            generated: true,
-            requisite: true,
-            parentType: 'Node'
+            isConnection: false,
+            isFindable: false,
+            isGenerated: true,
+            isPlural: false,
+            isRequisite: true,
+            isUnionOrInterface: false,
+            parentType: 'Node',
           },
         },
       ],
+      directives: [],
+      fieldName: 'node',
+      isDeferred: false,
+      kind: 'Query',
       metadata: {
         identifyingArgName: 'id',
       },
+      name: 'RelayQueryPath',
     }]);
 
     var fragment = Relay.QL`fragment on Node { name }`;
-    var clone = fromJSON(root.toJSON());
+    var clone = fromJSON(root);
     expect(clone.getQuery(getNode(fragment))).toEqualQueryRoot(
       getNode(Relay.QL`
         query {
@@ -265,17 +284,27 @@ describe('RelayQueryPath', () => {
     `);
     var root = new RelayQueryPath(query);
 
-    expect(root.toJSON()).toEqual([{
-      kind: 'Query',
-      name: 'RelayQueryPath',
-      fieldName: 'viewer',
+    expect(root).toSerializeTo([{
       calls: [],
-      children: [EMPTY_FRAGMENT],
+      children: [{
+        children: [],
+        directives: [],
+        isPlural: false,
+        kind: 'Fragment',
+        metadata: {},
+        name: '$RelayQueryPath',
+        type: 'Node',
+      }],
+      directives: [],
+      fieldName: 'viewer',
+      isDeferred: false,
+      kind: 'Query',
       metadata: {},
+      name: 'RelayQueryPath',
     }]);
 
     var fragment = Relay.QL`fragment on Viewer { pendingPosts { count } }`;
-    var clone = fromJSON(root.toJSON());
+    var clone = fromJSON(root);
     expect(clone.getQuery(getNode(fragment))).toEqualQueryRoot(
       getNode(Relay.QL`
         query {
@@ -307,55 +336,8 @@ describe('RelayQueryPath', () => {
     var root = new RelayQueryPath(query);
     var path = root.getPath(address, 'client:1');
 
-    expect(path.toJSON()).toEqual([
-      {
-        kind: 'Query',
-        name: 'RelayQueryPath',
-        fieldName: 'node',
-        calls: [{name: 'id', value: '123'}],
-        children: [
-          {
-            kind: 'Field',
-            name: 'id',
-            alias: null,
-            calls: [],
-            children: [],
-            metadata: {
-              requisite: true,
-              parentType: 'Node'
-            },
-          },
-          {
-            kind: 'Field',
-            name: '__typename',
-            alias: null,
-            calls: [],
-            children: [],
-            metadata: {
-              generated: true,
-              requisite: true,
-              parentType: 'Node'
-            },
-          }
-        ],
-        metadata: {
-          identifyingArgName: 'id',
-        },
-      },
-      {
-        kind: 'Field',
-        name: 'address',
-        alias: null,
-        calls: [],
-        children: [EMPTY_FRAGMENT],
-        metadata: {
-          parentType: 'Actor'
-        },
-      },
-    ]);
-
     var fragment = Relay.QL`fragment on StreetAddress { country }`;
-    var clone = fromJSON(path.toJSON());
+    var clone = fromJSON(path);
     expect(clone.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"123") {

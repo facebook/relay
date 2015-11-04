@@ -28,7 +28,7 @@ describe('toGraphQL', function() {
 
     jest.addMatchers({
       toConvert(query) {
-        var expected = JSON.stringify(query.toJSON());
+        var expected = JSON.stringify(query);
         var node = this.actual(
           query instanceof GraphQL.Query ?
           fromGraphQL.Query(query) :
@@ -40,7 +40,7 @@ describe('toGraphQL', function() {
           'Expected ' + expected + not +
           'to equal ' + actual;
         return expected === actual;
-      }
+      },
     });
   });
 

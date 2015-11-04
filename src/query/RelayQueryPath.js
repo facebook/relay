@@ -13,12 +13,14 @@
 
 'use strict';
 
-var RelayNodeInterface = require('RelayNodeInterface');
+var GraphQL = require('GraphQL');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+var RelayMetaRoute = require('RelayMetaRoute');
+var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQuery = require('RelayQuery');
-var RelayQuerySerializer = require('RelayQuerySerializer');
 
 var invariant = require('invariant');
+var toGraphQL = require('toGraphQL');
 
 import type {DataID} from 'RelayInternalTypes';
 
@@ -176,7 +178,7 @@ class RelayQueryPath {
     var path = [];
     var next = this;
     while (next) {
-      path.unshift(RelayQuerySerializer.toJSON(getShallowClone(next._node)));
+      path.unshift(toGraphQL.Node(getShallowClone(next._node)));
       next = next._parent;
     }
     return path;
@@ -187,21 +189,18 @@ class RelayQueryPath {
       Array.isArray(data) && data.length > 0,
       'RelayQueryPath.fromJSON(): expected an array with at least one item.'
     );
-    var root = RelayQuerySerializer.fromJSON(data[0]);
-    invariant(
-      root instanceof RelayQuery.Root,
-      'RelayQueryPath.fromJSON(): invalid path, expected first node to be ' +
-      'a `RelayQueryRoot`.'
+    var root = RelayQuery.Root.create(
+      GraphQL.Query.fromJSON(data[0]),
+      RelayMetaRoute.get('$RelayQueryPath'),
+      {}
     );
     var path = new RelayQueryPath(root);
 
     for (var ii = 1; ii < data.length; ii++) {
-      var field = RelayQuerySerializer.fromJSON(data[ii]);
-      invariant(
-        field instanceof RelayQuery.Field,
-        'RelayQueryPath.fromJSON(): invalid path, expected node at index %s ' +
-        'to be a `RelayQueryField`.',
-        ii
+      var field = RelayQuery.Field.create(
+        GraphQL.Field.fromJSON(data[ii]),
+        RelayMetaRoute.get('$RelayQueryPath'),
+        {}
       );
       path = new RelayQueryPath(field, path);
     }

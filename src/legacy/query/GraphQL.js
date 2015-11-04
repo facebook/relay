@@ -93,23 +93,18 @@ class GraphQLCallvNode {
    * @param {array} descriptor
    * @return {GraphQLCallvNode}
    */
-  static fromJSON(descriptor) {
-    var [type, name, value, metadata] = descriptor;
-    invariant(type === JSON_TYPES.CALL, 'Expected call descriptor');
-    return new GraphQLCallvNode(
-      name,
-      callArgsFromJSON(value),
-      metadata
-    );
+  static fromJSON(node) {
+    invariant(node.kind === CALL, 'Expected call descriptor');
+    return node;
   }
 
   toJSON() {
-    return trimArray([
-      JSON_TYPES.CALL,
-      this.name,
-      this.value,
-      this.metadata === EMPTY_OBJECT ? null : this.metadata
-    ]);
+    return {
+      kind: CALL,
+      metadata: this.metadata,
+      name: this.name,
+      value: this.value,
+    };
   }
 }
 
@@ -130,17 +125,16 @@ class GraphQLCallValue {
    * @param {array} descriptor
    * @return {GraphQLCallValue}
    */
-  static fromJSON(descriptor) {
-    var [type, value] = descriptor;
-    invariant(type === JSON_TYPES.CALL_VALUE, 'Expected value descriptor');
-    return new GraphQLCallValue(value);
+  static fromJSON(node) {
+    invariant(node.kind === CALL_VALUE, 'Expected value descriptor');
+    return node;
   }
 
   toJSON() {
-    return [
-      JSON_TYPES.CALL_VALUE,
-      this.callValue
-    ];
+    return {
+      kind: CALL_VALUE,
+      callValue: this.callValue,
+    };
   }
 }
 
@@ -175,21 +169,20 @@ class GraphQLBatchCallVariable {
    * @param {array} descriptor
    * @return {GraphQLBatchCallVariable}
    */
-  static fromJSON(descriptor) {
-    var [type, sourceQueryID, jsonPath] = descriptor;
+  static fromJSON(node) {
     invariant(
-      type === JSON_TYPES.BATCH_VARIABLE,
+      node.kind === BATCH_CALL_VARIABLE,
       'Expected batch variable descriptor'
     );
-    return new GraphQLBatchCallVariable(sourceQueryID, jsonPath);
+    return node;
   }
 
   toJSON() {
-    return [
-      JSON_TYPES.BATCH_VARIABLE,
-      this.sourceQueryID,
-      this.jsonPath
-    ];
+    return {
+      jsonPath: this.jsonPath,
+      kind: BATCH_CALL_VARIABLE,
+      sourceQueryID: this.sourceQueryID,
+    };
   }
 }
 
@@ -213,20 +206,19 @@ class GraphQLCallVariable {
    * @param {array} descriptor
    * @return {GraphQLCallVariable}
    */
-  static fromJSON(descriptor) {
-    var [type, name] = descriptor;
+  static fromJSON(node) {
     invariant(
-      type === JSON_TYPES.CALL_VARIABLE,
+      node.kind === CALL_VARIABLE,
       'Expected variable descriptor'
     );
-    return new GraphQLCallVariable(name);
+    return node;
   }
 
   toJSON() {
-    return [
-      JSON_TYPES.CALL_VARIABLE,
-      this.callVariableName
-    ];
+    return {
+      callVariableName: this.callVariableName,
+      kind: CALL_VARIABLE,
+    };
   }
 }
 
@@ -277,43 +269,22 @@ class GraphQLFieldNode extends GraphQLNode {
    * @param {array} descriptor
    * @return {GraphQLFieldNode}
    */
-  static fromJSON(descriptor) {
-    var [
-      type,
-      fieldName,
-      fields,
-      fragments,
-      calls,
-      alias,
-      condition,
-      metadata,
-      directives
-    ] = descriptor;
-    invariant(type === JSON_TYPES.FIELD, 'Expected field descriptor');
-    return new GraphQLFieldNode(
-      fieldName,
-      fields ? fields.map(GraphQLFieldNode.fromJSON) : null,
-      fragments ? fragments.map(GraphQLQueryFragment.fromJSON) : null,
-      calls ? calls.map(GraphQLCallvNode.fromJSON) : null,
-      alias,
-      condition,
-      metadata,
-      directives
-    );
+  static fromJSON(node) {
+    invariant(node.kind === FIELD, 'Expected field descriptor');
+    return node;
   }
 
   toJSON() {
-    return trimArray([
-      JSON_TYPES.FIELD,
-      this.fieldName,
-      this.fields.length ? this.fields : null,
-      this.fragments.length ? this.fragments : null,
-      this.calls.length ? this._calls : null,
-      this.alias,
-      this.condition,
-      this.__metadata__ === EMPTY_OBJECT ? null : this.__metadata__,
-      this.directives === EMPTY_ARRAY ? null : this.directives,
-    ]);
+    return {
+      alias: this.alias,
+      calls: this.calls,
+      children: this.children,
+      condition: null,
+      directives: this.directives,
+      fieldName: this.fieldName,
+      kind: FIELD,
+      metadata: this.metadata,
+    };
   }
 }
 
@@ -343,31 +314,21 @@ class GraphQLQueryFragment extends GraphQLNode {
    * @param {array} descriptor
    * @return {GraphQLQueryFragment}
    */
-  static fromJSON(descriptor) {
-    var [type, name, fragmentType, fields, fragments, metadata, directives] =
-      descriptor;
-    invariant(type === JSON_TYPES.FRAGMENT, 'Expected fragment descriptor');
-    var frag = new GraphQLQueryFragment(
-      name,
-      fragmentType,
-      fields ? fields.map(GraphQLFieldNode.fromJSON) : null,
-      fragments ? fragments.map(GraphQLQueryFragment.fromJSON) : null,
-      metadata,
-      directives
-    );
-    return frag;
+  static fromJSON(node) {
+    invariant(node.kind === FRAGMENT, 'Expected fragment descriptor');
+    return node;
   }
 
   toJSON() {
-    return trimArray([
-      JSON_TYPES.FRAGMENT,
-      this.name,
-      this.type,
-      this.fields.length ? this.fields : null,
-      this.fragments.length ? this.fragments : null,
-      this.metadata,
-      this.directives === EMPTY_ARRAY ? null : this.directives,
-    ]);
+    return {
+      children: this.children,
+      directives: this.directives,
+      isPlural: this.isPlural,
+      kind: FRAGMENT,
+      metadata: this.metadata,
+      name: this.name,
+      type: this.type,
+    };
   }
 }
 
@@ -428,32 +389,22 @@ class GraphQLQuery extends GraphQLNode {
    * @param {array} descriptor
    * @return {GraphQLQuery}
    */
-  static fromJSON(descriptor) {
-    var [type, name, value, fields, fragments, metadata, queryName, directives]
-      = descriptor;
-    invariant(type === JSON_TYPES.QUERY, 'Expected query descriptor');
-    return new GraphQLQuery(
-      name,
-      callArgsFromJSON(value),
-      fields ? fields.map(GraphQLFieldNode.fromJSON) : null,
-      fragments ? fragments.map(GraphQLQueryFragment.fromJSON) : null,
-      metadata,
-      queryName,
-      directives
-    );
+  static fromJSON(node) {
+    invariant(node.kind === QUERY, 'Expected query descriptor');
+    return node;
   }
 
   toJSON() {
-    return trimArray([
-      JSON_TYPES.QUERY,
-      this.fieldName,
-      (this.calls[0] && this.calls[0].value) || null,
-      this.fields.length ? this.fields : null,
-      this.fragments.length ? this.fragments : null,
-      this.__metadata__ === EMPTY_OBJECT ? null: this.__metadata__,
-      this.name || null,
-      this.directives === EMPTY_ARRAY ? null : this.directives,
-    ]);
+    return {
+      calls: this.calls,
+      children: this.children,
+      directives: this.directives,
+      fieldName: this.fieldName,
+      isDeferred: this.isDeferred,
+      kind: QUERY,
+      metadata: this.metadata,
+      name: this.name,
+    };
   }
 }
 
@@ -482,24 +433,20 @@ class GraphQLQueryWithValues {
    * @param {array} descriptor
    * @return {GraphQLQueryWithValues}
    */
-  static fromJSON(descriptor) {
-    var [type, query, values] = descriptor;
+  static fromJSON(node) {
     invariant(
-      type === JSON_TYPES.QUERY_WITH_VALUES,
+      node.kind === QUERY_WITH_VALUES,
       'Expected query descriptor'
     );
-    return new GraphQLQueryWithValues(
-      GraphQLQuery.fromJSON(query),
-      values
-    );
+    return node;
   }
 
   toJSON() {
-    return trimArray([
-      JSON_TYPES.QUERY_WITH_VALUES,
-      this.query,
-      this.values
-    ]);
+    return {
+      kind: QUERY_WITH_VALUES,
+      query: this.query,
+      values: this.values,
+    };
   }
 }
 
@@ -521,15 +468,14 @@ class GraphQLOperation extends GraphQLNode {
   }
 
   toJSON() {
-    return trimArray([
-      this.getJSONType(),
-      this.name,
-      this.responseType,
-      this.calls[0],
-      this.fields.length ? this.fields : null,
-      this.fragments.length ? this.fragments : null,
-      this.metadata === EMPTY_OBJECT ? null : this.metadata,
-    ]);
+    return {
+      calls: this.calls,
+      children: this.children,
+      kind: this.kind,
+      metadata: this.metadata,
+      name: this.name,
+      responseType: this.responseType,
+    };
   }
 }
 
@@ -546,32 +492,9 @@ class GraphQLMutation extends GraphQLOperation {
    * @param {array} descriptor
    * @return {GraphQLMutation}
    */
-  static fromJSON(descriptor) {
-    var [
-      type,
-      name,
-      responseType,
-      mutationCall,
-      fields,
-      fragments,
-      metadata
-    ] = descriptor;
-    invariant(type === JSON_TYPES.MUTATION, 'Expected mutation descriptor');
-    return new GraphQLMutation(
-      name,
-      responseType,
-      GraphQLCallvNode.fromJSON(mutationCall),
-      fields ? fields.map(GraphQLFieldNode.fromJSON) : null,
-      fragments ? fragments.map(GraphQLQueryFragment.fromJSON) : null,
-      metadata
-    );
-  }
-
-  /**
-   * @return {number}
-   */
-  getJSONType()  {
-    return JSON_TYPES.MUTATION;
+  static fromJSON(node) {
+    invariant(node.kind === MUTATION, 'Expected mutation descriptor');
+    return node;
   }
 }
 
@@ -588,35 +511,12 @@ class GraphQLSubscription extends GraphQLOperation {
    * @param {array} descriptor
    * @return {GraphQLSubscription}
    */
-  static fromJSON(descriptor) {
-    var [
-      type,
-      name,
-      responseType,
-      subscriptionCall,
-      fields,
-      fragments,
-      metadata
-    ] = descriptor;
+  static fromJSON(node) {
     invariant(
-      type === JSON_TYPES.SUBSCRIPTION,
+      node.kind === SUBSCRIPTION,
       'Expected subscription descriptor'
     );
-    return new GraphQLSubscription(
-      name,
-      responseType,
-      GraphQLCallvNode.fromJSON(subscriptionCall),
-      fields ? fields.map(GraphQLFieldNode.fromJSON) : null,
-      fragments ? fragments.map(GraphQLQueryFragment.fromJSON) : null,
-      metadata
-    );
-  }
-
-  /**
-   * @return {number}
-   */
-  getJSONType()  {
-    return JSON_TYPES.SUBSCRIPTION;
+    return node;
   }
 }
 
@@ -658,28 +558,6 @@ function castArg(arg) {
   } else {
     return new GraphQLCallValue(arg);
   }
-}
-
-function trimArray(arr) {
-  var lastIndex = -1;
-  for (var ii = arr.length - 1; ii >= 0; ii--) {
-    if (arr[ii] !== null) {
-      lastIndex = ii;
-      break;
-    }
-  }
-  arr.length = lastIndex + 1;
-  return arr;
-}
-
-
-function callArgsFromJSON(value) {
-  if (Array.isArray(value) && Array.isArray(value[0])) {
-    return value.map(callArgFromJSON);
-  } else if (value) {
-    return callArgFromJSON(value);
-  }
-  return value;
 }
 
 /**

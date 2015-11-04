@@ -56,7 +56,7 @@ var EDGES_FIELD = RelayQuery.Field.build(
   EDGES,
   null,
   null,
-  {plural: true}
+  {isPlural: true}
 );
 var IGNORED_KEYS = {
   error: true,
@@ -244,16 +244,20 @@ function mergeField(
   if (recordID != null) {
     path = new RelayQueryPath(
       RelayQuery.Root.build(
+        'writeRelayUpdatePayload',
         NODE,
         recordID,
         null,
-        {identifyingArgName: ID}
+        {identifyingArgName: ID},
       )
     );
   } else {
     recordID = store.getDataID(fieldName);
     // Root fields that do not accept arguments
-    path = new RelayQueryPath(RelayQuery.Root.build(fieldName));
+    path = new RelayQueryPath(RelayQuery.Root.build(
+      'writeRelayUpdatePayload',
+      fieldName
+    ));
   }
   invariant(
     recordID,

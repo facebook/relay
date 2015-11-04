@@ -23,7 +23,6 @@ type ConcreteQueryObject = (
   GraphQL.Mutation |
   GraphQL.Query |
   GraphQL.QueryFragment |
-  GraphQL.QueryWithValues |
   GraphQL.Subscription
 );
 type QueryClass = (
@@ -56,9 +55,6 @@ var fromGraphQL = {
     return node;
   },
   Query(query: ConcreteQueryObject): RelayQuery.Root {
-    // For convenience, we handle both GraphQL.Query and GraphQL.QueryWithValues
-    // transparently.
-    query = GraphQL.isQueryWithValues(query) ? query.query : query;
     var node = createNode(query, RelayQuery.Root);
     invariant(
       node instanceof RelayQuery.Root,

@@ -31,11 +31,11 @@ var {ID, TYPENAME} = RelayNodeInterface;
 var {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
 var idField = RelayQuery.Field.build(ID, null, null, {
   parentType: RelayNodeInterface.NODE_TYPE,
-  requisite: true,
+  isRequisite: true,
 });
 var typeField = RelayQuery.Field.build(TYPENAME, null, null, {
   parentType: RelayNodeInterface.NODE_TYPE,
-  requisite: true,
+  isRequisite: true,
 });
 var nodeWithID = RelayQuery.Field.build(
   RelayNodeInterface.NODE,
@@ -99,11 +99,11 @@ function diffRelayQuery(
         fieldName
       );
       nodeRoot = RelayQuery.Root.build(
+        root.getName(),
         fieldName,
         [identifyingArgValue],
         root.getChildren(),
-        metadata,
-        root.getName()
+        metadata
       );
     } else {
       // Reuse `root` if it only maps to one result.
@@ -767,11 +767,11 @@ function buildRoot(
     ));
   });
   return RelayQuery.Root.build(
+    name,
     NODE,
     rootID,
     fragments,
-    {identifyingArgName: RelayNodeInterface.ID},
-    name
+    {identifyingArgName: RelayNodeInterface.ID}
   );
 }
 

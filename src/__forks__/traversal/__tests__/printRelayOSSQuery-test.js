@@ -192,6 +192,7 @@ describe('printRelayOSSQuery', () => {
 
     it('throws for ref queries', () => {
       var query = RelayQuery.Root.build(
+        'RefQueryName',
         RelayNodeInterface.NODE,
         new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
         [
@@ -202,8 +203,7 @@ describe('printRelayOSSQuery', () => {
           isDeferred: true,
           identifyingArgName: RelayNodeInterface.ID,
           type: RelayNodeInterface.NODE_TYPE,
-        },
-        'RefQueryName'
+        }
       );
       expect(() => printRelayOSSQuery(query)).toFailInvariant(
         'printRelayOSSQuery(): Deferred queries are not supported.'

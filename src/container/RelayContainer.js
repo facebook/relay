@@ -45,7 +45,7 @@ import type {
 import type URI from 'URI';
 
 var buildRQL = require('buildRQL');
-import type {FragmentBuilder, QueryBuilder} from 'buildRQL';
+import type {RelayQLFragmentBuilder, RelayQLQueryBuilder} from 'buildRQL';
 var forEachObject = require('forEachObject');
 var invariant = require('invariant');
 var nullthrows = require('nullthrows');
@@ -60,7 +60,7 @@ export type RelayContainerSpec = {
     route: RelayMetaRoute
   ) => Variables;
   fragments: {
-    [propName: string]: FragmentBuilder
+    [propName: string]: RelayQLFragmentBuilder
   };
 };
 export type RelayLazyContainer = Function;
@@ -72,7 +72,7 @@ export type RelayQueryConfigSpec = {
   useMockData?: bool;
 };
 export type RootQueries = {
-  [queryName: string]: QueryBuilder;
+  [queryName: string]: RelayQLQueryBuilder;
 };
 
 GraphQLStoreChangeEmitter.injectBatchingStrategy(
@@ -943,7 +943,7 @@ function mergeVariables(
 function buildContainerFragment(
   containerName: string,
   fragmentName: string,
-  fragmentBuilder: FragmentBuilder,
+  fragmentBuilder: RelayQLFragmentBuilder,
   variables: Variables
 ): GraphQL.Fragment {
   var fragment = buildRQL.Fragment(

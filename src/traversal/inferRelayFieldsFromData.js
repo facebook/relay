@@ -49,8 +49,11 @@ function inferRelayFieldsFromData(
 }
 
 function inferField(value: mixed, key: string): RelayQuery.Field {
+  const metadata = {
+    isPlural: false,
+    parentType: NODE_TYPE,
+  };
   let children;
-  let metadata;
   if (Array.isArray(value)) {
     const element = value[0];
     if (element && typeof element === 'object') {
@@ -58,22 +61,18 @@ function inferField(value: mixed, key: string): RelayQuery.Field {
     } else {
       children = [];
     }
-    metadata = {plural: true};
+    metadata.isPlural = true;
   } else if (typeof value === 'object' && value !== null) {
     children = inferRelayFieldsFromData(value);
   } else {
     children = [];
   }
   if (key === NODE) {
-    children.push(RelayQuery.Field.build('id', null, null, {
+    children.push(RelayQuery.Field.build(ID, null, null, {
       parentType: NODE_TYPE,
     }));
   } else if (key === EDGES) {
     children.push(RelayQuery.Field.build('cursor'));
-  } else if (key === ID) {
-    metadata = {
-      parentType: NODE_TYPE,
-    };
   }
   return buildField(key, children, metadata);
 }

@@ -119,17 +119,16 @@ function wrapNode(
   const identifyingArg = node.getIdentifyingArg();
   const identifyingArgName = (identifyingArg && identifyingArg.name) || null;
   const identifyingArgValue = (identifyingArg && identifyingArg.value) || null;
-  const metadata = {};
-  metadata.isDeferred = true;
-  if (identifyingArgName != null) {
-    metadata.identifyingArgName = identifyingArgName;
-  }
+  const metadata = {
+    identifyingArgName,
+    isDeferred: true,
+  };
   return RelayQuery.Root.build(
+    node.getName(),
     node.getFieldName(),
     identifyingArgValue,
     node.getChildren(),
-    metadata,
-    node.getName()
+    metadata
   );
 }
 
@@ -222,14 +221,14 @@ function createRefQuery(
 
   // Create the wrapper root query.
   var root = RelayQuery.Root.build(
+    context.getName(),
     RelayNodeInterface.NODES,
     new GraphQL.BatchCallVariable(context.getID(), path.join('.')),
     [node],
     {
-      isDeferred: true,
       identifyingArgName: RelayNodeInterface.ID,
-    },
-    context.getName()
+      isDeferred: true,
+    }
   );
 
   var result: RelayQuery.Root = (root: any); // Flow

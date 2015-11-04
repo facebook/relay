@@ -944,11 +944,12 @@ describe('splitDeferredRelayQueries()', () => {
     // `Relay.QL`, but in order to be future-proof against this possible edge
     // case, we create such a query by hand.
     var fragment = Relay.QL`fragment on Node{name}`;
-    var id = RelayQuery.Field.build('id', null, null, {requisite: true});
+    var id = RelayQuery.Field.build('id', null, null, {isRequisite: true});
     var typename = RelayQuery.Field.build('__typename', null, null, {
-      requisite: true
+      isRequisite: true,
     });
     var queryNode = RelayQuery.Root.build(
+      'splitDeferredRelayQueries',
       'node',
       '4',
       [
@@ -959,12 +960,15 @@ describe('splitDeferredRelayQueries()', () => {
           null,
           [id, getNode(defer(fragment))],
           {
-            generated: true,
-            pk: 'id',
-            rootCall: 'node',
+            isGenerated: true,
+            inferredPrimaryKey: 'id',
+            inferredRootCallName: 'node',
           }
         ),
-      ]
+      ],
+      {
+        identifyingArgName: 'id',
+      }
     );
     queryNode = queryNode.clone(
       queryNode.getChildren().map((outerChild, ii) => {

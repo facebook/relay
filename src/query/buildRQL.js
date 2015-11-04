@@ -15,6 +15,7 @@
 
 var GraphQL = require('GraphQL');
 var Map = require('Map');
+var QueryBuilder = require('QueryBuilder');
 import type {RelayConcreteNode} from 'RelayQL';
 var RelayProfiler = require('RelayProfiler');
 import type {RelayContainer, Variables} from 'RelayTypes';
@@ -23,8 +24,9 @@ var filterObject = require('filterObject');
 var invariant = require('invariant');
 var mapObject = require('mapObject');
 
-export type FragmentBuilder = (variables: Variables) => RelayConcreteNode;
-export type QueryBuilder =
+export type RelayQLFragmentBuilder =
+  (variables: Variables) => RelayConcreteNode;
+export type RelayQLQueryBuilder =
   (Component: RelayContainer, params: Variables) => RelayConcreteNode;
 
 // Cache results of executing fragment query builders.
@@ -62,7 +64,7 @@ function isDeprecatedCallWithArgCountGreaterThan(
  */
 var buildRQL = {
   Fragment(
-    fragmentBuilder: FragmentBuilder,
+    fragmentBuilder: RelayQLFragmentBuilder,
     values: Variables
   ): ?GraphQL.QueryFragment {
     var node = fragmentCache.get(fragmentBuilder);
@@ -80,7 +82,7 @@ var buildRQL = {
   },
 
   Query(
-    queryBuilder: QueryBuilder,
+    queryBuilder: RelayQLQueryBuilder,
     Component: any,
     queryName: string,
     values: Variables
@@ -116,14 +118,11 @@ var buildRQL = {
           var fragmentValues = filterObject(values, (_, name) =>
             Component.hasVariable(name)
           );
-          node = new GraphQL.Query(
-            node.fieldName,
-            (node.calls[0] && node.calls[0].value) || null,
-            node.fields,
-            [Component.getFragment(queryName, fragmentValues)],
-            node.metadata,
-            node.name
-          );
+          var fragment = Component.getFragment(queryName, fragmentValues);
+          node = {
+            ...node,
+            children: [...node.children, fragment],
+          };
         }
       }
       componentCache.set(Component, node);
@@ -138,7 +137,10 @@ var buildRQL = {
 function toVariables(variables: Variables): {
   [key: string]: GraphQL.CallVariable;
 } {
-  return mapObject(variables, (_, name) => new GraphQL.CallVariable(name));
+  return mapObject(
+    variables,
+    (_, name) => QueryBuilder.createCallVariable(name)
+  );
 }
 
 RelayProfiler.instrumentMethods(buildRQL, {

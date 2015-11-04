@@ -46,14 +46,11 @@ describe('GraphQLQueryRunner', () => {
    * deferred.
    */
   function deferQuery(relayQuery) {
-    var query = toGraphQL.Query(relayQuery);
-    return getNode(new GraphQL.Query(
-      query.fieldName,
-      (query.calls[0] && query.calls[0].args) || null,
-      query.fields,
-      query.fragments,
-      {isDeferred: true}
-    ));
+    var node = {
+      ...relayQuery.__concreteNode__,
+      isDeferred: true,
+    };
+    return getNode(node, relayQuery.getVariables());
   }
 
   function mockSplitDeferredQueries() {

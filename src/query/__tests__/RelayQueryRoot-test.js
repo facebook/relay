@@ -15,6 +15,7 @@ var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 var GraphQL = require('GraphQL');
+var QueryBuilder = require('QueryBuilder');
 var Relay = require('Relay');
 var RelayQuery = require('RelayQuery');
 
@@ -138,14 +139,19 @@ describe('RelayQueryRoot', () => {
     expect(me.getBatchCall()).toBe(null);
 
     // ref query:
-    var root = getNode(new GraphQL.Query(
-      'node',
-      new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
-      [
-        new GraphQL.Field('id'),
-        new GraphQL.Field('name'),
-      ]
-    ));
+    var root = getNode({
+      ...Relay.QL`
+        query {
+          node(id: "123") {
+            id
+          }
+        }
+      `,
+      calls: [QueryBuilder.createCall(
+        'id',
+        QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id')
+      )],
+    });
     var batchCall = root.getBatchCall();
     expect(batchCall).toEqual({
       refParamName: 'ref_q0',
@@ -233,42 +239,41 @@ describe('RelayQueryRoot', () => {
   });
 
   it('equals identical ref queries with matching ref params', () => {
-    var node = getNode(new GraphQL.Query(
-      'node',
-      new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
-      [
-        new GraphQL.Field('id'),
-        new GraphQL.Field('name'),
-      ]
-    ));
-    var other = getNode(new GraphQL.Query(
-      'node',
-      new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
-      [
-        new GraphQL.Field('id'),
-        new GraphQL.Field('name'),
-      ]
-    ));
+    var node = getNode({
+      ...Relay.QL`query { node(id: "123") }`,
+      calls: [QueryBuilder.createCall(
+        'id',
+        QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id')
+      )],
+    });
+    var other = getNode({
+      ...Relay.QL`query { node(id: "123") }`,
+      calls: [QueryBuilder.createCall(
+        'id',
+        QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id')
+      )],
+    });
     expect(node.equals(other)).toBe(true);
   });
 
   it('does not equal queries with different ref params', () => {
-    var node = getNode(new GraphQL.Query(
-      'node',
-      new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
-      [
-        new GraphQL.Field('id'),
-        new GraphQL.Field('name'),
-      ]
-    ));
-    var other = getNode(new GraphQL.Query(
-      'node',
-      new GraphQL.BatchCallVariable('q0', '$.*.actor.current_city.id'),
-      [
-        new GraphQL.Field('id'),
-        new GraphQL.Field('name'),
-      ]
-    ));
+    var node = getNode({
+      ...Relay.QL`query { node(id: "123") }`,
+      calls: [QueryBuilder.createCall(
+        'id',
+        QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id')
+      )],
+    });
+    var other = getNode({
+      ...Relay.QL`query { node(id: "123") }`,
+      calls: [QueryBuilder.createCall(
+        'id',
+        QueryBuilder.createBatchCallVariable(
+          'q0',
+          '$.*.actor.current_city.id'
+        )
+      )],
+    });
     expect(node.equals(other)).toBe(false);
   });
 
@@ -285,7 +290,11 @@ describe('RelayQueryRoot', () => {
     expect(me.isScalar()).toBe(false);
 
     // empty query
-    expect(getNode(new GraphQL.Query('node')).isScalar()).toBe(false);
+    var query = getNode({
+      ...Relay.QL`query { viewer }`,
+      children: [],
+    });
+    expect(query.isScalar()).toBe(false);
   });
 
   it('returns the identifying argument type', () => {

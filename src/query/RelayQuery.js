@@ -14,6 +14,7 @@
 'use strict';
 
 var GraphQL = require('GraphQL');
+var QueryBuilder = require('QueryBuilder');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayFragmentReference = require('RelayFragmentReference');
 import type {Call, Directive}  from 'RelayInternalTypes';
@@ -44,7 +45,6 @@ type FragmentMetadata = {
   isTypeConditional: boolean;
 };
 type FragmentNames = {[key: string]: string};
-type RootCallValue = string | GraphQL.BatchCallVariable;
 // TODO: replace once #6525923 is resolved
 type NextChildren = Array<any>;
 
@@ -332,21 +332,29 @@ class RelayQueryRoot extends RelayQueryNode {
    * route/variables.
    */
   static build(
+    name: string,
     fieldName: string,
-    identifyingArgValue?: ?Array<RootCallValue> | ?RootCallValue,
-    children?: ?Array<RelayQueryNode>,
-    metadata?: ?{[key: string]: mixed},
-    name?: ?string
+    callValue: ?(string | Array<string> | GraphQL.BatchCallVariable),
+    children: ?Array<RelayQueryNode>,
+    metadata: ?{[key: string]: mixed}
   ): RelayQueryRoot {
-    var nextChildren = children ? children.filter(child => !!child) : [];
-    var concreteRoot = new GraphQL.Query(
+    const nextChildren = children ? children.filter(child => !!child) : [];
+    let identifyingArgValue;
+    if (Array.isArray(callValue)) {
+      identifyingArgValue = callValue.map(
+        QueryBuilder.createCallValue
+      );
+    } else if (typeof callValue === 'string') {
+      identifyingArgValue = QueryBuilder.createCallValue(callValue);
+    } else {
+      identifyingArgValue = callValue;
+    }
+    const concreteRoot = QueryBuilder.createQuery({
       fieldName,
-      identifyingArgValue || null,
-      null,
-      null,
+      identifyingArgValue,
       metadata,
-      name
-    );
+      name,
+    });
     var root = new RelayQueryRoot(
       concreteRoot,
       RelayMetaRoute.get('$RelayQuery'),
@@ -590,7 +598,7 @@ class RelayQueryMutation extends RelayQueryOperation {
    * route/variables.
    */
   static build(
-    mutationName: string,
+    name: string,
     responseType: string,
     callName: string,
     callValue?: ?mixed,
@@ -598,14 +606,15 @@ class RelayQueryMutation extends RelayQueryOperation {
     metadata?: ?{[key: string]: mixed}
   ): RelayQueryMutation {
     var nextChildren = children ? children.filter(child => !!child) : [];
-    var concreteMutation = new GraphQL.Mutation(
-      mutationName,
+    var concreteMutation = QueryBuilder.createMutation({
+      calls: [QueryBuilder.createCall(
+        callName,
+        QueryBuilder.createCallVariable('input')
+      )],
+      metadata,
+      name,
       responseType,
-      new GraphQL.Callv(callName, new GraphQL.CallVariable('input')),
-      null,
-      null,
-      metadata
-    );
+    });
     var mutation = new RelayQueryMutation(
       concreteMutation,
       RelayMetaRoute.get('$RelayQuery'),
@@ -701,13 +710,11 @@ class RelayQueryFragment extends RelayQueryNode {
     metadata?: ?{[key: string]: mixed}
   ): RelayQueryFragment {
     var nextChildren = children ? children.filter(child => !!child) : [];
-    var concreteFragment = new GraphQL.QueryFragment(
+    var concreteFragment = QueryBuilder.createFragment({
       name,
       type,
-      null,
-      null,
-      metadata
-    );
+      metadata,
+    });
     var fragment = new RelayQueryFragment(
       concreteFragment,
       RelayMetaRoute.get('$RelayQuery'),
@@ -875,15 +882,12 @@ class RelayQueryField extends RelayQueryNode {
     alias?: ?string
   ): RelayQueryField {
     var nextChildren = children ? children.filter(child => !!child) : [];
-    var concreteField = new GraphQL.Field(
-      fieldName,
-      null,
-      null,
-      calls ? callsToGraphQL(calls) : null,
+    var concreteField = QueryBuilder.createField({
       alias,
-      null,
-      metadata
-    );
+      calls: calls ? callsToGraphQL(calls) : null,
+      fieldName,
+      metadata,
+    });
     var field = new RelayQueryField(
       concreteField,
       RelayMetaRoute.get('$RelayQuery'),
@@ -1189,9 +1193,6 @@ function createNode(
     type = RelayQueryFragment;
   } else if (GraphQL.isQuery(concreteNode)) {
     type = RelayQueryRoot;
-  } else if (GraphQL.isQueryWithValues(concreteNode)) {
-    concreteNode = (concreteNode: $FlowIssue).query;
-    type = RelayQueryRoot;
   } else if (GraphQL.isMutation(concreteNode)) {
     type = RelayQueryMutation;
   } else if (GraphQL.isSubscription(concreteNode)) {
@@ -1313,7 +1314,6 @@ function getDeferredFragmentNamesForField(
     child => getDeferredFragmentNamesForField(child, fragmentNames)
   );
 }
-
 
 RelayProfiler.instrumentMethods(RelayQueryNode.prototype, {
   clone: 'RelayQueryNode.prototype.clone',

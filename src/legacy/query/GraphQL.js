@@ -16,37 +16,23 @@ var RelayNodeInterface = require('RelayNodeInterface');
 
 var invariant = require('invariant');
 
-var EMPTY_OBJECT = {};
-var EMPTY_ARRAY = [];
+const EMPTY_OBJECT = {};
+const EMPTY_ARRAY = [];
 
 if (__DEV__) {
   Object.freeze(EMPTY_OBJECT);
   Object.freeze(EMPTY_ARRAY);
 }
 
-var BATCH_CALL_VARIABLE = 'BatchCallVariable';
-var CALL = 'Call';
-var CALL_VALUE = 'CallValue';
-var CALL_VARIABLE = 'CallVariable';
-var FIELD = 'Field';
-var FRAGMENT = 'Fragment';
-var MUTATION = 'Mutation';
-var QUERY = 'Query';
-var QUERY_WITH_VALUES = 'QueryWithValues';
-var SUBSCRIPTION = 'Subscription';
-
-var JSON_TYPES = {
-  QUERY: 1,
-  FRAGMENT: 2,
-  FIELD: 3,
-  CALL: 4,
-  CALL_VALUE: 5,
-  CALL_VARIABLE: 6,
-  BATCH_VARIABLE: 7,
-  MUTATION: 8,
-  QUERY_WITH_VALUES: 9,
-  SUBSCRIPTION: 10,
-};
+const BATCH_CALL_VARIABLE = 'BatchCallVariable';
+const CALL = 'Call';
+const CALL_VALUE = 'CallValue';
+const CALL_VARIABLE = 'CallVariable';
+const FIELD = 'Field';
+const FRAGMENT = 'Fragment';
+const MUTATION = 'Mutation';
+const QUERY = 'Query';
+const SUBSCRIPTION = 'Subscription';
 
 /**
  * Represents a GraphQL node.
@@ -409,48 +395,6 @@ class GraphQLQuery extends GraphQLNode {
 }
 
 /**
- * Comprises a GraphQL query (see `GraphQLQuery`) and a set of values.
- *
- * In practice, we're don't currently make use of the values anywhere in Dlite,
- * but we use `GraphQLQueryWithValues` widely within Dlite as a type.
- */
-class GraphQLQueryWithValues {
-  /**
-   * @param {GraphQLQuery} query
-   * @param {*} values
-   */
-  constructor(query, values) {
-    this.kind = QUERY_WITH_VALUES;
-    this.query = query;
-    this.values = values;
-  }
-
-  getQuery() {
-    return this.query;
-  }
-
-  /**
-   * @param {array} descriptor
-   * @return {GraphQLQueryWithValues}
-   */
-  static fromJSON(node) {
-    invariant(
-      node.kind === QUERY_WITH_VALUES,
-      'Expected query descriptor'
-    );
-    return node;
-  }
-
-  toJSON() {
-    return {
-      kind: QUERY_WITH_VALUES,
-      query: this.query,
-      values: this.values,
-    };
-  }
-}
-
-/**
  * Base class from which GraphQLMutation and GraphQLSubscription extend.
  */
 class GraphQLOperation extends GraphQLNode {
@@ -560,29 +504,6 @@ function castArg(arg) {
   }
 }
 
-/**
- * @param {array} descriptor
- * @return {GraphQLCallValue|GraphQLCallVariable|GraphQLBatchCallVariable}
- */
-function callArgFromJSON(descriptor) {
-  var type = descriptor[0];
-  switch (type) {
-    case JSON_TYPES.CALL_VALUE:
-      return GraphQLCallValue.fromJSON(descriptor);
-    case JSON_TYPES.CALL_VARIABLE:
-      return GraphQLCallVariable.fromJSON(descriptor);
-    case JSON_TYPES.BATCH_VARIABLE:
-      return GraphQLBatchCallVariable.fromJSON(descriptor);
-    default:
-      invariant(
-        false,
-        'GraphQL: Unexpected call type, got `%s` from `%s`.',
-        type,
-        descriptor
-      );
-  }
-}
-
 function isType(node, type) {
   return (
     typeof node === 'object' &&
@@ -619,10 +540,6 @@ function isQuery(node) {
   return isType(node, QUERY);
 }
 
-function isQueryWithValues(node) {
-  return isType(node, QUERY_WITH_VALUES);
-}
-
 function isMutation(node) {
   return isType(node, MUTATION);
 }
@@ -647,7 +564,6 @@ var GraphQL = {
   Mutation: GraphQLMutation,
   Query: GraphQLQuery,
   QueryFragment: GraphQLQueryFragment,
-  QueryWithValues: GraphQLQueryWithValues,
   Subscription: GraphQLSubscription,
   isBatchCallVariable,
   isCall,
@@ -657,7 +573,6 @@ var GraphQL = {
   isFragment,
   isMutation,
   isQuery,
-  isQueryWithValues,
   isSubscription,
 };
 

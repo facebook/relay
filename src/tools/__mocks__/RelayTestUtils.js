@@ -159,6 +159,7 @@ var RelayTestUtils = {
    */
   getRefNode(node, refParam) {
     var GraphQL = require('GraphQL');
+    var QueryBuilder = require('QueryBuilder');
     var RelayQuery = require('RelayQuery');
     var RelayMetaRoute = require('RelayMetaRoute');
 
@@ -188,14 +189,14 @@ var RelayTestUtils = {
     var variables = {[name]: '<' + callValue.callVariableName + '>'};
 
     return RelayQuery.Root.create(
-      new GraphQL.Query(
-        'nodes',
-        new GraphQL.BatchCallVariable(id, refParam.path),
-        node.fields,
-        node.fragments,
-        {isDeferred: true},
-        null
-      ),
+      {
+        ...node,
+        calls: [QueryBuilder.createCall(
+          'id',
+          QueryBuilder.createBatchCallVariable(id, refParam.path)
+        )],
+        isDeferred: true,
+      },
       RelayMetaRoute.get('$RelayTestUtils'),
       variables
     );
@@ -364,7 +365,7 @@ var RelayTestUtils = {
      * the same length have equivalent (shallow-equal) roots and fields.
      */
     toMatchPath(expected) {
-      var GraphQL = require('GraphQL');
+      var QueryBuilder = require('QueryBuilder');
       var RelayMetaRoute = require('RelayMetaRoute');
       var RelayQuery = require('RelayQuery');
       var RelayQueryPath = require('RelayQueryPath');
@@ -385,9 +386,13 @@ var RelayTestUtils = {
         return false;
       }
       var fragment = RelayQuery.Fragment.create(
-        new GraphQL.QueryFragment('Test', 'Node', [
-          new GraphQL.Field('__test__')
-        ]),
+        QueryBuilder.createFragment({
+          children: [QueryBuilder.createField({
+            fieldName: '__test__',
+          })],
+          name: 'Test',
+          type: 'Node',
+        }),
         RelayMetaRoute.get('$RelayTestUtils'),
         {}
       );

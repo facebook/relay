@@ -99,7 +99,7 @@ describe('GraphQLFragmentPointer', () => {
         GraphQLFragmentPointer.createForRoot(recordStore, root);
       }).toFailInvariant(
         'Queries supplied at the root cannot have batch call variables. ' +
-        'Query `q0` has a batch call variable, `ref_q0`.'
+        'Query `GraphQLFragmentPointer` has a batch call variable, `ref_q0`.'
       );
     });
 

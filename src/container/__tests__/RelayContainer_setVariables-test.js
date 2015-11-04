@@ -15,6 +15,7 @@ require('RelayTestUtils').unmockRelay();
 
 var GraphQL = require('GraphQL');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+var QueryBuilder = require('QueryBuilder');
 var React = require('React');
 var ReactDOM = require('ReactDOM');
 var Relay = require('Relay');
@@ -206,7 +207,7 @@ describe('RelayContainer.setVariables', function() {
     it('are called with variables for variables', () => {
       expect(entityQuery.mock.calls.length).toBe(1);
       expect(entityQuery.mock.calls[0][0].site).toEqual(
-        new GraphQL.CallVariable('site')
+        QueryBuilder.createCallVariable('site')
       );
     });
 

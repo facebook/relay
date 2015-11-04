@@ -15,19 +15,18 @@ var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 var GraphQL = require('GraphQL');
+var QueryBuilder = require('QueryBuilder');
 
 describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
   var {getNode} = RelayTestUtils;
 
   function getProfilePicture(callValue, variables) {
     return getNode(
-      new GraphQL.Field(
-        'profile_picture',
-        null,
-        null,
-        [new GraphQL.Callv('size', callValue)]
-      ),
-      variables || {}
+      QueryBuilder.createField({
+        calls: [QueryBuilder.createCall('size', callValue)],
+        fieldName: 'profile_picture',
+      }),
+      variables
     );
   }
 

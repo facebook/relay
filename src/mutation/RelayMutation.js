@@ -24,7 +24,7 @@ import type {
 } from 'RelayTypes';
 
 var buildRQL = require('buildRQL');
-import type {FragmentBuilder} from 'buildRQL';
+import type {RelayQLFragmentBuilder} from 'buildRQL';
 var forEachObject = require('forEachObject');
 var fromGraphQL = require('fromGraphQL');
 var invariant = require('invariant');
@@ -32,7 +32,7 @@ var warning = require('warning');
 
 export type FileMap = {[key: string]: File};
 export type RelayMutationFragments<Tk> = {
-  [key: Tk]: FragmentBuilder;
+  [key: Tk]: RelayQLFragmentBuilder;
 };
 
 /**
@@ -375,7 +375,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
 function buildMutationFragment(
   mutationName: string,
   fragmentName: string,
-  fragmentBuilder: FragmentBuilder,
+  fragmentBuilder: RelayQLFragmentBuilder,
   variables: Variables
 ): GraphQL.Fragment {
   var fragment = buildRQL.Fragment(

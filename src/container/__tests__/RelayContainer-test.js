@@ -21,6 +21,7 @@ jest
 var GraphQL = require('GraphQL');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var GraphQLStoreTestUtils = require('GraphQLStoreTestUtils');
+var QueryBuilder = require('QueryBuilder');
 var React = require('React');
 var ReactTestUtils = require('ReactTestUtils');
 var Relay = require('Relay');
@@ -122,10 +123,9 @@ describe('RelayContainer', function() {
 
     it('creates query for a container without fragments', () => {
       // Test that scalar constants are substituted, not only query fragments.
-      var TEST_PHOTO_SIZE = 100;
       var MockProfilePhoto = Relay.createContainer(MockComponent, {
         initialVariables: {
-          testPhotoSize: TEST_PHOTO_SIZE,
+          testPhotoSize: '100',
         },
         fragments: {
           photo: () => Relay.QL`
@@ -141,22 +141,13 @@ describe('RelayContainer', function() {
         MockProfilePhoto.getQuery('photo'),
         {}
       );
-      expect(fragment).toEqualQueryNode(getNode(
-        new GraphQL.QueryFragment('Test', 'Actor', [
-          new GraphQL.Field(
-            'profilePicture',
-            [new GraphQL.Field('uri')],
-            null,
-            [new GraphQL.Callv('size', TEST_PHOTO_SIZE)]
-          ),
-          new GraphQL.Field(
-            'id', null, null, null, null, null, {generated: true}
-          ),
-          new GraphQL.Field(
-            '__typename', null, null, null, null, null, {generated: true}
-          ),
-        ])
-      ));
+      expect(fragment).toEqualQueryNode(getNode(Relay.QL`
+        fragment on Actor {
+          profilePicture(size: "100") {
+            uri
+          }
+        }
+      `));
     });
 
     it('creates query for a container with fragments', () => {
@@ -186,19 +177,20 @@ describe('RelayContainer', function() {
         MockProfile.getQuery('user'),
         {}
       );
-      expect(fragment).toEqualQueryNode(getNode(
-        new GraphQL.QueryFragment('Test', 'Actor', [
-          new GraphQL.Field('id'),
-          new GraphQL.Field('__typename'),
-          new GraphQL.Field('name')
-        ], [
-          new GraphQL.QueryFragment('Test', 'Actor', [
-            new GraphQL.Field('id'),
-            new GraphQL.Field('__typename'),
-            new GraphQL.Field('url')
-          ])
-        ])
-      ));
+      expect(fragment).toEqualQueryNode(getNode(Relay.QL`
+        fragment on Actor {
+          id,
+          __typename,
+          name,
+          ${Relay.QL`
+            fragment on Actor {
+              id,
+              __typename,
+              url,
+            }
+          `},
+        }
+      `));
     });
 
     it('returns whether a named fragment is defined', () => {
@@ -222,10 +214,11 @@ describe('RelayContainer', function() {
           `
         }
       });
-      feedFragment =
-        new GraphQL.QueryFragment('Test', 'Viewer', [
-          new GraphQL.Field('newsFeed'),
-        ]);
+      feedFragment = QueryBuilder.createFragment({
+        name: 'Test',
+        type: 'Viewer',
+        children: [QueryBuilder.createField({fieldName: 'newsFeed'})],
+      });
     });
 
     it('can conditionally include a fragment based on variables', () => {

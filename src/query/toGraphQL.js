@@ -40,9 +40,6 @@ var toGraphQL = {
       return toGraphQL.Field(node);
     }
   },
-  QueryWithValues(node: RelayQuery.Root): GraphQL.QueryWithValues {
-    return new GraphQL.QueryWithValues(toGraphQL.Query(node), {});
-  },
   Query(node: RelayQuery.Root): GraphQL.Query {
     return node.getConcreteQueryNode(() => {
       var batchCall = node.getBatchCall();
@@ -66,6 +63,9 @@ var toGraphQL = {
         toGraphQLMetadata(node),
         node.getName()
       );
+      // if (node.isDeferred()) {
+      //   query.isDeferred = true;
+      // }
       return query;
     });
   },

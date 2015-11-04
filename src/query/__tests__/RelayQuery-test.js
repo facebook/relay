@@ -34,6 +34,7 @@ describe('RelayQuery', () => {
       it('creates roots', () => {
         var field = RelayQuery.Field.build('id');
         var root = RelayQuery.Root.build(
+          'RelayQueryTest',
           'node',
           '4',
           [field]
@@ -46,6 +47,7 @@ describe('RelayQuery', () => {
       it('creates deferred roots', () => {
         var field = RelayQuery.Field.build('id');
         var root = RelayQuery.Root.build(
+          'RelayQueryTest',
           'node',
           '4',
           [field],
@@ -58,6 +60,7 @@ describe('RelayQuery', () => {
 
       it('creates roots with batch calls', () => {
         var root = RelayQuery.Root.build(
+          'RelayQueryTest',
           'node',
           new GraphQL.BatchCallVariable('q0', '$.*.id'),
           []
@@ -73,12 +76,13 @@ describe('RelayQuery', () => {
 
     describe('getCallsWithValues()', () => {
       it('returns an empty array when there are no arguments', () => {
-        const root = RelayQuery.Root.build('viewer');
+        const root = RelayQuery.Root.build('RelayQueryTest', 'viewer');
         expect(root.getCallsWithValues()).toEqual([]);
       });
 
       it('returns an array including the identifying argument', () => {
         const root = RelayQuery.Root.build(
+          'RelayQueryTest',
           'foo',
           '123',
           null,
@@ -101,19 +105,20 @@ describe('RelayQuery', () => {
 
     describe('getFieldName()', () => {
       it('returns the name of the root field', () => {
-        const root = RelayQuery.Root.build('viewer');
+        const root = RelayQuery.Root.build('RelayQueryTest', 'viewer');
         expect(root.getFieldName()).toBe('viewer');
       });
     });
 
     describe('getIdentifyingArg()', () => {
       it('returns nothing when there is no identifying argument', () => {
-        const root = RelayQuery.Root.build('viewer');
+        const root = RelayQuery.Root.build('RelayQueryTest', 'viewer');
         expect(root.getIdentifyingArg()).toBeUndefined();
       });
 
       it('returns the sole identifying argument', () => {
         const root = RelayQuery.Root.build(
+          'RelayQueryTest',
           'foo',
           '123',
           null,
@@ -127,6 +132,7 @@ describe('RelayQuery', () => {
 
       it('returns the identifying argument with type', () => {
         const root = RelayQuery.Root.build(
+          'RelayQueryTest',
           'foo',
           '123',
           null,
@@ -171,7 +177,7 @@ describe('RelayQuery', () => {
           'TestFragment',
           'Node',
           [field],
-          {isPlural: true, scope: 'RelayQuery_Foo'}
+          {plural: true}
         );
         expect(fragment instanceof RelayQuery.Fragment).toBe(true);
         expect(fragment.getDebugName()).toBe('TestFragment');

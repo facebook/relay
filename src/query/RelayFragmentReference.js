@@ -13,16 +13,17 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL');
+import type {ConcreteFragment} from 'ConcreteQuery';
+const QueryBuilder = require('QueryBuilder');
 import type RelayMetaRoute from 'RelayMetaRoute';
 import type {Variables} from 'RelayTypes';
 
-var forEachObject = require('forEachObject');
-var invariant = require('invariant');
-var warning = require('warning');
+const forEachObject = require('forEachObject');
+const invariant = require('invariant');
+const warning = require('warning');
 
 type Condition = (variables: Variables) => boolean;
-type FragmentGetter = () => GraphQL.QueryFragment;
+type FragmentGetter = () => ConcreteFragment;
 type PrepareVariablesCallback = (
   prevVariables: Variables,
   route: RelayMetaRoute
@@ -91,7 +92,7 @@ type VariableMapping = {[key: string]: mixed};
 class RelayFragmentReference {
   _conditions: ?Array<Condition>;
   _initialVariables: Variables;
-  _fragment: ?GraphQL.QueryFragment;
+  _fragment: ?ConcreteFragment;
   _fragmentGetter: FragmentGetter;
   _isContainerFragment: boolean;
   _isDeferred: boolean;
@@ -150,9 +151,10 @@ class RelayFragmentReference {
   /**
    * Mark this fragment for inclusion only if the given variable is truthy.
    */
-  if(callVariable: any): RelayFragmentReference {
+  if(value: any): RelayFragmentReference {
+    const callVariable = QueryBuilder.getCallVariable(value);
     invariant(
-      GraphQL.isCallVariable(callVariable),
+      callVariable,
       'RelayFragmentReference: Invalid value `%s` supplied to `if()`. ' +
       'Expected a variable.',
       callVariable
@@ -166,9 +168,10 @@ class RelayFragmentReference {
   /**
    * Mark this fragment for inclusion only if the given variable is falsy.
    */
-  unless(callVariable: any): RelayFragmentReference {
+  unless(value: any): RelayFragmentReference {
+    const callVariable = QueryBuilder.getCallVariable(value);
     invariant(
-      GraphQL.isCallVariable(callVariable),
+      callVariable,
       'RelayFragmentReference: Invalid value `%s` supplied to `unless()`. ' +
       'Expected a variable.',
       callVariable
@@ -184,19 +187,21 @@ class RelayFragmentReference {
    *
    * Memoize the fragment so it has the same `getWeakIdForObject`.
    */
-  _getFragment(): GraphQL.Fragment {
-    if (this._fragment == null) {
-      this._fragment = this._fragmentGetter();
+  _getFragment(): ConcreteFragment {
+    let fragment = this._fragment;
+    if (fragment == null) {
+      fragment = this._fragmentGetter();
+      this._fragment = fragment;
     }
-    return this._fragment;
+    return fragment;
   }
 
   /**
    * Get the referenced fragment if all conditions are met.
    */
-  getFragment(variables: Variables): ?GraphQL.QueryFragment {
+  getFragment(variables: Variables): ?ConcreteFragment {
     // determine if the variables match the supplied if/unless conditions
-    var conditions = this._conditions;
+    const conditions = this._conditions;
     if (conditions && !conditions.every(cb => cb(variables))) {
       return null;
     }
@@ -208,14 +213,15 @@ class RelayFragmentReference {
    * initial values, overrides, and route-specific variables.
    */
   getVariables(route: RelayMetaRoute, variables: Variables): Variables {
-    var innerVariables = {...this._initialVariables};
+    let innerVariables = {...this._initialVariables};
 
     // map variables from outer -> inner scope
-    var variableMapping = this._variableMapping;
+    const variableMapping = this._variableMapping;
     if (variableMapping) {
       forEachObject(variableMapping, (value, name) => {
-        if (GraphQL.isCallVariable(value)) {
-          value = variables[value.callVariableName];
+        const callVariable = QueryBuilder.getCallVariable(value);
+        if (callVariable) {
+          value = variables[callVariable.callVariableName];
         }
         if (value === undefined) {
           warning(
@@ -231,7 +237,7 @@ class RelayFragmentReference {
       });
     }
 
-    var prepareVariables = this._prepareVariables;
+    const prepareVariables = this._prepareVariables;
     if (prepareVariables) {
       innerVariables = prepareVariables(innerVariables, route);
     }
@@ -252,7 +258,7 @@ class RelayFragmentReference {
   }
 
   _addCondition(condition: Condition): void {
-    var conditions = this._conditions;
+    let conditions = this._conditions;
     if (!conditions) {
       conditions = [];
       this._conditions = conditions;

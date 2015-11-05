@@ -13,12 +13,12 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL');
-var RelayNodeInterface = require('RelayNodeInterface');
-var RelayProfiler = require('RelayProfiler');
-var RelayQuery = require('RelayQuery');
-var RelayQueryTransform = require('RelayQueryTransform');
-var RelayRefQueryDescriptor = require('RelayRefQueryDescriptor');
+const QueryBuilder = require('QueryBuilder');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayProfiler = require('RelayProfiler');
+const RelayQuery = require('RelayQuery');
+const RelayQueryTransform = require('RelayQueryTransform');
+const RelayRefQueryDescriptor = require('RelayRefQueryDescriptor');
 import type {NodePath} from 'RelayRefQueryDescriptor';
 
 var invariant = require('invariant');
@@ -223,7 +223,7 @@ function createRefQuery(
   var root = RelayQuery.Root.build(
     context.getName(),
     RelayNodeInterface.NODES,
-    new GraphQL.BatchCallVariable(context.getID(), path.join('.')),
+    QueryBuilder.createBatchCallVariable(context.getID(), path.join('.')),
     [node],
     {
       identifyingArgName: RelayNodeInterface.ID,

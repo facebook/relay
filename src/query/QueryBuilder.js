@@ -14,25 +14,26 @@
 'use strict';
 
 import type {
-  BatchCallVariable,
-  Call,
-  CallValue,
-  CallVariable,
-  Directive,
-  Field,
-  Fragment,
-  Mutation,
-  Query,
-  Selection,
-  Value,
+  ConcreteBatchCallVariable,
+  ConcreteCall,
+  ConcreteCallValue,
+  ConcreteCallVariable,
+  ConcreteDirective,
+  ConcreteField,
+  ConcreteFragment,
+  ConcreteMutation,
+  ConcreteQuery,
+  ConcreteSelection,
+  ConcreteSubscription,
+  ConcreteValue,
 } from 'ConcreteQuery';
 const RelayNodeInterface = require('RelayNodeInterface');
 
 const invariant = require('invariant');
 
-const EMPTY_CALLS: Array<Call> = [];
-const EMPTY_CHILDREN: Array<?Selection> = [];
-const EMPTY_DIRECTIVES: Array<Directive> = [];
+const EMPTY_CALLS: Array<ConcreteCall> = [];
+const EMPTY_CHILDREN: Array<?ConcreteSelection> = [];
+const EMPTY_DIRECTIVES: Array<ConcreteDirective> = [];
 const EMPTY_METADATA = {};
 
 if (__DEV__) {
@@ -51,7 +52,7 @@ const QueryBuilder = {
   createBatchCallVariable(
     sourceQueryID: string,
     jsonPath: string
-  ): BatchCallVariable {
+  ): ConcreteBatchCallVariable {
     return {
       kind: 'BatchCallVariable',
       sourceQueryID,
@@ -61,22 +62,22 @@ const QueryBuilder = {
 
   createCall(
     name: string,
-    value: ?Value,
+    value: ?ConcreteValue,
     type?: string
-  ): Call {
+  ): ConcreteCall {
     return {
       kind: 'Call',
       name,
       metadata: {
         type: type || null,
       },
-      value: value || null,
+      value,
     };
   },
 
   createCallValue(
     callValue: mixed
-  ): CallValue {
+  ): ConcreteCallValue {
     return {
       kind: 'CallValue',
       callValue,
@@ -85,7 +86,7 @@ const QueryBuilder = {
 
   createCallVariable(
     callVariableName: string
-  ): CallVariable {
+  ): ConcreteCallVariable {
     return {
       kind: 'CallVariable',
       callVariableName,
@@ -94,9 +95,9 @@ const QueryBuilder = {
 
   createField(partialField: {
     alias?: ?string;
-    calls?: ?Array<Call>;
-    children?: ?Array<?Selection>;
-    directives?: ?Array<Directive>;
+    calls?: ?Array<ConcreteCall>;
+    children?: ?Array<?ConcreteSelection>;
+    directives?: ?Array<ConcreteDirective>;
     fieldName: string;
     metadata?: ?{
       inferredRootCallName?: ?string;
@@ -109,7 +110,7 @@ const QueryBuilder = {
       isUnionOrInterface?: boolean;
       parentType?: ?string;
     };
-  }): Field {
+  }): ConcreteField {
     const partialMetadata = partialField.metadata || EMPTY_METADATA;
     return {
       alias: partialField.alias,
@@ -133,15 +134,15 @@ const QueryBuilder = {
   },
 
   createFragment(partialFragment: {
-    children?: ?Array<?Selection>;
-    directives?: ?Array<Directive>;
+    children?: ?Array<?ConcreteSelection>;
+    directives?: ?Array<ConcreteDirective>;
     isPlural?: boolean;
     metadata?: ?{
       plural?: boolean;
     };
     name: string;
     type: string;
-  }): Fragment {
+  }): ConcreteFragment {
     const metadata = partialFragment.metadata || EMPTY_METADATA;
     return {
       children: partialFragment.children || EMPTY_CHILDREN,
@@ -156,15 +157,15 @@ const QueryBuilder = {
   },
 
   createMutation(partialMutation: {
-    calls?: ?Array<Call>;
-    children?: ?Array<?Selection>;
-    directives?: ?Array<Directive>;
+    calls?: ?Array<ConcreteCall>;
+    children?: ?Array<?ConcreteSelection>;
+    directives?: ?Array<ConcreteDirective>;
     metadata?: ?{
       inputType?: string;
     };
     name: string;
     responseType: string;
-  }): Mutation {
+  }): ConcreteMutation {
     const metadata = partialMutation.metadata || EMPTY_METADATA;
     return {
       calls: partialMutation.calls || EMPTY_CALLS,
@@ -180,10 +181,10 @@ const QueryBuilder = {
   },
 
   createQuery(partialQuery: {
-    children?: ?Array<?Selection>;
-    directives?: ?Array<Directive>;
+    children?: ?Array<?ConcreteSelection>;
+    directives?: ?Array<ConcreteDirective>;
     fieldName: string;
-    identifyingArgValue: ?Value;
+    identifyingArgValue: ?ConcreteValue;
     isDeferred?: boolean;
     metadata?: ?{
       identifyingArgName?: ?string;
@@ -191,7 +192,7 @@ const QueryBuilder = {
       isDeferred?: ?boolean;
     };
     name: string;
-  }): Query {
+  }): ConcreteQuery {
     const metadata = partialQuery.metadata || EMPTY_METADATA;
     let calls = [];
     let identifyingArgName = metadata.identifyingArgName;
@@ -211,7 +212,7 @@ const QueryBuilder = {
       );
       calls = [QueryBuilder.createCall(
         identifyingArgName,
-        (partialQuery.identifyingArgValue: Value)
+        partialQuery.identifyingArgValue
       )];
     }
     return {
@@ -228,6 +229,80 @@ const QueryBuilder = {
       name: partialQuery.name,
     };
   },
+
+  createSubscription(partialSubscription: {
+    calls?: ?Array<ConcreteCall>;
+    children?: ?Array<?ConcreteSelection>;
+    directives?: ?Array<ConcreteDirective>;
+    metadata?: ?{
+      inputType?: string;
+    };
+    name: string;
+    responseType: string;
+  }): ConcreteSubscription {
+    const metadata = partialSubscription.metadata || EMPTY_METADATA;
+    return {
+      calls: partialSubscription.calls || EMPTY_CALLS,
+      children: partialSubscription.children || EMPTY_CHILDREN,
+      directives: partialSubscription.directives || EMPTY_DIRECTIVES,
+      kind: 'Subscription',
+      metadata: {
+        inputType: metadata.inputType,
+      },
+      name: partialSubscription.name,
+      responseType: partialSubscription.responseType,
+    };
+  },
+
+  getBatchCallVariable(node: mixed): ?ConcreteBatchCallVariable {
+    if (isConcreteKind(node, 'BatchCallVariable')) {
+      return (node: any);
+    }
+  },
+
+  getCallVariable(node: mixed): ?ConcreteCallVariable {
+    if (isConcreteKind(node, 'CallVariable')) {
+      return (node: any);
+    }
+  },
+
+  getField(node: mixed): ?ConcreteField {
+    if (isConcreteKind(node, 'Field')) {
+      return (node: any);
+    }
+  },
+
+  getFragment(node: mixed): ?ConcreteFragment {
+    if (isConcreteKind(node, 'Fragment')) {
+      return (node: any);
+    }
+  },
+
+  getMutation(node: mixed): ?ConcreteMutation {
+    if (isConcreteKind(node, 'Mutation')) {
+      return (node: any);
+    }
+  },
+
+  getQuery(node: mixed): ?ConcreteQuery {
+    if (isConcreteKind(node, 'Query')) {
+      return (node: any);
+    }
+  },
+
+  getSubscription(node: mixed): ?ConcreteSubscription {
+    if (isConcreteKind(node, 'Subscription')) {
+      return (node: any);
+    }
+  },
 };
+
+function isConcreteKind(node: mixed, kind: string): boolean {
+  return (
+    typeof node === 'object' &&
+    node !== null &&
+    node.kind === kind
+  );
+}
 
 module.exports = QueryBuilder;

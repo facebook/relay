@@ -14,7 +14,6 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQL = require('GraphQL');
 var GraphQLRange = require('GraphQLRange');
 var Relay = require('Relay');
 var RelayRecordStore = require('RelayRecordStore');
@@ -421,7 +420,7 @@ describe('readRelayDiskCache', () => {
 
     diskData.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: [],
-      diffCalls: [new GraphQL.Callv('first', 5)],
+      diffCalls: [RelayTestUtils.createCall('first', 5)],
       pageInfo: {},
     });
     var {cacheManager, callbacks} = readDiskCache(queries, diskData);

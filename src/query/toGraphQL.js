@@ -13,10 +13,10 @@
 'use strict';
 
 import type {
-  Field,
-  Fragment,
-  Query,
-  Selection,
+  ConcreteField,
+  ConcreteFragment,
+  ConcreteQuery,
+  ConcreteSelection,
 } from 'ConcreteQuery';
 var QueryBuilder = require('QueryBuilder');
 var RelayQuery = require('RelayQuery');
@@ -32,7 +32,7 @@ var invariant = require('invariant');
  * use in serializing RelayQuery nodes.
  */
 var toGraphQL = {
-  Query(node: RelayQuery.Root): Query {
+  Query(node: RelayQuery.Root): ConcreteQuery {
     return node.getConcreteQueryNode(() => {
       const batchCall = node.getBatchCall();
       let identifyingArgValue;
@@ -69,7 +69,7 @@ var toGraphQL = {
       });
     });
   },
-  Fragment(node: RelayQuery.Fragment): Fragment {
+  Fragment(node: RelayQuery.Fragment): ConcreteFragment {
     return node.getConcreteQueryNode(() => {
       const children = node.getChildren().map(toGraphQLSelection);
       return {
@@ -84,7 +84,7 @@ var toGraphQL = {
       };
     });
   },
-  Field(node: RelayQuery.Field): Field {
+  Field(node: RelayQuery.Field): ConcreteField {
     return node.getConcreteQueryNode(() => {
       const calls = callsToGraphQL(node.getCallsWithValues());
       const children = node.getChildren().map(toGraphQLSelection);
@@ -103,7 +103,7 @@ var toGraphQL = {
 
 function toGraphQLSelection(
   node: RelayQuery.Node
-): Selection  {
+): ConcreteSelection  {
   if (node instanceof RelayQuery.Fragment) {
     return toGraphQL.Fragment(node);
   } else {

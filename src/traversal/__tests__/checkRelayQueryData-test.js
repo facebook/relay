@@ -14,7 +14,6 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQL = require('GraphQL');
 var GraphQLRange = require('GraphQLRange');
 var Relay = require('Relay');
 var RelayConnectionInterface = require('RelayConnectionInterface');
@@ -400,7 +399,7 @@ describe('checkRelayQueryData', () => {
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: [],
-      diffCalls: [new GraphQL.Callv('first', 10)],
+      diffCalls: [RelayTestUtils.createCall('first', 10)],
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 

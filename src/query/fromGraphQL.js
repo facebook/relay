@@ -12,19 +12,12 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL');
 var RelayQuery = require('RelayQuery');
 var RelayMetaRoute = require('RelayMetaRoute');
 
 var invariant = require('invariant');
 
-type ConcreteQueryObject = (
-  GraphQL.Field |
-  GraphQL.Mutation |
-  GraphQL.Query |
-  GraphQL.QueryFragment |
-  GraphQL.Subscription
-);
+type ConcreteQueryObject = mixed;
 type QueryClass = (
   typeof RelayQuery.Field |
   typeof RelayQuery.Fragment |

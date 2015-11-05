@@ -14,7 +14,6 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQL = require('GraphQL');
 var callsFromGraphQL = require('callsFromGraphQL');
 var callsToGraphQL = require('callsToGraphQL');
 
@@ -24,7 +23,7 @@ describe('callsToGraphQL', function() {
       name: 'size',
       value: null,
     }];
-    var graphqlCalls = [new GraphQL.Callv('size', null)];
+    var graphqlCalls = [RelayTestUtils.createCall('size', null)];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
     expect(callsToGraphQL(relayCalls)).toEqual(graphqlCalls);
   });
@@ -34,7 +33,7 @@ describe('callsToGraphQL', function() {
       name: 'size',
       value: [],
     }];
-    var graphqlCalls = [new GraphQL.Callv('size', [])];
+    var graphqlCalls = [RelayTestUtils.createCall('size', [])];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
     expect(callsToGraphQL(relayCalls)).toEqual(graphqlCalls);
   });
@@ -44,7 +43,7 @@ describe('callsToGraphQL', function() {
       name: 'size',
       value: [32, 64],
     }];
-    var graphqlCalls = [new GraphQL.Callv('size', [32, 64])];
+    var graphqlCalls = [RelayTestUtils.createCall('size', [32, 64])];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
     expect(callsToGraphQL(relayCalls)).toEqual(graphqlCalls);
   });
@@ -54,7 +53,7 @@ describe('callsToGraphQL', function() {
       name: 'size',
       value: 32,
     }];
-    var graphqlCalls = [new GraphQL.Callv('size', 32)];
+    var graphqlCalls = [RelayTestUtils.createCall('size', 32)];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
     expect(callsToGraphQL(relayCalls)).toEqual(graphqlCalls);
   });

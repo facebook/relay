@@ -95,12 +95,12 @@ var RelayTestUtils = {
   },
 
   conditionOnType(fragment) {
-    var GraphQL = require('GraphQL');
+    var QueryBuilder = require('QueryBuilder');
     var RelayFragmentReference = require('RelayFragmentReference');
     var invariant = require('invariant');
 
     invariant(
-      GraphQL.isFragment(fragment),
+      !!QueryBuilder.getFragment(fragment),
       'conditionOnType(): Argument must be a GraphQL.QueryFragment.'
     );
     var reference = new RelayFragmentReference(
@@ -111,13 +111,24 @@ var RelayTestUtils = {
     return reference;
   },
 
+  createCall(name, value) {
+    var QueryBuilder = require('QueryBuilder');
+
+    if (Array.isArray(value)) {
+      value = value.map(QueryBuilder.createCallValue);
+    } else if (value != null) {
+      value = QueryBuilder.createCallValue(value);
+    }
+    return QueryBuilder.createCall(name, value);
+  },
+
   defer(fragment) {
-    var GraphQL = require('GraphQL');
+    var QueryBuilder = require('QueryBuilder');
     var RelayFragmentReference = require('RelayFragmentReference');
     var invariant = require('invariant');
 
     invariant(
-      GraphQL.isFragment(fragment),
+      !!QueryBuilder.getFragment(fragment),
       'defer(): Argument must be a GraphQL.QueryFragment.'
     );
     var reference = new RelayFragmentReference(
@@ -133,8 +144,7 @@ var RelayTestUtils = {
     var RelayQuery = require('RelayQuery');
 
     var route = RelayMetaRoute.get('$RelayTestUtils');
-    variables = variables || {};
-    return RelayQuery.Node.create(node, route, variables);
+    return RelayQuery.Node.create(node, route, variables || {});
   },
 
   getPointer(dataID, fragment) {
@@ -158,7 +168,6 @@ var RelayTestUtils = {
    * `Relay.QL` as a basis and attach the appropriate args and ref params.
    */
   getRefNode(node, refParam) {
-    var GraphQL = require('GraphQL');
     var QueryBuilder = require('QueryBuilder');
     var RelayQuery = require('RelayQuery');
     var RelayMetaRoute = require('RelayMetaRoute');
@@ -173,7 +182,7 @@ var RelayTestUtils = {
       node.calls[0].value[0] :
       node.calls[0].value;
     invariant(
-      GraphQL.isCallVariable(callValue),
+      !!QueryBuilder.getCallVariable(callValue),
       'getRefNode(): Expected a batch call variable, got `%s`.',
       JSON.stringify(callValue)
     );

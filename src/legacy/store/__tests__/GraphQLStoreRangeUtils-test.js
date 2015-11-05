@@ -16,7 +16,7 @@ require('RelayTestUtils').unmockRelay();
 jest
   .dontMock('GraphQLStoreRangeUtils');
 
-var GraphQL = require('GraphQL');
+var QueryBuilder = require('QueryBuilder');
 var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 
 describe('GraphQLStoreRangeUtils', () => {
@@ -25,14 +25,14 @@ describe('GraphQLStoreRangeUtils', () => {
     var id = 'client:1';
     var callValues = {count: '1', cursor: '123456'};
 
-    var firstCall = new GraphQL.Callv(
+    var firstCall = QueryBuilder.createCall(
       'first',
-      new GraphQL.CallVariable('count')
+      QueryBuilder.createCallVariable('count')
     );
 
-    var afterCall = new GraphQL.Callv(
+    var afterCall = QueryBuilder.createCall(
       'after',
-      new GraphQL.CallVariable('cursor')
+      QueryBuilder.createCallVariable('cursor')
     );
 
     var calls = [firstCall, afterCall];

@@ -32,11 +32,11 @@ var GraphQLStoreTestUtils = {
      * Checks that two query fragments match.
      */
     toMatchQueryFragment: function(expected) {
-      var GraphQL = require('GraphQL');
+      var QueryBuilder = require('QueryBuilder');
 
       var actual = this.actual;
 
-      if (!(GraphQL.isFragment(actual))) {
+      if (!QueryBuilder.getFragment(actual)) {
         this.message = () => 'Not a QueryFragment';
         return false;
       }

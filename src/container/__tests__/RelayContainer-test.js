@@ -18,7 +18,6 @@ jest
   .dontMock('RelayContainerComparators')
   .mock('warning');
 
-var GraphQL = require('GraphQL');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var GraphQLStoreTestUtils = require('GraphQLStoreTestUtils');
 var QueryBuilder = require('QueryBuilder');
@@ -238,7 +237,7 @@ describe('RelayContainer', function() {
       // hasSideshow: true
       var fragment = getNode(
         MockSideshow.getFragment('viewer', {
-          hasSideshow: new GraphQL.CallVariable('sideshow')
+          hasSideshow: QueryBuilder.createCallVariable('sideshow'),
         }),
         {sideshow: true}
       );
@@ -252,7 +251,7 @@ describe('RelayContainer', function() {
       // hasSideshow: false
       fragment = getNode(
         MockSideshow.getFragment('viewer', {
-          hasSideshow: new GraphQL.CallVariable('sideshow')
+          hasSideshow: QueryBuilder.createCallVariable('sideshow'),
         }),
         {sideshow: false}
       );

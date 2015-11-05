@@ -13,7 +13,10 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL');
+import type {
+  ConcreteFragment,
+  ConcreteQuery,
+} from 'ConcreteQuery';
 var Map = require('Map');
 var QueryBuilder = require('QueryBuilder');
 import type {RelayConcreteNode} from 'RelayQL';
@@ -66,7 +69,7 @@ var buildRQL = {
   Fragment(
     fragmentBuilder: RelayQLFragmentBuilder,
     values: Variables
-  ): ?GraphQL.QueryFragment {
+  ): ?ConcreteFragment {
     var node = fragmentCache.get(fragmentBuilder);
     if (!node) {
       var variables = toVariables(values);
@@ -78,7 +81,9 @@ var buildRQL = {
       node = fragmentBuilder(variables);
       fragmentCache.set(fragmentBuilder, node);
     }
-    return GraphQL.isFragment(node) ? node : undefined;
+    if (node) {
+      return QueryBuilder.getFragment(node);
+    }
   },
 
   Query(
@@ -86,9 +91,9 @@ var buildRQL = {
     Component: any,
     queryName: string,
     values: Variables
-  ): ?GraphQL.Query {
-    var componentCache = queryCache.get(queryBuilder);
-    var node;
+  ): ?ConcreteQuery {
+    let componentCache = queryCache.get(queryBuilder);
+    let node;
     if (!componentCache) {
       componentCache = new Map();
       queryCache.set(queryBuilder, componentCache);
@@ -96,7 +101,7 @@ var buildRQL = {
       node = componentCache.get(Component);
     }
     if (!node) {
-      var variables = toVariables(values);
+      const variables = toVariables(values);
       invariant(
         !isDeprecatedCallWithArgCountGreaterThan(queryBuilder, 2),
         'Relay.QL: Deprecated usage detected. If you are trying to define a ' +
@@ -106,36 +111,41 @@ var buildRQL = {
         node = queryBuilder(Component, variables);
       } else {
         node = queryBuilder(Component, variables);
-        if (GraphQL.isQuery(node) && node.fragments.length === 0) {
-          if (!node.fields.every(field => field.fields.length === 0)) {
-            invariant(
-              false,
-              'Relay.QL: Expected query `%s` to be empty. For example, use ' +
-              '`node(id: $id)`, not `node(id: $id) { ... }`.',
-              node.fieldName
+        const query = QueryBuilder.getQuery(node);
+        if (query) {
+          const hasScalarFieldsOnly = query.children.every(child => {
+            return (
+              !child ||
+              (child.kind === 'Field' && child.children.length === 0)
             );
-          }
+          });
+          invariant(
+            hasScalarFieldsOnly,
+            'Relay.QL: Expected query `%s` to be empty. For example, use ' +
+            '`node(id: $id)`, not `node(id: $id) { ... }`.',
+            query.fieldName
+          );
           var fragmentValues = filterObject(values, (_, name) =>
             Component.hasVariable(name)
           );
           var fragment = Component.getFragment(queryName, fragmentValues);
           node = {
-            ...node,
-            children: [...node.children, fragment],
+            ...query,
+            children: [...query.children, fragment],
           };
         }
       }
       componentCache.set(Component, node);
     }
     if (node) {
-      return GraphQL.isQuery(node) ? node : undefined;
+      return QueryBuilder.getQuery(node) || undefined;
     }
     return null;
   },
 };
 
 function toVariables(variables: Variables): {
-  [key: string]: GraphQL.CallVariable;
+  [key: string]: $FlowIssue; // ConcreteCallVariable should flow into mixed
 } {
   return mapObject(
     variables,

@@ -14,7 +14,7 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQL = require('GraphQL');
+var QueryBuilder = require('QueryBuilder');
 var Relay = require('Relay');
 var RelayFragmentReference = require('RelayFragmentReference');
 var RelayMetaRoute = require('RelayMetaRoute');
@@ -62,7 +62,7 @@ describe('RelayQuery', () => {
         var root = RelayQuery.Root.build(
           'RelayQueryTest',
           'node',
-          new GraphQL.BatchCallVariable('q0', '$.*.id'),
+          QueryBuilder.createBatchCallVariable('q0', '$.*.id'),
           []
         );
         expect(root instanceof RelayQuery.Root).toBe(true);
@@ -326,7 +326,7 @@ describe('RelayQuery', () => {
           size: 'default',
         },
         {
-          size: new GraphQL.CallVariable('outerSize'),
+          size: QueryBuilder.createCallVariable('outerSize'),
         }
       );
       var fragment = getNode(Relay.QL`

@@ -22,7 +22,6 @@ jest
   .dontMock('GraphQLQueryRunner');
 
 var DliteFetchModeConstants = require('DliteFetchModeConstants');
-var GraphQL = require('GraphQL');
 var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var Relay = require('Relay');
 var RelayNetworkLayer = require('RelayNetworkLayer');

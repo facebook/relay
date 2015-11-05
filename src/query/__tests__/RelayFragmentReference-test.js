@@ -16,7 +16,7 @@ RelayTestUtils.unmockRelay();
 
 jest.mock('warning');
 
-var GraphQL = require('GraphQL');
+var QueryBuilder = require('QueryBuilder');
 var Relay = require('Relay');
 var RelayFragmentReference = require('RelayFragmentReference');
 var RelayMetaRoute = require('RelayMetaRoute');
@@ -70,7 +70,7 @@ describe('RelayFragmentReference', () => {
         size: 'default',
       },
       {
-        size: new GraphQL.CallVariable('outerSize'),
+        size: QueryBuilder.createCallVariable('outerSize'),
       }
     );
     // no outer variable, default is used
@@ -102,8 +102,8 @@ describe('RelayFragmentReference', () => {
   it('creates fragments with if/unless conditions', () => {
     var node = Relay.QL`fragment on Node{id}`;
     var reference = new RelayFragmentReference(() => node, {});
-    reference.if(new GraphQL.CallVariable('if'));
-    reference.unless(new GraphQL.CallVariable('unless'));
+    reference.if(QueryBuilder.createCallVariable('if'));
+    reference.unless(QueryBuilder.createCallVariable('unless'));
 
     var fragment = reference.getFragment({if: true, unless: false});
     expect(fragment).toBe(node);
@@ -148,7 +148,7 @@ describe('RelayFragmentReference', () => {
       () => node,
       {},
       {
-        dynamic: new GraphQL.CallVariable('dynamic'),
+        dynamic: QueryBuilder.createCallVariable('dynamic'),
         static: undefined,
       }
     );

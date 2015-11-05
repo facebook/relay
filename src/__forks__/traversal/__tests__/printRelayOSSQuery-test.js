@@ -14,7 +14,7 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQL = require('GraphQL');
+var QueryBuilder = require('QueryBuilder');
 var Relay = require('Relay');
 var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQuery = require('RelayQuery');
@@ -194,7 +194,7 @@ describe('printRelayOSSQuery', () => {
       var query = RelayQuery.Root.build(
         'RefQueryName',
         RelayNodeInterface.NODE,
-        new GraphQL.BatchCallVariable('q0', '$.*.actor.id'),
+        QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id'),
         [
           RelayQuery.Field.build('id'),
           RelayQuery.Field.build('name'),

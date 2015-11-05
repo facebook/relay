@@ -19,58 +19,60 @@
  * Types representing the transformed output of Relay.QL queries.
  */
 
-export type Selection = Field | Fragment;
+export type ConcreteSelection =
+  ConcreteField |
+  ConcreteFragment;
 
-export type Value =
-  BatchCallVariable |
-  CallValue |
-  CallVariable |
-  Array<CallValue>;
+export type ConcreteValue =
+  ConcreteBatchCallVariable |
+  ConcreteCallValue |
+  ConcreteCallVariable |
+  Array<ConcreteCallValue | ConcreteCallVariable>;
 
-export type DirectiveValue =
-  CallValue |
-  CallVariable |
-  Array<CallValue>;
+export type ConcreteDirectiveValue =
+  ConcreteCallValue |
+  ConcreteCallVariable |
+  Array<ConcreteCallValue | ConcreteCallVariable>;
 
-export type BatchCallVariable = {
+export type ConcreteBatchCallVariable = {
   jsonPath: string;
   kind: 'BatchCallVariable';
   sourceQueryID: string;
 };
 
-export type Call = {
+export type ConcreteCall = {
   kind: 'Call';
   metadata: {
     type: ?string;
   };
   name: string;
-  value: ?Value;
+  value: ?ConcreteValue;
 };
 
-export type CallValue = {
+export type ConcreteCallValue = {
   callValue: mixed;
   kind: 'CallValue';
 }
 
-export type CallVariable = {
+export type ConcreteCallVariable = {
   callVariableName: string;
   kind: 'CallVariable';
 };
 
-export type Directive = {
-  arguments: ?Array<{
+export type ConcreteDirective = {
+  arguments: Array<{
     name: string;
-    value: ?DirectiveValue;
+    value: ?ConcreteDirectiveValue;
   }>;
   kind: 'Directive';
   name: string;
 };
 
-export type Field = {
+export type ConcreteField = {
   alias: ?string;
-  calls: Array<Call>;
-  children: Array<?Selection>;
-  directives: Array<Directive>;
+  calls: Array<ConcreteCall>;
+  children: Array<?ConcreteSelection>;
+  directives: Array<ConcreteDirective>;
   fieldName: string;
   kind: 'Field';
   metadata: {
@@ -86,9 +88,9 @@ export type Field = {
   };
 };
 
-export type Fragment = {
-  children: Array<?Selection>;
-  directives: Array<Directive>;
+export type ConcreteFragment = {
+  children: Array<?ConcreteSelection>;
+  directives: Array<ConcreteDirective>;
   kind: 'Fragment';
   metadata: {
     isPlural?: boolean; // FB Printer
@@ -98,10 +100,10 @@ export type Fragment = {
   type: string;
 };
 
-export type Mutation = {
-  calls: Array<Call>;
-  children: Array<?Selection>;
-  directives: Array<Directive>;
+export type ConcreteMutation = {
+  calls: Array<ConcreteCall>;
+  children: Array<?ConcreteSelection>;
+  directives: Array<ConcreteDirective>;
   kind: 'Mutation';
   metadata: {
     inputType: ?string;
@@ -110,10 +112,10 @@ export type Mutation = {
   responseType: string;
 };
 
-export type Query = {
-  calls: Array<Call>;
-  children: Array<?Selection>;
-  directives: Array<Directive>;
+export type ConcreteQuery = {
+  calls: Array<ConcreteCall>;
+  children: Array<?ConcreteSelection>;
+  directives: Array<ConcreteDirective>;
   fieldName: string;
   isDeferred: boolean;
   kind: 'Query';
@@ -124,14 +126,14 @@ export type Query = {
   name: string;
 };
 
-export type Subscription = {
-  calls: Array<Call>;
-  children: Array<?Selection>;
-  directives: Array<Directive>;
+export type ConcreteSubscription = {
+  calls: Array<ConcreteCall>;
+  children: Array<?ConcreteSelection>;
+  directives: Array<ConcreteDirective>;
   kind: 'Subscription';
   name: string;
   responseType: string;
   metadata: {
-    inputType: string;
+    inputType: ?string;
   };
 };

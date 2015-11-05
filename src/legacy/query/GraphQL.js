@@ -42,11 +42,6 @@ const SUBSCRIPTION = 'Subscription';
  * use `GraphQLNode` as a type throughout Dlite.
  */
 class GraphQLNode {
-
-  /**
-   * @param {?array<GraphQLFieldNode>} fields
-   * @param {?array<GraphQLQueryFragment|RelayRouteFragment|RelayFragmentReference>} fragments
-   */
   constructor(fields, fragments) {
     this.fields = fields || EMPTY_ARRAY;
     this.fragments = fragments && fragments.length > 0 ?
@@ -61,11 +56,6 @@ class GraphQLNode {
  * Represents a GraphQL call such as `size(50, 50)` or `(size: 32)`.
  */
 class GraphQLCallvNode {
-  /**
-   * @param {string} name
-   * @param {*} value (array or scalar)
-   * @param {?object} metadata
-   */
   constructor(name, value, metadata) {
     this.kind = CALL;
     this.value = map(value, castArg) || null;
@@ -79,9 +69,6 @@ class GraphQLCallvNode {
  * in a call like `first(5)`).
  */
 class GraphQLCallValue {
-  /**
-   * @param {*} value
-   */
   constructor(value) {
     this.kind = CALL_VALUE;
     this.callValue = value;
@@ -105,10 +92,6 @@ class GraphQLCallValue {
  * @see https://our.intern.facebook.com/intern/dex/graphql-batch-api
  */
 class GraphQLBatchCallVariable {
-  /**
-   * @param {string} sourceQueryID
-   * @param {string} jsonPath
-   */
   constructor(sourceQueryID, jsonPath) {
     this.kind = BATCH_CALL_VARIABLE;
     this.sourceQueryID = sourceQueryID;
@@ -124,9 +107,6 @@ class GraphQLBatchCallVariable {
  *     new GraphQL.CallVariable('foo') // variable: <foo>
  */
 class GraphQLCallVariable {
-  /**
-   * @param {string} variableName
-   */
   constructor(variableName) {
     this.kind = CALL_VARIABLE;
     this.callVariableName = variableName;
@@ -140,16 +120,6 @@ class GraphQLCallVariable {
  * subfields, nested fragments.
  */
 class GraphQLFieldNode extends GraphQLNode {
-  /**
-   * @param {string} fieldName
-   * @param {?array<GraphQLFieldNode>} fields
-   * @param {?array<GraphQLQueryFragment|RelayRouteFragment|RelayFragmentReference>} fragments
-   * @param {?array<GraphQLCallvNode>} calls
-   * @param {?string} alias
-   * @param {?string} condition
-   * @param {?object} metadata
-   * @param {?array} directives
-   */
   constructor(fieldName, fields, fragments, calls, alias, condition, metadata, directives) {
     super(fields, fragments);
 
@@ -183,12 +153,6 @@ class GraphQLFieldNode extends GraphQLNode {
  * A fragment may contain zero or more fields and/or additional fragments.
  */
 class GraphQLQueryFragment extends GraphQLNode {
-  /**
-   * @param {string} name
-   * @param {string} type
-   * @param {?array<GraphQLFieldNode>} fields
-   * @param {?array<GraphQLQueryFragment|RelayRouteFragment|RelayFragmentReference>} fragments
-   */
   constructor(name, type, fields, fragments, metadata, directives) {
     super(fields, fragments);
     this.kind = FRAGMENT;
@@ -205,15 +169,6 @@ class GraphQLQueryFragment extends GraphQLNode {
  * Queries may contain zero or more fields, and/or subfragments.
  */
 class GraphQLQuery extends GraphQLNode {
-  /**
-   * @param {string} fieldName
-   * @param {*} value
-   * @param {?array<GraphQLFieldNode>} fields
-   * @param {?array<GraphQLQueryFragment|RelayRouteFragment|RelayFragmentReference>} fragments
-   * @param {?object} metadata
-   * @param {?string} queryName
-   * @param {?array} directives
-   */
   constructor(
     fieldName,
     value,
@@ -257,11 +212,6 @@ class GraphQLQuery extends GraphQLNode {
  * Base class from which GraphQLMutation and GraphQLSubscription extend.
  */
 class GraphQLOperation extends GraphQLNode {
-  /**
-   * @param {string} name
-   * @param {string} responseType
-   * @param {GraphQLCallvNode} call
-   */
   constructor(name, responseType, call, fields, fragments, metadata) {
     super(fields, fragments);
     this.name = name;
@@ -291,10 +241,6 @@ class GraphQLSubscription extends GraphQLOperation {
   }
 }
 
-/**
- * @param {*} thing
- * @return {boolean}
- */
 function isTruthy(thing) {
   return !!thing;
 }
@@ -312,11 +258,6 @@ function map(value, fn) {
   }
 }
 
-/**
- * @param {*} arg
- *
- * TODO: Stop casting args once internal plugin prints call values.
- */
 function castArg(arg) {
   if (
     arg instanceof GraphQLCallValue ||

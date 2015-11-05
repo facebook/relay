@@ -13,7 +13,6 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayNodeInterface = require('RelayNodeInterface');

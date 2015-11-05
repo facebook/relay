@@ -13,16 +13,25 @@
 
 'use strict';
 
+import type {ConcreteCall} from 'ConcreteQuery';
 import type {Call} from 'RelayInternalTypes';
-var GraphQL = require('GraphQL');
+const QueryBuilder = require('QueryBuilder');
 
 /**
  * @internal
  *
- * Convert from plain object `{name,value}` calls to GraphQL call nodes.
+ * Convert from plain object `{name, value}` calls to GraphQL call nodes.
  */
-function callsToGraphQL(calls: Array<Call>): Array<GraphQL.Call> {
-  return calls.map(({name, value}) => new GraphQL.Callv(name, value));
+function callsToGraphQL(calls: Array<Call>): Array<ConcreteCall> {
+  return calls.map(({name, value}) => {
+    let concreteValue = null;
+    if (Array.isArray(value)) {
+      concreteValue = value.map(QueryBuilder.createCallValue);
+    } else if (value != null)  {
+      concreteValue = QueryBuilder.createCallValue(value);
+    }
+    return QueryBuilder.createCall(name, concreteValue);
+  });
 }
 
 module.exports = callsToGraphQL;

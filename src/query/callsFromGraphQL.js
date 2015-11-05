@@ -13,11 +13,20 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL');
+import type {
+  ConcreteValue,
+  ConcreteCallValue,
+  ConcreteCallVariable,
+} from 'ConcreteQuery';
 import type {Call, CallValue} from 'RelayInternalTypes';
 import type {Variables} from 'RelayTypes';
 
 var invariant = require('invariant');
+
+type CallOrDirective = {
+  name: string;
+  value: ?ConcreteValue;
+};
 
 /**
  * @internal
@@ -25,48 +34,41 @@ var invariant = require('invariant');
  * Convert from GraphQL call nodes to plain object `{name,value}` calls.
  */
 function callsFromGraphQL(
-  concreteCalls: Array<GraphQL.Call>,
+  concreteCalls: Array<CallOrDirective>,
   variables: Variables
 ): Array<Call> {
   var orderedCalls = [];
   for (var ii = 0; ii < concreteCalls.length; ii++) {
     var {name, value} = concreteCalls[ii];
-    // Batch calls are handled separately
-    if (
-      GraphQL.isBatchCallVariable(value) ||
-      (Array.isArray(value) && value.some(GraphQL.isBatchCallVariable))
-    ) {
-      value = null;
-    } else if (Array.isArray(value)) {
-      value = value.map(arg => getCallValue(arg, variables));
-    } else if (value != null) {
-      value = getCallValue(value, variables);
+    if (value != null) {
+      if (Array.isArray(value)) {
+        value = value.map(arg => getCallVaue(arg, variables));
+      } else if (value.kind === 'BatchCallVariable') {
+        // Batch calls are handled separately
+        value = null;
+      } else {
+        value = getCallVaue(value, variables);
+      }
     }
-
     orderedCalls.push({name, value});
   }
   return orderedCalls;
 }
 
-function getCallValue(
-  arg: GraphQL.CallValue | GraphQL.CallVariable | GraphQL.BatchCallVariable,
+function getCallVaue(
+  value: ConcreteCallValue | ConcreteCallVariable,
   variables: Variables
 ): ?CallValue {
-  if (GraphQL.isCallVariable(arg)) {
-    var variableName = arg.callVariableName;
+  if (value.kind === 'CallValue') {
+    return value.callValue;
+  } else {
+    var variableName = value.callVariableName;
     invariant(
       variables.hasOwnProperty(variableName),
       'callsFromGraphQL(): Expected a declared value for variable, `$%s`.',
       variableName
     );
     return variables[variableName];
-  } else {
-    invariant(
-      GraphQL.isCallValue(arg),
-      'callsFromGraphQL(): Expected an inline value or variable, got `%s`.',
-      JSON.stringify(arg)
-    );
-    return (arg.callValue: any);
   }
 }
 

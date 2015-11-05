@@ -13,7 +13,11 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL');
+import type {
+  ConcreteField,
+  ConcreteFragment,
+  ConcreteQuery,
+} from 'ConcreteQuery';
 var QueryBuilder = require('QueryBuilder');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayFragmentReference = require('RelayFragmentReference');
@@ -49,17 +53,17 @@ type FragmentNames = {[key: string]: string};
 type NextChildren = Array<any>;
 
 // conditional field calls/values
-var IF = 'if';
-var UNLESS = 'unless';
-var TRUE = 'true';
-var FALSE = 'false';
+const IF = 'if';
+const UNLESS = 'unless';
+const TRUE = 'true';
+const FALSE = 'false';
 
-var QUERY_ID_PREFIX = 'q';
-var REF_PARAM_PREFIX = 'ref_';
+const QUERY_ID_PREFIX = 'q';
+const REF_PARAM_PREFIX = 'ref_';
 
-var _nextQueryID = 0;
+let _nextQueryID = 0;
 
-var DEFAULT_FRAGMENT_METADATA = {
+const DEFAULT_FRAGMENT_METADATA = {
   isDeferred: false,
   isContainerFragment: false,
   isTypeConditional: false,
@@ -105,7 +109,7 @@ class RelayQueryNode {
   __isConcreteNodeCached__: boolean;
 
   static create(
-    concreteNode: ConcreteQueryObject,
+    concreteNode: mixed,
     route: RelayMetaRoute,
     variables: Variables
   ): RelayQueryNode {
@@ -334,20 +338,19 @@ class RelayQueryRoot extends RelayQueryNode {
   static build(
     name: string,
     fieldName: string,
-    callValue: ?(string | Array<string> | GraphQL.BatchCallVariable),
+    value: mixed,
     children: ?Array<RelayQueryNode>,
     metadata: ?{[key: string]: mixed}
   ): RelayQueryRoot {
     const nextChildren = children ? children.filter(child => !!child) : [];
+    const batchCallVariable = QueryBuilder.getBatchCallVariable(value);
     let identifyingArgValue;
-    if (Array.isArray(callValue)) {
-      identifyingArgValue = callValue.map(
-        QueryBuilder.createCallValue
-      );
-    } else if (typeof callValue === 'string') {
-      identifyingArgValue = QueryBuilder.createCallValue(callValue);
-    } else {
-      identifyingArgValue = callValue;
+    if (batchCallVariable) {
+      identifyingArgValue = batchCallVariable;
+    } else if (Array.isArray(value)) {
+      identifyingArgValue = value.map(QueryBuilder.createCallValue);
+    } else if (value) {
+      identifyingArgValue = QueryBuilder.createCallValue(value);
     }
     const concreteRoot = QueryBuilder.createQuery({
       fieldName,
@@ -365,24 +368,25 @@ class RelayQueryRoot extends RelayQueryNode {
   }
 
   static create(
-    concreteNode: ConcreteQueryObject,
+    concreteNode: mixed,
     route: RelayMetaRoute,
     variables: Variables
   ): RelayQueryRoot {
+    const query = QueryBuilder.getQuery(concreteNode);
     invariant(
-      GraphQL.isQuery(concreteNode),
+      query,
       'RelayQueryRoot.create(): Expected a GraphQL `query { ... }`, got: %s',
       concreteNode
     );
     return new RelayQueryRoot(
-      concreteNode,
+      query,
       route,
       variables
     );
   }
 
   constructor(
-    concreteNode: ConcreteQueryObject,
+    concreteNode: ConcreteQuery,
     route: RelayMetaRoute,
     variables: Variables
   ) {
@@ -420,7 +424,7 @@ class RelayQueryRoot extends RelayQueryNode {
     if (batchCall === undefined) {
       var concreteCalls = this.__concreteNode__.calls;
       var callArg = concreteCalls[0] && concreteCalls[0].value;
-      if (callArg != null && GraphQL.isBatchCallVariable(callArg)) {
+      if (callArg != null && callArg.kind === 'BatchCallVariable') {
         batchCall = {
           refParamName: REF_PARAM_PREFIX + callArg.sourceQueryID,
           sourceQueryID: callArg.sourceQueryID,
@@ -576,12 +580,12 @@ class RelayQueryOperation extends RelayQueryNode {
   getCallVariableName(): string {
     if (!this.__callVariableName__) {
       var concreteCalls = this.__concreteNode__.calls;
-      var callArg = concreteCalls[0].value;
+      var callVariable = QueryBuilder.getCallVariable(concreteCalls[0].value);
       invariant(
-        GraphQL.isCallVariable(callArg),
+        callVariable,
         'RelayQuery: Expected mutation to have a single argument.'
       );
-      this.__callVariableName__ = callArg.callVariableName;
+      this.__callVariableName__ = callVariable.callVariableName;
     }
     return this.__callVariableName__;
   }
@@ -648,12 +652,13 @@ class RelayQueryMutation extends RelayQueryOperation {
  */
 class RelayQuerySubscription extends RelayQueryOperation {
   static create(
-    concreteNode: ConcreteQueryObject,
+    concreteNode: mixed,
     route: RelayMetaRoute,
     variables: Variables
   ): RelayQuerySubscription {
+    const subscription = QueryBuilder.getSubscription(concreteNode);
     invariant(
-      GraphQL.isSubscription(concreteNode),
+      subscription,
       'RelayQuerySubscription.create(): ' +
       'Expected a GraphQL `subscription { ... }`, got: %s',
       concreteNode
@@ -692,8 +697,6 @@ class RelayQuerySubscription extends RelayQueryOperation {
  * @internal
  *
  * Wraps access to query fragments.
- *
- * Note: place proxy methods for `GraphQL.QueryFragment` here.
  */
 class RelayQueryFragment extends RelayQueryNode {
   __fragmentID__: ?string;
@@ -730,19 +733,20 @@ class RelayQueryFragment extends RelayQueryNode {
   }
 
   static create(
-    concreteNode: ConcreteQueryObject,
+    concreteNode: mixed,
     route: RelayMetaRoute,
     variables: Variables,
     metadata?: ?FragmentMetadata
   ): RelayQueryFragment {
+    const fragment = QueryBuilder.getFragment(concreteNode);
     invariant(
-      GraphQL.isFragment(concreteNode),
+      fragment,
       'RelayQueryFragment.create(): ' +
       'Expected a GraphQL `fragment { ... }`, got: %s',
       concreteNode
     );
     return createMemoizedFragment(
-      concreteNode,
+      fragment,
       route,
       variables,
       metadata || DEFAULT_FRAGMENT_METADATA
@@ -750,7 +754,7 @@ class RelayQueryFragment extends RelayQueryNode {
   }
 
   constructor(
-    concreteNode: ConcreteQueryObject,
+    concreteNode: ConcreteFragment,
     route: RelayMetaRoute,
     variables: Variables,
     metadata?: FragmentMetadata
@@ -845,8 +849,6 @@ class RelayQueryFragment extends RelayQueryNode {
  * @internal
  *
  * Wraps access to query fields.
- *
- * Note: place proxy methods for `GraphQL.Field` here.
  */
 class RelayQueryField extends RelayQueryNode {
   __debugName__: ?string;
@@ -854,17 +856,18 @@ class RelayQueryField extends RelayQueryNode {
   __rangeBehaviorKey__: ?string;
 
   static create(
-    concreteNode: ConcreteQueryObject,
+    concreteNode: mixed,
     route: RelayMetaRoute,
     variables: Variables
   ): RelayQueryField {
+    const field = QueryBuilder.getField(concreteNode);
     invariant(
-      GraphQL.isField(concreteNode),
+      field,
       'RelayQueryField.create(): Expected a GraphQL field, got: %s',
       concreteNode
     );
     return new RelayQueryField(
-      concreteNode,
+      field,
       route,
       variables
     );
@@ -898,7 +901,7 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   constructor(
-    concreteNode: ConcreteQueryObject,
+    concreteNode: ConcreteField,
     route: RelayMetaRoute,
     variables: Variables
   ) {
@@ -1181,21 +1184,28 @@ class RelayQueryField extends RelayQueryNode {
 }
 
 function createNode(
-  concreteNode: ConcreteQueryObject,
+  concreteNode: mixed,
   route: RelayMetaRoute,
   variables: Variables
 ): ?RelayQueryNode {
-  // unused default value keeps flow happy
-  var type = RelayQueryNode;
-  if (GraphQL.isField(concreteNode)) {
+  invariant(
+    typeof concreteNode === 'object' &&
+    concreteNode !== null,
+    'RelayQueryNode: Expected a GraphQL object created with `Relay.QL`, got' +
+    '`%s`.',
+    JSON.stringify(concreteNode)
+  );
+  const kind = concreteNode.kind;
+  let type = RelayQueryNode;
+  if (kind === 'Field') {
     type = RelayQueryField;
-  } else if (GraphQL.isFragment(concreteNode)) {
+  } else if (kind === 'Fragment') {
     type = RelayQueryFragment;
-  } else if (GraphQL.isQuery(concreteNode)) {
+  } else if (kind === 'Query') {
     type = RelayQueryRoot;
-  } else if (GraphQL.isMutation(concreteNode)) {
+  } else if (kind === 'Mutation') {
     type = RelayQueryMutation;
-  } else if (GraphQL.isSubscription(concreteNode)) {
+  } else if (kind === 'Subscription') {
     type = RelayQuerySubscription;
   } else if (concreteNode instanceof RelayRouteFragment) {
     var routeFragment = concreteNode.getFragmentForRoute(route);
@@ -1213,10 +1223,6 @@ function createNode(
     var fragmentVariables = concreteNode.getVariables(route, variables);
     if (fragment) {
       // the fragment may be null when `if` or `unless` conditions are not met.
-      invariant(
-        GraphQL.isFragment(fragment),
-        'RelayQuery: Invalid fragment reference, expected query fragment.'
-      );
       return createMemoizedFragment(
         fragment,
         route,
@@ -1230,32 +1236,28 @@ function createNode(
     }
     return null;
   } else {
-    invariant(
-      false,
-      'RelayQueryNode: Expected a GraphQL fragment, mutation, or query.'
-    );
   }
   return new type(
-    concreteNode,
+    (concreteNode: any),
     route,
     variables
   );
 }
 
 /**
- * Memoizes the `RelayQueryFragment` equivalent of a given `GraphQL` fragment
+ * Memoizes the `RelayQueryFragment` equivalent of a given GraphQL fragment
  * for the given route, variables, and deferred status.
  */
 function createMemoizedFragment(
-  concreteFragment: GraphQL.QueryFragment,
+  concreteFragment: ConcreteFragment,
   route: RelayMetaRoute,
   variables: Variables,
   metadata: FragmentMetadata
 ): RelayQueryFragment {
   var cacheKey = route.name + ':' + stableStringify(variables) + ':' +
     stableStringify(metadata);
-  var fragment = concreteFragment.__cachedFragment__;
-  var fragmentCacheKey = concreteFragment.__cacheKey__;
+  var fragment = (concreteFragment: any).__cachedFragment__;
+  var fragmentCacheKey = (concreteFragment: any).__cacheKey__;
   if (!fragment || fragmentCacheKey !== cacheKey) {
     fragment = new RelayQueryFragment(
       concreteFragment,
@@ -1263,8 +1265,8 @@ function createMemoizedFragment(
       variables,
       metadata
     );
-    concreteFragment.__cachedFragment__ = fragment;
-    concreteFragment.__cacheKey__ = cacheKey;
+    (concreteFragment: any).__cachedFragment__ = fragment;
+    (concreteFragment: any).__cacheKey__ = cacheKey;
   }
   return fragment;
 }

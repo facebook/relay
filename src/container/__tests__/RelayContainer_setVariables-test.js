@@ -13,7 +13,6 @@
 
 require('RelayTestUtils').unmockRelay();
 
-var GraphQL = require('GraphQL');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var QueryBuilder = require('QueryBuilder');
 var React = require('React');

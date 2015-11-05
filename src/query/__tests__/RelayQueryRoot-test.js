@@ -14,7 +14,6 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQL = require('GraphQL');
 var QueryBuilder = require('QueryBuilder');
 var Relay = require('Relay');
 var RelayQuery = require('RelayQuery');

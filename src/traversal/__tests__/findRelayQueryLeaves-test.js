@@ -14,7 +14,6 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQL = require('GraphQL');
 var GraphQLRange = require('GraphQLRange');
 var Relay = require('Relay');
 var RelayConnectionInterface = require('RelayConnectionInterface');
@@ -641,7 +640,7 @@ describe('findRelayQueryLeaves', () => {
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: [],
-      diffCalls: [new GraphQL.Callv('first', 10)],
+      diffCalls: [RelayTestUtils.createCall('first', 10)],
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
     var result = findLeaves(
@@ -677,7 +676,7 @@ describe('findRelayQueryLeaves', () => {
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: [],
-      diffCalls: [new GraphQL.Callv('first', 10)],
+      diffCalls: [RelayTestUtils.createCall('first', 10)],
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
     var result = findLeaves(
@@ -711,7 +710,7 @@ describe('findRelayQueryLeaves', () => {
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
-    var rangeCalls = [new GraphQL.Callv('first', 10)];
+    var rangeCalls = [RelayTestUtils.createCall('first', 10)];
     var result = findLeaves(
       queryNode,
       'friends_id',
@@ -756,7 +755,7 @@ describe('findRelayQueryLeaves', () => {
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
-    var rangeCalls = [new GraphQL.Callv('first', 10)];
+    var rangeCalls = [RelayTestUtils.createCall('first', 10)];
     var result = findLeaves(
       queryNode,
       'friends_id',
@@ -802,7 +801,7 @@ describe('findRelayQueryLeaves', () => {
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
-    var rangeCalls = [new GraphQL.Callv('first', 10)];
+    var rangeCalls = [RelayTestUtils.createCall('first', 10)];
     var result = findLeaves(
       queryNode,
       'friends_id',
@@ -848,7 +847,7 @@ describe('findRelayQueryLeaves', () => {
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
-    var rangeCalls = [new GraphQL.Callv('first', 10)];
+    var rangeCalls = [RelayTestUtils.createCall('first', 10)];
     var result = findLeaves(
       queryNode,
       'friends_id',

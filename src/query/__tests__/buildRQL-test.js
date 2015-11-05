@@ -16,7 +16,7 @@ RelayTestUtils.unmockRelay();
 
 jest.mock('warning');
 
-var GraphQL = require('GraphQL');
+var QueryBuilder = require('QueryBuilder');
 var React = require('React');
 var Relay = require('Relay');
 var RelayQuery = require('RelayQuery');
@@ -37,7 +37,7 @@ describe('buildRQL', () => {
     MockComponent = React.createClass({render});
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {
-        foo: () => Relay.QL`fragment on Node { name }`
+        foo: () => Relay.QL`fragment on Node { name }`,
       },
     });
 
@@ -79,7 +79,7 @@ describe('buildRQL', () => {
         }
       `;
       var node = buildRQL.Fragment(builder, {sizeVariable: null});
-      expect(GraphQL.isFragment(node)).toBe(true);
+      expect(!!QueryBuilder.getFragment(node)).toBe(true);
 
       // Confirm that `${variables.sizeVariable}` is a variable by applying
       // variable values using `RelayQuery`:
@@ -133,7 +133,7 @@ describe('buildRQL', () => {
         }
       `;
       var node = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
-      expect(GraphQL.isQuery(node)).toBe(true);
+      expect(!!QueryBuilder.getQuery(node)).toBe(true);
 
       // Confirm that `${variables.id}` is a variable by applying variable
       // values using `RelayQuery`:
@@ -165,7 +165,7 @@ describe('buildRQL', () => {
     it('returns different queries for different components', () => {
       var MockContainer2 = Relay.createContainer(MockComponent, {
         fragments: {
-          foo: () => Relay.QL`fragment on Node { name }`
+          foo: () => Relay.QL`fragment on Node { name }`,
         },
       });
 
@@ -193,7 +193,7 @@ describe('buildRQL', () => {
         'foo',
         {id: null},
       );
-      expect(GraphQL.isQuery(node)).toBe(true);
+      expect(!!QueryBuilder.getQuery(node)).toBe(true);
 
       // Confirm that `${variables.id}` is a variable by applying
       // variable values using `RelayQuery`:

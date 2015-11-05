@@ -13,14 +13,15 @@
 
 'use strict';
 
-var GraphQL = require('GraphQL');
-var RelayFragmentReference = require('RelayFragmentReference');
-var RelayRouteFragment = require('RelayRouteFragment');
+const GraphQL = require('GraphQL');
+const QueryBuilder = require('QueryBuilder');
+const RelayFragmentReference = require('RelayFragmentReference');
+const RelayRouteFragment = require('RelayRouteFragment');
 
-var invariant = require('invariant');
-var warning = require('warning');
+const invariant = require('invariant');
+const warning = require('warning');
 
-export type RelayConcreteNode = any;
+export type RelayConcreteNode = mixed;
 
 /**
  * @public
@@ -58,7 +59,7 @@ Object.assign(RelayQL, {
     if (substitution != null) {
       invariant(
         substitution instanceof RelayFragmentReference ||
-        GraphQL.isFragment(substitution),
+        QueryBuilder.getFragment(substitution),
         'RelayQL: Invalid fragment composition, use ' +
         '`${Child.getFragment(\'name\')}`.'
       );
@@ -70,7 +71,7 @@ Object.assign(RelayQL, {
     if (substitution === undefined) {
       warning(false, 'RelayQL: Invalid undefined argument; use null.');
       substitution = null;
-    } else if (!GraphQL.isCallVariable(substitution)) {
+    } else if (!QueryBuilder.getCallVariable(substitution)) {
       warning(
         false,
         'RelayQL: Invalid argument `%s` supplied via template substitution. ' +

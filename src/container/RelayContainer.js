@@ -13,8 +13,8 @@
 
 'use strict';
 
+import type {ConcreteFragment} from 'ConcreteQuery';
 var ErrorUtils = require('ErrorUtils');
-import type GraphQL from 'GraphQL';
 var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
@@ -945,7 +945,7 @@ function buildContainerFragment(
   fragmentName: string,
   fragmentBuilder: RelayQLFragmentBuilder,
   variables: Variables
-): GraphQL.Fragment {
+): ConcreteFragment {
   var fragment = buildRQL.Fragment(
     fragmentBuilder,
     variables

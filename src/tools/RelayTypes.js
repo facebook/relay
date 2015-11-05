@@ -27,7 +27,7 @@ import type {
 import type RelayFragmentReference from 'RelayFragmentReference';
 import type RelayMetaRoute from 'RelayMetaRoute';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
-import type RelayQuery from 'RelayQuery';
+import type {RelayConcreteNode} from 'RelayQL';
 
 // Routes and variables
 export type Variables = {[name: string]: mixed};
@@ -124,7 +124,7 @@ export type RelayMutationConfig = {
   pathToConnection: Array<string>;
 } | {
   type: 'REQUIRED_CHILDREN',
-  children: Array<RelayQuery.Node>,
+  children: Array<RelayConcreteNode>,
 };
 
 // Observable

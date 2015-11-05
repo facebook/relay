@@ -161,7 +161,7 @@ const QueryBuilder = {
     children?: ?Array<?ConcreteSelection>;
     directives?: ?Array<ConcreteDirective>;
     metadata?: ?{
-      inputType?: string;
+      inputType?: ?string;
     };
     name: string;
     responseType: string;
@@ -235,7 +235,7 @@ const QueryBuilder = {
     children?: ?Array<?ConcreteSelection>;
     directives?: ?Array<ConcreteDirective>;
     metadata?: ?{
-      inputType?: string;
+      inputType?: ?string;
     };
     name: string;
     responseType: string;

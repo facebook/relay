@@ -13,9 +13,8 @@
 
 'use strict';
 
-import type {GraphQL} from 'GraphQL';
 var RelayConnectionInterface = require('RelayConnectionInterface');
-import type {DataID, Records} from 'RelayInternalTypes';
+import type {Call, DataID, Records} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 var RelayQueryVisitor = require('RelayQueryVisitor');
 var RelayRecordState = require('RelayRecordState');
@@ -24,7 +23,7 @@ import type {RangeInfo} from 'RelayRecordStore';
 
 export type PendingItem = {
   node: RelayQuery.Node;
-  rangeCalls: ?Array<GraphQL.Call>;
+  rangeCalls: ?Array<Call>;
 };
 
 export type PendingNodes = {[key: string]: Array<PendingItem>};
@@ -36,7 +35,7 @@ export type FinderResult = {
 type FinderState = {
   dataID: DataID;
   missingData: boolean;
-  rangeCalls: ?Array<GraphQL.Call>;
+  rangeCalls: ?Array<Call>;
   rangeInfo: ?RangeInfo;
 };
 
@@ -58,7 +57,7 @@ function findRelayQueryLeaves(
   cachedRecords: Records,
   queryNode: RelayQuery.Node,
   dataID: DataID,
-  rangeCalls: ?Array<GraphQL.Call>
+  rangeCalls: ?Array<Call>
 ): FinderResult {
   var finder = new RelayQueryLeavesFinder(store, cachedRecords);
 

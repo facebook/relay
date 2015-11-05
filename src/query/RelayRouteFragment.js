@@ -13,12 +13,10 @@
 
 'use strict';
 
-import type * as GraphQL from 'GraphQL';
-import type RelayFragmentReference from 'RelayFragmentReference';
 import type RelayMetaRoute from 'RelayMetaRoute';
+import type {RelayConcreteNode} from 'RelayQL';
 
-type FragmentBuilder =
-  (route: RelayMetaRoute) => ?GraphQL.QueryFragment | ?RelayFragmentReference;
+type FragmentBuilder = (route: RelayMetaRoute) => ?RelayConcreteNode;
 
 /**
  * Represents a query fragment that is conditional upon the active route as a
@@ -44,7 +42,7 @@ class RelayRouteFragment {
    */
   getFragmentForRoute(
     route: RelayMetaRoute
-  ): ?GraphQL.QueryFragment | ?RelayFragmentReference {
+  ): ?RelayConcreteNode {
     return this._builder(route);
   }
 }

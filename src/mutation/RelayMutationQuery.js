@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type GraphQL from 'GraphQL';
+import type {ConcreteMutation} from 'ConcreteQuery';
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
@@ -62,7 +62,7 @@ type OptimisticUpdateFragmentBuilderConfig =
   };
 type OptimisticUpdateQueryBuilderConfig =
   BasicMutationFragmentBuilderConfig & {
-    mutation: GraphQL.Mutation;
+    mutation: ConcreteMutation;
     response: Object;
   };
 
@@ -309,7 +309,7 @@ var RelayMutationQuery = {
       fatQuery: RelayQuery.Fragment;
       input: Variables,
       mutationName: string;
-      mutation: GraphQL.Mutation;
+      mutation: ConcreteMutation;
       tracker?: RelayQueryTracker;
     }
   ): RelayQuery.Mutation {

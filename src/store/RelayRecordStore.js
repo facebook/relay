@@ -13,12 +13,11 @@
 
 'use strict';
 
-import type {GraphQL} from 'GraphQL';
-var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-var GraphQLRange = require('GraphQLRange');
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const GraphQLRange = require('GraphQLRange');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {
   Call,
   ClientMutationID,
@@ -27,25 +26,25 @@ import type {
   NodeRangeMap,
   Record,
   Records,
-  RootCallMap
+  RootCallMap,
 } from 'RelayInternalTypes';
-var RelayNodeInterface = require('RelayNodeInterface');
+const RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
 import type {RecordState} from 'RelayRecordState';
-var RelayRecordStatusMap = require('RelayRecordStatusMap');
+const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {CacheWriter} from 'RelayTypes';
 
-var forEachObject = require('forEachObject');
-var invariant = require('invariant');
-var warning = require('warning');
+const forEachObject = require('forEachObject');
+const invariant = require('invariant');
+const warning = require('warning');
 
-var {CURSOR, NODE} = RelayConnectionInterface;
-var EMPTY = '';
-var FILTER_CALLS = '__filterCalls__';
-var FORCE_INDEX = '__forceIndex__';
-var RANGE = '__range__';
-var PATH = '__path__';
-var {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
+const {CURSOR, NODE} = RelayConnectionInterface;
+const EMPTY = '';
+const FILTER_CALLS = '__filterCalls__';
+const FORCE_INDEX = '__forceIndex__';
+const RANGE = '__range__';
+const PATH = '__path__';
+const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 
 type EdgeData = {
   __dataID__: DataID;
@@ -60,8 +59,8 @@ type RangeEdge = {
   nodeID: ?string;
 };
 export type RangeInfo = {
-  diffCalls: Array<GraphQL.Call>;
-  filterCalls: Array<GraphQL.Call>;
+  diffCalls: Array<Call>;
+  filterCalls: Array<Call>;
   pageInfo: ?PageInfo;
   requestedEdgeIDs: Array<string>;
   filteredEdges: Array<RangeEdge>;
@@ -619,8 +618,6 @@ class RelayRecordStore {
         filteredEdges: [],
       };
     }
-    // Convert ordered `{name,value}` objects to `GraphQL.Call`s
-    // TODO: make GraphQLRange accept output of `getCallsWithValues()`
     var queuedRecord = this._queuedRecords ?
       (this._queuedRecords: $FixMe)[connectionID] :
       null;

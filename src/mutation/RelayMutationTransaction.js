@@ -13,8 +13,9 @@
 
 'use strict';
 
+import type {ConcreteMutation} from 'ConcreteQuery';
 var ErrorUtils = require('ErrorUtils');
-import type GraphQL from 'GraphQL';
+var QueryBuilder = require('QueryBuilder');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayMutationQuery = require('RelayMutationQuery');
 var RelayMutationRequest = require('RelayMutationRequest');
@@ -30,7 +31,7 @@ import type {
   RelayMutationTransactionCommitCallbacks,
   RelayMutationTransactionCommitFailureCallback,
   RelayMutationTransactionCommitSuccessCallback,
-  Variables
+  Variables,
 } from 'RelayTypes';
 
 var fromGraphQL = require('fromGraphQL');
@@ -68,7 +69,7 @@ class RelayMutationTransaction {
   _fatQuery: RelayQuery.Fragment;
   _files: ?FileMap;
   _inputVariable: Variables;
-  _mutationNode: GraphQL.Mutation;
+  _mutationNode: ConcreteMutation;
   _onCommitFailureCallback: ?RelayMutationTransactionCommitFailureCallback;
   _onCommitSuccessCallback: ?RelayMutationTransactionCommitSuccessCallback;
   _optimisticConfigs: ?Array<{[key: string]: mixed}>;
@@ -183,9 +184,15 @@ class RelayMutationTransaction {
     return this._fatQuery;
   }
 
-  _getMutationNode(): GraphQL.Mutation {
+  _getMutationNode(): ConcreteMutation {
     if (!this._mutationNode) {
-      this._mutationNode = this._mutation.getMutation();
+      let mutationNode = QueryBuilder.getMutation(this._mutation.getMutation());
+      invariant(
+        mutationNode,
+        'RelayMutation: Expected `getMutation` to return a mutation created ' +
+        'with Relay.QL`mutation { ... }`.'
+      );
+      this._mutationNode = mutationNode;
     }
     return this._mutationNode;
   }

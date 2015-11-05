@@ -13,8 +13,8 @@
 
 'use strict';
 
-import type GraphQL from 'GraphQL';
-var RelayDeprecated = require('RelayDeprecated');
+import type {ConcreteFragment} from 'ConcreteQuery';
+import type {RelayConcreteNode} from 'RelayQL';
 var RelayFragmentReference = require('RelayFragmentReference');
 import type RelayMetaRoute from 'RelayMetaRoute';
 var RelayStore = require('RelayStore');
@@ -61,7 +61,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
    * Each mutation has a server name which is used by clients to communicate the
    * type of mutation that should be executed on the server.
    */
-  getMutation(): GraphQL.Mutation {
+  getMutation(): RelayConcreteNode {
     invariant(
       false,
       '%s: Expected abstract method `getMutation` to be implemented.',
@@ -91,7 +91,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
    * needed), and if we omit fields here we might get odd consistency behavior
    * in the future when we add new views or modify existing ones.
    */
-  getFatQuery(): GraphQL.Fragment {
+  getFatQuery(): RelayConcreteNode {
     invariant(
       false,
       '%s: Expected abstract method `getFatQuery` to be implemented.',
@@ -368,7 +368,7 @@ function buildMutationFragment(
   fragmentName: string,
   fragmentBuilder: RelayQLFragmentBuilder,
   variables: Variables
-): GraphQL.Fragment {
+): ConcreteFragment {
   var fragment = buildRQL.Fragment(
     fragmentBuilder,
     variables

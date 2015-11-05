@@ -22,8 +22,6 @@ var RelayTestUtils = require('RelayTestUtils');
 
 var performanceNow = require('performanceNow');
 
-RelayProfiler.setEnableProfile(true);
-
 describe('RelayMetricsRecorder', () => {
   var query;
 
@@ -118,7 +116,6 @@ describe('RelayMetricsRecorder', () => {
     beforeEach(() => {
       window.__DEV__ = false;
       jest.resetModuleRegistry();
-      RelayProfiler.setEnableProfile(true);
     });
 
     it('records profiles only', () => {

@@ -25,7 +25,6 @@ const profileHandlersByName: {[name: string]: Array<ProfileHandler>} = {};
 
 const NOT_INVOKED = {};
 const defaultProfiler = {stop: emptyFunction};
-let enableProfile = !!__DEV__;
 
 /**
  * @public
@@ -60,14 +59,6 @@ let enableProfile = !!__DEV__;
  *
  */
 const RelayProfiler = {
-  /**
-   * This only controls whether `profile()`, `attachProfileHandler()` and
-   * `detachProfileHandler` is enabled, normal instrument methods cannot be
-   * enabled if they're not enabled at module require time.
-   */
-  setEnableProfile(isEnabled: boolean): void {
-    enableProfile = isEnabled;
-  },
 
   /**
    * Instruments methods on a class or object. This re-assigns the method in
@@ -212,24 +203,22 @@ const RelayProfiler = {
    * attached profile handlers will receive this as the second argument.
    */
   profile(name: string, state?: any): {stop: () => void} {
-    if (enableProfile) {
-      if (profileHandlersByName.hasOwnProperty(name)) {
-        const profileHandlers = profileHandlersByName[name];
-        let stopHandlers;
-        for (let ii = profileHandlers.length - 1; ii >= 0; ii--) {
-          const profileHandler = profileHandlers[ii];
-          const stopHandler = profileHandler(name, state);
-          stopHandlers = stopHandlers || [];
-          stopHandlers.unshift(stopHandler);
-        }
-        return {
-          stop(): void {
-            if (stopHandlers) {
-              stopHandlers.forEach(stopHandler => stopHandler());
-            }
-          },
-        };
+    if (profileHandlersByName.hasOwnProperty(name)) {
+      const profileHandlers = profileHandlersByName[name];
+      let stopHandlers;
+      for (let ii = profileHandlers.length - 1; ii >= 0; ii--) {
+        const profileHandler = profileHandlers[ii];
+        const stopHandler = profileHandler(name, state);
+        stopHandlers = stopHandlers || [];
+        stopHandlers.unshift(stopHandler);
       }
+      return {
+        stop(): void {
+          if (stopHandlers) {
+            stopHandlers.forEach(stopHandler => stopHandler());
+          }
+        },
+      };
     }
     return defaultProfiler;
   },
@@ -238,22 +227,18 @@ const RelayProfiler = {
    * Attaches a handler to profiles with the supplied name.
    */
   attachProfileHandler(name: string, handler: ProfileHandler): void {
-    if (enableProfile) {
-      if (!profileHandlersByName.hasOwnProperty(name)) {
-        profileHandlersByName[name] = [];
-      }
-      profileHandlersByName[name].push(handler);
+    if (!profileHandlersByName.hasOwnProperty(name)) {
+      profileHandlersByName[name] = [];
     }
+    profileHandlersByName[name].push(handler);
   },
 
   /**
    * Detaches a handler attached via `attachProfileHandler`.
    */
   detachProfileHandler(name: string, handler: ProfileHandler): void {
-    if (enableProfile) {
-      if (profileHandlersByName.hasOwnProperty(name)) {
-        removeFromArray(profileHandlersByName[name], handler);
-      }
+    if (profileHandlersByName.hasOwnProperty(name)) {
+      removeFromArray(profileHandlersByName[name], handler);
     }
   },
 

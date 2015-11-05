@@ -13,7 +13,6 @@ var emptyFunction = require('emptyFunction');
 var forEachObject = require('forEachObject');
 
 var RelayProfiler = {
-  setEnableProfile: jest.genMockFunction(),
   instrumentMethods: jest.genMockFunction().mockImplementation(
     (object, names) => {
       forEachObject(names, (name, key) => {
@@ -32,7 +31,7 @@ var RelayProfiler = {
   detachAggregateHandler: jest.genMockFunction(),
   profile: jest.genMockFunction().mockImplementation(() => {
     return {
-      stop: jest.genMockFunction()
+      stop: jest.genMockFunction(),
     };
   }),
   attachProfileHandler: jest.genMockFunction(),

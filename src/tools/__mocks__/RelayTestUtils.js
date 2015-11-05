@@ -445,7 +445,7 @@ var RelayTestUtils = {
       .dontMock('areEqual')
 
       // Legacy modules
-      .dontMock('GraphQL')
+      .dontMock('GraphQL_DEPRECATED')
       .dontMock('GraphQLMutatorConstants')
       .dontMock('GraphQLStoreDataHandler')
       .dontMock('GraphQLStoreRangeUtils')

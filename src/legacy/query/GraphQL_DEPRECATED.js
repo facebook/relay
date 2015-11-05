@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule GraphQL
+ * @providesModule GraphQL_DEPRECATED
  * @typechecks
  */
 
 'use strict';
 
-var RelayNodeInterface = require('RelayNodeInterface');
+const RelayNodeInterface = require('RelayNodeInterface');
 
 const EMPTY_OBJECT = {};
 const EMPTY_ARRAY = [];
@@ -323,7 +323,7 @@ function isSubscription(node) {
  * @see https://our.intern.facebook.com/intern/dex/introduction-to-graphql/
  * @internal
  */
-const GraphQL = {
+const GraphQL_DEPRECATED = {
   BatchCallVariable: GraphQLBatchCallVariable,
   Callv: GraphQLCallvNode,
   CallValue: GraphQLCallValue,
@@ -344,4 +344,4 @@ const GraphQL = {
   isSubscription,
 };
 
-module.exports = GraphQL;
+module.exports = GraphQL_DEPRECATED;

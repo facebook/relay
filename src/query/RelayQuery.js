@@ -1193,7 +1193,7 @@ function createNode(
     concreteNode !== null,
     'RelayQueryNode: Expected a GraphQL object created with `Relay.QL`, got' +
     '`%s`.',
-    JSON.stringify(concreteNode)
+    concreteNode
   );
   const kind = concreteNode.kind;
   let type = RelayQueryNode;

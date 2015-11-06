@@ -14,6 +14,7 @@
 'use strict';
 
 import type {
+  ConcreteCall,
   ConcreteValue,
   ConcreteCallValue,
   ConcreteCallVariable,
@@ -34,12 +35,14 @@ type CallOrDirective = {
  * Convert from GraphQL call nodes to plain object `{name,value}` calls.
  */
 function callsFromGraphQL(
-  concreteCalls: Array<CallOrDirective>,
+  concreteCalls: Array<ConcreteCall>,
   variables: Variables
 ): Array<Call> {
+  // $FlowIssue: ConcreteCall should flow into CallOrDirective
+  var callsOrDirectives: Array<CallOrDirective> = (concreteCalls: $FlowIssue);
   var orderedCalls = [];
-  for (var ii = 0; ii < concreteCalls.length; ii++) {
-    var {name, value} = concreteCalls[ii];
+  for (var ii = 0; ii < callsOrDirectives.length; ii++) {
+    var {name, value} = callsOrDirectives[ii];
     if (value != null) {
       if (Array.isArray(value)) {
         value = value.map(arg => getCallVaue(arg, variables));

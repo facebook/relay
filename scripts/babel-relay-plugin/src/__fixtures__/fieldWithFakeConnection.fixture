@@ -15,27 +15,59 @@ var foo = Relay.QL`
 Output:
 var Relay = require('Relay');
 var foo = (function () {
-  var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.QueryFragment('FieldWithFakeConnection', 'User', [new GraphQL.Field('fakeConnection', [new GraphQL.Field('edges', [new GraphQL.Field('node', [new GraphQL.Field('id', null, null, null, null, null, {
-    parentType: 'FakeNode',
-    requisite: true
-  })], null, null, null, null, {
-    parentType: 'FakeEdge',
-    rootCall: 'node',
-    pk: 'id',
-    requisite: true
-  }), new GraphQL.Field('cursor', null, null, null, null, null, {
-    parentType: 'FakeEdge',
-    generated: true,
-    requisite: true
-  })], null, null, null, null, {
-    parentType: 'FakeConnection',
-    plural: true
-  })], null, null, null, null, {
-    parentType: 'User'
-  }), new GraphQL.Field('id', null, null, null, null, null, {
-    parentType: 'User',
-    generated: true,
-    requisite: true
-  })]);
+  return {
+    children: [{
+      children: [{
+        children: [{
+          children: [{
+            fieldName: 'id',
+            kind: 'Field',
+            metadata: {
+              parentType: 'FakeNode',
+              isRequisite: true
+            }
+          }],
+          fieldName: 'node',
+          kind: 'Field',
+          metadata: {
+            parentType: 'FakeEdge',
+            inferredRootCallName: 'node',
+            inferredPrimaryKey: 'id',
+            isRequisite: true
+          }
+        }, {
+          fieldName: 'cursor',
+          kind: 'Field',
+          metadata: {
+            parentType: 'FakeEdge',
+            isGenerated: true,
+            isRequisite: true
+          }
+        }],
+        fieldName: 'edges',
+        kind: 'Field',
+        metadata: {
+          parentType: 'FakeConnection',
+          isPlural: true
+        }
+      }],
+      fieldName: 'fakeConnection',
+      kind: 'Field',
+      metadata: {
+        parentType: 'User'
+      }
+    }, {
+      fieldName: 'id',
+      kind: 'Field',
+      metadata: {
+        parentType: 'User',
+        isGenerated: true,
+        isRequisite: true
+      }
+    }],
+    kind: 'Fragment',
+    metadata: {},
+    name: 'FieldWithFakeConnection',
+    type: 'User'
+  };
 })();

@@ -19,6 +19,15 @@
  * Types representing the transformed output of Relay.QL queries.
  */
 
+/**
+ * Ideally this would be a union of Field/Fragment/Mutation/Query/Subscription,
+ * but that causes lots of Flow errors.
+ */
+export type ConcreteNode = {
+  children?: ?Array<?ConcreteSelection>;
+  directives?: ?Array<ConcreteDirective>;
+};
+
 export type ConcreteSelection =
   ConcreteField |
   ConcreteFragment;
@@ -43,7 +52,7 @@ export type ConcreteBatchCallVariable = {
 export type ConcreteCall = {
   kind: 'Call';
   metadata: {
-    type: ?string;
+    type?: ?string;
   };
   name: string;
   value: ?ConcreteValue;
@@ -69,28 +78,28 @@ export type ConcreteDirective = {
 };
 
 export type ConcreteField = {
-  alias: ?string;
-  calls: Array<ConcreteCall>;
-  children: Array<?ConcreteSelection>;
-  directives: Array<ConcreteDirective>;
+  alias?: ?string;
+  calls?: ?Array<ConcreteCall>;
+  children?: ?Array<?ConcreteSelection>;
+  directives?: ?Array<ConcreteDirective>;
   fieldName: string;
   kind: 'Field';
   metadata: {
-    inferredRootCallName: ?string;
-    inferredPrimaryKey: ?string;
-    isConnection: boolean;
-    isFindable: boolean;
-    isGenerated: boolean;
-    isPlural: boolean;
-    isRequisite: boolean;
-    isUnionOrInterface: boolean;
+    inferredRootCallName?: ?string;
+    inferredPrimaryKey?: ?string;
+    isConnection?: boolean;
+    isFindable?: boolean;
+    isGenerated?: boolean;
+    isPlural?: boolean;
+    isRequisite?: boolean;
+    isUnionOrInterface?: boolean;
     parentType: ?string;
   };
 };
 
 export type ConcreteFragment = {
-  children: Array<?ConcreteSelection>;
-  directives: Array<ConcreteDirective>;
+  children?: ?Array<?ConcreteSelection>;
+  directives?: ?Array<ConcreteDirective>;
   kind: 'Fragment';
   metadata: {
     isPlural?: boolean; // FB Printer
@@ -102,38 +111,38 @@ export type ConcreteFragment = {
 
 export type ConcreteMutation = {
   calls: Array<ConcreteCall>;
-  children: Array<?ConcreteSelection>;
-  directives: Array<ConcreteDirective>;
+  children?: ?Array<?ConcreteSelection>;
+  directives?: ?Array<ConcreteDirective>;
   kind: 'Mutation';
   metadata: {
-    inputType: ?string;
+    inputType?: ?string;
   };
   name: string;
   responseType: string;
 };
 
 export type ConcreteQuery = {
-  calls: Array<ConcreteCall>;
-  children: Array<?ConcreteSelection>;
-  directives: Array<ConcreteDirective>;
+  calls?: ?Array<ConcreteCall>;
+  children?: ?Array<?ConcreteSelection>;
+  directives?: ?Array<ConcreteDirective>;
   fieldName: string;
-  isDeferred: boolean;
+  isDeferred?: boolean;
   kind: 'Query';
   metadata: {
-    identifyingArgName: ?string;
-    identifyingArgType: ?string;
+    identifyingArgName?: ?string;
+    identifyingArgType?: ?string;
   };
   name: string;
 };
 
 export type ConcreteSubscription = {
   calls: Array<ConcreteCall>;
-  children: Array<?ConcreteSelection>;
-  directives: Array<ConcreteDirective>;
+  children?: ?Array<?ConcreteSelection>;
+  directives?: ?Array<ConcreteDirective>;
   kind: 'Subscription';
   name: string;
   responseType: string;
   metadata: {
-    inputType: ?string;
+    inputType?: ?string;
   };
 };

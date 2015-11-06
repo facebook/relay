@@ -11,15 +11,43 @@ var x = Relay.QL`
 Output:
 var Relay = require('react-relay');
 var x = (function () {
-  var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.QueryFragment('FieldWithEmptyArrayArg', 'User', [new GraphQL.Field('friends', [new GraphQL.Field('count', null, null, null, null, null, {
-    parentType: 'UserConnection'
-  })], null, [new GraphQL.Callv('isViewerFriend', new GraphQL.CallValue(false))], null, null, {
-    parentType: 'User',
-    connection: true
-  }), new GraphQL.Field('id', null, null, null, null, null, {
-    parentType: 'User',
-    generated: true,
-    requisite: true
-  })]);
+  return {
+    children: [{
+      calls: [{
+        kind: 'Call',
+        metadata: {},
+        name: 'isViewerFriend',
+        value: {
+          kind: 'CallValue',
+          callValue: false
+        }
+      }],
+      children: [{
+        fieldName: 'count',
+        kind: 'Field',
+        metadata: {
+          parentType: 'UserConnection'
+        }
+      }],
+      fieldName: 'friends',
+      kind: 'Field',
+      metadata: {
+        parentType: 'User',
+        isConnection: true,
+        isFindable: true
+      }
+    }, {
+      fieldName: 'id',
+      kind: 'Field',
+      metadata: {
+        parentType: 'User',
+        isGenerated: true,
+        isRequisite: true
+      }
+    }],
+    kind: 'Fragment',
+    metadata: {},
+    name: 'FieldWithEmptyArrayArg',
+    type: 'User'
+  };
 })();

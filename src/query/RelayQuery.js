@@ -16,6 +16,8 @@
 import type {
   ConcreteField,
   ConcreteFragment,
+  ConcreteMutation,
+  ConcreteNode,
   ConcreteQuery,
 } from 'ConcreteQuery';
 var QueryBuilder = require('QueryBuilder');
@@ -42,7 +44,6 @@ type BatchCall = {
   sourceQueryID: string;
   sourceQueryPath: string;
 };
-type ConcreteQueryObject = any;
 type FragmentMetadata = {
   isDeferred: boolean;
   isContainerFragment: boolean;
@@ -68,6 +69,13 @@ const DEFAULT_FRAGMENT_METADATA = {
   isContainerFragment: false,
   isTypeConditional: false,
 };
+const EMPTY_DIRECTIVES = [];
+const EMPTY_CALLS = [];
+
+if (__DEV__) {
+  Object.freeze(EMPTY_CALLS);
+  Object.freeze(EMPTY_DIRECTIVES);
+}
 
 /**
  * @internal
@@ -96,7 +104,7 @@ class RelayQueryNode {
   constructor: Function; // for flow
   __calls__: ?Array<Call>;
   __children__: ?Array<RelayQueryNode>;
-  __concreteNode__: ConcreteQueryObject;
+  __concreteNode__: any;
   __fieldMap__: ?{[key: string]: RelayQueryField};
   __hasDeferredDescendant__: ?boolean;
   __hasValidatedConnectionCalls__: ?boolean;
@@ -128,7 +136,7 @@ class RelayQueryNode {
    * Base class for all node types, must not be directly instantiated.
    */
   constructor(
-    concreteNode: ConcreteQueryObject,
+    concreteNode: any,
     route: RelayMetaRoute,
     variables: Variables
   ) {
@@ -199,19 +207,25 @@ class RelayQueryNode {
   }
 
   getChildren(): Array<RelayQueryNode> {
-    var children = this.__children__;
+    let children = this.__children__;
     if (!children) {
-      var nextChildren = [];
-      this.__concreteNode__.children.forEach(concreteChild => {
-        var node = createNode(
-          concreteChild,
-          this.__route__,
-          this.__variables__
-        );
-        if (node) {
-          nextChildren.push(node);
-        }
-      });
+      const nextChildren = [];
+      const concreteChildren = (this.__concreteNode__: ConcreteNode).children;
+      if (concreteChildren) {
+        concreteChildren.forEach(concreteChild => {
+          if (concreteChild == null) {
+            return;
+          }
+          var node = createNode(
+            concreteChild,
+            this.__route__,
+            this.__variables__
+          );
+          if (node) {
+            nextChildren.push(node);
+          }
+        });
+      }
       this.__children__ = nextChildren;
       children = nextChildren;
     }
@@ -219,10 +233,14 @@ class RelayQueryNode {
   }
 
   getDirectives(): Array<Directive> {
-    return this.__concreteNode__.directives.map(directive => ({
-      name: directive.name,
-      arguments: callsFromGraphQL(directive.arguments, this.__variables__),
-    }));
+    const concreteDirectives = (this.__concreteNode__: ConcreteNode).directives;
+    if (concreteDirectives) {
+      return this.__concreteNode__.directives.map(directive => ({
+        name: directive.name,
+        arguments: callsFromGraphQL(directive.arguments, this.__variables__),
+      }));
+    }
+    return EMPTY_DIRECTIVES;
   }
 
   getField(field: RelayQueryField): ?RelayQueryField {
@@ -300,7 +318,7 @@ class RelayQueryNode {
     );
   }
 
-  createNode(concreteNode: ConcreteQueryObject): RelayQueryNode {
+  createNode(concreteNode: any): RelayQueryNode {
     return RelayQueryNode.create(
       concreteNode,
       this.__route__,
@@ -309,8 +327,8 @@ class RelayQueryNode {
   }
 
   getConcreteQueryNode(
-    onCacheMiss: () => ConcreteQueryObject
-  ): ConcreteQueryObject {
+    onCacheMiss: () => any
+  ): any {
     if (!this.__isConcreteNodeCached__) {
       this.__concreteNode__ = onCacheMiss();
       this.__isConcreteNodeCached__ = true;
@@ -402,10 +420,10 @@ class RelayQueryRoot extends RelayQueryNode {
   }
 
   getName(): string {
-    var name = this.__concreteNode__.name;
+    let name = (this.__concreteNode__: ConcreteQuery).name;
     if (!name) {
       name = this.getID();
-      this.__concreteNode__.name = name;
+      (this.__concreteNode__: ConcreteQuery).name = name;
     }
     return name;
   }
@@ -420,42 +438,51 @@ class RelayQueryRoot extends RelayQueryNode {
   }
 
   getBatchCall(): ?BatchCall {
-    var batchCall = this.__batchCall__;
+    let batchCall = this.__batchCall__;
     if (batchCall === undefined) {
-      var concreteCalls = this.__concreteNode__.calls;
-      var callArg = concreteCalls[0] && concreteCalls[0].value;
-      if (callArg != null && callArg.kind === 'BatchCallVariable') {
-        batchCall = {
-          refParamName: REF_PARAM_PREFIX + callArg.sourceQueryID,
-          sourceQueryID: callArg.sourceQueryID,
-          sourceQueryPath: callArg.jsonPath,
-        };
-      } else {
-        batchCall = null;
+      const concreteCalls = (this.__concreteNode__: ConcreteQuery).calls;
+      if (concreteCalls) {
+        var callArg = concreteCalls[0] && concreteCalls[0].value;
+        if (
+          callArg != null &&
+          !Array.isArray(callArg) &&
+          callArg.kind === 'BatchCallVariable'
+        ) {
+          batchCall = {
+            refParamName: REF_PARAM_PREFIX + callArg.sourceQueryID,
+            sourceQueryID: callArg.sourceQueryID,
+            sourceQueryPath: callArg.jsonPath,
+          };
+        }
       }
+      batchCall = batchCall || null;
       this.__batchCall__ = batchCall;
     }
     return batchCall;
   }
 
   getCallsWithValues(): Array<Call> {
-    var calls = this.__calls__;
+    let calls = this.__calls__;
     if (!calls) {
-      var concreteCalls = this.__concreteNode__.calls;
-      calls = callsFromGraphQL(concreteCalls, this.__variables__);
+      const concreteCalls = (this.__concreteNode__: ConcreteQuery).calls;
+      if (concreteCalls) {
+        calls = callsFromGraphQL(concreteCalls, this.__variables__);
+      } else {
+        calls = EMPTY_CALLS;
+      }
       this.__calls__ = calls;
     }
     return calls;
   }
 
   getFieldName(): string {
-    return this.__concreteNode__.fieldName;
+    return (this.__concreteNode__: ConcreteQuery).fieldName;
   }
 
   getIdentifyingArg(): ?Call {
     let identifyingArg = this.__identifyingArg__;
     if (!identifyingArg) {
-      const metadata = this.__concreteNode__.metadata;
+      const metadata = (this.__concreteNode__: ConcreteQuery).metadata;
       const identifyingArgName = metadata.identifyingArgName;
       if (identifyingArgName != null) {
         identifyingArg =
@@ -480,8 +507,7 @@ class RelayQueryRoot extends RelayQueryNode {
       const field = RelayQueryField.build(
         this.getFieldName(),
         args,
-        null,
-        this.__concreteNode__.metadata
+        null
       );
       storageKey = field.getStorageKey();
       this.__storageKey__ = storageKey;
@@ -494,7 +520,7 @@ class RelayQueryRoot extends RelayQueryNode {
   }
 
   isDeferred(): boolean {
-    return this.__concreteNode__.isDeferred;
+    return !!(this.__concreteNode__: ConcreteQuery).isDeferred;
   }
 
   getDeferredFragmentNames(): FragmentNames {
@@ -536,7 +562,7 @@ class RelayQueryOperation extends RelayQueryNode {
   __callVariableName__: string;
 
   constructor(
-    concreteNode: ConcreteQueryObject,
+    concreteNode: any,
     route: RelayMetaRoute,
     variables: Variables
   ) {
@@ -548,15 +574,16 @@ class RelayQueryOperation extends RelayQueryNode {
   }
 
   getName(): string {
-    return this.__concreteNode__.name;
+    return (this.__concreteNode__: ConcreteMutation).name;
   }
 
   getResponseType(): string {
-    return this.__concreteNode__.responseType;
+    return (this.__concreteNode__: ConcreteMutation).responseType;
   }
 
   getInputType(): string {
-    var inputType = this.__concreteNode__.metadata.inputType;
+    const inputType =
+      (this.__concreteNode__: ConcreteMutation).metadata.inputType;
     invariant(
       inputType,
       'RelayQuery: Expected operation `%s` to be annotated with the type of ' +
@@ -568,10 +595,14 @@ class RelayQueryOperation extends RelayQueryNode {
   }
 
   getCall(): Call {
-    var calls = this.__calls__;
+    let calls = this.__calls__;
     if (!calls) {
-      var concreteCalls = this.__concreteNode__.calls;
-      calls = callsFromGraphQL(concreteCalls, this.__variables__);
+      const concreteCalls = (this.__concreteNode__: ConcreteMutation).calls;
+      if (concreteCalls) {
+        calls = callsFromGraphQL(concreteCalls, this.__variables__);
+      } else {
+        calls = EMPTY_CALLS;
+      }
       this.__calls__ = calls;
     }
     return calls[0];
@@ -579,8 +610,9 @@ class RelayQueryOperation extends RelayQueryNode {
 
   getCallVariableName(): string {
     if (!this.__callVariableName__) {
-      var concreteCalls = this.__concreteNode__.calls;
-      var callVariable = QueryBuilder.getCallVariable(concreteCalls[0].value);
+      const concreteCalls = (this.__concreteNode__: ConcreteMutation).calls;
+      const callVariable =
+        concreteCalls && QueryBuilder.getCallVariable(concreteCalls[0].value);
       invariant(
         callVariable,
         'RelayQuery: Expected mutation to have a single argument.'
@@ -765,7 +797,7 @@ class RelayQueryFragment extends RelayQueryNode {
   }
 
   getDebugName(): string {
-    return this.__concreteNode__.name;
+    return (this.__concreteNode__: ConcreteFragment).name;
   }
 
   /**
@@ -795,7 +827,7 @@ class RelayQueryFragment extends RelayQueryNode {
   }
 
   getType(): string {
-    return this.__concreteNode__.type;
+    return (this.__concreteNode__: ConcreteFragment).type;
   }
 
   isDeferred(): boolean {
@@ -803,9 +835,10 @@ class RelayQueryFragment extends RelayQueryNode {
   }
 
   isPlural(): boolean {
+    const metadata = (this.__concreteNode__: ConcreteFragment).metadata;
     return !!(
-      this.__concreteNode__.metadata.isPlural ||  // FB Printer
-      this.__concreteNode__.metadata.plural       // OSS Printer from `@relay`
+      metadata.isPlural ||  // FB Printer
+      metadata.plural       // OSS Printer from `@relay`
     );
   }
 
@@ -912,23 +945,23 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   isRequisite(): boolean {
-    return this.__concreteNode__.metadata.isRequisite;
+    return !!(this.__concreteNode__: ConcreteField).metadata.isRequisite;
   }
 
   isFindable(): boolean {
-    return this.__concreteNode__.metadata.isFindable;
+    return !!(this.__concreteNode__: ConcreteField).metadata.isFindable;
   }
 
   isGenerated(): boolean {
-    return this.__concreteNode__.metadata.isGenerated;
+    return !!(this.__concreteNode__: ConcreteField).metadata.isGenerated;
   }
 
   isConnection(): boolean {
-    return this.__concreteNode__.metadata.isConnection;
+    return !!(this.__concreteNode__: ConcreteField).metadata.isConnection;
   }
 
   isPlural(): boolean {
-    return this.__concreteNode__.metadata.isPlural;
+    return !!(this.__concreteNode__: ConcreteField).metadata.isPlural;
   }
 
   isRefQueryDependency(): boolean {
@@ -936,14 +969,15 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   isScalar(): boolean {
+    const concreteChildren = (this.__concreteNode__: ConcreteField).children;
     return (
       (!this.__children__ || this.__children__.length === 0) &&
-      this.__concreteNode__.children.length === 0
+      (!concreteChildren || concreteChildren.length === 0)
     );
   }
 
   isUnionOrInterface(): boolean {
-    return this.__concreteNode__.metadata.isUnionOrInterface;
+    return !!(this.__concreteNode__: ConcreteField).metadata.isUnionOrInterface;
   }
 
   getDebugName(): string {
@@ -966,7 +1000,7 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   getParentType(): string {
-    var parentType = this.__concreteNode__.metadata.parentType;
+    var parentType = (this.__concreteNode__: ConcreteField).metadata.parentType;
     invariant(
       parentType,
       'RelayQueryField(): Expected field `%s` to be annotated with the ' +
@@ -980,7 +1014,7 @@ class RelayQueryField extends RelayQueryNode {
    * The canonical name for the referenced field in the schema.
    */
   getSchemaName(): string {
-    return this.__concreteNode__.fieldName;
+    return (this.__concreteNode__: ConcreteField).fieldName;
   }
 
   /**
@@ -1075,29 +1109,35 @@ class RelayQueryField extends RelayQueryNode {
    * application.
    */
   getApplicationName(): string {
-    return this.__concreteNode__.alias || this.__concreteNode__.fieldName;
+    const concreteNode = (this.__concreteNode__: ConcreteField);
+    return concreteNode.alias || concreteNode.fieldName;
   }
 
   getInferredRootCallName(): ?string {
-    return this.__concreteNode__.metadata.inferredRootCallName;
+    return (this.__concreteNode__: ConcreteField).metadata.inferredRootCallName;
   }
 
   getInferredPrimaryKey(): ?string {
-    return this.__concreteNode__.metadata.inferredPrimaryKey;
+    return (this.__concreteNode__: ConcreteField).metadata.inferredPrimaryKey;
   }
 
   getCallsWithValues(): Array<Call> {
-    var calls = this.__calls__;
+    let calls = this.__calls__;
     if (!calls) {
-      var concreteCalls = this.__concreteNode__.calls;
-      calls = callsFromGraphQL(concreteCalls, this.__variables__);
+      const concreteCalls = (this.__concreteNode__: ConcreteField).calls;
+      if (concreteCalls) {
+        calls = callsFromGraphQL(concreteCalls, this.__variables__);
+      } else {
+        calls = EMPTY_CALLS;
+      }
       this.__calls__ = calls;
     }
     return calls;
   }
 
   getCallType(callName: string): ?string {
-    var concreteCall = this.__concreteNode__.calls.filter(
+    const concreteCalls = (this.__concreteNode__: ConcreteField).calls;
+    const concreteCall = concreteCalls && concreteCalls.filter(
       call => call.name === callName
     )[0];
     if (concreteCall) {

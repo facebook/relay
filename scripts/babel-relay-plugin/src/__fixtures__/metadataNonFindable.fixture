@@ -13,12 +13,25 @@ var x = Relay.QL`
 Output:
 var Relay = require('react-relay');
 var x = (function () {
-  var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.Query('viewer', null, [new GraphQL.Field('pendingPosts', [new GraphQL.Field('count', null, null, null, null, null, {
-    parentType: 'PendingPostsConnection'
-  })], null, null, null, null, {
-    parentType: 'Viewer',
-    connection: true,
-    nonFindable: true
-  })], null, null, 'MetadataNonFindable');
+  return {
+    children: [{
+      children: [{
+        fieldName: 'count',
+        kind: 'Field',
+        metadata: {
+          parentType: 'PendingPostsConnection'
+        }
+      }],
+      fieldName: 'pendingPosts',
+      kind: 'Field',
+      metadata: {
+        parentType: 'Viewer',
+        isConnection: true
+      }
+    }],
+    fieldName: 'viewer',
+    kind: 'Query',
+    metadata: {},
+    name: 'MetadataNonFindable'
+  };
 })();

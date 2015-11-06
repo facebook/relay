@@ -113,10 +113,12 @@ var buildRQL = {
         node = queryBuilder(Component, variables);
         const query = QueryBuilder.getQuery(node);
         if (query) {
-          const hasScalarFieldsOnly = query.children.every(child => {
+          const children = query.children ? [...query.children] : [];
+          const hasScalarFieldsOnly = children.every(child => {
             return (
               !child ||
-              (child.kind === 'Field' && child.children.length === 0)
+              (child.kind === 'Field' &&
+                (!child.children || child.children.length === 0))
             );
           });
           invariant(
@@ -125,13 +127,13 @@ var buildRQL = {
             '`node(id: $id)`, not `node(id: $id) { ... }`.',
             query.fieldName
           );
-          var fragmentValues = filterObject(values, (_, name) =>
+          const fragmentValues = filterObject(values, (_, name) =>
             Component.hasVariable(name)
           );
-          var fragment = Component.getFragment(queryName, fragmentValues);
+          children.push(Component.getFragment(queryName, fragmentValues));
           node = {
             ...query,
-            children: [...query.children, fragment],
+            children,
           };
         }
       }

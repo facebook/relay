@@ -9,10 +9,28 @@ var foo = Relay.QL`
 
 Output:
 var foo = (function () {
-  var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.Query("__type", new GraphQL.CallValue("Root"), [new GraphQL.Field("name", null, null, null, null, null, {
-    parentType: "__Type"
-  })], null, {
-    identifyingArgName: "name"
-  }, "IntrospectionQueryForType");
+  return {
+    calls: [{
+      kind: "Call",
+      metadata: {},
+      name: "name",
+      value: {
+        kind: "CallValue",
+        callValue: "Root"
+      }
+    }],
+    children: [{
+      fieldName: "name",
+      kind: "Field",
+      metadata: {
+        parentType: "__Type"
+      }
+    }],
+    fieldName: "__type",
+    kind: "Query",
+    metadata: {
+      identifyingArgName: "name"
+    },
+    name: "IntrospectionQueryForType"
+  };
 })();

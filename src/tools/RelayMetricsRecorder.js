@@ -12,26 +12,28 @@
  */
 
 'use strict';
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var RelayProfiler = require('RelayProfiler');
-var RelayQuery = require('RelayQuery');
 
-var buildRQL = require('buildRQL');
-var checkRelayQueryData = require('checkRelayQueryData');
-var diffRelayQuery = require('diffRelayQuery');
-var flattenRelayQuery = require('flattenRelayQuery');
-var invariant = require('invariant');
-var getRelayQueries = require('getRelayQueries');
-var performanceNow = require('performanceNow');
-var printRelayQuery = require('printRelayQuery');
-var readRelayQueryData = require('readRelayQueryData');
-var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
-var subtractRelayQuery = require('subtractRelayQuery');
-var writeRelayQueryPayload = require('writeRelayQueryPayload');
-var writeRelayUpdatePayload = require('writeRelayUpdatePayload');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const RelayNetworkLayer = require('RelayNetworkLayer');
+const RelayProfiler = require('RelayProfiler');
+const RelayQuery = require('RelayQuery');
+
+const buildRQL = require('buildRQL');
+const checkRelayQueryData = require('checkRelayQueryData');
+const diffRelayQuery = require('diffRelayQuery');
+const flattenRelayQuery = require('flattenRelayQuery');
+const invariant = require('invariant');
+const getRelayQueries = require('getRelayQueries');
+const performanceNow = require('performanceNow');
+const printRelayQuery = require('printRelayQuery');
+const readRelayQueryData = require('readRelayQueryData');
+const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
+const subtractRelayQuery = require('subtractRelayQuery');
+const writeRelayQueryPayload = require('writeRelayQueryPayload');
+const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 // Singleton methods:
-var INSTRUMENTED_METHODS = [
+const INSTRUMENTED_METHODS = [
   GraphQLStoreQueryResolver.prototype.resolve,
   buildRQL.Fragment,
   buildRQL.Query,
@@ -54,18 +56,20 @@ var INSTRUMENTED_METHODS = [
   RelayQuery.Node.prototype.getDirectives,
   RelayQuery.Node.prototype.hasDeferredDescendant,
   RelayQuery.Node.prototype.getFieldByStorageKey,
+  RelayNetworkLayer.sendMutation,
+  RelayNetworkLayer.sendQueries,
 ];
 
 // There is no static RelayContainer.prototype instance, so methods are
 // profiled by name:
-var INSTRUMENTED_AGGREGATE_METHODS = [
+const INSTRUMENTED_AGGREGATE_METHODS = [
   'RelayContainer.prototype.componentWillMount',
   'RelayContainer.prototype.componentWillReceiveProps',
   'RelayContainer.prototype.shouldComponentUpdate',
 ];
 
 // Runtime "profiles" registered with `RelayProfiler.profile()`:
-var INSTRUMENTED_PROFILES = [
+const INSTRUMENTED_PROFILES = [
   'fetchRelayQuery',
   'fetchRelayQuery.query',
   'GraphQLQueryRunner.primeCache',
@@ -74,15 +78,13 @@ var INSTRUMENTED_PROFILES = [
   'RelayContainer.handleDeferredSuccess',
   'RelayContainer.handleFragmentDataUpdate',
   'RelayContainer.update',
-  'RelayNetworkLayer.sendMutation',
-  'RelayNetworkLayer.sendQueries',
   'RelayStoreData.runWithDiskCache',
   'RelayStoreData.readFromDiskCache',
   'RelayStoreData.handleQueryPayload',
   'RelayStoreData.handleUpdatePayload',
 ];
 
-var measurementDefaults = {
+const measurementDefaults = {
   aggregateTime: 0,
   callCount: 0,
 };
@@ -193,9 +195,9 @@ class RelayMetricsRecorder {
   }
 
   getMetrics(): Metrics {
-    var {_measurements} = this;
-    var totalTime = 0;
-    var sortedMeasurements = {};
+    const {_measurements} = this;
+    let totalTime = 0;
+    const sortedMeasurements = {};
     Object.keys(_measurements)
       .sort((a, b) => {
         return _measurements[b].aggregateTime - _measurements[a].aggregateTime;
@@ -204,7 +206,7 @@ class RelayMetricsRecorder {
         totalTime += _measurements[name].aggregateTime;
         sortedMeasurements[name] = _measurements[name];
       });
-    var sortedProfiles = this._profiles.sort((a, b) => {
+    const sortedProfiles = this._profiles.sort((a, b) => {
       if (a.startTime < b.startTime) {
         return -1;
       } else if (a.startTime > b.startTime) {
@@ -230,7 +232,7 @@ class RelayMetricsRecorder {
   }
 
   _instrumentProfile(name: string): () => void {
-    var startTime = performanceNow();
+    const startTime = performanceNow();
     return () => {
       this._profiles.push({
         endTime: performanceNow(),
@@ -248,9 +250,9 @@ class RelayMetricsRecorder {
   }
 
   _stopMeasurement(name: string): void {
-    var innerTime = this._profileStack.shift();
-    var start = this._startTimesStack.shift();
-    var totalTime = performanceNow() - start;
+    const innerTime = this._profileStack.shift();
+    const start = this._startTimesStack.shift();
+    const totalTime = performanceNow() - start;
 
     this._measurements[name].aggregateTime += totalTime - innerTime;
     this._measurements[name].callCount++;

@@ -39,23 +39,19 @@ var RelayNetworkLayer = {
   },
 
   sendMutation(mutationRequest: RelayMutationRequest): void {
-    var profiler = RelayProfiler.profile('RelayNetworkLayer.sendMutation');
     var networkLayer = getCurrentNetworkLayer();
     var promise = networkLayer.sendMutation(mutationRequest);
     if (promise) {
       Promise.resolve(promise).done();
     }
-    profiler.stop();
   },
 
   sendQueries(queryRequests: Array<RelayQueryRequest>): void {
-    var profiler = RelayProfiler.profile('RelayNetworkLayer.sendQueries');
     var networkLayer = getCurrentNetworkLayer();
     var promise = networkLayer.sendQueries(queryRequests);
     if (promise) {
       Promise.resolve(promise).done();
     }
-    profiler.stop();
   },
 
   supports(...options: Array<string>): boolean {
@@ -71,5 +67,10 @@ function getCurrentNetworkLayer(): NetworkLayer {
   );
   return injectedNetworkLayer;
 }
+
+RelayProfiler.instrumentMethods(RelayNetworkLayer, {
+  sendMutation: 'RelayNetworkLayer.sendMutation',
+  sendQueries: 'RelayNetworkLayer.sendQueries',
+});
 
 module.exports = RelayNetworkLayer;

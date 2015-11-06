@@ -69,7 +69,7 @@ export type Records = {[key: DataID]: ?Record};
 // eg. username(name: "joe")   => '123'
 //     username(name: "steve") => '456'
 //     viewer                  => '456'
-type IdentifyingArgsMap = {[identifyingArgName: string]: DataID};
+type IdentifyingArgsMap = {[identifyingArgValue: string]: DataID};
 export type RootCallMap = {[storageKey: string]: IdentifyingArgsMap};
 
 // maps node IDs to the IDs of the connections that contain them

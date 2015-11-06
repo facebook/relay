@@ -11,11 +11,38 @@ var q = Relay.QL`
 Output:
 var Relay = require('Relay');
 var q = (function () {
-  var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.Query('search', new GraphQL.CallVariable('query'), [new GraphQL.Field('title', null, null, null, null, null, {
-    parentType: 'SearchResult'
-  })], null, {
-    identifyingArgName: 'query',
-    identifyingArgType: '[SearchInput!]'
-  }, 'QueryWithObjectArg');
+  return {
+    calls: [{
+      kind: 'Call',
+      metadata: {
+        type: '[SearchInput!]'
+      },
+      name: 'query',
+      value: {
+        kind: 'CallVariable',
+        callVariableName: 'query'
+      }
+    }],
+    children: [{
+      alias: null,
+      calls: [],
+      children: [],
+      condition: null,
+      directives: [],
+      fieldName: 'title',
+      kind: 'Field',
+      metadata: {
+        parentType: 'SearchResult'
+      }
+    }],
+    directives: [],
+    fieldName: 'search',
+    isDeferred: false,
+    kind: 'Query',
+    metadata: {
+      identifyingArgName: 'query',
+      identifyingArgType: '[SearchInput!]'
+    },
+    name: 'QueryWithObjectArg'
+  };
 })();

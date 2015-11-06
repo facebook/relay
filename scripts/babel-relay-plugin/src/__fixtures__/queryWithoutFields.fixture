@@ -5,6 +5,14 @@ var x = Relay.QL`query { viewer }`;
 Output:
 var Relay = require('react-relay');
 var x = (function () {
-  var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.Query('viewer', null, null, null, null, 'QueryWithoutFields');
+  return {
+    calls: [],
+    children: [],
+    directives: [],
+    fieldName: 'viewer',
+    isDeferred: false,
+    kind: 'Query',
+    metadata: {},
+    name: 'QueryWithoutFields'
+  };
 })();

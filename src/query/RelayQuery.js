@@ -203,6 +203,9 @@ class RelayQueryNode {
     if (!children) {
       var nextChildren = [];
       this.__concreteNode__.children.forEach(concreteChild => {
+        if (concreteChild == null) {
+          return;
+        }
         var node = createNode(
           concreteChild,
           this.__route__,
@@ -912,23 +915,23 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   isRequisite(): boolean {
-    return this.__concreteNode__.metadata.isRequisite;
+    return !!this.__concreteNode__.metadata.isRequisite;
   }
 
   isFindable(): boolean {
-    return this.__concreteNode__.metadata.isFindable;
+    return !!this.__concreteNode__.metadata.isFindable;
   }
 
   isGenerated(): boolean {
-    return this.__concreteNode__.metadata.isGenerated;
+    return !!this.__concreteNode__.metadata.isGenerated;
   }
 
   isConnection(): boolean {
-    return this.__concreteNode__.metadata.isConnection;
+    return !!this.__concreteNode__.metadata.isConnection;
   }
 
   isPlural(): boolean {
-    return this.__concreteNode__.metadata.isPlural;
+    return !!this.__concreteNode__.metadata.isPlural;
   }
 
   isRefQueryDependency(): boolean {
@@ -943,7 +946,7 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   isUnionOrInterface(): boolean {
-    return this.__concreteNode__.metadata.isUnionOrInterface;
+    return !!this.__concreteNode__.metadata.isUnionOrInterface;
   }
 
   getDebugName(): string {

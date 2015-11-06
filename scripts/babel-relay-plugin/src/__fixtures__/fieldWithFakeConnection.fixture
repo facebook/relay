@@ -15,27 +15,88 @@ var foo = Relay.QL`
 Output:
 var Relay = require('Relay');
 var foo = (function () {
-  var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.QueryFragment('FieldWithFakeConnection', 'User', [new GraphQL.Field('fakeConnection', [new GraphQL.Field('edges', [new GraphQL.Field('node', [new GraphQL.Field('id', null, null, null, null, null, {
-    parentType: 'FakeNode',
-    requisite: true
-  })], null, null, null, null, {
-    parentType: 'FakeEdge',
-    rootCall: 'node',
-    pk: 'id',
-    requisite: true
-  }), new GraphQL.Field('cursor', null, null, null, null, null, {
-    parentType: 'FakeEdge',
-    generated: true,
-    requisite: true
-  })], null, null, null, null, {
-    parentType: 'FakeConnection',
-    plural: true
-  })], null, null, null, null, {
-    parentType: 'User'
-  }), new GraphQL.Field('id', null, null, null, null, null, {
-    parentType: 'User',
-    generated: true,
-    requisite: true
-  })]);
+  return {
+    children: [{
+      alias: null,
+      calls: [],
+      children: [{
+        alias: null,
+        calls: [],
+        children: [{
+          alias: null,
+          calls: [],
+          children: [{
+            alias: null,
+            calls: [],
+            children: [],
+            condition: null,
+            directives: [],
+            fieldName: 'id',
+            kind: 'Field',
+            metadata: {
+              parentType: 'FakeNode',
+              isRequisite: true
+            }
+          }],
+          condition: null,
+          directives: [],
+          fieldName: 'node',
+          kind: 'Field',
+          metadata: {
+            parentType: 'FakeEdge',
+            inferredRootCallName: 'node',
+            inferredPrimaryKey: 'id',
+            isRequisite: true
+          }
+        }, {
+          alias: null,
+          calls: [],
+          children: [],
+          condition: null,
+          directives: [],
+          fieldName: 'cursor',
+          kind: 'Field',
+          metadata: {
+            parentType: 'FakeEdge',
+            isGenerated: true,
+            isRequisite: true
+          }
+        }],
+        condition: null,
+        directives: [],
+        fieldName: 'edges',
+        kind: 'Field',
+        metadata: {
+          parentType: 'FakeConnection',
+          isPlural: true
+        }
+      }],
+      condition: null,
+      directives: [],
+      fieldName: 'fakeConnection',
+      kind: 'Field',
+      metadata: {
+        parentType: 'User'
+      }
+    }, {
+      alias: null,
+      calls: [],
+      children: [],
+      condition: null,
+      directives: [],
+      fieldName: 'id',
+      kind: 'Field',
+      metadata: {
+        parentType: 'User',
+        isGenerated: true,
+        isRequisite: true
+      }
+    }],
+    directives: [],
+    isPlural: null,
+    kind: 'Fragment',
+    metadata: {},
+    name: 'FieldWithFakeConnection',
+    type: 'User'
+  };
 })();

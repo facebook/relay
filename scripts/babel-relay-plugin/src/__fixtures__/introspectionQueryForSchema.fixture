@@ -11,11 +11,37 @@ var foo = Relay.QL`
 
 Output:
 var foo = (function () {
-  var GraphQL = Relay.QL.__GraphQL;
-  return new GraphQL.Query("__schema", null, [new GraphQL.Field("types", [new GraphQL.Field("name", null, null, null, null, null, {
-    parentType: "__Type"
-  })], null, null, null, null, {
-    parentType: "__Schema",
-    plural: true
-  })], null, null, "IntrospectionQueryForSchema");
+  return {
+    calls: [],
+    children: [{
+      alias: null,
+      calls: [],
+      children: [{
+        alias: null,
+        calls: [],
+        children: [],
+        condition: null,
+        directives: [],
+        fieldName: "name",
+        kind: "Field",
+        metadata: {
+          parentType: "__Type"
+        }
+      }],
+      condition: null,
+      directives: [],
+      fieldName: "types",
+      kind: "Field",
+      metadata: {
+        parentType: "__Schema",
+        isPlural: true
+      }
+    }],
+    directives: [],
+    fieldName: "__schema",
+    isDeferred: false,
+    kind: "Query",
+    metadata: {},
+    name: "IntrospectionQueryForSchema"
+  };
 })();

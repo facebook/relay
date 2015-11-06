@@ -64,18 +64,6 @@ class RelayQLPrinter {
         null,
         substitutions.map(substitution => t.identifier(substitution.name)),
         t.blockStatement([
-          t.variableDeclaration(
-            'var',
-            [
-              t.variableDeclarator(
-                t.identifier('GraphQL'),
-                t.memberExpression(
-                  identify(this.tagName),
-                  t.identifier('__GraphQL')
-                )
-              ),
-            ]
-          ),
           t.returnStatement(printedDocument),
         ])
       ),
@@ -104,46 +92,45 @@ class RelayQLPrinter {
     if (rootFieldType.isAbstract()) {
       requisiteFields.__typename = true;
     }
-    const selection = this.printSelection(rootField, requisiteFields);
+    const selections = this.printSelections(rootField, requisiteFields);
     const metadata = {};
-    let printedArg;
     invariant(
       rootFieldArgs.length <= 1,
       'Invalid root field `%s`; Relay only supports root fields with zero ' +
       'or one argument.',
       rootField.getName()
     );
+    let calls;
     if (rootFieldArgs.length === 1) {
       // Until such time as a root field's 'identifying argument' (one that has
       // a 1-1 correspondence with a Relay record, or null) has a formal type,
       // assume that the lone arg in a root field's call is the identifying one.
       const identifyingArg = rootFieldArgs[0];
       metadata.identifyingArgName = identifyingArg.getName();
-      const identifyingArgType =
+      metadata.identifyingArgType =
         this.printArgumentTypeForMetadata(identifyingArg.getType());
-      if (identifyingArgType) {
-        metadata.identifyingArgType = identifyingArgType;
-      }
-      printedArg = this.printArgumentValue(identifyingArg);
+      calls = [codify({
+        kind: t.literal('Call'),
+        metadata: objectify({
+          type: this.printArgumentTypeForMetadata(identifyingArg.getType()),
+        }),
+        name: t.literal(identifyingArg.getName()),
+        value: this.printArgumentValue(identifyingArg),
+      })];
     } else {
-      printedArg = NULL;
+      calls = [];
     }
 
-    return t.newExpression(
-      t.memberExpression(
-        t.identifier('GraphQL'),
-        t.identifier('Query')
-      ),
-      trimArguments([
-        t.literal(rootField.getName()),
-        printedArg,
-        selection.fields,
-        selection.fragments,
-        objectify(metadata),
-        t.literal(query.getName()),
-        this.printDirectives(rootField.getDirectives()),
-      ])
-    );
+    return codify({
+      calls: t.arrayExpression(calls),
+      children: selections,
+      directives: this.printDirectives(rootField.getDirectives()),
+      fieldName: t.literal(rootField.getName()),
+      isDeferred: t.literal(false),
+      kind: t.literal('Query'),
+      metadata: objectify(metadata),
+      name: t.literal(query.getName()),
+    });
   }
 
   printFragment(fragment: RelayQLFragment): Printable {
@@ -156,23 +143,18 @@ class RelayQLPrinter {
     if (fragmentType.isAbstract()) {
       requisiteFields.__typename = true;
     }
-    const selection = this.printSelection(fragment, requisiteFields);
+    const selections = this.printSelections(fragment, requisiteFields);
     const metadata = this.printRelayDirectiveMetadata(fragment);
 
-    return t.newExpression(
-      t.memberExpression(
-        t.identifier('GraphQL'),
-        t.identifier('QueryFragment')
-      ),
-      trimArguments([
-        t.literal(fragment.getName()),
-        t.literal(fragmentType.getName({modifiers: true})),
-        selection.fields,
-        selection.fragments,
-        objectify(metadata),
-        this.printDirectives(fragment.getDirectives()),
-      ])
-    );
+    return codify({
+      children: selections,
+      directives: this.printDirectives(fragment.getDirectives()),
+      isPlural: NULL,
+      kind: t.literal('Fragment'),
+      metadata,
+      name: t.literal(fragment.getName()),
+      type: t.literal(fragmentType.getName({modifiers: true})),
+    });
   }
 
   printMutation(mutation: RelayQLMutation): Printable {
@@ -188,39 +170,32 @@ class RelayQLPrinter {
     const rootFieldType = rootField.getType();
     validateMutationField(rootField);
     const requisiteFields = {clientMutationId: true};
-    const selection = this.printSelection(rootField, requisiteFields);
+    const selections = this.printSelections(rootField, requisiteFields);
     const metadata = {
       inputType: this.printArgumentTypeForMetadata(
         rootField.getDeclaredArgument('input')
       ),
     };
 
-    return t.newExpression(
-      t.memberExpression(
-        t.identifier('GraphQL'),
-        t.identifier('Mutation')
-      ),
-      trimArguments([
-        t.literal(mutation.getName()),
-        t.literal(rootFieldType.getName({modifiers: true})),
-        t.newExpression(
-          t.memberExpression(
-            t.identifier('GraphQL'),
-            t.identifier('Callv')
-          ),
-          trimArguments([
-            t.literal(rootField.getName()),
-            this.printVariable('input'),
-          ])
-        ),
-        selection.fields,
-        selection.fragments,
-        objectify(metadata),
-      ])
-    );
+    return codify({
+      calls: t.arrayExpression([
+        codify({
+          kind: t.literal('Call'),
+          metadata: objectify({}),
+          name: t.literal(rootField.getName()),
+          value: this.printVariable('input'),
+        }),
+      ]),
+      children: selections,
+      directives: this.printDirectives(mutation.getDirectives()),
+      kind: t.literal('Mutation'),
+      metadata: objectify(metadata),
+      name: t.literal(mutation.getName()),
+      responseType: t.literal(rootFieldType.getName({modifiers: true})),
+    });
   }
 
-  printSelection(
+  printSelections(
     parent: RelayQLField | RelayQLFragment,
     requisiteFields: {[fieldName: string]: boolean}
   ): Printable {
@@ -245,14 +220,7 @@ class RelayQLPrinter {
     });
     const printedFields = this.printFields(fields, parent, requisiteFields);
 
-    return {
-      fields: printedFields.length ?
-        t.arrayExpression(printedFields) :
-        NULL,
-      fragments: printedFragments.length ?
-        t.arrayExpression(printedFragments) :
-        NULL,
-    };
+    return t.arrayExpression([...printedFields, ...printedFragments]);
   }
 
   printFields(
@@ -299,7 +267,19 @@ class RelayQLPrinter {
   ): Printable {
     const fieldType = field.getType();
 
-    const metadata = {};
+    // Provide default values for metadata keys to ensure the same hidden class
+    // at runtime
+    const metadata: {
+      inferredPrimaryKey?: ?string;
+      inferredRootCallName?: ?string;
+      isConnection?: boolean;
+      isFindable?: boolean;
+      isGenerated?: boolean;
+      isPlural?: boolean;
+      isRequisite?: boolean;
+      isUnionOrInterface?: boolean;
+      parentType?: ?string;
+    } = {};
     metadata.parentType = parent.getType().getName({modifiers: false});
     const requisiteFields = {};
     if (fieldType.hasField('id')) {
@@ -310,16 +290,16 @@ class RelayQLPrinter {
 
     // TODO: Generalize to non-`Node` types.
     if (fieldType.alwaysImplements('Node')) {
-      metadata.rootCall = 'node';
-      metadata.pk = 'id';
+      metadata.inferredRootCallName = 'node';
+      metadata.inferredPrimaryKey = 'id';
     }
     if (fieldType.isConnection()) {
       if (field.hasDeclaredArgument('first') ||
           field.hasDeclaredArgument('last')) {
         validateConnectionField(field);
-        metadata.connection = true;
-        if (!field.hasDeclaredArgument('find')) {
-          metadata.nonFindable = true;
+        metadata.isConnection = true;
+        if (field.hasDeclaredArgument('find')) {
+          metadata.isFindable = true;
         }
       }
     } else if (fieldType.isConnectionPageInfo()) {
@@ -330,43 +310,33 @@ class RelayQLPrinter {
       requisiteFields.node = true;
     }
     if (fieldType.isAbstract()) {
-      metadata.dynamic = true;
+      metadata.isUnionOrInterface = true;
       requisiteFields.__typename = true;
     }
     if (fieldType.isList()) {
-      metadata.plural = true;
+      metadata.isPlural = true;
     }
     if (generatedSiblings.hasOwnProperty(field.getName())) {
-      metadata.generated = true;
+      metadata.isGenerated = true;
     }
     if (requisiteSiblings.hasOwnProperty(field.getName())) {
-      metadata.requisite = true;
+      metadata.isRequisite = true;
     }
 
-    const selection = this.printSelection(field, requisiteFields);
+    const selections = this.printSelections(field, requisiteFields);
     const fieldAlias = field.getAlias();
     const args = field.getArguments();
 
-    return t.newExpression(
-      t.memberExpression(
-        t.identifier('GraphQL'),
-        t.identifier('Field')
-      ),
-      trimArguments([
-        t.literal(field.getName()),
-        selection.fields,
-        selection.fragments,
-        args.length ?
-          t.arrayExpression(args.map(arg => this.printArgument(arg))) :
-          NULL,
-        fieldAlias ?
-          t.literal(fieldAlias) :
-          NULL,
-        NULL,
-        objectify(metadata),
-        this.printDirectives(field.getDirectives()),
-      ])
-    );
+    return codify({
+      alias: fieldAlias ? t.literal(fieldAlias): NULL,
+      calls: t.arrayExpression(args.map(arg => this.printArgument(arg))),
+      children: selections,
+      condition: NULL,
+      directives: this.printDirectives(field.getDirectives()),
+      fieldName: t.literal(field.getName()),
+      kind: t.literal('Field'),
+      metadata: objectify(metadata),
+    });
   }
 
   printFragmentReference(fragmentReference: RelayQLFragmentSpread): Printable {
@@ -385,17 +355,12 @@ class RelayQLPrinter {
     if (inputType) {
       metadata.type = inputType;
     }
-    return t.newExpression(
-      t.memberExpression(
-        t.identifier('GraphQL'),
-        t.identifier('Callv')
-      ),
-      trimArguments([
-        t.literal(arg.getName()),
-        this.printArgumentValue(arg),
-        objectify(metadata),
-      ])
-    );
+    return codify({
+      kind: t.literal('Call'),
+      metadata: objectify(metadata),
+      name: t.literal(arg.getName()),
+      value: this.printArgumentValue(arg),
+    });
   }
 
   printArgumentValue(arg: RelayQLArgument): Printable {
@@ -407,13 +372,10 @@ class RelayQLPrinter {
   }
 
   printVariable(name: string): Printable {
-    return t.newExpression(
-      t.memberExpression(
-        t.identifier('GraphQL'),
-        t.identifier('CallVariable')
-      ),
-      [t.literal(name)]
-    );
+    return codify({
+      kind: t.literal('CallVariable'),
+      callVariableName: t.literal(name),
+    });
   }
 
   printValue(value: mixed): Printable {
@@ -422,13 +384,10 @@ class RelayQLPrinter {
         value.map(element => this.printArgumentValue(element))
       );
     }
-    return t.newExpression(
-      t.memberExpression(
-        t.identifier('GraphQL'),
-        t.identifier('CallValue')
-      ),
-      [t.literal(value)]
-    );
+    return codify({
+      kind: t.literal('CallValue'),
+      callValue: t.literal(value),
+    });
   }
 
   printDirectives(directives: Array<RelayQLDirective>): Printable {
@@ -439,6 +398,7 @@ class RelayQLPrinter {
       }
       printedDirectives.push(
         t.objectExpression([
+          property('kind', t.literal('Directive')),
           property('name', t.literal(directive.getName())),
           property('arguments', t.arrayExpression(
             directive.getArguments().map(
@@ -451,15 +411,13 @@ class RelayQLPrinter {
         ])
       );
     });
-    return printedDirectives.length ?
-      t.arrayExpression(printedDirectives) :
-      NULL;
+    return t.arrayExpression(printedDirectives);
   }
 
   printRelayDirectiveMetadata(
     node: RelayQLField | RelayQLFragment
-  ): {[name: string]: mixed} {
-    const metadata = {};
+  ): Printable {
+    const properties = [];
     const relayDirective = find(
       node.getDirectives(),
       directive => directive.getName() === 'relay'
@@ -475,10 +433,10 @@ class RelayQLPrinter {
             arg.getName()
           );
         }
-        metadata[arg.getName()] = arg.getValue();
+        properties.push(property(arg.getName(), t.literal(arg.getValue())));
       });
     }
-    return metadata;
+    return t.objectExpression(properties);
   }
 
   /**
@@ -614,6 +572,12 @@ const forEachRecursiveField = function(
   });
 };
 
+function codify(obj: {[key: string]: mixed}): Printable {
+  return t.objectExpression(
+    Object.keys(obj).map(key => property(key, obj[key]))
+  );
+}
+
 function identify(str: string): Printable {
   return str.split('.').reduce((acc, name) => {
     if (!acc) {
@@ -624,35 +588,13 @@ function identify(str: string): Printable {
 }
 
 function objectify(obj: {[key: string]: mixed}): Printable {
-  if (obj == null) {
-    return NULL;
-  }
-  const keys = Object.keys(obj);
-  if (!keys.length) {
-    return NULL;
-  }
   return t.objectExpression(
-    keys.map(key => property(key, t.literal(obj[key])))
+    Object.keys(obj).map(key => property(key, t.literal(obj[key])))
   );
 }
 
 function property(name: string, value: mixed): Printable {
   return t.property('init', t.identifier(name), value);
-}
-
-function trimArguments(args: Array<Printable>): Array<Printable> {
-  let lastIndex = -1;
-  for (let ii = args.length - 1; ii >= 0; ii--) {
-    invariant(
-      args[ii] != null,
-      'Use `NULL` to indicate that output should be the literal value `null`.'
-    );
-    if (args[ii] !== NULL) {
-      lastIndex = ii;
-      break;
-    }
-  }
-  return args.slice(0, lastIndex + 1);
 }
 
 module.exports = RelayQLPrinter;

@@ -75,7 +75,7 @@ describe('RelayMetricsRecorder', () => {
 
     expect(recorder.getMetrics()).toEqual({
       measurements: {
-        'RelayQueryNode.prototype.getChildren': {
+        '@RelayQueryNode.prototype.getChildren': {
           aggregateTime: 1000,
           callCount: 1,
         },

@@ -128,17 +128,26 @@ describe('RelayProfiler', function() {
       }).toThrow('RelayProfiler: Handler did not invoke original function.');
     });
 
-    it('does nothing unless __DEV__', () => {
+    it('ignores names starting with "@" unless __DEV__', () => {
       mockDisableDEV();
 
       mockMethod = jest.genMockFunction();
-      mockObject = {mockMethod: RelayProfiler.instrument('mock', mockMethod)};
+      mockObject = {mockMethod: RelayProfiler.instrument('@mock', mockMethod)};
 
       expect(mockObject.mockMethod).toBe(mockMethod);
       expect(() => {
         mockObject.mockMethod.attachHandler();
         mockObject.mockMethod.detachHandler();
       }).not.toThrow();
+    });
+
+    it('instruments names without "@" when not in __DEV__', () => {
+      mockDisableDEV();
+
+      mockMethod = jest.genMockFunction();
+      mockObject = {mockMethod: RelayProfiler.instrument('mock', mockMethod)};
+
+      expect(mockObject.mockMethod).not.toBe(mockMethod);
     });
   });
 

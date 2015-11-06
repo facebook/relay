@@ -1318,17 +1318,17 @@ function getDeferredFragmentNamesForField(
 }
 
 RelayProfiler.instrumentMethods(RelayQueryNode.prototype, {
-  clone: 'RelayQueryNode.prototype.clone',
-  equals: 'RelayQueryNode.prototype.equals',
-  getChildren: 'RelayQueryNode.prototype.getChildren',
-  getDirectives: 'RelayQueryNode.prototype.getDirectives',
-  hasDeferredDescendant: 'RelayQueryNode.prototype.hasDeferredDescendant',
-  getFieldByStorageKey: 'RelayQueryNode.prototype.getFieldByStorageKey',
+  clone: '@RelayQueryNode.prototype.clone',
+  equals: '@RelayQueryNode.prototype.equals',
+  getChildren: '@RelayQueryNode.prototype.getChildren',
+  getDirectives: '@RelayQueryNode.prototype.getDirectives',
+  hasDeferredDescendant: '@RelayQueryNode.prototype.hasDeferredDescendant',
+  getFieldByStorageKey: '@RelayQueryNode.prototype.getFieldByStorageKey',
 });
 
 RelayProfiler.instrumentMethods(RelayQueryField.prototype, {
-  getStorageKey: 'RelayQueryField.prototype.getStorageKey',
-  getSerializationKey: 'RelayQueryField.prototype.getSerializationKey',
+  getStorageKey: '@RelayQueryField.prototype.getStorageKey',
+  getSerializationKey: '@RelayQueryField.prototype.getSerializationKey',
 });
 
 module.exports = {

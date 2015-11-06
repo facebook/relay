@@ -25,6 +25,12 @@ const profileHandlersByName: {[name: string]: Array<ProfileHandler>} = {};
 
 const NOT_INVOKED = {};
 const defaultProfiler = {stop: emptyFunction};
+const shouldInstrument = name => {
+  if (__DEV__) {
+    return true;
+  }
+  return name.charAt(0) !== '@';
+};
 
 /**
  * @public
@@ -57,6 +63,9 @@ const defaultProfiler = {stop: emptyFunction};
  *     }
  *   });
  *
+ * In order to reduce the impact on performance in production, instrumented
+ * methods and profilers with names that begin with `@` will only be measured
+ * if `__DEV__` is true. This should be used for very hot functions.
  */
 const RelayProfiler = {
 
@@ -97,60 +106,60 @@ const RelayProfiler = {
    * in the course of executing another handler.
    */
   instrument<T: Function>(name: string, originalFunction: T): T {
-    if (__DEV__) {
-      if (!aggregateHandlersByName.hasOwnProperty(name)) {
-        aggregateHandlersByName[name] = [];
-      }
-      const aggregateHandlers = aggregateHandlersByName[name];
-      const handlers: Array<Handler> = [];
-      const contexts: Array<[number, number, any, any, any, number]> = [];
-      const invokeHandlers = function() {
-        const context = contexts[contexts.length - 1];
-        if (context[0]) {
-          context[0]--;
-          aggregateHandlers[context[0]](name, invokeHandlers);
-        } else if (context[1]) {
-          context[1]--;
-          handlers[context[1]](name, invokeHandlers);
-        } else {
-          context[4] = originalFunction.apply(context[2], context[3]);
-        }
-      };
-      const instrumentedCallback = function() {
-        let returnValue;
-        if (aggregateHandlers.length === 0 && handlers.length === 0) {
-          returnValue = originalFunction.apply(this, arguments);
-        } else {
-          contexts.push([
-            aggregateHandlers.length,
-            handlers.length,
-            this,
-            arguments,
-            NOT_INVOKED,
-          ]);
-          invokeHandlers();
-          const context = contexts.pop();
-          returnValue = context[4];
-          if (returnValue === NOT_INVOKED) {
-            throw new Error(
-              'RelayProfiler: Handler did not invoke original function.'
-            );
-          }
-        }
-        return returnValue;
-      };
-      instrumentedCallback.attachHandler = function(handler: Handler): void {
-        handlers.push(handler);
-      };
-      instrumentedCallback.detachHandler = function(handler: Handler): void {
-        removeFromArray(handlers, handler);
-      };
-      instrumentedCallback.displayName = '(instrumented ' + name + ')';
-      return (instrumentedCallback: any);
+    if (!shouldInstrument(name)) {
+      originalFunction.attachHandler = emptyFunction;
+      originalFunction.detachHandler = emptyFunction;
+      return originalFunction;
     }
-    originalFunction.attachHandler = emptyFunction;
-    originalFunction.detachHandler = emptyFunction;
-    return originalFunction;
+    if (!aggregateHandlersByName.hasOwnProperty(name)) {
+      aggregateHandlersByName[name] = [];
+    }
+    const aggregateHandlers = aggregateHandlersByName[name];
+    const handlers: Array<Handler> = [];
+    const contexts: Array<[number, number, any, any, any, number]> = [];
+    const invokeHandlers = function() {
+      const context = contexts[contexts.length - 1];
+      if (context[0]) {
+        context[0]--;
+        aggregateHandlers[context[0]](name, invokeHandlers);
+      } else if (context[1]) {
+        context[1]--;
+        handlers[context[1]](name, invokeHandlers);
+      } else {
+        context[4] = originalFunction.apply(context[2], context[3]);
+      }
+    };
+    const instrumentedCallback = function() {
+      let returnValue;
+      if (aggregateHandlers.length === 0 && handlers.length === 0) {
+        returnValue = originalFunction.apply(this, arguments);
+      } else {
+        contexts.push([
+          aggregateHandlers.length,
+          handlers.length,
+          this,
+          arguments,
+          NOT_INVOKED,
+        ]);
+        invokeHandlers();
+        const context = contexts.pop();
+        returnValue = context[4];
+        if (returnValue === NOT_INVOKED) {
+          throw new Error(
+            'RelayProfiler: Handler did not invoke original function.'
+          );
+        }
+      }
+      return returnValue;
+    };
+    instrumentedCallback.attachHandler = function(handler: Handler): void {
+      handlers.push(handler);
+    };
+    instrumentedCallback.detachHandler = function(handler: Handler): void {
+      removeFromArray(handlers, handler);
+    };
+    instrumentedCallback.displayName = '(instrumented ' + name + ')';
+    return (instrumentedCallback: any);
   },
 
   /**
@@ -170,7 +179,7 @@ const RelayProfiler = {
    *
    */
   attachAggregateHandler(name: string, handler: Handler): void {
-    if (__DEV__) {
+    if (shouldInstrument(name)) {
       if (!aggregateHandlersByName.hasOwnProperty(name)) {
         aggregateHandlersByName[name] = [];
       }
@@ -182,7 +191,7 @@ const RelayProfiler = {
    * Detaches a handler attached via `attachAggregateHandler`.
    */
   detachAggregateHandler(name: string, handler: Handler): void {
-    if (__DEV__) {
+    if (shouldInstrument(name)) {
       if (aggregateHandlersByName.hasOwnProperty(name)) {
         removeFromArray(aggregateHandlersByName[name], handler);
       }
@@ -227,18 +236,22 @@ const RelayProfiler = {
    * Attaches a handler to profiles with the supplied name.
    */
   attachProfileHandler(name: string, handler: ProfileHandler): void {
-    if (!profileHandlersByName.hasOwnProperty(name)) {
-      profileHandlersByName[name] = [];
+    if (shouldInstrument(name)) {
+      if (!profileHandlersByName.hasOwnProperty(name)) {
+        profileHandlersByName[name] = [];
+      }
+      profileHandlersByName[name].push(handler);
     }
-    profileHandlersByName[name].push(handler);
   },
 
   /**
    * Detaches a handler attached via `attachProfileHandler`.
    */
   detachProfileHandler(name: string, handler: ProfileHandler): void {
-    if (profileHandlersByName.hasOwnProperty(name)) {
-      removeFromArray(profileHandlersByName[name], handler);
+    if (shouldInstrument(name)) {
+      if (profileHandlersByName.hasOwnProperty(name)) {
+        removeFromArray(profileHandlersByName[name], handler);
+      }
     }
   },
 

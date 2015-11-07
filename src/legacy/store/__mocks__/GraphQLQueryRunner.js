@@ -49,32 +49,36 @@ function genMockRequest(args) {
   };
 }
 
-GraphQLQueryRunner.run.mock.abort = [];
-GraphQLQueryRunner.run.mock.requests = [];
-GraphQLQueryRunner.run.mockImplementation((...args) => {
-  var request = genMockRequest(args);
-  var returnValue = {
-    abort: jest.genMockFunction().mockImplementation(() => {
-      resolveImmediate(request.abort);
-    })
-  };
-  GraphQLQueryRunner.run.mock.abort.push(returnValue.abort);
-  GraphQLQueryRunner.run.mock.requests.push(request);
-  return returnValue;
-});
+GraphQLQueryRunner.mockImplementation(function() {
+  this.run.mock.abort = [];
+  this.run.mock.requests = [];
+  this.run.mockImplementation((...args) => {
+    var request = genMockRequest(args);
+    var returnValue = {
+      abort: jest.genMockFunction().mockImplementation(() => {
+        resolveImmediate(request.abort);
+      })
+    };
+    this.run.mock.abort.push(returnValue.abort);
+    this.run.mock.requests.push(request);
+    return returnValue;
+  });
 
-GraphQLQueryRunner.forceFetch.mock.abort = [];
-GraphQLQueryRunner.forceFetch.mock.requests = [];
-GraphQLQueryRunner.forceFetch.mockImplementation((...args) => {
-  var request = genMockRequest(args);
-  var returnValue = {
-    abort: jest.genMockFunction().mockImplementation(() => {
-      resolveImmediate(request.abort);
-    })
-  };
-  GraphQLQueryRunner.forceFetch.mock.abort.push(returnValue.abort);
-  GraphQLQueryRunner.forceFetch.mock.requests.push(request);
-  return returnValue;
+  this.forceFetch.mock.abort = [];
+  this.forceFetch.mock.requests = [];
+  this.forceFetch.mockImplementation((...args) => {
+    var request = genMockRequest(args);
+    var returnValue = {
+      abort: jest.genMockFunction().mockImplementation(() => {
+        resolveImmediate(request.abort);
+      })
+    };
+    this.forceFetch.mock.abort.push(returnValue.abort);
+    this.forceFetch.mock.requests.push(request);
+    return returnValue;
+  });
+
+  return this;
 });
 
 module.exports = GraphQLQueryRunner;

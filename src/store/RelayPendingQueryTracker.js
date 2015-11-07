@@ -40,8 +40,6 @@ type PendingState = {
   query: RelayQuery.Root;
 };
 
-var pendingFetchMap: {[queryID: string]: PendingState} = {};
-
 // Asynchronous mapping from preload query IDs to results.
 var preloadQueryMap: PromiseMap<Object, Error> = new PromiseMap();
 
@@ -60,6 +58,8 @@ class PendingFetch {
   _resolvedDeferred: Deferred<void, ?Error>;
 
   _storeData: RelayStoreData;
+  _pendingFetchMap: {[queryID: string]: PendingState};
+  _queryTracker: typeof GraphQLDeferredQueryTracker;
 
   /**
    * Error(s) in fetching/handleUpdate-ing its or one of its pending
@@ -69,7 +69,9 @@ class PendingFetch {
   _errors: Array<?Error>;
 
   constructor(
-    {fetchMode, forceIndex, query, storeData}: PendingQueryParameters
+    {fetchMode, forceIndex, query, storeData}: PendingQueryParameters,
+    pendingFetchMap: {[queryID: string]: PendingState},
+    queryTracker: typeof GraphQLDeferredQueryTracker
   ) {
     var queryID = query.getID();
     this._storeData = storeData;
@@ -81,6 +83,8 @@ class PendingFetch {
 
     this._dependents = [];
     this._pendingDependencyMap = {};
+    this._pendingFetchMap = pendingFetchMap;
+    this._queryTracker = queryTracker;
 
     var subtractedQuery;
     if (fetchMode === DliteFetchModeConstants.FETCH_MODE_PRELOAD) {
@@ -101,7 +105,7 @@ class PendingFetch {
         fetch: this,
         query: subtractedQuery,
       };
-      GraphQLDeferredQueryTracker.recordQuery(subtractedQuery);
+      this._queryTracker.recordQuery(subtractedQuery);
       this._fetchSubtractedQueryPromise.done(
         this._handleSubtractedQuerySuccess.bind(this, subtractedQuery),
         this._handleSubtractedQueryFailure.bind(this, subtractedQuery)
@@ -125,7 +129,7 @@ class PendingFetch {
    * way to) the cache (`RelayRecordStore`).
    */
   _subtractPending(query: ?RelayQuery.Root): ?RelayQuery.Root {
-    everyObject(pendingFetchMap, pending => {
+    everyObject(this._pendingFetchMap, pending => {
       // Stop if the entire query is subtracted.
       if (!query) {
         return false;
@@ -171,7 +175,7 @@ class PendingFetch {
         response,
         this._forceIndex
       );
-      GraphQLDeferredQueryTracker.resolveQuery(
+      this._queryTracker.resolveQuery(
         subtractedQuery,
         response,
         result.ref_params
@@ -186,14 +190,14 @@ class PendingFetch {
     subtractedQuery: RelayQuery.Root,
     error: Error
   ): void {
-    GraphQLDeferredQueryTracker.rejectQuery(subtractedQuery, error);
+    this._queryTracker.rejectQuery(subtractedQuery, error);
 
     this._markAsRejected(error);
   }
 
   _markSubtractedQueryAsResolved(): void {
     var queryID = this.getQuery().getID();
-    delete pendingFetchMap[queryID];
+    delete this._pendingFetchMap[queryID];
 
     this._resolvedSubtractedQuery = true;
     this._updateResolvedDeferred();
@@ -205,7 +209,7 @@ class PendingFetch {
 
   _markAsRejected(error: Error): void {
     var queryID = this.getQuery().getID();
-    delete pendingFetchMap[queryID];
+    delete this._pendingFetchMap[queryID];
 
     console.warn(error.message);
 
@@ -287,38 +291,45 @@ function hasItems(map: Object): boolean {
  * `RelayPendingQueryTracker` maintains a registry of pending queries, and
  * "subtracts" those from any new queries that callers enqueue.
  */
-var RelayPendingQueryTracker = {
+class RelayPendingQueryTracker {
+  _pendingFetchMap: {[queryID: string]: PendingState};
+  _queryTracker: typeof GraphQLDeferredQueryTracker;
+
+  PendingFetch: Class<PendingFetch>;
+
+  constructor(queryTracker: typeof GraphQLDeferredQueryTracker) {
+    this._pendingFetchMap = {};
+    this._queryTracker = queryTracker;
+
+    this.PendingFetch = PendingFetch;
+  }
 
   /**
    * Used by `GraphQLQueryRunner` to enqueue new queries.
    */
   add(params: PendingQueryParameters): PendingFetch {
-    return new PendingFetch(params);
-  },
+    return new PendingFetch(params, this._pendingFetchMap, this._queryTracker);
+  }
 
   hasPendingQueries(): boolean {
-    return hasItems(pendingFetchMap);
-  },
+    return hasItems(this._pendingFetchMap);
+  }
 
   /**
    * Clears all pending query tracking. Does not cancel the queries themselves.
    */
   resetPending(): void {
-    pendingFetchMap = {};
-    GraphQLDeferredQueryTracker.reset();
-  },
+    this._pendingFetchMap = {};
+    this._queryTracker.reset();
+  }
 
   resolvePreloadQuery(queryID: string, result: Object): void {
     preloadQueryMap.resolveKey(queryID, result);
-  },
+  }
 
   rejectPreloadQuery(queryID: string, error: Error): void {
     preloadQueryMap.rejectKey(queryID, error);
-  },
+  }
+}
 
-  // TODO: Use `export type`.
-  PendingFetch,
-
-};
-
-module.exports = RelayPendingQueryTracker;
+module.exports = new RelayPendingQueryTracker(GraphQLDeferredQueryTracker);

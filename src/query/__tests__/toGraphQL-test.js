@@ -42,18 +42,26 @@ describe('toGraphQL', function() {
   };
 
   function filterGraphQLNode(node) {
-    node = filterObject(
-      node,
-      (_, key) => CONCRETE_KEYS[key]
-    );
+    node = filterObject(node, (value, key) => {
+      if (!CONCRETE_KEYS[key]) {
+        return false;
+      }
+      return !!value && (!Array.isArray(value) || value.length);
+    });
     if (node.calls) {
-      node.calls = node.calls.map(filterGraphQLNode);
+      node.calls = node.calls.length ?
+        node.calls.map(filterGraphQLNode) :
+        null;
     }
     if (node.children) {
-      node.children = node.children.map(filterGraphQLNode);
+      node.children = node.children.length ?
+        node.children.map(filterGraphQLNode) :
+        null;
     }
     if (node.directives) {
-      node.directives = node.directives.map(filterGraphQLNode);
+      node.directives = node.directives.length ?
+        node.directives.map(filterGraphQLNode) :
+        null;
     }
     if (node.metadata) {
       node.metadata = filterObject(

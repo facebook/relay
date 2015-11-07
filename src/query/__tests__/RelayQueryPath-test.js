@@ -214,10 +214,8 @@ describe('RelayQueryPath', () => {
       }],
       children: [
         {
-          alias: null,
           calls: [],
           children: [],
-          directives: [],
           fieldName: 'id',
           kind: 'Field',
           metadata: {
@@ -225,10 +223,8 @@ describe('RelayQueryPath', () => {
             parentType: 'Node',
           },
         }, {
-          alias: null,
           calls: [],
           children: [],
-          directives: [],
           fieldName: '__typename',
           kind: 'Field',
           metadata: {
@@ -244,7 +240,6 @@ describe('RelayQueryPath', () => {
       kind: 'Query',
       metadata: {
         identifyingArgName: 'id',
-        identifyingArgType: null,
       },
       name: 'RelayQueryPath',
     }]);
@@ -280,7 +275,6 @@ describe('RelayQueryPath', () => {
       calls: [],
       children: [{
         children: [],
-        directives: [],
         kind: 'Fragment',
         metadata: {
           plural: false,

@@ -72,9 +72,8 @@ var toGraphQL = {
   Fragment(node: RelayQuery.Fragment): ConcreteFragment {
     return node.getConcreteQueryNode(() => {
       const children = node.getChildren().map(toGraphQLSelection);
-      return {
+      const fragment: ConcreteFragment = {
         children,
-        directives: [],
         kind: 'Fragment',
         metadata: {
           plural: node.isPlural(),
@@ -82,21 +81,22 @@ var toGraphQL = {
         name: node.getDebugName(),
         type: node.getType(),
       };
+      return fragment;
     });
   },
   Field(node: RelayQuery.Field): ConcreteField {
     return node.getConcreteQueryNode(() => {
       const calls = callsToGraphQL(node.getCallsWithValues());
       const children = node.getChildren().map(toGraphQLSelection);
-      return {
+      const field: ConcreteField = {
         alias: node.__concreteNode__.alias,
         calls,
         children,
-        directives: [],
         fieldName: node.getSchemaName(),
         kind: 'Field',
         metadata: node.__concreteNode__.metadata,
       };
+      return field;
     });
   },
 };

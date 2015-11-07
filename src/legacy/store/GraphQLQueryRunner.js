@@ -50,9 +50,6 @@ type PartialReadyState = {
 };
 type RelayProfileHandler = {stop: () => void};
 
-// The source of truth for application data.
-var storeData = RelayStoreData.getDefaultInstance();
-
 /**
  * This is the high-level entry point for sending queries to the GraphQL
  * endpoint. It provides methods for scheduling queries (`run`), force-fetching
@@ -64,7 +61,12 @@ var storeData = RelayStoreData.getDefaultInstance();
  *
  * @internal
  */
-var GraphQLQueryRunner = {
+class GraphQLQueryRunner {
+  _storeData: RelayStoreData;
+
+  constructor(storeData: RelayStoreData) {
+    this._storeData = storeData;
+  }
 
   /**
    * Fetches data required to resolve a set of queries. See the `RelayStore`
@@ -72,7 +74,7 @@ var GraphQLQueryRunner = {
    *
    * Fetch mode must be a value in `DliteFetchModeConstants`.
    */
-  run: function(
+  run(
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback,
     fetchMode?: string
@@ -88,8 +90,8 @@ var GraphQLQueryRunner = {
         if (query) {
           diffQueries.push(...diffRelayQuery(
             query,
-            storeData.getRecordStore(),
-            storeData.getQueryTracker()
+            this._storeData.getRecordStore(),
+            this._storeData.getQueryTracker()
           ));
         }
       });
@@ -101,8 +103,10 @@ var GraphQLQueryRunner = {
       });
     }
 
-    return runQueries(diffQueries, callback, fetchMode, profiler);
-  },
+    return runQueries(
+      diffQueries, callback, fetchMode, profiler, this._storeData
+    );
+  }
 
   /**
    * Ignores the cache and fetches data required to resolve a set of queries.
@@ -111,7 +115,7 @@ var GraphQLQueryRunner = {
    * Even though we're ignoring the cache, we will still invoke the callback
    * immediately with `ready: true` if `querySet` can be resolved by the cache.
    */
-  forceFetch: function(
+  forceFetch(
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
@@ -122,16 +126,8 @@ var GraphQLQueryRunner = {
       query && queries.push(query);
     });
 
-    return runQueries(queries, callback, fetchMode, profiler);
-  },
-
-};
-
-function canResolve(fetch: PendingFetch): boolean {
-  return checkRelayQueryData(
-    storeData.getQueuedStore(),
-    fetch.getQuery()
-  );
+    return runQueries(queries, callback, fetchMode, profiler, this._storeData);
+  }
 }
 
 function hasItems(map: Object): boolean {
@@ -174,7 +170,8 @@ function runQueries(
   queries: Array<RelayQuery.Root>,
   callback: ReadyStateChangeCallback,
   fetchMode: string,
-  profiler: RelayProfileHandler
+  profiler: RelayProfileHandler,
+  storeData: RelayStoreData
 ): Abortable {
   var readyState = {
     aborted: false,
@@ -251,6 +248,13 @@ function runQueries(
     }
   }
 
+  function canResolve(fetch: PendingFetch): boolean {
+    return checkRelayQueryData(
+      storeData.getQueuedStore(),
+      fetch.getQuery()
+    );
+  }
+
   RelayTaskScheduler.await(() => {
     var forceIndex = fetchMode === DliteFetchModeConstants.FETCH_MODE_REFETCH ?
       generateForceIndex() : null;
@@ -311,4 +315,4 @@ function runQueries(
   };
 }
 
-module.exports = GraphQLQueryRunner;
+module.exports = new GraphQLQueryRunner(RelayStoreData.getDefaultInstance());

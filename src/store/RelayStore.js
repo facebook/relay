@@ -38,7 +38,7 @@ import type {
   RelayQuerySet
 } from 'RelayInternalTypes';
 
-var queuedStore = RelayStoreData.getDefaultInstance().getQueuedStore();
+import type RelayRecordStore from 'RelayRecordStore';
 
 /**
  * @public
@@ -75,7 +75,14 @@ var queuedStore = RelayStoreData.getDefaultInstance().getQueuedStore();
  *  }
  *
  */
-var RelayStore = {
+class RelayStore {
+  _recordStore: RelayRecordStore;
+  _queryRunner: typeof GraphQLQueryRunner;
+
+  constructor(storeData: RelayStoreData) {
+    this._recordStore = storeData.getQueuedStore();
+    this._queryRunner = new GraphQLQueryRunner.constructor(storeData);
+  }
 
   /**
    * Primes the store by sending requests for any missing data that would be
@@ -85,8 +92,8 @@ var RelayStore = {
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
-    return GraphQLQueryRunner.run(querySet, callback);
-  },
+    return this._queryRunner.run(querySet, callback);
+  }
 
   /**
    * Forces the supplied set of queries to be fetched and written to the store.
@@ -96,8 +103,8 @@ var RelayStore = {
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
-    return GraphQLQueryRunner.forceFetch(querySet, callback);
-  },
+    return this._queryRunner.forceFetch(querySet, callback);
+  }
 
   /**
    * Reads query data anchored at the supplied data ID.
@@ -107,8 +114,8 @@ var RelayStore = {
     dataID: DataID,
     options?: StoreReaderOptions
   ): ?StoreReaderData {
-    return readRelayQueryData(queuedStore, node, dataID, options).data;
-  },
+    return readRelayQueryData(this._recordStore, node, dataID, options).data;
+  }
 
   /**
    * Reads query data anchored at the supplied data IDs.
@@ -119,9 +126,9 @@ var RelayStore = {
     options?: StoreReaderOptions
   ): Array<?StoreReaderData> {
     return dataIDs.map(
-      dataID => readRelayQueryData(queuedStore, node, dataID, options).data
+      dataID => readRelayQueryData(this._recordStore, node, dataID, options).data
     );
-  },
+  }
 
   /**
    * Reads query data, where each element in the result array corresponds to a
@@ -136,14 +143,14 @@ var RelayStore = {
     var results = [];
     forEachRootCallArg(root, identifyingArgValue => {
       var data;
-      var dataID = queuedStore.getDataID(storageKey, identifyingArgValue);
+      var dataID = this._recordStore.getDataID(storageKey, identifyingArgValue);
       if (dataID != null) {
-        data = RelayStore.read(root, dataID, options);
+        data = this.read(root, dataID, options);
       }
       results.push(data);
     });
     return results;
-  },
+  }
 
   /**
    * Reads and subscribes to query data anchored at the supplied data ID. The
@@ -157,8 +164,8 @@ var RelayStore = {
       fragment.isPlural()? [dataID] : dataID,
       fragment
     );
-    return new RelayQueryResultObservable(queuedStore, fragmentPointer);
-  },
+    return new RelayQueryResultObservable(this._recordStore, fragmentPointer);
+  }
 
   update(
     mutation: RelayMutation,
@@ -167,6 +174,7 @@ var RelayStore = {
     var transaction = new RelayMutationTransaction(mutation);
     transaction.commit(callbacks);
   }
-};
+}
 
-module.exports = RelayStore;
+module.exports =
+  new RelayStore(RelayStoreData.getDefaultInstance());

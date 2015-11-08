@@ -166,7 +166,7 @@ var RelayStore = {
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): void {
-    var transaction = new RelayMutationTransaction(mutation);
+    var transaction = new RelayMutationTransaction(mutation, storeData);
     transaction.commit(callbacks);
   }
 };

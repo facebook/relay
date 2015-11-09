@@ -10,7 +10,7 @@
 'use strict';
 
 var RelayStore = jest.genMockFromModule('RelayStore');
-var RelayRecordStore = require('RelayRecordStore');
+var RelayStoreData = require('RelayStoreData');
 
 var resolveImmediate = require('resolveImmediate');
 
@@ -79,11 +79,7 @@ RelayStore.forceFetch.mockImplementation((...args) => {
   return returnValue;
 });
 
-RelayStore.mock = {
-  setMockRecords: records => {
-    RelayStore.mock.recordStore = new RelayRecordStore({records});
-  },
-  recordStore: null,
-};
+var storeData = new RelayStoreData();
+RelayStore._getStoreData = jest.genMockFunction().mockImplementation(() => storeData);
 
 module.exports = RelayStore;

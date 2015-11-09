@@ -19,7 +19,7 @@ jest.dontMock('RelayContainer');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
 var Relay = require('Relay');
-var RelayStoreData = require('RelayStoreData');
+var RelayStore = require('RelayStore');
 
 describe('RelayContainer.hasOptimisticUpdate', () => {
   var MockContainer;
@@ -59,7 +59,7 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
   });
 
   it('is only true for queued records', () => {
-    var storeData = RelayStoreData.getDefaultInstance();
+    var storeData = RelayStore._getStoreData();
     var recordStore = storeData.getRecordStoreForOptimisticMutation('mutation');
     recordStore.putRecord('123', 'Type');
     var instance = RelayTestRenderer.render(genMockPointer => {
@@ -70,7 +70,7 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
   });
 
   it('is false for non-queued records', () => {
-    RelayStoreData.getDefaultInstance().getRecordStore()
+    RelayStore._getStoreData().getRecordStore()
       .putRecord('123', 'Type');
 
     var instance = RelayTestRenderer.render(genMockPointer => {

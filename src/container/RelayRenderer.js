@@ -18,7 +18,6 @@ const React = require('React');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
 const RelayPropTypes = require('RelayPropTypes');
 const RelayStore = require('RelayStore');
-const RelayStoreData = require('RelayStoreData');
 import type {
   Abortable,
   ComponentReadyState,
@@ -286,7 +285,7 @@ class RelayRenderer extends React.Component {
 function createFragmentPointerForRoot(query) {
   return query ?
     GraphQLFragmentPointer.createForRoot(
-      RelayStoreData.getDefaultInstance().getQueuedStore(),
+      RelayStore._getStoreData().getQueuedStore(),
       query
     ) :
     null;

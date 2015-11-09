@@ -31,7 +31,6 @@ var RelayPropTypes = require('RelayPropTypes');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 var RelayStore = require('RelayStore');
-var RelayStoreData = require('RelayStoreData');
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
@@ -77,7 +76,8 @@ var containerContextTypes = {
 };
 var nextContainerID = 0;
 
-var storeData = RelayStoreData.getDefaultInstance();
+var storeData = RelayStore._getStoreData();
+var deferredQueryTracker = storeData.getDeferredQueryTracker();
 
 storeData.getChangeEmitter().injectBatchingStrategy(
   ReactDOM.unstable_batchedUpdates
@@ -428,7 +428,7 @@ function createContainerComponent(
         'conditions.'
       );
       var fragmentID = fragment.getFragmentID();
-      var hasData = !storeData.getDeferredQueryTracker().isQueryPending(
+      var hasData = !deferredQueryTracker.isQueryPending(
         dataID,
         fragmentID
       );
@@ -442,7 +442,7 @@ function createContainerComponent(
         }
         if (!deferredSubscriptions.hasOwnProperty(subscriptionKey)) {
           deferredSubscriptions[subscriptionKey] =
-            storeData.getDeferredQueryTracker().addListenerForFragment(
+            deferredQueryTracker.addListenerForFragment(
               dataID,
               fragmentID,
               {

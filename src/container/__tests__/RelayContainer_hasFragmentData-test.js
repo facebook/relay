@@ -17,7 +17,7 @@ RelayTestUtils.unmockRelay();
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
 var Relay = require('Relay');
-var RelayStoreData = require('RelayStoreData');
+var RelayStore = require('RelayStore');
 
 describe('RelayContainer.hasFragmentData', function() {
   var MockContainer;
@@ -29,7 +29,7 @@ describe('RelayContainer.hasFragmentData', function() {
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    var storeData = RelayStoreData.getDefaultInstance();
+    var storeData = RelayStore._getStoreData();
     deferredQueryTracker = storeData.getDeferredQueryTracker();
     pendingQueryTracker = storeData.getPendingQueryTracker();
 

@@ -203,6 +203,24 @@ class RelayStoreData {
   }
 
   /**
+   * Returns whether a given record is affected by an optimistic update.
+   */
+  hasOptimisticUpdate(dataID: DataID): boolean {
+    dataID = this.getRangeData().getCanonicalClientID(dataID);
+    return this.getQueuedStore().hasOptimisticUpdate(dataID);
+  }
+
+  /**
+   * Returns a list of client mutation IDs for queued mutations whose optimistic
+   * updates are affecting the record corresponding the given dataID. Returns
+   * null if the record isn't affected by any optimistic updates.
+   */
+  getClientMutationIDs(dataID: DataID): ?Array<ClientMutationID> {
+    dataID = this.getRangeData().getCanonicalClientID(dataID);
+    return this.getQueuedStore().getClientMutationIDs(dataID);
+  }
+
+  /**
    * Reads data for queries incrementally from disk cache.
    * It calls onSuccess when all the data has been loaded into memory.
    * It calls onFailure when some data is unabled to be satisfied from disk.

@@ -15,7 +15,6 @@
 
 import type {ChangeSubscription} from 'GraphQLStoreChangeEmitter';
 import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 import type RelayStoreGarbageCollector from 'RelayStoreGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
@@ -246,7 +245,7 @@ class GraphQLStoreSingleQueryResolver {
         subscribedIDs[nextID] = true;
         var changeEmitter = this._storeData.getChangeEmitter();
         this._subscription = changeEmitter.addListenerForIDs(
-          Object.keys(subscribedIDs),
+          Object.keys(subscribedIDs).map(id => this._getCanonicalID(id)),
           this._handleChange.bind(this)
         );
         this._updateGarbageCollectorSubscriptionCount(subscribedIDs);
@@ -268,7 +267,7 @@ class GraphQLStoreSingleQueryResolver {
    * not "client:1_first(5)".
    */
   _getCanonicalID(id: DataID): DataID {
-    return GraphQLStoreRangeUtils.getCanonicalClientID(id);
+    return this._storeData.getRangeData().getCanonicalClientID(id);
   }
 
   _handleChange(): void {

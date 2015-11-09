@@ -17,6 +17,7 @@ var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 var RelayChangeTracker = require('RelayChangeTracker');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {ChangeSet} from 'RelayChangeTracker';
@@ -69,11 +70,12 @@ class RelayStoreData {
   _garbageCollector: ?RelayStoreGarbageCollector;
   _nodeRangeMap: NodeRangeMap;
   _records: Records;
+  _queryRunner: GraphQLQueryRunner;
+  _queryTracker: RelayQueryTracker;
   _queuedRecords: Records;
   _queuedStore: RelayRecordStore;
+  _rangeData: GraphQLStoreRangeUtils;
   _recordStore: RelayRecordStore;
-  _queryTracker: RelayQueryTracker;
-  _queryRunner: GraphQLQueryRunner;
   _rootCalls: RootCallMap;
 
   /**
@@ -112,12 +114,13 @@ class RelayStoreData {
     this._deferredQueryTracker =
       new GraphQLDeferredQueryTracker(this.getRecordStore());
     this._nodeRangeMap = nodeRangeMap;
+    this._rangeData = new GraphQLStoreRangeUtils();
     this._records = records;
+    this._queryTracker = new RelayQueryTracker();
+    this._queryRunner = new GraphQLQueryRunner(this);
     this._queuedRecords = queuedRecords;
     this._queuedStore = queuedStore;
     this._recordStore = recordStore;
-    this._queryTracker = new RelayQueryTracker();
-    this._queryRunner = new GraphQLQueryRunner(this);
     this._rootCalls = rootCallMap;
   }
 
@@ -388,6 +391,10 @@ class RelayStoreData {
 
   getChangeEmitter(): GraphQLStoreChangeEmitter {
     return this._changeEmitter;
+  }
+
+  getRangeData(): GraphQLStoreRangeUtils {
+    return this._rangeData;
   }
 
   /**

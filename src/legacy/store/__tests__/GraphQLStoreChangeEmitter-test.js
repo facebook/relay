@@ -15,7 +15,6 @@ jest.dontMock('GraphQLStoreChangeEmitter');
 
 var ErrorUtils = require('ErrorUtils');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 
 describe('GraphQLStoreChangeEmitter', () => {
   var changeEmitter;
@@ -25,8 +24,6 @@ describe('GraphQLStoreChangeEmitter', () => {
     jest.resetModuleRegistry();
 
     changeEmitter = new GraphQLStoreChangeEmitter();
-    
-    GraphQLStoreRangeUtils.getCanonicalClientID.mockImplementation(id => id);
 
     ErrorUtils.applyWithGuard.mockImplementation(callback => {
       try {
@@ -87,19 +84,6 @@ describe('GraphQLStoreChangeEmitter', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls.length).toBe(2);
-  });
-
-  it('should correctly broadcast changes to range IDs', () => {
-    GraphQLStoreRangeUtils.getCanonicalClientID.mockImplementation(
-      id => id === 'baz_first(5)' ? 'baz' : id
-    );
-
-    changeEmitter.addListenerForIDs(['baz_first(5)'], mockCallback);
-    changeEmitter.broadcastChangeForID('baz');
-
-    jest.runAllTimers();
-
-    expect(mockCallback).toBeCalled();
   });
 
   it('should guard against callback errors', () => {

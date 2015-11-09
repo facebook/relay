@@ -15,7 +15,6 @@
 
 import type {ChangeSubscription} from 'GraphQLStoreChangeEmitter';
 import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
-var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 import type RelayStoreGarbageCollector from 'RelayStoreGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
@@ -245,7 +244,8 @@ class GraphQLStoreSingleQueryResolver {
       if (subscribedIDs) {
         // always subscribe to the root ID
         subscribedIDs[nextID] = true;
-        this._subscription = GraphQLStoreChangeEmitter.addListenerForIDs(
+        var changeEmitter = this._storeData.getChangeEmitter();
+        this._subscription = changeEmitter.addListenerForIDs(
           Object.keys(subscribedIDs),
           this._handleChange.bind(this)
         );

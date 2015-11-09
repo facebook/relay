@@ -18,13 +18,13 @@ jest.dontMock('GraphQLStoreQueryResolver');
 
 var Relay = require('Relay');
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var readRelayQueryData = require('readRelayQueryData');
 var RelayStoreData = require('RelayStoreData');
 var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
 
 describe('GraphQLStoreQueryResolver', () => {
+  var changeEmitter;
   var storeData;
 
   var mockCallback;
@@ -46,6 +46,7 @@ describe('GraphQLStoreQueryResolver', () => {
     jest.resetModuleRegistry();
 
     storeData = new RelayStoreData();
+    changeEmitter = storeData.getChangeEmitter();
 
     mockCallback = jest.genMockFunction();
     mockQueryFragment = getNode(Relay.QL`fragment on Node{id,name}`);
@@ -100,7 +101,7 @@ describe('GraphQLStoreQueryResolver', () => {
     );
     resolver.resolve(fragmentPointer);
 
-    var addListenersForIDs = GraphQLStoreChangeEmitter.addListenerForIDs;
+    var addListenersForIDs = changeEmitter.addListenerForIDs;
     expect(addListenersForIDs).toBeCalled();
     expect(addListenersForIDs.mock.calls[0][0]).toEqual(['1038750002']);
   });
@@ -148,7 +149,7 @@ describe('GraphQLStoreQueryResolver', () => {
     });
     var resolvedA = resolver.resolve(fragmentPointer);
 
-    var callback = GraphQLStoreChangeEmitter.addListenerForIDs.mock.calls[0][1];
+    var callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
     callback(['1038750002']);
 
     mockReader({
@@ -205,7 +206,7 @@ describe('GraphQLStoreQueryResolver', () => {
     mockReader(mockResult);
     resolver.resolve(fragmentPointer);
 
-    var callback = GraphQLStoreChangeEmitter.addListenerForIDs.mock.calls[0][1];
+    var callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
     callback(['1038750002']);
 
     expect(mockCallback).toBeCalled();
@@ -284,7 +285,7 @@ describe('GraphQLStoreQueryResolver', () => {
     var resolvedA = resolver.resolve(fragmentPointer);
 
     mockResults['1'] = {__dataID__: '1', name: 'Won'};
-    var callback = GraphQLStoreChangeEmitter.addListenerForIDs.mock.calls[0][1];
+    var callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
     callback(['1']);
 
     var resolvedB = resolver.resolve(fragmentPointer);
@@ -398,7 +399,7 @@ describe('GraphQLStoreQueryResolver', () => {
       // Resolve the fragment pointer with the mocked data
       resolver.resolve(fragmentPointer);
       var callback =
-        GraphQLStoreChangeEmitter.addListenerForIDs.mock.calls[0][1];
+        changeEmitter.addListenerForIDs.mock.calls[0][1];
       // On first resolve we get data for all added ids
       expect(getIncreaseSubscriptionsParameters(2)).toEqual([
         'address', 'chris'

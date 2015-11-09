@@ -12,13 +12,13 @@
 'use strict';
 
 jest
+  .dontMock('RelayStoreData')
   .dontMock('GraphQLStoreChangeEmitter')
   .dontMock('GraphQLStoreQueryResolver');
 
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var Relay = require('Relay');
 var RelayQueryResultObservable = require('RelayQueryResultObservable');
@@ -29,6 +29,7 @@ var readRelayQueryData = require('readRelayQueryData');
 
 describe('RelayQueryResultObservable', () => {
   var storeData;
+  var changeEmitter;
 
   var query;
   var records;
@@ -85,6 +86,7 @@ describe('RelayQueryResultObservable', () => {
       return store;
     });
 
+    changeEmitter = storeData.getChangeEmitter();
     jest.addMatchers(RelayTestUtils.matchers);
   });
 
@@ -145,7 +147,7 @@ describe('RelayQueryResultObservable', () => {
 
     store.putField('123', 'name', 'Joseph');
     results.name = 'Joseph';
-    GraphQLStoreChangeEmitter.broadcastChangeForID('123');
+    changeEmitter.broadcastChangeForID('123');
     jest.runAllTimers();
 
     subscribers.forEach(subscriber => {
@@ -164,7 +166,7 @@ describe('RelayQueryResultObservable', () => {
 
     store.putField('123', 'name', 'Joseph');
     results.name = 'Joseph';
-    GraphQLStoreChangeEmitter.broadcastChangeForID('123');
+    changeEmitter.broadcastChangeForID('123');
     jest.runAllTimers();
 
     expect(subscriber.onCompleted).not.toBeCalled();
@@ -184,7 +186,7 @@ describe('RelayQueryResultObservable', () => {
 
     // fetching the record calls onNext
     store.putRecord('oops');
-    GraphQLStoreChangeEmitter.broadcastChangeForID('oops');
+    changeEmitter.broadcastChangeForID('oops');
     jest.runAllTimers();
     expect(subscriber.onCompleted).not.toBeCalled();
     expect(subscriber.onError).not.toBeCalled();
@@ -201,7 +203,7 @@ describe('RelayQueryResultObservable', () => {
 
     // deleting the record calls onNext
     store.deleteRecord('123');
-    GraphQLStoreChangeEmitter.broadcastChangeForID('123');
+    changeEmitter.broadcastChangeForID('123');
     jest.runAllTimers();
     expect(subscriber.onCompleted).not.toBeCalled();
     expect(subscriber.onError).not.toBeCalled();
@@ -210,7 +212,7 @@ describe('RelayQueryResultObservable', () => {
 
     // restoring the record calls onNext
     store.putRecord('123');
-    GraphQLStoreChangeEmitter.broadcastChangeForID('123');
+    changeEmitter.broadcastChangeForID('123');
     jest.runAllTimers();
     expect(subscriber.onCompleted).not.toBeCalled();
     expect(subscriber.onError).not.toBeCalled();
@@ -227,7 +229,7 @@ describe('RelayQueryResultObservable', () => {
 
     // evicting the record calls onNext
     store.removeRecord('123');
-    GraphQLStoreChangeEmitter.broadcastChangeForID('123');
+    changeEmitter.broadcastChangeForID('123');
     jest.runAllTimers();
     expect(subscriber.onCompleted).not.toBeCalled();
     expect(subscriber.onError).not.toBeCalled();
@@ -236,7 +238,7 @@ describe('RelayQueryResultObservable', () => {
 
     // restoring the record calls onNext
     store.putRecord('123');
-    GraphQLStoreChangeEmitter.broadcastChangeForID('123');
+    changeEmitter.broadcastChangeForID('123');
     jest.runAllTimers();
     expect(subscriber.onCompleted).not.toBeCalled();
     expect(subscriber.onError).not.toBeCalled();

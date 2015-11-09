@@ -32,7 +32,6 @@ type PendingQueryParameters = {
   fetchMode: DliteFetchModeConstants;
   forceIndex: ?number;
   query: RelayQuery.Root;
-  storeData: RelayStoreData;
 };
 type PendingState = {
   fetch: PendingFetch;
@@ -68,7 +67,8 @@ class PendingFetch {
   _errors: Array<?Error>;
 
   constructor(
-    {fetchMode, forceIndex, query, storeData}: PendingQueryParameters
+    {fetchMode, forceIndex, query}: PendingQueryParameters,
+    storeData: RelayStoreData
   ) {
     var queryID = query.getID();
     this._storeData = storeData;
@@ -291,37 +291,39 @@ function hasItems(map: Object): boolean {
  * `RelayPendingQueryTracker` maintains a registry of pending queries, and
  * "subtracts" those from any new queries that callers enqueue.
  */
-var RelayPendingQueryTracker = {
+class RelayPendingQueryTracker {
+  _storeData: RelayStoreData;
+
+  constructor(storeData: RelayStoreData) {
+    this._storeData = storeData;
+  }
 
   /**
    * Used by `GraphQLQueryRunner` to enqueue new queries.
    */
   add(params: PendingQueryParameters): PendingFetch {
-    return new PendingFetch(params);
-  },
+    return new PendingFetch(params, this._storeData);
+  }
 
   hasPendingQueries(): boolean {
     return hasItems(pendingFetchMap);
-  },
+  }
 
   /**
    * Clears all pending query tracking. Does not cancel the queries themselves.
    */
   resetPending(): void {
     pendingFetchMap = {};
-  },
+  }
 
   resolvePreloadQuery(queryID: string, result: Object): void {
     preloadQueryMap.resolveKey(queryID, result);
-  },
+  }
 
   rejectPreloadQuery(queryID: string, error: Error): void {
     preloadQueryMap.rejectKey(queryID, error);
-  },
+  }
+}
 
-  // TODO: Use `export type`.
-  PendingFetch,
-
-};
-
+export type {PendingFetch};
 module.exports = RelayPendingQueryTracker;

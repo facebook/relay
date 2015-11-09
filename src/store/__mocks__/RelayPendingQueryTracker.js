@@ -40,11 +40,15 @@ class MockPendingFetch {
   }
 }
 
-RelayPendingQueryTracker.add.mock.fetches = [];
-RelayPendingQueryTracker.add.mockImplementation(params => {
-  var mockFetch = new MockPendingFetch(params.query);
-  RelayPendingQueryTracker.add.mock.fetches.push(mockFetch);
-  return mockFetch;
+RelayPendingQueryTracker.mockImplementation(function() {
+  this.add.mock.fetches = [];
+  this.add.mockImplementation(params => {
+    var mockFetch = new MockPendingFetch(params.query);
+    this.add.mock.fetches.push(mockFetch);
+    return mockFetch;
+  });
+
+  return this;
 });
 
 module.exports = RelayPendingQueryTracker;

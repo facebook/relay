@@ -18,15 +18,18 @@ jest
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
+var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var Relay = require('Relay');
 var RelayQueryResultObservable = require('RelayQueryResultObservable');
 var RelayRecordStore = require('RelayRecordStore');
+var RelayStoreData = require('RelayStoreData');
 
 var readRelayQueryData = require('readRelayQueryData');
 
 describe('RelayQueryResultObservable', () => {
+  var storeData;
+
   var query;
   var records;
   var results;
@@ -55,7 +58,7 @@ describe('RelayQueryResultObservable', () => {
       dataID,
       query
     );
-    return new RelayQueryResultObservable(store, fragmentPointer);
+    return new RelayQueryResultObservable(storeData, fragmentPointer);
   }
 
   beforeEach(() => {
@@ -76,6 +79,11 @@ describe('RelayQueryResultObservable', () => {
       name: 'Joe',
     };
     store = new RelayRecordStore({records});
+    storeData = new RelayStoreData();
+
+    storeData.getQueuedStore = jest.genMockFunction().mockImplementation(() => {
+      return store;
+    });
 
     jest.addMatchers(RelayTestUtils.matchers);
   });

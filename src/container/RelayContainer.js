@@ -333,7 +333,7 @@ function createContainerComponent(
         'RelayContainer.hasOptimisticUpdate(): Expected a record in `%s`.',
         componentName
       );
-      return storeData.getQueuedStore().hasOptimisticUpdate(dataID);
+      return storeData.hasOptimisticUpdate(dataID);
     }
 
     /**
@@ -346,8 +346,7 @@ function createContainerComponent(
         'RelayContainer.getPendingTransactions(): Expected a record in `%s`.',
         componentName
       );
-      const mutationIDs =
-        storeData.getQueuedStore().getClientMutationIDs(dataID);
+      var mutationIDs = storeData.getClientMutationIDs(dataID);
       if (!mutationIDs) {
         return null;
       }

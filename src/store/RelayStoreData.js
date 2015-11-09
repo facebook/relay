@@ -17,6 +17,7 @@ var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 var RelayChangeTracker = require('RelayChangeTracker');
 import type {ChangeSet} from 'RelayChangeTracker';
 var RelayConnectionInterface = require('RelayConnectionInterface');
@@ -71,11 +72,12 @@ class RelayStoreData {
   _mutationQueue: RelayMutationQueue;
   _nodeRangeMap: NodeRangeMap;
   _records: Records;
+  _queryRunner: GraphQLQueryRunner;
+  _queryTracker: RelayQueryTracker;
   _queuedRecords: Records;
   _queuedStore: RelayRecordStore;
+  _rangeData: GraphQLStoreRangeUtils;
   _recordStore: RelayRecordStore;
-  _queryTracker: RelayQueryTracker;
-  _queryRunner: GraphQLQueryRunner;
   _rootCalls: RootCallMap;
 
   /**
@@ -114,12 +116,13 @@ class RelayStoreData {
     this._deferredQueryTracker = new GraphQLDeferredQueryTracker(recordStore);
     this._mutationQueue = new RelayMutationQueue(this);
     this._nodeRangeMap = nodeRangeMap;
+    this._rangeData = new GraphQLStoreRangeUtils();
     this._records = records;
+    this._queryTracker = new RelayQueryTracker();
+    this._queryRunner = new GraphQLQueryRunner(this);
     this._queuedRecords = queuedRecords;
     this._queuedStore = queuedStore;
     this._recordStore = recordStore;
-    this._queryTracker = new RelayQueryTracker();
-    this._queryRunner = new GraphQLQueryRunner(this);
     this._rootCalls = rootCallMap;
   }
 
@@ -196,6 +199,28 @@ class RelayStoreData {
 
   hasCacheManager(): boolean {
     return !!this._cacheManager;
+  }
+
+  /**
+   * Returns whether a given record is affected by an optimistic update.
+   */
+  hasOptimisticUpdate(dataID: DataID): boolean {
+    dataID = this.getCanonicalClientID(dataID);
+    return this.getQueuedStore().hasOptimisticUpdate(dataID);
+  }
+
+  /**
+   * Returns a list of client mutation IDs for queued mutations whose optimistic
+   * updates are affecting the record corresponding the given dataID. Returns
+   * null if the record isn't affected by any optimistic updates.
+   */
+  getClientMutationIDs(dataID: DataID): ?Array<ClientMutationID> {
+    dataID = this.getCanonicalClientID(dataID);
+    return this.getQueuedStore().getClientMutationIDs(dataID);
+  }
+
+  getCanonicalClientID(dataID: DataID): DataID {
+    return this.getRangeData().getCanonicalClientID(dataID);
   }
 
   /**
@@ -394,6 +419,10 @@ class RelayStoreData {
 
   getChangeEmitter(): GraphQLStoreChangeEmitter {
     return this._changeEmitter;
+  }
+
+  getRangeData(): GraphQLStoreRangeUtils {
+    return this._rangeData;
   }
 
   /**

@@ -178,7 +178,7 @@ describe('GraphQLStoreQueryResolver', () => {
       mockCallback
     );
 
-    require('GraphQLStoreRangeUtils').getCanonicalClientID =
+    RelayStoreData.getDefaultInstance().getCanonicalClientID =
       // The canonical ID of a range customarily excludes the calls
       jest.genMockFunction().mockReturnValue('client:123');
 

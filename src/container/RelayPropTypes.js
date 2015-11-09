@@ -43,6 +43,8 @@ const RelayPropTypes = {
     queries: PropTypes.object.isRequired,
     uri: PropTypes.object,
   }),
+
+  RelayContext: PropTypes.object, // TODO: instanceof RelayContext
 };
 
 module.exports = RelayPropTypes;

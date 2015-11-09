@@ -30,7 +30,6 @@ var RelayMutationTransaction = require('RelayMutationTransaction');
 var RelayPropTypes = require('RelayPropTypes');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
-var RelayStore = require('RelayStore');
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
@@ -73,15 +72,9 @@ export type RootQueries = {
 
 var containerContextTypes = {
   route: RelayPropTypes.QueryConfig.isRequired,
+  relay: RelayPropTypes.RelayContext.isRequired,
 };
 var nextContainerID = 0;
-
-var storeData = RelayStore._getStoreData();
-var deferredQueryTracker = storeData.getDeferredQueryTracker();
-
-storeData.getChangeEmitter().injectBatchingStrategy(
-  ReactDOM.unstable_batchedUpdates
-);
 
 /**
  * @public
@@ -219,8 +212,8 @@ function createContainerComponent(
           queryData.forEach((data, ii) => {
             var dataID = GraphQLStoreDataHandler.getID(data);
             if (dataID) {
-              querySet[fragmentName + ii] =
-                storeData.buildFragmentQueryForDataID(fragment, dataID);
+              querySet[fragmentName + ii] = this.context.relay._getStoreData()
+                .buildFragmentQueryForDataID(fragment, dataID);
               dataIDs.push(dataID);
             }
           });
@@ -231,8 +224,8 @@ function createContainerComponent(
           var dataID = GraphQLStoreDataHandler.getID(queryData);
           if (dataID) {
             fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
-            querySet[fragmentName] =
-              storeData.buildFragmentQueryForDataID(fragment, dataID);
+            querySet[fragmentName] = this.context.relay._getStoreData()
+              .buildFragmentQueryForDataID(fragment, dataID);
           }
         }
 
@@ -314,8 +307,8 @@ function createContainerComponent(
       var current = {
         variables: nextVariables,
         request: forceFetch ?
-          RelayStore.forceFetch(querySet, onReadyStateChange) :
-          RelayStore.primeCache(querySet, onReadyStateChange),
+          this.context.relay.forceFetch(querySet, onReadyStateChange) :
+          this.context.relay.primeCache(querySet, onReadyStateChange),
       };
       this.pending = current;
     }
@@ -332,7 +325,7 @@ function createContainerComponent(
         'RelayContainer.hasOptimisticUpdate(): Expected a record in `%s`.',
         componentName
       );
-      return storeData.hasOptimisticUpdate(dataID);
+      return this.context.relay._getStoreData().hasOptimisticUpdate(dataID);
     }
 
     /**
@@ -345,7 +338,8 @@ function createContainerComponent(
         'RelayContainer.getPendingTransactions(): Expected a record in `%s`.',
         componentName
       );
-      var mutationIDs = storeData.getClientMutationIDs(dataID);
+      var mutationIDs =
+        this.context.relay._getStoreData().getClientMutationIDs(dataID);
       if (!mutationIDs) {
         return null;
       }
@@ -400,7 +394,7 @@ function createContainerComponent(
       record: Object
     ): boolean {
       if (
-        !storeData.getPendingQueryTracker().hasPendingQueries() &&
+        !this.context.relay._getStoreData().getPendingQueryTracker().hasPendingQueries() &&
         !this._deferredErrors
       ) {
         // nothing can be missing => must have data
@@ -428,6 +422,8 @@ function createContainerComponent(
         'conditions.'
       );
       var fragmentID = fragment.getFragmentID();
+      var deferredQueryTracker =
+        this.context.relay._getStoreData().getDeferredQueryTracker();
       var hasData = !deferredQueryTracker.isQueryPending(
         dataID,
         fragmentID
@@ -547,7 +543,7 @@ function createContainerComponent(
           }
         } else if (!queryResolver) {
           queryResolver = new GraphQLStoreQueryResolver(
-            storeData,
+            this.context.relay._getStoreData(),
             fragmentPointer,
             this._handleFragmentDataUpdate.bind(this)
           );

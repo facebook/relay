@@ -30,9 +30,20 @@ describe('readRelayQueryData', () => {
   var {getNode} = RelayTestUtils;
   var END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO, START_CURSOR;
 
-  function getData({records, queuedRecords}, queryNode, dataID, options) {
+  function getStoreData(records) {
+    var recordStore = new RelayRecordStore(records);
+    var storeData = new RelayStoreData();
+
+    storeData.getQueuedStore = jest.genMockFunction().mockImplementation(() => {
+      return recordStore;
+    });
+
+    return storeData;
+  }
+
+  function getData(storeData, queryNode, dataID, options) {
     return readRelayQueryData(
-      new RelayRecordStore({records, queuedRecords}),
+      storeData instanceof RelayStoreData ? storeData : getStoreData(storeData),
       queryNode,
       dataID,
       options
@@ -105,7 +116,7 @@ describe('readRelayQueryData', () => {
     };
     var query = getNode(Relay.QL`fragment on User{birthdate {day}, address {city}}`);
     expect(
-      readRelayQueryData(new RelayRecordStore({records}), query, 'node').dataIDs
+      readRelayQueryData(getStoreData({records}), query, 'node').dataIDs
     ).toEqual({
       node: true,
       date: true,
@@ -319,7 +330,8 @@ describe('readRelayQueryData', () => {
         count
       }
     `);
-    var rangeID = RelayStoreData.getDefaultInstance().getRangeData().getClientIDForRangeWithID(
+    var storeData = getStoreData({records});
+    var rangeID = storeData.getRangeData().getClientIDForRangeWithID(
       callsToGraphQL([
         {name: 'is_viewer_friend', value: null},
         {name: 'first', value: 10},
@@ -339,7 +351,7 @@ describe('readRelayQueryData', () => {
         [HAS_PREV_PAGE]: false,
       }
     });
-    var data = getData({records}, query, rangeID);
+    var data = getData(storeData, query, rangeID);
     expect(data).toEqual({
       __dataID__: rangeID,
       count: 42,
@@ -1133,6 +1145,7 @@ describe('readRelayQueryData', () => {
         country: 'USA',
       },
     };
+    var storeData = getStoreData({records});
 
     GraphQLRange.prototype.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['edgeID'],
@@ -1148,7 +1161,7 @@ describe('readRelayQueryData', () => {
     // First we read the outer fragment, which populates the
     // GraphQLStoreRangeUtils rangeData cache.
     // (TODO: task to fix that hidden global state: #7250441)
-    var data = getData({records}, query, 'userID');
+    var data = getData(storeData, query, 'userID');
     var pointer = data.friends[
       getNode(fragmentReference).getConcreteFragmentID()
     ];
@@ -1163,7 +1176,7 @@ describe('readRelayQueryData', () => {
 
     // Now we read the inner (non-local) fragment, using the range client ID.
     data = getData(
-      {records},
+      storeData,
       getNode(fragmentReference.getFragment()),
       'friendsID_first(25)'
     );

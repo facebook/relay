@@ -215,8 +215,7 @@ class GraphQLStoreSingleQueryResolver {
       ) {
         // same canonical ID,
         // but the data, call(s), route, and/or variables have changed
-        [nextResult, subscribedIDs] = resolveFragment(
-          this._storeData.getQueuedStore(),
+        [nextResult, subscribedIDs] = this._resolveFragment(
           nextFragment,
           nextID
         );
@@ -227,8 +226,7 @@ class GraphQLStoreSingleQueryResolver {
       }
     } else {
       // Pointer has a different ID or is/was fake data.
-      [nextResult, subscribedIDs] = resolveFragment(
-        this._storeData.getQueuedStore(),
+      [nextResult, subscribedIDs] = this._resolveFragment(
         nextFragment,
         nextID
       );
@@ -277,6 +275,14 @@ class GraphQLStoreSingleQueryResolver {
     }
   }
 
+  _resolveFragment(
+    fragment: RelayQuery.Fragment,
+    dataID: DataID
+  ): [StoreReaderData, DataIDSet] {
+    var {data, dataIDs} = readRelayQueryData(this._storeData, fragment, dataID);
+    return [data, dataIDs];
+  }
+
   /**
    * Updates bookkeeping about the number of subscribers on each record.
    */
@@ -293,15 +299,6 @@ class GraphQLStoreSingleQueryResolver {
       removed.forEach(id => garbageCollector.decreaseSubscriptionsFor(id));
     }
   }
-}
-
-function resolveFragment(
-  store: RelayRecordStore,
-  fragment: RelayQuery.Fragment,
-  dataID: DataID
-): [StoreReaderData, DataIDSet] {
-  var {data, dataIDs} = readRelayQueryData(store, fragment, dataID);
-  return [data, dataIDs];
 }
 
 RelayProfiler.instrumentMethods(GraphQLStoreQueryResolver.prototype, {

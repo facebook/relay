@@ -27,7 +27,6 @@ var RelayFragmentReference = require('RelayFragmentReference');
 import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayMutationTransaction = require('RelayMutationTransaction');
-var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 var RelayPropTypes = require('RelayPropTypes');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
@@ -401,7 +400,7 @@ function createContainerComponent(
       record: Object
     ): boolean {
       if (
-        !RelayPendingQueryTracker.hasPendingQueries() &&
+        !storeData.getPendingQueryTracker().hasPendingQueries() &&
         !this._deferredErrors
       ) {
         // nothing can be missing => must have data

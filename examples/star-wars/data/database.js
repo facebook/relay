@@ -1,3 +1,4 @@
+"use strict";
 /**
  * This file provided by Facebook is for non-commercial testing and evaluation
  * purposes only.  Facebook reserves all rights not expressly granted.
@@ -103,6 +104,11 @@ export function createShip(shipName, factionId) {
 export function getShip(id) {
   return data.Ship[id];
 }
+
+export function getShips(id) {
+  return data.Faction[id].ships.map(id => data.Ship[id]);
+}
+
 
 export function getFaction(id) {
   return data.Faction[id];

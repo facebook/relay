@@ -24,6 +24,7 @@ export default Relay.createContainer(StarWarsShip, {
   fragments: {
     ship: () => Relay.QL`
       fragment on Ship {
+        id,
         name
       }
     `,

@@ -1,3 +1,4 @@
+"use strict";
 /**
  * This file provided by Facebook is for non-commercial testing and evaluation
  * purposes only.  Facebook reserves all rights not expressly granted.
@@ -26,12 +27,14 @@ import {
   fromGlobalId,
   globalIdField,
   mutationWithClientMutationId,
+  cursorForObjectInConnection,
   nodeDefinitions,
 } from 'graphql-relay';
 
 import {
   getFaction,
   getShip,
+  getShips,
   getFactions,
   createShip,
 } from './database';
@@ -171,8 +174,9 @@ var shipType = new GraphQLObjectType({
  *     node: Ship
  *   }
  */
-var {connectionType: shipConnection} =
-  connectionDefinitions({name: 'Ship', nodeType: shipType});
+var {connectionType: shipConnection,
+     edgeType: ShipEdge,
+  } = connectionDefinitions({name: 'Ship', nodeType: shipType});
 
 /**
  * We define our faction type, which implements the node interface.
@@ -189,6 +193,11 @@ var factionType = new GraphQLObjectType({
   description: 'A faction in the Star Wars saga',
   fields: () => ({
     id: globalIdField('Faction'),
+    fid: {
+      type: GraphQLString,
+      description: 'id of faction in db',
+      resolve: (faction) => faction.id
+    },
     name: {
       type: GraphQLString,
       description: 'The name of the faction.',
@@ -259,9 +268,18 @@ var shipMutation = mutationWithClientMutationId({
     },
   },
   outputFields: {
-    ship: {
-      type: shipType,
-      resolve: (payload) => getShip(payload.shipId),
+    newShipEdge: {
+      type: ShipEdge,
+      resolve: (payload) => {
+        var ship = getShip(payload.shipId);
+        return {
+          cursor: cursorForObjectInConnection(
+            getShips(payload.factionId),
+            ship
+          ),
+          node: ship,
+        };
+      },
     },
     faction: {
       type: factionType,

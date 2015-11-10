@@ -13,6 +13,8 @@
 
 'use strict';
 
+var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
+var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayChangeTracker = require('RelayChangeTracker');
@@ -62,13 +64,15 @@ class RelayStoreData {
   _cachePopulated: boolean;
   _cachedRecords: Records;
   _cachedRootCalls: RootCallMap;
+  _deferredQueryTracker: GraphQLDeferredQueryTracker;
   _garbageCollector: ?RelayStoreGarbageCollector;
   _nodeRangeMap: NodeRangeMap;
   _records: Records;
   _queuedRecords: Records;
   _queuedStore: RelayRecordStore;
-  _recordStore: RelayRecordStore;
+  _queryRunner: GraphQLQueryRunner;
   _queryTracker: RelayQueryTracker;
+  _recordStore: RelayRecordStore;
   _rootCalls: RootCallMap;
 
   /**
@@ -93,6 +97,8 @@ class RelayStoreData {
     this._cachePopulated = true;
     this._cachedRecords = cachedRecords;
     this._cachedRootCalls = cachedRootCallMap;
+    this._deferredQueryTracker =
+      new GraphQLDeferredQueryTracker(this.getRecordStore());
     this._nodeRangeMap = nodeRangeMap;
     this._records = records;
     this._queuedRecords = queuedRecords;
@@ -101,12 +107,13 @@ class RelayStoreData {
       ({cachedRootCallMap, rootCallMap}: $FixMe),
       (nodeRangeMap: $FixMe)
     );
+    this._queryRunner = new GraphQLQueryRunner(this);
+    this._queryTracker = new RelayQueryTracker();
     this._recordStore = new RelayRecordStore(
       ({records}: $FixMe),
       ({rootCallMap}: $FixMe),
       (nodeRangeMap: $FixMe)
     );
-    this._queryTracker = new RelayQueryTracker();
     this._rootCalls = rootCallMap;
   }
 
@@ -365,6 +372,14 @@ class RelayStoreData {
 
   getQueryTracker(): RelayQueryTracker {
     return this._queryTracker;
+  }
+
+  getQueryRunner(): GraphQLQueryRunner {
+    return this._queryRunner;
+  }
+
+  getDeferredQueryTracker(): GraphQLDeferredQueryTracker {
+    return this._deferredQueryTracker;
   }
 
   /**

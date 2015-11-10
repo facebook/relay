@@ -15,7 +15,6 @@
 
 import type {ConcreteFragment} from 'ConcreteQuery';
 var ErrorUtils = require('ErrorUtils');
-var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
@@ -85,6 +84,7 @@ var containerContextTypes = {
 var nextContainerID = 0;
 
 var storeData = RelayStoreData.getDefaultInstance();
+var deferredQueryTracker = storeData.getDeferredQueryTracker();
 
 /**
  * @public
@@ -431,7 +431,7 @@ function createContainerComponent(
         'conditions.'
       );
       var fragmentID = fragment.getFragmentID();
-      var hasData = !GraphQLDeferredQueryTracker.isQueryPending(
+      var hasData = !deferredQueryTracker.isQueryPending(
         dataID,
         fragmentID
       );
@@ -445,7 +445,7 @@ function createContainerComponent(
         }
         if (!deferredSubscriptions.hasOwnProperty(subscriptionKey)) {
           deferredSubscriptions[subscriptionKey] =
-            GraphQLDeferredQueryTracker.addListenerForFragment(
+            deferredQueryTracker.addListenerForFragment(
               dataID,
               fragmentID,
               {

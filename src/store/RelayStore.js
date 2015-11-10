@@ -14,7 +14,6 @@
 'use strict';
 
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLQueryRunner = require('GraphQLQueryRunner');
 import type RelayMutation from 'RelayMutation';
 var RelayMutationTransaction = require('RelayMutationTransaction');
 var RelayQuery = require('RelayQuery');
@@ -38,7 +37,10 @@ import type {
   RelayQuerySet
 } from 'RelayInternalTypes';
 
-var queuedStore = RelayStoreData.getDefaultInstance().getQueuedStore();
+var storeData = RelayStoreData.getDefaultInstance();
+
+var queuedStore = storeData.getQueuedStore();
+var queryRunner = storeData.getQueryRunner();
 
 /**
  * @public
@@ -85,7 +87,7 @@ var RelayStore = {
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
-    return GraphQLQueryRunner.run(querySet, callback);
+    return queryRunner.run(querySet, callback);
   },
 
   /**
@@ -96,7 +98,7 @@ var RelayStore = {
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
-    return GraphQLQueryRunner.forceFetch(querySet, callback);
+    return queryRunner.forceFetch(querySet, callback);
   },
 
   /**

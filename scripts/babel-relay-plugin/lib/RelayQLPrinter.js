@@ -7,7 +7,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * 
+ *
  * @fullSyntaxTransform
  */
 
@@ -41,9 +41,9 @@ var RelayQLType = _require.RelayQLType;
 
 var find = require('./find');
 var invariant = require('./invariant');
-var t = require('babel-core/lib/types');
+var t = require('babel-types/lib');
 
-var NULL = t.literal(null);
+var NULL = t.nullLiteral();
 
 var RelayQLPrinter = (function () {
   function RelayQLPrinter(tagName) {
@@ -100,11 +100,11 @@ var RelayQLPrinter = (function () {
         metadata.identifyingArgName = identifyingArg.getName();
         metadata.identifyingArgType = this.printArgumentTypeForMetadata(identifyingArg.getType());
         calls = t.arrayExpression([codify({
-          kind: t.literal('Call'),
+          kind: t.valueToNode('Call'),
           metadata: objectify({
             type: this.printArgumentTypeForMetadata(identifyingArg.getType())
           }),
-          name: t.literal(identifyingArg.getName()),
+          name: t.valueToNode(identifyingArg.getName()),
           value: this.printArgumentValue(identifyingArg)
         })]);
       }
@@ -113,10 +113,10 @@ var RelayQLPrinter = (function () {
         calls: calls,
         children: selections,
         directives: this.printDirectives(rootField.getDirectives()),
-        fieldName: t.literal(rootField.getName()),
-        kind: t.literal('Query'),
+        fieldName: t.valueToNode(rootField.getName()),
+        kind: t.valueToNode('Query'),
         metadata: objectify(metadata),
-        name: t.literal(query.getName())
+        name: t.valueToNode(query.getName())
       });
     }
   }, {
@@ -137,10 +137,10 @@ var RelayQLPrinter = (function () {
       return codify({
         children: selections,
         directives: this.printDirectives(fragment.getDirectives()),
-        kind: t.literal('Fragment'),
+        kind: t.valueToNode('Fragment'),
         metadata: metadata,
-        name: t.literal(fragment.getName()),
-        type: t.literal(fragmentType.getName({ modifiers: true }))
+        name: t.valueToNode(fragment.getName()),
+        type: t.valueToNode(fragmentType.getName({ modifiers: true }))
       });
     }
   }, {
@@ -159,17 +159,17 @@ var RelayQLPrinter = (function () {
 
       return codify({
         calls: t.arrayExpression([codify({
-          kind: t.literal('Call'),
+          kind: t.valueToNode('Call'),
           metadata: objectify({}),
-          name: t.literal(rootField.getName()),
+          name: t.valueToNode(rootField.getName()),
           value: this.printVariable('input')
         })]),
         children: selections,
         directives: this.printDirectives(mutation.getDirectives()),
-        kind: t.literal('Mutation'),
+        kind: t.valueToNode('Mutation'),
         metadata: objectify(metadata),
-        name: t.literal(mutation.getName()),
-        responseType: t.literal(rootFieldType.getName({ modifiers: true }))
+        name: t.valueToNode(mutation.getName()),
+        responseType: t.valueToNode(rootFieldType.getName({ modifiers: true }))
       });
     }
   }, {
@@ -284,12 +284,12 @@ var RelayQLPrinter = (function () {
       })) : NULL;
 
       return codify({
-        alias: fieldAlias ? t.literal(fieldAlias) : NULL,
+        alias: fieldAlias ? t.valueToNode(fieldAlias) : NULL,
         calls: calls,
         children: selections,
         directives: this.printDirectives(field.getDirectives()),
-        fieldName: t.literal(field.getName()),
-        kind: t.literal('Field'),
+        fieldName: t.valueToNode(field.getName()),
+        kind: t.valueToNode('Field'),
         metadata: objectify(metadata)
       });
     }
@@ -307,9 +307,9 @@ var RelayQLPrinter = (function () {
         metadata.type = inputType;
       }
       return codify({
-        kind: t.literal('Call'),
+        kind: t.valueToNode('Call'),
         metadata: objectify(metadata),
-        name: t.literal(arg.getName()),
+        name: t.valueToNode(arg.getName()),
         value: this.printArgumentValue(arg)
       });
     }
@@ -326,8 +326,8 @@ var RelayQLPrinter = (function () {
     key: 'printVariable',
     value: function printVariable(name) {
       return codify({
-        kind: t.literal('CallVariable'),
-        callVariableName: t.literal(name)
+        kind: t.valueToNode('CallVariable'),
+        callVariableName: t.valueToNode(name)
       });
     }
   }, {
@@ -341,8 +341,8 @@ var RelayQLPrinter = (function () {
         }));
       }
       return codify({
-        kind: t.literal('CallValue'),
-        callValue: t.literal(value)
+        kind: t.valueToNode('CallValue'),
+        callValue: t.valueToNode(value)
       });
     }
   }, {
@@ -355,8 +355,8 @@ var RelayQLPrinter = (function () {
         if (directive.getName() === 'relay') {
           return;
         }
-        printedDirectives.push(t.objectExpression([property('kind', t.literal('Directive')), property('name', t.literal(directive.getName())), property('arguments', t.arrayExpression(directive.getArguments().map(function (arg) {
-          return t.objectExpression([property('name', t.literal(arg.getName())), property('value', _this5.printArgumentValue(arg))]);
+        printedDirectives.push(t.objectExpression([property('kind', t.valueToNode('Directive')), property('name', t.valueToNode(directive.getName())), property('arguments', t.arrayExpression(directive.getArguments().map(function (arg) {
+          return t.objectExpression([property('name', t.valueToNode(arg.getName())), property('value', _this5.printArgumentValue(arg))]);
         })))]));
       });
       if (printedDirectives.length) {
@@ -376,7 +376,7 @@ var RelayQLPrinter = (function () {
           if (arg.isVariable()) {
             invariant(!arg.isVariable(), 'You supplied `$%s` as the `%s` argument to the `@relay` ' + 'directive, but `@relay` require scalar argument values.', arg.getVariableName(), arg.getName());
           }
-          properties.push(property(arg.getName(), t.literal(arg.getValue())));
+          properties.push(property(arg.getName(), t.valueToNode(arg.getValue())));
         });
       }
       return t.objectExpression(properties);
@@ -477,14 +477,14 @@ function objectify(obj) {
   Object.keys(obj).forEach(function (key) {
     var value = obj[key];
     if (value) {
-      properties.push(property(key, t.literal(value)));
+      properties.push(property(key, t.valueToNode(value)));
     }
   });
   return t.objectExpression(properties);
 }
 
 function property(name, value) {
-  return t.property('init', t.identifier(name), value);
+  return t.objectProperty(t.identifier(name), value);
 }
 
 module.exports = RelayQLPrinter;

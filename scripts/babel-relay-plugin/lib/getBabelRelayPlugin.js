@@ -7,7 +7,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * 
+ *
  * @fullSyntaxTransform
  */
 
@@ -38,16 +38,18 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
   var warning = options.suppressWarnings ? function () {} : console.warn.bind(console);
 
   return function (_ref) {
-    var Plugin = _ref.Plugin;
     var t = _ref.types;
 
-    return new Plugin('relay-query', {
+    return {
       visitor: {
         /**
          * Extract the module name from `@providesModule`.
          */
-        Program: function Program(node, parent, scope, state) {
-          if (state.opts.extra.documentName) {
+        Program: function Program(_path, state) {
+          var node = _path.node;
+          var parent = _path.parent;
+
+          if (state.file.opts.basename) {
             return;
           }
           var documentName = undefined;
@@ -64,28 +66,31 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
               }
             }
           }
-          var filename = state.opts.filename;
+          var filename = state.file.opts.filename;
           if (filename && !documentName) {
-            var basename = path.basename(filename);
+            var basename = state.file.opts.basename;
             var captures = basename.match(/^[_A-Za-z][_0-9A-Za-z]*/);
             if (captures) {
               documentName = captures[0];
             }
           }
-          state.opts.extra.documentName = documentName || 'UnknownFile';
+          state.file.opts.basename = documentName || 'UnknownFile';
         },
 
         /**
          * Transform Relay.QL`...`.
          */
-        TaggedTemplateExpression: function TaggedTemplateExpression(node, parent, scope, state) {
-          var tag = this.get('tag');
+        TaggedTemplateExpression: function TaggedTemplateExpression(_path, state) {
+          var node = _path.node;
+          var parent = _path.parent;
+
+          var tag = _path.get('tag');
           var tagName = tag.matchesPattern('Relay.QL') ? 'Relay.QL' : tag.isIdentifier({ name: 'RelayQL' }) ? 'RelayQL' : null;
           if (!tagName) {
             return;
           }
 
-          var documentName = state.opts.extra.documentName;
+          var documentName = state.file.opts.basename;
 
           invariant(documentName, 'Expected `documentName` to have been set.');
 
@@ -98,7 +103,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
             var sourceText = error.sourceText;
             var validationErrors = error.validationErrors;
 
-            var filename = state.opts.filename || 'UnknownFile';
+            var filename = state.file.opts.filename || 'UnknownFile';
             var errorMessages = [];
             if (validationErrors && sourceText) {
               var sourceLines = sourceText.split('\n');
@@ -107,7 +112,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
                 var locations = _ref2.locations;
 
                 errorMessages.push(message);
-                warning('\n-- GraphQL Validation Error -- %s --\n', path.basename(filename));
+                warning('\n-- GraphQL Validation Error -- %s --\n', state.file.opts.basename);
                 warning(['Error: ' + message, 'File:  ' + filename, 'Source:'].join('\n'));
                 locations.forEach(function (location) {
                   var preview = sourceLines[location.line - 1];
@@ -118,11 +123,11 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
               });
             } else {
               errorMessages.push(error.message);
-              warning('\n-- Relay Transform Error -- %s --\n', path.basename(filename));
+              warning('\n-- Relay Transform Error -- %s --\n', state.file.opts.basename);
               warning(['Error: ' + error.message, 'File:  ' + filename].join('\n'));
             }
             var runtimeMessage = util.format('GraphQL validation/transform error ``%s`` in file `%s`.', errorMessages.join(' '), filename);
-            result = t.callExpression(t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.literal(runtimeMessage)]))])), []);
+            result = t.callExpression(t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.stringLiteral(runtimeMessage)]))])), []);
 
             if (options.debug) {
               console.error(error.stack);
@@ -131,10 +136,10 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
               throw new Error('Aborting due to GraphQL validation/transform error(s).');
             }
           }
-          this.replaceWith(result);
+          _path.replaceWith(result);
         }
       }
-    });
+    };
   };
 }
 

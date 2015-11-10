@@ -70,7 +70,7 @@ The most-used function is [`createContainer()`](#createcontainer-static-method) 
   <li>
     <a href="#injectnetworklayer-static-method">
       <pre>static injectNetworkLayer(networkLayer)</pre>
-      Customize how the way queries and mutations are sent to the server.
+      Customize how queries and mutations are sent to the server.
     </a>
   </li>
   <li>

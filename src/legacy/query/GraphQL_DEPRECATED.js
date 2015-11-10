@@ -143,7 +143,7 @@ class GraphQLFieldNode extends GraphQLNode {
       isUnionOrInterface: !!metadata.dynamic,
       parentType: metadata.parentType,
     };
-    this.directives = directives || EMPTY_ARRAY;
+    this.directives = directives || null;
   }
 }
 
@@ -159,7 +159,7 @@ class GraphQLQueryFragment extends GraphQLNode {
     this.name = name;
     this.type = type;
     this.metadata = this.__metadata__ = metadata || EMPTY_OBJECT;
-    this.directives = directives || EMPTY_ARRAY;
+    this.directives = directives || null;
   }
 }
 
@@ -192,7 +192,7 @@ class GraphQLQuery extends GraphQLNode {
     if (identifyingArgName !== undefined) {
       this.metadata.identifyingArgName = identifyingArgName;
     }
-    this.directives = directives || EMPTY_ARRAY;
+    this.directives = directives || null;
     this.name = queryName;
     this.fieldName = fieldName;
     this.isDeferred = !!this.__metadata__.isDeferred;

@@ -11,6 +11,8 @@
  * @typechecks
  */
 
+'use strict';
+
 import type {DataID} from 'RelayInternalTypes';
 import type GraphQLDeferredQueryTracker from 'GraphQLDeferredQueryTracker';
 import type RelayPendingQueryTracker from 'RelayPendingQueryTracker';

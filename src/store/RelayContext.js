@@ -154,6 +154,15 @@ class RelayContext {
     );
   }
 
+  createFragmentPointerForRootQuery(
+    query: any
+  ): any {
+    return query ? GraphQLFragmentPointer.createForRoot(
+      this._storeData.getQueuedStore(),
+      query
+    ) : null;
+  }
+
   resolve(
     fragmentPointer: GraphQLFragmentPointer,
     callback: Function

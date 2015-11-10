@@ -13,7 +13,6 @@
 
 'use strict';
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
 import type RelayContext from 'RelayContext';
@@ -162,7 +161,7 @@ class RelayRenderer extends React.Component {
           ...queryConfig.params,
           ...mapObject(
             querySet,
-            query => this._createFragmentPointerForRoot(query)
+            query => this.context.relay.createFragmentPointerForRootQuery(query)
           ),
         };
       }
@@ -291,18 +290,6 @@ class RelayRenderer extends React.Component {
         {children}
       </StaticContainer>
     );
-  }
-
-  /**
-   * @private
-   */
-  _createFragmentPointerForRoot(query: any): any {
-    return query ?
-      GraphQLFragmentPointer.createForRoot(
-        this.props.relayContext._getStoreData().getQueuedStore(),
-        query
-      ) :
-      null;
   }
 }
 

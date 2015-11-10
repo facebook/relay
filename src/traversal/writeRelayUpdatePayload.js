@@ -331,13 +331,6 @@ function handleRangeAdd(
   const edge = getObject(payload, config.edgeName);
   const edgeNode = edge && getObject(edge, NODE);
   if (!edge || !edgeNode) {
-    warning(
-      false,
-      'writeRelayUpdatePayload(): Expected response payload to include the ' +
-      'newly created edge `%s` and its `node` field. Did you forget to ' +
-      'update the `RANGE_ADD` mutation config?',
-      config.edgeName
-    );
     return;
   }
 

@@ -15,8 +15,7 @@ require('configureForRelayOSS');
 
 jest
   .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment')
-  .mock('warning');
+  .dontMock('GraphQLSegment');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const Relay = require('Relay');
@@ -735,7 +734,7 @@ describe('writePayload()', () => {
       edgeID = generateClientEdgeID(connectionID, commentID);
     });
 
-    it('warns if the created `edge` field is missing in the payload', () => {
+    it('handles case when created `edge` field is missing in the payload', () => {
       var input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
@@ -786,13 +785,6 @@ describe('writePayload()', () => {
         payload,
         {configs, isOptimisticUpdate: true}
       );
-
-      expect([
-        'writeRelayUpdatePayload(): Expected response payload to include the ' +
-        'newly created edge `%s` and its `node` field. Did you forget to ' +
-        'update the `RANGE_ADD` mutation config?',
-        'feedbackCommentEdge',
-      ]).toBeWarnedNTimes(1);
 
       // feedback is updated, but the edge is not added
       expect(queueStore.getField(connectionID, 'count')).toBe(2);

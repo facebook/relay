@@ -142,7 +142,7 @@ function createContainerComponent(
       self.setVariables = this.setVariables.bind(this);
 
       this._deferredFragmentState =
-        this.context.relay.createDeferredFragmentState({
+        this.context.relay.buildDeferredFragmentState({
           onSuccess: () => {
             // Flag to force `shouldComponentUpdate` to return true.
             this._hasNewDeferredData = true;

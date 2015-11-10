@@ -91,7 +91,7 @@ RelayStore.resolve.mockImplementation((...args) => {
   return new GraphQLStoreQueryResolver(storeData, ...args);
 });
 
-RelayStore.createDeferredFragmentState.mockImplementation((...args) => {
+RelayStore.buildDeferredFragmentState.mockImplementation((...args) => {
   return new RelayDeferredFragmentState(
     storeData.getDeferredQueryTracker(),
     storeData.getPendingQueryTracker(),

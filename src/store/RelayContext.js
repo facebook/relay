@@ -144,7 +144,7 @@ class RelayContext {
     return mutationIDs.map(RelayMutationTransaction.get);
   }
 
-  createDeferredFragmentState(
+  buildDeferredFragmentState(
     options: RelayDeferredFragmentStateOptions
   ): RelayDeferredFragmentState {
     return new RelayDeferredFragmentState(
@@ -154,7 +154,7 @@ class RelayContext {
     );
   }
 
-  createFragmentPointerForRootQuery(
+  buildFragmentPointerForRootQuery(
     query: any
   ): any {
     return query ? GraphQLFragmentPointer.createForRoot(

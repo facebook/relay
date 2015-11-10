@@ -161,7 +161,7 @@ class RelayRenderer extends React.Component {
           ...queryConfig.params,
           ...mapObject(
             querySet,
-            query => this.context.relay.createFragmentPointerForRootQuery(query)
+            query => this.context.relay.buildFragmentPointerForRootQuery(query)
           ),
         };
       }

@@ -19,7 +19,6 @@ import type RelayStoreGarbageCollector from 'RelayStoreGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
-import type RelayRecordStore from 'RelayRecordStore';
 import type RelayStoreData from 'RelayStoreData';
 import type {StoreReaderData} from 'RelayTypes';
 

@@ -14,7 +14,12 @@
 'use strict';
 
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 import type RelayMutation from 'RelayMutation';
+var RelayDeferredFragmentState = require('RelayDeferredFragmentState');
+import type {
+  RelayDeferredFragmentStateOptions
+} from 'RelayDeferredFragmentState';
 var RelayMutationTransaction = require('RelayMutationTransaction');
 var RelayQuery = require('RelayQuery');
 var RelayQueryResultObservable = require('RelayQueryResultObservable');
@@ -113,6 +118,40 @@ class RelayContext {
    */
   scheduleGarbageCollection(stepLength?: number): void {
     this._storeData.scheduleGarbageCollection(stepLength);
+  }
+
+  injectBatchingStrategy(batchStrategy: Function): void {
+    this._storeData.getChangeEmitter().injectBatchingStrategy(batchStrategy);
+  }
+
+  hasOptimisticUpdate(dataID: DataID): boolean {
+    return this._storeData.hasOptimisticUpdate(dataID);
+  }
+
+  getPendingTransactions(dataID: DataID): ?Array<RelayMutationTransaction> {
+    var mutationIDs = this._storeData.getClientMutationIDs(dataID);
+    if (!mutationIDs) {
+      return null;
+    }
+    return mutationIDs.map(RelayMutationTransaction.get);
+  }
+
+  createDeferredFragmentState(options: RelayDeferredFragmentStateOptions):
+      RelayDeferredFragmentState {
+    return new RelayDeferredFragmentState(
+      this._storeData.getDeferredQueryTracker(),
+      this._storeData.getPendingQueryTracker(),
+      options
+    );
+  }
+
+  resolve(fragmentPointer: GraphQLFragmentPointer, callback: Function):
+      GraphQLStoreQueryResolver {
+    return new GraphQLStoreQueryResolver(
+      this._storeData,
+      fragmentPointer,
+      callback
+    );
   }
 
   /**

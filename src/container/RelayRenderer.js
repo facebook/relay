@@ -125,7 +125,7 @@ class RelayRenderer extends React.Component {
     this.mounted = true;
     this.state = this._runQueries(this.props);
 
-    this.props.relayContext._getStoreData().getChangeEmitter().injectBatchingStrategy(
+    this.props.relayContext.injectBatchingStrategy(
       ReactDOM.unstable_batchedUpdates
     );
   }

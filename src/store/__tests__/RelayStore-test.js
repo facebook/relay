@@ -16,7 +16,6 @@ jest.dontMock('RelayStore');
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var Relay = require('Relay');
 var RelayQueryResultObservable = require('RelayQueryResultObservable');
@@ -31,6 +30,7 @@ describe('RelayStore', () => {
   var queries;
   var callback;
   var recordStore;
+  var queryRunner;
 
   var {getNode} = RelayTestUtils;
 
@@ -43,26 +43,27 @@ describe('RelayStore', () => {
     dataIDs = ['feedback_id', 'likers_id'];
     queries = {};
     callback = jest.genMockFunction();
+    queryRunner = RelayStoreData.getDefaultInstance().getQueryRunner();
     recordStore = RelayStoreData.getDefaultInstance().getRecordStore();
   });
 
   describe('primeCache', () => {
-    it('invokes `GraphQLQueryRunner.run`', () => {
+    it('invokes `run`', () => {
       RelayStore.primeCache(queries, callback);
 
-      expect(GraphQLQueryRunner.run).toBeCalled();
-      expect(GraphQLQueryRunner.run.mock.calls[0][0]).toBe(queries);
-      expect(GraphQLQueryRunner.run.mock.calls[0][1]).toBe(callback);
+      expect(queryRunner.run).toBeCalled();
+      expect(queryRunner.run.mock.calls[0][0]).toBe(queries);
+      expect(queryRunner.run.mock.calls[0][1]).toBe(callback);
     });
   });
 
   describe('forceFetch', () => {
-    it('invokes `GraphQLQueryRunner.forceFetch`', () => {
+    it('invokes `forceFetch`', () => {
       RelayStore.forceFetch(queries, callback);
 
-      expect(GraphQLQueryRunner.forceFetch).toBeCalled();
-      expect(GraphQLQueryRunner.forceFetch.mock.calls[0][0]).toBe(queries);
-      expect(GraphQLQueryRunner.forceFetch.mock.calls[0][1]).toBe(callback);
+      expect(queryRunner.forceFetch).toBeCalled();
+      expect(queryRunner.forceFetch.mock.calls[0][0]).toBe(queries);
+      expect(queryRunner.forceFetch.mock.calls[0][1]).toBe(callback);
     });
   });
 

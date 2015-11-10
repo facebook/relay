@@ -23,7 +23,6 @@ var RelayMutationType = require('RelayMutationType');
 var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQuery = require('RelayQuery');
 import type RelayQueryTracker from 'RelayQueryTracker';
-var RelayStoreData = require('RelayStoreData');
 import type {Variables} from 'RelayTypes';
 
 var flattenRelayQuery = require('flattenRelayQuery');
@@ -36,7 +35,7 @@ var refragmentRelayQuery = require('refragmentRelayQuery');
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment;
-  tracker?: RelayQueryTracker;
+  tracker: RelayQueryTracker;
 };
 type FieldsMutationFragmentBuilderConfig =
   BasicMutationFragmentBuilderConfig & {
@@ -94,15 +93,13 @@ var RelayMutationQuery = {
       fieldIDs,
     }: FieldsMutationFragmentBuilderConfig
   ): ?RelayQuery.Node {
-    var queryTracker: RelayQueryTracker =
-      tracker || RelayStoreData.getDefaultInstance().getQueryTracker();
     var mutatedFields = [];
     forEachObject(fieldIDs, (dataIDOrIDs, fieldName) => {
       var fatField = getFieldFromFatQuery(fatQuery, fieldName);
       var dataIDs = [].concat(dataIDOrIDs);
       var trackedChildren = [];
       dataIDs.forEach(dataID => {
-        trackedChildren.push(...queryTracker.getTrackedChildrenForID(dataID));
+        trackedChildren.push(...tracker.getTrackedChildrenForID(dataID));
       });
       var trackedField = fatField.clone(trackedChildren);
       if (trackedField) {
@@ -140,7 +137,6 @@ var RelayMutationQuery = {
       parentName,
     }: EdgeDeletionMutationFragmentBuilderConfig
   ): ?RelayQuery.Node {
-    tracker = tracker || RelayStoreData.getDefaultInstance().getQueryTracker();
     var fatParent = getFieldFromFatQuery(fatQuery, parentName);
     var mutatedFields = [];
     var trackedParent = fatParent.clone(
@@ -193,7 +189,6 @@ var RelayMutationQuery = {
       rangeBehaviors,
     }: EdgeInsertionMutationFragmentBuilderConfig
   ): ?RelayQuery.Node {
-    tracker = tracker || RelayStoreData.getDefaultInstance().getQueryTracker();
     var trackedChildren = tracker.getTrackedChildrenForID(parentID);
 
     var mutatedFields = [];
@@ -267,12 +262,13 @@ var RelayMutationQuery = {
    * Creates a RelayQuery.Mutation used to fetch the given optimistic response.
    */
   buildQueryForOptimisticUpdate(
-    {response, fatQuery, mutation}: OptimisticUpdateQueryBuilderConfig
+    {response, fatQuery, mutation, tracker}: OptimisticUpdateQueryBuilderConfig
   ): RelayQuery.Mutation {
     var children = [
       nullthrows(RelayMutationQuery.buildFragmentForOptimisticUpdate({
         response,
         fatQuery,
+        tracker,
       })),
     ];
     return RelayQuery.Mutation.build(
@@ -310,11 +306,9 @@ var RelayMutationQuery = {
       input: Variables,
       mutationName: string;
       mutation: ConcreteMutation;
-      tracker?: RelayQueryTracker;
+      tracker: RelayQueryTracker;
     }
   ): RelayQuery.Mutation {
-    tracker = tracker || RelayStoreData.getDefaultInstance().getQueryTracker();
-
     var children = [
       RelayQuery.Field.build(
         CLIENT_MUTATION_ID,

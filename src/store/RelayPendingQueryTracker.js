@@ -15,11 +15,10 @@
 
 var Deferred = require('Deferred');
 var DliteFetchModeConstants = require('DliteFetchModeConstants');
-var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var Promise = require('Promise');
 var PromiseMap = require('PromiseMap');
 import type RelayQuery from 'RelayQuery';
-import type RelayStoreData from 'RelayStoreData';
+var RelayStoreData = require('RelayStoreData');
 var RelayTaskScheduler = require('RelayTaskScheduler');
 import type {QueryResult} from 'RelayTypes';
 
@@ -101,7 +100,9 @@ class PendingFetch {
         fetch: this,
         query: subtractedQuery,
       };
-      GraphQLDeferredQueryTracker.recordQuery(subtractedQuery);
+      this._storeData.getDeferredQueryTracker().recordQuery(
+        subtractedQuery
+      );
       this._fetchSubtractedQueryPromise.done(
         this._handleSubtractedQuerySuccess.bind(this, subtractedQuery),
         this._handleSubtractedQueryFailure.bind(this, subtractedQuery)
@@ -171,7 +172,7 @@ class PendingFetch {
         response,
         this._forceIndex
       );
-      GraphQLDeferredQueryTracker.resolveQuery(
+      this._storeData.getDeferredQueryTracker().resolveQuery(
         subtractedQuery,
         response,
         result.ref_params
@@ -186,7 +187,9 @@ class PendingFetch {
     subtractedQuery: RelayQuery.Root,
     error: Error
   ): void {
-    GraphQLDeferredQueryTracker.rejectQuery(subtractedQuery, error);
+    this._storeData.getDeferredQueryTracker().rejectQuery(
+      subtractedQuery, error
+    );
 
     this._markAsRejected(error);
   }
@@ -305,7 +308,7 @@ var RelayPendingQueryTracker = {
    */
   resetPending(): void {
     pendingFetchMap = {};
-    GraphQLDeferredQueryTracker.reset();
+    RelayStoreData.getDefaultInstance().getDeferredQueryTracker().reset();
   },
 
   resolvePreloadQuery(queryID: string, result: Object): void {

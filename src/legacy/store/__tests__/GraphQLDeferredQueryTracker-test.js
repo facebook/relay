@@ -26,6 +26,7 @@ describe('GraphQLDeferredQueryTracker', () => {
   var {defer, getNode} = RelayTestUtils;
 
   var recordStore;
+  var queryTracker;
 
   function splitQueries(query) {
     return flattenSplitRelayQueries(splitDeferredRelayQueries(query));
@@ -35,6 +36,7 @@ describe('GraphQLDeferredQueryTracker', () => {
     jest.resetModuleRegistry();
 
     recordStore = RelayStoreData.getDefaultInstance().getRecordStore();
+    queryTracker = new GraphQLDeferredQueryTracker(recordStore);
   });
 
   it('should fire callbacks when deferred data fails', () => {
@@ -54,7 +56,7 @@ describe('GraphQLDeferredQueryTracker', () => {
     var onSuccess = jest.genMockFunction();
     var onFailure = jest.genMockFunction();
 
-    GraphQLDeferredQueryTracker.addListenerForFragment(
+    queryTracker.addListenerForFragment(
       dataID,
       fragmentID,
       {
@@ -62,11 +64,11 @@ describe('GraphQLDeferredQueryTracker', () => {
         onFailure: onFailure,
       }
     );
-    GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
+    queryTracker.recordQuery(mockDeferred);
     expect(onFailure).not.toBeCalled();
 
     var error = new Error();
-    GraphQLDeferredQueryTracker.rejectQuery(mockDeferred, error);
+    queryTracker.rejectQuery(mockDeferred, error);
     jest.runAllTimers();
     expect(onFailure).toBeCalled();
     expect(onFailure).toBeCalledWith(dataID, fragmentID, error);
@@ -90,17 +92,17 @@ describe('GraphQLDeferredQueryTracker', () => {
     var onSuccess = jest.genMockFunction();
     var onFailure = jest.genMockFunction();
 
-    GraphQLDeferredQueryTracker.addListenerForFragment(
+    queryTracker.addListenerForFragment(
       dataID,
       fragmentID,
       {
         onSuccess: onSuccess,
       }
     );
-    GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
+    queryTracker.recordQuery(mockDeferred);
     expect(onSuccess).not.toBeCalled();
 
-    GraphQLDeferredQueryTracker.resolveQuery(mockDeferred);
+    queryTracker.resolveQuery(mockDeferred);
     jest.runAllTimers();
     expect(onSuccess).toBeCalledWith(dataID, fragmentID);
     expect(onFailure).not.toBeCalled();
@@ -123,15 +125,15 @@ describe('GraphQLDeferredQueryTracker', () => {
     var onSuccess = jest.genMockFunction();
     var onFailure = jest.genMockFunction();
 
-    var subscription = GraphQLDeferredQueryTracker.addListenerForFragment(
+    var subscription = queryTracker.addListenerForFragment(
       dataID,
       fragmentID,
       {onSuccess, onFailure}
     );
     subscription.remove();
-    GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
+    queryTracker.recordQuery(mockDeferred);
 
-    GraphQLDeferredQueryTracker.resolveQuery(mockDeferred);
+    queryTracker.resolveQuery(mockDeferred);
     jest.runAllTimers();
     expect(onSuccess).not.toBeCalled();
     expect(onFailure).not.toBeCalled();
@@ -140,7 +142,7 @@ describe('GraphQLDeferredQueryTracker', () => {
   it('can only remove callback subscriptions once', () => {
     var onSuccess = jest.genMockFunction();
     var onFailure = jest.genMockFunction();
-    var subscription = GraphQLDeferredQueryTracker.addListenerForFragment(
+    var subscription = queryTracker.addListenerForFragment(
       '842472',
       'fragmentID',
       {onSuccess, onFailure}
@@ -164,14 +166,14 @@ describe('GraphQLDeferredQueryTracker', () => {
 
     var dataID = '4';
     var fragmentID = getNode(mockFragment).getFragmentID();
-    GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
+    queryTracker.recordQuery(mockDeferred);
     expect(
-      GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+      queryTracker.isQueryPending(dataID, fragmentID)
     ).toBe(true);
 
-    GraphQLDeferredQueryTracker.resolveQuery(mockDeferred);
+    queryTracker.resolveQuery(mockDeferred);
     expect(
-      GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+      queryTracker.isQueryPending(dataID, fragmentID)
     ).toBe(false);
   });
 
@@ -189,14 +191,14 @@ describe('GraphQLDeferredQueryTracker', () => {
 
     var dataID = '4';
     var fragmentID = getNode(mockFragment).getFragmentID();
-    GraphQLDeferredQueryTracker.recordQuery(split[0]);
+    queryTracker.recordQuery(split[0]);
     expect(
-      GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+      queryTracker.isQueryPending(dataID, fragmentID)
     ).toBe(false);
 
-    GraphQLDeferredQueryTracker.resolveQuery(split[0]);
+    queryTracker.resolveQuery(split[0]);
     expect(
-      GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+      queryTracker.isQueryPending(dataID, fragmentID)
     ).toBe(false);
   });
 
@@ -217,27 +219,27 @@ describe('GraphQLDeferredQueryTracker', () => {
 
       var dataID = '4';
       var fragmentID = getNode(mockFragment).getFragmentID();
-      GraphQLDeferredQueryTracker.recordQuery(mockRequired);
-      GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
+      queryTracker.recordQuery(mockRequired);
+      queryTracker.recordQuery(mockDeferred);
 
       // `isQueryPending` can only be used when the dataID is known. the dataID
       // of `me()` is unknown so the pending status is undetermined:
       // the tracker returns false because the id does not match a known query.
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(false);
 
       // resolving the parent query allows the tracker to determine the ID of
       // the unresolved deferred query
       recordStore.putDataID('me', null, dataID);
-      GraphQLDeferredQueryTracker.resolveQuery(mockRequired);
+      queryTracker.resolveQuery(mockRequired);
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(true);
 
-      GraphQLDeferredQueryTracker.resolveQuery(mockDeferred);
+      queryTracker.resolveQuery(mockDeferred);
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(false);
     });
 
@@ -257,24 +259,24 @@ describe('GraphQLDeferredQueryTracker', () => {
 
       var dataID = '4';
       var fragmentID = getNode(mockFragment).getFragmentID();
-      GraphQLDeferredQueryTracker.recordQuery(mockRequired);
-      GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
+      queryTracker.recordQuery(mockRequired);
+      queryTracker.recordQuery(mockDeferred);
 
       // if the parent query fails the root call id is unresolved; the deferred
       // query's status cannot be determined and defaults to false
       // because the dataID/fragmentID cannot be matched to any pending
       // queries.
-      GraphQLDeferredQueryTracker.rejectQuery(mockRequired, new Error('wtf'));
+      queryTracker.rejectQuery(mockRequired, new Error('wtf'));
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(false);
 
       // the root call ID can also be resolved via the deferred query,
       // and we now know that the query is not pending.
       recordStore.putDataID('me', null, dataID);
-      GraphQLDeferredQueryTracker.resolveQuery(mockDeferred);
+      queryTracker.resolveQuery(mockDeferred);
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(false);
     });
 
@@ -298,16 +300,16 @@ describe('GraphQLDeferredQueryTracker', () => {
         var dataID = '4';
 
         var fragmentID = getNode(mockFragment).getFragmentID();
-        GraphQLDeferredQueryTracker.recordQuery(mockRequired);
-        GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
+        queryTracker.recordQuery(mockRequired);
+        queryTracker.recordQuery(mockDeferred);
 
-        GraphQLDeferredQueryTracker.rejectQuery(mockDeferred, new Error('wtf'));
+        queryTracker.rejectQuery(mockDeferred, new Error('wtf'));
         recordStore.putDataID('me', null, dataID);
-        GraphQLDeferredQueryTracker.resolveQuery(mockRequired);
+        queryTracker.resolveQuery(mockRequired);
 
         // deferred query should not be considered pending
         expect(
-          GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+          queryTracker.isQueryPending(dataID, fragmentID)
         ).toBe(false);
       }
     );
@@ -333,31 +335,31 @@ describe('GraphQLDeferredQueryTracker', () => {
 
       var dataID = 'pageID';
       var fragmentID = getNode(mockFragment).getFragmentID();
-      GraphQLDeferredQueryTracker.recordQuery(mockRequired);
-      GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
+      queryTracker.recordQuery(mockRequired);
+      queryTracker.recordQuery(mockDeferred);
 
       // `isQueryPending` can only be used when the dataID is known. the dataID
       // of `me()` is unknown so the pending status is undetermined:
       // the tracker returns false because the id does not match a known query.
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(false);
 
       // resolving the parent query allows the tracker to determine the ID of
       // the unresolved deferred query
       var response = {'4': {hometown: {id: dataID}}};
-      GraphQLDeferredQueryTracker.resolveQuery(mockRequired, response);
+      queryTracker.resolveQuery(mockRequired, response);
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(true);
 
-      GraphQLDeferredQueryTracker.resolveQuery(
+      queryTracker.resolveQuery(
         mockDeferred,
         null,
         {ref_q1: dataID}
       );
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(false);
     });
 
@@ -380,27 +382,27 @@ describe('GraphQLDeferredQueryTracker', () => {
 
       var dataID = 'pageID';
       var fragmentID = getNode(mockFragment).getFragmentID();
-      GraphQLDeferredQueryTracker.recordQuery(mockRequired);
-      GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
+      queryTracker.recordQuery(mockRequired);
+      queryTracker.recordQuery(mockDeferred);
 
       // if the parent query fails the root call id is unresolved; the deferred
       // query's status cannot be determined and defaults to false
       // because the dataID/fragmentID cannot be matched to any pending
       // queries.
-      GraphQLDeferredQueryTracker.rejectQuery(mockRequired, new Error('wtf'));
+      queryTracker.rejectQuery(mockRequired, new Error('wtf'));
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(false);
 
       // the child probably will not be remapped if the parent failed. Even if
       // the response somehow comes back, we will still think it is pending.
-      GraphQLDeferredQueryTracker.resolveQuery(
+      queryTracker.resolveQuery(
         mockDeferred,
         null,
         {ref_q1: dataID}
       );
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(false);
     });
   });
@@ -425,15 +427,15 @@ describe('GraphQLDeferredQueryTracker', () => {
       recordStore.putDataID('me', null, dataID);
 
       var fragmentID = getNode(mockFragment).getFragmentID();
-      GraphQLDeferredQueryTracker.recordQuery(mockDeferred);
+      queryTracker.recordQuery(mockDeferred);
 
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(true);
 
-      GraphQLDeferredQueryTracker.resolveQuery(mockDeferred);
+      queryTracker.resolveQuery(mockDeferred);
       expect(
-        GraphQLDeferredQueryTracker.isQueryPending(dataID, fragmentID)
+        queryTracker.isQueryPending(dataID, fragmentID)
       ).toBe(false);
     }
   );

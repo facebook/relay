@@ -230,7 +230,7 @@ function createContainerComponent(
           queryData.forEach((data, ii) => {
             var dataID = GraphQLStoreDataHandler.getID(data);
             if (dataID) {
-              querySet[fragmentName + ii] = this.context.relay._getStoreData()
+              querySet[fragmentName + ii] = this.context.relay
                 .buildFragmentQueryForDataID(fragment, dataID);
               dataIDs.push(dataID);
             }
@@ -242,7 +242,7 @@ function createContainerComponent(
           var dataID = GraphQLStoreDataHandler.getID(queryData);
           if (dataID) {
             fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
-            querySet[fragmentName] = this.context.relay._getStoreData()
+            querySet[fragmentName] = this.context.relay
               .buildFragmentQueryForDataID(fragment, dataID);
           }
         }

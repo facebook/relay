@@ -99,6 +99,10 @@ RelayStore.createDeferredFragmentState.mockImplementation((...args) => {
   );
 });
 
+RelayStore.buildFragmentQueryForDataID.mockImplementation((...args) => {
+  return storeData.buildFragmentQueryForDataID(...args);
+});
+
 RelayStore._getStoreData = jest.genMockFunction().mockImplementation(() => storeData);
 
 module.exports = RelayStore;

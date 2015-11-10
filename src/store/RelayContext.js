@@ -116,19 +116,27 @@ class RelayContext {
    * removed and the next record has 4 linked records a total of 13 records will
    * be removed).
    */
-  scheduleGarbageCollection(stepLength?: number): void {
+  scheduleGarbageCollection(
+    stepLength?: number
+  ): void {
     this._storeData.scheduleGarbageCollection(stepLength);
   }
 
-  injectBatchingStrategy(batchStrategy: Function): void {
+  injectBatchingStrategy(
+    batchStrategy: Function
+  ): void {
     this._storeData.getChangeEmitter().injectBatchingStrategy(batchStrategy);
   }
 
-  hasOptimisticUpdate(dataID: DataID): boolean {
+  hasOptimisticUpdate(
+    dataID: DataID
+  ): boolean {
     return this._storeData.hasOptimisticUpdate(dataID);
   }
 
-  getPendingTransactions(dataID: DataID): ?Array<RelayMutationTransaction> {
+  getPendingTransactions(
+    dataID: DataID
+  ): ?Array<RelayMutationTransaction> {
     var mutationIDs = this._storeData.getClientMutationIDs(dataID);
     if (!mutationIDs) {
       return null;
@@ -136,8 +144,9 @@ class RelayContext {
     return mutationIDs.map(RelayMutationTransaction.get);
   }
 
-  createDeferredFragmentState(options: RelayDeferredFragmentStateOptions):
-      RelayDeferredFragmentState {
+  createDeferredFragmentState(
+    options: RelayDeferredFragmentStateOptions
+  ): RelayDeferredFragmentState {
     return new RelayDeferredFragmentState(
       this._storeData.getDeferredQueryTracker(),
       this._storeData.getPendingQueryTracker(),
@@ -145,13 +154,22 @@ class RelayContext {
     );
   }
 
-  resolve(fragmentPointer: GraphQLFragmentPointer, callback: Function):
-      GraphQLStoreQueryResolver {
+  resolve(
+    fragmentPointer: GraphQLFragmentPointer,
+    callback: Function
+  ): GraphQLStoreQueryResolver {
     return new GraphQLStoreQueryResolver(
       this._storeData,
       fragmentPointer,
       callback
     );
+  }
+
+  buildFragmentQueryForDataID(
+    fragment: RelayQuery.Fragment,
+    dataID: DataID
+  ): RelayQuery.Root {
+    return this._storeData.buildFragmentQueryForDataID(fragment, dataID);
   }
 
   /**

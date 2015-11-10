@@ -13,6 +13,7 @@
 
 'use strict';
 
+var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayChangeTracker = require('RelayChangeTracker');
@@ -69,6 +70,7 @@ class RelayStoreData {
   _queuedStore: RelayRecordStore;
   _recordStore: RelayRecordStore;
   _queryTracker: RelayQueryTracker;
+  _queryRunner: GraphQLQueryRunner;
   _rootCalls: RootCallMap;
 
   /**
@@ -107,6 +109,7 @@ class RelayStoreData {
       (nodeRangeMap: $FixMe)
     );
     this._queryTracker = new RelayQueryTracker();
+    this._queryRunner = new GraphQLQueryRunner(this);
     this._rootCalls = rootCallMap;
   }
 
@@ -365,6 +368,10 @@ class RelayStoreData {
 
   getQueryTracker(): RelayQueryTracker {
     return this._queryTracker;
+  }
+
+  getQueryRunner(): GraphQLQueryRunner {
+    return this._queryRunner;
   }
 
   /**

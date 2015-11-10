@@ -89,7 +89,8 @@ class RelayDefaultNetworkLayer {
         }
       }).catch(
         error => request.reject(error)
-      )
+      ),
+      request
     )));
   }
 

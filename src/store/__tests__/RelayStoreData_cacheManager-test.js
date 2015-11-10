@@ -24,7 +24,7 @@ var Relay = require('Relay');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayMockCacheManager = require('RelayMockCacheManager');
 var RelayMutationType = require('RelayMutationType');
-var RelayStore = require('RelayStore');
+var RelayStoreData = require('RelayStoreData');
 
 var transformRelayQueryPayload = require('transformRelayQueryPayload');
 
@@ -56,7 +56,7 @@ describe('RelayStoreData', function() {
     } = RelayConnectionInterface);
 
     cacheManager = RelayMockCacheManager.genCacheManager();
-    storeData = RelayStore._getStoreData();
+    storeData = new RelayStoreData();
     storeData.injectCacheManager(cacheManager);
 
     jest.addMatchers({

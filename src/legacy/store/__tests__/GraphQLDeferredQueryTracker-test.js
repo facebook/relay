@@ -18,7 +18,7 @@ jest.dontMock('GraphQLDeferredQueryTracker');
 
 var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var Relay = require('Relay');
-var RelayStore = require('RelayStore');
+var RelayStoreData = require('RelayStoreData');
 var flattenSplitRelayQueries = require('flattenSplitRelayQueries');
 var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 
@@ -35,7 +35,9 @@ describe('GraphQLDeferredQueryTracker', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    recordStore = RelayStore._getStoreData().getRecordStore();
+    var storeData = new RelayStoreData();
+
+    recordStore = storeData.getRecordStore();
     deferredQueryTracker = new GraphQLDeferredQueryTracker(recordStore);
   });
 

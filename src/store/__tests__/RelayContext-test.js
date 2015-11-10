@@ -20,6 +20,7 @@ var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var Relay = require('Relay');
 var RelayQueryResultObservable = require('RelayQueryResultObservable');
 var RelayContext = require('RelayContext');
+var RelayStoreData = require('RelayStoreData');
 var readRelayQueryData = require('readRelayQueryData');
 
 describe('RelayContext', () => {
@@ -37,14 +38,15 @@ describe('RelayContext', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    relayContext = new RelayContext();
+    var storeData = new RelayStoreData();
+    relayContext = new RelayContext(storeData);
 
     filter = () => true;
     dataIDs = ['feedback_id', 'likers_id'];
     queries = {};
     callback = jest.genMockFunction();
-    queryRunner = relayContext._getStoreData().getQueryRunner();
-    recordStore = relayContext._getStoreData().getRecordStore();
+    queryRunner = storeData.getQueryRunner();
+    recordStore = storeData.getRecordStore();
   });
 
   describe('primeCache', () => {

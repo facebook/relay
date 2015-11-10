@@ -80,8 +80,8 @@ import type {
 class RelayContext {
   _storeData: RelayStoreData;
 
-  constructor() {
-    this._storeData = new RelayStoreData();
+  constructor(storeData?: RelayStoreData) {
+    this._storeData = storeData || new RelayStoreData();
   }
 
   /**
@@ -273,10 +273,6 @@ class RelayContext {
     mutation._initialize(this);
     var transaction = new RelayMutationTransaction(this._storeData, mutation);
     transaction.commit(callbacks);
-  }
-
-  _getStoreData(): RelayStoreData {
-    return this._storeData;
   }
 }
 

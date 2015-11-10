@@ -19,7 +19,8 @@ jest.dontMock('RelayContainer');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
 var Relay = require('Relay');
-var RelayStore = require('RelayStore');
+var RelayContext = require('RelayContext');
+var RelayStoreData = require('RelayStoreData');
 
 describe('RelayContainer.hasOptimisticUpdate', () => {
   var MockContainer;
@@ -59,23 +60,25 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
   });
 
   it('is only true for queued records', () => {
-    var storeData = RelayStore._getStoreData();
+    var storeData = new RelayStoreData();
+    var relayContext = new RelayContext(storeData);
     var recordStore = storeData.getRecordStoreForOptimisticMutation('mutation');
     recordStore.putRecord('123', 'Type');
     var instance = RelayTestRenderer.render(genMockPointer => {
       return <MockContainer foo={genMockPointer('123')} />;
-    });
+    }, null, relayContext);
 
     expect(instance.hasOptimisticUpdate({__dataID__: '123'})).toBe(true);
   });
 
   it('is false for non-queued records', () => {
-    RelayStore._getStoreData().getRecordStore()
-      .putRecord('123', 'Type');
+    var storeData = new RelayStoreData();
+    var relayContext = new RelayContext(storeData);
+    storeData.getRecordStore().putRecord('123', 'Type');
 
     var instance = RelayTestRenderer.render(genMockPointer => {
       return <MockContainer foo={genMockPointer('123')} />;
-    });
+    }, null, relayContext);
     expect(instance.hasOptimisticUpdate({__dataID__: '123'})).toBe(false);
   });
 });

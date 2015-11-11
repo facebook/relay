@@ -18,7 +18,7 @@ var DliteFetchModeConstants = require('DliteFetchModeConstants');
 var Promise = require('Promise');
 var PromiseMap = require('PromiseMap');
 import type RelayQuery from 'RelayQuery';
-var RelayStoreData = require('RelayStoreData');
+import type RelayStoreData from 'RelayStoreData';
 var RelayTaskScheduler = require('RelayTaskScheduler');
 import type {QueryResult} from 'RelayTypes';
 
@@ -188,7 +188,8 @@ class PendingFetch {
     error: Error
   ): void {
     this._storeData.getDeferredQueryTracker().rejectQuery(
-      subtractedQuery, error
+      subtractedQuery,
+      error
     );
 
     this._markAsRejected(error);

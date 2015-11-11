@@ -20,7 +20,7 @@ var RelayNetworkLayer = require('RelayNetworkLayer');
 var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
-var RelayStoreData = require('RelayStoreData');
+import type RelayStoreData from 'RelayStoreData';
 var RelayTaskScheduler = require('RelayTaskScheduler');
 
 var checkRelayQueryData = require('checkRelayQueryData');

@@ -14,19 +14,23 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
 var Relay = require('Relay');
 var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
+var RelayStoreData = require('RelayStoreData');
 
 describe('RelayContainer.hasFragmentData', function() {
   var MockContainer;
   var mockRender;
   var mockPointer;
+  var deferredQueryTracker;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
+
+    deferredQueryTracker =
+      RelayStoreData.getDefaultInstance().getDeferredQueryTracker();
 
     var render = jest.genMockFunction().mockImplementation(() => <div />);
     var MockComponent = React.createClass({render});
@@ -65,7 +69,7 @@ describe('RelayContainer.hasFragmentData', function() {
   it('has query data when no pending query matches', () => {
     var instance = mockRender();
     spyOn(RelayPendingQueryTracker, 'hasPendingQueries').andReturn(true);
-    GraphQLDeferredQueryTracker.isQueryPending.mockReturnValue(false);
+    deferredQueryTracker.isQueryPending.mockReturnValue(false);
 
     expect(
       instance.hasFragmentData(MockContainer.getFragment('foo'), mockPointer)
@@ -75,7 +79,7 @@ describe('RelayContainer.hasFragmentData', function() {
   it('does not have query data when a pending query matches', () => {
     var instance = mockRender();
     spyOn(RelayPendingQueryTracker, 'hasPendingQueries').andReturn(true);
-    GraphQLDeferredQueryTracker.isQueryPending.mockReturnValue(true);
+    deferredQueryTracker.isQueryPending.mockReturnValue(true);
 
     expect(
       instance.hasFragmentData(MockContainer.getFragment('foo'), mockPointer)
@@ -87,20 +91,20 @@ describe('RelayContainer.hasFragmentData', function() {
     var hasPendingQueriesSpy =
       spyOn(RelayPendingQueryTracker, 'hasPendingQueries');
     hasPendingQueriesSpy.andReturn(true);
-    GraphQLDeferredQueryTracker.isQueryPending.mockReturnValue(true);
+    deferredQueryTracker.isQueryPending.mockReturnValue(true);
 
     // tell component to listen to query
     instance.hasFragmentData(MockContainer.getFragment('foo'), mockPointer);
 
     var fragmentName =
-      GraphQLDeferredQueryTracker.addListenerForFragment.mock.calls[0][1];
+      deferredQueryTracker.addListenerForFragment.mock.calls[0][1];
     var {onFailure} =
-      GraphQLDeferredQueryTracker.addListenerForFragment.mock.calls[0][2];
+      deferredQueryTracker.addListenerForFragment.mock.calls[0][2];
 
     var error = new Error();
     onFailure(mockPointer.__dataID__, fragmentName, error);
     hasPendingQueriesSpy.andReturn(true);
-    GraphQLDeferredQueryTracker.isQueryPending.mockReturnValue(false);
+    deferredQueryTracker.isQueryPending.mockReturnValue(false);
 
     expect(
       instance.hasFragmentData(MockContainer.getFragment('foo'), mockPointer)

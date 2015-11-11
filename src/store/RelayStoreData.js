@@ -13,6 +13,7 @@
 
 'use strict';
 
+var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
@@ -63,6 +64,7 @@ class RelayStoreData {
   _cachePopulated: boolean;
   _cachedRecords: Records;
   _cachedRootCalls: RootCallMap;
+  _deferredQueryTracker: GraphQLDeferredQueryTracker;
   _garbageCollector: ?RelayStoreGarbageCollector;
   _nodeRangeMap: NodeRangeMap;
   _records: Records;
@@ -90,24 +92,27 @@ class RelayStoreData {
     var records: Records = ({}: $FixMe);
     var rootCallMap: RootCallMap = {};
     var nodeRangeMap: NodeRangeMap = ({}: $FixMe);
+    var queuedStore = new RelayRecordStore(
+      ({cachedRecords, queuedRecords, records}: $FixMe),
+      ({cachedRootCallMap, rootCallMap}: $FixMe),
+      (nodeRangeMap: $FixMe)
+    );
+    var recordStore = new RelayRecordStore(
+      ({records}: $FixMe),
+      ({rootCallMap}: $FixMe),
+      (nodeRangeMap: $FixMe)
+    );
 
     this._cacheManager = null;
     this._cachePopulated = true;
     this._cachedRecords = cachedRecords;
     this._cachedRootCalls = cachedRootCallMap;
+    this._deferredQueryTracker = new GraphQLDeferredQueryTracker(recordStore);
     this._nodeRangeMap = nodeRangeMap;
     this._records = records;
     this._queuedRecords = queuedRecords;
-    this._queuedStore = new RelayRecordStore(
-      ({cachedRecords, queuedRecords, records}: $FixMe),
-      ({cachedRootCallMap, rootCallMap}: $FixMe),
-      (nodeRangeMap: $FixMe)
-    );
-    this._recordStore = new RelayRecordStore(
-      ({records}: $FixMe),
-      ({rootCallMap}: $FixMe),
-      (nodeRangeMap: $FixMe)
-    );
+    this._queuedStore = queuedStore;
+    this._recordStore = recordStore;
     this._queryTracker = new RelayQueryTracker();
     this._queryRunner = new GraphQLQueryRunner(this);
     this._rootCalls = rootCallMap;
@@ -372,6 +377,10 @@ class RelayStoreData {
 
   getQueryRunner(): GraphQLQueryRunner {
     return this._queryRunner;
+  }
+
+  getDeferredQueryTracker(): GraphQLDeferredQueryTracker {
+    return this._deferredQueryTracker;
   }
 
   /**

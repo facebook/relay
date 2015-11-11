@@ -91,14 +91,14 @@ describe('writeRelayQueryPayload()', () => {
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          'client:viewer': true,
+          'client:1': true,
           '123': true,
         },
         updated: {},
       });
-      expect(store.getRecordState('client:viewer')).toBe('EXISTENT');
-      expect(store.getLinkedRecordID('client:viewer', 'actor')).toBe('123');
-      expect(store.getDataID('viewer')).toBe('client:viewer');
+      expect(store.getRecordState('client:1')).toBe('EXISTENT');
+      expect(store.getLinkedRecordID('client:1', 'actor')).toBe('123');
+      expect(store.getDataID('viewer')).toBe('client:1');
     });
 
     it('is created for custom root calls with an id', () => {
@@ -603,7 +603,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       writePayload(store, query, payload);
-      expect(store.getType('client:viewer')).toBe(null);
+      expect(store.getType('client:1')).toBe(null);
     });
   });
 });

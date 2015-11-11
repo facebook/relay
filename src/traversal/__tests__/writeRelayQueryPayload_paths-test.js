@@ -71,7 +71,7 @@ describe('writePayload()', () => {
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          'client:viewer': true,
+          'client:1': true,
           '123': true,
         },
         updated: {}
@@ -79,8 +79,8 @@ describe('writePayload()', () => {
 
       // viewer has a client id and must be refetched by the original root call
       var path = new RelayQueryPath(query);
-      expect(store.getRecordState('client:viewer')).toBe('EXISTENT');
-      expect(store.getPathToRecord('client:viewer')).toMatchPath(path);
+      expect(store.getRecordState('client:1')).toBe('EXISTENT');
+      expect(store.getPathToRecord('client:1')).toMatchPath(path);
 
       // actor is refetchable by ID
       expect(store.getPathToRecord('123')).toBe(undefined);
@@ -129,7 +129,7 @@ describe('writePayload()', () => {
       `);
       var payload = {
         viewer: {
-          'actor': {
+          actor: {
             id: '123',
             address: {
               city: 'San Francisco',
@@ -140,7 +140,7 @@ describe('writePayload()', () => {
       writePayload(store, query, payload);
 
       // linked nodes use a minimal path from the nearest refetchable node
-      var addressID = 'client:1';
+      var addressID = 'client:2';  // The generated id *after* viewer
       var pathQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -325,8 +325,8 @@ describe('writePayload()', () => {
 
     it('tracks new linked records', () => {
       var records = {
-        'client:viewer': {
-          __dataID__: 'client:viewer',
+        'client:1': {
+          __dataID__: 'client:1',
         },
       };
       var store = new RelayRecordStore({records});

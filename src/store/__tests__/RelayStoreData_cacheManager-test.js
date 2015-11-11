@@ -158,9 +158,9 @@ describe('RelayStoreData', function() {
       writeRootCall: 1,
     });
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
-      'client:viewer': {
-        __dataID__: 'client:viewer',
-        __path__: getPathToRecord('client:viewer'),
+      'client:1': {
+        __dataID__: 'client:1',
+        __path__: getPathToRecord('client:1'),
         isFbEmployee: true,
       }
     });

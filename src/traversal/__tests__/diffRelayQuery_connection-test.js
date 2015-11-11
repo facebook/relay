@@ -43,7 +43,7 @@ describe('diffRelayQuery', () => {
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
 
     rootCallMap = {
-      'viewer': {'': 'client:viewer'},
+      'viewer': {'': 'client:1'},
     };
 
     jest.addMatchers(RelayTestUtils.matchers);

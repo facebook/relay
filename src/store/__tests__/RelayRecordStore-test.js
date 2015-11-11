@@ -739,7 +739,7 @@ describe('RelayRecordStore', () => {
     });
 
     it('returns cached id if unfetched', () => {
-      var id = 'client:viewer';
+      var id = 'client:1';
       var cachedRootCallMap = {viewer: {'': id}};
       var rootCallMap = {};
       var records = {};

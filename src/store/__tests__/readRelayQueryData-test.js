@@ -71,8 +71,8 @@ describe('readRelayQueryData', () => {
 
   it('retrieves data that is in the store', () => {
     var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
         actor: {
           __dataID__: '660361306',
         },
@@ -83,9 +83,9 @@ describe('readRelayQueryData', () => {
       },
     };
     var query = getNode(Relay.QL`query{viewer{actor{firstName}}}`);
-    var data = getData({records}, query, 'client:viewer');
+    var data = getData({records}, query, 'client:1');
     expect(data).toEqual({
-      __dataID__: 'client:viewer',
+      __dataID__: 'client:1',
       actor: {
         __dataID__: '660361306',
         firstName: 'Greg',
@@ -224,8 +224,8 @@ describe('readRelayQueryData', () => {
 
   it('populates data ID for nodes containing only non-local fragments', () => {
     var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
         actor: {
           __dataID__: '660361306',
         },
@@ -240,16 +240,16 @@ describe('readRelayQueryData', () => {
       {}
     );
     var query = getNode(Relay.QL`query{viewer{${fragmentReference}}}`);
-    var data = getData({records}, query, 'client:viewer');
+    var data = getData({records}, query, 'client:1');
     var pointer = data[getNode(fragmentReference).getConcreteFragmentID()];
     expect(pointer instanceof GraphQLFragmentPointer).toBe(true);
-    expect(data.__dataID__).toBe('client:viewer');
+    expect(data.__dataID__).toBe('client:1');
   });
 
   it('reads data for non-container fragment references', () => {
     var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
         actor: {
           __dataID__: '660361306',
         },
@@ -264,9 +264,9 @@ describe('readRelayQueryData', () => {
       {}
     );
     var query = getNode(Relay.QL`query{viewer{${fragmentReference}}}`);
-    var data = getData({records}, query, 'client:viewer');
+    var data = getData({records}, query, 'client:1');
     expect(data).toEqual({
-      __dataID__: 'client:viewer',
+      __dataID__: 'client:1',
       actor: {
         __dataID__: '660361306',
         firstName: 'Greg',
@@ -872,20 +872,20 @@ describe('readRelayQueryData', () => {
       }
     `);
     var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
         actor: null,
       },
     };
-    var data = getData({records}, query, 'client:viewer');
+    var data = getData({records}, query, 'client:1');
     expect(data.actor).toBeNull();
 
     records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
       },
     };
-    data = getData({records}, query, 'client:viewer');
+    data = getData({records}, query, 'client:1');
     expect(data.actor).toBeUndefined();
   });
 
@@ -932,13 +932,13 @@ describe('readRelayQueryData', () => {
     `);
 
     var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
       },
     };
 
-    var data = getData({records}, query, 'client:viewer');
-    expect(data).toEqual({__dataID__: 'client:viewer'});
+    var data = getData({records}, query, 'client:1');
+    expect(data).toEqual({__dataID__: 'client:1'});
 
     // Extra assertion because `toEqual` matcher skips over properties with
     // undefined values...
@@ -985,11 +985,11 @@ describe('readRelayQueryData', () => {
       'user_id': {
         __dataID__: 'user_id',
         friends: {
-          __dataID__: 'client:friends',
+          __dataID__: 'client:1',
         },
       },
-      'client:friends': {
-        __dataID__: 'client:friends',
+      'client:1': {
+        __dataID__: 'client:1',
         count: 42,
       },
     };
@@ -1002,11 +1002,11 @@ describe('readRelayQueryData', () => {
       'user_id': {
         __dataID__: 'user_id',
         friends: {
-          __dataID__: 'client:friends',
+          __dataID__: 'client:1',
         },
       },
-      'client:friends': {
-        __dataID__: 'client:friends',
+      'client:1': {
+        __dataID__: 'client:1',
         __range__: new GraphQLRange(),
         count: 42,
       },
@@ -1187,8 +1187,8 @@ describe('readRelayQueryData', () => {
 
   it('can be configured to read generated fields (scalar case)', () => {
     var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
         actor: {
           __dataID__: '660361306',
         },
@@ -1203,11 +1203,11 @@ describe('readRelayQueryData', () => {
     var data = getData(
       {records},
       query,
-      'client:viewer',
+      'client:1',
       {traverseGeneratedFields: true}
     );
     expect(data).toEqual({
-      __dataID__: 'client:viewer',
+      __dataID__: 'client:1',
       actor: {
         __dataID__: '660361306',
         firstName: 'Greg',

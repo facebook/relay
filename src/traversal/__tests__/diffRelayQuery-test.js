@@ -33,7 +33,7 @@ describe('diffRelayQuery', () => {
     RelayRecordStore = require('RelayRecordStore');
 
     rootCallMap = {
-      viewer: {'': 'client:viewer'},
+      viewer: {'': 'client:1'},
     };
 
     jest.addMatchers(RelayTestUtils.matchers);
@@ -160,8 +160,8 @@ describe('diffRelayQuery', () => {
       }
     `);
     var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
         actor: {__dataID__: '4808495'}
       },
       '4808495': {
@@ -531,8 +531,8 @@ describe('diffRelayQuery', () => {
       }
     `);
     var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
         actor: {
           __dataID__: 'actor'
         }
@@ -581,13 +581,13 @@ describe('diffRelayQuery', () => {
       }
     `);
     records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
         actor: {
           __dataID__: 'actor'
         }
       },
-      'client:actor': {
+      'actor': {
         __dataID__: 'actor',
         id: 'actor'
       }
@@ -674,8 +674,8 @@ describe('diffRelayQuery', () => {
 
   it('splits viewer-rooted queries', () => {
     var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
         actor: {__dataID__: '4808495'}
       },
       '4808495': {
@@ -706,8 +706,8 @@ describe('diffRelayQuery', () => {
 
   it('does not split refetchable fields', () => {
     var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {
+        __dataID__: 'client:1',
         actor: {
           __dataID__: '123'
         }
@@ -1546,32 +1546,32 @@ describe('diffRelayQuery', () => {
 
   it('splits out node() queries inside viewer-rooted queries', () => {
     var mockEdge = {
-      __dataID__: 'client:viewer:4808495',
+      __dataID__: 'client:1:4808495',
       node: {__dataID__: '4808495'},
       cursor: 'cursor1'
     };
 
     var mockRange = new GraphQLRange();
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: ['client:viewer:4808495'],
+      requestedEdgeIDs: ['client:1:4808495'],
       diffCalls: null
     });
 
     var records = {
-      'client:viewer': {
-        __dataID__: 'client:viewer',
+      'client:1': {  // viewer
+        __dataID__: 'client:1',
         actor: {__dataID__: '4'},
       },
       '4': {
         __dataID__: '4',
         id: '4',
-        friends: {__dataID__: 'client:1'}
+        friends: {__dataID__: 'client:2'},
       },
-      'client:1': {
-        __dataID__: 'client:1',
+      'client:2': {  // friends
+        __dataID__: 'client:2',
         __range__: mockRange
       },
-      'client:viewer:4808495': mockEdge,
+      'client:1:4808495': mockEdge,
       '4808495': {
         __dataID__: '4808495',
         id: '4808495',
@@ -1634,7 +1634,7 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries.length).toBe(3);
     expect(trackedQueries[1][1]).toBe('4');
     expect(trackedQueries[1][0]).toEqualQueryNode(innerTrackedQuery);
-    expect(trackedQueries[2][1]).toBe('client:viewer');
+    expect(trackedQueries[2][1]).toBe('client:1');
     expect(trackedQueries[2][0]).toEqualQueryNode(trackedQuery);
   });
 

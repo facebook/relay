@@ -1,11 +1,14 @@
 ## master
 
-* Bump the `babel-relay-plugin` version to vX.Y.Z.
+## 0.5.0 (November 11, 2015)
+
+* Bump the `babel-relay-plugin` version to v0.4.1.
   * Added validation of arguments for connections with `edges` or `pageInfo`.
     * Connections without arguments in fat queries can add the new fragment
       directive `@relay(pattern: true)`.
   * Fixed validation of fields within inline fragments in connections.
-  * Print queries using a plain-object representation (instead of `GraphQL` objects).
+  * Print queries using a plain-object representation (instead of `GraphQL`
+    objects).
 * `RelayQueryField#getStorageKey` will now produce the same key regardless of
   the order of a field's arguments.
 * Range behavior keys in mutation configs are now guaranteed to be sorted.
@@ -13,8 +16,8 @@
   `RelayQuery.Root` (that can be used with `Relay.Store` methods).
 * Optimistic response keys now use GraphQL OSS syntax. (Usage of old, call-like
   syntax is now deprecated and will warn.)
-* Fix a bug where optimistic queries could cause the error "Could not find a type
-  name for record ...".
+* Fix a bug where optimistic queries could cause the error "Could not find a
+  type name for record ...".
 
 ## 0.4.0 (October 13, 2015)
 

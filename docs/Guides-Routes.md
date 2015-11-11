@@ -118,7 +118,7 @@ But now, we can also create routes for arbitrary user IDs. For example, if we wa
 window.addEventListener('popstate', () => {
   var userID = getQueryParamFromURI('userID', document.location.href);
   var profileRoute = new ProfileRoute({userID: userID});
-  React.render(
+  ReactDOM.render(
     <Relay.RootContainer
       Component={UserProfile}
       route={profileRoute}

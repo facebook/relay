@@ -19,7 +19,7 @@ To use these pieces to construct a full-fledged GraphQL query that we can send t
 **Relay.RootContainer** is a React component that, given a `Component` and a `route`, attempts to fulfill the data required in order to render an instance of `Component`.
 
 ```
-React.render(
+ReactDOM.render(
   <Relay.RootContainer
     Component={ProfilePicture}
     route={profileRoute}

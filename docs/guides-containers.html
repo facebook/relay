@@ -20,13 +20,13 @@
   <span class="token function">setSize</span><span class="token punctuation">(</span>photoSize<span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span spellcheck="true" class="token comment">// TODO: Fetch the profile photo URI for the given size...</span>
   <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></pre><h3><a class="anchor" name="data-dependencies-with-graphql"></a>Data Dependencies With GraphQL <a class="hash-link" href="#data-dependencies-with-graphql">#</a></h3><p>In Relay, data dependecies are described using <a href="https://github.com/facebook/graphql" target="_blank">GraphQL</a>. For <code>&lt;ProfilePicture&gt;</code>, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the <code>user</code> prop.</p><pre class="prism language-javascript">Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
+<span class="token punctuation">}</span></pre><h3><a class="anchor" name="data-dependencies-with-graphql"></a>Data Dependencies With GraphQL <a class="hash-link" href="#data-dependencies-with-graphql">#</a></h3><p>In Relay, data dependencies are described using <a href="https://github.com/facebook/graphql" target="_blank">GraphQL</a>. For <code>&lt;ProfilePicture&gt;</code>, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the <code>user</code> prop.</p><pre class="prism language-javascript">Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
   # This fragment only applies to objects of type `</span></span>User<span class="token template-string"><span class="token string">`.
   fragment on User {
     # Set the `</span></span>size<span class="token template-string"><span class="token string">` argument to a GraphQL variable named `</span></span>$size<span class="token template-string"><span class="token string">` so that we can
     # later change its value via the slider.
     profilePhoto(size: $size) {
-      # Get the apppropriate URI for the given size, for example on a CDN.
+      # Get the appropriate URI for the given size, for example on a CDN.
       uri,
     },
   }

@@ -45,7 +45,10 @@ describe('RelayQueryRoot', () => {
         }
       }
     `);
-    usernames.__concreteNode__.metadata = {identifyingArgName: 'names'};
+    usernames.__concreteNode__.metadata = {
+      isPlural: true,
+      identifyingArgName: 'names',
+    };
   });
 
   it('has a unique ID', () => {
@@ -242,7 +245,10 @@ describe('RelayQueryRoot', () => {
         }
       }
     `);
-    usernames2.__concreteNode__.metadata = {identifyingArgName: 'names'};
+    usernames2.__concreteNode__.metadata = {
+      isPlural: true,
+      identifyingArgName: 'names',
+    };
 
     expect(me.equals(me2)).toBe(true);
     expect(usernames.equals(usernames2)).toBe(true);
@@ -458,6 +464,11 @@ describe('RelayQueryRoot', () => {
       );
       identifyingQuery.__concreteNode__.metadata = {identifyingArgName: 'name'};
       expect(identifyingQuery.getStorageKey()).toBe('username');
+    });
+
+    it('identifies itself as plural or not', () => {
+      expect(me.isPlural()).toBe(false);
+      expect(usernames.isPlural()).toBe(true);
     });
 
     /*

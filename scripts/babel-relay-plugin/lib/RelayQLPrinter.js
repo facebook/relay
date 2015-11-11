@@ -90,6 +90,9 @@ var RelayQLPrinter = (function () {
       }
       var selections = this.printSelections(rootField, requisiteFields);
       var metadata = {};
+      if (rootFieldType.isList()) {
+        metadata.isPlural = true;
+      }
       invariant(rootFieldArgs.length <= 1, 'Invalid root field `%s`; Relay only supports root fields with zero ' + 'or one argument.', rootField.getName());
       var calls = NULL;
       if (rootFieldArgs.length === 1) {

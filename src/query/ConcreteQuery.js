@@ -131,6 +131,7 @@ export type ConcreteQuery = {
   metadata: {
     identifyingArgName?: ?string;
     identifyingArgType?: ?string;
+    isPlural?: ?boolean;
   };
   name: string;
 };

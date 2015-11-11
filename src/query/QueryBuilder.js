@@ -190,6 +190,7 @@ const QueryBuilder = {
       identifyingArgName?: ?string;
       identifyingArgType?: ?string;
       isDeferred?: ?boolean;
+      isPlural?: ?boolean;
     };
     name: string;
   }): ConcreteQuery {
@@ -225,6 +226,7 @@ const QueryBuilder = {
       metadata: {
         identifyingArgName,
         identifyingArgType: metadata.identifyingArgType,
+        isPlural: metadata.isPlural,
       },
       name: partialQuery.name,
     };

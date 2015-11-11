@@ -540,6 +540,10 @@ class RelayQueryRoot extends RelayQueryNode {
     return !!(this.__concreteNode__: ConcreteQuery).isDeferred;
   }
 
+  isPlural(): boolean {
+    return !!(this.__concreteNode__: ConcreteQuery).metadata.isPlural;
+  }
+
   getDeferredFragmentNames(): FragmentNames {
     var fragmentNames = this.__deferredFragmentNames__;
     if (!fragmentNames) {

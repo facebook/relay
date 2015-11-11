@@ -94,6 +94,9 @@ class RelayQLPrinter {
     }
     const selections = this.printSelections(rootField, requisiteFields);
     const metadata = {};
+    if (rootFieldType.isList()) {
+      metadata.isPlural = true;
+    }
     invariant(
       rootFieldArgs.length <= 1,
       'Invalid root field `%s`; Relay only supports root fields with zero ' +

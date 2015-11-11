@@ -127,7 +127,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
               warning(['Error: ' + error.message, 'File:  ' + filename].join('\n'));
             }
             var runtimeMessage = util.format('GraphQL validation/transform error ``%s`` in file `%s`.', errorMessages.join(' '), filename);
-            result = t.callExpression(t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.stringLiteral(runtimeMessage)]))])), []);
+            result = t.callExpression(t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.valueToNode(runtimeMessage)]))])), []);
 
             if (options.debug) {
               console.error(error.stack);

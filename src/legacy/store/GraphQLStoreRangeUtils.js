@@ -52,7 +52,7 @@ var GraphQLStoreRangeUtils = {
    * the attributes needed to retrieve the corresponding items from a
    * GraphQLRange.
    *
-   * @param {array<GraphQLCallvNode>} calls
+   * @param {array<*>} calls
    * @param {object} callValues
    * @param {string} dataID
    * @return {string}

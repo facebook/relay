@@ -22,7 +22,7 @@ import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 import type RelayRecordStore from 'RelayRecordStore';
-var RelayStoreData = require('RelayStoreData');
+import type RelayStoreData from 'RelayStoreData';
 import type {StoreReaderData} from 'RelayTypes';
 
 var filterExclusiveKeys = require('filterExclusiveKeys');
@@ -46,10 +46,10 @@ class GraphQLStoreQueryResolver {
     GraphQLStorePluralQueryResolver |
     GraphQLStoreSingleQueryResolver
   );
-  _store: RelayRecordStore;
+  _storeData: RelayStoreData;
 
   constructor(
-    store: RelayRecordStore,
+    storeData: RelayStoreData,
     fragmentPointer: GraphQLFragmentPointer,
     callback: Function
   ) {
@@ -57,7 +57,7 @@ class GraphQLStoreQueryResolver {
     this._callback = callback;
     this._fragmentPointer = fragmentPointer;
     this._resolver = null;
-    this._store = store;
+    this._storeData = storeData;
   }
 
   /**
@@ -76,8 +76,8 @@ class GraphQLStoreQueryResolver {
     var resolver = this._resolver;
     if (!resolver) {
       resolver = this._fragmentPointer.getFragment().isPlural() ?
-        new GraphQLStorePluralQueryResolver(this._store, this._callback) :
-        new GraphQLStoreSingleQueryResolver(this._store, this._callback);
+        new GraphQLStorePluralQueryResolver(this._storeData, this._callback) :
+        new GraphQLStoreSingleQueryResolver(this._storeData, this._callback);
       this._resolver = resolver;
     }
     return resolver.resolve(fragmentPointer);
@@ -91,12 +91,12 @@ class GraphQLStorePluralQueryResolver {
   _callback: Function;
   _resolvers: Array<GraphQLStoreSingleQueryResolver>;
   _results: Array<?StoreReaderData>;
-  _store: RelayRecordStore;
+  _storeData: RelayStoreData;
 
-  constructor(store: RelayRecordStore, callback: Function) {
+  constructor(storeData: RelayStoreData, callback: Function) {
     this.reset();
     this._callback = callback;
-    this._store = store;
+    this._storeData = storeData;
   }
 
   reset(): void {
@@ -126,7 +126,7 @@ class GraphQLStorePluralQueryResolver {
     // Ensure that we have exactly `nextLength` resolvers.
     while (resolvers.length < nextLength) {
       resolvers.push(
-        new GraphQLStoreSingleQueryResolver(this._store, this._callback)
+        new GraphQLStoreSingleQueryResolver(this._storeData, this._callback)
       );
     }
     while (resolvers.length > nextLength) {
@@ -162,16 +162,15 @@ class GraphQLStoreSingleQueryResolver {
   _hasDataChanged: boolean;
   _result: ?StoreReaderData;
   _resultID: ?DataID;
-  _store: RelayRecordStore;
+  _storeData: RelayStoreData;
   _subscribedIDs: DataIDSet;
   _subscription: ?ChangeSubscription;
 
-  constructor(store: RelayRecordStore, callback: Function) {
+  constructor(storeData: RelayStoreData, callback: Function) {
     this.reset();
     this._callback = callback;
-    this._garbageCollector =
-      RelayStoreData.getDefaultInstance().getGarbageCollector();
-    this._store = store;
+    this._garbageCollector = storeData.getGarbageCollector();
+    this._storeData = storeData;
     this._subscribedIDs = {};
   }
 
@@ -209,7 +208,7 @@ class GraphQLStoreSingleQueryResolver {
     if (
       prevFragment != null &&
       prevID != null &&
-      getCanonicalID(prevID) === getCanonicalID(nextID)
+      this._getCanonicalID(prevID) === this._getCanonicalID(nextID)
     ) {
       if (
         prevID !== nextID ||
@@ -219,7 +218,7 @@ class GraphQLStoreSingleQueryResolver {
         // same canonical ID,
         // but the data, call(s), route, and/or variables have changed
         [nextResult, subscribedIDs] = resolveFragment(
-          this._store,
+          this._storeData.getQueuedStore(),
           nextFragment,
           nextID
         );
@@ -231,7 +230,7 @@ class GraphQLStoreSingleQueryResolver {
     } else {
       // Pointer has a different ID or is/was fake data.
       [nextResult, subscribedIDs] = resolveFragment(
-        this._store,
+        this._storeData.getQueuedStore(),
         nextFragment,
         nextID
       );
@@ -261,6 +260,15 @@ class GraphQLStoreSingleQueryResolver {
     this._fragment = nextFragment;
 
     return this._result;
+  }
+
+  /**
+   * Ranges publish events for the entire range, not the specific view of that
+   * range. For example, if "client:1" is a range, the event is on "client:1",
+   * not "client:1_first(5)".
+   */
+  _getCanonicalID(id: DataID): DataID {
+    return GraphQLStoreRangeUtils.getCanonicalClientID(id);
   }
 
   _handleChange(): void {
@@ -295,15 +303,6 @@ function resolveFragment(
 ): [StoreReaderData, DataIDSet] {
   var {data, dataIDs} = readRelayQueryData(store, fragment, dataID);
   return [data, dataIDs];
-}
-
-/**
- * Ranges publish events for the entire range, not the specific view of that
- * range. For example, if "client:1" is a range, the event is on "client:1",
- * not "client:1_first(5)".
- */
-function getCanonicalID(id: DataID): DataID {
-  return GraphQLStoreRangeUtils.getCanonicalClientID(id);
 }
 
 RelayProfiler.instrumentMethods(GraphQLStoreQueryResolver.prototype, {

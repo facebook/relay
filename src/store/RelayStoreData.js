@@ -64,6 +64,7 @@ class RelayStoreData {
   _cachePopulated: boolean;
   _cachedRecords: Records;
   _cachedRootCalls: RootCallMap;
+  _changeEmitter: GraphQLStoreChangeEmitter;
   _deferredQueryTracker: GraphQLDeferredQueryTracker;
   _garbageCollector: ?RelayStoreGarbageCollector;
   _nodeRangeMap: NodeRangeMap;
@@ -107,7 +108,9 @@ class RelayStoreData {
     this._cachePopulated = true;
     this._cachedRecords = cachedRecords;
     this._cachedRootCalls = cachedRootCallMap;
-    this._deferredQueryTracker = new GraphQLDeferredQueryTracker(recordStore);
+    this._changeEmitter = new GraphQLStoreChangeEmitter();
+    this._deferredQueryTracker =
+      new GraphQLDeferredQueryTracker(this.getRecordStore());
     this._nodeRangeMap = nodeRangeMap;
     this._records = records;
     this._queuedRecords = queuedRecords;
@@ -345,7 +348,7 @@ class RelayStoreData {
   clearQueuedData(): void {
     forEachObject(this._queuedRecords, (_, key) => {
       delete this._queuedRecords[key];
-      GraphQLStoreChangeEmitter.broadcastChangeForID(key);
+      this._changeEmitter.broadcastChangeForID(key);
     });
   }
 
@@ -383,6 +386,10 @@ class RelayStoreData {
     return this._deferredQueryTracker;
   }
 
+  getChangeEmitter(): GraphQLStoreChangeEmitter {
+    return this._changeEmitter;
+  }
+
   /**
    * @deprecated
    *
@@ -407,9 +414,7 @@ class RelayStoreData {
    */
   _handleChangedAndNewDataIDs(changeSet: ChangeSet): void {
     var updatedDataIDs = Object.keys(changeSet.updated);
-    updatedDataIDs.forEach(
-      GraphQLStoreChangeEmitter.broadcastChangeForID
-    );
+    updatedDataIDs.forEach(id => this._changeEmitter.broadcastChangeForID(id));
     if (this._garbageCollector) {
       var createdDataIDs = Object.keys(changeSet.created);
       var garbageCollector = this._garbageCollector;

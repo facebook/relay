@@ -66,19 +66,10 @@ Object.assign(RelayQL, {
     }
     return substitution;
   },
-  // NOTE: This exists to support deprecated usage of `${variables.value}`.
   __var(substitution: any): any {
     if (substitution === undefined) {
       warning(false, 'RelayQL: Invalid undefined argument; use null.');
       substitution = null;
-    } else if (!QueryBuilder.getCallVariable(substitution)) {
-      warning(
-        false,
-        'RelayQL: Invalid argument `%s` supplied via template substitution. ' +
-        'Instead, use an inline argument (e.g. `field(size: 32)`) or a ' +
-        'variable (e.g. `field(size: $size)`).',
-        substitution
-      );
     }
     return substitution;
   },

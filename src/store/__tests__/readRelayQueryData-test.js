@@ -16,10 +16,10 @@ RelayTestUtils.unmockRelay();
 
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var GraphQLRange = require('GraphQLRange');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 var Relay = require('Relay');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayFragmentReference = require('RelayFragmentReference');
+var RelayStoreData = require('RelayStoreData');
 var RelayRecordStatusMap = require('RelayRecordStatusMap');
 var callsToGraphQL = require('callsToGraphQL');
 var readRelayQueryData = require('readRelayQueryData');
@@ -319,7 +319,7 @@ describe('readRelayQueryData', () => {
         count
       }
     `);
-    var rangeID = GraphQLStoreRangeUtils.getClientIDForRangeWithID(
+    var rangeID = RelayStoreData.getDefaultInstance().getRangeData().getClientIDForRangeWithID(
       callsToGraphQL([
         {name: 'is_viewer_friend', value: null},
         {name: 'first', value: 10},

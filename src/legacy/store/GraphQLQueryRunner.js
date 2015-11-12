@@ -17,7 +17,6 @@ var DliteFetchModeConstants = require('DliteFetchModeConstants');
 import type {RelayQuerySet} from 'RelayInternalTypes';
 import type {PendingFetch} from 'RelayPendingQueryTracker';
 var RelayNetworkLayer = require('RelayNetworkLayer');
-var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
@@ -264,7 +263,7 @@ function runQueries(
       generateForceIndex() : null;
 
     splitAndFlattenQueries(queries).forEach(query => {
-      var pendingFetch = RelayPendingQueryTracker.add(
+      var pendingFetch = storeData.getPendingQueryTracker().add(
         {query, fetchMode, forceIndex, storeData}
       );
       var queryID = query.getID();

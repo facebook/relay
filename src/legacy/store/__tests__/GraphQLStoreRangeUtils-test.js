@@ -20,6 +20,11 @@ var QueryBuilder = require('QueryBuilder');
 var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 
 describe('GraphQLStoreRangeUtils', () => {
+  var rangeData;
+
+  beforeEach(() => {
+    rangeData = new GraphQLStoreRangeUtils();
+  });
 
   it('should encode and decode', () => {
     var id = 'client:1';
@@ -37,7 +42,7 @@ describe('GraphQLStoreRangeUtils', () => {
 
     var calls = [firstCall, afterCall];
 
-    var rangeID = GraphQLStoreRangeUtils.getClientIDForRangeWithID(
+    var rangeID = rangeData.getClientIDForRangeWithID(
       calls,
       callValues,
       id
@@ -49,7 +54,7 @@ describe('GraphQLStoreRangeUtils', () => {
     // a different ID or different calls.
     expect(rangeID).toEqual('client:1_first(1),after(123456)');
 
-    var parsed = GraphQLStoreRangeUtils.parseRangeClientID(rangeID);
+    var parsed = rangeData.parseRangeClientID(rangeID);
     expect(parsed.dataID).toBe(id);
     expect(parsed.calls).toBe(calls);
     expect(parsed.callValues).toBe(callValues);

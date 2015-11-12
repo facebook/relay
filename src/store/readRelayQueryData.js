@@ -15,13 +15,13 @@
 
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 var RelayQueryVisitor = require('RelayQueryVisitor');
 var RelayRecordState = require('RelayRecordState');
+var RelayStoreData = require('RelayStoreData');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 import type {
@@ -33,6 +33,8 @@ var callsFromGraphQL = require('callsFromGraphQL');
 var callsToGraphQL = require('callsToGraphQL');
 var invariant = require('invariant');
 var validateRelayReadQuery = require('validateRelayReadQuery');
+
+var rangeUtils = RelayStoreData.getDefaultInstance().getRangeData();
 
 export type DataIDSet = {[key: string]: boolean};
 export type StoreReaderResult = {
@@ -100,7 +102,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       data: (undefined: $FlowIssue),
       dataIDs: ({}: $FlowIssue),
     };
-    var rangeData = GraphQLStoreRangeUtils.parseRangeClientID(dataID);
+    var rangeData = rangeUtils.parseRangeClientID(dataID);
     var status = this._recordStore.getRecordState(
       rangeData ? rangeData.dataID : dataID
     );
@@ -363,7 +365,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
    * so, unpacks the range metadata, stashing it into (and overriding) `state`.
    */
   _handleRangeInfo(node: RelayQuery.Field, state: State): void {
-    var rangeData = GraphQLStoreRangeUtils.parseRangeClientID(
+    var rangeData = rangeUtils.parseRangeClientID(
       state.storeDataID
     );
     if (rangeData != null) {
@@ -423,7 +425,7 @@ function getConnectionClientID(
   if (!RelayConnectionInterface.hasRangeCalls(calls)) {
     return connectionID;
   }
-  return GraphQLStoreRangeUtils.getClientIDForRangeWithID(
+  return rangeUtils.getClientIDForRangeWithID(
     callsToGraphQL(calls),
     {},
     connectionID

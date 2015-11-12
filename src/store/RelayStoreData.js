@@ -17,6 +17,7 @@ var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 var RelayChangeTracker = require('RelayChangeTracker');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {ChangeSet} from 'RelayChangeTracker';
@@ -64,15 +65,17 @@ class RelayStoreData {
   _cachePopulated: boolean;
   _cachedRecords: Records;
   _cachedRootCalls: RootCallMap;
+  _changeEmitter: GraphQLStoreChangeEmitter;
   _deferredQueryTracker: GraphQLDeferredQueryTracker;
   _garbageCollector: ?RelayStoreGarbageCollector;
   _nodeRangeMap: NodeRangeMap;
   _records: Records;
+  _queryRunner: GraphQLQueryRunner;
+  _queryTracker: RelayQueryTracker;
   _queuedRecords: Records;
   _queuedStore: RelayRecordStore;
+  _rangeData: GraphQLStoreRangeUtils;
   _recordStore: RelayRecordStore;
-  _queryTracker: RelayQueryTracker;
-  _queryRunner: GraphQLQueryRunner;
   _rootCalls: RootCallMap;
 
   /**
@@ -107,14 +110,17 @@ class RelayStoreData {
     this._cachePopulated = true;
     this._cachedRecords = cachedRecords;
     this._cachedRootCalls = cachedRootCallMap;
-    this._deferredQueryTracker = new GraphQLDeferredQueryTracker(recordStore);
+    this._changeEmitter = new GraphQLStoreChangeEmitter();
+    this._deferredQueryTracker =
+      new GraphQLDeferredQueryTracker(this.getRecordStore());
     this._nodeRangeMap = nodeRangeMap;
+    this._rangeData = new GraphQLStoreRangeUtils();
     this._records = records;
+    this._queryTracker = new RelayQueryTracker();
+    this._queryRunner = new GraphQLQueryRunner(this);
     this._queuedRecords = queuedRecords;
     this._queuedStore = queuedStore;
     this._recordStore = recordStore;
-    this._queryTracker = new RelayQueryTracker();
-    this._queryRunner = new GraphQLQueryRunner(this);
     this._rootCalls = rootCallMap;
   }
 
@@ -345,7 +351,7 @@ class RelayStoreData {
   clearQueuedData(): void {
     forEachObject(this._queuedRecords, (_, key) => {
       delete this._queuedRecords[key];
-      GraphQLStoreChangeEmitter.broadcastChangeForID(key);
+      this._changeEmitter.broadcastChangeForID(key);
     });
   }
 
@@ -383,6 +389,14 @@ class RelayStoreData {
     return this._deferredQueryTracker;
   }
 
+  getChangeEmitter(): GraphQLStoreChangeEmitter {
+    return this._changeEmitter;
+  }
+
+  getRangeData(): GraphQLStoreRangeUtils {
+    return this._rangeData;
+  }
+
   /**
    * @deprecated
    *
@@ -407,9 +421,7 @@ class RelayStoreData {
    */
   _handleChangedAndNewDataIDs(changeSet: ChangeSet): void {
     var updatedDataIDs = Object.keys(changeSet.updated);
-    updatedDataIDs.forEach(
-      GraphQLStoreChangeEmitter.broadcastChangeForID
-    );
+    updatedDataIDs.forEach(id => this._changeEmitter.broadcastChangeForID(id));
     if (this._garbageCollector) {
       var createdDataIDs = Object.keys(changeSet.created);
       var garbageCollector = this._garbageCollector;

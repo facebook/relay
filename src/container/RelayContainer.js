@@ -16,7 +16,6 @@
 import type {ConcreteFragment} from 'ConcreteQuery';
 var ErrorUtils = require('ErrorUtils');
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
@@ -74,16 +73,16 @@ export type RootQueries = {
   [queryName: string]: RelayQLQueryBuilder;
 };
 
-GraphQLStoreChangeEmitter.injectBatchingStrategy(
-  ReactDOM.unstable_batchedUpdates
-);
-
 var containerContextTypes = {
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 var nextContainerID = 0;
 
 var storeData = RelayStoreData.getDefaultInstance();
+
+storeData.getChangeEmitter().injectBatchingStrategy(
+  ReactDOM.unstable_batchedUpdates
+);
 
 /**
  * @public
@@ -549,7 +548,7 @@ function createContainerComponent(
           }
         } else if (!queryResolver) {
           queryResolver = new GraphQLStoreQueryResolver(
-            storeData.getQueuedStore(),
+            storeData,
             fragmentPointer,
             this._handleFragmentDataUpdate.bind(this)
           );

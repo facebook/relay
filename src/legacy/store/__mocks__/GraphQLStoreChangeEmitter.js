@@ -11,13 +11,17 @@
 
 var GraphQLStoreChangeEmitter = jest.genMockFromModule('GraphQLStoreChangeEmitter');
 
-GraphQLStoreChangeEmitter.addListenerForIDs.mock.remove = [];
-GraphQLStoreChangeEmitter.addListenerForIDs.mockImplementation(() => {
-  var returnValue = {remove: jest.genMockFunction()};
-  GraphQLStoreChangeEmitter.addListenerForIDs.mock.remove.push(
-    returnValue.remove
-  );
-  return returnValue;
+GraphQLStoreChangeEmitter.mockImplementation(function() {
+  this.addListenerForIDs.mock.remove = [];
+  this.addListenerForIDs.mockImplementation(() => {
+    var returnValue = {remove: jest.genMockFunction()};
+    this.addListenerForIDs.mock.remove.push(
+      returnValue.remove
+    );
+    return returnValue;
+  });
+
+  return this;
 });
 
 module.exports = GraphQLStoreChangeEmitter;

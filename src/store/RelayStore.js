@@ -37,8 +37,9 @@ import type {
   RelayQuerySet
 } from 'RelayInternalTypes';
 
-var queryRunner = RelayStoreData.getDefaultInstance().getQueryRunner();
-var queuedStore = RelayStoreData.getDefaultInstance().getQueuedStore();
+var storeData = RelayStoreData.getDefaultInstance();
+var queryRunner = storeData.getQueryRunner();
+var queuedStore = storeData.getQueuedStore();
 
 /**
  * @public
@@ -164,7 +165,7 @@ var RelayStore = {
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): void {
-    var transaction = new RelayMutationTransaction(mutation);
+    var transaction = new RelayMutationTransaction(storeData, mutation);
     transaction.commit(callbacks);
   }
 };

@@ -17,15 +17,15 @@ import type {ConcreteMutation} from 'ConcreteQuery';
 var ErrorUtils = require('ErrorUtils');
 var QueryBuilder = require('QueryBuilder');
 var RelayConnectionInterface = require('RelayConnectionInterface');
+import type {ClientMutationID} from 'RelayInternalTypes';
 var RelayMutationQuery = require('RelayMutationQuery');
 var RelayMutationRequest = require('RelayMutationRequest');
 var RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 var RelayNetworkLayer = require('RelayNetworkLayer');
-var RelayStoreData = require('RelayStoreData');
 import type {FileMap} from 'RelayMutation';
 import type RelayMutation from 'RelayMutation';
 import type RelayQuery from 'RelayQuery';
-import type {ClientMutationID} from 'RelayInternalTypes';
+import type RelayStoreData from 'RelayStoreData';
 import type {
   RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
@@ -60,6 +60,7 @@ class RelayMutationTransaction {
   _mutation: RelayMutation;
   _shim: Function;
   _status: $Enum<typeof RelayMutationTransactionStatus>;
+  _storeData: RelayStoreData;
 
   // These are lazily computed and memoized.
   _callName: string;
@@ -76,11 +77,13 @@ class RelayMutationTransaction {
   _optimisticQuery: ?RelayQuery.Mutation;
   _optimisticResponse: ?Object;
   _query: RelayQuery.Mutation;
+  _willBatchRefreshQueuedData: ?boolean;
 
-  constructor(mutation: RelayMutation) {
+  constructor(storeData: RelayStoreData, mutation: RelayMutation) {
     this._id = (transactionIDCounter++).toString(36);
     this._mutation = mutation;
     this._status = RelayMutationTransactionStatus.UNCOMMITTED;
+    this._storeData = storeData;
 
     pendingTransactionMap[this._id] = this;
     queue.push(this);
@@ -156,6 +159,16 @@ class RelayMutationTransaction {
     this._handleRollback();
   }
 
+  _batchRefreshQueuedData(): void {
+    if (!this._willBatchRefreshQueuedData) {
+      this._willBatchRefreshQueuedData = true;
+      resolveImmediate(() => {
+        this._willBatchRefreshQueuedData = false;
+        this._refreshQueuedData();
+      });
+    }
+  }
+
   _getCallName(): string {
     if (!this._callName) {
       this._callName = this._getMutationNode().calls[0].name;
@@ -202,9 +215,10 @@ class RelayMutationTransaction {
       this._query = RelayMutationQuery.buildQuery({
         configs: this._getConfigs(),
         fatQuery: this._getFatQuery(),
+        input: this._getInputVariable(),
         mutationName: this._getMutationNode().name,
         mutation: this._getMutationNode(),
-        input: this._getInputVariable(),
+        tracker: this._storeData.getQueryTracker(),
       });
     }
     return this._query;
@@ -248,13 +262,15 @@ class RelayMutationTransaction {
             input: this._getInputVariable(),
             mutationName: this._mutation.constructor.name,
             mutation: this._getMutationNode(),
+            tracker: this._storeData.getQueryTracker(),
           });
         } else {
           this._optimisticQuery =
             RelayMutationQuery.buildQueryForOptimisticUpdate({
-              response: optimisticResponse,
               fatQuery: this._getFatQuery(),
               mutation: this._getMutationNode(),
+              response: optimisticResponse,
+              tracker: this._storeData.getQueryTracker(),
             });
         }
       } else {
@@ -301,7 +317,7 @@ class RelayMutationTransaction {
     if (optimisticResponse && optimisticQuery) {
       var configs = this._getOptimisticConfigs() || this._getConfigs();
       optimisticResponse[CLIENT_MUTATION_ID] = this._id; // Repeating for Flow
-      RelayStoreData.getDefaultInstance().handleUpdatePayload(
+      this._storeData.handleUpdatePayload(
         optimisticQuery,
         optimisticResponse,
         {configs, isOptimisticUpdate: true}
@@ -346,7 +362,7 @@ class RelayMutationTransaction {
     }
 
     if (isServerError) {
-      RelayMutationTransaction._failCollisionQueue(this._getCollisionKey());
+      this._failCollisionQueue();
     }
 
     // Might have already been rolled back via `commitFailureCallback`.
@@ -354,21 +370,21 @@ class RelayMutationTransaction {
     if (shouldRollback && !wasRolledback) {
       this._handleRollback();
     } else {
-      RelayMutationTransaction._batchRefreshQueuedData();
+      this._batchRefreshQueuedData();
     }
   }
 
   _handleRollback(): void {
     this._markAsNotPending();
-    RelayMutationTransaction._batchRefreshQueuedData();
+    this._batchRefreshQueuedData();
   }
 
   _handleCommitSuccess(response: Object): void {
-    RelayMutationTransaction._advanceCollisionQueue(this._getCollisionKey());
+    this._advanceCollisionQueue();
     this._markAsNotPending();
 
-    RelayMutationTransaction._refreshQueuedData();
-    RelayStoreData.getDefaultInstance().handleUpdatePayload(
+    this._refreshQueuedData();
+    this._storeData.handleUpdatePayload(
       this._getQuery(),
       response[this._getCallName()],
       {configs: this._getConfigs(), isOptimisticUpdate: false}
@@ -385,7 +401,8 @@ class RelayMutationTransaction {
     }
   }
 
-  static _advanceCollisionQueue(collisionKey: ?string): void {
+  _advanceCollisionQueue(): void {
+    const collisionKey = this._getCollisionKey();
     if (collisionKey) {
       var collisionQueue = nullthrows(collisionQueueMap[collisionKey]);
       // Remove the transaction that called this function.
@@ -399,7 +416,8 @@ class RelayMutationTransaction {
     }
   }
 
-  static _failCollisionQueue(collisionKey: ?string): void {
+  _failCollisionQueue(): void {
+    const collisionKey = this._getCollisionKey();
     if (collisionKey) {
       var collisionQueue = nullthrows(collisionQueueMap[collisionKey]);
       // Remove the transaction that called this function.
@@ -411,20 +429,9 @@ class RelayMutationTransaction {
     }
   }
 
-  static _refreshQueuedData(): void {
-    RelayStoreData.getDefaultInstance().clearQueuedData();
+  _refreshQueuedData(): void {
+    this._storeData.clearQueuedData();
     queue.forEach(transaction => transaction._handleOptimisticUpdate());
-  }
-
-  static _willBatchRefreshQueuedData: ?boolean;
-  static _batchRefreshQueuedData(): void {
-    if (!RelayMutationTransaction._willBatchRefreshQueuedData) {
-      RelayMutationTransaction._willBatchRefreshQueuedData = true;
-      resolveImmediate(function() {
-        RelayMutationTransaction._willBatchRefreshQueuedData = false;
-        RelayMutationTransaction._refreshQueuedData();
-      });
-    }
   }
 }
 

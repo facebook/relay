@@ -158,7 +158,7 @@ var RelayStore = {
       fragment.isPlural()? [dataID] : dataID,
       fragment
     );
-    return new RelayQueryResultObservable(queuedStore, fragmentPointer);
+    return new RelayQueryResultObservable(storeData, fragmentPointer);
   },
 
   update(

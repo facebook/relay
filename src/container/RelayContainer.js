@@ -341,17 +341,19 @@ function createContainerComponent(
      * Returns the pending mutation transactions affecting the given record.
      */
     getPendingTransactions(record: Object): ?Array<RelayMutationTransaction> {
-      var dataID = GraphQLStoreDataHandler.getID(record);
+      const dataID = GraphQLStoreDataHandler.getID(record);
       invariant(
         dataID != null,
         'RelayContainer.getPendingTransactions(): Expected a record in `%s`.',
         componentName
       );
-      var mutationIDs = storeData.getQueuedStore().getClientMutationIDs(dataID);
+      const mutationIDs =
+        storeData.getQueuedStore().getClientMutationIDs(dataID);
       if (!mutationIDs) {
         return null;
       }
-      return mutationIDs.map(RelayMutationTransaction.get);
+      const mutationQueue = storeData.getMutationQueue();
+      return mutationIDs.map(id => mutationQueue.getTransaction(id));
     }
 
     /**

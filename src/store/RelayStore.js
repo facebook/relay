@@ -165,9 +165,12 @@ var RelayStore = {
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): void {
-    var transaction = new RelayMutationTransaction(storeData, mutation);
-    transaction.commit(callbacks);
-  }
+    var transaction = storeData.getMutationQueue().createTransaction(
+      mutation,
+      callbacks
+    );
+    transaction.commit();
+  },
 };
 
 module.exports = RelayStore;

@@ -18,8 +18,9 @@ var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayChangeTracker = require('RelayChangeTracker');
-var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {ChangeSet} from 'RelayChangeTracker';
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayMutationQueue = require('RelayMutationQueue');
 import type {
   ClientMutationID,
   DataID,
@@ -66,6 +67,7 @@ class RelayStoreData {
   _cachedRootCalls: RootCallMap;
   _deferredQueryTracker: GraphQLDeferredQueryTracker;
   _garbageCollector: ?RelayStoreGarbageCollector;
+  _mutationQueue: RelayMutationQueue;
   _nodeRangeMap: NodeRangeMap;
   _records: Records;
   _queuedRecords: Records;
@@ -108,6 +110,7 @@ class RelayStoreData {
     this._cachedRecords = cachedRecords;
     this._cachedRootCalls = cachedRootCallMap;
     this._deferredQueryTracker = new GraphQLDeferredQueryTracker(recordStore);
+    this._mutationQueue = new RelayMutationQueue(this);
     this._nodeRangeMap = nodeRangeMap;
     this._records = records;
     this._queuedRecords = queuedRecords;
@@ -355,6 +358,10 @@ class RelayStoreData {
 
   getGarbageCollector(): ?RelayStoreGarbageCollector {
     return this._garbageCollector;
+  }
+
+  getMutationQueue(): RelayMutationQueue {
+    return this._mutationQueue;
   }
 
   /**

@@ -15,13 +15,13 @@
 
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 var RelayQueryVisitor = require('RelayQueryVisitor');
 var RelayRecordState = require('RelayRecordState');
+import type RelayStoreData from 'RelayStoreData';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 import type {
@@ -57,12 +57,12 @@ var {EDGES, PAGE_INFO} = RelayConnectionInterface;
  * Retrieves data from the `RelayStore`.
  */
 function readRelayQueryData(
-  store: RelayRecordStore,
+  storeData: RelayStoreData,
   queryNode: RelayQuery.Node,
   dataID: DataID,
   options?: StoreReaderOptions
 ): StoreReaderResult {
-  var reader = new RelayStoreReader(store, options);
+  var reader = new RelayStoreReader(storeData, options);
   var data = reader.retrieveData(queryNode, dataID);
 
   // We validate only after retrieving the data, to give our `invariant`
@@ -74,15 +74,17 @@ function readRelayQueryData(
 
 class RelayStoreReader extends RelayQueryVisitor<State> {
   _recordStore: RelayRecordStore;
+  _storeData: RelayStoreData;
   _traverseFragmentReferences: boolean;
   _traverseGeneratedFields: boolean;
 
   constructor(
-    recordStore: RelayRecordStore,
+    storeData: RelayStoreData,
     options?: StoreReaderOptions
   ) {
     super();
-    this._recordStore = recordStore;
+    this._recordStore = storeData.getQueuedStore();
+    this._storeData = storeData;
     this._traverseFragmentReferences =
       (options && options.traverseFragmentReferences) || false;
     this._traverseGeneratedFields =
@@ -100,7 +102,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       data: (undefined: $FlowIssue),
       dataIDs: ({}: $FlowIssue),
     };
-    var rangeData = GraphQLStoreRangeUtils.parseRangeClientID(dataID);
+    var rangeData = this._storeData.getRangeData().parseRangeClientID(dataID);
     var status = this._recordStore.getRecordState(
       rangeData ? rangeData.dataID : dataID
     );
@@ -231,7 +233,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     enforceRangeCalls(node);
     var metadata = this._recordStore.getRangeMetadata(dataID, calls);
     var nextState = {
-      componentDataID: getConnectionClientID(node, dataID),
+      componentDataID: this._getConnectionClientID(node, dataID),
       data: getDataValue(state, applicationName),
       parent: node,
       rangeInfo: metadata && calls.length ? metadata : null,
@@ -359,11 +361,31 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
   }
 
   /**
+   * Obtains a client ID (eg. `someDataID_first(10)`) for the connection
+   * identified by `connectionID`. If there are no range calls on the supplied
+   * `node`, then a call-less connection ID (eg. `someDataID`) will be returned
+   * instead.
+   */
+  _getConnectionClientID(
+    node: RelayQuery.Field, connectionID: DataID
+  ): DataID {
+    var calls = node.getCallsWithValues();
+    if (!RelayConnectionInterface.hasRangeCalls(calls)) {
+      return connectionID;
+    }
+    return this._storeData.getRangeData().getClientIDForRangeWithID(
+      callsToGraphQL(calls),
+      {},
+      connectionID
+    );
+  }
+
+  /**
    * Checks to see if we have a range client ID (eg. `someID_first(25)`), and if
    * so, unpacks the range metadata, stashing it into (and overriding) `state`.
    */
   _handleRangeInfo(node: RelayQuery.Field, state: State): void {
-    var rangeData = GraphQLStoreRangeUtils.parseRangeClientID(
+    var rangeData = this._storeData.getRangeData().parseRangeClientID(
       state.storeDataID
     );
     if (rangeData != null) {
@@ -409,26 +431,6 @@ class RelayRangeCallEnforcer extends RelayQueryVisitor<RelayQuery.Field> {
   }
 }
 var rangeCallEnforcer = new RelayRangeCallEnforcer();
-
-/**
- * Obtains a client ID (eg. `someDataID_first(10)`) for the connection
- * identified by `connectionID`. If there are no range calls on the supplied
- * `node`, then a call-less connection ID (eg. `someDataID`) will be returned
- * instead.
- */
-function getConnectionClientID(
-  node: RelayQuery.Field, connectionID: DataID
-): DataID {
-  var calls = node.getCallsWithValues();
-  if (!RelayConnectionInterface.hasRangeCalls(calls)) {
-    return connectionID;
-  }
-  return GraphQLStoreRangeUtils.getClientIDForRangeWithID(
-    callsToGraphQL(calls),
-    {},
-    connectionID
-  );
-}
 
 /**
  * Returns the component-specific DataID stored in `state`, falling back to the

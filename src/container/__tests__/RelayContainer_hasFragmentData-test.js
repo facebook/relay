@@ -17,7 +17,7 @@ RelayTestUtils.unmockRelay();
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
 var Relay = require('Relay');
-var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
+var RelayContext = require('RelayContext');
 var RelayStoreData = require('RelayStoreData');
 
 describe('RelayContainer.hasFragmentData', function() {
@@ -25,12 +25,16 @@ describe('RelayContainer.hasFragmentData', function() {
   var mockRender;
   var mockPointer;
   var deferredQueryTracker;
+  var pendingQueryTracker;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    deferredQueryTracker =
-      RelayStoreData.getDefaultInstance().getDeferredQueryTracker();
+    var storeData = new RelayStoreData();
+    var relayContext = new RelayContext(storeData);
+
+    deferredQueryTracker = storeData.getDeferredQueryTracker();
+    pendingQueryTracker = storeData.getPendingQueryTracker();
 
     var render = jest.genMockFunction().mockImplementation(() => <div />);
     var MockComponent = React.createClass({render});
@@ -52,14 +56,14 @@ describe('RelayContainer.hasFragmentData', function() {
     mockRender = () => {
       return RelayTestRenderer.render(genMockPointer => {
         return <MockContainer foo={genMockPointer('42')} />;
-      });
+      }, null, relayContext);
     };
     mockPointer = {__dataID__: '42'};
   });
 
   it('has query data when no pending queries', () => {
     var instance = mockRender();
-    spyOn(RelayPendingQueryTracker, 'hasPendingQueries').andReturn(false);
+    spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(false);
 
     expect(
       instance.hasFragmentData(MockContainer.getFragment('foo'), mockPointer)
@@ -68,7 +72,7 @@ describe('RelayContainer.hasFragmentData', function() {
 
   it('has query data when no pending query matches', () => {
     var instance = mockRender();
-    spyOn(RelayPendingQueryTracker, 'hasPendingQueries').andReturn(true);
+    spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(true);
     deferredQueryTracker.isQueryPending.mockReturnValue(false);
 
     expect(
@@ -78,7 +82,7 @@ describe('RelayContainer.hasFragmentData', function() {
 
   it('does not have query data when a pending query matches', () => {
     var instance = mockRender();
-    spyOn(RelayPendingQueryTracker, 'hasPendingQueries').andReturn(true);
+    spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(true);
     deferredQueryTracker.isQueryPending.mockReturnValue(true);
 
     expect(
@@ -89,7 +93,7 @@ describe('RelayContainer.hasFragmentData', function() {
   it('does not have query data if a deferred query fails', () => {
     var instance = mockRender();
     var hasPendingQueriesSpy =
-      spyOn(RelayPendingQueryTracker, 'hasPendingQueries');
+      spyOn(pendingQueryTracker, 'hasPendingQueries');
     hasPendingQueriesSpy.andReturn(true);
     deferredQueryTracker.isQueryPending.mockReturnValue(true);
 

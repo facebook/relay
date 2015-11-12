@@ -9,8 +9,10 @@
 
 'use strict';
 
+var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+var RelayDeferredFragmentState = require('RelayDeferredFragmentState');
 var RelayStore = jest.genMockFromModule('RelayStore');
-var RelayRecordStore = require('RelayRecordStore');
+var RelayStoreData = require('RelayStoreData');
 
 var resolveImmediate = require('resolveImmediate');
 
@@ -51,6 +53,8 @@ function genMockRequest(args) {
   };
 }
 
+var storeData = new RelayStoreData();
+
 RelayStore.primeCache.mock.abort = [];
 RelayStore.primeCache.mock.requests = [];
 RelayStore.primeCache.mockImplementation((...args) => {
@@ -79,11 +83,26 @@ RelayStore.forceFetch.mockImplementation((...args) => {
   return returnValue;
 });
 
-RelayStore.mock = {
-  setMockRecords: records => {
-    RelayStore.mock.recordStore = new RelayRecordStore({records});
-  },
-  recordStore: null,
-};
+RelayStore.hasOptimisticUpdate.mockImplementation((dataID) => {
+  return storeData.hasOptimisticUpdate(dataID);
+});
+
+RelayStore.resolve.mockImplementation((...args) => {
+  return new GraphQLStoreQueryResolver(storeData, ...args);
+});
+
+RelayStore.buildDeferredFragmentState.mockImplementation((...args) => {
+  return new RelayDeferredFragmentState(
+    storeData.getDeferredQueryTracker(),
+    storeData.getPendingQueryTracker(),
+    ...args
+  );
+});
+
+RelayStore.buildFragmentQueryForDataID.mockImplementation((...args) => {
+  return storeData.buildFragmentQueryForDataID(...args);
+});
+
+RelayStore._getStoreData = jest.genMockFunction().mockImplementation(() => storeData);
 
 module.exports = RelayStore;

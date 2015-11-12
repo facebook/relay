@@ -16,7 +16,6 @@
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const GraphQLRange = require('GraphQLRange');
 const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {
   Call,
@@ -252,7 +251,6 @@ class RelayRecordStore {
    * Returns whether a given record is affected by an optimistic update.
    */
   hasOptimisticUpdate(dataID: DataID): boolean {
-    dataID = GraphQLStoreRangeUtils.getCanonicalClientID(dataID);
     invariant(
       this._queuedRecords,
       'RelayRecordStore.hasOptimisticUpdate(): Optimistic updates require ' +
@@ -267,7 +265,6 @@ class RelayRecordStore {
    * null if the record isn't affected by any optimistic updates.
    */
   getClientMutationIDs(dataID: DataID): ?Array<ClientMutationID> {
-    dataID = GraphQLStoreRangeUtils.getCanonicalClientID(dataID);
     invariant(
       this._queuedRecords,
       'RelayRecordStore.getClientMutationIDs(): Optimistic updates require ' +

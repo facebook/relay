@@ -15,7 +15,7 @@
 
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-import type RelayRecordStore from 'RelayRecordStore';
+import type RelayStoreData from 'RelayStoreData';
 import type {
   StoreReaderData,
   Subscription,
@@ -48,18 +48,18 @@ class RelayQueryResultObservable {
   _data: ?StoreReaderData;
   _fragmentPointer: GraphQLFragmentPointer;
   _queryResolver: ?GraphQLStoreQueryResolver;
-  _store: RelayRecordStore;
+  _storeData: RelayStoreData;
   _subscriptionCallbacks: Array<SubscriptionCallbacks<?StoreReaderData>>;
   _subscriptionCount: number;
 
   constructor(
-    store: RelayRecordStore,
+    storeData: RelayStoreData,
     fragmentPointer: GraphQLFragmentPointer
   ) {
     this._data = undefined;
     this._fragmentPointer = fragmentPointer;
     this._queryResolver = null;
-    this._store = store;
+    this._storeData = storeData;
     this._subscriptionCallbacks = [];
     this._subscriptionCount = 0;
   }
@@ -96,7 +96,7 @@ class RelayQueryResultObservable {
       'RelayQueryResultObservable: Initialized twice.'
     );
     var queryResolver = new GraphQLStoreQueryResolver(
-      this._store,
+      this._storeData,
       this._fragmentPointer,
       () => this._onUpdate(queryResolver)
     );

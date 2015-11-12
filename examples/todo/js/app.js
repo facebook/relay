@@ -13,19 +13,16 @@
 import 'babel/polyfill';
 import 'todomvc-common';
 import {createHashHistory} from 'history';
-import {IndexRoute, Route, Router} from 'react-router';
+import {IndexRoute, Route} from 'react-router';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ReactRouterRelay from 'react-router-relay';
+import {RelayRouter} from 'react-router-relay';
 import TodoApp from './components/TodoApp';
 import TodoList from './components/TodoList';
 import ViewerQueries from './queries/ViewerQueries';
 
 ReactDOM.render(
-  <Router
-    createElement={ReactRouterRelay.createElement}
-    history={createHashHistory({queryKey: false})}
-  >
+  <RelayRouter history={createHashHistory({queryKey: false})}>
     <Route
       path="/" component={TodoApp}
       queries={ViewerQueries}>
@@ -39,6 +36,6 @@ ReactDOM.render(
         queries={ViewerQueries}
       />
     </Route>
-  </Router>,
+  </RelayRouter>,
   document.getElementById('root')
 );

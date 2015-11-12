@@ -79,7 +79,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   _pendingNodes: PendingNodes;
   _store: RelayRecordStore;
 
-  constructor(store: RelayRecordStore, cachedRecords: Records = ({}: $FixMe)) {
+  constructor(store: RelayRecordStore, cachedRecords: Records = {}) {
     super();
     this._store = store;
     this._cachedRecords = cachedRecords;

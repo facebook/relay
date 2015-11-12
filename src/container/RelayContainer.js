@@ -477,8 +477,8 @@ function createContainerComponent(
       var queryData = this._getQueryData(this.props);
 
       this.setState({
-        queryData,
         variables,
+        queryData,
       });
     }
 

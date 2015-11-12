@@ -15,15 +15,15 @@ jest.dontMock('GraphQLStoreChangeEmitter');
 
 var ErrorUtils = require('ErrorUtils');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 
 describe('GraphQLStoreChangeEmitter', () => {
+  var changeEmitter;
   var mockCallback;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    GraphQLStoreRangeUtils.getCanonicalClientID.mockImplementation(id => id);
+    changeEmitter = new GraphQLStoreChangeEmitter();
 
     ErrorUtils.applyWithGuard.mockImplementation(callback => {
       try {
@@ -34,8 +34,8 @@ describe('GraphQLStoreChangeEmitter', () => {
   });
 
   it('should broadcast changes asynchronously', () => {
-    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback);
-    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+    changeEmitter.addListenerForIDs(['foo'], mockCallback);
+    changeEmitter.broadcastChangeForID('foo');
 
     expect(mockCallback).not.toBeCalled();
     jest.runAllTimers();
@@ -43,8 +43,8 @@ describe('GraphQLStoreChangeEmitter', () => {
   });
 
   it('should broadcast exclusively to subscribed IDs', () => {
-    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback);
-    GraphQLStoreChangeEmitter.broadcastChangeForID('bar');
+    changeEmitter.addListenerForIDs(['foo'], mockCallback);
+    changeEmitter.broadcastChangeForID('bar');
 
     jest.runAllTimers();
 
@@ -52,8 +52,8 @@ describe('GraphQLStoreChangeEmitter', () => {
   });
 
   it('should not broadcast to removed callbacks', () => {
-    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback).remove();
-    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+    changeEmitter.addListenerForIDs(['foo'], mockCallback).remove();
+    changeEmitter.broadcastChangeForID('foo');
 
     jest.runAllTimers();
 
@@ -61,8 +61,8 @@ describe('GraphQLStoreChangeEmitter', () => {
   });
 
   it('should only invoke callbacks subscribed at the time of broadcast', () => {
-    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
-    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback);
+    changeEmitter.broadcastChangeForID('foo');
+    changeEmitter.addListenerForIDs(['foo'], mockCallback);
 
     jest.runAllTimers();
 
@@ -70,33 +70,20 @@ describe('GraphQLStoreChangeEmitter', () => {
   });
 
   it('should only broadcast once per execution loop', () => {
-    GraphQLStoreChangeEmitter.addListenerForIDs(['foo', 'bar'], mockCallback);
-    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
-    GraphQLStoreChangeEmitter.broadcastChangeForID('bar');
+    changeEmitter.addListenerForIDs(['foo', 'bar'], mockCallback);
+    changeEmitter.broadcastChangeForID('foo');
+    changeEmitter.broadcastChangeForID('bar');
 
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls.length).toBe(1);
 
-    GraphQLStoreChangeEmitter.broadcastChangeForID('bar');
-    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+    changeEmitter.broadcastChangeForID('bar');
+    changeEmitter.broadcastChangeForID('foo');
 
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls.length).toBe(2);
-  });
-
-  it('should correctly broadcast changes to range IDs', () => {
-    GraphQLStoreRangeUtils.getCanonicalClientID.mockImplementation(
-      id => id === 'baz_first(5)' ? 'baz' : id
-    );
-
-    GraphQLStoreChangeEmitter.addListenerForIDs(['baz_first(5)'], mockCallback);
-    GraphQLStoreChangeEmitter.broadcastChangeForID('baz');
-
-    jest.runAllTimers();
-
-    expect(mockCallback).toBeCalled();
   });
 
   it('should guard against callback errors', () => {
@@ -104,9 +91,9 @@ describe('GraphQLStoreChangeEmitter', () => {
       throw new Error();
     });
 
-    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockThrowingCallback);
-    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback);
-    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+    changeEmitter.addListenerForIDs(['foo'], mockThrowingCallback);
+    changeEmitter.addListenerForIDs(['foo'], mockCallback);
+    changeEmitter.broadcastChangeForID('foo');
 
     expect(() => {
       jest.runAllTimers();
@@ -125,14 +112,14 @@ describe('GraphQLStoreChangeEmitter', () => {
         mockBatching = false;
       }
     );
-    GraphQLStoreChangeEmitter.injectBatchingStrategy(mockBatchingStrategy);
+    changeEmitter.injectBatchingStrategy(mockBatchingStrategy);
 
     mockCallback.mockImplementation(() => {
       expect(mockBatching).toBe(true);
     });
 
-    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], mockCallback);
-    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+    changeEmitter.addListenerForIDs(['foo'], mockCallback);
+    changeEmitter.broadcastChangeForID('foo');
 
     expect(mockBatchingStrategy.mock.calls.length).toBe(0);
     jest.runAllTimers();
@@ -143,13 +130,13 @@ describe('GraphQLStoreChangeEmitter', () => {
     var mockBatchingStrategy = jest.genMockFunction().mockImplementation(
       callback => callback()
     );
-    GraphQLStoreChangeEmitter.injectBatchingStrategy(mockBatchingStrategy);
+    changeEmitter.injectBatchingStrategy(mockBatchingStrategy);
 
-    GraphQLStoreChangeEmitter.addListenerForIDs(['foo'], () => {
-      GraphQLStoreChangeEmitter.broadcastChangeForID('bar');
+    changeEmitter.addListenerForIDs(['foo'], () => {
+      changeEmitter.broadcastChangeForID('bar');
     });
-    GraphQLStoreChangeEmitter.addListenerForIDs(['bar'], mockCallback);
-    GraphQLStoreChangeEmitter.broadcastChangeForID('foo');
+    changeEmitter.addListenerForIDs(['bar'], mockCallback);
+    changeEmitter.broadcastChangeForID('foo');
 
     jest.runAllTimers();
 

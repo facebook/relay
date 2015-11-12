@@ -22,7 +22,7 @@ var RelayMutationRequest = require('RelayMutationRequest');
 var RelayMutationTransaction = require('RelayMutationTransaction');
 var RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 var RelayNetworkLayer = require('RelayNetworkLayer');
-var RelayStoreData = require('RelayStoreData');
+import type RelayStoreData from 'RelayStoreData';
 import type {FileMap} from 'RelayMutation';
 import type RelayMutation from 'RelayMutation';
 import type RelayQuery from 'RelayQuery';

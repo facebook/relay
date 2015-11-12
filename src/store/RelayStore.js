@@ -79,6 +79,78 @@ var queuedStore = storeData.getQueuedStore();
 var RelayStore = {
 
   /**
+   * Initializes garbage collection.
+   *
+   * Initializes garbage collection for the records in `RelayStore`, this
+   * can only be done if no records are in the `RelayStore` (i.e. before
+   * executing any queries).
+   * Once garbage collection is initialized any data that enters the store will
+   * be tracked and might be removed at a later point by scheduling a
+   * collection.
+   */
+  initializeGarbageCollector(): void {
+    this._storeData.initializeGarbageCollector();
+  },
+
+  /**
+   * Schedules a garbage collection cycle.
+   *
+   * Schedules a single garbage collection cycle using `RelayTaskScheduler`.
+   * This will remove any record from the `RelayStore` that is eligible for
+   * collection (i.e. has no subscription and was marked as collectible in a
+   * previous collection cycle).
+   * A collection cycle consist of several steps. In each step a maximum of
+   * `stepLength` records will checked by the garbage collector. Once the
+   * maximum is reached a new collection step is scheduled using
+   * `RelayTaskScheduler` and control is returned to the event loop.
+   *
+   * @param {?number} stepLength A soft limit for the maximum length of a single
+   * garbage collection step. This means if a record consists of nested records
+   * the limit might be exceeded (i.e `stepLength` is 10, 8 records have been
+   * removed and the next record has 4 linked records a total of 13 records will
+   * be removed).
+   */
+  scheduleGarbageCollection(stepLength?: number): void {
+    this._storeData.scheduleGarbageCollection(stepLength);
+  },
+
+  /**
+   * Initializes garbage collection.
+   *
+   * Initializes garbage collection for the records in `RelayStore`, this
+   * can only be done if no records are in the `RelayStore` (i.e. before
+   * executing any queries).
+   * Once garbage collection is initialized any data that enters the store will
+   * be tracked and might be removed at a later point by scheduling a
+   * collection.
+   */
+  initializeGarbageCollector(): void {
+    this._storeData.initializeGarbageCollector();
+  }
+
+  /**
+   * Schedules a garbage collection cycle.
+   *
+   * Schedules a single garbage collection cycle using `RelayTaskScheduler`.
+   * This will remove any record from the `RelayStore` that is eligible for
+   * collection (i.e. has no subscription and was marked as collectible in a
+   * previous collection cycle).
+   * A collection cycle consist of several steps. In each step a maximum of
+   * `stepLength` records will checked by the garbage collector. Once the
+   * maximum is reached a new collection step is scheduled using
+   * `RelayTaskScheduler` and control is returned to the event loop.
+   *
+   * @param {?number} stepLength A soft limit for the maximum length of a single
+   * garbage collection step. This means if a record consists of nested records
+   * the limit might be exceeded (i.e `stepLength` is 10, 8 records have been
+   * removed and the next record has 4 linked records a total of 13 records will
+   * be removed).
+   */
+  scheduleGarbageCollection(stepLength?: number): void {
+    this._storeData.scheduleGarbageCollection(stepLength);
+  }
+
+  /**
    * Primes the store by sending requests for any missing data that would be
    * required to satisfy the supplied set of queries.
    */

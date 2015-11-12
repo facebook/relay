@@ -148,6 +148,14 @@ class RelayStoreData {
     }
   }
 
+  scheduleGarbageCollection(stepLength?: number): void {
+    invariant(
+      this._garbageCollector,
+      'RelayStoreData: Garbage collector has not been initialized.'
+    );
+    this._garbageCollector.scheduleCollection(stepLength);
+  }
+
   /**
    * Sets/clears the cache manager that is used to cache changes written to
    * the store.

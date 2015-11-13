@@ -92,6 +92,7 @@ var x = (function () {
         isRequisite: true
       }
     }],
+    hash: 'm+iXTD96',
     kind: 'Fragment',
     metadata: {
       pattern: true

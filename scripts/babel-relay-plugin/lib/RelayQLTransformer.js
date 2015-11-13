@@ -26,6 +26,7 @@ var RelayQLQuery = _require.RelayQLQuery;
 
 var RelayQLPrinter = require('./RelayQLPrinter');
 
+var crypto = require('crypto');
 var formatError = require('graphql/error').formatError;
 var parser = require('graphql/language/parser');
 var Source = require('graphql/language/source').Source;
@@ -54,8 +55,9 @@ var RelayQLTransformer = (function () {
       var substitutions = _processTemplateLiteral.substitutions;
 
       var documentText = this.processTemplateText(templateText, documentName);
+      var documentHash = hash(documentText);
       var definition = this.processDocumentText(documentText, documentName);
-      return new RelayQLPrinter(tagName).print(definition, substitutions);
+      return new RelayQLPrinter(documentHash, tagName).print(definition, substitutions);
     }
 
     /**
@@ -159,6 +161,12 @@ var RelayQLTransformer = (function () {
 
 function capitalize(string) {
   return string[0].toUpperCase() + string.slice(1);
+}
+
+function hash(string) {
+  var hash = crypto.createHash('sha1').update(string);
+  invariant(hash != null, 'Failed to create sha1 hash.');
+  return hash.digest('base64').substr(0, 8);
 }
 
 module.exports = RelayQLTransformer;

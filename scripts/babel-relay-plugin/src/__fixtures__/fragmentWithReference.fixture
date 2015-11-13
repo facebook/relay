@@ -23,6 +23,7 @@ var x = (function (sub_0) {
         isRequisite: true
       }
     }, Relay.QL.__frag(sub_0)],
+    hash: 'QfPFDr4W',
     kind: 'Fragment',
     metadata: {},
     name: 'FragmentWithReference',

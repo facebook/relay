@@ -27,6 +27,7 @@ var x = (function (sub_0) {
         isRequisite: true
       }
     }, Relay.QL.__frag(sub_0)],
+    hash: 'NU+jkeNr',
     kind: 'Fragment',
     metadata: {},
     name: 'FragmentWithoutCommas',

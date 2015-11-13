@@ -141,6 +141,7 @@ var x = (function () {
           isRequisite: true
         }
       }],
+      hash: '+1XT4xCP',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

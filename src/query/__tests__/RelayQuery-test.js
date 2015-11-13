@@ -187,6 +187,31 @@ describe('RelayQuery', () => {
         expect(fragment.isPlural()).toBe(true);
       });
     });
+
+    describe('getHash()', () => {
+      it('returns the hash of the fragment', () => {
+        var fragment = getNode(Relay.QL`fragment on Node{id}`);
+        // NOTE: This hash is created by `babel-relay-plugin` based on the
+        // static content in the `Relay.QL` template string above.
+        expect(fragment.getHash()).toBe('0nvclwGj');
+      });
+
+      it('returns the hash of a cloned but identical fragment', () => {
+        var fragment = getNode(Relay.QL`fragment on Node{id}`);
+        var clone = fragment.clone(fragment.getChildren());
+        expect(clone.getHash()).toBe(fragment.getHash());
+      });
+
+      it('returns null for fragments built on the client', () => {
+        var fragment = RelayQuery.Fragment.build(
+          'TestFragment',
+          'Node',
+          [RelayQuery.Field.build('id')],
+          {plural: true}
+        );
+        expect(fragment.getHash()).toBe(null);
+      });
+    });
   });
 
   describe('Field', () => {

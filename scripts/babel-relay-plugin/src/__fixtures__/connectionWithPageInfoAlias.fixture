@@ -140,6 +140,7 @@ var x = (function () {
           isRequisite: true
         }
       }],
+      hash: 'V3U1EMQo',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

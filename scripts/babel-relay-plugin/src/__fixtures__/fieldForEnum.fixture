@@ -55,6 +55,7 @@ var x = (function () {
           isRequisite: true
         }
       }],
+      hash: 'ZkLkvxEs',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

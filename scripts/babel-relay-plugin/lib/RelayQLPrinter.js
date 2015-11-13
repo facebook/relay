@@ -46,9 +46,10 @@ var t = require('babel-core/lib/types');
 var NULL = t.literal(null);
 
 var RelayQLPrinter = (function () {
-  function RelayQLPrinter(tagName) {
+  function RelayQLPrinter(documentHash, tagName) {
     _classCallCheck(this, RelayQLPrinter);
 
+    this.documentHash = documentHash;
     this.tagName = tagName;
   }
 
@@ -140,6 +141,7 @@ var RelayQLPrinter = (function () {
       return codify({
         children: selections,
         directives: this.printDirectives(fragment.getDirectives()),
+        hash: t.literal(this.documentHash),
         kind: t.literal('Fragment'),
         metadata: metadata,
         name: t.literal(fragment.getName()),

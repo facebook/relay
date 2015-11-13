@@ -76,6 +76,7 @@ var x = (function (sub_0, sub_1, sub_2, sub_3, sub_4, sub_5, sub_6, sub_7, sub_8
           isRequisite: true
         }
       }],
+      hash: '9tTOhrnD',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

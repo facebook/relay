@@ -20,6 +20,7 @@ const {
 } = require('./RelayQLAST');
 const RelayQLPrinter = require('./RelayQLPrinter');
 
+const crypto = require('crypto');
 const formatError = require('graphql/error').formatError;
 const parser = require('graphql/language/parser');
 const Source = require('graphql/language/source').Source;
@@ -76,8 +77,10 @@ class RelayQLTransformer {
   ): Printable {
     const {templateText, substitutions} = this.processTemplateLiteral(node);
     const documentText = this.processTemplateText(templateText, documentName);
+    const documentHash = hash(documentText);
     const definition = this.processDocumentText(documentText, documentName);
-    return new RelayQLPrinter(tagName).print(definition, substitutions);
+    return new RelayQLPrinter(documentHash, tagName)
+      .print(definition, substitutions);
   }
 
   /**
@@ -231,6 +234,12 @@ class RelayQLTransformer {
 
 function capitalize(string: string): string {
   return string[0].toUpperCase() + string.slice(1);
+}
+
+function hash(string: string): string {
+  const hash = crypto.createHash('sha1').update(string);
+  invariant(hash != null, 'Failed to create sha1 hash.');
+  return hash.digest('base64').substr(0, 8);
 }
 
 module.exports = RelayQLTransformer;

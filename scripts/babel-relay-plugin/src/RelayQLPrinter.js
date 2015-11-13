@@ -39,9 +39,11 @@ export type Substitution = {
 const NULL = t.literal(null);
 
 class RelayQLPrinter {
+  documentHash: string;
   tagName: string;
 
-  constructor(tagName: string) {
+  constructor(documentHash: string, tagName: string) {
+    this.documentHash = documentHash;
     this.tagName = tagName;
   }
 
@@ -149,6 +151,7 @@ class RelayQLPrinter {
     return codify({
       children: selections,
       directives: this.printDirectives(fragment.getDirectives()),
+      hash: t.literal(this.documentHash),
       kind: t.literal('Fragment'),
       metadata,
       name: t.literal(fragment.getName()),

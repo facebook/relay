@@ -65,6 +65,7 @@ var foo = (function () {
         isRequisite: true
       }
     }],
+    hash: 'ZYteePov',
     kind: 'Fragment',
     metadata: {},
     name: 'FieldWithFakeConnection',

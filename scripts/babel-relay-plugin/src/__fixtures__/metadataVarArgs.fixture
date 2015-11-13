@@ -45,6 +45,7 @@ var x = (function () {
         isRequisite: true
       }
     }],
+    hash: 'rFJWsssx',
     kind: 'Fragment',
     metadata: {},
     name: 'MetadataVarArgs',

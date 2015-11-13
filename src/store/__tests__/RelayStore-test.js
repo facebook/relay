@@ -21,6 +21,9 @@ var Relay = require('Relay');
 var RelayQueryResultObservable = require('RelayQueryResultObservable');
 var RelayStoreData = require('RelayStoreData');
 var readRelayQueryData = require('readRelayQueryData');
+var RelayMutation = require('RelayMutation');
+var RelayMutationTransaction = require('RelayMutationTransaction');
+var RelayMutationQueue = require('RelayMutationQueue');
 
 describe('RelayStore', () => {
   var RelayStore;
@@ -148,5 +151,42 @@ describe('RelayStore', () => {
         id: '123',
       });
     });
+  });
+
+  describe('update functions', () => {
+    var mockMutation, createTransactionMock, mockTransaction, mockCallbacks;
+
+    beforeEach(() => {
+      mockTransaction = new RelayMutationTransaction();
+      mockTransaction.commit = jest.genMockFunction();
+      createTransactionMock = jest.genMockFunction();
+      createTransactionMock.mockReturnValue(mockTransaction)
+      RelayMutationQueue.prototype.createTransaction = createTransactionMock;
+      mockMutation = new RelayMutation();
+      mockCallbacks = jest.genMockFunction();
+    });
+
+    describe('applyUpdate', () => {
+      it('creates a new RelayMutationTransaction without committing it', () => {
+        let transaction = RelayStore.applyUpdate(mockMutation, mockCallbacks);
+        expect(createTransactionMock).toBeCalledWith(
+          mockMutation,
+          mockCallbacks
+        );
+        expect(mockTransaction.commit).not.toBeCalled();
+      });
+    });
+
+    describe('update', () => {
+      it('creates a new RelayMutationTransaction and commits it', () => {
+        RelayStore.update(mockMutation, mockCallbacks);
+        expect(createTransactionMock).toBeCalledWith(
+          mockMutation,
+          mockCallbacks
+        );
+        expect(mockTransaction.commit).toBeCalled();
+      });
+    });
+
   });
 });

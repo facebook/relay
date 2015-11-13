@@ -161,15 +161,21 @@ var RelayStore = {
     return new RelayQueryResultObservable(storeData, fragmentPointer);
   },
 
+  applyUpdate(
+    mutation: RelayMutation,
+    callbacks?: RelayMutationTransactionCommitCallbacks
+  ): RelayMutationTransaction {
+    return storeData.getMutationQueue().createTransaction(
+      mutation,
+      callbacks
+    );
+  },
+
   update(
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): void {
-    var transaction = storeData.getMutationQueue().createTransaction(
-      mutation,
-      callbacks
-    );
-    transaction.commit();
+    this.applyUpdate(mutation, callbacks).commit();
   },
 };
 

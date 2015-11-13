@@ -15,12 +15,10 @@
 
 import type {ChangeSubscription} from 'GraphQLStoreChangeEmitter';
 import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 import type RelayStoreGarbageCollector from 'RelayStoreGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
-import type RelayRecordStore from 'RelayRecordStore';
 import type RelayStoreData from 'RelayStoreData';
 import type {StoreReaderData} from 'RelayTypes';
 
@@ -216,8 +214,7 @@ class GraphQLStoreSingleQueryResolver {
       ) {
         // same canonical ID,
         // but the data, call(s), route, and/or variables have changed
-        [nextResult, subscribedIDs] = resolveFragment(
-          this._storeData.getQueuedStore(),
+        [nextResult, subscribedIDs] = this._resolveFragment(
           nextFragment,
           nextID
         );
@@ -228,8 +225,7 @@ class GraphQLStoreSingleQueryResolver {
       }
     } else {
       // Pointer has a different ID or is/was fake data.
-      [nextResult, subscribedIDs] = resolveFragment(
-        this._storeData.getQueuedStore(),
+      [nextResult, subscribedIDs] = this._resolveFragment(
         nextFragment,
         nextID
       );
@@ -268,7 +264,7 @@ class GraphQLStoreSingleQueryResolver {
    * not "client:1_first(5)".
    */
   _getCanonicalID(id: DataID): DataID {
-    return GraphQLStoreRangeUtils.getCanonicalClientID(id);
+    return this._storeData.getRangeData().getCanonicalClientID(id);
   }
 
   _handleChange(): void {
@@ -276,6 +272,14 @@ class GraphQLStoreSingleQueryResolver {
       this._hasDataChanged = true;
       this._callback();
     }
+  }
+
+  _resolveFragment(
+    fragment: RelayQuery.Fragment,
+    dataID: DataID
+  ): [StoreReaderData, DataIDSet] {
+    var {data, dataIDs} = readRelayQueryData(this._storeData, fragment, dataID);
+    return [data, dataIDs];
   }
 
   /**
@@ -294,15 +298,6 @@ class GraphQLStoreSingleQueryResolver {
       removed.forEach(id => garbageCollector.decreaseSubscriptionsFor(id));
     }
   }
-}
-
-function resolveFragment(
-  store: RelayRecordStore,
-  fragment: RelayQuery.Fragment,
-  dataID: DataID
-): [StoreReaderData, DataIDSet] {
-  var {data, dataIDs} = readRelayQueryData(store, fragment, dataID);
-  return [data, dataIDs];
 }
 
 RelayProfiler.instrumentMethods(GraphQLStoreQueryResolver.prototype, {

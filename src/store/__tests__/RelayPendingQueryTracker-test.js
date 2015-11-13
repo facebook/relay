@@ -18,13 +18,14 @@ jest.dontMock('RelayPendingQueryTracker');
 
 var DliteFetchModeConstants = require('DliteFetchModeConstants');
 var Relay = require('Relay');
-var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 var RelayStoreData = require('RelayStoreData');
 var fetchRelayQuery = require('fetchRelayQuery');
 var subtractRelayQuery = require('subtractRelayQuery');
 var writeRelayQueryPayload = require('writeRelayQueryPayload');
 
 describe('RelayPendingQueryTracker', () => {
+  var pendingQueryTracker;
+
   var addPending;
 
   var consoleError;
@@ -36,15 +37,17 @@ describe('RelayPendingQueryTracker', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
+    var storeData = new RelayStoreData();
+    pendingQueryTracker = storeData.getPendingQueryTracker();
+
     subtractRelayQuery.mockImplementation(query => query);
 
     addPending = ({query, fetchMode}) => {
       fetchMode = fetchMode || DliteFetchModeConstants.FETCH_MODE_CLIENT;
-      return RelayPendingQueryTracker.add({
+      return pendingQueryTracker.add({
         query,
         fetchMode,
         forceIndex: null,
-        storeData: RelayStoreData.getDefaultInstance(),
       }).getResolvedPromise();
     };
 
@@ -368,14 +371,14 @@ describe('RelayPendingQueryTracker', () => {
       fetchMode: DliteFetchModeConstants.FETCH_MODE_PRELOAD,
     });
 
-    RelayPendingQueryTracker.resolvePreloadQuery(
+    pendingQueryTracker.resolvePreloadQuery(
       mockQuery.getID(),
       {response: {viewer:{}}}
     );
 
     jest.runAllTimers();
 
-    expect(RelayPendingQueryTracker.hasPendingQueries()).toBeFalsy();
+    expect(pendingQueryTracker.hasPendingQueries()).toBeFalsy();
     var writeCalls = writeRelayQueryPayload.mock.calls;
     expect(writeCalls.length).toBe(1);
     expect(writeCalls[0][1]).toEqualQueryRoot(mockQuery);
@@ -389,7 +392,7 @@ describe('RelayPendingQueryTracker', () => {
       }
     `);
 
-    RelayPendingQueryTracker.resolvePreloadQuery(
+    pendingQueryTracker.resolvePreloadQuery(
       mockQuery.getID(),
       {response: {viewer:{}}}
     );
@@ -401,7 +404,7 @@ describe('RelayPendingQueryTracker', () => {
 
     jest.runAllTimers();
 
-    expect(RelayPendingQueryTracker.hasPendingQueries()).toBeFalsy();
+    expect(pendingQueryTracker.hasPendingQueries()).toBeFalsy();
     var writeCalls = writeRelayQueryPayload.mock.calls;
     expect(writeCalls.length).toBe(1);
     expect(writeCalls[0][1]).toEqualQueryRoot(mockQuery);
@@ -423,7 +426,7 @@ describe('RelayPendingQueryTracker', () => {
     mockPending.catch(mockCallback);
 
     var mockError = new Error('Expected error.');
-    RelayPendingQueryTracker.rejectPreloadQuery(
+    pendingQueryTracker.rejectPreloadQuery(
       mockQuery.getID(),
       mockError
     );
@@ -431,7 +434,7 @@ describe('RelayPendingQueryTracker', () => {
 
     jest.runAllTimers();
 
-    expect(RelayPendingQueryTracker.hasPendingQueries()).toBeFalsy();
+    expect(pendingQueryTracker.hasPendingQueries()).toBeFalsy();
     expect(mockCallback).toBeCalledWith(mockError);
   });
 
@@ -444,7 +447,7 @@ describe('RelayPendingQueryTracker', () => {
     addPending({query: mockQueryA});
     jest.runAllTimers();
 
-    expect(RelayPendingQueryTracker.hasPendingQueries()).toBeTruthy();
+    expect(pendingQueryTracker.hasPendingQueries()).toBeTruthy();
   });
 
   it('has no pending queries when queries are all resolved', () => {
@@ -459,7 +462,7 @@ describe('RelayPendingQueryTracker', () => {
     fetchRelayQuery.mock.requests[0].resolve({viewer:{}});
     jest.runAllTimers();
 
-    expect(RelayPendingQueryTracker.hasPendingQueries()).toBeFalsy();
+    expect(pendingQueryTracker.hasPendingQueries()).toBeFalsy();
   });
 
   it('has no pending queries after being reset', () => {
@@ -471,8 +474,8 @@ describe('RelayPendingQueryTracker', () => {
     addPending({query: mockQueryA});
     jest.runAllTimers();
 
-    RelayPendingQueryTracker.resetPending();
+    pendingQueryTracker.resetPending();
 
-    expect(RelayPendingQueryTracker.hasPendingQueries()).toBeFalsy();
+    expect(pendingQueryTracker.hasPendingQueries()).toBeFalsy();
   });
 });

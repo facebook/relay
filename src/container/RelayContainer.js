@@ -27,7 +27,6 @@ var RelayFragmentReference = require('RelayFragmentReference');
 import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayMutationTransaction = require('RelayMutationTransaction');
-var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 var RelayPropTypes = require('RelayPropTypes');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
@@ -333,7 +332,7 @@ function createContainerComponent(
         'RelayContainer.hasOptimisticUpdate(): Expected a record in `%s`.',
         componentName
       );
-      return storeData.getQueuedStore().hasOptimisticUpdate(dataID);
+      return storeData.hasOptimisticUpdate(dataID);
     }
 
     /**
@@ -346,8 +345,7 @@ function createContainerComponent(
         'RelayContainer.getPendingTransactions(): Expected a record in `%s`.',
         componentName
       );
-      const mutationIDs =
-        storeData.getQueuedStore().getClientMutationIDs(dataID);
+      const mutationIDs = storeData.getClientMutationIDs(dataID);
       if (!mutationIDs) {
         return null;
       }
@@ -403,7 +401,7 @@ function createContainerComponent(
       record: Object
     ): boolean {
       if (
-        !RelayPendingQueryTracker.hasPendingQueries() &&
+        !storeData.getPendingQueryTracker().hasPendingQueries() &&
         !this._deferredErrors
       ) {
         // nothing can be missing => must have data

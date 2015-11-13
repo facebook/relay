@@ -22,10 +22,8 @@ jest
   .dontMock('GraphQLQueryRunner');
 
 var DliteFetchModeConstants = require('DliteFetchModeConstants');
-var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var Relay = require('Relay');
 var RelayNetworkLayer = require('RelayNetworkLayer');
-var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 var RelayStoreData = require('RelayStoreData');
 var checkRelayQueryData = require('checkRelayQueryData');
 var diffRelayQuery = require('diffRelayQuery');
@@ -34,6 +32,7 @@ var warning = require('warning');
 
 describe('GraphQLQueryRunner', () => {
   var queryRunner;
+  var pendingQueryTracker;
 
   var mockCallback;
   var mockQuerySet;
@@ -68,13 +67,15 @@ describe('GraphQLQueryRunner', () => {
       supports: () => true,
     });
 
-    queryRunner = new GraphQLQueryRunner(RelayStoreData.getDefaultInstance());
+    var storeData = new RelayStoreData();
+    queryRunner = storeData.getQueryRunner();
+    pendingQueryTracker = storeData.getPendingQueryTracker();
 
     mockCallback = jest.genMockFunction();
     mockQuerySet = {
       foo: getNode(Relay.QL`query{viewer{actor{id,name}}}`),
       bar: getNode(Relay.QL`query{node(id:"4"){id,name}}`),
-      baz: null
+      baz: null,
     };
 
     jest.addMatchers(RelayTestUtils.matchers);
@@ -121,8 +122,8 @@ describe('GraphQLQueryRunner', () => {
     queryRunner.run(querySet, mockCallback);
     jest.runAllTimers();
 
-    expect(RelayPendingQueryTracker.add.mock.calls.length).toBe(1);
-    expect(RelayPendingQueryTracker.add.mock.calls[0][0].query)
+    expect(pendingQueryTracker.add.mock.calls.length).toBe(1);
+    expect(pendingQueryTracker.add.mock.calls[0][0].query)
       .toBe(querySet.foo);
     expect(splitDeferredRelayQueries).not.toBeCalled();
     expect(warning.mock.calls[0]).toEqual([
@@ -147,17 +148,17 @@ describe('GraphQLQueryRunner', () => {
     ]);
   });
 
-  it('adds all split and diff queries to RelayPendingQueryTracker', () => {
+  it('adds all split and diff queries to the pending query tracker', () => {
     diffRelayQuery.mockImplementation(query => [query]);
     mockSplitDeferredQueries();
 
     queryRunner.run(mockQuerySet, mockCallback);
     jest.runAllTimers();
 
-    expect(RelayPendingQueryTracker.add.mock.calls.length).toBe(2);
-    expect(RelayPendingQueryTracker.add.mock.calls[0][0].query)
+    expect(pendingQueryTracker.add.mock.calls.length).toBe(2);
+    expect(pendingQueryTracker.add.mock.calls[0][0].query)
       .toEqualQueryNode(mockQuerySet.foo);
-    expect(RelayPendingQueryTracker.add.mock.calls[1][0].query)
+    expect(pendingQueryTracker.add.mock.calls[1][0].query)
       .toEqualQueryNode(mockQuerySet.bar);
   });
 
@@ -168,13 +169,13 @@ describe('GraphQLQueryRunner', () => {
     queryRunner.run(mockQuerySet, mockCallback);
     jest.runAllTimers();
 
-    RelayPendingQueryTracker.add.mock.fetches[0].resolve();
+    pendingQueryTracker.add.mock.fetches[0].resolve();
     jest.runAllTimers();
     expect(mockCallback.mock.calls).toEqual([
       [{aborted: false, done: false, error: null, ready: false, stale: false}],
     ]);
 
-    RelayPendingQueryTracker.add.mock.fetches[1].resolve();
+    pendingQueryTracker.add.mock.fetches[1].resolve();
     jest.runAllTimers();
     expect(mockCallback).lastCalledWith(
       {aborted: false, done: true, error: null, ready: true, stale: false}
@@ -238,7 +239,7 @@ describe('GraphQLQueryRunner', () => {
     queryRunner.run(mockQuerySet, mockCallback);
     jest.runAllTimers();
 
-    RelayPendingQueryTracker.add.mock.fetches[0].resolve();
+    pendingQueryTracker.add.mock.fetches[0].resolve();
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
@@ -246,7 +247,7 @@ describe('GraphQLQueryRunner', () => {
       [{aborted: false, done: false, error: null, ready: true, stale: false}],
     ]);
 
-    RelayPendingQueryTracker.add.mock.fetches[1].resolve();
+    pendingQueryTracker.add.mock.fetches[1].resolve();
     jest.runAllTimers();
 
     expect(mockCallback).lastCalledWith(
@@ -265,8 +266,8 @@ describe('GraphQLQueryRunner', () => {
       [{aborted: false, done: false, error: null, ready: false, stale: false}],
     ]);
 
-    RelayPendingQueryTracker.add.mock.fetches[0].resolve();
-    RelayPendingQueryTracker.add.mock.fetches[1].resolve();
+    pendingQueryTracker.add.mock.fetches[0].resolve();
+    pendingQueryTracker.add.mock.fetches[1].resolve();
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
@@ -282,8 +283,8 @@ describe('GraphQLQueryRunner', () => {
     queryRunner.run(mockQuerySet, mockCallback);
     jest.runAllTimers();
 
-    RelayPendingQueryTracker.add.mock.fetches[0].resolve();
-    RelayPendingQueryTracker.add.mock.fetches[1].resolve();
+    pendingQueryTracker.add.mock.fetches[0].resolve();
+    pendingQueryTracker.add.mock.fetches[1].resolve();
     jest.runAllTimers();
 
     expect(mockCallback).lastCalledWith(
@@ -326,8 +327,8 @@ describe('GraphQLQueryRunner', () => {
     var request = queryRunner.run(mockQuerySet, mockCallback);
     jest.runAllTimers();
 
-    RelayPendingQueryTracker.add.mock.fetches[0].resolve();
-    RelayPendingQueryTracker.add.mock.fetches[1].resolve();
+    pendingQueryTracker.add.mock.fetches[0].resolve();
+    pendingQueryTracker.add.mock.fetches[1].resolve();
     jest.runAllTimers();
 
     var before = mockCallback.mock.calls.length;
@@ -347,8 +348,8 @@ describe('GraphQLQueryRunner', () => {
     queryRunner.run(mockQuerySet, mockCallback).abort();
     jest.runAllTimers();
 
-    RelayPendingQueryTracker.add.mock.fetches[0].resolve();
-    RelayPendingQueryTracker.add.mock.fetches[1].resolve();
+    pendingQueryTracker.add.mock.fetches[0].resolve();
+    pendingQueryTracker.add.mock.fetches[1].resolve();
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
@@ -383,8 +384,8 @@ describe('GraphQLQueryRunner', () => {
     queryRunner.forceFetch(singleMockQuery, mockCallback);
     jest.runAllTimers();
 
-    expect(RelayPendingQueryTracker.add.mock.calls.length).toBe(1);
-    expect(RelayPendingQueryTracker.add.mock.calls[0][0].query)
+    expect(pendingQueryTracker.add.mock.calls.length).toBe(1);
+    expect(pendingQueryTracker.add.mock.calls[0][0].query)
       .toEqualQueryNode(singleMockQuery.foo);
   });
 
@@ -400,9 +401,9 @@ describe('GraphQLQueryRunner', () => {
       [{aborted: false, done: false, error: null, ready: false, stale: false}],
       [{aborted: false, done: false, error: null, ready: true, stale: true}],
     ]);
-    expect(RelayPendingQueryTracker.add.mock.calls.length).toBe(1);
+    expect(pendingQueryTracker.add.mock.calls.length).toBe(1);
 
-    RelayPendingQueryTracker.add.mock.fetches[0].resolve();
+    pendingQueryTracker.add.mock.fetches[0].resolve();
     jest.runAllTimers();
 
     expect(mockCallback).lastCalledWith(
@@ -461,7 +462,7 @@ describe('GraphQLQueryRunner', () => {
       });
 
       var resolveSplitQueryByIndex = index => {
-        RelayPendingQueryTracker.add.mock.fetches[index].resolve();
+        pendingQueryTracker.add.mock.fetches[index].resolve();
       };
       runTest = () => {
         queryRunner.run(

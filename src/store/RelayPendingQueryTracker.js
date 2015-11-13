@@ -32,19 +32,70 @@ type PendingQueryParameters = {
   fetchMode: DliteFetchModeConstants;
   forceIndex: ?number;
   query: RelayQuery.Root;
-  storeData: RelayStoreData;
 };
 type PendingState = {
   fetch: PendingFetch;
   query: RelayQuery.Root;
 };
 
-var pendingFetchMap: {[queryID: string]: PendingState} = {};
+/**
+ * @internal
+ *
+ * Tracks pending (in-flight) queries.
+ *
+ * In order to send minimal queries and avoid re-retrieving data,
+ * `RelayPendingQueryTracker` maintains a registry of pending queries, and
+ * "subtracts" those from any new queries that callers enqueue.
+ */
+class RelayPendingQueryTracker {
+  _pendingFetchMap: {[queryID: string]: PendingState};
+  // Asynchronous mapping from preload query IDs to results.
+  _preloadQueryMap: PromiseMap<Object, Error>;
+  _storeData: RelayStoreData;
 
-// Asynchronous mapping from preload query IDs to results.
-var preloadQueryMap: PromiseMap<Object, Error> = new PromiseMap();
+  constructor(storeData: RelayStoreData) {
+    this._pendingFetchMap = {};
+    this._preloadQueryMap = new PromiseMap();
+    this._storeData = storeData;
+  }
 
+  /**
+   * Used by `GraphQLQueryRunner` to enqueue new queries.
+   */
+  add(params: PendingQueryParameters): PendingFetch {
+    return new PendingFetch(params, {
+      pendingFetchMap: this._pendingFetchMap,
+      preloadQueryMap: this._preloadQueryMap,
+      storeData: this._storeData,
+    });
+  }
+
+  hasPendingQueries(): boolean {
+    return hasItems(this._pendingFetchMap);
+  }
+
+  /**
+   * Clears all pending query tracking. Does not cancel the queries themselves.
+   */
+  resetPending(): void {
+    this._pendingFetchMap = {};
+  }
+
+  resolvePreloadQuery(queryID: string, result: Object): void {
+    this._preloadQueryMap.resolveKey(queryID, result);
+  }
+
+  rejectPreloadQuery(queryID: string, error: Error): void {
+    this._preloadQueryMap.rejectKey(queryID, error);
+  }
+}
+
+/**
+ * @private
+ */
 class PendingFetch {
+  _pendingFetchMap: {[queryID: string]: PendingState};
+  _preloadQueryMap: PromiseMap<Object, Error>;
   _query: RelayQuery.Root;
 
   _forceIndex: ?number;
@@ -68,23 +119,28 @@ class PendingFetch {
   _errors: Array<?Error>;
 
   constructor(
-    {fetchMode, forceIndex, query, storeData}: PendingQueryParameters
+    {fetchMode, forceIndex, query}: PendingQueryParameters,
+    {pendingFetchMap, preloadQueryMap, storeData}: {
+      pendingFetchMap: {[queryID: string]: PendingState};
+      preloadQueryMap: PromiseMap<Object, Error>;
+      storeData: RelayStoreData;
+    }
   ) {
     var queryID = query.getID();
-    this._storeData = storeData;
-    this._query = query;
-    this._forceIndex = forceIndex;
-
-    this._resolvedSubtractedQuery = false;
-    this._resolvedDeferred = new Deferred();
-
     this._dependents = [];
+    this._forceIndex = forceIndex;
     this._pendingDependencyMap = {};
+    this._pendingFetchMap = pendingFetchMap;
+    this._preloadQueryMap = preloadQueryMap;
+    this._query = query;
+    this._resolvedDeferred = new Deferred();
+    this._resolvedSubtractedQuery = false;
+    this._storeData = storeData;
 
     var subtractedQuery;
     if (fetchMode === DliteFetchModeConstants.FETCH_MODE_PRELOAD) {
       subtractedQuery = query;
-      this._fetchSubtractedQueryPromise = preloadQueryMap.get(queryID);
+      this._fetchSubtractedQueryPromise = this._preloadQueryMap.get(queryID);
     } else {
       subtractedQuery = this._subtractPending(query);
       this._fetchSubtractedQueryPromise = subtractedQuery ?
@@ -96,7 +152,7 @@ class PendingFetch {
     this._errors = [];
 
     if (subtractedQuery) {
-      pendingFetchMap[queryID] = {
+      this._pendingFetchMap[queryID] = {
         fetch: this,
         query: subtractedQuery,
       };
@@ -113,6 +169,31 @@ class PendingFetch {
   }
 
   /**
+   * A pending query is resolvable if it is already resolved or will be resolved
+   * imminently (i.e. its subtracted query and the subtracted queries of all its
+   * pending dependencies have been fetched).
+   */
+  isResolvable(): boolean {
+    if (this._fetchedSubtractedQuery) {
+      return everyObject(
+        this._pendingDependencyMap,
+        pendingDependency => pendingDependency._fetchedSubtractedQuery
+      );
+      // Pending dependencies further down the graph either don't affect the
+      // result or are already in `_pendingDependencyMap`.
+    }
+    return false;
+  }
+
+  getQuery(): RelayQuery.Root {
+    return this._query;
+  }
+
+  getResolvedPromise(): Promise {
+    return this._resolvedDeferred.getPromise();
+  }
+
+  /**
    * Subtracts all pending queries from the supplied `query` and returns the
    * resulting difference. The difference can be null if the entire query is
    * pending.
@@ -126,7 +207,7 @@ class PendingFetch {
    * way to) the cache (`RelayRecordStore`).
    */
   _subtractPending(query: ?RelayQuery.Root): ?RelayQuery.Root {
-    everyObject(pendingFetchMap, pending => {
+    everyObject(this._pendingFetchMap, pending => {
       // Stop if the entire query is subtracted.
       if (!query) {
         return false;
@@ -197,7 +278,7 @@ class PendingFetch {
 
   _markSubtractedQueryAsResolved(): void {
     var queryID = this.getQuery().getID();
-    delete pendingFetchMap[queryID];
+    delete this._pendingFetchMap[queryID];
 
     this._resolvedSubtractedQuery = true;
     this._updateResolvedDeferred();
@@ -209,7 +290,7 @@ class PendingFetch {
 
   _markAsRejected(error: Error): void {
     var queryID = this.getQuery().getID();
-    delete pendingFetchMap[queryID];
+    delete this._pendingFetchMap[queryID];
 
     console.warn(error.message);
 
@@ -251,77 +332,11 @@ class PendingFetch {
     return this._errors.length > 0 ||
       (this._resolvedSubtractedQuery && !hasItems(this._pendingDependencyMap));
   }
-
-  getQuery(): RelayQuery.Root {
-    return this._query;
-  }
-
-  getResolvedPromise(): Promise {
-    return this._resolvedDeferred.getPromise();
-  }
-
-  /**
-   * A pending query is resolvable if it is already resolved or will be resolved
-   * imminently (i.e. its subtracted query and the subtracted queries of all its
-   * pending dependencies have been fetched).
-   */
-  isResolvable(): boolean {
-    if (this._fetchedSubtractedQuery) {
-      return everyObject(
-        this._pendingDependencyMap,
-        pendingDependency => pendingDependency._fetchedSubtractedQuery
-      );
-      // Pending dependencies further down the graph either don't affect the
-      // result or are already in `_pendingDependencyMap`.
-    }
-    return false;
-  }
 }
 
 function hasItems(map: Object): boolean {
   return !!Object.keys(map).length;
 }
 
-/**
- * @internal
- *
- * Tracks pending (in-flight) queries.
- *
- * In order to send minimal queries and avoid re-retrieving data,
- * `RelayPendingQueryTracker` maintains a registry of pending queries, and
- * "subtracts" those from any new queries that callers enqueue.
- */
-var RelayPendingQueryTracker = {
-
-  /**
-   * Used by `GraphQLQueryRunner` to enqueue new queries.
-   */
-  add(params: PendingQueryParameters): PendingFetch {
-    return new PendingFetch(params);
-  },
-
-  hasPendingQueries(): boolean {
-    return hasItems(pendingFetchMap);
-  },
-
-  /**
-   * Clears all pending query tracking. Does not cancel the queries themselves.
-   */
-  resetPending(): void {
-    pendingFetchMap = {};
-  },
-
-  resolvePreloadQuery(queryID: string, result: Object): void {
-    preloadQueryMap.resolveKey(queryID, result);
-  },
-
-  rejectPreloadQuery(queryID: string, error: Error): void {
-    preloadQueryMap.rejectKey(queryID, error);
-  },
-
-  // TODO: Use `export type`.
-  PendingFetch,
-
-};
-
+export type {PendingFetch};
 module.exports = RelayPendingQueryTracker;

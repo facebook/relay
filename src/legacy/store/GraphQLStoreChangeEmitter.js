@@ -14,7 +14,7 @@
 'use strict';
 
 var ErrorUtils = require('ErrorUtils');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
 
 var resolveImmediate = require('resolveImmediate');
 
@@ -41,24 +41,24 @@ type Subscriber = {
  */
 class GraphQLStoreChangeEmitter {
   _batchUpdate: BatchStrategy;
+  _executingIDs: Object;
+  _rangeData: GraphQLStoreRangeUtils;
+  _scheduledIDs: ?Object;
   _subscribers: Array<Subscriber>;
 
-  _executingIDs: Object;
-  _scheduledIDs: ?Object;
-
-  constructor() {
+  constructor(rangeData: GraphQLStoreRangeUtils) {
     this._batchUpdate = callback => callback();
-    this._subscribers = [];
-
     this._executingIDs = {};
+    this._rangeData = rangeData;
     this._scheduledIDs = null;
+    this._subscribers = [];
   }
 
   addListenerForIDs(
     ids: Array<string>,
     callback: SubscriptionCallback
   ): ChangeSubscription {
-    var subscribedIDs = ids.map(getBroadcastID);
+    var subscribedIDs = ids.map(id => this._getBroadcastID(id));
     var index = this._subscribers.length;
     this._subscribers.push({subscribedIDs, callback});
     return {
@@ -76,7 +76,7 @@ class GraphQLStoreChangeEmitter {
     }
     // Record index of the last subscriber so we do not later unintentionally
     // invoke callbacks that were subscribed after this broadcast.
-    scheduledIDs[getBroadcastID(id)] = this._subscribers.length - 1;
+    scheduledIDs[this._getBroadcastID(id)] = this._subscribers.length - 1;
   }
 
   injectBatchingStrategy(batchStrategy: BatchStrategy): void {
@@ -125,15 +125,15 @@ class GraphQLStoreChangeEmitter {
       }
     }
   }
-}
 
-/**
- * Ranges publish events for the entire range, not the specific view of that
- * range. For example, if "client:1" is a range, the event is on "client:1",
- * not "client:1_first(5)".
- */
-function getBroadcastID(id: string): string {
-  return GraphQLStoreRangeUtils.getCanonicalClientID(id);
+  /**
+   * Ranges publish events for the entire range, not the specific view of that
+   * range. For example, if "client:1" is a range, the event is on "client:1",
+   * not "client:1_first(5)".
+   */
+  _getBroadcastID(id: string): string {
+    return this._rangeData.getCanonicalClientID(id);
+  }
 }
 
 module.exports = GraphQLStoreChangeEmitter;

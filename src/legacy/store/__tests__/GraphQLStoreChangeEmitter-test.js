@@ -20,13 +20,15 @@ var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 describe('GraphQLStoreChangeEmitter', () => {
   var changeEmitter;
   var mockCallback;
+  var rangeData;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    changeEmitter = new GraphQLStoreChangeEmitter();
+    rangeData = new GraphQLStoreRangeUtils();
+    changeEmitter = new GraphQLStoreChangeEmitter(rangeData);
 
-    GraphQLStoreRangeUtils.getCanonicalClientID.mockImplementation(id => id);
+    rangeData.getCanonicalClientID.mockImplementation(id => id);
 
     ErrorUtils.applyWithGuard.mockImplementation(callback => {
       try {
@@ -90,7 +92,7 @@ describe('GraphQLStoreChangeEmitter', () => {
   });
 
   it('should correctly broadcast changes to range IDs', () => {
-    GraphQLStoreRangeUtils.getCanonicalClientID.mockImplementation(
+    rangeData.getCanonicalClientID.mockImplementation(
       id => id === 'baz_first(5)' ? 'baz' : id
     );
 

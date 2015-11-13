@@ -179,6 +179,16 @@ class RelayStoreData {
     );
   }
 
+  clearCacheManager(): void {
+    this._cacheManager = null;
+    this._cachePopulated = false;
+    this._recordStore = new RelayRecordStore(
+      ({records: this._records}: $FixMe),
+      ({rootCallMap: this._rootCalls}: $FixMe),
+      (this._nodeRangeMap: $FixMe)
+    );
+  }
+
   /**
    * Runs the callback after all data has been read out from diskc cache into
    * cachedRecords

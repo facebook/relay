@@ -660,4 +660,9 @@ describe('RelayStoreData', function() {
       },
     });
   });
+
+  it('clears cache manager', () => {
+    storeData.clearCacheManager();
+    expect(storeData.hasCacheManager()).toBe(false);
+  });
 });

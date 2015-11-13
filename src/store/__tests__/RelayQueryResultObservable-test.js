@@ -111,7 +111,7 @@ describe('RelayQueryResultObservable', () => {
     observer.subscribe(subscriber);
 
     expect(readRelayQueryData).toBeCalledWith(
-      store,
+      storeData,
       query,
       '123'
     );

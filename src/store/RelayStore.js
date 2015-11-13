@@ -108,7 +108,7 @@ var RelayStore = {
     dataID: DataID,
     options?: StoreReaderOptions
   ): ?StoreReaderData {
-    return readRelayQueryData(queuedStore, node, dataID, options).data;
+    return readRelayQueryData(storeData, node, dataID, options).data;
   },
 
   /**
@@ -120,7 +120,7 @@ var RelayStore = {
     options?: StoreReaderOptions
   ): Array<?StoreReaderData> {
     return dataIDs.map(
-      dataID => readRelayQueryData(queuedStore, node, dataID, options).data
+      dataID => readRelayQueryData(storeData, node, dataID, options).data
     );
   },
 

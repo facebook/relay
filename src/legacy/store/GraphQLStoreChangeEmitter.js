@@ -14,7 +14,6 @@
 'use strict';
 
 var ErrorUtils = require('ErrorUtils');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 
 var resolveImmediate = require('resolveImmediate');
 
@@ -55,10 +54,9 @@ class GraphQLStoreChangeEmitter {
   }
 
   addListenerForIDs(
-    ids: Array<string>,
+    subscribedIDs: Array<string>,
     callback: SubscriptionCallback
   ): ChangeSubscription {
-    var subscribedIDs = ids.map(getBroadcastID);
     var index = this._subscribers.length;
     this._subscribers.push({subscribedIDs, callback});
     return {
@@ -76,7 +74,7 @@ class GraphQLStoreChangeEmitter {
     }
     // Record index of the last subscriber so we do not later unintentionally
     // invoke callbacks that were subscribed after this broadcast.
-    scheduledIDs[getBroadcastID(id)] = this._subscribers.length - 1;
+    scheduledIDs[id] = this._subscribers.length - 1;
   }
 
   injectBatchingStrategy(batchStrategy: BatchStrategy): void {
@@ -125,15 +123,6 @@ class GraphQLStoreChangeEmitter {
       }
     }
   }
-}
-
-/**
- * Ranges publish events for the entire range, not the specific view of that
- * range. For example, if "client:1" is a range, the event is on "client:1",
- * not "client:1_first(5)".
- */
-function getBroadcastID(id: string): string {
-  return GraphQLStoreRangeUtils.getCanonicalClientID(id);
 }
 
 module.exports = GraphQLStoreChangeEmitter;

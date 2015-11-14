@@ -80,7 +80,7 @@ class RelayDefaultNetworkLayer {
             );
             request.resolve({response: payload.data});
           } else {
-            var error = new Error(
+            const error = new Error(
               'Server request for query `' + request.getDebugName() + '` ' +
               'failed for the following reasons:\n\n' +
               formatRequestErrors(request, payload.errors)

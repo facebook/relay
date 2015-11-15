@@ -113,28 +113,36 @@ var buildRQL = {
         node = queryBuilder(Component, variables);
         const query = QueryBuilder.getQuery(node);
         if (query) {
-          const children = query.children ? [...query.children] : [];
-          const hasScalarFieldsOnly = children.every(child => {
-            return (
-              !child ||
-              (child.kind === 'Field' &&
-                (!child.children || child.children.length === 0))
+          let hasFragment = false;
+          let hasScalarFieldsOnly = true;
+          if (query.children) {
+            query.children.forEach(child => {
+              if (child) {
+                hasFragment = hasFragment || child.kind === 'Fragment';
+                hasScalarFieldsOnly = hasScalarFieldsOnly && (
+                  child.kind === 'Field' &&
+                  (!child.children || child.children.length === 0)
+                );
+              }
+            });
+          }
+          if (!hasFragment) {
+            const children = query.children ? [...query.children] : [];
+            invariant(
+              hasScalarFieldsOnly,
+              'Relay.QL: Expected query `%s` to be empty. For example, use ' +
+              '`node(id: $id)`, not `node(id: $id) { ... }`.',
+              query.fieldName
             );
-          });
-          invariant(
-            hasScalarFieldsOnly,
-            'Relay.QL: Expected query `%s` to be empty. For example, use ' +
-            '`node(id: $id)`, not `node(id: $id) { ... }`.',
-            query.fieldName
-          );
-          const fragmentValues = filterObject(values, (_, name) =>
-            Component.hasVariable(name)
-          );
-          children.push(Component.getFragment(queryName, fragmentValues));
-          node = {
-            ...query,
-            children,
-          };
+            const fragmentValues = filterObject(values, (_, name) =>
+              Component.hasVariable(name)
+            );
+            children.push(Component.getFragment(queryName, fragmentValues));
+            node = {
+              ...query,
+              children,
+            };
+          }
         }
       }
       componentCache.set(Component, node);

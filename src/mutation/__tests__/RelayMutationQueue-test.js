@@ -39,7 +39,7 @@ describe('RelayMutationQueue', () => {
     fromGraphQL.Fragment = jest.genMockFunction().mockImplementation(f => f);
 
     RelayStoreData.prototype.handleUpdatePayload = jest.genMockFunction();
-    storeData = RelayStoreData.getDefaultInstance();
+    storeData = new RelayStoreData();
     mutationQueue = storeData.getMutationQueue();
   });
 

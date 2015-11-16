@@ -27,6 +27,7 @@ var readRelayQueryData = require('readRelayQueryData');
 var recycleNodesInto = require('recycleNodesInto');
 
 type DataIDSet = {[dataID: DataID]: any};
+export type GraphQLStoreQueryResolverCallback = () => void;
 
 /**
  * @internal
@@ -37,7 +38,7 @@ type DataIDSet = {[dataID: DataID]: any};
  * invocation to `resolve` has changed.
  */
 class GraphQLStoreQueryResolver {
-  _callback: Function;
+  _callback: GraphQLStoreQueryResolverCallback;
   _fragmentPointer: GraphQLFragmentPointer;
   _resolver: ?(
     GraphQLStorePluralQueryResolver |
@@ -48,7 +49,7 @@ class GraphQLStoreQueryResolver {
   constructor(
     storeData: RelayStoreData,
     fragmentPointer: GraphQLFragmentPointer,
-    callback: Function
+    callback: GraphQLStoreQueryResolverCallback
   ) {
     this.reset();
     this._callback = callback;

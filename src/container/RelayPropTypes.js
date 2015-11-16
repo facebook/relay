@@ -15,6 +15,8 @@
 
 const {PropTypes} = require('React');
 
+const RelayContext = require('RelayContext');
+
 const isRelayContainer = require('isRelayContainer');
 const sprintf = require('sprintf');
 
@@ -43,6 +45,8 @@ const RelayPropTypes = {
     queries: PropTypes.object.isRequired,
     uri: PropTypes.object,
   }),
+
+  RelayContext: PropTypes.instanceOf(RelayContext),
 };
 
 module.exports = RelayPropTypes;

@@ -18,7 +18,7 @@ import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
 
 var resolveImmediate = require('resolveImmediate');
 
-type BatchStrategy = (callback: Function) => void;
+export type BatchStrategy = (callback: Function) => void;
 type SubscriptionCallback = () => void;
 
 export type ChangeSubscription = {

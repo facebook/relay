@@ -35,7 +35,9 @@ describe('GraphQLDeferredQueryTracker', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    recordStore = RelayStoreData.getDefaultInstance().getRecordStore();
+    var storeData = new RelayStoreData();
+    
+    recordStore = storeData.getRecordStore();
     deferredQueryTracker = new GraphQLDeferredQueryTracker(recordStore);
   });
 

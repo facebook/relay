@@ -33,6 +33,7 @@ var RelayTestUtils = {
     var ReactDOM = require('ReactDOM');
     var RelayPropTypes = require('RelayPropTypes');
     var RelayRoute = require('RelayRoute');
+    var RelayStore = require('RelayStore');
 
     class ContextSetter extends React.Component {
       getChildContext() {
@@ -44,6 +45,7 @@ var RelayTestUtils = {
     }
     ContextSetter.childContextTypes = {
       route: RelayPropTypes.QueryConfig.isRequired,
+      relay: RelayPropTypes.RelayContext.isRequired,
     };
 
     class MockPointer {
@@ -55,8 +57,9 @@ var RelayTestUtils = {
     container = container || document.createElement('div');
 
     return {
-      render(render, route) {
+      render(render, route, relay) {
         route = route || RelayRoute.genMockInstance();
+        relay = relay || RelayStore;
 
         var result;
         function ref(component) {
@@ -64,7 +67,7 @@ var RelayTestUtils = {
         }
         ReactDOM.render(
           <ContextSetter
-            context={{route}}
+            context={{route, relay}}
             render={() => {
               var element = render(dataID => new MockPointer(dataID));
               var pointers = {};

@@ -33,9 +33,9 @@ var RelayGarbageCollection = {
    * collection.
    */
   initialize(): void {
-    RelayStoreData
-      .getDefaultInstance()
-      .initializeGarbageCollector();
+    // RelayStoreData
+    //   .getDefaultInstance()
+    //   .initializeGarbageCollector();
   },
 
   /**
@@ -57,12 +57,12 @@ var RelayGarbageCollection = {
    * be removed).
    */
   scheduleCollection(stepLength?: number): void {
-    var garbageCollector =
-      RelayStoreData.getDefaultInstance().getGarbageCollector();
-
-    if (garbageCollector) {
-      garbageCollector.scheduleCollection(stepLength);
-    }
+    // var garbageCollector =
+    //   RelayStoreData.getDefaultInstance().getGarbageCollector();
+    //
+    // if (garbageCollector) {
+    //   garbageCollector.scheduleCollection(stepLength);
+    // }
   }
 };
 

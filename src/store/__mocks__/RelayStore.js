@@ -9,8 +9,8 @@
 
 'use strict';
 
-var RelayStore = jest.genMockFromModule('RelayStore');
 var RelayRecordStore = require('RelayRecordStore');
+var RelayStore = require.requireActual('RelayStore');
 
 var resolveImmediate = require('resolveImmediate');
 
@@ -51,6 +51,7 @@ function genMockRequest(args) {
   };
 }
 
+RelayStore.primeCache = jest.genMockFunction();
 RelayStore.primeCache.mock.abort = [];
 RelayStore.primeCache.mock.requests = [];
 RelayStore.primeCache.mockImplementation((...args) => {
@@ -65,6 +66,7 @@ RelayStore.primeCache.mockImplementation((...args) => {
   return returnValue;
 });
 
+RelayStore.forceFetch = jest.genMockFunction();
 RelayStore.forceFetch.mock.abort = [];
 RelayStore.forceFetch.mock.requests = [];
 RelayStore.forceFetch.mockImplementation((...args) => {
@@ -78,6 +80,8 @@ RelayStore.forceFetch.mockImplementation((...args) => {
   RelayStore.forceFetch.mock.requests.push(request);
   return returnValue;
 });
+
+RelayStore.read = jest.genMockFunction();
 
 RelayStore.mock = {
   setMockRecords: records => {

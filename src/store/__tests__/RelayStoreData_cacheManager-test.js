@@ -56,7 +56,7 @@ describe('RelayStoreData', function() {
     } = RelayConnectionInterface);
 
     cacheManager = RelayMockCacheManager.genCacheManager();
-    storeData = RelayStoreData.getDefaultInstance();
+    storeData = new RelayStoreData();
     storeData.injectCacheManager(cacheManager);
 
     jest.addMatchers({

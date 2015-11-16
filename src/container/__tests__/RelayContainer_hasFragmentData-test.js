@@ -17,6 +17,7 @@ RelayTestUtils.unmockRelay();
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
 var Relay = require('Relay');
+var RelayContext = require('RelayContext');
 var RelayStoreData = require('RelayStoreData');
 
 describe('RelayContainer.hasFragmentData', function() {
@@ -29,7 +30,8 @@ describe('RelayContainer.hasFragmentData', function() {
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    var storeData = RelayStoreData.getDefaultInstance();
+    var storeData = new RelayStoreData();
+    var relayContext = new RelayContext(storeData);
     deferredQueryTracker = storeData.getDeferredQueryTracker();
     pendingQueryTracker = storeData.getPendingQueryTracker();
 
@@ -53,7 +55,7 @@ describe('RelayContainer.hasFragmentData', function() {
     mockRender = () => {
       return RelayTestRenderer.render(genMockPointer => {
         return <MockContainer foo={genMockPointer('42')} />;
-      });
+      }, null, relayContext);
     };
     mockPointer = {__dataID__: '42'};
   });

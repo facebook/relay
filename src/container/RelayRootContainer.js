@@ -15,6 +15,7 @@
 
 const React = require('React');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
+import type RelayContext from 'RelayContext';
 const RelayPropTypes = require('RelayPropTypes');
 import type {
   ComponentFetchState,
@@ -22,6 +23,7 @@ import type {
   RelayContainer,
 } from 'RelayTypes';
 const RelayRenderer = require('RelayRenderer');
+const RelayStore = require('RelayStore');
 
 type RootContainerProps = {
   Component: RelayContainer;
@@ -34,6 +36,7 @@ type RootContainerProps = {
   ) => ReactElement;
   renderLoading?: ?() => ReactElement;
   route: RelayQueryConfigSpec;
+  relayContext: RelayContext;
 };
 
 const {PropTypes} = React;
@@ -102,6 +105,7 @@ function RelayRootContainer({
   renderFetched,
   renderLoading,
   route,
+  relayContext,
 }: RootContainerProps): ReactElement {
   return (
     <RelayRenderer
@@ -109,6 +113,7 @@ function RelayRootContainer({
       forceFetch={forceFetch}
       onReadyStateChange={onReadyStateChange}
       queryConfig={route}
+      relayContext={relayContext}
       render={({done, error, props, retry, stale}) => {
         if (error) {
           if (renderFailure) {
@@ -139,6 +144,7 @@ RelayRootContainer.propTypes = {
   renderFetched: PropTypes.func,
   renderLoading: PropTypes.func,
   route: RelayPropTypes.QueryConfig.isRequired,
+  relay: RelayPropTypes.RelayContext,
 };
 
 RelayRootContainer.childContextTypes = {

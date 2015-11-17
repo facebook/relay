@@ -230,10 +230,6 @@ class RelayRecordStore {
     var cacheWriter = this._cacheWriter;
     if (!this._queuedRecords && cacheWriter) {
       cacheWriter.writeField(dataID, '__dataID__', dataID, typeName);
-      var cachedPath = nextRecord[PATH];
-      if (cachedPath) {
-        cacheWriter.writeField(dataID, '__path__', cachedPath, typeName);
-      }
     }
   }
 

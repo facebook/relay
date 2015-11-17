@@ -1,4 +1,4 @@
-/**
+      /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
  *
@@ -16,6 +16,7 @@
 var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {Call, DataID, Records} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
+import type RelayQueryPath from 'RelayQueryPath';
 var RelayQueryVisitor = require('RelayQueryVisitor');
 var RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
@@ -23,6 +24,7 @@ import type {RangeInfo} from 'RelayRecordStore';
 
 export type PendingItem = {
   node: RelayQuery.Node;
+  path: RelayQueryPath;
   rangeCalls: ?Array<Call>;
 };
 
@@ -35,6 +37,7 @@ export type FinderResult = {
 type FinderState = {
   dataID: DataID;
   missingData: boolean;
+  path: RelayQueryPath;
   rangeCalls: ?Array<Call>;
   rangeInfo: ?RangeInfo;
 };
@@ -57,6 +60,7 @@ function findRelayQueryLeaves(
   cachedRecords: Records,
   queryNode: RelayQuery.Node,
   dataID: DataID,
+  path: RelayQueryPath,
   rangeCalls: ?Array<Call>
 ): FinderResult {
   var finder = new RelayQueryLeavesFinder(store, cachedRecords);
@@ -64,6 +68,7 @@ function findRelayQueryLeaves(
   var state = {
     dataID,
     missingData: false,
+    path,
     rangeCalls,
     rangeInfo: undefined,
   };
@@ -165,6 +170,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
         var nextState = {
           dataID: dataIDs[ii],
           missingData: false,
+          path: state.path.getPath(field, dataIDs[ii]),
           rangeCalls: undefined,
           rangeInfo: undefined,
         };
@@ -188,6 +194,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       var nextState: FinderState = {
         dataID,
         missingData: false,
+        path: state.path.getPath(field, dataID),
         rangeCalls: calls,
         rangeInfo: null,
       };
@@ -219,6 +226,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       var nextState = {
         dataID: edgeIDs[ii],
         missingData: false,
+        path: state.path.getPath(field, edgeIDs[ii]),
         rangeCalls: undefined,
         rangeInfo: undefined,
       };
@@ -246,6 +254,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       var nextState = {
         dataID,
         missingData: false,
+        path: state.path.getPath(field, dataID),
         rangeCalls: undefined,
         rangeInfo: undefined,
       };
@@ -266,6 +275,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       this._pendingNodes[dataID] = this._pendingNodes[dataID] || [];
       this._pendingNodes[dataID].push({
         node: field,
+        path: state.path,
         rangeCalls: state.rangeCalls
       });
     }

@@ -13,6 +13,7 @@
 
 'use strict';
 
+var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 import type {
   DataID,
   Records,
@@ -20,6 +21,7 @@ import type {
   RootCallMap,
 } from 'RelayInternalTypes';
 var RelayQuery = require('RelayQuery');
+var RelayQueryPath = require('RelayQueryPath');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
@@ -127,7 +129,14 @@ class RelayCacheReader {
         this._queueRoot(storageKey, identifyingArgValue, query);
       }
     } else {
-      this._visitNode(dataID, {node: query, rangeCalls: undefined});
+      this._visitNode(
+        dataID,
+        {
+          node: query,
+          path: new RelayQueryPath(query),
+          rangeCalls: undefined,
+        }
+      );
     }
   }
 
@@ -167,7 +176,14 @@ class RelayCacheReader {
               if (this._hasFailed) {
                 return;
               }
-              this._visitNode(dataID, {node: root, rangeCalls: undefined});
+              this._visitNode(
+                dataID,
+                {
+                  node: root,
+                  path: new RelayQueryPath(root),
+                  rangeCalls: undefined,
+                }
+              );
             });
           }
           if (this._isDone()) {
@@ -184,6 +200,7 @@ class RelayCacheReader {
       this._cachedRecords,
       pendingItem.node,
       dataID,
+      pendingItem.path,
       pendingItem.rangeCalls
     );
 
@@ -191,8 +208,8 @@ class RelayCacheReader {
       this._handleFailed();
       return;
     }
-    forEachObject(pendingNodes, (pendingItem, dataID) => {
-      this._queueNode(dataID, pendingItem);
+    forEachObject(pendingNodes, (pendingItems, dataID) => {
+      this._queueNode(dataID, pendingItems);
     });
   }
 
@@ -210,6 +227,9 @@ class RelayCacheReader {
           if (error) {
             this._handleFailed();
             return;
+          }
+          if (value && GraphQLStoreDataHandler.isClientID(dataID)) {
+            value.__path__ = pendingItems[0].path;
           }
           this._cachedRecords[dataID] = value;
           var items = this._pendingNodes[dataID];

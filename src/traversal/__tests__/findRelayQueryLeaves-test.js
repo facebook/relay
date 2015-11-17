@@ -16,6 +16,7 @@ RelayTestUtils.unmockRelay();
 
 var GraphQLRange = require('GraphQLRange');
 var Relay = require('Relay');
+var RelayQueryPath = require('RelayQueryPath');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayRecordStore = require('RelayRecordStore');
 var findRelayQueryLeaves = require('findRelayQueryLeaves');
@@ -24,9 +25,12 @@ describe('findRelayQueryLeaves', () => {
   var {getNode} = RelayTestUtils;
   var HAS_NEXT_PAGE, HAS_PREV_PAGE;
 
+  var dummyPath;
+
   function findLeaves(
     queryNode,
     dataID,
+    path,
     records,
     cachedRecords,
     calls,
@@ -35,13 +39,40 @@ describe('findRelayQueryLeaves', () => {
       records: records || {},
       cachedRecords: cachedRecords || {}
     });
-    return findRelayQueryLeaves(store, cachedRecords, queryNode, dataID, calls);
+    return findRelayQueryLeaves(
+      store,
+      cachedRecords,
+      queryNode,
+      dataID,
+      path,
+      calls
+    );
+  }
+
+  function encode(obj) {
+    // Eliminates unnessary unique query ids in RelayQueryPath
+    return JSON.parse(JSON.stringify(obj));
   }
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
+
+    dummyPath = new RelayQueryPath(getNode(Relay.QL`
+      query {
+        node(id:"dummy") {
+          id
+        }
+      }
+    `));
+
+    jest.addMatchers({
+      toMatchPendingNodes(pendingNodes) {
+        expect(encode(this.actual)).toEqual(encode(pendingNodes));
+        return true;
+      },
+    });
   });
 
   it('returns pendingNodes when node is not in the store', () => {
@@ -52,14 +83,19 @@ describe('findRelayQueryLeaves', () => {
     `);
     var result = findLeaves(
       queryNode,
-      '1055790163'
+      '1055790163',
+      dummyPath,
     );
 
     var pendingItems = queryNode.getChildren().map(node => {
-      return {node, rangeCalls: undefined};
+      return {
+        node,
+        path: dummyPath,
+        rangeCalls: undefined,
+      };
     });
 
-    expect(result.pendingNodes).toEqual(
+    expect(result.pendingNodes).toMatchPendingNodes(
       {'1055790163': pendingItems}
     );
     expect(result.missingData).toBe(false);
@@ -74,10 +110,11 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       {'1055790163': undefined}
     );
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(true);
   });
 
@@ -90,11 +127,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {'1055790163': null},
       {}
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(false);
   });
 
@@ -107,11 +145,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       {'1055790163': null}
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(false);
   });
 
@@ -132,12 +171,14 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       records,
     );
 
-    expect(result.pendingNodes).toEqual(
+    expect(result.pendingNodes).toMatchPendingNodes(
       {'1055790163': [{
         node: queryNode.getFieldByStorageKey('firstName'),
+        path: dummyPath,
         rangeCalls: undefined
       }]}
     );
@@ -161,11 +202,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       records
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(true);
   });
 
@@ -187,10 +229,11 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       records,
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(false);
   });
 
@@ -212,11 +255,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       records
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(false);
   });
 
@@ -238,14 +282,17 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       records,
     );
-    var countField = queryNode
-      .getFieldByStorageKey('friends')
-      .getFieldByStorageKey('count');
-    expect(result.pendingNodes).toEqual(
-      {'friends_id': [{node: countField, rangeCalls: []}]}
-    );
+    var friendsField =  queryNode.getFieldByStorageKey('friends');
+    var countField = friendsField.getFieldByStorageKey('count');
+    console.log(result.pendingNodes.friends_id[0].rangeCalls);
+    expect(result.pendingNodes).toMatchPendingNodes({'friends_id': [{
+      node: countField,
+      path: dummyPath.getPath(friendsField, 'friends_id'),
+      rangeCalls: [],
+    }]});
     expect(result.missingData).toBe(false);
   });
 
@@ -268,11 +315,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       records,
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(true);
   });
 
@@ -298,10 +346,11 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       records,
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(false);
   });
 
@@ -327,11 +376,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       records
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(false);
   });
 
@@ -357,17 +407,18 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       records
     );
 
-    var serviceField = queryNode
-      .getFieldByStorageKey('screennames')
-      .getFieldByStorageKey('service');
+    var screennamesField = queryNode.getFieldByStorageKey('screennames');
+    var serviceField = screennamesField.getFieldByStorageKey('service');
     var pendingItems = [{
       node: serviceField,
+      path: dummyPath.getPath(screennamesField, 'client:screenname'),
       rangeCalls: undefined
     }];
-    expect(result.pendingNodes).toEqual({
+    expect(result.pendingNodes).toMatchPendingNodes({
       'client:screenname1': pendingItems,
       'client:screenname2': pendingItems,
     });
@@ -397,11 +448,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       records
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(true);
   });
 
@@ -435,10 +487,10 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       records
     );
-
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(false);
   });
 
@@ -472,11 +524,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       records
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(false);
   });
 
@@ -502,6 +555,7 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       records
     );
 
@@ -510,10 +564,15 @@ describe('findRelayQueryLeaves', () => {
 
 
     var pendingItems = rangeField.getChildren().map(node => {
-      return {node, rangeCalls: calls};
+      return {
+        node,
+        path: dummyPath.getPath(rangeField, 'friends_id'),
+        rangeCalls: calls,
+      };
     });
 
-    expect(result.pendingNodes).toEqual({'friends_id': pendingItems});
+    expect(result.pendingNodes)
+      .toMatchPendingNodes({'friends_id': pendingItems});
     expect(result.missingData).toBe(false);
   });
 
@@ -539,11 +598,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       records
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(true);
   });
 
@@ -571,15 +631,20 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       records
     );
 
     var friendField = queryNode.getFieldByStorageKey('friends');
     var calls = friendField.getCallsWithValues();
     var pendingItems = friendField.getChildren().map(node => {
-      return {node, rangeCalls: calls};
+      return {
+        node,
+        path: dummyPath.getPath(friendField, 'friends_id'),
+        rangeCalls: calls,
+      };
     });
-    expect(result.pendingNodes).toEqual({
+    expect(result.pendingNodes).toMatchPendingNodes({
       'friends_id': pendingItems
     });
     expect(result.missingData).toBe(false);
@@ -609,11 +674,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       records
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(true);
   });
 
@@ -646,10 +712,11 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       records
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(true);
   });
 
@@ -682,11 +749,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       records
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(true);
   });
 
@@ -714,6 +782,7 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       'friends_id',
+      dummyPath,
       records,
       {},
       rangeCalls
@@ -728,9 +797,13 @@ describe('findRelayQueryLeaves', () => {
       .getFieldByStorageKey('edges')
       .getChildren();
     var pendingItems = edgeFields.map(node => {
-      return {node, rangeCalls: undefined};
+      return {
+        node,
+        path: dummyPath.getPath(edgeFields, 'edge_id'),
+        rangeCalls: undefined,
+      };
     });
-    expect(result.pendingNodes).toEqual({'edge_id': pendingItems});
+    expect(result.pendingNodes).toMatchPendingNodes({'edge_id': pendingItems});
     expect(result.missingData).toBe(false);
   });
 
@@ -759,6 +832,7 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       'friends_id',
+      dummyPath,
       {},
       records,
       rangeCalls
@@ -768,7 +842,7 @@ describe('findRelayQueryLeaves', () => {
       records.friends_id.__range__.retrieveRangeInfoForQuery.mock;
     expect(mockRetrieveRange.calls.length).toBe(1);
     expect(mockRetrieveRange.calls[0][0]).toBe(rangeCalls);
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(true);
   });
 
@@ -805,6 +879,7 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       'friends_id',
+      dummyPath,
       records,
       {},
       rangeCalls
@@ -814,7 +889,7 @@ describe('findRelayQueryLeaves', () => {
       records.friends_id.__range__.retrieveRangeInfoForQuery.mock;
     expect(mockRetrieveRange.calls.length).toBe(1);
     expect(mockRetrieveRange.calls[0][0]).toBe(rangeCalls);
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(false);
   });
 
@@ -851,6 +926,7 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       'friends_id',
+      dummyPath,
       {},
       records,
       rangeCalls
@@ -860,7 +936,7 @@ describe('findRelayQueryLeaves', () => {
       records.friends_id.__range__.retrieveRangeInfoForQuery.mock;
     expect(mockRetrieveRange.calls.length).toBe(1);
     expect(mockRetrieveRange.calls[0][0]).toBe(rangeCalls);
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(false);
   });
 
@@ -874,14 +950,19 @@ describe('findRelayQueryLeaves', () => {
     `);
     var result = findLeaves(
       queryNode,
-      '1055790163'
+      '1055790163',
+      dummyPath,
     );
 
     var pendingItems = queryNode.getChildren().map(node => {
-      return {node, rangeCalls: undefined};
+      return {
+        node,
+        path: dummyPath,
+        rangeCalls: undefined,
+      };
     });
 
-    expect(result.pendingNodes).toEqual(
+    expect(result.pendingNodes).toMatchPendingNodes(
       {'1055790163': pendingItems}
     );
     expect(result.missingData).toBe(false);
@@ -898,11 +979,12 @@ describe('findRelayQueryLeaves', () => {
     var result = findLeaves(
       queryNode,
       '1055790163',
+      dummyPath,
       {},
       {'1055790163': undefined}
     );
 
-    expect(result.pendingNodes).toEqual({});
+    expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(true);
   });
 });

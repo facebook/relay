@@ -20,6 +20,12 @@ The Relay `Store` provides an API for dispatching mutations to the server.
       Initiate processing of a mutation.
     </a>
   </li>
+  <li>
+    <a href="#applyupdate-static-method">
+      <pre>static applyUpdate(mutation, callbacks)</pre>
+      Adds a MutationTransaction to the queue without committing it.
+    </a>
+  </li>
 </ul>
 
 ## Methods
@@ -28,7 +34,7 @@ The Relay `Store` provides an API for dispatching mutations to the server.
 
 ```
 static update(mutation: RelayMutation, callbacks: {
-  onFailure?: (transaction: Transaction) => void;
+  onFailure?: (transaction: RelayMutationTransaction) => void;
   onSuccess?: (response: Object) => void;
 }): void
 
@@ -61,4 +67,37 @@ var onFailure = (transaction) => {
 var mutation = new MyMutation({...});
 
 Relay.Store.update(mutation, {onFailure, onSuccess});
+```
+
+### applyUpdate (static method)
+
+```
+static applyUpdate(mutation: RelayMutation, callbacks: {
+  onFailure?: (transaction: RelayMutationTransaction) => void;
+  onSuccess?: (response: Object) => void;
+}): RelayMutationTransaction
+```
+
+The `applyUpdate` adds a mutation just like `update`, but does not commit it. It returns a `RelayMutationTransaction` that can be committed or rollbacked.
+
+When the transaction is committed and the response is received from the server, one of the callbacks is invoked:
+  - `onSuccess` is called if the mutation succeeded.
+  - `onFailure` is called if the mutation failed.
+
+
+#### Example
+
+```
+var onSuccess = () => {
+  console.log('Mutation successful!');
+};
+var onFailure = (transaction) => {
+  var error = transaction.getError() || new Error('Mutation failed.');
+  console.error(error);
+};
+var mutation = new MyMutation({...});
+
+var transaction = Relay.Store.applyUpdate(mutation, {onFailure, onSuccess});
+
+transaction.commit();
 ```

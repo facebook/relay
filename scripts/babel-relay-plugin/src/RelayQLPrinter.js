@@ -41,10 +41,16 @@ const NULL = t.literal(null);
 class RelayQLPrinter {
   documentHash: string;
   tagName: string;
+  variableNames: {[variableName: string]: void};
 
-  constructor(documentHash: string, tagName: string) {
+  constructor(
+    documentHash: string,
+    tagName: string,
+    variableNames: {[variableName: string]: void}
+  ) {
     this.documentHash = documentHash;
     this.tagName = tagName;
+    this.variableNames = variableNames;
   }
 
   print(
@@ -378,6 +384,16 @@ class RelayQLPrinter {
   }
 
   printVariable(name: string): Printable {
+    // Assume that variables named like substitutions are substitutions.
+    if (this.variableNames.hasOwnProperty(name)) {
+      return t.callExpression(
+        t.memberExpression(
+          identify(this.tagName),
+          t.identifier('__var')
+        ),
+        [t.identifier(name)]
+      );
+    }
     return codify({
       kind: t.literal('CallVariable'),
       callVariableName: t.literal(name),

@@ -34,15 +34,18 @@ function getBabelRelayPlugin(
     abortOnError?: ?boolean;
     debug?: ?boolean;
     suppressWarnings?: ?boolean;
+    substituteVariables?: ?boolean;
   }
 ): Function {
-  const schema = getSchema(schemaProvider);
-  const transformer = new RelayQLTransformer(schema);
-
   const options = pluginOptions || {};
   const warning = options.suppressWarnings ?
     function() {} :
     console.warn.bind(console);
+
+  const schema = getSchema(schemaProvider);
+  const transformer = new RelayQLTransformer(schema, {
+    substituteVariables: !!options.substituteVariables,
+  });
 
   return function({Plugin, types: t}) {
     return new Plugin('relay-query', {

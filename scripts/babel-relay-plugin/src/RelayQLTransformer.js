@@ -65,9 +65,18 @@ type TemplateElement = {
  */
 class RelayQLTransformer {
   schema: GraphQLSchema;
+  options: {
+    substituteVariables: boolean;
+  };
 
-  constructor(schema: GraphQLSchema) {
+  constructor(
+    schema: GraphQLSchema,
+    options: {
+      substituteVariables: boolean;
+    }
+  ) {
     this.schema = schema;
+    this.options = options;
   }
 
   transform(
@@ -75,36 +84,57 @@ class RelayQLTransformer {
     documentName: string,
     tagName: string
   ): Printable {
-    const {templateText, substitutions} = this.processTemplateLiteral(node);
+    const {
+      substitutions,
+      templateText,
+      variableNames,
+    } = this.processTemplateLiteral(node, documentName);
     const documentText = this.processTemplateText(templateText, documentName);
     const documentHash = hash(documentText);
     const definition = this.processDocumentText(documentText, documentName);
-    return new RelayQLPrinter(documentHash, tagName)
+    return new RelayQLPrinter(documentHash, tagName, variableNames)
       .print(definition, substitutions);
   }
 
   /**
    * Convert TemplateLiteral into a single template string with substitution
-   * names and a matching array of substituted values.
+   * names, a matching array of substituted values, and a set of substituted
+   * variable names.
    */
   processTemplateLiteral(
-    node: TemplateLiteral
+    node: TemplateLiteral,
+    documentName: string
   ): {
     substitutions: Array<Substitution>;
     templateText: string;
+    variableNames: {[variableName: string]: void};
   } {
     const chunks = [];
+    const variableNames = {};
     const substitutions = [];
     node.quasis.forEach((element, ii) => {
-      chunks.push(element.value.cooked);
+      const chunk = element.value.cooked;
+      chunks.push(chunk);
       if (!element.tail) {
-        const name = 'sub_' + ii;
+        const name = 'RQL_' + ii;
         const value = node.expressions[ii];
         substitutions.push({name, value});
-        chunks.push('...' + name);
+        if (/:\s*$/.test(chunk)) {
+          invariant(
+            this.options.substituteVariables,
+            'You supplied a GraphQL document named `%s` that uses template ' +
+            'substitution for an argument value, but variable substitution ' +
+            'has not been enabled.',
+            documentName
+          );
+          chunks.push('$' + name);
+          variableNames[name] = undefined;
+        } else {
+          chunks.push('...' + name);
+        }
       }
     });
-    return {substitutions, templateText: chunks.join('').trim()};
+    return {substitutions, templateText: chunks.join('').trim(), variableNames};
   }
 
   /**
@@ -170,7 +200,6 @@ class RelayQLTransformer {
         invariant(false, 'Unsupported operation: %s', definition.operation);
       }
     } else {
-      console.log(definition);
       invariant(false, 'Unsupported definition kind: %s', definition.kind);
     }
   }

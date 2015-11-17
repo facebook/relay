@@ -31,11 +31,13 @@ var PROVIDES_MODULE = 'providesModule';
  * GraphQL queries.
  */
 function getBabelRelayPlugin(schemaProvider, pluginOptions) {
-  var schema = getSchema(schemaProvider);
-  var transformer = new RelayQLTransformer(schema);
-
   var options = pluginOptions || {};
   var warning = options.suppressWarnings ? function () {} : console.warn.bind(console);
+
+  var schema = getSchema(schemaProvider);
+  var transformer = new RelayQLTransformer(schema, {
+    substituteVariables: !!options.substituteVariables
+  });
 
   return function (_ref) {
     var Plugin = _ref.Plugin;

@@ -21,7 +21,10 @@ var path = require('path');
 var SCHEMA_PATH = path.resolve(__dirname, 'testschema.json');
 
 var graphQLPlugin = getBabelRelayPlugin(
-  JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8')).data
+  JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8')).data,
+  {
+    substituteVariables: true,
+  }
 );
 
 // Fix the path to node_modules because jest is slooow with
@@ -42,8 +45,8 @@ var babelOptions = assign(
     _moduleMap: fixModules(assign({}, require('fbjs/module-map'), {
       'React': 'react',
       'ReactUpdates': 'react/lib/ReactUpdates',
-      'StaticContainer.react': 'react-static-container'
-    }))
+      'StaticContainer.react': 'react-static-container',
+    })),
   }
 );
 
@@ -62,6 +65,6 @@ module.exports = {
       'node_modules',
       'babel-relay-plugin',
       'package.json'
-    )
-  ])
+    ),
+  ]),
 };

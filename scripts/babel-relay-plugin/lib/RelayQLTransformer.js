@@ -40,45 +40,58 @@ var util = require('util');
  */
 
 var RelayQLTransformer = (function () {
-  function RelayQLTransformer(schema) {
+  function RelayQLTransformer(schema, options) {
     _classCallCheck(this, RelayQLTransformer);
 
     this.schema = schema;
+    this.options = options;
   }
 
   _createClass(RelayQLTransformer, [{
     key: 'transform',
     value: function transform(node, documentName, tagName) {
-      var _processTemplateLiteral = this.processTemplateLiteral(node);
+      var _processTemplateLiteral = this.processTemplateLiteral(node, documentName);
 
-      var templateText = _processTemplateLiteral.templateText;
       var substitutions = _processTemplateLiteral.substitutions;
+      var templateText = _processTemplateLiteral.templateText;
+      var variableNames = _processTemplateLiteral.variableNames;
 
       var documentText = this.processTemplateText(templateText, documentName);
       var documentHash = hash(documentText);
       var definition = this.processDocumentText(documentText, documentName);
-      return new RelayQLPrinter(documentHash, tagName).print(definition, substitutions);
+      return new RelayQLPrinter(documentHash, tagName, variableNames).print(definition, substitutions);
     }
 
     /**
      * Convert TemplateLiteral into a single template string with substitution
-     * names and a matching array of substituted values.
+     * names, a matching array of substituted values, and a set of substituted
+     * variable names.
      */
   }, {
     key: 'processTemplateLiteral',
-    value: function processTemplateLiteral(node) {
+    value: function processTemplateLiteral(node, documentName) {
+      var _this = this;
+
       var chunks = [];
+      var variableNames = {};
       var substitutions = [];
       node.quasis.forEach(function (element, ii) {
-        chunks.push(element.value.cooked);
+        var chunk = element.value.cooked;
+        chunks.push(chunk);
         if (!element.tail) {
-          var _name = 'sub_' + ii;
+          var _name = 'RQL_' + ii;
           var _value = node.expressions[ii];
           substitutions.push({ name: _name, value: _value });
-          chunks.push('...' + _name);
+          if (/:\s*$/.test(chunk)) {
+            invariant(_this.options.substituteVariables, 'You supplied a GraphQL document named `%s` that uses template ' + 'substitution for an argument value, but variable substitution ' + 'has not been enabled.', documentName);
+            chunks.push('$' + _name);
+            variableNames[_name] = undefined;
+          } else {
+            chunks.push('...' + _name);
+          }
         }
       });
-      return { substitutions: substitutions, templateText: chunks.join('').trim() };
+      return { substitutions: substitutions, templateText: chunks.join('').trim(), variableNames: variableNames };
     }
 
     /**
@@ -133,7 +146,6 @@ var RelayQLTransformer = (function () {
           invariant(false, 'Unsupported operation: %s', definition.operation);
         }
       } else {
-        console.log(definition);
         invariant(false, 'Unsupported definition kind: %s', definition.kind);
       }
     }

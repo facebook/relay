@@ -46,11 +46,12 @@ var t = require('babel-core/lib/types');
 var NULL = t.literal(null);
 
 var RelayQLPrinter = (function () {
-  function RelayQLPrinter(documentHash, tagName) {
+  function RelayQLPrinter(documentHash, tagName, variableNames) {
     _classCallCheck(this, RelayQLPrinter);
 
     this.documentHash = documentHash;
     this.tagName = tagName;
+    this.variableNames = variableNames;
   }
 
   _createClass(RelayQLPrinter, [{
@@ -330,6 +331,10 @@ var RelayQLPrinter = (function () {
   }, {
     key: 'printVariable',
     value: function printVariable(name) {
+      // Assume that variables named like substitutions are substitutions.
+      if (this.variableNames.hasOwnProperty(name)) {
+        return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__var')), [t.identifier(name)]);
+      }
       return codify({
         kind: t.literal('CallVariable'),
         callVariableName: t.literal(name)

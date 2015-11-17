@@ -66,12 +66,17 @@ Object.assign(RelayQL, {
     }
     return substitution;
   },
-  __var(substitution: any): any {
-    if (substitution === undefined) {
-      warning(false, 'RelayQL: Invalid undefined argument; use null.');
-      substitution = null;
+  __var(expression: mixed): mixed {
+    const variable = QueryBuilder.getCallVariable(expression);
+    if (variable) {
+      invariant(
+        false,
+        'RelayQL: Invalid argument `%s` supplied via template substitution. ' +
+        'Instead, use an inline variable (e.g. `comments(count: $count)`).',
+        variable.callVariableName
+      );
     }
-    return substitution;
+    return expression;
   },
 });
 

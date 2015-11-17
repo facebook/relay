@@ -14,7 +14,9 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-jest.dontMock('RelayPendingQueryTracker');
+jest
+  .dontMock('RelayPendingQueryTracker')
+  .dontMock('RelayStoreData');
 
 var DliteFetchModeConstants = require('DliteFetchModeConstants');
 var Relay = require('Relay');

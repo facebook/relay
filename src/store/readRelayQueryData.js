@@ -165,7 +165,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     if (node.isContainerFragment() && !this._traverseFragmentReferences) {
       var dataID = getComponentDataID(state);
       var fragmentPointer = new GraphQLFragmentPointer(
-        node.isPlural() ? [dataID] : dataID,
+        dataID,
         node
       );
       this._setDataValue(

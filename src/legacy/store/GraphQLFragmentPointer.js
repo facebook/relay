@@ -33,7 +33,7 @@ type FragmentPointerObject = {
  * passed to the underlying React component.
  */
 class GraphQLFragmentPointer {
-  _dataIDOrIDs: DataID | Array<DataID>;
+  _dataID: DataID;
   _fragment: RelayQuery.Fragment;
 
   /**
@@ -61,7 +61,7 @@ class GraphQLFragmentPointer {
         }
         var pointer = GraphQLStoreDataHandler.createPointerWithID(dataID);
         pointer[concreteFragmentID] =
-          new GraphQLFragmentPointer([dataID], rootFragment);
+          new GraphQLFragmentPointer(dataID, rootFragment);
         return (pointer: $FlowIssue);
       });
     }
@@ -74,31 +74,22 @@ class GraphQLFragmentPointer {
       query.getName(),
       identifyingArgValue
     );
-    var dataIDOrIDs = store.getDataID(storageKey, identifyingArgValue);
-    if (!dataIDOrIDs) {
+    var dataID = store.getDataID(storageKey, identifyingArgValue);
+    if (!dataID) {
       return null;
     }
     var result = {};
     // TODO(t7765591): Throw if `fragment` is not optional.
-    var fragmentPointer = new GraphQLFragmentPointer(dataIDOrIDs, fragment);
+    var fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
     result[concreteFragmentID] = fragmentPointer;
     return result;
   }
 
   constructor(
-    dataIDOrIDs: DataID | Array<DataID>,
+    dataID: DataID,
     fragment: RelayQuery.Fragment
   ) {
-    var isArray = Array.isArray(dataIDOrIDs);
-    var isPlural = fragment.isPlural();
-    invariant(
-      isArray === isPlural,
-      'GraphQLFragmentPointer: Wrong plurality, %s supplied with %s fragment.',
-      isArray ? 'array of data IDs' : 'single data ID',
-      isPlural ? 'plural' : 'non-plural'
-    );
-
-    this._dataIDOrIDs = dataIDOrIDs;
+    this._dataID = dataID;
     this._fragment = fragment;
   }
 
@@ -107,30 +98,23 @@ class GraphQLFragmentPointer {
    */
   getDataID(): DataID {
     invariant(
-      !Array.isArray(this._dataIDOrIDs),
+      !Array.isArray(this._dataID),
       'GraphQLFragmentPointer.getDataID(): Bad call for plural fragment.'
     );
-    return this._dataIDOrIDs;
-  }
-
-  /**
-   * Get the data ID for a plural query fragment.
-   */
-  getDataIDs(): Array<DataID> {
-    invariant(
-      Array.isArray(this._dataIDOrIDs),
-      'GraphQLFragmentPointer.getDataIDs(): Bad call for non-plural fragment.'
-    );
-    return this._dataIDOrIDs;
+    return this._dataID;
   }
 
   getFragment(): RelayQuery.Fragment {
     return this._fragment;
   }
 
+  getPointerID(): string {
+    return this._fragment.getConcreteFragmentID() + ':' + this._dataID;
+  }
+
   equals(that: GraphQLFragmentPointer): boolean {
     return (
-      shallowEqual(this._dataIDOrIDs, that._dataIDOrIDs) &&
+      shallowEqual(this._dataID, that._dataID) &&
       this._fragment.isEquivalent(that._fragment)
     );
   }
@@ -144,7 +128,7 @@ class GraphQLFragmentPointer {
   toString(): string {
     return (
       'GraphQLFragmentPointer(ids: ' +
-      JSON.stringify(this._dataIDOrIDs) +
+      JSON.stringify(this._dataID) +
       ', fragment: `' +
       this.getFragment().getDebugName() +
       ', params: ' +

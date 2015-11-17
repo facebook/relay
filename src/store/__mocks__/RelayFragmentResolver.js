@@ -9,10 +9,4 @@
 
 'use strict';
 
-var RelayStoreData = jest.genMockFromModule('RelayStoreData');
-
-var instance = new RelayStoreData();
-
-RelayStoreData.getDefaultInstance.mockReturnValue(instance);
-
-module.exports = RelayStoreData;
+module.exports = require.requireActual('RelayFragmentResolver');

@@ -26,6 +26,7 @@ var ReactTestUtils = require('ReactTestUtils');
 var Relay = require('Relay');
 var RelayQuery = require('RelayQuery');
 var RelayRoute = require('RelayRoute');
+var RelayStoreData = require('RelayStoreData');
 
 describe('RelayContainer', function() {
   var MockContainer;
@@ -60,6 +61,15 @@ describe('RelayContainer', function() {
       }
     });
     MockContainer.mock = {render};
+
+    var storeData = RelayStoreData.mockDefault();
+    storeData.readFragmentPointer.mockImplementation(pointer => {
+      expect(pointer.getDataID()).toBe('42');
+      return {__dataID__: '42', id: '42', url: null};
+    });
+    storeData.observeFragmentPointer.mockImplementation(() => {
+      return {dispose: jest.genMockFunction()};
+    });
 
     mockRoute = RelayRoute.genMockInstance();
     mockFooFragment = getNode(MockContainer.getFragment('foo').getFragment({}));
@@ -312,7 +322,7 @@ describe('RelayContainer', function() {
       () => <MockContainer foo={mockFooPointer} />,
       mockRoute
     );
-    expect(GraphQLStoreQueryResolver.mock.instances.length).toBe(1);
+    expected(storeData.observeFragmentPointer.mock.calls.length).toBe(1);
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} bar={[mockBarPointer]} />,
@@ -358,7 +368,8 @@ describe('RelayContainer', function() {
   it('re-resolves props when notified of changes', () => {
     var mockData = {__dataID__: '42', id: '42', name: 'Tim'};
 
-    GraphQLStoreQueryResolver.mockDefaultResolveImplementation(() => mockData);
+    var storeData = RelayStoreData.mockDefault();
+    storeData.readFragmentPointer.mockImplementation(() => mockData);
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,
@@ -518,7 +529,8 @@ describe('RelayContainer', function() {
   it('does not re-render if props resolve to the same object', () => {
     var mockData = {__dataID__: '42', id: '42', name: 'Tim'};
 
-    GraphQLStoreQueryResolver.mockDefaultResolveImplementation(() => mockData);
+    var storeData = RelayStoreData.mockDefault();
+    storeData.readFragmentPointer.mockImplementation(() => mockData);
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,

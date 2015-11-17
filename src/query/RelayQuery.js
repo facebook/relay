@@ -364,7 +364,6 @@ class RelayQueryRoot extends RelayQueryNode {
   __deferredFragmentNames__: ?FragmentNames;
   __id__: ?string;
   __identifyingArg__: ?Call;
-  __json__: ?ConcreteQuery;
   __storageKey__: ?string;
 
   /**
@@ -431,7 +430,6 @@ class RelayQueryRoot extends RelayQueryNode {
     this.__deferredFragmentNames__ = undefined;
     this.__id__ = undefined;
     this.__identifyingArg__ = undefined;
-    this.__json__ = null;
     this.__storageKey__ = undefined;
 
     // Ensure IDs are generated in the order that queries are created
@@ -601,14 +599,14 @@ class RelayQueryRoot extends RelayQueryNode {
 
     // Use `QueryBuilder` to generate the correct calls from the
     // identifying argument & metadata.
-    return this.__json__ || (this.__json__ = QueryBuilder.createQuery({
+    return QueryBuilder.createQuery({
       children: this.__toJSONChildren__(),
       fieldName: this.getFieldName(),
       identifyingArgValue: getIdentifyingArgValue(),
       isDeferred: this.isDeferred(),
       metadata: this.getConcreteQueryNode().metadata,
       name: this.getName(),
-    }));
+    });
   }
 }
 
@@ -792,7 +790,6 @@ class RelayQuerySubscription extends RelayQueryOperation {
 class RelayQueryFragment extends RelayQueryNode {
   __fragmentID__: ?string;
   __hash__: ?string;
-  __json__: ?ConcreteFragment;
   __metadata__: FragmentMetadata;
 
   /**
@@ -856,7 +853,6 @@ class RelayQueryFragment extends RelayQueryNode {
     this.__fragmentID__ = null;
     // NOTE: `this.__hash__` gets set to null when cloning.
     this.__hash__ = concreteNode.hash || null;
-    this.__json__ = null;
     this.__metadata__ = metadata || DEFAULT_FRAGMENT_METADATA;
   }
 
@@ -957,7 +953,7 @@ class RelayQueryFragment extends RelayQueryNode {
   }
 
   toJSON(): ConcreteFragment {
-    return this.__json__ || (this.__json__ = {
+    return {
       children: this.__toJSONChildren__(),
       kind: 'Fragment',
       hash: this.getHash(),
@@ -967,7 +963,7 @@ class RelayQueryFragment extends RelayQueryNode {
       },
       name: this.getDebugName(),
       type: this.getType(),
-    });
+    };
   }
 }
 
@@ -979,7 +975,6 @@ class RelayQueryFragment extends RelayQueryNode {
 class RelayQueryField extends RelayQueryNode {
   __debugName__: ?string;
   __isRefQueryDependency__: boolean;
-  __json__: ?ConcreteField;
   __rangeBehaviorKey__: ?string;
 
   static create(
@@ -1035,7 +1030,6 @@ class RelayQueryField extends RelayQueryNode {
     super(concreteNode, route, variables);
     this.__debugName__ = undefined;
     this.__isRefQueryDependency__ = false;
-    this.__json__ = null;
     this.__rangeBehaviorKey__ = undefined;
   }
 
@@ -1303,14 +1297,14 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   toJSON(): ConcreteField {
-    return this.__json__ || (this.__json__ = {
+    return {
       alias: this.getConcreteQueryNode().alias,
       calls: callsToGraphQL(this.getCallsWithValues()),
       children: this.__toJSONChildren__(),
       fieldName: this.getSchemaName(),
       kind: 'Field',
       metadata: this.getConcreteQueryNode().metadata,
-    });
+    };
   }
 
   /**

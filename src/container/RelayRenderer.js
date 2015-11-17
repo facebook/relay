@@ -48,7 +48,6 @@ type RelayRendererRenderArgs = {
 type RelayRendererState = {
   activeComponent: ?RelayContainer;
   activeQueryConfig: ?RelayQueryConfigSpec;
-  pendingRequest: ?Abortable;
   readyState: ?ComponentReadyState;
   renderArgs: RelayRendererRenderArgs;
 };
@@ -116,17 +115,46 @@ const {PropTypes} = React;
  */
 class RelayRenderer extends React.Component {
   mounted: boolean;
+  pendingRequest: ?Abortable;
   props: RelayRendererProps;
   state: RelayRendererState;
 
   constructor(props: RelayRendererProps, context: any) {
     super(props, context);
     this.mounted = true;
-    this.state = this._runQueries(this.props);
+    this.pendingRequest = null;
+    this.state = this._buildState(null, null, null, null);
+  }
+
+  /**
+   * @private
+   */
+  _buildState(
+    activeComponent: ?RelayContainer,
+    activeQueryConfig: ?RelayQueryConfigSpec,
+    readyState: ?ReadyState,
+    props: ?Object
+  ): RelayRendererState {
+    return {
+      activeComponent,
+      activeQueryConfig,
+      readyState: readyState && {...readyState, mounted: true},
+      renderArgs: {
+        done: !!readyState && readyState.done,
+        error: readyState && readyState.error,
+        props,
+        retry: () => this._retry(),
+        stale: !!readyState && readyState.stale,
+      },
+    };
   }
 
   getChildContext(): Object {
     return {route: this.props.queryConfig};
+  }
+
+  componentDidMount(): void {
+    this._runQueries(this.props);
   }
 
   /**
@@ -141,52 +169,36 @@ class RelayRenderer extends React.Component {
         this._handleReadyStateChange({...readyState, mounted: false});
         return;
       }
-      let {pendingRequest, renderArgs: {props}} = this.state;
-      if (request !== pendingRequest) {
+      if (request !== this.pendingRequest) {
         // Ignore (abort) ready state if we have a new pending request.
         return;
       }
       if (readyState.aborted || readyState.done || readyState.error) {
-        pendingRequest = null;
+        this.pendingRequest = null;
       }
+      let {props} = this.state.renderArgs;
       if (readyState.ready && !props) {
         props = {
           ...queryConfig.params,
           ...mapObject(querySet, createFragmentPointerForRoot),
         };
       }
-      this.setState({
-        activeComponent: Component,
-        activeQueryConfig: queryConfig,
-        pendingRequest,
-        readyState: {...readyState, mounted: true},
-        renderArgs: {
-          done: readyState.done,
-          error: readyState.error,
-          props,
-          retry: this.state.renderArgs.retry,
-          stale: readyState.stale,
-        },
-      });
+      this.setState(this._buildState(
+        Component, queryConfig, readyState, props
+      ));
     };
 
-    const request = forceFetch ?
+    if (this.pendingRequest) {
+      this.pendingRequest.abort();
+    }
+
+    const request = this.pendingRequest = forceFetch ?
       RelayStore.forceFetch(querySet, onReadyStateChange) :
       RelayStore.primeCache(querySet, onReadyStateChange);
 
-    return {
-      activeComponent: this.state ? this.state.activeComponent : null,
-      activeQueryConfig: this.state ? this.state.activeQueryConfig : null,
-      pendingRequest: request,
-      readyState: null,
-      renderArgs: {
-        done: false,
-        error: null,
-        props: null,
-        retry: this._retry.bind(this),
-        stale: false,
-      },
-    };
+    return this._buildState(
+      this.state.activeComponent, this.state.activeQueryConfig, null, null
+    );
   }
 
   /**
@@ -222,9 +234,6 @@ class RelayRenderer extends React.Component {
     if (nextProps.Component !== this.props.Component ||
         nextProps.queryConfig !== this.props.queryConfig ||
         (nextProps.forceFetch && !this.props.forceFetch)) {
-      if (this.state.pendingRequest) {
-        this.state.pendingRequest.abort();
-      }
       this.setState(this._runQueries(nextProps));
     }
   }
@@ -253,8 +262,8 @@ class RelayRenderer extends React.Component {
   }
 
   componentWillUnmount(): void {
-    if (this.state.pendingRequest) {
-      this.state.pendingRequest.abort();
+    if (this.pendingRequest) {
+      this.pendingRequest.abort();
     }
     this.mounted = false;
   }

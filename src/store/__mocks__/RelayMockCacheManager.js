@@ -22,7 +22,6 @@ var RelayMockCacheManager = {
         jest.genMockFunction().mockReturnValue(mutationWriter),
       getQueryWriter:
         jest.genMockFunction().mockReturnValue(queryWriter),
-      readAllData: jest.genMockFunction(),
     };
   },
 };

@@ -64,7 +64,6 @@ var _instance;
  */
 class RelayStoreData {
   _cacheManager: ?CacheManager;
-  _cachePopulated: boolean;
   _cachedRecords: Records;
   _cachedRootCalls: RootCallMap;
   _changeEmitter: GraphQLStoreChangeEmitter;
@@ -112,7 +111,6 @@ class RelayStoreData {
     var rangeData = new GraphQLStoreRangeUtils();
 
     this._cacheManager = null;
-    this._cachePopulated = true;
     this._cachedRecords = cachedRecords;
     this._cachedRootCalls = cachedRootCallMap;
     this._changeEmitter = new GraphQLStoreChangeEmitter(rangeData);
@@ -163,7 +161,6 @@ class RelayStoreData {
     var records = this._records;
 
     this._cacheManager = cacheManager;
-    this._cachePopulated = false;
     this._queuedStore = new RelayRecordStore(
       ({cachedRecords, queuedRecords, records}: $FixMe),
       ({cachedRootCallMap, rootCallMap}: $FixMe),
@@ -181,34 +178,11 @@ class RelayStoreData {
 
   clearCacheManager(): void {
     this._cacheManager = null;
-    this._cachePopulated = false;
     this._recordStore = new RelayRecordStore(
       ({records: this._records}: $FixMe),
       ({rootCallMap: this._rootCalls}: $FixMe),
       (this._nodeRangeMap: $FixMe)
     );
-  }
-
-  /**
-   * Runs the callback after all data has been read out from diskc cache into
-   * cachedRecords
-   */
-  runWithDiskCache(callback: () => void): void {
-    var cacheManager = this._cacheManager;
-    if (this._cachePopulated || !cacheManager) {
-      resolveImmediate(callback);
-    } else {
-      var profile = RelayProfiler.profile('RelayStoreData.runWithDiskCache');
-      cacheManager.readAllData(
-        this._cachedRecords,
-        this._cachedRootCalls,
-        () => {
-          profile.stop();
-          this._cachePopulated = true;
-          callback();
-        }
-      );
-    }
   }
 
   hasCacheManager(): boolean {

@@ -159,11 +159,6 @@ export type CacheManager = {
   clear: () => void;
   getMutationWriter: () => CacheWriter;
   getQueryWriter: () => CacheWriter;
-  readAllData: (
-    cachedRecords: Records,
-    rootCallData: RootCallMap,
-    callback: Function
-  ) => void;
   readNode: (
     id: DataID,
     callback: (error: any, value: any) => void

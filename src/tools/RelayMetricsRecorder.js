@@ -78,7 +78,6 @@ const INSTRUMENTED_PROFILES = [
   'RelayContainer.handleDeferredSuccess',
   'RelayContainer.handleFragmentDataUpdate',
   'RelayContainer.update',
-  'RelayStoreData.runWithDiskCache',
   'RelayStoreData.readFromDiskCache',
   'RelayStoreData.handleQueryPayload',
   'RelayStoreData.handleUpdatePayload',

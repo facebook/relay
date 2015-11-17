@@ -65,8 +65,8 @@ describe('RelayQueryTracker', () => {
     var path = new RelayQueryPath(query);
     var tracker = new RelayQueryTracker();
 
-    tracker.trackNodeForID(query, 'client:viewer', path);
-    var trackedChildren = tracker.getTrackedChildrenForID('client:viewer');
+    tracker.trackNodeForID(query, 'client:1', path);
+    var trackedChildren = tracker.getTrackedChildrenForID('client:1');
     expect(trackedChildren.length).toBe(1);
     expect(trackedChildren[0])
       .toEqualQueryNode(query.getFieldByStorageKey('actor'));

@@ -193,6 +193,7 @@ var foo = (function () {
           isRequisite: true
         }
       }],
+      hash: "/GeJm4rh",
       kind: "Fragment",
       metadata: {},
       name: "User",

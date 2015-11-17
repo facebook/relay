@@ -75,6 +75,7 @@ var x = (function () {
           isRequisite: true
         }
       }],
+      hash: 'EI7Xtg8w',
       kind: 'Fragment',
       metadata: {},
       name: 'Story',

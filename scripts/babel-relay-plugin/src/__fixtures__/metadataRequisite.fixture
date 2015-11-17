@@ -22,6 +22,7 @@ var x = (function () {
         isRequisite: true
       }
     }],
+    hash: 'i75QQIX6',
     kind: 'Fragment',
     metadata: {},
     name: 'MetadataRequisite',

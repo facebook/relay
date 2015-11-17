@@ -43,6 +43,7 @@ var x = (function () {
     fieldName: 'nodes',
     kind: 'Query',
     metadata: {
+      isPlural: true,
       identifyingArgName: 'ids'
     },
     name: 'QueryWithVarArgs'

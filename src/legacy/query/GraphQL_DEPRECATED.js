@@ -153,13 +153,14 @@ class GraphQLFieldNode extends GraphQLNode {
  * A fragment may contain zero or more fields and/or additional fragments.
  */
 class GraphQLQueryFragment extends GraphQLNode {
-  constructor(name, type, fields, fragments, metadata, directives) {
+  constructor(name, type, fields, fragments, metadata, hash) {
     super(fields, fragments);
+    this.hash = hash;
     this.kind = FRAGMENT;
     this.name = name;
     this.type = type;
     this.metadata = this.__metadata__ = metadata || EMPTY_OBJECT;
-    this.directives = directives || null;
+    this.directives = null;
   }
 }
 

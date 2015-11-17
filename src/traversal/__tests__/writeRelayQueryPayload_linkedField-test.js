@@ -19,8 +19,6 @@ jest
   .dontMock('GraphQLSegment')
   .mock('warning');
 
-var VIEWER_ID = 'client:viewer';
-
 var Relay = require('Relay');
 
 describe('writeRelayQueryPayload()', () => {
@@ -62,24 +60,24 @@ describe('writeRelayQueryPayload()', () => {
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          'client:viewer': true,
+          'client:1': true,
         },
         updated: {},
       });
-      expect(store.getRecordState(VIEWER_ID)).toBe('EXISTENT');
-      expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(null);
+      expect(store.getRecordState('client:1')).toBe('EXISTENT');
+      expect(store.getLinkedRecordID('client:1', 'actor')).toBe(null);
     });
 
     it('are deleted when the response is null', () => {
       var records = {
-        'client:viewer': {
-          __dataID__: VIEWER_ID,
-          actor: {
-            __dataID__: 'client:1',
-          },
-        },
         'client:1': {
           __dataID__: 'client:1',
+          actor: {
+            __dataID__: 'client:2',
+          },
+        },
+        'client:2': {
+          __dataID__: 'client:2',
         },
       };
       var store = new RelayRecordStore({records});
@@ -102,11 +100,11 @@ describe('writeRelayQueryPayload()', () => {
         created: {
         },
         updated: {
-          'client:viewer': true,
+          'client:1': true,
         },
       });
-      expect(store.getRecordState(VIEWER_ID)).toBe('EXISTENT');
-      expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(null);
+      expect(store.getRecordState('client:1')).toBe('EXISTENT');
+      expect(store.getLinkedRecordID('client:1', 'actor')).toBe(null);
     });
 
     it('are not created when the response is undefined', () => {
@@ -127,14 +125,14 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       writePayload(store, query, payload);
-      expect(store.getRecordState(VIEWER_ID)).toBe('EXISTENT');
-      expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(undefined);
+      expect(store.getRecordState('client:1')).toBe('EXISTENT');
+      expect(store.getLinkedRecordID('client:1', 'actor')).toBe(undefined);
     });
 
     it('are not deleted when the response is undefined', () => {
       var records = {
-        'client:viewer': {
-          __dataID__: VIEWER_ID,
+        'client:1': {
+          __dataID__: 'client:1',
           actor: {
             __dataID__: '123',
           },
@@ -160,8 +158,8 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       writePayload(store, query, payload);
-      expect(store.getRecordState(VIEWER_ID)).toBe('EXISTENT');
-      expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe('123');
+      expect(store.getRecordState('client:1')).toBe('EXISTENT');
+      expect(store.getLinkedRecordID('client:1', 'actor')).toBe('123');
       expect(store.getRecordState('123')).toBe('EXISTENT');
       expect(store.getField('123', 'id')).toBe('123');
     });
@@ -189,20 +187,20 @@ describe('writeRelayQueryPayload()', () => {
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          'client:viewer': true,
+          'client:1': true,
           '123': true,
         },
         updated: {},
       });
-      expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(actorID);
+      expect(store.getLinkedRecordID('client:1', 'actor')).toBe(actorID);
       expect(store.getRecordState(actorID)).toBe('EXISTENT');
     });
 
     it('updates the parent if the id changes', () => {
       var actorID = '123';
       var records = {
-        'client:viewer': {
-          __dataID__: 'client:viewer',
+        'client:1': {
+          __dataID__: 'client:1',
           actor: {
             __dataID__: actorID
           }
@@ -235,10 +233,10 @@ describe('writeRelayQueryPayload()', () => {
           '456': true,
         },
         updated: {
-          'client:viewer': true,
+          'client:1': true,
         },
       });
-      expect(store.getLinkedRecordID(VIEWER_ID, 'actor')).toBe(nextActorID);
+      expect(store.getLinkedRecordID('client:1', 'actor')).toBe(nextActorID);
       expect(store.getRecordState(nextActorID)).toBe('EXISTENT');
       expect(store.getRecordState(actorID)).toBe('EXISTENT'); // unlinked only
     });
@@ -465,7 +463,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       writePayload(store, query, payload);
-      var actorID = store.getLinkedRecordID('client:viewer', 'actor');
+      var actorID = store.getLinkedRecordID('client:1', 'actor');
       expect(store.getType(actorID)).toBe(null);
     });
   });

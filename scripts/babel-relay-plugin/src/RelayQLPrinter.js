@@ -39,10 +39,18 @@ export type Substitution = {
 const NULL = t.literal(null);
 
 class RelayQLPrinter {
+  documentHash: string;
   tagName: string;
+  variableNames: {[variableName: string]: void};
 
-  constructor(tagName: string) {
+  constructor(
+    documentHash: string,
+    tagName: string,
+    variableNames: {[variableName: string]: void}
+  ) {
+    this.documentHash = documentHash;
     this.tagName = tagName;
+    this.variableNames = variableNames;
   }
 
   print(
@@ -94,6 +102,9 @@ class RelayQLPrinter {
     }
     const selections = this.printSelections(rootField, requisiteFields);
     const metadata = {};
+    if (rootFieldType.isList()) {
+      metadata.isPlural = true;
+    }
     invariant(
       rootFieldArgs.length <= 1,
       'Invalid root field `%s`; Relay only supports root fields with zero ' +
@@ -146,6 +157,7 @@ class RelayQLPrinter {
     return codify({
       children: selections,
       directives: this.printDirectives(fragment.getDirectives()),
+      hash: t.literal(this.documentHash),
       kind: t.literal('Fragment'),
       metadata,
       name: t.literal(fragment.getName()),
@@ -372,6 +384,16 @@ class RelayQLPrinter {
   }
 
   printVariable(name: string): Printable {
+    // Assume that variables named like substitutions are substitutions.
+    if (this.variableNames.hasOwnProperty(name)) {
+      return t.callExpression(
+        t.memberExpression(
+          identify(this.tagName),
+          t.identifier('__var')
+        ),
+        [t.identifier(name)]
+      );
+    }
     return codify({
       kind: t.literal('CallVariable'),
       callVariableName: t.literal(name),

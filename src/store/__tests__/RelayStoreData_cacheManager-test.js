@@ -154,13 +154,12 @@ describe('RelayStoreData', function() {
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
-      writeField: 3,
+      writeField: 2,
       writeRootCall: 1,
     });
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
-      'client:viewer': {
-        __dataID__: 'client:viewer',
-        __path__: getPathToRecord('client:viewer'),
+      'client:1': {
+        __dataID__: 'client:1',
         isFbEmployee: true,
       }
     });
@@ -227,7 +226,7 @@ describe('RelayStoreData', function() {
           {service: 'GTALK'},
           {service: 'TWITTER'},
         ],
-      }
+      },
     };
     storeData.handleQueryPayload(query, response);
     var {queryWriter} = cacheManager.mocks;
@@ -235,7 +234,7 @@ describe('RelayStoreData', function() {
     expect(getPathToRecord('client:1')).toEqual(getPathToRecord('client:2'));
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
-      writeField: 9,
+      writeField: 7,
       writeRootCall: 0,
     });
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
@@ -249,12 +248,10 @@ describe('RelayStoreData', function() {
       },
       'client:1': {
         __dataID__: 'client:1',
-        __path__: getPathToRecord('client:1'),
         service: 'GTALK',
       },
       'client:2': {
         __dataID__: 'client:2',
-        __path__: getPathToRecord('client:2'),
         service: 'TWITTER',
       },
     });
@@ -310,7 +307,7 @@ describe('RelayStoreData', function() {
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
-      writeField: 21,
+      writeField: 18,
       writeRootCall: 0,
     });
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
@@ -321,14 +318,12 @@ describe('RelayStoreData', function() {
       },
       'client:1': {
         __dataID__: 'client:1',
-        __path__: getPathToRecord('client:1'),
         __filterCalls__: [],
         __forceIndex__: 0,
         __range__: getRangeForRecord('client:1'),
       },
       'client:client:1:1': {
         __dataID__: 'client:client:1:1',
-        __path__: getPathToRecord('client:client:1:1'),
         node: {__dataID__: '1'},
         cursor: '1',
       },
@@ -338,7 +333,6 @@ describe('RelayStoreData', function() {
       },
       'client:client:1:2': {
         __dataID__: 'client:client:1:2',
-        __path__: getPathToRecord('client:client:1:2'),
         node: {__dataID__: '2'},
         cursor: '2',
       },
@@ -386,7 +380,7 @@ describe('RelayStoreData', function() {
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
-      writeField: 9,
+      writeField: 8,
       writeRootCall: 0,
     });
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
@@ -397,7 +391,6 @@ describe('RelayStoreData', function() {
       },
       'client:1': {
         __dataID__: 'client:1',
-        __path__: getPathToRecord('client:1'),
         __filterCalls__: [],
         __forceIndex__: 0,
         __range__: getRangeForRecord('client:1'),
@@ -546,7 +539,7 @@ describe('RelayStoreData', function() {
 
     expect(mutationWriter).toContainCalledMethods({
       writeNode: 0,
-      writeField: 12,
+      writeField: 11,
       writeRootCall: 0,
     });
     expect(mutationWriter.writeField).toBeCalledWithNodeFields({
@@ -556,7 +549,6 @@ describe('RelayStoreData', function() {
       },
       'client:client:1:2': {
         __dataID__: 'client:client:1:2',
-        __path__: getPathToRecord('client:client:1:2'),
         node: {__dataID__: '2'},
         cursor: '2',
         source: {__dataID__: '123'},
@@ -659,5 +651,10 @@ describe('RelayStoreData', function() {
         count: 1,
       },
     });
+  });
+
+  it('clears cache manager', () => {
+    storeData.clearCacheManager();
+    expect(storeData.hasCacheManager()).toBe(false);
   });
 });

@@ -275,6 +275,7 @@ describe('RelayQueryPath', () => {
       calls: [],
       children: [{
         children: [],
+        hash: null,
         kind: 'Fragment',
         metadata: {
           plural: false,

@@ -26,7 +26,7 @@ var x = Relay.QL`
 
 Output:
 var Relay = require('react-relay');
-var x = (function (sub_0, sub_1, sub_2, sub_3, sub_4, sub_5, sub_6, sub_7, sub_8, sub_9, sub_10, sub_11) {
+var x = (function (RQL_0, RQL_1, RQL_2, RQL_3, RQL_4, RQL_5, RQL_6, RQL_7, RQL_8, RQL_9, RQL_10, RQL_11) {
   return {
     calls: [{
       kind: 'Call',
@@ -53,7 +53,7 @@ var x = (function (sub_0, sub_1, sub_2, sub_3, sub_4, sub_5, sub_6, sub_7, sub_8
         isGenerated: true,
         isRequisite: true
       }
-    }, Relay.QL.__frag(sub_0), Relay.QL.__frag(sub_1), Relay.QL.__frag(sub_2), Relay.QL.__frag(sub_3), {
+    }, Relay.QL.__frag(RQL_0), Relay.QL.__frag(RQL_1), Relay.QL.__frag(RQL_2), Relay.QL.__frag(RQL_3), {
       children: [{
         children: [{
           fieldName: 'uri',
@@ -61,7 +61,7 @@ var x = (function (sub_0, sub_1, sub_2, sub_3, sub_4, sub_5, sub_6, sub_7, sub_8
           metadata: {
             parentType: 'ProfilePicture'
           }
-        }, Relay.QL.__frag(sub_4), Relay.QL.__frag(sub_5), Relay.QL.__frag(sub_6), Relay.QL.__frag(sub_7)],
+        }, Relay.QL.__frag(RQL_4), Relay.QL.__frag(RQL_5), Relay.QL.__frag(RQL_6), Relay.QL.__frag(RQL_7)],
         fieldName: 'profilePicture',
         kind: 'Field',
         metadata: {
@@ -76,11 +76,12 @@ var x = (function (sub_0, sub_1, sub_2, sub_3, sub_4, sub_5, sub_6, sub_7, sub_8
           isRequisite: true
         }
       }],
+      hash: 'JYt0H43a',
       kind: 'Fragment',
       metadata: {},
       name: 'User',
       type: 'User'
-    }, Relay.QL.__frag(sub_8), Relay.QL.__frag(sub_9), Relay.QL.__frag(sub_10), Relay.QL.__frag(sub_11)],
+    }, Relay.QL.__frag(RQL_8), Relay.QL.__frag(RQL_9), Relay.QL.__frag(RQL_10), Relay.QL.__frag(RQL_11)],
     fieldName: 'node',
     kind: 'Query',
     metadata: {

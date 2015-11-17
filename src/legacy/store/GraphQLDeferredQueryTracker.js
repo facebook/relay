@@ -17,15 +17,13 @@ var ErrorUtils = require('ErrorUtils');
 var Map = require('Map');
 import type {DataID} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
-var RelayStoreData = require('RelayStoreData');
+import type RelayRecordStore from 'RelayRecordStore';
 
 var forEachObject = require('forEachObject');
 var forEachRootCallArg = require('forEachRootCallArg');
 var invariant = require('invariant');
 var isEmpty = require('isEmpty');
 var resolveImmediate = require('resolveImmediate');
-
-var recordStore = RelayStoreData.getDefaultInstance().getRecordStore();
 
 type DeferredQuerySubscriber = {
   dataID: string;
@@ -49,51 +47,58 @@ type Removable = {
 };
 
 /**
- * List of all subscriptions of form {callback, dataID, fragmentID}
- */
-var subscribers: Array<?DeferredQuerySubscriber> = [];
-
-/**
- * List of all deferred queries that have resolved/failed since last broadcast.
- */
-var broadcastItems: ?Array<DeferredQueryEvent> = null;
-
-/**
- * Map of pending dataID => Set<fragmentID>
- * Stores a set as object<string,string> of all pending deferred fragmentIDs
- * for a given dataID. Presence of dataID => fragmentID pair
- * means that the query is pending, absence that it has resolved.
- */
-var dataIDToFragmentNameMap: Map = new Map();
-
-/**
- * Map of pending rootCall => Set<fragmentID>
- * Stores a temporary mapping of fragmentIDs when the correct dataID is
- * unknown. Entries will get moved to dataIDToFragmentNameMap as the dataID
- * for the rootCall is determinble.
- */
-var rootCallToFragmentNameMap: Map = new Map();
-
-/**
- * Map of parent query ID => [child queries]
- */
-var parentToChildQueryMap: Map = new Map();
-
-/**
  * This module tracks pending queries and maintains information about which
  * deferred data is pending or resolved. It also provides a method to observe
  * when a deferred query for a given node either resolves or fails.
  *
  * @internal
  */
-var GraphQLDeferredQueryTracker = {
+class GraphQLDeferredQueryTracker {
+  _recordStore: RelayRecordStore;
+
+  /**
+   * List of all subscriptions of form {callback, dataID, fragmentID}
+   */
+  _subscribers: Array<?DeferredQuerySubscriber>;
+
+  /**
+   * List of all deferred queries that have resolved/failed since the last
+   * broadcast.
+   */
+  _broadcastItems: ?Array<DeferredQueryEvent>;
+
+  /**
+   * Map of pending dataID => Set<fragmentID>
+   * Stores a set as object<string,string> of all pending deferred fragmentIDs
+   * for a given dataID. Presence of dataID => fragmentID pair
+   * means that the query is pending, absence that it has resolved.
+   */
+  _dataIDToFragmentNameMap: Map;
+
+  /**
+   * Map of pending rootCall => Set<fragmentID>
+   * Stores a temporary mapping of fragmentIDs when the correct dataID is
+   * unknown. Entries will get moved to dataIDToFragmentNameMap as the dataID
+   * for the rootCall is determinble.
+   */
+  _rootCallToFragmentNameMap: Map;
+
+  /**
+   * Map of parent query ID => [child queries]
+   */
+  _parentToChildQueryMap: Map;
+
+  constructor(recordStore: RelayRecordStore) {
+    this.reset();
+    this._recordStore = recordStore;
+  }
 
   /**
    * Add a listener for when the given fragment resolves/fails for dataID.
    * Returns a subscription object {remove} where calling remove cancels the
    * subscription.
    */
-  addListenerForFragment: function(
+  addListenerForFragment(
     dataID: string,
     fragmentID: string,
     callbacks: ListenerCallbacks
@@ -103,326 +108,348 @@ var GraphQLDeferredQueryTracker = {
       dataID,
       fragmentID,
     };
-    subscribers.push(subscriber);
+    this._subscribers.push(subscriber);
     return {
-      remove: function() {
-        var index = subscribers.indexOf(subscriber);
+      remove: () => {
+        var index = this._subscribers.indexOf(subscriber);
         invariant(
           index >= 0,
           'remove() can only be called once'
         );
-        subscribers[index] = null;
+        this._subscribers[index] = null;
       }
     };
-  },
+  }
 
   /**
    * Record the query as being sent, updating internal tracking to note
    * that the dataID/fragment pairs are pending.
    */
-  recordQuery: function(
+  recordQuery(
     query: RelayQuery.Root
   ): void {
     var parentID = getQueryParentID(query);
     if (parentID) {
       // child query: record parent => [children] list
-      var children = parentToChildQueryMap.get(parentID) || [];
+      var children = this._parentToChildQueryMap.get(parentID) || [];
       children.push(query);
-      parentToChildQueryMap.set(parentID, children);
+      this._parentToChildQueryMap.set(parentID, children);
     } else {
       var deferredFragmentNames = query.getDeferredFragmentNames();
       if (deferredFragmentNames) {
         // deferred query: record ID => fragment set
-        var dataIDs = getRootCallToIDMap(query);
+        var dataIDs = this._getRootCallToIDMap(query);
         forEachObject(dataIDs, (dataID, storageKey) => {
           if (dataID) {
-            var dataIDSet = dataIDToFragmentNameMap.get(dataID) || {};
+            var dataIDSet = this._dataIDToFragmentNameMap.get(dataID) || {};
             Object.assign(dataIDSet, deferredFragmentNames); // set union
-            dataIDToFragmentNameMap.set(dataID, dataIDSet);
+            this._dataIDToFragmentNameMap.set(dataID, dataIDSet);
           } else {
             var rootCallSet =
-              rootCallToFragmentNameMap.get(storageKey) || {};
+              this._rootCallToFragmentNameMap.get(storageKey) || {};
             Object.assign(rootCallSet, deferredFragmentNames);
-            rootCallToFragmentNameMap.set(storageKey, rootCallSet);
+            this._rootCallToFragmentNameMap.set(storageKey, rootCallSet);
           }
         });
       }
     }
-  },
+  }
 
   /**
    * Record the query as being resolved with the given data, updating
    * internal tracking and firing subscriptions.
    */
-  resolveQuery: function(
+  resolveQuery(
     query: RelayQuery.Root,
     response: ?Object,
     refParams: ?{[name: string]: mixed}
   ): void {
     var parentID = getQueryParentID(query);
-    resolveFragmentsForRootCall(query);
+    this._resolveFragmentsForRootCall(query);
     if (query.isDeferred()) {
-      resolveDeferredQuery(query, broadcastChangeForFragment, refParams);
+      this._resolveDeferredQuery(query, (dataID, fragmentID) => {
+        this._broadcastChangeForFragment(dataID, fragmentID);
+      }, refParams);
       if (parentID) {
-        resolveDeferredRefQuery(query);
+        this._resolveDeferredRefQuery(query);
       }
     } else if (response) {
-      resolveDeferredParentQuery(query, response);
+      this._resolveDeferredParentQuery(query, response);
     }
-  },
+  }
 
   /**
    * Record that the query has resolved with an error.
    */
-  rejectQuery: function(
+  rejectQuery(
     query: RelayQuery.Root,
     error: Error
   ): void {
     var parentID = getQueryParentID(query);
     if (query.isDeferred()) {
-      rejectDeferredFragmentsForRootCall(query);
-      resolveDeferredQuery(query, (dataID, fragmentID) => {
-        broadcastErrorForFragment(dataID, fragmentID, error);
+      this._rejectDeferredFragmentsForRootCall(query);
+      this._resolveDeferredQuery(query, (dataID, fragmentID) => {
+        this._broadcastErrorForFragment(dataID, fragmentID, error);
       });
       if (parentID) {
-        resolveDeferredRefQuery(query);
+        this._resolveDeferredRefQuery(query);
       }
     } else {
-      rejectDeferredParentQuery(query);
+      this._rejectDeferredParentQuery(query);
     }
-  },
+  }
 
   /**
    * Determine if the given query is pending by checking if it is fetching
    * the same dataID/fragments as any pending queries.
    */
-  isQueryPending: function(
+  isQueryPending(
     dataID: DataID,
     fragmentID: string
   ): boolean {
-    if (dataIDToFragmentNameMap.has(dataID)) {
-      var dataIDSet = dataIDToFragmentNameMap.get(dataID);
+    if (this._dataIDToFragmentNameMap.has(dataID)) {
+      var dataIDSet = this._dataIDToFragmentNameMap.get(dataID);
       if (dataIDSet.hasOwnProperty(fragmentID)) {
         return true;
       }
     }
 
     return false;
-  },
+  }
 
   /**
    * Clear all query tracking and subscriptions.
    */
-  reset: function(): void {
-    dataIDToFragmentNameMap = new Map();
-    parentToChildQueryMap = new Map();
-    rootCallToFragmentNameMap = new Map();
-    subscribers = [];
-    broadcastItems = null;
+  reset(): void {
+    this._dataIDToFragmentNameMap = new Map();
+    this._parentToChildQueryMap = new Map();
+    this._rootCallToFragmentNameMap = new Map();
+    this._subscribers = [];
+    this._broadcastItems = null;
   }
-};
 
-/**
- * Clears all pending dataID => fragmentID associations for this query
- * and calls the callback for each (dataID, fragmentID) pair.
- */
-function resolveDeferredQuery(
-  query: RelayQuery.Root,
-  callback: (dataID: DataID, fragmentID: string) => void,
-  refParams: ?{[name: string]: mixed}
-): void {
-  var deferredFragmentNames = query.getDeferredFragmentNames();
-  if (!deferredFragmentNames) {
-    return;
-  }
-  var dataIDs = {};
-  var batchCall = query.getBatchCall();
-  if (batchCall) {
-    // refParams can be undefined if the node is null in the parent query.
-    var refIDs = refParams && refParams[batchCall.refParamName];
-    if (refIDs != null) {
-      refIDs = Array.isArray(refIDs) ? refIDs : [refIDs];
-      (refIDs: any).forEach(id => dataIDs[id] = id);
+  /**
+   * Clears all pending dataID => fragmentID associations for this query
+   * and calls the callback for each (dataID, fragmentID) pair.
+   */
+  _resolveDeferredQuery(
+    query: RelayQuery.Root,
+    callback: (dataID: DataID, fragmentID: string) => void,
+    refParams: ?{[name: string]: mixed}
+  ): void {
+    var deferredFragmentNames = query.getDeferredFragmentNames();
+    if (!deferredFragmentNames) {
+      return;
     }
-  } else {
-    dataIDs = getRootCallToIDMap(query);
-  }
-  forEachObject(dataIDs, dataID => {
-    if (dataID && dataIDToFragmentNameMap.has(dataID)) {
-      var dataIDSet = dataIDToFragmentNameMap.get(dataID);
-      forEachObject(deferredFragmentNames, fragmentID => {
-        delete dataIDSet[fragmentID];
-        callback(dataID, fragmentID);
-      });
-      if (!isEmpty(dataIDSet)) {
-        dataIDToFragmentNameMap.set(dataID, dataIDSet);
-      } else {
-        dataIDToFragmentNameMap.delete(dataID);
+    var dataIDs = {};
+    var batchCall = query.getBatchCall();
+    if (batchCall) {
+      // refParams can be undefined if the node is null in the parent query.
+      var refIDs = refParams && refParams[batchCall.refParamName];
+      if (refIDs != null) {
+        refIDs = Array.isArray(refIDs) ? refIDs : [refIDs];
+        (refIDs: any).forEach(id => dataIDs[id] = id);
       }
+    } else {
+      dataIDs = this._getRootCallToIDMap(query);
     }
-  });
-}
-
-/**
- * Clears the deferred query from its parent's list of dependent queries.
- */
-function resolveDeferredRefQuery(
-  query: RelayQuery.Root
-): void {
-  var parentID = getQueryParentID(query);
-  var children = parentToChildQueryMap.get(parentID) || [];
-  children = children.filter(q => q !== query);
-  if (children.length) {
-    parentToChildQueryMap.set(parentID, children);
-  } else {
-    parentToChildQueryMap.delete(parentID);
-  }
-}
-
-/**
- * Resolves the root IDs for any dependent queries of the given query.
- */
-function resolveDeferredParentQuery(
-  query: RelayQuery.Root,
-  response: any
-): void {
-  // resolve IDs in child queries, add to ID => fragment set
-  var children = parentToChildQueryMap.get(query.getID()) || [];
-  for (var ii = 0; ii < children.length; ii++) {
-    var childQuery = children[ii];
-    var childFragmentNames = childQuery.getDeferredFragmentNames();
-    var childDataIDs = getRefParamFromResponse(response, childQuery);
-    forEachObject(childDataIDs, dataID => {
-      var dataIDSet = dataIDToFragmentNameMap.get(dataID) || {};
-      Object.assign(dataIDSet, childFragmentNames);
-      dataIDToFragmentNameMap.set(dataID, dataIDSet);
+    forEachObject(dataIDs, dataID => {
+      if (dataID && this._dataIDToFragmentNameMap.has(dataID)) {
+        var dataIDSet = this._dataIDToFragmentNameMap.get(dataID);
+        forEachObject(deferredFragmentNames, fragmentID => {
+          delete dataIDSet[fragmentID];
+          callback(dataID, fragmentID);
+        });
+        if (!isEmpty(dataIDSet)) {
+          this._dataIDToFragmentNameMap.set(dataID, dataIDSet);
+        } else {
+          this._dataIDToFragmentNameMap.delete(dataID);
+        }
+      }
     });
   }
-}
 
-/**
- * Maps the deferred fragments for a root call with a previously unknown ID to
- * the resolved ID value.
- */
-function resolveFragmentsForRootCall(
-  query: RelayQuery.Root
-): void {
-  var rootCallMap = getRootCallToIDMap(query);
-  forEachObject(rootCallMap, (dataID, storageKey) => {
-    if (dataID && rootCallToFragmentNameMap.has(storageKey)) {
-      var rootCallSet = rootCallToFragmentNameMap.get(storageKey) || {};
-      var dataIDSet = dataIDToFragmentNameMap.get(dataID) || {};
-      Object.assign(dataIDSet, rootCallSet);
-      dataIDToFragmentNameMap.set(dataID, dataIDSet);
-      rootCallToFragmentNameMap.delete(storageKey);
+  /**
+   * Clears the deferred query from its parent's list of dependent queries.
+   */
+  _resolveDeferredRefQuery(
+    query: RelayQuery.Root
+  ): void {
+    var parentID = getQueryParentID(query);
+    var children = this._parentToChildQueryMap.get(parentID) || [];
+    children = children.filter(q => q !== query);
+    if (children.length) {
+      this._parentToChildQueryMap.set(parentID, children);
+    } else {
+      this._parentToChildQueryMap.delete(parentID);
     }
-  });
-}
+  }
 
-/**
- * Removes the deferred fragments for a previously unresolved root call ID.
- */
-function rejectDeferredFragmentsForRootCall(
-  query: RelayQuery.Root
-): void {
-  var rootCallMap = getRootCallToIDMap(query);
-  var deferredFragmentNames = query.getDeferredFragmentNames();
-  forEachObject(rootCallMap, (dataID, storageKey) => {
-    if (rootCallToFragmentNameMap.has(storageKey)) {
-      var rootCallSet = rootCallToFragmentNameMap.get(storageKey) || {};
-      forEachObject(deferredFragmentNames, (fragmentID) => {
-        delete rootCallSet[fragmentID];
+  /**
+   * Resolves the root IDs for any dependent queries of the given query.
+   */
+  _resolveDeferredParentQuery(
+    query: RelayQuery.Root,
+    response: any
+  ): void {
+    // resolve IDs in child queries, add to ID => fragment set
+    var children = this._parentToChildQueryMap.get(query.getID()) || [];
+    for (var ii = 0; ii < children.length; ii++) {
+      var childQuery = children[ii];
+      var childFragmentNames = childQuery.getDeferredFragmentNames();
+      var childDataIDs = getRefParamFromResponse(response, childQuery);
+      forEachObject(childDataIDs, dataID => {
+        var dataIDSet = this._dataIDToFragmentNameMap.get(dataID) || {};
+        Object.assign(dataIDSet, childFragmentNames);
+        this._dataIDToFragmentNameMap.set(dataID, dataIDSet);
       });
-      if (!isEmpty(rootCallSet)) {
-        rootCallToFragmentNameMap.delete(storageKey);
-      } else {
-        rootCallToFragmentNameMap.set(storageKey, rootCallSet);
-      }
     }
-  });
-}
-
-/**
- * Rejects the parent ID, clearing all tracking for both the parent and all
- * its dependent deferred ref queries.
- */
-function rejectDeferredParentQuery(
-  query: RelayQuery.Root
-): void {
-  var parentID = query.getID();
-  parentToChildQueryMap.delete(parentID);
-}
-
-/**
- * Notify observers that the given deferred fragment has resolved for node
- * with dataID.
- */
-function broadcastChangeForFragment(
-  dataID: DataID,
-  fragmentID: string
-): void {
-  if (!broadcastItems) {
-    broadcastItems = [];
-    resolveImmediate(processBroadcasts);
-  }
-  broadcastItems.push({dataID, fragmentID, error: null});
-}
-
-/**
- * Record that an error occurred for this dataID, fragment pair
- * and broadcast an update.
- */
-function broadcastErrorForFragment(
-  dataID: DataID,
-  fragmentID: string,
-  error: any
-): void {
-  if (!broadcastItems) {
-    broadcastItems = [];
-    resolveImmediate(processBroadcasts);
-  }
-  broadcastItems.push({dataID, fragmentID, error});
-}
-
-/**
- * Process broadcast items from previous event loop.
- */
-function processBroadcasts() {
-  if (!broadcastItems) {
-    return;
   }
 
-  for (var ii = 0; ii < subscribers.length; ii++) {
-    for (var jj = 0; jj < broadcastItems.length; jj++) {
-      var subscriber = subscribers[ii];
-      if (subscriber) {
-        var {
-          dataID,
-          error,
-          fragmentID,
-        } = broadcastItems[jj];
-        var method;
-        var args;
-        if (error) {
-          method = subscriber.callbacks.onFailure;
-          args = [dataID, fragmentID, error];
+  /**
+   * Maps the deferred fragments for a root call with a previously unknown ID to
+   * the resolved ID value.
+   */
+  _resolveFragmentsForRootCall(
+    query: RelayQuery.Root
+  ): void {
+    var rootCallMap = this._getRootCallToIDMap(query);
+    forEachObject(rootCallMap, (dataID, storageKey) => {
+      if (dataID && this._rootCallToFragmentNameMap.has(storageKey)) {
+        var rootCallSet = this._rootCallToFragmentNameMap.get(storageKey) || {};
+        var dataIDSet = this._dataIDToFragmentNameMap.get(dataID) || {};
+        Object.assign(dataIDSet, rootCallSet);
+        this._dataIDToFragmentNameMap.set(dataID, dataIDSet);
+        this._rootCallToFragmentNameMap.delete(storageKey);
+      }
+    });
+  }
+
+  /**
+   * Removes the deferred fragments for a previously unresolved root call ID.
+   */
+  _rejectDeferredFragmentsForRootCall(
+    query: RelayQuery.Root
+  ): void {
+    var rootCallMap = this._getRootCallToIDMap(query);
+    var deferredFragmentNames = query.getDeferredFragmentNames();
+    forEachObject(rootCallMap, (dataID, storageKey) => {
+      if (this._rootCallToFragmentNameMap.has(storageKey)) {
+        var rootCallSet = this._rootCallToFragmentNameMap.get(storageKey) || {};
+        forEachObject(deferredFragmentNames, (fragmentID) => {
+          delete rootCallSet[fragmentID];
+        });
+        if (!isEmpty(rootCallSet)) {
+          this._rootCallToFragmentNameMap.delete(storageKey);
         } else {
-          method = subscriber.callbacks.onSuccess;
-          args = [dataID, fragmentID];
+          this._rootCallToFragmentNameMap.set(storageKey, rootCallSet);
         }
-        ErrorUtils.applyWithGuard(
-          method,
-          null,
-          args,
-          null,
-          'GraphQLDeferredQueryTracker'
-        );
       }
-    }
+    });
   }
 
-  subscribers = subscribers.filter(subscriber => subscriber !== null);
-  broadcastItems = null;
+  /**
+   * Rejects the parent ID, clearing all tracking for both the parent and all
+   * its dependent deferred ref queries.
+   */
+  _rejectDeferredParentQuery(
+    query: RelayQuery.Root
+  ): void {
+    var parentID = query.getID();
+    this._parentToChildQueryMap.delete(parentID);
+  }
+
+  /**
+   * Notify observers that the given deferred fragment has resolved for node
+   * with dataID.
+   */
+  _broadcastChangeForFragment(
+    dataID: DataID,
+    fragmentID: string
+  ): void {
+    var broadcastItems = this._broadcastItems;
+    if (!broadcastItems) {
+      this._broadcastItems = broadcastItems = [];
+      resolveImmediate(() => this._processBroadcasts());
+    }
+    broadcastItems.push({dataID, fragmentID, error: null});
+  }
+
+  /**
+   * Record that an error occurred for this dataID, fragment pair
+   * and broadcast an update.
+   */
+  _broadcastErrorForFragment(
+    dataID: DataID,
+    fragmentID: string,
+    error: any
+  ): void {
+    var broadcastItems = this._broadcastItems;
+    if (!broadcastItems) {
+      this._broadcastItems = broadcastItems = [];
+      resolveImmediate(() => this._processBroadcasts());
+    }
+    broadcastItems.push({dataID, fragmentID, error});
+  }
+
+  /**
+   * Process broadcast items from previous event loop.
+   */
+  _processBroadcasts() {
+    if (!this._broadcastItems) {
+      return;
+    }
+
+    for (var ii = 0; ii < this._subscribers.length; ii++) {
+      for (var jj = 0; jj < this._broadcastItems.length; jj++) {
+        var subscriber = this._subscribers[ii];
+        if (subscriber) {
+          var {
+            dataID,
+            error,
+            fragmentID,
+          } = this._broadcastItems[jj];
+          var method;
+          var args;
+          if (error) {
+            method = subscriber.callbacks.onFailure;
+            args = [dataID, fragmentID, error];
+          } else {
+            method = subscriber.callbacks.onSuccess;
+            args = [dataID, fragmentID];
+          }
+          ErrorUtils.applyWithGuard(
+            method,
+            null,
+            args,
+            null,
+            'GraphQLDeferredQueryTracker'
+          );
+        }
+      }
+    }
+
+    this._subscribers =
+      this._subscribers.filter(subscriber => subscriber !== null);
+    this._broadcastItems = null;
+  }
+
+  _getRootCallToIDMap(
+    query: RelayQuery.Root
+  ): {[key: string]: string} {
+    var mapping = {};
+    if (!query.getBatchCall()) {
+      const storageKey = query.getStorageKey();
+      forEachRootCallArg(query, identifyingArgValue => {
+        const compositeStorageKey = identifyingArgValue == null ?
+          storageKey :
+          `${storageKey}:${identifyingArgValue}`;
+        mapping[compositeStorageKey] =
+          this._recordStore.getDataID(storageKey, identifyingArgValue);
+      });
+    }
+    return mapping;
+  }
 }
 
 /**
@@ -490,20 +517,4 @@ function getQueryParentID(
   return null;
 }
 
-function getRootCallToIDMap(
-  query: RelayQuery.Root
-): {[key: string]: string} {
-  var mapping = {};
-  if (!query.getBatchCall()) {
-    const storageKey = query.getStorageKey();
-    forEachRootCallArg(query, identifyingArgValue => {
-      const compositeStorageKey = identifyingArgValue == null ?
-        storageKey :
-        `${storageKey}:${identifyingArgValue}`;
-      mapping[compositeStorageKey] =
-        recordStore.getDataID(storageKey, identifyingArgValue);
-    });
-  }
-  return mapping;
-}
 module.exports = GraphQLDeferredQueryTracker;

@@ -11,9 +11,9 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-
-var Relay = require('Relay');
+const QueryBuilder = require('QueryBuilder');
+const Relay = require('Relay');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQL', () => {
   beforeEach(() => {
@@ -23,10 +23,16 @@ describe('RelayQL', () => {
   });
 
   it('throws if not transformed', () => {
-    var badQL = Relay.QL;
+    const badQL = Relay.QL;
     expect(() => {
       // Transform cannot find this call site.
-      badQL`viewer(){actor{id}}`;
+      badQL`
+        viewer() {
+          actor {
+            id
+          }
+        }
+      `;
     }).toFailInvariant(
       'RelayQL: Unexpected invocation at runtime. Either the Babel transform ' +
       'was not set up, or it failed to identify this call site. Make sure it ' +
@@ -36,7 +42,54 @@ describe('RelayQL', () => {
 
   it('does not throw if transformed', () => {
     expect(() => {
-      Relay.QL`query{viewer{actor{id}}}`;
+      Relay.QL`
+        query {
+          viewer {
+            actor {
+              id
+            }
+          }
+        }
+      `;
     }).not.toThrow();
+  });
+
+  it('permits valid variable substitutions', () => {
+    const SIZE = 42;
+    expect(() => {
+      Relay.QL`
+        query {
+          viewer {
+            actor {
+              profilePicture(size: ${SIZE}) {
+                uri
+              }
+            }
+          }
+        }
+      `;
+    }).not.toThrow();
+  });
+
+  it('throws for illegal variable substitutions', () => {
+    const variables = {
+      size: QueryBuilder.createCallVariable('size'),
+    };
+    expect(() => {
+      Relay.QL`
+        query {
+          viewer {
+            actor {
+              profilePicture(size: ${variables.size}) {
+                uri
+              }
+            }
+          }
+        }
+      `;
+    }).toThrow(
+      'RelayQL: Invalid argument `size` supplied via template substitution. ' +
+      'Instead, use an inline variable (e.g. `comments(count: $count)`).'
+    );
   });
 });

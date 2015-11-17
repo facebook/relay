@@ -64,6 +64,7 @@ var x = (function () {
           isRequisite: true
         }
       }],
+      hash: '5FzO0Ura',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

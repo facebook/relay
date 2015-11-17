@@ -13,12 +13,15 @@
 
 'use strict';
 
+var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 var RelayChangeTracker = require('RelayChangeTracker');
-var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {ChangeSet} from 'RelayChangeTracker';
+var RelayConnectionInterface = require('RelayConnectionInterface');
+var RelayMutationQueue = require('RelayMutationQueue');
 import type {
   ClientMutationID,
   DataID,
@@ -26,9 +29,10 @@ import type {
   Records,
   RelayQuerySet,
   RootCallMap,
-  UpdateOptions
+  UpdateOptions,
 } from 'RelayInternalTypes';
 var RelayNodeInterface = require('RelayNodeInterface');
+var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
 var RelayQueryTracker = require('RelayQueryTracker');
@@ -60,17 +64,21 @@ var _instance;
  */
 class RelayStoreData {
   _cacheManager: ?CacheManager;
-  _cachePopulated: boolean;
   _cachedRecords: Records;
   _cachedRootCalls: RootCallMap;
+  _changeEmitter: GraphQLStoreChangeEmitter;
+  _deferredQueryTracker: GraphQLDeferredQueryTracker;
   _garbageCollector: ?RelayStoreGarbageCollector;
+  _mutationQueue: RelayMutationQueue;
   _nodeRangeMap: NodeRangeMap;
+  _pendingQueryTracker: RelayPendingQueryTracker;
   _records: Records;
   _queuedRecords: Records;
   _queuedStore: RelayRecordStore;
   _recordStore: RelayRecordStore;
   _queryTracker: RelayQueryTracker;
   _queryRunner: GraphQLQueryRunner;
+  _rangeData: GraphQLStoreRangeUtils;
   _rootCalls: RootCallMap;
 
   /**
@@ -90,26 +98,33 @@ class RelayStoreData {
     var records: Records = ({}: $FixMe);
     var rootCallMap: RootCallMap = {};
     var nodeRangeMap: NodeRangeMap = ({}: $FixMe);
-
-    this._cacheManager = null;
-    this._cachePopulated = true;
-    this._cachedRecords = cachedRecords;
-    this._cachedRootCalls = cachedRootCallMap;
-    this._nodeRangeMap = nodeRangeMap;
-    this._records = records;
-    this._queuedRecords = queuedRecords;
-    this._queuedStore = new RelayRecordStore(
+    var queuedStore = new RelayRecordStore(
       ({cachedRecords, queuedRecords, records}: $FixMe),
       ({cachedRootCallMap, rootCallMap}: $FixMe),
       (nodeRangeMap: $FixMe)
     );
-    this._recordStore = new RelayRecordStore(
+    var recordStore = new RelayRecordStore(
       ({records}: $FixMe),
       ({rootCallMap}: $FixMe),
       (nodeRangeMap: $FixMe)
     );
-    this._queryTracker = new RelayQueryTracker();
+    var rangeData = new GraphQLStoreRangeUtils();
+
+    this._cacheManager = null;
+    this._cachedRecords = cachedRecords;
+    this._cachedRootCalls = cachedRootCallMap;
+    this._changeEmitter = new GraphQLStoreChangeEmitter(rangeData);
+    this._deferredQueryTracker = new GraphQLDeferredQueryTracker(recordStore);
+    this._mutationQueue = new RelayMutationQueue(this);
+    this._nodeRangeMap = nodeRangeMap;
+    this._pendingQueryTracker = new RelayPendingQueryTracker(this);
     this._queryRunner = new GraphQLQueryRunner(this);
+    this._queryTracker = new RelayQueryTracker();
+    this._queuedRecords = queuedRecords;
+    this._queuedStore = queuedStore;
+    this._records = records;
+    this._recordStore = recordStore;
+    this._rangeData = rangeData;
     this._rootCalls = rootCallMap;
   }
 
@@ -146,7 +161,6 @@ class RelayStoreData {
     var records = this._records;
 
     this._cacheManager = cacheManager;
-    this._cachePopulated = false;
     this._queuedStore = new RelayRecordStore(
       ({cachedRecords, queuedRecords, records}: $FixMe),
       ({cachedRootCallMap, rootCallMap}: $FixMe),
@@ -162,30 +176,35 @@ class RelayStoreData {
     );
   }
 
-  /**
-   * Runs the callback after all data has been read out from diskc cache into
-   * cachedRecords
-   */
-  runWithDiskCache(callback: () => void): void {
-    var cacheManager = this._cacheManager;
-    if (this._cachePopulated || !cacheManager) {
-      resolveImmediate(callback);
-    } else {
-      var profile = RelayProfiler.profile('RelayStoreData.runWithDiskCache');
-      cacheManager.readAllData(
-        this._cachedRecords,
-        this._cachedRootCalls,
-        () => {
-          profile.stop();
-          this._cachePopulated = true;
-          callback();
-        }
-      );
-    }
+  clearCacheManager(): void {
+    this._cacheManager = null;
+    this._recordStore = new RelayRecordStore(
+      ({records: this._records}: $FixMe),
+      ({rootCallMap: this._rootCalls}: $FixMe),
+      (this._nodeRangeMap: $FixMe)
+    );
   }
 
   hasCacheManager(): boolean {
     return !!this._cacheManager;
+  }
+
+  /**
+   * Returns whether a given record is affected by an optimistic update.
+   */
+  hasOptimisticUpdate(dataID: DataID): boolean {
+    dataID = this.getRangeData().getCanonicalClientID(dataID);
+    return this.getQueuedStore().hasOptimisticUpdate(dataID);
+  }
+
+  /**
+   * Returns a list of client mutation IDs for queued mutations whose optimistic
+   * updates are affecting the record corresponding the given dataID. Returns
+   * null if the record isn't affected by any optimistic updates.
+   */
+  getClientMutationIDs(dataID: DataID): ?Array<ClientMutationID> {
+    dataID = this.getRangeData().getCanonicalClientID(dataID);
+    return this.getQueuedStore().getClientMutationIDs(dataID);
   }
 
   /**
@@ -340,7 +359,7 @@ class RelayStoreData {
   clearQueuedData(): void {
     forEachObject(this._queuedRecords, (_, key) => {
       delete this._queuedRecords[key];
-      GraphQLStoreChangeEmitter.broadcastChangeForID(key);
+      this._changeEmitter.broadcastChangeForID(key);
     });
   }
 
@@ -350,6 +369,10 @@ class RelayStoreData {
 
   getGarbageCollector(): ?RelayStoreGarbageCollector {
     return this._garbageCollector;
+  }
+
+  getMutationQueue(): RelayMutationQueue {
+    return this._mutationQueue;
   }
 
   /**
@@ -372,6 +395,26 @@ class RelayStoreData {
 
   getQueryRunner(): GraphQLQueryRunner {
     return this._queryRunner;
+  }
+
+  getDeferredQueryTracker(): GraphQLDeferredQueryTracker {
+    return this._deferredQueryTracker;
+  }
+
+  getChangeEmitter(): GraphQLStoreChangeEmitter {
+    return this._changeEmitter;
+  }
+
+  getChangeEmitter(): GraphQLStoreChangeEmitter {
+    return this._changeEmitter;
+  }
+
+  getRangeData(): GraphQLStoreRangeUtils {
+    return this._rangeData;
+  }
+
+  getPendingQueryTracker(): RelayPendingQueryTracker {
+    return this._pendingQueryTracker;
   }
 
   /**
@@ -398,9 +441,7 @@ class RelayStoreData {
    */
   _handleChangedAndNewDataIDs(changeSet: ChangeSet): void {
     var updatedDataIDs = Object.keys(changeSet.updated);
-    updatedDataIDs.forEach(
-      GraphQLStoreChangeEmitter.broadcastChangeForID
-    );
+    updatedDataIDs.forEach(id => this._changeEmitter.broadcastChangeForID(id));
     if (this._garbageCollector) {
       var createdDataIDs = Object.keys(changeSet.created);
       var garbageCollector = this._garbageCollector;

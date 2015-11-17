@@ -44,10 +44,12 @@ var t = require('babel-types/lib');
 var NULL = t.nullLiteral();
 
 var RelayQLPrinter = (function () {
-  function RelayQLPrinter(tagName) {
+  function RelayQLPrinter(documentHash, tagName, variableNames) {
     _classCallCheck(this, RelayQLPrinter);
 
+    this.documentHash = documentHash;
     this.tagName = tagName;
+    this.variableNames = variableNames;
   }
 
   _createClass(RelayQLPrinter, [{
@@ -88,7 +90,13 @@ var RelayQLPrinter = (function () {
       }
       var selection = this.printSelection(rootField, requisiteFields);
       var metadata = {};
+<<<<<<< HEAD
       var printedArg = undefined;
+=======
+      if (rootFieldType.isList()) {
+        metadata.isPlural = true;
+      }
+>>>>>>> facebook/master
       invariant(rootFieldArgs.length <= 1, 'Invalid root field `%s`; Relay only supports root fields with zero ' + 'or one argument.', rootField.getName());
       if (rootFieldArgs.length === 1) {
         // Until such time as a root field's 'identifying argument' (one that has
@@ -122,7 +130,19 @@ var RelayQLPrinter = (function () {
       var selection = this.printSelection(fragment, requisiteFields);
       var metadata = this.printRelayDirectiveMetadata(fragment);
 
+<<<<<<< HEAD
       return t.newExpression(t.memberExpression(t.identifier('GraphQL'), t.identifier('QueryFragment')), trimArguments([t.valueToNode(fragment.getName()), t.valueToNode(fragmentType.getName({ modifiers: true })), selection.fields, selection.fragments, objectify(metadata), this.printDirectives(fragment.getDirectives())]));
+=======
+      return codify({
+        children: selections,
+        directives: this.printDirectives(fragment.getDirectives()),
+        hash: t.literal(this.documentHash),
+        kind: t.literal('Fragment'),
+        metadata: metadata,
+        name: t.literal(fragment.getName()),
+        type: t.literal(fragmentType.getName({ modifiers: true }))
+      });
+>>>>>>> facebook/master
     }
   }, {
     key: 'printMutation',
@@ -278,7 +298,18 @@ var RelayQLPrinter = (function () {
   }, {
     key: 'printVariable',
     value: function printVariable(name) {
+<<<<<<< HEAD
       return t.newExpression(t.memberExpression(t.identifier('GraphQL'), t.identifier('CallVariable')), [t.valueToNode(name)]);
+=======
+      // Assume that variables named like substitutions are substitutions.
+      if (this.variableNames.hasOwnProperty(name)) {
+        return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__var')), [t.identifier(name)]);
+      }
+      return codify({
+        kind: t.literal('CallVariable'),
+        callVariableName: t.literal(name)
+      });
+>>>>>>> facebook/master
     }
   }, {
     key: 'printValue',

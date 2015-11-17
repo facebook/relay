@@ -141,6 +141,7 @@ var x = (function () {
           isRequisite: true
         }
       }],
+      hash: 'kPdJGPCx',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

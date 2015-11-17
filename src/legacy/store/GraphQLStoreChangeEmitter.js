@@ -14,19 +14,21 @@
 'use strict';
 
 var ErrorUtils = require('ErrorUtils');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
 
 var resolveImmediate = require('resolveImmediate');
 
+type BatchStrategy = (callback: Function) => void;
+type SubscriptionCallback = () => void;
+
 export type ChangeSubscription = {
-  remove: () => void;
+  remove: SubscriptionCallback;
 };
 
-var batchUpdate = callback => callback();
-var subscribers = [];
-
-var executingIDs = {};
-var scheduledIDs = null;
+type Subscriber = {
+  callback: SubscriptionCallback,
+  subscribedIDs: Array<string>,
+};
 
 /**
  * Asynchronous change emitter for nodes stored in the Relay cache.
@@ -37,85 +39,101 @@ var scheduledIDs = null;
  *
  * @internal
  */
-var GraphQLStoreChangeEmitter = {
+class GraphQLStoreChangeEmitter {
+  _batchUpdate: BatchStrategy;
+  _executingIDs: Object;
+  _rangeData: GraphQLStoreRangeUtils;
+  _scheduledIDs: ?Object;
+  _subscribers: Array<Subscriber>;
 
-  addListenerForIDs: function(
+  constructor(rangeData: GraphQLStoreRangeUtils) {
+    this._batchUpdate = callback => callback();
+    this._executingIDs = {};
+    this._rangeData = rangeData;
+    this._scheduledIDs = null;
+    this._subscribers = [];
+  }
+
+  addListenerForIDs(
     ids: Array<string>,
-    callback: () => void
+    callback: SubscriptionCallback
   ): ChangeSubscription {
-    var subscribedIDs = ids.map(getBroadcastID);
-    var index = subscribers.length;
-    subscribers.push({subscribedIDs, callback});
+    var subscribedIDs = ids.map(id => this._getBroadcastID(id));
+    var index = this._subscribers.length;
+    this._subscribers.push({subscribedIDs, callback});
     return {
-      remove: function() {
-        delete subscribers[index];
-      }
+      remove: () => {
+        delete this._subscribers[index];
+      },
     };
-  },
+  }
 
-  broadcastChangeForID: function(id: string): void {
-    if (scheduledIDs === null) {
-      resolveImmediate(processBroadcasts);
-      scheduledIDs = {};
+  broadcastChangeForID(id: string): void {
+    var scheduledIDs = this._scheduledIDs;
+    if (scheduledIDs == null) {
+      resolveImmediate(() => this._processBroadcasts());
+      scheduledIDs = this._scheduledIDs = {};
     }
     // Record index of the last subscriber so we do not later unintentionally
     // invoke callbacks that were subscribed after this broadcast.
-    scheduledIDs[getBroadcastID(id)] = subscribers.length - 1;
-  },
+    scheduledIDs[this._getBroadcastID(id)] = this._subscribers.length - 1;
+  }
 
-  injectBatchingStrategy: function(batchStrategy: Function): void {
-    batchUpdate = batchStrategy;
-  },
+  injectBatchingStrategy(batchStrategy: BatchStrategy): void {
+    this._batchUpdate = batchStrategy;
+  }
+
+  _processBroadcasts(): void {
+    if (this._scheduledIDs) {
+      this._executingIDs = this._scheduledIDs;
+      this._scheduledIDs = null;
+      this._batchUpdate(() => this._processSubscribers());
+    }
+  }
 
   /**
    * Exposed for profiling reasons.
    * @private
    */
-  _processSubscribers: processSubscribers
-
-};
-
-function processBroadcasts(): void {
-  if (scheduledIDs) {
-    executingIDs = scheduledIDs;
-    scheduledIDs = null;
-    batchUpdate(processSubscribers);
+  _processSubscribers(): void {
+    this._subscribers.forEach((subscriber, subscriberIndex) =>
+      this._processSubscriber(subscriber, subscriberIndex)
+    );
   }
-}
 
-function processSubscribers(): void {
-  subscribers.forEach(processSubscriber);
-}
-
-function processSubscriber({subscribedIDs, callback}, subscriberIndex): void {
-  for (var broadcastID in executingIDs) {
-    if (executingIDs.hasOwnProperty(broadcastID)) {
-      var broadcastIndex = executingIDs[broadcastID];
-      if (broadcastIndex < subscriberIndex) {
-        // Callback was subscribed after this particular broadcast.
-        break;
-      }
-      if (subscribedIDs.indexOf(broadcastID) >= 0) {
-        ErrorUtils.applyWithGuard(
-          callback,
-          null,
-          null,
-          null,
-          'GraphQLStoreChangeEmitter'
-        );
-        break;
+  _processSubscriber(
+    {subscribedIDs, callback}: Subscriber,
+    subscriberIndex: number
+  ): void {
+    for (var broadcastID in this._executingIDs) {
+      if (this._executingIDs.hasOwnProperty(broadcastID)) {
+        var broadcastIndex = this._executingIDs[broadcastID];
+        if (broadcastIndex < subscriberIndex) {
+          // Callback was subscribed after this particular broadcast.
+          break;
+        }
+        if (subscribedIDs.indexOf(broadcastID) >= 0) {
+          ErrorUtils.applyWithGuard(
+            callback,
+            null,
+            null,
+            null,
+            'GraphQLStoreChangeEmitter'
+          );
+          break;
+        }
       }
     }
   }
-}
 
-/**
- * Ranges publish events for the entire range, not the specific view of that
- * range. For example, if "client:1" is a range, the event is on "client:1",
- * not "client:1_first(5)".
- */
-function getBroadcastID(id: string): string {
-  return GraphQLStoreRangeUtils.getCanonicalClientID(id);
+  /**
+   * Ranges publish events for the entire range, not the specific view of that
+   * range. For example, if "client:1" is a range, the event is on "client:1",
+   * not "client:1_first(5)".
+   */
+  _getBroadcastID(id: string): string {
+    return this._rangeData.getCanonicalClientID(id);
+  }
 }
 
 module.exports = GraphQLStoreChangeEmitter;

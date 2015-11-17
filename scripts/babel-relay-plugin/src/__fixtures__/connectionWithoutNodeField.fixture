@@ -130,6 +130,7 @@ var x = (function () {
           isRequisite: true
         }
       }],
+      hash: 'VIWtR/B6',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

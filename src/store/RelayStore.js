@@ -37,8 +37,9 @@ import type {
   RelayQuerySet
 } from 'RelayInternalTypes';
 
-var queryRunner = RelayStoreData.getDefaultInstance().getQueryRunner();
-var queuedStore = RelayStoreData.getDefaultInstance().getQueuedStore();
+var storeData = RelayStoreData.getDefaultInstance();
+var queryRunner = storeData.getQueryRunner();
+var queuedStore = storeData.getQueuedStore();
 
 /**
  * @public
@@ -107,7 +108,7 @@ var RelayStore = {
     dataID: DataID,
     options?: StoreReaderOptions
   ): ?StoreReaderData {
-    return readRelayQueryData(queuedStore, node, dataID, options).data;
+    return readRelayQueryData(storeData, node, dataID, options).data;
   },
 
   /**
@@ -119,7 +120,7 @@ var RelayStore = {
     options?: StoreReaderOptions
   ): Array<?StoreReaderData> {
     return dataIDs.map(
-      dataID => readRelayQueryData(queuedStore, node, dataID, options).data
+      dataID => readRelayQueryData(storeData, node, dataID, options).data
     );
   },
 
@@ -157,16 +158,25 @@ var RelayStore = {
       fragment.isPlural()? [dataID] : dataID,
       fragment
     );
-    return new RelayQueryResultObservable(queuedStore, fragmentPointer);
+    return new RelayQueryResultObservable(storeData, fragmentPointer);
+  },
+
+  applyUpdate(
+    mutation: RelayMutation,
+    callbacks?: RelayMutationTransactionCommitCallbacks
+  ): RelayMutationTransaction {
+    return storeData.getMutationQueue().createTransaction(
+      mutation,
+      callbacks
+    );
   },
 
   update(
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): void {
-    var transaction = new RelayMutationTransaction(mutation);
-    transaction.commit(callbacks);
-  }
+    this.applyUpdate(mutation, callbacks).commit();
+  },
 };
 
 module.exports = RelayStore;

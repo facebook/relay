@@ -147,6 +147,7 @@ const QueryBuilder = {
     return {
       children: partialFragment.children || EMPTY_CHILDREN,
       directives: partialFragment.directives || EMPTY_DIRECTIVES,
+      hash: null, // Only present for transformed fragments.
       kind: 'Fragment',
       metadata: {
         plural: !!metadata.plural, // match the `@relay` argument name
@@ -190,6 +191,7 @@ const QueryBuilder = {
       identifyingArgName?: ?string;
       identifyingArgType?: ?string;
       isDeferred?: ?boolean;
+      isPlural?: ?boolean;
     };
     name: string;
   }): ConcreteQuery {
@@ -225,6 +227,7 @@ const QueryBuilder = {
       metadata: {
         identifyingArgName,
         identifyingArgType: metadata.identifyingArgType,
+        isPlural: metadata.isPlural,
       },
       name: partialQuery.name,
     };

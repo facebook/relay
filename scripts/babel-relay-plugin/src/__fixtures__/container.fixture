@@ -30,6 +30,7 @@ Relay.createContainer(Component, {
               inferredPrimaryKey: 'id'
             }
           }],
+          hash: 'p00BYVor',
           kind: 'Fragment',
           metadata: {},
           name: 'Container',

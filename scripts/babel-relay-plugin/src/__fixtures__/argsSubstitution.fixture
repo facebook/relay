@@ -1,29 +1,20 @@
 Input:
 var foo = Relay.QL`
   query Args {
-    nodes(ids: [$one, $two, 3]) {
+    node(id: ${userID}) {
       id,
     },
   }
 `;
 
 Output:
-var foo = (function () {
+var foo = (function (RQL_0) {
   return {
     calls: [{
       kind: "Call",
       metadata: {},
-      name: "ids",
-      value: [{
-        kind: "CallVariable",
-        callVariableName: "one"
-      }, {
-        kind: "CallVariable",
-        callVariableName: "two"
-      }, {
-        kind: "CallValue",
-        callValue: 3
-      }]
+      name: "id",
+      value: Relay.QL.__var(RQL_0)
     }],
     children: [{
       fieldName: "id",
@@ -41,12 +32,11 @@ var foo = (function () {
         isRequisite: true
       }
     }],
-    fieldName: "nodes",
+    fieldName: "node",
     kind: "Query",
     metadata: {
-      isPlural: true,
-      identifyingArgName: "ids"
+      identifyingArgName: "id"
     },
     name: "Args"
   };
-})();
+})(userID);

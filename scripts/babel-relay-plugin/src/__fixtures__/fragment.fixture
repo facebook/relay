@@ -22,6 +22,7 @@ var x = (function () {
         isRequisite: true
       }
     }],
+    hash: '+a6og7PV',
     kind: 'Fragment',
     metadata: {},
     name: 'Fragment',

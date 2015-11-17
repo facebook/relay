@@ -73,6 +73,7 @@ var x = (function () {
           isRequisite: true
         }
       }],
+      hash: 'mRbxPLwz',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

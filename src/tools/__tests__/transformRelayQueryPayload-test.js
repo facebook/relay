@@ -50,7 +50,7 @@ describe('transformClientPayload()', () => {
             {
               cursor: 'friend:cursor',
               node: {
-                id: 'client:friend',
+                id: 'client:1',
                 profilePicture: {
                   uri: 'friend.jpg',
                 },
@@ -69,7 +69,7 @@ describe('transformClientPayload()', () => {
             {
               cursor: 'friend:cursor',
               node: {
-                id: 'client:friend',
+                id: 'client:1',
                 [generateRQLFieldAlias('profilePicture.size(32)')]: {
                   uri: 'friend.jpg',
                 },

@@ -15,9 +15,7 @@
 
 import type {ConcreteFragment} from 'ConcreteQuery';
 var ErrorUtils = require('ErrorUtils');
-var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
@@ -29,7 +27,6 @@ var RelayFragmentReference = require('RelayFragmentReference');
 import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayMutationTransaction = require('RelayMutationTransaction');
-var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 var RelayPropTypes = require('RelayPropTypes');
 var RelayProfiler = require('RelayProfiler');
 var RelayQuery = require('RelayQuery');
@@ -75,16 +72,16 @@ export type RootQueries = {
   [queryName: string]: RelayQLQueryBuilder;
 };
 
-GraphQLStoreChangeEmitter.injectBatchingStrategy(
-  ReactDOM.unstable_batchedUpdates
-);
-
 var containerContextTypes = {
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 var nextContainerID = 0;
 
 var storeData = RelayStoreData.getDefaultInstance();
+
+storeData.getChangeEmitter().injectBatchingStrategy(
+  ReactDOM.unstable_batchedUpdates
+);
 
 /**
  * @public
@@ -335,24 +332,25 @@ function createContainerComponent(
         'RelayContainer.hasOptimisticUpdate(): Expected a record in `%s`.',
         componentName
       );
-      return storeData.getQueuedStore().hasOptimisticUpdate(dataID);
+      return storeData.hasOptimisticUpdate(dataID);
     }
 
     /**
      * Returns the pending mutation transactions affecting the given record.
      */
     getPendingTransactions(record: Object): ?Array<RelayMutationTransaction> {
-      var dataID = GraphQLStoreDataHandler.getID(record);
+      const dataID = GraphQLStoreDataHandler.getID(record);
       invariant(
         dataID != null,
         'RelayContainer.getPendingTransactions(): Expected a record in `%s`.',
         componentName
       );
-      var mutationIDs = storeData.getQueuedStore().getClientMutationIDs(dataID);
+      const mutationIDs = storeData.getClientMutationIDs(dataID);
       if (!mutationIDs) {
         return null;
       }
-      return mutationIDs.map(RelayMutationTransaction.get);
+      const mutationQueue = storeData.getMutationQueue();
+      return mutationIDs.map(id => mutationQueue.getTransaction(id));
     }
 
     /**
@@ -403,7 +401,7 @@ function createContainerComponent(
       record: Object
     ): boolean {
       if (
-        !RelayPendingQueryTracker.hasPendingQueries() &&
+        !storeData.getPendingQueryTracker().hasPendingQueries() &&
         !this._deferredErrors
       ) {
         // nothing can be missing => must have data
@@ -431,7 +429,7 @@ function createContainerComponent(
         'conditions.'
       );
       var fragmentID = fragment.getFragmentID();
-      var hasData = !GraphQLDeferredQueryTracker.isQueryPending(
+      var hasData = !storeData.getDeferredQueryTracker().isQueryPending(
         dataID,
         fragmentID
       );
@@ -445,7 +443,7 @@ function createContainerComponent(
         }
         if (!deferredSubscriptions.hasOwnProperty(subscriptionKey)) {
           deferredSubscriptions[subscriptionKey] =
-            GraphQLDeferredQueryTracker.addListenerForFragment(
+            storeData.getDeferredQueryTracker().addListenerForFragment(
               dataID,
               fragmentID,
               {
@@ -478,8 +476,8 @@ function createContainerComponent(
       var queryData = this._getQueryData(this.props);
 
       this.setState({
-        queryData,
         variables,
+        queryData,
       });
     }
 
@@ -550,7 +548,7 @@ function createContainerComponent(
           }
         } else if (!queryResolver) {
           queryResolver = new GraphQLStoreQueryResolver(
-            storeData.getQueuedStore(),
+            storeData,
             fragmentPointer,
             this._handleFragmentDataUpdate.bind(this)
           );

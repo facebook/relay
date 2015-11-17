@@ -75,6 +75,7 @@ var toGraphQL = {
       const fragment: ConcreteFragment = {
         children,
         kind: 'Fragment',
+        hash: node.getHash(),
         metadata: {
           plural: node.isPlural(),
         },

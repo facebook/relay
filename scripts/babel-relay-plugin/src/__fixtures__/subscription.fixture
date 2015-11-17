@@ -10,7 +10,7 @@ var x = Relay.QL`
 
 Output:
 var Relay = require('react-relay');
-var x = (function (sub_0) {
+var x = (function (RQL_0) {
   return {
     calls: [{
       kind: 'Call',
@@ -29,7 +29,7 @@ var x = (function (sub_0) {
         isGenerated: true,
         isRequisite: true
       }
-    }, Relay.QL.__frag(sub_0)],
+    }, Relay.QL.__frag(RQL_0)],
     kind: 'Mutation',
     metadata: {
       inputType: 'ActorSubscribeInput!'

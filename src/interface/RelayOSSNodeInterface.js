@@ -81,8 +81,6 @@ var RelayOSSNodeInterface = {
             null;
           if (payloadID != null) {
             dataID = payloadID;
-          } else if (identifyingArgValue == null) {
-            dataID = `client:${query.getFieldName()}`;
           } else {
             dataID = generateClientID();
           }

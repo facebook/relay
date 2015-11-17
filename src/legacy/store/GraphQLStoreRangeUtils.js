@@ -15,8 +15,6 @@
 var callsFromGraphQL = require('callsFromGraphQL');
 var printRelayQueryCall = require('printRelayQueryCall');
 
-var rangeData = {};
-
 /**
  * Utilities used by GraphQLStore for storing ranges
  *
@@ -45,33 +43,36 @@ var rangeData = {};
  *
  * @internal
  */
-var GraphQLStoreRangeUtils = {
+class GraphQLStoreRangeUtils {
+  constructor() {
+    this._rangeData = {};
+  }
 
   /**
    * Returns a token that can be parsed using parseRangeClientID to recover
    * the attributes needed to retrieve the corresponding items from a
    * GraphQLRange.
    *
-   * @param {array<GraphQLCallvNode>} calls
+   * @param {array<*>} calls
    * @param {object} callValues
    * @param {string} dataID
    * @return {string}
    */
-  getClientIDForRangeWithID: function(calls, callValues, dataID) {
+  getClientIDForRangeWithID(calls, callValues, dataID) {
     var callsAsString = callsFromGraphQL(calls, callValues)
       .map(call => printRelayQueryCall(call).substring(1))
       .join(',');
     var key = dataID + '_' + callsAsString;
-    var edge = rangeData[key];
+    var edge = this._rangeData[key];
     if (!edge) {
-      rangeData[key] = {
+      this._rangeData[key] = {
         dataID: dataID,
         calls: calls,
         callValues: callValues
       };
     }
     return key;
-  },
+  }
 
   /**
    * Parses an ID back into its data ID and calls
@@ -79,9 +80,9 @@ var GraphQLStoreRangeUtils = {
    * @param {string} rangeSpecificClientID
    * @return {?object}
    */
-  parseRangeClientID: function(rangeSpecificClientID) {
-    return rangeData[rangeSpecificClientID] || null;
-  },
+  parseRangeClientID(rangeSpecificClientID) {
+    return this._rangeData[rangeSpecificClientID] || null;
+  }
 
   /**
    * If given the client id for a range view, returns the canonical client id
@@ -91,9 +92,9 @@ var GraphQLStoreRangeUtils = {
    * @param {string} dataID
    * @return {string}
    */
-  getCanonicalClientID: function(dataID) {
-    return rangeData[dataID] ? rangeData[dataID].dataID : dataID;
-  },
-};
+  getCanonicalClientID(dataID) {
+    return this._rangeData[dataID] ? this._rangeData[dataID].dataID : dataID;
+  }
+}
 
 module.exports = GraphQLStoreRangeUtils;

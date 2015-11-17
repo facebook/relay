@@ -25,6 +25,7 @@ var x = (function () {
         isRequisite: true
       }
     }],
+    hash: 'PvZb2X9S',
     kind: 'Fragment',
     metadata: {},
     name: 'Foo',
@@ -49,6 +50,7 @@ var y = (function () {
         isRequisite: true
       }
     }],
+    hash: 'wcbudXsA',
     kind: 'Fragment',
     metadata: {},
     name: 'Bar',

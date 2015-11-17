@@ -18,9 +18,8 @@ var Relay = require('Relay');
 var filterObject = require('filterObject');
 var fromGraphQL = require('fromGraphQL');
 var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
-var toGraphQL = require('toGraphQL');
 
-describe('toGraphQL', function() {
+describe('RelayQuery.toJSON', function() {
   var {defer, getNode} = RelayTestUtils;
 
   const CONCRETE_KEYS = {
@@ -76,13 +75,14 @@ describe('toGraphQL', function() {
     jest.resetModuleRegistry();
 
     jest.addMatchers({
-      toConvert(query) {
+      toBeConverted() {
         // This filters out extraneous properties from `GraphQL.*` nodes such as
         // `fields` or `fragments`, and reduces metadata down to compare only
         // truthy values. Once the printer outputs plain values the filter step
         // can be removed or simplified (might want to still filter metadata).
+        var query = this.actual;
         var expected = filterGraphQLNode(query);
-        var actual = filterGraphQLNode(this.actual(getNode(query)));
+        var actual = filterGraphQLNode(getNode(query).toJSON());
         expect(actual).toEqual(expected);
         return true;
       },
@@ -90,7 +90,7 @@ describe('toGraphQL', function() {
   });
 
   it('converts query', () => {
-    expect(toGraphQL.Query).toConvert(Relay.QL`
+    expect(Relay.QL`
       query {
         viewer {
           actor {
@@ -99,33 +99,33 @@ describe('toGraphQL', function() {
           }
         }
       }
-    `);
+    `).toBeConverted();
   });
 
   it('converts query with root args', () => {
-    expect(toGraphQL.Query).toConvert(Relay.QL`
+    expect(Relay.QL`
       query {
         nodes(ids:["1","2","3"]) {
           id,
           name
         }
       }
-    `);
+    `).toBeConverted();
   });
 
   it('converts fragment', () => {
-    expect(toGraphQL.Fragment).toConvert(Relay.QL`
+    expect(Relay.QL`
       fragment on Viewer {
         actor {
           id,
           name
         }
       }
-    `);
+    `).toBeConverted();
   });
 
   it('converts field with calls', () => {
-    expect(toGraphQL.Query).toConvert(Relay.QL`
+    expect(Relay.QL`
       query {
         viewer {
           actor {
@@ -134,11 +134,11 @@ describe('toGraphQL', function() {
           }
         }
       }
-    `);
+    `).toBeConverted();
   });
 
   it('converts connection and generated fields', () => {
-    expect(toGraphQL.Query).toConvert(Relay.QL`
+    expect(Relay.QL`
       query {
         viewer {
           actor {
@@ -152,7 +152,7 @@ describe('toGraphQL', function() {
           }
         }
       }
-    `);
+    `).toBeConverted();
   });
 
   it('preserves batch call information', () => {
@@ -171,7 +171,7 @@ describe('toGraphQL', function() {
       }
     `;
     var splitQueries = splitDeferredRelayQueries(getNode(query));
-    var deferredQuery = toGraphQL.Query(splitQueries.deferred[0].required);
+    var deferredQuery = splitQueries.deferred[0].required.toJSON();
     var batchCall = deferredQuery.calls[0].value;
 
     expect(deferredQuery.isDeferred).toBe(true);
@@ -193,7 +193,7 @@ describe('toGraphQL', function() {
     const identifyingArg = relayQuery.getIdentifyingArg();
     expect(identifyingArg).toBeDefined();
     expect(identifyingArg.value).toEqual(value);
-    var convertedQuery = toGraphQL.Query(relayQuery);
+    var convertedQuery = relayQuery.toJSON();
     expect(convertedQuery.calls[0].value.callValue).toBe(value);
   });
 
@@ -209,12 +209,12 @@ describe('toGraphQL', function() {
       }
     `;
     var relayQuery = fromGraphQL.Query(query);
-    var graphql = toGraphQL.Query(relayQuery);
+    var graphql = relayQuery.toJSON();
     // GraphQL queries are static and must be traversed once to determine
     // route-specific fragments and variable values
     expect(fromGraphQL.Query(graphql).equals(relayQuery)).toBe(true);
     expect(graphql).not.toBe(query);
-    expect(toGraphQL.Query(relayQuery)).toBe(graphql);
+    expect(relayQuery.toJSON()).toBe(graphql);
   });
 
   it('creates a new GraphQL-query if the relay query is a clone', () => {
@@ -230,10 +230,10 @@ describe('toGraphQL', function() {
 
     // GraphQL queries are static and must be traversed once to determine
     // route-specific fragments and variable values
-    var graphql = toGraphQL.Fragment(clonedRelayFragment);
+    var graphql = clonedRelayFragment.toJSON();
     expect(fromGraphQL.Fragment(graphql).equals(clonedRelayFragment))
       .toBe(true);
     expect(graphql).not.toBe(fragment);
-    expect(toGraphQL.Fragment(clonedRelayFragment)).toBe(graphql);
+    expect(clonedRelayFragment.toJSON()).toBe(graphql);
   });
 });

@@ -19,11 +19,11 @@
  * Helper for checking if this is a React Component
  * created with React.Component or React.createClass().
  */
-function isReactComponent(component: any): boolean {
-  return (
+function isReactComponent(component: mixed): boolean {
+  return !!(
     component &&
     component.prototype &&
-    !!component.prototype.isReactComponent
+    component.prototype.isReactComponent
   );
 }
 

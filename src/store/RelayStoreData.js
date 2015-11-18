@@ -13,7 +13,6 @@
 
 'use strict';
 
-var GraphQLDeferredQueryTracker = require('GraphQLDeferredQueryTracker');
 var GraphQLQueryRunner = require('GraphQLQueryRunner');
 var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
@@ -67,7 +66,6 @@ class RelayStoreData {
   _cachedRecords: Records;
   _cachedRootCalls: RootCallMap;
   _changeEmitter: GraphQLStoreChangeEmitter;
-  _deferredQueryTracker: GraphQLDeferredQueryTracker;
   _garbageCollector: ?RelayStoreGarbageCollector;
   _mutationQueue: RelayMutationQueue;
   _nodeRangeMap: NodeRangeMap;
@@ -114,7 +112,6 @@ class RelayStoreData {
     this._cachedRecords = cachedRecords;
     this._cachedRootCalls = cachedRootCallMap;
     this._changeEmitter = new GraphQLStoreChangeEmitter(rangeData);
-    this._deferredQueryTracker = new GraphQLDeferredQueryTracker(recordStore);
     this._mutationQueue = new RelayMutationQueue(this);
     this._nodeRangeMap = nodeRangeMap;
     this._pendingQueryTracker = new RelayPendingQueryTracker(this);
@@ -395,10 +392,6 @@ class RelayStoreData {
 
   getQueryRunner(): GraphQLQueryRunner {
     return this._queryRunner;
-  }
-
-  getDeferredQueryTracker(): GraphQLDeferredQueryTracker {
-    return this._deferredQueryTracker;
   }
 
   getChangeEmitter(): GraphQLStoreChangeEmitter {

@@ -66,10 +66,6 @@ export type RelayProp = {
     partialVariables?: ?Variables,
     callback?: ?ComponentReadyStateChangeCallback
   ) => void,
-  getFragmentError: (
-    fragmentReference: RelayFragmentReference,
-    record: Object
-  ) => ?Error,
   getPendingTransactions: (record: Object) => ?Array<RelayMutationTransaction>,
   hasFragmentData: (
     fragmentReference: RelayFragmentReference,

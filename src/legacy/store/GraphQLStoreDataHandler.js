@@ -16,7 +16,9 @@
 var METADATA_KEYS = {
   __dataID__: true,
   __range__: true,
-  __status__: true
+  __resolvedFragmentMap__: true,
+  __resolvedFragmentMapGeneration__: true,
+  __status__: true,
 };
 
 /**

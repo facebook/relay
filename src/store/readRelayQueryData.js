@@ -51,6 +51,10 @@ type State = {
 };
 
 var {EDGES, PAGE_INFO} = RelayConnectionInterface;
+const METADATA_KEYS = [
+  '__status__',
+  '__resolvedFragmentMapGeneration__',
+];
 
 /**
  * @internal
@@ -346,7 +350,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
    * Assigns `value` to the property of `state.data` identified by `key`.
    *
    * Pre-populates `state` with a suitable `data` object if needed, and copies
-   * over any `__status__` field, if present.
+   * over any metadata fields, if present.
    */
   _setDataValue(state: State, key: string, value: mixed): void {
     var data = getDataObject(state); // ensure __dataID__
@@ -355,11 +359,16 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     }
     data[key] = value;
 
-    // Copy over the status, if any.
-    var status = this._recordStore.getField(state.storeDataID, '__status__');
-    if (status != null) {
-      data.__status__ = status;
-    }
+    // Copy metadata like `__resolvedFragmentMapGeneration__` and `__status__`.
+    METADATA_KEYS.forEach(metadataKey => {
+      const metadataValue = this._recordStore.getField(
+        state.storeDataID,
+        metadataKey
+      );
+      if (metadataValue != null) {
+        data[metadataKey] = metadataValue;
+      }
+    });
   }
 
   /**

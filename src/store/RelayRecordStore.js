@@ -42,6 +42,8 @@ const EMPTY = '';
 const FILTER_CALLS = '__filterCalls__';
 const FORCE_INDEX = '__forceIndex__';
 const RANGE = '__range__';
+const RESOLVED_FRAGMENT_MAP = '__resolvedFragmentMap__';
+const RESOLVED_FRAGMENT_MAP_GENERATION = '__resolvedFragmentMapGeneration__';
 const PATH = '__path__';
 const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 
@@ -304,6 +306,51 @@ class RelayRecordStore {
       record.__status__,
       hasError
     );
+  }
+
+  /**
+   * Check whether a given record has received data for a deferred fragment.
+   */
+  hasDeferredFragmentData(dataID: DataID, fragmentID: string): boolean {
+    const resolvedFragmentMap = this._getField(dataID, RESOLVED_FRAGMENT_MAP);
+    invariant(
+      typeof resolvedFragmentMap === 'object' || resolvedFragmentMap == null,
+      'RelayRecordStore.hasDeferredFragmentData(): Expected the map of ' +
+      'resolved deferred fragments associated with record `%s` to be null or ' +
+      'an object. Found a(n) `%s`.',
+      dataID,
+      typeof resolvedFragmentMap
+    );
+    return !!(resolvedFragmentMap && resolvedFragmentMap[fragmentID]);
+  }
+
+  /**
+   * Mark a given record as having received data for a deferred fragment.
+   */
+  setHasDeferredFragmentData(
+    dataID: DataID,
+    fragmentID: string
+  ): void {
+    var record = this._getRecord(dataID);
+    invariant(
+      record,
+      'RelayRecordStore.setHasDeferredFragmentData(): Expected record `%s` ' +
+      'to exist before marking it as having received data for the deferred ' +
+      'fragment with id `%s`.',
+      dataID,
+      fragmentID
+    );
+    let resolvedFragmentMap = record[RESOLVED_FRAGMENT_MAP];
+    if (typeof resolvedFragmentMap !== 'object' || !resolvedFragmentMap) {
+      resolvedFragmentMap = {};
+    }
+    resolvedFragmentMap[fragmentID] = true;
+    record[RESOLVED_FRAGMENT_MAP] = resolvedFragmentMap;
+    if (typeof record[RESOLVED_FRAGMENT_MAP_GENERATION] === 'number') {
+      record[RESOLVED_FRAGMENT_MAP_GENERATION]++;
+    } else {
+      record[RESOLVED_FRAGMENT_MAP_GENERATION] = 0;
+    }
   }
 
   /**

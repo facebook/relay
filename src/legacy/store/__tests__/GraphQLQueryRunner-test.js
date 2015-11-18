@@ -18,13 +18,13 @@ jest
   .mock('warning')
   .dontMock('DliteFetchModeConstants')
   .dontMock('GraphQL_DEPRECATED')
-  .dontMock('GraphQLDeferredQueryTracker')
   .dontMock('GraphQLQueryRunner');
 
 var DliteFetchModeConstants = require('DliteFetchModeConstants');
 var Relay = require('Relay');
 var RelayNetworkLayer = require('RelayNetworkLayer');
 var RelayStoreData = require('RelayStoreData');
+
 var checkRelayQueryData = require('checkRelayQueryData');
 var diffRelayQuery = require('diffRelayQuery');
 var splitDeferredRelayQueries = require('splitDeferredRelayQueries');

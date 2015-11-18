@@ -260,6 +260,20 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     }
   }
 
+  visitFragment(
+    fragment: RelayQuery.Fragment,
+    state: WriterState
+  ): ?RelayQuery.Node {
+    if (fragment.isDeferred()) {
+      this._store.setHasDeferredFragmentData(
+        state.recordID,
+        fragment.getFragmentID()
+      );
+      this.recordUpdate(state.recordID);
+    }
+    return this.traverse(fragment, state);
+  }
+
   /**
    * Writes the value for a 'scalar' field such as `id` or `name`. The response
    * data is expected to be scalar values or arrays of scalar values.

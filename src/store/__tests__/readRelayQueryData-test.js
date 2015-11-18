@@ -236,6 +236,23 @@ describe('readRelayQueryData', () => {
     });
   });
 
+  it('retrieves resolved fragment map generation information', () => {
+    var records = {
+      'a': {
+        __dataID__: 'a',
+        __resolvedFragmentMapGeneration__: 42,
+        firstName: 'Steve',
+      },
+    };
+    var query = getNode(Relay.QL`fragment on User{firstName}`);
+    var data = readData(getStoreData({records}), query, 'a');
+    expect(data).toEqual({
+      __dataID__: 'a',
+      __resolvedFragmentMapGeneration__: 42,
+      firstName: 'Steve',
+    });
+  });
+
   it('populates data ID for nodes containing only non-local fragments', () => {
     var records = {
       'client:1': {

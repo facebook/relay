@@ -22,8 +22,8 @@ var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayMutation = require('RelayMutation');
 var RelayMutationQuery = require('RelayMutationQuery');
 var RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
+var RelayQuery = require('RelayQuery');
 var RelayStoreData = require('RelayStoreData');
-var fromGraphQL = require('fromGraphQL');
 
 describe('RelayMutationQueue', () => {
   var RelayNetworkLayer;
@@ -36,7 +36,8 @@ describe('RelayMutationQueue', () => {
     RelayNetworkLayer = jest.genMockFromModule('RelayNetworkLayer');
     jest.setMock('RelayNetworkLayer', RelayNetworkLayer);
 
-    fromGraphQL.Fragment = jest.genMockFunction().mockImplementation(f => f);
+    RelayQuery.Fragment.fromJSON =
+      jest.genMockFunction().mockImplementation(f => f);
 
     RelayStoreData.prototype.handleUpdatePayload = jest.genMockFunction();
     storeData = RelayStoreData.getDefaultInstance();

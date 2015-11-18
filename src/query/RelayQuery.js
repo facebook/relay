@@ -100,8 +100,6 @@ if (__DEV__) {
  * replace the current mutable GraphQL nodes with an immutable query
  * representation. This class *must not* mutate the underlying `concreteNode`.
  * Instead, use an instance variable (see `clone()`).
- *
- * TODO (#6937314): RelayQueryNode support for toJSON/fromJSON
  */
 class RelayQueryNode {
   constructor: Function; // for flow
@@ -573,6 +571,10 @@ class RelayQueryRoot extends RelayQueryNode {
     return super.equals(that);
   }
 
+  static fromJSON(json: ConcreteQuery): RelayQueryRoot {
+    return RelayQueryRoot.create(json, RelayMetaRoute.get('$fromJSON'), {});
+  }
+
   toJSON(): ConcreteQuery {
     const getIdentifyingArgValue = () => {
       const batchCall = this.getBatchCall();
@@ -952,6 +954,10 @@ class RelayQueryFragment extends RelayQueryNode {
     return super.equals(that);
   }
 
+  static fromJSON(json: ConcreteFragment): RelayQueryFragment {
+    return RelayQueryFragment.create(json, RelayMetaRoute.get('$fromJSON'), {});
+  }
+
   toJSON(): ConcreteFragment {
     return {
       children: this.__toJSONChildren__(),
@@ -1294,6 +1300,10 @@ class RelayQueryField extends RelayQueryNode {
     field.__calls__ = calls;
 
     return field;
+  }
+
+  static fromJSON(json: ConcreteField): RelayQueryField {
+    return RelayQueryField.create(json, RelayMetaRoute.get('$fromJSON'), {});
   }
 
   toJSON(): ConcreteField {

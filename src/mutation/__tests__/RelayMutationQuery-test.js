@@ -21,15 +21,15 @@ var Relay = require('Relay');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayMutationQuery = require('RelayMutationQuery');
 var RelayMutationType = require('RelayMutationType');
+var RelayQuery = require('RelayQuery');
 var RelayQueryTracker = require('RelayQueryTracker');
 var filterRelayQuery = require('filterRelayQuery');
-var fromGraphQL = require('fromGraphQL');
 var intersectRelayQuery = require('intersectRelayQuery');
 var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 
 describe('RelayMutationQuery', () => {
   function getNodeChildren(fragment) {
-    return fromGraphQL.Fragment(fragment).getChildren();
+    return RelayQuery.Fragment.fromJSON(fragment).getChildren();
   }
   function getNodeWithoutSource(...args) {
     var filterCallback = RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD ?
@@ -50,7 +50,7 @@ describe('RelayMutationQuery', () => {
 
   describe('fields', () => {
     it('throws for invalid field names', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on ActorSubscribeResponsePayload {
           subscribee {
             subscribers,
@@ -72,7 +72,7 @@ describe('RelayMutationQuery', () => {
     });
 
     it('maps a field to a single ID', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike,
@@ -108,7 +108,7 @@ describe('RelayMutationQuery', () => {
     });
 
     it('maps a plural field to an array of IDs', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on ViewerNotificationsUpdateAllSeenStateResponsePayload {
           stories {
             seenState
@@ -145,7 +145,7 @@ describe('RelayMutationQuery', () => {
     });
 
     it('merges tracked nodes for IDs of plural fields', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on ViewerNotificationsUpdateAllSeenStateResponsePayload {
           stories {
             seenState
@@ -153,14 +153,14 @@ describe('RelayMutationQuery', () => {
         }
       `);
       var trackedNodes = {
-        '123': fromGraphQL.Fragment(Relay.QL`
+        '123': RelayQuery.Fragment.fromJSON(Relay.QL`
           fragment on Story {
             message {
               text
             }
           }
         `),
-        '456': fromGraphQL.Fragment(Relay.QL`
+        '456': RelayQuery.Fragment.fromJSON(Relay.QL`
           fragment on Story {
             actors {
               name
@@ -212,7 +212,7 @@ describe('RelayMutationQuery', () => {
   describe('edge deletion', () => {
     var fatQuery;
     beforeEach(() => {
-      fatQuery = fromGraphQL.Fragment(Relay.QL`
+      fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
             comments,
@@ -280,7 +280,7 @@ describe('RelayMutationQuery', () => {
     var fatQuery, rangeBehaviors;
 
     beforeEach(() => {
-      fatQuery = fromGraphQL.Fragment(Relay.QL`
+      fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments,
@@ -550,7 +550,7 @@ describe('RelayMutationQuery', () => {
 
   describe('optimistic update', () => {
     it('infers fields', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike,
@@ -570,7 +570,7 @@ describe('RelayMutationQuery', () => {
     });
 
     it('builds query', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike,
@@ -638,7 +638,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments,
@@ -725,7 +725,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
             comments,
@@ -792,7 +792,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
             comments,
@@ -852,7 +852,7 @@ describe('RelayMutationQuery', () => {
           url
         }
       `));
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike,
@@ -915,7 +915,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments,
@@ -1022,7 +1022,7 @@ describe('RelayMutationQuery', () => {
           url
         }
       `));
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      var fatQuery = RelayQuery.Fragment.fromJSON(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments,

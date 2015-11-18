@@ -16,7 +16,6 @@ RelayTestUtils.unmockRelay();
 
 var Relay = require('Relay');
 var filterObject = require('filterObject');
-var fromGraphQL = require('fromGraphQL');
 var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 
 describe('RelayQuery.toJSON', function() {

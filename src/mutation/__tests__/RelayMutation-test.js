@@ -19,8 +19,8 @@ jest
   .dontMock('buildRQL');
 
 var Relay = require('Relay');
+var RelayQuery = require('RelayQuery');
 var buildRQL = require('buildRQL');
-var fromGraphQL = require('fromGraphQL');
 
 describe('RelayMutation', function() {
   var MockMutation;
@@ -69,9 +69,10 @@ describe('RelayMutation', function() {
     /* eslint-enable no-new */
     expect(Relay.Store.read.mock.calls.length).toBe(2);
 
-    var mockBarRequiredFragment = fromGraphQL.Fragment(buildRQL.Fragment(
-      MockMutation.fragments.bar, []
-    ));
+    var mockBarRequiredFragment = RelayQuery.Fragment
+      .fromJSON(buildRQL.Fragment(
+        MockMutation.fragments.bar, []
+      ));
     expect(Relay.Store.read.mock.calls[0]).toEqual(
       [mockBarRequiredFragment, 'bar']
     );

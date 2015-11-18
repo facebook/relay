@@ -28,7 +28,10 @@ const {
 
 const find = require('./find');
 const invariant = require('./invariant');
-const t = require('babel-core/lib/types');
+const t = require('babel-types/lib/');
+/* TODO: Spread is not working on babel6 right now. https://github.com/reactjs/react-rails/issues/313
+* Using solution from babel5 https://babeljs.io/repl/ */
+const _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 export type Printable = Object;
 export type Substitution = {
@@ -36,7 +39,7 @@ export type Substitution = {
   value: Printable;
 };
 
-const NULL = t.literal(null);
+const NULL = t.nullLiteral();
 
 class RelayQLPrinter {
   documentHash: string;
@@ -121,11 +124,11 @@ class RelayQLPrinter {
       metadata.identifyingArgType =
         this.printArgumentTypeForMetadata(identifyingArg.getType());
       calls = t.arrayExpression([codify({
-        kind: t.literal('Call'),
+        kind: t.valueToNode('Call'),
         metadata: objectify({
           type: this.printArgumentTypeForMetadata(identifyingArg.getType()),
         }),
-        name: t.literal(identifyingArg.getName()),
+        name: t.valueToNode(identifyingArg.getName()),
         value: this.printArgumentValue(identifyingArg),
       })]);
     }
@@ -134,10 +137,10 @@ class RelayQLPrinter {
       calls,
       children: selections,
       directives: this.printDirectives(rootField.getDirectives()),
-      fieldName: t.literal(rootField.getName()),
-      kind: t.literal('Query'),
+      fieldName: t.valueToNode(rootField.getName()),
+      kind: t.valueToNode('Query'),
       metadata: objectify(metadata),
-      name: t.literal(query.getName()),
+      name: t.valueToNode(query.getName()),
     });
   }
 
@@ -157,11 +160,11 @@ class RelayQLPrinter {
     return codify({
       children: selections,
       directives: this.printDirectives(fragment.getDirectives()),
-      hash: t.literal(this.documentHash),
-      kind: t.literal('Fragment'),
+      hash: t.valueToNode(this.documentHash),
+      kind: t.valueToNode('Fragment'),
       metadata,
-      name: t.literal(fragment.getName()),
-      type: t.literal(fragmentType.getName({modifiers: true})),
+      name: t.valueToNode(fragment.getName()),
+      type: t.valueToNode(fragmentType.getName({modifiers: true})),
     });
   }
 
@@ -188,18 +191,18 @@ class RelayQLPrinter {
     return codify({
       calls: t.arrayExpression([
         codify({
-          kind: t.literal('Call'),
+          kind: t.valueToNode('Call'),
           metadata: objectify({}),
-          name: t.literal(rootField.getName()),
+          name: t.valueToNode(rootField.getName()),
           value: this.printVariable('input'),
         }),
       ]),
       children: selections,
       directives: this.printDirectives(mutation.getDirectives()),
-      kind: t.literal('Mutation'),
+      kind: t.valueToNode('Mutation'),
       metadata: objectify(metadata),
-      name: t.literal(mutation.getName()),
-      responseType: t.literal(rootFieldType.getName({modifiers: true})),
+      name: t.valueToNode(mutation.getName()),
+      responseType: t.valueToNode(rootFieldType.getName({modifiers: true})),
     });
   }
 
@@ -247,7 +250,7 @@ class RelayQLPrinter {
       requisiteFields.pageInfo = true;
     }
 
-    const generatedFields = {...requisiteFields};
+    const generatedFields = _extends({}, requisiteFields);
 
     const printedFields = [];
     fields.forEach(field => {
@@ -341,12 +344,12 @@ class RelayQLPrinter {
       NULL;
 
     return codify({
-      alias: fieldAlias ? t.literal(fieldAlias): NULL,
+      alias: fieldAlias ? t.valueToNode(fieldAlias): NULL,
       calls,
       children: selections,
       directives: this.printDirectives(field.getDirectives()),
-      fieldName: t.literal(field.getName()),
-      kind: t.literal('Field'),
+      fieldName: t.valueToNode(field.getName()),
+      kind: t.valueToNode('Field'),
       metadata: objectify(metadata),
     });
   }
@@ -368,9 +371,9 @@ class RelayQLPrinter {
       metadata.type = inputType;
     }
     return codify({
-      kind: t.literal('Call'),
+      kind: t.valueToNode('Call'),
       metadata: objectify(metadata),
-      name: t.literal(arg.getName()),
+      name: t.valueToNode(arg.getName()),
       value: this.printArgumentValue(arg),
     });
   }
@@ -395,8 +398,8 @@ class RelayQLPrinter {
       );
     }
     return codify({
-      kind: t.literal('CallVariable'),
-      callVariableName: t.literal(name),
+      kind: t.valueToNode('CallVariable'),
+      callVariableName: t.valueToNode(name),
     });
   }
 
@@ -407,8 +410,8 @@ class RelayQLPrinter {
       );
     }
     return codify({
-      kind: t.literal('CallValue'),
-      callValue: t.literal(value),
+      kind: t.valueToNode('CallValue'),
+      callValue: t.valueToNode(value),
     });
   }
 
@@ -420,12 +423,12 @@ class RelayQLPrinter {
       }
       printedDirectives.push(
         t.objectExpression([
-          property('kind', t.literal('Directive')),
-          property('name', t.literal(directive.getName())),
+          property('kind', t.valueToNode('Directive')),
+          property('name', t.valueToNode(directive.getName())),
           property('arguments', t.arrayExpression(
             directive.getArguments().map(
               arg => t.objectExpression([
-                property('name', t.literal(arg.getName())),
+                property('name', t.valueToNode(arg.getName())),
                 property('value', this.printArgumentValue(arg)),
               ])
             )
@@ -458,7 +461,7 @@ class RelayQLPrinter {
             arg.getName()
           );
         }
-        properties.push(property(arg.getName(), t.literal(arg.getValue())));
+        properties.push(property(arg.getName(), t.valueToNode(arg.getValue())));
       });
     }
     return t.objectExpression(properties);
@@ -622,14 +625,14 @@ function objectify(obj: {[key: string]: mixed}): Printable {
   Object.keys(obj).forEach(key => {
     const value = obj[key];
     if (value) {
-      properties.push(property(key, t.literal(value)));
+      properties.push(property(key, t.valueToNode(value)));
     }
   })
   return t.objectExpression(properties);
 }
 
 function property(name: string, value: mixed): Printable {
-  return t.property('init', t.identifier(name), value);
+  return t.objectProperty(t.identifier(name), value);
 }
 
 module.exports = RelayQLPrinter;

@@ -11,31 +11,32 @@
  * @fullSyntaxTransform
  */
 
-// TODO: Import types from `graphql`.
 'use strict';
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+const types = require('graphql/type');
+const {
+  SchemaMetaFieldDef,
+  TypeMetaFieldDef,
+  TypeNameMetaFieldDef
+} = require('graphql/type/introspection');
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+const find = require('./find');
+const invariant = require('./invariant');
+/* TODO: Spread is not working on babel6 right now. https://github.com/reactjs/react-rails/issues/313
+* Using solution from babel5 https://babeljs.io/repl/ */
+const _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }return target;
+};
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+// TODO: Import types from `graphql`.
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var types = require('graphql/type');
-
-var _require = require('graphql/type/introspection');
-
-var SchemaMetaFieldDef = _require.SchemaMetaFieldDef;
-var TypeMetaFieldDef = _require.TypeMetaFieldDef;
-var TypeNameMetaFieldDef = _require.TypeNameMetaFieldDef;
-
-var find = require('./find');
-var invariant = require('./invariant');
-
-var GraphQLRelayDirective = {
+const GraphQLRelayDirective = {
   name: 'relay',
   args: [{
     name: 'pattern',
@@ -46,652 +47,449 @@ var GraphQLRelayDirective = {
   }]
 };
 
-var RelayQLNode = (function () {
-  function RelayQLNode(context, ast) {
-    _classCallCheck(this, RelayQLNode);
+class RelayQLNode {
 
+  constructor(context, ast) {
     this.ast = ast;
     this.context = context;
   }
 
-  _createClass(RelayQLNode, [{
-    key: 'getType',
-    value: function getType() {
-      invariant(false, 'Missing Implementation');
-    }
-  }, {
-    key: 'getField',
-    value: function getField(fieldName) {
-      return find(this.getFields(), function (field) {
-        return field.getName() === fieldName;
-      });
-    }
-  }, {
-    key: 'getFields',
-    value: function getFields() {
-      var fields = [];
-      this.getSelections().forEach(function (selection) {
-        if (selection instanceof RelayQLField) {
-          fields.push(selection);
-        }
-      });
-      return fields;
-    }
-  }, {
-    key: 'getSelections',
-    value: function getSelections() {
-      var _this = this;
-
-      if (!this.ast.selectionSet) {
-        return [];
-      }
-      return this.ast.selectionSet.selections.map(function (selection) {
-        if (selection.kind === 'Field') {
-          return new RelayQLField(_this.context, selection, _this.getType());
-        } else if (selection.kind === 'FragmentSpread') {
-          return new RelayQLFragmentSpread(_this.context, selection);
-        } else if (selection.kind === 'InlineFragment') {
-          return new RelayQLInlineFragment(_this.context, selection, _this.getType());
-        } else {
-          invariant(false, 'Unexpected selection kind: %s', selection.kind);
-        }
-      });
-    }
-  }, {
-    key: 'getDirectives',
-    value: function getDirectives() {
-      var _this2 = this;
-
-      return (this.ast.directives || []).map(function (directive) {
-        return new RelayQLDirective(_this2.context, directive);
-      });
-    }
-  }, {
-    key: 'isPattern',
-    value: function isPattern() {
-      return this.context.isPattern;
-    }
-  }]);
-
-  return RelayQLNode;
-})();
-
-var RelayQLDefinition = (function (_RelayQLNode) {
-  _inherits(RelayQLDefinition, _RelayQLNode);
-
-  function RelayQLDefinition() {
-    _classCallCheck(this, RelayQLDefinition);
-
-    _get(Object.getPrototypeOf(RelayQLDefinition.prototype), 'constructor', this).apply(this, arguments);
+  getType() {
+    invariant(false, 'Missing Implementation');
   }
 
-  _createClass(RelayQLDefinition, [{
-    key: 'getName',
-    value: function getName() {
-      return this.ast.name ? this.ast.name.value : this.getType().getName({ modifiers: false }); // TODO: this.context.definitionName;
-    }
-  }]);
+  getField(fieldName) {
+    return find(this.getFields(), field => field.getName() === fieldName);
+  }
 
-  return RelayQLDefinition;
-})(RelayQLNode);
-
-var RelayQLFragment = (function (_RelayQLDefinition) {
-  _inherits(RelayQLFragment, _RelayQLDefinition);
-
-  function RelayQLFragment(context, ast, parentType) {
-    _classCallCheck(this, RelayQLFragment);
-
-    // @relay(pattern: true)
-    var isPattern = (ast.directives || []).some(function (directive) {
-      return directive.name.value === 'relay' && (directive.arguments || []).some(function (arg) {
-        return arg.name.value === 'pattern' && arg.value.kind === 'BooleanValue' && arg.value.value;
-      });
+  getFields() {
+    const fields = [];
+    this.getSelections().forEach(selection => {
+      if (selection instanceof RelayQLField) {
+        fields.push(selection);
+      }
     });
-    _get(Object.getPrototypeOf(RelayQLFragment.prototype), 'constructor', this).call(this, _extends({}, context, { isPattern: isPattern }), ast);
+    return fields;
+  }
+
+  getSelections() {
+    if (!this.ast.selectionSet) {
+      return [];
+    }
+    return this.ast.selectionSet.selections.map(selection => {
+      if (selection.kind === 'Field') {
+        return new RelayQLField(this.context, selection, this.getType());
+      } else if (selection.kind === 'FragmentSpread') {
+        return new RelayQLFragmentSpread(this.context, selection);
+      } else if (selection.kind === 'InlineFragment') {
+        return new RelayQLInlineFragment(this.context, selection, this.getType());
+      } else {
+        invariant(false, 'Unexpected selection kind: %s', selection.kind);
+      }
+    });
+  }
+
+  getDirectives() {
+    return (this.ast.directives || []).map(directive => new RelayQLDirective(this.context, directive));
+  }
+
+  isPattern() {
+    return this.context.isPattern;
+  }
+}
+
+class RelayQLDefinition extends RelayQLNode {
+  getName() {
+    return this.ast.name ? this.ast.name.value : this.getType().getName({ modifiers: false }); // TODO: this.context.definitionName;
+  }
+}
+
+class RelayQLFragment extends RelayQLDefinition {
+
+  constructor(context, ast, parentType) {
+    // @relay(pattern: true)
+    const isPattern = (ast.directives || []).some(directive => directive.name.value === 'relay' && (directive.arguments || []).some(arg => arg.name.value === 'pattern' && arg.value.kind === 'BooleanValue' && arg.value.value));
+    super(_extends({}, context, { isPattern: isPattern }), ast);
     this.parentType = parentType;
   }
 
-  _createClass(RelayQLFragment, [{
-    key: 'getType',
-    value: function getType() {
-      var type = this.ast.typeCondition;
-      if (type) {
-        // Convert `ListType` and `NonNullType` into `NamedType`.
-        while (type.kind !== 'NamedType') {
-          type = type.type;
-        }
-        return new RelayQLType(this.context, this.context.schema.getType(type.name.value));
-      } else if (this.ast.kind === 'InlineFragment') {
-        // Inline fragments without type conditions fall back to parent type.
-        invariant(this.parentType, 'Cannot get type of typeless inline fragment without parent type.');
-        return this.parentType;
-      } else {
-        invariant(false, 'Unexpected fragment kind: %s', this.ast.kind);
+  getType() {
+    let type = this.ast.typeCondition;
+    if (type) {
+      // Convert `ListType` and `NonNullType` into `NamedType`.
+      while (type.kind !== 'NamedType') {
+        type = type.type;
       }
+      return new RelayQLType(this.context, this.context.schema.getType(type.name.value));
+    } else if (this.ast.kind === 'InlineFragment') {
+      // Inline fragments without type conditions fall back to parent type.
+      invariant(this.parentType, 'Cannot get type of typeless inline fragment without parent type.');
+      return this.parentType;
+    } else {
+      invariant(false, 'Unexpected fragment kind: %s', this.ast.kind);
     }
-  }]);
-
-  return RelayQLFragment;
-})(RelayQLDefinition);
-
-var RelayQLMutation = (function (_RelayQLDefinition2) {
-  _inherits(RelayQLMutation, _RelayQLDefinition2);
-
-  function RelayQLMutation() {
-    _classCallCheck(this, RelayQLMutation);
-
-    _get(Object.getPrototypeOf(RelayQLMutation.prototype), 'constructor', this).apply(this, arguments);
   }
+}
 
-  _createClass(RelayQLMutation, [{
-    key: 'getType',
-    value: function getType() {
-      return new RelayQLType(this.context, this.context.schema.getMutationType());
-    }
-  }]);
-
-  return RelayQLMutation;
-})(RelayQLDefinition);
-
-var RelayQLQuery = (function (_RelayQLDefinition3) {
-  _inherits(RelayQLQuery, _RelayQLDefinition3);
-
-  function RelayQLQuery() {
-    _classCallCheck(this, RelayQLQuery);
-
-    _get(Object.getPrototypeOf(RelayQLQuery.prototype), 'constructor', this).apply(this, arguments);
+class RelayQLMutation extends RelayQLDefinition {
+  getType() {
+    return new RelayQLType(this.context, this.context.schema.getMutationType());
   }
+}
 
-  _createClass(RelayQLQuery, [{
-    key: 'getType',
-    value: function getType() {
-      return new RelayQLType(this.context, this.context.schema.getQueryType());
-    }
-  }]);
+class RelayQLQuery extends RelayQLDefinition {
+  getType() {
+    return new RelayQLType(this.context, this.context.schema.getQueryType());
+  }
+}
 
-  return RelayQLQuery;
-})(RelayQLDefinition);
+class RelayQLField extends RelayQLNode {
 
-var RelayQLField = (function (_RelayQLNode2) {
-  _inherits(RelayQLField, _RelayQLNode2);
-
-  function RelayQLField(context, ast, parentType) {
-    _classCallCheck(this, RelayQLField);
-
-    _get(Object.getPrototypeOf(RelayQLField.prototype), 'constructor', this).call(this, context, ast);
-    var fieldName = this.ast.name.value;
-    var fieldDef = parentType.getFieldDefinition(fieldName);
+  constructor(context, ast, parentType) {
+    super(context, ast);
+    const fieldName = this.ast.name.value;
+    const fieldDef = parentType.getFieldDefinition(fieldName);
     invariant(fieldDef, 'You supplied a field named `%s` on type `%s`, but no such field ' + 'exists on that type.', fieldName, parentType.getName({ modifiers: false }));
     this.fieldDef = fieldDef;
   }
 
-  _createClass(RelayQLField, [{
-    key: 'getName',
-    value: function getName() {
-      return this.ast.name.value;
-    }
-  }, {
-    key: 'getAlias',
-    value: function getAlias() {
-      return this.ast.alias ? this.ast.alias.value : null;
-    }
-  }, {
-    key: 'getType',
-    value: function getType() {
-      return this.fieldDef.getType();
-    }
-  }, {
-    key: 'hasArgument',
-    value: function hasArgument(argName) {
-      return this.getArguments().some(function (arg) {
-        return arg.getName() === argName;
-      });
-    }
-  }, {
-    key: 'getArguments',
-    value: function getArguments() {
-      var _this3 = this;
-
-      var argTypes = this.fieldDef.getDeclaredArguments();
-      return (this.ast.arguments || []).map(function (arg) {
-        var argName = arg.name.value;
-        var argType = argTypes[argName];
-        invariant(argType, 'You supplied an argument named `%s` on field `%s`, but no such ' + 'argument exists on that field.', argName, _this3.getName());
-        return new RelayQLArgument(_this3.context, arg, argType);
-      });
-    }
-  }, {
-    key: 'hasDeclaredArgument',
-    value: function hasDeclaredArgument(argName) {
-      return this.fieldDef.getDeclaredArguments().hasOwnProperty(argName);
-    }
-  }, {
-    key: 'getDeclaredArgument',
-    value: function getDeclaredArgument(argName) {
-      return this.fieldDef.getArgument(argName);
-    }
-  }, {
-    key: 'getDeclaredArguments',
-    value: function getDeclaredArguments() {
-      return this.fieldDef.getDeclaredArguments();
-    }
-  }]);
-
-  return RelayQLField;
-})(RelayQLNode);
-
-var RelayQLFragmentSpread = (function (_RelayQLNode3) {
-  _inherits(RelayQLFragmentSpread, _RelayQLNode3);
-
-  function RelayQLFragmentSpread() {
-    _classCallCheck(this, RelayQLFragmentSpread);
-
-    _get(Object.getPrototypeOf(RelayQLFragmentSpread.prototype), 'constructor', this).apply(this, arguments);
+  getName() {
+    return this.ast.name.value;
   }
 
-  _createClass(RelayQLFragmentSpread, [{
-    key: 'getName',
-    value: function getName() {
-      return this.ast.name.value;
-    }
-  }, {
-    key: 'getSelections',
-    value: function getSelections() {
-      invariant(false, 'Cannot get selection of a fragment spread.');
-    }
-  }]);
+  getAlias() {
+    return this.ast.alias ? this.ast.alias.value : null;
+  }
 
-  return RelayQLFragmentSpread;
-})(RelayQLNode);
+  getType() {
+    return this.fieldDef.getType();
+  }
 
-var RelayQLInlineFragment = (function (_RelayQLNode4) {
-  _inherits(RelayQLInlineFragment, _RelayQLNode4);
+  hasArgument(argName) {
+    return this.getArguments().some(arg => arg.getName() === argName);
+  }
 
-  function RelayQLInlineFragment(context, ast, parentType) {
-    _classCallCheck(this, RelayQLInlineFragment);
+  getArguments() {
+    const argTypes = this.fieldDef.getDeclaredArguments();
+    return (this.ast.arguments || []).map(arg => {
+      const argName = arg.name.value;
+      const argType = argTypes[argName];
+      invariant(argType, 'You supplied an argument named `%s` on field `%s`, but no such ' + 'argument exists on that field.', argName, this.getName());
+      return new RelayQLArgument(this.context, arg, argType);
+    });
+  }
 
-    _get(Object.getPrototypeOf(RelayQLInlineFragment.prototype), 'constructor', this).call(this, context, ast);
+  hasDeclaredArgument(argName) {
+    return this.fieldDef.getDeclaredArguments().hasOwnProperty(argName);
+  }
+
+  getDeclaredArgument(argName) {
+    return this.fieldDef.getArgument(argName);
+  }
+
+  getDeclaredArguments() {
+    return this.fieldDef.getDeclaredArguments();
+  }
+}
+
+class RelayQLFragmentSpread extends RelayQLNode {
+  getName() {
+    return this.ast.name.value;
+  }
+
+  getSelections() {
+    invariant(false, 'Cannot get selection of a fragment spread.');
+  }
+}
+
+class RelayQLInlineFragment extends RelayQLNode {
+
+  constructor(context, ast, parentType) {
+    super(context, ast);
     this.parentType = parentType;
   }
 
-  _createClass(RelayQLInlineFragment, [{
-    key: 'getFragment',
-    value: function getFragment() {
-      return new RelayQLFragment(this.context, this.ast, this.parentType);
-    }
-  }]);
+  getFragment() {
+    return new RelayQLFragment(this.context, this.ast, this.parentType);
+  }
+}
 
-  return RelayQLInlineFragment;
-})(RelayQLNode);
+class RelayQLDirective {
 
-var RelayQLDirective = (function () {
-  function RelayQLDirective(context, ast) {
-    var _this4 = this;
-
-    _classCallCheck(this, RelayQLDirective);
-
+  constructor(context, ast) {
     this.ast = ast;
     this.context = context;
     this.argTypes = {};
 
-    var directiveName = ast.name.value;
-    var schemaDirective = directiveName === GraphQLRelayDirective.name ? GraphQLRelayDirective : context.schema.getDirective(directiveName);
+    const directiveName = ast.name.value;
+    const schemaDirective = directiveName === GraphQLRelayDirective.name ? GraphQLRelayDirective : context.schema.getDirective(directiveName);
     invariant(schemaDirective, 'You supplied a directive named `%s`, but no such directive exists.', directiveName);
-    schemaDirective.args.forEach(function (schemaArg) {
-      _this4.argTypes[schemaArg.name] = new RelayQLArgumentType(schemaArg.type);
+    schemaDirective.args.forEach(schemaArg => {
+      this.argTypes[schemaArg.name] = new RelayQLArgumentType(schemaArg.type);
     });
   }
 
-  _createClass(RelayQLDirective, [{
-    key: 'getName',
-    value: function getName() {
-      return this.ast.name.value;
-    }
-  }, {
-    key: 'getArguments',
-    value: function getArguments() {
-      var _this5 = this;
+  getName() {
+    return this.ast.name.value;
+  }
 
-      return (this.ast.arguments || []).map(function (arg) {
-        var argName = arg.name.value;
-        var argType = _this5.argTypes[argName];
-        invariant(argType, 'You supplied an argument named `%s` on directive `%s`, but no ' + 'such argument exists on that directive.', argName, _this5.getName());
-        return new RelayQLArgument(_this5.context, arg, argType);
-      });
-    }
-  }]);
+  getArguments() {
+    return (this.ast.arguments || []).map(arg => {
+      const argName = arg.name.value;
+      const argType = this.argTypes[argName];
+      invariant(argType, 'You supplied an argument named `%s` on directive `%s`, but no ' + 'such argument exists on that directive.', argName, this.getName());
+      return new RelayQLArgument(this.context, arg, argType);
+    });
+  }
+}
 
-  return RelayQLDirective;
-})();
+class RelayQLArgument {
 
-var RelayQLArgument = (function () {
-  function RelayQLArgument(context, ast, type) {
-    _classCallCheck(this, RelayQLArgument);
-
+  constructor(context, ast, type) {
     this.ast = ast;
     this.context = context;
     this.type = type;
   }
 
-  _createClass(RelayQLArgument, [{
-    key: 'getName',
-    value: function getName() {
-      return this.ast.name.value;
-    }
-  }, {
-    key: 'getType',
-    value: function getType() {
-      return this.type;
-    }
-  }, {
-    key: 'isVariable',
-    value: function isVariable() {
-      return this.ast.value.kind === 'Variable';
-    }
-  }, {
-    key: 'getVariableName',
-    value: function getVariableName() {
-      invariant(this.ast.value.kind === 'Variable', 'Cannot get variable name of an argument value.');
-      return this.ast.value.name.value;
-    }
-  }, {
-    key: 'getValue',
-    value: function getValue() {
-      var _this6 = this;
+  getName() {
+    return this.ast.name.value;
+  }
 
-      invariant(!this.isVariable(), 'Cannot get value of an argument variable.');
-      var value = this.ast.value;
-      switch (value.kind) {
-        case 'IntValue':
-          return parseInt(value.value, 10);
-        case 'FloatValue':
-          return parseFloat(value.value);
-        case 'StringValue':
-        case 'BooleanValue':
-        case 'EnumValue':
-          return value.value;
-        case 'ListValue':
-          return value.values.map(function (value) {
-            return new RelayQLArgument(_this6.context, _extends({}, _this6.ast, { value: value }), _this6.type.ofType());
-          });
-      }
-      invariant(false, 'Unexpected argument kind: %s', value.kind);
+  getType() {
+    return this.type;
+  }
+
+  isVariable() {
+    return this.ast.value.kind === 'Variable';
+  }
+
+  getVariableName() {
+    invariant(this.ast.value.kind === 'Variable', 'Cannot get variable name of an argument value.');
+    return this.ast.value.name.value;
+  }
+
+  getValue() {
+    invariant(!this.isVariable(), 'Cannot get value of an argument variable.');
+    const value = this.ast.value;
+    switch (value.kind) {
+      case 'IntValue':
+        return parseInt(value.value, 10);
+      case 'FloatValue':
+        return parseFloat(value.value);
+      case 'StringValue':
+      case 'BooleanValue':
+      case 'EnumValue':
+        return value.value;
+      case 'ListValue':
+        return value.values.map(value => new RelayQLArgument(this.context, _extends({}, this.ast, { value: value }), this.type.ofType()));
     }
-  }]);
+    invariant(false, 'Unexpected argument kind: %s', value.kind);
+  }
+}
 
-  return RelayQLArgument;
-})();
+class RelayQLType {
 
-var RelayQLType = (function () {
-  function RelayQLType(context, schemaModifiedType) {
-    _classCallCheck(this, RelayQLType);
-
+  constructor(context, schemaModifiedType) {
     this.context = context;
-
-    var _stripMarkerTypes = stripMarkerTypes(schemaModifiedType);
-
-    var isListType = _stripMarkerTypes.isListType;
-    var isNonNullType = _stripMarkerTypes.isNonNullType;
-    var schemaUnmodifiedType = _stripMarkerTypes.schemaUnmodifiedType;
-
+    const {
+      isListType,
+      isNonNullType,
+      schemaUnmodifiedType
+    } = stripMarkerTypes(schemaModifiedType);
     this.isListType = isListType;
     this.isNonNullType = isNonNullType;
     this.schemaUnmodifiedType = schemaUnmodifiedType;
     this.schemaModifiedType = schemaModifiedType;
   }
 
-  _createClass(RelayQLType, [{
-    key: 'getName',
-    value: function getName(_ref) {
-      var modifiers = _ref.modifiers;
-      return (function () {
-        return modifiers ? this.schemaModifiedType.toString() : this.schemaUnmodifiedType.toString();
-      }).apply(this, arguments);
-    }
-  }, {
-    key: 'hasField',
-    value: function hasField(fieldName) {
-      return !!this.getFieldDefinition(fieldName);
-    }
-  }, {
-    key: 'getFieldDefinition',
-    value: function getFieldDefinition(fieldName) {
-      var type = this.schemaUnmodifiedType;
-      var isQueryType = type === this.context.schema.getQueryType();
-      var hasTypeName = type instanceof types.GraphQLObjectType || type instanceof types.GraphQLInterfaceType || type instanceof types.GraphQLUnionType;
-      var hasFields = type instanceof types.GraphQLObjectType || type instanceof types.GraphQLInterfaceType;
+  getName({ modifiers }) {
+    return modifiers ? this.schemaModifiedType.toString() : this.schemaUnmodifiedType.toString();
+  }
 
-      var schemaFieldDef = undefined;
-      if (isQueryType && fieldName === SchemaMetaFieldDef.name) {
-        schemaFieldDef = SchemaMetaFieldDef;
-      } else if (isQueryType && fieldName === TypeMetaFieldDef.name) {
-        schemaFieldDef = TypeMetaFieldDef;
-      } else if (hasTypeName && fieldName === TypeNameMetaFieldDef.name) {
-        schemaFieldDef = TypeNameMetaFieldDef;
-      } else if (hasFields) {
-        schemaFieldDef = type.getFields()[fieldName];
-      }
-      return schemaFieldDef ? new RelayQLFieldDefinition(this.context, schemaFieldDef) : null;
-    }
-  }, {
-    key: 'getInterfaces',
-    value: function getInterfaces() {
-      var _this7 = this;
+  hasField(fieldName) {
+    return !!this.getFieldDefinition(fieldName);
+  }
 
-      if (this.schemaUnmodifiedType instanceof types.GraphQLObjectType) {
-        return this.schemaUnmodifiedType.getInterfaces().map(function (schemaInterface) {
-          return new RelayQLType(_this7.context, schemaInterface);
-        });
-      }
-      return [];
-    }
-  }, {
-    key: 'getConcreteTypes',
-    value: function getConcreteTypes() {
-      var _this8 = this;
+  getFieldDefinition(fieldName) {
+    const type = this.schemaUnmodifiedType;
+    const isQueryType = type === this.context.schema.getQueryType();
+    const hasTypeName = type instanceof types.GraphQLObjectType || type instanceof types.GraphQLInterfaceType || type instanceof types.GraphQLUnionType;
+    const hasFields = type instanceof types.GraphQLObjectType || type instanceof types.GraphQLInterfaceType;
 
-      invariant(this.isAbstract(), 'Cannot get concrete types of a concrete type.');
-      return this.schemaUnmodifiedType.getPossibleTypes().map(function (concreteType) {
-        return new RelayQLType(_this8.context, concreteType);
-      });
+    let schemaFieldDef;
+    if (isQueryType && fieldName === SchemaMetaFieldDef.name) {
+      schemaFieldDef = SchemaMetaFieldDef;
+    } else if (isQueryType && fieldName === TypeMetaFieldDef.name) {
+      schemaFieldDef = TypeMetaFieldDef;
+    } else if (hasTypeName && fieldName === TypeNameMetaFieldDef.name) {
+      schemaFieldDef = TypeNameMetaFieldDef;
+    } else if (hasFields) {
+      schemaFieldDef = type.getFields()[fieldName];
     }
-  }, {
-    key: 'getIdentifyingFieldDefinition',
-    value: function getIdentifyingFieldDefinition() {
-      if (this.alwaysImplements('Node')) {
-        return this.getFieldDefinition('id');
-      }
-      return null;
-    }
-  }, {
-    key: 'isAbstract',
-    value: function isAbstract() {
-      return types.isAbstractType(this.schemaUnmodifiedType);
-    }
-  }, {
-    key: 'isList',
-    value: function isList() {
-      return this.isListType;
-    }
-  }, {
-    key: 'isNonNull',
-    value: function isNonNull() {
-      return this.isNonNullType;
-    }
-  }, {
-    key: 'isScalar',
-    value: function isScalar() {
-      return this.schemaUnmodifiedType instanceof types.GraphQLScalarType;
-    }
-  }, {
-    key: 'isConnection',
-    value: function isConnection() {
-      if (!/Connection$/.test(this.getName({ modifiers: false }))) {
-        return false;
-      }
-      var edges = this.getFieldDefinition('edges');
-      if (!edges || edges.getType().isScalar()) {
-        return false;
-      }
-      var node = edges.getType().getFieldDefinition('node');
-      if (!node || node.getType().isScalar()) {
-        return false;
-      }
-      var cursor = edges.getType().getFieldDefinition('cursor');
-      if (!cursor || !cursor.getType().isScalar()) {
-        return false;
-      }
-      return true;
-    }
-  }, {
-    key: 'isConnectionEdge',
-    value: function isConnectionEdge() {
-      return (/Edge$/.test(this.getName({ modifiers: false })) && this.hasField('node') && this.hasField('cursor')
-      );
-    }
-  }, {
-    key: 'isConnectionPageInfo',
-    value: function isConnectionPageInfo() {
-      return this.getName({ modifiers: false }) === 'PageInfo';
-    }
-  }, {
-    key: 'alwaysImplements',
-    value: function alwaysImplements(typeName) {
-      return this.getName({ modifiers: false }) === typeName || this.getInterfaces().some(function (type) {
-        return type.getName({ modifiers: false }) === typeName;
-      }) || this.isAbstract() && this.getConcreteTypes().every(function (type) {
-        return type.alwaysImplements(typeName);
-      });
-    }
-  }, {
-    key: 'generateField',
-    value: function generateField(fieldName) {
-      var generatedFieldAST = {
-        kind: 'Field',
-        name: {
-          kind: 'Name',
-          value: fieldName
-        }
-      };
-      return new RelayQLField(this.context, generatedFieldAST, this);
-    }
-  }]);
+    return schemaFieldDef ? new RelayQLFieldDefinition(this.context, schemaFieldDef) : null;
+  }
 
-  return RelayQLType;
-})();
+  getInterfaces() {
+    if (this.schemaUnmodifiedType instanceof types.GraphQLObjectType) {
+      return this.schemaUnmodifiedType.getInterfaces().map(schemaInterface => new RelayQLType(this.context, schemaInterface));
+    }
+    return [];
+  }
 
-var RelayQLFieldDefinition = (function () {
-  function RelayQLFieldDefinition(context, schemaFieldDef) {
-    _classCallCheck(this, RelayQLFieldDefinition);
+  getConcreteTypes() {
+    invariant(this.isAbstract(), 'Cannot get concrete types of a concrete type.');
+    return this.schemaUnmodifiedType.getPossibleTypes().map(concreteType => new RelayQLType(this.context, concreteType));
+  }
 
+  getIdentifyingFieldDefinition() {
+    if (this.alwaysImplements('Node')) {
+      return this.getFieldDefinition('id');
+    }
+    return null;
+  }
+
+  isAbstract() {
+    return types.isAbstractType(this.schemaUnmodifiedType);
+  }
+
+  isList() {
+    return this.isListType;
+  }
+
+  isNonNull() {
+    return this.isNonNullType;
+  }
+
+  isScalar() {
+    return this.schemaUnmodifiedType instanceof types.GraphQLScalarType;
+  }
+
+  isConnection() {
+    if (!/Connection$/.test(this.getName({ modifiers: false }))) {
+      return false;
+    }
+    const edges = this.getFieldDefinition('edges');
+    if (!edges || edges.getType().isScalar()) {
+      return false;
+    }
+    const node = edges.getType().getFieldDefinition('node');
+    if (!node || node.getType().isScalar()) {
+      return false;
+    }
+    const cursor = edges.getType().getFieldDefinition('cursor');
+    if (!cursor || !cursor.getType().isScalar()) {
+      return false;
+    }
+    return true;
+  }
+
+  isConnectionEdge() {
+    return (/Edge$/.test(this.getName({ modifiers: false })) && this.hasField('node') && this.hasField('cursor')
+    );
+  }
+
+  isConnectionPageInfo() {
+    return this.getName({ modifiers: false }) === 'PageInfo';
+  }
+
+  alwaysImplements(typeName) {
+    return this.getName({ modifiers: false }) === typeName || this.getInterfaces().some(type => type.getName({ modifiers: false }) === typeName) || this.isAbstract() && this.getConcreteTypes().every(type => type.alwaysImplements(typeName));
+  }
+
+  generateField(fieldName) {
+    const generatedFieldAST = {
+      kind: 'Field',
+      name: {
+        kind: 'Name',
+        value: fieldName
+      }
+    };
+    return new RelayQLField(this.context, generatedFieldAST, this);
+  }
+}
+
+class RelayQLFieldDefinition {
+
+  constructor(context, schemaFieldDef) {
     this.context = context;
     this.schemaFieldDef = schemaFieldDef;
   }
 
-  _createClass(RelayQLFieldDefinition, [{
-    key: 'getName',
-    value: function getName() {
-      return this.schemaFieldDef.name;
-    }
-  }, {
-    key: 'getType',
-    value: function getType() {
-      return new RelayQLType(this.context, this.schemaFieldDef.type);
-    }
-  }, {
-    key: 'hasArgument',
-    value: function hasArgument(argName) {
-      return this.schemaFieldDef.args.some(function (schemaArg) {
-        return schemaArg.name === argName;
-      });
-    }
-  }, {
-    key: 'getArgument',
-    value: function getArgument(argName) {
-      var schemaArg = find(this.schemaFieldDef.args, function (schemaArg) {
-        return schemaArg.name === argName;
-      });
-      invariant(schemaArg, 'You tried to get an argument named `%s` on field `%s`, but no such ' + 'argument exists on that field.', argName, this.getName());
-      return new RelayQLArgumentType(schemaArg.type);
-    }
-  }, {
-    key: 'getDeclaredArguments',
-    value: function getDeclaredArguments() {
-      var args = {};
-      this.schemaFieldDef.args.forEach(function (schemaArg) {
-        args[schemaArg.name] = new RelayQLArgumentType(schemaArg.type);
-      });
-      return args;
-    }
-  }]);
+  getName() {
+    return this.schemaFieldDef.name;
+  }
 
-  return RelayQLFieldDefinition;
-})();
+  getType() {
+    return new RelayQLType(this.context, this.schemaFieldDef.type);
+  }
 
-var RelayQLArgumentType = (function () {
-  function RelayQLArgumentType(schemaModifiedArgType) {
-    _classCallCheck(this, RelayQLArgumentType);
+  hasArgument(argName) {
+    return this.schemaFieldDef.args.some(schemaArg => schemaArg.name === argName);
+  }
 
-    var _stripMarkerTypes2 = stripMarkerTypes(schemaModifiedArgType);
+  getArgument(argName) {
+    const schemaArg = find(this.schemaFieldDef.args, schemaArg => schemaArg.name === argName);
+    invariant(schemaArg, 'You tried to get an argument named `%s` on field `%s`, but no such ' + 'argument exists on that field.', argName, this.getName());
+    return new RelayQLArgumentType(schemaArg.type);
+  }
 
-    var isListType = _stripMarkerTypes2.isListType;
-    var isNonNullType = _stripMarkerTypes2.isNonNullType;
-    var schemaUnmodifiedType = _stripMarkerTypes2.schemaUnmodifiedType;
+  getDeclaredArguments() {
+    const args = {};
+    this.schemaFieldDef.args.forEach(schemaArg => {
+      args[schemaArg.name] = new RelayQLArgumentType(schemaArg.type);
+    });
+    return args;
+  }
+}
 
+class RelayQLArgumentType {
+
+  constructor(schemaModifiedArgType) {
+    const {
+      isListType,
+      isNonNullType,
+      schemaUnmodifiedType
+    } = stripMarkerTypes(schemaModifiedArgType);
     this.isListType = isListType;
     this.isNonNullType = isNonNullType;
     this.schemaUnmodifiedArgType = schemaUnmodifiedType;
     this.schemaModifiedArgType = schemaModifiedArgType;
   }
 
-  _createClass(RelayQLArgumentType, [{
-    key: 'getName',
-    value: function getName(_ref2) {
-      var modifiers = _ref2.modifiers;
-      return (function () {
-        return modifiers ? this.schemaModifiedArgType.toString() : this.schemaUnmodifiedArgType.toString();
-      }).apply(this, arguments);
-    }
-  }, {
-    key: 'ofType',
-    value: function ofType() {
-      invariant(this.isList() || this.isNonNull(), 'Can only get type of list or non-null type.');
-      return new RelayQLArgumentType(this.schemaUnmodifiedArgType);
-    }
-  }, {
-    key: 'isEnum',
-    value: function isEnum() {
-      return this.schemaUnmodifiedArgType instanceof types.GraphQLEnumType;
-    }
-  }, {
-    key: 'isList',
-    value: function isList() {
-      return this.isListType;
-    }
-  }, {
-    key: 'isNonNull',
-    value: function isNonNull() {
-      return this.isNonNullType;
-    }
-  }, {
-    key: 'isObject',
-    value: function isObject() {
-      return this.schemaUnmodifiedArgType instanceof types.GraphQLInputObjectType;
-    }
-  }, {
-    key: 'isScalar',
-    value: function isScalar() {
-      return this.schemaUnmodifiedArgType instanceof types.GraphQLScalarType;
-    }
-  }]);
+  getName({ modifiers }) {
+    return modifiers ? this.schemaModifiedArgType.toString() : this.schemaUnmodifiedArgType.toString();
+  }
 
-  return RelayQLArgumentType;
-})();
+  ofType() {
+    invariant(this.isList() || this.isNonNull(), 'Can only get type of list or non-null type.');
+    return new RelayQLArgumentType(this.schemaUnmodifiedArgType);
+  }
+
+  isEnum() {
+    return this.schemaUnmodifiedArgType instanceof types.GraphQLEnumType;
+  }
+
+  isList() {
+    return this.isListType;
+  }
+
+  isNonNull() {
+    return this.isNonNullType;
+  }
+
+  isObject() {
+    return this.schemaUnmodifiedArgType instanceof types.GraphQLInputObjectType;
+  }
+
+  isScalar() {
+    return this.schemaUnmodifiedArgType instanceof types.GraphQLScalarType;
+  }
+}
 
 function stripMarkerTypes(schemaModifiedType) {
-  var isListType = false;
-  var isNonNullType = false;
-  var schemaUnmodifiedType = schemaModifiedType;
+  let isListType = false;
+  let isNonNullType = false;
+  let schemaUnmodifiedType = schemaModifiedType;
   while (true) {
     if (schemaUnmodifiedType instanceof types.GraphQLList) {
       isListType = true;
@@ -702,21 +500,21 @@ function stripMarkerTypes(schemaModifiedType) {
     }
     schemaUnmodifiedType = schemaUnmodifiedType.ofType;
   }
-  return { isListType: isListType, isNonNullType: isNonNullType, schemaUnmodifiedType: schemaUnmodifiedType };
+  return { isListType, isNonNullType, schemaUnmodifiedType };
 }
 
 module.exports = {
-  RelayQLArgument: RelayQLArgument,
-  RelayQLArgumentType: RelayQLArgumentType,
-  RelayQLDefinition: RelayQLDefinition,
-  RelayQLDirective: RelayQLDirective,
-  RelayQLField: RelayQLField,
-  RelayQLFieldDefinition: RelayQLFieldDefinition,
-  RelayQLFragment: RelayQLFragment,
-  RelayQLFragmentSpread: RelayQLFragmentSpread,
-  RelayQLInlineFragment: RelayQLInlineFragment,
-  RelayQLMutation: RelayQLMutation,
-  RelayQLNode: RelayQLNode,
-  RelayQLQuery: RelayQLQuery,
-  RelayQLType: RelayQLType
+  RelayQLArgument,
+  RelayQLArgumentType,
+  RelayQLDefinition,
+  RelayQLDirective,
+  RelayQLField,
+  RelayQLFieldDefinition,
+  RelayQLFragment,
+  RelayQLFragmentSpread,
+  RelayQLInlineFragment,
+  RelayQLMutation,
+  RelayQLNode,
+  RelayQLQuery,
+  RelayQLType
 };

@@ -7,376 +7,365 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- *
+ * 
  * @fullSyntaxTransform
  */
 
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
+const {
+  RelayQLArgument,
+  RelayQLArgumentType,
+  RelayQLDefinition,
+  RelayQLDirective,
+  RelayQLField,
+  RelayQLFragment,
+  RelayQLFragmentSpread,
+  RelayQLInlineFragment,
+  RelayQLMutation,
+  RelayQLQuery,
+  RelayQLType
+} = require('./RelayQLAST');
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+const find = require('./find');
+const invariant = require('./invariant');
+const t = require('babel-types/lib/');
+/* TODO: Spread is not working on babel6 right now. https://github.com/reactjs/react-rails/issues/313
+* Using solution from babel5 https://babeljs.io/repl/ */
+const _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }return target;
+};
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+const NULL = t.nullLiteral();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+class RelayQLPrinter {
 
-var _require = require('./RelayQLAST');
-
-var RelayQLArgument = _require.RelayQLArgument;
-var RelayQLArgumentType = _require.RelayQLArgumentType;
-var RelayQLDefinition = _require.RelayQLDefinition;
-var RelayQLDirective = _require.RelayQLDirective;
-var RelayQLField = _require.RelayQLField;
-var RelayQLFragment = _require.RelayQLFragment;
-var RelayQLFragmentSpread = _require.RelayQLFragmentSpread;
-var RelayQLInlineFragment = _require.RelayQLInlineFragment;
-var RelayQLMutation = _require.RelayQLMutation;
-var RelayQLQuery = _require.RelayQLQuery;
-var RelayQLType = _require.RelayQLType;
-
-var find = require('./find');
-var invariant = require('./invariant');
-var t = require('babel-types/lib');
-
-var NULL = t.nullLiteral();
-
-var RelayQLPrinter = (function () {
-  function RelayQLPrinter(documentHash, tagName, variableNames) {
-    _classCallCheck(this, RelayQLPrinter);
-
+  constructor(documentHash, tagName, variableNames) {
     this.documentHash = documentHash;
     this.tagName = tagName;
     this.variableNames = variableNames;
   }
 
-  _createClass(RelayQLPrinter, [{
-    key: 'print',
-    value: function print(definition, substitutions) {
-      var printedDocument = undefined;
-      if (definition instanceof RelayQLQuery) {
-        printedDocument = this.printQuery(definition);
-      } else if (definition instanceof RelayQLFragment) {
-        printedDocument = this.printFragment(definition);
-      } else if (definition instanceof RelayQLMutation) {
-        printedDocument = this.printMutation(definition);
+  print(definition, substitutions) {
+    let printedDocument;
+    if (definition instanceof RelayQLQuery) {
+      printedDocument = this.printQuery(definition);
+    } else if (definition instanceof RelayQLFragment) {
+      printedDocument = this.printFragment(definition);
+    } else if (definition instanceof RelayQLMutation) {
+      printedDocument = this.printMutation(definition);
+    } else {
+      invariant(false, 'Unsupported definition: %s', definition);
+    }
+    return t.callExpression(t.functionExpression(null, substitutions.map(substitution => t.identifier(substitution.name)), t.blockStatement([t.returnStatement(printedDocument)])), substitutions.map(substitution => substitution.value));
+  }
+
+  printQuery(query) {
+    const rootFields = query.getFields();
+    invariant(rootFields.length === 1, 'There are %d fields supplied to the query named `%s`, but queries ' + 'must have exactly one field.', rootFields.length, query.getName());
+    const rootField = rootFields[0];
+    const rootFieldType = rootField.getType();
+    const rootFieldArgs = rootField.getArguments();
+
+    const requisiteFields = {};
+    const identifyingFieldDef = rootFieldType.getIdentifyingFieldDefinition();
+    if (identifyingFieldDef) {
+      requisiteFields[identifyingFieldDef.getName()] = true;
+    }
+    if (rootFieldType.isAbstract()) {
+      requisiteFields.__typename = true;
+    }
+    const selections = this.printSelections(rootField, requisiteFields);
+    const metadata = {};
+    if (rootFieldType.isList()) {
+      metadata.isPlural = true;
+    }
+    invariant(rootFieldArgs.length <= 1, 'Invalid root field `%s`; Relay only supports root fields with zero ' + 'or one argument.', rootField.getName());
+    let calls = NULL;
+    if (rootFieldArgs.length === 1) {
+      // Until such time as a root field's 'identifying argument' (one that has
+      // a 1-1 correspondence with a Relay record, or null) has a formal type,
+      // assume that the lone arg in a root field's call is the identifying one.
+      const identifyingArg = rootFieldArgs[0];
+      metadata.identifyingArgName = identifyingArg.getName();
+      metadata.identifyingArgType = this.printArgumentTypeForMetadata(identifyingArg.getType());
+      calls = t.arrayExpression([codify({
+        kind: t.valueToNode('Call'),
+        metadata: objectify({
+          type: this.printArgumentTypeForMetadata(identifyingArg.getType())
+        }),
+        name: t.valueToNode(identifyingArg.getName()),
+        value: this.printArgumentValue(identifyingArg)
+      })]);
+    }
+
+    return codify({
+      calls,
+      children: selections,
+      directives: this.printDirectives(rootField.getDirectives()),
+      fieldName: t.valueToNode(rootField.getName()),
+      kind: t.valueToNode('Query'),
+      metadata: objectify(metadata),
+      name: t.valueToNode(query.getName())
+    });
+  }
+
+  printFragment(fragment) {
+    const fragmentType = fragment.getType();
+
+    const requisiteFields = {};
+    if (fragmentType.hasField('id')) {
+      requisiteFields.id = true;
+    }
+    if (fragmentType.isAbstract()) {
+      requisiteFields.__typename = true;
+    }
+    const selections = this.printSelections(fragment, requisiteFields);
+    const metadata = this.printRelayDirectiveMetadata(fragment);
+
+    return codify({
+      children: selections,
+      directives: this.printDirectives(fragment.getDirectives()),
+      hash: t.valueToNode(this.documentHash),
+      kind: t.valueToNode('Fragment'),
+      metadata,
+      name: t.valueToNode(fragment.getName()),
+      type: t.valueToNode(fragmentType.getName({ modifiers: true }))
+    });
+  }
+
+  printMutation(mutation) {
+    const rootFields = mutation.getFields();
+    invariant(rootFields.length === 1, 'There are %d fields supplied to the mutation named `%s`, but ' + 'mutations must have exactly one field.', rootFields.length, mutation.getName());
+    const rootField = rootFields[0];
+    const rootFieldType = rootField.getType();
+    validateMutationField(rootField);
+    const requisiteFields = { clientMutationId: true };
+    const selections = this.printSelections(rootField, requisiteFields);
+    const metadata = {
+      inputType: this.printArgumentTypeForMetadata(rootField.getDeclaredArgument('input'))
+    };
+
+    return codify({
+      calls: t.arrayExpression([codify({
+        kind: t.valueToNode('Call'),
+        metadata: objectify({}),
+        name: t.valueToNode(rootField.getName()),
+        value: this.printVariable('input')
+      })]),
+      children: selections,
+      directives: this.printDirectives(mutation.getDirectives()),
+      kind: t.valueToNode('Mutation'),
+      metadata: objectify(metadata),
+      name: t.valueToNode(mutation.getName()),
+      responseType: t.valueToNode(rootFieldType.getName({ modifiers: true }))
+    });
+  }
+
+  printSelections(parent, requisiteFields) {
+    const fields = [];
+    const printedFragments = [];
+    parent.getSelections().forEach(selection => {
+      if (selection instanceof RelayQLFragmentSpread) {
+        // Assume that all spreads exist via template substitution.
+        invariant(selection.getDirectives().length === 0, 'Directives are not yet supported for `${fragment}`-style fragment ' + 'references.');
+        printedFragments.push(this.printFragmentReference(selection));
+      } else if (selection instanceof RelayQLInlineFragment) {
+        printedFragments.push(this.printFragment(selection.getFragment()));
+      } else if (selection instanceof RelayQLField) {
+        fields.push(selection);
       } else {
-        invariant(false, 'Unsupported definition: %s', definition);
+        invariant(false, 'Unsupported selection type `%s`.', selection);
       }
-      return t.callExpression(t.functionExpression(null, substitutions.map(function (substitution) {
-        return t.identifier(substitution.name);
-      }), t.blockStatement([t.variableDeclaration('var', [t.variableDeclarator(t.identifier('GraphQL'), t.memberExpression(identify(this.tagName), t.identifier('__GraphQL')))]), t.returnStatement(printedDocument)])), substitutions.map(function (substitution) {
-        return substitution.value;
-      }));
-    }
-  }, {
-    key: 'printQuery',
-    value: function printQuery(query) {
-      var rootFields = query.getFields();
-      invariant(rootFields.length === 1, 'There are %d fields supplied to the query named `%s`, but queries ' + 'must have exactly one field.', rootFields.length, query.getName());
-      var rootField = rootFields[0];
-      var rootFieldType = rootField.getType();
-      var rootFieldArgs = rootField.getArguments();
+    });
+    const printedFields = this.printFields(fields, parent, requisiteFields);
+    const selections = [...printedFields, ...printedFragments];
 
-      var requisiteFields = {};
-      var identifyingFieldDef = rootFieldType.getIdentifyingFieldDefinition();
-      if (identifyingFieldDef) {
-        requisiteFields[identifyingFieldDef.getName()] = true;
-      }
-      if (rootFieldType.isAbstract()) {
-        requisiteFields.__typename = true;
-      }
-      var selection = this.printSelection(rootField, requisiteFields);
-      var metadata = {};
-<<<<<<< HEAD
-      var printedArg = undefined;
-=======
-      if (rootFieldType.isList()) {
-        metadata.isPlural = true;
-      }
->>>>>>> facebook/master
-      invariant(rootFieldArgs.length <= 1, 'Invalid root field `%s`; Relay only supports root fields with zero ' + 'or one argument.', rootField.getName());
-      if (rootFieldArgs.length === 1) {
-        // Until such time as a root field's 'identifying argument' (one that has
-        // a 1-1 correspondence with a Relay record, or null) has a formal type,
-        // assume that the lone arg in a root field's call is the identifying one.
-        var identifyingArg = rootFieldArgs[0];
-        metadata.identifyingArgName = identifyingArg.getName();
-        var identifyingArgType = this.printArgumentTypeForMetadata(identifyingArg.getType());
-        if (identifyingArgType) {
-          metadata.identifyingArgType = identifyingArgType;
+    if (selections.length) {
+      return t.arrayExpression(selections);
+    }
+    return NULL;
+  }
+
+  printFields(fields, parent, requisiteFields) {
+    const parentType = parent.getType();
+    if (parentType.isConnection() && parentType.hasField('pageInfo') && fields.some(field => field.getName() === 'edges')) {
+      requisiteFields.pageInfo = true;
+    }
+
+    const generatedFields = _extends({}, requisiteFields);
+
+    const printedFields = [];
+    fields.forEach(field => {
+      delete generatedFields[field.getName()];
+      printedFields.push(this.printField(field, parent, requisiteFields, generatedFields));
+    });
+
+    Object.keys(generatedFields).forEach(fieldName => {
+      const generatedField = parentType.generateField(fieldName);
+      printedFields.push(this.printField(generatedField, parent, requisiteFields, generatedFields));
+    });
+    return printedFields;
+  }
+
+  printField(field, parent, requisiteSiblings, generatedSiblings) {
+    const fieldType = field.getType();
+
+    const metadata = {};
+    metadata.parentType = parent.getType().getName({ modifiers: false });
+    const requisiteFields = {};
+    if (fieldType.hasField('id')) {
+      requisiteFields.id = true;
+    }
+
+    validateField(field, parent.getType());
+
+    // TODO: Generalize to non-`Node` types.
+    if (fieldType.alwaysImplements('Node')) {
+      metadata.inferredRootCallName = 'node';
+      metadata.inferredPrimaryKey = 'id';
+    }
+    if (fieldType.isConnection()) {
+      if (field.hasDeclaredArgument('first') || field.hasDeclaredArgument('last')) {
+        validateConnectionField(field);
+        metadata.isConnection = true;
+        if (field.hasDeclaredArgument('find')) {
+          metadata.isFindable = true;
         }
-        printedArg = this.printArgumentValue(identifyingArg);
-      } else {
-        printedArg = NULL;
       }
-
-      return t.newExpression(t.memberExpression(t.identifier('GraphQL'), t.identifier('Query')), trimArguments([t.valueToNode(rootField.getName()), printedArg, selection.fields, selection.fragments, objectify(metadata), t.valueToNode(query.getName()), this.printDirectives(rootField.getDirectives())]));
+    } else if (fieldType.isConnectionPageInfo()) {
+      requisiteFields.hasNextPage = true;
+      requisiteFields.hasPreviousPage = true;
+    } else if (fieldType.isConnectionEdge()) {
+      requisiteFields.cursor = true;
+      requisiteFields.node = true;
     }
-  }, {
-    key: 'printFragment',
-    value: function printFragment(fragment) {
-      var fragmentType = fragment.getType();
+    if (fieldType.isAbstract()) {
+      metadata.isUnionOrInterface = true;
+      requisiteFields.__typename = true;
+    }
+    if (fieldType.isList()) {
+      metadata.isPlural = true;
+    }
+    if (generatedSiblings.hasOwnProperty(field.getName())) {
+      metadata.isGenerated = true;
+    }
+    if (requisiteSiblings.hasOwnProperty(field.getName())) {
+      metadata.isRequisite = true;
+    }
 
-      var requisiteFields = {};
-      if (fragmentType.hasField('id')) {
-        requisiteFields.id = true;
+    const selections = this.printSelections(field, requisiteFields);
+    const fieldAlias = field.getAlias();
+    const args = field.getArguments();
+    const calls = args.length ? t.arrayExpression(args.map(arg => this.printArgument(arg))) : NULL;
+
+    return codify({
+      alias: fieldAlias ? t.valueToNode(fieldAlias) : NULL,
+      calls,
+      children: selections,
+      directives: this.printDirectives(field.getDirectives()),
+      fieldName: t.valueToNode(field.getName()),
+      kind: t.valueToNode('Field'),
+      metadata: objectify(metadata)
+    });
+  }
+
+  printFragmentReference(fragmentReference) {
+    return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__frag')), [t.identifier(fragmentReference.getName())]);
+  }
+
+  printArgument(arg) {
+    const metadata = {};
+    const inputType = this.printArgumentTypeForMetadata(arg.getType());
+    if (inputType) {
+      metadata.type = inputType;
+    }
+    return codify({
+      kind: t.valueToNode('Call'),
+      metadata: objectify(metadata),
+      name: t.valueToNode(arg.getName()),
+      value: this.printArgumentValue(arg)
+    });
+  }
+
+  printArgumentValue(arg) {
+    if (arg.isVariable()) {
+      return this.printVariable(arg.getVariableName());
+    } else {
+      return this.printValue(arg.getValue());
+    }
+  }
+
+  printVariable(name) {
+    // Assume that variables named like substitutions are substitutions.
+    if (this.variableNames.hasOwnProperty(name)) {
+      return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__var')), [t.identifier(name)]);
+    }
+    return codify({
+      kind: t.valueToNode('CallVariable'),
+      callVariableName: t.valueToNode(name)
+    });
+  }
+
+  printValue(value) {
+    if (Array.isArray(value)) {
+      return t.arrayExpression(value.map(element => this.printArgumentValue(element)));
+    }
+    return codify({
+      kind: t.valueToNode('CallValue'),
+      callValue: t.valueToNode(value)
+    });
+  }
+
+  printDirectives(directives) {
+    const printedDirectives = [];
+    directives.forEach(directive => {
+      if (directive.getName() === 'relay') {
+        return;
       }
-      if (fragmentType.isAbstract()) {
-        requisiteFields.__typename = true;
-      }
-      var selection = this.printSelection(fragment, requisiteFields);
-      var metadata = this.printRelayDirectiveMetadata(fragment);
-
-<<<<<<< HEAD
-      return t.newExpression(t.memberExpression(t.identifier('GraphQL'), t.identifier('QueryFragment')), trimArguments([t.valueToNode(fragment.getName()), t.valueToNode(fragmentType.getName({ modifiers: true })), selection.fields, selection.fragments, objectify(metadata), this.printDirectives(fragment.getDirectives())]));
-=======
-      return codify({
-        children: selections,
-        directives: this.printDirectives(fragment.getDirectives()),
-        hash: t.literal(this.documentHash),
-        kind: t.literal('Fragment'),
-        metadata: metadata,
-        name: t.literal(fragment.getName()),
-        type: t.literal(fragmentType.getName({ modifiers: true }))
-      });
->>>>>>> facebook/master
+      printedDirectives.push(t.objectExpression([property('kind', t.valueToNode('Directive')), property('name', t.valueToNode(directive.getName())), property('arguments', t.arrayExpression(directive.getArguments().map(arg => t.objectExpression([property('name', t.valueToNode(arg.getName())), property('value', this.printArgumentValue(arg))]))))]));
+    });
+    if (printedDirectives.length) {
+      return t.arrayExpression(printedDirectives);
     }
-  }, {
-    key: 'printMutation',
-    value: function printMutation(mutation) {
-      var rootFields = mutation.getFields();
-      invariant(rootFields.length === 1, 'There are %d fields supplied to the mutation named `%s`, but ' + 'mutations must have exactly one field.', rootFields.length, mutation.getName());
-      var rootField = rootFields[0];
-      var rootFieldType = rootField.getType();
-      validateMutationField(rootField);
-      var requisiteFields = { clientMutationId: true };
-      var selection = this.printSelection(rootField, requisiteFields);
-      var metadata = {
-        inputType: this.printArgumentTypeForMetadata(rootField.getDeclaredArgument('input'))
-      };
+    return NULL;
+  }
 
-      return t.newExpression(t.memberExpression(t.identifier('GraphQL'), t.identifier('Mutation')), trimArguments([t.valueToNode(mutation.getName()), t.valueToNode(rootFieldType.getName({ modifiers: true })), t.newExpression(t.memberExpression(t.identifier('GraphQL'), t.identifier('Callv')), trimArguments([t.valueToNode(rootField.getName()), this.printVariable('input')])), selection.fields, selection.fragments, objectify(metadata)]));
-    }
-  }, {
-    key: 'printSelection',
-    value: function printSelection(parent, requisiteFields) {
-      var _this = this;
-
-      var fields = [];
-      var printedFragments = [];
-      parent.getSelections().forEach(function (selection) {
-        if (selection instanceof RelayQLFragmentSpread) {
-          // Assume that all spreads exist via template substitution.
-          invariant(selection.getDirectives().length === 0, 'Directives are not yet supported for `${fragment}`-style fragment ' + 'references.');
-          printedFragments.push(_this.printFragmentReference(selection));
-        } else if (selection instanceof RelayQLInlineFragment) {
-          printedFragments.push(_this.printFragment(selection.getFragment()));
-        } else if (selection instanceof RelayQLField) {
-          fields.push(selection);
-        } else {
-          invariant(false, 'Unsupported selection type `%s`.', selection);
+  printRelayDirectiveMetadata(node) {
+    const properties = [];
+    const relayDirective = find(node.getDirectives(), directive => directive.getName() === 'relay');
+    if (relayDirective) {
+      relayDirective.getArguments().forEach(arg => {
+        if (arg.isVariable()) {
+          invariant(!arg.isVariable(), 'You supplied `$%s` as the `%s` argument to the `@relay` ' + 'directive, but `@relay` require scalar argument values.', arg.getVariableName(), arg.getName());
         }
+        properties.push(property(arg.getName(), t.valueToNode(arg.getValue())));
       });
-      var printedFields = this.printFields(fields, parent, requisiteFields);
-
-      return {
-        fields: printedFields.length ? t.arrayExpression(printedFields) : NULL,
-        fragments: printedFragments.length ? t.arrayExpression(printedFragments) : NULL
-      };
     }
-  }, {
-    key: 'printFields',
-    value: function printFields(fields, parent, requisiteFields) {
-      var _this2 = this;
+    return t.objectExpression(properties);
+  }
 
-      var parentType = parent.getType();
-      if (parentType.isConnection() && parentType.hasField('pageInfo') && fields.some(function (field) {
-        return field.getName() === 'edges';
-      })) {
-        requisiteFields.pageInfo = true;
-      }
-
-      var generatedFields = _extends({}, requisiteFields);
-
-      var printedFields = [];
-      fields.forEach(function (field) {
-        delete generatedFields[field.getName()];
-        printedFields.push(_this2.printField(field, parent, requisiteFields, generatedFields));
-      });
-
-      Object.keys(generatedFields).forEach(function (fieldName) {
-        var generatedField = parentType.generateField(fieldName);
-        printedFields.push(_this2.printField(generatedField, parent, requisiteFields, generatedFields));
-      });
-      return printedFields;
+  /**
+   * Prints the type for arguments that are transmitted via variables.
+   */
+  printArgumentTypeForMetadata(argType) {
+    // Currently, we always send Enum and Object types as variables.
+    if (argType.isEnum() || argType.isObject()) {
+      return argType.getName({ modifiers: true });
     }
-  }, {
-    key: 'printField',
-    value: function printField(field, parent, requisiteSiblings, generatedSiblings) {
-      var _this3 = this;
-
-      var fieldType = field.getType();
-
-      var metadata = {};
-      metadata.parentType = parent.getType().getName({ modifiers: false });
-      var requisiteFields = {};
-      if (fieldType.hasField('id')) {
-        requisiteFields.id = true;
-      }
-
-      validateField(field, parent.getType());
-
-      // TODO: Generalize to non-`Node` types.
-      if (fieldType.alwaysImplements('Node')) {
-        metadata.rootCall = 'node';
-        metadata.pk = 'id';
-      }
-      if (fieldType.isConnection()) {
-        if (field.hasDeclaredArgument('first') || field.hasDeclaredArgument('last')) {
-          validateConnectionField(field);
-          metadata.connection = true;
-          if (!field.hasDeclaredArgument('find')) {
-            metadata.nonFindable = true;
-          }
-        }
-      } else if (fieldType.isConnectionPageInfo()) {
-        requisiteFields.hasNextPage = true;
-        requisiteFields.hasPreviousPage = true;
-      } else if (fieldType.isConnectionEdge()) {
-        requisiteFields.cursor = true;
-        requisiteFields.node = true;
-      }
-      if (fieldType.isAbstract()) {
-        metadata.dynamic = true;
-        requisiteFields.__typename = true;
-      }
-      if (fieldType.isList()) {
-        metadata.plural = true;
-      }
-      if (generatedSiblings.hasOwnProperty(field.getName())) {
-        metadata.generated = true;
-      }
-      if (requisiteSiblings.hasOwnProperty(field.getName())) {
-        metadata.requisite = true;
-      }
-
-      var selection = this.printSelection(field, requisiteFields);
-      var fieldAlias = field.getAlias();
-      var args = field.getArguments();
-
-      return t.newExpression(t.memberExpression(t.identifier('GraphQL'), t.identifier('Field')), trimArguments([t.valueToNode(field.getName()), selection.fields, selection.fragments, args.length ? t.arrayExpression(args.map(function (arg) {
-        return _this3.printArgument(arg);
-      })) : NULL, fieldAlias ? t.valueToNode(fieldAlias) : NULL, NULL, objectify(metadata), this.printDirectives(field.getDirectives())]));
+    // Currently, we always inline scalar types.
+    if (argType.isScalar()) {
+      return null;
     }
-  }, {
-    key: 'printFragmentReference',
-    value: function printFragmentReference(fragmentReference) {
-      return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__frag')), [t.identifier(fragmentReference.getName())]);
-    }
-  }, {
-    key: 'printArgument',
-    value: function printArgument(arg) {
-      var metadata = {};
-      var inputType = this.printArgumentTypeForMetadata(arg.getType());
-      if (inputType) {
-        metadata.type = inputType;
-      }
-      return t.newExpression(t.memberExpression(t.identifier('GraphQL'), t.identifier('Callv')), trimArguments([t.valueToNode(arg.getName()), this.printArgumentValue(arg), objectify(metadata)]));
-    }
-  }, {
-    key: 'printArgumentValue',
-    value: function printArgumentValue(arg) {
-      if (arg.isVariable()) {
-        return this.printVariable(arg.getVariableName());
-      } else {
-        return this.printValue(arg.getValue());
-      }
-    }
-  }, {
-    key: 'printVariable',
-    value: function printVariable(name) {
-<<<<<<< HEAD
-      return t.newExpression(t.memberExpression(t.identifier('GraphQL'), t.identifier('CallVariable')), [t.valueToNode(name)]);
-=======
-      // Assume that variables named like substitutions are substitutions.
-      if (this.variableNames.hasOwnProperty(name)) {
-        return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__var')), [t.identifier(name)]);
-      }
-      return codify({
-        kind: t.literal('CallVariable'),
-        callVariableName: t.literal(name)
-      });
->>>>>>> facebook/master
-    }
-  }, {
-    key: 'printValue',
-    value: function printValue(value) {
-      var _this4 = this;
-
-      if (Array.isArray(value)) {
-        return t.arrayExpression(value.map(function (element) {
-          return _this4.printArgumentValue(element);
-        }));
-      }
-      return t.newExpression(t.memberExpression(t.identifier('GraphQL'), t.identifier('CallValue')), [t.valueToNode(value)]);
-    }
-  }, {
-    key: 'printDirectives',
-    value: function printDirectives(directives) {
-      var _this5 = this;
-
-      var printedDirectives = [];
-      directives.forEach(function (directive) {
-        if (directive.getName() === 'relay') {
-          return;
-        }
-        printedDirectives.push(t.objectExpression([property('name', t.valueToNode(directive.getName())), property('arguments', t.arrayExpression(directive.getArguments().map(function (arg) {
-          return t.objectExpression([property('name', t.valueToNode(arg.getName())), property('value', _this5.printArgumentValue(arg))]);
-        })))]));
-      });
-      return printedDirectives.length ? t.arrayExpression(printedDirectives) : NULL;
-    }
-  }, {
-    key: 'printRelayDirectiveMetadata',
-    value: function printRelayDirectiveMetadata(node) {
-      var metadata = {};
-      var relayDirective = find(node.getDirectives(), function (directive) {
-        return directive.getName() === 'relay';
-      });
-      if (relayDirective) {
-        relayDirective.getArguments().forEach(function (arg) {
-          if (arg.isVariable()) {
-            invariant(!arg.isVariable(), 'You supplied `$%s` as the `%s` argument to the `@relay` ' + 'directive, but `@relay` require scalar argument values.', arg.getVariableName(), arg.getName());
-          }
-          metadata[arg.getName()] = arg.getValue();
-        });
-      }
-      return metadata;
-    }
-
-    /**
-     * Prints the type for arguments that are transmitted via variables.
-     */
-  }, {
-    key: 'printArgumentTypeForMetadata',
-    value: function printArgumentTypeForMetadata(argType) {
-      // Currently, we always send Enum and Object types as variables.
-      if (argType.isEnum() || argType.isObject()) {
-        return argType.getName({ modifiers: true });
-      }
-      // Currently, we always inline scalar types.
-      if (argType.isScalar()) {
-        return null;
-      }
-      invariant(false, 'Unsupported input type: %s', argType);
-    }
-  }]);
-
-  return RelayQLPrinter;
-})();
+    invariant(false, 'Unsupported input type: %s', argType);
+  }
+}
 
 function validateField(field, parentType) {
   if (field.getName() === 'node') {
@@ -391,27 +380,55 @@ function validateConnectionField(field) {
   invariant(!field.hasArgument('last') || !field.hasArgument('after'), 'Connection arguments `%s(after: <cursor>, last: <count>)` are ' + 'not supported. Use `(last: <count>)`, ' + '`(before: <cursor>, last: <count>)`, or ' + '`(after: <cursor>, first: <count>)`.', field.getName());
 
   // Use `any` because we already check `isConnection` before validating.
-  var connectionNodeType = field.getType().getFieldDefinition('edges').getType().getFieldDefinition('node').getType();
-  field.getFields().forEach(function (subfield) {
-    // Suggest `edges{node{...}}` instead of `nodes{...}`.
-    var subfieldType = subfield.getType();
-    var isNodesLikeField = subfield.getName() !== 'edges' && subfieldType.isList() && subfieldType.getName({ modifiers: false }) === connectionNodeType.getName({ modifiers: false });
-    invariant(!isNodesLikeField, 'You supplied a field named `%s` on a connection named `%s`, but ' + 'pagination is not supported on connections without using edges. Use ' + '`%s{edges{node{...}}}` instead.', subfield.getName(), field.getName(), field.getName());
+  const connectionNodeType = field.getType().getFieldDefinition('edges').getType().getFieldDefinition('node').getType();
+
+  // NOTE: These checks are imperfect because we cannot trace fragment spreads.
+  forEachRecursiveField(field, subfield => {
+    if (subfield.getName() === 'edges' || subfield.getName() === 'pageInfo') {
+      invariant(field.isPattern() || field.hasArgument('find') || field.hasArgument('first') || field.hasArgument('last'), 'You supplied the `%s` field on a connection named `%s`, but you did ' + 'not supply an argument necessary to do so. Use either the `find`, ' + '`first`, or `last` argument.', subfield.getName(), field.getName());
+    } else {
+      // Suggest `edges{node{...}}` instead of `nodes{...}`.
+      const subfieldType = subfield.getType();
+      const isNodesLikeField = subfieldType.isList() && subfieldType.getName({ modifiers: false }) === connectionNodeType.getName({ modifiers: false });
+      invariant(!isNodesLikeField, 'You supplied a field named `%s` on a connection named `%s`, but ' + 'pagination is not supported on connections without using edges. Use ' + '`%s{edges{node{...}}}` instead.', subfield.getName(), field.getName(), field.getName());
+    }
   });
 }
 
 function validateMutationField(rootField) {
-  var declaredArgs = rootField.getDeclaredArguments();
-  var declaredArgNames = Object.keys(declaredArgs);
+  const declaredArgs = rootField.getDeclaredArguments();
+  const declaredArgNames = Object.keys(declaredArgs);
   invariant(declaredArgNames.length === 1, 'Your schema defines a mutation field `%s` that takes %d arguments, ' + 'but mutation fields must have exactly one argument named `input`.', rootField.getName(), declaredArgNames.length);
   invariant(declaredArgNames[0] === 'input', 'Your schema defines a mutation field `%s` that takes an argument ' + 'named `%s`, but mutation fields must have exactly one argument ' + 'named `input`.', rootField.getName(), declaredArgNames[0]);
 
-  var rootFieldArgs = rootField.getArguments();
+  const rootFieldArgs = rootField.getArguments();
   invariant(rootFieldArgs.length <= 1, 'There are %d arguments supplied to the mutation field named `%s`, ' + 'but mutation fields must have exactly one `input` argument.', rootFieldArgs.length, rootField.getName());
 }
 
+const forEachRecursiveField = function (selection, callback) {
+  selection.getSelections().forEach(selection => {
+    if (selection instanceof RelayQLField) {
+      callback(selection);
+    } else if (selection instanceof RelayQLInlineFragment) {
+      forEachRecursiveField(selection.getFragment(), callback);
+    }
+    // Ignore `RelayQLFragmentSpread` selections.
+  });
+};
+
+function codify(obj) {
+  const properties = [];
+  Object.keys(obj).forEach(key => {
+    const value = obj[key];
+    if (value !== NULL) {
+      properties.push(property(key, value));
+    }
+  });
+  return t.objectExpression(properties);
+}
+
 function identify(str) {
-  return str.split('.').reduce(function (acc, name) {
+  return str.split('.').reduce((acc, name) => {
     if (!acc) {
       return t.identifier(name);
     }
@@ -420,32 +437,18 @@ function identify(str) {
 }
 
 function objectify(obj) {
-  if (obj == null) {
-    return NULL;
-  }
-  var keys = Object.keys(obj);
-  if (!keys.length) {
-    return NULL;
-  }
-  return t.objectExpression(keys.map(function (key) {
-    return property(key, t.valueToNode(obj[key]));
-  }));
+  const properties = [];
+  Object.keys(obj).forEach(key => {
+    const value = obj[key];
+    if (value) {
+      properties.push(property(key, t.valueToNode(value)));
+    }
+  });
+  return t.objectExpression(properties);
 }
 
 function property(name, value) {
   return t.objectProperty(t.identifier(name), value);
-}
-
-function trimArguments(args) {
-  var lastIndex = -1;
-  for (var ii = args.length - 1; ii >= 0; ii--) {
-    invariant(args[ii] != null, 'Use `NULL` to indicate that output should be the literal value `null`.');
-    if (args[ii] !== NULL) {
-      lastIndex = ii;
-      break;
-    }
-  }
-  return args.slice(0, lastIndex + 1);
 }
 
 module.exports = RelayQLPrinter;

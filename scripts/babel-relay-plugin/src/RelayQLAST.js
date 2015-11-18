@@ -21,6 +21,9 @@ const {
 
 const find = require('./find');
 const invariant = require('./invariant');
+/* TODO: Spread is not working on babel6 right now. https://github.com/reactjs/react-rails/issues/313
+* Using solution from babel5 https://babeljs.io/repl/ */
+const _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 import type {
   Argument as GraphQLArgument,
@@ -147,7 +150,7 @@ class RelayQLFragment extends RelayQLDefinition<
         arg.value.value
       ))
     ));
-    super({...context, isPattern}, ast);
+    super(_extends({}, context, { isPattern: isPattern }), ast);
     this.parentType = parentType;
   }
 
@@ -375,7 +378,7 @@ class RelayQLArgument {
         return value.values.map(
           value => new RelayQLArgument(
             this.context,
-            {...this.ast, value},
+            _extends({},this.ast, {value: value}),
             this.type.ofType()
           )
         );

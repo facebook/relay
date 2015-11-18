@@ -7,23 +7,19 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- *
+ * 
  * @fullSyntaxTransform
  */
 
 'use strict';
 
-var RelayQLTransformer = require('./RelayQLTransformer');
+const RelayQLTransformer = require('./RelayQLTransformer');
+const { buildClientSchema } = require('graphql/utilities/buildClientSchema');
+const invariant = require('./invariant');
+const path = require('path');
+const util = require('util');
 
-var _require = require('graphql/utilities/buildClientSchema');
-
-var buildClientSchema = _require.buildClientSchema;
-
-var invariant = require('./invariant');
-var path = require('path');
-var util = require('util');
-
-var PROVIDES_MODULE = 'providesModule';
+const PROVIDES_MODULE = 'providesModule';
 
 /**
  * Returns a new Babel Transformer that uses the supplied schema to transform
@@ -31,47 +27,46 @@ var PROVIDES_MODULE = 'providesModule';
  * GraphQL queries.
  */
 function getBabelRelayPlugin(schemaProvider, pluginOptions) {
-  var options = pluginOptions || {};
-  var warning = options.suppressWarnings ? function () {} : console.warn.bind(console);
+  const options = pluginOptions || {};
+  const warning = options.suppressWarnings ? function () {} : console.warn.bind(console);
 
-  var schema = getSchema(schemaProvider);
-  var transformer = new RelayQLTransformer(schema, {
+  const schema = getSchema(schemaProvider);
+  const transformer = new RelayQLTransformer(schema, {
     substituteVariables: !!options.substituteVariables
   });
 
   return function (_ref) {
-    var t = _ref.types;
+    let t = _ref.types;
 
     return {
       visitor: {
         /**
          * Extract the module name from `@providesModule`.
          */
-        Program: function Program(_path, state) {
-          var node = _path.node;
-          var parent = _path.parent;
-
+        Program(_path, state) {
+          let node = _path.node;
+          let parent = _path.parent;
           if (state.file.opts.basename) {
             return;
           }
-          var documentName = undefined;
+          let documentName;
           if (parent.comments && parent.comments.length) {
-            var docblock = parent.comments[0].value || '';
-            var propertyRegex = /@(\S+) *(\S*)/g;
-            var captures = undefined;
+            const docblock = parent.comments[0].value || '';
+            const propertyRegex = /@(\S+) *(\S*)/g;
+            let captures;
             while (captures = propertyRegex.exec(docblock)) {
-              var property = captures[1];
-              var value = captures[2];
+              const property = captures[1];
+              const value = captures[2];
               if (property === PROVIDES_MODULE) {
                 documentName = value.replace(/[\.-:]/g, '_');
                 break;
               }
             }
           }
-          var filename = state.file.opts.filename;
+          const filename = state.file.opts.filename;
           if (filename && !documentName) {
-            var basename = state.file.opts.basename;
-            var captures = basename.match(/^[_A-Za-z][_0-9A-Za-z]*/);
+            const basename = state.file.opts.basename;
+            const captures = basename.match(/^[_A-Za-z][_0-9A-Za-z]*/);
             if (captures) {
               documentName = captures[0];
             }
@@ -82,41 +77,34 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
         /**
          * Transform Relay.QL`...`.
          */
-        TaggedTemplateExpression: function TaggedTemplateExpression(_path, state) {
-          var node = _path.node;
-          var parent = _path.parent;
-
-          var tag = _path.get('tag');
-          var tagName = tag.matchesPattern('Relay.QL') ? 'Relay.QL' : tag.isIdentifier({ name: 'RelayQL' }) ? 'RelayQL' : null;
+        TaggedTemplateExpression(_path, state) {
+          let node = _path.node;
+          let parent = _path.parent;
+          let tag = _path.get('tag');
+          const tagName = tag.matchesPattern('Relay.QL') ? 'Relay.QL' : tag.isIdentifier({ name: 'RelayQL' }) ? 'RelayQL' : null;
           if (!tagName) {
             return;
           }
 
-          var documentName = state.file.opts.basename;
-
+          const documentName = state.file.opts.basename;
           invariant(documentName, 'Expected `documentName` to have been set.');
 
-          var result = undefined;
+          let result;
           try {
             result = transformer.transform(node.quasi, documentName, tagName);
           } catch (error) {
             // Print a console warning and replace the code with a function
             // that will immediately throw an error in the browser.
-            var sourceText = error.sourceText;
-            var validationErrors = error.validationErrors;
-
+            var { sourceText, validationErrors } = error;
             var filename = state.file.opts.filename || 'UnknownFile';
             var errorMessages = [];
             if (validationErrors && sourceText) {
               var sourceLines = sourceText.split('\n');
-              validationErrors.forEach(function (_ref2) {
-                var message = _ref2.message;
-                var locations = _ref2.locations;
-
+              validationErrors.forEach(({ message, locations }) => {
                 errorMessages.push(message);
                 warning('\n-- GraphQL Validation Error -- %s --\n', state.file.opts.basename);
                 warning(['Error: ' + message, 'File:  ' + filename, 'Source:'].join('\n'));
-                locations.forEach(function (location) {
+                locations.forEach(location => {
                   var preview = sourceLines[location.line - 1];
                   if (preview) {
                     warning(['> ', '> ' + preview, '> ' + ' '.repeat(location.column - 1) + '^^^'].join('\n'));
@@ -146,7 +134,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
 }
 
 function getSchema(schemaProvider) {
-  var introspection = typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
+  const introspection = typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
   invariant(typeof introspection === 'object' && introspection && typeof introspection.__schema === 'object' && introspection.__schema, 'Invalid introspection data supplied to `getBabelRelayPlugin()`. The ' + 'resulting schema is not an object with a `__schema` property.');
   return buildClientSchema(introspection);
 }

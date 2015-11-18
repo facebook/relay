@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var babel = require('babel');
+var babel = require('babel-core');
 var fs = require('fs');
 var glob = require('glob');
 var mkdirp = require('mkdirp');

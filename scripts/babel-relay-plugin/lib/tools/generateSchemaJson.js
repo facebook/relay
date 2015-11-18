@@ -14,29 +14,25 @@
  * Generates `testschema.rfc.json` from `testschema.rfc.graphql`.
  */
 
-'use strict';
+const fs = require('fs');
+const path = require('path');
+const schema = require('graphql/language/schema');
+const utilities = require('graphql/utilities');
+const graphql = require('graphql');
 
-var fs = require('fs');
-var path = require('path');
-var schema = require('graphql/language/schema');
-var utilities = require('graphql/utilities');
-var graphql = require('graphql');
-
-var TESTS_DIR = path.resolve(__dirname, '..', '__tests__');
+const TESTS_DIR = path.resolve(__dirname, '..', '__tests__');
 
 try {
-  (function () {
-    var inFile = path.join(TESTS_DIR, 'testschema.rfc.graphql');
-    var outFile = path.join(TESTS_DIR, 'testschema.rfc.json');
+  const inFile = path.join(TESTS_DIR, 'testschema.rfc.graphql');
+  const outFile = path.join(TESTS_DIR, 'testschema.rfc.json');
 
-    var body = fs.readFileSync(inFile, 'utf8');
-    var ast = schema.parseSchemaIntoAST(body);
-    var astSchema = utilities.buildASTSchema(ast, 'Root', 'Mutation');
-    graphql.graphql(astSchema, utilities.introspectionQuery).then(function (result) {
-      var out = JSON.stringify(result, null, 2);
-      fs.writeFileSync(outFile, out);
-    });
-  })();
+  const body = fs.readFileSync(inFile, 'utf8');
+  const ast = schema.parseSchemaIntoAST(body);
+  const astSchema = utilities.buildASTSchema(ast, 'Root', 'Mutation');
+  graphql.graphql(astSchema, utilities.introspectionQuery).then(function (result) {
+    const out = JSON.stringify(result, null, 2);
+    fs.writeFileSync(outFile, out);
+  });
 } catch (error) {
   console.error(error);
   console.error(error.stack);

@@ -1,4 +1,3 @@
-// @generated
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -43,8 +42,7 @@ function transformGraphQL(schemaPath, source, filename) {
   return babel.transform(source, {
     compact: false,
     filename: filename,
-    plugins: [plugin],
-    blacklist: ['strict']
+    plugins: [plugin]
   }).code;
 }
 

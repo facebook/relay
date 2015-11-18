@@ -29,9 +29,6 @@ const {
 const find = require('./find');
 const invariant = require('./invariant');
 const t = require('babel-types/lib/');
-/* TODO: Spread is not working on babel6 right now. https://github.com/reactjs/react-rails/issues/313
-* Using solution from babel5 https://babeljs.io/repl/ */
-const _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 export type Printable = Object;
 export type Substitution = {
@@ -250,7 +247,7 @@ class RelayQLPrinter {
       requisiteFields.pageInfo = true;
     }
 
-    const generatedFields = _extends({}, requisiteFields);
+    const generatedFields = {...requisiteFields};
 
     const printedFields = [];
     fields.forEach(field => {

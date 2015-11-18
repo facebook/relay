@@ -1,4 +1,3 @@
-// @generated
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -31,7 +30,7 @@ var transform = transformGraphQL.bind(null, SCHEMA_PATH);
 
 function genFixtures() {
   var fixtures = readFixtures(FIXTURE_PATH);
-  Object.keys(fixtures).forEach(filename => {
+  Object.keys(fixtures).forEach(function (filename) {
     var fixture = fixtures[filename];
     if (fixture.output !== undefined) {
       // fixture for valid input, update the expected output

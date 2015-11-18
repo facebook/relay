@@ -39,7 +39,8 @@ describe('babel-relay-plugin', () => {
         }
         const libCode = fs.readFileSync(libFile);
         const srcCode = fs.readFileSync(srcFile);
-        const transformed = babel.transform(srcCode);
+        let babelOptions = {presets: ["es2015", "stage-0"], plugins: ["transform-flow-strip-types", "syntax-object-rest-spread", "transform-object-rest-spread", "babel-plugin-transform-es2015-destructuring"]};
+        const transformed = babel.transform(srcCode, babelOptions);
         // Cannot use a `===` because of generated comment, newlines, etc.
         return libCode.indexOf(transformed.code) >= 0;
       }

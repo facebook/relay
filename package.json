@@ -62,8 +62,8 @@
     "webpack-stream": "^2.1.0"
   },
   "devEngines": {
-    "node": "5.x",
-    "npm": "3.x"
+    "node": "4.x",
+    "npm": "2.x"
   },
   "jest": {
     "rootDir": "",

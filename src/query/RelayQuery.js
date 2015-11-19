@@ -19,6 +19,7 @@ import type {
   ConcreteMutation,
   ConcreteNode,
   ConcreteQuery,
+  ConcreteSelection,
 } from 'ConcreteQuery';
 var QueryBuilder = require('QueryBuilder');
 var RelayConnectionInterface = require('RelayConnectionInterface');
@@ -99,8 +100,6 @@ if (__DEV__) {
  * replace the current mutable GraphQL nodes with an immutable query
  * representation. This class *must not* mutate the underlying `concreteNode`.
  * Instead, use an instance variable (see `clone()`).
- *
- * TODO (#6937314): RelayQueryNode support for toJSON/fromJSON
  */
 class RelayQueryNode {
   constructor: Function; // for flow
@@ -114,9 +113,6 @@ class RelayQueryNode {
   __serializationKey__: ?string;
   __storageKey__: ?string;
   __variables__: Variables;
-
-  // TODO(#7161070) Remove this once `toGraphQL` is no longer needed.
-  __isConcreteNodeCached__: boolean;
 
   static create(
     concreteNode: mixed,
@@ -158,9 +154,6 @@ class RelayQueryNode {
     this.__hasValidatedConnectionCalls__ = null;
     this.__serializationKey__ = null;
     this.__storageKey__ = null;
-
-    // TODO(#7161070) Remove this once `toGraphQL` is no longer needed.
-    this.__isConcreteNodeCached__ = false;
   }
 
   isGenerated(): boolean {
@@ -343,14 +336,19 @@ class RelayQueryNode {
     );
   }
 
-  getConcreteQueryNode(
-    onCacheMiss: () => any
-  ): any {
-    if (!this.__isConcreteNodeCached__) {
-      this.__concreteNode__ = onCacheMiss();
-      this.__isConcreteNodeCached__ = true;
-    }
+  getConcreteQueryNode(): any {
     return this.__concreteNode__;
+  }
+
+  __toJSONChildren__(): Array<?ConcreteSelection> {
+    return this.getChildren().map(child => {
+      invariant(
+        child instanceof RelayQueryFragment
+        || child instanceof RelayQueryField,
+        'RelayQueryNode.__toJSONChildren__(): Invalid node.'
+      );
+      return child.toJSON();
+    });
   }
 }
 
@@ -571,6 +569,46 @@ class RelayQueryRoot extends RelayQueryNode {
       return false;
     }
     return super.equals(that);
+  }
+
+  static fromJSON(json: ConcreteQuery): RelayQueryRoot {
+    return RelayQueryRoot.create(json, RelayMetaRoute.get('$fromJSON'), {});
+  }
+
+  toJSON(): ConcreteQuery {
+    const getIdentifyingArgValue = () => {
+      const batchCall = this.getBatchCall();
+      if (batchCall) {
+        return QueryBuilder.createBatchCallVariable(
+          batchCall.sourceQueryID,
+          batchCall.sourceQueryPath
+        );
+      } else {
+        const identifyingArg = this.getIdentifyingArg();
+        if (identifyingArg) {
+          if (Array.isArray(identifyingArg.value)) {
+            return identifyingArg.value.map(
+              QueryBuilder.createCallValue
+            );
+          } else {
+            return QueryBuilder.createCallValue(
+              identifyingArg.value
+            );
+          }
+        }
+      }
+    };
+
+    // Use `QueryBuilder` to generate the correct calls from the
+    // identifying argument & metadata.
+    return QueryBuilder.createQuery({
+      children: this.__toJSONChildren__(),
+      fieldName: this.getFieldName(),
+      identifyingArgValue: getIdentifyingArgValue(),
+      isDeferred: this.isDeferred(),
+      metadata: this.getConcreteQueryNode().metadata,
+      name: this.getName(),
+    });
   }
 }
 
@@ -915,6 +953,24 @@ class RelayQueryFragment extends RelayQueryNode {
     }
     return super.equals(that);
   }
+
+  static fromJSON(json: ConcreteFragment): RelayQueryFragment {
+    return RelayQueryFragment.create(json, RelayMetaRoute.get('$fromJSON'), {});
+  }
+
+  toJSON(): ConcreteFragment {
+    return {
+      children: this.__toJSONChildren__(),
+      kind: 'Fragment',
+      hash: this.getHash(),
+      metadata: {
+        isConcrete: this.isConcrete(),
+        plural: this.isPlural(),
+      },
+      name: this.getDebugName(),
+      type: this.getType(),
+    };
+  }
 }
 
 /**
@@ -1244,6 +1300,21 @@ class RelayQueryField extends RelayQueryNode {
     field.__calls__ = calls;
 
     return field;
+  }
+
+  static fromJSON(json: ConcreteField): RelayQueryField {
+    return RelayQueryField.create(json, RelayMetaRoute.get('$fromJSON'), {});
+  }
+
+  toJSON(): ConcreteField {
+    return {
+      alias: this.getConcreteQueryNode().alias,
+      calls: callsToGraphQL(this.getCallsWithValues()),
+      children: this.__toJSONChildren__(),
+      fieldName: this.getSchemaName(),
+      kind: 'Field',
+      metadata: this.getConcreteQueryNode().metadata,
+    };
   }
 
   /**

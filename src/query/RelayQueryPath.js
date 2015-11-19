@@ -19,7 +19,6 @@ var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQuery = require('RelayQuery');
 
 var invariant = require('invariant');
-var toGraphQL = require('toGraphQL');
 
 import type {DataID} from 'RelayInternalTypes';
 
@@ -160,7 +159,7 @@ class RelayQueryPath {
       node instanceof RelayQuery.Root,
       'RelayQueryPath: Expected a root node.'
     );
-    const metadata = {...node.__concreteNode__.metadata};
+    const metadata = {...node.getConcreteQueryNode().metadata};
     const identifyingArg = node.getIdentifyingArg();
     if (identifyingArg && identifyingArg.name != null) {
       metadata.identifyingArgName = identifyingArg.name;
@@ -183,13 +182,7 @@ class RelayQueryPath {
     let next = this;
     while (next) {
       let node = getShallowClone(next._node);
-      if (node instanceof RelayQuery.Root) {
-        path.unshift(toGraphQL.Query(node));
-      } else if (node instanceof RelayQuery.Fragment) {
-        path.unshift(toGraphQL.Fragment(node));
-      } else {
-        path.unshift(toGraphQL.Field(node));
-      }
+      path.unshift(node.toJSON());
       next = next._parent;
     }
     return path;

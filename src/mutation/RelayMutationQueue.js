@@ -22,10 +22,10 @@ var RelayMutationRequest = require('RelayMutationRequest');
 var RelayMutationTransaction = require('RelayMutationTransaction');
 var RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 var RelayNetworkLayer = require('RelayNetworkLayer');
+var RelayQuery = require('RelayQuery');
 import type RelayStoreData from 'RelayStoreData';
 import type {FileMap} from 'RelayMutation';
 import type RelayMutation from 'RelayMutation';
-import type RelayQuery from 'RelayQuery';
 import type {ClientMutationID} from 'RelayInternalTypes';
 import type {
   RelayMutationConfig,
@@ -35,7 +35,6 @@ import type {
   Variables,
 } from 'RelayTypes';
 
-const fromGraphQL = require('fromGraphQL');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const resolveImmediate = require('resolveImmediate');
@@ -363,7 +362,8 @@ class PendingTransaction {
 
   getFatQuery(): RelayQuery.Fragment {
     if (!this._fatQuery) {
-      this._fatQuery = fromGraphQL.Fragment(this.mutation.getFatQuery());
+      this._fatQuery = RelayQuery.Fragment
+        .fromJSON((this.mutation.getFatQuery() : any));
     }
     return this._fatQuery;
   }

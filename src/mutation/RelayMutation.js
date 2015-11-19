@@ -17,6 +17,7 @@ import type {ConcreteFragment} from 'ConcreteQuery';
 import type {RelayConcreteNode} from 'RelayQL';
 var RelayFragmentReference = require('RelayFragmentReference');
 import type RelayMetaRoute from 'RelayMetaRoute';
+var RelayQuery = require('RelayQuery');
 var RelayStore = require('RelayStore');
 import type {
   RelayMutationConfig,
@@ -26,7 +27,6 @@ import type {
 var buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder} from 'buildRQL';
 var forEachObject = require('forEachObject');
-var fromGraphQL = require('fromGraphQL');
 var invariant = require('invariant');
 var warning = require('warning');
 
@@ -248,7 +248,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
         return;
       }
 
-      var fragment = fromGraphQL.Fragment(buildMutationFragment(
+      var fragment = RelayQuery.Fragment.fromJSON(buildMutationFragment(
         this.constructor.name,
         fragmentName,
         fragmentBuilder,

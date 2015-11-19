@@ -105,24 +105,38 @@ describe('readRelayQueryData', () => {
   });
 
   it('returns the ids for all read data', () => {
-    var records = {
+    const records = {
+      address: null,
+      date: {day: 21},
+      hometown: {name: 'Vancouver'},
       node: {
         name: 'Chris',
         birthdate: {__dataID__: 'date'},
         address: {__dataID__: 'address'},
+        hometown: {__dataID__: 'hometown'},
       },
-      date: {day: 21},
-      address: null,
     };
-    var query = getNode(Relay.QL`
-      fragment on User{birthdate {day}, address {city}}
+    const hometownFragmentReference = RelayFragmentReference.createForContainer(
+      () => Relay.QL`fragment on Page {name}`,
+      {}
+    );
+    const query = getNode(Relay.QL`
+      fragment on User {
+        address {city}
+        birthdate {day}
+        hometown {${hometownFragmentReference}}
+      }
     `);
-    expect(
-      readRelayQueryData(getStoreData({records}), query, 'node').dataIDs
-    ).toEqual({
-      node: true,
-      date: true,
+    const {dataIDs} = readRelayQueryData(
+      getStoreData({records}),
+      query,
+      'node'
+    );
+    expect(dataIDs).toEqual({
       address: true,
+      date: true,
+      hometown: true,
+      node: true,
     });
   });
 

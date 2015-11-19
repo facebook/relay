@@ -103,6 +103,7 @@ export type ConcreteFragment = {
   hash: ?string;
   kind: 'Fragment';
   metadata: {
+    isConcrete?: boolean;
     isPlural?: boolean; // FB Printer
     plural?: boolean;   // OSS Printer from `@relay`
   };

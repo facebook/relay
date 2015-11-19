@@ -95,7 +95,8 @@ var x = (function () {
     hash: 'm+iXTD96',
     kind: 'Fragment',
     metadata: {
-      pattern: true
+      pattern: true,
+      isConcrete: true
     },
     name: 'ConnectionPattern',
     type: 'User'

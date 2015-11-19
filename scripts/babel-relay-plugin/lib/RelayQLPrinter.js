@@ -137,7 +137,9 @@ var RelayQLPrinter = (function () {
         requisiteFields.__typename = true;
       }
       var selections = this.printSelections(fragment, requisiteFields);
-      var metadata = this.printRelayDirectiveMetadata(fragment);
+      var metadata = this.printRelayDirectiveMetadata(fragment, {
+        isConcrete: !fragmentType.isAbstract()
+      });
 
       return codify({
         children: selections,
@@ -376,7 +378,7 @@ var RelayQLPrinter = (function () {
     }
   }, {
     key: 'printRelayDirectiveMetadata',
-    value: function printRelayDirectiveMetadata(node) {
+    value: function printRelayDirectiveMetadata(node, maybeMetadata) {
       var properties = [];
       var relayDirective = find(node.getDirectives(), function (directive) {
         return directive.getName() === 'relay';
@@ -388,6 +390,16 @@ var RelayQLPrinter = (function () {
           }
           properties.push(property(arg.getName(), t.literal(arg.getValue())));
         });
+      }
+      if (maybeMetadata) {
+        (function () {
+          var metadata = maybeMetadata;
+          Object.keys(metadata).forEach(function (key) {
+            if (metadata[key]) {
+              properties.push(property(key, t.literal(metadata[key])));
+            }
+          });
+        })();
       }
       return t.objectExpression(properties);
     }

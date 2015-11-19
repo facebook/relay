@@ -44,7 +44,6 @@ var forEachObject = require('forEachObject');
 var invariant = require('invariant');
 var generateForceIndex = require('generateForceIndex');
 var readRelayDiskCache = require('readRelayDiskCache');
-var refragmentRelayQuery = require('refragmentRelayQuery');
 var resolveImmediate = require('resolveImmediate');
 var warning = require('warning');
 var writeRelayQueryPayload = require('writeRelayQueryPayload');
@@ -296,6 +295,7 @@ class RelayStoreData {
       changeTracker,
       {
         forceIndex: generateForceIndex(),
+        isOptimisticUpdate,
         updateTrackedQueries: false,
       }
     );
@@ -318,21 +318,14 @@ class RelayStoreData {
     dataID: DataID
   ): RelayQuery.Root {
     if (GraphQLStoreDataHandler.isClientID(dataID)) {
-      var path = this._queuedStore.getPathToRecord(dataID);
+      const path = this._queuedStore.getPathToRecord(dataID);
       invariant(
         path,
         'RelayStoreData.buildFragmentQueryForDataID(): Cannot refetch ' +
         'record `%s` without a path.',
         dataID
       );
-      var query = refragmentRelayQuery(path.getQuery(fragment));
-      invariant(
-        query,
-        'RelayStoreData.buildFragmentQueryForDataID(): Expected a query for ' +
-        'record `%s`.',
-        dataID
-      );
-      return query;
+      return path.getQuery(fragment);
     }
     // Fragment fields cannot be spread directly into the root because they
     // may not exist on the `Node` type.

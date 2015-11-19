@@ -27,12 +27,14 @@ import type RelayRecordStore from 'RelayRecordStore';
 var generateClientEdgeID = require('generateClientEdgeID');
 var generateClientID = require('generateClientID');
 var invariant = require('invariant');
+var isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 var warning = require('warning');
 
 import type {DataID} from 'RelayInternalTypes';
 
 type WriterOptions = {
   forceIndex?: ?number;
+  isOptimisticUpdate?: boolean;
   updateTrackedQueries?: boolean;
 };
 type WriterState = {
@@ -54,6 +56,7 @@ var {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
 class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   _changeTracker: RelayChangeTracker;
   _forceIndex: number;
+  _isOptimisticUpdate: boolean;
   _store: RelayRecordStore;
   _queryTracker: RelayQueryTracker;
   _updateTrackedQueries: boolean;
@@ -67,6 +70,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     super();
     this._changeTracker = changeTracker;
     this._forceIndex = options && options.forceIndex ? options.forceIndex : 0;
+    this._isOptimisticUpdate = !!(options && options.isOptimisticUpdate);
     this._store = store;
     this._queryTracker = queryTracker;
     this._updateTrackedQueries = !!(options && options.updateTrackedQueries);
@@ -218,6 +222,33 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this.traverse(root, state);
   }
 
+  visitFragment(
+    fragment: RelayQuery.Fragment,
+    state: WriterState
+  ): ?RelayQuery.Node {
+    const {recordID} = state;
+    if (fragment.isDeferred()) {
+      this._store.setHasDeferredFragmentData(
+        recordID,
+        fragment.getFragmentID()
+      );
+      this.recordUpdate(recordID);
+    }
+    // Skip fragments that do not match the record's concrete type. Fragments
+    // cannot be skipped for optimistic writes because optimistically created
+    // records *may* have a default `Node` type.
+    if (
+      this._isOptimisticUpdate ||
+      isCompatibleRelayFragmentType(fragment, this._store.getType(recordID))
+    ) {
+      const path = state.path.getPath(fragment, recordID);
+      this.traverse(fragment, {
+        ...state,
+        path,
+      });
+    }
+  }
+
   visitField(
     field: RelayQuery.Field,
     state: WriterState
@@ -258,20 +289,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     } else {
       this._writeLink(field, state, recordID, fieldData);
     }
-  }
-
-  visitFragment(
-    fragment: RelayQuery.Fragment,
-    state: WriterState
-  ): ?RelayQuery.Node {
-    if (fragment.isDeferred()) {
-      this._store.setHasDeferredFragmentData(
-        state.recordID,
-        fragment.getFragmentID()
-      );
-      this.recordUpdate(state.recordID);
-    }
-    return this.traverse(fragment, state);
   }
 
   /**

@@ -862,6 +862,11 @@ class RelayQueryFragment extends RelayQueryNode {
     return (this.__concreteNode__: ConcreteFragment).type;
   }
 
+  isConcrete(): boolean {
+    const concreteNode = (this.__concreteNode__: ConcreteFragment);
+    return !!concreteNode.metadata.isConcrete;
+  }
+
   isDeferred(): boolean {
     return this.__metadata__.isDeferred;
   }

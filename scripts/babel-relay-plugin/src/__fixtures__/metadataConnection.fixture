@@ -140,7 +140,9 @@ var x = (function () {
       }],
       hash: 'q04Rl2BK',
       kind: 'Fragment',
-      metadata: {},
+      metadata: {
+        isConcrete: true
+      },
       name: 'User',
       type: 'User'
     }],

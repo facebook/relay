@@ -278,6 +278,7 @@ describe('RelayQueryPath', () => {
         hash: null,
         kind: 'Fragment',
         metadata: {
+          isConcrete: false,
           plural: false,
         },
         name: '$RelayQueryPath',
@@ -305,7 +306,7 @@ describe('RelayQueryPath', () => {
     expect(clone.getName()).toBe(root.getName());
   });
 
-  it('serializes non-root paths wihout a primary key', () => {
+  it('serializes non-root paths without a primary key', () => {
     var query = getNode(Relay.QL`
       query {
         node(id:"123") {
@@ -313,25 +314,30 @@ describe('RelayQueryPath', () => {
         }
       }
     `);
-    var address = getNode(Relay.QL`
+    var actorFragment = getNode(Relay.QL`
       fragment on Actor {
         address {
           city
         }
       }
-    `).getFieldByStorageKey('address');
+    `);
+    var address = actorFragment.getFieldByStorageKey('address');
 
     var root = new RelayQueryPath(query);
-    var path = root.getPath(address, 'client:1');
+    var path = root
+      .getPath(actorFragment, 'client:1')
+      .getPath(address, 'client:1');
 
     var fragment = Relay.QL`fragment on StreetAddress { country }`;
     var clone = fromJSON(path);
     expect(clone.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"123") {
-          address {
-            ${fragment},
-          },
+          ... on Actor {
+            address {
+              ${fragment}
+            }
+          }
         }
       }
     `));

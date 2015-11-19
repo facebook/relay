@@ -558,7 +558,7 @@ function getRangeBehavior(
   rangeBehaviors: RangeBehaviors,
   calls: Array<Call>
 ): ?string {
-  var call = calls.map(printRelayQueryCall).join('').slice(1);
+  var call = calls.map(printRelayQueryCall).sort().join('').slice(1);
   return rangeBehaviors[call] || null;
 }
 

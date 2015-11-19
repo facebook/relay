@@ -1,5 +1,9 @@
 ## master
 
+* The keys in `rangeBehaviors` are now compared against the *sorted* filter
+  arguments of a field. For the field `foo(first: 10, b:true, a:false)` the
+  matching range behavior key will be `'a(false).b(true)'`.
+
 ## 0.5.0 (November 11, 2015)
 
 * Bump the `babel-relay-plugin` version to v0.4.1.

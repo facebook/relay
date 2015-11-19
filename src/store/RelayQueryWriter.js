@@ -218,6 +218,21 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this.traverse(root, state);
   }
 
+  visitFragment(
+    fragment: RelayQuery.Fragment,
+    state: WriterState
+  ): ?RelayQuery.Node {
+    var {recordID} = state;
+    var recordType = this._store.getType(recordID);
+    if (
+      !recordType ||
+      recordType === NODE ||
+      recordType === fragment.getType()
+    ) {
+      this.traverse(fragment, state);
+    }
+  }
+
   visitField(
     field: RelayQuery.Field,
     state: WriterState

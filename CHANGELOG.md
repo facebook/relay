@@ -1,5 +1,6 @@
 ## master
 
+* Relay will now throw an invariant if range behavior keys are unsorted.
 * The keys in `rangeBehaviors` are now compared against the *sorted* filter
   arguments of a field. For the field `foo(first: 10, b:true, a:false)` the
   matching range behavior key will be `'a(false).b(true)'`.

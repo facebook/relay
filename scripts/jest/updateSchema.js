@@ -10,7 +10,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { parseSchemaIntoAST } from 'graphql/language/schema';
+import { parse } from 'graphql/language';
 import { buildASTSchema, introspectionQuery } from 'graphql/utilities';
 import { graphql } from 'graphql';
 
@@ -19,7 +19,7 @@ try {
   var outFile = path.resolve(__dirname, 'testschema.json');
 
   var body = fs.readFileSync(inFile, 'utf8');
-  var ast = parseSchemaIntoAST(body);
+  var ast = parse(body);
   var astSchema = buildASTSchema(ast, 'Root', 'Mutation');
   graphql(astSchema, introspectionQuery).then(
     function(result) {

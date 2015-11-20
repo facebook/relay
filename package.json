@@ -38,6 +38,7 @@
     "react-dom": "^0.14.0"
   },
   "devDependencies": {
+    "babel": "^5.8.25",
     "babel-core": "^5.8.25",
     "babel-eslint": "^4.1.1",
     "del": "^1.2.0",
@@ -46,7 +47,7 @@
     "eslint-plugin-react": "^3.3.1",
     "fbjs-scripts": "^0.2.0",
     "flow-bin": "0.18.1",
-    "graphql": "0.4.2",
+    "graphql": "0.4.13",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.1.0",
     "gulp-derequire": "^2.1.0",

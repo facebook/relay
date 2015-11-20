@@ -1,3 +1,4 @@
+// @generated
 'use strict';
 
 /**

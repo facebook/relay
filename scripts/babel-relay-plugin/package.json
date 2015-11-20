@@ -40,7 +40,7 @@
     "graphql": "0.4.2"
   },
   "jest": {
-    "scriptPreprocessor": "node_modules/babel-jest",
+    "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
     "testFileExtensions": [
       "es6",
       "js"

@@ -12,7 +12,7 @@
 
 var assign = require('object-assign');
 var babel = require('babel-core');
-var babelDefaultOptions = require('fbjs-scripts/babel/default-options');
+var babelDefaultOptions = require('../../default-options'/*'fbjs-scripts/babel/default-options'*/);
 var createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
 var fs = require('fs');
 var getBabelRelayPlugin = require('../babel-relay-plugin');
@@ -42,11 +42,6 @@ var babelOptions = assign(
   {
     plugins: babelDefaultOptions.plugins.concat([graphQLPlugin]),
     retainLines: true,
-    _moduleMap: fixModules(assign({}, require('fbjs/module-map'), {
-      'React': 'react',
-      'ReactUpdates': 'react/lib/ReactUpdates',
-      'StaticContainer.react': 'react-static-container',
-    })),
   }
 );
 

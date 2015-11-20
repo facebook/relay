@@ -138,6 +138,7 @@ const QueryBuilder = {
     directives?: ?Array<ConcreteDirective>;
     isPlural?: boolean;
     metadata?: ?{
+      isConcrete?: boolean;
       plural?: boolean;
     };
     name: string;
@@ -150,6 +151,7 @@ const QueryBuilder = {
       hash: null, // Only present for transformed fragments.
       kind: 'Fragment',
       metadata: {
+        isConcrete: !!metadata.isConcrete,
         plural: !!metadata.plural, // match the `@relay` argument name
       },
       name: partialFragment.name,

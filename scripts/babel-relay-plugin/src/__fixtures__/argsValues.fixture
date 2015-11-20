@@ -195,7 +195,9 @@ var foo = (function () {
       }],
       hash: "/GeJm4rh",
       kind: "Fragment",
-      metadata: {},
+      metadata: {
+        isConcrete: true
+      },
       name: "User",
       type: "User"
     }],

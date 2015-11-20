@@ -14,107 +14,74 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
 var Relay = require('Relay');
 var RelayStoreData = require('RelayStoreData');
 
-describe('RelayContainer.hasFragmentData', function() {
-  var MockContainer;
-  var mockRender;
-  var mockPointer;
-  var deferredQueryTracker;
-  var pendingQueryTracker;
+describe('RelayContainer', () => {
+  describe('hasFragmentData()', () => {
+    let mockContainerInstance;
+    let mockFragmentReference;
+    let mockPointer;
+    let pendingQueryTracker;
+    let store;
 
-  beforeEach(function() {
-    jest.resetModuleRegistry();
-
-    var storeData = RelayStoreData.getDefaultInstance();
-    deferredQueryTracker = storeData.getDeferredQueryTracker();
-    pendingQueryTracker = storeData.getPendingQueryTracker();
-
-    var render = jest.genMockFunction().mockImplementation(() => <div />);
-    var MockComponent = React.createClass({render});
-    MockContainer = Relay.createContainer(MockComponent, {
-      initialVariables: {site: 'mobile'},
-      fragments: {
-        foo: jest.genMockFunction().mockImplementation(
-          () => Relay.QL`fragment on Node{id,url(site:$site)}`
-        )
-      }
-    });
-    MockContainer.mock = {render};
-
-    var RelayTestRenderer = RelayTestUtils.createRenderer();
-    GraphQLStoreQueryResolver.mockDefaultResolveImplementation((pointer) => {
-      expect(pointer.getDataID()).toBe('42');
-      return {__dataID__: '42', id: '42', url: null};
-    });
-    mockRender = () => {
-      return RelayTestRenderer.render(genMockPointer => {
+    beforeEach(() => {
+      jest.resetModuleRegistry();
+      const MockComponent = React.createClass({render: () => <div />});
+      const MockContainer = Relay.createContainer(MockComponent, {
+        fragments: {
+          foo: () => Relay.QL`fragment on Node{id}`,
+        },
+      });
+      const RelayTestRenderer = RelayTestUtils.createRenderer();
+      mockContainerInstance = RelayTestRenderer.render(genMockPointer => {
         return <MockContainer foo={genMockPointer('42')} />;
       });
-    };
-    mockPointer = {__dataID__: '42'};
-  });
+      mockFragmentReference = MockContainer.getFragment('foo');
+      mockPointer = {__dataID__: '42'};
+      const storeData = RelayStoreData.getDefaultInstance();
+      pendingQueryTracker = storeData.getPendingQueryTracker();
+      store = storeData.getRecordStore();
+    });
 
-  it('has query data when no pending queries', () => {
-    var instance = mockRender();
-    spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(false);
+    it('returns true when there are no pending queries', () => {
+      spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(false);
+      const hasData = mockContainerInstance.hasFragmentData(
+        mockFragmentReference,
+        mockPointer
+      );
+      expect(hasData).toBe(true);
+    });
 
-    expect(
-      instance.hasFragmentData(MockContainer.getFragment('foo'), mockPointer)
-    ).toBeTruthy();
-  });
+    it('returns true when there are pending queries, but the fragment we are ' +
+       'interested in has resolved', () => {
+      spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(true);
+      store.hasDeferredFragmentData =
+        jest.genMockFunction().mockReturnValue(true);
+      const hasData = mockContainerInstance.hasFragmentData(
+        mockFragmentReference,
+        mockPointer
+      );
+      expect(hasData).toBe(true);
+      expect(store.hasDeferredFragmentData.mock.calls[0][0]).toBe('42');
+      // FIXME: If you can get the fragment ID, implement this expectation!
+      // expect(store.hasDeferredFragmentData.mock.calls[0][1]).toBe('???');
+    });
 
-  it('has query data when no pending query matches', () => {
-    var instance = mockRender();
-    spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(true);
-    deferredQueryTracker.isQueryPending.mockReturnValue(false);
-
-    expect(
-      instance.hasFragmentData(MockContainer.getFragment('foo'), mockPointer)
-    ).toBeTruthy();
-  });
-
-  it('does not have query data when a pending query matches', () => {
-    var instance = mockRender();
-    spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(true);
-    deferredQueryTracker.isQueryPending.mockReturnValue(true);
-
-    expect(
-      instance.hasFragmentData(MockContainer.getFragment('foo'), mockPointer)
-    ).toBeFalsy();
-  });
-
-  it('does not have query data if a deferred query fails', () => {
-    var instance = mockRender();
-    var hasPendingQueriesSpy =
-      spyOn(pendingQueryTracker, 'hasPendingQueries');
-    hasPendingQueriesSpy.andReturn(true);
-    deferredQueryTracker.isQueryPending.mockReturnValue(true);
-
-    // tell component to listen to query
-    instance.hasFragmentData(MockContainer.getFragment('foo'), mockPointer);
-
-    var fragmentName =
-      deferredQueryTracker.addListenerForFragment.mock.calls[0][1];
-    var {onFailure} =
-      deferredQueryTracker.addListenerForFragment.mock.calls[0][2];
-
-    var error = new Error();
-    onFailure(mockPointer.__dataID__, fragmentName, error);
-    hasPendingQueriesSpy.andReturn(true);
-    deferredQueryTracker.isQueryPending.mockReturnValue(false);
-
-    expect(
-      instance.hasFragmentData(MockContainer.getFragment('foo'), mockPointer)
-    ).toBeFalsy();
-    expect(
-      instance.getFragmentError(MockContainer.getFragment('foo'), mockPointer)
-    ).toBe(error);
-    expect(
-      MockContainer.mock.render.mock.calls.length
-    ).toBe(2);
+    it('returns false when there are pending queries, but the fragment we ' +
+       'are interested in has not resolved', () => {
+      spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(true);
+      store.hasDeferredFragmentData =
+        jest.genMockFunction().mockReturnValue(false);
+      const hasData = mockContainerInstance.hasFragmentData(
+       mockFragmentReference,
+       mockPointer
+      );
+      expect(hasData).toBe(false);
+      expect(store.hasDeferredFragmentData.mock.calls[0][0]).toBe('42');
+      // FIXME: If you can get the fragment ID, implement this expectation!
+      // expect(store.hasDeferredFragmentData.mock.calls[0][1]).toBe('???');
+    });
   });
 });

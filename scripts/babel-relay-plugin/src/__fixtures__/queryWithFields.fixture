@@ -57,7 +57,9 @@ var x = (function () {
       }],
       hash: 'vEzBrPyP',
       kind: 'Fragment',
-      metadata: {},
+      metadata: {
+        isConcrete: true
+      },
       name: 'User',
       type: 'User'
     }],

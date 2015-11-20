@@ -156,9 +156,6 @@ class PendingFetch {
         fetch: this,
         query: subtractedQuery,
       };
-      this._storeData.getDeferredQueryTracker().recordQuery(
-        subtractedQuery
-      );
       this._fetchSubtractedQueryPromise.done(
         this._handleSubtractedQuerySuccess.bind(this, subtractedQuery),
         this._handleSubtractedQueryFailure.bind(this, subtractedQuery)
@@ -253,11 +250,6 @@ class PendingFetch {
         response,
         this._forceIndex
       );
-      this._storeData.getDeferredQueryTracker().resolveQuery(
-        subtractedQuery,
-        response,
-        result.ref_params
-      );
     }).done(
       this._markSubtractedQueryAsResolved.bind(this),
       this._markAsRejected.bind(this)
@@ -268,11 +260,6 @@ class PendingFetch {
     subtractedQuery: RelayQuery.Root,
     error: Error
   ): void {
-    this._storeData.getDeferredQueryTracker().rejectQuery(
-      subtractedQuery,
-      error
-    );
-
     this._markAsRejected(error);
   }
 

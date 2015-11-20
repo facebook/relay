@@ -20,6 +20,7 @@ var RelayQueryPath = require('RelayQueryPath');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayRecordStore = require('RelayRecordStore');
 var findRelayQueryLeaves = require('findRelayQueryLeaves');
+var mapObject = require('mapObject');
 
 describe('findRelayQueryLeaves', () => {
   var {getNode} = RelayTestUtils;
@@ -49,9 +50,21 @@ describe('findRelayQueryLeaves', () => {
     );
   }
 
-  function encode(obj) {
+  function encode(node) {
     // Eliminates unnessary unique query ids in RelayQueryPath
-    return JSON.parse(JSON.stringify(obj));
+    function filter(obj) {
+      return mapObject(obj, (value, key) => {
+        if (typeof value === 'object' && value !== null) {
+          return filter(value);
+        } else if (key === '__id__') {
+          // ignore query ids
+          return null;
+        } else {
+          return value;
+        }
+      });
+    }
+    return filter(JSON.parse(JSON.stringify(node)));
   }
 
   beforeEach(() => {

@@ -37,7 +37,8 @@ import type {
   ComponentReadyStateChangeCallback,
   RelayContainer,
   RelayProp,
-  Variables
+  Subscription,
+  Variables,
 } from 'RelayTypes';
 import type URI from 'URI';
 
@@ -111,11 +112,9 @@ function createContainerComponent(
 
   class RelayContainer extends React.Component {
     mounted: boolean;
-    _deferredErrors: ?Object;
-    _deferredSubscriptions: ?Object;
+    _deferredSubscriptions: ?{[subscriptionKey: string]: Subscription};
     _didShowFakeDataWarning: boolean;
     _fragmentPointers: {[key: string]: GraphQLFragmentPointer};
-    _hasNewDeferredData: boolean;
     _hasStaleQueryData: boolean;
     _queryResolvers: {[key: string]: ?GraphQLStoreQueryResolver};
 
@@ -142,17 +141,14 @@ function createContainerComponent(
 
       var self: any = this;
       self.forceFetch = this.forceFetch.bind(this);
-      self.getFragmentError = this.getFragmentError.bind(this);
       self.getPendingTransactions = this.getPendingTransactions.bind(this);
       self.hasFragmentData = this.hasFragmentData.bind(this);
       self.hasOptimisticUpdate = this.hasOptimisticUpdate.bind(this);
       self.setVariables = this.setVariables.bind(this);
 
-      this._deferredErrors = null;
       this._deferredSubscriptions = null;
       this._didShowFakeDataWarning = false;
       this._fragmentPointers = {};
-      this._hasNewDeferredData = false;
       this._hasStaleQueryData = false;
       this._queryResolvers = {};
 
@@ -354,44 +350,6 @@ function createContainerComponent(
     }
 
     /**
-     * Returns any error related to fetching data for a deferred fragment.
-     */
-    getFragmentError(
-      fragmentReference: RelayFragmentReference,
-      record: Object
-    ): ?Error {
-      var deferredErrors = this._deferredErrors;
-      if (!deferredErrors) {
-        return null;
-      }
-      var dataID = GraphQLStoreDataHandler.getID(record);
-      if (dataID == null) {
-        // TODO: Throw instead, like we do in `hasFragmentData`, #7857010.
-        warning(
-          false,
-          'RelayContainer.getFragmentError(): Invalid call from `%s`. Second ' +
-          'argument is not a valid record.',
-          componentName
-        );
-        return null;
-      }
-      var fragment = getDeferredFragment(
-        fragmentReference,
-        this.context,
-        this.state.variables
-      );
-      invariant(
-        fragment instanceof RelayQuery.Fragment,
-        'RelayContainer.getFragmentError(): First argument is not a valid ' +
-        'fragment. Ensure that there are no failing `if` or `unless` ' +
-        'conditions.'
-      );
-      var fragmentID = fragment.getFragmentID();
-      var subscriptionKey = getSubscriptionKey(dataID, fragmentID);
-      return deferredErrors[subscriptionKey];
-    }
-
-    /**
      * Checks if data for a deferred fragment is ready. This method should
      * *always* be called before rendering a child component whose fragment was
      * deferred (unless that child can handle null or missing data).
@@ -400,15 +358,12 @@ function createContainerComponent(
       fragmentReference: RelayFragmentReference,
       record: Object
     ): boolean {
-      if (
-        !storeData.getPendingQueryTracker().hasPendingQueries() &&
-        !this._deferredErrors
-      ) {
+      if (!storeData.getPendingQueryTracker().hasPendingQueries()) {
         // nothing can be missing => must have data
         return true;
       }
       // convert builder -> fragment in order to get the fragment's name
-      var dataID = GraphQLStoreDataHandler.getID(record);
+      const dataID = GraphQLStoreDataHandler.getID(record);
       invariant(
         dataID != null,
         'RelayContainer.hasFragmentData(): Second argument is not a valid ' +
@@ -417,7 +372,7 @@ function createContainerComponent(
         componentName,
         componentName
       );
-      var fragment = getDeferredFragment(
+      const fragment = getDeferredFragment(
         fragmentReference,
         this.context,
         this.state.variables
@@ -428,41 +383,10 @@ function createContainerComponent(
         'fragment. Ensure that there are no failing `if` or `unless` ' +
         'conditions.'
       );
-      var fragmentID = fragment.getFragmentID();
-      var hasData = !storeData.getDeferredQueryTracker().isQueryPending(
+      return storeData.getRecordStore().hasDeferredFragmentData(
         dataID,
-        fragmentID
+        fragment.getFragmentID()
       );
-
-      var subscriptionKey = getSubscriptionKey(dataID, fragmentID);
-      if (!hasData) {
-        // Query is pending: subscribe for updates to any missing deferred data.
-        var deferredSubscriptions = this._deferredSubscriptions || {};
-        if (!this._deferredSubscriptions) {
-          this._deferredSubscriptions = deferredSubscriptions;
-        }
-        if (!deferredSubscriptions.hasOwnProperty(subscriptionKey)) {
-          deferredSubscriptions[subscriptionKey] =
-            storeData.getDeferredQueryTracker().addListenerForFragment(
-              dataID,
-              fragmentID,
-              {
-                onSuccess: this._handleDeferredSuccess.bind(this),
-                onFailure: this._handleDeferredFailure.bind(this),
-              }
-            );
-        }
-      } else {
-        // query completed: check for errors
-        if (
-          this._deferredErrors &&
-          this._deferredErrors.hasOwnProperty(subscriptionKey)
-        ) {
-          hasData = false;
-        }
-      }
-
-      return hasData;
     }
 
     componentWillMount(): void {
@@ -514,16 +438,11 @@ function createContainerComponent(
         );
       }
 
-      // Remove any subscriptions for pending deferred queries.
-      var deferredSubscriptions = this._deferredSubscriptions;
-      if (deferredSubscriptions) {
-        forEachObject(deferredSubscriptions, subscription => {
-          subscription && subscription.remove();
-        });
+      if (this._deferredSubscriptions) {
+        forEachObject(this._deferredSubscriptions, sub => sub.dispose());
       }
-
-      this._deferredErrors = null;
       this._deferredSubscriptions = null;
+
       this._fragmentPointers = {};
       this._queryResolvers = {};
 
@@ -702,72 +621,14 @@ function createContainerComponent(
       return queryData;
     }
 
-    /**
-     * Update query props when deferred data becomes available.
-     */
-    _handleDeferredSuccess(
-      dataID: string,
-      fragmentID: string
-    ): void {
-      var subscriptionKey = getSubscriptionKey(dataID, fragmentID);
-      var deferredSubscriptions = this._deferredSubscriptions;
-      if (deferredSubscriptions &&
-          deferredSubscriptions.hasOwnProperty(subscriptionKey)) {
-        // Flag to force `shouldComponentUpdate` to return true.
-        this._hasNewDeferredData = true;
-        deferredSubscriptions[subscriptionKey].remove();
-        delete deferredSubscriptions[subscriptionKey];
-
-        var deferredSuccessProfiler = RelayProfiler.profile(
-          'RelayContainer.handleDeferredSuccess'
-        );
-        var queryData = this._getQueryData(this.props);
-        this.setState({queryData}, deferredSuccessProfiler.stop);
-      }
-    }
-
-    /**
-     * Update query props when deferred queries fail.
-     */
-    _handleDeferredFailure(
-      dataID: string,
-      fragmentID: string,
-      error: Error
-    ): void {
-      var subscriptionKey = getSubscriptionKey(dataID, fragmentID);
-      var deferredErrors = this._deferredErrors;
-      if (!deferredErrors) {
-        this._deferredErrors = deferredErrors = {};
-      }
-      // Flag to force `shouldComponentUpdate` to return true.
-      this._hasNewDeferredData = true;
-      deferredErrors[subscriptionKey] = error;
-
-      var deferredFailureProfiler = RelayProfiler.profile(
-        'RelayContainer.handleDeferredFailure'
-      );
-      // Dummy `setState` to trigger re-render.
-      this.setState(this.state, deferredFailureProfiler.stop);
-    }
-
     shouldComponentUpdate(
       nextProps: Object,
       nextState: any,
       nextContext: any
     ): boolean {
-      // TODO: Fix bug with `_hasStaleQueryData` and `_hasNewDeferredData` both
-      // being true. (This will return true two times in a row.)
-
       // Flag indicating that query data changed since previous render.
       if (this._hasStaleQueryData) {
         this._hasStaleQueryData = false;
-        return true;
-      }
-      // Flag indicating that deferred data has resolved - this component's data
-      // will not change since the data is for a child component, therefore
-      // we force update here.
-      if (this._hasNewDeferredData) {
-        this._hasNewDeferredData = false;
         return true;
       }
 
@@ -800,7 +661,6 @@ function createContainerComponent(
     render(): ReactElement {
       var relayProps: RelayProp = {
         forceFetch: this.forceFetch,
-        getFragmentError: this.getFragmentError,
         getPendingTransactions: this.getPendingTransactions,
         hasFragmentData: this.hasFragmentData,
         hasOptimisticUpdate: this.hasOptimisticUpdate,

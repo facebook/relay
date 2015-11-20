@@ -26,7 +26,12 @@ var invariant = require('invariant');
 describe('writePayload()', () => {
   var RelayRecordStore;
 
-  var {getNode, writePayload} = RelayTestUtils;
+  var {
+    getNode,
+    getVerbatimNode,
+    writeVerbatimPayload,
+    writePayload,
+  } = RelayTestUtils;
 
   function getField(node, ...fieldNames) {
     for (var ii = 0; ii < fieldNames.length; ii++) {
@@ -260,6 +265,41 @@ describe('writePayload()', () => {
         .getPath(getField(pathQuery, 'address'), 'client:2');
       expect(store.getField('client:2', 'city')).toBe('San Francisco');
       expect(store.getPathToRecord('client:2')).toMatchPath(path);
+    });
+
+    it('writes paths with fragments', () => {
+      var records = {};
+      var store = new RelayRecordStore({records});
+      var fragment = Relay.QL`fragment on Viewer {
+        actor {
+          id
+          __typename
+          name
+        }
+      }`;
+      var query = getVerbatimNode(Relay.QL`
+        query {
+          viewer {
+            ${fragment}
+          }
+        }
+      `);
+      var payload = {
+        viewer: {
+          actor: {
+            name: 'Joe',
+          },
+        },
+      };
+      writePayload(store, query, payload);
+
+      var viewerID = store.getDataID('viewer');
+      var actorID = store.getLinkedRecordID(viewerID, 'actor');
+
+      var path = new RelayQueryPath(query)
+        .getPath(getNode(fragment), viewerID)
+        .getPath(getNode(fragment).getChildren()[0], actorID);
+      expect(store.getPathToRecord(actorID)).toMatchPath(path);
     });
   });
 
@@ -623,5 +663,43 @@ describe('writePayload()', () => {
         expect(tracked[0]).toEqualQueryNode(prevTracked[ii][0]); // dataID
       });
     });
+  });
+
+  it('skips non-matching fragments', () => {
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var query = getNode(Relay.QL`
+      query {
+        node(id: "123") {
+          ...on User {
+            name
+          }
+          ...on Comment {
+            body {
+              text
+            }
+          }
+          ...on Node {
+            firstName
+          }
+        }
+      }
+    `);
+    var payload = {
+      node: {
+        id: '123',
+        __typename: 'User',
+        firstName: 'Joe',
+        name: 'Joe',
+        body: {
+          text: 'Skipped!',
+        },
+      },
+    };
+    writeVerbatimPayload(store, query, payload);
+    expect(store.getField('123', 'firstName')).toBe('Joe');
+    expect(store.getField('123', 'name')).toBe('Joe');
+    // `body` only exists on `Comment` which does not match the record type
+    expect(store.getLinkedRecordID('123', 'body')).toBe(undefined);
   });
 });

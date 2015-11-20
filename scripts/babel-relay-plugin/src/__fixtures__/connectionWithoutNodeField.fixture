@@ -132,7 +132,9 @@ var x = (function () {
       }],
       hash: 'VIWtR/B6',
       kind: 'Fragment',
-      metadata: {},
+      metadata: {
+        isConcrete: true
+      },
       name: 'User',
       type: 'User'
     }],

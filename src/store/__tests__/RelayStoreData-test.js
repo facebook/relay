@@ -20,7 +20,6 @@ jest
   .dontMock('GraphQLSegment');
 
 var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayQueryPath = require('RelayQueryPath');
 var RelayStoreData = require('RelayStoreData');
 
 var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
@@ -287,25 +286,26 @@ describe('RelayStoreData', () => {
     });
 
     it('builds root queries using the path for non-refetchable IDs', () => {
-      var addressFragment = Relay.QL`fragment on User{id,address{city,street}}`;
+      var storeData = new RelayStoreData();
+      var addressFragment = Relay.QL`fragment on User{id,address{city}}`;
       var node = getVerbatimNode(Relay.QL`
         query {
-          node(id:"123") {
+          node(id: "123") {
             id,
-            ${addressFragment},
+            ${addressFragment}
           }
         }
       `);
-      var storeData = new RelayStoreData();
-      var addressID = 'client:1';
-      var recordStore = storeData.getRecordStore();
-      var path = new RelayQueryPath(node);
-      path = path.getPath(getNode(addressFragment).getChildren()[1], addressID);
-      recordStore.putRecord(
-        addressID,
-        'Type',
-        path
-      );
+      var payload = {
+        node: {
+          id: '123',
+          __typename: 'User',
+          address: {
+            city: 'Menlo Park',
+          },
+        },
+      };
+      storeData.handleQueryPayload(node, payload);
 
       var fragment = Relay.QL`
         fragment on StreetAddress {
@@ -314,23 +314,21 @@ describe('RelayStoreData', () => {
       `;
       var query = storeData.buildFragmentQueryForDataID(
         getNode(fragment),
-        addressID
+        'client:1'
       );
-      expect(query).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+      expect(query).toEqualQueryRoot(getNode(Relay.QL`
         query {
-          node(id:"123") {
-            ${Relay.QL`
-        fragment on User {
-          address {
-            ${fragment},
+          node(id: "123") {
+            id,
+            __typename,
+            address {
+              ... on StreetAddress {
+                city,
+              },
+            },
           },
         }
-      `},
-            ${Relay.QL`fragment on Node{id}`},
-          }
-        }
       `));
-      expect(query.getName()).toBe(path.getName());
     });
   });
 

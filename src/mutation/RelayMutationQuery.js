@@ -342,8 +342,7 @@ var RelayMutationQuery = {
             fatQuery,
             parentID: config.parentID,
             parentName: config.parentName,
-            rangeBehaviors:
-              RelayDeprecated.upgradeRangeBehaviors(config.rangeBehaviors),
+            rangeBehaviors: sanitizeRangeBehaviors(config.rangeBehaviors),
             tracker,
           }));
           break;
@@ -453,6 +452,48 @@ function buildEdgeField(
     'RelayMutationQuery: Expected a field.'
   );
   return edgeField;
+}
+
+function sanitizeRangeBehaviors(
+  rangeBehaviors: RangeBehaviors
+): RangeBehaviors {
+  // Prior to 0.4.1 you would have to specify the args in your range behaviors
+  // in the same order they appeared in your query. From 0.4.1 onward, args in a
+  // range behavior key must be in alphabetical order.
+  let unsortedKeys;
+  forEachObject(rangeBehaviors, (value, key) => {
+    if (key !== '') {
+      const keyParts = key
+        // Remove the last parenthesis
+        .slice(0, -1)
+        // Slice on unescaped parentheses followed immediately by a `.`
+        .split(/\)\./);
+      let sortedKey = keyParts
+        .sort()
+        .join(').') +
+        (keyParts.length ? ')' : '');
+      if (sortedKey !== key) {
+        unsortedKeys = unsortedKeys || [];
+        unsortedKeys.push(key);
+      }
+    }
+  });
+  if (unsortedKeys) {
+    invariant(
+      false,
+      'RelayMutation: To define a range behavior key without sorting ' +
+      'the arguments alphabetically is disallowed as of Relay 0.5.1. Please ' +
+      'sort the argument names of the range behavior key%s `%s`%s.',
+      unsortedKeys.length === 1 ? '' : 's',
+      unsortedKeys.length === 1 ?
+        unsortedKeys[0] :
+        unsortedKeys.length === 2 ?
+          `${unsortedKeys[0]}\` and \`${unsortedKeys[1]}` :
+          unsortedKeys.slice(0, -1).join('`, `'),
+      unsortedKeys.length > 2 ? `, and \`${unsortedKeys.slice(-1)}\`` : ''
+    );
+  }
+  return rangeBehaviors;
 }
 
 module.exports = RelayMutationQuery;

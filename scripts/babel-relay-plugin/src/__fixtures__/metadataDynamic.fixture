@@ -73,7 +73,9 @@ var x = (function () {
           }],
           hash: 'ysvMwnFu',
           kind: 'Fragment',
-          metadata: {},
+          metadata: {
+            isConcrete: true
+          },
           name: 'Story',
           type: 'Story'
         }],
@@ -129,7 +131,9 @@ var x = (function () {
     }],
     hash: 'ysvMwnFu',
     kind: 'Fragment',
-    metadata: {},
+    metadata: {
+      isConcrete: true
+    },
     name: 'MetadataDynamic',
     type: 'NewsFeedConnection'
   };

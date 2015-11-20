@@ -78,7 +78,9 @@ var x = (function (RQL_0, RQL_1, RQL_2, RQL_3, RQL_4, RQL_5, RQL_6, RQL_7, RQL_8
       }],
       hash: 'JYt0H43a',
       kind: 'Fragment',
-      metadata: {},
+      metadata: {
+        isConcrete: true
+      },
       name: 'User',
       type: 'User'
     }, Relay.QL.__frag(RQL_8), Relay.QL.__frag(RQL_9), Relay.QL.__frag(RQL_10), Relay.QL.__frag(RQL_11)],

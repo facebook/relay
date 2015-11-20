@@ -39,11 +39,11 @@ var EMPTY_FRAGMENT = RelayQuery.Fragment.build(
  */
 class RelayQueryPath {
   _name: string;
-  _node: RelayQuery.Root | RelayQuery.Field;
+  _node: RelayQuery.Root | RelayQuery.Field | RelayQuery.Fragment;
   _parent: ?RelayQueryPath;
 
   constructor(
-    node: RelayQuery.Root | RelayQuery.Field,
+    node: RelayQuery.Root | RelayQuery.Field | RelayQuery.Fragment,
     parent?: RelayQueryPath
   ) {
     if (node instanceof RelayQuery.Root) {
@@ -97,19 +97,19 @@ class RelayQueryPath {
    * refetchable, otherwise returns an extension of the current path.
    */
   getPath(
-    node: RelayQuery.Field,
+    node: RelayQuery.Field | RelayQuery.Fragment,
     dataID: DataID
   ): RelayQueryPath {
     if (GraphQLStoreDataHandler.isClientID(dataID)) {
       return new RelayQueryPath(node, this);
     } else {
-      var idField = RelayQuery.Field.build(ID, null, null, {
+      const idField = RelayQuery.Field.build(ID, null, null, {
         parentType: RelayNodeInterface.NODE_TYPE,
       });
-      var typeField = RelayQuery.Field.build(TYPENAME, null, null, {
+      const typeField = RelayQuery.Field.build(TYPENAME, null, null, {
         parentType: RelayNodeInterface.NODE_TYPE,
       });
-      var root = RelayQuery.Root.build(
+      const root = RelayQuery.Root.build(
         this.getName(),
         RelayNodeInterface.NODE,
         dataID,
@@ -129,11 +129,16 @@ class RelayQueryPath {
   getQuery(
     appendNode: RelayQuery.Fragment | RelayQuery.Field
   ): RelayQuery.Root {
-    var node = this._node;
-    var path = this;
-    var child = appendNode;
-    while (node instanceof RelayQuery.Field) {
-      var idFieldName = node.getInferredPrimaryKey();
+    let node = this._node;
+    let path = this;
+    let child = appendNode;
+    while (
+      node instanceof RelayQuery.Field ||
+      node instanceof RelayQuery.Fragment
+    ) {
+      const idFieldName = node instanceof RelayQuery.Field ?
+        node.getInferredPrimaryKey() :
+        ID;
       if (idFieldName) {
         child = node.clone([
           child,
@@ -146,7 +151,7 @@ class RelayQueryPath {
       path = path._parent;
       invariant(
         path,
-        'RelayQueryPath.getQuery(): Expected field to have a parent path.'
+        'RelayQueryPath.getQuery(): Expected a parent path.'
       );
       node = path._node;
     }
@@ -172,71 +177,6 @@ class RelayQueryPath {
       metadata
     );
   }
-
-  toJSON(): mixed {
-    const path = [];
-    let next = this;
-    while (next) {
-      let node = getShallowClone(next._node);
-      if (node instanceof RelayQuery.Root) {
-        path.unshift(toGraphQL.Query(node));
-      } else {
-        path.unshift(toGraphQL.Field(node));
-      }
-      next = next._parent;
-    }
-    return path;
-  }
-
-  static fromJSON(data: mixed): RelayQueryPath {
-    invariant(
-      Array.isArray(data) && data.length > 0,
-      'RelayQueryPath.fromJSON(): expected an array with at least one item.'
-    );
-    var root = RelayQuery.Root.create(
-      data[0],
-      RelayMetaRoute.get('$RelayQueryPath'),
-      {}
-    );
-    var path = new RelayQueryPath(root);
-
-    for (var ii = 1; ii < data.length; ii++) {
-      var field = RelayQuery.Field.create(
-        data[ii],
-        RelayMetaRoute.get('$RelayQueryPath'),
-        {}
-      );
-      path = new RelayQueryPath(field, path);
-    }
-    return path;
-  }
-}
-
-/**
- * Creates a shallow version of `node` with only a primary key field. If the
- * node is not scalar and would otherwise be empty, an empty fragment is added.
- */
-function getShallowClone(
-  node: RelayQuery.Root | RelayQuery.Field
-): RelayQuery.Root | RelayQuery.Field {
-  var idFieldName = node instanceof RelayQuery.Field ?
-    node.getInferredPrimaryKey() :
-    ID;
-  var children = [];
-  var idField = idFieldName && node.getFieldByStorageKey(idFieldName);
-  if (idField) {
-    children.push(idField);
-  }
-  var typeField = node.getFieldByStorageKey(TYPENAME);
-  if (typeField) {
-    children.push(typeField);
-  }
-  // Add an empty fragment if children are empty to ensure the clone result
-  // is non-null.
-  if (!children.length) {
-    children.push(EMPTY_FRAGMENT);
-  }
-  return (node.clone(children): any);
 }
 
 module.exports = RelayQueryPath;

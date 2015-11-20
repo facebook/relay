@@ -143,7 +143,9 @@ var x = (function () {
       }],
       hash: 'kPdJGPCx',
       kind: 'Fragment',
-      metadata: {},
+      metadata: {
+        isConcrete: true
+      },
       name: 'User',
       type: 'User'
     }],

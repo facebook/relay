@@ -75,7 +75,9 @@ var x = (function () {
       }],
       hash: 'rKKl5rZu',
       kind: 'Fragment',
-      metadata: {},
+      metadata: {
+        isConcrete: true
+      },
       name: 'User',
       type: 'User'
     }],

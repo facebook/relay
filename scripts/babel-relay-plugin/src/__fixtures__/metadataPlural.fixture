@@ -58,7 +58,9 @@ var x = (function () {
       }],
       hash: 'Kcb4isAx',
       kind: 'Fragment',
-      metadata: {},
+      metadata: {
+        isConcrete: true
+      },
       name: 'User',
       type: 'User'
     }],

@@ -152,7 +152,9 @@ class RelayQLPrinter {
       requisiteFields.__typename = true;
     }
     const selections = this.printSelections(fragment, requisiteFields);
-    const metadata = this.printRelayDirectiveMetadata(fragment);
+    const metadata = this.printRelayDirectiveMetadata(fragment, {
+      isConcrete: !fragmentType.isAbstract(),
+    });
 
     return codify({
       children: selections,
@@ -440,7 +442,8 @@ class RelayQLPrinter {
   }
 
   printRelayDirectiveMetadata(
-    node: RelayQLField | RelayQLFragment
+    node: RelayQLField | RelayQLFragment,
+    maybeMetadata?: {[key: string]: mixed}
   ): Printable {
     const properties = [];
     const relayDirective = find(
@@ -459,6 +462,14 @@ class RelayQLPrinter {
           );
         }
         properties.push(property(arg.getName(), t.valueToNode(arg.getValue())));
+      });
+    }
+    if (maybeMetadata) {
+      const metadata = maybeMetadata;
+      Object.keys(metadata).forEach(key => {
+        if (metadata[key]) {
+          properties.push(property(key, t.literal(metadata[key])));
+        }
       });
     }
     return t.objectExpression(properties);

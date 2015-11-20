@@ -32,7 +32,9 @@ Relay.createContainer(Component, {
           }],
           hash: 'p00BYVor',
           kind: 'Fragment',
-          metadata: {},
+          metadata: {
+            isConcrete: true
+          },
           name: 'Container',
           type: 'Viewer'
         };

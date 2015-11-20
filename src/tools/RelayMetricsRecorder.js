@@ -68,21 +68,6 @@ const INSTRUMENTED_AGGREGATE_METHODS = [
   'RelayContainer.prototype.shouldComponentUpdate',
 ];
 
-// Runtime "profiles" registered with `RelayProfiler.profile()`:
-const INSTRUMENTED_PROFILES = [
-  'fetchRelayQuery',
-  'fetchRelayQuery.query',
-  'GraphQLQueryRunner.primeCache',
-  'GraphQLQueryRunner.forceFetch',
-  'RelayContainer.handleDeferredFailure',
-  'RelayContainer.handleDeferredSuccess',
-  'RelayContainer.handleFragmentDataUpdate',
-  'RelayContainer.update',
-  'RelayStoreData.readFromDiskCache',
-  'RelayStoreData.handleQueryPayload',
-  'RelayStoreData.handleUpdatePayload',
-];
-
 const measurementDefaults = {
   aggregateTime: 0,
   callCount: 0,
@@ -170,9 +155,7 @@ class RelayMetricsRecorder {
     INSTRUMENTED_AGGREGATE_METHODS.forEach(name => {
       RelayProfiler.attachAggregateHandler(name, this._measure);
     });
-    INSTRUMENTED_PROFILES.forEach(name => {
-      RelayProfiler.attachProfileHandler(name, this._instrumentProfile);
-    });
+    RelayProfiler.attachProfileHandler('*', this._instrumentProfile);
   }
 
   stop(): void {
@@ -188,9 +171,7 @@ class RelayMetricsRecorder {
     INSTRUMENTED_AGGREGATE_METHODS.forEach(name => {
       RelayProfiler.detachAggregateHandler(name, this._measure);
     });
-    INSTRUMENTED_PROFILES.forEach(name => {
-      RelayProfiler.detachProfileHandler(name, this._instrumentProfile);
-    });
+    RelayProfiler.detachProfileHandler('*', this._instrumentProfile);
   }
 
   getMetrics(): Metrics {

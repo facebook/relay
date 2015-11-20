@@ -21,7 +21,9 @@ type Handler = (name: string, callback: () => void) => void;
 type ProfileHandler = (name: string, state?: any) => () => void;
 
 const aggregateHandlersByName: {[name: string]: Array<Handler>} = {};
-const profileHandlersByName: {[name: string]: Array<ProfileHandler>} = {};
+const profileHandlersByName: {[name: string]: Array<ProfileHandler>} = {
+  '*': [],
+};
 
 const NOT_INVOKED = {};
 const defaultProfiler = {stop: emptyFunction};
@@ -212,8 +214,13 @@ const RelayProfiler = {
    * attached profile handlers will receive this as the second argument.
    */
   profile(name: string, state?: any): {stop: () => void} {
-    if (profileHandlersByName.hasOwnProperty(name)) {
-      const profileHandlers = profileHandlersByName[name];
+    const hasCatchAllHandlers = profileHandlersByName['*'].length > 0;
+    const hasNamedHandlers = profileHandlersByName.hasOwnProperty(name);
+    if (hasNamedHandlers || hasCatchAllHandlers) {
+      const profileHandlers = hasNamedHandlers && hasCatchAllHandlers ?
+        profileHandlersByName[name].concat(profileHandlersByName['*']) :
+        (hasNamedHandlers ?
+          profileHandlersByName[name] : profileHandlersByName['*']);
       let stopHandlers;
       for (let ii = profileHandlers.length - 1; ii >= 0; ii--) {
         const profileHandler = profileHandlers[ii];
@@ -233,7 +240,8 @@ const RelayProfiler = {
   },
 
   /**
-   * Attaches a handler to profiles with the supplied name.
+   * Attaches a handler to profiles with the supplied name. You can also
+   * attach to the special name '*' which is a catch all.
    */
   attachProfileHandler(name: string, handler: ProfileHandler): void {
     if (shouldInstrument(name)) {

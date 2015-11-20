@@ -10,15 +10,14 @@
 'use strict';
 
 var babel = require('gulp-babel');
-var babelPluginDEV = require('fbjs-scripts/babel/dev-expression');
-var babelPluginModules = require('fbjs-scripts/babel/rewrite-modules');
+//var babelPluginDEV = require('fbjs-scripts/babel-6/dev-expression'); //TODO: fix this!
+var babelPluginModules = require('./rewrite-modules'/*'fbjs-scripts/babel-6/rewrite-modules'*/);
 var del = require('del');
 var derequire = require('gulp-derequire');
 var flatten = require('gulp-flatten');
 var gulp = require('gulp');
 var gulpUtil = require('gulp-util');
 var header = require('gulp-header');
-var objectAssign = require('object-assign');
 var runSequence = require('run-sequence');
 var webpackStream = require('webpack-stream');
 
@@ -42,18 +41,8 @@ var PRODUCTION_HEADER = [
 ].join('\n') + '\n';
 
 var babelOpts = {
-  nonStandard: true,
-  loose: [
-    'es6.classes'
-  ],
-  stage: 1,
-  optional: ['runtime'],
-  plugins: [babelPluginDEV, babelPluginModules],
-  _moduleMap: objectAssign({}, require('fbjs/module-map'), {
-    'React': 'react',
-    'ReactDOM': 'react-dom',
-    'StaticContainer.react': 'react-static-container'
-  })
+  presets: ["es2015", "stage-0", "react"],
+  plugins: [/*babelPluginDEV,*/ babelPluginModules, "transform-flow-strip-types", "syntax-object-rest-spread", "transform-object-rest-spread", "babel-plugin-transform-es2015-destructuring"],
 };
 
 var buildDist = function(opts) {
@@ -67,6 +56,9 @@ var buildDist = function(opts) {
       filename: opts.output,
       libraryTarget: 'umd',
       library: 'Relay'
+    },
+    resolve:{
+      modulesDirectories: ["web_modules", "node_modules", "lib"]
     },
     plugins: [
       new webpackStream.webpack.DefinePlugin({

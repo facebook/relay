@@ -13,9 +13,9 @@
 
 'use strict';
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _require = require('./RelayQLAST');
 
@@ -50,11 +50,11 @@ var RelayQLTransformer = (function () {
   _createClass(RelayQLTransformer, [{
     key: 'transform',
     value: function transform(node, documentName, tagName) {
-      var _processTemplateLiteral = this.processTemplateLiteral(node, documentName);
+      var _processTemplateLiter = this.processTemplateLiteral(node, documentName);
 
-      var substitutions = _processTemplateLiteral.substitutions;
-      var templateText = _processTemplateLiteral.templateText;
-      var variableNames = _processTemplateLiteral.variableNames;
+      var substitutions = _processTemplateLiter.substitutions;
+      var templateText = _processTemplateLiter.templateText;
+      var variableNames = _processTemplateLiter.variableNames;
 
       var documentText = this.processTemplateText(templateText, documentName);
       var documentHash = hash(documentText);
@@ -67,6 +67,7 @@ var RelayQLTransformer = (function () {
      * names, a matching array of substituted values, and a set of substituted
      * variable names.
      */
+
   }, {
     key: 'processTemplateLiteral',
     value: function processTemplateLiteral(node, documentName) {
@@ -79,15 +80,15 @@ var RelayQLTransformer = (function () {
         var chunk = element.value.cooked;
         chunks.push(chunk);
         if (!element.tail) {
-          var _name = 'RQL_' + ii;
+          var name = 'RQL_' + ii;
           var _value = node.expressions[ii];
-          substitutions.push({ name: _name, value: _value });
+          substitutions.push({ name: name, value: _value });
           if (/:\s*$/.test(chunk)) {
             invariant(_this.options.substituteVariables, 'You supplied a GraphQL document named `%s` that uses template ' + 'substitution for an argument value, but variable substitution ' + 'has not been enabled.', documentName);
-            chunks.push('$' + _name);
-            variableNames[_name] = undefined;
+            chunks.push('$' + name);
+            variableNames[name] = undefined;
           } else {
-            chunks.push('...' + _name);
+            chunks.push('...' + name);
           }
         }
       });
@@ -97,6 +98,7 @@ var RelayQLTransformer = (function () {
     /**
      * Converts the template string into a valid GraphQL document string.
      */
+
   }, {
     key: 'processTemplateText',
     value: function processTemplateText(templateText, documentName) {
@@ -117,6 +119,7 @@ var RelayQLTransformer = (function () {
     /**
      * Parses the GraphQL document string into a RelayQLDocument.
      */
+
   }, {
     key: 'processDocumentText',
     value: function processDocumentText(documentText, documentName) {

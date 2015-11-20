@@ -16,8 +16,8 @@ const readFixtures = require('../tools/readFixtures');
 const transformGraphQL = require('../tools/transformGraphQL');
 
 const FIXTURE_PATTERN = process.env.FIXTURE;
-const FIXTURE_PATH = path.resolve(__dirname, '..', '__fixtures__');
-const SCHEMA_PATH = path.resolve(__dirname, 'testschema.rfc.json');
+const FIXTURE_PATH = path.resolve(__dirname, '..', '..', 'src', '__fixtures__');
+const SCHEMA_PATH = path.resolve(__dirname, '..', '..', 'src', '__tests__', 'testschema.rfc.json');
 
 const transform = transformGraphQL.bind(null, SCHEMA_PATH);
 

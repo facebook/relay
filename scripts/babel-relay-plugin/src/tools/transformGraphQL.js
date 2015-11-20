@@ -48,7 +48,6 @@ function transformGraphQL(schemaPath, source, filename) {
     compact: false,
     filename: filename,
     plugins: [plugin],
-    blacklist: ['strict'],
   }).code;
 }
 

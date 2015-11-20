@@ -7,22 +7,21 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * 
+ *
  * @fullSyntaxTransform
  */
 
-// TODO: Import types from `graphql`.
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var types = require('graphql/type');
 
@@ -34,6 +33,8 @@ var TypeNameMetaFieldDef = _require.TypeNameMetaFieldDef;
 
 var find = require('./find');
 var invariant = require('./invariant');
+
+// TODO: Import types from `graphql`.
 
 var GraphQLRelayDirective = {
   name: 'relay',
@@ -122,7 +123,7 @@ var RelayQLDefinition = (function (_RelayQLNode) {
   function RelayQLDefinition() {
     _classCallCheck(this, RelayQLDefinition);
 
-    _get(Object.getPrototypeOf(RelayQLDefinition.prototype), 'constructor', this).apply(this, arguments);
+    return _possibleConstructorReturn(this, Object.getPrototypeOf(RelayQLDefinition).apply(this, arguments));
   }
 
   _createClass(RelayQLDefinition, [{
@@ -147,8 +148,11 @@ var RelayQLFragment = (function (_RelayQLDefinition) {
         return arg.name.value === 'pattern' && arg.value.kind === 'BooleanValue' && arg.value.value;
       });
     });
-    _get(Object.getPrototypeOf(RelayQLFragment.prototype), 'constructor', this).call(this, _extends({}, context, { isPattern: isPattern }), ast);
-    this.parentType = parentType;
+
+    var _this4 = _possibleConstructorReturn(this, Object.getPrototypeOf(RelayQLFragment).call(this, _extends({}, context, { isPattern: isPattern }), ast));
+
+    _this4.parentType = parentType;
+    return _this4;
   }
 
   _createClass(RelayQLFragment, [{
@@ -180,7 +184,7 @@ var RelayQLMutation = (function (_RelayQLDefinition2) {
   function RelayQLMutation() {
     _classCallCheck(this, RelayQLMutation);
 
-    _get(Object.getPrototypeOf(RelayQLMutation.prototype), 'constructor', this).apply(this, arguments);
+    return _possibleConstructorReturn(this, Object.getPrototypeOf(RelayQLMutation).apply(this, arguments));
   }
 
   _createClass(RelayQLMutation, [{
@@ -199,7 +203,7 @@ var RelayQLQuery = (function (_RelayQLDefinition3) {
   function RelayQLQuery() {
     _classCallCheck(this, RelayQLQuery);
 
-    _get(Object.getPrototypeOf(RelayQLQuery.prototype), 'constructor', this).apply(this, arguments);
+    return _possibleConstructorReturn(this, Object.getPrototypeOf(RelayQLQuery).apply(this, arguments));
   }
 
   _createClass(RelayQLQuery, [{
@@ -218,11 +222,13 @@ var RelayQLField = (function (_RelayQLNode2) {
   function RelayQLField(context, ast, parentType) {
     _classCallCheck(this, RelayQLField);
 
-    _get(Object.getPrototypeOf(RelayQLField.prototype), 'constructor', this).call(this, context, ast);
-    var fieldName = this.ast.name.value;
+    var _this7 = _possibleConstructorReturn(this, Object.getPrototypeOf(RelayQLField).call(this, context, ast));
+
+    var fieldName = _this7.ast.name.value;
     var fieldDef = parentType.getFieldDefinition(fieldName);
     invariant(fieldDef, 'You supplied a field named `%s` on type `%s`, but no such field ' + 'exists on that type.', fieldName, parentType.getName({ modifiers: false }));
-    this.fieldDef = fieldDef;
+    _this7.fieldDef = fieldDef;
+    return _this7;
   }
 
   _createClass(RelayQLField, [{
@@ -250,14 +256,14 @@ var RelayQLField = (function (_RelayQLNode2) {
   }, {
     key: 'getArguments',
     value: function getArguments() {
-      var _this3 = this;
+      var _this8 = this;
 
       var argTypes = this.fieldDef.getDeclaredArguments();
       return (this.ast.arguments || []).map(function (arg) {
         var argName = arg.name.value;
         var argType = argTypes[argName];
-        invariant(argType, 'You supplied an argument named `%s` on field `%s`, but no such ' + 'argument exists on that field.', argName, _this3.getName());
-        return new RelayQLArgument(_this3.context, arg, argType);
+        invariant(argType, 'You supplied an argument named `%s` on field `%s`, but no such ' + 'argument exists on that field.', argName, _this8.getName());
+        return new RelayQLArgument(_this8.context, arg, argType);
       });
     }
   }, {
@@ -286,7 +292,7 @@ var RelayQLFragmentSpread = (function (_RelayQLNode3) {
   function RelayQLFragmentSpread() {
     _classCallCheck(this, RelayQLFragmentSpread);
 
-    _get(Object.getPrototypeOf(RelayQLFragmentSpread.prototype), 'constructor', this).apply(this, arguments);
+    return _possibleConstructorReturn(this, Object.getPrototypeOf(RelayQLFragmentSpread).apply(this, arguments));
   }
 
   _createClass(RelayQLFragmentSpread, [{
@@ -310,8 +316,10 @@ var RelayQLInlineFragment = (function (_RelayQLNode4) {
   function RelayQLInlineFragment(context, ast, parentType) {
     _classCallCheck(this, RelayQLInlineFragment);
 
-    _get(Object.getPrototypeOf(RelayQLInlineFragment.prototype), 'constructor', this).call(this, context, ast);
-    this.parentType = parentType;
+    var _this10 = _possibleConstructorReturn(this, Object.getPrototypeOf(RelayQLInlineFragment).call(this, context, ast));
+
+    _this10.parentType = parentType;
+    return _this10;
   }
 
   _createClass(RelayQLInlineFragment, [{
@@ -326,7 +334,7 @@ var RelayQLInlineFragment = (function (_RelayQLNode4) {
 
 var RelayQLDirective = (function () {
   function RelayQLDirective(context, ast) {
-    var _this4 = this;
+    var _this11 = this;
 
     _classCallCheck(this, RelayQLDirective);
 
@@ -338,7 +346,7 @@ var RelayQLDirective = (function () {
     var schemaDirective = directiveName === GraphQLRelayDirective.name ? GraphQLRelayDirective : context.schema.getDirective(directiveName);
     invariant(schemaDirective, 'You supplied a directive named `%s`, but no such directive exists.', directiveName);
     schemaDirective.args.forEach(function (schemaArg) {
-      _this4.argTypes[schemaArg.name] = new RelayQLArgumentType(schemaArg.type);
+      _this11.argTypes[schemaArg.name] = new RelayQLArgumentType(schemaArg.type);
     });
   }
 
@@ -350,13 +358,13 @@ var RelayQLDirective = (function () {
   }, {
     key: 'getArguments',
     value: function getArguments() {
-      var _this5 = this;
+      var _this12 = this;
 
       return (this.ast.arguments || []).map(function (arg) {
         var argName = arg.name.value;
-        var argType = _this5.argTypes[argName];
-        invariant(argType, 'You supplied an argument named `%s` on directive `%s`, but no ' + 'such argument exists on that directive.', argName, _this5.getName());
-        return new RelayQLArgument(_this5.context, arg, argType);
+        var argType = _this12.argTypes[argName];
+        invariant(argType, 'You supplied an argument named `%s` on directive `%s`, but no ' + 'such argument exists on that directive.', argName, _this12.getName());
+        return new RelayQLArgument(_this12.context, arg, argType);
       });
     }
   }]);
@@ -397,7 +405,7 @@ var RelayQLArgument = (function () {
   }, {
     key: 'getValue',
     value: function getValue() {
-      var _this6 = this;
+      var _this13 = this;
 
       invariant(!this.isVariable(), 'Cannot get value of an argument variable.');
       var value = this.ast.value;
@@ -412,7 +420,7 @@ var RelayQLArgument = (function () {
           return value.value;
         case 'ListValue':
           return value.values.map(function (value) {
-            return new RelayQLArgument(_this6.context, _extends({}, _this6.ast, { value: value }), _this6.type.ofType());
+            return new RelayQLArgument(_this13.context, _extends({}, _this13.ast, { value: value }), _this13.type.ofType());
           });
       }
       invariant(false, 'Unexpected argument kind: %s', value.kind);
@@ -444,9 +452,8 @@ var RelayQLType = (function () {
     key: 'getName',
     value: function getName(_ref) {
       var modifiers = _ref.modifiers;
-      return (function () {
-        return modifiers ? this.schemaModifiedType.toString() : this.schemaUnmodifiedType.toString();
-      }).apply(this, arguments);
+
+      return modifiers ? this.schemaModifiedType.toString() : this.schemaUnmodifiedType.toString();
     }
   }, {
     key: 'hasField',
@@ -476,11 +483,11 @@ var RelayQLType = (function () {
   }, {
     key: 'getInterfaces',
     value: function getInterfaces() {
-      var _this7 = this;
+      var _this14 = this;
 
       if (this.schemaUnmodifiedType instanceof types.GraphQLObjectType) {
         return this.schemaUnmodifiedType.getInterfaces().map(function (schemaInterface) {
-          return new RelayQLType(_this7.context, schemaInterface);
+          return new RelayQLType(_this14.context, schemaInterface);
         });
       }
       return [];
@@ -488,11 +495,11 @@ var RelayQLType = (function () {
   }, {
     key: 'getConcreteTypes',
     value: function getConcreteTypes() {
-      var _this8 = this;
+      var _this15 = this;
 
       invariant(this.isAbstract(), 'Cannot get concrete types of a concrete type.');
       return this.schemaUnmodifiedType.getPossibleTypes().map(function (concreteType) {
-        return new RelayQLType(_this8.context, concreteType);
+        return new RelayQLType(_this15.context, concreteType);
       });
     }
   }, {
@@ -648,9 +655,8 @@ var RelayQLArgumentType = (function () {
     key: 'getName',
     value: function getName(_ref2) {
       var modifiers = _ref2.modifiers;
-      return (function () {
-        return modifiers ? this.schemaModifiedArgType.toString() : this.schemaUnmodifiedArgType.toString();
-      }).apply(this, arguments);
+
+      return modifiers ? this.schemaModifiedArgType.toString() : this.schemaUnmodifiedArgType.toString();
     }
   }, {
     key: 'ofType',

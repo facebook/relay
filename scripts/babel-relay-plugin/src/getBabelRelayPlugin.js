@@ -47,14 +47,18 @@ function getBabelRelayPlugin(
     substituteVariables: !!options.substituteVariables,
   });
 
-  return function({Plugin, types: t}) {
-    return new Plugin('relay-query', {
+  return function(_ref) {
+    let t = _ref.types;
+
+    return {
       visitor: {
         /**
          * Extract the module name from `@providesModule`.
          */
-        Program(node, parent, scope, state) {
-          if (state.opts.extra.documentName) {
+        Program(_path, state) {
+          let node = _path.node;
+          let parent = _path.parent;
+          if (state.file.opts.basename) {
             return;
           }
           let documentName;
@@ -71,22 +75,24 @@ function getBabelRelayPlugin(
               }
             }
           }
-          const filename = state.opts.filename;
+          const filename = state.file.opts.filename;
           if (filename && !documentName) {
-            const basename = path.basename(filename);
+            const basename = state.file.opts.basename;
             const captures = basename.match(/^[_A-Za-z][_0-9A-Za-z]*/);
             if (captures) {
               documentName = captures[0];
             }
           }
-          state.opts.extra.documentName = documentName || 'UnknownFile';
+          state.file.opts.basename = documentName || 'UnknownFile';
         },
 
         /**
          * Transform Relay.QL`...`.
          */
-        TaggedTemplateExpression(node, parent, scope, state) {
-          const tag = this.get('tag');
+        TaggedTemplateExpression(_path, state) {
+          let node = _path.node;
+          let parent = _path.parent;
+          let tag = _path.get('tag');
           const tagName =
             tag.matchesPattern('Relay.QL') ? 'Relay.QL' :
             tag.isIdentifier({name: 'RelayQL'}) ? 'RelayQL' :
@@ -95,7 +101,7 @@ function getBabelRelayPlugin(
             return;
           }
 
-          const {documentName} = state.opts.extra;
+          const documentName = state.file.opts.basename;
           invariant(documentName, 'Expected `documentName` to have been set.');
 
           let result;
@@ -105,7 +111,7 @@ function getBabelRelayPlugin(
             // Print a console warning and replace the code with a function
             // that will immediately throw an error in the browser.
             var {sourceText, validationErrors} = error;
-            var filename = state.opts.filename || 'UnknownFile';
+            var filename = state.file.opts.filename || 'UnknownFile';
             var errorMessages = [];
             if (validationErrors && sourceText) {
               var sourceLines = sourceText.split('\n');
@@ -113,7 +119,7 @@ function getBabelRelayPlugin(
                 errorMessages.push(message);
                 warning(
                   '\n-- GraphQL Validation Error -- %s --\n',
-                  path.basename(filename)
+                  state.file.opts.basename
                 );
                 warning([
                   'Error: ' + message,
@@ -135,7 +141,7 @@ function getBabelRelayPlugin(
               errorMessages.push(error.message);
               warning(
                 '\n-- Relay Transform Error -- %s --\n',
-                path.basename(filename)
+                state.file.opts.basename
               );
               warning([
                 'Error: ' + error.message,
@@ -155,7 +161,7 @@ function getBabelRelayPlugin(
                   t.throwStatement(
                     t.newExpression(
                       t.identifier('Error'),
-                      [t.literal(runtimeMessage)]
+                      [t.valueToNode(runtimeMessage)]
                     )
                   )
                 ])
@@ -172,10 +178,10 @@ function getBabelRelayPlugin(
               );
             }
           }
-          this.replaceWith(result);
+          _path.replaceWith(result);
         }
       }
-    });
+    };
   };
 }
 

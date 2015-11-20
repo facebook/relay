@@ -43,8 +43,7 @@ function transformGraphQL(schemaPath, source, filename) {
   return babel.transform(source, {
     compact: false,
     filename: filename,
-    plugins: [plugin],
-    blacklist: ['strict']
+    plugins: [plugin]
   }).code;
 }
 

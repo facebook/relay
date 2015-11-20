@@ -29,6 +29,7 @@ const {
 const find = require('./find');
 const invariant = require('./invariant');
 const t = require('babel-core/lib/types');
+const util = require('util');
 
 export type Printable = Object;
 export type Substitution = {
@@ -563,6 +564,19 @@ function validateConnectionField(field: RelayQLField): void {
       );
     }
   });
+
+  if (!connectionNodeType.alwaysImplements('Node')) {
+    console.warn(util.format(
+      'You queried a connection named `%s` for which the `node`s do not have ' +
+      'a unique `id`, which can cause items to appear out of order. To ' +
+      'ensure that items always appear in the correct order and to ' +
+      'refetch missing information more efficiently, we recommend changing ' +
+      '`%s` to implement the `Node` interface.',
+      field.getName(),
+      connectionNodeType.getName({modifiers: false}),
+      connectionNodeType.getName({modifiers: false})
+    ));
+  }
 }
 
 function validateMutationField(rootField: RelayQLField): void {

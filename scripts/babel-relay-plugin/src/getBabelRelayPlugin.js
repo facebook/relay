@@ -12,6 +12,7 @@
 
 'use strict';
 
+import type {Validator} from './RelayQLTransformer';
 const RelayQLTransformer = require('./RelayQLTransformer');
 const babelAdapter = require('./babelAdapter');
 const {buildClientSchema} = require('graphql/utilities/buildClientSchema');
@@ -35,6 +36,7 @@ function getBabelRelayPlugin(
     debug?: ?boolean;
     suppressWarnings?: ?boolean;
     substituteVariables?: ?boolean;
+    validator?: ?Validator;
   }
 ): Function {
   const options = pluginOptions || {};
@@ -45,6 +47,7 @@ function getBabelRelayPlugin(
   const schema = getSchema(schemaProvider);
   const transformer = new RelayQLTransformer(schema, {
     substituteVariables: !!options.substituteVariables,
+    validator: options.validator,
   });
 
   return function({Plugin, types}) {

@@ -36,7 +36,8 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
 
   var schema = getSchema(schemaProvider);
   var transformer = new RelayQLTransformer(schema, {
-    substituteVariables: !!options.substituteVariables
+    substituteVariables: !!options.substituteVariables,
+    validator: options.validator
   });
 
   return function (_ref) {

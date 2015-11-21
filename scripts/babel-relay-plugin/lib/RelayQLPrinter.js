@@ -37,6 +37,7 @@ var RelayQLFragmentSpread = _require.RelayQLFragmentSpread;
 var RelayQLInlineFragment = _require.RelayQLInlineFragment;
 var RelayQLMutation = _require.RelayQLMutation;
 var RelayQLQuery = _require.RelayQLQuery;
+var RelayQLSubscription = _require.RelayQLSubscription;
 var RelayQLType = _require.RelayQLType;
 
 var find = require('./find');
@@ -64,6 +65,8 @@ module.exports = function (t) {
           printedDocument = this.printFragment(definition);
         } else if (definition instanceof RelayQLMutation) {
           printedDocument = this.printMutation(definition);
+        } else if (definition instanceof RelayQLSubscription) {
+          printedDocument = this.printSubscription(definition);
         } else {
           invariant(false, 'Unsupported definition: %s', definition);
         }
@@ -177,6 +180,35 @@ module.exports = function (t) {
           kind: t.valueToNode('Mutation'),
           metadata: objectify(metadata),
           name: t.valueToNode(mutation.getName()),
+          responseType: t.valueToNode(rootFieldType.getName({ modifiers: true }))
+        });
+      }
+    }, {
+      key: 'printSubscription',
+      value: function printSubscription(subscription) {
+        var rootFields = subscription.getFields();
+        invariant(rootFields.length === 1, 'There are %d fields supplied to the subscription named `%s`, but ' + 'subscriptions must have exactly one field.', rootFields.length, subscription.getName());
+        var rootField = rootFields[0];
+        var rootFieldType = rootField.getType();
+        validateMutationField(rootField);
+        var requisiteFields = { clientSubscriptionId: true };
+        var selections = this.printSelections(rootField, requisiteFields);
+        var metadata = {
+          inputType: this.printArgumentTypeForMetadata(rootField.getDeclaredArgument('input'))
+        };
+
+        return codify({
+          calls: t.arrayExpression([codify({
+            kind: t.valueToNode('Call'),
+            metadata: objectify({}),
+            name: t.valueToNode(rootField.getName()),
+            value: this.printVariable('input')
+          })]),
+          children: selections,
+          directives: this.printDirectives(subscription.getDirectives()),
+          kind: t.valueToNode('Subscription'),
+          metadata: objectify(metadata),
+          name: t.valueToNode(subscription.getName()),
           responseType: t.valueToNode(rootFieldType.getName({ modifiers: true }))
         });
       }

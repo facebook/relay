@@ -59,6 +59,7 @@ type TemplateElement = {
   range: [number, number];
   loc: Object;
 };
+export type Validator = (schema: GraphQLSchema, ast: any) => any;
 
 /**
  * Transforms a TemplateLiteral node into a RelayQLDefinition, which is then
@@ -68,12 +69,14 @@ class RelayQLTransformer {
   schema: GraphQLSchema;
   options: {
     substituteVariables: boolean;
+    validator: ?Validator;
   };
 
   constructor(
     schema: GraphQLSchema,
     options: {
       substituteVariables: boolean;
+      validator: ?Validator;
     }
   ) {
     this.schema = schema;
@@ -220,43 +223,50 @@ class RelayQLTransformer {
       definition.kind === 'OperationDefinition' &&
       definition.operation === 'mutation';
 
-    const rules = [
-      require(
-        'graphql/validation/rules/ArgumentsOfCorrectType'
-      ).ArgumentsOfCorrectType,
-      require(
-        'graphql/validation/rules/DefaultValuesOfCorrectType'
-      ).DefaultValuesOfCorrectType,
-      require(
-        'graphql/validation/rules/FieldsOnCorrectType'
-      ).FieldsOnCorrectType,
-      require(
-        'graphql/validation/rules/FragmentsOnCompositeTypes'
-      ).FragmentsOnCompositeTypes,
-      require(
-        'graphql/validation/rules/KnownArgumentNames'
-      ).KnownArgumentNames,
-      require(
-        'graphql/validation/rules/KnownTypeNames'
-      ).KnownTypeNames,
-      require(
-        'graphql/validation/rules/PossibleFragmentSpreads'
-      ).PossibleFragmentSpreads,
-      require(
-        'graphql/validation/rules/PossibleFragmentSpreads'
-      ).PossibleFragmentSpreads,
-      require(
-        'graphql/validation/rules/VariablesInAllowedPosition'
-      ).VariablesInAllowedPosition,
-    ];
-    if (!isMutation) {
-      rules.push(
+    const validator = this.options.validator;
+    let validationErrors;
+    if (validator) {
+      validationErrors = validator(this.schema, document);
+    } else {
+      const rules = [
         require(
-          'graphql/validation/rules/ProvidedNonNullArguments'
-        ).ProvidedNonNullArguments
-      );
+          'graphql/validation/rules/ArgumentsOfCorrectType'
+        ).ArgumentsOfCorrectType,
+        require(
+          'graphql/validation/rules/DefaultValuesOfCorrectType'
+        ).DefaultValuesOfCorrectType,
+        require(
+          'graphql/validation/rules/FieldsOnCorrectType'
+        ).FieldsOnCorrectType,
+        require(
+          'graphql/validation/rules/FragmentsOnCompositeTypes'
+        ).FragmentsOnCompositeTypes,
+        require(
+          'graphql/validation/rules/KnownArgumentNames'
+        ).KnownArgumentNames,
+        require(
+          'graphql/validation/rules/KnownTypeNames'
+        ).KnownTypeNames,
+        require(
+          'graphql/validation/rules/PossibleFragmentSpreads'
+        ).PossibleFragmentSpreads,
+        require(
+          'graphql/validation/rules/PossibleFragmentSpreads'
+        ).PossibleFragmentSpreads,
+        require(
+          'graphql/validation/rules/VariablesInAllowedPosition'
+        ).VariablesInAllowedPosition,
+      ];
+      if (!isMutation) {
+        rules.push(
+          require(
+            'graphql/validation/rules/ProvidedNonNullArguments'
+          ).ProvidedNonNullArguments
+        );
+      }
+      validationErrors = validate(this.schema, document, rules);
     }
-    const validationErrors = validate(this.schema, document, rules);
+
     if (validationErrors && validationErrors.length > 0) {
       return validationErrors.map(formatError);
     }

@@ -212,6 +212,25 @@ var RelayQLQuery = (function (_RelayQLDefinition3) {
   return RelayQLQuery;
 })(RelayQLDefinition);
 
+var RelayQLSubscription = (function (_RelayQLDefinition4) {
+  _inherits(RelayQLSubscription, _RelayQLDefinition4);
+
+  function RelayQLSubscription() {
+    _classCallCheck(this, RelayQLSubscription);
+
+    _get(Object.getPrototypeOf(RelayQLSubscription.prototype), 'constructor', this).apply(this, arguments);
+  }
+
+  _createClass(RelayQLSubscription, [{
+    key: 'getType',
+    value: function getType() {
+      return new RelayQLType(this.context, this.context.schema.getSubscriptionType());
+    }
+  }]);
+
+  return RelayQLSubscription;
+})(RelayQLDefinition);
+
 var RelayQLField = (function (_RelayQLNode2) {
   _inherits(RelayQLField, _RelayQLNode2);
 
@@ -718,5 +737,6 @@ module.exports = {
   RelayQLMutation: RelayQLMutation,
   RelayQLNode: RelayQLNode,
   RelayQLQuery: RelayQLQuery,
+  RelayQLSubscription: RelayQLSubscription,
   RelayQLType: RelayQLType
 };

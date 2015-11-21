@@ -23,6 +23,7 @@ const {
   RelayQLInlineFragment,
   RelayQLMutation,
   RelayQLQuery,
+  RelayQLSubscription,
   RelayQLType,
 } = require('./RelayQLAST');
 
@@ -64,6 +65,8 @@ module.exports = (t: any): Function => {
         printedDocument = this.printFragment(definition);
       } else if (definition instanceof RelayQLMutation) {
         printedDocument = this.printMutation(definition);
+      } else if (definition instanceof RelayQLSubscription) {
+        printedDocument = this.printSubscription(definition);
       } else {
         invariant(false, 'Unsupported definition: %s', definition);
       }
@@ -201,6 +204,44 @@ module.exports = (t: any): Function => {
         kind: t.valueToNode('Mutation'),
         metadata: objectify(metadata),
         name: t.valueToNode(mutation.getName()),
+        responseType: t.valueToNode(rootFieldType.getName({modifiers: true})),
+      });
+    }
+
+    printSubscription(subscription: RelayQLSubscription): Printable {
+      const rootFields = subscription.getFields();
+      invariant(
+        rootFields.length === 1,
+        'There are %d fields supplied to the subscription named `%s`, but ' +
+        'subscriptions must have exactly one field.',
+        rootFields.length,
+        subscription.getName()
+      );
+      const rootField = rootFields[0];
+      const rootFieldType = rootField.getType();
+      validateMutationField(rootField);
+      const requisiteFields = {clientSubscriptionId: true};
+      const selections = this.printSelections(rootField, requisiteFields);
+      const metadata = {
+        inputType: this.printArgumentTypeForMetadata(
+          rootField.getDeclaredArgument('input')
+        ),
+      };
+
+      return codify({
+        calls: t.arrayExpression([
+          codify({
+            kind: t.valueToNode('Call'),
+            metadata: objectify({}),
+            name: t.valueToNode(rootField.getName()),
+            value: this.printVariable('input'),
+          }),
+        ]),
+        children: selections,
+        directives: this.printDirectives(subscription.getDirectives()),
+        kind: t.valueToNode('Subscription'),
+        metadata: objectify(metadata),
+        name: t.valueToNode(subscription.getName()),
         responseType: t.valueToNode(rootFieldType.getName({modifiers: true})),
       });
     }

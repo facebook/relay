@@ -40,6 +40,20 @@ type FakeResponsePayload {
   clientMutationId: String
 }
 
+type Subscription {
+  likeStory(input: LikeStorySubscriptionInput): LikeStorySubscriptionPayload
+}
+
+input LikeStorySubscriptionInput {
+  clientSubscriptionId: String
+  story: String
+}
+
+type LikeStorySubscriptionPayload {
+  clientSubscriptionId: String
+  doesViewerLike: Boolean
+}
+
 type ActorSubscribeSubscription {
   clientMutationId: String
 }

@@ -1,8 +1,8 @@
 Input:
 var Relay = require('react-relay');
 var x = Relay.QL`
-  mutation {
-    actorSubscribeSubscribe(input: $input) {
+  subscription {
+    likeStory(input: $input) {
       ${reference},
     },
   }
@@ -15,26 +15,26 @@ var x = (function (RQL_0) {
     calls: [{
       kind: 'Call',
       metadata: {},
-      name: 'actorSubscribeSubscribe',
+      name: 'likeStory',
       value: {
         kind: 'CallVariable',
         callVariableName: 'input'
       }
     }],
     children: [{
-      fieldName: 'clientMutationId',
+      fieldName: 'clientSubscriptionId',
       kind: 'Field',
       metadata: {
-        parentType: 'ActorSubscribeResponsePayload',
+        parentType: 'LikeStorySubscriptionPayload',
         isGenerated: true,
         isRequisite: true
       }
     }, Relay.QL.__frag(RQL_0)],
-    kind: 'Mutation',
+    kind: 'Subscription',
     metadata: {
-      inputType: 'ActorSubscribeInput!'
+      inputType: 'LikeStorySubscriptionInput'
     },
     name: 'Subscription',
-    responseType: 'ActorSubscribeResponsePayload'
+    responseType: 'LikeStorySubscriptionPayload'
   };
 })(reference);

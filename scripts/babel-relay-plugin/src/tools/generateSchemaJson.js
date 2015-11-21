@@ -27,7 +27,12 @@ try {
 
   const body = fs.readFileSync(inFile, 'utf8');
   const ast = language.parse(body);
-  const astSchema = utilities.buildASTSchema(ast, 'Root', 'Mutation');
+  const astSchema = utilities.buildASTSchema(
+    ast,
+    'Root',
+    'Mutation',
+    'Subscription'
+  );
   graphql.graphql(astSchema, utilities.introspectionQuery).then(
     function(result) {
       const out = JSON.stringify(result, null, 2);

@@ -187,6 +187,15 @@ class RelayQLQuery extends RelayQLDefinition<GraphQLOperationDefinition> {
   }
 }
 
+class RelayQLSubscription extends RelayQLDefinition<GraphQLOperationDefinition> {
+  getType(): RelayQLType {
+    return new RelayQLType(
+      this.context,
+      this.context.schema.getSubscriptionType()
+    );
+  }
+}
+
 class RelayQLField extends RelayQLNode<GraphQLField> {
   fieldDef: RelayQLFieldDefinition;
 
@@ -675,5 +684,6 @@ module.exports = {
   RelayQLMutation,
   RelayQLNode,
   RelayQLQuery,
+  RelayQLSubscription,
   RelayQLType,
 };

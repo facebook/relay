@@ -17,6 +17,7 @@ const {
   RelayQLFragment,
   RelayQLMutation,
   RelayQLQuery,
+  RelayQLSubscription,
 } = require('./RelayQLAST');
 const RelayQLPrinter = require('./RelayQLPrinter');
 
@@ -145,12 +146,12 @@ class RelayQLTransformer {
     templateText: string,
     documentName: string
   ): string {
-    const matches =
-      /^(fragment|mutation|query)\s*(\w*)?([\s\S]*)/.exec(templateText);
+    const pattern = /^(fragment|mutation|query|subscription)\s*(\w*)?([\s\S]*)/;
+    const matches = pattern.exec(templateText);
     invariant(
       matches,
       'You supplied a GraphQL document named `%s` with invalid syntax. It ' +
-      'must start with `fragment`, `mutation`, or `query`.',
+      'must start with `fragment`, `mutation`, `query`, or `subscription`.',
       documentName
     );
     const type = matches[1];
@@ -197,6 +198,8 @@ class RelayQLTransformer {
         return new RelayQLMutation(context, definition);
       } else if (definition.operation === 'query') {
         return new RelayQLQuery(context, definition);
+      } else if (definition.operation === 'subscription') {
+        return new RelayQLSubscription(context, definition);
       } else {
         invariant(false, 'Unsupported operation: %s', definition.operation);
       }

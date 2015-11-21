@@ -49,7 +49,8 @@ var RelayQLTransformer = (function () {
 
   _createClass(RelayQLTransformer, [{
     key: 'transform',
-    value: function transform(node, documentName, tagName) {
+    value: function transform(t, // Babel
+    node, documentName, tagName) {
       var _processTemplateLiteral = this.processTemplateLiteral(node, documentName);
 
       var substitutions = _processTemplateLiteral.substitutions;
@@ -59,7 +60,7 @@ var RelayQLTransformer = (function () {
       var documentText = this.processTemplateText(templateText, documentName);
       var documentHash = hash(documentText);
       var definition = this.processDocumentText(documentText, documentName);
-      return new RelayQLPrinter(documentHash, tagName, variableNames).print(definition, substitutions);
+      return new (RelayQLPrinter(t))(documentHash, tagName, variableNames).print(definition, substitutions);
     }
 
     /**

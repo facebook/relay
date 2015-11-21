@@ -80,6 +80,7 @@ class RelayQLTransformer {
   }
 
   transform(
+    t: any, // Babel
     node: TemplateLiteral,
     documentName: string,
     tagName: string
@@ -92,7 +93,7 @@ class RelayQLTransformer {
     const documentText = this.processTemplateText(templateText, documentName);
     const documentHash = hash(documentText);
     const definition = this.processDocumentText(documentText, documentName);
-    return new RelayQLPrinter(documentHash, tagName, variableNames)
+    return new (RelayQLPrinter(t))(documentHash, tagName, variableNames)
       .print(definition, substitutions);
   }
 

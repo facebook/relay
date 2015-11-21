@@ -202,7 +202,7 @@ class RelayQLField extends RelayQLNode<GraphQLField> {
   constructor(context: RelayQLContext, ast: GraphQLField, parentType: RelayQLType) {
     super(context, ast);
     const fieldName = this.ast.name.value;
-    const fieldDef = parentType.getFieldDefinition(fieldName);
+    const fieldDef = parentType.getFieldDefinition(fieldName, ast);
     invariant(
       fieldDef,
       'You supplied a field named `%s` on type `%s`, but no such field ' +
@@ -423,7 +423,10 @@ class RelayQLType {
     return !!this.getFieldDefinition(fieldName);
   }
 
-  getFieldDefinition(fieldName: string): ?RelayQLFieldDefinition {
+  getFieldDefinition(
+    fieldName: string,
+    fieldAST?: any
+  ): ?RelayQLFieldDefinition {
     const type = this.schemaUnmodifiedType;
     const isQueryType = type === this.context.schema.getQueryType();
     const hasTypeName =
@@ -444,6 +447,46 @@ class RelayQLType {
     } else if (hasFields) {
       schemaFieldDef = type.getFields()[fieldName];
     }
+
+    // Temporary workarounds to support legacy schemas
+    if (!schemaFieldDef) {
+      if (hasTypeName && fieldName === '__type__') {
+        schemaFieldDef = {
+          name: '__type__',
+          type: new types.GraphQLNonNull(this.context.schema.getType('Type')),
+          description: 'The introspected type of this object.',
+          deprecatedReason: 'Use __typename',
+          args: [],
+        };
+      } else if (
+        types.isAbstractType(type) &&
+        (!fieldAST || fieldAST.directives.some(
+          directive => directive.name.value === 'fixme_fat_interface'
+        ))
+      ) {
+        const possibleTypes = type.getPossibleTypes();
+        for (let ii = 0; ii < possibleTypes.length; ii++) {
+          const possibleField = possibleTypes[ii].getFields()[fieldName];
+          if (possibleField) {
+            // Fat interface fields can have differing arguments. Try to return
+            // a field with matching arguments, but still return a field if the
+            // arguments do not match.
+            schemaFieldDef = possibleField;
+            if (fieldAST) {
+              const argumentsAllExist = fieldAST.arguments.every(
+                argument => possibleField.args.find(
+                  argDef => argDef.name === argument.name.value
+                )
+              );
+              if (argumentsAllExist) {
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
     return schemaFieldDef ?
       new RelayQLFieldDefinition(this.context, schemaFieldDef) :
       null;

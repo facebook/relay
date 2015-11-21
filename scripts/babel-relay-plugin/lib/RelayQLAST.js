@@ -239,7 +239,7 @@ var RelayQLField = (function (_RelayQLNode2) {
 
     _get(Object.getPrototypeOf(RelayQLField.prototype), 'constructor', this).call(this, context, ast);
     var fieldName = this.ast.name.value;
-    var fieldDef = parentType.getFieldDefinition(fieldName);
+    var fieldDef = parentType.getFieldDefinition(fieldName, ast);
     invariant(fieldDef, 'You supplied a field named `%s` on type `%s`, but no such field ' + 'exists on that type.', fieldName, parentType.getName({ modifiers: false }));
     this.fieldDef = fieldDef;
   }
@@ -474,7 +474,7 @@ var RelayQLType = (function () {
     }
   }, {
     key: 'getFieldDefinition',
-    value: function getFieldDefinition(fieldName) {
+    value: function getFieldDefinition(fieldName, fieldAST) {
       var type = this.schemaUnmodifiedType;
       var isQueryType = type === this.context.schema.getQueryType();
       var hasTypeName = type instanceof types.GraphQLObjectType || type instanceof types.GraphQLInterfaceType || type instanceof types.GraphQLUnionType;
@@ -490,6 +490,50 @@ var RelayQLType = (function () {
       } else if (hasFields) {
         schemaFieldDef = type.getFields()[fieldName];
       }
+
+      // Temporary workarounds to support legacy schemas
+      if (!schemaFieldDef) {
+        if (hasTypeName && fieldName === '__type__') {
+          schemaFieldDef = {
+            name: '__type__',
+            type: new types.GraphQLNonNull(this.context.schema.getType('Type')),
+            description: 'The introspected type of this object.',
+            deprecatedReason: 'Use __typename',
+            args: []
+          };
+        } else if (types.isAbstractType(type) && (!fieldAST || fieldAST.directives.some(function (directive) {
+          return directive.name.value === 'fixme_fat_interface';
+        }))) {
+          var possibleTypes = type.getPossibleTypes();
+
+          var _loop = function (ii) {
+            var possibleField = possibleTypes[ii].getFields()[fieldName];
+            if (possibleField) {
+              // Fat interface fields can have differing arguments. Try to return
+              // a field with matching arguments, but still return a field if the
+              // arguments do not match.
+              schemaFieldDef = possibleField;
+              if (fieldAST) {
+                var argumentsAllExist = fieldAST.arguments.every(function (argument) {
+                  return possibleField.args.find(function (argDef) {
+                    return argDef.name === argument.name.value;
+                  });
+                });
+                if (argumentsAllExist) {
+                  return 'break';
+                }
+              }
+            }
+          };
+
+          for (var ii = 0; ii < possibleTypes.length; ii++) {
+            var _ret = _loop(ii);
+
+            if (_ret === 'break') break;
+          }
+        }
+      }
+
       return schemaFieldDef ? new RelayQLFieldDefinition(this.context, schemaFieldDef) : null;
     }
   }, {

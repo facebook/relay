@@ -55,6 +55,14 @@ module.exports = function (t) {
       this.variableNames = variableNames;
     }
 
+    /**
+     * Determine if a `... on Node { id }` fragment should be generated for a
+     * field/fragment to allow identification of the response record. This
+     * fragment should be added when some/all implementors of the node's type
+     * also implement `Node` but a `Node` fragment is not already present. If it
+     * is present then `id` would be added as a requisite field.
+     */
+
     _createClass(RelayQLPrinter, [{
       key: 'print',
       value: function print(definition, substitutions) {
@@ -133,13 +141,16 @@ module.exports = function (t) {
         var fragmentType = fragment.getType();
 
         var requisiteFields = {};
+        var idFragment = undefined;
         if (fragmentType.hasField('id')) {
           requisiteFields.id = true;
+        } else if (shouldGenerateIdFragment(fragment, fragmentType)) {
+          idFragment = fragmentType.generateIdFragment();
         }
         if (fragmentType.isAbstract()) {
           requisiteFields.__typename = true;
         }
-        var selections = this.printSelections(fragment, requisiteFields);
+        var selections = this.printSelections(fragment, requisiteFields, idFragment ? [idFragment] : null);
         var metadata = this.printRelayDirectiveMetadata(fragment, {
           isConcrete: !fragmentType.isAbstract()
         });
@@ -214,7 +225,7 @@ module.exports = function (t) {
       }
     }, {
       key: 'printSelections',
-      value: function printSelections(parent, requisiteFields) {
+      value: function printSelections(parent, requisiteFields, extraFragments) {
         var _this = this;
 
         var fields = [];
@@ -232,6 +243,11 @@ module.exports = function (t) {
             invariant(false, 'Unsupported selection type `%s`.', selection);
           }
         });
+        if (extraFragments) {
+          extraFragments.forEach(function (fragment) {
+            printedFragments.push(_this.printFragment(fragment));
+          });
+        }
         var printedFields = this.printFields(fields, parent, requisiteFields);
         var selections = [].concat(_toConsumableArray(printedFields), printedFragments);
 
@@ -276,8 +292,11 @@ module.exports = function (t) {
         var metadata = {};
         metadata.parentType = parent.getType().getName({ modifiers: false });
         var requisiteFields = {};
+        var idFragment = undefined;
         if (fieldType.hasField('id')) {
           requisiteFields.id = true;
+        } else if (shouldGenerateIdFragment(field, fieldType)) {
+          idFragment = fieldType.generateIdFragment();
         }
 
         validateField(field, parent.getType());
@@ -316,7 +335,7 @@ module.exports = function (t) {
           metadata.isRequisite = true;
         }
 
-        var selections = this.printSelections(field, requisiteFields);
+        var selections = this.printSelections(field, requisiteFields, idFragment ? [idFragment] : null);
         var fieldAlias = field.getAlias();
         var args = field.getArguments();
         var calls = args.length ? t.arrayExpression(args.map(function (arg) {
@@ -456,6 +475,12 @@ module.exports = function (t) {
 
     return RelayQLPrinter;
   })();
+
+  function shouldGenerateIdFragment(node) {
+    return node.getType().mayImplement('Node') && !node.getSelections().some(function (selection) {
+      return selection instanceof RelayQLInlineFragment && selection.getFragment().getType().getName({ modifiers: false }) === 'Node';
+    });
+  }
 
   function validateField(field, parentType) {
     if (field.getName() === 'node') {

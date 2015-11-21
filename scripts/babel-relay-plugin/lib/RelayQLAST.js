@@ -501,9 +501,9 @@ var RelayQLType = (function () {
             deprecatedReason: 'Use __typename',
             args: []
           };
-        } else if (types.isAbstractType(type) && (!fieldAST || fieldAST.directives.some(function (directive) {
+        } else if (types.isAbstractType(type) && fieldAST && fieldAST.directives && fieldAST.directives.some(function (directive) {
           return directive.name.value === 'fixme_fat_interface';
-        }))) {
+        })) {
           var possibleTypes = type.getPossibleTypes();
 
           var _loop = function (ii) {
@@ -513,7 +513,7 @@ var RelayQLType = (function () {
               // a field with matching arguments, but still return a field if the
               // arguments do not match.
               schemaFieldDef = possibleField;
-              if (fieldAST) {
+              if (fieldAST && fieldAST.arguments) {
                 var argumentsAllExist = fieldAST.arguments.every(function (argument) {
                   return possibleField.args.find(function (argDef) {
                     return argDef.name === argument.name.value;
@@ -627,6 +627,15 @@ var RelayQLType = (function () {
       });
     }
   }, {
+    key: 'mayImplement',
+    value: function mayImplement(typeName) {
+      return this.getName({ modifiers: false }) === typeName || this.getInterfaces().some(function (type) {
+        return type.getName({ modifiers: false }) === typeName;
+      }) || this.isAbstract() && this.getConcreteTypes().some(function (type) {
+        return type.alwaysImplements(typeName);
+      });
+    }
+  }, {
     key: 'generateField',
     value: function generateField(fieldName) {
       var generatedFieldAST = {
@@ -637,6 +646,33 @@ var RelayQLType = (function () {
         }
       };
       return new RelayQLField(this.context, generatedFieldAST, this);
+    }
+  }, {
+    key: 'generateIdFragment',
+    value: function generateIdFragment() {
+      var generatedFragmentAST = {
+        kind: 'Fragment',
+        name: {
+          kind: 'Name',
+          value: 'IdFragment'
+        },
+        typeCondition: {
+          kind: 'NamedType',
+          name: {
+            value: 'Node'
+          }
+        },
+        selectionSet: {
+          selections: [{
+            kind: 'Field',
+            name: {
+              name: 'Name',
+              value: 'id'
+            }
+          }]
+        }
+      };
+      return new RelayQLFragment(this.context, generatedFragmentAST, this);
     }
   }]);
 

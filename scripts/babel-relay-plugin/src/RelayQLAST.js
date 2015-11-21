@@ -460,9 +460,11 @@ class RelayQLType {
         };
       } else if (
         types.isAbstractType(type) &&
-        (!fieldAST || fieldAST.directives.some(
+        fieldAST &&
+        fieldAST.directives &&
+        fieldAST.directives.some(
           directive => directive.name.value === 'fixme_fat_interface'
-        ))
+        )
       ) {
         const possibleTypes = type.getPossibleTypes();
         for (let ii = 0; ii < possibleTypes.length; ii++) {
@@ -472,7 +474,7 @@ class RelayQLType {
             // a field with matching arguments, but still return a field if the
             // arguments do not match.
             schemaFieldDef = possibleField;
-            if (fieldAST) {
+            if (fieldAST && fieldAST.arguments) {
               const argumentsAllExist = fieldAST.arguments.every(
                 argument => possibleField.args.find(
                   argDef => argDef.name === argument.name.value
@@ -578,6 +580,19 @@ class RelayQLType {
     );
   }
 
+  mayImplement(typeName: string): boolean {
+    return (
+      this.getName({modifiers: false}) === typeName ||
+      this.getInterfaces().some(
+        type => type.getName({modifiers: false}) === typeName
+      ) ||
+      (
+        this.isAbstract() &&
+        this.getConcreteTypes().some(type => type.alwaysImplements(typeName))
+      )
+    );
+  }
+
   generateField(fieldName: string): RelayQLField {
     const generatedFieldAST = {
       kind: 'Field',
@@ -587,6 +602,32 @@ class RelayQLType {
       },
     };
     return new RelayQLField(this.context, generatedFieldAST, this);
+  }
+
+  generateIdFragment(): RelayQLFragment {
+    const generatedFragmentAST = {
+      kind: 'Fragment',
+      name: {
+        kind: 'Name',
+        value: 'IdFragment',
+      },
+      typeCondition: {
+        kind: 'NamedType',
+        name: {
+          value: 'Node',
+        },
+      },
+      selectionSet: {
+        selections: [{
+          kind: 'Field',
+          name: {
+            name: 'Name',
+            value: 'id',
+          },
+        }],
+      },
+    };
+    return new RelayQLFragment(this.context, (generatedFragmentAST: any), this);
   }
 }
 

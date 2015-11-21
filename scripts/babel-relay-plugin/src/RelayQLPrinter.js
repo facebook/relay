@@ -148,13 +148,20 @@ module.exports = (t: any): Function => {
       const fragmentType = fragment.getType();
 
       const requisiteFields = {};
+      let idFragment;
       if (fragmentType.hasField('id')) {
         requisiteFields.id = true;
+      } else if (shouldGenerateIdFragment(fragment, fragmentType)) {
+        idFragment = fragmentType.generateIdFragment();
       }
       if (fragmentType.isAbstract()) {
         requisiteFields.__typename = true;
       }
-      const selections = this.printSelections(fragment, requisiteFields);
+      const selections = this.printSelections(
+        fragment,
+        requisiteFields,
+        idFragment ? [idFragment] : null
+      );
       const metadata = this.printRelayDirectiveMetadata(fragment, {
         isConcrete: !fragmentType.isAbstract(),
       });
@@ -248,7 +255,8 @@ module.exports = (t: any): Function => {
 
     printSelections(
       parent: RelayQLField | RelayQLFragment,
-      requisiteFields: {[fieldName: string]: boolean}
+      requisiteFields: {[fieldName: string]: boolean},
+      extraFragments?: ?Array<RelayQLFragment>
     ): Printable {
       const fields = [];
       const printedFragments = [];
@@ -269,6 +277,11 @@ module.exports = (t: any): Function => {
           invariant(false, 'Unsupported selection type `%s`.', selection);
         }
       });
+      if (extraFragments) {
+        extraFragments.forEach(fragment => {
+          printedFragments.push(this.printFragment(fragment));
+        });
+      }
       const printedFields = this.printFields(fields, parent, requisiteFields);
       const selections = [...printedFields, ...printedFragments];
 
@@ -335,8 +348,11 @@ module.exports = (t: any): Function => {
       } = {};
       metadata.parentType = parent.getType().getName({modifiers: false});
       const requisiteFields = {};
+      let idFragment;
       if (fieldType.hasField('id')) {
         requisiteFields.id = true;
+      } else if (shouldGenerateIdFragment(field, fieldType)) {
+        idFragment = fieldType.generateIdFragment();
       }
 
       validateField(field, parent.getType());
@@ -376,7 +392,11 @@ module.exports = (t: any): Function => {
         metadata.isRequisite = true;
       }
 
-      const selections = this.printSelections(field, requisiteFields);
+      const selections = this.printSelections(
+        field,
+        requisiteFields,
+        idFragment ? [idFragment] : null
+      );
       const fieldAlias = field.getAlias();
       const args = field.getArguments();
       const calls = args.length ?
@@ -530,6 +550,25 @@ module.exports = (t: any): Function => {
       }
       invariant(false, 'Unsupported input type: %s', argType);
     }
+  }
+
+  /**
+   * Determine if a `... on Node { id }` fragment should be generated for a
+   * field/fragment to allow identification of the response record. This
+   * fragment should be added when some/all implementors of the node's type
+   * also implement `Node` but a `Node` fragment is not already present. If it
+   * is present then `id` would be added as a requisite field.
+   */
+  function shouldGenerateIdFragment(
+    node: RelayQLField | RelayQLFragment
+  ): boolean {
+    return (
+      node.getType().mayImplement('Node') &&
+      !node.getSelections().some(selection => (
+        selection instanceof RelayQLInlineFragment &&
+        selection.getFragment().getType().getName({modifiers: false}) === 'Node'
+      ))
+    );
   }
 
   function validateField(field: RelayQLField, parentType: RelayQLType): void {

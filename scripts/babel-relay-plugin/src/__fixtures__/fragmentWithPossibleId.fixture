@@ -1,0 +1,73 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  fragment on Actor {
+    name
+    ... on User { id }
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  return {
+    children: [{
+      fieldName: 'name',
+      kind: 'Field',
+      metadata: {
+        parentType: 'Actor'
+      }
+    }, {
+      fieldName: '__typename',
+      kind: 'Field',
+      metadata: {
+        parentType: 'Actor',
+        isGenerated: true,
+        isRequisite: true
+      }
+    }, {
+      children: [{
+        fieldName: 'id',
+        kind: 'Field',
+        metadata: {
+          parentType: 'User',
+          isRequisite: true
+        }
+      }],
+      hash: 'Sb+rujhv',
+      kind: 'Fragment',
+      metadata: {
+        isConcrete: true
+      },
+      name: 'User',
+      type: 'User'
+    }, {
+      children: [{
+        fieldName: 'id',
+        kind: 'Field',
+        metadata: {
+          parentType: 'Node',
+          isRequisite: true
+        }
+      }, {
+        fieldName: '__typename',
+        kind: 'Field',
+        metadata: {
+          parentType: 'Node',
+          isGenerated: true,
+          isRequisite: true
+        }
+      }],
+      hash: 'Sb+rujhv',
+      kind: 'Fragment',
+      metadata: {},
+      name: 'IdFragment',
+      type: 'Node'
+    }],
+    hash: 'Sb+rujhv',
+    kind: 'Fragment',
+    metadata: {},
+    name: 'FragmentWithPossibleId',
+    type: 'Actor'
+  };
+})();

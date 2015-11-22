@@ -76,39 +76,9 @@ class GraphQLQueryRunner {
   run(
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback,
-    fetchMode?: string
+    fetchMode: string = DliteFetchModeConstants.FETCH_MODE_CLIENT
   ): Abortable {
-    fetchMode = fetchMode || DliteFetchModeConstants.FETCH_MODE_CLIENT;
-    var profiler = fetchMode === DliteFetchModeConstants.FETCH_MODE_REFETCH ?
-      RelayProfiler.profile('GraphQLQueryRunner.forceFetch') :
-      RelayProfiler.profile('GraphQLQueryRunner.primeCache');
-
-    var diffQueries = [];
-    if (fetchMode === DliteFetchModeConstants.FETCH_MODE_CLIENT) {
-      forEachObject(querySet, query => {
-        if (query) {
-          diffQueries.push(...diffRelayQuery(
-            query,
-            this._storeData.getRecordStore(),
-            this._storeData.getQueryTracker()
-          ));
-        }
-      });
-    } else {
-      forEachObject(querySet, query => {
-        if (query) {
-          diffQueries.push(query);
-        }
-      });
-    }
-
-    return runQueries(
-      this._storeData,
-      diffQueries,
-      callback,
-      fetchMode,
-      profiler
-    );
+    return runQueries(this._storeData, querySet, callback, fetchMode);
   }
 
   /**
@@ -123,13 +93,7 @@ class GraphQLQueryRunner {
     callback: ReadyStateChangeCallback
   ): Abortable {
     var fetchMode = DliteFetchModeConstants.FETCH_MODE_REFETCH;
-    var profiler = RelayProfiler.profile('GraphQLQueryRunner.forceFetch');
-    var queries = [];
-    forEachObject(querySet, query => {
-      query && queries.push(query);
-    });
-
-    return runQueries(this._storeData, queries, callback, fetchMode, profiler);
+    return runQueries(this._storeData, querySet, callback, fetchMode);
   }
 }
 
@@ -138,8 +102,29 @@ function hasItems(map: Object): boolean {
 }
 
 function splitAndFlattenQueries(
-  queries: Array<RelayQuery.Root>
+  storeData: RelayStoreData,
+  querySet: RelayQuerySet,
+  fetchMode: string
 ): Array<RelayQuery.Root> {
+  const queries = [];
+  if (fetchMode === DliteFetchModeConstants.FETCH_MODE_CLIENT) {
+    forEachObject(querySet, query => {
+      if (query) {
+        queries.push(...diffRelayQuery(
+          query,
+          storeData.getRecordStore(),
+          storeData.getQueryTracker()
+        ));
+      }
+    });
+  } else {
+    forEachObject(querySet, query => {
+      if (query) {
+        queries.push(query);
+      }
+    });
+  }
+
   if (!RelayNetworkLayer.supports('defer')) {
     var hasDeferredDescendant = queries.some(query => {
       if (query.hasDeferredDescendant()) {
@@ -171,11 +156,14 @@ function splitAndFlattenQueries(
 
 function runQueries(
   storeData: RelayStoreData,
-  queries: Array<RelayQuery.Root>,
+  querySet: RelayQuerySet,
   callback: ReadyStateChangeCallback,
-  fetchMode: string,
-  profiler: RelayProfileHandler
+  fetchMode: string
 ): Abortable {
+  const profiler = fetchMode === DliteFetchModeConstants.FETCH_MODE_REFETCH ?
+    RelayProfiler.profile('GraphQLQueryRunner.forceFetch') :
+    RelayProfiler.profile('GraphQLQueryRunner.primeCache');
+
   var readyState = {
     aborted: false,
     done: false,
@@ -262,7 +250,7 @@ function runQueries(
     var forceIndex = fetchMode === DliteFetchModeConstants.FETCH_MODE_REFETCH ?
       generateForceIndex() : null;
 
-    splitAndFlattenQueries(queries).forEach(query => {
+    splitAndFlattenQueries(storeData, querySet, fetchMode).forEach(query => {
       var pendingFetch = storeData.getPendingQueryTracker().add(
         {query, fetchMode, forceIndex, storeData}
       );

@@ -17,5 +17,5 @@ var x = Relay.QL`
 Output:
 var Relay = require('react-relay');
 var x = (function () {
-  throw new Error('GraphQL validation/transform error ``You supplied a field named `nodes` on a connection named `friends`, but pagination is not supported on connections without using edges. Use `friends{edges{node{...}}}` instead.`` in file `connectionWithNodesField.fixture`.');
+  throw new Error('GraphQL validation/transform error ``You supplied a field named `nodes` on a connection named `friends`, but pagination is not supported on connections without using `edges`. Use `friends{edges{node{...}}}` instead.`` in file `connectionWithNodesField.fixture`.');
 })();

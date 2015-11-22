@@ -12,6 +12,14 @@
 
 'use strict';
 
+const GraphQL = require('./GraphQL');
+const {
+  error: {formatError},
+  language_parser: parser,
+  language_source: {Source},
+  validation: {validate},
+} = GraphQL;
+
 const {
   RelayQLDefinition,
   RelayQLFragment,
@@ -22,10 +30,6 @@ const {
 const RelayQLPrinter = require('./RelayQLPrinter');
 
 const crypto = require('crypto');
-const formatError = require('graphql/error').formatError;
-const parser = require('graphql/language/parser');
-const Source = require('graphql/language/source').Source;
-const validate = require('graphql/validation/validate').validate;
 const invariant = require('./invariant');
 const util = require('util');
 
@@ -59,7 +63,16 @@ type TemplateElement = {
   range: [number, number];
   loc: Object;
 };
-export type Validator = (schema: GraphQLSchema, ast: any) => any;
+export type Validator<T> = (GraphQL: typeof GraphQL) => (
+  (schema: GraphQLSchema, ast: T) => Array<Error>
+);
+
+type TransformerOptions = {
+  inputArgumentName: ?string;
+  snakeCase: boolean;
+  substituteVariables: boolean;
+  validator: ?Validator;
+};
 
 /**
  * Transforms a TemplateLiteral node into a RelayQLDefinition, which is then
@@ -67,18 +80,9 @@ export type Validator = (schema: GraphQLSchema, ast: any) => any;
  */
 class RelayQLTransformer {
   schema: GraphQLSchema;
-  options: {
-    substituteVariables: boolean;
-    validator: ?Validator;
-  };
+  options: TransformerOptions;
 
-  constructor(
-    schema: GraphQLSchema,
-    options: {
-      substituteVariables: boolean;
-      validator: ?Validator;
-    }
-  ) {
+  constructor(schema: GraphQLSchema, options: TransformerOptions) {
     this.schema = schema;
     this.options = options;
   }
@@ -97,7 +101,9 @@ class RelayQLTransformer {
     const documentText = this.processTemplateText(templateText, documentName);
     const documentHash = hash(documentText);
     const definition = this.processDocumentText(documentText, documentName);
-    return new (RelayQLPrinter(t))(documentHash, tagName, variableNames)
+
+    const Printer = RelayQLPrinter(t, this.options);
+    return new Printer(documentHash, tagName, variableNames)
       .print(definition, substitutions);
   }
 
@@ -226,7 +232,8 @@ class RelayQLTransformer {
     const validator = this.options.validator;
     let validationErrors;
     if (validator) {
-      validationErrors = validator(this.schema, document);
+      const {validate} = validator(GraphQL);
+      validationErrors = validate(this.schema, document);
     } else {
       const rules = [
         require(

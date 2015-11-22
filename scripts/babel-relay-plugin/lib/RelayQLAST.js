@@ -24,13 +24,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var types = require('graphql/type');
+var _require = require('./GraphQL');
 
-var _require = require('graphql/type/introspection');
-
-var SchemaMetaFieldDef = _require.SchemaMetaFieldDef;
-var TypeMetaFieldDef = _require.TypeMetaFieldDef;
-var TypeNameMetaFieldDef = _require.TypeNameMetaFieldDef;
+var types = _require.type;
+var _require$type_introspection = _require.type_introspection;
+var SchemaMetaFieldDef = _require$type_introspection.SchemaMetaFieldDef;
+var TypeMetaFieldDef = _require$type_introspection.TypeMetaFieldDef;
+var TypeNameMetaFieldDef = _require$type_introspection.TypeNameMetaFieldDef;
 
 var find = require('./find');
 var invariant = require('./invariant');

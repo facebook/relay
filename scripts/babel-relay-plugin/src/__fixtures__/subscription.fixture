@@ -25,10 +25,10 @@ var x = (function (RQL_0) {
       fieldName: 'clientSubscriptionId',
       kind: 'Field',
       metadata: {
-        parentType: 'LikeStorySubscriptionPayload',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, Relay.QL.__frag(RQL_0)],
     kind: 'Subscription',
     metadata: {

@@ -27,7 +27,7 @@ const ARGUMENT_NAME = /(\w+)(?=\s*:)/;
 const DEPRECATED_CALLS = /^\w+(?:\.\w+\(.*?\))+$/;
 const DEPRECATED_CALL = /^(\w+)\((.*?)\)$/;
 const {NODE, EDGES} = RelayConnectionInterface;
-const {ID, NODE_TYPE} = RelayNodeInterface;
+const {ANY_TYPE, ID, NODE_TYPE} = RelayNodeInterface;
 
 /**
  * @internal
@@ -51,7 +51,6 @@ function inferRelayFieldsFromData(
 function inferField(value: mixed, key: string): RelayQuery.Field {
   const metadata = {
     isPlural: false,
-    parentType: NODE_TYPE,
   };
   let children;
   if (Array.isArray(value)) {
@@ -68,11 +67,15 @@ function inferField(value: mixed, key: string): RelayQuery.Field {
     children = [];
   }
   if (key === NODE) {
-    children.push(RelayQuery.Field.build(ID, null, null, {
-      parentType: NODE_TYPE,
+    children.push(RelayQuery.Field.build({
+      fieldName: ID,
+      type: 'String'
     }));
   } else if (key === EDGES) {
-    children.push(RelayQuery.Field.build('cursor'));
+    children.push(RelayQuery.Field.build({
+      fieldName: 'cursor',
+      type: 'String',
+    }));
   }
   return buildField(key, children, metadata);
 }
@@ -135,12 +138,13 @@ function buildField(
       }
     }
   }
-  return RelayQuery.Field.build(
-    fieldName,
+  return RelayQuery.Field.build({
     calls,
     children,
-    metadata
-  );
+    fieldName,
+    metadata,
+    type: ANY_TYPE,
+  });
 }
 
 module.exports = inferRelayFieldsFromData;

@@ -31,7 +31,6 @@ var nullthrows = require('nullthrows');
 var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 var intersectRelayQuery = require('intersectRelayQuery');
 var invariant = require('invariant');
-var refragmentRelayQuery = require('refragmentRelayQuery');
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment;
@@ -66,6 +65,7 @@ type OptimisticUpdateQueryBuilderConfig =
   };
 
 var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
+var {ANY_TYPE} = RelayNodeInterface;
 
 /**
  * @internal
@@ -314,13 +314,12 @@ var RelayMutationQuery = {
       tracker: RelayQueryTracker;
     }
   ): RelayQuery.Mutation {
-    var children = [
-      RelayQuery.Field.build(
-        CLIENT_MUTATION_ID,
-        null,
-        null,
-        {'requisite':true}
-      )
+    var children: Array<?RelayQuery.Node> = [
+      RelayQuery.Field.build({
+        fieldName: CLIENT_MUTATION_ID,
+        type: 'String',
+        metadata: {isRequisite:true},
+      })
     ];
 
     configs.forEach(config => {
@@ -356,7 +355,10 @@ var RelayMutationQuery = {
             parentName: config.parentName,
             tracker,
           }));
-          children.push(RelayQuery.Field.build(config.deletedIDFieldName));
+          children.push(RelayQuery.Field.build({
+            fieldName: config.deletedIDFieldName,
+            type: 'String'
+          }));
           break;
 
         case RelayMutationType.FIELDS_CHANGE:
@@ -369,21 +371,12 @@ var RelayMutationQuery = {
       }
     });
 
-    // create a dummy field to re-fragment the input `fields`
-    var fragmentedFields = children.length ?
-      refragmentRelayQuery(RelayQuery.Field.build(
-        'build_mutation_field',
-        null,
-        children
-      )) :
-      null;
-
     return RelayQuery.Mutation.build(
       mutationName,
       fatQuery.getType(),
       mutation.calls[0].name,
       input,
-      fragmentedFields ? fragmentedFields.getChildren() : null,
+      (children.filter(child => child != null): any),
       mutation.metadata
     );
   }
@@ -427,26 +420,32 @@ function buildEdgeField(
   edgeFields: Array<RelayQuery.Node>
 ): RelayQuery.Field {
   var fields = [
-    RelayQuery.Field.build('cursor'),
+    RelayQuery.Field.build({
+      fieldName: 'cursor',
+      type: 'String',
+    }),
   ];
   if (RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD &&
       !GraphQLStoreDataHandler.isClientID(parentID)) {
     fields.push(
-      RelayQuery.Field.build(
-        'source',
-        null,
-        [RelayQuery.Field.build('id', null, null, {
-          parentType: RelayNodeInterface.NODE_TYPE,
-        })]
-      )
+      RelayQuery.Field.build({
+        fieldName: 'source',
+        type: ANY_TYPE,
+        children: [
+          RelayQuery.Field.build({
+            fieldName: 'id',
+            type: 'String',
+          }),
+        ],
+      })
     );
   }
   fields.push(...edgeFields);
-  var edgeField = flattenRelayQuery(RelayQuery.Field.build(
-    edgeName,
-    null,
-    fields
-  ));
+  var edgeField = flattenRelayQuery(RelayQuery.Field.build({
+    fieldName: edgeName,
+    type: ANY_TYPE,
+    children: fields,
+  }));
   invariant(
     edgeField instanceof RelayQuery.Field,
     'RelayMutationQuery: Expected a field.'

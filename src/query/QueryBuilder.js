@@ -44,6 +44,33 @@ if (__DEV__) {
   Object.freeze(EMPTY_METADATA);
 }
 
+export type ConcreteFieldMetadata = {
+  inferredRootCallName?: ?string;
+  inferredPrimaryKey?: ?string;
+  isConnection?: boolean;
+  isFindable?: boolean;
+  isGenerated?: boolean;
+  isPlural?: boolean;
+  isRequisite?: boolean;
+  isUnionOrInterface?: boolean;
+};
+
+export type ConcreteFragmentMetadata = {
+  isConcrete?: boolean;
+  plural?: boolean;
+};
+
+export type ConcreteOperationMetadata = {
+  inputType?: ?string;
+};
+
+export type ConcreteQueryMetadata = {
+  identifyingArgName?: ?string;
+  identifyingArgType?: ?string;
+  isDeferred?: ?boolean;
+  isPlural?: ?boolean;
+};
+
 /**
  * @internal
  *
@@ -100,17 +127,8 @@ const QueryBuilder = {
     children?: ?Array<?ConcreteSelection>;
     directives?: ?Array<ConcreteDirective>;
     fieldName: string;
-    metadata?: ?{
-      inferredRootCallName?: ?string;
-      inferredPrimaryKey?: ?string;
-      isConnection?: boolean;
-      isFindable?: boolean;
-      isGenerated?: boolean;
-      isPlural?: boolean;
-      isRequisite?: boolean;
-      isUnionOrInterface?: boolean;
-      parentType?: ?string;
-    };
+    metadata?: ?ConcreteFieldMetadata;
+    type: string;
   }): ConcreteField {
     const partialMetadata = partialField.metadata || EMPTY_METADATA;
     return {
@@ -129,8 +147,8 @@ const QueryBuilder = {
         isPlural: !!partialMetadata.isPlural,
         isRequisite: !!partialMetadata.isRequisite,
         isUnionOrInterface: !!partialMetadata.isUnionOrInterface,
-        parentType: partialMetadata.parentType,
       },
+      type: partialField.type,
     };
   },
 
@@ -138,10 +156,7 @@ const QueryBuilder = {
     children?: ?Array<?ConcreteSelection>;
     directives?: ?Array<ConcreteDirective>;
     isPlural?: boolean;
-    metadata?: ?{
-      isConcrete?: boolean;
-      plural?: boolean;
-    };
+    metadata?: ?ConcreteFragmentMetadata;
     name: string;
     type: string;
   }): ConcreteFragment {
@@ -173,9 +188,7 @@ const QueryBuilder = {
     calls?: ?Array<ConcreteCall>;
     children?: ?Array<?ConcreteSelection>;
     directives?: ?Array<ConcreteDirective>;
-    metadata?: ?{
-      inputType?: ?string;
-    };
+    metadata?: ?ConcreteOperationMetadata;
     name: string;
     responseType: string;
   }): ConcreteMutation {
@@ -199,13 +212,9 @@ const QueryBuilder = {
     fieldName: string;
     identifyingArgValue: ?ConcreteValue;
     isDeferred?: boolean;
-    metadata?: ?{
-      identifyingArgName?: ?string;
-      identifyingArgType?: ?string;
-      isDeferred?: ?boolean;
-      isPlural?: ?boolean;
-    };
+    metadata?: ?ConcreteQueryMetadata;
     name: string;
+    type: string;
   }): ConcreteQuery {
     const metadata = partialQuery.metadata || EMPTY_METADATA;
     let calls = [];
@@ -242,6 +251,7 @@ const QueryBuilder = {
         isPlural: metadata.isPlural,
       },
       name: partialQuery.name,
+      type: partialQuery.type,
     };
   },
 
@@ -249,9 +259,7 @@ const QueryBuilder = {
     calls?: ?Array<ConcreteCall>;
     children?: ?Array<?ConcreteSelection>;
     directives?: ?Array<ConcreteDirective>;
-    metadata?: ?{
-      inputType?: ?string;
-    };
+    metadata?: ?ConcreteOperationMetadata;
     name: string;
     responseType: string;
   }): ConcreteSubscription {

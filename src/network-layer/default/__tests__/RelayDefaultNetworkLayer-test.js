@@ -86,7 +86,10 @@ describe('RelayDefaultNetworkLayer', () => {
         'FeedbackLikeResponsePayload',
         'feedback_like',
         variables.input,
-        [RelayQuery.Field.build('does_viewer_like')],
+        [RelayQuery.Field.build({
+          fieldName: 'does_viewer_like',
+          type: 'Boolean',
+        })],
         {inputType: 'FeedbackLikeInput'}
       );
       request = new RelayMutationRequest(mutation);

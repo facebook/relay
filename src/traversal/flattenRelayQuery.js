@@ -22,7 +22,9 @@ var sortTypeFirst = require('sortTypeFirst');
 
 type FlattenedQuery = {
   node: RelayQuery.Node;
+  type: string;
   flattenedFieldMap: Map<string, FlattenedQuery>;
+  flattenedFragmentMap: Map<string, FlattenedQuery>;
 };
 
 /**
@@ -35,28 +37,64 @@ type FlattenedQuery = {
  * that only contain empty fragments.
  */
 function flattenRelayQuery<Tn: RelayQuery.Node>(node: Tn): ?Tn {
-  var flattener = new RelayQueryFlattener();
-  var flattenedFieldMap = new Map();
-  flattener.traverse(node, {node, flattenedFieldMap});
-  return toQuery(node, flattenedFieldMap);
+  const flattener = new RelayQueryFlattener();
+  const state = {
+    node,
+    type: node.getType(),
+    flattenedFieldMap: new Map(),
+    flattenedFragmentMap: new Map(),
+  };
+  flattener.traverse(node, state);
+  return toQuery(node, state);
 }
 
 function toQuery<Tn: RelayQuery.Node>(
   node: Tn,
-  flattenedFieldMap: Map
+  {
+    flattenedFieldMap,
+    flattenedFragmentMap
+  }: FlattenedQuery
 ): ?Tn {
-  var keys = Array.from(flattenedFieldMap.keys()).sort(sortTypeFirst);
-  return node.clone(
-    keys.map(alias => {
-      var field = flattenedFieldMap.get(alias);
-      if (field) {
-        return toQuery(field.node, field.flattenedFieldMap);
-      }
-    })
-  );
+  const children = [];
+  const aliases = Array.from(flattenedFieldMap.keys()).sort(sortTypeFirst);
+  aliases.forEach(alias => {
+    var field = flattenedFieldMap.get(alias);
+    if (field) {
+      children.push(toQuery(field.node, field));
+    }
+  });
+  Array.from(flattenedFragmentMap.keys()).forEach(type => {
+    var fragment = flattenedFragmentMap.get(type);
+    if (fragment) {
+      children.push(toQuery(fragment.node, fragment))
+    }
+  });
+  return node.clone(children);
 }
 
 class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
+  visitFragment(
+    node: RelayQuery.Fragment,
+    state: FlattenedQuery
+  ): ?RelayQuery.Node {
+    const type = node.getType();
+    if (type === state.type) {
+      this.traverse(node, state);
+      return;
+    }
+    let flattenedFragment = state.flattenedFragmentMap.get(type);
+    if (!flattenedFragment) {
+      flattenedFragment = {
+        node,
+        type,
+        flattenedFieldMap: new Map(),
+        flattenedFragmentMap: new Map(),
+      };
+      state.flattenedFragmentMap.set(type, flattenedFragment);
+    }
+    this.traverse(node, flattenedFragment);
+  }
+
   visitField(
     node: RelayQuery.Field,
     state: FlattenedQuery
@@ -66,7 +104,9 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
     if (!flattenedField) {
       flattenedField = {
         node,
+        type: node.getType(),
         flattenedFieldMap: new Map(),
+        flattenedFragmentMap: new Map(),
       };
       state.flattenedFieldMap.set(serializationKey, flattenedField);
     }

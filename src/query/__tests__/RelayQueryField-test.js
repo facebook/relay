@@ -120,13 +120,15 @@ describe('RelayQueryField', () => {
     expect(generatedId.getSchemaName()).toBe('id');
   });
 
-  it('returns the parent type', () => {
-    var field = getNode(Relay.QL`
-      fragment on Actor {
-        name
+  it('returns the type', () => {
+    var actor = getNode(Relay.QL`
+      fragment on Viewer {
+        actor {
+          name
+        }
       }
     `).getChildren()[0];
-    expect(field.getParentType()).toBe('Actor');
+    expect(actor.getType()).toBe('Actor');
   });
 
   it('gets children by storage key', () => {

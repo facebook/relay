@@ -18,17 +18,17 @@ Relay.createContainer(Component, {
               fieldName: 'id',
               kind: 'Field',
               metadata: {
-                parentType: 'User',
                 isRequisite: true
-              }
+              },
+              type: 'String'
             }],
             fieldName: 'actor',
             kind: 'Field',
             metadata: {
-              parentType: 'Viewer',
               inferredRootCallName: 'node',
               inferredPrimaryKey: 'id'
-            }
+            },
+            type: 'User'
           }],
           hash: 'p00BYVor',
           kind: 'Fragment',

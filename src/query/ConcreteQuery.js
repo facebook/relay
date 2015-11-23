@@ -30,7 +30,8 @@ export type ConcreteNode = {
 
 export type ConcreteSelection =
   ConcreteField |
-  ConcreteFragment;
+  ConcreteFragment |
+  ConcreteFragmentReference;
 
 export type ConcreteValue =
   ConcreteBatchCallVariable |
@@ -109,6 +110,11 @@ export type ConcreteFragment = {
   };
   name: string;
   type: string;
+};
+
+export type ConcreteFragmentReference = {
+  kind: 'FragmentReference';
+  fragment: ConcreteFragment;
 };
 
 export type ConcreteMutation = {

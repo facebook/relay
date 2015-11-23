@@ -59,7 +59,8 @@ Object.assign(RelayQL, {
     if (substitution != null) {
       invariant(
         substitution instanceof RelayFragmentReference ||
-        QueryBuilder.getFragment(substitution),
+        QueryBuilder.getFragment(substitution) ||
+        QueryBuilder.getFragmentReference(substitution),
         'RelayQL: Invalid fragment composition, use ' +
         '`${Child.getFragment(\'name\')}`.'
       );

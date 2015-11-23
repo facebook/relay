@@ -21,6 +21,7 @@ import type {
   ConcreteDirective,
   ConcreteField,
   ConcreteFragment,
+  ConcreteFragmentReference,
   ConcreteMutation,
   ConcreteQuery,
   ConcreteSelection,
@@ -159,6 +160,15 @@ const QueryBuilder = {
     };
   },
 
+  createFragmentReference(
+    fragment: ConcreteFragment
+  ): ConcreteFragmentReference {
+    return {
+      kind: 'FragmentReference',
+      fragment,
+    };
+  },
+
   createMutation(partialMutation: {
     calls?: ?Array<ConcreteCall>;
     children?: ?Array<?ConcreteSelection>;
@@ -279,6 +289,12 @@ const QueryBuilder = {
 
   getFragment(node: mixed): ?ConcreteFragment {
     if (isConcreteKind(node, 'Fragment')) {
+      return (node: any);
+    }
+  },
+
+  getFragmentReference(node: mixed): ?ConcreteFragmentReference {
+    if (isConcreteKind(node, 'FragmentReference')) {
       return (node: any);
     }
   },

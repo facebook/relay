@@ -235,7 +235,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             kind: t.valueToNode('Call'),
             metadata: objectify({}),
             name: t.valueToNode(rootField.getName()),
-            value: this.printVariable(INPUT_ARGUMENT_NAME),
+            value: this.printVariable('input'),
           }),
         ]),
         children: selections,
@@ -276,7 +276,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             kind: t.valueToNode('Call'),
             metadata: objectify({}),
             name: t.valueToNode(rootField.getName()),
-            value: this.printVariable(INPUT_ARGUMENT_NAME),
+            value: this.printVariable('input'),
           }),
         ]),
         children: selections,
@@ -766,4 +766,3 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
   return RelayQLPrinter;
 };
-

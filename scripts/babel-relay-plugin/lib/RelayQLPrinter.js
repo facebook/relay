@@ -212,7 +212,7 @@ module.exports = function (t, options) {
             kind: t.valueToNode('Call'),
             metadata: objectify({}),
             name: t.valueToNode(rootField.getName()),
-            value: this.printVariable(INPUT_ARGUMENT_NAME)
+            value: this.printVariable('input')
           })]),
           children: selections,
           directives: this.printDirectives(mutation.getDirectives()),
@@ -244,7 +244,7 @@ module.exports = function (t, options) {
             kind: t.valueToNode('Call'),
             metadata: objectify({}),
             name: t.valueToNode(rootField.getName()),
-            value: this.printVariable(INPUT_ARGUMENT_NAME)
+            value: this.printVariable('input')
           })]),
           children: selections,
           directives: this.printDirectives(subscription.getDirectives()),

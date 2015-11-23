@@ -90,8 +90,7 @@ type ProfileEvent = {
 };
 
 /**
- * Collects timing information from key Relay subsystems. For metrics on all
- * functions, call `RelayProfiler.setEnableProfile(true)` on app initialization.
+ * Collects timing information from key Relay subsystems.
  *
  * Example:
  *

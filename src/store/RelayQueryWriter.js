@@ -85,7 +85,10 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     recordID: DataID,
     payload: Object
   ): ?string {
-    if (GraphQLStoreDataHandler.isClientID(recordID)) {
+    if (
+      this._isOptimisticUpdate ||
+      GraphQLStoreDataHandler.isClientID(recordID)
+    ) {
       return null;
     }
     var typeName = payload[TYPENAME];

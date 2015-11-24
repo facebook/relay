@@ -13,7 +13,6 @@
 
 'use strict';
 
-const GraphQL_DEPRECATED = require('GraphQL_DEPRECATED');
 const QueryBuilder = require('QueryBuilder');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayRouteFragment = require('RelayRouteFragment');
@@ -50,7 +49,6 @@ function RelayQL(
  * Private helper methods used by the transformed code.
  */
 Object.assign(RelayQL, {
-  __GraphQL: GraphQL_DEPRECATED,
   __frag(substitution: any): any {
     if (typeof substitution === 'function') {
       // Route conditional fragment, e.g. `${route => matchRoute(route, ...)}`.

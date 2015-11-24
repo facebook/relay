@@ -151,7 +151,6 @@ var GraphQLStoreTestUtils = {
   },
   deepUnmockRQL: function() {
     jest
-      .dontMock('GraphQL_DEPRECATED')
       .dontMock('GraphQLFragmentPointer');
   },
 };

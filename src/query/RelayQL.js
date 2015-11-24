@@ -19,7 +19,6 @@ const RelayFragmentReference = require('RelayFragmentReference');
 const RelayRouteFragment = require('RelayRouteFragment');
 
 const invariant = require('invariant');
-const warning = require('warning');
 
 export type RelayConcreteNode = mixed;
 
@@ -77,7 +76,7 @@ Object.assign(RelayQL, {
         variable.callVariableName
       );
     }
-    return expression;
+    return QueryBuilder.createCallValue(expression);
   },
 });
 

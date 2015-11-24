@@ -71,6 +71,14 @@ describe('RelayQL', () => {
     }).not.toThrow();
   });
 
+  it('wraps variable substituted values in concrete call values', () => {
+    const SIZE = 42;
+    expect(Relay.QL.__var(SIZE)).toEqual({
+      kind: 'CallValue',
+      callValue: SIZE,
+    });
+  });
+
   it('throws for illegal variable substitutions', () => {
     const variables = {
       size: QueryBuilder.createCallVariable('size'),

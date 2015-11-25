@@ -78,6 +78,18 @@ Object.assign(RelayQL, {
     }
     return QueryBuilder.createCallValue(expression);
   },
+  __varDEPRECATED(expression: mixed): mixed {
+    const variable = QueryBuilder.getCallVariable(expression);
+    if (variable) {
+      invariant(
+        false,
+        'RelayQL: Invalid argument `%s` supplied via template substitution. ' +
+        'Instead, use an inline variable (e.g. `comments(count: $count)`).',
+        variable.callVariableName
+      );
+    }
+    return expression;
+  },
 });
 
 module.exports = RelayQL;

@@ -44,7 +44,7 @@ type WriterState = {
   path: RelayQueryPath;
 };
 
-var {ID, TYPENAME} = RelayNodeInterface;
+var {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
 var {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
 
 /**
@@ -81,7 +81,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   }
 
   getRecordTypeName(
-    field: RelayQuery.Node,
+    node: RelayQuery.Node,
     recordID: DataID,
     payload: Object
   ): ?string {
@@ -93,13 +93,15 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     }
     var typeName = payload[TYPENAME];
     if (typeName == null) {
-      var idField = field.getFieldByStorageKey(ID);
-      if (idField) {
-        typeName = idField.getParentType();
+      if (
+        (node instanceof RelayQuery.Field && !node.isUnionOrInterface()) ||
+        (node instanceof RelayQuery.Fragment && node.isConcrete())
+      ) {
+        typeName = node.getType();
       }
     }
     warning(
-      typeName,
+      typeName && typeName !== ANY_TYPE,
       'RelayQueryWriter: Could not find a type name for record `%s`.',
       recordID
     );

@@ -29,17 +29,17 @@ var foo = (function () {
       fieldName: "id",
       kind: "Field",
       metadata: {
-        parentType: "Node",
         isRequisite: true
-      }
+      },
+      type: "String"
     }, {
       fieldName: "__typename",
       kind: "Field",
       metadata: {
-        parentType: "Node",
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: "String"
     }],
     fieldName: "nodes",
     kind: "Query",
@@ -47,6 +47,7 @@ var foo = (function () {
       isPlural: true,
       identifyingArgName: "ids"
     },
-    name: "Args"
+    name: "Args",
+    type: "Node"
   };
 })();

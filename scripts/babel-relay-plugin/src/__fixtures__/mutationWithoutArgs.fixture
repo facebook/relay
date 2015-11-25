@@ -23,10 +23,10 @@ var x = (function () {
       fieldName: 'clientMutationId',
       kind: 'Field',
       metadata: {
-        parentType: 'ActorSubscribeResponsePayload',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }],
     kind: 'Mutation',
     metadata: {

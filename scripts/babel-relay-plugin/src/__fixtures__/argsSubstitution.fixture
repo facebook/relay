@@ -20,23 +20,24 @@ var foo = (function (RQL_0) {
       fieldName: "id",
       kind: "Field",
       metadata: {
-        parentType: "Node",
         isRequisite: true
-      }
+      },
+      type: "String"
     }, {
       fieldName: "__typename",
       kind: "Field",
       metadata: {
-        parentType: "Node",
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: "String"
     }],
     fieldName: "node",
     kind: "Query",
     metadata: {
       identifyingArgName: "id"
     },
-    name: "Args"
+    name: "Args",
+    type: "Node"
   };
 })(userID);

@@ -31,12 +31,10 @@ describe('flattenRelayQuery', () => {
           actor {
             firstName,
             name,
-            ${Relay.QL`
-      fragment on Actor {
-        name,
-        lastName
-      }
-    `}
+            ... on Actor {
+              name,
+              lastName
+            }
           }
         }
       }
@@ -61,12 +59,10 @@ describe('flattenRelayQuery', () => {
         actor {
           firstName,
           name,
-          ${Relay.QL`
-      fragment on Actor {
-        name,
-        lastName
-      }
-    `}
+          ... on Actor {
+            name,
+            lastName
+          }
         }
       }
     `);
@@ -89,12 +85,10 @@ describe('flattenRelayQuery', () => {
           actor {
             firstName,
             name,
-            ${Relay.QL`
-      fragment on Actor {
-        name,
-        lastName
-      }
-    `}
+            ... on Actor {
+              name,
+              lastName
+            }
           }
         }
       }

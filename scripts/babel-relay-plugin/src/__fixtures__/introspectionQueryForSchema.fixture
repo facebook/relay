@@ -16,20 +16,20 @@ var foo = (function () {
       children: [{
         fieldName: "name",
         kind: "Field",
-        metadata: {
-          parentType: "__Type"
-        }
+        metadata: {},
+        type: "String"
       }],
       fieldName: "types",
       kind: "Field",
       metadata: {
-        parentType: "__Schema",
         isPlural: true
-      }
+      },
+      type: "__Type"
     }],
     fieldName: "__schema",
     kind: "Query",
     metadata: {},
-    name: "IntrospectionQueryForSchema"
+    name: "IntrospectionQueryForSchema",
+    type: "__Schema"
   };
 })();

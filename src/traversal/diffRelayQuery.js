@@ -27,21 +27,27 @@ var forEachRootCallArg = require('forEachRootCallArg');
 var invariant = require('invariant');
 var warning = require('warning');
 
-var {ID, TYPENAME} = RelayNodeInterface;
+var {ID, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 var {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
-var idField = RelayQuery.Field.build(ID, null, null, {
-  parentType: RelayNodeInterface.NODE_TYPE,
-  isRequisite: true,
+var idField = RelayQuery.Field.build({
+  fieldName: ID,
+  metadata: {
+    isRequisite: true,
+  },
+  type: 'String',
 });
-var typeField = RelayQuery.Field.build(TYPENAME, null, null, {
-  parentType: RelayNodeInterface.NODE_TYPE,
-  isRequisite: true,
+var typeField = RelayQuery.Field.build({
+  fieldName: TYPENAME,
+  metadata: {
+    isRequisite: true,
+  },
+  type: 'String',
 });
-var nodeWithID = RelayQuery.Field.build(
-  RelayNodeInterface.NODE,
-  null,
-  [idField, typeField],
-);
+var nodeWithID = RelayQuery.Field.build({
+  fieldName: RelayNodeInterface.NODE,
+  children: [idField, typeField],
+  type: NODE_TYPE,
+});
 
 import type {DataID} from 'RelayInternalTypes';
 
@@ -103,7 +109,8 @@ function diffRelayQuery(
         fieldName,
         [identifyingArgValue],
         root.getChildren(),
-        metadata
+        metadata,
+        root.getType()
       );
     } else {
       // Reuse `root` if it only maps to one result.
@@ -412,7 +419,8 @@ class RelayDiffQueryBuilder {
             this.splitQuery(buildRoot(
               itemID,
               itemState.diffNode.getChildren(),
-              path.getName()
+              path.getName(),
+              field.getType()
             ));
           }
         }
@@ -589,10 +597,17 @@ class RelayDiffQueryBuilder {
       // split missing `node` fields into a `node(id)` root query
       if (diffNodeField) {
         hasSplitQueries = true;
+        const nodeField = edgeField.getFieldByStorageKey('node');
+        invariant(
+          nodeField,
+          'RelayDiffQueryBuilder: expected a `node` field for connection `%s`.',
+          connectionField.getSchemaName()
+        );
         this.splitQuery(buildRoot(
           nodeID,
           diffNodeField.getChildren(),
-          path.getName()
+          path.getName(),
+          nodeField.getType()
         ));
       }
 
@@ -743,35 +758,32 @@ function splitNodeAndEdgesFields(
 
 function buildRoot(
   rootID: DataID,
-  children: Array<RelayQuery.Node>,
-  name: string
+  nodes: Array<RelayQuery.Node>,
+  name: string,
+  type: string
 ): RelayQuery.Root {
-  // Child fields are always collapsed into fragments so a root `id` field
-  // must be added.
-  var fragments = [idField, typeField];
-  var childTypes = {};
-  children.forEach(child => {
-    if (child instanceof RelayQuery.Field) {
-      var parentType = child.getParentType();
-      childTypes[parentType] = childTypes[parentType] || [];
-      childTypes[parentType].push(child);
+  const children = [idField, typeField];
+  const fields = [];
+  nodes.forEach(node => {
+    if (node instanceof RelayQuery.Field) {
+      fields.push(node)
     } else {
-      fragments.push(child);
+      children.push(node);
     }
   });
-  Object.keys(childTypes).map(type => {
-    fragments.push(RelayQuery.Fragment.build(
-      'diffRelayQuery',
-      type,
-      childTypes[type]
-    ));
-  });
+  children.push(RelayQuery.Fragment.build(
+    'diffRelayQuery',
+    type,
+    fields
+  ));
+
   return RelayQuery.Root.build(
     name,
     NODE,
     rootID,
-    fragments,
-    {identifyingArgName: RelayNodeInterface.ID}
+    children,
+    {identifyingArgName: RelayNodeInterface.ID},
+    NODE_TYPE
   );
 }
 

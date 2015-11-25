@@ -94,8 +94,8 @@ export type ConcreteField = {
     isPlural?: boolean;
     isRequisite?: boolean;
     isUnionOrInterface?: boolean;
-    parentType: ?string;
   };
+  type: string;
 };
 
 export type ConcreteFragment = {
@@ -142,6 +142,7 @@ export type ConcreteQuery = {
     isPlural?: ?boolean;
   };
   name: string;
+  type: string;
 };
 
 export type ConcreteSubscription = {

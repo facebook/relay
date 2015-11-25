@@ -10,18 +10,18 @@ var x = (function (RQL_0) {
       fieldName: 'id',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       fieldName: '__typename',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, Relay.QL.__frag(RQL_0)],
     hash: '94bZJZc2',
     kind: 'Fragment',

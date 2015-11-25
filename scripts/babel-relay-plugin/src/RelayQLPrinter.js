@@ -170,6 +170,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         kind: t.valueToNode('Query'),
         metadata: objectify(metadata),
         name: t.valueToNode(query.getName()),
+        type: t.valueToNode(rootFieldType.getName({modifiers: false})),
       });
     }
 
@@ -202,7 +203,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         kind: t.valueToNode('Fragment'),
         metadata,
         name: t.valueToNode(fragment.getName()),
-        type: t.valueToNode(fragmentType.getName({modifiers: true})),
+        type: t.valueToNode(fragmentType.getName({modifiers: false})),
       });
     }
 
@@ -243,7 +244,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         kind: t.valueToNode('Mutation'),
         metadata: objectify(metadata),
         name: t.valueToNode(mutation.getName()),
-        responseType: t.valueToNode(rootFieldType.getName({modifiers: true})),
+        responseType: t.valueToNode(rootFieldType.getName({modifiers: false})),
       });
     }
 
@@ -284,7 +285,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         kind: t.valueToNode('Subscription'),
         metadata: objectify(metadata),
         name: t.valueToNode(subscription.getName()),
-        responseType: t.valueToNode(rootFieldType.getName({modifiers: true})),
+        responseType: t.valueToNode(rootFieldType.getName({modifiers: false})),
       });
     }
 
@@ -379,9 +380,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         isPlural?: boolean;
         isRequisite?: boolean;
         isUnionOrInterface?: boolean;
-        parentType?: ?string;
       } = {};
-      metadata.parentType = parent.getType().getName({modifiers: false});
       const requisiteFields = {};
       let idFragment;
       if (fieldType.hasField(FIELDS.id)) {
@@ -446,6 +445,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         fieldName: t.valueToNode(field.getName()),
         kind: t.valueToNode('Field'),
         metadata: objectify(metadata),
+        type: t.valueToNode(fieldType.getName({modifiers: false})),
       });
     }
 

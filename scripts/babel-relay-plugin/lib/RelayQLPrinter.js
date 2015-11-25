@@ -157,7 +157,8 @@ module.exports = function (t, options) {
           fieldName: t.valueToNode(rootField.getName()),
           kind: t.valueToNode('Query'),
           metadata: objectify(metadata),
-          name: t.valueToNode(query.getName())
+          name: t.valueToNode(query.getName()),
+          type: t.valueToNode(rootFieldType.getName({ modifiers: false }))
         });
       }
     }, {
@@ -187,7 +188,7 @@ module.exports = function (t, options) {
           kind: t.valueToNode('Fragment'),
           metadata: metadata,
           name: t.valueToNode(fragment.getName()),
-          type: t.valueToNode(fragmentType.getName({ modifiers: true }))
+          type: t.valueToNode(fragmentType.getName({ modifiers: false }))
         });
       }
     }, {
@@ -219,7 +220,7 @@ module.exports = function (t, options) {
           kind: t.valueToNode('Mutation'),
           metadata: objectify(metadata),
           name: t.valueToNode(mutation.getName()),
-          responseType: t.valueToNode(rootFieldType.getName({ modifiers: true }))
+          responseType: t.valueToNode(rootFieldType.getName({ modifiers: false }))
         });
       }
     }, {
@@ -251,7 +252,7 @@ module.exports = function (t, options) {
           kind: t.valueToNode('Subscription'),
           metadata: objectify(metadata),
           name: t.valueToNode(subscription.getName()),
-          responseType: t.valueToNode(rootFieldType.getName({ modifiers: true }))
+          responseType: t.valueToNode(rootFieldType.getName({ modifiers: false }))
         });
       }
     }, {
@@ -321,7 +322,6 @@ module.exports = function (t, options) {
         var fieldType = field.getType();
 
         var metadata = {};
-        metadata.parentType = parent.getType().getName({ modifiers: false });
         var requisiteFields = {};
         var idFragment = undefined;
         if (fieldType.hasField(FIELDS.id)) {
@@ -380,7 +380,8 @@ module.exports = function (t, options) {
           directives: this.printDirectives(field.getDirectives()),
           fieldName: t.valueToNode(field.getName()),
           kind: t.valueToNode('Field'),
-          metadata: objectify(metadata)
+          metadata: objectify(metadata),
+          type: t.valueToNode(fieldType.getName({ modifiers: false }))
         });
       }
     }, {

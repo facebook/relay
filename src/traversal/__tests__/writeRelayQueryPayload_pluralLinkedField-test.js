@@ -386,29 +386,5 @@ describe('writeRelayQueryPayload()', () => {
       writePayload(store, query, payload);
       expect(store.getType('123')).toBe('User');
     });
-
-    it('records the parent field type if `__typename` is not present', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var query = getVerbatimNode(Relay.QL`
-        query {
-          node(id: "1") {
-            actors {
-              id
-            }
-          }
-        }
-      `);
-      var payload = {
-        node: {
-          id: '1',
-          actors: [{
-            id: '123',
-          }],
-        },
-      };
-      writePayload(store, query, payload);
-      expect(store.getType('123')).toBe('Actor');
-    });
   });
 });

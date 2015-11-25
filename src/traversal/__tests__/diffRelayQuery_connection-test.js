@@ -568,13 +568,13 @@ describe('diffRelayQuery', () => {
       }
     `));
 
-    // Ensure that the generated `id` field contains necessary metadata.
-    var idField = diffQueries[5]
+    // Ensure that a `__typename` field is generated
+    var typeField = diffQueries[5]
       .getFieldByStorageKey('newsFeed')
       .getFieldByStorageKey('edges')
       .getFieldByStorageKey('node')
-      .getFieldByStorageKey('id');
-    expect(idField.getParentType()).toBe(RelayNodeInterface.NODE_TYPE);
+      .getFieldByStorageKey('__typename');
+    expect(typeField).toBeTruthy()
   });
 
   it('fetches missing `node` data via a `node()` query and warns about ' +

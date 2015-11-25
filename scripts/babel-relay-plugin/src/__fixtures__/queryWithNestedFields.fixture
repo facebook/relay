@@ -29,40 +29,38 @@ var x = (function () {
       fieldName: 'id',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       fieldName: '__typename',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       children: [{
         children: [{
           fieldName: 'uri',
           kind: 'Field',
-          metadata: {
-            parentType: 'ProfilePicture'
-          }
+          metadata: {},
+          type: 'String'
         }],
         fieldName: 'profilePicture',
         kind: 'Field',
-        metadata: {
-          parentType: 'User'
-        }
+        metadata: {},
+        type: 'ProfilePicture'
       }, {
         fieldName: 'id',
         kind: 'Field',
         metadata: {
-          parentType: 'User',
           isGenerated: true,
           isRequisite: true
-        }
+        },
+        type: 'String'
       }],
       hash: '5FzO0Ura',
       kind: 'Fragment',
@@ -77,6 +75,7 @@ var x = (function () {
     metadata: {
       identifyingArgName: 'id'
     },
-    name: 'QueryWithNestedFields'
+    name: 'QueryWithNestedFields',
+    type: 'Node'
   };
 })();

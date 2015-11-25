@@ -343,7 +343,7 @@ describe('RelayStoreData', () => {
     it('warns if initialized after data has been added', () => {
       // Mock console.error so we can spy on it
       console.error = jest.genMockFunction();
-      var response = {node: {id: 0}};
+      var response = {node: {id: 0, __typename: 'User'}};
       var data = new RelayStoreData();
       var query = getNode(Relay.QL`query{node(id:"a") {id}}`);
       data.handleQueryPayload(query, response);

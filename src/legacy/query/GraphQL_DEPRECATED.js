@@ -141,9 +141,9 @@ class GraphQLFieldNode extends GraphQLNode {
       isPlural: !!metadata.plural,
       isRequisite: !!metadata.requisite,
       isUnionOrInterface: !!metadata.dynamic,
-      parentType: metadata.parentType,
     };
     this.directives = directives || null;
+    this.type = metadata.type || null;
   }
 }
 
@@ -197,6 +197,7 @@ class GraphQLQuery extends GraphQLNode {
     this.name = queryName;
     this.fieldName = fieldName;
     this.isDeferred = !!this.__metadata__.isDeferred;
+    this.type = this.metadata.type || null;
 
     this.calls = [];
     // In the future, the constructor for a `GraphQLQuery` will accept an

@@ -13,31 +13,32 @@
 
 'use strict';
 
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayNodeInterface = require('RelayNodeInterface');
-var RelayProfiler = require('RelayProfiler');
-var RelayQuery = require('RelayQuery');
-var RelayQueryPath = require('RelayQueryPath');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayProfiler = require('RelayProfiler');
+const RelayQuery = require('RelayQuery');
+const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryTracker from 'RelayQueryTracker';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
-var forEachRootCallArg = require('forEachRootCallArg');
-var invariant = require('invariant');
+const forEachRootCallArg = require('forEachRootCallArg');
+const invariant = require('invariant');
+const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 var warning = require('warning');
 
-var {ID, TYPENAME} = RelayNodeInterface;
-var {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
-var idField = RelayQuery.Field.build(ID, null, null, {
+const {ID, TYPENAME} = RelayNodeInterface;
+const {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
+const idField = RelayQuery.Field.build(ID, null, null, {
   parentType: RelayNodeInterface.NODE_TYPE,
   isRequisite: true,
 });
-var typeField = RelayQuery.Field.build(TYPENAME, null, null, {
+const typeField = RelayQuery.Field.build(TYPENAME, null, null, {
   parentType: RelayNodeInterface.NODE_TYPE,
   isRequisite: true,
 });
-var nodeWithID = RelayQuery.Field.build(
+const nodeWithID = RelayQuery.Field.build(
   RelayNodeInterface.NODE,
   null,
   [idField, typeField],
@@ -266,44 +267,73 @@ class RelayDiffQueryBuilder {
     path: RelayQueryPath,
     scope: DiffScope
   ): ?DiffOutput {
-    var diffNode;
-    var diffChildren;
-    var trackedNode;
-    var trackedChildren;
-    var hasDiffField = false;
-    var hasTrackedField = false;
+    let diffNode;
+    let diffChildren;
+    let trackedNode;
+    let trackedChildren;
+    let hasDiffField = false;
+    let hasTrackedField = false;
 
     node.getChildren().forEach(child => {
-      var diffOutput = this.visit(child, path, scope);
-      var diffChild = diffOutput ? diffOutput.diffNode : null;
-      var trackedChild = diffOutput ? diffOutput.trackedNode : null;
+      if (child instanceof RelayQuery.Field) {
+        const diffOutput = this.visitField(child, path, scope);
+        const diffChild = diffOutput ? diffOutput.diffNode : null;
+        const trackedChild = diffOutput ? diffOutput.trackedNode : null;
 
-      // Diff uses child nodes and keeps requisite fields
-      if (diffChild) {
-        diffChildren = diffChildren || [];
-        diffChildren.push(diffChild);
-        hasDiffField = hasDiffField || !diffChild.isGenerated();
-      } else if (child.isRequisite() && !scope.rangeInfo) {
-        // The presence of `rangeInfo` indicates that we are traversing
-        // connection metadata fields, in which case `visitField` will ensure
-        // that `edges` and `page_info` are kept when necessary. The requisite
-        // check alone could cause these fields to be added back when not
-        // needed.
-        //
-        // Example: `friends.first(3) {count, edges {...}, page_info {...} }
-        // If all `edges` were fetched but `count` is unfetched, the diff
-        // should be `friends.first(3) {count}` and not include `page_info`.
-        diffChildren = diffChildren || [];
-        diffChildren.push(child);
-      }
-      // Tracker uses tracked children and keeps requisite fields
-      if (trackedChild) {
-        trackedChildren = trackedChildren || [];
-        trackedChildren.push(trackedChild);
-        hasTrackedField = hasTrackedField || !trackedChild.isGenerated();
-      } else if (child.isRequisite()) {
-        trackedChildren = trackedChildren || [];
-        trackedChildren.push(child);
+        // Diff uses child nodes and keeps requisite fields
+        if (diffChild) {
+          diffChildren = diffChildren || [];
+          diffChildren.push(diffChild);
+          hasDiffField = hasDiffField || !diffChild.isGenerated();
+        } else if (child.isRequisite() && !scope.rangeInfo) {
+          // The presence of `rangeInfo` indicates that we are traversing
+          // connection metadata fields, in which case `visitField` will ensure
+          // that `edges` and `page_info` are kept when necessary. The requisite
+          // check alone could cause these fields to be added back when not
+          // needed.
+          //
+          // Example: `friends.first(3) {count, edges {...}, page_info {...} }
+          // If all `edges` were fetched but `count` is unfetched, the diff
+          // should be `friends.first(3) {count}` and not include `page_info`.
+          diffChildren = diffChildren || [];
+          diffChildren.push(child);
+        }
+        // Tracker uses tracked children and keeps requisite fields
+        if (trackedChild) {
+          trackedChildren = trackedChildren || [];
+          trackedChildren.push(trackedChild);
+          hasTrackedField = hasTrackedField || !trackedChild.isGenerated();
+        } else if (child.isRequisite()) {
+          trackedChildren = trackedChildren || [];
+          trackedChildren.push(child);
+        }
+      } else if (child instanceof RelayQuery.Fragment) {
+        const isCompatibleType = isCompatibleRelayFragmentType(
+          child,
+          this._store.getType(scope.dataID)
+        );
+        if (isCompatibleType) {
+          const diffOutput = this.traverse(child, path, scope);
+          const diffChild = diffOutput ? diffOutput.diffNode : null;
+          const trackedChild = diffOutput ? diffOutput.trackedNode : null;
+
+          if (diffChild) {
+            diffChildren = diffChildren || [];
+            diffChildren.push(diffChild);
+            hasDiffField = true;
+          }
+          if (trackedChild) {
+            trackedChildren = trackedChildren || [];
+            trackedChildren.push(trackedChild);
+            hasTrackedField = true;
+          }
+        } else {
+          // Non-matching fragment types are similar to requisite fields:
+          // they don't need to be diffed against and should only be included
+          // if something *else* is missing from the node.
+          diffChildren = diffChildren || [];
+          diffChildren.push(child);
+        }
       }
     });
 

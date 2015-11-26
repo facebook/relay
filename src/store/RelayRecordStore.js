@@ -69,8 +69,8 @@ export type RangeInfo = {
 type RangeOperation = 'append' | 'prepend' | 'remove';
 
 type RecordCollection = {
-  cachedRecords?: Records;
-  queuedRecords?: Records;
+  cachedRecords?: ?Records;
+  queuedRecords?: ?Records;
   records: Records;
 };
 

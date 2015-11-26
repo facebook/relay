@@ -385,7 +385,7 @@ function createContainerComponent(
         'fragment. Ensure that there are no failing `if` or `unless` ' +
         'conditions.'
       );
-      return storeData.getRecordStore().hasDeferredFragmentData(
+      return storeData.getCachedStore().hasDeferredFragmentData(
         dataID,
         fragment.getFragmentID()
       );

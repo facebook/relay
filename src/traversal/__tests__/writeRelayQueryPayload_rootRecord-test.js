@@ -101,6 +101,49 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getDataID('viewer')).toBe('client:1');
     });
 
+    it('uses existing id for custom root calls without an id', () => {
+      const cachedRootCallMap = {
+        'viewer': {'': 'client:12345'},
+      };
+      const cachedRecords = {
+        'client:12345': {__dataID__: 'client:12345'},
+      };
+      const rootCallMap = {};
+      const records = {};
+      const store = new RelayRecordStore(
+        {records, cachedRecords},
+        {cachedRootCallMap, rootCallMap}
+      );
+      const query = getNode(Relay.QL`
+        query {
+          viewer {
+            actor {
+              id,
+            },
+          }
+        }
+      `);
+      const payload = {
+        viewer: {
+          actor: {
+            id: '123',
+          },
+        },
+      };
+      const results = writePayload(store, query, payload);
+      expect(results).toEqual({
+        created: {
+          '123': true,
+        },
+        updated: {
+          'client:12345': true,
+        },
+      });
+      expect(store.getRecordState('client:12345')).toBe('EXISTENT');
+      expect(store.getLinkedRecordID('client:12345', 'actor')).toBe('123');
+      expect(store.getDataID('viewer')).toBe('client:12345');
+    });
+
     it('is created for custom root calls with an id', () => {
       var records = {};
       var store = new RelayRecordStore({records});

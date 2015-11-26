@@ -13,16 +13,19 @@
 
 'use strict';
 
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
-var RelayProfiler = require('RelayProfiler');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
-var RelayQueryVisitor = require('RelayQueryVisitor');
-var RelayRecordState = require('RelayRecordState');
+const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
-var forEachRootCallArg = require('forEachRootCallArg');
+const forEachRootCallArg = require('forEachRootCallArg');
+const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 
 type CheckerState = {
   dataID: ?DataID;
@@ -30,7 +33,8 @@ type CheckerState = {
   result: boolean;
 };
 
-var {EDGES, PAGE_INFO} = RelayConnectionInterface;
+const {EDGES, PAGE_INFO} = RelayConnectionInterface;
+const {TYPENAME} = RelayNodeInterface;
 
 /**
  * @internal
@@ -101,6 +105,21 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     });
   }
 
+  visitFragment(
+    fragment: RelayQuery.Fragment,
+    state: CheckerState
+  ): ?RelayQuery.Node {
+    const dataID = state.dataID;
+    // The dataID check is for Flow; it must be non-null to have gotten here.
+    if (dataID && isCompatibleRelayFragmentType(
+      fragment,
+      this._store.getType(dataID)
+    )) {
+      return this.traverse(fragment, state);
+    }
+    return null;
+  }
+
   visitField(
     field: RelayQuery.Field,
     state: CheckerState
@@ -130,8 +149,17 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   }
 
   _checkScalar(field: RelayQuery.Field, state: CheckerState): void {
-    var fieldData = state.dataID &&
-      this._store.getField(state.dataID, field.getStorageKey());
+    const dataID = state.dataID;
+    // `__typename` is not stored for client records
+    if (
+      dataID &&
+      field.getSchemaName() === TYPENAME &&
+      GraphQLStoreDataHandler.isClientID(dataID)
+    ) {
+      return;
+    }
+    var fieldData = dataID &&
+      this._store.getField(dataID, field.getStorageKey());
     if (fieldData === undefined) {
       state.result = false;
     }

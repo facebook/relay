@@ -164,6 +164,35 @@ describe('checkRelayQueryData', () => {
     expect(result).toEqual(true);
   });
 
+  it('ignores non-matching fragment types', () => {
+    var records = {
+      1055790163: {
+        id: '1055790163',
+        firstName: 'Yuzhi',
+        __dataID__: '1055790163',
+        __typename: 'User',
+      }
+    };
+
+    var result = hasData(getNode(
+      Relay.QL`
+        query {
+          node(id:"1055790163") {
+            id,
+            firstName
+            # non-matching type - should not count as missing data
+            ... on Page {
+              name
+            }
+          }
+        }
+      `),
+      records
+    );
+
+    expect(result).toEqual(true);
+  });
+
   it('returns false when scalar field is missing', () => {
     var records = {
       1055790163: {

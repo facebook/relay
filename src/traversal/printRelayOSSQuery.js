@@ -160,7 +160,10 @@ function printFragment(
 function printInlineFragment(
   node: RelayQuery.Fragment,
   printerState: PrinterState
-): string {
+): ?string {
+  if (!node.getChildren().length) {
+    return null;
+  }
   var fragmentID = node.getFragmentID();
   var {fragmentMap} = printerState;
   if (!(fragmentID in fragmentMap)) {
@@ -210,9 +213,11 @@ function printChildren(
   node: RelayQuery.Node,
   printerState: PrinterState
 ): string {
-  var children = node.getChildren().map(node => {
+  let children;
+  node.getChildren().forEach(node => {
     if (node instanceof RelayQuery.Field) {
-      return printField(node, printerState);
+      children = children || [];
+      children.push(printField(node, printerState));
     } else {
       invariant(
         node instanceof RelayQuery.Fragment,
@@ -220,10 +225,14 @@ function printChildren(
         '`Fragment`, got `%s`.',
         node.constructor.name
       );
-      return printInlineFragment(node, printerState);
+      const printedFragment = printInlineFragment(node, printerState);
+      if (printedFragment) {
+        children = children || [];
+        children.push(printedFragment);
+      }
     }
   });
-  if (!children.length) {
+  if (!children) {
     return '';
   }
   return '{' + children.join(',') + '}';

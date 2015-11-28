@@ -288,6 +288,30 @@ describe('printRelayOSSQuery', () => {
       `);
       expect(variables).toEqual({});
     });
+
+    it('omits empty inline fragments', () => {
+      var fragment = getNode(Relay.QL`
+        fragment on Viewer {
+          actor {
+            id
+          }
+          ... on Viewer {
+            actor @include(if: $false) {
+              name
+            }
+          }
+        }
+      `, {false: false});
+      var {text} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQuery on Viewer {
+          actor {
+            id,
+            __typename
+          }
+        }
+      `);
+    });
   });
 
   describe('fields', () => {

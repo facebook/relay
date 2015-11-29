@@ -515,7 +515,7 @@ var RelayQLType = (function () {
               schemaFieldDef = possibleField;
               if (fieldAST && fieldAST.arguments) {
                 var argumentsAllExist = fieldAST.arguments.every(function (argument) {
-                  return possibleField.args.find(function (argDef) {
+                  return find(possibleField.args, function (argDef) {
                     return argDef.name === argument.name.value;
                   });
                 });

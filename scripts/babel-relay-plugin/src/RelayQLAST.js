@@ -478,7 +478,8 @@ class RelayQLType {
             schemaFieldDef = possibleField;
             if (fieldAST && fieldAST.arguments) {
               const argumentsAllExist = fieldAST.arguments.every(
-                argument => possibleField.args.find(
+                argument => find(
+                  possibleField.args,
                   argDef => argDef.name === argument.name.value
                 )
               );

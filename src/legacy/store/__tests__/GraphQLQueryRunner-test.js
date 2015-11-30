@@ -17,7 +17,6 @@ RelayTestUtils.unmockRelay();
 jest
   .mock('warning')
   .dontMock('DliteFetchModeConstants')
-  .dontMock('GraphQL_DEPRECATED')
   .dontMock('GraphQLQueryRunner');
 
 var DliteFetchModeConstants = require('DliteFetchModeConstants');

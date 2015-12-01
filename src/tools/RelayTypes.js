@@ -13,6 +13,8 @@
 
 'use strict';
 
+var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+
 /**
  * Types that Relay framework users may find useful.
  */
@@ -103,8 +105,8 @@ export type RelayMutationConfig = {
   parentID: string,
   connectionName: string,
   edgeName: string,
-  // from GraphQLMutatorConstants.RANGE_OPERATIONS
-  rangeBehaviors: {[call: string]: 'append' | 'prepend' | 'remove'},
+  rangeBehaviors: (connectionArgs: {[argName:string]: string}) =>
+    ?$Enum<typeof GraphQLMutatorConstants.RANGE_OPERATIONS>;
 } | {
   type: 'NODE_DELETE',
   parentName: string;

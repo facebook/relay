@@ -122,14 +122,15 @@ class RelayMutation<Tp: Object> {
    *      connectionName: string;
    *      edgeName: string;
    *      rangeBehaviors:
-   *        {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS};
+   *        (connectionArgs: {[argName:string]: argValue: string}) =>
+   *          ?$Enum<typeof GraphQLMutatorConstants.RANGE_OPERATIONS>;
    *    }
    *    where `parentName` is the field in the fatQuery that contains the range,
    *    `parentID` is the DataID of `parentName` in the store, `connectionName`
    *    is the name of the range, `edgeName` is the name of the key in server
-   *    response that contains the newly created edge, `rangeBehaviors` maps
-   *    stringified representation of calls on the connection to
-   *    GraphQLMutatorConstants.RANGE_OPERATIONS.
+   *    response that contains the newly created edge, `rangeBehaviors` returns
+   *    one of GraphQLMutatorConstants.RANGE_OPERATIONS, receiving as argument an
+   *      an object containing the range filter calls.
    *
    * -  NODE_DELETE provides configuration for deleting a node and the
    *    corresponding edge from a range.

@@ -557,10 +557,27 @@ function getRangeBehavior(
   rangeBehaviors: RangeBehaviors,
   calls: Array<Call>
 ): ?string {
-  var call = calls.map(printRelayQueryCall).sort().join('').slice(1);
-  return rangeBehaviors[call] || null;
+  let rangeFilterCalls = getObjectFromCalls(calls);
+  return rangeBehaviors(rangeFilterCalls);
 }
 
+/**
+ * Returns an object representation of the rangeFilterCalls that
+ * will be passed to config.rangeBehaviors
+ *
+ * Ex:
+ * calls: `[{name: 'orderby', value: 'recent'}]`
+ *
+ * Returns `{orderby: 'recent'}`
+ */
+function getObjectFromCalls(
+  calls: Array<Call>
+): {[argName: string]: string} {
+  return calls.reduce((rangeFilterCalls, currentCall) => {
+    rangeFilterCalls[currentCall.name] = currentCall.value;
+    return rangeFilterCalls;
+  },{})
+}
 /**
  * Given a payload of data and a path of fields, extracts the `id` of the node
  * specified by the path.

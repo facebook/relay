@@ -488,7 +488,9 @@ describe('RelayStoreData', function() {
       type: RelayMutationType.RANGE_ADD,
       connectionName: 'comments',
       edgeName: 'feedbackCommentEdge',
-      rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
+      rangeBehaviors: () => {
+        return GraphQLMutatorConstants.PREPEND;
+      },
     }];
 
     var mutationQuery = getNode(Relay.QL`

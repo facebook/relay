@@ -26,6 +26,7 @@ var filterRelayQuery = require('filterRelayQuery');
 var fromGraphQL = require('fromGraphQL');
 var intersectRelayQuery = require('intersectRelayQuery');
 var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
+var RelayStoreData = require('RelayStoreData');
 
 describe('RelayMutationQuery', () => {
   function getNodeChildren(fragment) {
@@ -277,7 +278,7 @@ describe('RelayMutationQuery', () => {
   });
 
   describe('edge insertion', () => {
-    var fatQuery, rangeBehaviors;
+    var fatQuery, rangeBehaviors, recordStore;
 
     beforeEach(() => {
       fatQuery = fromGraphQL.Fragment(Relay.QL`
@@ -294,10 +295,17 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      rangeBehaviors = {
-        '': GraphQLMutatorConstants.PREPEND,
-        'orderby(toplevel)': GraphQLMutatorConstants.PREPEND,
+      rangeBehaviors = function({orderby}) {
+        return GraphQLMutatorConstants.PREPEND;
       };
+
+      recordStore = RelayStoreData.getDefaultInstance().getRecordStore();
+      recordStore.getConnectionIDsForField =
+        jest.genMockFunction().mockReturnValue([1]);
+      recordStore.getRangeFilterCalls = jest.genMockFunction().mockReturnValue([{
+        name: 'orderby',
+        value: 'toplevel',
+      }]);
     });
 
     it('includes edge fields for connections with range config', () => {
@@ -314,7 +322,9 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
+
       var node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+        recordStore,
         fatQuery,
         tracker,
         connectionName: 'comments',
@@ -370,6 +380,7 @@ describe('RelayMutationQuery', () => {
         }
       `));
       var node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+        recordStore,
         fatQuery,
         tracker,
         connectionName: 'comments',
@@ -425,6 +436,7 @@ describe('RelayMutationQuery', () => {
         }
       `));
       var node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+        recordStore,
         fatQuery,
         tracker,
         connectionName: 'comments',
@@ -467,6 +479,7 @@ describe('RelayMutationQuery', () => {
         }
       `));
       var node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+        recordStore,
         fatQuery,
         tracker,
         connectionName: 'comments',
@@ -503,6 +516,7 @@ describe('RelayMutationQuery', () => {
         }
       `));
       var node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+        recordStore,
         fatQuery,
         tracker,
         connectionName: 'comments',
@@ -534,6 +548,7 @@ describe('RelayMutationQuery', () => {
       `));
       expect(() => {
         RelayMutationQuery.buildFragmentForEdgeInsertion({
+          recordStore,
           fatQuery,
           tracker,
           connectionName: 'comments',
@@ -624,6 +639,11 @@ describe('RelayMutationQuery', () => {
   });
 
   describe('query', () => {
+    var recordStore;
+    beforeEach(() => {
+      recordStore = RelayStoreData.getDefaultInstance().getRecordStore();
+    });
+
     it('creates a query for RANGE_ADD', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
@@ -655,8 +675,8 @@ describe('RelayMutationQuery', () => {
       var parentID = '123';
       var connectionName = 'comments';
       var edgeName = 'feedbackCommentEdge';
-      var rangeBehaviors = {
-        '': GraphQLMutatorConstants.PREPEND,
+      var rangeBehaviors = function() {
+        return GraphQLMutatorConstants.PREPEND;
       };
       var configs = [
         {
@@ -673,6 +693,7 @@ describe('RelayMutationQuery', () => {
       var mutationName = 'CommentAddMutation';
       var variables = {input: ''};
       var query = RelayMutationQuery.buildQuery({
+        recordStore,
         tracker,
         fatQuery,
         configs,
@@ -751,6 +772,7 @@ describe('RelayMutationQuery', () => {
       var mutationName = 'CommentDeleteMutation';
       var variables = {input: ''};
       var query = RelayMutationQuery.buildQuery({
+        recordStore,
         tracker,
         fatQuery,
         configs,
@@ -818,6 +840,7 @@ describe('RelayMutationQuery', () => {
       var mutationName = 'CommentDeleteMutation';
       var variables = {input: ''};
       var query = RelayMutationQuery.buildQuery({
+        recordStore,
         tracker,
         fatQuery,
         configs,
@@ -874,6 +897,7 @@ describe('RelayMutationQuery', () => {
       var mutationName = 'FeedbackLikeMutation';
       var variables = {input: ''};
       var query = RelayMutationQuery.buildQuery({
+        recordStore,
         tracker,
         fatQuery,
         configs,
@@ -932,8 +956,8 @@ describe('RelayMutationQuery', () => {
       var parentID = '123';
       var connectionName = 'comments';
       var edgeName = 'feedbackCommentEdge';
-      var rangeBehaviors = {
-        '': GraphQLMutatorConstants.PREPEND,
+      var rangeBehaviors = function() {
+        return GraphQLMutatorConstants.PREPEND;
       };
       var configs = [
         {
@@ -960,6 +984,7 @@ describe('RelayMutationQuery', () => {
       var mutationName = 'CommentAddMutation';
       var variables = {input: ''};
       var query = RelayMutationQuery.buildQuery({
+        recordStore,
         tracker,
         fatQuery,
         configs,
@@ -1041,8 +1066,8 @@ describe('RelayMutationQuery', () => {
       var parentID = '123';
       var connectionName = 'comments';
       var edgeName = 'feedbackCommentEdge';
-      var rangeBehaviors = {
-        '': GraphQLMutatorConstants.PREPEND,
+      var rangeBehaviors = function() {
+        return GraphQLMutatorConstants.PREPEND;
       };
       var fieldIDs = {
         feedback: '123',
@@ -1066,6 +1091,7 @@ describe('RelayMutationQuery', () => {
       var mutationName = 'CommentAddAndLikeMutation';
       var variables = {input: ''};
       var query = RelayMutationQuery.buildQuery({
+        recordStore,
         tracker,
         fatQuery,
         configs,

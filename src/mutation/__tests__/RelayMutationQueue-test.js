@@ -68,6 +68,8 @@ describe('RelayMutationQueue', () => {
       mockMutation.getVariables.mockReturnValue(input);
       mockMutation.getOptimisticResponse.mockReturnValue({});
       mockMutation.getOptimisticConfigs.mockReturnValue('optimisticConfigs');
+      let recordStore = storeData.getRecordStore();
+
       RelayMutationQuery.buildQuery.mockReturnValue('optimisticQuery');
 
       var transaction = mutationQueue.createTransaction(mockMutation);
@@ -83,6 +85,7 @@ describe('RelayMutationQueue', () => {
           [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
         },
         mutation: mutationNode,
+        recordStore: recordStore,
         mutationName: 'RelayMutation',
         tracker: storeData.getQueryTracker(),
       }]]);

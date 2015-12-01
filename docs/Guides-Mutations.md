@@ -329,9 +329,10 @@ Given a parent, a connection, and the name of the newly created edge in the resp
 
   The field name in the response that represents the newly created edge
 
-- `rangeBehaviors: {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS}`
+- `rangeBehaviors: (connectionArgs: {[argName:string]: argValue: string}) =>
+  ?$Enum<typeof GraphQLMutatorConstants.RANGE_OPERATIONS>`
 
-  A map between printed, dot-separated GraphQL calls *in alphabetical order*, and the behavior we want Relay to exhibit when adding the new edge to connections under the influence of those calls. Behaviors can be one of `'append'`, `'prepend'`, or `'remove'`.
+  A function receiving an object of range filter calls returning the behavior we want Relay to exhibit when adding the new edge to connections under the influence of those calls. Behaviors can be one of `'append'`, `'prepend'`, or `'remove'`.
 
 #### Example
 
@@ -359,12 +360,15 @@ class IntroduceShipMutation extends Relay.Mutation {
       parentID: this.props.faction.id,
       connectionName: 'ships',
       edgeName: 'newShipEdge',
-      rangeBehaviors: {
-        // When the ships connection is not under the influence
-        // of any call, append the ship to the end of the connection
-        '': 'append',
+      rangeBehaviors: ({orderby}) {
         // Prepend the ship, wherever the connection is sorted by age
-        'orderby(newest)': 'prepend',
+        if (orderby === 'newest') {
+          return 'prepend';
+        } else {
+          // When the ships connection is not under the influence
+          // of any call, append the ship to the end of the connection
+          return 'append'
+        }
       },
     }];
   }

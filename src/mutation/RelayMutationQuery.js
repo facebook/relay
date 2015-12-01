@@ -16,7 +16,7 @@
 import type {ConcreteMutation} from 'ConcreteQuery';
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayConnectionInterface = require('RelayConnectionInterface');
-import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
+import type {DataID, Call} from 'RelayInternalTypes';
 var RelayDeprecated = require('RelayDeprecated');
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayMutationType = require('RelayMutationType');
@@ -24,7 +24,9 @@ var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQuery = require('RelayQuery');
 import type RelayQueryTracker from 'RelayQueryTracker';
 import type {Variables} from 'RelayTypes';
+import type RelayRecordStore from 'RelayRecordStore';
 
+var flattenArray = require('flattenArray');
 var flattenRelayQuery = require('flattenRelayQuery');
 var forEachObject = require('forEachObject');
 var nullthrows = require('nullthrows');
@@ -49,11 +51,11 @@ type EdgeDeletionMutationFragmentBuilderConfig =
   };
 type EdgeInsertionMutationFragmentBuilderConfig =
   BasicMutationFragmentBuilderConfig & {
+    recordStore: RelayRecordStore;
     connectionName: string;
     parentID: DataID;
     edgeName: string;
     parentName?: string;
-    rangeBehaviors: RangeBehaviors;
   };
 type OptimisticUpdateFragmentBuilderConfig =
   BasicMutationFragmentBuilderConfig & {
@@ -180,12 +182,12 @@ var RelayMutationQuery = {
    */
   buildFragmentForEdgeInsertion(
     {
+      recordStore,
       fatQuery,
       connectionName,
       parentID,
       edgeName,
       parentName,
-      rangeBehaviors,
       tracker,
     }: EdgeInsertionMutationFragmentBuilderConfig
   ): ?RelayQuery.Node {
@@ -200,6 +202,9 @@ var RelayMutationQuery = {
         );
       }): any); // $FlowIssue
 
+    let rangeBehaviors =
+      getRangeBehaviors(recordStore, parentID, connectionName);
+
     if (trackedConnections.length) {
       var keysWithoutRangeBehavior: {[serializationKey: string]: boolean} = {};
       var mutatedEdgeFields = [];
@@ -208,7 +213,10 @@ var RelayMutationQuery = {
         if (trackedEdge == null) {
           return;
         }
-        if (trackedConnection.getRangeBehaviorKey() in rangeBehaviors) {
+        let trackedRangeBehaviors = trackedConnection.getRangeBehaviors();
+        if (connectionExistsInRangeBehaviors(
+          trackedRangeBehaviors, rangeBehaviors
+        )) {
           // Include edges from all connections that exist in `rangeBehaviors`.
           // This may add duplicates, but they will eventually be flattened.
           mutatedEdgeFields.push(...trackedEdge.getChildren());
@@ -294,6 +302,7 @@ var RelayMutationQuery = {
    */
   buildQuery(
     {
+      recordStore,
       configs,
       fatQuery,
       input,
@@ -306,6 +315,7 @@ var RelayMutationQuery = {
        * inspected at runtime. I think this is probably a good use case for
        * disjoin unions (flowtype.org/blog/2015/07/03/Disjoint-Unions.html)
        */
+      recordStore: RelayRecordStore;
       configs: Array<{[key: string]: $FlowFixMe}>;
       fatQuery: RelayQuery.Fragment;
       input: Variables,
@@ -337,12 +347,12 @@ var RelayMutationQuery = {
 
         case RelayMutationType.RANGE_ADD:
           children.push(RelayMutationQuery.buildFragmentForEdgeInsertion({
+            recordStore: recordStore,
             connectionName: config.connectionName,
             edgeName: config.edgeName,
             fatQuery,
             parentID: config.parentID,
             parentName: config.parentName,
-            rangeBehaviors: sanitizeRangeBehaviors(config.rangeBehaviors),
             tracker,
           }));
           break;
@@ -454,46 +464,38 @@ function buildEdgeField(
   return edgeField;
 }
 
-function sanitizeRangeBehaviors(
-  rangeBehaviors: RangeBehaviors
-): RangeBehaviors {
-  // Prior to 0.4.1 you would have to specify the args in your range behaviors
-  // in the same order they appeared in your query. From 0.4.1 onward, args in a
-  // range behavior key must be in alphabetical order.
-  let unsortedKeys;
-  forEachObject(rangeBehaviors, (value, key) => {
-    if (key !== '') {
-      const keyParts = key
-        // Remove the last parenthesis
-        .slice(0, -1)
-        // Slice on unescaped parentheses followed immediately by a `.`
-        .split(/\)\./);
-      let sortedKey = keyParts
-        .sort()
-        .join(').') +
-        (keyParts.length ? ')' : '');
-      if (sortedKey !== key) {
-        unsortedKeys = unsortedKeys || [];
-        unsortedKeys.push(key);
-      }
-    }
+
+/**
+ *  Checks if the tracked connection calls are all contained
+ *  in the rangeBehaviors.
+ */
+function connectionExistsInRangeBehaviors(
+  trackedConnectionCalls: Array<Call>,
+  rangeBehaviors: Array<Call>,
+): boolean {
+  return trackedConnectionCalls.every((arg) => {
+    return rangeBehaviors.find(call => {
+      return call.name === arg.name && call.value === arg.value;
+    });
   });
-  if (unsortedKeys) {
-    invariant(
-      false,
-      'RelayMutation: To define a range behavior key without sorting ' +
-      'the arguments alphabetically is disallowed as of Relay 0.5.1. Please ' +
-      'sort the argument names of the range behavior key%s `%s`%s.',
-      unsortedKeys.length === 1 ? '' : 's',
-      unsortedKeys.length === 1 ?
-        unsortedKeys[0] :
-        unsortedKeys.length === 2 ?
-          `${unsortedKeys[0]}\` and \`${unsortedKeys[1]}` :
-          unsortedKeys.slice(0, -1).join('`, `'),
-      unsortedKeys.length > 2 ? `, and \`${unsortedKeys.slice(-1)}\`` : ''
-    );
-  }
-  return rangeBehaviors;
+}
+
+/**
+ *  Gets a list of range filter calls from the recordStore.
+ */
+function getRangeBehaviors(
+  recordStore: RelayRecordStore,
+  parentID: DataID,
+  connectionName: string
+): Array<Call> {
+  const connectionIds =
+    recordStore.getConnectionIDsForField(parentID, connectionName) || [];
+
+  return flattenArray(
+    connectionIds.map(id => {
+      return recordStore.getRangeFilterCalls(id);
+    })
+  );
 }
 
 module.exports = RelayMutationQuery;

@@ -758,7 +758,9 @@ describe('writePayload()', () => {
         type: RelayMutationType.RANGE_ADD,
         connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
-        rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
+        rangeBehaviors: () => {
+          return GraphQLMutatorConstants.PREPEND;
+        },
       }];
       var payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
@@ -844,7 +846,9 @@ describe('writePayload()', () => {
         type: RelayMutationType.RANGE_ADD,
         connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
-        rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
+        rangeBehaviors: () => {
+          return GraphQLMutatorConstants.PREPEND;
+        },
       }];
 
       var nextCursor = 'comment789:cursor';
@@ -974,7 +978,9 @@ describe('writePayload()', () => {
         type: RelayMutationType.RANGE_ADD,
         connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
-        rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
+        rangeBehaviors: () => {
+          return GraphQLMutatorConstants.PREPEND;
+        },
       }];
 
       var nextCursor = 'comment789:cursor';

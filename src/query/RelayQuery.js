@@ -1095,6 +1095,20 @@ class RelayQueryField extends RelayQueryNode {
     return rangeBehaviorKey;
   }
 
+  getRangeBehaviors(): Array<Call> {
+    invariant(
+      this.isConnection(),
+      'RelayQueryField: Range behaviors are associated exclusively with ' +
+      'connection fields. `getRangeBehaviors()` was called on the ' +
+      'non-connection field `%s`.',
+      this.getSchemaName()
+    );
+
+    return this.getCallsWithValues().filter(arg => {
+      return this._isCoreArg(arg);
+    });
+  }
+
   /**
    * The name for the field when serializing the query or interpreting query
    * responses from the server. The serialization key is derived from

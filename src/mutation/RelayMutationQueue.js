@@ -414,6 +414,7 @@ class PendingTransaction {
         var optimisticConfigs = this.getOptimisticConfigs();
         if (optimisticConfigs) {
           this._optimisticQuery = RelayMutationQuery.buildQuery({
+            recordStore: storeData.getRecordStore(),
             configs: optimisticConfigs,
             fatQuery: this.getFatQuery(),
             input: this.getInputVariable(),
@@ -451,6 +452,7 @@ class PendingTransaction {
   getQuery(storeData: RelayStoreData): RelayQuery.Mutation {
     if (!this._query) {
       this._query = RelayMutationQuery.buildQuery({
+        recordStore: storeData.getRecordStore(),
         configs: this.getConfigs(),
         fatQuery: this.getFatQuery(),
         input: this.getInputVariable(),

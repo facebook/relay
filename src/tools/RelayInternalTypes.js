@@ -85,6 +85,5 @@ export type UpdateOptions = {
   isOptimisticUpdate: boolean;
 };
 
-export type RangeBehaviors = {
-  [key: string]: $Enum<GraphQLMutatorConstants.RANGE_OPERATIONS>;
-};
+export type RangeBehaviors = (connectionArgs: {[argName: string]: string}) =>
+  $Enum<GraphQLMutatorConstants.RANGE_OPERATIONS>;

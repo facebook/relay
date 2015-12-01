@@ -379,7 +379,6 @@ class PendingTransaction {
     if (!this._inputVariable) {
       var inputVariable = {
         ...this.mutation.getVariables(),
-        /* $FlowIssue #7728187 - Computed Property */
         [CLIENT_MUTATION_ID]: this.id,
       };
       this._inputVariable = inputVariable;

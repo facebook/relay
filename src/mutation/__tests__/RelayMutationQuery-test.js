@@ -28,6 +28,8 @@ var intersectRelayQuery = require('intersectRelayQuery');
 var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 
 describe('RelayMutationQuery', () => {
+  var {filterGeneratedFields, getNode} = RelayTestUtils;
+
   function getNodeChildren(fragment) {
     return fromGraphQL.Fragment(fragment).getChildren();
   }
@@ -596,7 +598,7 @@ describe('RelayMutationQuery', () => {
       });
 
       var variables = {input: ''};
-      var expectedMutationQuery = filterRelayQuery(
+      var expectedMutationQuery = filterGeneratedFields(
           getNodeWithoutSource(Relay.QL`
           mutation {
             feedbackLike(input:$input) {
@@ -614,8 +616,7 @@ describe('RelayMutationQuery', () => {
               `},
             }
           }
-        `, variables),
-        (node) => !node.isGenerated()
+        `, variables)
       );
 
       expect(query)
@@ -625,7 +626,7 @@ describe('RelayMutationQuery', () => {
 
   describe('query', () => {
     it('creates a query for RANGE_ADD', () => {
-      tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
+      tracker.getTrackedChildrenForID.mockReturnValue([getNode(Relay.QL`
         fragment on Feedback {
           comments(first:"10") {
             edges {
@@ -637,7 +638,7 @@ describe('RelayMutationQuery', () => {
             }
           }
         }
-      `));
+      `)]);
       var fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
@@ -680,15 +681,17 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
-        mutation {
-          commentCreate(input:$input) {
-            clientMutationId,
-            ${Relay.QL`
-              fragment on CommentCreateResponsePayload {
+      var expectedMutationQuery = filterGeneratedFields(
+        getNodeWithoutSource(Relay.QL`
+          mutation {
+            commentCreate(input:$input) {
+              clientMutationId,
+              ... on CommentCreateResponsePayload {
                 feedback {
-                  id
-                },
+                  ... on Feedback {
+                    id
+                  }
+                }
                 feedbackCommentEdge {
                   cursor,
                   node {
@@ -702,10 +705,10 @@ describe('RelayMutationQuery', () => {
                   }
                 }
               }
-            `},
+            }
           }
-        }
-      `, variables);
+        `, variables)
+      );
 
       expect(query)
         .toEqualQueryNode(expectedMutationQuery);
@@ -902,7 +905,7 @@ describe('RelayMutationQuery', () => {
     });
 
     it('creates a query with additional required fragments', () => {
-      tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
+      tracker.getTrackedChildrenForID.mockReturnValue([getNode(Relay.QL`
         fragment on Feedback {
           comments(first:"10") {
             edges {
@@ -914,7 +917,7 @@ describe('RelayMutationQuery', () => {
             }
           }
         }
-      `));
+      `)]);
       var fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
@@ -967,15 +970,17 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
-        mutation {
-          commentCreate(input:$input) {
-            clientMutationId,
-            ${Relay.QL`
-              fragment on CommentCreateResponsePayload {
+      var expectedMutationQuery = filterGeneratedFields(
+        getNodeWithoutSource(Relay.QL`
+          mutation {
+            commentCreate(input:$input) {
+              clientMutationId,
+              ... on CommentCreateResponsePayload {
                 feedback {
-                  id
-                },
+                  ... on Feedback {
+                    id
+                  }
+                }
                 feedbackCommentEdge {
                   cursor,
                   node {
@@ -989,17 +994,16 @@ describe('RelayMutationQuery', () => {
                   }
                 }
               }
-            `},
-            ${Relay.QL`
-              fragment on CommentCreateResponsePayload {
+              ... on CommentCreateResponsePayload {
                 feedback {
-                  doesViewerLike,
+                  doesViewerLike
+                  id
                 },
               }
-            `},
+            }
           }
-        }
-      `, variables);
+        `, variables)
+      );
 
       expect(query)
         .toEqualQueryNode(expectedMutationQuery);

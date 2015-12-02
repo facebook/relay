@@ -211,8 +211,10 @@ var RelayTestUtils = {
     );
   },
 
-  getVerbatimNode(node) {
-    return RelayTestUtils.filterGeneratedFields(RelayTestUtils.getNode(node));
+  getVerbatimNode(node, variables) {
+    return RelayTestUtils.filterGeneratedFields(
+      RelayTestUtils.getNode(node, variables)
+    );
   },
 
   filterGeneratedFields(query) {

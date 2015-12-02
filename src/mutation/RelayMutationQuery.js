@@ -202,14 +202,16 @@ var RelayMutationQuery = {
       var keysWithoutRangeBehavior: {[serializationKey: string]: boolean} = {};
       var mutatedEdgeFields = [];
       trackedConnections.forEach(trackedConnection => {
-        var trackedEdge = trackedConnection.getFieldByStorageKey('edges');
-        if (trackedEdge == null) {
+        var trackedEdges = findDescendantFields(trackedConnection, 'edges');
+        if (!trackedEdges.length) {
           return;
         }
         if (trackedConnection.getRangeBehaviorKey() in rangeBehaviors) {
           // Include edges from all connections that exist in `rangeBehaviors`.
           // This may add duplicates, but they will eventually be flattened.
-          mutatedEdgeFields.push(...trackedEdge.getChildren());
+          trackedEdges.forEach(trackedEdge => {
+            mutatedEdgeFields.push(...trackedEdge.getChildren());
+          });
         } else {
           // If the connection is not in `rangeBehaviors`, re-fetch it.
           var key = trackedConnection.getSerializationKey();
@@ -502,7 +504,7 @@ function sanitizeRangeBehaviors(
  * field name.
  */
 function findDescendantFields(
-  node: RelayQuery.Node,
+  rootNode: RelayQuery.Node,
   fieldName: string
 ): Array<RelayQuery.Field> {
   var fields = [];
@@ -510,12 +512,19 @@ function findDescendantFields(
     if (node instanceof RelayQuery.Field) {
       if (node.getSchemaName() === fieldName) {
         fields.push(node);
+        return;
       }
-    } else if (node instanceof RelayQuery.Fragment) {
+    }
+    if (
+      node === rootNode ||
+      node instanceof RelayQuery.Fragment
+    ) {
+      // Search fragments and the root node for matching fields, but skip
+      // descendant non-matching fields.
       node.getChildren().forEach(child => traverse(child));
     }
   }
-  traverse(node);
+  traverse(rootNode);
   return fields;
 }
 

@@ -42,7 +42,8 @@ var babelOptions = assign(
   {
     plugins: babelDefaultOptions.plugins.concat([graphQLPlugin]),
     retainLines: true,
-    _moduleMap: fixModules(assign({}, require('fbjs/module-map'), {
+    blacklist: babelDefaultOptions.blacklist.concat('validation.react'),
+    _moduleMap: fixModules(assign({}, babelDefaultOptions._moduleMap, require('fbjs/module-map'), {
       'React': 'react',
       'ReactUpdates': 'react/lib/ReactUpdates',
       'StaticContainer.react': 'react-static-container',

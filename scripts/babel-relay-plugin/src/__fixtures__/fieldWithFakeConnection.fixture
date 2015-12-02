@@ -23,47 +23,46 @@ var foo = (function () {
             fieldName: 'id',
             kind: 'Field',
             metadata: {
-              parentType: 'FakeNode',
               isRequisite: true
-            }
+            },
+            type: 'String'
           }],
           fieldName: 'node',
           kind: 'Field',
           metadata: {
-            parentType: 'FakeEdge',
             inferredRootCallName: 'node',
             inferredPrimaryKey: 'id',
             isRequisite: true
-          }
+          },
+          type: 'FakeNode'
         }, {
           fieldName: 'cursor',
           kind: 'Field',
           metadata: {
-            parentType: 'FakeEdge',
             isGenerated: true,
             isRequisite: true
-          }
+          },
+          type: 'String'
         }],
         fieldName: 'edges',
         kind: 'Field',
         metadata: {
-          parentType: 'FakeConnection',
           isPlural: true
-        }
+        },
+        type: 'FakeEdge'
       }],
       fieldName: 'fakeConnection',
       kind: 'Field',
-      metadata: {
-        parentType: 'User'
-      }
+      metadata: {},
+      type: 'FakeConnection'
     }, {
       fieldName: 'id',
       kind: 'Field',
       metadata: {
-        parentType: 'User',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }],
     hash: 'ZYteePov',
     kind: 'Fragment',

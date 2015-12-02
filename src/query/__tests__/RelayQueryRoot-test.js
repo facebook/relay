@@ -446,6 +446,12 @@ describe('RelayQueryRoot', () => {
     ]);
   });
 
+  it('returns the root type', () => {
+    expect(getNode(Relay.QL`query { me }`).getType()).toBe('User');
+    expect(getNode(Relay.QL`query { viewer }`).getType()).toBe('Viewer');
+    expect(getNode(Relay.QL`query { node(id: "123") }`).getType()).toBe('Node');
+  });
+
   describe('getStorageKey()', () => {
     it('delegates to RelayQueryField::getStorageKey', () => {
       const query = getNode(Relay.QL`query { settings(environment: MOBILE) }`);

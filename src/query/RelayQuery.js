@@ -21,6 +21,11 @@ import type {
   ConcreteQuery,
 } from 'ConcreteQuery';
 var QueryBuilder = require('QueryBuilder');
+import type {
+  ConcreteFieldMetadata,
+  ConcreteOperationMetadata,
+  ConcreteQueryMetadata,
+} from 'QueryBuilder';
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayFragmentReference = require('RelayFragmentReference');
 import type {Call, Directive}  from 'RelayInternalTypes';
@@ -281,6 +286,10 @@ class RelayQueryNode {
     return fieldMap[storageKey];
   }
 
+  getType(): string {
+    return this.__concreteNode__.type;
+  }
+
   getRoute(): RelayMetaRoute {
     return this.__route__;
   }
@@ -375,7 +384,8 @@ class RelayQueryRoot extends RelayQueryNode {
     fieldName: string,
     value: mixed,
     children: ?Array<RelayQueryNode>,
-    metadata: ?{[key: string]: mixed}
+    metadata: ?ConcreteQueryMetadata,
+    type: string
   ): RelayQueryRoot {
     const nextChildren = children ? children.filter(child => !!child) : [];
     const batchCallVariable = QueryBuilder.getBatchCallVariable(value);
@@ -392,6 +402,7 @@ class RelayQueryRoot extends RelayQueryNode {
       identifyingArgValue,
       metadata,
       name,
+      type,
     });
     var root = new RelayQueryRoot(
       concreteRoot,
@@ -521,11 +532,11 @@ class RelayQueryRoot extends RelayQueryNode {
       if (identifyingArg) {
         args = args.filter(arg => arg !== identifyingArg);
       }
-      const field = RelayQueryField.build(
-        this.getFieldName(),
-        args,
-        null
-      );
+      const field = RelayQueryField.build({
+        fieldName: this.getFieldName(),
+        calls: args,
+        type: this.getType(),
+      });
       storageKey = field.getStorageKey();
       this.__storageKey__ = storageKey;
     }
@@ -602,6 +613,10 @@ class RelayQueryOperation extends RelayQueryNode {
     return (this.__concreteNode__: ConcreteMutation).responseType;
   }
 
+  getType(): string {
+    return this.getResponseType();
+  }
+
   getInputType(): string {
     const inputType =
       (this.__concreteNode__: ConcreteMutation).metadata.inputType;
@@ -660,7 +675,7 @@ class RelayQueryMutation extends RelayQueryOperation {
     callName: string,
     callValue?: ?mixed,
     children?: ?Array<RelayQueryNode>,
-    metadata?: ?{[key: string]: mixed}
+    metadata?: ?ConcreteOperationMetadata
   ): RelayQueryMutation {
     var nextChildren = children ? children.filter(child => !!child) : [];
     var concreteMutation = QueryBuilder.createMutation({
@@ -858,10 +873,6 @@ class RelayQueryFragment extends RelayQueryNode {
     return fragmentID;
   }
 
-  getType(): string {
-    return (this.__concreteNode__: ConcreteFragment).type;
-  }
-
   isConcrete(): boolean {
     const concreteNode = (this.__concreteNode__: ConcreteFragment);
     return !!concreteNode.metadata.isConcrete;
@@ -958,19 +969,28 @@ class RelayQueryField extends RelayQueryNode {
    * Helper to construct a new field with the given attributes and 'empty'
    * route/variables.
    */
-  static build(
-    fieldName: string,
-    calls?: ?Array<Call>,
-    children?: ?NextChildren,
-    metadata?: ?{[key: string]: mixed},
-    alias?: ?string
-  ): RelayQueryField {
+  static build({
+    alias,
+    calls,
+    children,
+    fieldName,
+    metadata,
+    type,
+  }: {
+    alias?: ?string;
+    calls?: ?Array<Call>;
+    children?: ?NextChildren;
+    fieldName: string;
+    metadata?: ?ConcreteFieldMetadata;
+    type: string;
+  }): RelayQueryField {
     var nextChildren = children ? children.filter(child => !!child) : [];
     var concreteField = QueryBuilder.createField({
       alias,
       calls: calls ? callsToGraphQL(calls) : null,
       fieldName,
       metadata,
+      type,
     });
     var field = new RelayQueryField(
       concreteField,
@@ -1045,17 +1065,6 @@ class RelayQueryField extends RelayQueryNode {
       this.__debugName__ = debugName;
     }
     return debugName;
-  }
-
-  getParentType(): string {
-    var parentType = (this.__concreteNode__: ConcreteField).metadata.parentType;
-    invariant(
-      parentType,
-      'RelayQueryField(): Expected field `%s` to be annotated with the ' +
-      'type of the parent field.',
-      this.getSchemaName()
-    );
-    return parentType;
   }
 
   /**

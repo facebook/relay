@@ -23,74 +23,74 @@ var x = (function () {
             fieldName: 'id',
             kind: 'Field',
             metadata: {
-              parentType: 'User',
               isRequisite: true
-            }
+            },
+            type: 'String'
           }],
           fieldName: 'node',
           kind: 'Field',
           metadata: {
-            parentType: 'UserConnectionEdge',
             inferredRootCallName: 'node',
             inferredPrimaryKey: 'id',
             isRequisite: true
-          }
+          },
+          type: 'User'
         }, {
           fieldName: 'cursor',
           kind: 'Field',
           metadata: {
-            parentType: 'UserConnectionEdge',
             isGenerated: true,
             isRequisite: true
-          }
+          },
+          type: 'String'
         }],
         fieldName: 'edges',
         kind: 'Field',
         metadata: {
-          parentType: 'UserConnection',
           isPlural: true
-        }
+        },
+        type: 'UserConnectionEdge'
       }, {
         children: [{
           fieldName: 'hasNextPage',
           kind: 'Field',
           metadata: {
-            parentType: 'PageInfo',
             isGenerated: true,
             isRequisite: true
-          }
+          },
+          type: 'Boolean'
         }, {
           fieldName: 'hasPreviousPage',
           kind: 'Field',
           metadata: {
-            parentType: 'PageInfo',
             isGenerated: true,
             isRequisite: true
-          }
+          },
+          type: 'Boolean'
         }],
         fieldName: 'pageInfo',
         kind: 'Field',
         metadata: {
-          parentType: 'UserConnection',
           isGenerated: true,
           isRequisite: true
-        }
+        },
+        type: 'PageInfo'
       }],
       fieldName: 'friends',
       kind: 'Field',
       metadata: {
-        parentType: 'User',
         isConnection: true,
         isFindable: true
-      }
+      },
+      type: 'UserConnection'
     }, {
       fieldName: 'id',
       kind: 'Field',
       metadata: {
-        parentType: 'User',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }],
     hash: 'm+iXTD96',
     kind: 'Fragment',

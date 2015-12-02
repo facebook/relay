@@ -128,7 +128,8 @@ function wrapNode(
     node.getFieldName(),
     identifyingArgValue,
     node.getChildren(),
-    metadata
+    metadata,
+    node.getType()
   );
 }
 
@@ -228,7 +229,8 @@ function createRefQuery(
     {
       identifyingArgName: RelayNodeInterface.ID,
       isDeferred: true,
-    }
+    },
+    RelayNodeInterface.NODE_TYPE
   );
 
   var result: RelayQuery.Root = (root: any); // Flow

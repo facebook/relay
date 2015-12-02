@@ -25,10 +25,10 @@ var x = (function (RQL_0) {
       fieldName: 'clientMutationId',
       kind: 'Field',
       metadata: {
-        parentType: 'ActorSubscribeResponsePayload',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, Relay.QL.__frag(RQL_0)],
     kind: 'Mutation',
     metadata: {

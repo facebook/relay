@@ -66,6 +66,7 @@ var toGraphQL = {
         isDeferred: node.isDeferred(),
         metadata: node.__concreteNode__.metadata,
         name: node.getName(),
+        type: node.getType(),
       });
     });
   },
@@ -97,6 +98,7 @@ var toGraphQL = {
         fieldName: node.getSchemaName(),
         kind: 'Field',
         metadata: node.__concreteNode__.metadata,
+        type: node.getType(),
       };
       return field;
     });

@@ -49,6 +49,7 @@ var writeRelayQueryPayload = require('writeRelayQueryPayload');
 var writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
+var {NODE_TYPE} = RelayNodeInterface;
 
 // The source of truth for application data.
 var _instance;
@@ -348,7 +349,8 @@ class RelayStoreData {
       RelayNodeInterface.NODE,
       dataID,
       [fragment],
-      {identifyingArgName: RelayNodeInterface.ID}
+      {identifyingArgName: RelayNodeInterface.ID},
+      NODE_TYPE
     );
   }
 

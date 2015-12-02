@@ -28,15 +28,16 @@ describe('flattenRelayQuery', () => {
     var node = getNode(Relay.QL`
       query {
         viewer {
+          ... on Viewer {
+            actor {
+              name
+            }
+          }
           actor {
             firstName,
-            name,
-            ${Relay.QL`
-      fragment on Actor {
-        name,
-        lastName
-      }
-    `}
+            ... on Actor {
+              lastName
+            }
           }
         }
       }
@@ -60,13 +61,15 @@ describe('flattenRelayQuery', () => {
       fragment on Viewer {
         actor {
           firstName,
-          name,
-          ${Relay.QL`
-      fragment on Actor {
-        name,
-        lastName
-      }
-    `}
+          ... on Actor {
+            lastName
+            ... on Actor {
+              name
+              ... on User {
+                username
+              }
+            }
+          }
         }
       }
     `);
@@ -74,8 +77,11 @@ describe('flattenRelayQuery', () => {
       fragment on Viewer {
         actor {
           firstName,
+          lastName,
           name,
-          lastName
+          ... on User {
+            username
+          }
         }
       }
     `);
@@ -89,12 +95,10 @@ describe('flattenRelayQuery', () => {
           actor {
             firstName,
             name,
-            ${Relay.QL`
-      fragment on Actor {
-        name,
-        lastName
-      }
-    `}
+            ... on Actor {
+              name,
+              lastName
+            }
           }
         }
       }

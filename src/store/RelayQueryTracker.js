@@ -13,21 +13,21 @@
 
 'use strict';
 
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var RelayQuery = require('RelayQuery');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayQuery = require('RelayQuery');
 
-var flattenRelayQuery = require('flattenRelayQuery');
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 import type RelayQueryPath from 'RelayQueryPath';
 
 import type {DataID} from 'RelayInternalTypes';
 
-var TYPE = '__type__';
+const TYPE = '__type__';
 
 class RelayQueryTracker {
   _trackedNodesByID: {[key: string]: {
-    isFlattened: boolean;
+    isMerged: boolean;
     trackedNodes: Array<RelayQuery.Node>;
   }};
 
@@ -60,10 +60,10 @@ class RelayQueryTracker {
 
     this._trackedNodesByID[dataID] = this._trackedNodesByID[dataID] || {
       trackedNodes: [],
-      isFlattened: false,
+      isMerged: false,
     };
     this._trackedNodesByID[dataID].trackedNodes.push(node);
-    this._trackedNodesByID[dataID].isFlattened = false;
+    this._trackedNodesByID[dataID].isMerged = false;
   }
 
   /**
@@ -72,31 +72,28 @@ class RelayQueryTracker {
   getTrackedChildrenForID(
     dataID: DataID
   ): Array<RelayQuery.Node> {
-    var trackedNodesByID = this._trackedNodesByID[dataID];
+    const trackedNodesByID = this._trackedNodesByID[dataID];
     if (!trackedNodesByID) {
       return [];
     }
-    var {isFlattened, trackedNodes} = trackedNodesByID;
-    if (!isFlattened) {
-      var trackedChildren = [];
+    const {isMerged, trackedNodes} = trackedNodesByID;
+    if (!isMerged) {
+      const trackedChildren = [];
       trackedNodes.forEach(trackedQuery => {
         trackedChildren.push(...trackedQuery.getChildren());
       });
       trackedNodes.length = 0;
-      trackedNodesByID.isFlattened = true;
-      var containerNode = RelayQuery.Fragment.build(
+      trackedNodesByID.isMerged = true;
+      const containerNode = RelayQuery.Fragment.build(
         'RelayQueryTracker',
-        'Node',
+        RelayNodeInterface.NODE_TYPE,
         trackedChildren
       );
       if (containerNode) {
-        var flattenedNode = flattenRelayQuery(containerNode);
-        if (flattenedNode) {
-          trackedNodes.push(flattenedNode);
-        }
+        trackedNodes.push(containerNode);
       }
     }
-    var trackedNode = trackedNodes[0];
+    const trackedNode = trackedNodes[0];
     if (trackedNode) {
       return trackedNode.getChildren();
     }

@@ -577,26 +577,6 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getType('123')).toBe('User');
     });
 
-    it('records the parent field type if `__typename` is not present', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var query = getVerbatimNode(Relay.QL`
-        query {
-          node(id: "123") {
-            id
-          }
-        }
-      `);
-      var payload = {
-        node: {
-          id: '123',
-        },
-      };
-      writePayload(store, query, payload);
-      // `Node` is the type of the `id` field's parent (`node(...): Node`)
-      expect(store.getType('123')).toBe('Node');
-    });
-
     it('warns if the typename cannot be determined for a node', () => {
       var records = {};
       var store = new RelayRecordStore({records});
@@ -627,8 +607,7 @@ describe('writeRelayQueryPayload()', () => {
     it('does not store types for client records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
-      // No `id` or `__typename` fields
-      var query = getVerbatimNode(Relay.QL`
+      var query = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -642,6 +621,7 @@ describe('writeRelayQueryPayload()', () => {
         viewer: {
           actor: {
             name: 'Joe',
+            __typename: 'User',
           },
         },
       };

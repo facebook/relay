@@ -26,9 +26,8 @@ var q = (function () {
     children: [{
       fieldName: 'title',
       kind: 'Field',
-      metadata: {
-        parentType: 'SearchResult'
-      }
+      metadata: {},
+      type: 'String'
     }],
     fieldName: 'search',
     kind: 'Query',
@@ -37,6 +36,7 @@ var q = (function () {
       identifyingArgName: 'query',
       identifyingArgType: '[SearchInput!]'
     },
-    name: 'QueryWithObjectArg'
+    name: 'QueryWithObjectArg',
+    type: 'SearchResult'
   };
 })();

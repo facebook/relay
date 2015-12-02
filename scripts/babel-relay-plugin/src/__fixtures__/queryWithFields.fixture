@@ -27,33 +27,32 @@ var x = (function () {
       fieldName: 'id',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       fieldName: '__typename',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       children: [{
         fieldName: 'name',
         kind: 'Field',
-        metadata: {
-          parentType: 'User'
-        }
+        metadata: {},
+        type: 'String'
       }, {
         fieldName: 'id',
         kind: 'Field',
         metadata: {
-          parentType: 'User',
           isGenerated: true,
           isRequisite: true
-        }
+        },
+        type: 'String'
       }],
       hash: 'vEzBrPyP',
       kind: 'Fragment',
@@ -68,6 +67,7 @@ var x = (function () {
     metadata: {
       identifyingArgName: 'id'
     },
-    name: 'QueryWithFields'
+    name: 'QueryWithFields',
+    type: 'Node'
   };
 })();

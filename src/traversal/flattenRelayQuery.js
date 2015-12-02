@@ -26,6 +26,9 @@ type FlattenedQuery = {
   flattenedFieldMap: Map<string, FlattenedQuery>;
   flattenedFragmentMap: Map<string, FlattenedQuery>;
 };
+export type FlattenRelayQueryOptions = {
+  shouldRemoveFragments: boolean;
+};
 
 /**
  * @internal
@@ -36,8 +39,13 @@ type FlattenedQuery = {
  * The result can be null if `node` only contains empty fragments or fragments
  * that only contain empty fragments.
  */
-function flattenRelayQuery<Tn: RelayQuery.Node>(node: Tn): ?Tn {
-  const flattener = new RelayQueryFlattener();
+function flattenRelayQuery<Tn: RelayQuery.Node>(
+  node: Tn,
+  options?: FlattenRelayQueryOptions
+): ?Tn {
+  const flattener = new RelayQueryFlattener(
+    options && options.shouldRemoveFragments
+  );
   const state = {
     node,
     type: node.getType(),
@@ -73,12 +81,19 @@ function toQuery<Tn: RelayQuery.Node>(
 }
 
 class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
+  _shouldRemoveFragments: boolean;
+
+  constructor(shouldRemoveFragments: ?boolean) {
+    super();
+    this._shouldRemoveFragments = !!shouldRemoveFragments;
+  }
+
   visitFragment(
     node: RelayQuery.Fragment,
     state: FlattenedQuery
   ): ?RelayQuery.Node {
     const type = node.getType();
-    if (type === state.type) {
+    if (this._shouldRemoveFragments || type === state.type) {
       this.traverse(node, state);
       return;
     }

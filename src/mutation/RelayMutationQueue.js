@@ -35,6 +35,7 @@ import type {
   Variables,
 } from 'RelayTypes';
 
+const flattenRelayQuery = require('flattenRelayQuery');
 const fromGraphQL = require('fromGraphQL');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
@@ -363,7 +364,10 @@ class PendingTransaction {
 
   getFatQuery(): RelayQuery.Fragment {
     if (!this._fatQuery) {
-      this._fatQuery = fromGraphQL.Fragment(this.mutation.getFatQuery());
+      this._fatQuery = nullthrows(flattenRelayQuery(
+        fromGraphQL.Fragment(this.mutation.getFatQuery()),
+        {shouldRemoveFragments: true}
+      ));
     }
     return this._fatQuery;
   }

@@ -140,4 +140,36 @@ describe('flattenRelayQuery', () => {
     expect(flattenRelayQuery(rootNode)).toBe(null);
     expect(flattenRelayQuery(fieldNode)).toBe(null);
   });
+
+  it('optionally removes fragments', () => {
+    var node = getNode(Relay.QL`
+      query {
+        viewer {
+          ... on Viewer {
+            actor {
+              ... on User {
+                firstName
+              }
+              ... on Page {
+                name
+              }
+            }
+          }
+        }
+      }
+    `);
+    var expected = getNode(Relay.QL`
+      query {
+        viewer {
+          actor {
+            firstName,
+            name
+          }
+        }
+      }
+    `);
+    expect(flattenRelayQuery(node, {
+      shouldRemoveFragments: true,
+    })).toEqualQueryNode(expected);
+  });
 });

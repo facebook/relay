@@ -131,6 +131,9 @@ module.exports = function (t, options) {
         if (rootFieldType.isList()) {
           metadata.isPlural = true;
         }
+        if (rootFieldType.isAbstract()) {
+          metadata.isAbstract = true;
+        }
         invariant(rootFieldArgs.length <= 1, 'Invalid root field `%s`; Relay only supports root fields with zero ' + 'or one argument.', rootField.getName());
         var calls = NULL;
         if (rootFieldArgs.length === 1) {
@@ -178,7 +181,7 @@ module.exports = function (t, options) {
         }
         var selections = this.printSelections(fragment, requisiteFields, idFragment ? [idFragment] : null);
         var metadata = this.printRelayDirectiveMetadata(fragment, {
-          isConcrete: !fragmentType.isAbstract()
+          isAbstract: fragmentType.isAbstract()
         });
 
         return codify({
@@ -353,7 +356,7 @@ module.exports = function (t, options) {
           requisiteFields[FIELDS.node] = true;
         }
         if (fieldType.isAbstract()) {
-          metadata.isUnionOrInterface = true;
+          metadata.isAbstract = true;
           requisiteFields[FIELDS.__typename] = true;
         }
         if (fieldType.isList()) {

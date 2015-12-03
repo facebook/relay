@@ -46,9 +46,7 @@ var x = (function () {
     }],
     hash: 'VJMspWEj',
     kind: 'Fragment',
-    metadata: {
-      isConcrete: true
-    },
+    metadata: {},
     name: 'FieldWithEmptyArrayArg',
     type: 'User'
   };

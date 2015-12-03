@@ -35,9 +35,7 @@ var x = (function () {
       }],
       hash: 'Sb+rujhv',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'User',
       type: 'User'
     }, {
@@ -59,13 +57,17 @@ var x = (function () {
       }],
       hash: 'Sb+rujhv',
       kind: 'Fragment',
-      metadata: {},
+      metadata: {
+        isAbstract: true
+      },
       name: 'IdFragment',
       type: 'Node'
     }],
     hash: 'Sb+rujhv',
     kind: 'Fragment',
-    metadata: {},
+    metadata: {
+      isAbstract: true
+    },
     name: 'FragmentWithPossibleId',
     type: 'Actor'
   };

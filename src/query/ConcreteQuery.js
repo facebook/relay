@@ -93,7 +93,7 @@ export type ConcreteField = {
     isGenerated?: boolean;
     isPlural?: boolean;
     isRequisite?: boolean;
-    isUnionOrInterface?: boolean;
+    isAbstract?: boolean;
   };
   type: string;
 };
@@ -104,7 +104,7 @@ export type ConcreteFragment = {
   hash: ?string;
   kind: 'Fragment';
   metadata: {
-    isConcrete?: boolean;
+    isAbstract?: boolean;
     isPlural?: boolean; // FB Printer
     plural?: boolean;   // OSS Printer from `@relay`
   };
@@ -139,6 +139,7 @@ export type ConcreteQuery = {
   metadata: {
     identifyingArgName?: ?string;
     identifyingArgType?: ?string;
+    isAbstract?: ?boolean;
     isPlural?: ?boolean;
   };
   name: string;

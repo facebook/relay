@@ -45,6 +45,7 @@ var foo = (function () {
     kind: "Query",
     metadata: {
       isPlural: true,
+      isAbstract: true,
       identifyingArgName: "ids"
     },
     name: "Args",

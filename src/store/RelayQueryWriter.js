@@ -13,7 +13,6 @@
 
 'use strict';
 
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayQuery = require('RelayQuery');
 import type RelayChangeTracker from 'RelayChangeTracker';
 var RelayConnectionInterface = require('RelayConnectionInterface');
@@ -85,20 +84,13 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     recordID: DataID,
     payload: Object
   ): ?string {
-    if (
-      this._isOptimisticUpdate ||
-      GraphQLStoreDataHandler.isClientID(recordID)
-    ) {
+    if (this._isOptimisticUpdate) {
+      // Optimistic queries are inferred and fields have a generic 'any' type.
       return null;
     }
     var typeName = payload[TYPENAME];
-    if (typeName == null) {
-      if (
-        (node instanceof RelayQuery.Field && !node.isUnionOrInterface()) ||
-        (node instanceof RelayQuery.Fragment && node.isConcrete())
-      ) {
-        typeName = node.getType();
-      }
+    if (typeName == null && !node.isAbstract()) {
+      typeName = node.getType();
     }
     warning(
       typeName && typeName !== ANY_TYPE,

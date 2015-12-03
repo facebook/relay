@@ -78,9 +78,7 @@ var x = (function () {
       }],
       hash: 'b8fdCz9J',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'User',
       type: 'User'
     }],
@@ -98,6 +96,7 @@ var x = (function () {
     fieldName: 'node',
     kind: 'Query',
     metadata: {
+      isAbstract: true,
       identifyingArgName: 'id'
     },
     name: 'QueryWithDirectives',

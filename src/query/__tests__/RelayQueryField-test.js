@@ -582,6 +582,23 @@ describe('RelayQueryField', () => {
     expect(clonedFeed).toBe(friendVariable);
   });
 
+  it('returns isAbstract', () => {
+    expect(getNode(Relay.QL`
+      fragment on Viewer {
+        actor {
+          name
+        }
+      }
+    `).getFieldByStorageKey('actor').isAbstract()).toBe(true);
+    expect(getNode(Relay.QL`
+      fragment on User {
+        address {
+          city
+        }
+      }
+    `).getFieldByStorageKey('address').isAbstract()).toBe(false);
+  });
+
   it('returns isGenerated', () => {
     expect(aliasedId.isGenerated()).toBe(false);
     expect(cursor.isGenerated()).toBe(true);

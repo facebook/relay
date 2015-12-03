@@ -35,6 +35,7 @@ var foo = (function (RQL_0) {
     fieldName: "node",
     kind: "Query",
     metadata: {
+      isAbstract: true,
       identifyingArgName: "id"
     },
     name: "Args",

@@ -390,7 +390,7 @@ describe('writeRelayQueryPayload()', () => {
     it('warns if the typename cannot be determined for a node', () => {
       var records = {};
       var store = new RelayRecordStore({records});
-      // No `id` or `__typename` fields
+      // No `id` or `__typename` fields or responses
       var query = getVerbatimNode(Relay.QL`
         query {
           viewer {
@@ -400,8 +400,6 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      // But the payload for `actor` contains an `id` so the writer will attempt
-      // to store a `__typename`.
       var payload = {
         viewer: {
           actor: {
@@ -414,35 +412,39 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getType('123')).toBe(null);
       expect([
         'RelayQueryWriter: Could not find a type name for record `%s`.',
-        '123'
+        '123',
       ]).toBeWarnedNTimes(1);
     });
 
-    it('does not store types for client records', () => {
+    it('stores types for client records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
-      var query = getVerbatimNode(Relay.QL`
+      var query = getNode(Relay.QL`
         query {
-          viewer {
-            actor {
-              name
+          me {
+            id
+            __typename
+            ... on User {
+              address {
+                city
+              }
             }
           }
         }
       `);
-      // No `id` value - treated as a client record
       var payload = {
-        viewer: {
-          actor: {
-            name: 'Joe',
-            __typename: 'User',
+        me: {
+          id: '123',
+          __typename: 'User',
+          address: {
+            city: 'Menlo Park',
           },
         },
       };
       writePayload(store, query, payload);
-      var actorID = store.getLinkedRecordID('client:1', 'actor');
-      expect(store.getType('client:1')).toBe(null);
-      expect(store.getType(actorID)).toBe(null);
+      var addressID = store.getLinkedRecordID('123', 'address');
+      expect(store.getType('123')).toBe('User');
+      expect(store.getType(addressID)).toBe('StreetAddress');
     });
   });
 });

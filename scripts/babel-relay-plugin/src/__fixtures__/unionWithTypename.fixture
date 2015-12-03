@@ -30,6 +30,7 @@ var foo = (function () {
     fieldName: "media",
     kind: "Query",
     metadata: {
+      isAbstract: true,
       identifyingArgName: "id"
     },
     name: "UnionWithTypename",

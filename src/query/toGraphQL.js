@@ -78,7 +78,7 @@ var toGraphQL = {
         kind: 'Fragment',
         hash: node.getConcreteFragmentHash(),
         metadata: {
-          isConcrete: node.isConcrete(),
+          isAbstract: node.isAbstract(),
           plural: node.isPlural(),
         },
         name: node.getDebugName(),

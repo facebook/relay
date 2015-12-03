@@ -309,6 +309,10 @@ class RelayQueryNode {
     return hasDeferredDescendant;
   }
 
+  isAbstract(): boolean {
+    throw new Error('RelayQueryNode: Abstract function cannot be called.');
+  }
+
   isRequisite(): boolean {
     return false;
   }
@@ -547,6 +551,10 @@ class RelayQueryRoot extends RelayQueryNode {
     return this.isDeferred() || super.hasDeferredDescendant();
   }
 
+  isAbstract(): boolean {
+    return !!(this.__concreteNode__: ConcreteQuery).metadata.isAbstract;
+  }
+
   isDeferred(): boolean {
     return !!(this.__concreteNode__: ConcreteQuery).isDeferred;
   }
@@ -656,6 +664,14 @@ class RelayQueryOperation extends RelayQueryNode {
       this.__callVariableName__ = callVariable.callVariableName;
     }
     return this.__callVariableName__;
+  }
+
+  /**
+   * Mutations and subscriptions must have a concrete type due to the need for
+   * requisite top-level fields.
+   */
+  isAbstract(): boolean {
+    return false;
   }
 }
 
@@ -873,9 +889,8 @@ class RelayQueryFragment extends RelayQueryNode {
     return fragmentID;
   }
 
-  isConcrete(): boolean {
-    const concreteNode = (this.__concreteNode__: ConcreteFragment);
-    return !!concreteNode.metadata.isConcrete;
+  isAbstract(): boolean {
+    return !!(this.__concreteNode__: ConcreteFragment).metadata.isAbstract;
   }
 
   isDeferred(): boolean {
@@ -1012,8 +1027,8 @@ class RelayQueryField extends RelayQueryNode {
     this.__rangeBehaviorKey__ = undefined;
   }
 
-  isRequisite(): boolean {
-    return !!(this.__concreteNode__: ConcreteField).metadata.isRequisite;
+  isAbstract(): boolean {
+    return !!(this.__concreteNode__: ConcreteField).metadata.isAbstract;
   }
 
   isFindable(): boolean {
@@ -1036,16 +1051,16 @@ class RelayQueryField extends RelayQueryNode {
     return this.__isRefQueryDependency__;
   }
 
+  isRequisite(): boolean {
+    return !!(this.__concreteNode__: ConcreteField).metadata.isRequisite;
+  }
+
   isScalar(): boolean {
     const concreteChildren = (this.__concreteNode__: ConcreteField).children;
     return (
       (!this.__children__ || this.__children__.length === 0) &&
       (!concreteChildren || concreteChildren.length === 0)
     );
-  }
-
-  isUnionOrInterface(): boolean {
-    return !!(this.__concreteNode__: ConcreteField).metadata.isUnionOrInterface;
   }
 
   getDebugName(): string {

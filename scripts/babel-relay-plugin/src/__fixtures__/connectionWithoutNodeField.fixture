@@ -132,15 +132,14 @@ var x = (function () {
       }],
       hash: 'VIWtR/B6',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'User',
       type: 'User'
     }],
     fieldName: 'node',
     kind: 'Query',
     metadata: {
+      isAbstract: true,
       identifyingArgName: 'id'
     },
     name: 'ConnectionWithoutNodeField',

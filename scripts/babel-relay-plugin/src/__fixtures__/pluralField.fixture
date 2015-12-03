@@ -76,15 +76,14 @@ var x = (function () {
       }],
       hash: 'EI7Xtg8w',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'Story',
       type: 'Story'
     }],
     fieldName: 'node',
     kind: 'Query',
     metadata: {
+      isAbstract: true,
       identifyingArgName: 'id'
     },
     name: 'PluralField',

@@ -194,15 +194,14 @@ var foo = (function () {
       }],
       hash: "/GeJm4rh",
       kind: "Fragment",
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: "User",
       type: "User"
     }],
     fieldName: "node",
     kind: "Query",
     metadata: {
+      isAbstract: true,
       identifyingArgName: "id"
     },
     name: "Args",

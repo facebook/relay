@@ -137,6 +137,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       if (rootFieldType.isList()) {
         metadata.isPlural = true;
       }
+      if (rootFieldType.isAbstract()) {
+        metadata.isAbstract = true;
+      }
       invariant(
         rootFieldArgs.length <= 1,
         'Invalid root field `%s`; Relay only supports root fields with zero ' +
@@ -193,7 +196,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         idFragment ? [idFragment] : null
       );
       const metadata = this.printRelayDirectiveMetadata(fragment, {
-        isConcrete: !fragmentType.isAbstract(),
+        isAbstract: fragmentType.isAbstract(),
       });
 
       return codify({
@@ -379,7 +382,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         isGenerated?: boolean;
         isPlural?: boolean;
         isRequisite?: boolean;
-        isUnionOrInterface?: boolean;
+        isAbstract?: boolean;
       } = {};
       const requisiteFields = {};
       let idFragment;
@@ -413,7 +416,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         requisiteFields[FIELDS.node] = true;
       }
       if (fieldType.isAbstract()) {
-        metadata.isUnionOrInterface = true;
+        metadata.isAbstract = true;
         requisiteFields[FIELDS.__typename] = true;
       }
       if (fieldType.isList()) {

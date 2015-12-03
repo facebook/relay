@@ -371,15 +371,6 @@ class RelayDiffQueryBuilder {
     field: RelayQuery.Field,
     dataID: DataID,
   ): ?DiffOutput {
-    // `__typename` is not stored for client records, only refetch if the
-    // product specifically requests it
-    if (
-      field.getSchemaName() === TYPENAME &&
-      field.isGenerated() &&
-      GraphQLStoreDataHandler.isClientID(dataID)
-    ) {
-      return null;
-    }
     if (this._store.getField(dataID, field.getStorageKey()) === undefined) {
       return {
         diffNode: field,

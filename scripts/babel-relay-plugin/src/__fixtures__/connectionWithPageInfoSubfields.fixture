@@ -139,15 +139,14 @@ var x = (function () {
       }],
       hash: 'MQPKyXGk',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'User',
       type: 'User'
     }],
     fieldName: 'node',
     kind: 'Query',
     metadata: {
+      isAbstract: true,
       identifyingArgName: 'id'
     },
     name: 'ConnectionWithPageInfoSubfields',

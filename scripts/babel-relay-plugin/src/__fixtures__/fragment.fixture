@@ -24,7 +24,9 @@ var x = (function () {
     }],
     hash: '+a6og7PV',
     kind: 'Fragment',
-    metadata: {},
+    metadata: {
+      isAbstract: true
+    },
     name: 'Fragment',
     type: 'Node'
   };

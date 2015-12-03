@@ -446,6 +446,12 @@ describe('RelayQueryRoot', () => {
     ]);
   });
 
+  it('returns isAbstract', () => {
+    expect(getNode(Relay.QL`query { me }`).isAbstract()).toBe(false);
+    expect(getNode(Relay.QL`query { viewer }`).isAbstract()).toBe(false);
+    expect(getNode(Relay.QL`query { node(id: "4") }`).isAbstract()).toBe(true);
+  });
+
   it('returns the root type', () => {
     expect(getNode(Relay.QL`query { me }`).getType()).toBe('User');
     expect(getNode(Relay.QL`query { viewer }`).getType()).toBe('Viewer');

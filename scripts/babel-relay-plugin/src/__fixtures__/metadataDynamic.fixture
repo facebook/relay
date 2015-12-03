@@ -58,7 +58,7 @@ var x = (function () {
             metadata: {
               inferredRootCallName: 'node',
               inferredPrimaryKey: 'id',
-              isUnionOrInterface: true,
+              isAbstract: true,
               isPlural: true
             },
             type: 'Node'
@@ -73,9 +73,7 @@ var x = (function () {
           }],
           hash: 'ysvMwnFu',
           kind: 'Fragment',
-          metadata: {
-            isConcrete: true
-          },
+          metadata: {},
           name: 'Story',
           type: 'Story'
         }],
@@ -84,7 +82,7 @@ var x = (function () {
         metadata: {
           inferredRootCallName: 'node',
           inferredPrimaryKey: 'id',
-          isUnionOrInterface: true,
+          isAbstract: true,
           isRequisite: true
         },
         type: 'Node'
@@ -131,9 +129,7 @@ var x = (function () {
     }],
     hash: 'ysvMwnFu',
     kind: 'Fragment',
-    metadata: {
-      isConcrete: true
-    },
+    metadata: {},
     name: 'MetadataDynamic',
     type: 'NewsFeedConnection'
   };

@@ -52,11 +52,11 @@ export type ConcreteFieldMetadata = {
   isGenerated?: boolean;
   isPlural?: boolean;
   isRequisite?: boolean;
-  isUnionOrInterface?: boolean;
+  isAbstract?: boolean;
 };
 
 export type ConcreteFragmentMetadata = {
-  isConcrete?: boolean;
+  isAbstract?: boolean;
   plural?: boolean;
 };
 
@@ -67,6 +67,7 @@ export type ConcreteOperationMetadata = {
 export type ConcreteQueryMetadata = {
   identifyingArgName?: ?string;
   identifyingArgType?: ?string;
+  isAbstract?: ?boolean;
   isDeferred?: ?boolean;
   isPlural?: ?boolean;
 };
@@ -146,7 +147,7 @@ const QueryBuilder = {
         isGenerated: !!partialMetadata.isGenerated,
         isPlural: !!partialMetadata.isPlural,
         isRequisite: !!partialMetadata.isRequisite,
-        isUnionOrInterface: !!partialMetadata.isUnionOrInterface,
+        isAbstract: !!partialMetadata.isAbstract,
       },
       type: partialField.type,
     };
@@ -167,7 +168,7 @@ const QueryBuilder = {
       hash: null, // Only present for transformed fragments.
       kind: 'Fragment',
       metadata: {
-        isConcrete: !!metadata.isConcrete,
+        isAbstract: !!metadata.isAbstract,
         plural: !!metadata.plural, // match the `@relay` argument name
       },
       name: partialFragment.name,
@@ -248,7 +249,8 @@ const QueryBuilder = {
       metadata: {
         identifyingArgName,
         identifyingArgType: metadata.identifyingArgType,
-        isPlural: metadata.isPlural,
+        isAbstract: !!metadata.isAbstract,
+        isPlural: !!metadata.isPlural,
       },
       name: partialQuery.name,
       type: partialQuery.type,

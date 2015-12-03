@@ -604,7 +604,7 @@ describe('writeRelayQueryPayload()', () => {
       ]).toBeWarnedNTimes(1);
     });
 
-    it('does not store types for client records', () => {
+    it('stores types for client records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -616,17 +616,17 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      // No `id` value - treated as a client record
       var payload = {
         viewer: {
           actor: {
+            id: '123',
             name: 'Joe',
             __typename: 'User',
           },
         },
       };
       writePayload(store, query, payload);
-      expect(store.getType('client:1')).toBe(null);
+      expect(store.getType('client:1')).toBe('Viewer');
     });
   });
 });

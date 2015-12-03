@@ -45,15 +45,15 @@ var x = (function () {
       }],
       hash: '8jnPtCye',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'User',
       type: 'User'
     }],
     hash: '8jnPtCye',
     kind: 'Fragment',
-    metadata: {},
+    metadata: {
+      isAbstract: true
+    },
     name: 'InlineFragment',
     type: 'Node'
   };

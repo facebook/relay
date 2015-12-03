@@ -25,7 +25,8 @@ var x = (function () {
     hash: 'QHQnGWzc',
     kind: 'Fragment',
     metadata: {
-      plural: true
+      plural: true,
+      isAbstract: true
     },
     name: 'FragmentDirectives',
     type: 'Node'

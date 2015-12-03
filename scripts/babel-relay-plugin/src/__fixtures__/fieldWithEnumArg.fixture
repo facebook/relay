@@ -143,15 +143,14 @@ var x = (function () {
       }],
       hash: 'kPdJGPCx',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'User',
       type: 'User'
     }],
     fieldName: 'node',
     kind: 'Query',
     metadata: {
+      isAbstract: true,
       identifyingArgName: 'id'
     },
     name: 'FieldWithEnumArg',

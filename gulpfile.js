@@ -12,6 +12,7 @@
 var babel = require('gulp-babel');
 var babelPluginDEV = require('fbjs-scripts/babel/dev-expression');
 var babelPluginModules = require('fbjs-scripts/babel/rewrite-modules');
+var babelPluginAutoImporter = require('fbjs-scripts/babel/auto-importer');
 var del = require('del');
 var derequire = require('gulp-derequire');
 var flatten = require('gulp-flatten');
@@ -48,7 +49,18 @@ var babelOpts = {
   ],
   stage: 1,
   optional: ['runtime'],
-  plugins: [babelPluginDEV, babelPluginModules],
+  blacklist: ['validation.react'],
+  plugins: [
+    babelPluginDEV,
+    {
+      position: 'before',
+      transformer: babelPluginAutoImporter,
+    },
+    {
+      position: 'before',
+      transformer: babelPluginModules,
+    },
+  ],
   _moduleMap: objectAssign({}, require('fbjs/module-map'), {
     'React': 'react',
     'ReactDOM': 'react-dom',

@@ -15,7 +15,6 @@
 
 var Deferred = require('Deferred');
 var DliteFetchModeConstants = require('DliteFetchModeConstants');
-var Promise = require('Promise');
 var PromiseMap = require('PromiseMap');
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';

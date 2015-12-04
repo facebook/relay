@@ -14,7 +14,6 @@
 var RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var Promise = require('Promise');
 var Relay = require('Relay');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');

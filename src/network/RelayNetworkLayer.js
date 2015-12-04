@@ -13,7 +13,6 @@
 
 'use strict';
 
-var Promise = require('Promise');
 import type RelayMutationRequest from 'RelayMutationRequest';
 var RelayProfiler = require('RelayProfiler');
 import type RelayQueryRequest from 'RelayQueryRequest';

@@ -517,4 +517,67 @@ describe('RelayMutationQueue', () => {
       expect(successCallback1).toBeCalled();
     });
   });
+
+  describe('rollback', () => {
+    var mockMutation1, mutationNode, fatQuery;
+
+    beforeEach(() => {
+      fatQuery = Relay.QL`fragment on Comment @relay(pattern: true) {
+        ... on Comment {
+          doesViewerLike
+        }
+      }`;
+      mutationNode = Relay.QL`mutation{commentCreate(input:$input)}`;
+      RelayMutation.prototype.getFatQuery.mockReturnValue(fatQuery);
+      RelayMutation.prototype.getMutation.mockReturnValue(mutationNode);
+      RelayMutation.prototype.getCollisionKey.mockReturnValue('key');
+      RelayMutation.prototype.getVariables.mockReturnValue({});
+      RelayMutation.prototype.getConfigs.mockReturnValue('configs');
+
+      mockMutation1 = new RelayMutation();
+      mockMutation1.getCollisionKey.mockReturnValue('key');
+
+    });
+
+    it('rollback queued transaction', () => {
+      var transaction1 = mutationQueue.createTransaction(mockMutation1);
+      transaction1.commit();
+
+      expect(transaction1.getStatus()).toBe(
+        RelayMutationTransactionStatus.COMMITTING
+      );
+
+      var transaction2 = mutationQueue.createTransaction(mockMutation1);
+      transaction2.commit();
+
+      expect(transaction2.getStatus()).toBe(
+        RelayMutationTransactionStatus.COMMIT_QUEUED
+      );
+
+      var transaction3 = mutationQueue.createTransaction(mockMutation1);
+      transaction3.commit();
+
+      expect(transaction3.getStatus()).toBe(
+        RelayMutationTransactionStatus.COMMIT_QUEUED
+      );
+
+      expect(RelayNetworkLayer.sendMutation.mock.calls.length).toBe(1);
+
+      transaction2.rollback();
+
+      expect(() => transaction2.getStatus()).toFailInvariant(
+        'RelayMutationQueue: `1` is not a valid pending transaction ID.'
+      );
+
+      var request = RelayNetworkLayer.sendMutation.mock.calls[0][0];
+      request.resolve({response: {'res': 'ponse'}});
+      jest.runAllTimers();
+
+      expect(RelayNetworkLayer.sendMutation.mock.calls.length).toBe(2);
+
+      expect(transaction3.getStatus()).toBe(
+        RelayMutationTransactionStatus.COMMITTING
+      );
+    });
+  });
 });

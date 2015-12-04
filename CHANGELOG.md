@@ -1,9 +1,19 @@
 ## master
 
-* Relay will now throw an invariant if range behavior keys are unsorted.
+## 0.6.0 (December 4, 2015)
+
+* Bump the `babel-relay-plugin` version to v0.6.0 (now Babel 6 compatible).
 * The keys in `rangeBehaviors` are now compared against the *sorted* filter
   arguments of a field. For the field `foo(first: 10, b:true, a:false)` the
   matching range behavior key will be `'a(false).b(true)'`.
+* Relay will now throw an invariant if range behavior keys are unsorted.
+* Fragments are now supported in mutation fat queries.
+* Added `Relay.Store#applyUpdate` method to create a transaction optimistically
+  without committing it. Returns a transaction object that you can use to
+  `commit()` or `rollback()`.
+* Added `RelayStoreData#clearCacheManager` method.
+* Renamed `RelayQuery#getHash` to `RelayQuery#getConcreteFragmentHash`
+* Removed `RelayQueryPath#toJSON` and `RelayQueryPath#fromJSON`
 
 ## 0.5.0 (November 11, 2015)
 

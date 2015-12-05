@@ -13,9 +13,19 @@
 
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var GraphQL = require('./GraphQL');
+var formatError = GraphQL.error.formatError;
+var parser = GraphQL.language_parser;
+var Source = GraphQL.language_source.Source;
+var validate = GraphQL.validation.validate;
 
 var _require = require('./RelayQLAST');
 
@@ -23,14 +33,11 @@ var RelayQLDefinition = _require.RelayQLDefinition;
 var RelayQLFragment = _require.RelayQLFragment;
 var RelayQLMutation = _require.RelayQLMutation;
 var RelayQLQuery = _require.RelayQLQuery;
+var RelayQLSubscription = _require.RelayQLSubscription;
 
 var RelayQLPrinter = require('./RelayQLPrinter');
 
 var crypto = require('crypto');
-var formatError = require('graphql/error').formatError;
-var parser = require('graphql/language/parser');
-var Source = require('graphql/language/source').Source;
-var validate = require('graphql/validation/validate').validate;
 var invariant = require('./invariant');
 var util = require('util');
 
@@ -49,7 +56,8 @@ var RelayQLTransformer = (function () {
 
   _createClass(RelayQLTransformer, [{
     key: 'transform',
-    value: function transform(node, documentName, tagName) {
+    value: function transform(t, // Babel
+    node, documentName, tagName) {
       var _processTemplateLiteral = this.processTemplateLiteral(node, documentName);
 
       var substitutions = _processTemplateLiteral.substitutions;
@@ -59,7 +67,9 @@ var RelayQLTransformer = (function () {
       var documentText = this.processTemplateText(templateText, documentName);
       var documentHash = hash(documentText);
       var definition = this.processDocumentText(documentText, documentName);
-      return new RelayQLPrinter(documentHash, tagName, variableNames).print(definition, substitutions);
+
+      var Printer = RelayQLPrinter(t, this.options);
+      return new Printer(documentHash, tagName, variableNames).print(definition, substitutions);
     }
 
     /**
@@ -100,8 +110,9 @@ var RelayQLTransformer = (function () {
   }, {
     key: 'processTemplateText',
     value: function processTemplateText(templateText, documentName) {
-      var matches = /^(fragment|mutation|query)\s*(\w*)?([\s\S]*)/.exec(templateText);
-      invariant(matches, 'You supplied a GraphQL document named `%s` with invalid syntax. It ' + 'must start with `fragment`, `mutation`, or `query`.', documentName);
+      var pattern = /^(fragment|mutation|query|subscription)\s*(\w*)?([\s\S]*)/;
+      var matches = pattern.exec(templateText);
+      invariant(matches, 'You supplied a GraphQL document named `%s` with invalid syntax. It ' + 'must start with `fragment`, `mutation`, `query`, or `subscription`.', documentName);
       var type = matches[1];
       var name = matches[2] || documentName;
       var rest = matches[3];
@@ -142,6 +153,8 @@ var RelayQLTransformer = (function () {
           return new RelayQLMutation(context, definition);
         } else if (definition.operation === 'query') {
           return new RelayQLQuery(context, definition);
+        } else if (definition.operation === 'subscription') {
+          return new RelayQLSubscription(context, definition);
         } else {
           invariant(false, 'Unsupported operation: %s', definition.operation);
         }
@@ -156,11 +169,22 @@ var RelayQLTransformer = (function () {
       var definition = document.definitions[0];
       var isMutation = definition.kind === 'OperationDefinition' && definition.operation === 'mutation';
 
-      var rules = [require('graphql/validation/rules/ArgumentsOfCorrectType').ArgumentsOfCorrectType, require('graphql/validation/rules/DefaultValuesOfCorrectType').DefaultValuesOfCorrectType, require('graphql/validation/rules/FieldsOnCorrectType').FieldsOnCorrectType, require('graphql/validation/rules/FragmentsOnCompositeTypes').FragmentsOnCompositeTypes, require('graphql/validation/rules/KnownArgumentNames').KnownArgumentNames, require('graphql/validation/rules/KnownTypeNames').KnownTypeNames, require('graphql/validation/rules/PossibleFragmentSpreads').PossibleFragmentSpreads, require('graphql/validation/rules/PossibleFragmentSpreads').PossibleFragmentSpreads, require('graphql/validation/rules/VariablesInAllowedPosition').VariablesInAllowedPosition];
-      if (!isMutation) {
-        rules.push(require('graphql/validation/rules/ProvidedNonNullArguments').ProvidedNonNullArguments);
+      var validator = this.options.validator;
+      var validationErrors = undefined;
+      if (validator) {
+        var _validator = validator(GraphQL);
+
+        var _validate = _validator.validate;
+
+        validationErrors = _validate(this.schema, document);
+      } else {
+        var rules = [require('graphql/validation/rules/ArgumentsOfCorrectType').ArgumentsOfCorrectType, require('graphql/validation/rules/DefaultValuesOfCorrectType').DefaultValuesOfCorrectType, require('graphql/validation/rules/FieldsOnCorrectType').FieldsOnCorrectType, require('graphql/validation/rules/FragmentsOnCompositeTypes').FragmentsOnCompositeTypes, require('graphql/validation/rules/KnownArgumentNames').KnownArgumentNames, require('graphql/validation/rules/KnownTypeNames').KnownTypeNames, require('graphql/validation/rules/PossibleFragmentSpreads').PossibleFragmentSpreads, require('graphql/validation/rules/PossibleFragmentSpreads').PossibleFragmentSpreads, require('graphql/validation/rules/VariablesInAllowedPosition').VariablesInAllowedPosition];
+        if (!isMutation) {
+          rules.push(require('graphql/validation/rules/ProvidedNonNullArguments').ProvidedNonNullArguments);
+        }
+        validationErrors = validate(this.schema, document, rules);
       }
-      var validationErrors = validate(this.schema, document, rules);
+
       if (validationErrors && validationErrors.length > 0) {
         return validationErrors.map(formatError);
       }

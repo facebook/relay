@@ -40,9 +40,9 @@ export type RelayMutationFragments<Tk> = {
  *
  * RelayMutation is the base class for modeling mutations of data.
  */
-class RelayMutation<Tp: {[key: string]: mixed}> {
+class RelayMutation<Tp: Object> {
   static name: $FlowIssue;
-  static fragments: RelayMutationFragments<$Enum<Tp>>;
+  static fragments: RelayMutationFragments<$Keys<Tp>>;
   static initialVariables: Variables;
   static prepareVariables: ?(
     prevVariables: Variables,
@@ -312,7 +312,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
   }
 
   static getFragment(
-    fragmentName: $Enum<Tp>,
+    fragmentName: $Keys<Tp>,
     variableMapping?: Variables
   ): RelayFragmentReference {
     // TODO: Unify fragment API for containers and mutations, #7860172.

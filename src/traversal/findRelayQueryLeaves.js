@@ -22,6 +22,8 @@ var RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
+var isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+
 export type PendingItem = {
   node: RelayQuery.Node;
   path: RelayQueryPath;
@@ -108,6 +110,27 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
         return;
       }
       this.visit(children[ii], state);
+    }
+  }
+
+  visitFragment(
+    fragment: RelayQuery.Fragment,
+    state: FinderState
+  ): ?RelayQuery.Node {
+    var dataID = state.dataID;
+    var recordState = this._store.getRecordState(dataID);
+    if (recordState === RelayRecordState.UNKNOWN) {
+      this._handleMissingData(fragment, state);
+      return;
+    } else if (recordState === RelayRecordState.NONEXISTENT) {
+      return;
+    }
+
+    if (isCompatibleRelayFragmentType(
+      fragment,
+      this._store.getType(dataID)
+    )) {
+      this.traverse(fragment, state);
     }
   }
 
@@ -263,7 +286,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
     }
   }
 
-  _handleMissingData(field: RelayQuery.Field, state: FinderState): void {
+  _handleMissingData(node: RelayQuery.Node, state: FinderState): void {
     var dataID = state.dataID;
     if (this._cachedRecords.hasOwnProperty(dataID)) {
       // We have read data for this `dataID` from disk, but
@@ -274,9 +297,9 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       // this `dataID` from disk.
       this._pendingNodes[dataID] = this._pendingNodes[dataID] || [];
       this._pendingNodes[dataID].push({
-        node: field,
+        node,
         path: state.path,
-        rangeCalls: state.rangeCalls
+        rangeCalls: state.rangeCalls,
       });
     }
   }

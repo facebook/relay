@@ -15,11 +15,10 @@
 
 import type {
   Call,
-  CallValue
+  CallValue,
 } from 'RelayInternalTypes';
 
 var flattenArray = require('flattenArray');
-var stableStringify = require('stableStringify');
 
 /**
  * @internal

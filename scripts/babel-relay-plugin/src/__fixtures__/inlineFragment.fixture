@@ -16,45 +16,44 @@ var x = (function () {
       fieldName: 'id',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       fieldName: '__typename',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       children: [{
         fieldName: 'userOnlyField',
         kind: 'Field',
-        metadata: {
-          parentType: 'User'
-        }
+        metadata: {},
+        type: 'String'
       }, {
         fieldName: 'id',
         kind: 'Field',
         metadata: {
-          parentType: 'User',
           isGenerated: true,
           isRequisite: true
-        }
+        },
+        type: 'String'
       }],
       hash: '8jnPtCye',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'User',
       type: 'User'
     }],
     hash: '8jnPtCye',
     kind: 'Fragment',
-    metadata: {},
+    metadata: {
+      isAbstract: true
+    },
     name: 'InlineFragment',
     type: 'Node'
   };

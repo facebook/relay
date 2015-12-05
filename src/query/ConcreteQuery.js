@@ -30,7 +30,8 @@ export type ConcreteNode = {
 
 export type ConcreteSelection =
   ConcreteField |
-  ConcreteFragment;
+  ConcreteFragment |
+  ConcreteFragmentReference;
 
 export type ConcreteValue =
   ConcreteBatchCallVariable |
@@ -92,9 +93,9 @@ export type ConcreteField = {
     isGenerated?: boolean;
     isPlural?: boolean;
     isRequisite?: boolean;
-    isUnionOrInterface?: boolean;
-    parentType: ?string;
+    isAbstract?: boolean;
   };
+  type: string;
 };
 
 export type ConcreteFragment = {
@@ -103,12 +104,17 @@ export type ConcreteFragment = {
   hash: ?string;
   kind: 'Fragment';
   metadata: {
-    isConcrete?: boolean;
+    isAbstract?: boolean;
     isPlural?: boolean; // FB Printer
     plural?: boolean;   // OSS Printer from `@relay`
   };
   name: string;
   type: string;
+};
+
+export type ConcreteFragmentReference = {
+  kind: 'FragmentReference';
+  fragment: ConcreteFragment;
 };
 
 export type ConcreteMutation = {
@@ -133,9 +139,11 @@ export type ConcreteQuery = {
   metadata: {
     identifyingArgName?: ?string;
     identifyingArgType?: ?string;
+    isAbstract?: ?boolean;
     isPlural?: ?boolean;
   };
   name: string;
+  type: string;
 };
 
 export type ConcreteSubscription = {

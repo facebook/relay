@@ -42,7 +42,7 @@ describe('RelayContainer', () => {
       mockPointer = {__dataID__: '42'};
       const storeData = RelayStoreData.getDefaultInstance();
       pendingQueryTracker = storeData.getPendingQueryTracker();
-      store = storeData.getRecordStore();
+      store = storeData.getCachedStore();
     });
 
     it('returns true when there are no pending queries', () => {

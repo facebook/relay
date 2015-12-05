@@ -43,7 +43,7 @@ describe('inferRelayFieldsFromData', () => {
     });
   });
 
-  it('generates metadata for `id` fields', () => {
+  it('generates metadata for fields', () => {
     const query = inferRelayFieldsFromData({
       id: '123',
     });
@@ -52,7 +52,7 @@ describe('inferRelayFieldsFromData', () => {
         id,
       }
     `);
-    expect(query[0].getParentType()).toBe('Node');
+    expect(query[0].isPlural()).toBe(false);
   });
 
   it('infers scalar fields from scalars', () => {

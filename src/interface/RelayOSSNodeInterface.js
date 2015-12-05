@@ -32,6 +32,7 @@ type PayloadResult = {
  * Defines logic relevant to the informal "Node" GraphQL interface.
  */
 var RelayOSSNodeInterface = {
+  ANY_TYPE: '__any',
   ID: 'id',
   NODE: 'node',
   NODE_TYPE: 'Node',

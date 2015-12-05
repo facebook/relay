@@ -24,27 +24,27 @@ describe('isCompatibleRelayFragmentType', () => {
     expect(isCompatibleRelayFragmentType(
       getNode(Relay.QL`fragment on User{id}`),
       'Page'
-    ));
+    )).toBe(false);
   });
 
   it('returns true for equal concrete types', () => {
     expect(isCompatibleRelayFragmentType(
       getNode(Relay.QL`fragment on User{id}`),
       'User'
-    ));
+    )).toBe(true);
   });
 
   it('returns true for abstract fragments', () => {
     expect(isCompatibleRelayFragmentType(
       getNode(Relay.QL`fragment on Node{id}`),
       'User'
-    ));
+    )).toBe(true);
   });
 
   it('returns true for client records', () => {
     expect(isCompatibleRelayFragmentType(
       getNode(Relay.QL`fragment on User{id}`),
       null
-    ));
+    )).toBe(true);
   });
 });

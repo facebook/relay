@@ -12,19 +12,24 @@
 
 'use strict';
 
+const GraphQL = require('./GraphQL');
+const {
+  error: {formatError},
+  language_parser: parser,
+  language_source: {Source},
+  validation: {validate},
+} = GraphQL;
+
 const {
   RelayQLDefinition,
   RelayQLFragment,
   RelayQLMutation,
   RelayQLQuery,
+  RelayQLSubscription,
 } = require('./RelayQLAST');
 const RelayQLPrinter = require('./RelayQLPrinter');
 
 const crypto = require('crypto');
-const formatError = require('graphql/error').formatError;
-const parser = require('graphql/language/parser');
-const Source = require('graphql/language/source').Source;
-const validate = require('graphql/validation/validate').validate;
 const invariant = require('./invariant');
 const util = require('util');
 
@@ -58,6 +63,16 @@ type TemplateElement = {
   range: [number, number];
   loc: Object;
 };
+export type Validator<T> = (GraphQL: typeof GraphQL) => (
+  (schema: GraphQLSchema, ast: T) => Array<Error>
+);
+
+type TransformerOptions = {
+  inputArgumentName: ?string;
+  snakeCase: boolean;
+  substituteVariables: boolean;
+  validator: ?Validator;
+};
 
 /**
  * Transforms a TemplateLiteral node into a RelayQLDefinition, which is then
@@ -65,21 +80,15 @@ type TemplateElement = {
  */
 class RelayQLTransformer {
   schema: GraphQLSchema;
-  options: {
-    substituteVariables: boolean;
-  };
+  options: TransformerOptions;
 
-  constructor(
-    schema: GraphQLSchema,
-    options: {
-      substituteVariables: boolean;
-    }
-  ) {
+  constructor(schema: GraphQLSchema, options: TransformerOptions) {
     this.schema = schema;
     this.options = options;
   }
 
   transform(
+    t: any, // Babel
     node: TemplateLiteral,
     documentName: string,
     tagName: string
@@ -92,7 +101,9 @@ class RelayQLTransformer {
     const documentText = this.processTemplateText(templateText, documentName);
     const documentHash = hash(documentText);
     const definition = this.processDocumentText(documentText, documentName);
-    return new RelayQLPrinter(documentHash, tagName, variableNames)
+
+    const Printer = RelayQLPrinter(t, this.options);
+    return new Printer(documentHash, tagName, variableNames)
       .print(definition, substitutions);
   }
 
@@ -144,12 +155,12 @@ class RelayQLTransformer {
     templateText: string,
     documentName: string
   ): string {
-    const matches =
-      /^(fragment|mutation|query)\s*(\w*)?([\s\S]*)/.exec(templateText);
+    const pattern = /^(fragment|mutation|query|subscription)\s*(\w*)?([\s\S]*)/;
+    const matches = pattern.exec(templateText);
     invariant(
       matches,
       'You supplied a GraphQL document named `%s` with invalid syntax. It ' +
-      'must start with `fragment`, `mutation`, or `query`.',
+      'must start with `fragment`, `mutation`, `query`, or `subscription`.',
       documentName
     );
     const type = matches[1];
@@ -196,6 +207,8 @@ class RelayQLTransformer {
         return new RelayQLMutation(context, definition);
       } else if (definition.operation === 'query') {
         return new RelayQLQuery(context, definition);
+      } else if (definition.operation === 'subscription') {
+        return new RelayQLSubscription(context, definition);
       } else {
         invariant(false, 'Unsupported operation: %s', definition.operation);
       }
@@ -216,43 +229,51 @@ class RelayQLTransformer {
       definition.kind === 'OperationDefinition' &&
       definition.operation === 'mutation';
 
-    const rules = [
-      require(
-        'graphql/validation/rules/ArgumentsOfCorrectType'
-      ).ArgumentsOfCorrectType,
-      require(
-        'graphql/validation/rules/DefaultValuesOfCorrectType'
-      ).DefaultValuesOfCorrectType,
-      require(
-        'graphql/validation/rules/FieldsOnCorrectType'
-      ).FieldsOnCorrectType,
-      require(
-        'graphql/validation/rules/FragmentsOnCompositeTypes'
-      ).FragmentsOnCompositeTypes,
-      require(
-        'graphql/validation/rules/KnownArgumentNames'
-      ).KnownArgumentNames,
-      require(
-        'graphql/validation/rules/KnownTypeNames'
-      ).KnownTypeNames,
-      require(
-        'graphql/validation/rules/PossibleFragmentSpreads'
-      ).PossibleFragmentSpreads,
-      require(
-        'graphql/validation/rules/PossibleFragmentSpreads'
-      ).PossibleFragmentSpreads,
-      require(
-        'graphql/validation/rules/VariablesInAllowedPosition'
-      ).VariablesInAllowedPosition,
-    ];
-    if (!isMutation) {
-      rules.push(
+    const validator = this.options.validator;
+    let validationErrors;
+    if (validator) {
+      const {validate} = validator(GraphQL);
+      validationErrors = validate(this.schema, document);
+    } else {
+      const rules = [
         require(
-          'graphql/validation/rules/ProvidedNonNullArguments'
-        ).ProvidedNonNullArguments
-      );
+          'graphql/validation/rules/ArgumentsOfCorrectType'
+        ).ArgumentsOfCorrectType,
+        require(
+          'graphql/validation/rules/DefaultValuesOfCorrectType'
+        ).DefaultValuesOfCorrectType,
+        require(
+          'graphql/validation/rules/FieldsOnCorrectType'
+        ).FieldsOnCorrectType,
+        require(
+          'graphql/validation/rules/FragmentsOnCompositeTypes'
+        ).FragmentsOnCompositeTypes,
+        require(
+          'graphql/validation/rules/KnownArgumentNames'
+        ).KnownArgumentNames,
+        require(
+          'graphql/validation/rules/KnownTypeNames'
+        ).KnownTypeNames,
+        require(
+          'graphql/validation/rules/PossibleFragmentSpreads'
+        ).PossibleFragmentSpreads,
+        require(
+          'graphql/validation/rules/PossibleFragmentSpreads'
+        ).PossibleFragmentSpreads,
+        require(
+          'graphql/validation/rules/VariablesInAllowedPosition'
+        ).VariablesInAllowedPosition,
+      ];
+      if (!isMutation) {
+        rules.push(
+          require(
+            'graphql/validation/rules/ProvidedNonNullArguments'
+          ).ProvidedNonNullArguments
+        );
+      }
+      validationErrors = validate(this.schema, document, rules);
     }
-    const validationErrors = validate(this.schema, document, rules);
+
     if (validationErrors && validationErrors.length > 0) {
       return validationErrors.map(formatError);
     }

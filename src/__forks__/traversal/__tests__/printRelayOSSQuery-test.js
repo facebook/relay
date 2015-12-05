@@ -196,8 +196,8 @@ describe('printRelayOSSQuery', () => {
         RelayNodeInterface.NODE,
         QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id'),
         [
-          RelayQuery.Field.build('id'),
-          RelayQuery.Field.build('name'),
+          RelayQuery.Field.build({fieldName: 'id', type: 'String'}),
+          RelayQuery.Field.build({fieldName: 'name', type: 'String'}),
         ],
         {
           isDeferred: true,
@@ -287,6 +287,30 @@ describe('printRelayOSSQuery', () => {
         }
       `);
       expect(variables).toEqual({});
+    });
+
+    it('omits empty inline fragments', () => {
+      var fragment = getNode(Relay.QL`
+        fragment on Viewer {
+          actor {
+            id
+          }
+          ... on Viewer {
+            actor @include(if: $false) {
+              name
+            }
+          }
+        }
+      `, {false: false});
+      var {text} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQuery on Viewer {
+          actor {
+            id,
+            __typename
+          }
+        }
+      `);
     });
   });
 

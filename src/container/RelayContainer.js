@@ -114,7 +114,7 @@ function createContainerComponent(
     mounted: boolean;
     _deferredSubscriptions: ?{[subscriptionKey: string]: Subscription};
     _didShowFakeDataWarning: boolean;
-    _fragmentPointers: {[key: string]: GraphQLFragmentPointer};
+    _fragmentPointers: {[key: string]: ?GraphQLFragmentPointer};
     _hasStaleQueryData: boolean;
     _queryResolvers: {[key: string]: ?GraphQLStoreQueryResolver};
 
@@ -191,7 +191,7 @@ function createContainerComponent(
      * `_fragmentPointers` property.
      */
     _createQuerySetAndFragmentPointers(variables: Variables): {
-      fragmentPointers: {[key: string]: GraphQLFragmentPointer},
+      fragmentPointers: {[key: string]: ?GraphQLFragmentPointer},
       querySet: RelayQuerySet,
     } {
       var fragmentPointers = {};
@@ -224,6 +224,8 @@ function createContainerComponent(
             fragmentPointer = new GraphQLFragmentPointer(dataIDs, fragment);
           }
         } else {
+          /* $FlowFixMe(>=0.19.0) - queryData is mixed but getID expects Object
+           */
           var dataID = GraphQLStoreDataHandler.getID(queryData);
           if (dataID) {
             fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
@@ -383,7 +385,7 @@ function createContainerComponent(
         'fragment. Ensure that there are no failing `if` or `unless` ' +
         'conditions.'
       );
-      return storeData.getRecordStore().hasDeferredFragmentData(
+      return storeData.getCachedStore().hasDeferredFragmentData(
         dataID,
         fragment.getFragmentID()
       );

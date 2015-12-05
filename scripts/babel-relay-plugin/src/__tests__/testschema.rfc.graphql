@@ -5,6 +5,11 @@ type Root {
   viewer: Viewer
   search(query: [SearchInput!]): [SearchResult]
   _invalid: InvalidType
+  actor: Actor
+}
+
+interface Actor {
+  name: String
 }
 
 type InvalidType {
@@ -38,6 +43,20 @@ type ActorSubscribeResponsePayload {
 
 type FakeResponsePayload {
   clientMutationId: String
+}
+
+type Subscription {
+  likeStory(input: LikeStorySubscriptionInput): LikeStorySubscriptionPayload
+}
+
+input LikeStorySubscriptionInput {
+  clientSubscriptionId: String
+  story: String
+}
+
+type LikeStorySubscriptionPayload {
+  clientSubscriptionId: String
+  doesViewerLike: Boolean
 }
 
 type ActorSubscribeSubscription {
@@ -75,6 +94,7 @@ type NewsFeedConnectionEdge {
 }
 
 type Story implements Node {
+  message: String
   actors: [User]
   attachments: [Node]
   id: String
@@ -112,7 +132,7 @@ interface Node {
   id: String
 }
 
-type User implements Node {
+type User implements Node Actor {
   friends(first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender, before: String, after: String): UserConnection
   id: String
   name: String
@@ -122,6 +142,10 @@ type User implements Node {
   gender: Gender
   firstName(if: Boolean, unless: Boolean): String
   fakeConnection: FakeConnection
+}
+
+type Page implements Actor {
+  name: String
 }
 
 type FakeConnection {

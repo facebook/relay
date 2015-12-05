@@ -25,31 +25,28 @@ var x = (function () {
       children: [{
         fieldName: 'count',
         kind: 'Field',
-        metadata: {
-          parentType: 'UserConnection'
-        }
+        metadata: {},
+        type: 'Int'
       }],
       fieldName: 'friends',
       kind: 'Field',
       metadata: {
-        parentType: 'User',
         isConnection: true,
         isFindable: true
-      }
+      },
+      type: 'UserConnection'
     }, {
       fieldName: 'id',
       kind: 'Field',
       metadata: {
-        parentType: 'User',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }],
     hash: 'rFJWsssx',
     kind: 'Fragment',
-    metadata: {
-      isConcrete: true
-    },
+    metadata: {},
     name: 'MetadataVarArgs',
     type: 'User'
   };

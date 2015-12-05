@@ -16,7 +16,7 @@
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -24,13 +24,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var types = require('graphql/type');
+var _require = require('./GraphQL');
 
-var _require = require('graphql/type/introspection');
-
-var SchemaMetaFieldDef = _require.SchemaMetaFieldDef;
-var TypeMetaFieldDef = _require.TypeMetaFieldDef;
-var TypeNameMetaFieldDef = _require.TypeNameMetaFieldDef;
+var types = _require.type;
+var _require$type_introspection = _require.type_introspection;
+var SchemaMetaFieldDef = _require$type_introspection.SchemaMetaFieldDef;
+var TypeMetaFieldDef = _require$type_introspection.TypeMetaFieldDef;
+var TypeNameMetaFieldDef = _require$type_introspection.TypeNameMetaFieldDef;
 
 var find = require('./find');
 var invariant = require('./invariant');
@@ -212,6 +212,25 @@ var RelayQLQuery = (function (_RelayQLDefinition3) {
   return RelayQLQuery;
 })(RelayQLDefinition);
 
+var RelayQLSubscription = (function (_RelayQLDefinition4) {
+  _inherits(RelayQLSubscription, _RelayQLDefinition4);
+
+  function RelayQLSubscription() {
+    _classCallCheck(this, RelayQLSubscription);
+
+    _get(Object.getPrototypeOf(RelayQLSubscription.prototype), 'constructor', this).apply(this, arguments);
+  }
+
+  _createClass(RelayQLSubscription, [{
+    key: 'getType',
+    value: function getType() {
+      return new RelayQLType(this.context, this.context.schema.getSubscriptionType());
+    }
+  }]);
+
+  return RelayQLSubscription;
+})(RelayQLDefinition);
+
 var RelayQLField = (function (_RelayQLNode2) {
   _inherits(RelayQLField, _RelayQLNode2);
 
@@ -220,7 +239,7 @@ var RelayQLField = (function (_RelayQLNode2) {
 
     _get(Object.getPrototypeOf(RelayQLField.prototype), 'constructor', this).call(this, context, ast);
     var fieldName = this.ast.name.value;
-    var fieldDef = parentType.getFieldDefinition(fieldName);
+    var fieldDef = parentType.getFieldDefinition(fieldName, ast);
     invariant(fieldDef, 'You supplied a field named `%s` on type `%s`, but no such field ' + 'exists on that type.', fieldName, parentType.getName({ modifiers: false }));
     this.fieldDef = fieldDef;
   }
@@ -455,7 +474,7 @@ var RelayQLType = (function () {
     }
   }, {
     key: 'getFieldDefinition',
-    value: function getFieldDefinition(fieldName) {
+    value: function getFieldDefinition(fieldName, fieldAST) {
       var type = this.schemaUnmodifiedType;
       var isQueryType = type === this.context.schema.getQueryType();
       var hasTypeName = type instanceof types.GraphQLObjectType || type instanceof types.GraphQLInterfaceType || type instanceof types.GraphQLUnionType;
@@ -471,6 +490,50 @@ var RelayQLType = (function () {
       } else if (hasFields) {
         schemaFieldDef = type.getFields()[fieldName];
       }
+
+      // Temporary workarounds to support legacy schemas
+      if (!schemaFieldDef) {
+        if (hasTypeName && fieldName === '__type__') {
+          schemaFieldDef = {
+            name: '__type__',
+            type: new types.GraphQLNonNull(this.context.schema.getType('Type')),
+            description: 'The introspected type of this object.',
+            deprecatedReason: 'Use __typename',
+            args: []
+          };
+        } else if (types.isAbstractType(type) && fieldAST && fieldAST.directives && fieldAST.directives.some(function (directive) {
+          return directive.name.value === 'fixme_fat_interface';
+        })) {
+          var possibleTypes = type.getPossibleTypes();
+
+          var _loop = function (ii) {
+            var possibleField = possibleTypes[ii].getFields()[fieldName];
+            if (possibleField) {
+              // Fat interface fields can have differing arguments. Try to return
+              // a field with matching arguments, but still return a field if the
+              // arguments do not match.
+              schemaFieldDef = possibleField;
+              if (fieldAST && fieldAST.arguments) {
+                var argumentsAllExist = fieldAST.arguments.every(function (argument) {
+                  return find(possibleField.args, function (argDef) {
+                    return argDef.name === argument.name.value;
+                  });
+                });
+                if (argumentsAllExist) {
+                  return 'break';
+                }
+              }
+            }
+          };
+
+          for (var ii = 0; ii < possibleTypes.length; ii++) {
+            var _ret = _loop(ii);
+
+            if (_ret === 'break') break;
+          }
+        }
+      }
+
       return schemaFieldDef ? new RelayQLFieldDefinition(this.context, schemaFieldDef) : null;
     }
   }, {
@@ -564,6 +627,15 @@ var RelayQLType = (function () {
       });
     }
   }, {
+    key: 'mayImplement',
+    value: function mayImplement(typeName) {
+      return this.getName({ modifiers: false }) === typeName || this.getInterfaces().some(function (type) {
+        return type.getName({ modifiers: false }) === typeName;
+      }) || this.isAbstract() && this.getConcreteTypes().some(function (type) {
+        return type.alwaysImplements(typeName);
+      });
+    }
+  }, {
     key: 'generateField',
     value: function generateField(fieldName) {
       var generatedFieldAST = {
@@ -574,6 +646,33 @@ var RelayQLType = (function () {
         }
       };
       return new RelayQLField(this.context, generatedFieldAST, this);
+    }
+  }, {
+    key: 'generateIdFragment',
+    value: function generateIdFragment() {
+      var generatedFragmentAST = {
+        kind: 'Fragment',
+        name: {
+          kind: 'Name',
+          value: 'IdFragment'
+        },
+        typeCondition: {
+          kind: 'NamedType',
+          name: {
+            value: 'Node'
+          }
+        },
+        selectionSet: {
+          selections: [{
+            kind: 'Field',
+            name: {
+              name: 'Name',
+              value: 'id'
+            }
+          }]
+        }
+      };
+      return new RelayQLFragment(this.context, generatedFragmentAST, this);
     }
   }]);
 
@@ -718,5 +817,6 @@ module.exports = {
   RelayQLMutation: RelayQLMutation,
   RelayQLNode: RelayQLNode,
   RelayQLQuery: RelayQLQuery,
+  RelayQLSubscription: RelayQLSubscription,
   RelayQLType: RelayQLType
 };

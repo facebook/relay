@@ -211,8 +211,10 @@ var RelayTestUtils = {
     );
   },
 
-  getVerbatimNode(node) {
-    return RelayTestUtils.filterGeneratedFields(RelayTestUtils.getNode(node));
+  getVerbatimNode(node, variables) {
+    return RelayTestUtils.filterGeneratedFields(
+      RelayTestUtils.getNode(node, variables)
+    );
   },
 
   filterGeneratedFields(query) {
@@ -445,7 +447,6 @@ var RelayTestUtils = {
       .dontMock('areEqual')
 
       // Legacy modules
-      .dontMock('GraphQL_DEPRECATED')
       .dontMock('GraphQLMutatorConstants')
       .dontMock('GraphQLStoreDataHandler')
       .dontMock('GraphQLStoreRangeUtils')

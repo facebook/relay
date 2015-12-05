@@ -109,9 +109,9 @@ var GraphQLStoreTestUtils = {
     },
   },
   /**
-   * @param {GraphQLNode} node
+   * @param {object} node
    * @param {function} callback
-   * @return {GraphQLNode}
+   * @return {object}
    */
   filterFields: function(node, callback) {
     return node.shallowClone(
@@ -151,7 +151,6 @@ var GraphQLStoreTestUtils = {
   },
   deepUnmockRQL: function() {
     jest
-      .dontMock('GraphQL_DEPRECATED')
       .dontMock('GraphQLFragmentPointer');
   },
 };

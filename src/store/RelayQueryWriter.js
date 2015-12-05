@@ -13,7 +13,6 @@
 
 'use strict';
 
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayQuery = require('RelayQuery');
 import type RelayChangeTracker from 'RelayChangeTracker';
 var RelayConnectionInterface = require('RelayConnectionInterface');
@@ -44,7 +43,7 @@ type WriterState = {
   path: RelayQueryPath;
 };
 
-var {ID, TYPENAME} = RelayNodeInterface;
+var {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
 var {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
 
 /**
@@ -81,22 +80,20 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   }
 
   getRecordTypeName(
-    field: RelayQuery.Node,
+    node: RelayQuery.Node,
     recordID: DataID,
     payload: Object
   ): ?string {
-    if (GraphQLStoreDataHandler.isClientID(recordID)) {
+    if (this._isOptimisticUpdate) {
+      // Optimistic queries are inferred and fields have a generic 'any' type.
       return null;
     }
     var typeName = payload[TYPENAME];
-    if (typeName == null) {
-      var idField = field.getFieldByStorageKey(ID);
-      if (idField) {
-        typeName = idField.getParentType();
-      }
+    if (typeName == null && !node.isAbstract()) {
+      typeName = node.getType();
     }
     warning(
-      typeName,
+      typeName && typeName !== ANY_TYPE,
       'RelayQueryWriter: Could not find a type name for record `%s`.',
       recordID
     );

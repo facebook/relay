@@ -30,64 +30,63 @@ var x = (function () {
       fieldName: 'id',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       fieldName: '__typename',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       children: [{
         children: [{
           fieldName: 'id',
           kind: 'Field',
           metadata: {
-            parentType: 'User',
             isRequisite: true
-          }
+          },
+          type: 'String'
         }, {
           fieldName: '__typename',
           kind: 'Field',
-          metadata: {
-            parentType: 'User'
-          }
+          metadata: {},
+          type: 'String'
         }],
         fieldName: 'actors',
         kind: 'Field',
         metadata: {
-          parentType: 'Story',
           inferredRootCallName: 'node',
           inferredPrimaryKey: 'id',
           isPlural: true
-        }
+        },
+        type: 'User'
       }, {
         fieldName: 'id',
         kind: 'Field',
         metadata: {
-          parentType: 'Story',
           isGenerated: true,
           isRequisite: true
-        }
+        },
+        type: 'String'
       }],
       hash: 'EI7Xtg8w',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'Story',
       type: 'Story'
     }],
     fieldName: 'node',
     kind: 'Query',
     metadata: {
+      isAbstract: true,
       identifyingArgName: 'id'
     },
-    name: 'PluralField'
+    name: 'PluralField',
+    type: 'Node'
   };
 })();

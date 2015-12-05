@@ -18,20 +18,20 @@ var x = (function () {
       children: [{
         fieldName: 'count',
         kind: 'Field',
-        metadata: {
-          parentType: 'PendingPostsConnection'
-        }
+        metadata: {},
+        type: 'Int'
       }],
       fieldName: 'pendingPosts',
       kind: 'Field',
       metadata: {
-        parentType: 'Viewer',
         isConnection: true
-      }
+      },
+      type: 'PendingPostsConnection'
     }],
     fieldName: 'viewer',
     kind: 'Query',
     metadata: {},
-    name: 'MetadataNonFindable'
+    name: 'MetadataNonFindable',
+    type: 'Viewer'
   };
 })();

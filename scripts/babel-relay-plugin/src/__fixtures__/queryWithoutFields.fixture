@@ -9,6 +9,7 @@ var x = (function () {
     fieldName: 'viewer',
     kind: 'Query',
     metadata: {},
-    name: 'QueryWithoutFields'
+    name: 'QueryWithoutFields',
+    type: 'Viewer'
   };
 })();

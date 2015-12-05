@@ -13,22 +13,23 @@
 
 'use strict';
 
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayNodeInterface = require('RelayNodeInterface');
-var RelayQuery = require('RelayQuery');
-
-var invariant = require('invariant');
-var toGraphQL = require('toGraphQL');
-
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 import type {DataID} from 'RelayInternalTypes';
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayQuery = require('RelayQuery');
 
-var {ID, TYPENAME} = RelayNodeInterface;
-// Placeholder to mark fields as non-scalar
-var EMPTY_FRAGMENT = RelayQuery.Fragment.build(
-  '$RelayQueryPath',
-  'Node'
-);
+const invariant = require('invariant');
+
+const {ID, NODE_TYPE, TYPENAME} = RelayNodeInterface;
+
+const idField = RelayQuery.Field.build({
+  fieldName: ID,
+  type: 'String',
+});
+const typeField = RelayQuery.Field.build({
+  fieldName: TYPENAME,
+  type: 'String',
+});
 
 /**
  * @internal
@@ -103,18 +104,13 @@ class RelayQueryPath {
     if (GraphQLStoreDataHandler.isClientID(dataID)) {
       return new RelayQueryPath(node, this);
     } else {
-      const idField = RelayQuery.Field.build(ID, null, null, {
-        parentType: RelayNodeInterface.NODE_TYPE,
-      });
-      const typeField = RelayQuery.Field.build(TYPENAME, null, null, {
-        parentType: RelayNodeInterface.NODE_TYPE,
-      });
       const root = RelayQuery.Root.build(
         this.getName(),
         RelayNodeInterface.NODE,
         dataID,
         [idField, typeField],
-        {identifyingArgName: RelayNodeInterface.ID}
+        {identifyingArgName: RelayNodeInterface.ID},
+        NODE_TYPE
       );
       return new RelayQueryPath(root);
     }
@@ -174,7 +170,8 @@ class RelayQueryPath {
         (node: $FlowIssue).getFieldByStorageKey(ID),
         (node: $FlowIssue).getFieldByStorageKey(TYPENAME),
       ],
-      metadata
+      metadata,
+      node.getType()
     );
   }
 }

@@ -16,7 +16,6 @@ var RelayTestUtils = require('RelayTestUtils');
 jest
   .dontMock('GraphQLSegment')
   .dontMock('GraphQLRange')
-  .dontMock('GraphQL_DEPRECATED')
   .mock('warning');
 
 var GraphQLRange = require('GraphQLRange');

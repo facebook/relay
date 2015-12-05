@@ -12,10 +12,11 @@
 
 'use strict';
 
+const {utilities_buildClientSchema: {buildClientSchema}} = require('./GraphQL');
+import type {Validator} from './RelayQLTransformer';
 const RelayQLTransformer = require('./RelayQLTransformer');
-const {buildClientSchema} = require('graphql/utilities/buildClientSchema');
+const babelAdapter = require('./babelAdapter');
 const invariant = require('./invariant');
-const path = require('path');
 const util = require('util');
 
 const PROVIDES_MODULE = 'providesModule';
@@ -33,8 +34,11 @@ function getBabelRelayPlugin(
   pluginOptions?: ?{
     abortOnError?: ?boolean;
     debug?: ?boolean;
+    inputArgumentName?: ?string;
+    snakeCase?: ?boolean;
     suppressWarnings?: ?boolean;
     substituteVariables?: ?boolean;
+    validator?: ?Validator;
   }
 ): Function {
   const options = pluginOptions || {};
@@ -44,17 +48,20 @@ function getBabelRelayPlugin(
 
   const schema = getSchema(schemaProvider);
   const transformer = new RelayQLTransformer(schema, {
+    inputArgumentName: options.inputArgumentName,
+    snakeCase: !!options.snakeCase,
     substituteVariables: !!options.substituteVariables,
+    validator: options.validator,
   });
 
-  return function({Plugin, types: t}) {
-    return new Plugin('relay-query', {
+  return function({Plugin, types}) {
+    return babelAdapter(Plugin, types, 'relay-query', t => ({
       visitor: {
         /**
          * Extract the module name from `@providesModule`.
          */
-        Program(node, parent, scope, state) {
-          if (state.opts.extra.documentName) {
+        Program({parent}, state) {
+          if (state.file.opts.documentName) {
             return;
           }
           let documentName;
@@ -71,22 +78,23 @@ function getBabelRelayPlugin(
               }
             }
           }
-          const filename = state.opts.filename;
-          if (filename && !documentName) {
-            const basename = path.basename(filename);
+          const basename = state.file.opts.basename;
+          if (basename && !documentName) {
             const captures = basename.match(/^[_A-Za-z][_0-9A-Za-z]*/);
             if (captures) {
               documentName = captures[0];
             }
           }
-          state.opts.extra.documentName = documentName || 'UnknownFile';
+          state.file.opts.documentName = documentName || 'UnknownFile';
         },
 
         /**
          * Transform Relay.QL`...`.
          */
-        TaggedTemplateExpression(node, parent, scope, state) {
-          const tag = this.get('tag');
+        TaggedTemplateExpression(path, state) {
+          const {node} = path;
+
+          const tag = path.get('tag');
           const tagName =
             tag.matchesPattern('Relay.QL') ? 'Relay.QL' :
             tag.isIdentifier({name: 'RelayQL'}) ? 'RelayQL' :
@@ -95,17 +103,19 @@ function getBabelRelayPlugin(
             return;
           }
 
-          const {documentName} = state.opts.extra;
+          const {documentName} = state.file.opts;
           invariant(documentName, 'Expected `documentName` to have been set.');
 
           let result;
           try {
-            result = transformer.transform(node.quasi, documentName, tagName);
+            result =
+              transformer.transform(t, node.quasi, documentName, tagName);
           } catch (error) {
             // Print a console warning and replace the code with a function
             // that will immediately throw an error in the browser.
             var {sourceText, validationErrors} = error;
-            var filename = state.opts.filename || 'UnknownFile';
+            var basename = state.file.opts.basename || 'UnknownFile';
+            var filename = state.file.opts.filename || 'UnknownFile';
             var errorMessages = [];
             if (validationErrors && sourceText) {
               var sourceLines = sourceText.split('\n');
@@ -113,11 +123,11 @@ function getBabelRelayPlugin(
                 errorMessages.push(message);
                 warning(
                   '\n-- GraphQL Validation Error -- %s --\n',
-                  path.basename(filename)
+                  basename
                 );
                 warning([
-                  'Error: ' + message,
                   'File:  ' + filename,
+                  'Error: ' + message,
                   'Source:',
                 ].join('\n'));
                 locations.forEach(location => {
@@ -135,11 +145,11 @@ function getBabelRelayPlugin(
               errorMessages.push(error.message);
               warning(
                 '\n-- Relay Transform Error -- %s --\n',
-                path.basename(filename)
+                basename
               );
               warning([
-                'Error: ' + error.message,
                 'File:  ' + filename,
+                'Error: ' + error.stack,
               ].join('\n'));
             }
             var runtimeMessage = util.format(
@@ -155,9 +165,9 @@ function getBabelRelayPlugin(
                   t.throwStatement(
                     t.newExpression(
                       t.identifier('Error'),
-                      [t.literal(runtimeMessage)]
+                      [t.valueToNode(runtimeMessage)]
                     )
-                  )
+                  ),
                 ])
               ),
               []
@@ -172,10 +182,15 @@ function getBabelRelayPlugin(
               );
             }
           }
-          this.replaceWith(result);
-        }
-      }
-    });
+          // For babel 5 compatibility
+          if (state.isLegacyState) {
+            return result;
+          } else {
+            path.replaceWith(result);
+          }
+        },
+      },
+    }));
   };
 }
 

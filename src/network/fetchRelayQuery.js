@@ -13,7 +13,6 @@
 
 'use strict';
 
-const Promise = require('Promise');
 const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayProfiler = require('RelayProfiler');
 const RelayQueryRequest = require('RelayQueryRequest');

@@ -13,13 +13,11 @@
 
 'use strict';
 
-const GraphQL_DEPRECATED = require('GraphQL_DEPRECATED');
 const QueryBuilder = require('QueryBuilder');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayRouteFragment = require('RelayRouteFragment');
 
 const invariant = require('invariant');
-const warning = require('warning');
 
 export type RelayConcreteNode = mixed;
 
@@ -50,7 +48,6 @@ function RelayQL(
  * Private helper methods used by the transformed code.
  */
 Object.assign(RelayQL, {
-  __GraphQL: GraphQL_DEPRECATED,
   __frag(substitution: any): any {
     if (typeof substitution === 'function') {
       // Route conditional fragment, e.g. `${route => matchRoute(route, ...)}`.
@@ -59,7 +56,8 @@ Object.assign(RelayQL, {
     if (substitution != null) {
       invariant(
         substitution instanceof RelayFragmentReference ||
-        QueryBuilder.getFragment(substitution),
+        QueryBuilder.getFragment(substitution) ||
+        QueryBuilder.getFragmentReference(substitution),
         'RelayQL: Invalid fragment composition, use ' +
         '`${Child.getFragment(\'name\')}`.'
       );
@@ -67,6 +65,18 @@ Object.assign(RelayQL, {
     return substitution;
   },
   __var(expression: mixed): mixed {
+    const variable = QueryBuilder.getCallVariable(expression);
+    if (variable) {
+      invariant(
+        false,
+        'RelayQL: Invalid argument `%s` supplied via template substitution. ' +
+        'Instead, use an inline variable (e.g. `comments(count: $count)`).',
+        variable.callVariableName
+      );
+    }
+    return QueryBuilder.createCallValue(expression);
+  },
+  __varDEPRECATED(expression: mixed): mixed {
     const variable = QueryBuilder.getCallVariable(expression);
     if (variable) {
       invariant(

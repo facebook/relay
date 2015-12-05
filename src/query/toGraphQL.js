@@ -65,6 +65,7 @@ var toGraphQL = {
       isDeferred: node.isDeferred(),
       metadata: node.getConcreteQueryNode().metadata,
       name: node.getName(),
+      type: node.getType(),
     });
   },
   Fragment(node: RelayQuery.Fragment): ConcreteFragment {
@@ -74,7 +75,7 @@ var toGraphQL = {
       kind: 'Fragment',
       hash: node.getConcreteFragmentHash(),
       metadata: {
-        isConcrete: node.isConcrete(),
+        isAbstract: node.isAbstract(),
         plural: node.isPlural(),
       },
       name: node.getDebugName(),
@@ -92,6 +93,7 @@ var toGraphQL = {
       fieldName: node.getSchemaName(),
       kind: 'Field',
       metadata: node.getConcreteQueryNode().metadata,
+      type: node.getType(),
     };
     return field;
   },

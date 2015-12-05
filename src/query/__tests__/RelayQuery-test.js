@@ -23,6 +23,13 @@ var RelayQuery = require('RelayQuery');
 describe('RelayQuery', () => {
   var {getNode} = RelayTestUtils;
 
+  function buildIdField() {
+    return RelayQuery.Field.build({
+      fieldName: 'id',
+      type: 'String',
+    });
+  }
+
   beforeEach(() => {
     jest.resetModuleRegistry();
 
@@ -32,7 +39,7 @@ describe('RelayQuery', () => {
   describe('Root', () => {
     describe('build()', () => {
       it('creates roots', () => {
-        var field = RelayQuery.Field.build('id');
+        var field = buildIdField();
         var root = RelayQuery.Root.build(
           'RelayQueryTest',
           'node',
@@ -45,7 +52,7 @@ describe('RelayQuery', () => {
       });
 
       it('creates deferred roots', () => {
-        var field = RelayQuery.Field.build('id');
+        var field = buildIdField();
         var root = RelayQuery.Root.build(
           'RelayQueryTest',
           'node',
@@ -172,7 +179,7 @@ describe('RelayQuery', () => {
       });
 
       it('creates fragments', () => {
-        var field = RelayQuery.Field.build('id');
+        var field = buildIdField();
         var fragment = RelayQuery.Fragment.build(
           'TestFragment',
           'Node',
@@ -207,7 +214,7 @@ describe('RelayQuery', () => {
         var fragment = RelayQuery.Fragment.build(
           'TestFragment',
           'Node',
-          [RelayQuery.Field.build('id')],
+          [buildIdField()],
           {plural: true}
         );
         expect(fragment.getConcreteFragmentHash()).toBe(null);
@@ -218,7 +225,7 @@ describe('RelayQuery', () => {
   describe('Field', () => {
     describe('build()', () => {
       it('builds scalar fields', () => {
-        var field = RelayQuery.Field.build('id');
+        var field = buildIdField();
         expect(field instanceof RelayQuery.Field).toBe(true);
         expect(field.getSchemaName()).toBe('id');
         expect(field.getApplicationName()).toBe('id');
@@ -228,9 +235,13 @@ describe('RelayQuery', () => {
       });
 
       it('builds fields with children', () => {
-        var child = RelayQuery.Field.build('id');
+        var child = buildIdField();
         var fragment = getNode(Relay.QL`fragment on Node{id}`);
-        var field = RelayQuery.Field.build('node', null, [child, fragment]);
+        var field = RelayQuery.Field.build({
+          fieldName: 'node',
+          children: [child, fragment],
+          type: 'Node',
+        });
         expect(field.isScalar()).toBe(false);
         var children = field.getChildren();
         expect(children.length).toBe(2);
@@ -239,15 +250,23 @@ describe('RelayQuery', () => {
       });
 
       it('builds fields with calls', () => {
-        var field = RelayQuery.Field.build('profilePicture', [
-          {name: 'size', value: 32},
-        ]);
+        var field = RelayQuery.Field.build({
+          fieldName: 'profilePicture',
+          calls: [
+            {name: 'size', value: 32},
+          ],
+          type: 'ProfilePicture',
+        });
         expect(field.getCallsWithValues()).toEqual([
           {name: 'size', value: 32},
         ]);
-        field = RelayQuery.Field.build('profilePicture', [
-          {name: 'size', value: ['32']},
-        ]);
+        field = RelayQuery.Field.build({
+          fieldName: 'profilePicture',
+          calls: [
+            {name: 'size', value: ['32']},
+          ],
+          type: 'ProfilePicture',
+        });
         expect(field.getCallsWithValues()).toEqual([
           {name: 'size', value: ['32']},
         ]);
@@ -258,7 +277,10 @@ describe('RelayQuery', () => {
   describe('Mutation', () => {
     describe('buildMutation()', () => {
       it('builds mutation with value', () => {
-        var field = RelayQuery.Field.build('does_viewer_like');
+        var field = RelayQuery.Field.build({
+          fieldName: 'does_viewer_like',
+          type: 'Boolean',
+        });
         var mutation = RelayQuery.Mutation.build(
           'FeedbackLikeMutation',
           'FeedbackLikeResponsePayload',
@@ -278,7 +300,10 @@ describe('RelayQuery', () => {
       });
 
       it('builds mutation with variable', () => {
-        var field = RelayQuery.Field.build('does_viewer_like');
+        var field = RelayQuery.Field.build({
+          fieldName: 'does_viewer_like',
+          type: 'Boolean',
+        });
         var mutation = RelayQuery.Mutation.build(
           'FeedbackLikeMutation',
           'FeedbackLikeResponsePayload',

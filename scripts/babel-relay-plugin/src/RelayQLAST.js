@@ -12,12 +12,14 @@
 
 'use strict';
 
-const types = require('graphql/type');
 const {
-  SchemaMetaFieldDef,
-  TypeMetaFieldDef,
-  TypeNameMetaFieldDef,
-} = require('graphql/type/introspection');
+  type: types,
+  type_introspection: {
+    SchemaMetaFieldDef,
+    TypeMetaFieldDef,
+    TypeNameMetaFieldDef,
+  },
+} = require('./GraphQL');
 
 const find = require('./find');
 const invariant = require('./invariant');
@@ -187,13 +189,22 @@ class RelayQLQuery extends RelayQLDefinition<GraphQLOperationDefinition> {
   }
 }
 
+class RelayQLSubscription extends RelayQLDefinition<GraphQLOperationDefinition> {
+  getType(): RelayQLType {
+    return new RelayQLType(
+      this.context,
+      this.context.schema.getSubscriptionType()
+    );
+  }
+}
+
 class RelayQLField extends RelayQLNode<GraphQLField> {
   fieldDef: RelayQLFieldDefinition;
 
   constructor(context: RelayQLContext, ast: GraphQLField, parentType: RelayQLType) {
     super(context, ast);
     const fieldName = this.ast.name.value;
-    const fieldDef = parentType.getFieldDefinition(fieldName);
+    const fieldDef = parentType.getFieldDefinition(fieldName, ast);
     invariant(
       fieldDef,
       'You supplied a field named `%s` on type `%s`, but no such field ' +
@@ -414,7 +425,10 @@ class RelayQLType {
     return !!this.getFieldDefinition(fieldName);
   }
 
-  getFieldDefinition(fieldName: string): ?RelayQLFieldDefinition {
+  getFieldDefinition(
+    fieldName: string,
+    fieldAST?: any
+  ): ?RelayQLFieldDefinition {
     const type = this.schemaUnmodifiedType;
     const isQueryType = type === this.context.schema.getQueryType();
     const hasTypeName =
@@ -435,6 +449,49 @@ class RelayQLType {
     } else if (hasFields) {
       schemaFieldDef = type.getFields()[fieldName];
     }
+
+    // Temporary workarounds to support legacy schemas
+    if (!schemaFieldDef) {
+      if (hasTypeName && fieldName === '__type__') {
+        schemaFieldDef = {
+          name: '__type__',
+          type: new types.GraphQLNonNull(this.context.schema.getType('Type')),
+          description: 'The introspected type of this object.',
+          deprecatedReason: 'Use __typename',
+          args: [],
+        };
+      } else if (
+        types.isAbstractType(type) &&
+        fieldAST &&
+        fieldAST.directives &&
+        fieldAST.directives.some(
+          directive => directive.name.value === 'fixme_fat_interface'
+        )
+      ) {
+        const possibleTypes = type.getPossibleTypes();
+        for (let ii = 0; ii < possibleTypes.length; ii++) {
+          const possibleField = possibleTypes[ii].getFields()[fieldName];
+          if (possibleField) {
+            // Fat interface fields can have differing arguments. Try to return
+            // a field with matching arguments, but still return a field if the
+            // arguments do not match.
+            schemaFieldDef = possibleField;
+            if (fieldAST && fieldAST.arguments) {
+              const argumentsAllExist = fieldAST.arguments.every(
+                argument => find(
+                  possibleField.args,
+                  argDef => argDef.name === argument.name.value
+                )
+              );
+              if (argumentsAllExist) {
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
     return schemaFieldDef ?
       new RelayQLFieldDefinition(this.context, schemaFieldDef) :
       null;
@@ -526,6 +583,19 @@ class RelayQLType {
     );
   }
 
+  mayImplement(typeName: string): boolean {
+    return (
+      this.getName({modifiers: false}) === typeName ||
+      this.getInterfaces().some(
+        type => type.getName({modifiers: false}) === typeName
+      ) ||
+      (
+        this.isAbstract() &&
+        this.getConcreteTypes().some(type => type.alwaysImplements(typeName))
+      )
+    );
+  }
+
   generateField(fieldName: string): RelayQLField {
     const generatedFieldAST = {
       kind: 'Field',
@@ -535,6 +605,32 @@ class RelayQLType {
       },
     };
     return new RelayQLField(this.context, generatedFieldAST, this);
+  }
+
+  generateIdFragment(): RelayQLFragment {
+    const generatedFragmentAST = {
+      kind: 'Fragment',
+      name: {
+        kind: 'Name',
+        value: 'IdFragment',
+      },
+      typeCondition: {
+        kind: 'NamedType',
+        name: {
+          value: 'Node',
+        },
+      },
+      selectionSet: {
+        selections: [{
+          kind: 'Field',
+          name: {
+            name: 'Name',
+            value: 'id',
+          },
+        }],
+      },
+    };
+    return new RelayQLFragment(this.context, (generatedFragmentAST: any), this);
   }
 }
 
@@ -675,5 +771,6 @@ module.exports = {
   RelayQLMutation,
   RelayQLNode,
   RelayQLQuery,
+  RelayQLSubscription,
   RelayQLType,
 };

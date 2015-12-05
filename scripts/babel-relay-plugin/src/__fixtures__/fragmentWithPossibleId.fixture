@@ -1,12 +1,9 @@
 Input:
 var Relay = require('react-relay');
 var x = Relay.QL`
-  query {
-    node(id: 123) {
-      ... on User {
-        websites,
-      },
-    },
+  fragment on Actor {
+    name
+    ... on User { id }
   }
 `;
 
@@ -14,22 +11,10 @@ Output:
 var Relay = require('react-relay');
 var x = (function () {
   return {
-    calls: [{
-      kind: 'Call',
-      metadata: {},
-      name: 'id',
-      value: {
-        kind: 'CallValue',
-        callValue: 123
-      }
-    }],
     children: [{
-      fieldName: 'id',
+      fieldName: 'name',
       kind: 'Field',
-      metadata: {
-        isGenerated: true,
-        isRequisite: true
-      },
+      metadata: {},
       type: 'String'
     }, {
       fieldName: '__typename',
@@ -41,14 +26,28 @@ var x = (function () {
       type: 'String'
     }, {
       children: [{
-        fieldName: 'websites',
+        fieldName: 'id',
         kind: 'Field',
         metadata: {
-          isPlural: true
+          isRequisite: true
+        },
+        type: 'String'
+      }],
+      hash: 'Sb+rujhv',
+      kind: 'Fragment',
+      metadata: {},
+      name: 'User',
+      type: 'User'
+    }, {
+      children: [{
+        fieldName: 'id',
+        kind: 'Field',
+        metadata: {
+          isRequisite: true
         },
         type: 'String'
       }, {
-        fieldName: 'id',
+        fieldName: '__typename',
         kind: 'Field',
         metadata: {
           isGenerated: true,
@@ -56,19 +55,20 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: 'Kcb4isAx',
+      hash: 'Sb+rujhv',
       kind: 'Fragment',
-      metadata: {},
-      name: 'User',
-      type: 'User'
+      metadata: {
+        isAbstract: true
+      },
+      name: 'IdFragment',
+      type: 'Node'
     }],
-    fieldName: 'node',
-    kind: 'Query',
+    hash: 'Sb+rujhv',
+    kind: 'Fragment',
     metadata: {
-      isAbstract: true,
-      identifyingArgName: 'id'
+      isAbstract: true
     },
-    name: 'MetadataPlural',
-    type: 'Node'
+    name: 'FragmentWithPossibleId',
+    type: 'Actor'
   };
 })();

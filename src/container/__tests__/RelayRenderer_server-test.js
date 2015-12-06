@@ -22,13 +22,10 @@ const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 const RelayStore = require('RelayStore');
 
-const getRelayQueries = require('getRelayQueries');
-
 describe('RelayRenderer', function() {
   let MockComponent;
   let MockContainer;
 
-  let container;
   let queryConfig;
 
   beforeEach(() => {
@@ -39,7 +36,6 @@ describe('RelayRenderer', function() {
       fragments: {},
     });
 
-    container = document.createElement('div');
     queryConfig = RelayQueryConfig.genMockInstance();
   });
 

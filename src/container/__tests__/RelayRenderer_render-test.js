@@ -55,10 +55,10 @@ describe('RelayRenderer.render', () => {
     queryConfig = RelayQueryConfig.genMockInstance();
 
     jest.addMatchers({
-      toBeShallowUpdated() {
+      toBeUpdated() {
         return this.actual.props.shouldUpdate;
       },
-      toBeShallowRenderedChild() {
+      toBeRenderedChild() {
         return getRenderOutput().props.children === this.actual;
       },
     });
@@ -68,7 +68,7 @@ describe('RelayRenderer.render', () => {
     renderElement(
       <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
     );
-    expect(null).toBeShallowRenderedChild();
+    expect(null).toBeRenderedChild();
   });
 
   it('defaults to component if ready and `render` is not supplied', () => {
@@ -91,7 +91,7 @@ describe('RelayRenderer.render', () => {
       />
     );
     RelayStore.primeCache.mock.requests[0].block();
-    expect(null).toBeShallowRenderedChild();
+    expect(null).toBeRenderedChild();
   });
 
   it('renders previous view if `render` returns undefined', () => {
@@ -104,7 +104,7 @@ describe('RelayRenderer.render', () => {
       />
     );
     RelayStore.primeCache.mock.requests[0].block();
-    expect(prevView).toBeShallowRenderedChild();
+    expect(prevView).toBeRenderedChild();
 
     renderElement(
       <RelayRenderer
@@ -113,7 +113,7 @@ describe('RelayRenderer.render', () => {
         render={() => undefined}
       />
     );
-    expect(getRenderOutput()).not.toBeShallowUpdated();
+    expect(getRenderOutput()).not.toBeUpdated();
   });
 
   it('renders new view if `render` return a new view', () => {
@@ -126,7 +126,7 @@ describe('RelayRenderer.render', () => {
       />
     );
     RelayStore.primeCache.mock.requests[0].block();
-    expect(prevView).toBeShallowRenderedChild();
+    expect(prevView).toBeRenderedChild();
 
     const nextView = <div />;
     renderElement(
@@ -136,7 +136,7 @@ describe('RelayRenderer.render', () => {
         render={() => nextView}
       />
     );
-    expect(nextView).toBeShallowRenderedChild();
+    expect(nextView).toBeRenderedChild();
   });
 
   it('renders when mounted before a request is sent', () => {
@@ -150,7 +150,7 @@ describe('RelayRenderer.render', () => {
       />
     );
     expect(render).toBeCalled();
-    expect(initialView).toBeShallowRenderedChild();
+    expect(initialView).toBeRenderedChild();
   });
 
   it('renders when updated before the initial request is sent', () => {
@@ -166,7 +166,7 @@ describe('RelayRenderer.render', () => {
       />
     );
     // Since RelayRenderer has not yet sent a request, view gets to update.
-    expect(getRenderOutput()).toBeShallowUpdated();
+    expect(getRenderOutput()).toBeUpdated();
   });
 
   it('does not render when updated after the initial request is sent', () => {
@@ -185,9 +185,9 @@ describe('RelayRenderer.render', () => {
     );
     // RelayRenderer does not synchronously update because the ready state (and
     // therefore render arguments) for the new `queryConfig` is not yet known.
-    expect(getRenderOutput()).not.toBeShallowUpdated();
+    expect(getRenderOutput()).not.toBeUpdated();
     RelayStore.primeCache.mock.requests[1].block();
-    expect(loadingView).toBeShallowRenderedChild();
+    expect(loadingView).toBeRenderedChild();
   });
 
   it('renders whenever updated after request is sent', () => {

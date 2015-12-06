@@ -174,7 +174,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   it('is aborted and not mounted when aborted from unmounting', () => {
     expect(request => {
-      ReactDOM.render(<div />, container);
+      ReactDOM.unmountComponentAtNode(container);
     }).toTriggerReadyStateChanges([
       {aborted: true, mounted: false},
     ]);

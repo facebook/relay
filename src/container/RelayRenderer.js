@@ -23,7 +23,7 @@ import type {
   Abortable,
   ComponentReadyState,
   ReadyState,
-  RelayContainer
+  RelayContainer,
 } from 'RelayTypes';
 const StaticContainer = require('StaticContainer.react');
 

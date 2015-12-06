@@ -58,7 +58,7 @@ describe('RelayRenderer.abort', () => {
       toAbortOnUnmount() {
         const {abort, request} = render();
         this.actual(request);
-        ReactDOM.render(<div />, container);
+        ReactDOM.unmountComponentAtNode(container);
         return abort.mock.calls.length > 0;
       },
     });

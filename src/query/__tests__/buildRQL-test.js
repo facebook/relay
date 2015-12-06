@@ -36,11 +36,8 @@ describe('buildRQL', () => {
     });
     MockComponent = React.createClass({render});
     MockContainer = Relay.createContainer(MockComponent, {
-      initialVariables: {
-        if: null,
-      },
       fragments: {
-        foo: () => Relay.QL`fragment on Node { firstName(if: $if) }`,
+        foo: () => Relay.QL`fragment on Node { name }`,
       },
     });
 
@@ -213,6 +210,14 @@ describe('buildRQL', () => {
     });
 
     it('produces equal results for implicit and explicit definitions', () => {
+      const MockContainer2 = Relay.createContainer(MockComponent, {
+        initialVariables: {
+          if: null,
+        },
+        fragments: {
+          foo: () => Relay.QL`fragment on Node { firstName(if: $if) }`,
+        },
+      });
       const implicitBuilder = () => Relay.QL`
         query {
           viewer
@@ -228,13 +233,13 @@ describe('buildRQL', () => {
       const initialVariables = {if: null};
       const implicitNode = buildRQL.Query(
         implicitBuilder,
-        MockContainer,
+        MockContainer2,
         'foo',
         initialVariables,
       );
       const explicitNode = buildRQL.Query(
         explicitBuilder,
-        MockContainer,
+        MockContainer2,
         'foo',
         initialVariables,
       );

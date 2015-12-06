@@ -760,13 +760,6 @@ function resetPropOverridesForVariables(
   return variables;
 }
 
-/**
- * Constructs a unique key for a deferred subscription.
- */
-function getSubscriptionKey(dataID: DataID, fragmentID: string): string {
-  return dataID + '.' + fragmentID;
-}
-
 function initializeProfiler(RelayContainer: RelayContainer): void {
   RelayProfiler.instrumentMethods(RelayContainer.prototype, {
     componentWillMount:

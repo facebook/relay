@@ -22,7 +22,6 @@ var React = require('React');
 var ReactDOM = require('ReactDOM');
 var RelayContainerComparators = require('RelayContainerComparators');
 var RelayContainerProxy = require('RelayContainerProxy');
-var RelayDeprecated = require('RelayDeprecated');
 var RelayFragmentReference = require('RelayFragmentReference');
 import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
 var RelayMetaRoute = require('RelayMetaRoute');
@@ -846,10 +845,8 @@ function getDeferredFragment(
  */
 function create(
   Component: ReactClass<any, any, any>,
-  maybeSpec: Object // spec: RelayContainerSpec
+  spec: RelayContainerSpec,
 ): RelayLazyContainer {
-  var spec = RelayDeprecated.upgradeContainerSpec(maybeSpec);
-
   var componentName = Component.displayName || Component.name;
   var containerName = 'Relay(' + componentName + ')';
   var containerID = (nextContainerID++).toString(36);
@@ -915,15 +912,6 @@ function create(
       initialVariables,
       variableMapping,
       prepareVariables
-    );
-  };
-  ContainerConstructor.getQuery = () => {
-    // TODO(jkassens, #8978552): delete this
-    invariant(
-      false,
-      'RelayContainer: `%s.getQuery` no longer exists; use `%s.getFragment`.',
-      componentName,
-      componentName
     );
   };
 

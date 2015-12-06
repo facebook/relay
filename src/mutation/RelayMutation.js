@@ -344,20 +344,6 @@ class RelayMutation<Tp: Object> {
       prepareVariables
     );
   }
-
-  /**
-   * @deprecated
-   *
-   * TODO(jkassens, #8978552): delete this
-   */
-  static getQuery(): RelayFragmentReference {
-    invariant(
-      false,
-      'RelayMutation: `%s.getQuery` no longer exists; use `%s.getFragment`.',
-      this.name,
-      this.name
-    );
-  }
 }
 
 /**

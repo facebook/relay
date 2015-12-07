@@ -383,7 +383,7 @@ class RelayQLArgument {
       case 'EnumValue':
         return value.value;
       case 'ListValue':
-        return value.values.map(
+        return (value: types.GraphQLList).values.map( // Flow
           value => new RelayQLArgument(
             this.context,
             {...this.ast, value},

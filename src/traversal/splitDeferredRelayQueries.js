@@ -233,8 +233,7 @@ function createRefQuery(
     RelayNodeInterface.NODE_TYPE
   );
 
-  var result: RelayQuery.Root = (root: any); // Flow
-  return result;
+  return root;
 }
 
 /**
@@ -329,11 +328,7 @@ class GraphQLSplitDeferredQueries extends RelayQueryTransform<SplitQueries> {
   }
 }
 
-var instrumented = RelayProfiler.instrument(
+module.exports = RelayProfiler.instrument(
   'splitDeferredRelayQueries',
   splitDeferredRelayQueries
 );
-
-// #7573861: Type export collides with CommonJS export in presence of
-// `instrument()` call:
-module.exports = (instrumented: $FlowIssue);

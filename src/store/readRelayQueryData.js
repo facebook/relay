@@ -106,7 +106,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
   ): StoreReaderResult {
     var result = {
       data: (undefined: $FlowIssue),
-      dataIDs: ({}: $FlowIssue),
+      dataIDs: {},
     };
     var rangeData = this._rangeData.parseRangeClientID(dataID);
     var status = this._recordStore.getRecordState(

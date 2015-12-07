@@ -430,7 +430,8 @@ var RelayQLArgument = (function () {
         case 'EnumValue':
           return value.value;
         case 'ListValue':
-          return value.values.map(function (value) {
+          return value.values.map( // Flow
+          function (value) {
             return new RelayQLArgument(_this6.context, _extends({}, _this6.ast, { value: value }), _this6.type.ofType());
           });
       }

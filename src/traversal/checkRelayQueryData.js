@@ -170,7 +170,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     }
     var nextState: CheckerState = {
       dataID,
-      rangeInfo: null, // Flow rejects `undefined` here
+      rangeInfo: undefined,
       result: true,
     };
     var metadata = this._store.getRangeMetadata(dataID, calls);

@@ -584,4 +584,78 @@ describe('checkRelayQueryData', () => {
 
     expect(result).toEqual(false);
   });
+
+  it('returns true if matching fragment data is available', () => {
+    var records = {
+      1055790163: {
+        __dataID__: '1055790163',
+        __typename: 'User',
+        id: '1055790163',
+        name: 'Yuzhi',
+      },
+    };
+    var result = hasData(
+      getNode(Relay.QL`
+        query {
+          node(id:"1055790163") {
+            id,
+            ... on User {
+              name
+            }
+          }
+        }
+      `),
+      records
+    );
+    expect(result).toBe(true);
+  });
+
+  it('returns false if matching fragment data is unfetched', () => {
+    var records = {
+      1055790163: {
+        __dataID__: '1055790163',
+        __typename: 'User',
+        id: '1055790163',
+      },
+    };
+    var result = hasData(
+      getNode(Relay.QL`
+        query {
+          node(id:"1055790163") {
+            id,
+            ... on User {
+              name #unfetched
+            }
+          }
+        }
+      `),
+      records
+    );
+    expect(result).toBe(false);
+  });
+
+  it('returns true if non-matching fragment data is missing', () => {
+    var records = {
+      1055790163: {
+        __dataID__: '1055790163',
+        __typename: 'User',
+        id: '1055790163',
+      },
+    };
+    var result = hasData(
+      getNode(Relay.QL`
+        query {
+          node(id:"1055790163") {
+            id,
+            # non-matching type - should not count as missing data
+            ... on Page {
+              name
+            }
+          }
+        }
+      `),
+      records
+    );
+    expect(result).toEqual(true);
+  });
 });

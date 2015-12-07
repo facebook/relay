@@ -49,6 +49,7 @@ var nullthrows = require('nullthrows');
 var prepareRelayContainerProps = require('prepareRelayContainerProps');
 var shallowEqual = require('shallowEqual');
 var warning = require('warning');
+var isReactComponent = require('isReactComponent');
 
 export type RelayContainerSpec = {
   initialVariables?: Variables;
@@ -295,7 +296,7 @@ function createContainerComponent(
               }
             });
             if (callback) {
-              callback.call(this.refs.component, {...readyState, mounted});
+              callback.call(this.refs.component || null, {...readyState, mounted});
             }
           });
         } else {
@@ -674,7 +675,7 @@ function createContainerComponent(
           {...this.props}
           {...this.state.queryData}
           {...prepareRelayContainerProps(relayProps, this)}
-          ref="component"
+          ref={isReactComponent(Component) ? 'component' : null}
         />
       );
     }

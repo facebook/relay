@@ -33,75 +33,69 @@ var invariant = require('invariant');
  */
 var toGraphQL = {
   Query(node: RelayQuery.Root): ConcreteQuery {
-    return node.getConcreteQueryNode(() => {
-      const batchCall = node.getBatchCall();
-      let identifyingArgValue;
-      if (batchCall) {
-        identifyingArgValue = QueryBuilder.createBatchCallVariable(
-          batchCall.sourceQueryID,
-          batchCall.sourceQueryPath
-        );
-      } else {
-        const identifyingArg = node.getIdentifyingArg();
-        if (identifyingArg) {
-          if (Array.isArray(identifyingArg.value)) {
-            identifyingArgValue = identifyingArg.value.map(
-              QueryBuilder.createCallValue
-            );
-          } else {
-            identifyingArgValue = QueryBuilder.createCallValue(
-              identifyingArg.value
-            );
-          }
+    const batchCall = node.getBatchCall();
+    let identifyingArgValue;
+    if (batchCall) {
+      identifyingArgValue = QueryBuilder.createBatchCallVariable(
+        batchCall.sourceQueryID,
+        batchCall.sourceQueryPath
+      );
+    } else {
+      const identifyingArg = node.getIdentifyingArg();
+      if (identifyingArg) {
+        if (Array.isArray(identifyingArg.value)) {
+          identifyingArgValue = identifyingArg.value.map(
+            QueryBuilder.createCallValue
+          );
+        } else {
+          identifyingArgValue = QueryBuilder.createCallValue(
+            identifyingArg.value
+          );
         }
       }
+    }
 
-      const children = node.getChildren().map(toGraphQLSelection);
-      // Use `QueryBuilder` to generate the correct calls from the
-      // identifying argument & metadata.
-      return QueryBuilder.createQuery({
-        children,
-        fieldName: node.getFieldName(),
-        identifyingArgValue,
-        isDeferred: node.isDeferred(),
-        metadata: node.__concreteNode__.metadata,
-        name: node.getName(),
-        type: node.getType(),
-      });
+    const children = node.getChildren().map(toGraphQLSelection);
+    // Use `QueryBuilder` to generate the correct calls from the
+    // identifying argument & metadata.
+    return QueryBuilder.createQuery({
+      children,
+      fieldName: node.getFieldName(),
+      identifyingArgValue,
+      isDeferred: node.isDeferred(),
+      metadata: node.getConcreteQueryNode().metadata,
+      name: node.getName(),
+      type: node.getType(),
     });
   },
   Fragment(node: RelayQuery.Fragment): ConcreteFragment {
-    return node.getConcreteQueryNode(() => {
-      const children = node.getChildren().map(toGraphQLSelection);
-      const fragment: ConcreteFragment = {
-        children,
-        kind: 'Fragment',
-        hash: node.getConcreteFragmentHash(),
-        metadata: {
-          isAbstract: node.isAbstract(),
-          plural: node.isPlural(),
-        },
-        name: node.getDebugName(),
-        type: node.getType(),
-      };
-      return fragment;
-    });
+    const children = node.getChildren().map(toGraphQLSelection);
+    const fragment: ConcreteFragment = {
+      children,
+      kind: 'Fragment',
+      hash: node.getConcreteFragmentHash(),
+      metadata: {
+        isAbstract: node.isAbstract(),
+        plural: node.isPlural(),
+      },
+      name: node.getDebugName(),
+      type: node.getType(),
+    };
+    return fragment;
   },
   Field(node: RelayQuery.Field): ConcreteField {
-    return node.getConcreteQueryNode(() => {
-      const calls = callsToGraphQL(node.getCallsWithValues());
-      const children = node.getChildren().map(toGraphQLSelection);
-      const field: ConcreteField = {
-        alias: node.__concreteNode__.alias,
-        calls,
-        children,
-        fieldName: node.getSchemaName(),
-        kind: 'Field',
-        metadata: node.__concreteNode__.metadata,
-        type: node.getType(),
-      };
-      return field;
-    });
+    const calls = callsToGraphQL(node.getCallsWithValues());
+    const children = node.getChildren().map(toGraphQLSelection);
+    const field: ConcreteField = {
+      alias: node.getConcreteQueryNode().alias,
+      calls,
+      children,
+      fieldName: node.getSchemaName(),
+      kind: 'Field',
+      metadata: node.getConcreteQueryNode().metadata,
+      type: node.getType(),
+    };
+    return field;
   },
 };
 

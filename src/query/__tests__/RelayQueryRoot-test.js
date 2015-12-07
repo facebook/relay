@@ -45,7 +45,7 @@ describe('RelayQueryRoot', () => {
         }
       }
     `);
-    usernames.__concreteNode__.metadata = {
+    usernames.getConcreteQueryNode().metadata = {
       isPlural: true,
       identifyingArgName: 'names',
     };
@@ -245,7 +245,7 @@ describe('RelayQueryRoot', () => {
         }
       }
     `);
-    usernames2.__concreteNode__.metadata = {
+    usernames2.getConcreteQueryNode().metadata = {
       isPlural: true,
       identifyingArgName: 'names',
     };
@@ -341,7 +341,7 @@ describe('RelayQueryRoot', () => {
 
   it('returns the identifying argument type', () => {
     var nodeQuery = getNode(Relay.QL`query{node(id:"123"){id}}`);
-    nodeQuery.__concreteNode__.metadata = {
+    nodeQuery.getConcreteQueryNode().metadata = {
       identifyingArgName: 'id',
       identifyingArgType: 'scalar',
     };
@@ -474,7 +474,9 @@ describe('RelayQueryRoot', () => {
       const identifyingQuery = getNode(
         Relay.QL`query { username(name:"yuzhi") }`
       );
-      identifyingQuery.__concreteNode__.metadata = {identifyingArgName: 'name'};
+      identifyingQuery.getConcreteQueryNode().metadata = {
+        identifyingArgName: 'name',
+      };
       expect(identifyingQuery.getStorageKey()).toBe('username');
     });
 

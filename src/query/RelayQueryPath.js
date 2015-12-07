@@ -156,7 +156,7 @@ class RelayQueryPath {
       node instanceof RelayQuery.Root,
       'RelayQueryPath: Expected a root node.'
     );
-    const metadata = {...node.__concreteNode__.metadata};
+    const metadata = {...node.getConcreteQueryNode().metadata};
     const identifyingArg = node.getIdentifyingArg();
     if (identifyingArg && identifyingArg.name != null) {
       metadata.identifyingArgName = identifyingArg.name;

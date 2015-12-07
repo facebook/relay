@@ -196,44 +196,4 @@ describe('toGraphQL', function() {
     var convertedQuery = toGraphQL.Query(relayQuery);
     expect(convertedQuery.calls[0].value.callValue).toBe(value);
   });
-
-  it('memoizes the GraphQL-query after the first toGraphQL call', () => {
-    var query = Relay.QL`
-      query {
-        viewer {
-          actor {
-            id,
-            name,
-          },
-        }
-      }
-    `;
-    var relayQuery = fromGraphQL.Query(query);
-    var graphql = toGraphQL.Query(relayQuery);
-    // GraphQL queries are static and must be traversed once to determine
-    // route-specific fragments and variable values
-    expect(fromGraphQL.Query(graphql).equals(relayQuery)).toBe(true);
-    expect(graphql).not.toBe(query);
-    expect(toGraphQL.Query(relayQuery)).toBe(graphql);
-  });
-
-  it('creates a new GraphQL-query if the relay query is a clone', () => {
-    var fragment = Relay.QL`
-      fragment on StreetAddress {
-        city,
-        country,
-      }
-    `;
-    var relayFragment = fromGraphQL.Fragment(fragment);
-    var relayFragmentChild = relayFragment.getChildren()[0];
-    var clonedRelayFragment = relayFragment.clone([relayFragmentChild]);
-
-    // GraphQL queries are static and must be traversed once to determine
-    // route-specific fragments and variable values
-    var graphql = toGraphQL.Fragment(clonedRelayFragment);
-    expect(fromGraphQL.Fragment(graphql).equals(clonedRelayFragment))
-      .toBe(true);
-    expect(graphql).not.toBe(fragment);
-    expect(toGraphQL.Fragment(clonedRelayFragment)).toBe(graphql);
-  });
 });

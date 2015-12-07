@@ -44,7 +44,7 @@ describe('GraphQLQueryRunner', () => {
    */
   function deferQuery(relayQuery) {
     var node = {
-      ...relayQuery.__concreteNode__,
+      ...relayQuery.getConcreteQueryNode(),
       isDeferred: true,
     };
     return getNode(node, relayQuery.getVariables());

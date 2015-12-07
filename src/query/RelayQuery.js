@@ -120,9 +120,6 @@ class RelayQueryNode {
   __storageKey__: ?string;
   __variables__: Variables;
 
-  // TODO(#7161070) Remove this once `toGraphQL` is no longer needed.
-  __isConcreteNodeCached__: boolean;
-
   static create(
     concreteNode: mixed,
     route: RelayMetaRoute,
@@ -163,9 +160,6 @@ class RelayQueryNode {
     this.__hasValidatedConnectionCalls__ = null;
     this.__serializationKey__ = null;
     this.__storageKey__ = null;
-
-    // TODO(#7161070) Remove this once `toGraphQL` is no longer needed.
-    this.__isConcreteNodeCached__ = false;
   }
 
   isGenerated(): boolean {
@@ -356,13 +350,7 @@ class RelayQueryNode {
     );
   }
 
-  getConcreteQueryNode(
-    onCacheMiss: () => any
-  ): any {
-    if (!this.__isConcreteNodeCached__) {
-      this.__concreteNode__ = onCacheMiss();
-      this.__isConcreteNodeCached__ = true;
-    }
+  getConcreteQueryNode(): any {
     return this.__concreteNode__;
   }
 }

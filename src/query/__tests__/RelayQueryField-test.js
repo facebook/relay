@@ -266,7 +266,7 @@ describe('RelayQueryField', () => {
     var field = getNode(
       Relay.QL`fragment on User{profilePicture(size:"32")}`
     ).getChildren()[0];
-    field.__concreteNode__.calls[0].metadata = {type: 'scalar'};
+    field.getConcreteQueryNode().calls[0].metadata = {type: 'scalar'};
 
     expect(field.getCallType('size')).toBe('scalar');
     expect(field.getCallType('nonExistentCall')).toBe(undefined);

@@ -23,76 +23,76 @@ var edges = [
   {
     __dataID__:'edge1',
     node: {__dataID__: 'id1'},
-    cursor: 'cursor1'
+    cursor: 'cursor1',
   }, {
     __dataID__:'edge2',
     node: {__dataID__: 'id2'},
-    cursor: 'cursor2'
+    cursor: 'cursor2',
   }, {
     __dataID__:'edge3',
     node: {__dataID__: 'id3'},
-    cursor: 'cursor3'
-  }
+    cursor: 'cursor3',
+  },
 ];
 
 var moreEdges = [
   {
     __dataID__:'edge4',
     node: {__dataID__: 'id4'},
-    cursor: 'cursor4'
+    cursor: 'cursor4',
   }, {
     __dataID__:'edge5',
     node: {__dataID__: 'id5'},
-    cursor: 'cursor5'
+    cursor: 'cursor5',
   }, {
     __dataID__:'edge6',
     node: {__dataID__: 'id6'},
-    cursor: 'cursor6'
-  }
+    cursor: 'cursor6',
+  },
 ];
 
 var lastEdges = [
   {
     __dataID__:'edge98',
     node: {__dataID__: 'id98'},
-    cursor: 'cursor98'
+    cursor: 'cursor98',
   }, {
     __dataID__:'edge99',
     node: {__dataID__: 'id99'},
-    cursor: 'cursor99'
+    cursor: 'cursor99',
   }, {
     __dataID__:'edge100',
     node: {__dataID__: 'id100'},
-    cursor: 'cursor100'
-  }
+    cursor: 'cursor100',
+  },
 ];
 
 var beforeLastEdges = [
   {
     __dataID__:'edge95',
     node: {__dataID__: 'id95'},
-    cursor: 'cursor95'
+    cursor: 'cursor95',
   }, {
     __dataID__:'edge96',
     node: {__dataID__: 'id96'},
-    cursor: 'cursor96'
+    cursor: 'cursor96',
   }, {
     __dataID__:'edge97',
     node: {__dataID__: 'id97'},
-    cursor: 'cursor97'
-  }
+    cursor: 'cursor97',
+  },
 ];
 
 var oneEdge = {
   __dataID__:'edgeOneEdge',
   node: {__dataID__: 'idOneEdge'},
-  cursor: 'cursorOneEdge'
+  cursor: 'cursorOneEdge',
 };
 
 var anotherEdge = {
   __dataID__:'edgeAnotherEdge',
   node: {__dataID__: 'idAnotherEdge'},
-  cursor: 'cursorAnotherEdge'
+  cursor: 'cursorAnotherEdge',
 };
 
 /**
@@ -420,16 +420,16 @@ describe('GraphQLSegment', () => {
       {
         __dataID__: 'edge3',
         node: {__dataID__: 'id3'},
-        cursor: 'cursor3'
+        cursor: 'cursor3',
       }, {
         __dataID__: 'edge4',
         node: {__dataID__: 'id4'},
-        cursor: 'cursor4'
+        cursor: 'cursor4',
       }, {
         __dataID__: 'edge5',
         node: {__dataID__: 'id5'},
-        cursor: 'cursor5'
-      }
+        cursor: 'cursor5',
+      },
     ];
 
     // deleted edge in the original segment

@@ -378,7 +378,7 @@ var RelayMutationQuery = {
       (children.filter(child => child != null): any),
       mutation.metadata
     );
-  }
+  },
 };
 
 function getFieldFromFatQuery(

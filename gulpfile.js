@@ -26,7 +26,7 @@ var webpackStream = require('webpack-stream');
 var DEVELOPMENT_HEADER = [
   '/**',
   ' * Relay v<%= version %>',
-  ' */'
+  ' */',
 ].join('\n') + '\n';
 var PRODUCTION_HEADER = [
   '/**',
@@ -39,13 +39,13 @@ var PRODUCTION_HEADER = [
   ' * LICENSE file in the root directory of this source tree. An additional grant',
   ' * of patent rights can be found in the PATENTS file in the same directory.',
   ' *',
-  ' */'
+  ' */',
 ].join('\n') + '\n';
 
 var babelOpts = {
   nonStandard: true,
   loose: [
-    'es6.classes'
+    'es6.classes',
   ],
   stage: 1,
   optional: ['runtime'],
@@ -64,8 +64,8 @@ var babelOpts = {
   _moduleMap: objectAssign({}, require('fbjs/module-map'), {
     'React': 'react',
     'ReactDOM': 'react-dom',
-    'StaticContainer.react': 'react-static-container'
-  })
+    'StaticContainer.react': 'react-static-container',
+  }),
 };
 
 var buildDist = function(opts) {
@@ -73,12 +73,12 @@ var buildDist = function(opts) {
     debug: opts.debug,
     externals: {
       'react': 'React',
-      'react-dom': 'ReactDOM'
+      'react-dom': 'ReactDOM',
     },
     output: {
       filename: opts.output,
       libraryTarget: 'umd',
-      library: 'Relay'
+      library: 'Relay',
     },
     plugins: [
       new webpackStream.webpack.DefinePlugin({
@@ -87,8 +87,8 @@ var buildDist = function(opts) {
         ),
       }),
       new webpackStream.webpack.optimize.OccurenceOrderPlugin(),
-      new webpackStream.webpack.optimize.DedupePlugin()
-    ]
+      new webpackStream.webpack.optimize.DedupePlugin(),
+    ],
   };
   if (!opts.debug) {
     webpackOpts.plugins.push(
@@ -96,8 +96,8 @@ var buildDist = function(opts) {
         compress: {
           hoist_vars: true,
           screw_ie8: true,
-          warnings: false
-        }
+          warnings: false,
+        },
       })
     );
   }
@@ -118,7 +118,7 @@ var paths = {
   src: [
     '*src/**/*.js',
     '!src/**/__tests__/**/*.js',
-    '!src/**/__mocks__/**/*.js'
+    '!src/**/__mocks__/**/*.js',
   ],
 };
 
@@ -137,13 +137,13 @@ gulp.task('modules', function() {
 gulp.task('dist', ['modules'], function() {
   var distOpts = {
     debug: true,
-    output: 'relay.js'
+    output: 'relay.js',
   };
   return gulp.src(paths.entry)
     .pipe(buildDist(distOpts))
     .pipe(derequire())
     .pipe(header(DEVELOPMENT_HEADER, {
-      version: process.env.npm_package_version
+      version: process.env.npm_package_version,
     }))
     .pipe(gulp.dest(paths.dist));
 });
@@ -151,12 +151,12 @@ gulp.task('dist', ['modules'], function() {
 gulp.task('dist:min', ['modules'], function() {
   var distOpts = {
     debug: false,
-    output: 'relay.min.js'
+    output: 'relay.min.js',
   };
   return gulp.src(paths.entry)
     .pipe(buildDist(distOpts))
     .pipe(header(PRODUCTION_HEADER, {
-      version: process.env.npm_package_version
+      version: process.env.npm_package_version,
     }))
     .pipe(gulp.dest(paths.dist));
 });

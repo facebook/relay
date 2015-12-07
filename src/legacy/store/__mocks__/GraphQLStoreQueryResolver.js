@@ -43,7 +43,7 @@ class GraphQLStoreQueryResolver {
 GraphQLStoreQueryResolver.mock = {
   instances: [],
   resolveImplementations: [],
-  defaultResolveImplementation: () => undefined
+  defaultResolveImplementation: () => undefined,
 };
 
 module.exports = GraphQLStoreQueryResolver;

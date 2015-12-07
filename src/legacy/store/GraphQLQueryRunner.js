@@ -37,7 +37,7 @@ const warning = require('warning');
 
 import type {
   Abortable,
-  ReadyStateChangeCallback
+  ReadyStateChangeCallback,
 } from 'RelayTypes';
 
 type PartialReadyState = {

@@ -152,7 +152,7 @@ var shipType = new GraphQLObjectType({
       description: 'The name of the ship.',
     },
   }),
-  interfaces: [nodeInterface]
+  interfaces: [nodeInterface],
 });
 
 /**
@@ -201,9 +201,9 @@ var factionType = new GraphQLObjectType({
         faction.ships.map((id) => getShip(id)),
         args
       ),
-    }
+    },
   }),
-  interfaces: [nodeInterface]
+  interfaces: [nodeInterface],
 });
 
 /**
@@ -228,8 +228,8 @@ var queryType = new GraphQLObjectType({
       },
       resolve: (root, {names}) => getFactions(names),
     },
-    node: nodeField
-  })
+    node: nodeField,
+  }),
 });
 
 /**
@@ -252,21 +252,21 @@ var shipMutation = mutationWithClientMutationId({
   name: 'IntroduceShip',
   inputFields: {
     shipName: {
-      type: new GraphQLNonNull(GraphQLString)
+      type: new GraphQLNonNull(GraphQLString),
     },
     factionId: {
-      type: new GraphQLNonNull(GraphQLID)
-    }
+      type: new GraphQLNonNull(GraphQLID),
+    },
   },
   outputFields: {
     ship: {
       type: shipType,
-      resolve: (payload) => getShip(payload.shipId)
+      resolve: (payload) => getShip(payload.shipId),
     },
     faction: {
       type: factionType,
-      resolve: (payload) => getFaction(payload.factionId)
-    }
+      resolve: (payload) => getFaction(payload.factionId),
+    },
   },
   mutateAndGetPayload: ({shipName, factionId}) => {
     var newShip = createShip(shipName, factionId);
@@ -274,7 +274,7 @@ var shipMutation = mutationWithClientMutationId({
       shipId: newShip.id,
       factionId: factionId,
     };
-  }
+  },
 });
 
 /**
@@ -289,8 +289,8 @@ var shipMutation = mutationWithClientMutationId({
 var mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
-    introduceShip: shipMutation
-  })
+    introduceShip: shipMutation,
+  }),
 });
 
 /**
@@ -299,5 +299,5 @@ var mutationType = new GraphQLObjectType({
  */
 export var schema = new GraphQLSchema({
   query: queryType,
-  mutation: mutationType
+  mutation: mutationType,
 });

@@ -29,12 +29,12 @@ import type {
   RelayMutationTransactionCommitCallbacks,
   ReadyStateChangeCallback,
   StoreReaderData,
-  StoreReaderOptions
+  StoreReaderOptions,
 } from 'RelayTypes';
 
 import type {
   DataID,
-  RelayQuerySet
+  RelayQuerySet,
 } from 'RelayInternalTypes';
 
 var storeData = RelayStoreData.getDefaultInstance();

@@ -59,7 +59,34 @@ The plugin needs to understand your schema - `schemaData` in the above snippet. 
 
 ### Using `graphql`
 
-An example of how to load a `schema.js` file, run the introspection query to get schema information, and save it to a JSON file can be found in the [starter kit](https://github.com/relayjs/relay-starter-kit/blob/master/scripts/updateSchema.js).
+Use `introspectionQuery` to generate Schema JSON for Babel Relay Plugin , and `printSchema` for user readable type system shorthand:
+
+```javascript
+import fs from 'fs';
+import path from 'path';
+import { graphql }  from 'graphql';
+import { introspectionQuery, printSchema } from 'graphql/utilities';
+
+// Assume your schema is in ../data/schema
+import { schema } from '../data/schema';
+var yourSchemaPath =path.join(__dirname, '../data/schema');
+
+// Save JSON of full schema introspection for Babel Relay Plugin to use
+graphql(schema, introspectionQuery).then(result=>{
+    fs.writeFileSync(
+        `${yourSchemaPath}.json`,
+        JSON.stringify(result, null, 2)
+    );
+});
+
+// Save user readable type system shorthand of schema
+fs.writeFileSync(
+    `${yourSchemaPath}.graphql`,
+    printSchema(schema)
+);
+```
+  
+A full example of how to load a `schema.js` file, run the introspection query to get schema information, and save it to a JSON file can be found in the [starter kit](https://github.com/relayjs/relay-starter-kit/blob/master/scripts/updateSchema.js).
 
 ### Using Other GraphQL Implementations
 

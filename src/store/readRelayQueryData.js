@@ -33,6 +33,7 @@ import type {
 var callsFromGraphQL = require('callsFromGraphQL');
 var callsToGraphQL = require('callsToGraphQL');
 var invariant = require('invariant');
+var isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 var validateRelayReadQuery = require('validateRelayReadQuery');
 
 export type DataIDSet = {[key: string]: boolean};
@@ -166,10 +167,10 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
   }
 
   visitFragment(node: RelayQuery.Fragment, state: State): ?RelayQuery.Node {
+    const dataID = getComponentDataID(state);
     if (node.isContainerFragment() && !this._traverseFragmentReferences) {
-      var dataID = getComponentDataID(state);
       state.seenDataIDs[dataID] = true;
-      var fragmentPointer = new GraphQLFragmentPointer(
+      const fragmentPointer = new GraphQLFragmentPointer(
         node.isPlural() ? [dataID] : dataID,
         node
       );
@@ -178,7 +179,10 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
         fragmentPointer.getFragment().getConcreteFragmentID(),
         fragmentPointer
       );
-    } else {
+    } else if (isCompatibleRelayFragmentType(
+      node,
+      this._recordStore.getType(dataID)
+    )) {
       this.traverse(node, state);
     }
   }

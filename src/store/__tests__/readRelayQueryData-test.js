@@ -1352,4 +1352,57 @@ describe('readRelayQueryData', () => {
     var data = readData(getStoreData({records}), query, '4');
     expect(data).toBe(null);
   });
+
+  it('reads data for matching fragments', () => {
+    var records = {
+      123: {
+        __dataID__: '123',
+        id: '123',
+        __typename: 'User',
+      },
+    };
+    var query = getNode(Relay.QL`fragment on User { id }`);
+    var data = readData(getStoreData({records}), query, '123');
+    expect(data).toEqual({
+      __dataID__: '123',
+      id: '123',
+    });
+  });
+
+  it('returns undefined for non-matching fragments', () => {
+    var records = {
+      123: {
+        __dataID__: '123',
+        id: '123',
+        __typename: 'User',
+      },
+    };
+    var query = getNode(Relay.QL`fragment on Page { id }`);
+    var data = readData(getStoreData({records}), query, '123');
+    expect(data).toEqual(undefined);
+  });
+
+  it('skips non-matching child fragments', () => {
+    var records = {
+      123: {
+        __dataID__: '123',
+        id: '123',
+        __typename: 'User',
+        name: 'Greg',
+      },
+    };
+    var query = getNode(Relay.QL`fragment on Actor {
+      ... on User {
+        name
+      }
+      ... on Page {
+        id
+      }
+    }`);
+    var data = readData(getStoreData({records}), query, '123');
+    expect(data).toEqual({
+      __dataID__: '123',
+      name: 'Greg',
+    });
+  });
 });

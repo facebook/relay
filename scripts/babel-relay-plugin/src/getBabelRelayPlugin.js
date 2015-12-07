@@ -184,7 +184,7 @@ function getBabelRelayPlugin(
           }
           // For babel 5 compatibility
           if (state.isLegacyState) {
-            return result;
+            return result; // eslint-disable-line consistent-return
           } else {
             path.replaceWith(result);
           }

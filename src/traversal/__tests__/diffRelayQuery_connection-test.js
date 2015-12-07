@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-/* eslint-disable indent */
-
 'use strict';
 
 require('configureForRelayOSS');

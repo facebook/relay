@@ -392,7 +392,7 @@ class PendingTransaction {
 
   getMutationNode(): ConcreteMutation {
     if (!this._mutationNode) {
-      let mutationNode = QueryBuilder.getMutation(this.mutation.getMutation());
+      const mutationNode = QueryBuilder.getMutation(this.mutation.getMutation());
       invariant(
         mutationNode,
         'RelayMutation: Expected `getMutation` to return a mutation created ' +

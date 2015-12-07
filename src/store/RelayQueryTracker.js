@@ -17,7 +17,6 @@ const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
-import type RelayQueryPath from 'RelayQueryPath';
 
 const TYPE = '__type__';
 

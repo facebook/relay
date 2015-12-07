@@ -45,10 +45,10 @@ describe('babel-relay-plugin', () => {
                 path.relative(ROOT_DIR, srcFile),
                 path.relative(ROOT_DIR, libFile)
               ),
-            }
+            };
           },
         };
-      }
+      },
     });
   });
 

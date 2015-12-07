@@ -37,7 +37,7 @@ function readFixtures(fixturePath) {
     parts = data.match(new RegExp(
       '(?:^|\\n)' + [
         'Input:\\n([\\s\\S]*)',
-        'Output:\\n([\\s\\S]*)'
+        'Output:\\n([\\s\\S]*)',
       ].join('\\n') + '$'
     ));
     if (parts) {
@@ -56,7 +56,7 @@ function readFixtures(fixturePath) {
     parts = data.match(new RegExp(
       '(?:^|\\n)' + [
         'Input:\\n([\\s\\S]*)',
-        'Error:\\n([\\s\\S]*)'
+        'Error:\\n([\\s\\S]*)',
       ].join('\\n') + '$'
     ));
     if (parts) {

@@ -327,6 +327,7 @@ describe('RelayMutationQuery', () => {
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
+            __typename
             cursor,
             node {
               body {
@@ -382,6 +383,7 @@ describe('RelayMutationQuery', () => {
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
+            __typename
             cursor,
             node {
               author {
@@ -437,6 +439,7 @@ describe('RelayMutationQuery', () => {
       var expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
+            __typename
             cursor,
             node {
               body {
@@ -693,6 +696,7 @@ describe('RelayMutationQuery', () => {
                   }
                 }
                 feedbackCommentEdge {
+                  __typename
                   cursor,
                   node {
                     body {
@@ -982,6 +986,7 @@ describe('RelayMutationQuery', () => {
                   }
                 }
                 feedbackCommentEdge {
+                  __typename
                   cursor,
                   node {
                     body {
@@ -1088,6 +1093,7 @@ describe('RelayMutationQuery', () => {
                   likers,
                 },
                 feedbackCommentEdge {
+                  __typename
                   cursor,
                   node {
                     body {

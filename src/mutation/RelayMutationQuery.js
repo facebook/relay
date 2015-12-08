@@ -424,6 +424,10 @@ function buildEdgeField(
       fieldName: 'cursor',
       type: 'String',
     }),
+    RelayQuery.Field.build({
+      fieldName: TYPENAME,
+      type: 'String',
+    }),
   ];
   if (RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD &&
       !GraphQLStoreDataHandler.isClientID(parentID)) {

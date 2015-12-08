@@ -212,10 +212,10 @@ class RelayRecordStore {
       }
       return;
     }
-    var nextRecord: Record = ({
+    var nextRecord: Record = {
       __dataID__: dataID,
       __typename: typeName,
-    }: $FixMe);
+    };
     if (target === this._queuedRecords) {
       this._setClientMutationID(nextRecord);
     }
@@ -659,7 +659,7 @@ class RelayRecordStore {
       };
     }
     var queuedRecord = this._queuedRecords ?
-      (this._queuedRecords: $FixMe)[connectionID] :
+      this._queuedRecords[connectionID] :
       null;
     var {
       diffCalls,

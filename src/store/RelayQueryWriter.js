@@ -13,21 +13,21 @@
 
 'use strict';
 
-var RelayQuery = require('RelayQuery');
+const RelayQuery = require('RelayQuery');
 import type RelayChangeTracker from 'RelayChangeTracker';
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayNodeInterface = require('RelayNodeInterface');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
 import type RelayQueryTracker from 'RelayQueryTracker';
-var RelayQueryVisitor = require('RelayQueryVisitor');
-var RelayRecordState = require('RelayRecordState');
+const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 
-var generateClientEdgeID = require('generateClientEdgeID');
-var generateClientID = require('generateClientID');
-var invariant = require('invariant');
-var isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
-var warning = require('warning');
+const generateClientEdgeID = require('generateClientEdgeID');
+const generateClientID = require('generateClientID');
+const invariant = require('invariant');
+const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const warning = require('warning');
 
 import type {DataID} from 'RelayInternalTypes';
 
@@ -37,14 +37,14 @@ type WriterOptions = {
   updateTrackedQueries?: boolean;
 };
 type WriterState = {
-  recordID: DataID;
-  responseData: ?mixed;
   nodeID: ?DataID;
   path: RelayQueryPath;
+  recordID: DataID;
+  responseData: ?mixed;
 };
 
-var {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
-var {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
+const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
+const {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
 
 /**
  * @internal
@@ -88,7 +88,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // Optimistic queries are inferred and fields have a generic 'any' type.
       return null;
     }
-    var typeName = payload[TYPENAME];
+    let typeName = payload[TYPENAME];
     if (typeName == null && !node.isAbstract()) {
       typeName = node.getType();
     }
@@ -110,11 +110,11 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     responseData: mixed,
     path: RelayQueryPath
   ): void {
-    var state = {
+    const state = {
       nodeID: null,
+      path,
       recordID,
       responseData,
-      path,
     };
 
     if (node instanceof RelayQuery.Field && !node.isScalar()) {
@@ -171,7 +171,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     typeName: ?string,
     path: RelayQueryPath
   ): void {
-    var recordState = this._store.getRecordState(recordID);
+    const recordState = this._store.getRecordState(recordID);
     if (recordState !== RelayRecordState.EXISTENT) {
       this._store.putRecord(recordID, typeName, path);
       this.recordCreate(recordID);
@@ -185,8 +185,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     root: RelayQuery.Root,
     state: WriterState
   ): ?RelayQuery.Node {
-    var {path, recordID, responseData} = state;
-    var recordState = this._store.getRecordState(recordID);
+    const {path, recordID, responseData} = state;
+    const recordState = this._store.getRecordState(recordID);
 
     // GraphQL should never return undefined for a field
     if (responseData == null) {
@@ -209,7 +209,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       recordID
     );
     if (recordState !== RelayRecordState.EXISTENT) {
-      var typeName = this.getRecordTypeName(root, recordID, responseData);
+      const typeName = this.getRecordTypeName(root, recordID, responseData);
       this._store.putRecord(recordID, typeName, path);
       this.recordCreate(recordID);
     }
@@ -250,7 +250,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     field: RelayQuery.Field,
     state: WriterState
   ): ?RelayQuery.Node {
-    var {
+    const {
       recordID,
       responseData,
     } = state;
@@ -267,7 +267,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     );
 
     // handle missing data
-    var fieldData = responseData[field.getSerializationKey()];
+    const fieldData = responseData[field.getSerializationKey()];
     if (fieldData === undefined) {
       return;
     }
@@ -298,8 +298,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     recordID: DataID,
     nextValue: mixed
   ): void {
-    var storageKey = field.getStorageKey();
-    var prevValue = this._store.getField(recordID, storageKey);
+    const storageKey = field.getStorageKey();
+    const prevValue = this._store.getField(recordID, storageKey);
 
     // always update the store to ensure the value is present in the appropriate
     // data sink (records/queuedRecords), but only record an update if the value
@@ -333,13 +333,13 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // Each unique combination of filter calls is stored in its own
     // generated record (ex: `field.orderby(x)` results are separate from
     // `field.orderby(y)` results).
-    var storageKey = field.getStorageKey();
-    var connectionID = this._store.getLinkedRecordID(recordID, storageKey);
-    if (!connectionID) {
-      connectionID = generateClientID();
-    }
-    var connectionRecordState = this._store.getRecordState(connectionID);
-    var hasEdges = !!(
+    const storageKey = field.getStorageKey();
+    const connectionID =
+      this._store.getLinkedRecordID(recordID, storageKey) ||
+      generateClientID();
+
+    const connectionRecordState = this._store.getRecordState(connectionID);
+    const hasEdges = !!(
       field.getFieldByStorageKey(EDGES) ||
       (
         connectionData != null &&
@@ -347,7 +347,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         (connectionData: $FixMe)[EDGES]
       )
     );
-    var path = state.path.getPath(field, connectionID);
+    const path = state.path.getPath(field, connectionID);
     // always update the store to ensure the value is present in the appropriate
     // data sink (records/queuedRecords), but only record an update if the value
     // changed.
@@ -376,9 +376,9 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       this.recordUpdate(connectionID);
     }
 
-    var connectionState = {
-      path,
+    const connectionState = {
       nodeID: null,
+      path,
       recordID: connectionID,
       responseData: connectionData,
     };
@@ -419,7 +419,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     edges: RelayQuery.Field,
     state: WriterState
   ): void {
-    var {
+    const {
       recordID: connectionID,
       responseData: connectionData,
     } = state;
@@ -430,7 +430,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       connection.getDebugName(),
       connectionID
     );
-    var edgesData = connectionData[EDGES];
+    const edgesData = connectionData[EDGES];
 
     // Validate response data.
     if (edgesData == null) {
@@ -451,7 +451,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       connectionID
     );
 
-    var rangeCalls = connection.getCallsWithValues();
+    const rangeCalls = connection.getCallsWithValues();
     invariant(
       RelayConnectionInterface.hasRangeCalls(rangeCalls),
       'RelayQueryWriter: Cannot write edges for connection `%s` on record ' +
@@ -459,7 +459,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       connection.getDebugName(),
       connectionID
     );
-    var rangeInfo = this._store.getRangeMetadata(
+    const rangeInfo = this._store.getRangeMetadata(
       connectionID,
       rangeCalls
     );
@@ -470,10 +470,10 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       connection.getDebugName(),
       connectionID
     );
-    var fetchedEdgeIDs = [];
-    var isUpdate = false;
-    var nextIndex = 0;
-    var filteredEdges = rangeInfo.filteredEdges;
+    const fetchedEdgeIDs = [];
+    const filteredEdges = rangeInfo.filteredEdges;
+    let isUpdate = false;
+    let nextIndex = 0;
     // Traverse connection edges, reusing existing edges if they exist
     edgesData.forEach(edgeData => {
       // validate response data
@@ -488,7 +488,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         connectionID
       );
 
-      var nodeData = edgeData[NODE];
+      const nodeData = edgeData[NODE];
       if (nodeData == null) {
         return;
       }
@@ -504,15 +504,15 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // For consistency, edge IDs are calculated from the connection & node ID.
       // A node ID is only generated if the node does not have an id and
       // there is no existing edge.
-      var prevEdge = filteredEdges[nextIndex++];
-      var nodeID = (
+      const prevEdge = filteredEdges[nextIndex++];
+      const nodeID = (
         (nodeData && nodeData[ID]) ||
         (prevEdge && this._store.getLinkedRecordID(prevEdge.edgeID, NODE)) ||
         generateClientID()
       );
       // TODO: Flow: `nodeID` is `string`
-      var edgeID = generateClientEdgeID(connectionID, (nodeID: any));
-      var path = state.path.getPath(edges, edgeID);
+      const edgeID = generateClientEdgeID(connectionID, (nodeID: any));
+      const path = state.path.getPath(edges, edgeID);
       this.createRecordIfMissing(edges, edgeID, null, path);
       fetchedEdgeIDs.push(edgeID);
 
@@ -521,15 +521,15 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // which would cause the generated ID here to not match the ID generated
       // in `_writeLink`.
       this.traverse(edges, {
-        path,
         nodeID,
+        path,
         recordID: edgeID,
         responseData: edgeData,
       });
       isUpdate = isUpdate || this.hasChangeToRecord(edgeID);
     });
 
-    var pageInfo = connectionData[PAGE_INFO] ||
+    const pageInfo = connectionData[PAGE_INFO] ||
       RelayConnectionInterface.getDefaultPageInfo();
     this._store.putRangeEdges(
       connectionID,
@@ -556,7 +556,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     recordID: DataID,
     fieldData: mixed
   ): void {
-    var storageKey = field.getStorageKey();
+    const storageKey = field.getStorageKey();
     invariant(
       Array.isArray(fieldData),
       'RelayQueryWriter: Expected array data for field `%s` on record `%s`.',
@@ -564,11 +564,10 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       recordID
     );
 
-    var prevLinkedIDs =
-      this._store.getLinkedRecordIDs(recordID, storageKey);
-    var nextLinkedIDs = [];
-    var isUpdate = !prevLinkedIDs;
-    var nextIndex = 0;
+    const prevLinkedIDs = this._store.getLinkedRecordIDs(recordID, storageKey);
+    const nextLinkedIDs = [];
+    let isUpdate = !prevLinkedIDs;
+    let nextIndex = 0;
     fieldData.forEach(nextRecord => {
       // validate response data
       if (nextRecord == null) {
@@ -583,16 +582,16 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
 
       // Reuse existing generated IDs if the node does not have its own `id`.
       // TODO: Flow: `nextRecord` is asserted as typeof === 'object'
-      var prevLinkedID = prevLinkedIDs && prevLinkedIDs[nextIndex];
-      var nextLinkedID = (
+      const prevLinkedID = prevLinkedIDs && prevLinkedIDs[nextIndex];
+      const nextLinkedID = (
         nextRecord[ID] ||
         prevLinkedID ||
         generateClientID()
       );
       nextLinkedIDs.push(nextLinkedID);
 
-      var path = state.path.getPath(field, nextLinkedID);
-      var typeName = this.getRecordTypeName(field, nextLinkedID, nextRecord);
+      const path = state.path.getPath(field, nextLinkedID);
+      const typeName = this.getRecordTypeName(field, nextLinkedID, nextRecord);
       this.createRecordIfMissing(field, nextLinkedID, typeName, path);
       isUpdate = (
         isUpdate ||
@@ -601,8 +600,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       );
 
       this.traverse(field, {
-        path,
         nodeID: null, // never propagate `nodeID` past the first linked field
+        path,
         recordID: nextLinkedID,
         responseData: nextRecord,
       });
@@ -636,8 +635,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     recordID: DataID,
     fieldData: mixed
   ): void {
-    var {nodeID} = state;
-    var storageKey = field.getStorageKey();
+    const {nodeID} = state;
+    const storageKey = field.getStorageKey();
     invariant(
       typeof fieldData === 'object' && fieldData !== null,
       'RelayQueryWriter: Expected data for non-scalar field `%s` on record ' +
@@ -651,16 +650,16 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // a special case as the ID used here must match the one generated prior to
     // storing the parent `edge`.
     // TODO: Flow: `fieldData` is asserted as typeof === 'object'
-    var prevLinkedID = this._store.getLinkedRecordID(recordID, storageKey);
-    var nextLinkedID = (
+    const prevLinkedID = this._store.getLinkedRecordID(recordID, storageKey);
+    const nextLinkedID = (
       (field.getSchemaName() === NODE && nodeID) ||
       (fieldData: any)[ID] ||
       prevLinkedID ||
       generateClientID()
     );
 
-    var path = state.path.getPath(field, nextLinkedID);
-    var typeName = this.getRecordTypeName(field, nextLinkedID, fieldData);
+    const path = state.path.getPath(field, nextLinkedID);
+    const typeName = this.getRecordTypeName(field, nextLinkedID, fieldData);
     this.createRecordIfMissing(field, nextLinkedID, typeName, path);
     // always update the store to ensure the value is present in the appropriate
     // data sink (record/queuedRecords), but only record an update if the value
@@ -671,8 +670,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     }
 
     this.traverse(field, {
-      path,
       nodeID: null,
+      path,
       recordID: nextLinkedID,
       responseData: fieldData,
     });

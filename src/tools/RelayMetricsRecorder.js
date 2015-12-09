@@ -34,7 +34,6 @@ const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 // Singleton methods:
 const INSTRUMENTED_METHODS = [
-  GraphQLStoreQueryResolver.prototype.resolve,
   buildRQL.Fragment,
   buildRQL.Query,
   checkRelayQueryData,
@@ -48,16 +47,16 @@ const INSTRUMENTED_METHODS = [
   writeRelayQueryPayload,
   writeRelayUpdatePayload,
   GraphQLStoreQueryResolver.prototype.resolve,
-  RelayQuery.Field.prototype.getStorageKey,
+  RelayNetworkLayer.sendMutation,
+  RelayNetworkLayer.sendQueries,
   RelayQuery.Field.prototype.getSerializationKey,
+  RelayQuery.Field.prototype.getStorageKey,
   RelayQuery.Node.prototype.clone,
   RelayQuery.Node.prototype.equals,
   RelayQuery.Node.prototype.getChildren,
   RelayQuery.Node.prototype.getDirectives,
-  RelayQuery.Node.prototype.hasDeferredDescendant,
   RelayQuery.Node.prototype.getFieldByStorageKey,
-  RelayNetworkLayer.sendMutation,
-  RelayNetworkLayer.sendQueries,
+  RelayQuery.Node.prototype.hasDeferredDescendant,
 ];
 
 // There is no static RelayContainer.prototype instance, so methods are

@@ -477,7 +477,7 @@ var RelayTestUtils = {
    */
   minifyQueryText(queryText) {
     return queryText
-      .replace(/\n/g, ' ')
+      .replace(/\n+/g, ' ')
       .replace(/\s+/g, ' ')
       .replace(/\s*([\{\}\(\):,])\s*/g, '$1')
       .trim();

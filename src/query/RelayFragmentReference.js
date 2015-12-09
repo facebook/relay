@@ -96,7 +96,6 @@ class RelayFragmentReference {
   _fragmentGetter: FragmentGetter;
   _isContainerFragment: boolean;
   _isDeferred: boolean;
-  _isTypeConditional: boolean;
   _variableMapping: ?VariableMapping;
   _prepareVariables: ?PrepareVariablesCallback;
 
@@ -127,7 +126,6 @@ class RelayFragmentReference {
     this._fragmentGetter = fragmentGetter;
     this._isContainerFragment = false;
     this._isDeferred = false;
-    this._isTypeConditional = false;
     this._variableMapping = variableMapping;
     this._prepareVariables = prepareVariables;
   }
@@ -137,14 +135,6 @@ class RelayFragmentReference {
    */
   defer(): RelayFragmentReference {
     this._isDeferred = true;
-    return this;
-  }
-
-  /**
-   * Mark this usage of the fragment as conditional on its type.
-   */
-  conditionOnType(): RelayFragmentReference {
-    this._isTypeConditional = true;
     return this;
   }
 
@@ -251,10 +241,6 @@ class RelayFragmentReference {
 
   isDeferred(): boolean {
     return this._isDeferred;
-  }
-
-  isTypeConditional(): boolean {
-    return this._isTypeConditional;
   }
 
   _addCondition(condition: Condition): void {

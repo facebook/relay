@@ -48,18 +48,30 @@ describe('RelayRenderer.abort', () => {
         request: RelayStore.primeCache.mock.requests[index],
       };
     }
-    jest.addMatchers({
+    jasmine.addMatchers({
       toAbortOnUpdate() {
-        const {abort, request} = render();
-        this.actual(request);
-        render();
-        return abort.mock.calls.length > 0;
+        return {
+          compare(actual) {
+            const {abort, request} = render();
+            actual(request);
+            render();
+            return {
+              pass: abort.mock.calls.length > 0,
+            };
+          },
+        };
       },
       toAbortOnUnmount() {
-        const {abort, request} = render();
-        this.actual(request);
-        ReactDOM.unmountComponentAtNode(container);
-        return abort.mock.calls.length > 0;
+        return {
+          compare(actual) {
+            const {abort, request} = render();
+            actual(request);
+            ReactDOM.unmountComponentAtNode(container);
+            return {
+              pass: abort.mock.calls.length > 0,
+            };
+          },
+        };
       },
     });
   });

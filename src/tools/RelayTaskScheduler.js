@@ -13,8 +13,6 @@
 
 'use strict';
 
-var Promise = require('Promise');
-
 var invariant = require('invariant');
 
 type TaskCallback = () => void;

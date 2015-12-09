@@ -23,6 +23,8 @@ var RelayMutation = require('RelayMutation');
 var RelayMutationQuery = require('RelayMutationQuery');
 var RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 var RelayStoreData = require('RelayStoreData');
+
+var flattenRelayQuery = require('flattenRelayQuery');
 var fromGraphQL = require('fromGraphQL');
 
 describe('RelayMutationQueue', () => {
@@ -36,21 +38,24 @@ describe('RelayMutationQueue', () => {
     RelayNetworkLayer = jest.genMockFromModule('RelayNetworkLayer');
     jest.setMock('RelayNetworkLayer', RelayNetworkLayer);
 
-    fromGraphQL.Fragment = jest.genMockFunction().mockImplementation(f => f);
-
     RelayStoreData.prototype.handleUpdatePayload = jest.genMockFunction();
     storeData = RelayStoreData.getDefaultInstance();
     mutationQueue = storeData.getMutationQueue();
   });
 
   describe('constructor', () => {
-    var mockMutation, mutationNode;
+    var mockMutation, mutationNode, fatQuery;
 
     beforeEach(() => {
       mutationNode = Relay.QL`mutation{commentCreate(input:$input)}`;
+      fatQuery = Relay.QL`fragment on Comment @relay(pattern: true) {
+        ... on Comment {
+          doesViewerLike
+        }
+      }`;
       mockMutation = new RelayMutation();
+      mockMutation.getFatQuery.mockReturnValue(fatQuery);
       mockMutation.getMutation.mockReturnValue(mutationNode);
-      mockMutation.getFatQuery.mockReturnValue('fatQuery');
       mockMutation.getConfigs.mockReturnValue('configs');
     });
 
@@ -77,7 +82,9 @@ describe('RelayMutationQueue', () => {
       );
       expect(RelayMutationQuery.buildQuery.mock.calls).toEqual([[{
         configs: 'optimisticConfigs',
-        fatQuery: 'fatQuery',
+        fatQuery: flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
+          shouldRemoveFragments: true,
+        }),
         input: {
           ...input,
           [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
@@ -106,7 +113,9 @@ describe('RelayMutationQueue', () => {
       expect(
         RelayMutationQuery.buildQueryForOptimisticUpdate.mock.calls
       ).toEqual([[{
-        fatQuery: 'fatQuery',
+        fatQuery: flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
+          shouldRemoveFragments: true,
+        }),
         mutation: mutationNode,
         response: {
           [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
@@ -122,10 +131,17 @@ describe('RelayMutationQueue', () => {
   });
 
   describe('commit', () => {
-    var mockMutation1, mockMutation2, mockMutation3, mutationNode;
+    var mockMutation1, mockMutation2, mockMutation3, mutationNode, fatQuery;
 
     beforeEach(() => {
+      fatQuery = Relay.QL`fragment on Comment @relay(pattern: true) {
+        ... on Comment {
+          doesViewerLike
+        }
+      }`;
       mutationNode = Relay.QL`mutation{commentCreate(input:$input)}`;
+
+      RelayMutation.prototype.getFatQuery.mockReturnValue(fatQuery);
       RelayMutation.prototype.getMutation.mockReturnValue(mutationNode);
       RelayMutation.prototype.getCollisionKey.mockReturnValue(null);
       RelayMutation.prototype.getVariables.mockReturnValue({});
@@ -141,7 +157,7 @@ describe('RelayMutationQueue', () => {
     it('throws if commit is called more than once', () => {
       var transaction = mutationQueue.createTransaction(mockMutation1);
       transaction.commit();
-      expect(() => transaction.commit()).toThrow(
+      expect(() => transaction.commit()).toThrowError(
         'RelayMutationTransaction: Only transactions with status ' +
         '`UNCOMMITTED` can be comitted.'
       );
@@ -297,7 +313,7 @@ describe('RelayMutationQueue', () => {
 
       expect(failureCallback1).toBeCalled();
       expect(failureCallback2).toBeCalled();
-      expect(() => transaction1.getStatus()).toThrow(
+      expect(() => transaction1.getStatus()).toThrowError(
         'RelayMutationQueue: `0` is not a valid pending transaction ID.'
       );
       expect(transaction2.getStatus()).toBe(
@@ -402,7 +418,7 @@ describe('RelayMutationQueue', () => {
       expect(transaction1.getStatus()).toBe(
         RelayMutationTransactionStatus.COMMIT_FAILED
       );
-      expect(() => transaction2.getStatus()).toThrow(
+      expect(() => transaction2.getStatus()).toThrowError(
         'RelayMutationQueue: `1` is not a valid pending transaction ID.'
       );
       expect(transaction3.getStatus()).toBe(
@@ -418,10 +434,16 @@ describe('RelayMutationQueue', () => {
   });
 
   describe('recommit', () => {
-    var mockMutation, mutationNode;
+    var mockMutation, mutationNode, fatQuery;
 
     beforeEach(() => {
+      fatQuery = Relay.QL`fragment on Comment @relay(pattern: true) {
+        ... on Comment {
+          doesViewerLike
+        }
+      }`;
       mutationNode = Relay.QL`mutation{commentCreate(input:$input)}`;
+      RelayMutation.prototype.getFatQuery.mockReturnValue(fatQuery);
       RelayMutation.prototype.getMutation.mockReturnValue(mutationNode);
       RelayMutation.prototype.getCollisionKey.mockReturnValue('key');
       RelayMutation.prototype.getVariables.mockReturnValue({});

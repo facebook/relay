@@ -41,54 +41,52 @@ var x = (function (RQL_0, RQL_1, RQL_2, RQL_3, RQL_4, RQL_5, RQL_6, RQL_7, RQL_8
       fieldName: 'id',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       fieldName: '__typename',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, Relay.QL.__frag(RQL_0), Relay.QL.__frag(RQL_1), Relay.QL.__frag(RQL_2), Relay.QL.__frag(RQL_3), {
       children: [{
         children: [{
           fieldName: 'uri',
           kind: 'Field',
-          metadata: {
-            parentType: 'ProfilePicture'
-          }
+          metadata: {},
+          type: 'String'
         }, Relay.QL.__frag(RQL_4), Relay.QL.__frag(RQL_5), Relay.QL.__frag(RQL_6), Relay.QL.__frag(RQL_7)],
         fieldName: 'profilePicture',
         kind: 'Field',
-        metadata: {
-          parentType: 'User'
-        }
+        metadata: {},
+        type: 'ProfilePicture'
       }, {
         fieldName: 'id',
         kind: 'Field',
         metadata: {
-          parentType: 'User',
           isGenerated: true,
           isRequisite: true
-        }
+        },
+        type: 'String'
       }],
       hash: 'JYt0H43a',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'User',
       type: 'User'
     }, Relay.QL.__frag(RQL_8), Relay.QL.__frag(RQL_9), Relay.QL.__frag(RQL_10), Relay.QL.__frag(RQL_11)],
     fieldName: 'node',
     kind: 'Query',
     metadata: {
+      isAbstract: true,
       identifyingArgName: 'id'
     },
-    name: 'QueryWithNestedFragments'
+    name: 'QueryWithNestedFragments',
+    type: 'Node'
   };
 })(frag1, frag2, frag3, frag4, frag5, frag6, frag7, frag8, frag9, frag10, frag11, frag12);

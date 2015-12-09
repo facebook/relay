@@ -23,15 +23,17 @@ var foo = (function () {
       fieldName: "__typename",
       kind: "Field",
       metadata: {
-        parentType: "Media",
         isRequisite: true
-      }
+      },
+      type: "String"
     }],
     fieldName: "media",
     kind: "Query",
     metadata: {
+      isAbstract: true,
       identifyingArgName: "id"
     },
-    name: "UnionWithTypename"
+    name: "UnionWithTypename",
+    type: "Media"
   };
 })();

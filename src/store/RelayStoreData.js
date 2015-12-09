@@ -44,12 +44,12 @@ var forEachObject = require('forEachObject');
 var invariant = require('invariant');
 var generateForceIndex = require('generateForceIndex');
 var readRelayDiskCache = require('readRelayDiskCache');
-var resolveImmediate = require('resolveImmediate');
 var warning = require('warning');
 var writeRelayQueryPayload = require('writeRelayQueryPayload');
 var writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
+var {NODE_TYPE} = RelayNodeInterface;
 
 // The source of truth for application data.
 var _instance;
@@ -63,7 +63,8 @@ var _instance;
 class RelayStoreData {
   _cacheManager: ?CacheManager;
   _cachedRecords: Records;
-  _cachedRootCalls: RootCallMap;
+  _cachedRootCallMap: RootCallMap;
+  _cachedStore: RelayRecordStore;
   _changeEmitter: GraphQLStoreChangeEmitter;
   _garbageCollector: ?RelayStoreGarbageCollector;
   _mutationQueue: RelayMutationQueue;
@@ -76,7 +77,7 @@ class RelayStoreData {
   _queryTracker: RelayQueryTracker;
   _queryRunner: GraphQLQueryRunner;
   _rangeData: GraphQLStoreRangeUtils;
-  _rootCalls: RootCallMap;
+  _rootCallMap: RootCallMap;
 
   /**
    * Get the data set backing actual Relay operations. Used in GraphQLStore.
@@ -89,27 +90,31 @@ class RelayStoreData {
   }
 
   constructor() {
-    var cachedRecords: Records = ({}: $FixMe);
-    var cachedRootCallMap: RootCallMap = {};
-    var queuedRecords: Records = ({}: $FixMe);
-    var records: Records = ({}: $FixMe);
-    var rootCallMap: RootCallMap = {};
-    var nodeRangeMap: NodeRangeMap = ({}: $FixMe);
-    var queuedStore = new RelayRecordStore(
-      ({cachedRecords, queuedRecords, records}: $FixMe),
-      ({cachedRootCallMap, rootCallMap}: $FixMe),
-      (nodeRangeMap: $FixMe)
-    );
-    var recordStore = new RelayRecordStore(
-      ({records}: $FixMe),
-      ({rootCallMap}: $FixMe),
-      (nodeRangeMap: $FixMe)
-    );
-    var rangeData = new GraphQLStoreRangeUtils();
+    const cachedRecords: Records = ({}: $FixMe);
+    const cachedRootCallMap: RootCallMap = {};
+    const queuedRecords: Records = ({}: $FixMe);
+    const records: Records = ({}: $FixMe);
+    const rootCallMap: RootCallMap = {};
+    const nodeRangeMap: NodeRangeMap = ({}: $FixMe);
+    const {
+      cachedStore,
+      queuedStore,
+      recordStore,
+    } = createRecordCollection({
+      cachedRecords,
+      cachedRootCallMap,
+      cacheWriter: null,
+      queuedRecords,
+      nodeRangeMap,
+      records,
+      rootCallMap,
+    });
+    const rangeData = new GraphQLStoreRangeUtils();
 
     this._cacheManager = null;
     this._cachedRecords = cachedRecords;
-    this._cachedRootCalls = cachedRootCallMap;
+    this._cachedRootCallMap = cachedRootCallMap;
+    this._cachedStore = cachedStore;
     this._changeEmitter = new GraphQLStoreChangeEmitter(rangeData);
     this._mutationQueue = new RelayMutationQueue(this);
     this._nodeRangeMap = nodeRangeMap;
@@ -121,7 +126,7 @@ class RelayStoreData {
     this._records = records;
     this._recordStore = recordStore;
     this._rangeData = rangeData;
-    this._rootCalls = rootCallMap;
+    this._rootCallMap = rootCallMap;
   }
 
   /**
@@ -150,35 +155,45 @@ class RelayStoreData {
    * the store.
    */
   injectCacheManager(cacheManager: ?CacheManager): void {
-    var cachedRecords = this._cachedRecords;
-    var cachedRootCallMap = this._cachedRootCalls;
-    var rootCallMap = this._rootCalls;
-    var queuedRecords = this._queuedRecords;
-    var records = this._records;
+    const {
+      cachedStore,
+      queuedStore,
+      recordStore,
+    } = createRecordCollection({
+      cachedRecords: this._cachedRecords,
+      cachedRootCallMap: this._cachedRootCallMap,
+      cacheWriter: cacheManager ? cacheManager.getQueryWriter() : null,
+      queuedRecords: this._queuedRecords,
+      nodeRangeMap: this._nodeRangeMap,
+      records: this._records,
+      rootCallMap: this._rootCallMap,
+    });
 
     this._cacheManager = cacheManager;
-    this._queuedStore = new RelayRecordStore(
-      ({cachedRecords, queuedRecords, records}: $FixMe),
-      ({cachedRootCallMap, rootCallMap}: $FixMe),
-      (this._nodeRangeMap: $FixMe)
-    );
-    this._recordStore = new RelayRecordStore(
-      ({records}: $FixMe),
-      ({rootCallMap}: $FixMe),
-      (this._nodeRangeMap: $FixMe),
-      cacheManager ?
-        cacheManager.getQueryWriter() :
-        null
-    );
+    this._cachedStore = cachedStore;
+    this._queuedStore = queuedStore;
+    this._recordStore = recordStore;
   }
 
   clearCacheManager(): void {
+    const {
+      cachedStore,
+      queuedStore,
+      recordStore,
+    } = createRecordCollection({
+      cachedRecords: this._cachedRecords,
+      cachedRootCallMap: this._cachedRootCallMap,
+      cacheWriter: null,
+      queuedRecords: this._queuedRecords,
+      nodeRangeMap: this._nodeRangeMap,
+      records: this._records,
+      rootCallMap: this._rootCallMap,
+    });
+
     this._cacheManager = null;
-    this._recordStore = new RelayRecordStore(
-      ({records: this._records}: $FixMe),
-      ({rootCallMap: this._rootCalls}: $FixMe),
-      (this._nodeRangeMap: $FixMe)
-    );
+    this._cachedStore = cachedStore;
+    this._queuedStore = queuedStore;
+    this._recordStore = recordStore;
   }
 
   hasCacheManager(): boolean {
@@ -223,7 +238,7 @@ class RelayStoreData {
       queries,
       this._queuedStore,
       this._cachedRecords,
-      this._cachedRootCalls,
+      this._cachedRootCallMap,
       cacheManager,
       {
         onSuccess: () => {
@@ -249,7 +264,7 @@ class RelayStoreData {
     var profiler = RelayProfiler.profile('RelayStoreData.handleQueryPayload');
     var changeTracker = new RelayChangeTracker();
     var writer = new RelayQueryWriter(
-      this._recordStore,
+      this._cachedStore,
       this._queryTracker,
       changeTracker,
       {
@@ -334,7 +349,8 @@ class RelayStoreData {
       RelayNodeInterface.NODE,
       dataID,
       [fragment],
-      {identifyingArgName: RelayNodeInterface.ID}
+      {identifyingArgName: RelayNodeInterface.ID},
+      NODE_TYPE
     );
   }
 
@@ -363,6 +379,13 @@ class RelayStoreData {
 
   getMutationQueue(): RelayMutationQueue {
     return this._mutationQueue;
+  }
+
+  /**
+   * Get the record store with only the cached and base data (no queued data).
+   */
+  getCachedStore(): RelayRecordStore {
+    return this._cachedStore;
   }
 
   /**
@@ -410,7 +433,7 @@ class RelayStoreData {
    * handled through a `RelayRecordStore` instance.
    */
   getRootCallData(): RootCallMap {
-    return this._rootCalls;
+    return this._rootCallMap;
   }
 
   _isStoreDataEmpty(): boolean {
@@ -437,7 +460,7 @@ class RelayStoreData {
 
   _getRecordStoreForMutation(): RelayRecordStore {
     var records = this._records;
-    var rootCallMap = this._rootCalls;
+    var rootCallMap = this._rootCallMap;
 
     return new RelayRecordStore(
       ({records}: $FixMe),
@@ -453,8 +476,8 @@ class RelayStoreData {
     clientMutationID: ClientMutationID
   ): RelayRecordStore {
     var cachedRecords = this._cachedRecords;
-    var cachedRootCallMap = this._cachedRootCalls;
-    var rootCallMap = this._rootCalls;
+    var cachedRootCallMap = this._cachedRootCallMap;
+    var rootCallMap = this._rootCallMap;
     var queuedRecords = this._queuedRecords;
     var records = this._records;
 
@@ -466,6 +489,40 @@ class RelayStoreData {
       clientMutationID
     );
   }
+}
+
+function createRecordCollection({
+  cachedRecords,
+  cachedRootCallMap,
+  cacheWriter,
+  queuedRecords,
+  nodeRangeMap,
+  records,
+  rootCallMap,
+}): {
+  cachedStore: RelayRecordStore,
+  queuedStore: RelayRecordStore,
+  recordStore: RelayRecordStore
+} {
+  return {
+    queuedStore: new RelayRecordStore(
+      ({cachedRecords, queuedRecords, records}: $FixMe),
+      ({cachedRootCallMap, rootCallMap}: $FixMe),
+      (nodeRangeMap: $FixMe)
+    ),
+    cachedStore: new RelayRecordStore(
+      ({cachedRecords, records}: $FixMe),
+      ({cachedRootCallMap, rootCallMap}: $FixMe),
+      (nodeRangeMap: $FixMe),
+      cacheWriter
+    ),
+    recordStore: new RelayRecordStore(
+      ({records}: $FixMe),
+      ({rootCallMap}: $FixMe),
+      (nodeRangeMap: $FixMe),
+      cacheWriter
+    ),
+  };
 }
 
 RelayProfiler.instrumentMethods(RelayStoreData.prototype, {

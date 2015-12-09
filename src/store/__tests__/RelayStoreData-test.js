@@ -35,7 +35,7 @@ describe('RelayStoreData', () => {
     // @side-effect related to garbage collection
     Relay = require('Relay');
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('handleQueryPayload', () => {
@@ -60,7 +60,44 @@ describe('RelayStoreData', () => {
           topLevelComments: {
             count: 1,
           },
+        },
+      };
+      storeData.handleQueryPayload(query, response);
+
+      // results are written to `records`
+      var recordStore = storeData.getRecordStore();
+      expect(recordStore.getRecordState('123')).toBe('EXISTENT');
+      expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
+      var commentsID =
+        recordStore.getLinkedRecordID('123', 'topLevelComments');
+      expect(recordStore.getField(commentsID, 'count')).toBe(1);
+
+      // `queuedRecords` is unchanged
+      expect(storeData.getQueuedData()).toEqual({});
+    });
+
+    it('uses cached IDs for root fields without IDs', () => {
+      var storeData = new RelayStoreData();
+
+      var query = getNode(Relay.QL`
+        query {
+          node(id:"123") {
+            id,
+            doesViewerLike,
+            topLevelComments {
+              count,
+            },
+          }
         }
+      `);
+      var response = {
+        node: {
+          id: '123',
+          doesViewerLike: false,
+          topLevelComments: {
+            count: 1,
+          },
+        },
       };
       storeData.handleQueryPayload(query, response);
 
@@ -169,7 +206,10 @@ describe('RelayStoreData', () => {
 
       // `records` is unchanged
       expect(storeData.getNodeData()).toEqual({
-        '123': {__dataID__: '123'},
+        '123': {
+          __dataID__: '123',
+          __typename: undefined,
+        },
       });
     });
 
@@ -343,7 +383,7 @@ describe('RelayStoreData', () => {
     it('warns if initialized after data has been added', () => {
       // Mock console.error so we can spy on it
       console.error = jest.genMockFunction();
-      var response = {node: {id: 0}};
+      var response = {node: {id: 0, __typename: 'User'}};
       var data = new RelayStoreData();
       var query = getNode(Relay.QL`query{node(id:"a") {id}}`);
       data.handleQueryPayload(query, response);

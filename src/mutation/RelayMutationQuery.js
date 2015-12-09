@@ -17,7 +17,6 @@ import type {ConcreteMutation} from 'ConcreteQuery';
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
-var RelayDeprecated = require('RelayDeprecated');
 var RelayMetaRoute = require('RelayMetaRoute');
 var RelayMutationType = require('RelayMutationType');
 var RelayNodeInterface = require('RelayNodeInterface');
@@ -31,7 +30,6 @@ var nullthrows = require('nullthrows');
 var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 var intersectRelayQuery = require('intersectRelayQuery');
 var invariant = require('invariant');
-var refragmentRelayQuery = require('refragmentRelayQuery');
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment;
@@ -66,6 +64,7 @@ type OptimisticUpdateQueryBuilderConfig =
   };
 
 var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
+var {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
 
 /**
  * @internal
@@ -192,26 +191,27 @@ var RelayMutationQuery = {
     var trackedChildren = tracker.getTrackedChildrenForID(parentID);
 
     var mutatedFields = [];
-    var trackedConnections: Array<RelayQuery.Field> =
-      (trackedChildren.filter(trackedChild => {
-        return (
-          trackedChild instanceof RelayQuery.Field &&
-          trackedChild.getSchemaName() === connectionName
-        );
-      }): any); // $FlowIssue
+    var trackedConnections = [];
+    trackedChildren.forEach(trackedChild => {
+      trackedConnections.push(
+        ...findDescendantFields(trackedChild, connectionName)
+      );
+    });
 
     if (trackedConnections.length) {
       var keysWithoutRangeBehavior: {[serializationKey: string]: boolean} = {};
       var mutatedEdgeFields = [];
       trackedConnections.forEach(trackedConnection => {
-        var trackedEdge = trackedConnection.getFieldByStorageKey('edges');
-        if (trackedEdge == null) {
+        var trackedEdges = findDescendantFields(trackedConnection, 'edges');
+        if (!trackedEdges.length) {
           return;
         }
         if (trackedConnection.getRangeBehaviorKey() in rangeBehaviors) {
           // Include edges from all connections that exist in `rangeBehaviors`.
           // This may add duplicates, but they will eventually be flattened.
-          mutatedEdgeFields.push(...trackedEdge.getChildren());
+          trackedEdges.forEach(trackedEdge => {
+            mutatedEdgeFields.push(...trackedEdge.getChildren());
+          });
         } else {
           // If the connection is not in `rangeBehaviors`, re-fetch it.
           var key = trackedConnection.getSerializationKey();
@@ -314,13 +314,12 @@ var RelayMutationQuery = {
       tracker: RelayQueryTracker;
     }
   ): RelayQuery.Mutation {
-    var children = [
-      RelayQuery.Field.build(
-        CLIENT_MUTATION_ID,
-        null,
-        null,
-        {'requisite':true}
-      )
+    var children: Array<?RelayQuery.Node> = [
+      RelayQuery.Field.build({
+        fieldName: CLIENT_MUTATION_ID,
+        type: 'String',
+        metadata: {isRequisite:true},
+      }),
     ];
 
     configs.forEach(config => {
@@ -356,7 +355,10 @@ var RelayMutationQuery = {
             parentName: config.parentName,
             tracker,
           }));
-          children.push(RelayQuery.Field.build(config.deletedIDFieldName));
+          children.push(RelayQuery.Field.build({
+            fieldName: config.deletedIDFieldName,
+            type: 'String',
+          }));
           break;
 
         case RelayMutationType.FIELDS_CHANGE:
@@ -369,21 +371,12 @@ var RelayMutationQuery = {
       }
     });
 
-    // create a dummy field to re-fragment the input `fields`
-    var fragmentedFields = children.length ?
-      refragmentRelayQuery(RelayQuery.Field.build(
-        'build_mutation_field',
-        null,
-        children
-      )) :
-      null;
-
     return RelayQuery.Mutation.build(
       mutationName,
       fatQuery.getType(),
       mutation.calls[0].name,
       input,
-      fragmentedFields ? fragmentedFields.getChildren() : null,
+      (children.filter(child => child != null): any),
       mutation.metadata
     );
   }
@@ -427,26 +420,40 @@ function buildEdgeField(
   edgeFields: Array<RelayQuery.Node>
 ): RelayQuery.Field {
   var fields = [
-    RelayQuery.Field.build('cursor'),
+    RelayQuery.Field.build({
+      fieldName: 'cursor',
+      type: 'String',
+    }),
+    RelayQuery.Field.build({
+      fieldName: TYPENAME,
+      type: 'String',
+    }),
   ];
   if (RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD &&
       !GraphQLStoreDataHandler.isClientID(parentID)) {
     fields.push(
-      RelayQuery.Field.build(
-        'source',
-        null,
-        [RelayQuery.Field.build('id', null, null, {
-          parentType: RelayNodeInterface.NODE_TYPE,
-        })]
-      )
+      RelayQuery.Field.build({
+        fieldName: 'source',
+        type: ANY_TYPE,
+        children: [
+          RelayQuery.Field.build({
+            fieldName: ID,
+            type: 'String',
+          }),
+          RelayQuery.Field.build({
+            fieldName: TYPENAME,
+            type: 'String',
+          }),
+        ],
+      })
     );
   }
   fields.push(...edgeFields);
-  var edgeField = flattenRelayQuery(RelayQuery.Field.build(
-    edgeName,
-    null,
-    fields
-  ));
+  var edgeField = flattenRelayQuery(RelayQuery.Field.build({
+    fieldName: edgeName,
+    type: ANY_TYPE,
+    children: fields,
+  }));
   invariant(
     edgeField instanceof RelayQuery.Field,
     'RelayMutationQuery: Expected a field.'
@@ -494,6 +501,35 @@ function sanitizeRangeBehaviors(
     );
   }
   return rangeBehaviors;
+}
+
+/**
+ * Finds all direct and indirect child fields of `node` with the given
+ * field name.
+ */
+function findDescendantFields(
+  rootNode: RelayQuery.Node,
+  fieldName: string
+): Array<RelayQuery.Field> {
+  var fields = [];
+  function traverse(node) {
+    if (node instanceof RelayQuery.Field) {
+      if (node.getSchemaName() === fieldName) {
+        fields.push(node);
+        return;
+      }
+    }
+    if (
+      node === rootNode ||
+      node instanceof RelayQuery.Fragment
+    ) {
+      // Search fragments and the root node for matching fields, but skip
+      // descendant non-matching fields.
+      node.getChildren().forEach(child => traverse(child));
+    }
+  }
+  traverse(rootNode);
+  return fields;
 }
 
 module.exports = RelayMutationQuery;

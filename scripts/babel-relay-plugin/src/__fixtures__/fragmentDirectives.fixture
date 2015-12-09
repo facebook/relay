@@ -10,22 +10,23 @@ var x = (function () {
       fieldName: 'id',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       fieldName: '__typename',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }],
     hash: 'QHQnGWzc',
     kind: 'Fragment',
     metadata: {
-      plural: true
+      plural: true,
+      isAbstract: true
     },
     name: 'FragmentDirectives',
     type: 'Node'

@@ -75,16 +75,22 @@ describe('toGraphQL', function() {
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    jest.addMatchers({
-      toConvert(query) {
-        // This filters out extraneous properties from `GraphQL.*` nodes such as
-        // `fields` or `fragments`, and reduces metadata down to compare only
-        // truthy values. Once the printer outputs plain values the filter step
-        // can be removed or simplified (might want to still filter metadata).
-        var expected = filterGraphQLNode(query);
-        var actual = filterGraphQLNode(this.actual(getNode(query)));
-        expect(actual).toEqual(expected);
-        return true;
+    jasmine.addMatchers({
+      toConvert() {
+        return {
+          compare(actual, query) {
+            // This filters out extraneous properties from `GraphQL.*` nodes
+            // such as `fields` or `fragments`, and reduces metadata down to
+            // compare only truthy values. Once the printer outputs plain values
+            // the filter step can be removed or simplified (might want to still
+            // filter metadata).
+            var expected = filterGraphQLNode(query);
+            expect(filterGraphQLNode(actual(getNode(query)))).toEqual(expected);
+            return {
+              pass: true,
+            };
+          },
+        };
       },
     });
   });
@@ -195,45 +201,5 @@ describe('toGraphQL', function() {
     expect(identifyingArg.value).toEqual(value);
     var convertedQuery = toGraphQL.Query(relayQuery);
     expect(convertedQuery.calls[0].value.callValue).toBe(value);
-  });
-
-  it('memoizes the GraphQL-query after the first toGraphQL call', () => {
-    var query = Relay.QL`
-      query {
-        viewer {
-          actor {
-            id,
-            name,
-          },
-        }
-      }
-    `;
-    var relayQuery = fromGraphQL.Query(query);
-    var graphql = toGraphQL.Query(relayQuery);
-    // GraphQL queries are static and must be traversed once to determine
-    // route-specific fragments and variable values
-    expect(fromGraphQL.Query(graphql).equals(relayQuery)).toBe(true);
-    expect(graphql).not.toBe(query);
-    expect(toGraphQL.Query(relayQuery)).toBe(graphql);
-  });
-
-  it('creates a new GraphQL-query if the relay query is a clone', () => {
-    var fragment = Relay.QL`
-      fragment on StreetAddress {
-        city,
-        country,
-      }
-    `;
-    var relayFragment = fromGraphQL.Fragment(fragment);
-    var relayFragmentChild = relayFragment.getChildren()[0];
-    var clonedRelayFragment = relayFragment.clone([relayFragmentChild]);
-
-    // GraphQL queries are static and must be traversed once to determine
-    // route-specific fragments and variable values
-    var graphql = toGraphQL.Fragment(clonedRelayFragment);
-    expect(fromGraphQL.Fragment(graphql).equals(clonedRelayFragment))
-      .toBe(true);
-    expect(graphql).not.toBe(fragment);
-    expect(toGraphQL.Fragment(clonedRelayFragment)).toBe(graphql);
   });
 });

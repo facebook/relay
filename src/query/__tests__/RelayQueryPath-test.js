@@ -24,7 +24,7 @@ describe('RelayQueryPath', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('creates root paths', () => {
@@ -49,14 +49,11 @@ describe('RelayQueryPath', () => {
       query {
         node(id:"123") {
           id,
+          __typename,
           ${fragment},
         }
       }
     `));
-
-    // Ensure that the generated `id` field contains necessary metadata.
-    var idField = pathQuery.getFieldByStorageKey('id');
-    expect(idField.getParentType()).toBe(RelayNodeInterface.NODE_TYPE);
   });
 
   it('creates root paths for argument-less root calls with IDs', () => {

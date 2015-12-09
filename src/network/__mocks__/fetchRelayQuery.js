@@ -9,8 +9,6 @@
 
 'use strict';
 
-var Promise = require('Promise');
-
 var fetchRelayQuery = jest.genMockFromModule('fetchRelayQuery');
 
 /**

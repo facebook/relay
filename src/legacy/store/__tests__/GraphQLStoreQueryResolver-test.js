@@ -57,7 +57,7 @@ describe('GraphQLStoreQueryResolver', () => {
       }
     `);
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('should resolve a pointer', () => {

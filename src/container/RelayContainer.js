@@ -22,7 +22,6 @@ var React = require('React');
 var ReactDOM = require('ReactDOM');
 var RelayContainerComparators = require('RelayContainerComparators');
 var RelayContainerProxy = require('RelayContainerProxy');
-var RelayDeprecated = require('RelayDeprecated');
 var RelayFragmentReference = require('RelayFragmentReference');
 import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
 var RelayMetaRoute = require('RelayMetaRoute');
@@ -50,6 +49,7 @@ var nullthrows = require('nullthrows');
 var prepareRelayContainerProps = require('prepareRelayContainerProps');
 var shallowEqual = require('shallowEqual');
 var warning = require('warning');
+var isReactComponent = require('isReactComponent');
 
 export type RelayContainerSpec = {
   initialVariables?: Variables;
@@ -114,7 +114,7 @@ function createContainerComponent(
     mounted: boolean;
     _deferredSubscriptions: ?{[subscriptionKey: string]: Subscription};
     _didShowFakeDataWarning: boolean;
-    _fragmentPointers: {[key: string]: GraphQLFragmentPointer};
+    _fragmentPointers: {[key: string]: ?GraphQLFragmentPointer};
     _hasStaleQueryData: boolean;
     _queryResolvers: {[key: string]: ?GraphQLStoreQueryResolver};
 
@@ -191,7 +191,7 @@ function createContainerComponent(
      * `_fragmentPointers` property.
      */
     _createQuerySetAndFragmentPointers(variables: Variables): {
-      fragmentPointers: {[key: string]: GraphQLFragmentPointer},
+      fragmentPointers: {[key: string]: ?GraphQLFragmentPointer},
       querySet: RelayQuerySet,
     } {
       var fragmentPointers = {};
@@ -224,6 +224,8 @@ function createContainerComponent(
             fragmentPointer = new GraphQLFragmentPointer(dataIDs, fragment);
           }
         } else {
+          /* $FlowFixMe(>=0.19.0) - queryData is mixed but getID expects Object
+           */
           var dataID = GraphQLStoreDataHandler.getID(queryData);
           if (dataID) {
             fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
@@ -294,7 +296,10 @@ function createContainerComponent(
               }
             });
             if (callback) {
-              callback.call(this.refs.component, {...readyState, mounted});
+              callback.call(
+                this.refs.component || null,
+                {...readyState, mounted}
+              );
             }
           });
         } else {
@@ -383,7 +388,7 @@ function createContainerComponent(
         'fragment. Ensure that there are no failing `if` or `unless` ' +
         'conditions.'
       );
-      return storeData.getRecordStore().hasDeferredFragmentData(
+      return storeData.getCachedStore().hasDeferredFragmentData(
         dataID,
         fragment.getFragmentID()
       );
@@ -673,7 +678,7 @@ function createContainerComponent(
           {...this.props}
           {...this.state.queryData}
           {...prepareRelayContainerProps(relayProps, this)}
-          ref="component"
+          ref={isReactComponent(Component) ? 'component' : null}
         />
       );
     }
@@ -759,13 +764,6 @@ function resetPropOverridesForVariables(
   return variables;
 }
 
-/**
- * Constructs a unique key for a deferred subscription.
- */
-function getSubscriptionKey(dataID: DataID, fragmentID: string): string {
-  return dataID + '.' + fragmentID;
-}
-
 function initializeProfiler(RelayContainer: RelayContainer): void {
   RelayProfiler.instrumentMethods(RelayContainer.prototype, {
     componentWillMount:
@@ -844,10 +842,8 @@ function getDeferredFragment(
  */
 function create(
   Component: ReactClass<any, any, any>,
-  maybeSpec: Object // spec: RelayContainerSpec
+  spec: RelayContainerSpec,
 ): RelayLazyContainer {
-  var spec = RelayDeprecated.upgradeContainerSpec(maybeSpec);
-
   var componentName = Component.displayName || Component.name;
   var containerName = 'Relay(' + componentName + ')';
   var containerID = (nextContainerID++).toString(36);
@@ -913,15 +909,6 @@ function create(
       initialVariables,
       variableMapping,
       prepareVariables
-    );
-  };
-  ContainerConstructor.getQuery = () => {
-    // TODO(jkassens, #8978552): delete this
-    invariant(
-      false,
-      'RelayContainer: `%s.getQuery` no longer exists; use `%s.getFragment`.',
-      componentName,
-      componentName
     );
   };
 

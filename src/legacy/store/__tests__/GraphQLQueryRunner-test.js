@@ -17,7 +17,6 @@ RelayTestUtils.unmockRelay();
 jest
   .mock('warning')
   .dontMock('DliteFetchModeConstants')
-  .dontMock('GraphQL_DEPRECATED')
   .dontMock('GraphQLQueryRunner');
 
 var DliteFetchModeConstants = require('DliteFetchModeConstants');
@@ -45,7 +44,7 @@ describe('GraphQLQueryRunner', () => {
    */
   function deferQuery(relayQuery) {
     var node = {
-      ...relayQuery.__concreteNode__,
+      ...relayQuery.getConcreteQueryNode(),
       isDeferred: true,
     };
     return getNode(node, relayQuery.getVariables());
@@ -78,7 +77,7 @@ describe('GraphQLQueryRunner', () => {
       baz: null,
     };
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('immediately succeeds for empty queries', () => {

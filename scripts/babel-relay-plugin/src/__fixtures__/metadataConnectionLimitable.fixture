@@ -24,41 +24,40 @@ var x = (function () {
           children: [{
             fieldName: 'name',
             kind: 'Field',
-            metadata: {
-              parentType: 'Config'
-            }
+            metadata: {},
+            type: 'String'
           }],
           fieldName: 'node',
           kind: 'Field',
           metadata: {
-            parentType: 'ConfigsConnectionEdge',
             isRequisite: true
-          }
+          },
+          type: 'Config'
         }, {
           fieldName: 'cursor',
           kind: 'Field',
           metadata: {
-            parentType: 'ConfigsConnectionEdge',
             isGenerated: true,
             isRequisite: true
-          }
+          },
+          type: 'String'
         }],
         fieldName: 'edges',
         kind: 'Field',
         metadata: {
-          parentType: 'ConfigsConnection',
           isPlural: true
-        }
+        },
+        type: 'ConfigsConnectionEdge'
       }],
       fieldName: '__configs__',
       kind: 'Field',
-      metadata: {
-        parentType: 'Viewer'
-      }
+      metadata: {},
+      type: 'ConfigsConnection'
     }],
     fieldName: 'viewer',
     kind: 'Query',
     metadata: {},
-    name: 'MetadataConnectionLimitable'
+    name: 'MetadataConnectionLimitable',
+    type: 'Viewer'
   };
 })();

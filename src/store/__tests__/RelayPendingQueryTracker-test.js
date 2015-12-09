@@ -64,7 +64,7 @@ describe('RelayPendingQueryTracker', () => {
       expectedConsoleErrors[message] = true;
     };
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   afterEach(() => {

@@ -16,7 +16,6 @@ var RelayTestUtils = require('RelayTestUtils');
 jest
   .dontMock('GraphQLSegment')
   .dontMock('GraphQLRange')
-  .dontMock('GraphQL_DEPRECATED')
   .mock('warning');
 
 var GraphQLRange = require('GraphQLRange');
@@ -92,7 +91,7 @@ describe('GraphQLRange', () => {
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   afterEach(() => {

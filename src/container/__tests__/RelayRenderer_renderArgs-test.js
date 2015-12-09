@@ -50,19 +50,25 @@ describe('RelayRenderer.renderArgs', () => {
       />,
       container
     );
-    jest.addMatchers({
-      toRenderWithArgs(expected) {
-        // Assume that if `forceFetch` requests exist, they were last.
-        const requests = RelayStore.forceFetch.mock.requests.length > 0 ?
-          RelayStore.forceFetch.mock.requests :
-          RelayStore.primeCache.mock.requests;
-        this.actual(requests[requests.length - 1]);
-        const renders = render.mock.calls;
-        const renderArgs = renders[renders.length - 1][0];
-        return Object.keys(expected).every(argName => {
-          expect(renderArgs[argName]).toEqual(expected[argName]);
-          return true;
-        });
+    jasmine.addMatchers({
+      toRenderWithArgs() {
+        return {
+          compare(actual, expected) {
+            // Assume that if `forceFetch` requests exist, they were last.
+            const requests = RelayStore.forceFetch.mock.requests.length > 0 ?
+              RelayStore.forceFetch.mock.requests :
+              RelayStore.primeCache.mock.requests;
+            actual(requests[requests.length - 1]);
+            const renders = render.mock.calls;
+            const renderArgs = renders[renders.length - 1][0];
+            return {
+              pass: Object.keys(expected).every(argName => {
+                expect(renderArgs[argName]).toEqual(expected[argName]);
+                return true;
+              }),
+            };
+          },
+        };
       },
     });
   });
@@ -196,7 +202,7 @@ describe('RelayRenderer.renderArgs', () => {
 
     const {retry} = render.mock.calls[1][0];
     expect(typeof retry).toBe('function');
-    expect(() => retry()).toThrow(
+    expect(() => retry()).toThrowError(
       'RelayRenderer: You tried to call `retry`, but the last request did ' +
       'not fail. You can only call this when the last request has failed.'
     );

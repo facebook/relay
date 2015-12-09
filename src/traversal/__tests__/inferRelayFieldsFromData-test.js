@@ -32,18 +32,22 @@ describe('inferRelayFieldsFromData', () => {
       PAGE_INFO,
     } = RelayConnectionInterface);
 
-    jest.addMatchers({
+    jasmine.addMatchers({
       ...RelayTestUtils.matchers,
-      toEqualFields(expected) {
-        expected = flattenRelayQuery(getVerbatimNode(expected));
-        this.actual = flattenRelayQuery(expected.clone(this.actual));
-        // NOTE: Generated fields might get in the way.
-        return matchers.toEqualQueryNode.call(this, expected);
+      toEqualFields() {
+        return {
+          compare(actual, expected) {
+            expected = flattenRelayQuery(getVerbatimNode(expected));
+            actual = flattenRelayQuery(expected.clone(actual));
+            // NOTE: Generated fields might get in the way.
+            return matchers.toEqualQueryNode().compare(actual, expected);
+          },
+        };
       },
     });
   });
 
-  it('generates metadata for `id` fields', () => {
+  it('generates metadata for fields', () => {
     const query = inferRelayFieldsFromData({
       id: '123',
     });
@@ -52,7 +56,7 @@ describe('inferRelayFieldsFromData', () => {
         id,
       }
     `);
-    expect(query[0].getParentType()).toBe('Node');
+    expect(query[0].isPlural()).toBe(false);
   });
 
   it('infers scalar fields from scalars', () => {

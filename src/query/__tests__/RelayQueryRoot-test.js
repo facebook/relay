@@ -27,7 +27,7 @@ describe('RelayQueryRoot', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
 
     me = getNode(Relay.QL`
       query {
@@ -45,7 +45,7 @@ describe('RelayQueryRoot', () => {
         }
       }
     `);
-    usernames.__concreteNode__.metadata = {
+    usernames.getConcreteQueryNode().metadata = {
       isPlural: true,
       identifyingArgName: 'names',
     };
@@ -245,7 +245,7 @@ describe('RelayQueryRoot', () => {
         }
       }
     `);
-    usernames2.__concreteNode__.metadata = {
+    usernames2.getConcreteQueryNode().metadata = {
       isPlural: true,
       identifyingArgName: 'names',
     };
@@ -341,7 +341,7 @@ describe('RelayQueryRoot', () => {
 
   it('returns the identifying argument type', () => {
     var nodeQuery = getNode(Relay.QL`query{node(id:"123"){id}}`);
-    nodeQuery.__concreteNode__.metadata = {
+    nodeQuery.getConcreteQueryNode().metadata = {
       identifyingArgName: 'id',
       identifyingArgType: 'scalar',
     };
@@ -446,6 +446,18 @@ describe('RelayQueryRoot', () => {
     ]);
   });
 
+  it('returns isAbstract', () => {
+    expect(getNode(Relay.QL`query { me }`).isAbstract()).toBe(false);
+    expect(getNode(Relay.QL`query { viewer }`).isAbstract()).toBe(false);
+    expect(getNode(Relay.QL`query { node(id: "4") }`).isAbstract()).toBe(true);
+  });
+
+  it('returns the root type', () => {
+    expect(getNode(Relay.QL`query { me }`).getType()).toBe('User');
+    expect(getNode(Relay.QL`query { viewer }`).getType()).toBe('Viewer');
+    expect(getNode(Relay.QL`query { node(id: "123") }`).getType()).toBe('Node');
+  });
+
   describe('getStorageKey()', () => {
     it('delegates to RelayQueryField::getStorageKey', () => {
       const query = getNode(Relay.QL`query { settings(environment: MOBILE) }`);
@@ -462,7 +474,9 @@ describe('RelayQueryRoot', () => {
       const identifyingQuery = getNode(
         Relay.QL`query { username(name:"yuzhi") }`
       );
-      identifyingQuery.__concreteNode__.metadata = {identifyingArgName: 'name'};
+      identifyingQuery.getConcreteQueryNode().metadata = {
+        identifyingArgName: 'name',
+      };
       expect(identifyingQuery.getStorageKey()).toBe('username');
     });
 

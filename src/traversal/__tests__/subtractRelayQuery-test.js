@@ -23,7 +23,7 @@ describe('subtractRelayQuery', () => {
   var {defer, getNode} = RelayTestUtils;
 
   beforeEach(() => {
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   function subtractQuery(min, sub) {

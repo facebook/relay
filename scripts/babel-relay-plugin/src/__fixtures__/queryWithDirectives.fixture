@@ -27,18 +27,18 @@ var x = (function () {
       fieldName: 'id',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       fieldName: '__typename',
       kind: 'Field',
       metadata: {
-        parentType: 'Node',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       children: [{
         directives: [{
@@ -54,17 +54,16 @@ var x = (function () {
         }],
         fieldName: 'name',
         kind: 'Field',
-        metadata: {
-          parentType: 'User'
-        }
+        metadata: {},
+        type: 'String'
       }, {
         fieldName: 'id',
         kind: 'Field',
         metadata: {
-          parentType: 'User',
           isGenerated: true,
           isRequisite: true
-        }
+        },
+        type: 'String'
       }],
       directives: [{
         kind: 'Directive',
@@ -79,9 +78,7 @@ var x = (function () {
       }],
       hash: 'b8fdCz9J',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'User',
       type: 'User'
     }],
@@ -99,8 +96,10 @@ var x = (function () {
     fieldName: 'node',
     kind: 'Query',
     metadata: {
+      isAbstract: true,
       identifyingArgName: 'id'
     },
-    name: 'QueryWithDirectives'
+    name: 'QueryWithDirectives',
+    type: 'Node'
   };
 })();

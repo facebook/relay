@@ -73,7 +73,7 @@ describe('getRelayQueries', () => {
       return MockRoute;
     };
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('creates a query for a component given a route', () => {

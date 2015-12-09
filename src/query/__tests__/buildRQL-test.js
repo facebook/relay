@@ -41,7 +41,7 @@ describe('buildRQL', () => {
       },
     });
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('Fragment()', () => {

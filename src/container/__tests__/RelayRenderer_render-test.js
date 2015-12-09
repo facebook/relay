@@ -31,7 +31,7 @@ describe('RelayRenderer.render', () => {
   let container;
   let queryConfig;
   let renderedComponent;
-  
+
   function renderElement(element) {
     renderedComponent = ReactDOM.render(element, container);
   }
@@ -54,12 +54,24 @@ describe('RelayRenderer.render', () => {
     container = document.createElement('div');
     queryConfig = RelayQueryConfig.genMockInstance();
 
-    jest.addMatchers({
+    jasmine.addMatchers({
       toBeUpdated() {
-        return this.actual.props.shouldUpdate;
+        return {
+          compare(actual) {
+            return {
+              pass: actual.props.shouldUpdate,
+            };
+          },
+        };
       },
       toBeRenderedChild() {
-        return getRenderOutput().props.children === this.actual;
+        return {
+          compare(actual) {
+            return {
+              pass: getRenderOutput().props.children === actual,
+            };
+          },
+        };
       },
     });
   });

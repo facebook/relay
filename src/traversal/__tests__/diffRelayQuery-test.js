@@ -36,7 +36,7 @@ describe('diffRelayQuery', () => {
       viewer: {'': 'client:1'},
     };
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('returns the same query with an empty store', () => {

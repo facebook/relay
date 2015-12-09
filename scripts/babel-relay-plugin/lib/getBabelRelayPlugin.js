@@ -13,13 +13,12 @@
 
 'use strict';
 
+var _require = require('./GraphQL');
+
+var buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema;
+
 var RelayQLTransformer = require('./RelayQLTransformer');
 var babelAdapter = require('./babelAdapter');
-
-var _require = require('graphql/utilities/buildClientSchema');
-
-var buildClientSchema = _require.buildClientSchema;
-
 var invariant = require('./invariant');
 var util = require('util');
 
@@ -36,6 +35,8 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
 
   var schema = getSchema(schemaProvider);
   var transformer = new RelayQLTransformer(schema, {
+    inputArgumentName: options.inputArgumentName,
+    snakeCase: !!options.snakeCase,
     substituteVariables: !!options.substituteVariables,
     validator: options.validator
   });
@@ -116,7 +117,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
 
                   errorMessages.push(message);
                   warning('\n-- GraphQL Validation Error -- %s --\n', basename);
-                  warning(['Error: ' + message, 'File:  ' + filename, 'Source:'].join('\n'));
+                  warning(['File:  ' + filename, 'Error: ' + message, 'Source:'].join('\n'));
                   locations.forEach(function (location) {
                     var preview = sourceLines[location.line - 1];
                     if (preview) {
@@ -127,7 +128,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
               } else {
                 errorMessages.push(error.message);
                 warning('\n-- Relay Transform Error -- %s --\n', basename);
-                warning(['Error: ' + error.message, 'File:  ' + filename].join('\n'));
+                warning(['File:  ' + filename, 'Error: ' + error.stack].join('\n'));
               }
               var runtimeMessage = util.format('GraphQL validation/transform error ``%s`` in file `%s`.', errorMessages.join(' '), filename);
               result = t.callExpression(t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.valueToNode(runtimeMessage)]))])), []);

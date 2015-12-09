@@ -63,7 +63,7 @@ describe('readRelayQueryData', () => {
       START_CURSOR
     } = RelayConnectionInterface);
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('returns undefined for data that is not in the store', () => {
@@ -558,7 +558,7 @@ describe('readRelayQueryData', () => {
     `);
     expect(
       () => readData(getStoreData({records}), query, 'story_id')
-    ).toThrow(error);
+    ).toThrowError(error);
 
     // Note that `pageInfo` also triggers the error...
     var pageInfoFragment = Relay.QL`
@@ -579,13 +579,13 @@ describe('readRelayQueryData', () => {
     `);
     expect(
       () => readData(getStoreData({records}), query, 'story_id')
-    ).toThrow(error);
+    ).toThrowError(error);
 
     // ...but not `count`:
     query = getNode(Relay.QL`fragment on Story{feedback{likers{count}}}`);
     expect(
       () => readData(getStoreData({records}), query, 'story_id')
-    ).not.toThrow();
+    ).not.toThrowError();
   });
 
   it('requires filter calls on connections with filtered range fields ', () => {
@@ -621,17 +621,17 @@ describe('readRelayQueryData', () => {
       fragment on Story{feedback{likers{${fragmentReference}}}}
     `);
     expect(() => readData(getStoreData({records}), query, 'story_id'))
-      .toThrow(error);
+      .toThrowError(error);
 
     var fragment = Relay.QL`fragment on LikersOfContentConnection{pageInfo}`;
     query = getNode(Relay.QL`fragment on Story{feedback{likers{${fragment}}}}`);
     expect(() => readData(getStoreData({records}), query, 'story_id'))
-      .toThrow(error);
+      .toThrowError(error);
 
     fragment = Relay.QL`fragment on LikersOfContentConnection{count}`;
     query = getNode(Relay.QL`fragment on Story{feedback{likers{${fragment}}}}`);
     expect(() => readData(getStoreData({records}), query, 'story_id'))
-      .not.toThrow();
+      .not.toThrowError();
   });
 
   it('reads `edge`/`pageInfo` without range info like linked records', () => {
@@ -1351,5 +1351,58 @@ describe('readRelayQueryData', () => {
     var query = getNode(Relay.QL`query{node(id:"4"){${fragmentReference}}}`);
     var data = readData(getStoreData({records}), query, '4');
     expect(data).toBe(null);
+  });
+
+  it('reads data for matching fragments', () => {
+    var records = {
+      123: {
+        __dataID__: '123',
+        id: '123',
+        __typename: 'User',
+      },
+    };
+    var query = getNode(Relay.QL`fragment on User { id }`);
+    var data = readData(getStoreData({records}), query, '123');
+    expect(data).toEqual({
+      __dataID__: '123',
+      id: '123',
+    });
+  });
+
+  it('returns undefined for non-matching fragments', () => {
+    var records = {
+      123: {
+        __dataID__: '123',
+        id: '123',
+        __typename: 'User',
+      },
+    };
+    var query = getNode(Relay.QL`fragment on Page { id }`);
+    var data = readData(getStoreData({records}), query, '123');
+    expect(data).toEqual(undefined);
+  });
+
+  it('skips non-matching child fragments', () => {
+    var records = {
+      123: {
+        __dataID__: '123',
+        id: '123',
+        __typename: 'User',
+        name: 'Greg',
+      },
+    };
+    var query = getNode(Relay.QL`fragment on Actor {
+      ... on User {
+        name
+      }
+      ... on Page {
+        id
+      }
+    }`);
+    var data = readData(getStoreData({records}), query, '123');
+    expect(data).toEqual({
+      __dataID__: '123',
+      name: 'Greg',
+    });
   });
 });

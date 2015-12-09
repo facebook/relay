@@ -16,6 +16,7 @@ RelayTestUtils.unmockRelay();
 
 var GraphQLRange = require('GraphQLRange');
 var Relay = require('Relay');
+var RelayQuery = require('RelayQuery');
 var RelayQueryPath = require('RelayQueryPath');
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayRecordStore = require('RelayRecordStore');
@@ -80,10 +81,16 @@ describe('findRelayQueryLeaves', () => {
       }
     `));
 
-    jest.addMatchers({
-      toMatchPendingNodes(pendingNodes) {
-        expect(encode(this.actual)).toEqual(encode(pendingNodes));
-        return true;
+    jasmine.addMatchers({
+      toMatchPendingNodes() {
+        return {
+          compare(actual, pendingNodes) {
+            expect(encode(actual)).toEqual(encode(pendingNodes));
+            return {
+              pass: true,
+            };
+          },
+        };
       },
     });
   });
@@ -100,13 +107,11 @@ describe('findRelayQueryLeaves', () => {
       dummyPath,
     );
 
-    var pendingItems = queryNode.getChildren().map(node => {
-      return {
-        node,
-        path: dummyPath,
-        rangeCalls: undefined,
-      };
-    });
+    var pendingItems =[{
+      node: queryNode,
+      path: dummyPath,
+      rangeCalls: undefined,
+    }];
 
     expect(result.pendingNodes).toMatchPendingNodes(
       {'1055790163': pendingItems}
@@ -300,7 +305,6 @@ describe('findRelayQueryLeaves', () => {
     );
     var friendsField =  queryNode.getFieldByStorageKey('friends');
     var countField = friendsField.getFieldByStorageKey('count');
-    console.log(result.pendingNodes.friends_id[0].rangeCalls);
     expect(result.pendingNodes).toMatchPendingNodes({'friends_id': [{
       node: countField,
       path: dummyPath.getPath(friendsField, 'friends_id'),
@@ -999,5 +1003,124 @@ describe('findRelayQueryLeaves', () => {
 
     expect(result.pendingNodes).toMatchPendingNodes({});
     expect(result.missingData).toBe(true);
+  });
+
+  it('returns pendingNodes when matched fragment is not in the store', () => {
+    var queryNode = getNode(Relay.QL`
+      fragment on Node {
+        id,
+        ... on User {
+          firstName
+        }
+      }
+    `);
+    var records = {
+      '1055790163': {
+        id: '1055790163',
+        __dataID__: '1055790163',
+        __typename: 'User',
+      },
+    };
+
+    var result = findLeaves(
+      queryNode,
+      '1055790163',
+      dummyPath,
+      records,
+    );
+    var userFragment = queryNode.getChildren().filter(
+      item => item instanceof RelayQuery.Fragment
+    )[0];
+    expect(result.pendingNodes).toMatchPendingNodes(
+      {'1055790163': [{
+        node: userFragment.getFieldByStorageKey('firstName'),
+        path: dummyPath,
+        rangeCalls: undefined,
+      }]}
+    );
+    expect(result.missingData).toBe(false);
+  });
+
+  it('returns missingData when matched fragment is not in the cache', () => {
+    var queryNode = getNode(Relay.QL`
+      fragment on Node {
+        id,
+        ... on User {
+          firstName
+        }
+      }
+    `);
+    var records = {
+      '1055790163': {
+        id: '1055790163',
+        __dataID__: '1055790163',
+        __typename: 'User',
+      },
+    };
+    var result = findLeaves(
+      queryNode,
+      '1055790163',
+      dummyPath,
+      {},
+      records,
+    );
+
+    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.missingData).toBe(true);
+  });
+
+  it('has all required data in store when ignoring unmatched fragment', () => {
+    var queryNode = getNode(Relay.QL`
+      fragment on Node {
+        id,
+        ... on Page {
+          name
+        }
+      }
+    `);
+    var records = {
+      '1055790163': {
+        id: '1055790163',
+        __dataID__: '1055790163',
+        __typename: 'User',
+      },
+    };
+    var result = findLeaves(
+      queryNode,
+      '1055790163',
+      dummyPath,
+      records,
+    );
+
+    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.missingData).toBe(false);
+  });
+
+  it('has all required data in cache when ignoring unmatched fragment', () => {
+    var queryNode = getNode(Relay.QL`
+      fragment on Node {
+        id,
+        ... on Page {
+          name
+        }
+      }
+    `);
+    var records = {
+      '1055790163': {
+        id: '1055790163',
+        __dataID__: '1055790163',
+        __typename: 'User',
+      },
+    };
+    var result = findLeaves(
+      queryNode,
+      '1055790163',
+      dummyPath,
+      {},
+      records
+    );
+
+    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.missingData).toBe(false);
   });
 });

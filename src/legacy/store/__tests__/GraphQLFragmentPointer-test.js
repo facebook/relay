@@ -26,11 +26,17 @@ describe('GraphQLFragmentPointer', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
-    jest.addMatchers({
-      toEqualPointer(expected) {
-        return this.actual.equals(expected);
-      }
+    jasmine.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers({
+      toEqualPointer() {
+        return {
+          compare(actual, expected) {
+            return {
+              pass: actual.equals(expected),
+            };
+          },
+        };
+      },
     });
   });
 

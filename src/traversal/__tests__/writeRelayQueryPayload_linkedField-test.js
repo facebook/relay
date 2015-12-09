@@ -36,7 +36,7 @@ describe('writeRelayQueryPayload()', () => {
 
     RelayRecordStore = require('RelayRecordStore');
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('linked fields', () => {
@@ -387,33 +387,10 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getType('123')).toBe('User');
     });
 
-    it('records the parent field type if `__typename` is not present', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var query = getVerbatimNode(Relay.QL`
-        query {
-          viewer {
-            actor {
-              id
-            }
-          }
-        }
-      `);
-      var payload = {
-        viewer: {
-          actor: {
-            id: '123',
-          },
-        },
-      };
-      writePayload(store, query, payload);
-      expect(store.getType('123')).toBe('Actor');
-    });
-
     it('warns if the typename cannot be determined for a node', () => {
       var records = {};
       var store = new RelayRecordStore({records});
-      // No `id` or `__typename` fields
+      // No `id` or `__typename` fields or responses
       var query = getVerbatimNode(Relay.QL`
         query {
           viewer {
@@ -423,8 +400,6 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      // But the payload for `actor` contains an `id` so the writer will attempt
-      // to store a `__typename`.
       var payload = {
         viewer: {
           actor: {
@@ -437,34 +412,39 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getType('123')).toBe(null);
       expect([
         'RelayQueryWriter: Could not find a type name for record `%s`.',
-        '123'
+        '123',
       ]).toBeWarnedNTimes(1);
     });
 
-    it('does not store types for client records', () => {
+    it('stores types for client records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
-      // No `id` or `__typename` fields
-      var query = getVerbatimNode(Relay.QL`
+      var query = getNode(Relay.QL`
         query {
-          viewer {
-            actor {
-              name
+          me {
+            id
+            __typename
+            ... on User {
+              address {
+                city
+              }
             }
           }
         }
       `);
-      // No `id` value - treated as a client record
       var payload = {
-        viewer: {
-          actor: {
-            name: 'Joe',
+        me: {
+          id: '123',
+          __typename: 'User',
+          address: {
+            city: 'Menlo Park',
           },
         },
       };
       writePayload(store, query, payload);
-      var actorID = store.getLinkedRecordID('client:1', 'actor');
-      expect(store.getType(actorID)).toBe(null);
+      var addressID = store.getLinkedRecordID('123', 'address');
+      expect(store.getType('123')).toBe('User');
+      expect(store.getType(addressID)).toBe('StreetAddress');
     });
   });
 });

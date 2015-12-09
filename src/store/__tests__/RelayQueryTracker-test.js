@@ -49,7 +49,7 @@ describe('RelayQueryTracker', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('tracks queries for ID-less root records', () => {

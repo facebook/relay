@@ -38,25 +38,30 @@ describe('RelayRenderer.context', () => {
     const contextTypes = {
       route: Relay.PropTypes.QueryConfig.isRequired,
     };
-    jest.addMatchers({
-      toRenderQueryConfig(expected) {
-        let actual;
-        class MockChild extends React.Component {
-          render() {
-            actual = this.context.route;
-            return null;
-          }
-        }
-        MockChild.contextTypes = contextTypes;
-        const element = React.cloneElement(this.actual, {
-          render() {
-            return <MockChild />;
+    jasmine.addMatchers({
+      toRenderQueryConfig() {
+        return {
+          compare(actual, expected) {
+            class MockChild extends React.Component {
+              render() {
+                actual = this.context.route;
+                return null;
+              }
+            }
+            MockChild.contextTypes = contextTypes;
+            const element = React.cloneElement(actual, {
+              render() {
+                return <MockChild />;
+              },
+            });
+            ReactDOM.render(element, container);
+            const mockRequests = RelayStore.primeCache.mock.requests;
+            mockRequests[mockRequests.length - 1].block();
+            return {
+              pass: actual === expected,
+            };
           },
-        });
-        ReactDOM.render(element, container);
-        const mockRequests = RelayStore.primeCache.mock.requests;
-        mockRequests[mockRequests.length - 1].block();
-        return actual === expected;
+        };
       },
     });
   });

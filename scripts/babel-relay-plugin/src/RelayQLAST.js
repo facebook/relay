@@ -12,12 +12,14 @@
 
 'use strict';
 
-const types = require('graphql/type');
 const {
-  SchemaMetaFieldDef,
-  TypeMetaFieldDef,
-  TypeNameMetaFieldDef,
-} = require('graphql/type/introspection');
+  type: types,
+  type_introspection: {
+    SchemaMetaFieldDef,
+    TypeMetaFieldDef,
+    TypeNameMetaFieldDef,
+  },
+} = require('./GraphQL');
 
 const find = require('./find');
 const invariant = require('./invariant');
@@ -476,7 +478,8 @@ class RelayQLType {
             schemaFieldDef = possibleField;
             if (fieldAST && fieldAST.arguments) {
               const argumentsAllExist = fieldAST.arguments.every(
-                argument => possibleField.args.find(
+                argument => find(
+                  possibleField.args,
                   argDef => argDef.name === argument.name.value
                 )
               );

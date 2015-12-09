@@ -12,10 +12,10 @@
 
 'use strict';
 
+const {utilities_buildClientSchema: {buildClientSchema}} = require('./GraphQL');
 import type {Validator} from './RelayQLTransformer';
 const RelayQLTransformer = require('./RelayQLTransformer');
 const babelAdapter = require('./babelAdapter');
-const {buildClientSchema} = require('graphql/utilities/buildClientSchema');
 const invariant = require('./invariant');
 const util = require('util');
 
@@ -34,6 +34,8 @@ function getBabelRelayPlugin(
   pluginOptions?: ?{
     abortOnError?: ?boolean;
     debug?: ?boolean;
+    inputArgumentName?: ?string;
+    snakeCase?: ?boolean;
     suppressWarnings?: ?boolean;
     substituteVariables?: ?boolean;
     validator?: ?Validator;
@@ -46,6 +48,8 @@ function getBabelRelayPlugin(
 
   const schema = getSchema(schemaProvider);
   const transformer = new RelayQLTransformer(schema, {
+    inputArgumentName: options.inputArgumentName,
+    snakeCase: !!options.snakeCase,
     substituteVariables: !!options.substituteVariables,
     validator: options.validator,
   });
@@ -122,8 +126,8 @@ function getBabelRelayPlugin(
                   basename
                 );
                 warning([
-                  'Error: ' + message,
                   'File:  ' + filename,
+                  'Error: ' + message,
                   'Source:',
                 ].join('\n'));
                 locations.forEach(location => {
@@ -144,8 +148,8 @@ function getBabelRelayPlugin(
                 basename
               );
               warning([
-                'Error: ' + error.message,
                 'File:  ' + filename,
+                'Error: ' + error.stack,
               ].join('\n'));
             }
             var runtimeMessage = util.format(

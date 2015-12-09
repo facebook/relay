@@ -42,7 +42,7 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
       return {__dataID__: pointer.getDataID(), id: pointer.getDataID()};
     });
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('throws for invalid records', () => {

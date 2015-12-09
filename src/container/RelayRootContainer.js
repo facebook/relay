@@ -27,7 +27,7 @@ type RootContainerProps = {
   Component: RelayContainer;
   forceFetch?: ?boolean;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
-  renderFailure?: ?(error: Error, retry: () => void) => ReactElement;
+  renderFailure?: ?(error: Error, retry: ?() => void) => ReactElement;
   renderFetched?: ?(
     data: Object,
     fetchState: ComponentFetchState

@@ -49,18 +49,16 @@ type PayloadArray = Array<Payload>;
 type PayloadObject = {[key: string]: Payload};
 
 var {CLIENT_MUTATION_ID, EDGES} = RelayConnectionInterface;
-var {ID, NODE} = RelayNodeInterface;
+var {ANY_TYPE, ID, NODE, NODE_TYPE} = RelayNodeInterface;
 var {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 
-var EDGES_FIELD = RelayQuery.Field.build(
-  EDGES,
-  null,
-  null,
-  {isPlural: true}
-);
+var EDGES_FIELD = RelayQuery.Field.build({
+  fieldName: EDGES,
+  type: ANY_TYPE,
+  metadata: {isPlural: true},
+});
 var IGNORED_KEYS = {
   error: true,
-  /* $FlowIssue #7728187 - Computed Property */
   [CLIENT_MUTATION_ID]: true,
 };
 var STUB_CURSOR_ID = 'client:cursor';
@@ -249,6 +247,7 @@ function mergeField(
         recordID,
         null,
         {identifyingArgName: ID},
+        NODE_TYPE
       )
     );
   } else {
@@ -256,7 +255,11 @@ function mergeField(
     // Root fields that do not accept arguments
     path = new RelayQueryPath(RelayQuery.Root.build(
       'writeRelayUpdatePayload',
-      fieldName
+      fieldName,
+      null,
+      null,
+      null,
+      ANY_TYPE
     ));
   }
   invariant(

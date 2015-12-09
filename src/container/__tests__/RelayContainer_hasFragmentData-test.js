@@ -42,11 +42,12 @@ describe('RelayContainer', () => {
       mockPointer = {__dataID__: '42'};
       const storeData = RelayStoreData.getDefaultInstance();
       pendingQueryTracker = storeData.getPendingQueryTracker();
-      store = storeData.getRecordStore();
+      store = storeData.getCachedStore();
     });
 
     it('returns true when there are no pending queries', () => {
-      spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(false);
+      pendingQueryTracker.hasPendingQueries =
+        jest.genMockFn().mockImplementation(() => false);
       const hasData = mockContainerInstance.hasFragmentData(
         mockFragmentReference,
         mockPointer
@@ -56,9 +57,10 @@ describe('RelayContainer', () => {
 
     it('returns true when there are pending queries, but the fragment we are ' +
        'interested in has resolved', () => {
-      spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(true);
+      pendingQueryTracker.hasPendingQueries =
+        jest.genMockFn().mockImplementation(() => true);
       store.hasDeferredFragmentData =
-        jest.genMockFunction().mockReturnValue(true);
+        jest.genMockFn().mockReturnValue(true);
       const hasData = mockContainerInstance.hasFragmentData(
         mockFragmentReference,
         mockPointer
@@ -71,9 +73,10 @@ describe('RelayContainer', () => {
 
     it('returns false when there are pending queries, but the fragment we ' +
        'are interested in has not resolved', () => {
-      spyOn(pendingQueryTracker, 'hasPendingQueries').andReturn(true);
+      pendingQueryTracker.hasPendingQueries =
+        jest.genMockFn().mockImplementation(() => true);
       store.hasDeferredFragmentData =
-        jest.genMockFunction().mockReturnValue(false);
+        jest.genMockFn().mockReturnValue(false);
       const hasData = mockContainerInstance.hasFragmentData(
        mockFragmentReference,
        mockPointer

@@ -36,7 +36,36 @@ export type Substitution = {
   value: Printable;
 };
 
-module.exports = (t: any): Function => {
+type PrinterOptions = {
+  inputArgumentName: ?string;
+  snakeCase: boolean;
+};
+
+module.exports = function(t: any, options: PrinterOptions): Function {
+  const formatFields = options.snakeCase ?
+    fields => {
+      const formatted = {};
+      Object.keys(fields).forEach(name => {
+        formatted[name] =
+          name.replace(/[A-Z]/g, letter => '_' + letter.toLowerCase());
+      });
+      return formatted;
+    } :
+    fields => fields;
+
+  const FIELDS = formatFields({
+    __typename: '__typename',
+    clientMutationId: 'clientMutationId',
+    clientSubscriptionId: 'clientSubscriptionId',
+    cursor: 'cursor',
+    edges: 'edges',
+    hasNextPage: 'hasNextPage',
+    hasPreviousPage: 'hasPreviousPage',
+    id: 'id',
+    node: 'node',
+    pageInfo: 'pageInfo',
+  });
+  const INPUT_ARGUMENT_NAME = options.inputArgumentName || 'input';
   const NULL = t.nullLiteral();
 
   class RelayQLPrinter {
@@ -101,12 +130,15 @@ module.exports = (t: any): Function => {
         requisiteFields[identifyingFieldDef.getName()] = true;
       }
       if (rootFieldType.isAbstract()) {
-        requisiteFields.__typename = true;
+        requisiteFields[FIELDS.__typename] = true;
       }
       const selections = this.printSelections(rootField, requisiteFields);
       const metadata = {};
       if (rootFieldType.isList()) {
         metadata.isPlural = true;
+      }
+      if (rootFieldType.isAbstract()) {
+        metadata.isAbstract = true;
       }
       invariant(
         rootFieldArgs.length <= 1,
@@ -141,6 +173,7 @@ module.exports = (t: any): Function => {
         kind: t.valueToNode('Query'),
         metadata: objectify(metadata),
         name: t.valueToNode(query.getName()),
+        type: t.valueToNode(rootFieldType.getName({modifiers: false})),
       });
     }
 
@@ -149,13 +182,13 @@ module.exports = (t: any): Function => {
 
       const requisiteFields = {};
       let idFragment;
-      if (fragmentType.hasField('id')) {
+      if (fragmentType.hasField(FIELDS.id)) {
         requisiteFields.id = true;
       } else if (shouldGenerateIdFragment(fragment, fragmentType)) {
         idFragment = fragmentType.generateIdFragment();
       }
       if (fragmentType.isAbstract()) {
-        requisiteFields.__typename = true;
+        requisiteFields[FIELDS.__typename] = true;
       }
       const selections = this.printSelections(
         fragment,
@@ -163,7 +196,7 @@ module.exports = (t: any): Function => {
         idFragment ? [idFragment] : null
       );
       const metadata = this.printRelayDirectiveMetadata(fragment, {
-        isConcrete: !fragmentType.isAbstract(),
+        isAbstract: fragmentType.isAbstract(),
       });
 
       return codify({
@@ -173,7 +206,7 @@ module.exports = (t: any): Function => {
         kind: t.valueToNode('Fragment'),
         metadata,
         name: t.valueToNode(fragment.getName()),
-        type: t.valueToNode(fragmentType.getName({modifiers: true})),
+        type: t.valueToNode(fragmentType.getName({modifiers: false})),
       });
     }
 
@@ -189,11 +222,14 @@ module.exports = (t: any): Function => {
       const rootField = rootFields[0];
       const rootFieldType = rootField.getType();
       validateMutationField(rootField);
-      const requisiteFields = {clientMutationId: true};
+      const requisiteFields = {};
+      if (rootFieldType.hasField(FIELDS.clientMutationId)) {
+        requisiteFields[FIELDS.clientMutationId] = true;
+      }
       const selections = this.printSelections(rootField, requisiteFields);
       const metadata = {
         inputType: this.printArgumentTypeForMetadata(
-          rootField.getDeclaredArgument('input')
+          rootField.getDeclaredArgument(INPUT_ARGUMENT_NAME)
         ),
       };
 
@@ -211,7 +247,7 @@ module.exports = (t: any): Function => {
         kind: t.valueToNode('Mutation'),
         metadata: objectify(metadata),
         name: t.valueToNode(mutation.getName()),
-        responseType: t.valueToNode(rootFieldType.getName({modifiers: true})),
+        responseType: t.valueToNode(rootFieldType.getName({modifiers: false})),
       });
     }
 
@@ -227,11 +263,14 @@ module.exports = (t: any): Function => {
       const rootField = rootFields[0];
       const rootFieldType = rootField.getType();
       validateMutationField(rootField);
-      const requisiteFields = {clientSubscriptionId: true};
+      const requisiteFields = {};
+      if (rootFieldType.hasField(FIELDS.clientSubscriptionId)) {
+        requisiteFields[FIELDS.clientSubscriptionId] = true;
+      }
       const selections = this.printSelections(rootField, requisiteFields);
       const metadata = {
         inputType: this.printArgumentTypeForMetadata(
-          rootField.getDeclaredArgument('input')
+          rootField.getDeclaredArgument(INPUT_ARGUMENT_NAME)
         ),
       };
 
@@ -249,7 +288,7 @@ module.exports = (t: any): Function => {
         kind: t.valueToNode('Subscription'),
         metadata: objectify(metadata),
         name: t.valueToNode(subscription.getName()),
-        responseType: t.valueToNode(rootFieldType.getName({modifiers: true})),
+        responseType: t.valueToNode(rootFieldType.getName({modifiers: false})),
       });
     }
 
@@ -298,9 +337,9 @@ module.exports = (t: any): Function => {
     ): Array<Printable> {
       const parentType = parent.getType();
       if (parentType.isConnection() &&
-          parentType.hasField('pageInfo') &&
-          fields.some(field => field.getName() === 'edges')) {
-        requisiteFields.pageInfo = true;
+          parentType.hasField(FIELDS.pageInfo) &&
+          fields.some(field => field.getName() === FIELDS.edges)) {
+        requisiteFields[FIELDS.pageInfo] = true;
       }
 
       const generatedFields = {...requisiteFields};
@@ -343,13 +382,11 @@ module.exports = (t: any): Function => {
         isGenerated?: boolean;
         isPlural?: boolean;
         isRequisite?: boolean;
-        isUnionOrInterface?: boolean;
-        parentType?: ?string;
+        isAbstract?: boolean;
       } = {};
-      metadata.parentType = parent.getType().getName({modifiers: false});
       const requisiteFields = {};
       let idFragment;
-      if (fieldType.hasField('id')) {
+      if (fieldType.hasField(FIELDS.id)) {
         requisiteFields.id = true;
       } else if (shouldGenerateIdFragment(field, fieldType)) {
         idFragment = fieldType.generateIdFragment();
@@ -372,15 +409,15 @@ module.exports = (t: any): Function => {
           }
         }
       } else if (fieldType.isConnectionPageInfo()) {
-        requisiteFields.hasNextPage = true;
-        requisiteFields.hasPreviousPage = true;
+        requisiteFields[FIELDS.hasNextPage] = true;
+        requisiteFields[FIELDS.hasPreviousPage] = true;
       } else if (fieldType.isConnectionEdge()) {
-        requisiteFields.cursor = true;
-        requisiteFields.node = true;
+        requisiteFields[FIELDS.cursor] = true;
+        requisiteFields[FIELDS.node] = true;
       }
       if (fieldType.isAbstract()) {
-        metadata.isUnionOrInterface = true;
-        requisiteFields.__typename = true;
+        metadata.isAbstract = true;
+        requisiteFields[FIELDS.__typename] = true;
       }
       if (fieldType.isList()) {
         metadata.isPlural = true;
@@ -404,13 +441,14 @@ module.exports = (t: any): Function => {
         NULL;
 
       return codify({
-        alias: fieldAlias ? t.valueToNode(fieldAlias): NULL,
+        alias: fieldAlias ? t.valueToNode(fieldAlias) : NULL,
         calls,
         children: selections,
         directives: this.printDirectives(field.getDirectives()),
         fieldName: t.valueToNode(field.getName()),
         kind: t.valueToNode('Field'),
         metadata: objectify(metadata),
+        type: t.valueToNode(fieldType.getName({modifiers: false})),
       });
     }
 
@@ -607,13 +645,13 @@ module.exports = (t: any): Function => {
 
     // Use `any` because we already check `isConnection` before validating.
     const connectionNodeType = (field: any).getType()
-      .getFieldDefinition('edges').getType()
-      .getFieldDefinition('node').getType();
+      .getFieldDefinition(FIELDS.edges).getType()
+      .getFieldDefinition(FIELDS.node).getType();
 
     // NOTE: These checks are imperfect because we cannot trace fragment spreads.
     forEachRecursiveField(field, subfield => {
-      if (subfield.getName() === 'edges' ||
-          subfield.getName() === 'pageInfo') {
+      if (subfield.getName() === FIELDS.edges ||
+          subfield.getName() === FIELDS.pageInfo) {
         invariant(
           field.isPattern() ||
           field.hasArgument('find') ||
@@ -635,11 +673,14 @@ module.exports = (t: any): Function => {
         invariant(
           !isNodesLikeField,
           'You supplied a field named `%s` on a connection named `%s`, but ' +
-          'pagination is not supported on connections without using edges. Use ' +
-          '`%s{edges{node{...}}}` instead.',
+          'pagination is not supported on connections without using `%s`. ' +
+          'Use `%s{%s{%s{...}}}` instead.',
           subfield.getName(),
           field.getName(),
-          field.getName()
+          FIELDS.edges,
+          field.getName(),
+          FIELDS.edges,
+          FIELDS.node
         );
       }
     });
@@ -651,26 +692,29 @@ module.exports = (t: any): Function => {
     invariant(
       declaredArgNames.length === 1,
       'Your schema defines a mutation field `%s` that takes %d arguments, ' +
-      'but mutation fields must have exactly one argument named `input`.',
+      'but mutation fields must have exactly one argument named `%s`.',
       rootField.getName(),
-      declaredArgNames.length
+      declaredArgNames.length,
+      INPUT_ARGUMENT_NAME
     );
     invariant(
-      declaredArgNames[0] === 'input',
+      declaredArgNames[0] === INPUT_ARGUMENT_NAME,
       'Your schema defines a mutation field `%s` that takes an argument ' +
       'named `%s`, but mutation fields must have exactly one argument ' +
-      'named `input`.',
+      'named `%s`.',
       rootField.getName(),
-      declaredArgNames[0]
+      declaredArgNames[0],
+      INPUT_ARGUMENT_NAME
     );
 
     const rootFieldArgs = rootField.getArguments();
     invariant(
       rootFieldArgs.length <= 1,
       'There are %d arguments supplied to the mutation field named `%s`, ' +
-      'but mutation fields must have exactly one `input` argument.',
+      'but mutation fields must have exactly one `%s` argument.',
       rootFieldArgs.length,
-      rootField.getName()
+      rootField.getName(),
+      INPUT_ARGUMENT_NAME
     );
   }
 
@@ -695,7 +739,7 @@ module.exports = (t: any): Function => {
       if (value !== NULL) {
         properties.push(property(key, value));
       }
-    })
+    });
     return t.objectExpression(properties);
   }
 
@@ -715,7 +759,7 @@ module.exports = (t: any): Function => {
       if (value) {
         properties.push(property(key, t.valueToNode(value)));
       }
-    })
+    });
     return t.objectExpression(properties);
   }
 

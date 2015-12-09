@@ -32,14 +32,21 @@ describe('validateRelayReadQuery', () => {
     realConsoleError = console.error;
     mockConsoleError = console.error = jest.genMockFunction();
 
-    jest.addMatchers({
-      toLogErrorFor(alias) {
-        this.env.currentSpec.expect(this.actual).toBeCalledWith(
-          '`%s` is used as an alias more than once. Please use unique aliases.',
-          alias
-        );
-        return true;
-      }
+    jasmine.addMatchers({
+      toLogErrorFor() {
+        return {
+          compare(actual, alias) {
+            expect(actual).toBeCalledWith(
+              '`%s` is used as an alias more than once. Please use unique ' +
+              'aliases.',
+              alias
+            );
+            return {
+              pass: true,
+            };
+          },
+        };
+      },
     });
   });
 

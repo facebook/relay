@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('refragmentRelayQuery');
+module.exports = require.requireActual('isReactComponent');

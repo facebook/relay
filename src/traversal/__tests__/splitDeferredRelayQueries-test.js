@@ -37,7 +37,7 @@ describe('splitDeferredRelayQueries()', () => {
     // Reset query numbers back to q0.
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('returns the original query when there are no fragments', () => {
@@ -944,9 +944,15 @@ describe('splitDeferredRelayQueries()', () => {
     // `Relay.QL`, but in order to be future-proof against this possible edge
     // case, we create such a query by hand.
     var fragment = Relay.QL`fragment on Node{name}`;
-    var id = RelayQuery.Field.build('id', null, null, {isRequisite: true});
-    var typename = RelayQuery.Field.build('__typename', null, null, {
-      isRequisite: true,
+    var id = RelayQuery.Field.build({
+      fieldName: 'id',
+      metadata: {isRequisite: true},
+      type: 'String',
+    });
+    var typename = RelayQuery.Field.build({
+      fieldName: '__typename',
+      metadata: {isRequisite: true},
+      type: 'String',
     });
     var queryNode = RelayQuery.Root.build(
       'splitDeferredRelayQueries',
@@ -955,16 +961,16 @@ describe('splitDeferredRelayQueries()', () => {
       [
         id,
         typename,
-        RelayQuery.Field.build(
-          'hometown',
-          null,
-          [id, getNode(defer(fragment))],
-          {
+        RelayQuery.Field.build({
+          fieldName: 'hometown',
+          children: [id, getNode(defer(fragment))],
+          metadata: {
             isGenerated: true,
             inferredPrimaryKey: 'id',
             inferredRootCallName: 'node',
-          }
-        ),
+          },
+          type: 'Page',
+        }),
       ],
       {
         identifyingArgName: 'id',

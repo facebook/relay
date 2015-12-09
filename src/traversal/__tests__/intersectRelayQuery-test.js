@@ -21,7 +21,7 @@ describe('intersectRelayQuery', () => {
   var {getNode} = RelayTestUtils;
 
   beforeEach(() => {
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('fields', () => {

@@ -21,6 +21,11 @@ import type {
   ConcreteQuery,
 } from 'ConcreteQuery';
 var QueryBuilder = require('QueryBuilder');
+import type {
+  ConcreteFieldMetadata,
+  ConcreteOperationMetadata,
+  ConcreteQueryMetadata,
+} from 'QueryBuilder';
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayFragmentReference = require('RelayFragmentReference');
 import type {Call, Directive}  from 'RelayInternalTypes';
@@ -115,9 +120,6 @@ class RelayQueryNode {
   __storageKey__: ?string;
   __variables__: Variables;
 
-  // TODO(#7161070) Remove this once `toGraphQL` is no longer needed.
-  __isConcreteNodeCached__: boolean;
-
   static create(
     concreteNode: mixed,
     route: RelayMetaRoute,
@@ -158,9 +160,6 @@ class RelayQueryNode {
     this.__hasValidatedConnectionCalls__ = null;
     this.__serializationKey__ = null;
     this.__storageKey__ = null;
-
-    // TODO(#7161070) Remove this once `toGraphQL` is no longer needed.
-    this.__isConcreteNodeCached__ = false;
   }
 
   isGenerated(): boolean {
@@ -281,6 +280,10 @@ class RelayQueryNode {
     return fieldMap[storageKey];
   }
 
+  getType(): string {
+    return this.__concreteNode__.type;
+  }
+
   getRoute(): RelayMetaRoute {
     return this.__route__;
   }
@@ -298,6 +301,10 @@ class RelayQueryNode {
       this.__hasDeferredDescendant__ = hasDeferredDescendant;
     }
     return hasDeferredDescendant;
+  }
+
+  isAbstract(): boolean {
+    throw new Error('RelayQueryNode: Abstract function cannot be called.');
   }
 
   isRequisite(): boolean {
@@ -343,13 +350,7 @@ class RelayQueryNode {
     );
   }
 
-  getConcreteQueryNode(
-    onCacheMiss: () => any
-  ): any {
-    if (!this.__isConcreteNodeCached__) {
-      this.__concreteNode__ = onCacheMiss();
-      this.__isConcreteNodeCached__ = true;
-    }
+  getConcreteQueryNode(): any {
     return this.__concreteNode__;
   }
 }
@@ -375,7 +376,8 @@ class RelayQueryRoot extends RelayQueryNode {
     fieldName: string,
     value: mixed,
     children: ?Array<RelayQueryNode>,
-    metadata: ?{[key: string]: mixed}
+    metadata: ?ConcreteQueryMetadata,
+    type: string
   ): RelayQueryRoot {
     const nextChildren = children ? children.filter(child => !!child) : [];
     const batchCallVariable = QueryBuilder.getBatchCallVariable(value);
@@ -392,6 +394,7 @@ class RelayQueryRoot extends RelayQueryNode {
       identifyingArgValue,
       metadata,
       name,
+      type,
     });
     var root = new RelayQueryRoot(
       concreteRoot,
@@ -521,11 +524,11 @@ class RelayQueryRoot extends RelayQueryNode {
       if (identifyingArg) {
         args = args.filter(arg => arg !== identifyingArg);
       }
-      const field = RelayQueryField.build(
-        this.getFieldName(),
-        args,
-        null
-      );
+      const field = RelayQueryField.build({
+        fieldName: this.getFieldName(),
+        calls: args,
+        type: this.getType(),
+      });
       storageKey = field.getStorageKey();
       this.__storageKey__ = storageKey;
     }
@@ -534,6 +537,10 @@ class RelayQueryRoot extends RelayQueryNode {
 
   hasDeferredDescendant(): boolean {
     return this.isDeferred() || super.hasDeferredDescendant();
+  }
+
+  isAbstract(): boolean {
+    return !!(this.__concreteNode__: ConcreteQuery).metadata.isAbstract;
   }
 
   isDeferred(): boolean {
@@ -602,6 +609,10 @@ class RelayQueryOperation extends RelayQueryNode {
     return (this.__concreteNode__: ConcreteMutation).responseType;
   }
 
+  getType(): string {
+    return this.getResponseType();
+  }
+
   getInputType(): string {
     const inputType =
       (this.__concreteNode__: ConcreteMutation).metadata.inputType;
@@ -642,6 +653,14 @@ class RelayQueryOperation extends RelayQueryNode {
     }
     return this.__callVariableName__;
   }
+
+  /**
+   * Mutations and subscriptions must have a concrete type due to the need for
+   * requisite top-level fields.
+   */
+  isAbstract(): boolean {
+    return false;
+  }
 }
 
 /**
@@ -660,7 +679,7 @@ class RelayQueryMutation extends RelayQueryOperation {
     callName: string,
     callValue?: ?mixed,
     children?: ?Array<RelayQueryNode>,
-    metadata?: ?{[key: string]: mixed}
+    metadata?: ?ConcreteOperationMetadata
   ): RelayQueryMutation {
     var nextChildren = children ? children.filter(child => !!child) : [];
     var concreteMutation = QueryBuilder.createMutation({
@@ -858,13 +877,8 @@ class RelayQueryFragment extends RelayQueryNode {
     return fragmentID;
   }
 
-  getType(): string {
-    return (this.__concreteNode__: ConcreteFragment).type;
-  }
-
-  isConcrete(): boolean {
-    const concreteNode = (this.__concreteNode__: ConcreteFragment);
-    return !!concreteNode.metadata.isConcrete;
+  isAbstract(): boolean {
+    return !!(this.__concreteNode__: ConcreteFragment).metadata.isAbstract;
   }
 
   isDeferred(): boolean {
@@ -876,6 +890,15 @@ class RelayQueryFragment extends RelayQueryNode {
     return !!(
       metadata.isPlural ||  // FB Printer
       metadata.plural       // OSS Printer from `@relay`
+    );
+  }
+
+  cloneAsPlainFragment(): RelayQueryFragment {
+    return createMemoizedFragment(
+      this.__concreteNode__,
+      this.__route__,
+      this.__variables__,
+      DEFAULT_FRAGMENT_METADATA
     );
   }
 
@@ -949,19 +972,28 @@ class RelayQueryField extends RelayQueryNode {
    * Helper to construct a new field with the given attributes and 'empty'
    * route/variables.
    */
-  static build(
-    fieldName: string,
-    calls?: ?Array<Call>,
-    children?: ?NextChildren,
-    metadata?: ?{[key: string]: mixed},
-    alias?: ?string
-  ): RelayQueryField {
+  static build({
+    alias,
+    calls,
+    children,
+    fieldName,
+    metadata,
+    type,
+  }: {
+    alias?: ?string;
+    calls?: ?Array<Call>;
+    children?: ?NextChildren;
+    fieldName: string;
+    metadata?: ?ConcreteFieldMetadata;
+    type: string;
+  }): RelayQueryField {
     var nextChildren = children ? children.filter(child => !!child) : [];
     var concreteField = QueryBuilder.createField({
       alias,
       calls: calls ? callsToGraphQL(calls) : null,
       fieldName,
       metadata,
+      type,
     });
     var field = new RelayQueryField(
       concreteField,
@@ -983,8 +1015,8 @@ class RelayQueryField extends RelayQueryNode {
     this.__rangeBehaviorKey__ = undefined;
   }
 
-  isRequisite(): boolean {
-    return !!(this.__concreteNode__: ConcreteField).metadata.isRequisite;
+  isAbstract(): boolean {
+    return !!(this.__concreteNode__: ConcreteField).metadata.isAbstract;
   }
 
   isFindable(): boolean {
@@ -1007,16 +1039,16 @@ class RelayQueryField extends RelayQueryNode {
     return this.__isRefQueryDependency__;
   }
 
+  isRequisite(): boolean {
+    return !!(this.__concreteNode__: ConcreteField).metadata.isRequisite;
+  }
+
   isScalar(): boolean {
     const concreteChildren = (this.__concreteNode__: ConcreteField).children;
     return (
       (!this.__children__ || this.__children__.length === 0) &&
       (!concreteChildren || concreteChildren.length === 0)
     );
-  }
-
-  isUnionOrInterface(): boolean {
-    return !!(this.__concreteNode__: ConcreteField).metadata.isUnionOrInterface;
   }
 
   getDebugName(): string {
@@ -1036,17 +1068,6 @@ class RelayQueryField extends RelayQueryNode {
       this.__debugName__ = debugName;
     }
     return debugName;
-  }
-
-  getParentType(): string {
-    var parentType = (this.__concreteNode__: ConcreteField).metadata.parentType;
-    invariant(
-      parentType,
-      'RelayQueryField(): Expected field `%s` to be annotated with the ' +
-      'type of the parent field.',
-      this.getSchemaName()
-    );
-    return parentType;
   }
 
   /**
@@ -1280,6 +1301,22 @@ function createNode(
     type = RelayQueryField;
   } else if (kind === 'Fragment') {
     type = RelayQueryFragment;
+  } else if (kind === 'FragmentReference') {
+    type = RelayQueryFragment;
+    let fragment = QueryBuilder.getFragment(concreteNode.fragment);
+    // TODO #9171213: Reference directives should override fragment directives
+    if (fragment) {
+      return createMemoizedFragment(
+        fragment,
+        route,
+        {},
+        {
+          isDeferred: false,
+          isContainerFragment: true,
+          isTypeConditional: true,
+        }
+      );
+    }
   } else if (kind === 'Query') {
     type = RelayQueryRoot;
   } else if (kind === 'Mutation') {
@@ -1287,19 +1324,19 @@ function createNode(
   } else if (kind === 'Subscription') {
     type = RelayQuerySubscription;
   } else if (concreteNode instanceof RelayRouteFragment) {
-    var routeFragment = concreteNode.getFragmentForRoute(route);
-    if (routeFragment) {
+    let fragment = concreteNode.getFragmentForRoute(route);
+    if (fragment) {
       // may be null if no value was defined for this route.
       return createNode(
-        routeFragment,
+        fragment,
         route,
         variables
       );
     }
     return null;
   } else if (concreteNode instanceof RelayFragmentReference) {
-    var fragment = concreteNode.getFragment(variables);
-    var fragmentVariables = concreteNode.getVariables(route, variables);
+    let fragment = concreteNode.getFragment(variables);
+    let fragmentVariables = concreteNode.getVariables(route, variables);
     if (fragment) {
       // the fragment may be null when `if` or `unless` conditions are not met.
       return createMemoizedFragment(

@@ -22,15 +22,15 @@ var foo = (function () {
     children: [{
       fieldName: "name",
       kind: "Field",
-      metadata: {
-        parentType: "__Type"
-      }
+      metadata: {},
+      type: "String"
     }],
     fieldName: "__type",
     kind: "Query",
     metadata: {
       identifyingArgName: "name"
     },
-    name: "IntrospectionQueryForType"
+    name: "IntrospectionQueryForType",
+    type: "__Type"
   };
 })();

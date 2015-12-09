@@ -21,7 +21,7 @@ import type RelayQuery from 'RelayQuery';
  * Determine if the given fragment's type is compatible with the given record
  * type. The types are considered compatible if they exactly match or in the
  * following cases:
- * - Types are not recorded for client records; if the record type is null
+ * - Types are not recorded for optimistic records; if the record type is null
  *   it is assumed to be compatible with the fragment.
  * - Abstract fragments are assumed to be compatible with all types; being more
  *   precise would require access to the full schema inheritance hierarchy.
@@ -33,7 +33,7 @@ function isCompatibleRelayFragmentType(
   return (
     recordType === fragment.getType() ||
     !recordType ||
-    !fragment.isConcrete()
+    fragment.isAbstract()
   );
 }
 

@@ -27,33 +27,32 @@ var x = (function () {
       children: [{
         fieldName: 'profilePicture',
         kind: 'Field',
-        metadata: {
-          parentType: 'User'
-        }
+        metadata: {},
+        type: 'ProfilePicture'
       }, {
         fieldName: 'id',
         kind: 'Field',
         metadata: {
-          parentType: 'User',
           isGenerated: true,
           isRequisite: true
-        }
+        },
+        type: 'String'
       }],
       fieldName: 'actor',
       kind: 'Field',
       metadata: {
-        parentType: 'ActorSubscribeResponsePayload',
         inferredRootCallName: 'node',
         inferredPrimaryKey: 'id'
-      }
+      },
+      type: 'User'
     }, {
       fieldName: 'clientMutationId',
       kind: 'Field',
       metadata: {
-        parentType: 'ActorSubscribeResponsePayload',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }],
     kind: 'Mutation',
     metadata: {

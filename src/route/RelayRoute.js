@@ -14,7 +14,6 @@
 'use strict';
 
 import type URI from 'URI';
-var RelayDeprecated = require('RelayDeprecated');
 import type {ConfigQueries} from 'RelayQueryConfig';
 var RelayQueryConfig = require('RelayQueryConfig');
 

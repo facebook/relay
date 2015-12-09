@@ -14,31 +14,28 @@ var x = (function () {
     children: [{
       fieldName: 'name',
       kind: 'Field',
-      metadata: {
-        parentType: 'Actor'
-      }
+      metadata: {},
+      type: 'String'
     }, {
       fieldName: '__typename',
       kind: 'Field',
       metadata: {
-        parentType: 'Actor',
         isGenerated: true,
         isRequisite: true
-      }
+      },
+      type: 'String'
     }, {
       children: [{
         fieldName: 'id',
         kind: 'Field',
         metadata: {
-          parentType: 'User',
           isRequisite: true
-        }
+        },
+        type: 'String'
       }],
       hash: 'Sb+rujhv',
       kind: 'Fragment',
-      metadata: {
-        isConcrete: true
-      },
+      metadata: {},
       name: 'User',
       type: 'User'
     }, {
@@ -46,27 +43,31 @@ var x = (function () {
         fieldName: 'id',
         kind: 'Field',
         metadata: {
-          parentType: 'Node',
           isRequisite: true
-        }
+        },
+        type: 'String'
       }, {
         fieldName: '__typename',
         kind: 'Field',
         metadata: {
-          parentType: 'Node',
           isGenerated: true,
           isRequisite: true
-        }
+        },
+        type: 'String'
       }],
       hash: 'Sb+rujhv',
       kind: 'Fragment',
-      metadata: {},
+      metadata: {
+        isAbstract: true
+      },
       name: 'IdFragment',
       type: 'Node'
     }],
     hash: 'Sb+rujhv',
     kind: 'Fragment',
-    metadata: {},
+    metadata: {
+      isAbstract: true
+    },
     name: 'FragmentWithPossibleId',
     type: 'Actor'
   };

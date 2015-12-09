@@ -141,21 +141,18 @@ function splitAndFlattenQueries(
   queries: Array<RelayQuery.Root>
 ): Array<RelayQuery.Root> {
   if (!RelayNetworkLayer.supports('defer')) {
-    var hasDeferredDescendant = queries.some(query => {
-      if (query.hasDeferredDescendant()) {
+    if (__DEV__) {
+      queries.forEach(query => {
         warning(
-          false,
+          !query.hasDeferredDescendant(),
           'Relay: Query `%s` contains a deferred fragment (e.g. ' +
           '`getFragment(\'foo\').defer()`) which is not supported by the ' +
           'default network layer. This query will be sent without deferral.',
           query.getName()
         );
-        return true;
-      }
-    });
-    if (hasDeferredDescendant) {
-      return queries;
+      });
     }
+    return queries;
   }
 
   var flattenedQueries = [];

@@ -35,7 +35,7 @@ describe('RelayQueryField', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
 
     var scalarRQL = Relay.QL`
       fragment on Node {
@@ -120,13 +120,15 @@ describe('RelayQueryField', () => {
     expect(generatedId.getSchemaName()).toBe('id');
   });
 
-  it('returns the parent type', () => {
-    var field = getNode(Relay.QL`
-      fragment on Actor {
-        name
+  it('returns the type', () => {
+    var actor = getNode(Relay.QL`
+      fragment on Viewer {
+        actor {
+          name
+        }
       }
     `).getChildren()[0];
-    expect(field.getParentType()).toBe('Actor');
+    expect(actor.getType()).toBe('Actor');
   });
 
   it('gets children by storage key', () => {
@@ -264,7 +266,7 @@ describe('RelayQueryField', () => {
     var field = getNode(
       Relay.QL`fragment on User{profilePicture(size:"32")}`
     ).getChildren()[0];
-    field.__concreteNode__.calls[0].metadata = {type: 'scalar'};
+    field.getConcreteQueryNode().calls[0].metadata = {type: 'scalar'};
 
     expect(field.getCallType('size')).toBe('scalar');
     expect(field.getCallType('nonExistentCall')).toBe(undefined);
@@ -318,7 +320,7 @@ describe('RelayQueryField', () => {
       var nonConnectionField = getNode(
         Relay.QL`query { node(id:"4") }`
       ).getChildren()[0];
-      expect(nonConnectionField.getRangeBehaviorKey).toFailInvariant();
+      expect(nonConnectionField.getRangeBehaviorKey).toThrow();
     });
 
     it('strips passing `if` calls', () => {
@@ -580,6 +582,23 @@ describe('RelayQueryField', () => {
     expect(clonedFeed).toBe(friendVariable);
   });
 
+  it('returns isAbstract', () => {
+    expect(getNode(Relay.QL`
+      fragment on Viewer {
+        actor {
+          name
+        }
+      }
+    `).getFieldByStorageKey('actor').isAbstract()).toBe(true);
+    expect(getNode(Relay.QL`
+      fragment on User {
+        address {
+          city
+        }
+      }
+    `).getFieldByStorageKey('address').isAbstract()).toBe(false);
+  });
+
   it('returns isGenerated', () => {
     expect(aliasedId.isGenerated()).toBe(false);
     expect(cursor.isGenerated()).toBe(true);
@@ -651,6 +670,7 @@ describe('RelayQueryField', () => {
     expect(node.getType()).toBe('FeedUnit');
     expect(node.getRoute()).toBe(nodeId.getRoute());
     expect(node.getVariables()).toBe(nodeId.getVariables());
+    expect(node.getFieldByStorageKey('actorCount').getType()).toBe('Int');
   });
 
   it('returns directives', () => {

@@ -13,16 +13,17 @@
 
 'use strict';
 
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
-var RelayProfiler = require('RelayProfiler');
+const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
-var RelayQueryVisitor = require('RelayQueryVisitor');
-var RelayRecordState = require('RelayRecordState');
+const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
-var forEachRootCallArg = require('forEachRootCallArg');
+const forEachRootCallArg = require('forEachRootCallArg');
+const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 
 type CheckerState = {
   dataID: ?DataID;
@@ -30,7 +31,7 @@ type CheckerState = {
   result: boolean;
 };
 
-var {EDGES, PAGE_INFO} = RelayConnectionInterface;
+const {EDGES, PAGE_INFO} = RelayConnectionInterface;
 
 /**
  * @internal
@@ -99,6 +100,20 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
         state.result = state.result && nextState.result;
       }
     });
+  }
+
+  visitFragment(
+    fragment: RelayQuery.Fragment,
+    state: CheckerState
+  ): ?RelayQuery.Node {
+    const dataID = state.dataID;
+    // The dataID check is for Flow; it must be non-null to have gotten here.
+    if (dataID && isCompatibleRelayFragmentType(
+      fragment,
+      this._store.getType(dataID)
+    )) {
+      this.traverse(fragment, state);
+    }
   }
 
   visitField(

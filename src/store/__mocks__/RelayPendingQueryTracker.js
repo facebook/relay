@@ -9,8 +9,6 @@
 
 'use strict';
 
-var Promise = require('Promise');
-
 var RelayPendingQueryTracker =
   jest.genMockFromModule('RelayPendingQueryTracker');
 

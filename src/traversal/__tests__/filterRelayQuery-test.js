@@ -42,7 +42,7 @@ describe('filterRelayQuery()', () => {
       }
     `);
 
-    this.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('returns the original query if nothing is filtered out', () => {

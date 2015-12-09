@@ -158,14 +158,14 @@ This method is also called after the partial set of variables from `setVariables
 
 ```{3-9}
 module.exports = Relay.createContainer(ProfilePicture, {
-  static initialVariables = {size: 50};
-  static prepareVariables = prevVariables => {
+  initialVariables: {size: 50},
+  prepareVariables: prevVariables => {
     return {
       ...prevVariables,
       // If devicePixelRatio is `2`, the new size will be `100`.
       size: prevVariables.size * window.devicePixelRatio,
     };
-  };
+  },
   // ...
 });
 ```

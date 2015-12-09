@@ -24,18 +24,19 @@ const buildRQL = require('buildRQL');
 const fromGraphQL = require('fromGraphQL');
 
 describe('RelayMutation', function() {
-  var MockMutation;
-  var mockBarPointer;
-  var mockFooPointer;
-
-  var {getNode, getPointer} = RelayTestUtils;
+  let mockBarFragment;
+  let mockFooFragment;
+  let mockMutation;
+  let relayContext;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    var makeMockMutation = () => {
-      class MockMutationClass extends Relay.Mutation {}
-      MockMutationClass.fragments = {
+    relayContext = Relay.Store;
+    relayContext.read = jest.genMockFunction();
+
+    class MockMutation extends Relay.Mutation {
+      static fragments = {
         bar: () => Relay.QL`
           fragment on Node {
             id,
@@ -47,35 +48,74 @@ describe('RelayMutation', function() {
           }
         `,
       };
-      return MockMutationClass;
     };
-    MockMutation = makeMockMutation();
 
-    var mockBarRequiredFragment =
-      MockMutation.getFragment('bar').getFragment({});
-    var mockFooRequiredFragment =
-      MockMutation.getFragment('foo').getFragment({});
-    mockBarPointer = getPointer('bar', getNode(mockBarRequiredFragment));
-    mockFooPointer = getPointer('foo', getNode(mockFooRequiredFragment));
+    mockBarFragment = fromGraphQL.Fragment(buildRQL.Fragment(
+      MockMutation.fragments.bar, []
+    ));
+    mockFooFragment = fromGraphQL.Fragment(buildRQL.Fragment(
+      MockMutation.fragments.foo, []
+    ));
+
+    const mockBarPointer = RelayTestUtils.getPointer('bar', mockBarFragment);
+    const mockFooPointer = RelayTestUtils.getPointer('foo', mockFooFragment);
+
+    mockMutation = new MockMutation({
+      bar: mockBarPointer,
+      foo: mockFooPointer,
+    });
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
-  it('resolves props', () => {
-    /* eslint-disable no-new */
-    new MockMutation({
-      bar: mockBarPointer,
-      foo: mockFooPointer,
-    });
-    /* eslint-enable no-new */
-    expect(Relay.Store.read.mock.calls.length).toBe(2);
-
-    var mockBarRequiredFragment = fromGraphQL.Fragment(buildRQL.Fragment(
-      MockMutation.fragments.bar, []
-    ));
-    expect(Relay.Store.read.mock.calls[0]).toEqual(
-      [mockBarRequiredFragment, 'bar']
+  it('throws if used in different Relay contexts', () => {
+    mockMutation.bindContext(relayContext);
+    expect(() => {
+      mockMutation.bindContext({});
+    }).toFailInvariant(
+      'MockMutation: Mutation instance cannot be used ' +
+      'in different Relay contexts.'
     );
+  });
+
+  it('can be reused in the same Relay context', () => {
+    mockMutation.bindContext(relayContext);
+    expect(() => {
+      mockMutation.bindContext(relayContext);
+    }).not.toThrow();
+  });
+
+  it('does not resolve props before binding Relay context', () => {
+    expect(mockMutation.props).toBeUndefined();
+  });
+
+  it('resolves props only once', () => {
+    mockMutation.bindContext(relayContext);
+    mockMutation.bindContext(relayContext);
+    expect(relayContext.read.mock.calls).toEqual([
+      [mockBarFragment, 'bar'],
+      [mockFooFragment, 'foo'],
+    ]);
+  });
+
+  it('resolves props after binding Relay context', () => {
+    const resolvedProps = {
+      bar: {},
+      foo: {},
+    };
+
+    relayContext.read.mockImplementation(({}, dataID) => resolvedProps[dataID]);
+
+    mockMutation.bindContext(relayContext);
+
+    expect(relayContext.read.mock.calls).toEqual([
+      [mockBarFragment, 'bar'],
+      [mockFooFragment, 'foo'],
+    ]);
+
+    expect(mockMutation.props).toEqual(resolvedProps);
+    expect(mockMutation.props.bar).toBe(resolvedProps.bar);
+    expect(mockMutation.props.foo).toBe(resolvedProps.foo);
   });
 
   it('throws if mutation defines invalid `Relay.QL` fragment', () => {

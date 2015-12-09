@@ -168,6 +168,15 @@ describe('RelayStore', () => {
     });
 
     describe('applyUpdate', () => {
+      it('sets context in mutation before creating transaction', () => {
+        mockMutation.bindContext.mockImplementation(() => {
+          expect(createTransactionMock).not.toBeCalled();
+        });
+        RelayStore.applyUpdate(mockMutation);
+        expect(mockMutation.bindContext).toBeCalled();
+        expect(mockMutation.bindContext.mock.calls[0][0]).toBe(RelayStore);
+      });
+
       it('creates a new RelayMutationTransaction without committing it', () => {
         const transaction = RelayStore.applyUpdate(mockMutation, mockCallbacks);
         expect(transaction).toEqual(mockTransaction);

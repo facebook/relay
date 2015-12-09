@@ -35,6 +35,8 @@ export type RelayMutationFragments<Tk> = {
   [key: Tk]: RelayQLFragmentBuilder;
 };
 
+type RelayContext = typeof RelayStore;
+
 /**
  * @public
  *
@@ -50,12 +52,29 @@ class RelayMutation<Tp: Object> {
     route: RelayMetaRoute
   ) => Variables;
 
+  _context: RelayContext;
   props: Tp;
   _didShowFakeDataWarning: boolean;
+  _unresolvedProps: Tp;
 
   constructor(props: Tp) {
-    this._didShowFakeDataWarning = false;
-    this._resolveProps(props);
+    this._unresolvedProps = props;
+  }
+
+  /**
+   * @internal
+   */
+  bindContext(context: RelayContext): void {
+    if (!this._context) {
+      this._context = context;
+      this._resolveProps();
+    } else {
+      invariant(
+        context === this._context,
+        '%s: Mutation instance cannot be used in different Relay contexts.',
+        this.constructor.name
+      );
+    }
   }
 
   /**
@@ -230,10 +249,11 @@ class RelayMutation<Tp: Object> {
     return null;
   }
 
-  _resolveProps(props: Tp): void {
+  _resolveProps(): void {
     const fragments = this.constructor.fragments;
     const initialVariables = this.constructor.initialVariables || {};
 
+    const props = this._unresolvedProps;
     const resolvedProps = {...props};
     forEachObject(fragments, (fragmentBuilder, fragmentName) => {
       var propValue = props[fragmentName];
@@ -278,7 +298,7 @@ class RelayMutation<Tp: Object> {
           return acc.concat(eachFragmentPointer.getDataIDs());
         }, []);
 
-        resolvedProps[fragmentName] = RelayStore.readAll(fragment, dataIDs);
+        resolvedProps[fragmentName] = this._context.readAll(fragment, dataIDs);
       } else {
         invariant(
           !Array.isArray(propValue),
@@ -290,7 +310,7 @@ class RelayMutation<Tp: Object> {
         var fragmentPointer = propValue[concreteFragmentID];
         if (fragmentPointer) {
           var dataID = fragmentPointer.getDataID();
-          resolvedProps[fragmentName] = RelayStore.read(fragment, dataID);
+          resolvedProps[fragmentName] = this._context.read(fragment, dataID);
         } else {
           if (__DEV__) {
             if (!this._didShowFakeDataWarning) {

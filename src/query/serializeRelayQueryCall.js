@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule printRelayQueryCall
+ * @providesModule serializeRelayQueryCall
  * @typechecks
  * @flow
  */
@@ -23,9 +23,9 @@ var flattenArray = require('flattenArray');
 /**
  * @internal
  *
- * Used to both print queries (to create requests) and to serialize nodes.
+ * Serializes a query "call" (a legacy combination of field and argument value).
  */
-function printRelayQueryCall(call: Call): string {
+function serializeRelayQueryCall(call: Call): string {
   var {value} = call;
   var valueString;
   if (Array.isArray(value)) {
@@ -57,4 +57,4 @@ function sanitizeCallValue(value: CallValue): string {
   ));
 }
 
-module.exports = printRelayQueryCall;
+module.exports = serializeRelayQueryCall;

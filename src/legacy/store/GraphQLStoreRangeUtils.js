@@ -13,7 +13,7 @@
 'use strict';
 
 var callsFromGraphQL = require('callsFromGraphQL');
-var printRelayQueryCall = require('printRelayQueryCall');
+var serializeRelayQueryCall = require('serializeRelayQueryCall');
 
 /**
  * Utilities used by GraphQLStore for storing ranges
@@ -60,7 +60,7 @@ class GraphQLStoreRangeUtils {
    */
   getClientIDForRangeWithID(calls, callValues, dataID) {
     var callsAsString = callsFromGraphQL(calls, callValues)
-      .map(call => printRelayQueryCall(call).substring(1))
+      .map(call => serializeRelayQueryCall(call).substring(1))
       .join(',');
     var key = dataID + '_' + callsAsString;
     var edge = this._rangeData[key];
@@ -68,7 +68,7 @@ class GraphQLStoreRangeUtils {
       this._rangeData[key] = {
         dataID: dataID,
         calls: calls,
-        callValues: callValues
+        callValues: callValues,
       };
     }
     return key;

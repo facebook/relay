@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('printRelayQueryCall');
+module.exports = require.requireActual('serializeRelayQueryCall');

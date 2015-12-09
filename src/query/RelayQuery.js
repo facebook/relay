@@ -40,7 +40,7 @@ var callsToGraphQL = require('callsToGraphQL');
 var generateRQLFieldAlias = require('generateRQLFieldAlias');
 var getWeakIdForObject = require('getWeakIdForObject');
 var invariant = require('invariant');
-var printRelayQueryCall = require('printRelayQueryCall');
+var serializeRelayQueryCall = require('serializeRelayQueryCall');
 var shallowEqual = require('shallowEqual');
 var stableStringify = require('stableStringify');
 
@@ -1059,7 +1059,7 @@ class RelayQueryField extends RelayQueryNode {
       this.getCallsWithValues().forEach(arg => {
         if (this._isCoreArg(arg)) {
           printedCoreArgs = printedCoreArgs || [];
-          printedCoreArgs.push(printRelayQueryCall(arg));
+          printedCoreArgs.push(serializeRelayQueryCall(arg));
         }
       });
       if (printedCoreArgs) {
@@ -1098,7 +1098,7 @@ class RelayQueryField extends RelayQueryNode {
       const printedCoreArgs = [];
       this.getCallsWithValues().forEach(arg => {
         if (this._isCoreArg(arg)) {
-          printedCoreArgs.push(printRelayQueryCall(arg));
+          printedCoreArgs.push(serializeRelayQueryCall(arg));
         }
       });
       rangeBehaviorKey = printedCoreArgs.sort().join('').slice(1);
@@ -1125,7 +1125,7 @@ class RelayQueryField extends RelayQueryNode {
       serializationKey = generateRQLFieldAlias(
         this.getSchemaName() +
         this.getCallsWithValues()
-          .map(printRelayQueryCall)
+          .map(serializeRelayQueryCall)
           .sort()
           .join('')
       );

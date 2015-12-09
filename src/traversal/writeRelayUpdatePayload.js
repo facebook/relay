@@ -19,7 +19,7 @@ import type {
   Call,
   DataID,
   RangeBehaviors,
-  UpdateOptions
+  UpdateOptions,
 } from 'RelayInternalTypes';
 var RelayMutationTracker = require('RelayMutationTracker');
 var RelayMutationType = require('RelayMutationType');
@@ -34,7 +34,7 @@ import type RelayRecordStore from 'RelayRecordStore';
 var generateClientEdgeID = require('generateClientEdgeID');
 var generateClientID = require('generateClientID');
 var invariant = require('invariant');
-var printRelayQueryCall = require('printRelayQueryCall');
+var serializeRelayQueryCall = require('serializeRelayQueryCall');
 var warning = require('warning');
 
 // TODO: Replace with enumeration for possible config types.
@@ -363,8 +363,8 @@ function handleRangeAdd(
     cursor: cursor,
     node: {
       ...edgeNode,
-      id: nodeID
-    }
+      id: nodeID,
+    },
   };
 
   // add the node to every connection for this field
@@ -561,7 +561,7 @@ function getRangeBehavior(
   rangeBehaviors: RangeBehaviors,
   calls: Array<Call>
 ): ?string {
-  var call = calls.map(printRelayQueryCall).sort().join('').slice(1);
+  var call = calls.map(serializeRelayQueryCall).sort().join('').slice(1);
   return rangeBehaviors[call] || null;
 }
 

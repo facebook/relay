@@ -19,7 +19,7 @@ describe('RelayQL', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('throws if not transformed', () => {
@@ -51,7 +51,7 @@ describe('RelayQL', () => {
           }
         }
       `;
-    }).not.toThrow();
+    }).not.toThrowError();
   });
 
   it('permits valid variable substitutions', () => {
@@ -68,7 +68,7 @@ describe('RelayQL', () => {
           }
         }
       `;
-    }).not.toThrow();
+    }).not.toThrowError();
   });
 
   it('wraps variable substituted values in concrete call values', () => {
@@ -95,7 +95,7 @@ describe('RelayQL', () => {
           }
         }
       `;
-    }).toThrow(
+    }).toThrowError(
       'RelayQL: Invalid argument `size` supplied via template substitution. ' +
       'Instead, use an inline variable (e.g. `comments(count: $count)`).'
     );

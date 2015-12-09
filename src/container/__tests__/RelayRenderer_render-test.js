@@ -40,12 +40,24 @@ describe('RelayRenderer.render', () => {
 
     queryConfig = RelayQueryConfig.genMockInstance();
 
-    jest.addMatchers({
+    jasmine.addMatchers({
       toBeShallowUpdated() {
-        return this.actual.props.shouldUpdate;
+        return {
+          compare(actual) {
+            return {
+              pass: actual.props.shouldUpdate,
+            };
+          },
+        };
       },
       toBeShallowRenderedChild() {
-        return ShallowRenderer.getRenderOutput().props.children === this.actual;
+        return {
+          compare(actual) {
+            return {
+              pass: ShallowRenderer.getRenderOutput().props.children === actual,
+            };
+          },
+        };
       },
     });
   });

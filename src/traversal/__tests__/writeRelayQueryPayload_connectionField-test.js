@@ -42,7 +42,7 @@ describe('writeRelayQueryPayload()', () => {
       START_CURSOR,
     } = RelayConnectionInterface);
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('creates empty first() connection records', () => {

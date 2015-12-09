@@ -32,7 +32,7 @@ describe('diffRelayQuery', () => {
 
     RelayRecordStore = require('RelayRecordStore');
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('keeps queries if the root dataID is unknown', () => {

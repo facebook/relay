@@ -81,10 +81,16 @@ describe('findRelayQueryLeaves', () => {
       }
     `));
 
-    jest.addMatchers({
-      toMatchPendingNodes(pendingNodes) {
-        expect(encode(this.actual)).toEqual(encode(pendingNodes));
-        return true;
+    jasmine.addMatchers({
+      toMatchPendingNodes() {
+        return {
+          compare(actual, pendingNodes) {
+            expect(encode(actual)).toEqual(encode(pendingNodes));
+            return {
+              pass: true,
+            };
+          },
+        };
       },
     });
   });

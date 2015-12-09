@@ -32,7 +32,7 @@ describe('RelayRecordStore', () => {
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('getDataID()', () => {
@@ -221,7 +221,7 @@ describe('RelayRecordStore', () => {
       var store = new RelayRecordStore({records: {}});
       expect(() => {
         store.deleteField('1', 'name', null);
-      }).toThrow(
+      }).toThrowError(
         'RelayRecordStore.deleteField(): Expected record `1` to exist ' +
         'before deleting field `name`.'
       );

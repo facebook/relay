@@ -18,7 +18,7 @@ describe('RelayNeglectionStateMap', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('is empty on creation', () => {

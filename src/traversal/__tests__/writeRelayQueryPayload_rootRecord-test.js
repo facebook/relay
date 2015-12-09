@@ -37,7 +37,7 @@ describe('writeRelayQueryPayload()', () => {
 
     RelayRecordStore = require('RelayRecordStore');
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('root record', () => {

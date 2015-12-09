@@ -47,7 +47,7 @@ describe('RelayMutationQuery', () => {
 
     tracker = new RelayQueryTracker();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('fields', () => {

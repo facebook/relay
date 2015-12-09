@@ -31,7 +31,7 @@ describe('RelayRecordStore', () => {
 
     RelayRecordStore = require('RelayRecordStore');
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('getRecordState()', () => {

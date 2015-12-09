@@ -28,7 +28,7 @@ describe('RelayFragmentReference', () => {
     jest.resetModuleRegistry();
 
     route = new RelayMetaRoute('');
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('creates fragments with default variables', () => {

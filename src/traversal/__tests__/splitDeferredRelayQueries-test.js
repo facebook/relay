@@ -37,7 +37,7 @@ describe('splitDeferredRelayQueries()', () => {
     // Reset query numbers back to q0.
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('returns the original query when there are no fragments', () => {

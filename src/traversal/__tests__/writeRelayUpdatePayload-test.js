@@ -40,7 +40,7 @@ describe('writePayload()', () => {
 
     RelayRecordStore = require('RelayRecordStore');
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('range delete mutations', () => {

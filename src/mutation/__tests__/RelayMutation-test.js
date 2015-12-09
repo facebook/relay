@@ -57,7 +57,7 @@ describe('RelayMutation', function() {
     mockBarPointer = getPointer('bar', getNode(mockBarRequiredFragment));
     mockFooPointer = getPointer('foo', getNode(mockFooRequiredFragment));
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('resolves props', () => {

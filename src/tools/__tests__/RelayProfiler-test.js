@@ -125,7 +125,9 @@ describe('RelayProfiler', function() {
 
       expect(() => {
         mockObject.mockMethod();
-      }).toThrow('RelayProfiler: Handler did not invoke original function.');
+      }).toThrowError(
+        'RelayProfiler: Handler did not invoke original function.'
+      );
     });
 
     it('ignores names starting with "@" unless __DEV__', () => {

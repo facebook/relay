@@ -39,7 +39,7 @@ describe('diffRelayQuery - fragments', () => {
     RelayRecordStore = require('RelayRecordStore');
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('removes matching fragments with fetched fields', () => {

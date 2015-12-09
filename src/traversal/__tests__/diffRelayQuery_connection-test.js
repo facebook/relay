@@ -46,7 +46,7 @@ describe('diffRelayQuery', () => {
       'viewer': {'': 'client:1'},
     };
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('returns unfetched connections as-is', () => {

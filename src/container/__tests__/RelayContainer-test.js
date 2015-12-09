@@ -70,8 +70,8 @@ describe('RelayContainer', function() {
     RelayTestRenderer = RelayTestUtils.createRenderer();
 
     // TODO: #6524377 - migrate to RelayTestUtils matchers
-    this.addMatchers(GraphQLStoreTestUtils.matchers);
-    this.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(GraphQLStoreTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('fragments', () => {

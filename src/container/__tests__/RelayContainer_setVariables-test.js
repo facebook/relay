@@ -73,7 +73,7 @@ describe('RelayContainer.setVariables', function() {
       genMockPointer => <MockContainer entity={genMockPointer('42')} />
     );
 
-    this.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('plural fragments', () => {

@@ -54,7 +54,7 @@
     "gulp-flatten": "^0.1.0",
     "gulp-header": "^1.2.2",
     "gulp-util": "^3.0.6",
-    "jest-cli": "^0.7.1",
+    "jest-cli": "^0.8.1",
     "object-assign": "^3.0.0",
     "react": "^0.14.0-rc",
     "react-dom": "^0.14.0-rc",
@@ -68,6 +68,7 @@
   },
   "jest": {
     "rootDir": "",
+    "testRunner": "<rootDir>/node_modules/jest-cli/src/testRunners/jasmine/jasmine2.js",
     "scriptPreprocessor": "scripts/jest/preprocessor.js",
     "setupEnvScriptFile": "node_modules/fbjs-scripts/jest/environment.js",
     "persistModuleRegistryBetweenSpecs": true,

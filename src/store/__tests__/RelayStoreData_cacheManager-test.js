@@ -59,47 +59,53 @@ describe('RelayStoreData', function() {
     storeData = RelayStoreData.getDefaultInstance();
     storeData.injectCacheManager(cacheManager);
 
-    jest.addMatchers({
-      toContainCalledMethods(calls) {
-        return Object.keys(calls).every(methodName => {
-          var expected = calls[methodName];
-          var actual = this.actual[methodName].mock.calls.length;
-          this.message = () => {
-            var expTimes = expected + ' time' + (expected === 1 ? '' : 's');
-            var actTimes = actual + ' time' + (actual === 1 ? '' : 's');
-            var not = this.isNot ? 'not ' : '';
-            return (
-              'Expected `' + methodName + '` ' + not + 'to be called ' +
-              expTimes + ', ' + 'was called ' + actTimes + '.'
-            );
-          };
-          return expected === actual;
-        });
-      },
-      toBeCalledWithNodeFields(nodeFields) {
-        return Object.keys(nodeFields).every(
-          expectedID => Object.keys(nodeFields[expectedID]).every(
-            expectedFieldName => {
-              this.message = () => (
-                'Expected function to be called with (' +
-                expectedID + ', ' +
-                expectedFieldName + ', ' +
-                nodeFields[expectedID][expectedFieldName] + ').'
-              );
-              return this.actual.mock.calls.some(
-                ([actualID, actualFieldName, actualFieldValue]) => (
-                  actualID === expectedID &&
-                  actualFieldName === expectedFieldName &&
-                  this.env.equals_(
-                    actualFieldValue,
-                    nodeFields[expectedID][actualFieldName]
+    jasmine.addMatchers({
+      toContainCalledMethods: () => ({
+        compare: (actual, calls) => {
+          let message;
+          const pass = Object.keys(calls).every(methodName => {
+            const expected = calls[methodName];
+            const value = actual[methodName].mock.calls.length;
+            const pass = expected === value;
+
+            const expTimes = expected + ' time' + (expected === 1 ? '' : 's');
+            const actTimes = value + ' time' + (value === 1 ? '' : 's');
+            const not = pass ? 'not ' : '';
+            message = 'Expected `' + methodName + '` ' + not + 'to be called ' +
+              expTimes + ', was called ' + actTimes + '.';
+            return pass;
+          });
+          return {pass, message};
+        },
+      }),
+      toBeCalledWithNodeFields: (util, customEqualityTesters) => ({
+        compare: (actual, nodeFields) => {
+          let message;
+          const pass = Object.keys(nodeFields).every(
+            expectedID => Object.keys(nodeFields[expectedID]).every(
+              expectedFieldName => {
+                message =
+                  'Expected function to be called with (' +
+                  expectedID + ', ' +
+                  expectedFieldName + ', ' +
+                  nodeFields[expectedID][expectedFieldName] + ').';
+                return actual.mock.calls.some(
+                  ([actualID, actualFieldName, actualFieldValue]) => (
+                    actualID === expectedID &&
+                    actualFieldName === expectedFieldName &&
+                    util.equals(
+                      actualFieldValue,
+                      nodeFields[expectedID][actualFieldName],
+                      customEqualityTesters
+                    )
                   )
-                )
-              );
-            }
-          )
-        );
-      },
+                );
+              }
+            )
+          );
+          return {pass, message};
+        },
+      }),
     });
   });
 

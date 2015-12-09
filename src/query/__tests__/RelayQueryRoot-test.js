@@ -27,7 +27,7 @@ describe('RelayQueryRoot', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
 
     me = getNode(Relay.QL`
       query {

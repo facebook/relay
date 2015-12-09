@@ -63,7 +63,7 @@ describe('readRelayQueryData', () => {
       START_CURSOR
     } = RelayConnectionInterface);
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('returns undefined for data that is not in the store', () => {
@@ -558,7 +558,7 @@ describe('readRelayQueryData', () => {
     `);
     expect(
       () => readData(getStoreData({records}), query, 'story_id')
-    ).toThrow(error);
+    ).toThrowError(error);
 
     // Note that `pageInfo` also triggers the error...
     var pageInfoFragment = Relay.QL`
@@ -579,13 +579,13 @@ describe('readRelayQueryData', () => {
     `);
     expect(
       () => readData(getStoreData({records}), query, 'story_id')
-    ).toThrow(error);
+    ).toThrowError(error);
 
     // ...but not `count`:
     query = getNode(Relay.QL`fragment on Story{feedback{likers{count}}}`);
     expect(
       () => readData(getStoreData({records}), query, 'story_id')
-    ).not.toThrow();
+    ).not.toThrowError();
   });
 
   it('requires filter calls on connections with filtered range fields ', () => {
@@ -621,17 +621,17 @@ describe('readRelayQueryData', () => {
       fragment on Story{feedback{likers{${fragmentReference}}}}
     `);
     expect(() => readData(getStoreData({records}), query, 'story_id'))
-      .toThrow(error);
+      .toThrowError(error);
 
     var fragment = Relay.QL`fragment on LikersOfContentConnection{pageInfo}`;
     query = getNode(Relay.QL`fragment on Story{feedback{likers{${fragment}}}}`);
     expect(() => readData(getStoreData({records}), query, 'story_id'))
-      .toThrow(error);
+      .toThrowError(error);
 
     fragment = Relay.QL`fragment on LikersOfContentConnection{count}`;
     query = getNode(Relay.QL`fragment on Story{feedback{likers{${fragment}}}}`);
     expect(() => readData(getStoreData({records}), query, 'story_id'))
-      .not.toThrow();
+      .not.toThrowError();
   });
 
   it('reads `edge`/`pageInfo` without range info like linked records', () => {

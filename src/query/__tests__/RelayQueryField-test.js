@@ -35,7 +35,7 @@ describe('RelayQueryField', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
 
     var scalarRQL = Relay.QL`
       fragment on Node {
@@ -320,7 +320,7 @@ describe('RelayQueryField', () => {
       var nonConnectionField = getNode(
         Relay.QL`query { node(id:"4") }`
       ).getChildren()[0];
-      expect(nonConnectionField.getRangeBehaviorKey).toFailInvariant();
+      expect(nonConnectionField.getRangeBehaviorKey).toThrow();
     });
 
     it('strips passing `if` calls', () => {

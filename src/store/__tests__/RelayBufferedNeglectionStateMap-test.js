@@ -23,7 +23,7 @@ describe('RelayNeglectionStateMap', () => {
 
     neglectionStateMap = new RelayNeglectionStateMap();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('buffers registration of data IDs', () => {

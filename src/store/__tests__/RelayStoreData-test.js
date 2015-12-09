@@ -35,7 +35,7 @@ describe('RelayStoreData', () => {
     // @side-effect related to garbage collection
     Relay = require('Relay');
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('handleQueryPayload', () => {
@@ -206,7 +206,10 @@ describe('RelayStoreData', () => {
 
       // `records` is unchanged
       expect(storeData.getNodeData()).toEqual({
-        '123': {__dataID__: '123'},
+        '123': {
+          __dataID__: '123',
+          __typename: undefined,
+        },
       });
     });
 

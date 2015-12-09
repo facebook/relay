@@ -77,7 +77,7 @@ describe('GraphQLQueryRunner', () => {
       baz: null,
     };
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('immediately succeeds for empty queries', () => {

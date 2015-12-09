@@ -19,93 +19,21 @@ var GraphQLStoreTestUtils = {
      * ones. This function compares if they are equal, while ignoring the
      * clientIDs.
      */
-    toMatchResult: function(expected) {
-      var result = matchRecord(this.actual, expected, []);
-      if (!result.isMatched) {
-        this.message = () => {
-          return 'Expected ' + result.path.join('.') + ' to ' + result.message;
-        };
-      }
-      return result.isMatched;
-    },
-    /**
-     * Checks that two query fragments match.
-     */
-    toMatchQueryFragment: function(expected) {
-      var QueryBuilder = require('QueryBuilder');
-
-      var actual = this.actual;
-
-      if (!QueryBuilder.getFragment(actual)) {
-        this.message = () => 'Not a QueryFragment';
-        return false;
-      }
-
-      if (actual.type() !== expected.type()) {
-        this.message = () => 'Expected type "' +
-          expected.type() + '", got "' + actual.type() + '"';
-        return false;
-      }
-
-      var actualFields = actual.getOwnFields().reduce((map, field) => {
-        map[field.getGeneratedAlias()] = field;
-        return map;
-      }, {});
-      var expectedFields = expected.getOwnFields().reduce((map, field) => {
-        map[field.getGeneratedAlias()] = field;
-        return map;
-      }, {});
-
-      for (var fieldName in expectedFields) {
-        if (!(fieldName in actualFields)) {
-          this.message = () => 'Expected a "' + fieldName + '" field';
-          return false;
-        }
-
-        // TODO: Recurse and check that each field has the same fragments, etc.
-        var actualFieldStr = actualFields[fieldName].toString();
-        var expectedFieldStr = expectedFields[fieldName].toString();
-        if (actualFieldStr !== expectedFieldStr) {
-          this.message = () => 'Expected "' + fieldName +
-            '" field to equal "' + expectedFieldStr + '", got "' +
-            actualFieldStr + '"';
-          return false;
-        }
-      }
-
-      for (var actualFieldName in actualFields) {
-        if (!(actualFieldName in expectedFields)) {
-          this.message = () => 'Unexpected field "' + actualFieldName + '"';
-          return false;
-        }
-      }
-
-      var actualFragments = actual.getFragments();
-      var expectedFragments = expected.getFragments();
-
-      if (actualFragments.length !== expectedFragments.length) {
-        this.message = () => 'Expected ' + expectedFragments.length +
-          ' fragments, got ' + actualFragments.length;
-        return false;
-      }
-
-      for (var ii = 0; ii < actualFragments.length; ii++) {
-        var context = {
-          actual: actualFragments[ii]
-        };
-        var matches = GraphQLStoreTestUtils.matchers.toMatchQueryFragment.call(
-          context,
-          expectedFragments[ii]
-        );
-        if (!matches) {
-          this.message = () => 'Expected fragment matching "' +
-            expectedFragments[ii].toString() + '", got "' +
-            actualFragments[ii].toString() + '"; ' + context.message();
-          return false;
-        }
-      }
-
-      return true;
+    toMatchResult() {
+      return {
+        compare(actual, expected) {
+          var result = matchRecord(actual, expected, []);
+          var message;
+          if (!result.isMatched) {
+            message = 'Expected ' + result.path.join('.') + ' to ' +
+              result.message;
+          }
+          return {
+            pass: result.isMatched,
+            message,
+          };
+        },
+      };
     },
   },
   /**

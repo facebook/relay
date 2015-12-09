@@ -60,17 +60,22 @@ describe('RelayRenderer.onReadyStateChange', () => {
       ready: false,
       stale: false,
     };
-    jest.addMatchers({
-      toTriggerReadyStateChanges(expected) {
-        const request = RelayStore.primeCache.mock.requests[0];
-        const requestCallback = this.actual;
-        requestCallback(request);
-        jest.runAllTimers();
+    jasmine.addMatchers({
+      toTriggerReadyStateChanges() {
+        return {
+          compare(requestCallback, expected) {
+            const request = RelayStore.primeCache.mock.requests[0];
+            requestCallback(request);
+            jest.runAllTimers();
 
-        expect(onReadyStateChange.mock.calls.map(args => args[0])).toEqual(
-          expected.map(deltaState => ({...defaultState, ...deltaState}))
-        );
-        return true;
+            expect(onReadyStateChange.mock.calls.map(args => args[0])).toEqual(
+              expected.map(deltaState => ({...defaultState, ...deltaState}))
+            );
+            return {
+              pass: true,
+            };
+          },
+        };
       },
     });
   });

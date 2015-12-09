@@ -28,7 +28,7 @@ describe('RelayQueryFragment', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
 
     var subfrag = Relay.QL`
       fragment on StreetAddress {

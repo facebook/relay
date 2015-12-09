@@ -48,7 +48,7 @@ describe('RelayQueryConfig', () => {
       return MockConfig;
     };
 
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('can be created using inheritance', () => {

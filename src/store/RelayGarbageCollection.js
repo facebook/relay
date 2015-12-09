@@ -14,13 +14,7 @@
 'use strict';
 
 import type {DataID} from 'RelayInternalTypes';
-const RelayStoreData = require('RelayStoreData');
-const RelayTaskScheduler = require('RelayTaskScheduler');
-
-const invariant = require('invariant');
-const warning = require('warning');
-
-let _stepLength = -1; // collect in a single pass by default
+const RelayContext = require('RelayContext');
 
 /**
  * Public API for controlling garbage collection of `RelayStoreData`.
@@ -37,28 +31,14 @@ var RelayGarbageCollection = {
    * via `RelayTaskScheduler`.
    */
   initialize(stepLength: number): void {
-    invariant(
-      stepLength > 0,
-      'RelayGarbageCollection: step length must be greater than zero, got ' +
-      '`%s`.',
-      stepLength
-    );
-    _stepLength = stepLength;
-    RelayStoreData
-      .getDefaultInstance()
-      .initializeGarbageCollector(scheduler);
+    RelayContext.getDefaultInstance().initializeGarbageCollection(stepLength);
   },
 
   /**
    * Collects any un-referenced records in the store.
    */
   scheduleCollection(): void {
-    var garbageCollector =
-      RelayStoreData.getDefaultInstance().getGarbageCollector();
-
-    if (garbageCollector) {
-      garbageCollector.collect();
-    }
+    RelayContext.getDefaultInstance().scheduleGarbageCollection();
   },
 
   /**
@@ -68,37 +48,8 @@ var RelayGarbageCollection = {
    * NOTE: If the given record is still referenced, no records are collected.
    */
   scheduleCollectionFromNode(dataID: DataID): void {
-    var garbageCollector =
-      RelayStoreData.getDefaultInstance().getGarbageCollector();
-
-    if (garbageCollector) {
-      garbageCollector.collectFromNode(dataID);
-    }
+    RelayContext.getDefaultInstance().scheduleGarbageCollectionFromNode(dataID);
   },
 };
-
-function scheduler(run: () => boolean): void {
-  const pendingQueryTracker =
-    RelayStoreData.getDefaultInstance().getPendingQueryTracker();
-  const runIteration = () => {
-    // TODO: #9366746: integrate RelayRenderer/Container with GC hold
-    warning(
-      !pendingQueryTracker.hasPendingQueries(),
-      'RelayGarbageCollection: GC is executing during a fetch, but the ' +
-      'pending query may rely on data that is collected.'
-    );
-    let iterations = 0;
-    let hasNext = true;
-    while (hasNext && (_stepLength < 0 || iterations < _stepLength)) {
-      hasNext = run();
-      iterations++;
-    }
-    // This is effectively a (possibly async) `while` loop
-    if (hasNext) {
-      RelayTaskScheduler.enqueue(runIteration);
-    }
-  };
-  RelayTaskScheduler.enqueue(runIteration);
-}
 
 module.exports = RelayGarbageCollection;

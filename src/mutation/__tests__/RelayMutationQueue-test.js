@@ -39,7 +39,7 @@ describe('RelayMutationQueue', () => {
     jest.setMock('RelayNetworkLayer', RelayNetworkLayer);
 
     RelayStoreData.prototype.handleUpdatePayload = jest.genMockFunction();
-    storeData = RelayStoreData.getDefaultInstance();
+    storeData = new RelayStoreData();
     mutationQueue = storeData.getMutationQueue();
   });
 
@@ -506,5 +506,35 @@ describe('RelayMutationQueue', () => {
 
       expect(successCallback1).toBeCalled();
     });
+  });
+
+  it('passes resolved props to RelayMutation methods', () => {
+    const RESOLVED_PROPS = {};
+
+    RelayMutation.resolveProps.mockReturnValue(RESOLVED_PROPS);
+
+    const mockMutation = new RelayMutation();
+
+    const fatQuery = Relay.QL`fragment on Comment { doesViewerLike }`;
+    const mutationNode = Relay.QL`mutation { commentCreate }`;
+
+    mockMutation.getFatQuery.mockReturnValue(fatQuery);
+    mockMutation.getMutation.mockReturnValue(mutationNode);
+    mockMutation.getOptimisticResponse.mockReturnValue({});
+
+    mutationQueue.createTransaction(mockMutation).commit();
+
+    for (const method of [
+      'getCollisionKey',
+      'getConfigs',
+      'getFatQuery',
+      'getFiles',
+      'getMutation',
+      'getOptimisticResponse',
+      'getOptimisticConfigs',
+      'getVariables',
+    ]) {
+      expect(mockMutation[method].mock.calls[0][0]).toBe(RESOLVED_PROPS);
+    }
   });
 });

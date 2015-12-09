@@ -14,13 +14,13 @@
 'use strict';
 
 const RelayContainer = require('RelayContainer');
+const RelayContext = require('RelayContext');
 const RelayMutation = require('RelayMutation');
 const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayQL = require('RelayQL');
 const RelayRootContainer = require('RelayRootContainer');
 const RelayRoute = require('RelayRoute');
-const RelayStore = require('RelayStore');
 const RelayTaskScheduler = require('RelayTaskScheduler');
 const RelayInternals = require('RelayInternals');
 
@@ -37,12 +37,12 @@ if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
  * a React application that uses GraphQL to declare data dependencies.
  */
 var RelayPublic = {
+  Context: RelayContext,
   Mutation: RelayMutation,
   PropTypes: RelayPropTypes,
   QL: RelayQL,
   RootContainer: RelayRootContainer,
   Route: RelayRoute,
-  Store: RelayStore,
 
   createContainer: RelayContainer.create,
   createQuery: createRelayQuery,

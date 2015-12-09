@@ -14,6 +14,7 @@
 'use strict';
 
 const React = require('React');
+const RelayContext = require('RelayContext');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
 const RelayPropTypes = require('RelayPropTypes');
 import type {
@@ -27,6 +28,7 @@ type RootContainerProps = {
   Component: RelayContainer;
   forceFetch?: ?boolean;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
+  relayContext: RelayContext;
   renderFailure?: ?(error: Error, retry: ?() => void) => ReactElement;
   renderFetched?: ?(
     data: Object,
@@ -98,6 +100,7 @@ function RelayRootContainer({
   Component,
   forceFetch,
   onReadyStateChange,
+  relayContext,
   renderFailure,
   renderFetched,
   renderLoading,
@@ -109,6 +112,7 @@ function RelayRootContainer({
       forceFetch={forceFetch}
       onReadyStateChange={onReadyStateChange}
       queryConfig={route}
+      relayContext={relayContext}
       render={({done, error, props, retry, stale}) => {
         if (error) {
           if (renderFailure) {
@@ -135,13 +139,10 @@ RelayRootContainer.propTypes = {
   Component: RelayPropTypes.Container,
   forceFetch: PropTypes.bool,
   onReadyStateChange: PropTypes.func,
+  relayContext: PropTypes.instanceOf(RelayContext).isRequired,
   renderFailure: PropTypes.func,
   renderFetched: PropTypes.func,
   renderLoading: PropTypes.func,
-  route: RelayPropTypes.QueryConfig.isRequired,
-};
-
-RelayRootContainer.childContextTypes = {
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 

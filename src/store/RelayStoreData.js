@@ -39,21 +39,24 @@ const RelayQuery = require('RelayQuery');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayQueryWriter = require('RelayQueryWriter');
 const RelayRecordStore = require('RelayRecordStore');
-import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
+import type {
+  CacheManager,
+  CacheReadCallbacks,
+  StoreReaderData,
+  StoreReaderOptions,
+} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const generateForceIndex = require('generateForceIndex');
 const readRelayDiskCache = require('readRelayDiskCache');
+const readRelayQueryData = require('readRelayQueryData');
 const warning = require('warning');
 const writeRelayQueryPayload = require('writeRelayQueryPayload');
 const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 var {NODE_TYPE} = RelayNodeInterface;
-
-// The source of truth for application data.
-var _instance;
 
 /**
  * @internal
@@ -79,16 +82,6 @@ class RelayStoreData {
   _queryRunner: GraphQLQueryRunner;
   _rangeData: GraphQLStoreRangeUtils;
   _rootCallMap: RootCallMap;
-
-  /**
-   * Get the data set backing actual Relay operations. Used in GraphQLStore.
-   */
-  static getDefaultInstance(): RelayStoreData {
-    if (!_instance) {
-      _instance = new RelayStoreData();
-    }
-    return _instance;
-  }
 
   constructor() {
     const cachedRecords: Records = ({}: $FixMe);
@@ -251,6 +244,30 @@ class RelayStoreData {
           callbacks.onFailure && callbacks.onFailure();
         },
       }
+    );
+  }
+
+  /**
+   * Reads query data anchored at the supplied data ID.
+   */
+  read(
+    node: RelayQuery.Node,
+    dataID: DataID,
+    options?: StoreReaderOptions
+  ): ?StoreReaderData {
+    return readRelayQueryData(this, node, dataID, options).data;
+  }
+
+  /**
+   * Reads query data anchored at the supplied data IDs.
+   */
+  readAll(
+    node: RelayQuery.Node,
+    dataIDs: Array<DataID>,
+    options?: StoreReaderOptions
+  ): Array<?StoreReaderData> {
+    return dataIDs.map(
+      dataID => readRelayQueryData(this, node, dataID, options).data
     );
   }
 

@@ -16,10 +16,10 @@
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const React = require('React');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
+import type RelayContext from 'RelayContext';
 import type {GarbageCollectionHold} from 'RelayGarbageCollector';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayPropTypes = require('RelayPropTypes');
-const RelayStore = require('RelayStore');
 import type {
   Abortable,
   ComponentReadyState,
@@ -45,6 +45,7 @@ type RelayRendererProps = {
   ) => Abortable;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
   queryConfig: RelayQueryConfigSpec;
+  relayContext: RelayContext;
   render?: ?RelayRendererRenderCallback;
 };
 export type RelayRendererRenderCallback =
@@ -134,24 +135,22 @@ class RelayRenderer extends React.Component {
   constructor(props: RelayRendererProps, context: any) {
     super(props, context);
     const garbageCollector =
-      RelayStore.getStoreData().getGarbageCollector();
+      this.props.relayContext.getStoreData().getGarbageCollector();
     this.gcHold = garbageCollector && garbageCollector.acquireHold();
     this.mounted = true;
     this.state = this._runQueries(this.props);
   }
 
   getChildContext(): Object {
-    return {
-      relay: RelayStore,
-      route: this.props.queryConfig,
-    };
+    const {queryConfig: route, relayContext: relay} = this.props;
+    return {relay, route};
   }
 
   /**
    * @private
    */
   _runQueries(props: RelayRendererProps): RelayRendererState {
-    const {Container, forceFetch, queryConfig} = props;
+    const {Container, forceFetch, queryConfig, relayContext} = props;
     const querySet = getRelayQueries(Container, queryConfig);
     const onReadyStateChange = readyState => {
       if (!this.mounted) {
@@ -169,7 +168,10 @@ class RelayRenderer extends React.Component {
       if (readyState.ready && !props) {
         props = {
           ...queryConfig.params,
-          ...mapObject(querySet, createFragmentPointerForRoot),
+          ...mapObject(
+            querySet,
+            query => createFragmentPointerForRoot(relayContext, query)
+          ),
         };
       }
       this.setState({
@@ -191,12 +193,12 @@ class RelayRenderer extends React.Component {
       (
         props.onForceFetch ?
           props.onForceFetch(querySet, onReadyStateChange) :
-          RelayStore.forceFetch(querySet, onReadyStateChange)
+          relayContext.forceFetch(querySet, onReadyStateChange)
       ) :
       (
         props.onPrimeCache ?
           props.onPrimeCache(querySet, onReadyStateChange) :
-          RelayStore.primeCache(querySet, onReadyStateChange)
+          relayContext.primeCache(querySet, onReadyStateChange)
       );
 
     return {
@@ -247,9 +249,18 @@ class RelayRenderer extends React.Component {
   componentWillReceiveProps(nextProps: RelayRendererProps): void {
     if (nextProps.Container !== this.props.Container ||
         nextProps.queryConfig !== this.props.queryConfig ||
+        nextProps.relayContext !== this.props.relayContext ||
         (nextProps.forceFetch && !this.props.forceFetch)) {
       if (this.state.pendingRequest) {
         this.state.pendingRequest.abort();
+      }
+      if (nextProps.relayContext !== this.props.relayContext) {
+        if (this.gcHold) {
+          this.gcHold.release();
+        }
+        const garbageCollector =
+          nextProps.relayContext.getStoreData().getGarbageCollector();
+        this.gcHold = garbageCollector && garbageCollector.acquireHold();
       }
       this.setState(this._runQueries(nextProps));
     }
@@ -313,10 +324,10 @@ class RelayRenderer extends React.Component {
   }
 }
 
-function createFragmentPointerForRoot(query) {
+function createFragmentPointerForRoot(relayContext, query) {
   return query ?
     GraphQLFragmentPointer.createForRoot(
-      RelayStore.getStoreData().getQueuedStore(),
+      relayContext.getStoreData().getQueuedStore(),
       query
     ) :
     null;
@@ -327,6 +338,7 @@ RelayRenderer.propTypes = {
   forceFetch: PropTypes.bool,
   onReadyStateChange: PropTypes.func,
   queryConfig: RelayPropTypes.QueryConfig.isRequired,
+  relayContext: RelayPropTypes.Context.isRequired,
   render: PropTypes.func,
 };
 

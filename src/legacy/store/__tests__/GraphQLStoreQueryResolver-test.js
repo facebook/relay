@@ -21,7 +21,6 @@ var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var readRelayQueryData = require('readRelayQueryData');
 var RelayStoreData = require('RelayStoreData');
-var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
 
 describe('GraphQLStoreQueryResolver', () => {
   var changeEmitter;
@@ -334,32 +333,38 @@ describe('GraphQLStoreQueryResolver', () => {
     var garbageCollector;
 
     /**
-     * Gets the first parameter passed into increaseSubscriptionsFor.
+     * Gets the first parameter passed into incrementReferenceCount.
      */
     function getIncreaseSubscriptionsParameters(count) {
       expect(
-        garbageCollector.increaseSubscriptionsFor.mock.calls.length
+        garbageCollector.incrementReferenceCount.mock.calls.length
       ).toBe(count);
-      return garbageCollector.increaseSubscriptionsFor.mock.calls.map(
+      return garbageCollector.incrementReferenceCount.mock.calls.map(
         call => call[0]
       ).sort();
     }
 
     /**
-     * Gets the first parameter passed into decreaseSubscriptionsFor.
+     * Gets the first parameter passed into decrementReferenceCount.
      */
     function getDecreaseSubscriptionsParameters(count) {
       expect(
-        garbageCollector.decreaseSubscriptionsFor.mock.calls.length
+        garbageCollector.decrementReferenceCount.mock.calls.length
       ).toBe(count);
-      return garbageCollector.decreaseSubscriptionsFor.mock.calls.map(
+      return garbageCollector.decrementReferenceCount.mock.calls.map(
         call => call[0]
       ).sort();
     }
 
     beforeEach(() => {
       // Prepare mock garbage collector and mock observable
-      garbageCollector = new RelayStoreGarbageCollector();
+      storeData.initializeGarbageCollector(run => {
+        while (!run()) {}
+      });
+      garbageCollector = storeData.getGarbageCollector();
+      garbageCollector.decrementReferenceCount = jest.genMockFunction();
+      garbageCollector.incrementReferenceCount = jest.genMockFunction();
+      garbageCollector.register = jest.genMockFunction();
 
       RelayStoreData.prototype.getGarbageCollector =
         jest.genMockFunction().mockReturnValue(garbageCollector);
@@ -396,6 +401,9 @@ describe('GraphQLStoreQueryResolver', () => {
         mockCallback
       );
 
+      garbageCollector.register('chris');
+      garbageCollector.register('address');
+
       // Resolve the fragment pointer with the mocked data
       resolver.resolve(fragmentPointer);
       var callback =
@@ -420,10 +428,10 @@ describe('GraphQLStoreQueryResolver', () => {
       // We called this twice before, for chris and ship
       resolver.resolve(fragmentPointer);
       expect(
-        garbageCollector.increaseSubscriptionsFor.mock.calls.length
+        garbageCollector.incrementReferenceCount.mock.calls.length
       ).toBe(3);
       expect(
-        garbageCollector.increaseSubscriptionsFor.mock.calls[2][0]
+        garbageCollector.incrementReferenceCount.mock.calls[2][0]
       ).toBe('date');
       expect(getDecreaseSubscriptionsParameters(1)).toEqual(['address']);
     });

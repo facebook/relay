@@ -22,8 +22,8 @@ import type RelayStoreData from 'RelayStoreData';
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
-type Hold = {release: () => void};
-type Scheduler = (collect: () => boolean) => void;
+export type GarbageCollectionHold = {release: () => void};
+export type GarbageCollectionScheduler = (collect: () => boolean) => void;
 
 /**
  * @internal
@@ -36,12 +36,12 @@ class RelayGarbageCollector {
   _collectionQueue: Array<DataID>;
   _isCollecting: boolean;
   _refCounts: {[key: DataID]: number};
-  _scheduler: Scheduler;
+  _scheduler: GarbageCollectionScheduler;
   _storeData: RelayStoreData;
 
   constructor(
     storeData: RelayStoreData,
-    scheduler: Scheduler
+    scheduler: GarbageCollectionScheduler
   ) {
     this._activeHoldCount = 0;
     this._collectionQueue = [];
@@ -92,7 +92,7 @@ class RelayGarbageCollector {
    *   the component that initiated the fetch. If records were collected there
    *   would be insufficient data in the cache to render.
    */
-  acquireHold(): Hold {
+  acquireHold(): GarbageCollectionHold {
     let isReleased = false;
     this._activeHoldCount++;
     return {
@@ -152,8 +152,7 @@ class RelayGarbageCollector {
     this._scheduler(() => {
       // handle async scheduling
       if (this._activeHoldCount || !this._collectionQueue.length) {
-        this._isCollecting = false;
-        return false;
+        return this._isCollecting = false;
       }
 
       let dataID;

@@ -21,8 +21,7 @@ jest
 
 var RelayConnectionInterface = require('RelayConnectionInterface');
 var RelayStoreData = require('RelayStoreData');
-
-var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
+var RelayGarbageCollector = require('RelayGarbageCollector');
 
 describe('RelayStoreData', () => {
   var Relay;
@@ -375,9 +374,11 @@ describe('RelayStoreData', () => {
   describe('garbage collection', () => {
     it('initializes the garbage collector if no data has been added', () => {
       var data = new RelayStoreData();
-      expect(RelayStoreGarbageCollector.mock.instances.length).toBe(0);
+      expect(data.getGarbageCollector()).toBe(undefined);
       expect(() => data.initializeGarbageCollector()).not.toThrow();
-      expect(RelayStoreGarbageCollector.mock.instances.length).toBe(1);
+      expect(
+        data.getGarbageCollector() instanceof RelayGarbageCollector
+      ).toBe(true);
     });
 
     it('warns if initialized after data has been added', () => {
@@ -400,6 +401,7 @@ describe('RelayStoreData', () => {
       'registers created dataIDs in the garbage collector if it has been ' +
       'initialized',
       () => {
+        RelayGarbageCollector.prototype.register = jest.genMockFunction();
         var response = {node: {id: 0}};
         var data = new RelayStoreData();
         data.initializeGarbageCollector();

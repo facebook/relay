@@ -20,6 +20,8 @@ var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 var RelayChangeTracker = require('RelayChangeTracker');
 import type {ChangeSet} from 'RelayChangeTracker';
 var RelayConnectionInterface = require('RelayConnectionInterface');
+import type {GarbageCollectionScheduler} from 'RelayGarbageCollector';
+var RelayGarbageCollector = require('RelayGarbageCollector');
 var RelayMutationQueue = require('RelayMutationQueue');
 import type {
   ClientMutationID,
@@ -37,7 +39,6 @@ var RelayQuery = require('RelayQuery');
 var RelayQueryTracker = require('RelayQueryTracker');
 var RelayQueryWriter = require('RelayQueryWriter');
 var RelayRecordStore = require('RelayRecordStore');
-var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
 var forEachObject = require('forEachObject');
@@ -66,7 +67,7 @@ class RelayStoreData {
   _cachedRootCallMap: RootCallMap;
   _cachedStore: RelayRecordStore;
   _changeEmitter: GraphQLStoreChangeEmitter;
-  _garbageCollector: ?RelayStoreGarbageCollector;
+  _garbageCollector: ?RelayGarbageCollector;
   _mutationQueue: RelayMutationQueue;
   _nodeRangeMap: NodeRangeMap;
   _pendingQueryTracker: RelayPendingQueryTracker;
@@ -134,7 +135,7 @@ class RelayStoreData {
    * newly added DataIDs will be registered in the created garbage collector.
    * This will show a warning if data has already been added to the instance.
    */
-  initializeGarbageCollector(): void {
+  initializeGarbageCollector(scheduler: GarbageCollectionScheduler): void {
     invariant(
       !this._garbageCollector,
       'RelayStoreData: Garbage collector is already initialized.'
@@ -146,7 +147,7 @@ class RelayStoreData {
       'data is present.'
     );
     if (shouldInitialize) {
-      this._garbageCollector = new RelayStoreGarbageCollector(this);
+      this._garbageCollector = new RelayGarbageCollector(this, scheduler);
     }
   }
 
@@ -373,7 +374,7 @@ class RelayStoreData {
     return this._cachedRecords;
   }
 
-  getGarbageCollector(): ?RelayStoreGarbageCollector {
+  getGarbageCollector(): ?RelayGarbageCollector {
     return this._garbageCollector;
   }
 

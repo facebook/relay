@@ -15,7 +15,7 @@
 
 import type {ChangeSubscription} from 'GraphQLStoreChangeEmitter';
 import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
-import type RelayStoreGarbageCollector from 'RelayStoreGarbageCollector';
+import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
 var RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
@@ -155,7 +155,7 @@ class GraphQLStorePluralQueryResolver {
 class GraphQLStoreSingleQueryResolver {
   _callback: Function;
   _fragment: ?RelayQuery.Fragment;
-  _garbageCollector: ?RelayStoreGarbageCollector;
+  _garbageCollector: ?RelayGarbageCollector;
   _hasDataChanged: boolean;
   _result: ?StoreReaderData;
   _resultID: ?DataID;
@@ -294,8 +294,8 @@ class GraphQLStoreSingleQueryResolver {
       var prevDataIDs = this._subscribedIDs;
       var [removed, added] = filterExclusiveKeys(prevDataIDs, nextDataIDs);
 
-      added.forEach(id => garbageCollector.increaseSubscriptionsFor(id));
-      removed.forEach(id => garbageCollector.decreaseSubscriptionsFor(id));
+      added.forEach(id => garbageCollector.incrementReferenceCount(id));
+      removed.forEach(id => garbageCollector.decrementReferenceCount(id));
     }
   }
 }

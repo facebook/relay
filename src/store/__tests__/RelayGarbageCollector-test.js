@@ -21,7 +21,6 @@ jest
   .dontMock('performanceNow');
 
 const Relay = require('Relay');
-const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayStoreData = require('RelayStoreData');
 
@@ -41,7 +40,7 @@ describe('RelayGarbageCollector', () => {
     scheduler = scheduler || defaultScheduler;
 
     const storeData = new RelayStoreData();
-    const garbageCollector = new RelayGarbageCollector(storeData, scheduler);
+    storeData.initializeGarbageCollector(scheduler);
     const nodeData = storeData.getNodeData();
     if (records) {
       forEachObject(records, (data, dataID) => {
@@ -50,7 +49,7 @@ describe('RelayGarbageCollector', () => {
     }
 
     return {
-      garbageCollector,
+      garbageCollector: storeData.getGarbageCollector(),
       storeData,
     };
   }
@@ -203,10 +202,6 @@ describe('RelayGarbageCollector', () => {
       storeData.handleQueryPayload(
         query,
         transformRelayQueryPayload(query, payload)
-      );
-      // TODO #8737600: swap in RelayGarbageCollector in RelayStoreData
-      Object.keys(storeData.getNodeData()).forEach(
-        id => garbageCollector.register(id)
       );
       const viewerID = storeData.getRecordStore().getDataID('viewer', null);
       garbageCollector.collectFromNode(viewerID);

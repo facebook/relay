@@ -46,12 +46,16 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
   let queryText = null;
   if (node instanceof RelayQuery.Root) {
     queryText = printRoot(node, printerState);
-  } else if (node instanceof RelayQuery.Fragment) {
-    queryText = printFragment(node, printerState);
-  } else if (node instanceof RelayQuery.Field) {
-    queryText = printField(node, printerState);
   } else if (node instanceof RelayQuery.Mutation) {
     queryText = printMutation(node, printerState);
+  } else {
+    // NOTE: `node` shouldn't be a field or fragment except for debugging. There
+    // is no guarantee that it would be a valid server request if printed.
+    if (node instanceof RelayQuery.Fragment) {
+      queryText = printFragment(node, printerState);
+    } else if (node instanceof RelayQuery.Field) {
+      queryText = printField(node, printerState);
+    }
   }
   invariant(
     queryText,

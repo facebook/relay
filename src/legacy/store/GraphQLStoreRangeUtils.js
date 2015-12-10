@@ -46,6 +46,7 @@ var serializeRelayQueryCall = require('serializeRelayQueryCall');
 class GraphQLStoreRangeUtils {
   constructor() {
     this._rangeData = {};
+    this._rangeDataKeyMap = {};
   }
 
   /**
@@ -70,6 +71,11 @@ class GraphQLStoreRangeUtils {
         calls: calls,
         callValues: callValues,
       };
+      let rangeDataKeys = this._rangeDataKeyMap[dataID];
+      if (!rangeDataKeys) {
+        this._rangeDataKeyMap[dataID] = rangeDataKeys = [];
+      }
+      rangeDataKeys.push(key);
     }
     return key;
   }
@@ -94,6 +100,16 @@ class GraphQLStoreRangeUtils {
    */
   getCanonicalClientID(dataID) {
     return this._rangeData[dataID] ? this._rangeData[dataID].dataID : dataID;
+  }
+
+  removeRecord(dataID) {
+    const rangeDataKeys = this._rangeDataKeyMap[dataID];
+    if (rangeDataKeys) {
+      rangeDataKeys.forEach(key => {
+        delete this._rangeData[key];
+      });
+      delete this._rangeDataKeyMap[dataID];
+    }
   }
 }
 

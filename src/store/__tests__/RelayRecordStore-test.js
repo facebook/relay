@@ -771,14 +771,23 @@ describe('RelayRecordStore', () => {
       var cachedRecords = {'a': {__dataID__: 'a'}};
       var queuedRecords = {'a': {__dataID__: 'a'}};
       var records = {'a': {__dataID__: 'a'}};
-      var store = new RelayRecordStore({cachedRecords, queuedRecords, records});
+      var nodeConnectionMap = {
+        a: {'client:1': true},
+      };
+      var store = new RelayRecordStore(
+        {cachedRecords, queuedRecords, records},
+        null,
+        nodeConnectionMap
+      );
       expect(cachedRecords.hasOwnProperty('a')).toBe(true);
       expect(queuedRecords.hasOwnProperty('a')).toBe(true);
       expect(records.hasOwnProperty('a')).toBe(true);
+      expect(nodeConnectionMap.hasOwnProperty('a')).toBe(true);
       store.removeRecord('a');
       expect(cachedRecords.hasOwnProperty('a')).toBe(false);
       expect(queuedRecords.hasOwnProperty('a')).toBe(false);
       expect(records.hasOwnProperty('a')).toBe(false);
+      expect(nodeConnectionMap.hasOwnProperty('a')).toBe(false);
     });
   });
 

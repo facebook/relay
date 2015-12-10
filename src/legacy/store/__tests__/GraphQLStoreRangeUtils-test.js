@@ -60,4 +60,26 @@ describe('GraphQLStoreRangeUtils', () => {
     expect(parsed.callValues).toBe(callValues);
   });
 
+  it('removes range data for records', () => {
+    var id = 'client:1';
+    var calls = [QueryBuilder.createCall(
+      'first',
+      QueryBuilder.createCallValue(1)
+    )];
+    var callValues = {};
+    var rangeID = rangeData.getClientIDForRangeWithID(
+      calls,
+      callValues,
+      id
+    );
+    expect(rangeData.parseRangeClientID(rangeID)).toEqual({
+      dataID: id,
+      calls,
+      callValues,
+    });
+
+    rangeData.removeRecord(id);
+    expect(rangeData.parseRangeClientID(rangeID)).toBe(null);
+  });
+
 });

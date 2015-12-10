@@ -790,6 +790,7 @@ class RelayRecordStore {
     if (this._cachedRecords) {
       delete this._cachedRecords[dataID];
     }
+    delete this._nodeConnectionMap[dataID];
   }
 
   /**

@@ -29,7 +29,7 @@ describe('writeRelayQueryPayload()', () => {
     getRefNode,
     getVerbatimNode,
     writePayload,
-    writeVerbatimPayload
+    writeVerbatimPayload,
   } = RelayTestUtils;
 
   beforeEach(() => {
@@ -110,7 +110,8 @@ describe('writeRelayQueryPayload()', () => {
       };
       const rootCallMap = {};
       const records = {};
-      const store = new RelayRecordStore(
+      const store = new RelayRecordStore({records}, {rootCallMap});
+      const cachedStore = new RelayRecordStore(
         {records, cachedRecords},
         {cachedRootCallMap, rootCallMap}
       );
@@ -130,7 +131,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      const results = writePayload(store, query, payload);
+      const results = writePayload(cachedStore, query, payload);
       expect(results).toEqual({
         created: {
           '123': true,
@@ -276,8 +277,8 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
-          id: '123'
-        }
+          id: '123',
+        },
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -413,8 +414,8 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
-          id: '123'
-        }
+          id: '123',
+        },
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -450,13 +451,13 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
-          id: '123'
+          id: '123',
         },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
-          '123': true
+          '123': true,
         },
         updated: {},
       });
@@ -480,7 +481,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
-          id: '123'
+          id: '123',
         },
       };
       var results = writePayload(store, query, payload);
@@ -496,7 +497,7 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          name: 'Joe'
+          name: 'Joe',
         },
       };
       var store = new RelayRecordStore({records});
@@ -511,7 +512,7 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: 'Joseph'
+          name: 'Joseph',
         },
       };
       var results = writePayload(store, query, payload);
@@ -543,7 +544,7 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: 'Joseph'
+          name: 'Joseph',
         },
       };
       var results = writePayload(store, query, payload);
@@ -600,7 +601,7 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getType('123')).toBe(null);
       expect([
         'RelayQueryWriter: Could not find a type name for record `%s`.',
-        '123'
+        '123',
       ]).toBeWarnedNTimes(1);
     });
 

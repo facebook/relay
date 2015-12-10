@@ -85,8 +85,8 @@ var RelayOSSNodeInterface = {
           } else {
             dataID = generateClientID();
           }
-          store.putDataID(storageKey, identifyingArgValue, dataID);
         }
+        store.putDataID(storageKey, identifyingArgValue, dataID);
         results.push({dataID, result});
       });
     }

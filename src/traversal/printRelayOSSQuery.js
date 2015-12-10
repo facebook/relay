@@ -14,12 +14,12 @@
 'use strict';
 
 import type {PrintedQuery} from 'RelayInternalTypes';
-var RelayProfiler = require('RelayProfiler');
-var RelayQuery = require('RelayQuery');
+const RelayProfiler = require('RelayProfiler');
+const RelayQuery = require('RelayQuery');
 
-var forEachObject = require('forEachObject');
-var invariant = require('invariant');
-var mapObject = require('mapObject');
+const forEachObject = require('forEachObject');
+const invariant = require('invariant');
+const mapObject = require('mapObject');
 
 type PrinterState = {
   fragmentMap: {[fragmentID: string]: string};
@@ -38,12 +38,12 @@ type Variable = {
  * supplied `node` must be flattened (and not contain fragments).
  */
 function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
-  var printerState = {
+  const printerState = {
     fragmentMap: {},
     nextVariableID: 0,
     variableMap: {},
   };
-  var queryText = null;
+  let queryText = null;
   if (node instanceof RelayQuery.Root) {
     queryText = printRoot(node, printerState);
   } else if (node instanceof RelayQuery.Fragment) {
@@ -58,13 +58,13 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
     'printRelayOSSQuery(): Unsupported node type.'
   );
   // Reassign to preserve Flow type refinement within closure.
-  var text = queryText;
+  let text = queryText;
   forEachObject(printerState.fragmentMap, (fragmentText, fragmentID) => {
     if (fragmentText) {
       text = text + ' ' + fragmentText;
     }
   });
-  var variables = mapObject(
+  const variables = mapObject(
     printerState.variableMap,
     variable => variable.value
   );
@@ -86,14 +86,14 @@ function printRoot(
   const identifyingArgName = (identifyingArg && identifyingArg.name) || null;
   const identifyingArgType = (identifyingArg && identifyingArg.type) || null;
   const identifyingArgValue = (identifyingArg && identifyingArg.value) || null;
-  var fieldName = node.getFieldName();
+  let fieldName = node.getFieldName();
   if (identifyingArgValue != null) {
     invariant(
       identifyingArgName,
       'printRelayOSSQuery(): Expected an argument name for root field `%s`.',
       fieldName
     );
-    var rootArgString = printArgument(
+    const rootArgString = printArgument(
       identifyingArgName,
       identifyingArgValue,
       identifyingArgType,
@@ -104,8 +104,8 @@ function printRoot(
     }
   }
   // Note: children must be traversed before printing variable definitions
-  var children = printChildren(node, printerState);
-  var queryString = node.getName() + printVariableDefinitions(printerState);
+  const children = printChildren(node, printerState);
+  const queryString = node.getName() + printVariableDefinitions(printerState);
   fieldName += printDirectives(node);
 
   return 'query ' + queryString + '{' + fieldName + children + '}';
@@ -115,8 +115,8 @@ function printMutation(
   node: RelayQuery.Mutation,
   printerState: PrinterState
 ): string {
-  var call = node.getCall();
-  var inputString = printArgument(
+  const call = node.getCall();
+  const inputString = printArgument(
     node.getCallVariableName(),
     call.value,
     node.getInputType(),
@@ -129,15 +129,15 @@ function printMutation(
     node.getCallVariableName()
   );
   // Note: children must be traversed before printing variable definitions
-  var children = printChildren(node, printerState);
-  var mutationString = node.getName() + printVariableDefinitions(printerState);
-  var fieldName = call.name + '(' + inputString + ')';
+  const children = printChildren(node, printerState);
+  const mutationString = node.getName() + printVariableDefinitions(printerState);
+  const fieldName = call.name + '(' + inputString + ')';
 
   return 'mutation ' + mutationString + '{' + fieldName + children + '}';
 }
 
 function printVariableDefinitions(printerState: PrinterState): string {
-  var argStrings = null;
+  let argStrings = null;
   forEachObject(printerState.variableMap, (variable, variableID) => {
     argStrings = argStrings || [];
     argStrings.push('$' + variableID + ':' + variable.type);
@@ -152,7 +152,7 @@ function printFragment(
   node: RelayQuery.Fragment,
   printerState: PrinterState
 ): string {
-  var directives = printDirectives(node);
+  const directives = printDirectives(node);
   return 'fragment ' + node.getDebugName() + ' on ' +
     node.getType() + directives + printChildren(node, printerState);
 }
@@ -164,10 +164,10 @@ function printInlineFragment(
   if (!node.getChildren().length) {
     return null;
   }
-  var fragmentID = node.getFragmentID();
-  var {fragmentMap} = printerState;
+  const fragmentID = node.getFragmentID();
+  const {fragmentMap} = printerState;
   if (!(fragmentID in fragmentMap)) {
-    var directives = printDirectives(node);
+    const directives = printDirectives(node);
     fragmentMap[fragmentID] = 'fragment ' + node.getFragmentID() + ' on ' +
       node.getType() + directives + printChildren(node, printerState);
   }
@@ -182,14 +182,14 @@ function printField(
     node instanceof RelayQuery.Field,
     'printRelayOSSQuery(): Query must be flattened before printing.'
   );
-  var schemaName = node.getSchemaName();
-  var serializationKey = node.getSerializationKey();
-  var callsWithValues = node.getCallsWithValues();
-  var fieldString = schemaName;
-  var argStrings = null;
+  const schemaName = node.getSchemaName();
+  const serializationKey = node.getSerializationKey();
+  const callsWithValues = node.getCallsWithValues();
+  let fieldString = schemaName;
+  let argStrings = null;
   if (callsWithValues.length) {
     callsWithValues.forEach(({name, value}) => {
-      var argString = printArgument(
+      const argString = printArgument(
         name,
         value,
         node.getCallType(name),
@@ -204,7 +204,7 @@ function printField(
       fieldString += '(' + argStrings.join(',') + ')';
     }
   }
-  var directives = printDirectives(node);
+  const directives = printDirectives(node);
   return (serializationKey !== schemaName ? serializationKey + ':' : '') +
     fieldString + directives + printChildren(node, printerState);
 }
@@ -239,9 +239,9 @@ function printChildren(
 }
 
 function printDirectives(node) {
-  var directiveStrings;
+  let directiveStrings;
   node.getDirectives().forEach(directive => {
-    var dirString = '@' + directive.name;
+    let dirString = '@' + directive.name;
     if (directive.arguments.length) {
       dirString +=
         '(' + directive.arguments.map(printDirective).join(',') + ')';
@@ -274,12 +274,12 @@ function printArgument(
   type: ?string,
   printerState: PrinterState
 ): ?string {
-  var stringValue;
   if (value == null) {
     return value;
   }
+  let stringValue;
   if (type != null) {
-    var variableID = createVariable(name, value, type, printerState);
+    const variableID = createVariable(name, value, type, printerState);
     stringValue = '$' + variableID;
   } else {
     stringValue = JSON.stringify(value);
@@ -293,7 +293,7 @@ function createVariable(
   type: string,
   printerState: PrinterState
 ): string {
-  var variableID = name + '_' + printerState.nextVariableID.toString(36);
+  const variableID = name + '_' + printerState.nextVariableID.toString(36);
   printerState.nextVariableID++;
   printerState.variableMap[variableID] = {
     type,

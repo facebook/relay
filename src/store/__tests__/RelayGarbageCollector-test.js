@@ -56,7 +56,7 @@ describe('RelayGarbageCollector', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-    jasmine.addMatchers(window.patchMatchers(RelayTestUtils.matchers));
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('collect()', () => {

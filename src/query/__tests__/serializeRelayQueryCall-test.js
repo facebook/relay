@@ -80,6 +80,16 @@ describe('serializeRelayQueryCall', () => {
     );
   });
 
+  it('serializes empty string values', () => {
+    var call = {
+      name: 'query',
+      value: '',
+    };
+    expect(serializeRelayQueryCall(call)).toEqual(
+      '.query("")'
+    );
+  });
+
   it('escapes leading and trailing whitespace', () => {
     // Extra trailing space is a workaround, see Task #7599025.
     var values = {

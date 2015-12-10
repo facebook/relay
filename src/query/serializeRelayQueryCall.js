@@ -42,7 +42,7 @@ function sanitizeCallValue(value: CallValue): string {
   if (value == null) {
     return '';
   }
-  if (typeof value !== 'string') {
+  if (typeof value !== 'string' || value === '') {
     value = JSON.stringify(value);
   }
   value = value.replace(/[)(}{><,.\\]/g, '\\$&');

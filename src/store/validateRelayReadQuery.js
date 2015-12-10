@@ -88,7 +88,7 @@ if (__DEV__) {
       visitField(
         node: RelayQuery.Field,
         parentAliasMap: AliasMap
-      ): ?RelayQuery.Node {
+      ): void {
         const aliasMap = getAliasMap(node, parentAliasMap);
 
         if (node.isGenerated()) {
@@ -106,7 +106,7 @@ if (__DEV__) {
       visitFragment(
         node: RelayQuery.Fragment,
         aliasMap: AliasMap
-      ): ?RelayQuery.Node {
+      ): void {
         if (this._traverseFragmentReferences || !node.isContainerFragment()) {
           this.traverse(node, aliasMap);
         }

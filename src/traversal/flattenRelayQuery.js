@@ -91,7 +91,7 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
   visitFragment(
     node: RelayQuery.Fragment,
     state: FlattenedQuery
-  ): ?RelayQuery.Node {
+  ): void {
     const type = node.getType();
     if (this._shouldRemoveFragments || type === state.type) {
       this.traverse(node, state);
@@ -113,7 +113,7 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
   visitField(
     node: RelayQuery.Field,
     state: FlattenedQuery
-  ): ?RelayQuery.Node {
+  ): void {
     var hash = node.getShallowHash();
     var flattenedField = state.flattenedFieldMap.get(hash);
     if (!flattenedField) {

@@ -78,7 +78,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
   visitField(
     node: RelayQuery.Field,
     state: PayloadState
-  ): ?RelayQuery.Node {
+  ): void {
     var {client, server} = state;
     // `client` represents the *parent* node value and should not be null
     // due to checks before traversing child values.

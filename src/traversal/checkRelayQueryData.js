@@ -83,7 +83,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   visitRoot(
     root: RelayQuery.Root,
     state: CheckerState
-  ): ?RelayQuery.Node {
+  ): void {
     var nextState;
     const storageKey = root.getStorageKey();
     forEachRootCallArg(root, identifyingArgValue => {
@@ -105,7 +105,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   visitFragment(
     fragment: RelayQuery.Fragment,
     state: CheckerState
-  ): ?RelayQuery.Node {
+  ): void {
     const dataID = state.dataID;
     // The dataID check is for Flow; it must be non-null to have gotten here.
     if (dataID && isCompatibleRelayFragmentType(
@@ -119,7 +119,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   visitField(
     field: RelayQuery.Field,
     state: CheckerState
-  ): ?RelayQuery.Node {
+  ): void {
     var dataID = state.dataID;
     var recordState = dataID && this._store.getRecordState(dataID);
     if (recordState === RelayRecordState.UNKNOWN) {

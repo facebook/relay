@@ -116,7 +116,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   visitFragment(
     fragment: RelayQuery.Fragment,
     state: FinderState
-  ): ?RelayQuery.Node {
+  ): void {
     var dataID = state.dataID;
     var recordState = this._store.getRecordState(dataID);
     if (recordState === RelayRecordState.UNKNOWN) {
@@ -137,7 +137,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   visitField(
     field: RelayQuery.Field,
     state: FinderState
-  ): ?RelayQuery.Node {
+  ): void {
     var dataID = state.dataID;
     var recordState = this._store.getRecordState(dataID);
     if (recordState === RelayRecordState.UNKNOWN) {

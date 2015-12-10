@@ -184,7 +184,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   visitRoot(
     root: RelayQuery.Root,
     state: WriterState
-  ): ?RelayQuery.Node {
+  ): void {
     const {path, recordID, responseData} = state;
     const recordState = this._store.getRecordState(recordID);
 
@@ -222,7 +222,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   visitFragment(
     fragment: RelayQuery.Fragment,
     state: WriterState
-  ): ?RelayQuery.Node {
+  ): void {
     const {recordID} = state;
     if (fragment.isDeferred()) {
       this._store.setHasDeferredFragmentData(
@@ -249,7 +249,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   visitField(
     field: RelayQuery.Field,
     state: WriterState
-  ): ?RelayQuery.Node {
+  ): void {
     const {
       recordID,
       responseData,

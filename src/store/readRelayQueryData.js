@@ -130,7 +130,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     return result;
   }
 
-  visitField(node: RelayQuery.Field, state: State): ?RelayQuery.Node {
+  visitField(node: RelayQuery.Field, state: State): void {
     // Check for range client IDs (eg. `someID_first(25)`) and unpack if
     // present, overriding `state`.
     this._handleRangeInfo(node, state);
@@ -166,7 +166,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     state.seenDataIDs[state.storeDataID] = true;
   }
 
-  visitFragment(node: RelayQuery.Fragment, state: State): ?RelayQuery.Node {
+  visitFragment(node: RelayQuery.Fragment, state: State): void {
     const dataID = getComponentDataID(state);
     if (node.isContainerFragment() && !this._traverseFragmentReferences) {
       state.seenDataIDs[dataID] = true;
@@ -434,7 +434,7 @@ class RelayRangeCallEnforcer extends RelayQueryVisitor<RelayQuery.Field> {
   visitField(
     node: RelayQuery.Field,
     parent: RelayQuery.Field
-  ): ?RelayQuery.Node {
+  ): void {
     var schemaName = node.getSchemaName();
     invariant(
       schemaName !== EDGES &&

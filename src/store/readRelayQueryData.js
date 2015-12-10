@@ -495,11 +495,7 @@ function getDataValue(state: State, key: string): mixed {
   return data[key];
 }
 
-var instrumented = RelayProfiler.instrument(
+module.exports = RelayProfiler.instrument(
   'readRelayQueryData',
   readRelayQueryData
 );
-
-// #7573861: Type export collides with CommonJS export in presence of
-// `instrument()` call:
-module.exports = (instrumented: $FlowIssue);

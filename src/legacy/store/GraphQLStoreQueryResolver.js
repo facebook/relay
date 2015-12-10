@@ -277,7 +277,7 @@ class GraphQLStoreSingleQueryResolver {
   _resolveFragment(
     fragment: RelayQuery.Fragment,
     dataID: DataID
-  ): [StoreReaderData, DataIDSet] {
+  ): [?StoreReaderData, DataIDSet] {
     var {data, dataIDs} = readRelayQueryData(this._storeData, fragment, dataID);
     return [data, dataIDs];
   }

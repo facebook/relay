@@ -21,11 +21,11 @@ const RelayQueryTransform = require('RelayQueryTransform');
 const RelayRefQueryDescriptor = require('RelayRefQueryDescriptor');
 import type {NodePath} from 'RelayRefQueryDescriptor';
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 export type SplitQueries = {
+  __nodePath__: NodePath;
   __parent__: ?SplitQueries;
-  __path__: NodePath;
   __refQuery__: ?RelayRefQueryDescriptor;
   deferred: Array<SplitQueries>;
   required: ?RelayQuery.Root;
@@ -37,10 +37,10 @@ export type SplitQueries = {
  * @internal
  */
 function splitDeferredRelayQueries(node: RelayQuery.Root): SplitQueries {
-  var splitter = new GraphQLSplitDeferredQueries();
-  var splitQueries = {
+  const splitter = new GraphQLSplitDeferredQueries();
+  const splitQueries = {
+    __nodePath__: [],
     __parent__: null,
-    __path__: [],
     __refQuery__: null,
     deferred: [],
     required: null,
@@ -59,7 +59,7 @@ function getRequisiteSiblings(
   parent: RelayQuery.Node
 ): Array<RelayQuery.Node> {
   // Get the requisite siblings.
-  var siblings = parent.getChildren().filter(child => (
+  const siblings = parent.getChildren().filter(child => (
     child !== node &&
     child instanceof RelayQuery.Field &&
     child.isRequisite()
@@ -67,11 +67,11 @@ function getRequisiteSiblings(
 
   // Filter the non-requisite children from those siblings.
   return siblings.map(sibling => {
-    var children = sibling.getChildren().filter(child => (
+    const children = sibling.getChildren().filter(child => (
       child instanceof RelayQuery.Field &&
       child.isRequisite()
     ));
-    var clone = sibling.clone(children);
+    const clone = sibling.clone(children);
     invariant(
       clone,
       'splitDeferredRelayQueries(): Unexpected non-scalar, requisite field.'
@@ -93,20 +93,20 @@ function getRequisiteSiblings(
  */
 function wrapNode(
   node: RelayQuery.Node,
-  path: NodePath
+  nodePath: NodePath
 ): (RelayQuery.Node | RelayRefQueryDescriptor) {
-  for (var ii = path.length - 1; ii >= 0; ii--) {
-    var parent = path[ii];
+  for (let ii = nodePath.length - 1; ii >= 0; ii--) {
+    const parent = nodePath[ii];
     if (
       parent instanceof RelayQuery.Field &&
       parent.getInferredRootCallName()
     ) {
       // We can make a "ref query" at this point, so stop wrapping.
-      return new RelayRefQueryDescriptor(node, path.slice(0, ii + 1));
+      return new RelayRefQueryDescriptor(node, nodePath.slice(0, ii + 1));
     }
 
-    var siblings = getRequisiteSiblings(node, parent);
-    var children = [node].concat(siblings);
+    const siblings = getRequisiteSiblings(node, parent);
+    const children = [node].concat(siblings);
 
     // Cast here because we know that `clone` will never return `null` (because
     // we always give it at least one child).
@@ -154,14 +154,14 @@ function buildQueries(splitQueries: SplitQueries): SplitQueries {
     splitQueries.required = null;
   }
   splitQueries.deferred = splitQueries.deferred.map(nestedSplitQueries => {
-    var descriptor = nestedSplitQueries.__refQuery__;
+    const descriptor = nestedSplitQueries.__refQuery__;
     if (descriptor) {
       // Wrap the ref query node with a reference to the required query that is
       // its context.
-      var context = splitQueries.required;
+      let context = splitQueries.required;
       if (!context) {
         // Traverse upwards looking for context.
-        var parentSplitQueries = splitQueries;
+        let parentSplitQueries = splitQueries;
         while (parentSplitQueries.__parent__) {
           context = parentSplitQueries.__parent__.required;
           if (context) {
@@ -189,7 +189,7 @@ function createRefQuery(
   descriptor: RelayRefQueryDescriptor,
   context: RelayQuery.Root
 ): RelayQuery.Root {
-  var node = descriptor.node;
+  const node = descriptor.node;
   invariant(
     node instanceof RelayQuery.Field ||
     node instanceof RelayQuery.Fragment,
@@ -197,34 +197,34 @@ function createRefQuery(
   );
 
   // Build up JSONPath.
-  var path = ['$', '*'];
-  var parent;
-  for (var ii = 0; ii < descriptor.path.length; ii++) {
-    parent = descriptor.path[ii];
+  const jsonPath = ['$', '*'];
+  let parent;
+  for (let ii = 0; ii < descriptor.nodePath.length; ii++) {
+    parent = descriptor.nodePath[ii];
     if (parent instanceof RelayQuery.Field) {
-      path.push(parent.getSerializationKey());
+      jsonPath.push(parent.getSerializationKey());
       if (parent.isPlural()) {
-        path.push('*');
+        jsonPath.push('*');
       }
     }
   }
   invariant(
-    path.length > 2,
+    jsonPath.length > 2,
     'splitDeferredRelayQueries(): Ref query requires a complete path.'
   );
-  var field: RelayQuery.Field = (parent: any); // Flow
-  var primaryKey = field.getInferredPrimaryKey();
+  const field: RelayQuery.Field = (parent: any); // Flow
+  const primaryKey = field.getInferredPrimaryKey();
   invariant(
     primaryKey,
     'splitDeferredRelayQueries(): Ref query requires a primary key.'
   );
-  path.push(primaryKey);
+  jsonPath.push(primaryKey);
 
   // Create the wrapper root query.
-  var root = RelayQuery.Root.build(
+  const root = RelayQuery.Root.build(
     context.getName(),
     RelayNodeInterface.NODES,
-    QueryBuilder.createBatchCallVariable(context.getID(), path.join('.')),
+    QueryBuilder.createBatchCallVariable(context.getID(), jsonPath.join('.')),
     [node],
     {
       identifyingArgName: RelayNodeInterface.ID,
@@ -233,7 +233,7 @@ function createRefQuery(
     RelayNodeInterface.NODE_TYPE
   );
 
-  var result: RelayQuery.Root = (root: any); // Flow
+  const result: RelayQuery.Root = (root: any); // Flow
   return result;
 }
 
@@ -251,14 +251,14 @@ class GraphQLSplitDeferredQueries extends RelayQueryTransform<SplitQueries> {
       return node;
     }
 
-    splitQueries.__path__.push(node);
-    var result = this.traverse(node, splitQueries);
-    splitQueries.__path__.pop();
+    splitQueries.__nodePath__.push(node);
+    let result = this.traverse(node, splitQueries);
+    splitQueries.__nodePath__.pop();
 
     if (result && node.getInferredRootCallName()) {
       // The node is a ref query dependency; mark it as one.
-      var key = node.getInferredPrimaryKey();
-      var children = result.getChildren().map(child => {
+      const key = node.getInferredPrimaryKey();
+      const children = result.getChildren().map(child => {
         if (
           child instanceof RelayQuery.Field &&
           child.getSchemaName() === key
@@ -283,17 +283,17 @@ class GraphQLSplitDeferredQueries extends RelayQueryTransform<SplitQueries> {
     }
 
     if (node.isDeferred()) {
-      var path = splitQueries.__path__;
-      var deferred: SplitQueries = {
+      const nodePath = splitQueries.__nodePath__;
+      const deferred: SplitQueries = {
+        __nodePath__: nodePath,
         __parent__: splitQueries,
-        __path__: path,
         __refQuery__: null,
         deferred: [],
         required: null,
       };
-      var result = this.traverse(node, deferred);
+      const result = this.traverse(node, deferred);
       if (result) {
-        var wrapped = wrapNode(result, path);
+        const wrapped = wrapNode(result, nodePath);
         if (wrapped instanceof RelayQuery.Root) {
           deferred.required = wrapped;
         } else if (wrapped instanceof RelayRefQueryDescriptor) { // for Flow
@@ -315,25 +315,20 @@ class GraphQLSplitDeferredQueries extends RelayQueryTransform<SplitQueries> {
     node: RelayQuery.Root,
     splitQueries: SplitQueries
   ): ?RelayQuery.Node {
-    var result;
     if (!node.hasDeferredDescendant()) {
       splitQueries.required = node;
       return node;
     } else {
-      splitQueries.__path__.push(node);
-      result = this.traverse(node, splitQueries);
-      splitQueries.__path__.pop();
+      splitQueries.__nodePath__.push(node);
+      const result = this.traverse(node, splitQueries);
+      splitQueries.__nodePath__.pop();
       splitQueries.required = result;
       return result;
     }
   }
 }
 
-var instrumented = RelayProfiler.instrument(
+module.exports = RelayProfiler.instrument(
   'splitDeferredRelayQueries',
   splitDeferredRelayQueries
 );
-
-// #7573861: Type export collides with CommonJS export in presence of
-// `instrument()` call:
-module.exports = (instrumented: $FlowIssue);

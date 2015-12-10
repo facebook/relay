@@ -22,18 +22,18 @@ export type NodePath = Array<RelayQuery.Node>;
  *
  * Represents a node that will eventually become a "ref query".
  *
- * Includes the "path" context (ancestor nodes) that can be used to construct an
+ * Includes the `nodePath` (ancestor nodes) that can be used to construct an
  * appropriate the JSONPath for the query.
  *
  * @see splitDeferredRelayQueries
  */
 class RelayRefQueryDescriptor {
   node: RelayQuery.Node;
-  path: NodePath;
+  nodePath: NodePath;
 
-  constructor(node: RelayQuery.Node, path: NodePath) {
+  constructor(node: RelayQuery.Node, nodePath: NodePath) {
     this.node = node;
-    this.path = path;
+    this.nodePath = nodePath;
   }
 }
 

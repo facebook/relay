@@ -114,8 +114,8 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
     node: RelayQuery.Field,
     state: FlattenedQuery
   ): ?RelayQuery.Node {
-    var serializationKey = node.getSerializationKey();
-    var flattenedField = state.flattenedFieldMap.get(serializationKey);
+    var hash = node.getShallowHash();
+    var flattenedField = state.flattenedFieldMap.get(hash);
     if (!flattenedField) {
       flattenedField = {
         node,
@@ -123,7 +123,7 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
         flattenedFieldMap: new Map(),
         flattenedFragmentMap: new Map(),
       };
-      state.flattenedFieldMap.set(serializationKey, flattenedField);
+      state.flattenedFieldMap.set(hash, flattenedField);
     }
     this.traverse(node, flattenedField);
   }

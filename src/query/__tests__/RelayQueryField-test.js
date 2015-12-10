@@ -380,7 +380,7 @@ describe('RelayQueryField', () => {
   });
 
   describe('getSerializationKey()', () => {
-    it('serializes all calls with hashing', () => {
+    it('serializes all calls', () => {
       expect(friendScalar.getSerializationKey()).toBe(generateRQLFieldAlias(
         'friends.after(offset).first(10).orderby(name)'
       ));
@@ -408,6 +408,39 @@ describe('RelayQueryField', () => {
       var pictureVariable =
         getNode(pictureVariableRQL, variables).getChildren()[0];
       expect(pictureVariable.getSerializationKey()).toBe(key);
+    });
+  });
+
+  describe('getShallowHash()', () => {
+    it('serializes all calls', () => {
+      expect(friendScalar.getShallowHash()).toBe(
+        'friends{after:"offset",first:"10",orderby:"name"}'
+      );
+    });
+
+    it('serializes argument literal values', () => {
+      var node = getNode(Relay.QL`
+        fragment on User {
+          profilePicture(size: ["32", "64"])
+        }
+      `);
+      expect(node.getChildren()[0].getShallowHash()).toBe(
+        'profilePicture{size:[0:"32",1:"64"]}'
+      );
+    });
+
+    it('serializes argument variable values', () => {
+      var node = getNode(Relay.QL`
+        fragment on User {
+          profilePicture(size: [$width, $height])
+        }
+      `, {
+        width: 32,
+        height: 64,
+      });
+      expect(node.getChildren()[0].getShallowHash()).toBe(
+        'profilePicture{size:[0:32,1:64]}'
+      );
     });
   });
 

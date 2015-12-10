@@ -619,10 +619,10 @@ function printQueryComparison(actual, expected, message) {
 function sortRelayQuery(node) {
   var RelayQuery = require('RelayQuery');
 
-  function getID(node) {
+  function getSortableKey(node) {
     return node instanceof RelayQuery.Fragment ?
       node.getFragmentID() :
-      node.getSerializationKey();
+      node.getShallowHash();
   }
   function compare(a, b) {
     if (a === b) {
@@ -635,9 +635,9 @@ function sortRelayQuery(node) {
   }
 
   return node.clone(node.getChildren().sort((a, b) => {
-    var aID = getID(a);
-    var bID = getID(b);
-    return compare(aID, bID);
+    var aKey = getSortableKey(a);
+    var bKey = getSortableKey(b);
+    return compare(aKey, bKey);
   }).map(sortRelayQuery));
 }
 

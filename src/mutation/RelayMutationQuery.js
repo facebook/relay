@@ -199,7 +199,7 @@ var RelayMutationQuery = {
     });
 
     if (trackedConnections.length) {
-      var keysWithoutRangeBehavior: {[serializationKey: string]: boolean} = {};
+      var keysWithoutRangeBehavior: {[hash: string]: boolean} = {};
       var mutatedEdgeFields = [];
       trackedConnections.forEach(trackedConnection => {
         var trackedEdges = findDescendantFields(trackedConnection, 'edges');
@@ -214,8 +214,7 @@ var RelayMutationQuery = {
           });
         } else {
           // If the connection is not in `rangeBehaviors`, re-fetch it.
-          var key = trackedConnection.getSerializationKey();
-          keysWithoutRangeBehavior[key] = true;
+          keysWithoutRangeBehavior[trackedConnection.getShallowHash()] = true;
         }
       });
       if (mutatedEdgeFields.length) {
@@ -230,7 +229,7 @@ var RelayMutationQuery = {
         var trackedParent = fatParent.clone(trackedChildren);
         if (trackedParent) {
           var filterUnterminatedRange = node => (
-            !keysWithoutRangeBehavior.hasOwnProperty(node.getSerializationKey())
+            !keysWithoutRangeBehavior.hasOwnProperty(node.getShallowHash())
           );
           var mutatedParent = intersectRelayQuery(
             trackedParent,

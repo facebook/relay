@@ -942,6 +942,7 @@ class RelayQueryField extends RelayQueryNode {
   __debugName__: ?string;
   __isRefQueryDependency__: boolean;
   __rangeBehaviorKey__: ?string;
+  __shallowHash__: ?string;
 
   static create(
     concreteNode: mixed,
@@ -1006,6 +1007,7 @@ class RelayQueryField extends RelayQueryNode {
     this.__debugName__ = undefined;
     this.__isRefQueryDependency__ = false;
     this.__rangeBehaviorKey__ = undefined;
+    this.__shallowHash__ = undefined;
   }
 
   isAbstract(): boolean {
@@ -1128,6 +1130,19 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   /**
+   * Returns a hash of the field name and all argument values.
+   */
+  getShallowHash(): string {
+    let shallowHash = this.__shallowHash__;
+    if (!shallowHash) {
+      this.__shallowHash__ = shallowHash =
+        this.getSchemaName() +
+        serializeCalls(this.getCallsWithValues());
+    }
+    return shallowHash;
+  }
+
+  /**
    * The name which Relay internals can use to reference this field, without
    * collisions.
    *
@@ -1141,18 +1156,11 @@ class RelayQueryField extends RelayQueryNode {
   getStorageKey(): string {
     let storageKey = this.__storageKey__;
     if (!storageKey) {
-      storageKey = this.getSchemaName();
-      let coreArgsObj;
-      this.getCallsWithValues().forEach(arg => {
-        if (this._isCoreArg(arg)) {
-          coreArgsObj = coreArgsObj || {};
-          coreArgsObj[arg.name] = arg.value;
-        }
-      });
-      if (coreArgsObj) {
-        storageKey += stableStringify(coreArgsObj);
-      }
-      this.__storageKey__ = storageKey;
+      this.__storageKey__ = storageKey =
+        this.getSchemaName() +
+        serializeCalls(
+          this.getCallsWithValues().filter(call => this._isCoreArg(call))
+        );
     }
     return storageKey;
   }
@@ -1296,7 +1304,7 @@ function createNode(
     type = RelayQueryFragment;
   } else if (kind === 'FragmentReference') {
     type = RelayQueryFragment;
-    let fragment = QueryBuilder.getFragment(concreteNode.fragment);
+    const fragment = QueryBuilder.getFragment(concreteNode.fragment);
     // TODO #9171213: Reference directives should override fragment directives
     if (fragment) {
       return createMemoizedFragment(
@@ -1316,7 +1324,7 @@ function createNode(
   } else if (kind === 'Subscription') {
     type = RelayQuerySubscription;
   } else if (concreteNode instanceof RelayRouteFragment) {
-    let fragment = concreteNode.getFragmentForRoute(route);
+    const fragment = concreteNode.getFragmentForRoute(route);
     if (fragment) {
       // may be null if no value was defined for this route.
       return createNode(
@@ -1327,8 +1335,8 @@ function createNode(
     }
     return null;
   } else if (concreteNode instanceof RelayFragmentReference) {
-    let fragment = concreteNode.getFragment(variables);
-    let fragmentVariables = concreteNode.getVariables(route, variables);
+    const fragment = concreteNode.getFragment(variables);
+    const fragmentVariables = concreteNode.getVariables(route, variables);
     if (fragment) {
       // the fragment may be null when `if` or `unless` conditions are not met.
       return createMemoizedFragment(
@@ -1422,6 +1430,21 @@ function getDeferredFragmentNamesForField(
   node.getChildren().forEach(
     child => getDeferredFragmentNamesForField(child, fragmentNames)
   );
+}
+
+/**
+ * Creates an opaque serialization of calls.
+ */
+function serializeCalls(calls: Array<Call>): string {
+  if (calls.length) {
+    const callMap = {};
+    calls.forEach(call => {
+      callMap[call.name] = call.value;
+    });
+    return stableStringify(callMap);
+  } else {
+    return '';
+  }
 }
 
 RelayProfiler.instrumentMethods(RelayQueryNode.prototype, {

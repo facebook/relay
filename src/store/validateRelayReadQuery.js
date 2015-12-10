@@ -58,7 +58,7 @@ if (__DEV__) {
       parentAliasMap: AliasMap
     ): AliasMap {
       const applicationName = node.getApplicationName();
-      const hash = node.getSerializationKey();
+      const hash = node.getShallowHash();
       const {children} = parentAliasMap;
       if (!children.hasOwnProperty(applicationName)) {
         children[applicationName] = {

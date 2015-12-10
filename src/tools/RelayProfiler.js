@@ -20,7 +20,9 @@ const removeFromArray = require('removeFromArray');
 type Handler = (name: string, callback: () => void) => void;
 type ProfileHandler = (name: string, state?: any) => () => void;
 
-const aggregateHandlersByName: {[name: string]: Array<Handler>} = {};
+const aggregateHandlersByName: {[name: string]: Array<Handler>} = {
+  '*': [],
+};
 const profileHandlersByName: {[name: string]: Array<ProfileHandler>} = {
   '*': [],
 };
@@ -116,27 +118,36 @@ const RelayProfiler = {
     if (!aggregateHandlersByName.hasOwnProperty(name)) {
       aggregateHandlersByName[name] = [];
     }
+    const catchallHandlers = aggregateHandlersByName['*'];
     const aggregateHandlers = aggregateHandlersByName[name];
     const handlers: Array<Handler> = [];
-    const contexts: Array<[number, number, any, any, any, number]> = [];
+    const contexts: Array<[number, number, number, any, any, any]> = [];
     const invokeHandlers = function() {
       const context = contexts[contexts.length - 1];
       if (context[0]) {
         context[0]--;
-        aggregateHandlers[context[0]](name, invokeHandlers);
+        catchallHandlers[context[0]](name, invokeHandlers);
       } else if (context[1]) {
         context[1]--;
-        handlers[context[1]](name, invokeHandlers);
+        aggregateHandlers[context[1]](name, invokeHandlers);
+      } else if (context[2]) {
+        context[2]--;
+        handlers[context[2]](name, invokeHandlers);
       } else {
-        context[4] = originalFunction.apply(context[2], context[3]);
+        context[5] = originalFunction.apply(context[3], context[4]);
       }
     };
     const instrumentedCallback = function() {
       let returnValue;
-      if (aggregateHandlers.length === 0 && handlers.length === 0) {
+      if (
+        aggregateHandlers.length === 0 &&
+        handlers.length === 0 &&
+        catchallHandlers.length == 0
+      ) {
         returnValue = originalFunction.apply(this, arguments);
       } else {
         contexts.push([
+          catchallHandlers.length,
           aggregateHandlers.length,
           handlers.length,
           this,
@@ -145,7 +156,7 @@ const RelayProfiler = {
         ]);
         invokeHandlers();
         const context = contexts.pop();
-        returnValue = context[4];
+        returnValue = context[5];
         if (returnValue === NOT_INVOKED) {
           throw new Error(
             'RelayProfiler: Handler did not invoke original function.'

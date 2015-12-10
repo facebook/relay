@@ -19,7 +19,7 @@ import Relay from 'react-relay';
 class TodoList extends React.Component {
   _handleMarkAllChange = (e) => {
     var complete = e.target.checked;
-    Relay.Store.update(
+    Relay.Store.commitUpdate(
       new MarkAllTodosMutation({
         complete,
         todos: this.props.viewer.todos,

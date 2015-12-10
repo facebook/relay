@@ -177,9 +177,9 @@ describe('RelayStore', () => {
       });
     });
 
-    describe('update', () => {
+    describe('commitUpdate', () => {
       it('creates a new RelayMutationTransaction and commits it', () => {
-        RelayStore.update(mockMutation, mockCallbacks);
+        let transaction = RelayStore.commitUpdate(mockMutation, mockCallbacks);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
           mockCallbacks

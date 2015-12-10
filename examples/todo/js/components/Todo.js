@@ -25,7 +25,7 @@ class Todo extends React.Component {
   };
   _handleCompleteChange = (e) => {
     var complete = e.target.checked;
-    Relay.Store.update(
+    Relay.Store.commitUpdate(
       new ChangeTodoStatusMutation({
         complete,
         todo: this.props.todo,
@@ -48,12 +48,12 @@ class Todo extends React.Component {
   }
   _handleTextInputSave = (text) => {
     this._setEditMode(false);
-    Relay.Store.update(
+    Relay.Store.commitUpdate(
       new RenameTodoMutation({todo: this.props.todo, text})
     );
   }
   _removeTodo() {
-    Relay.Store.update(
+    Relay.Store.commitUpdate(
       new RemoveTodoMutation({todo: this.props.todo, viewer: this.props.viewer})
     );
   }

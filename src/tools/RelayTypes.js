@@ -21,8 +21,6 @@ import type {
   DataID,
   FieldValue,
   Record,
-  Records,
-  RootCallMap
 } from 'RelayInternalTypes';
 import type RelayFragmentReference from 'RelayFragmentReference';
 import type RelayMetaRoute from 'RelayMetaRoute';

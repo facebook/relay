@@ -23,7 +23,7 @@ const ReactDOM = require('ReactDOM');
 const RelayContainerComparators = require('RelayContainerComparators');
 const RelayContainerProxy = require('RelayContainerProxy');
 const RelayFragmentReference = require('RelayFragmentReference');
-import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
+import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayPropTypes = require('RelayPropTypes');

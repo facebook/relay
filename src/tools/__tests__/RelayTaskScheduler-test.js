@@ -27,7 +27,7 @@ describe('RelayTaskScheduler', () => {
   describe('default scheduler', () => {
     it('resolves to undefined when no callbacks are supplied', () => {
       var mockFunction = jest.genMockFunction();
-      RelayTaskScheduler.await().then(mockFunction);
+      RelayTaskScheduler.enqueue().then(mockFunction);
 
       jest.runAllTimers();
 
@@ -36,7 +36,7 @@ describe('RelayTaskScheduler', () => {
 
     it('immediately invokes tasks', () => {
       var mockFunction = jest.genMockFunction();
-      RelayTaskScheduler.await(mockFunction);
+      RelayTaskScheduler.enqueue(mockFunction);
 
       jest.runAllTimers();
 
@@ -46,9 +46,9 @@ describe('RelayTaskScheduler', () => {
     it('invokes multiple awaited tasks in order', () => {
       var mockOrdering = [];
 
-      RelayTaskScheduler.await(() => mockOrdering.push('foo'));
-      RelayTaskScheduler.await(() => mockOrdering.push('bar'));
-      RelayTaskScheduler.await(() => mockOrdering.push('baz'));
+      RelayTaskScheduler.enqueue(() => mockOrdering.push('foo'));
+      RelayTaskScheduler.enqueue(() => mockOrdering.push('bar'));
+      RelayTaskScheduler.enqueue(() => mockOrdering.push('baz'));
 
       jest.runAllTimers();
 
@@ -58,12 +58,12 @@ describe('RelayTaskScheduler', () => {
     it('awaits tasks awaited by other tasks contiguously', () => {
       var mockOrdering = [];
 
-      RelayTaskScheduler.await(() => {
+      RelayTaskScheduler.enqueue(() => {
         mockOrdering.push('foo');
-        RelayTaskScheduler.await(() => mockOrdering.push('bar'));
+        RelayTaskScheduler.enqueue(() => mockOrdering.push('bar'));
       });
       // Although `baz` is enqueued before `bar`, `bar` should execute first.
-      RelayTaskScheduler.await(() => mockOrdering.push('baz'));
+      RelayTaskScheduler.enqueue(() => mockOrdering.push('baz'));
 
       jest.runAllTimers();
 
@@ -72,7 +72,7 @@ describe('RelayTaskScheduler', () => {
 
     it('resolves to the task\'s return value', () => {
       var mockFunction = jest.genMockFunction();
-      RelayTaskScheduler.await(() => 42).then(mockFunction);
+      RelayTaskScheduler.enqueue(() => 42).then(mockFunction);
 
       jest.runAllTimers();
 
@@ -82,7 +82,7 @@ describe('RelayTaskScheduler', () => {
     it('forwards return values for multiple callbacks', () => {
       var mockOrdering = [];
 
-      RelayTaskScheduler.await(
+      RelayTaskScheduler.enqueue(
         () => {
           mockOrdering.push('foo');
           return 'bar';
@@ -107,7 +107,7 @@ describe('RelayTaskScheduler', () => {
       var mockCallback = jest.genMockFunction();
       var mockFailureCallback = jest.genMockFunction();
 
-      RelayTaskScheduler.await(
+      RelayTaskScheduler.enqueue(
         () => 'foo',
         () => { throw mockError; },
         mockCallback,
@@ -125,11 +125,11 @@ describe('RelayTaskScheduler', () => {
       var mockFailureCallback = jest.genMockFunction();
       var mockSuccessCallback = jest.genMockFunction();
 
-      RelayTaskScheduler.await(
+      RelayTaskScheduler.enqueue(
         () => { throw mockError; },
       ).catch(mockFailureCallback);
 
-      RelayTaskScheduler.await(
+      RelayTaskScheduler.enqueue(
         mockCallback,
       ).then(mockSuccessCallback);
 
@@ -156,7 +156,7 @@ describe('RelayTaskScheduler', () => {
       RelayTaskScheduler.injectScheduler(mockScheduler);
 
       var mockFunction = jest.genMockFunction();
-      RelayTaskScheduler.await(mockFunction);
+      RelayTaskScheduler.enqueue(mockFunction);
 
       jest.runAllTimers();
 
@@ -173,11 +173,11 @@ describe('RelayTaskScheduler', () => {
 
       var mockOrdering = [];
 
-      RelayTaskScheduler.await(() => {
+      RelayTaskScheduler.enqueue(() => {
         mockOrdering.push('foo');
-        RelayTaskScheduler.await(() => mockOrdering.push('bar'));
+        RelayTaskScheduler.enqueue(() => mockOrdering.push('bar'));
       });
-      RelayTaskScheduler.await(() => mockOrdering.push('baz'));
+      RelayTaskScheduler.enqueue(() => mockOrdering.push('baz'));
 
       jest.runAllTimers();
 
@@ -206,7 +206,7 @@ describe('RelayTaskScheduler', () => {
       RelayTaskScheduler.injectScheduler(mockScheduler);
 
       var mockFunction = jest.genMockFunction();
-      RelayTaskScheduler.await(mockFunction);
+      RelayTaskScheduler.enqueue(mockFunction);
 
       jest.runAllTimers();
 

@@ -255,7 +255,7 @@ function runQueries(
     );
   }
 
-  RelayTaskScheduler.await(() => {
+  RelayTaskScheduler.enqueue(() => {
     var forceIndex = fetchMode === DliteFetchModeConstants.FETCH_MODE_REFETCH ?
       generateForceIndex() : null;
 

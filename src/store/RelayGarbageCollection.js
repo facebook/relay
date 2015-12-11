@@ -95,10 +95,10 @@ function scheduler(run: () => boolean): void {
     }
     // This is effectively a (possibly async) `while` loop
     if (hasNext) {
-      RelayTaskScheduler.await(runIteration);
+      RelayTaskScheduler.enqueue(runIteration);
     }
   };
-  RelayTaskScheduler.await(runIteration);
+  RelayTaskScheduler.enqueue(runIteration);
 }
 
 module.exports = RelayGarbageCollection;

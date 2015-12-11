@@ -13,8 +13,7 @@
 
 require('RelayTestUtils').unmockRelay();
 
-jest
-  .dontMock('GraphQLStoreRangeUtils');
+jest.dontMock('GraphQLStoreRangeUtils');
 
 const QueryBuilder = require('QueryBuilder');
 const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');

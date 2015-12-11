@@ -484,21 +484,11 @@ var RelayTestUtils = {
   },
 
   unmockRelayForFB() {
-    RelayTestUtils.unmockRelay();
     global.__RELAYOSS__ = false;
   },
 
   unmockRelay() {
     global.__RELAYOSS__ = true;
-    jest
-      // Utilities
-      .dontMock('areEqual')
-
-      // Legacy modules
-      .dontMock('GraphQLMutatorConstants')
-      .dontMock('GraphQLStoreDataHandler')
-      .dontMock('GraphQLStoreRangeUtils')
-      .dontMock('generateClientEdgeID');
   },
 
   /**

@@ -12,7 +12,6 @@
 'use strict';
 
 jest
-  .dontMock('GraphQLMutatorConstants')
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment')
   .mock('warning');

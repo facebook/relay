@@ -17,7 +17,6 @@ RelayTestUtils.unmockRelay();
 jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment')
-  .dontMock('GraphQLStoreDataHandler')
   .dontMock('performanceNow');
 
 const Relay = require('Relay');

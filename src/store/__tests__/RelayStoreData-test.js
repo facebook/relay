@@ -15,7 +15,6 @@ const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest
-  .dontMock('GraphQLMutatorConstants')
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 

@@ -11,14 +11,15 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest.dontMock('recycleNodesInto');
 
-const Relay = require('Relay');
-const recycleNodesInto = require('recycleNodesInto');
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const Relay = require('Relay');
+const RelayTestUtils = require('RelayTestUtils');
+
+const recycleNodesInto = require('recycleNodesInto');
 
 describe('recycleNodesInto', () => {
   beforeEach(() => {

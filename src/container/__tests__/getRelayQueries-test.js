@@ -11,13 +11,14 @@
 
 'use strict';
 
-jest.mock('warning');
+require('configureForRelayOSS');
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+jest.mock('warning');
 
 const React = require('React');
 const Relay = require('Relay');
+const RelayTestUtils = require('RelayTestUtils');
+
 const getRelayQueries = require('getRelayQueries');
 
 describe('getRelayQueries', () => {
@@ -41,7 +42,7 @@ describe('getRelayQueries', () => {
       fragments: {
         first: () => Relay.QL`fragment on Node{id,firstName}`,
         last: () => Relay.QL`fragment on Node{id,lastName}`,
-      }
+      },
     });
 
     makeRoute = function() {
@@ -51,7 +52,7 @@ describe('getRelayQueries', () => {
       MockRoute.paramDefinitions = {
         id: {
           type: 'String',
-          id: true
+          id: true,
         },
       };
       MockRoute.queries = {
@@ -151,7 +152,7 @@ describe('getRelayQueries', () => {
     var AnotherMockContainer = Relay.createContainer(MockPageComponent, {
       fragments: {
         first: () => Relay.QL`fragment on Node{id}`,
-      }
+      },
     });
 
     var queries = getRelayQueries(AnotherMockContainer, route);
@@ -163,7 +164,7 @@ describe('getRelayQueries', () => {
       'MockRoute',
       'last',
       'Relay(MockPageComponent)',
-      'last'
+      'last',
     ]).toBeWarnedNTimes(1);
   });
 

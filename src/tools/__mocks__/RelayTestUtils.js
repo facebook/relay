@@ -90,7 +90,7 @@ var RelayTestUtils = {
           container
         );
         return result;
-      }
+      },
     };
   },
 
@@ -481,14 +481,6 @@ var RelayTestUtils = {
       .replace(/\s+/g, ' ')
       .replace(/\s*([\{\}\(\):,])\s*/g, '$1')
       .trim();
-  },
-
-  unmockRelayForFB() {
-    global.__RELAYOSS__ = false;
-  },
-
-  unmockRelay() {
-    global.__RELAYOSS__ = true;
   },
 
   /**

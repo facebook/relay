@@ -11,8 +11,7 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
@@ -21,6 +20,8 @@ const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationRequest = require('RelayMutationRequest');
 const RelayQuery = require('RelayQuery');
 const RelayQueryRequest = require('RelayQueryRequest');
+const RelayTestUtils = require('RelayTestUtils');
+
 const fetch = require('fetch');
 const fetchWithRetries = require('fetchWithRetries');
 
@@ -108,7 +109,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(headers).toEqual({
         'Accept': '*/*',
         'Content-Encoding': 'gzip',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       });
       expect(body).toEqual(JSON.stringify({
         query: request.getQueryString(),
@@ -122,7 +123,7 @@ describe('RelayDefaultNetworkLayer', () => {
       var response = {
         data: {
           test_call: {
-            field: 1
+            field: 1,
           },
         },
       };
@@ -176,8 +177,8 @@ describe('RelayDefaultNetworkLayer', () => {
     it('handles custom errors', () => {
       var response = {
         errors: [{
-          message: 'Something went wrong.'
-        }]
+          message: 'Something went wrong.',
+        }],
       };
 
       expect(fetch).not.toBeCalled();
@@ -194,7 +195,7 @@ describe('RelayDefaultNetworkLayer', () => {
         'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
           'following reasons:',
         '',
-        '1. Something went wrong.'
+        '1. Something went wrong.',
       ].join('\n'));
       expect(error.source).toEqual(response);
     });

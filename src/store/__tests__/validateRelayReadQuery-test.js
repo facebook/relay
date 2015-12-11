@@ -11,11 +11,12 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 const Relay = require('Relay');
 const RelayFragmentReference = require('RelayFragmentReference');
+const RelayTestUtils = require('RelayTestUtils');
+
 const validateRelayReadQuery = require('validateRelayReadQuery');
 
 describe('validateRelayReadQuery', () => {

@@ -11,12 +11,12 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayRecordStore = require('RelayRecordStore');
+const RelayTestUtils = require('RelayTestUtils');
 
 const readRelayDiskCache = require('readRelayDiskCache');
 

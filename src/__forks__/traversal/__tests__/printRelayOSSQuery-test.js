@@ -11,13 +11,14 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 var QueryBuilder = require('QueryBuilder');
 var Relay = require('Relay');
 var RelayNodeInterface = require('RelayNodeInterface');
 var RelayQuery = require('RelayQuery');
+var RelayTestUtils = require('RelayTestUtils');
+
 var generateRQLFieldAlias = require('generateRQLFieldAlias');
 var printRelayOSSQuery = require('printRelayOSSQuery');
 
@@ -150,7 +151,7 @@ describe('printRelayOSSQuery', () => {
           },
         }
       `, {
-        env: enumValue
+        env: enumValue,
       });
       var {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`

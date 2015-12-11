@@ -11,8 +11,7 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest
   .dontMock('GraphQLRange')
@@ -21,6 +20,7 @@ jest
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayStoreData = require('RelayStoreData');
 const RelayGarbageCollector = require('RelayGarbageCollector');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayStoreData', () => {
   var Relay;
@@ -241,7 +241,7 @@ describe('RelayStoreData', () => {
             topLevelComments: {
               count: 1,
             },
-          }
+          },
         };
         storeData.handleQueryPayload(query, response);
 

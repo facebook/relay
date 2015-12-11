@@ -11,12 +11,13 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQuery = require('RelayQuery');
+const RelayTestUtils = require('RelayTestUtils');
+
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 
 describe('RelayQueryField', () => {
@@ -548,7 +549,7 @@ describe('RelayQueryField', () => {
     // variables return their values
     expect(friendVariable.getCallsWithValues()).toEqual([
       {name: 'first', value: 10},
-      {name: 'after', value: 'offset'}
+      {name: 'after', value: 'offset'},
     ]);
 
     var pictureScalarRQL = Relay.QL`
@@ -558,7 +559,7 @@ describe('RelayQueryField', () => {
     `;
     var pictureScalar = getNode(pictureScalarRQL).getChildren()[0];
     expect(pictureScalar.getCallsWithValues()).toEqual([
-      {name: 'size', value: ['32', '64']}
+      {name: 'size', value: ['32', '64']},
     ]);
 
     var pictureVariableRQL = Relay.QL`
@@ -573,7 +574,7 @@ describe('RelayQueryField', () => {
     var pictureVariable =
       getNode(pictureVariableRQL, variables).getChildren()[0];
     expect(pictureVariable.getCallsWithValues()).toEqual([
-      {name: 'size', value: [32, '64']}
+      {name: 'size', value: [32, '64']},
     ]);
   });
 
@@ -598,7 +599,7 @@ describe('RelayQueryField', () => {
     );
     expect(clonedFeed.getSchemaName()).toBe('friends');
     expect(clonedFeed.getCallsWithValues()).toEqual([
-      {name: 'first', value: 25}
+      {name: 'first', value: 25},
     ]);
     expect(clonedFeed.getSerializationKey()).toEqual(
       generateRQLFieldAlias('friends.first(25)')

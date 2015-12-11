@@ -11,13 +11,14 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayQuery = require('RelayQuery');
 const RelayQueryTracker = require('RelayQueryTracker');
+const RelayTestUtils = require('RelayTestUtils');
+
 const diffRelayQuery = require('diffRelayQuery');
 
 describe('diffRelayQuery', () => {
@@ -89,7 +90,7 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        name: 'Mark'
+        name: 'Mark',
       },
     };
     var store = new RelayRecordStore({records});
@@ -112,7 +113,7 @@ describe('diffRelayQuery', () => {
         __dataID__: '4',
         id: '4',
         'profilePicture{size:"32"}': 'https://facebook.com',
-      }
+      },
     };
     var store = new RelayRecordStore({records});
     var tracker = new RelayQueryTracker();
@@ -134,7 +135,7 @@ describe('diffRelayQuery', () => {
         __dataID__: '4',
         id: '4',
         'profilePicture{size:"32"}': 'https://facebook.com',
-      }
+      },
     };
     var store = new RelayRecordStore({records});
     var tracker = new RelayQueryTracker();
@@ -162,12 +163,12 @@ describe('diffRelayQuery', () => {
     var records = {
       'client:1': {
         __dataID__: 'client:1',
-        actor: {__dataID__: '4808495'}
+        actor: {__dataID__: '4808495'},
       },
       '4808495': {
         __dataID__: '4808495',
         id: '4808495',
-        name: 'Joe'
+        name: 'Joe',
       },
     };
     var store = new RelayRecordStore({records}, {rootCallMap});
@@ -534,13 +535,13 @@ describe('diffRelayQuery', () => {
       'client:1': {
         __dataID__: 'client:1',
         actor: {
-          __dataID__: 'actor'
-        }
+          __dataID__: 'actor',
+        },
       },
       'actor': {
         __dataID__: 'actor',
         // `id` should always be fetched, but should work correctly regardless
-      }
+      },
     };
     store = new RelayRecordStore({records}, {rootCallMap});
     tracker = new RelayQueryTracker();
@@ -584,13 +585,13 @@ describe('diffRelayQuery', () => {
       'client:1': {
         __dataID__: 'client:1',
         actor: {
-          __dataID__: 'actor'
-        }
+          __dataID__: 'actor',
+        },
       },
       'actor': {
         __dataID__: 'actor',
-        id: 'actor'
-      }
+        id: 'actor',
+      },
     };
     store = new RelayRecordStore({records}, {rootCallMap});
     tracker = new RelayQueryTracker();
@@ -615,8 +616,8 @@ describe('diffRelayQuery', () => {
     var records = {
       '4': {
         __dataID__: '4',
-        id: '4'
-      }
+        id: '4',
+      },
     };
     store = new RelayRecordStore({records});
     tracker = new RelayQueryTracker();
@@ -640,7 +641,7 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         friends: null,
-      }
+      },
     };
     var store = new RelayRecordStore({records});
     var tracker = new RelayQueryTracker();
@@ -676,12 +677,12 @@ describe('diffRelayQuery', () => {
     var records = {
       'client:1': {
         __dataID__: 'client:1',
-        actor: {__dataID__: '4808495'}
+        actor: {__dataID__: '4808495'},
       },
       '4808495': {
         __dataID__: '4808495',
-        id: '4808495'
-      }
+        id: '4808495',
+      },
     };
     var store = new RelayRecordStore({records}, {rootCallMap});
     var query = getNode(Relay.QL`
@@ -709,14 +710,14 @@ describe('diffRelayQuery', () => {
       'client:1': {
         __dataID__: 'client:1',
         actor: {
-          __dataID__: '123'
-        }
+          __dataID__: '123',
+        },
       },
       '123': {
         __dataID__: '123',
         id: '123',
-        name: 'Name'
-      }
+        name: 'Name',
+      },
     };
     var store = new RelayRecordStore({records}, {rootCallMap});
     var query = getNode(Relay.QL`
@@ -777,8 +778,8 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        name: 'Mark Zuckerberg'
-      }
+        name: 'Mark Zuckerberg',
+      },
     };
     var store = new RelayRecordStore({records});
     var frag = Relay.QL`fragment on Node {name}`;
@@ -818,8 +819,8 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        firstName: 'Mark'
-      }
+        firstName: 'Mark',
+      },
     };
     var store = new RelayRecordStore({records});
 
@@ -841,8 +842,8 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        firstName: 'Mark'
-      }
+        firstName: 'Mark',
+      },
     };
     var store = new RelayRecordStore({records});
     var query = getNode(Relay.QL`
@@ -875,8 +876,8 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        firstName: 'Mark'
-      }
+        firstName: 'Mark',
+      },
     };
     var store = new RelayRecordStore({records});
 
@@ -910,14 +911,14 @@ describe('diffRelayQuery', () => {
         __dataID__: '4',
         id: '4',
         hometown: {
-          __dataID__: '1234'
-        }
+          __dataID__: '1234',
+        },
       },
       '1234': {
         __dataID__: '1234',
         id: '1234',
-        name: 'Palo Alto, California'
-      }
+        name: 'Palo Alto, California',
+      },
     };
     var store = new RelayRecordStore({records});
     var query = getNode(Relay.QL`
@@ -958,26 +959,26 @@ describe('diffRelayQuery', () => {
         actors: [
           {__dataID__: '4'},
           {__dataID__: '4808495'},
-          {__dataID__: '1023896548'}
-        ]
+          {__dataID__: '1023896548'},
+        ],
       },
       '4': {
         __dataID__: '4',
         id: '4',
         name: 'Mark Zuckerberg',
         firstName: 'Mark',
-        lastName: 'Zuckerberg'
+        lastName: 'Zuckerberg',
       },
       '4808495': {
         __dataID__: '4808495',
         id: '4808495',
-        firstName: 'Marshall'
+        firstName: 'Marshall',
       },
       '1023896548': {
         __dataID__: '1023896548',
         id: '1023896548',
-        name: 'Laney Kuenzel'
-      }
+        name: 'Laney Kuenzel',
+      },
     };
     var store = new RelayRecordStore({records});
 
@@ -1055,17 +1056,17 @@ describe('diffRelayQuery', () => {
         id: '12345',
         screennames: [
           {__dataID__: 'client:1'},
-          {__dataID__: 'client:2'}
-        ]
+          {__dataID__: 'client:2'},
+        ],
       },
       'client:1': {
         __dataID__: 'client:1',
-        service: 'GTALK'
+        service: 'GTALK',
       },
       'client:2': {
         __dataID__: 'client:2',
-        service: 'TWITTER'
-      }
+        service: 'TWITTER',
+      },
     };
     var store = new RelayRecordStore({records});
     var expected = getNode(Relay.QL`
@@ -1105,8 +1106,8 @@ describe('diffRelayQuery', () => {
         __dataID__: '4',
         id: '4',
         name: 'Mark Zuckerberg',
-        lastName: 'Zuckerberg'
-      }
+        lastName: 'Zuckerberg',
+      },
     };
     var store = new RelayRecordStore({records});
     var firstNameFrag = Relay.QL`
@@ -1194,8 +1195,8 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        name: 'Mark Zuckerberg'
-      }
+        name: 'Mark Zuckerberg',
+      },
     };
     var store = new RelayRecordStore({records});
 
@@ -1248,29 +1249,29 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        friends: {__dataID__: 'client:1'}
+        friends: {__dataID__: 'client:1'},
       },
       'client:1': {
         __dataID__: 'client:1',
-        __range__: mockRange
+        __range__: mockRange,
       },
       'client:4:4808495': {
         __dataID__: 'client:4:4808495',
         node: {__dataID__: '4808495'},
-        cursor: 'cursor1'
+        cursor: 'cursor1',
       },
       '4808495': {
         __dataID__: '4808495',
-        id: '4808495'
-      }
+        id: '4808495',
+      },
     };
     var store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495'],
       diffCalls: [
         {name: 'after', value: 'cursor1'},
-        {name: 'first', value: '4'}
-      ]
+        {name: 'first', value: '4'},
+      ],
     });
 
     var expected = getNode(Relay.QL`
@@ -1320,31 +1321,31 @@ describe('diffRelayQuery', () => {
     var mockEdge = {
       __dataID__: 'client:4:4808495',
       node: {__dataID__: '4808495'},
-      cursor: 'cursor1'
+      cursor: 'cursor1',
     };
     var records = {
       '4': {
         __dataID__: '4',
         id: '4',
-        friends: {__dataID__: 'client:1'}
+        friends: {__dataID__: 'client:1'},
       },
       'client:1': {
         __dataID__: 'client:1',
-        __range__: mockRange
+        __range__: mockRange,
       },
       'client:4:4808495': mockEdge,
       '4808495': {
         __dataID__: '4808495',
-        id: '4808495'
-      }
+        id: '4808495',
+      },
     };
     var store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495'],
       diffCalls: [
         {name: 'after', value: 'cursor1'},
-        {name: 'first', value: '4'}
-      ]
+        {name: 'first', value: '4'},
+      ],
     });
 
     var expected1 = getNode(Relay.QL`
@@ -1431,39 +1432,39 @@ describe('diffRelayQuery', () => {
       {
         __dataID__: 'client:4:4808495',
         node: {__dataID__: '4808495'},
-        cursor: 'cursor1'
+        cursor: 'cursor1',
       },
       {
         __dataID__: 'client:4:660361306',
         node: {__dataID__: '660361306'},
-        cursor: 'cursor1'
+        cursor: 'cursor1',
       },
     ];
     var records = {
       '4': {
         __dataID__: '4',
         id: '4',
-        friends: {__dataID__: 'client:1'}
+        friends: {__dataID__: 'client:1'},
       },
       'client:1': {
         __dataID__: 'client:1',
-        __range__: mockRange
+        __range__: mockRange,
       },
       'client:4:4808495': mockEdges[0],
       '4808495': null,
       'client:4:660361306': mockEdges[1],
       '660361306': {
         __dataID__: '660361306',
-        id: '660361306'
-      }
+        id: '660361306',
+      },
     };
     var store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495', 'client:4:660361306'],
       diffCalls: [
         {name: 'after', value: 'cursor1'},
-        {name: 'first', value: '4'}
-      ]
+        {name: 'first', value: '4'},
+      ],
     });
 
     var expected1 = getNode(Relay.QL`
@@ -1548,13 +1549,13 @@ describe('diffRelayQuery', () => {
     var mockEdge = {
       __dataID__: 'client:1:4808495',
       node: {__dataID__: '4808495'},
-      cursor: 'cursor1'
+      cursor: 'cursor1',
     };
 
     var mockRange = new GraphQLRange();
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:1:4808495'],
-      diffCalls: null
+      diffCalls: null,
     });
 
     var records = {
@@ -1569,14 +1570,14 @@ describe('diffRelayQuery', () => {
       },
       'client:2': {  // friends
         __dataID__: 'client:2',
-        __range__: mockRange
+        __range__: mockRange,
       },
       'client:1:4808495': mockEdge,
       '4808495': {
         __dataID__: '4808495',
         id: '4808495',
-        firstName: 'Marshall'
-      }
+        firstName: 'Marshall',
+      },
     };
     var store = new RelayRecordStore({records}, {rootCallMap});
 
@@ -1644,27 +1645,27 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        friends: {__dataID__: 'client:1'}
+        friends: {__dataID__: 'client:1'},
       },
       'client:1': {
         __dataID__: 'client:1',
-        __range__: mockRange
+        __range__: mockRange,
       },
       'client:4:4808495': {
         __dataID__: 'client:4:4808495',
         node: {__dataID__: '4808495'},
-        cursor: 'cursor1'
+        cursor: 'cursor1',
       },
       '4808495': {
         __dataID__: '4808495',
         id: '4808495',
-        firstName: 'Marshall'
-      }
+        firstName: 'Marshall',
+      },
     };
     var store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495'],
-      diffCalls: null
+      diffCalls: null,
     });
 
     var expected = getVerbatimNode(Relay.QL`
@@ -1726,29 +1727,29 @@ describe('diffRelayQuery', () => {
       __dataID__: 'client:4:4808495',
       node: {__dataID__: '4808495'},
       source: {__dataID__: '4'},
-      cursor: 'cursor1'
+      cursor: 'cursor1',
     };
     var records = {
       '4': {
         __dataID__: '4',
         id: '4',
         name: 'Mark Zuckerberg',
-        friends: {__dataID__: 'client:1'}
+        friends: {__dataID__: 'client:1'},
       },
       'client:1': {
         __dataID__: 'client:1',
-        __range__: mockRange
+        __range__: mockRange,
       },
       'client:4:4808495': mockEdge,
       '4808495': {
         __dataID__: '4808495',
-        id: '4808495'
-      }
+        id: '4808495',
+      },
     };
     var store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495'],
-      diffCalls: null
+      diffCalls: null,
     });
 
     var query = getNode(Relay.QL`
@@ -1804,29 +1805,29 @@ describe('diffRelayQuery', () => {
       __dataID__: 'client:4:4808495',
       node: {__dataID__: '4808495'},
       source: {__dataID__: '4'},
-      cursor: 'cursor1'
+      cursor: 'cursor1',
     };
     var records = {
       '4': {
         __dataID__: '4',
         id: '4',
-        friends: {__dataID__: 'client:1'}
+        friends: {__dataID__: 'client:1'},
       },
       'client:1': {
         __dataID__: 'client:1',
-        __range__: mockRange
+        __range__: mockRange,
       },
       'client:4:4808495': mockEdge,
       '4808495': {
         __dataID__: '4808495',
         id: '4808495',
-        name: 'Marshall Roch'
-      }
+        name: 'Marshall Roch',
+      },
     };
     var store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495'],
-      diffCalls: null
+      diffCalls: null,
     });
 
     var expected = getVerbatimNode(Relay.QL`

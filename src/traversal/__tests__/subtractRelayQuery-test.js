@@ -11,10 +11,11 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 const Relay = require('Relay');
+const RelayTestUtils = require('RelayTestUtils');
+
 const flattenRelayQuery = require('flattenRelayQuery');
 const subtractRelayQuery = require('subtractRelayQuery');
 const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
@@ -503,8 +504,9 @@ describe('subtractRelayQuery', () => {
       `);
       minQuery = minQuery.clone([
         minQuery.getChildren()[0].clone([
-          minQuery.getChildren()[0].getChildren()[0].cloneAsRefQueryDependency()
-        ])
+          minQuery.getChildren()[0].getChildren()[0]
+            .cloneAsRefQueryDependency(),
+        ]),
       ]);
       var subQuery = getNode(Relay.QL`
         query {

@@ -11,8 +11,7 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest
   .dontMock('GraphQLRange')
@@ -24,6 +23,7 @@ const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMockCacheManager = require('RelayMockCacheManager');
 const RelayMutationType = require('RelayMutationType');
 const RelayStoreData = require('RelayStoreData');
+const RelayTestUtils = require('RelayTestUtils');
 
 const transformRelayQueryPayload = require('transformRelayQueryPayload');
 
@@ -51,7 +51,7 @@ describe('RelayStoreData', function() {
       CLIENT_MUTATION_ID,
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
-      PAGE_INFO
+      PAGE_INFO,
     } = RelayConnectionInterface);
 
     cacheManager = RelayMockCacheManager.genCacheManager();
@@ -123,7 +123,7 @@ describe('RelayStoreData', function() {
       '123': {
         __dataID__: '123',
         id: '123',
-      }
+      },
     });
   });
 
@@ -147,7 +147,7 @@ describe('RelayStoreData', function() {
       '123': {
         __dataID__: '123',
         id: '123',
-      }
+      },
     });
   });
 
@@ -166,7 +166,7 @@ describe('RelayStoreData', function() {
       'client:1': {
         __dataID__: 'client:1',
         isFbEmployee: true,
-      }
+      },
     });
   });
 
@@ -289,13 +289,13 @@ describe('RelayStoreData', function() {
           edges: [
             {
               node: {
-                id: '1'
+                id: '1',
               },
               cursor: '1',
             },
             {
               node: {
-                id: '2'
+                id: '2',
               },
               cursor: '2',
             },
@@ -484,7 +484,7 @@ describe('RelayStoreData', function() {
             [HAS_NEXT_PAGE]: true,
           },
         },
-      }
+      },
     });
     storeData.handleQueryPayload(query, response);
     var {mutationWriter} = cacheManager.mocks;
@@ -604,7 +604,7 @@ describe('RelayStoreData', function() {
             [HAS_NEXT_PAGE]: true,
           },
         },
-      }
+      },
     });
     storeData.handleQueryPayload(query, response);
     var {mutationWriter} = cacheManager.mocks;

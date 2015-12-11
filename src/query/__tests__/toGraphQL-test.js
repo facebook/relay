@@ -11,12 +11,12 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 const Relay = require('Relay');
+const RelayTestUtils = require('RelayTestUtils');
+
 const filterObject = require('filterObject');
-const fromGraphQL = require('fromGraphQL');
 const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 const toGraphQL = require('toGraphQL');
 

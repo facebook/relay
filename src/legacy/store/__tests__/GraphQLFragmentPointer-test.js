@@ -11,14 +11,14 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest.dontMock('GraphQLFragmentPointer');
 
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const Relay = require('Relay');
 const RelayRecordStore = require('RelayRecordStore');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('GraphQLFragmentPointer', () => {
   var {getNode, getRefNode} = RelayTestUtils;

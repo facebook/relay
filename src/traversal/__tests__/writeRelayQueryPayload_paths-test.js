@@ -11,16 +11,17 @@
 
 'use strict';
 
+require('configureForRelayOSS');
+
 jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
-
 const Relay = require('Relay');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryTracker = require('RelayQueryTracker');
+const RelayTestUtils = require('RelayTestUtils');
+
 const invariant = require('invariant');
 
 describe('writePayload()', () => {
@@ -79,7 +80,7 @@ describe('writePayload()', () => {
           'client:1': true,
           '123': true,
         },
-        updated: {}
+        updated: {},
       });
 
       // viewer has a client id and must be refetched by the original root call
@@ -111,7 +112,7 @@ describe('writePayload()', () => {
         created: {
           '123': true,
         },
-        updated: {}
+        updated: {},
       });
 
       expect(store.getRecordState('123')).toBe('EXISTENT');

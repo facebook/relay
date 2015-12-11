@@ -11,8 +11,7 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const GraphQLRange = require('GraphQLRange');
@@ -21,6 +20,8 @@ const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayStoreData = require('RelayStoreData');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
+const RelayTestUtils = require('RelayTestUtils');
+
 const callsToGraphQL = require('callsToGraphQL');
 const readRelayQueryData = require('readRelayQueryData');
 
@@ -60,7 +61,7 @@ describe('readRelayQueryData', () => {
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
       PAGE_INFO,
-      START_CURSOR
+      START_CURSOR,
     } = RelayConnectionInterface);
 
     jasmine.addMatchers(RelayTestUtils.matchers);
@@ -199,7 +200,7 @@ describe('readRelayQueryData', () => {
       user_id: {
         id: 'user_id',
         websites: [],
-      }
+      },
     };
     var query = getNode(Relay.QL`fragment on User{id,websites}`);
     var data = readData(getStoreData({records}), query, 'user_id');
@@ -212,8 +213,8 @@ describe('readRelayQueryData', () => {
     var records = {
       user_id: {
         id: 'user_id',
-        websites
-      }
+        websites,
+      },
     };
     var query = getNode(Relay.QL`fragment on User{id,websites}`);
     var data = readData(getStoreData({records}), query, 'user_id');
@@ -330,7 +331,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'client:1',
         city: 'San Francisco',
         country: 'US',
-      }
+      },
     };
 
     var fragment1 = Relay.QL`fragment on Actor{address{city}}`;
@@ -346,7 +347,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'client:1',
         city: 'San Francisco',
         country: 'US',
-      }
+      },
     });
   });
 
@@ -383,7 +384,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: false,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
     var data = readData(storeData, query, rangeID);
     expect(data).toEqual({
@@ -449,7 +450,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     var data = readData(getStoreData({records}), query, 'feedbackID');
@@ -496,7 +497,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     var data = readData(getStoreData({records}), query, 'feedbackID');
@@ -507,7 +508,7 @@ describe('readRelayQueryData', () => {
         count: 57,
         [PAGE_INFO]: {
           [HAS_NEXT_PAGE]: true,
-        }
+        },
       },
     });
   });
@@ -640,7 +641,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'feedback_id',
         likers: {
           __dataID__: 'likers_id',
-        }
+        },
       },
       likers_id: {
         __dataID__: 'likers_id',
@@ -657,16 +658,16 @@ describe('readRelayQueryData', () => {
         __dataID__: 'likers_edge_id',
         node: {
           __dataID__: 'liker_id',
-        }
+        },
       },
       likers_page_info_id: {
         __dataID__: 'likers_page_info_id',
-        [HAS_NEXT_PAGE]: true
+        [HAS_NEXT_PAGE]: true,
       },
       liker_id: {
         __dataID__: 'liker_id',
-        name: 'Tim'
-      }
+        name: 'Tim',
+      },
     };
 
     var query = getNode(Relay.QL`
@@ -711,7 +712,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'feedback_id',
         comments: {
           __dataID__: 'comments_id',
-        }
+        },
       },
       comments_id: {
         __dataID__: 'comments_id',
@@ -739,7 +740,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     var data = readData(
@@ -754,7 +755,7 @@ describe('readRelayQueryData', () => {
       [PAGE_INFO]: {
         [START_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
-      }
+      },
     });
 
     data = readData(getStoreData({records}), query, 'feedback_id');
@@ -774,7 +775,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'feedback_id',
         comments: {
           __dataID__: 'comments_id',
-        }
+        },
       },
       comments_id: {
         __dataID__: 'comments_id',
@@ -788,7 +789,7 @@ describe('readRelayQueryData', () => {
         __dataID__: 'comment_edge_id',
         node: {__dataID__: 'comment_node_id'},
         cursor: 'cursor',
-      }
+      },
     };
     var fragmentReference = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on CommentsConnection{edges{node{id}}}`,
@@ -816,7 +817,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     var data = readData(
@@ -832,12 +833,12 @@ describe('readRelayQueryData', () => {
         __dataID__: 'comment_edge_id',
         node: {
           __dataID__: 'comment_node_id',
-          id: 'comment_node_id'
-        }
+          id: 'comment_node_id',
+        },
       }],
       [PAGE_INFO]: {
         [START_CURSOR]: 'cursor',
-      }
+      },
     });
 
     data = readData(getStoreData({records}), query, 'feedback_id');
@@ -860,23 +861,23 @@ describe('readRelayQueryData', () => {
           {__dataID__: 'client1'},
           {__dataID__: 'client2'},
         ],
-        hometown: {__dataID__: 'hometown_id'}
+        hometown: {__dataID__: 'hometown_id'},
       },
       hometown_id: {
         __dataID__: 'hometown_id',
         id: 'hometown_id',
-        name: 'hometown name'
+        name: 'hometown name',
       },
       client1: {
         __dataID__: 'client1',
         service: 'GTALK',
-        name: '123'
+        name: '123',
       },
       client2: {
         __dataID__: 'client1',
         service: 'TWITTER',
-        name: '123'
-      }
+        name: '123',
+      },
     };
     var fragmentReference = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on Screenname {service, name}`,
@@ -1073,7 +1074,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
     data = readData(getStoreData({records}), query, 'user_id');
     expect(data.friends.count).toBe(42);
@@ -1197,7 +1198,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: false,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     // First we read the outer fragment, which populates the
@@ -1304,7 +1305,7 @@ describe('readRelayQueryData', () => {
         [END_CURSOR]: 'cursor',
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
-      }
+      },
     });
 
     var data = readData(

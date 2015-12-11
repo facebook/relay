@@ -11,14 +11,15 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest.dontMock('RelayQueryTracker');
 
 const Relay = require('Relay');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryTracker = require('RelayQueryTracker');
+const RelayTestUtils = require('RelayTestUtils');
+
 const invariant = require('invariant');
 
 describe('RelayQueryTracker', () => {

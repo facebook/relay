@@ -11,11 +11,11 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 const Relay = require('Relay');
 const RelayRoute = require('RelayRoute');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRoute', () => {
   var makeRoute;
@@ -30,12 +30,12 @@ describe('RelayRoute', () => {
       MockRoute.paramDefinitions = {
         required: {
           type: 'String',
-          required: true
+          required: true,
         },
         optional: {
           type: 'String',
-          required: false
-        }
+          required: false,
+        },
       };
       MockRoute.queries = {
         required: Component => Relay.QL`
@@ -51,7 +51,7 @@ describe('RelayRoute', () => {
               ${Component.getFragment('optional')}
             }
           }
-        `
+        `,
       };
       return MockRoute;
     };

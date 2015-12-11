@@ -11,11 +11,11 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 const Relay = require('Relay');
 const RelayQueryConfig = require('RelayQueryConfig');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryConfig', () => {
   var makeConfig;
@@ -43,7 +43,7 @@ describe('RelayQueryConfig', () => {
               ${Component.getQuery('optional')}
             }
           }
-        `
+        `,
       };
       return MockConfig;
     };

@@ -11,8 +11,7 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest
   .dontMock('GraphQLRange')
@@ -20,6 +19,7 @@ jest
   .mock('warning');
 
 const Relay = require('Relay');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
   var RelayRecordStore;
@@ -28,7 +28,7 @@ describe('writeRelayQueryPayload()', () => {
     getNode,
     getVerbatimNode,
     writePayload,
-    writeVerbatimPayload
+    writeVerbatimPayload,
   } = RelayTestUtils;
 
   beforeEach(() => {
@@ -180,7 +180,7 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         viewer: {
           actor: {
-            id: actorID
+            id: actorID,
           },
         },
       };
@@ -202,12 +202,12 @@ describe('writeRelayQueryPayload()', () => {
         'client:1': {
           __dataID__: 'client:1',
           actor: {
-            __dataID__: actorID
-          }
+            __dataID__: actorID,
+          },
         },
         '123': {
-          __dataID__: actorID
-        }
+          __dataID__: actorID,
+        },
       };
       var store = new RelayRecordStore({records});
       var nextActorID = '456';
@@ -223,7 +223,7 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         viewer: {
           actor: {
-            id: nextActorID
+            id: nextActorID,
           },
         },
       };
@@ -259,9 +259,9 @@ describe('writeRelayQueryPayload()', () => {
           id: '123',
           // address has no id and receives a generated client id
           address: {
-            city: 'San Francisco'
-          }
-        }
+            city: 'San Francisco',
+          },
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
@@ -283,13 +283,13 @@ describe('writeRelayQueryPayload()', () => {
           __dataID__: '123',
           id: '123',
           address: {
-            __dataID__: addressID
-          }
+            __dataID__: addressID,
+          },
         },
         'client:1': {
           __dataID__: addressID,
-          city: 'San Francisco'
-        }
+          city: 'San Francisco',
+        },
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -307,7 +307,7 @@ describe('writeRelayQueryPayload()', () => {
           // the address record has no id but should reuse the previously
           // generated client id
           address: {
-            city: 'San Francisco'
+            city: 'San Francisco',
           },
         },
       };
@@ -325,7 +325,7 @@ describe('writeRelayQueryPayload()', () => {
         'user:1': {
           __dataID__: 'user:1',
           'hometown': {
-            __dataID__: 'hometown:1'
+            __dataID__: 'hometown:1',
           },
           id: 'user:1',
         },
@@ -348,7 +348,7 @@ describe('writeRelayQueryPayload()', () => {
           'hometown': {
             id: 'hometown:1',
             name: 'World',
-          }
+          },
         },
       };
       var results = writePayload(store, query, payload);

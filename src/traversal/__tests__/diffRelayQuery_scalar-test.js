@@ -11,8 +11,7 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest
   .dontMock('GraphQLRange')
@@ -20,6 +19,8 @@ jest
 
 const Relay = require('Relay');
 const RelayQueryTracker = require('RelayQueryTracker');
+const RelayTestUtils = require('RelayTestUtils');
+
 const diffRelayQuery = require('diffRelayQuery');
 
 describe('diffRelayQuery', () => {
@@ -88,8 +89,8 @@ describe('diffRelayQuery', () => {
     var payload = {
       node: {
         id: '123',
-        firstName: 'Joe'
-      }
+        firstName: 'Joe',
+      },
     };
     writePayload(store, writeQuery, payload, tracker);
 

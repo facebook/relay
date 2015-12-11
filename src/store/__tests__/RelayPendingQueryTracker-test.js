@@ -11,14 +11,15 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest.dontMock('RelayPendingQueryTracker');
 
 const DliteFetchModeConstants = require('DliteFetchModeConstants');
 const Relay = require('Relay');
 const RelayStoreData = require('RelayStoreData');
+const RelayTestUtils = require('RelayTestUtils');
+
 const fetchRelayQuery = require('fetchRelayQuery');
 const subtractRelayQuery = require('subtractRelayQuery');
 const writeRelayQueryPayload = require('writeRelayQueryPayload');

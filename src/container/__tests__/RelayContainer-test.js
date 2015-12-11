@@ -11,8 +11,7 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest
   .dontMock('RelayContainerComparators')
@@ -26,6 +25,7 @@ const ReactTestUtils = require('ReactTestUtils');
 const Relay = require('Relay');
 const RelayQuery = require('RelayQuery');
 const RelayRoute = require('RelayRoute');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer', function() {
   var MockContainer;
@@ -56,8 +56,8 @@ describe('RelayContainer', function() {
         ),
         bar: jest.genMockFunction().mockImplementation(
           () => Relay.QL`fragment on Node @relay(plural:true){id,name}`
-        )
-      }
+        ),
+      },
     });
     MockContainer.mock = {render};
 
@@ -89,7 +89,7 @@ describe('RelayContainer', function() {
       var BadContainer = Relay.createContainer(MockComponent, {
         fragments: {
           viewer: () => Relay.QL`query{node(id:"123"){id}}`,
-        }
+        },
       });
       var badFragmentReference = BadContainer.getFragment('viewer');
       expect(() => {
@@ -108,8 +108,8 @@ describe('RelayContainer', function() {
             fragment on Viewer {
               newsFeed,
             }
-          `
-        }
+          `,
+        },
       });
       expect(() => {
         BadContainer.getFragment('viewer');
@@ -133,8 +133,8 @@ describe('RelayContainer', function() {
                 uri
               }
             }
-          `
-        }
+          `,
+        },
       });
       var fragment = getNode(
         MockProfilePhoto.getFragment('photo'),
@@ -159,8 +159,8 @@ describe('RelayContainer', function() {
               name,
               ${MockProfileLink.getFragment('user')}
             }
-          `
-        }
+          `,
+        },
       });
       var MockProfileLink = Relay.createContainer(anotherComponent, {
         fragments: {
@@ -169,8 +169,8 @@ describe('RelayContainer', function() {
               id,
               url
             }
-          `
-        }
+          `,
+        },
       });
       var fragment = getNode(
         MockProfile.getFragment('user'),
@@ -210,8 +210,8 @@ describe('RelayContainer', function() {
             fragment on Viewer {
               newsFeed,
             }
-          `
-        }
+          `,
+        },
       });
       feedFragment = QueryBuilder.createFragment({
         name: 'Test',
@@ -230,8 +230,8 @@ describe('RelayContainer', function() {
             fragment on Viewer {
               ${MockFeed.getFragment('viewer').if(variables.hasSideshow)},
             }
-          `
-        }
+          `,
+        },
       });
 
       // hasSideshow: true
@@ -270,8 +270,8 @@ describe('RelayContainer', function() {
             .getFragment('viewer')
             .unless(variables.hasSideshow)},
             }
-          `
-        }
+          `,
+        },
       });
 
       // hasSideshow: true
@@ -536,7 +536,7 @@ describe('RelayContainer', function() {
   it('re-renders if props resolve to different objects', () => {
     var mockDataList = [
       {__dataID__: '42', id: '42', name: 'Tim', ...mockFooPointer},
-      {__dataID__: '42', id: '42', name: 'Tee', ...mockFooPointer}
+      {__dataID__: '42', id: '42', name: 'Tee', ...mockFooPointer},
     ];
 
     GraphQLStoreQueryResolver.mockResolveImplementation(0, function() {
@@ -565,7 +565,7 @@ describe('RelayContainer', function() {
     var mockDataSet = {
       '42': {__dataID__: '42', name: 'Tim'},
       '43': {__dataID__: '43', name: 'Tee'},
-      '44': {__dataID__: '44', name: 'Toe'}
+      '44': {__dataID__: '44', name: 'Toe'},
     };
     var render = jest.genMockFunction().mockImplementation(() => <div />);
     var shouldComponentUpdate = jest.genMockFunction();
@@ -576,8 +576,8 @@ describe('RelayContainer', function() {
       fragments: {
         foo: jest.genMockFunction().mockImplementation(
           () => Relay.QL`fragment on Node{id,name}`
-        )
-      }
+        ),
+      },
     });
 
     GraphQLStoreQueryResolver.mockResolveImplementation(0, (pointer) => {

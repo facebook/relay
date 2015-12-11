@@ -11,21 +11,22 @@
 
 'use strict';
 
+require('configureForRelayOSS');
+
 jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment')
   .mock('warning');
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
-
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayQueryTracker = require('RelayQueryTracker');
-const RelayChangeTracker = require('RelayChangeTracker');
-const RelayMutationType = require('RelayMutationType');
-const RelayQueryWriter = require('RelayQueryWriter');
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const Relay = require('Relay');
+const RelayChangeTracker = require('RelayChangeTracker');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayMutationType = require('RelayMutationType');
+const RelayQueryTracker = require('RelayQueryTracker');
+const RelayQueryWriter = require('RelayQueryWriter');
+const RelayTestUtils = require('RelayTestUtils');
+
 const generateClientEdgeID = require('generateClientEdgeID');
 const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
@@ -639,7 +640,7 @@ describe('writePayload()', () => {
       var payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
-        deletedRequestIds: [firstRequestID, secondRequestID]
+        deletedRequestIds: [firstRequestID, secondRequestID],
       };
 
       // write to the base store
@@ -810,7 +811,7 @@ describe('writePayload()', () => {
         message: {
           text: 'Hello!',
           ranges: [],
-        }
+        },
       };
 
       var mutation = getNode(Relay.QL`
@@ -915,7 +916,7 @@ describe('writePayload()', () => {
         [{name: 'first', value: '2'}]
       ).filteredEdges.map(edge => edge.edgeID)).toEqual([
         nextEdgeID,
-        edgeID
+        edgeID,
       ]);
 
       // base records are not modified
@@ -927,7 +928,7 @@ describe('writePayload()', () => {
         connectionID,
         [{name: 'first', value: '2'}]
       ).filteredEdges.map(edge => edge.edgeID)).toEqual([
-        edgeID
+        edgeID,
       ]);
     });
 
@@ -940,7 +941,7 @@ describe('writePayload()', () => {
         message: {
           text: 'Hello!',
           ranges: [],
-        }
+        },
       };
 
       var mutation = getNode(Relay.QL`
@@ -1046,7 +1047,7 @@ describe('writePayload()', () => {
         [{name: 'first', value: '2'}]
       ).filteredEdges.map(edge => edge.edgeID)).toEqual([
         nextEdgeID,
-        edgeID
+        edgeID,
       ]);
     });
   });

@@ -11,8 +11,7 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest
   .dontMock('GraphQLRange')
@@ -21,6 +20,8 @@ jest
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQueryTracker = require('RelayQueryTracker');
+const RelayTestUtils = require('RelayTestUtils');
+
 const diffRelayQuery = require('diffRelayQuery');
 
 describe('diffRelayQuery - fragments', () => {

@@ -11,8 +11,7 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest
   .mock('warning')
@@ -23,6 +22,7 @@ const DliteFetchModeConstants = require('DliteFetchModeConstants');
 const Relay = require('Relay');
 const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayStoreData = require('RelayStoreData');
+const RelayTestUtils = require('RelayTestUtils');
 
 const checkRelayQueryData = require('checkRelayQueryData');
 const diffRelayQuery = require('diffRelayQuery');
@@ -452,7 +452,7 @@ describe('GraphQLQueryRunner', () => {
         ].map(query => ({
           required: deferQuery(getNode(query)),
           deferred: [],
-        }))
+        })),
       };
 
       splitDeferredRelayQueries.mockImplementation(query => {

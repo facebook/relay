@@ -11,8 +11,9 @@
 
 'use strict';
 
+require('configureForRelayOSS');
+
 const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
 
 const callsFromGraphQL = require('callsFromGraphQL');
 const callsToGraphQL = require('callsToGraphQL');

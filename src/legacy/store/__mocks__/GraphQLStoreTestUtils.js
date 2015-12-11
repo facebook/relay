@@ -9,7 +9,7 @@
 
 'use strict';
 
-var matchRecord = require.requireActual('matchRecord');
+var matchRecord = require('matchRecord');
 
 var GraphQLStoreTestUtils = {
   matchers: {
@@ -20,20 +20,7 @@ var GraphQLStoreTestUtils = {
      * clientIDs.
      */
     toMatchResult() {
-      return {
-        compare(actual, expected) {
-          var result = matchRecord(actual, expected, []);
-          var message;
-          if (!result.isMatched) {
-            message = 'Expected ' + result.path.join('.') + ' to ' +
-              result.message;
-          }
-          return {
-            pass: result.isMatched,
-            message,
-          };
-        },
-      };
+      return {compare: matchRecord};
     },
   },
   /**

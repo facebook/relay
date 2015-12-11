@@ -236,7 +236,7 @@ class PendingFetch {
   ): void {
     this._fetchedSubtractedQuery = true;
 
-    RelayTaskScheduler.await(() => {
+    RelayTaskScheduler.enqueue(() => {
       var response = result.response;
       invariant(
         response && typeof response === 'object',

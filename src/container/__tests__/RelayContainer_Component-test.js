@@ -13,11 +13,11 @@
 
 require('RelayTestUtils').unmockRelay();
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var React = require('React');
-var Relay = require('Relay');
-var RelayTestUtils = require('RelayTestUtils');
-var reactComponentExpect = require('reactComponentExpect');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const React = require('React');
+const Relay = require('Relay');
+const RelayTestUtils = require('RelayTestUtils');
+const reactComponentExpect = require('reactComponentExpect');
 
 describe('RelayContainer', function() {
   var MockComponent;

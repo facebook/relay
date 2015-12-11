@@ -11,15 +11,15 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest.mock('warning');
 
-var GraphQLRange = require('GraphQLRange');
-var Relay = require('Relay');
-var RelayQueryPath = require('RelayQueryPath');
-var RelayRecordStatusMap = require('RelayRecordStatusMap');
+const GraphQLRange = require('GraphQLRange');
+const Relay = require('Relay');
+const RelayQueryPath = require('RelayQueryPath');
+const RelayRecordStatusMap = require('RelayRecordStatusMap');
 
 describe('RelayRecordStore', () => {
   var RelayRecordStore;

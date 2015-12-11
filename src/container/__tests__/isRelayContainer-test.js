@@ -11,8 +11,8 @@
 
 'use strict';
 
-var React = require('React');
-var Relay = require('Relay');
+const React = require('React');
+const Relay = require('Relay');
 
 describe('isRelayContainer', function() {
   var MockComponent;

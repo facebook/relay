@@ -13,16 +13,16 @@
 
 'use strict';
 
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {Call, DataID, Records} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type RelayQueryPath from 'RelayQueryPath';
-var RelayQueryVisitor = require('RelayQueryVisitor');
-var RelayRecordState = require('RelayRecordState');
+const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
-var isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 
 export type PendingItem = {
   node: RelayQuery.Node;

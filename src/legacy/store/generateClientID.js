@@ -12,8 +12,8 @@
 
 'use strict';
 
-var crc32 = require('crc32');
-var performanceNow = require('performanceNow');
+const crc32 = require('crc32');
+const performanceNow = require('performanceNow');
 
 var _clientID = 1;
 var _prefix = 'client:' + crc32('' + performanceNow());

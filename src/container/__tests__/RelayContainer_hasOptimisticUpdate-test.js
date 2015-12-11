@@ -11,15 +11,15 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest.dontMock('RelayContainer');
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var React = require('React');
-var Relay = require('Relay');
-var RelayStoreData = require('RelayStoreData');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const React = require('React');
+const Relay = require('Relay');
+const RelayStoreData = require('RelayStoreData');
 
 describe('RelayContainer.hasOptimisticUpdate', () => {
   var MockContainer;

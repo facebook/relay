@@ -11,18 +11,18 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var Relay = require('Relay');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayMutationRequest = require('RelayMutationRequest');
-var RelayQuery = require('RelayQuery');
-var RelayQueryRequest = require('RelayQueryRequest');
-var fetch = require('fetch');
-var fetchWithRetries = require('fetchWithRetries');
+const Relay = require('Relay');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayMutationRequest = require('RelayMutationRequest');
+const RelayQuery = require('RelayQuery');
+const RelayQueryRequest = require('RelayQueryRequest');
+const fetch = require('fetch');
+const fetchWithRetries = require('fetchWithRetries');
 
 describe('RelayDefaultNetworkLayer', () => {
   var networkConfig;

@@ -11,16 +11,16 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest.dontMock('GraphQLStoreQueryResolver');
 
-var Relay = require('Relay');
-var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var readRelayQueryData = require('readRelayQueryData');
-var RelayStoreData = require('RelayStoreData');
+const Relay = require('Relay');
+const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const readRelayQueryData = require('readRelayQueryData');
+const RelayStoreData = require('RelayStoreData');
 
 describe('GraphQLStoreQueryResolver', () => {
   var changeEmitter;

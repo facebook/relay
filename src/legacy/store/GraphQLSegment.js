@@ -12,7 +12,7 @@
 
 'use strict';
 
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 
 /**
  * Represents one contiguous segment of edges within a `GraphQLRange`. Has

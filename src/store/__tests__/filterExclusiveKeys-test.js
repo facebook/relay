@@ -11,7 +11,7 @@
 
 'use strict';
 
-var filterExclusiveKeys = require('filterExclusiveKeys');
+const filterExclusiveKeys = require('filterExclusiveKeys');
 
 describe('filterExclusiveKeys', () => {
   beforeEach(() => {

@@ -13,10 +13,10 @@
 
 'use strict';
 
-var ErrorUtils = require('ErrorUtils');
+const ErrorUtils = require('ErrorUtils');
 import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
 
-var resolveImmediate = require('resolveImmediate');
+const resolveImmediate = require('resolveImmediate');
 
 type BatchStrategy = (callback: Function) => void;
 type SubscriptionCallback = () => void;

@@ -11,17 +11,17 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
-var Relay = require('Relay');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayQuery = require('RelayQuery');
+const Relay = require('Relay');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayQuery = require('RelayQuery');
 
 describe('writeRelayQueryPayload()', () => {
   var RelayRecordStore;

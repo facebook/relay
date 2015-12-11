@@ -11,11 +11,11 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var Relay = require('Relay');
-var RelayRoute = require('RelayRoute');
+const Relay = require('Relay');
+const RelayRoute = require('RelayRoute');
 
 describe('RelayRoute', () => {
   var makeRoute;

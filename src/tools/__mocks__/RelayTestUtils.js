@@ -29,10 +29,10 @@ var RelayTestUtils = {
   },
 
   createRenderer(container) {
-    var React = require('React');
-    var ReactDOM = require('ReactDOM');
-    var RelayPropTypes = require('RelayPropTypes');
-    var RelayRoute = require('RelayRoute');
+    const React = require('React');
+    const ReactDOM = require('ReactDOM');
+    const RelayPropTypes = require('RelayPropTypes');
+    const RelayRoute = require('RelayRoute');
 
     class ContextSetter extends React.Component {
       getChildContext() {
@@ -95,9 +95,9 @@ var RelayTestUtils = {
   },
 
   conditionOnType(fragment) {
-    var QueryBuilder = require('QueryBuilder');
-    var RelayFragmentReference = require('RelayFragmentReference');
-    var invariant = require('invariant');
+    const QueryBuilder = require('QueryBuilder');
+    const RelayFragmentReference = require('RelayFragmentReference');
+    const invariant = require('invariant');
 
     invariant(
       !!QueryBuilder.getFragment(fragment),
@@ -112,7 +112,7 @@ var RelayTestUtils = {
   },
 
   createCall(name, value) {
-    var QueryBuilder = require('QueryBuilder');
+    const QueryBuilder = require('QueryBuilder');
 
     if (Array.isArray(value)) {
       value = value.map(QueryBuilder.createCallValue);
@@ -123,9 +123,9 @@ var RelayTestUtils = {
   },
 
   defer(fragment) {
-    var QueryBuilder = require('QueryBuilder');
-    var RelayFragmentReference = require('RelayFragmentReference');
-    var invariant = require('invariant');
+    const QueryBuilder = require('QueryBuilder');
+    const RelayFragmentReference = require('RelayFragmentReference');
+    const invariant = require('invariant');
 
     invariant(
       !!QueryBuilder.getFragment(fragment),
@@ -140,17 +140,17 @@ var RelayTestUtils = {
   },
 
   getNode(node, variables) {
-    var RelayMetaRoute = require('RelayMetaRoute');
-    var RelayQuery = require('RelayQuery');
+    const RelayMetaRoute = require('RelayMetaRoute');
+    const RelayQuery = require('RelayQuery');
 
     var route = RelayMetaRoute.get('$RelayTestUtils');
     return RelayQuery.Node.create(node, route, variables || {});
   },
 
   getPointer(dataID, fragment) {
-    var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-    var RelayQuery = require('RelayQuery');
-    var invariant = require('invariant');
+    const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+    const RelayQuery = require('RelayQuery');
+    const invariant = require('invariant');
 
     invariant(
       fragment instanceof RelayQuery.Fragment,
@@ -168,11 +168,11 @@ var RelayTestUtils = {
    * `Relay.QL` as a basis and attach the appropriate args and ref params.
    */
   getRefNode(node, refParam) {
-    var QueryBuilder = require('QueryBuilder');
-    var RelayQuery = require('RelayQuery');
-    var RelayMetaRoute = require('RelayMetaRoute');
+    const QueryBuilder = require('QueryBuilder');
+    const RelayQuery = require('RelayQuery');
+    const RelayMetaRoute = require('RelayMetaRoute');
 
-    var invariant = require('invariant');
+    const invariant = require('invariant');
 
     invariant(
       node.fieldName === 'nodes',
@@ -218,8 +218,8 @@ var RelayTestUtils = {
   },
 
   filterGeneratedFields(query) {
-    var RelayQuery = require('RelayQuery');
-    var filterRelayQuery = require('filterRelayQuery');
+    const RelayQuery = require('RelayQuery');
+    const filterRelayQuery = require('filterRelayQuery');
 
     return filterRelayQuery(
       query,
@@ -235,7 +235,7 @@ var RelayTestUtils = {
     toBeQueryRoot() {
       return {
         compare(actual, expected) {
-          var RelayQuery = require('RelayQuery');
+          const RelayQuery = require('RelayQuery');
           var queryType = checkQueryType(actual, expected, RelayQuery.Root);
           if (!queryType.pass) {
             return queryType;
@@ -270,7 +270,7 @@ var RelayTestUtils = {
     toBeWarnedNTimes() {
       return {
         compare(actual, expectedCount) {
-          var warning = require('warning');
+          const warning = require('warning');
           if (!warning.mock) {
             throw new Error(
               'expect(...).toBeWarnedNTimes(): Requires ' +
@@ -375,7 +375,7 @@ var RelayTestUtils = {
     toEqualQueryNode() {
       return {
         compare(actual, expected) {
-          var RelayQuery = require('RelayQuery');
+          const RelayQuery = require('RelayQuery');
           var queryType = checkQueryType(actual, expected, RelayQuery.Node);
           if (!queryType.pass) {
             return queryType;
@@ -391,7 +391,7 @@ var RelayTestUtils = {
     toEqualQueryRoot() {
       return {
         compare(actual, expected) {
-          var RelayQuery = require('RelayQuery');
+          const RelayQuery = require('RelayQuery');
           var queryType = checkQueryType(actual, expected, RelayQuery.Root);
           if (!queryType.pass) {
             return queryType;
@@ -419,14 +419,14 @@ var RelayTestUtils = {
     toMatchPath() {
       return {
         compare(actual, expected) {
-          var QueryBuilder = require('QueryBuilder');
-          var RelayMetaRoute = require('RelayMetaRoute');
-          var RelayQuery = require('RelayQuery');
-          var RelayQueryPath = require('RelayQueryPath');
+          const QueryBuilder = require('QueryBuilder');
+          const RelayMetaRoute = require('RelayMetaRoute');
+          const RelayQuery = require('RelayQuery');
+          const RelayQueryPath = require('RelayQueryPath');
 
-          var invariant = require('invariant');
-          var flattenRelayQuery = require('flattenRelayQuery');
-          var printRelayQuery = require('printRelayQuery');
+          const invariant = require('invariant');
+          const flattenRelayQuery = require('flattenRelayQuery');
+          const printRelayQuery = require('printRelayQuery');
 
           invariant(
             expected && expected instanceof RelayQueryPath,
@@ -508,7 +508,7 @@ var RelayTestUtils = {
    * serialization keys matching the fields in the query.
    */
   writePayload(store, query, payload, tracker, options) {
-    var transformRelayQueryPayload = require('transformRelayQueryPayload');
+    const transformRelayQueryPayload = require('transformRelayQueryPayload');
 
     return RelayTestUtils.writeVerbatimPayload(
       store,
@@ -524,10 +524,10 @@ var RelayTestUtils = {
    * the payload is not transformed first.
    */
   writeVerbatimPayload(store, query, payload, tracker, options) {
-    var RelayChangeTracker = require('RelayChangeTracker');
-    var RelayQueryTracker = require('RelayQueryTracker');
-    var RelayQueryWriter = require('RelayQueryWriter');
-    var writeRelayQueryPayload = require('writeRelayQueryPayload');
+    const RelayChangeTracker = require('RelayChangeTracker');
+    const RelayQueryTracker = require('RelayQueryTracker');
+    const RelayQueryWriter = require('RelayQueryWriter');
+    const writeRelayQueryPayload = require('writeRelayQueryPayload');
 
     tracker = tracker || new RelayQueryTracker();
     options = options || {};
@@ -597,7 +597,7 @@ function checkQueryEquality(actual, expected, toBe) {
  * @private
  */
 function printQueryComparison(actual, expected, message) {
-  var printRelayQuery = require('printRelayQuery');
+  const printRelayQuery = require('printRelayQuery');
 
   var formatRefParam = node => node.hasRefParam && node.hasRefParam() ?
       '  [ref param: ' + JSON.stringify(node.getRefParam()) + ']' :
@@ -617,7 +617,7 @@ function printQueryComparison(actual, expected, message) {
  * @private
  */
 function sortRelayQuery(node) {
-  var RelayQuery = require('RelayQuery');
+  const RelayQuery = require('RelayQuery');
 
   function getSortableKey(node) {
     return node instanceof RelayQuery.Fragment ?

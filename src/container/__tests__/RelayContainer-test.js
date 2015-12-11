@@ -11,21 +11,21 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest
   .dontMock('RelayContainerComparators')
   .mock('warning');
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var GraphQLStoreTestUtils = require('GraphQLStoreTestUtils');
-var QueryBuilder = require('QueryBuilder');
-var React = require('React');
-var ReactTestUtils = require('ReactTestUtils');
-var Relay = require('Relay');
-var RelayQuery = require('RelayQuery');
-var RelayRoute = require('RelayRoute');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const GraphQLStoreTestUtils = require('GraphQLStoreTestUtils');
+const QueryBuilder = require('QueryBuilder');
+const React = require('React');
+const ReactTestUtils = require('ReactTestUtils');
+const Relay = require('Relay');
+const RelayQuery = require('RelayQuery');
+const RelayRoute = require('RelayRoute');
 
 describe('RelayContainer', function() {
   var MockContainer;

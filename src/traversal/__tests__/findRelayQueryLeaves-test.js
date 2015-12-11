@@ -11,17 +11,17 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQLRange = require('GraphQLRange');
-var Relay = require('Relay');
-var RelayQuery = require('RelayQuery');
-var RelayQueryPath = require('RelayQueryPath');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayRecordStore = require('RelayRecordStore');
-var findRelayQueryLeaves = require('findRelayQueryLeaves');
-var mapObject = require('mapObject');
+const GraphQLRange = require('GraphQLRange');
+const Relay = require('Relay');
+const RelayQuery = require('RelayQuery');
+const RelayQueryPath = require('RelayQueryPath');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayRecordStore = require('RelayRecordStore');
+const findRelayQueryLeaves = require('findRelayQueryLeaves');
+const mapObject = require('mapObject');
 
 describe('findRelayQueryLeaves', () => {
   var {getNode} = RelayTestUtils;

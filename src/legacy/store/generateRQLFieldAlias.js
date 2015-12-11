@@ -12,7 +12,7 @@
 
 'use strict';
 
-var crc32 = require('crc32');
+const crc32 = require('crc32');
 
 var PREFIX = '_';
 

@@ -13,13 +13,13 @@
 
 require('RelayTestUtils').unmockRelay();
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var QueryBuilder = require('QueryBuilder');
-var React = require('React');
-var ReactDOM = require('ReactDOM');
-var Relay = require('Relay');
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayTestUtils = require('RelayTestUtils');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const QueryBuilder = require('QueryBuilder');
+const React = require('React');
+const ReactDOM = require('ReactDOM');
+const Relay = require('Relay');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.setVariables', function() {
   var MockComponent;

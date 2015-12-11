@@ -20,29 +20,29 @@ import type {
   ConcreteNode,
   ConcreteQuery,
 } from 'ConcreteQuery';
-var QueryBuilder = require('QueryBuilder');
+const QueryBuilder = require('QueryBuilder');
 import type {
   ConcreteFieldMetadata,
   ConcreteOperationMetadata,
   ConcreteQueryMetadata,
 } from 'QueryBuilder';
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayFragmentReference = require('RelayFragmentReference');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayFragmentReference = require('RelayFragmentReference');
 import type {Call, Directive}  from 'RelayInternalTypes';
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayProfiler = require('RelayProfiler');
-var RelayRouteFragment = require('RelayRouteFragment');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayProfiler = require('RelayProfiler');
+const RelayRouteFragment = require('RelayRouteFragment');
 import type {Variables} from 'RelayTypes';
 
-var areEqual = require('areEqual');
-var callsFromGraphQL = require('callsFromGraphQL');
-var callsToGraphQL = require('callsToGraphQL');
-var generateRQLFieldAlias = require('generateRQLFieldAlias');
-var getWeakIdForObject = require('getWeakIdForObject');
-var invariant = require('invariant');
-var serializeRelayQueryCall = require('serializeRelayQueryCall');
-var shallowEqual = require('shallowEqual');
-var stableStringify = require('stableStringify');
+const areEqual = require('areEqual');
+const callsFromGraphQL = require('callsFromGraphQL');
+const callsToGraphQL = require('callsToGraphQL');
+const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const getWeakIdForObject = require('getWeakIdForObject');
+const invariant = require('invariant');
+const serializeRelayQueryCall = require('serializeRelayQueryCall');
+const shallowEqual = require('shallowEqual');
+const stableStringify = require('stableStringify');
 
 type BatchCall = {
   refParamName: string;

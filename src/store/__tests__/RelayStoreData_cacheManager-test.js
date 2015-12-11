@@ -11,7 +11,7 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest
@@ -19,14 +19,14 @@ jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
-var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-var Relay = require('Relay');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayMockCacheManager = require('RelayMockCacheManager');
-var RelayMutationType = require('RelayMutationType');
-var RelayStoreData = require('RelayStoreData');
+const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const Relay = require('Relay');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayMockCacheManager = require('RelayMockCacheManager');
+const RelayMutationType = require('RelayMutationType');
+const RelayStoreData = require('RelayStoreData');
 
-var transformRelayQueryPayload = require('transformRelayQueryPayload');
+const transformRelayQueryPayload = require('transformRelayQueryPayload');
 
 describe('RelayStoreData', function() {
   var cacheManager;

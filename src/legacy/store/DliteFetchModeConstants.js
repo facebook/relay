@@ -12,7 +12,7 @@
 
 'use strict';
 
-var keyMirror = require('keyMirror');
+const keyMirror = require('keyMirror');
 
 var DliteFetchModeConstants = keyMirror({
   FETCH_MODE_CLIENT: null,

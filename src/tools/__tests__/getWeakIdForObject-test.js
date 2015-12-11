@@ -11,7 +11,7 @@
 
 'use strict';
 
-var getWeakIdForObject = require('getWeakIdForObject');
+const getWeakIdForObject = require('getWeakIdForObject');
 
 describe('getWeakIdForObject', () => {
   beforeEach(() => {

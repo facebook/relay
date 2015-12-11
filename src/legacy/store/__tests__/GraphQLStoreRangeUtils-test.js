@@ -16,8 +16,8 @@ require('RelayTestUtils').unmockRelay();
 jest
   .dontMock('GraphQLStoreRangeUtils');
 
-var QueryBuilder = require('QueryBuilder');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+const QueryBuilder = require('QueryBuilder');
+const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 
 describe('GraphQLStoreRangeUtils', () => {
   var rangeData;

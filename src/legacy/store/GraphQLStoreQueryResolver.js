@@ -17,14 +17,14 @@ import type {ChangeSubscription} from 'GraphQLStoreChangeEmitter';
 import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
 import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
-var RelayProfiler = require('RelayProfiler');
+const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
 import type {StoreReaderData} from 'RelayTypes';
 
-var filterExclusiveKeys = require('filterExclusiveKeys');
-var readRelayQueryData = require('readRelayQueryData');
-var recycleNodesInto = require('recycleNodesInto');
+const filterExclusiveKeys = require('filterExclusiveKeys');
+const readRelayQueryData = require('readRelayQueryData');
+const recycleNodesInto = require('recycleNodesInto');
 
 type DataIDSet = {[dataID: DataID]: any};
 

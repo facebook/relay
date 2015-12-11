@@ -15,12 +15,12 @@ jest
   .autoMockOff()
   .mock('performanceNow');
 
-var Relay = require('Relay');
-var RelayProfiler = require('RelayProfiler');
-var RelayMetricsRecorder = require('RelayMetricsRecorder');
-var RelayTestUtils = require('RelayTestUtils');
+const Relay = require('Relay');
+const RelayProfiler = require('RelayProfiler');
+const RelayMetricsRecorder = require('RelayMetricsRecorder');
+const RelayTestUtils = require('RelayTestUtils');
 
-var performanceNow = require('performanceNow');
+const performanceNow = require('performanceNow');
 
 describe('RelayMetricsRecorder', () => {
   var query;

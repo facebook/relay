@@ -11,15 +11,15 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest.mock('warning');
 
-var QueryBuilder = require('QueryBuilder');
-var Relay = require('Relay');
-var RelayFragmentReference = require('RelayFragmentReference');
-var RelayMetaRoute = require('RelayMetaRoute');
+const QueryBuilder = require('QueryBuilder');
+const Relay = require('Relay');
+const RelayFragmentReference = require('RelayFragmentReference');
+const RelayMetaRoute = require('RelayMetaRoute');
 
 describe('RelayFragmentReference', () => {
   var route;

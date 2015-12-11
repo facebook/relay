@@ -11,11 +11,11 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var Relay = require('Relay');
-var flattenSplitRelayQueries = require('flattenSplitRelayQueries');
+const Relay = require('Relay');
+const flattenSplitRelayQueries = require('flattenSplitRelayQueries');
 
 describe('flattenSplitRelayQueries', () => {
   function getQuery() {

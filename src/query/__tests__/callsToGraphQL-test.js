@@ -11,11 +11,11 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var callsFromGraphQL = require('callsFromGraphQL');
-var callsToGraphQL = require('callsToGraphQL');
+const callsFromGraphQL = require('callsFromGraphQL');
+const callsToGraphQL = require('callsToGraphQL');
 
 describe('callsToGraphQL', function() {
   it('converts array calls with null values', () => {

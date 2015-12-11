@@ -16,8 +16,8 @@
 import type RelayMutationRequest from 'RelayMutationRequest';
 import type RelayQueryRequest from 'RelayQueryRequest';
 
-var fetch = require('fetch');
-var fetchWithRetries = require('fetchWithRetries');
+const fetch = require('fetch');
+const fetchWithRetries = require('fetchWithRetries');
 import type {InitWithRetries} from 'fetchWithRetries';
 
 type GraphQLError = {

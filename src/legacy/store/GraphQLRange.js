@@ -12,15 +12,15 @@
 
 'use strict';
 
-var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-var GraphQLSegment = require('GraphQLSegment');
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const GraphQLSegment = require('GraphQLSegment');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 
-var forEachObject = require('forEachObject');
-var invariant = require('invariant');
-var serializeRelayQueryCall = require('serializeRelayQueryCall');
-var warning = require('warning');
+const forEachObject = require('forEachObject');
+const invariant = require('invariant');
+const serializeRelayQueryCall = require('serializeRelayQueryCall');
+const warning = require('warning');
 
 var {
   END_CURSOR,

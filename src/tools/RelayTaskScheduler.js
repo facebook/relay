@@ -13,7 +13,7 @@
 
 'use strict';
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 type TaskCallback = () => void;
 type TaskExecutor = () => void;

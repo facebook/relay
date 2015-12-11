@@ -11,11 +11,11 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var Relay = require('Relay');
-var isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const Relay = require('Relay');
+const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 
 describe('isCompatibleRelayFragmentType', () => {
   const {getNode} = RelayTestUtils;

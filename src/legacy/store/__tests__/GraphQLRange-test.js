@@ -11,16 +11,16 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 
 jest
   .dontMock('GraphQLSegment')
   .dontMock('GraphQLRange')
   .mock('warning');
 
-var GraphQLRange = require('GraphQLRange');
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const GraphQLRange = require('GraphQLRange');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 
 function getFirstSegment(range) {
   return range.__debug().orderedSegments[0];

@@ -13,16 +13,16 @@
 
 'use strict';
 
-var GraphQLQueryRunner = require('GraphQLQueryRunner');
-var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
-var RelayChangeTracker = require('RelayChangeTracker');
+const GraphQLQueryRunner = require('GraphQLQueryRunner');
+const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+const RelayChangeTracker = require('RelayChangeTracker');
 import type {ChangeSet} from 'RelayChangeTracker';
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {GarbageCollectionScheduler} from 'RelayGarbageCollector';
-var RelayGarbageCollector = require('RelayGarbageCollector');
-var RelayMutationQueue = require('RelayMutationQueue');
+const RelayGarbageCollector = require('RelayGarbageCollector');
+const RelayMutationQueue = require('RelayMutationQueue');
 import type {
   ClientMutationID,
   DataID,
@@ -32,22 +32,22 @@ import type {
   RootCallMap,
   UpdateOptions,
 } from 'RelayInternalTypes';
-var RelayNodeInterface = require('RelayNodeInterface');
-var RelayPendingQueryTracker = require('RelayPendingQueryTracker');
-var RelayProfiler = require('RelayProfiler');
-var RelayQuery = require('RelayQuery');
-var RelayQueryTracker = require('RelayQueryTracker');
-var RelayQueryWriter = require('RelayQueryWriter');
-var RelayRecordStore = require('RelayRecordStore');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayPendingQueryTracker = require('RelayPendingQueryTracker');
+const RelayProfiler = require('RelayProfiler');
+const RelayQuery = require('RelayQuery');
+const RelayQueryTracker = require('RelayQueryTracker');
+const RelayQueryWriter = require('RelayQueryWriter');
+const RelayRecordStore = require('RelayRecordStore');
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
-var forEachObject = require('forEachObject');
-var invariant = require('invariant');
-var generateForceIndex = require('generateForceIndex');
-var readRelayDiskCache = require('readRelayDiskCache');
-var warning = require('warning');
-var writeRelayQueryPayload = require('writeRelayQueryPayload');
-var writeRelayUpdatePayload = require('writeRelayUpdatePayload');
+const forEachObject = require('forEachObject');
+const invariant = require('invariant');
+const generateForceIndex = require('generateForceIndex');
+const readRelayDiskCache = require('readRelayDiskCache');
+const warning = require('warning');
+const writeRelayQueryPayload = require('writeRelayQueryPayload');
+const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 var {NODE_TYPE} = RelayNodeInterface;

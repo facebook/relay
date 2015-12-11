@@ -17,18 +17,18 @@ jest
   .dontMock('GraphQLSegment')
   .mock('warning');
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var Relay = require('Relay');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayQueryTracker = require('RelayQueryTracker');
-var RelayChangeTracker = require('RelayChangeTracker');
-var RelayMutationType = require('RelayMutationType');
-var RelayQueryWriter = require('RelayQueryWriter');
-var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-var generateClientEdgeID = require('generateClientEdgeID');
-var writeRelayUpdatePayload = require('writeRelayUpdatePayload');
+const Relay = require('Relay');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayQueryTracker = require('RelayQueryTracker');
+const RelayChangeTracker = require('RelayChangeTracker');
+const RelayMutationType = require('RelayMutationType');
+const RelayQueryWriter = require('RelayQueryWriter');
+const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const generateClientEdgeID = require('generateClientEdgeID');
+const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 describe('writePayload()', () => {
   var RelayRecordStore;

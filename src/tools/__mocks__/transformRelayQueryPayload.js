@@ -13,11 +13,11 @@
 
 'use strict';
 
-var RelayQuery = require('RelayQuery');
-var RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQuery = require('RelayQuery');
+const RelayQueryVisitor = require('RelayQueryVisitor');
 
-var invariant = require('invariant');
-var mapObject = require('mapObject');
+const invariant = require('invariant');
+const mapObject = require('mapObject');
 
 type Payload = mixed;
 type PayloadState = {

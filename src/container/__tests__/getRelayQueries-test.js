@@ -13,12 +13,12 @@
 
 jest.mock('warning');
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var React = require('React');
-var Relay = require('Relay');
-var getRelayQueries = require('getRelayQueries');
+const React = require('React');
+const Relay = require('Relay');
+const getRelayQueries = require('getRelayQueries');
 
 describe('getRelayQueries', () => {
   var MockPageContainer;

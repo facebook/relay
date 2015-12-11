@@ -11,18 +11,18 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLRange = require('GraphQLRange');
-var Relay = require('Relay');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayFragmentReference = require('RelayFragmentReference');
-var RelayStoreData = require('RelayStoreData');
-var RelayRecordStatusMap = require('RelayRecordStatusMap');
-var callsToGraphQL = require('callsToGraphQL');
-var readRelayQueryData = require('readRelayQueryData');
+const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const GraphQLRange = require('GraphQLRange');
+const Relay = require('Relay');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayFragmentReference = require('RelayFragmentReference');
+const RelayStoreData = require('RelayStoreData');
+const RelayRecordStatusMap = require('RelayRecordStatusMap');
+const callsToGraphQL = require('callsToGraphQL');
+const readRelayQueryData = require('readRelayQueryData');
 
 describe('readRelayQueryData', () => {
   var RelayRecordStore;

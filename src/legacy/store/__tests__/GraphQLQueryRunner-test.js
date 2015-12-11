@@ -11,7 +11,7 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest
@@ -19,15 +19,15 @@ jest
   .dontMock('DliteFetchModeConstants')
   .dontMock('GraphQLQueryRunner');
 
-var DliteFetchModeConstants = require('DliteFetchModeConstants');
-var Relay = require('Relay');
-var RelayNetworkLayer = require('RelayNetworkLayer');
-var RelayStoreData = require('RelayStoreData');
+const DliteFetchModeConstants = require('DliteFetchModeConstants');
+const Relay = require('Relay');
+const RelayNetworkLayer = require('RelayNetworkLayer');
+const RelayStoreData = require('RelayStoreData');
 
-var checkRelayQueryData = require('checkRelayQueryData');
-var diffRelayQuery = require('diffRelayQuery');
-var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
-var warning = require('warning');
+const checkRelayQueryData = require('checkRelayQueryData');
+const diffRelayQuery = require('diffRelayQuery');
+const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
+const warning = require('warning');
 
 describe('GraphQLQueryRunner', () => {
   var queryRunner;

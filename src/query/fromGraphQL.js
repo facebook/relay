@@ -12,10 +12,10 @@
 
 'use strict';
 
-var RelayQuery = require('RelayQuery');
-var RelayMetaRoute = require('RelayMetaRoute');
+const RelayQuery = require('RelayQuery');
+const RelayMetaRoute = require('RelayMetaRoute');
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 type ConcreteQueryObject = mixed;
 type QueryClass = (

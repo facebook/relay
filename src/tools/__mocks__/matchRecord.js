@@ -9,7 +9,7 @@
 
 'use strict';
 
-var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 
 type Result = {
   isMatched: boolean;

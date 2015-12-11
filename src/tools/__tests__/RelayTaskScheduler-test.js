@@ -13,9 +13,9 @@
 
 jest.dontMock('RelayTaskScheduler');
 
-var RelayTaskScheduler = require('RelayTaskScheduler');
-var RelayTestUtils = require('RelayTestUtils');
-var resolveImmediate = require('resolveImmediate');
+const RelayTaskScheduler = require('RelayTaskScheduler');
+const RelayTestUtils = require('RelayTestUtils');
+const resolveImmediate = require('resolveImmediate');
 
 describe('RelayTaskScheduler', () => {
   beforeEach(() => {

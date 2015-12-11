@@ -13,11 +13,11 @@
 
 jest.autoMockOff();
 
-var GraphQLRange = require('GraphQLRange');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayMockCacheManager = require('RelayMockCacheManager');
-var RelayRecordStatusMap = require('RelayRecordStatusMap');
-var RelayTestUtils = require('RelayTestUtils');
+const GraphQLRange = require('GraphQLRange');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayMockCacheManager = require('RelayMockCacheManager');
+const RelayRecordStatusMap = require('RelayRecordStatusMap');
+const RelayTestUtils = require('RelayTestUtils');
 var {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
 
 describe('RelayRecordStore', () => {

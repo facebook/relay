@@ -14,22 +14,22 @@
 'use strict';
 
 import type {ConcreteMutation} from 'ConcreteQuery';
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayMutationType = require('RelayMutationType');
-var RelayNodeInterface = require('RelayNodeInterface');
-var RelayQuery = require('RelayQuery');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayMutationType = require('RelayMutationType');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayQuery = require('RelayQuery');
 import type RelayQueryTracker from 'RelayQueryTracker';
 import type {Variables} from 'RelayTypes';
 
-var flattenRelayQuery = require('flattenRelayQuery');
-var forEachObject = require('forEachObject');
-var nullthrows = require('nullthrows');
-var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
-var intersectRelayQuery = require('intersectRelayQuery');
-var invariant = require('invariant');
+const flattenRelayQuery = require('flattenRelayQuery');
+const forEachObject = require('forEachObject');
+const nullthrows = require('nullthrows');
+const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
+const intersectRelayQuery = require('intersectRelayQuery');
+const invariant = require('invariant');
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment;

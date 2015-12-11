@@ -13,12 +13,12 @@
 
 'use strict';
 
-var Map = require('Map');
-var RelayProfiler = require('RelayProfiler');
+const Map = require('Map');
+const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
-var RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQueryVisitor = require('RelayQueryVisitor');
 
-var sortTypeFirst = require('sortTypeFirst');
+const sortTypeFirst = require('sortTypeFirst');
 
 type FlattenedQuery = {
   node: RelayQuery.Node;

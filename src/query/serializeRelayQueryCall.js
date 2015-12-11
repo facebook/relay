@@ -18,7 +18,7 @@ import type {
   CallValue,
 } from 'RelayInternalTypes';
 
-var flattenArray = require('flattenArray');
+const flattenArray = require('flattenArray');
 
 /**
  * @internal

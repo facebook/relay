@@ -11,14 +11,14 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var Relay = require('Relay');
-var RelayQuery = require('RelayQuery');
-var flattenRelayQuery = require('flattenRelayQuery');
-var generateRQLFieldAlias = require('generateRQLFieldAlias');
-var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
+const Relay = require('Relay');
+const RelayQuery = require('RelayQuery');
+const flattenRelayQuery = require('flattenRelayQuery');
+const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 
 describe('splitDeferredRelayQueries()', () => {
   // helper functions

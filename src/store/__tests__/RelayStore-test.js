@@ -13,17 +13,17 @@
 
 jest.dontMock('RelayStore');
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var Relay = require('Relay');
-var RelayQueryResultObservable = require('RelayQueryResultObservable');
-var RelayStoreData = require('RelayStoreData');
-var readRelayQueryData = require('readRelayQueryData');
-var RelayMutation = require('RelayMutation');
-var RelayMutationTransaction = require('RelayMutationTransaction');
-var RelayMutationQueue = require('RelayMutationQueue');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const Relay = require('Relay');
+const RelayQueryResultObservable = require('RelayQueryResultObservable');
+const RelayStoreData = require('RelayStoreData');
+const readRelayQueryData = require('readRelayQueryData');
+const RelayMutation = require('RelayMutation');
+const RelayMutationTransaction = require('RelayMutationTransaction');
+const RelayMutationQueue = require('RelayMutationQueue');
 
 describe('RelayStore', () => {
   var RelayStore;

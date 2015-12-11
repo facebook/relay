@@ -11,16 +11,16 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest
   .dontMock('RelayMutation')
   .dontMock('buildRQL');
 
-var Relay = require('Relay');
-var buildRQL = require('buildRQL');
-var fromGraphQL = require('fromGraphQL');
+const Relay = require('Relay');
+const buildRQL = require('buildRQL');
+const fromGraphQL = require('fromGraphQL');
 
 describe('RelayMutation', function() {
   var MockMutation;

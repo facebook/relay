@@ -11,21 +11,21 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest.dontMock('RelayMutationQuery');
 
-var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-var Relay = require('Relay');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayMutationQuery = require('RelayMutationQuery');
-var RelayMutationType = require('RelayMutationType');
-var RelayQueryTracker = require('RelayQueryTracker');
-var filterRelayQuery = require('filterRelayQuery');
-var fromGraphQL = require('fromGraphQL');
-var intersectRelayQuery = require('intersectRelayQuery');
-var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
+const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const Relay = require('Relay');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayMutationQuery = require('RelayMutationQuery');
+const RelayMutationType = require('RelayMutationType');
+const RelayQueryTracker = require('RelayQueryTracker');
+const filterRelayQuery = require('filterRelayQuery');
+const fromGraphQL = require('fromGraphQL');
+const intersectRelayQuery = require('intersectRelayQuery');
+const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 
 describe('RelayMutationQuery', () => {
   var {filterGeneratedFields, getNode} = RelayTestUtils;

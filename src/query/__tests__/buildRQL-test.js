@@ -11,16 +11,16 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
 jest.mock('warning');
 
-var QueryBuilder = require('QueryBuilder');
-var React = require('React');
-var Relay = require('Relay');
-var RelayQuery = require('RelayQuery');
-var buildRQL = require('buildRQL');
+const QueryBuilder = require('QueryBuilder');
+const React = require('React');
+const Relay = require('Relay');
+const RelayQuery = require('RelayQuery');
+const buildRQL = require('buildRQL');
 
 describe('buildRQL', () => {
   var {getNode} = RelayTestUtils;

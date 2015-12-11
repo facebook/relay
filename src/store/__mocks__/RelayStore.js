@@ -10,9 +10,9 @@
 'use strict';
 
 var RelayStore = jest.genMockFromModule('RelayStore');
-var RelayRecordStore = require('RelayRecordStore');
+const RelayRecordStore = require('RelayRecordStore');
 
-var resolveImmediate = require('resolveImmediate');
+const resolveImmediate = require('resolveImmediate');
 
 /**
  * Mock object to simulate the behavior of a request. Example usage:

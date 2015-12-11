@@ -13,8 +13,8 @@
 
 jest.dontMock('GraphQLSegment');
 
-var GraphQLSegment = require('GraphQLSegment');
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const GraphQLSegment = require('GraphQLSegment');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 GraphQLStoreDataHandler.getID.mockImplementation(function(data) {
   return data.__dataID__;
 });

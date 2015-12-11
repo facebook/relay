@@ -13,7 +13,7 @@
 
 'use strict';
 
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 
 import type {
   DataID,

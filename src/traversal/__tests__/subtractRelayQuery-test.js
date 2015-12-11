@@ -11,13 +11,13 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var Relay = require('Relay');
-var flattenRelayQuery = require('flattenRelayQuery');
-var subtractRelayQuery = require('subtractRelayQuery');
-var splitDeferredRelayQueries = require('splitDeferredRelayQueries');
+const Relay = require('Relay');
+const flattenRelayQuery = require('flattenRelayQuery');
+const subtractRelayQuery = require('subtractRelayQuery');
+const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 
 describe('subtractRelayQuery', () => {
   var {defer, getNode} = RelayTestUtils;

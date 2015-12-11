@@ -11,12 +11,12 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var Relay = require('Relay');
-var RelayFragmentReference = require('RelayFragmentReference');
-var validateRelayReadQuery = require('validateRelayReadQuery');
+const Relay = require('Relay');
+const RelayFragmentReference = require('RelayFragmentReference');
+const validateRelayReadQuery = require('validateRelayReadQuery');
 
 describe('validateRelayReadQuery', () => {
   // Helper functions.

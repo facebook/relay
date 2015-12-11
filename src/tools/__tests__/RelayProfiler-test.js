@@ -13,7 +13,7 @@
 
 jest.dontMock('RelayProfiler');
 
-var RelayProfiler = require('RelayProfiler');
+const RelayProfiler = require('RelayProfiler');
 
 describe('RelayProfiler', function() {
   var DEV = __DEV__;

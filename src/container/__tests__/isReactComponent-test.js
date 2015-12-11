@@ -11,8 +11,8 @@
 
 'use strict';
 
-var React = require('React');
-var isReactComponent = require('isReactComponent');
+const React = require('React');
+const isReactComponent = require('isReactComponent');
 
 describe('isReactComponent', function() {
   it('identifies components that extends React.Component', function() {

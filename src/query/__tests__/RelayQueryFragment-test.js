@@ -11,14 +11,14 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('RelayTestUtils');
 RelayTestUtils.unmockRelay();
 
-var Relay = require('Relay');
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayQuery = require('RelayQuery');
-var generateRQLFieldAlias = require('generateRQLFieldAlias');
-var getWeakIdForObject = require('getWeakIdForObject');
+const Relay = require('Relay');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayQuery = require('RelayQuery');
+const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const getWeakIdForObject = require('getWeakIdForObject');
 
 describe('RelayQueryFragment', () => {
   var {getNode} = RelayTestUtils;

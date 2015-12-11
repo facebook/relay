@@ -11,7 +11,7 @@
 
 'use strict';
 
-var RelayRecordStatusMap = require('RelayRecordStatusMap');
+const RelayRecordStatusMap = require('RelayRecordStatusMap');
 
 describe('RelayRecordStatusMap', () => {
   it('sets and checks optimistic status correctly', () => {

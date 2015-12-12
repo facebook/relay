@@ -119,17 +119,18 @@ describe('writePayload()', () => {
       expect(store.getPathToRecord('123')).toBe(undefined);
     });
 
-    it('writes paths to non-refetchable linked records', () => {
+    it('writes paths to non-refetchable container root records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var fragment = Relay.QL`fragment on StreetAddress{city}`;
       var query = getNode(Relay.QL`
         query {
           viewer {
             actor {
               address {
-                city,
-              },
-            },
+                ${RelayTestUtils.createContainerFragment(fragment)}
+              }
+            }
           }
         }
       `);
@@ -161,127 +162,52 @@ describe('writePayload()', () => {
       expect(store.getPathToRecord(addressID)).toMatchPath(path);
     });
 
-    it('writes paths to plural linked fields', () => {
+    it('does not write paths for other non-refetchable records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
-      var phone = {
-        isVerified: true,
-        phoneNumber: {
-          displayNumber: '1-800-555-1212', // directory assistance
-          countryCode: '1',
-        },
-      };
+      var fragment = Relay.QL`fragment on StreetAddress{city}`;
       var query = getNode(Relay.QL`
         query {
-          node(id:"123") {
-            allPhones {
-              isVerified,
-              phoneNumber {
-                displayNumber,
-                countryCode,
-              },
-            },
+          viewer {
+            actor {
+              address {
+                ${fragment}
+              }
+            }
           }
         }
       `);
       var payload = {
-        node: {
-          id: '123',
-          allPhones: [phone],
-        },
-      };
-      writePayload(store, query, payload);
-
-      // plural fields must be refetched through the parent
-      // get linked records to verify the client id
-      var allPhoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
-      expect(allPhoneIDs.length).toBe(1);
-      var path = new RelayQueryPath(query)
-        .getPath(getField(query, 'allPhones'), allPhoneIDs[0]);
-      expect(store.getPathToRecord(allPhoneIDs[0])).toMatchPath(path);
-
-      // plural items must be refetched through the parent plural field
-      // get field to verify the client id is correct
-      var phoneNoID = store.getLinkedRecordID(allPhoneIDs[0], 'phoneNumber');
-      path = new RelayQueryPath(query)
-        .getPath(getField(query, 'allPhones'), allPhoneIDs[0])
-        .getPath(getField(query, 'allPhones', 'phoneNumber'), phoneNoID);
-      expect(store.getPathToRecord(phoneNoID)).toMatchPath(path);
-    });
-
-    it('writes paths to connection records', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var query = getNode(Relay.QL`
-        query {
-          node(id:"123") {
-            friends(first:"1") {
-              edges {
-                node {
-                  id,
-                  address {
-                    city,
-                  },
-                },
-              },
+        viewer: {
+          actor: {
+            id: '123',
+            address: {
+              city: 'San Francisco',
             },
-          }
-        }
-      `);
-      var payload = {
-        node: {
-          id: '123',
-          friends: {
-            edges: [
-              {
-                cursor: 'cursor1',
-                node: {
-                  id: 'node1',
-                  address: {
-                    city: 'San Francisco',
-                  },
-                },
-              },
-            ],
           },
         },
       };
       writePayload(store, query, payload);
 
-      // connections and edges must be refetched through the parent
-      var path = new RelayQueryPath(query)
-        .getPath(getField(query, 'friends'), 'client:1');
-      expect(store.getPathToRecord('client:1')).toMatchPath(path);
-      path = new RelayQueryPath(query)
-        .getPath(getField(query, 'friends'), 'client:1')
-        .getPath(getField(query, 'friends', 'edges'), 'client:client:1:node1');
-      expect(store.getPathToRecord('client:client:1:node1')).toMatchPath(path);
-
-      // connection nodes with an ID are refetchable
-      expect(store.getPathToRecord('node1')).toBe(undefined);
-
       // linked nodes use a minimal path from the nearest refetchable node
-      var pathQuery = getNode(Relay.QL`query{node(id:"node1"){address{city}}}`);
-      path = new RelayQueryPath(pathQuery)
-        .getPath(getField(pathQuery, 'address'), 'client:2');
-      expect(store.getField('client:2', 'city')).toBe('San Francisco');
-      expect(store.getPathToRecord('client:2')).toMatchPath(path);
+      var addressID = 'client:2';  // The generated id *after* viewer
+      expect(store.getPathToRecord(addressID)).toBe(undefined);
     });
 
     it('writes paths with fragments', () => {
       var records = {};
       var store = new RelayRecordStore({records});
-      var fragment = Relay.QL`fragment on Viewer {
-        actor {
-          id
-          __typename
-          name
-        }
+      var fragment = Relay.QL`fragment on Actor {
+        id
+        __typename
+        name
       }`;
       var query = getVerbatimNode(Relay.QL`
         query {
           viewer {
-            ${fragment}
+            actor {
+              ${RelayTestUtils.createContainerFragment(fragment)}
+            }
           }
         }
       `);
@@ -298,8 +224,8 @@ describe('writePayload()', () => {
       var actorID = store.getLinkedRecordID(viewerID, 'actor');
 
       var path = new RelayQueryPath(query)
-        .getPath(getNode(fragment), viewerID)
-        .getPath(getNode(fragment).getChildren()[0], actorID);
+        .getPath(query.getFieldByStorageKey('actor'), actorID)
+        .getPath(getNode(fragment), actorID);
       expect(store.getPathToRecord(actorID)).toMatchPath(path);
     });
   });

@@ -355,7 +355,9 @@ class RelayDiffQueryBuilder {
     // always be composed into, and therefore tracked by, their nearest
     // non-fragment parent.
     if (trackedNode && !(trackedNode instanceof RelayQuery.Fragment)) {
-      this._tracker.trackNodeForID(trackedNode, scope.dataID, path);
+      this._tracker.trackNodeForID(trackedNode, scope.dataID, {
+        isRoot: path.isRootPath(),
+      });
     }
 
     return {

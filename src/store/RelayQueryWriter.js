@@ -13,6 +13,7 @@
 
 'use strict';
 
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayQuery = require('RelayQuery');
 import type RelayChangeTracker from 'RelayChangeTracker';
 const RelayConnectionInterface = require('RelayConnectionInterface');
@@ -168,16 +169,15 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   createRecordIfMissing(
     node: RelayQuery.Node,
     recordID: DataID,
-    typeName: ?string,
-    path: RelayQueryPath
+    typeName: ?string
   ): void {
     const recordState = this._store.getRecordState(recordID);
     if (recordState !== RelayRecordState.EXISTENT) {
-      this._store.putRecord(recordID, typeName, path);
+      this._store.putRecord(recordID, typeName);
       this.recordCreate(recordID);
     }
     if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
-      this._queryTracker.trackNodeForID(node, recordID, path);
+      this._queryTracker.trackNodeForID(node, recordID);
     }
   }
 
@@ -185,7 +185,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     root: RelayQuery.Root,
     state: WriterState
   ): void {
-    const {path, recordID, responseData} = state;
+    const {recordID, responseData} = state;
     const recordState = this._store.getRecordState(recordID);
 
     // GraphQL should never return undefined for a field
@@ -210,11 +210,14 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     );
     if (recordState !== RelayRecordState.EXISTENT) {
       const typeName = this.getRecordTypeName(root, recordID, responseData);
-      this._store.putRecord(recordID, typeName, path);
+      this._store.putRecord(recordID, typeName);
+      if (GraphQLStoreDataHandler.isClientID(recordID)) {
+        this._store.putPathToRecord(recordID, state.path);
+      }
       this.recordCreate(recordID);
     }
     if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
-      this._queryTracker.trackNodeForID(root, recordID, path);
+      this._queryTracker.trackNodeForID(root, recordID, {isRoot: true});
     }
     this.traverse(root, state);
   }
@@ -239,6 +242,12 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       isCompatibleRelayFragmentType(fragment, this._store.getType(recordID))
     ) {
       const path = state.path.getPath(fragment, recordID);
+      if (
+        fragment.isContainerFragment() &&
+        GraphQLStoreDataHandler.isClientID(recordID)
+      ) {
+        this._store.putPathToRecord(recordID, path);
+      }
       this.traverse(fragment, {
         ...state,
         path,
@@ -355,11 +364,13 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this._store.putLinkedRecordID(recordID, storageKey, connectionID);
     // record the create/update only if something changed
     if (connectionRecordState !== RelayRecordState.EXISTENT) {
+      // Paths to connections are required for mutations
+      this._store.putPathToRecord(connectionID, path);
       this.recordUpdate(recordID);
       this.recordCreate(connectionID);
     }
     if (this.isNewRecord(connectionID) || this._updateTrackedQueries) {
-      this._queryTracker.trackNodeForID(field, connectionID, path);
+      this._queryTracker.trackNodeForID(field, connectionID);
     }
 
     // Only create a range if `edges` field is present
@@ -513,7 +524,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // TODO: Flow: `nodeID` is `string`
       const edgeID = generateClientEdgeID(connectionID, (nodeID: any));
       const path = state.path.getPath(edges, edgeID);
-      this.createRecordIfMissing(edges, edgeID, null, path);
+      this.createRecordIfMissing(edges, edgeID, null);
       fetchedEdgeIDs.push(edgeID);
 
       // Write data for the edge, using `nodeID` as the id for direct descendant
@@ -592,7 +603,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
 
       const path = state.path.getPath(field, nextLinkedID);
       const typeName = this.getRecordTypeName(field, nextLinkedID, nextRecord);
-      this.createRecordIfMissing(field, nextLinkedID, typeName, path);
+      this.createRecordIfMissing(field, nextLinkedID, typeName);
       isUpdate = (
         isUpdate ||
         nextLinkedID !== prevLinkedID ||
@@ -660,7 +671,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
 
     const path = state.path.getPath(field, nextLinkedID);
     const typeName = this.getRecordTypeName(field, nextLinkedID, fieldData);
-    this.createRecordIfMissing(field, nextLinkedID, typeName, path);
+    this.createRecordIfMissing(field, nextLinkedID, typeName);
     // always update the store to ensure the value is present in the appropriate
     // data sink (record/queuedRecords), but only record an update if the value
     // changed.

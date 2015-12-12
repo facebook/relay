@@ -325,12 +325,14 @@ describe('RelayStoreData', () => {
 
     it('builds root queries using the path for non-refetchable IDs', () => {
       var storeData = new RelayStoreData();
-      var addressFragment = Relay.QL`fragment on User{id,address{city}}`;
-      var node = getVerbatimNode(Relay.QL`
+      var fragment = Relay.QL`fragment on StreetAddress{city}`;
+      var node = getNode(Relay.QL`
         query {
           node(id: "123") {
             id,
-            ${addressFragment}
+            address {
+              ${RelayTestUtils.createContainerFragment(fragment)}
+            }
           }
         }
       `);
@@ -345,13 +347,8 @@ describe('RelayStoreData', () => {
       };
       storeData.handleQueryPayload(node, payload);
 
-      var fragment = Relay.QL`
-        fragment on StreetAddress {
-          city,
-        }
-      `;
       var query = storeData.buildFragmentQueryForDataID(
-        getNode(fragment),
+        getNode(Relay.QL`fragment on StreetAddress{country}`),
         'client:1'
       );
       expect(query).toEqualQueryRoot(getNode(Relay.QL`
@@ -360,8 +357,12 @@ describe('RelayStoreData', () => {
             id,
             __typename,
             address {
+              # outer fragment from the path
               ... on StreetAddress {
-                city,
+                # inner fragment passed to buildFragmentQueryForDataID
+                ... on StreetAddress {
+                  country,
+                },
               },
             },
           },

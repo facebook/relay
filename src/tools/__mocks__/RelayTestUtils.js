@@ -122,6 +122,14 @@ var RelayTestUtils = {
     return QueryBuilder.createCall(name, value);
   },
 
+  createContainerFragment(fragment) {
+    const RelayFragmentReference = require('RelayFragmentReference');
+    return RelayFragmentReference.createForContainer(
+      () => fragment,
+      {}
+    );
+  },
+
   defer(fragment) {
     const QueryBuilder = require('QueryBuilder');
     const RelayFragmentReference = require('RelayFragmentReference');

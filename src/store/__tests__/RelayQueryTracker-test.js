@@ -63,10 +63,11 @@ describe('RelayQueryTracker', () => {
         }
       }
     `);
-    var path = new RelayQueryPath(query);
     var tracker = new RelayQueryTracker();
 
-    tracker.trackNodeForID(query, 'client:1', path);
+    tracker.trackNodeForID(query, 'client:1', {
+      isRoot: true,
+    });
     var trackedChildren = tracker.getTrackedChildrenForID('client:1');
     expect(trackedChildren.length).toBe(1);
     expect(trackedChildren[0])

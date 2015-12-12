@@ -13,6 +13,7 @@
 
 'use strict';
 
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {Call, DataID, Records} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
@@ -44,7 +45,7 @@ type FinderState = {
   rangeInfo: ?RangeInfo;
 };
 
-var {EDGES, PAGE_INFO} = RelayConnectionInterface;
+const {EDGES, PAGE_INFO} = RelayConnectionInterface;
 
 /**
  * @internal
@@ -130,6 +131,12 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       fragment,
       this._store.getType(dataID)
     )) {
+      if (
+        fragment.isContainerFragment() &&
+        GraphQLStoreDataHandler.isClientID(dataID)
+      ) {
+        this._store.putPathToRecord(dataID, state.path);
+      }
       this.traverse(fragment, state);
     }
   }

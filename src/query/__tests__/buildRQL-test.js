@@ -210,6 +210,46 @@ describe('buildRQL', () => {
       )).toBe(true);
     });
 
+    it('produces equal results for implicit and explicit definitions', () => {
+      const MockContainer2 = Relay.createContainer(MockComponent, {
+        initialVariables: {
+          if: null,
+        },
+        fragments: {
+          foo: () => Relay.QL`fragment on Node { firstName(if: $if) }`,
+        },
+      });
+      const implicitBuilder = () => Relay.QL`
+        query {
+          viewer
+        }
+      `;
+      const explicitBuilder = (Component, variables) => Relay.QL`
+        query {
+          viewer {
+            ${Component.getFragment('foo', variables)}
+          }
+        }
+      `;
+      const initialVariables = {if: null};
+      const implicitNode = buildRQL.Query(
+        implicitBuilder,
+        MockContainer2,
+        'foo',
+        initialVariables,
+      );
+      const explicitNode = buildRQL.Query(
+        explicitBuilder,
+        MockContainer2,
+        'foo',
+        initialVariables,
+      );
+      const variables = {if: true};
+      const implicitQuery = getNode(implicitNode, variables);
+      const explicitQuery = getNode(explicitNode, variables);
+      expect(implicitQuery).toEqualQueryRoot(explicitQuery);
+    });
+
     it('throws if non-scalar fields are given', () => {
       var builder = () => Relay.QL`
         query {

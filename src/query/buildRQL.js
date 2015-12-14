@@ -134,10 +134,10 @@ var buildRQL = {
               '`node(id: $id)`, not `node(id: $id) { ... }`.',
               query.fieldName
             );
-            const fragmentValues = filterObject(values, (_, name) =>
+            const fragmentVariables = filterObject(variables, (_, name) =>
               Component.hasVariable(name)
             );
-            children.push(Component.getFragment(queryName, fragmentValues));
+            children.push(Component.getFragment(queryName, fragmentVariables));
             node = {
               ...query,
               children,

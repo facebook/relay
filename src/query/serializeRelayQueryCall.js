@@ -42,7 +42,11 @@ function sanitizeCallValue(value: CallValue): string {
   if (value == null) {
     return '';
   }
-  if (typeof value !== 'string' || value === '') {
+  // Special case for FB GraphQL to resolve ambiguity around "empty" arguments.
+  if (value === '') {
+    return '\ ';
+  }
+  if (typeof value !== 'string') {
     value = JSON.stringify(value);
   }
   value = value.replace(/[)(}{><,.\\]/g, '\\$&');

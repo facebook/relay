@@ -86,7 +86,7 @@ describe('serializeRelayQueryCall', () => {
       value: '',
     };
     expect(serializeRelayQueryCall(call)).toEqual(
-      '.query("")'
+      '.query(\ )'
     );
   });
 

@@ -17,13 +17,15 @@ import type {PrintedQuery} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 
+const base62 = require('base62');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
 type PrinterState = {
-  fragmentMap: {[fragmentID: string]: string};
-  nextVariableID: number;
+  fragmentCount: number;
+  fragmentMap: {[fragmentID: string]: {name: string, text: string}};
+  variableCount: number;
   variableMap: {[variableID: string]: Variable};
 };
 type Variable = {
@@ -39,8 +41,9 @@ type Variable = {
  */
 function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
   const printerState = {
+    fragmentCount: 0,
     fragmentMap: {},
-    nextVariableID: 0,
+    variableCount: 0,
     variableMap: {},
   };
   let queryText = null;
@@ -63,10 +66,8 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
   );
   // Reassign to preserve Flow type refinement within closure.
   let text = queryText;
-  forEachObject(printerState.fragmentMap, (fragmentText, fragmentID) => {
-    if (fragmentText) {
-      text = text + ' ' + fragmentText;
-    }
+  forEachObject(printerState.fragmentMap, fragment => {
+    text = text + ' ' + fragment.text;
   });
   const variables = mapObject(
     printerState.variableMap,
@@ -168,14 +169,21 @@ function printInlineFragment(
   if (!node.getChildren().length) {
     return null;
   }
+  let fragmentName;
   const fragmentID = node.getFragmentID();
-  const {fragmentMap} = printerState;
-  if (!(fragmentID in fragmentMap)) {
+  const fragmentMap = printerState.fragmentMap;
+  if (fragmentMap.hasOwnProperty(fragmentID)) {
+    fragmentName = fragmentMap[fragmentID].name;
+  } else {
     const directives = printDirectives(node);
-    fragmentMap[fragmentID] = 'fragment ' + node.getFragmentID() + ' on ' +
-      node.getType() + directives + printChildren(node, printerState);
+    fragmentName = 'F' + base62(printerState.fragmentCount++);
+    fragmentMap[fragmentID] = {
+      name: fragmentName,
+      text: 'fragment ' + fragmentName + ' on ' + node.getType() + directives +
+        printChildren(node, printerState),
+    };
   }
-  return '...' + fragmentID;
+  return '...' + fragmentName;
 }
 
 function printField(
@@ -297,8 +305,7 @@ function createVariable(
   type: string,
   printerState: PrinterState
 ): string {
-  const variableID = name + '_' + printerState.nextVariableID.toString(36);
-  printerState.nextVariableID++;
+  const variableID = name + '_' + base62(printerState.variableCount++);
   printerState.variableMap[variableID] = {
     type,
     value,

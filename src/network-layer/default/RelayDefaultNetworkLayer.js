@@ -60,9 +60,11 @@ class RelayDefaultNetworkLayer {
       } else {
         request.resolve({response: payload.data});
       }
-    }).catch(
-      error => request.reject(error)
-    );
+      return request;
+    }).catch(error => {
+      request.reject(error);
+      return request;
+    });
   }
 
   sendQueries(requests: Array<RelayQueryRequest>): Promise {
@@ -86,9 +88,11 @@ class RelayDefaultNetworkLayer {
         } else {
           request.resolve({response: payload.data});
         }
-      }).catch(
-        error => request.reject(error)
-      )
+        return request;
+      }).catch(error => {
+        request.reject(error);
+        return request;
+      })
     )));
   }
 

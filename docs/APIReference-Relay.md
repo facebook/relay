@@ -150,23 +150,19 @@ As an example, we can log each mutation that is sent to the server as follows:
 ```
 var DefaultNetworkLayer = Relay.DefaultNetworkLayer;
 
-var MutationLoggingNetworkLayer = {
-  // Use the defaults for other options.
-  ...DefaultNetworkLayer,
-
+class MutationLoggingNetworkLayer extends DefaultNetworkLayer {
   sendMutation(mutation) {
-    // Log the query text exactly as it will be sent to the server.
-    console.log(mutation.getQueryString());
-    // Send the mutation using the default network implementation, but
-    // log the response or error.
-    return DefaultNetworkLayer.sendMutation(mutation).then(
+    // log the response or error (note that `mutation` is a promise)
+    mutation.then(
       response => console.log(response),
       error => console.error(error),
     );
+    // Send the mutation using the default network implementation
+    return super.sendMutation(mutation);
   }
 };
 
-Relay.injectNetworkLayer(MutationLoggingNetworkLayer);
+Relay.injectNetworkLayer(new MutationLoggingNetworkLayer());
 ```
 
 ### injectTaskScheduler (static method)

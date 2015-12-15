@@ -484,6 +484,7 @@ describe('RelayStoreData', function() {
             [HAS_NEXT_PAGE]: true,
           },
         },
+        __typename: 'Story',
       },
     });
     storeData.handleQueryPayload(query, response);
@@ -604,6 +605,7 @@ describe('RelayStoreData', function() {
             [HAS_NEXT_PAGE]: true,
           },
         },
+        __typename: 'Story',
       },
     });
     storeData.handleQueryPayload(query, response);

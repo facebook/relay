@@ -111,7 +111,7 @@ describe('RelayPendingQueryTracker', () => {
       [mockQueryC, mockQueryA],
     ]);
 
-    fetchRelayQuery.mock.requests[1].resolve({node: {}});
+    fetchRelayQuery.mock.requests[1].resolve({node: {__typename: 'User'}});
     jest.runAllTimers();
 
     subtractRelayQuery.mockClear();

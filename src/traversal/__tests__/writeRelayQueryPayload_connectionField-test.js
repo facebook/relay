@@ -80,6 +80,7 @@ describe('writeRelayQueryPayload()', () => {
             [HAS_PREV_PAGE]: false,
           },
         },
+        __typename: 'User',
       },
     };
 
@@ -169,6 +170,7 @@ describe('writeRelayQueryPayload()', () => {
             [HAS_PREV_PAGE]: false,
           },
         },
+        __typename: 'User',
       },
     };
     var results = writePayload(store, query, payload);
@@ -255,6 +257,7 @@ describe('writeRelayQueryPayload()', () => {
             [HAS_PREV_PAGE]: false,
           },
         },
+        __typename: 'User',
       },
     };
     var results = writePayload(store, query, payload);
@@ -300,6 +303,7 @@ describe('writeRelayQueryPayload()', () => {
       node: {
         id: '123',
         friends: {count: 5},
+        __typename: 'User',
       },
     };
     writePayload(store, query, payload);
@@ -425,6 +429,7 @@ describe('writeRelayQueryPayload()', () => {
             [HAS_PREV_PAGE]: false,
           },
         },
+        __typename: 'User',
       },
     };
     expect(() => writePayload(store, query, payload)).toFailInvariant(
@@ -466,6 +471,7 @@ describe('writeRelayQueryPayload()', () => {
               [HAS_PREV_PAGE]: false,
             },
           },
+          __typename: 'User',
         },
       };
       var records = {};

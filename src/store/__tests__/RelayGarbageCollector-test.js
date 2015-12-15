@@ -173,6 +173,7 @@ describe('RelayGarbageCollector', () => {
                   message:{
                     text:'s1',
                   },
+                  __typename: 'Story',
                 },
               },
             ],

@@ -71,6 +71,7 @@ describe('writePayload()', () => {
         viewer: {
           actor: {
             id: '123',
+            __typename: 'User',
           },
         },
       };
@@ -105,6 +106,7 @@ describe('writePayload()', () => {
       var payload = {
         node: {
           id: '123',
+          __typename: 'User',
         },
       };
       var results = writePayload(store, query, payload);
@@ -141,6 +143,7 @@ describe('writePayload()', () => {
             address: {
               city: 'San Francisco',
             },
+            __typename: 'User',
           },
         },
       };
@@ -184,6 +187,7 @@ describe('writePayload()', () => {
             address: {
               city: 'San Francisco',
             },
+            __typename: 'User',
           },
         },
       };
@@ -215,6 +219,7 @@ describe('writePayload()', () => {
         viewer: {
           actor: {
             name: 'Joe',
+            __typename: 'User',
           },
         },
       };
@@ -247,6 +252,7 @@ describe('writePayload()', () => {
         node: {
           id: '123',
           name: 'Joe',
+          __typename: 'User',
         },
       };
       writePayload(store, query, payload, tracker);
@@ -277,6 +283,7 @@ describe('writePayload()', () => {
           address: {
             city: 'San Francisco',
           },
+          __typename: 'User',
         },
       };
       var addressID = 'client:1';
@@ -311,6 +318,7 @@ describe('writePayload()', () => {
           actor: {
             id: '123',
             name: 'Joe',
+            __typename: 'User',
           },
         },
       };
@@ -563,6 +571,7 @@ describe('writePayload()', () => {
               },
             ],
           },
+          __typename: 'User',
         },
       };
       // populate the store and record the original tracked queries

@@ -415,10 +415,6 @@ class RelayStoreData {
     return this._changeEmitter;
   }
 
-  getChangeEmitter(): GraphQLStoreChangeEmitter {
-    return this._changeEmitter;
-  }
-
   getRangeData(): GraphQLStoreRangeUtils {
     return this._rangeData;
   }

@@ -42,6 +42,7 @@ export type RelayMutationFragments<Tk> = {
  */
 class RelayMutation<Tp: Object> {
   static name: $FlowIssue;
+  /* $FlowIssue(>=0.20.0) #9410317 */
   static fragments: RelayMutationFragments<$Keys<Tp>>;
   static initialVariables: Variables;
   static prepareVariables: ?(

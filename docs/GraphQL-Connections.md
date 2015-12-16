@@ -96,11 +96,10 @@ and we get back
 }
 ```
 
-Notice that the cursor is a base64 string. That's the pattern from earlier
-again, the server reminding us that this is an opaque string. We can pass this
-string back to the server as the `after` argument to the `ships` field, which
-will let us ask for the next three ships after the last one in the previous
-result:
+Notice that the cursor is a base64 string. That's the pattern from earlier: the
+server is reminding us that this is an opaque string. We can pass this string
+back to the server as the `after` argument to the `ships` field, which will let
+us ask for the next three ships after the last one in the previous result:
 
 ```
 query EndOfRebelShipsQuery {

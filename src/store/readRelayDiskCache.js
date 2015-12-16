@@ -167,7 +167,8 @@ class RelayCacheReader {
           this._cachedRootCallMap[storageKey] =
             this._cachedRootCallMap[storageKey] || {};
           this._cachedRootCallMap[storageKey][identifyingArgValue] = value;
-          if (value == null) {
+          if (this._cachedRootCallMap[storageKey][identifyingArgValue] ==
+              null) {
             // Read from cache and we still don't have valid `dataID`.
             this._handleFailed();
           } else {
@@ -234,7 +235,7 @@ class RelayCacheReader {
           this._cachedRecords[dataID] = value;
           var items = this._pendingNodes[dataID];
           delete this._pendingNodes[dataID];
-          if (value === undefined) {
+          if (this._cachedRecords[dataID] === undefined) {
             // We are out of luck if disk doesn't have the node either.
             this._handleFailed();
           } else {

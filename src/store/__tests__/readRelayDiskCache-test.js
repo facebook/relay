@@ -15,6 +15,7 @@ require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
+const RelayQueryPath = require('RelayQueryPath');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -76,12 +77,13 @@ describe('readRelayDiskCache', () => {
       callbacks
     );
 
-    return {cacheManager, callbacks};
+    return {cacheManager, callbacks, store};
   }
 
   beforeEach(() => {
     jest.resetModuleRegistry();
     jest.clearAllTimers();
+    jasmine.addMatchers(RelayTestUtils.matchers);
 
   });
 
@@ -143,7 +145,7 @@ describe('readRelayDiskCache', () => {
       },
     };
 
-    var {cacheManager, callbacks} = readDiskCache(queries, diskData);
+    var {cacheManager, callbacks, store} = readDiskCache(queries, diskData);
 
     var mockReadRoot = cacheManager.readRootCall.mock;
     expect(mockReadRoot.calls.length).toBe(1);
@@ -157,6 +159,10 @@ describe('readRelayDiskCache', () => {
     expect(mockReadNode.calls[0][0]).toEqual('1055790163');
     expect(callbacks.onFailure.mock.calls.length).toBe(0);
     expect(callbacks.onSuccess.mock.calls.length).toBe(1);
+    expect(store.getDataID('username', 'yuzhi')).toBe('1055790163');
+    expect(store.getRecordState('1055790163')).toBe('EXISTENT');
+    expect(store.getField('1055790163', 'id')).toBe('1055790163');
+    expect(store.getType('1055790163')).toBe('User');
   });
 
   it('calls `onSuccess` when custom root call is in store ', () => {
@@ -174,7 +180,7 @@ describe('readRelayDiskCache', () => {
     };
     var rootCallMap = {username: {yuzhi: '1055790163'}};
 
-    var {cacheManager, callbacks} = readDiskCache(
+    var {cacheManager, callbacks, store} = readDiskCache(
       queries,
       undefined,
       records,
@@ -186,6 +192,10 @@ describe('readRelayDiskCache', () => {
     expect(cacheManager.readNode.mock.calls.length).toBe(0);
     expect(callbacks.onFailure.mock.calls.length).toBe(0);
     expect(callbacks.onSuccess.mock.calls.length).toBe(1);
+    expect(store.getDataID('username', 'yuzhi')).toBe('1055790163');
+    expect(store.getRecordState('1055790163')).toBe('EXISTENT');
+    expect(store.getField('1055790163', 'id')).toBe('1055790163');
+    expect(store.getType('1055790163')).toBe('User');
   });
 
   it('calls `onSuccess` when custom root call is in cached store ', () => {
@@ -203,7 +213,7 @@ describe('readRelayDiskCache', () => {
     };
     var cachedRootCallMap = {username: {yuzhi: '1055790163'}};
 
-    var {cacheManager, callbacks} = readDiskCache(
+    var {cacheManager, callbacks, store} = readDiskCache(
       queries,
       undefined,
       undefined,
@@ -216,6 +226,10 @@ describe('readRelayDiskCache', () => {
     expect(cacheManager.readNode.mock.calls.length).toBe(0);
     expect(callbacks.onFailure.mock.calls.length).toBe(0);
     expect(callbacks.onSuccess.mock.calls.length).toBe(1);
+    expect(store.getDataID('username', 'yuzhi')).toBe('1055790163');
+    expect(store.getRecordState('1055790163')).toBe('EXISTENT');
+    expect(store.getField('1055790163', 'id')).toBe('1055790163');
+    expect(store.getType('1055790163')).toBe('User');
   });
 
   it('calls `onFailure` when node is not on disk', () => {
@@ -519,20 +533,19 @@ describe('readRelayDiskCache', () => {
       `),
     };
 
-    // Missing `edge_id`
     var diskData = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
         __typename: 'User',
-        friends: {__dataID__: 'friends_id'},
+        friends: {__dataID__: 'client:friends_id'},
       },
-      'friends_id': {
-        __dataID__: 'friends_id',
+      'client:friends_id': {
+        __dataID__: 'client:friends_id',
         __range__: new GraphQLRange(),
       },
-      'edge_id': {
-        __dataID__: 'edge_id',
+      'client:edge_id': {
+        __dataID__: 'client:edge_id',
         cursor: '1234',
         node: {__dataID__: 'friend_id'},
       },
@@ -543,12 +556,14 @@ describe('readRelayDiskCache', () => {
       },
     };
 
-    diskData.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: ['edge_id'],
+    var rangeInfo = {
+      requestedEdgeIDs: ['client:edge_id'],
       diffCalls: [],
       pageInfo: {},
-    });
-    var {cacheManager, callbacks} = readDiskCache(queries, diskData);
+    };
+    diskData['client:friends_id'].__range__.retrieveRangeInfoForQuery
+      .mockReturnValue(rangeInfo);
+    var {cacheManager, callbacks, store} = readDiskCache(queries, diskData);
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -557,12 +572,12 @@ describe('readRelayDiskCache', () => {
     jest.runOnlyPendingTimers();
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(2);
-    expect(cacheManager.readNode.mock.calls[1][0]).toBe('friends_id');
+    expect(cacheManager.readNode.mock.calls[1][0]).toBe('client:friends_id');
 
     jest.runOnlyPendingTimers();
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(3);
-    expect(cacheManager.readNode.mock.calls[2][0]).toBe('edge_id');
+    expect(cacheManager.readNode.mock.calls[2][0]).toBe('client:edge_id');
 
     jest.runOnlyPendingTimers();
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
@@ -574,5 +589,35 @@ describe('readRelayDiskCache', () => {
     expect(cacheManager.readNode.mock.calls.length).toBe(4);
     expect(callbacks.onFailure.mock.calls.length).toBe(0);
     expect(callbacks.onSuccess.mock.calls.length).toBe(1);
+    expect(store.getRecordState('1055790163')).toBe('EXISTENT');
+    expect(store.getField('1055790163', 'id')).toBe('1055790163');
+    expect(store.getType('1055790163')).toBe('User');
+    expect(store.getLinkedRecordID('1055790163', 'friends'))
+      .toBe('client:friends_id');
+    expect(store.getRecordState('client:friends_id')).toBe('EXISTENT');
+    var query = queries.q0;
+    var friendsField = query.getFieldByStorageKey('friends');
+    var friendsPath = new RelayQueryPath(query)
+        .getPath(query.getFieldByStorageKey('friends'), 'client:friends_id');
+    expect(store.getPathToRecord(`client:friends_id`)).toMatchPath(friendsPath);
+    expect(
+      store.getRangeMetadata('client:friends_id', [{name:'first', value: '5'}])
+    ).toEqual({
+      ...rangeInfo,
+      filterCalls: [],
+      filteredEdges: [{
+        edgeID: 'client:edge_id',
+        nodeID: 'friend_id',
+      }],
+    });
+    expect(store.getRecordState('client:edge_id')).toBe('EXISTENT');
+    var edgePath = friendsPath
+      .getPath(friendsField.getFieldByStorageKey('edges'), 'client:edge_id');
+    expect(store.getPathToRecord(`client:edge_id`)).toMatchPath(edgePath);
+    expect(store.getField('client:edge_id', 'cursor')).toBe('1234');
+    expect(store.getLinkedRecordID('client:edge_id', 'node')).toBe('friend_id');
+    expect(store.getRecordState('friend_id')).toBe('EXISTENT');
+    expect(store.getField('friend_id', 'id')).toBe('friend_id');
+    expect(store.getField('friend_id', 'name')).toBe('name');
   });
 });

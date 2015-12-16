@@ -17,7 +17,7 @@ const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 
 import type {
   DataID,
-  ClientMutationID
+  ClientMutationID,
 } from 'RelayInternalTypes';
 
 // Maintains a map from the client id to the server id of

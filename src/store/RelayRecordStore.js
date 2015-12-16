@@ -15,7 +15,6 @@
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const GraphQLRange = require('GraphQLRange');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {
   Call,

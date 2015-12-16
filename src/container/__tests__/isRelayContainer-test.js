@@ -22,11 +22,11 @@ describe('isRelayContainer', function() {
     jest.resetModuleRegistry();
 
     MockComponent = React.createClass({
-      render: () => <div />
+      render: () => <div />,
     });
 
     MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {}
+      fragments: {},
     });
   });
 

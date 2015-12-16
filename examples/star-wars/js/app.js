@@ -21,7 +21,7 @@ ReactDOM.render(
   <Relay.RootContainer
     Component={StarWarsApp}
     route={new StarWarsAppHomeRoute({
-      factionNames: ['empire', 'rebels']
+      factionNames: ['empire', 'rebels'],
     })}
   />,
   document.getElementById('root')

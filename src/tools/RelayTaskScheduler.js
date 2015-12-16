@@ -121,7 +121,7 @@ var RelayTaskScheduler = {
     });
     scheduleIfNecessary();
     return promise;
-  }
+  },
 };
 
 function scheduleIfNecessary(): void {

@@ -378,7 +378,7 @@ var RelayMutationQuery = {
       (children.filter(child => child != null): any),
       mutation.metadata
     );
-  }
+  },
 };
 
 function getFieldFromFatQuery(
@@ -474,7 +474,7 @@ function sanitizeRangeBehaviors(
         .slice(0, -1)
         // Slice on unescaped parentheses followed immediately by a `.`
         .split(/\)\./);
-      let sortedKey = keyParts
+      const sortedKey = keyParts
         .sort()
         .join(').') +
         (keyParts.length ? ')' : '');

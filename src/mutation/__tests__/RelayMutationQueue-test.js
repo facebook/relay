@@ -106,9 +106,7 @@ describe('RelayMutationQueue', () => {
         'optimisticQuery'
       );
 
-      /* eslint-disable no-new */
       mutationQueue.createTransaction(mockMutation);
-      /* eslint-enable no-new */
 
       expect(
         RelayMutationQuery.buildQueryForOptimisticUpdate.mock.calls

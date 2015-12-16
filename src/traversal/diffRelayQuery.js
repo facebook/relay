@@ -242,7 +242,7 @@ class RelayDiffQueryBuilder {
           return rangeInfo.diffCalls.length > 0 ?
             {
               diffNode: node,
-              trackedNode: null
+              trackedNode: null,
             } :
             null;
         }
@@ -582,7 +582,7 @@ class RelayDiffQueryBuilder {
 
     return {
       diffNode,
-      trackedNode
+      trackedNode,
     };
   }
 
@@ -623,7 +623,7 @@ class RelayDiffQueryBuilder {
     if (diffNode) {
       var {
         edges: diffEdgesField,
-        node: diffNodeField
+        node: diffNodeField,
       } = splitNodeAndEdgesFields(diffNode);
 
       // split missing `node` fields into a `node(id)` root query

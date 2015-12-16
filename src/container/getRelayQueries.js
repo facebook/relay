@@ -15,7 +15,7 @@
 const Map = require('Map');
 import type {
   RelayLazyContainer,
-  RelayQueryConfigSpec
+  RelayQueryConfigSpec,
 } from 'RelayContainer';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');

@@ -381,6 +381,7 @@ describe('writeRelayQueryPayload()', () => {
             id: '123',
             __typename: 'User',
           }],
+          __typename: 'Story',
         },
       };
       writePayload(store, query, payload);

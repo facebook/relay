@@ -90,6 +90,7 @@ describe('diffRelayQuery', () => {
       node: {
         id: '123',
         firstName: 'Joe',
+        __typename: 'User',
       },
     };
     writePayload(store, writeQuery, payload, tracker);

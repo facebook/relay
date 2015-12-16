@@ -48,6 +48,7 @@ describe('writeRelayQueryPayload()', () => {
         node: {
           id: '123',
           name: null,
+          __typename: 'User',
         },
       };
       var results = writePayload(store, query, payload);
@@ -137,6 +138,7 @@ describe('writeRelayQueryPayload()', () => {
         node: {
           id: '123',
           name: undefined,
+          __typename: 'User',
         },
       };
       writePayload(store, query, payload);

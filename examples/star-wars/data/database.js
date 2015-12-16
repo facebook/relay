@@ -63,19 +63,19 @@ var executor = {
 var rebels = {
   id: '1',
   name: 'Alliance to Restore the Republic',
-  ships: ['1', '2', '3', '4', '5']
+  ships: ['1', '2', '3', '4', '5'],
 };
 
 var empire = {
   id: '2',
   name: 'Galactic Empire',
-  ships: ['6', '7', '8']
+  ships: ['6', '7', '8'],
 };
 
 var data = {
   Faction: {
     1: rebels,
-    2: empire
+    2: empire,
   },
   Ship: {
     1: xwing,
@@ -85,15 +85,15 @@ var data = {
     5: homeOne,
     6: tieFighter,
     7: tieInterceptor,
-    8: executor
-  }
+    8: executor,
+  },
 };
 
 var nextShip = 9;
 export function createShip(shipName, factionId) {
   var newShip = {
     id: '' + (nextShip++),
-    name: shipName
+    name: shipName,
   };
   data.Ship[newShip.id] = newShip;
   data.Faction[factionId].ships.push(newShip.id);

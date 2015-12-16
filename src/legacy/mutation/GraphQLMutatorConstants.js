@@ -29,7 +29,7 @@ var GraphQLMutatorConstants = {
 
   UPDATE_TYPES: {},
 
-  RANGE_OPERATIONS: {}
+  RANGE_OPERATIONS: {},
 };
 
 GraphQLMutatorConstants.HANDLER_TYPES

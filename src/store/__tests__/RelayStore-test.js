@@ -169,7 +169,8 @@ describe('RelayStore', () => {
 
     describe('applyUpdate', () => {
       it('creates a new RelayMutationTransaction without committing it', () => {
-        RelayStore.applyUpdate(mockMutation, mockCallbacks);
+        const transaction = RelayStore.applyUpdate(mockMutation, mockCallbacks);
+        expect(transaction).toEqual(mockTransaction);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
           mockCallbacks

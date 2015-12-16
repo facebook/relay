@@ -58,6 +58,7 @@ describe('RelayStoreData', () => {
           topLevelComments: {
             count: 1,
           },
+          __typename: 'Story',
         },
       };
       storeData.handleQueryPayload(query, response);
@@ -95,6 +96,7 @@ describe('RelayStoreData', () => {
           topLevelComments: {
             count: 1,
           },
+          __typename: 'Story',
         },
       };
       storeData.handleQueryPayload(query, response);
@@ -241,6 +243,7 @@ describe('RelayStoreData', () => {
             topLevelComments: {
               count: 1,
             },
+            __typename: 'Story',
           },
         };
         storeData.handleQueryPayload(query, response);

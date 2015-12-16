@@ -14,6 +14,8 @@ Start a local server:
 npm start
 ```
 
+Then, just point your browser at http://localhost:3000.
+
 ## Developing
 
 Any changes you make to files in the `js/` directory will cause the server to

@@ -265,7 +265,7 @@ class RelayStoreData {
     var profiler = RelayProfiler.profile('RelayStoreData.handleQueryPayload');
     var changeTracker = new RelayChangeTracker();
     var writer = new RelayQueryWriter(
-      this._cachedStore,
+      this._recordStore,
       this._queryTracker,
       changeTracker,
       {

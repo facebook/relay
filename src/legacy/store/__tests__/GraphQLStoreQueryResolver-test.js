@@ -13,7 +13,10 @@
 
 require('configureForRelayOSS');
 
-jest.dontMock('GraphQLStoreQueryResolver');
+jest
+  .dontMock('GraphQLRange')
+  .dontMock('GraphQLSegment')
+  .dontMock('GraphQLStoreQueryResolver');
 
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
@@ -22,6 +25,7 @@ const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
 const readRelayQueryData = require('readRelayQueryData');
+const transformRelayQueryPayload = require('transformRelayQueryPayload');
 
 describe('GraphQLStoreQueryResolver', () => {
   var changeEmitter;
@@ -331,111 +335,135 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   describe('garbage collection', () => {
-    var garbageCollector;
-
-    /**
-     * Gets the first parameter passed into incrementReferenceCount.
-     */
-    function getIncreaseSubscriptionsParameters(count) {
-      expect(
-        garbageCollector.incrementReferenceCount.mock.calls.length
-      ).toBe(count);
-      return garbageCollector.incrementReferenceCount.mock.calls.map(
-        call => call[0]
-      ).sort();
-    }
-
-    /**
-     * Gets the first parameter passed into decrementReferenceCount.
-     */
-    function getDecreaseSubscriptionsParameters(count) {
-      expect(
-        garbageCollector.decrementReferenceCount.mock.calls.length
-      ).toBe(count);
-      return garbageCollector.decrementReferenceCount.mock.calls.map(
-        call => call[0]
-      ).sort();
-    }
+    let fragment;
 
     beforeEach(() => {
-      // Prepare mock garbage collector and mock observable
       storeData.initializeGarbageCollector(run => {
-        while (!run()) {}
+        while (run()) {}
       });
-      garbageCollector = storeData.getGarbageCollector();
-      garbageCollector.decrementReferenceCount = jest.genMockFunction();
-      garbageCollector.incrementReferenceCount = jest.genMockFunction();
-      garbageCollector.register = jest.genMockFunction();
-
-      RelayStoreData.prototype.getGarbageCollector =
-        jest.genMockFunction().mockReturnValue(garbageCollector);
-
-      mockQueryFragment = getNode(Relay.QL`
-        fragment on User {
-          birthdate {
-            day,
-          },
-          address {
-            city
-          },
+      const containerFragment = RelayTestUtils.createContainerFragment(Relay.QL`
+        fragment on NewsFeedConnection {
+          edges {
+            node {
+              id
+            }
+          }
         }
       `);
+      fragment = Relay.QL`
+        fragment on Viewer {
+          actor {
+            id
+          }
+          newsFeed(first: "1") {
+            ${containerFragment}
+          }
+        }
+      `;
+      const query = getNode(Relay.QL`
+        query {
+          viewer {
+            ${fragment}
+          }
+        }
+      `);
+      const payload = {
+        viewer: {
+          actor: {
+            id: '123',
+          },
+          newsFeed: {
+            edges: [
+              {
+                node: {
+                  id: '456',
+                },
+              },
+            ],
+          },
+        },
+      };
+      storeData.handleQueryPayload(
+        query,
+        transformRelayQueryPayload(query, payload),
+        1
+      );
     });
 
-    it('should adjust subscription-count in the garbage collector', () => {
-      var fragmentPointer = new GraphQLFragmentPointer(
-        'chris',
-        mockQueryFragment
+    it('increments references to read data', () => {
+      const fragmentPointer = new GraphQLFragmentPointer(
+        'client:1',
+        getNode(fragment)
       );
-      var mockResult = {
-        __dataID__: 'chris',
-        address: {__dataID__: 'address', city: 'menlo park'},
-      };
-      readRelayQueryData.mockReturnValue({
-        data: mockResult,
-        dataIDs: { chris: true, address: true },
-      });
-
-      var resolver = new GraphQLStoreQueryResolver(
+      const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
         fragmentPointer,
-        mockCallback
+        jest.genMockFunction()
       );
-
-      garbageCollector.register('chris');
-      garbageCollector.register('address');
-
-      // Resolve the fragment pointer with the mocked data
-      resolver.resolve(fragmentPointer);
-      var callback =
-        changeEmitter.addListenerForIDs.mock.calls[0][1];
-      // On first resolve we get data for all added ids
-      expect(getIncreaseSubscriptionsParameters(2)).toEqual([
-        'address',
-        'chris',
+      // read data and set up subscriptions
+      queryResolver.resolve(fragmentPointer);
+      // evict unreferenced nodes
+      storeData.getGarbageCollector().collect();
+      // nodes referenced by the fragment should not be evicted
+      expect(Object.keys(storeData.getNodeData())).toEqual([
+        '123',      // viewer.actor
+        'client:1', // viewer
+        'client:2', // viewer.newsFeed
       ]);
+    });
 
-      // New mock data for the resolve
-      mockResult = {
-        __dataID__: 'chris',
-        birthdate: {__dataID__: 'date', day: 15},
-      };
-      readRelayQueryData.mockReturnValue({
-        data: mockResult,
-        dataIDs: { chris: true, date: true },
-      });
-      // Notify resolve that data has changed
-      callback(['chris']);
+    it('decrements references to previously read fields', () => {
+      const fragmentPointer = new GraphQLFragmentPointer(
+        'client:1',
+        getNode(fragment)
+      );
+      const queryResolver = new GraphQLStoreQueryResolver(
+        storeData,
+        fragmentPointer,
+        jest.genMockFunction()
+      );
+      // read data and increment GC ref counts
+      queryResolver.resolve(fragmentPointer);
+      const callback =
+        storeData.getChangeEmitter().addListenerForIDs.mock.calls[0][1];
 
-      // We called this twice before, for chris and ship
-      resolver.resolve(fragmentPointer);
-      expect(
-        garbageCollector.incrementReferenceCount.mock.calls.length
-      ).toBe(3);
-      expect(
-        garbageCollector.incrementReferenceCount.mock.calls[2][0]
-      ).toBe('date');
-      expect(getDecreaseSubscriptionsParameters(1)).toEqual(['address']);
+      // Remove the link to viewer.actor and broadcast an update
+      storeData.getRecordStore().putField('client:1', 'actor', null);
+      storeData.getRecordStore().putField('client:1', 'newsFeed', null);
+      callback(['client:1']);
+
+      // re-read and increment/decrement GC ref counts
+      queryResolver.resolve(fragmentPointer);
+
+      // evict unreferenced nodes
+      storeData.getGarbageCollector().collect();
+      // nodes referenced by the fragment should not be evicted
+      expect(Object.keys(storeData.getNodeData())).toEqual([
+        // '123' (actor) is unreferenced and collected
+        // 'client:2' (viewer.newsFeed) is unreferenced and collected
+        'client:1', // viewer
+      ]);
+    });
+
+    it('decrements references when reset', () => {
+      const fragmentPointer = new GraphQLFragmentPointer(
+        'client:1',
+        getNode(fragment)
+      );
+      const queryResolver = new GraphQLStoreQueryResolver(
+        storeData,
+        fragmentPointer,
+        jest.genMockFunction()
+      );
+      // read data and increment GC ref counts
+      queryResolver.resolve(fragmentPointer);
+      // reset the resolver; should unreference all nodes
+      queryResolver.reset();
+
+      // evict unreferenced nodes
+      storeData.getGarbageCollector().collect();
+      // all nodes are unreferenced and should be removed
+      expect(storeData.getNodeData()).toEqual({});
     });
   });
 });

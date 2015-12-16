@@ -289,13 +289,25 @@ class GraphQLStoreSingleQueryResolver {
     nextDataIDs: {[dataID: DataID]: boolean},
   ): void {
     if (this._garbageCollector) {
-      var garbageCollector = this._garbageCollector;
+      const garbageCollector = this._garbageCollector;
+      const rangeData = this._storeData.getRangeData();
 
-      var prevDataIDs = this._subscribedIDs;
-      var [removed, added] = filterExclusiveKeys(prevDataIDs, nextDataIDs);
+      const prevDataIDs = this._subscribedIDs;
+      const [removed, added] = filterExclusiveKeys(prevDataIDs, nextDataIDs);
 
-      added.forEach(id => garbageCollector.incrementReferenceCount(id));
-      removed.forEach(id => garbageCollector.decrementReferenceCount(id));
+      // Note: the same canonical ID may appear in both removed and added: in
+      // that case, it would have been:
+      // - previous: canonical ID ref count is incremented
+      // - current: canonical ID is incremented *and* decremented
+      // In both cases the next ref count change is +1.
+      added.forEach(id => {
+        id = rangeData.getCanonicalClientID(id);
+        garbageCollector.incrementReferenceCount(id);
+      });
+      removed.forEach(id => {
+        id = rangeData.getCanonicalClientID(id);
+        garbageCollector.decrementReferenceCount(id);
+      });
     }
   }
 }

@@ -14,22 +14,22 @@
 'use strict';
 
 import type {ConcreteMutation} from 'ConcreteQuery';
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayMutationType = require('RelayMutationType');
-var RelayNodeInterface = require('RelayNodeInterface');
-var RelayQuery = require('RelayQuery');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayMutationType = require('RelayMutationType');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayQuery = require('RelayQuery');
 import type RelayQueryTracker from 'RelayQueryTracker';
 import type {Variables} from 'RelayTypes';
 
-var flattenRelayQuery = require('flattenRelayQuery');
-var forEachObject = require('forEachObject');
-var nullthrows = require('nullthrows');
-var inferRelayFieldsFromData = require('inferRelayFieldsFromData');
-var intersectRelayQuery = require('intersectRelayQuery');
-var invariant = require('invariant');
+const flattenRelayQuery = require('flattenRelayQuery');
+const forEachObject = require('forEachObject');
+const nullthrows = require('nullthrows');
+const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
+const intersectRelayQuery = require('intersectRelayQuery');
+const invariant = require('invariant');
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment;
@@ -199,7 +199,7 @@ var RelayMutationQuery = {
     });
 
     if (trackedConnections.length) {
-      var keysWithoutRangeBehavior: {[serializationKey: string]: boolean} = {};
+      var keysWithoutRangeBehavior: {[hash: string]: boolean} = {};
       var mutatedEdgeFields = [];
       trackedConnections.forEach(trackedConnection => {
         var trackedEdges = findDescendantFields(trackedConnection, 'edges');
@@ -214,8 +214,7 @@ var RelayMutationQuery = {
           });
         } else {
           // If the connection is not in `rangeBehaviors`, re-fetch it.
-          var key = trackedConnection.getSerializationKey();
-          keysWithoutRangeBehavior[key] = true;
+          keysWithoutRangeBehavior[trackedConnection.getShallowHash()] = true;
         }
       });
       if (mutatedEdgeFields.length) {
@@ -230,7 +229,7 @@ var RelayMutationQuery = {
         var trackedParent = fatParent.clone(trackedChildren);
         if (trackedParent) {
           var filterUnterminatedRange = node => (
-            !keysWithoutRangeBehavior.hasOwnProperty(node.getSerializationKey())
+            !keysWithoutRangeBehavior.hasOwnProperty(node.getShallowHash())
           );
           var mutatedParent = intersectRelayQuery(
             trackedParent,
@@ -379,7 +378,7 @@ var RelayMutationQuery = {
       (children.filter(child => child != null): any),
       mutation.metadata
     );
-  }
+  },
 };
 
 function getFieldFromFatQuery(
@@ -475,7 +474,7 @@ function sanitizeRangeBehaviors(
         .slice(0, -1)
         // Slice on unescaped parentheses followed immediately by a `.`
         .split(/\)\./);
-      let sortedKey = keyParts
+      const sortedKey = keyParts
         .sort()
         .join(').') +
         (keyParts.length ? ')' : '');

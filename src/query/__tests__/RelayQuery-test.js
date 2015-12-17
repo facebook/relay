@@ -11,14 +11,14 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
-var QueryBuilder = require('QueryBuilder');
-var Relay = require('Relay');
-var RelayFragmentReference = require('RelayFragmentReference');
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayQuery = require('RelayQuery');
+const QueryBuilder = require('QueryBuilder');
+const Relay = require('Relay');
+const RelayFragmentReference = require('RelayFragmentReference');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayQuery = require('RelayQuery');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQuery', () => {
   var {getNode} = RelayTestUtils;

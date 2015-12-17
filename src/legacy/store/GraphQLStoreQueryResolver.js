@@ -15,16 +15,16 @@
 
 import type {ChangeSubscription} from 'GraphQLStoreChangeEmitter';
 import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
-import type RelayStoreGarbageCollector from 'RelayStoreGarbageCollector';
+import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
-var RelayProfiler = require('RelayProfiler');
+const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
 import type {StoreReaderData} from 'RelayTypes';
 
-var filterExclusiveKeys = require('filterExclusiveKeys');
-var readRelayQueryData = require('readRelayQueryData');
-var recycleNodesInto = require('recycleNodesInto');
+const filterExclusiveKeys = require('filterExclusiveKeys');
+const readRelayQueryData = require('readRelayQueryData');
+const recycleNodesInto = require('recycleNodesInto');
 
 type DataIDSet = {[dataID: DataID]: any};
 
@@ -155,7 +155,7 @@ class GraphQLStorePluralQueryResolver {
 class GraphQLStoreSingleQueryResolver {
   _callback: Function;
   _fragment: ?RelayQuery.Fragment;
-  _garbageCollector: ?RelayStoreGarbageCollector;
+  _garbageCollector: ?RelayGarbageCollector;
   _hasDataChanged: boolean;
   _result: ?StoreReaderData;
   _resultID: ?DataID;
@@ -277,7 +277,7 @@ class GraphQLStoreSingleQueryResolver {
   _resolveFragment(
     fragment: RelayQuery.Fragment,
     dataID: DataID
-  ): [StoreReaderData, DataIDSet] {
+  ): [?StoreReaderData, DataIDSet] {
     var {data, dataIDs} = readRelayQueryData(this._storeData, fragment, dataID);
     return [data, dataIDs];
   }
@@ -289,19 +289,31 @@ class GraphQLStoreSingleQueryResolver {
     nextDataIDs: {[dataID: DataID]: boolean},
   ): void {
     if (this._garbageCollector) {
-      var garbageCollector = this._garbageCollector;
+      const garbageCollector = this._garbageCollector;
+      const rangeData = this._storeData.getRangeData();
 
-      var prevDataIDs = this._subscribedIDs;
-      var [removed, added] = filterExclusiveKeys(prevDataIDs, nextDataIDs);
+      const prevDataIDs = this._subscribedIDs;
+      const [removed, added] = filterExclusiveKeys(prevDataIDs, nextDataIDs);
 
-      added.forEach(id => garbageCollector.increaseSubscriptionsFor(id));
-      removed.forEach(id => garbageCollector.decreaseSubscriptionsFor(id));
+      // Note: the same canonical ID may appear in both removed and added: in
+      // that case, it would have been:
+      // - previous: canonical ID ref count is incremented
+      // - current: canonical ID is incremented *and* decremented
+      // In both cases the next ref count change is +1.
+      added.forEach(id => {
+        id = rangeData.getCanonicalClientID(id);
+        garbageCollector.incrementReferenceCount(id);
+      });
+      removed.forEach(id => {
+        id = rangeData.getCanonicalClientID(id);
+        garbageCollector.decrementReferenceCount(id);
+      });
     }
   }
 }
 
 RelayProfiler.instrumentMethods(GraphQLStoreQueryResolver.prototype, {
-  resolve: 'GraphQLStoreQueryResolver.resolve'
+  resolve: 'GraphQLStoreQueryResolver.resolve',
 });
 
 module.exports = GraphQLStoreQueryResolver;

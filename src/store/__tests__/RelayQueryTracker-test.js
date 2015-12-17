@@ -11,15 +11,16 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest.dontMock('RelayQueryTracker');
 
-var Relay = require('Relay');
-var RelayQueryPath = require('RelayQueryPath');
-var RelayQueryTracker = require('RelayQueryTracker');
-var invariant = require('invariant');
+const Relay = require('Relay');
+const RelayQueryPath = require('RelayQueryPath');
+const RelayQueryTracker = require('RelayQueryTracker');
+const RelayTestUtils = require('RelayTestUtils');
+
+const invariant = require('invariant');
 
 describe('RelayQueryTracker', () => {
   var {getNode} = RelayTestUtils;
@@ -62,10 +63,11 @@ describe('RelayQueryTracker', () => {
         }
       }
     `);
-    var path = new RelayQueryPath(query);
     var tracker = new RelayQueryTracker();
 
-    tracker.trackNodeForID(query, 'client:1', path);
+    tracker.trackNodeForID(query, 'client:1', {
+      isRoot: true,
+    });
     var trackedChildren = tracker.getTrackedChildrenForID('client:1');
     expect(trackedChildren.length).toBe(1);
     expect(trackedChildren[0])

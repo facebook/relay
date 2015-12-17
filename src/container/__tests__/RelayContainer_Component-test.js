@@ -11,13 +11,13 @@
 
 'use strict';
 
-require('RelayTestUtils').unmockRelay();
+require('configureForRelayOSS');
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var React = require('React');
-var Relay = require('Relay');
-var RelayTestUtils = require('RelayTestUtils');
-var reactComponentExpect = require('reactComponentExpect');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const React = require('React');
+const Relay = require('Relay');
+const RelayTestUtils = require('RelayTestUtils');
+const reactComponentExpect = require('reactComponentExpect');
 
 describe('RelayContainer', function() {
   var MockComponent;
@@ -29,7 +29,7 @@ describe('RelayContainer', function() {
     jest.resetModuleRegistry();
 
     MockComponent = React.createClass({
-      render: jest.genMockFunction().mockImplementation(() => <div />)
+      render: jest.genMockFunction().mockImplementation(() => <div />),
     });
 
     mockCreateContainer = component => {
@@ -38,8 +38,8 @@ describe('RelayContainer', function() {
         fragments: {
           foo: jest.genMockFunction().mockImplementation(
             () => Relay.QL`fragment on Node{id,url(site:$site)}`
-          )
-        }
+          ),
+        },
       });
     };
 

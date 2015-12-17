@@ -13,10 +13,10 @@
 
 'use strict';
 
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayQuery = require('RelayQuery');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayQuery = require('RelayQuery');
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 function createRelayQuery(
   node: Object,

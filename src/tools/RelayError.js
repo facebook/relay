@@ -13,7 +13,7 @@
 
 'use strict';
 
-var sprintf = require('sprintf');
+const sprintf = require('sprintf');
 
 /**
  * @internal

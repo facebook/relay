@@ -13,12 +13,12 @@
 
 'use strict';
 
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var RelayQuery = require('RelayQuery');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayQuery = require('RelayQuery');
 import type RelayRecordStore from 'RelayRecordStore';
 
-var invariant = require('invariant');
-var shallowEqual = require('shallowEqual');
+const invariant = require('invariant');
+const shallowEqual = require('shallowEqual');
 
 import type {DataID} from 'RelayInternalTypes';
 

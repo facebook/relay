@@ -13,7 +13,7 @@
 
 'use strict';
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 type TaskCallback = () => void;
 type TaskExecutor = () => void;
@@ -63,7 +63,7 @@ var RelayTaskScheduler = {
    * Otherwise, the returned promise will be resolved with the return value of
    * the last callback. For example:
    *
-   *   RelayTaskScheduler.await(
+   *   RelayTaskScheduler.enqueue(
    *     function() {
    *       return 'foo';
    *     },
@@ -76,7 +76,7 @@ var RelayTaskScheduler = {
    *     }
    *   );
    *
-   *   RelayTaskScheduler.await(
+   *   RelayTaskScheduler.enqueue(
    *     function() {
    *       return 'foo';
    *     },
@@ -91,7 +91,7 @@ var RelayTaskScheduler = {
    *   );
 
    */
-  await: function(...callbacks: Array<(value: any) => any>): Promise<any> {
+  enqueue: function(...callbacks: Array<(value: any) => any>): Promise<any> {
     var promise = new Promise((resolve, reject) => {
       var nextIndex = 0;
       var error = null;
@@ -121,7 +121,7 @@ var RelayTaskScheduler = {
     });
     scheduleIfNecessary();
     return promise;
-  }
+  },
 };
 
 function scheduleIfNecessary(): void {

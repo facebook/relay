@@ -11,7 +11,7 @@
 
 'use strict';
 
-var stableStringify = require('stableStringify');
+const stableStringify = require('stableStringify');
 
 describe('stableStringify', () => {
   it('stringifies non-objects', () => {

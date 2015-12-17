@@ -13,11 +13,11 @@
 
 'use strict';
 
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayQuery = require('RelayQuery');
-var RelayQueryTransform = require('RelayQueryTransform');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayQuery = require('RelayQuery');
+const RelayQueryTransform = require('RelayQueryTransform');
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 type UnterminatedRangeFilter = (node: RelayQuery.Field) => boolean;
 

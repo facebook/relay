@@ -11,7 +11,7 @@
 
 'use strict';
 
-var sortTypeFirst = require('sortTypeFirst');
+const sortTypeFirst = require('sortTypeFirst');
 
 describe('sortTypeFirst', () => {
   it('considers `__type__` to be the smallest', () => {

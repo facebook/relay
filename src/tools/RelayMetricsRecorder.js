@@ -13,60 +13,9 @@
 
 'use strict';
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
 
-const buildRQL = require('buildRQL');
-const checkRelayQueryData = require('checkRelayQueryData');
-const diffRelayQuery = require('diffRelayQuery');
-const flattenRelayQuery = require('flattenRelayQuery');
-const invariant = require('invariant');
-const getRelayQueries = require('getRelayQueries');
 const performanceNow = require('performanceNow');
-const printRelayQuery = require('printRelayQuery');
-const readRelayQueryData = require('readRelayQueryData');
-const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
-const subtractRelayQuery = require('subtractRelayQuery');
-const writeRelayQueryPayload = require('writeRelayQueryPayload');
-const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
-
-// Singleton methods:
-const INSTRUMENTED_METHODS = [
-  GraphQLStoreQueryResolver.prototype.resolve,
-  buildRQL.Fragment,
-  buildRQL.Query,
-  checkRelayQueryData,
-  diffRelayQuery,
-  flattenRelayQuery,
-  getRelayQueries,
-  printRelayQuery,
-  readRelayQueryData,
-  splitDeferredRelayQueries,
-  subtractRelayQuery,
-  writeRelayQueryPayload,
-  writeRelayUpdatePayload,
-  GraphQLStoreQueryResolver.prototype.resolve,
-  RelayQuery.Field.prototype.getStorageKey,
-  RelayQuery.Field.prototype.getSerializationKey,
-  RelayQuery.Node.prototype.clone,
-  RelayQuery.Node.prototype.equals,
-  RelayQuery.Node.prototype.getChildren,
-  RelayQuery.Node.prototype.getDirectives,
-  RelayQuery.Node.prototype.hasDeferredDescendant,
-  RelayQuery.Node.prototype.getFieldByStorageKey,
-  RelayNetworkLayer.sendMutation,
-  RelayNetworkLayer.sendQueries,
-];
-
-// There is no static RelayContainer.prototype instance, so methods are
-// profiled by name:
-const INSTRUMENTED_AGGREGATE_METHODS = [
-  'RelayContainer.prototype.componentWillMount',
-  'RelayContainer.prototype.componentWillReceiveProps',
-  'RelayContainer.prototype.shouldComponentUpdate',
-];
 
 const measurementDefaults = {
   aggregateTime: 0,
@@ -144,16 +93,7 @@ class RelayMetricsRecorder {
     this._profileStack = [0];
     this._startTimesStack = [0];
 
-    INSTRUMENTED_METHODS.forEach(method => {
-      invariant(
-        method && method.attachHandler,
-        'RelayMetricsRecorder: Attempted to measure an invalid method.'
-      );
-      method.attachHandler(this._measure);
-    });
-    INSTRUMENTED_AGGREGATE_METHODS.forEach(name => {
-      RelayProfiler.attachAggregateHandler(name, this._measure);
-    });
+    RelayProfiler.attachAggregateHandler('*', this._measure);
     RelayProfiler.attachProfileHandler('*', this._instrumentProfile);
   }
 
@@ -164,12 +104,7 @@ class RelayMetricsRecorder {
     this._recordingTotalTime += performanceNow() - this._recordingStartTime;
     this._isEnabled = false;
 
-    INSTRUMENTED_METHODS.forEach(method => {
-      (method: any).detachHandler(this._measure);
-    });
-    INSTRUMENTED_AGGREGATE_METHODS.forEach(name => {
-      RelayProfiler.detachAggregateHandler(name, this._measure);
-    });
+    RelayProfiler.detachAggregateHandler('*', this._measure);
     RelayProfiler.detachProfileHandler('*', this._instrumentProfile);
   }
 

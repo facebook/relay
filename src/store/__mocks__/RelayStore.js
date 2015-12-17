@@ -10,9 +10,9 @@
 'use strict';
 
 var RelayStore = jest.genMockFromModule('RelayStore');
-var RelayRecordStore = require('RelayRecordStore');
+const RelayRecordStore = require('RelayRecordStore');
 
-var resolveImmediate = require('resolveImmediate');
+const resolveImmediate = require('resolveImmediate');
 
 /**
  * Mock object to simulate the behavior of a request. Example usage:
@@ -58,7 +58,7 @@ RelayStore.primeCache.mockImplementation((...args) => {
   var returnValue = {
     abort: jest.genMockFunction().mockImplementation(() => {
       resolveImmediate(request.abort);
-    })
+    }),
   };
   RelayStore.primeCache.mock.abort.push(returnValue.abort);
   RelayStore.primeCache.mock.requests.push(request);
@@ -72,7 +72,7 @@ RelayStore.forceFetch.mockImplementation((...args) => {
   var returnValue = {
     abort: jest.genMockFunction().mockImplementation(() => {
       resolveImmediate(request.abort);
-    })
+    }),
   };
   RelayStore.forceFetch.mock.abort.push(returnValue.abort);
   RelayStore.forceFetch.mock.requests.push(request);

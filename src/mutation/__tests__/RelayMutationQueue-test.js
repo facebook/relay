@@ -11,21 +11,21 @@
 
 'use strict';
 
-require('RelayTestUtils').unmockRelay();
+require('configureForRelayOSS');
 
 jest
   .dontMock('RelayMutationTransaction')
   .dontMock('RelayMutationTransactionStatus');
 
-var Relay = require('Relay');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayMutation = require('RelayMutation');
-var RelayMutationQuery = require('RelayMutationQuery');
-var RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-var RelayStoreData = require('RelayStoreData');
+const Relay = require('Relay');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayMutation = require('RelayMutation');
+const RelayMutationQuery = require('RelayMutationQuery');
+const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
+const RelayStoreData = require('RelayStoreData');
 
-var flattenRelayQuery = require('flattenRelayQuery');
-var fromGraphQL = require('fromGraphQL');
+const flattenRelayQuery = require('flattenRelayQuery');
+const fromGraphQL = require('fromGraphQL');
 
 describe('RelayMutationQueue', () => {
   var RelayNetworkLayer;
@@ -106,9 +106,7 @@ describe('RelayMutationQueue', () => {
         'optimisticQuery'
       );
 
-      /* eslint-disable no-new */
       mutationQueue.createTransaction(mockMutation);
-      /* eslint-enable no-new */
 
       expect(
         RelayMutationQuery.buildQueryForOptimisticUpdate.mock.calls

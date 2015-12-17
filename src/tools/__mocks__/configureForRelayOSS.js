@@ -1,4 +1,4 @@
-  /**
+/**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
  *
@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('printRelayQueryCall');
+global.__RELAYOSS__ = true;

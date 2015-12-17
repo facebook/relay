@@ -13,11 +13,11 @@
 
 'use strict';
 
-var RelayQuery = require('RelayQuery');
-var RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQuery = require('RelayQuery');
+const RelayQueryVisitor = require('RelayQueryVisitor');
 
-var invariant = require('invariant');
-var mapObject = require('mapObject');
+const invariant = require('invariant');
+const mapObject = require('mapObject');
 
 type Payload = mixed;
 type PayloadState = {
@@ -78,7 +78,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
   visitField(
     node: RelayQuery.Field,
     state: PayloadState
-  ): ?RelayQuery.Node {
+  ): void {
     var {client, server} = state;
     // `client` represents the *parent* node value and should not be null
     // due to checks before traversing child values.

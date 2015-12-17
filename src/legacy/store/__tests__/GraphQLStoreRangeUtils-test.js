@@ -11,13 +11,12 @@
 
 'use strict';
 
-require('RelayTestUtils').unmockRelay();
+require('configureForRelayOSS');
 
-jest
-  .dontMock('GraphQLStoreRangeUtils');
+jest.dontMock('GraphQLStoreRangeUtils');
 
-var QueryBuilder = require('QueryBuilder');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+const QueryBuilder = require('QueryBuilder');
+const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 
 describe('GraphQLStoreRangeUtils', () => {
   var rangeData;
@@ -58,6 +57,28 @@ describe('GraphQLStoreRangeUtils', () => {
     expect(parsed.dataID).toBe(id);
     expect(parsed.calls).toBe(calls);
     expect(parsed.callValues).toBe(callValues);
+  });
+
+  it('removes range data for records', () => {
+    var id = 'client:1';
+    var calls = [QueryBuilder.createCall(
+      'first',
+      QueryBuilder.createCallValue(1)
+    )];
+    var callValues = {};
+    var rangeID = rangeData.getClientIDForRangeWithID(
+      calls,
+      callValues,
+      id
+    );
+    expect(rangeData.parseRangeClientID(rangeID)).toEqual({
+      dataID: id,
+      calls,
+      callValues,
+    });
+
+    rangeData.removeRecord(id);
+    expect(rangeData.parseRangeClientID(rangeID)).toBe(null);
   });
 
 });

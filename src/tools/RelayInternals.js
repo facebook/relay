@@ -12,11 +12,11 @@
 
 'use strict';
 
-var RelayNetworkLayer = require('RelayNetworkLayer');
-var RelayStoreData = require('RelayStoreData');
+const RelayNetworkLayer = require('RelayNetworkLayer');
+const RelayStoreData = require('RelayStoreData');
 
-var flattenRelayQuery = require('flattenRelayQuery');
-var printRelayQuery = require('printRelayQuery');
+const flattenRelayQuery = require('flattenRelayQuery');
+const printRelayQuery = require('printRelayQuery');
 
 /**
  * This module contains internal Relay modules that we expose for development

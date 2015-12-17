@@ -14,14 +14,14 @@
 'use strict';
 
 import type {ConcreteMutation} from 'ConcreteQuery';
-var ErrorUtils = require('ErrorUtils');
-var QueryBuilder = require('QueryBuilder');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayMutationQuery = require('RelayMutationQuery');
-var RelayMutationRequest = require('RelayMutationRequest');
-var RelayMutationTransaction = require('RelayMutationTransaction');
-var RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-var RelayNetworkLayer = require('RelayNetworkLayer');
+const ErrorUtils = require('ErrorUtils');
+const QueryBuilder = require('QueryBuilder');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayMutationQuery = require('RelayMutationQuery');
+const RelayMutationRequest = require('RelayMutationRequest');
+const RelayMutationTransaction = require('RelayMutationTransaction');
+const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
+const RelayNetworkLayer = require('RelayNetworkLayer');
 import type RelayStoreData from 'RelayStoreData';
 import type {FileMap} from 'RelayMutation';
 import type RelayMutation from 'RelayMutation';
@@ -392,7 +392,7 @@ class PendingTransaction {
 
   getMutationNode(): ConcreteMutation {
     if (!this._mutationNode) {
-      let mutationNode = QueryBuilder.getMutation(this.mutation.getMutation());
+      const mutationNode = QueryBuilder.getMutation(this.mutation.getMutation());
       invariant(
         mutationNode,
         'RelayMutation: Expected `getMutation` to return a mutation created ' +

@@ -16,7 +16,7 @@
 import type {RootQueries} from 'RelayContainer';
 
 import type {RelayQLQueryBuilder} from 'buildRQL';
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 export type ConfigQueries = {[queryName: string]: RelayQLQueryBuilder};
 

@@ -14,10 +14,10 @@
 'use strict';
 
 import type RelayMutationRequest from 'RelayMutationRequest';
-var RelayProfiler = require('RelayProfiler');
+const RelayProfiler = require('RelayProfiler');
 import type RelayQueryRequest from 'RelayQueryRequest';
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 type NetworkLayer = {
   sendMutation: (mutationRequest: RelayMutationRequest) => ?Promise;

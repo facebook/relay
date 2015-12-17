@@ -13,7 +13,7 @@
 
 'use strict';
 
-var RelayQuery = require('RelayQuery');
+const RelayQuery = require('RelayQuery');
 
 /**
  * @internal
@@ -65,9 +65,26 @@ class RelayQueryVisitor<Ts> {
     nextState: Ts
   ): ?Tn {
     if (!node.isScalar()) {
-      node.getChildren().forEach(child => this.visit(child, nextState));
+      this.traverseChildren(node, nextState, child => {
+        this.visit(child, nextState);
+      });
     }
     return node;
+  }
+
+  traverseChildren(
+    node: RelayQuery.Node,
+    nextState: Ts,
+    callback: (
+      child: RelayQuery.Node,
+      index: number,
+      children: Array<RelayQuery.Node>
+    ) => void
+  ): void {
+    const children = node.getChildren();
+    for (let index = 0; index < children.length; index++) {
+      callback(children[index], index, children);
+    }
   }
 
   visitField(

@@ -11,63 +11,63 @@
 
 'use strict';
 
-var printRelayQueryCall = require('printRelayQueryCall');
+const serializeRelayQueryCall = require('serializeRelayQueryCall');
 
-describe('printRelayQueryCall', () => {
-  it('prints a call with a null argument', () => {
+describe('serializeRelayQueryCall', () => {
+  it('serializes a call with a null argument', () => {
     var call = {
       name: 'me',
       value: null,
     };
-    expect(printRelayQueryCall(call)).toEqual('.me()');
+    expect(serializeRelayQueryCall(call)).toEqual('.me()');
   });
 
-  it('prints a call with an undefined argument', () => {
+  it('serializes a call with an undefined argument', () => {
     var call = {
       name: 'me',
       value: undefined,
     };
-    expect(printRelayQueryCall(call)).toEqual('.me()');
+    expect(serializeRelayQueryCall(call)).toEqual('.me()');
   });
 
-  it('prints a call with a string argument', () => {
+  it('serializes a call with a string argument', () => {
     var call = {
       name: 'first',
       value: '5',
     };
-    expect(printRelayQueryCall(call)).toEqual('.first(5)');
+    expect(serializeRelayQueryCall(call)).toEqual('.first(5)');
   });
 
-  it('prints a call with a numeric argument', () => {
+  it('serializes a call with a numeric argument', () => {
     var call = {
       name: 'first',
       value: 5,
     };
-    expect(printRelayQueryCall(call)).toEqual('.first(5)');
+    expect(serializeRelayQueryCall(call)).toEqual('.first(5)');
   });
 
-  it('prints a call with `true` argument', () => {
+  it('serializes a call with `true` argument', () => {
     var call = {
       name: 'if',
       value: true,
     };
-    expect(printRelayQueryCall(call)).toEqual('.if(true)');
+    expect(serializeRelayQueryCall(call)).toEqual('.if(true)');
   });
 
-  it('prints a call with `false` argument', () => {
+  it('serializes a call with `false` argument', () => {
     var call = {
       name: 'unless',
       value: false,
     };
-    expect(printRelayQueryCall(call)).toEqual('.unless(false)');
+    expect(serializeRelayQueryCall(call)).toEqual('.unless(false)');
   });
 
-  it('prints a call with many arguments', () => {
+  it('serializes a call with many arguments', () => {
     var call = {
       name: 'usernames',
       value: ['glh', 'joesavona'],
     };
-    expect(printRelayQueryCall(call)).toEqual('.usernames(glh,joesavona)');
+    expect(serializeRelayQueryCall(call)).toEqual('.usernames(glh,joesavona)');
   });
 
   it('sanitizes argument values', () => {
@@ -75,8 +75,18 @@ describe('printRelayQueryCall', () => {
       name: 'checkin_search_query',
       value: JSON.stringify({query: 'Menlo Park'}),
     };
-    expect(printRelayQueryCall(call)).toEqual(
+    expect(serializeRelayQueryCall(call)).toEqual(
       '.checkin_search_query(\\{"query":"Menlo Park"\\})'
+    );
+  });
+
+  it('serializes empty string values', () => {
+    var call = {
+      name: 'query',
+      value: '',
+    };
+    expect(serializeRelayQueryCall(call)).toEqual(
+      '.query(\ )'
     );
   });
 
@@ -96,7 +106,7 @@ describe('printRelayQueryCall', () => {
         value,
       };
       var expected = values[value];
-      expect(printRelayQueryCall(call)).toEqual('.node(' + expected + ')');
+      expect(serializeRelayQueryCall(call)).toEqual('.node(' + expected + ')');
     });
   });
 });

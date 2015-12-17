@@ -11,11 +11,12 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayTestUtils = require('RelayTestUtils');
+
 const flattenRelayQuery = require('flattenRelayQuery');
 const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 

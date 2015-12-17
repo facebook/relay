@@ -14,23 +14,23 @@
 'use strict';
 
 import type {ConcreteFragment} from 'ConcreteQuery';
-var ErrorUtils = require('ErrorUtils');
-var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var React = require('React');
-var ReactDOM = require('ReactDOM');
-var RelayContainerComparators = require('RelayContainerComparators');
-var RelayContainerProxy = require('RelayContainerProxy');
-var RelayFragmentReference = require('RelayFragmentReference');
-import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayMutationTransaction = require('RelayMutationTransaction');
-var RelayPropTypes = require('RelayPropTypes');
-var RelayProfiler = require('RelayProfiler');
-var RelayQuery = require('RelayQuery');
-var RelayStore = require('RelayStore');
-var RelayStoreData = require('RelayStoreData');
+const ErrorUtils = require('ErrorUtils');
+const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const React = require('React');
+const ReactDOM = require('ReactDOM');
+const RelayContainerComparators = require('RelayContainerComparators');
+const RelayContainerProxy = require('RelayContainerProxy');
+const RelayFragmentReference = require('RelayFragmentReference');
+import type {RelayQuerySet} from 'RelayInternalTypes';
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayMutationTransaction = require('RelayMutationTransaction');
+const RelayPropTypes = require('RelayPropTypes');
+const RelayProfiler = require('RelayProfiler');
+const RelayQuery = require('RelayQuery');
+const RelayStore = require('RelayStore');
+const RelayStoreData = require('RelayStoreData');
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
@@ -41,15 +41,15 @@ import type {
 } from 'RelayTypes';
 import type URI from 'URI';
 
-var buildRQL = require('buildRQL');
+const buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder, RelayQLQueryBuilder} from 'buildRQL';
-var forEachObject = require('forEachObject');
-var invariant = require('invariant');
-var nullthrows = require('nullthrows');
-var prepareRelayContainerProps = require('prepareRelayContainerProps');
-var shallowEqual = require('shallowEqual');
-var warning = require('warning');
-var isReactComponent = require('isReactComponent');
+const forEachObject = require('forEachObject');
+const invariant = require('invariant');
+const nullthrows = require('nullthrows');
+const prepareRelayContainerProps = require('prepareRelayContainerProps');
+const shallowEqual = require('shallowEqual');
+const warning = require('warning');
+const isReactComponent = require('isReactComponent');
 
 export type RelayContainerSpec = {
   initialVariables?: Variables;
@@ -831,7 +831,6 @@ function getDeferredFragment(
     {
       isDeferred: true,
       isContainerFragment: fragmentReference.isContainerFragment(),
-      isTypeConditional: fragmentReference.isTypeConditional(),
     }
   );
 }

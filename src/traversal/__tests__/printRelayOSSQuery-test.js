@@ -11,28 +11,28 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
-var QueryBuilder = require('QueryBuilder');
-var Relay = require('Relay');
-var RelayNodeInterface = require('RelayNodeInterface');
-var RelayQuery = require('RelayQuery');
-var generateRQLFieldAlias = require('generateRQLFieldAlias');
-var printRelayOSSQuery = require('printRelayOSSQuery');
+const QueryBuilder = require('QueryBuilder');
+const Relay = require('Relay');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayQuery = require('RelayQuery');
+const RelayTestUtils = require('RelayTestUtils');
+
+const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const printRelayOSSQuery = require('printRelayOSSQuery');
 
 describe('printRelayOSSQuery', () => {
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('roots', () => {
     it('prints a query with no root arguments', () => {
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           me {
             firstName,
@@ -40,7 +40,7 @@ describe('printRelayOSSQuery', () => {
           }
         }
       `);
-      var {text, variables} = printRelayOSSQuery(query);
+      const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query PrintRelayOSSQuery {
           me {
@@ -54,14 +54,14 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints a query with one root argument', () => {
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             name,
           }
         }
       `);
-      var {text, variables} = printRelayOSSQuery(query);
+      const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query PrintRelayOSSQuery {
           node(id:"123") {
@@ -75,7 +75,7 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints a query with one root numeric argument', () => {
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query FooQuery {
           node(id: 123) {
             name,
@@ -83,7 +83,7 @@ describe('printRelayOSSQuery', () => {
           },
         }
       `);
-      var {text, variables} = printRelayOSSQuery(query);
+      const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query FooQuery {
           node(id:123) {
@@ -97,7 +97,7 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints a query with multiple root arguments', () => {
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           usernames(names:["a","b","c"]) {
             firstName,
@@ -105,7 +105,7 @@ describe('printRelayOSSQuery', () => {
           }
         }
       `);
-      var {text, variables} = printRelayOSSQuery(query);
+      const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query PrintRelayOSSQuery {
           usernames(names:["a","b","c"]) {
@@ -120,7 +120,7 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints a query with multiple numeric arguments', () => {
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query FooQuery {
           nodes(ids: [123, 456]) {
             name,
@@ -128,7 +128,7 @@ describe('printRelayOSSQuery', () => {
           }
         }
       `);
-      var {text, variables} = printRelayOSSQuery(query);
+      const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query FooQuery {
           nodes(ids:[123,456]) {
@@ -142,17 +142,17 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints enum call values', () => {
-      var enumValue = 'WEB';
-      var query = getNode(Relay.QL`
+      const enumValue = 'WEB';
+      const query = getNode(Relay.QL`
         query FooQuery {
           settings(environment: $env) {
             notificationSounds,
           },
         }
       `, {
-        env: enumValue
+        env: enumValue,
       });
-      var {text, variables} = printRelayOSSQuery(query);
+      const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query FooQuery($environment_0:Environment) {
           settings(environment:$environment_0) {
@@ -166,8 +166,8 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints object call values', () => {
-      var objectValue = {query: 'Menlo Park'};
-      var query = getNode(Relay.QL`
+      const objectValue = {query: 'Menlo Park'};
+      const query = getNode(Relay.QL`
         query {
           checkinSearchQuery(query: $q) {
             query,
@@ -177,7 +177,7 @@ describe('printRelayOSSQuery', () => {
         q: objectValue,
       });
 
-      var {text, variables} = printRelayOSSQuery(query);
+      const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query PrintRelayOSSQuery($query_0:CheckinSearchInput) {
           checkinSearchQuery(query:$query_0) {
@@ -191,7 +191,7 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('throws for ref queries', () => {
-      var query = RelayQuery.Root.build(
+      const query = RelayQuery.Root.build(
         'RefQueryName',
         RelayNodeInterface.NODE,
         QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id'),
@@ -213,8 +213,8 @@ describe('printRelayOSSQuery', () => {
     it('prints inline fragments as references', () => {
       // the fragment has a different type than the containing field and cannot
       // be flattened (User !== Node)
-      var fragment = Relay.QL`fragment on User{name}`;
-      var query = getNode(Relay.QL`
+      const fragment = Relay.QL`fragment on User { name }`;
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             ${fragment},
@@ -222,18 +222,17 @@ describe('printRelayOSSQuery', () => {
           }
         }
       `);
-      var fragmentID = getNode(fragment).getFragmentID();
-      var {text, variables} = printRelayOSSQuery(query);
+      const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query PrintRelayOSSQuery {
           node(id:"123") {
             id,
             __typename,
-            ...${fragmentID},
-            ...${fragmentID}
+            ...F0,
+            ...F0
           }
         }
-        fragment ${fragmentID} on User {
+        fragment F0 on User {
           name,
           id
         }
@@ -244,14 +243,14 @@ describe('printRelayOSSQuery', () => {
 
   describe('fragments', () => {
     it('prints fragments', () => {
-      var fragment = getNode(Relay.QL`
+      const fragment = getNode(Relay.QL`
         fragment on Viewer {
           actor {
             id,
           },
         }
       `);
-      var {text, variables} = printRelayOSSQuery(fragment);
+      const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Viewer {
           actor {
@@ -265,23 +264,51 @@ describe('printRelayOSSQuery', () => {
 
     it('prints inline fragments as references', () => {
       // these fragments have different types and cannot be flattened
-      var nestedFragment = Relay.QL`fragment on User{name}`;
-      var fragment = getNode(Relay.QL`
+      const nestedFragment = Relay.QL`fragment on User { name }`;
+      const fragment = getNode(Relay.QL`
         fragment on Node {
           ${nestedFragment},
           ${nestedFragment},
         }
       `);
-      var fragmentID = getNode(nestedFragment).getFragmentID();
-      var {text, variables} = printRelayOSSQuery(fragment);
+      const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Node {
           id,
           __typename,
-          ...${fragmentID},
-          ...${fragmentID}
+          ...F0,
+          ...F0
         }
-        fragment ${fragmentID} on User {
+        fragment F0 on User {
+          name,
+          id
+        }
+      `);
+      expect(variables).toEqual({});
+    });
+
+    it('prints fragments with incrementing names', () => {
+      const fragmentA = Relay.QL`fragment on User { name }`;
+      const fragmentB = Relay.QL`fragment on User { name }`;
+      const fragment = getNode(Relay.QL`
+        fragment on Node {
+          ${fragmentA},
+          ${fragmentB},
+        }
+      `);
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQuery on Node {
+          id,
+          __typename,
+          ...F0,
+          ...F1
+        }
+        fragment F0 on User {
+          name,
+          id
+        }
+        fragment F1 on User {
           name,
           id
         }
@@ -290,7 +317,7 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('omits empty inline fragments', () => {
-      var fragment = getNode(Relay.QL`
+      const fragment = getNode(Relay.QL`
         fragment on Viewer {
           actor {
             id
@@ -302,7 +329,7 @@ describe('printRelayOSSQuery', () => {
           }
         }
       `, {false: false});
-      var {text} = printRelayOSSQuery(fragment);
+      const {text} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Viewer {
           actor {
@@ -316,8 +343,8 @@ describe('printRelayOSSQuery', () => {
 
   describe('fields', () => {
     it('prints a field with one argument', () => {
-      var alias = generateRQLFieldAlias('newsFeed.first(10)');
-      var fragment = getNode(Relay.QL`
+      const alias = generateRQLFieldAlias('newsFeed.first(10)');
+      const fragment = getNode(Relay.QL`
         fragment on Viewer {
           newsFeed(first:$first) {
             edges {
@@ -328,7 +355,7 @@ describe('printRelayOSSQuery', () => {
           }
         }
       `, {first: 10});
-      var {text, variables} = printRelayOSSQuery(fragment);
+      const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Viewer {
           ${alias}:newsFeed(first:10) {
@@ -350,15 +377,15 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints a field with multiple arguments', () => {
-      var alias = generateRQLFieldAlias('profilePicture.size(32,64)');
-      var fragment = getNode(Relay.QL`
+      const alias = generateRQLFieldAlias('profilePicture.size(32,64)');
+      const fragment = getNode(Relay.QL`
         fragment on Actor {
           profilePicture(size:["32","64"]) {
             uri
           }
         }
       `);
-      var {text, variables} = printRelayOSSQuery(fragment);
+      const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Actor {
           ${alias}:profilePicture(size:["32","64"]) {
@@ -372,8 +399,8 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints a field with multiple variable arguments', () => {
-      var alias = generateRQLFieldAlias('profilePicture.size(32,64)');
-      var fragment = getNode(Relay.QL`
+      const alias = generateRQLFieldAlias('profilePicture.size(32,64)');
+      const fragment = getNode(Relay.QL`
         fragment on Actor {
           profilePicture(size:[$width,$height]) {
             uri
@@ -383,7 +410,7 @@ describe('printRelayOSSQuery', () => {
         height: 64,
         width: 32,
       });
-      var {text, variables} = printRelayOSSQuery(fragment);
+      const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Actor {
           ${alias}:profilePicture(size:[32,64]) {
@@ -397,7 +424,7 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints scalar arguments', () => {
-      var fragment = getNode(Relay.QL`
+      const fragment = getNode(Relay.QL`
         fragment on Actor {
           friends(
             first: $first,
@@ -416,8 +443,8 @@ describe('printRelayOSSQuery', () => {
         orderby: ['name'],
         isViewerFriend: false,
       });
-      var alias = fragment.getChildren()[0].getSerializationKey();
-      var {text, variables} = printRelayOSSQuery(fragment);
+      const alias = fragment.getChildren()[0].getSerializationKey();
+      const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Actor {
           ${alias}:friends(first:10,orderby:["name"],isViewerFriend:false) {
@@ -440,13 +467,13 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints object call values', () => {
-      var enumValue = 'WEB';
-      var fragment = Relay.QL`
+      const enumValue = 'WEB';
+      const fragment = Relay.QL`
         fragment on Settings {
           notifications(environment: $env)
         }
       `;
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           defaultSettings {
             ${fragment},
@@ -455,16 +482,15 @@ describe('printRelayOSSQuery', () => {
       `, {
         env: enumValue,
       });
-      var fragmentID = getNode(fragment, {env: enumValue}).getFragmentID();
-      var alias = generateRQLFieldAlias('notifications.environment(WEB)');
-      var {text, variables} = printRelayOSSQuery(query);
+      const alias = generateRQLFieldAlias('notifications.environment(WEB)');
+      const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query PrintRelayOSSQuery($environment_0:Environment) {
           defaultSettings {
-            ...${fragmentID}
+            ...F0
           }
         }
-        fragment ${fragmentID} on Settings {
+        fragment F0 on Settings {
           ${alias}:notifications(environment:$environment_0)
         }
       `);
@@ -475,8 +501,8 @@ describe('printRelayOSSQuery', () => {
 
     it('prints inline fragments as references', () => {
       // these fragments have different types and cannot be flattened
-      var nestedFragment = Relay.QL`fragment on User{name}`;
-      var fragment = getNode(Relay.QL`
+      const nestedFragment = Relay.QL`fragment on User { name }`;
+      const fragment = getNode(Relay.QL`
         fragment on Viewer {
           actor {
             id,
@@ -485,18 +511,17 @@ describe('printRelayOSSQuery', () => {
           }
         }
       `);
-      var fragmentID = getNode(nestedFragment).getFragmentID();
-      var {text, variables} = printRelayOSSQuery(fragment);
+      const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Viewer {
           actor {
             id,
             __typename,
-            ...${fragmentID},
-            ...${fragmentID}
+            ...F0,
+            ...F0
           }
         }
-        fragment ${fragmentID} on User {
+        fragment F0 on User {
           name,
           id
         }
@@ -506,11 +531,11 @@ describe('printRelayOSSQuery', () => {
   });
 
   it('prints a mutation', () => {
-    var inputValue = {
+    const inputValue = {
       clientMutationId: '123',
       foo: 'bar',
     };
-    var mutation = getNode(Relay.QL`
+    const mutation = getNode(Relay.QL`
       mutation {
         feedbackLike(input:$input) {
           clientMutationId,
@@ -528,8 +553,8 @@ describe('printRelayOSSQuery', () => {
       }
     `, {input: inputValue});
 
-    var alias = generateRQLFieldAlias('profilePicture.preset(SMALL)');
-    var {text, variables} = printRelayOSSQuery(mutation);
+    const alias = generateRQLFieldAlias('profilePicture.preset(SMALL)');
+    const {text, variables} = printRelayOSSQuery(mutation);
     expect(text).toEqualPrintedQuery(`
       mutation PrintRelayOSSQuery(
         $input_0: FeedbackLikeInput,
@@ -559,30 +584,29 @@ describe('printRelayOSSQuery', () => {
   });
 
   it('prints directives', () => {
-    var params = {cond: true};
-    var nestedFragment = Relay.QL`
+    const params = {cond: true};
+    const nestedFragment = Relay.QL`
       fragment on User @include(if: $cond) {
         name @skip(if: $cond)
       }
     `;
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id: 123) @skip(if: true) {
           ${nestedFragment}
         }
       }
     `, params);
-    var fragmentID = getNode(nestedFragment, params).getFragmentID();
-    var {text, variables} = printRelayOSSQuery(query);
+    const {text, variables} = printRelayOSSQuery(query);
     expect(text).toEqualPrintedQuery(`
       query PrintRelayOSSQuery {
         node(id: 123) @skip(if: true) {
           id,
           __typename,
-          ...${fragmentID}
+          ...F0
         }
       }
-      fragment ${fragmentID} on User @include(if: true) {
+      fragment F0 on User @include(if: true) {
         id
       }
     `);
@@ -590,8 +614,8 @@ describe('printRelayOSSQuery', () => {
   });
 
   it('throws for directives with complex values', () => {
-    var params = {data: {foo: 'bar'}};
-    var query = getNode(Relay.QL`
+    const params = {data: {foo: 'bar'}};
+    const query = getNode(Relay.QL`
       query {
         node(id: 123) @include(if: $data) {
           id

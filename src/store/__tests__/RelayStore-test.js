@@ -13,17 +13,18 @@
 
 jest.dontMock('RelayStore');
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var Relay = require('Relay');
-var RelayQueryResultObservable = require('RelayQueryResultObservable');
-var RelayStoreData = require('RelayStoreData');
-var readRelayQueryData = require('readRelayQueryData');
-var RelayMutation = require('RelayMutation');
-var RelayMutationTransaction = require('RelayMutationTransaction');
-var RelayMutationQueue = require('RelayMutationQueue');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const Relay = require('Relay');
+const RelayQueryResultObservable = require('RelayQueryResultObservable');
+const RelayStoreData = require('RelayStoreData');
+const RelayMutation = require('RelayMutation');
+const RelayMutationTransaction = require('RelayMutationTransaction');
+const RelayMutationQueue = require('RelayMutationQueue');
+const RelayTestUtils = require('RelayTestUtils');
+
+const readRelayQueryData = require('readRelayQueryData');
 
 describe('RelayStore', () => {
   var RelayStore;
@@ -160,7 +161,7 @@ describe('RelayStore', () => {
       mockTransaction = new RelayMutationTransaction();
       mockTransaction.commit = jest.genMockFunction();
       createTransactionMock = jest.genMockFunction();
-      createTransactionMock.mockReturnValue(mockTransaction)
+      createTransactionMock.mockReturnValue(mockTransaction);
       RelayMutationQueue.prototype.createTransaction = createTransactionMock;
       mockMutation = new RelayMutation();
       mockCallbacks = jest.genMockFunction();
@@ -168,7 +169,8 @@ describe('RelayStore', () => {
 
     describe('applyUpdate', () => {
       it('creates a new RelayMutationTransaction without committing it', () => {
-        let transaction = RelayStore.applyUpdate(mockMutation, mockCallbacks);
+        const transaction = RelayStore.applyUpdate(mockMutation, mockCallbacks);
+        expect(transaction).toEqual(mockTransaction);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
           mockCallbacks

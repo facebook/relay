@@ -11,7 +11,7 @@
 
 'use strict';
 
-require('RelayTestUtils').unmockRelay();
+require('configureForRelayOSS');
 
 jest.dontMock('RelayRenderer');
 

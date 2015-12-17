@@ -15,7 +15,7 @@
 
 import type RelayQuery from 'RelayQuery';
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 /**
  * @internal

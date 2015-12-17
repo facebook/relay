@@ -12,8 +12,8 @@
 
 'use strict';
 
-var callsFromGraphQL = require('callsFromGraphQL');
-var printRelayQueryCall = require('printRelayQueryCall');
+const callsFromGraphQL = require('callsFromGraphQL');
+const serializeRelayQueryCall = require('serializeRelayQueryCall');
 
 /**
  * Utilities used by GraphQLStore for storing ranges
@@ -46,6 +46,7 @@ var printRelayQueryCall = require('printRelayQueryCall');
 class GraphQLStoreRangeUtils {
   constructor() {
     this._rangeData = {};
+    this._rangeDataKeyMap = {};
   }
 
   /**
@@ -60,7 +61,7 @@ class GraphQLStoreRangeUtils {
    */
   getClientIDForRangeWithID(calls, callValues, dataID) {
     var callsAsString = callsFromGraphQL(calls, callValues)
-      .map(call => printRelayQueryCall(call).substring(1))
+      .map(call => serializeRelayQueryCall(call).substring(1))
       .join(',');
     var key = dataID + '_' + callsAsString;
     var edge = this._rangeData[key];
@@ -68,8 +69,13 @@ class GraphQLStoreRangeUtils {
       this._rangeData[key] = {
         dataID: dataID,
         calls: calls,
-        callValues: callValues
+        callValues: callValues,
       };
+      let rangeDataKeys = this._rangeDataKeyMap[dataID];
+      if (!rangeDataKeys) {
+        this._rangeDataKeyMap[dataID] = rangeDataKeys = [];
+      }
+      rangeDataKeys.push(key);
     }
     return key;
   }
@@ -94,6 +100,16 @@ class GraphQLStoreRangeUtils {
    */
   getCanonicalClientID(dataID) {
     return this._rangeData[dataID] ? this._rangeData[dataID].dataID : dataID;
+  }
+
+  removeRecord(dataID) {
+    const rangeDataKeys = this._rangeDataKeyMap[dataID];
+    if (rangeDataKeys) {
+      rangeDataKeys.forEach(key => {
+        delete this._rangeData[key];
+      });
+      delete this._rangeDataKeyMap[dataID];
+    }
   }
 }
 

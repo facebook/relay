@@ -13,9 +13,9 @@
 
 jest.dontMock('GraphQLStoreChangeEmitter');
 
-var ErrorUtils = require('ErrorUtils');
-var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
-var GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+const ErrorUtils = require('ErrorUtils');
+const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
+const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 
 describe('GraphQLStoreChangeEmitter', () => {
   var changeEmitter;

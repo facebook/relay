@@ -11,17 +11,17 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
-var Relay = require('Relay');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayQuery = require('RelayQuery');
+const Relay = require('Relay');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayQuery = require('RelayQuery');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
   var RelayRecordStore;
@@ -79,8 +79,9 @@ describe('writeRelayQueryPayload()', () => {
             [HAS_NEXT_PAGE]: false,
             [HAS_PREV_PAGE]: false,
           },
-        }
-      }
+        },
+        __typename: 'User',
+      },
     };
 
     var results = writePayload(store, query, payload);
@@ -89,10 +90,10 @@ describe('writeRelayQueryPayload()', () => {
         '123': true,
         'client:1': true, // `friends` connection
       },
-      updated: {}
+      updated: {},
     });
     expect(store.getRangeMetadata('client:1', [
-      {name: 'first', value: 3}
+      {name: 'first', value: 3},
     ])).toEqual({
       diffCalls: [],
       filterCalls: [],
@@ -103,7 +104,7 @@ describe('writeRelayQueryPayload()', () => {
         [START_CURSOR]: undefined,
       },
       requestedEdgeIDs: [],
-      filteredEdges: []
+      filteredEdges: [],
     });
   });
 
@@ -139,36 +140,37 @@ describe('writeRelayQueryPayload()', () => {
             {
               cursor: 'friend1',
               node: {
-                id: 'friend1ID'
+                id: 'friend1ID',
               },
               source: {
-                id: '123'
-              }
+                id: '123',
+              },
             },
             {
               cursor: 'friend2',
               node: {
-                id: 'friend2ID'
+                id: 'friend2ID',
               },
               source: {
-                id: '123'
-              }
+                id: '123',
+              },
             },
             {
               cursor: 'friend3',
               node: {
-                id: 'friend3ID'
+                id: 'friend3ID',
               },
               source: {
-                id: '123'
-              }
-            }
+                id: '123',
+              },
+            },
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
             [HAS_PREV_PAGE]: false,
           },
         },
+        __typename: 'User',
       },
     };
     var results = writePayload(store, query, payload);
@@ -183,13 +185,13 @@ describe('writeRelayQueryPayload()', () => {
         'friend2ID': true,
         'friend3ID': true,
       },
-      updated: {}
+      updated: {},
     });
     expect(store.getField('friend1ID', 'id')).toBe('friend1ID');
     expect(store.getField('friend2ID', 'id')).toBe('friend2ID');
     expect(store.getField('friend3ID', 'id')).toBe('friend3ID');
     expect(store.getRangeMetadata('client:1', [
-      {name: 'first', value: 3}
+      {name: 'first', value: 3},
     ])).toEqual({
       diffCalls: [],
       filterCalls: [],
@@ -202,13 +204,13 @@ describe('writeRelayQueryPayload()', () => {
       requestedEdgeIDs: [
         'client:client:1:friend1ID',
         'client:client:1:friend2ID',
-        'client:client:1:friend3ID'
+        'client:client:1:friend3ID',
       ],
       filteredEdges: [
         {edgeID: 'client:client:1:friend1ID', nodeID: 'friend1ID'},
         {edgeID: 'client:client:1:friend2ID', nodeID: 'friend2ID'},
         {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'},
-      ]
+      ],
     });
   });
 
@@ -246,15 +248,16 @@ describe('writeRelayQueryPayload()', () => {
             {
               cursor: 'friend3',
               node: {
-                id: 'friend3ID'
+                id: 'friend3ID',
               },
-            }
+            },
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
             [HAS_PREV_PAGE]: false,
           },
         },
+        __typename: 'User',
       },
     };
     var results = writePayload(store, query, payload);
@@ -265,11 +268,11 @@ describe('writeRelayQueryPayload()', () => {
         'client:client:1:friend3ID': true, // edges
         'friend3ID': true,
       },
-      updated: {}
+      updated: {},
     });
     expect(store.getField('friend3ID', 'id')).toBe('friend3ID');
     expect(store.getRangeMetadata('client:1', [
-      {name: 'first', value: 1}
+      {name: 'first', value: 1},
     ])).toEqual({
       diffCalls: [],
       filterCalls: [],
@@ -282,7 +285,7 @@ describe('writeRelayQueryPayload()', () => {
       requestedEdgeIDs: ['client:client:1:friend3ID'],
       filteredEdges: [
         {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'},
-      ]
+      ],
     });
   });
 
@@ -299,8 +302,9 @@ describe('writeRelayQueryPayload()', () => {
     var payload = {
       node: {
         id: '123',
-        friends: {count: 5}
-      }
+        friends: {count: 5},
+        __typename: 'User',
+      },
     };
     writePayload(store, query, payload);
 
@@ -333,11 +337,11 @@ describe('writeRelayQueryPayload()', () => {
             {
               cursor: 'friend1',
               node: {
-                id: 'friend1ID'
+                id: 'friend1ID',
               },
               source: {
-                id: '123'
-              }
+                id: '123',
+              },
             },
           ],
           [PAGE_INFO]: {
@@ -355,11 +359,11 @@ describe('writeRelayQueryPayload()', () => {
       },
       updated: {
         'client:1': true,
-      }
+      },
     });
     expect(store.getField('friend1ID', 'id')).toBe('friend1ID');
     expect(store.getRangeMetadata('client:1', [
-      {name: 'first', value: 1}
+      {name: 'first', value: 1},
     ])).toEqual({
       diffCalls: [],
       filterCalls: [],
@@ -372,7 +376,7 @@ describe('writeRelayQueryPayload()', () => {
       requestedEdgeIDs: ['client:client:1:friend1ID'],
       filteredEdges: [
         {edgeID: 'client:client:1:friend1ID', nodeID: 'friend1ID'},
-      ]
+      ],
     });
   });
 
@@ -413,18 +417,19 @@ describe('writeRelayQueryPayload()', () => {
             {
               cursor: 'friend1',
               node: {
-                id: 'friend1ID'
+                id: 'friend1ID',
               },
               source: {
-                id: '123'
-              }
-            }
+                id: '123',
+              },
+            },
           ],
           [PAGE_INFO]: {
             [HAS_NEXT_PAGE]: true,
             [HAS_PREV_PAGE]: false,
           },
         },
+        __typename: 'User',
       },
     };
     expect(() => writePayload(store, query, payload)).toFailInvariant(
@@ -457,15 +462,16 @@ describe('writeRelayQueryPayload()', () => {
           friends: {
             edges: [{
               node: {
-                id: 'node1'
+                id: 'node1',
               },
-              cursor: 'cursor1'
+              cursor: 'cursor1',
             }],
             [PAGE_INFO]: {
               [HAS_NEXT_PAGE]: true,
               [HAS_PREV_PAGE]: false,
             },
           },
+          __typename: 'User',
         },
       };
       var records = {};
@@ -493,9 +499,9 @@ describe('writeRelayQueryPayload()', () => {
           friends: {
             edges: [{
               node: {
-                id: 'node2'
+                id: 'node2',
               },
-              cursor: 'cursor2'
+              cursor: 'cursor2',
             }],
             [PAGE_INFO]: {
               [HAS_NEXT_PAGE]: true,
@@ -512,10 +518,10 @@ describe('writeRelayQueryPayload()', () => {
         },
         updated: {
           'client:1': true, // range updated
-        }
+        },
       });
       expect(store.getRangeMetadata('client:1', [
-        {name: 'first', value: 2}
+        {name: 'first', value: 2},
       ])).toEqual({
         diffCalls: [],
         filterCalls: [],
@@ -527,7 +533,7 @@ describe('writeRelayQueryPayload()', () => {
         },
         requestedEdgeIDs: [
           'client:client:1:node1',
-          'client:client:1:node2'
+          'client:client:1:node2',
         ],
         filteredEdges: [
           {edgeID: 'client:client:1:node1', nodeID: 'node1'},
@@ -558,9 +564,9 @@ describe('writeRelayQueryPayload()', () => {
             edges: [{
               node: {
                 id: 'node1',
-                name: 'Tim' // added field
+                name: 'Tim', // added field
               },
-              cursor: 'cursor1'
+              cursor: 'cursor1',
             }],
             [PAGE_INFO]: {
               [HAS_NEXT_PAGE]: true,
@@ -579,7 +585,7 @@ describe('writeRelayQueryPayload()', () => {
       });
       expect(store.getField('node1', 'name')).toBe('Tim');
       expect(store.getRangeMetadata('client:1', [
-        {name: 'first', value: 1}
+        {name: 'first', value: 1},
       ])).toEqual({
         diffCalls: [],
         filterCalls: [],
@@ -623,9 +629,9 @@ describe('writeRelayQueryPayload()', () => {
                 id: 'node1',
               },
               source: { // new edge field
-                id: '456'
+                id: '456',
               },
-              cursor: 'cursor1'
+              cursor: 'cursor1',
             }],
             [PAGE_INFO]: {
               [HAS_NEXT_PAGE]: true,
@@ -645,7 +651,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       });
       expect(store.getRangeMetadata('client:1', [
-        {name: 'first', value: 1}
+        {name: 'first', value: 1},
       ])).toEqual({
         diffCalls: [],
         filterCalls: [],
@@ -685,9 +691,9 @@ describe('writeRelayQueryPayload()', () => {
           friends: {
             edges: [{
               node: {
-                id: 'node1b'
+                id: 'node1b',
               },
-              cursor: 'cursor1b'
+              cursor: 'cursor1b',
             }],
             [PAGE_INFO]: {
               [HAS_NEXT_PAGE]: true,
@@ -704,11 +710,11 @@ describe('writeRelayQueryPayload()', () => {
         },
         updated: {
           'client:1': true,     // range updated
-        }
+        },
       });
       expect(store.getField('node1b', 'id')).toBe('node1b');
       expect(store.getRangeMetadata('client:1', [
-        {name: 'first', value: 1}
+        {name: 'first', value: 1},
       ])).toEqual({
         diffCalls: [],
         filterCalls: [],
@@ -745,9 +751,9 @@ describe('writeRelayQueryPayload()', () => {
           friends: {
             edges: [{
               node: {
-                id: 'node1b'
+                id: 'node1b',
               },
-              cursor: 'cursor1b'
+              cursor: 'cursor1b',
             }],
             [PAGE_INFO]: {
               [HAS_NEXT_PAGE]: true,
@@ -764,11 +770,11 @@ describe('writeRelayQueryPayload()', () => {
         },
         updated: {
           'client:1': true,     // range updated
-        }
+        },
       });
       expect(store.getField('node1b', 'id')).toBe('node1b');
       expect(store.getRangeMetadata('client:1', [
-        {name: 'first', value: 1}
+        {name: 'first', value: 1},
       ])).toEqual({
         diffCalls: [],
         filterCalls: [],

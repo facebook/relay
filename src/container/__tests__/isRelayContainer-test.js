@@ -11,8 +11,8 @@
 
 'use strict';
 
-var React = require('React');
-var Relay = require('Relay');
+const React = require('React');
+const Relay = require('Relay');
 
 describe('isRelayContainer', function() {
   var MockComponent;
@@ -22,11 +22,11 @@ describe('isRelayContainer', function() {
     jest.resetModuleRegistry();
 
     MockComponent = React.createClass({
-      render: () => <div />
+      render: () => <div />,
     });
 
     MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {}
+      fragments: {},
     });
   });
 

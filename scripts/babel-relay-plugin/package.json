@@ -1,6 +1,6 @@
 {
   "name": "babel-relay-plugin",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Babel Relay Plugin for transpiling GraphQL queries for use with Relay.",
   "license": "BSD-3-Clause",
   "repository": "facebook/relay",
@@ -25,7 +25,7 @@
     "babel-jest": "^5.3.0",
     "flow-bin": "0.17.0",
     "glob": "^5.0.15",
-    "jest-cli": "^0.5.8",
+    "jest-cli": "^0.8.1",
     "minimist": "^1.1.3",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.1"
@@ -39,6 +39,7 @@
     "preprocessorIgnorePatterns": [
       "<rootDir>/node_modules/"
     ],
+    "testRunner": "<rootDir>/node_modules/jest-cli/src/testRunners/jasmine/jasmine2.js",
     "unmockedModulePathPatterns": [
       "<rootDir>/"
     ]

@@ -13,12 +13,13 @@
 
 jest.dontMock('RelayProfiler');
 
-var RelayProfiler = require('RelayProfiler');
+const RelayProfiler = require('RelayProfiler');
 
 describe('RelayProfiler', function() {
   var DEV = __DEV__;
 
   var mockMethod;
+  var mockMethod2;
   var mockObject;
   var mockDisableDEV = () => {
     window.__DEV__ = 0;
@@ -28,7 +29,11 @@ describe('RelayProfiler', function() {
     jest.resetModuleRegistry();
 
     mockMethod = jest.genMockFunction();
-    mockObject = {mockMethod: RelayProfiler.instrument('mock', mockMethod)};
+    mockMethod2 = jest.genMockFunction();
+    mockObject = {
+      mockMethod: RelayProfiler.instrument('mock', mockMethod),
+      mockMethod2: RelayProfiler.instrument('mock2', mockMethod2),
+    };
   });
 
   afterEach(() => {
@@ -174,6 +179,12 @@ describe('RelayProfiler', function() {
         actualOrdering.push('3: afterCallback (aggregate)');
       });
 
+      RelayProfiler.attachAggregateHandler('*', (name, callback) => {
+        actualOrdering.push('5: beforeCallback (aggregate *): ' + name);
+        callback();
+        actualOrdering.push('5: afterCallback (aggregate *): ' + name);
+      });
+
       RelayProfiler.attachAggregateHandler('mock', (name, callback) => {
         expect(name).toBe('mock');
         actualOrdering.push('4: beforeCallback (aggregate)');
@@ -188,8 +199,10 @@ describe('RelayProfiler', function() {
       });
 
       mockObject.mockMethod();
+      mockObject.mockMethod2();
 
       expect(actualOrdering).toEqual([
+        '5: beforeCallback (aggregate *): mock',
         '4: beforeCallback (aggregate)',
         '3: beforeCallback (aggregate)',
         '2: beforeCallback',
@@ -199,6 +212,9 @@ describe('RelayProfiler', function() {
         '2: afterCallback',
         '3: afterCallback (aggregate)',
         '4: afterCallback (aggregate)',
+        '5: afterCallback (aggregate *): mock',
+        '5: beforeCallback (aggregate *): mock2',
+        '5: afterCallback (aggregate *): mock2',
       ]);
     });
 

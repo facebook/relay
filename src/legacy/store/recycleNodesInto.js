@@ -13,7 +13,7 @@
 
 'use strict';
 
-var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 
 /**
  * Recycles subtrees from `prevData` by replacing equal subtrees in `nextData`.

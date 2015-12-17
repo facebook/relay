@@ -21,28 +21,42 @@ const ROOT_DIR = path.resolve(__dirname, '..', '..');
 const LIB_DIR = path.join(ROOT_DIR, 'lib');
 const SRC_DIR = path.join(ROOT_DIR, 'src');
 
+function normalizeCode(code) {
+  // The definition of _get is slightly different in the FB internal transform.
+  return code
+    .replace(/^var _get = .*;$/m, 'var _get = ...;')
+    .replace(/^\/\/ @generated$/m, '')
+    .trim();
+}
+
 /**
  * Checks that `lib/` is up-to-date with `src/`.
  */
 describe('babel-relay-plugin', () => {
   beforeEach(() => {
-    jest.addMatchers({
-      toTransformInto(libFile) {
-        const srcFile = this.actual;
-        this.message = () => util.format(
-          'Expected `%s` to transform into `%s`. Try running: npm run build',
-          path.relative(ROOT_DIR, srcFile),
-          path.relative(ROOT_DIR, libFile)
-        );
-        if (!fs.existsSync(libFile)) {
-          return false;
-        }
-        const libCode = fs.readFileSync(libFile);
-        const srcCode = fs.readFileSync(srcFile);
-        const transformed = babel.transform(srcCode);
-        // Cannot use a `===` because of generated comment, newlines, etc.
-        return libCode.indexOf(transformed.code) >= 0;
-      }
+    jasmine.addMatchers({
+      toTransformInto() {
+        return {
+          compare(srcFile, libFile) {
+            if (!fs.existsSync(libFile)) {
+              return false;
+            }
+            const libCode = fs.readFileSync(libFile, 'utf8');
+            const srcCode = fs.readFileSync(srcFile, 'utf8');
+            const transformed = babel.transform(srcCode).code;
+
+            return {
+              pass: normalizeCode(libCode) === normalizeCode(transformed),
+              message: util.format(
+                'Expected `%s` to transform into `%s`. ' +
+                'Try running: npm run build',
+                path.relative(ROOT_DIR, srcFile),
+                path.relative(ROOT_DIR, libFile)
+              ),
+            };
+          },
+        };
+      },
     });
   });
 

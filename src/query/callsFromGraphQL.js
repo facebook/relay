@@ -22,7 +22,7 @@ import type {
 import type {Call, CallValue} from 'RelayInternalTypes';
 import type {Variables} from 'RelayTypes';
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 type CallOrDirective = {
   name: string;

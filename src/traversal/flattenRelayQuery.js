@@ -13,12 +13,12 @@
 
 'use strict';
 
-var Map = require('Map');
-var RelayProfiler = require('RelayProfiler');
+const Map = require('Map');
+const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
-var RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQueryVisitor = require('RelayQueryVisitor');
 
-var sortTypeFirst = require('sortTypeFirst');
+const sortTypeFirst = require('sortTypeFirst');
 
 type FlattenedQuery = {
   node: RelayQuery.Node;
@@ -91,7 +91,7 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
   visitFragment(
     node: RelayQuery.Fragment,
     state: FlattenedQuery
-  ): ?RelayQuery.Node {
+  ): void {
     const type = node.getType();
     if (this._shouldRemoveFragments || type === state.type) {
       this.traverse(node, state);
@@ -113,9 +113,9 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
   visitField(
     node: RelayQuery.Field,
     state: FlattenedQuery
-  ): ?RelayQuery.Node {
-    var serializationKey = node.getSerializationKey();
-    var flattenedField = state.flattenedFieldMap.get(serializationKey);
+  ): void {
+    var hash = node.getShallowHash();
+    var flattenedField = state.flattenedFieldMap.get(hash);
     if (!flattenedField) {
       flattenedField = {
         node,
@@ -123,7 +123,7 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
         flattenedFieldMap: new Map(),
         flattenedFragmentMap: new Map(),
       };
-      state.flattenedFieldMap.set(serializationKey, flattenedField);
+      state.flattenedFieldMap.set(hash, flattenedField);
     }
     this.traverse(node, flattenedField);
   }

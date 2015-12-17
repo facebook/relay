@@ -17,15 +17,15 @@ import type {
   ConcreteFragment,
   ConcreteQuery,
 } from 'ConcreteQuery';
-var Map = require('Map');
-var QueryBuilder = require('QueryBuilder');
+const Map = require('Map');
+const QueryBuilder = require('QueryBuilder');
 import type {RelayConcreteNode} from 'RelayQL';
-var RelayProfiler = require('RelayProfiler');
+const RelayProfiler = require('RelayProfiler');
 import type {RelayContainer, Variables} from 'RelayTypes';
 
-var filterObject = require('filterObject');
-var invariant = require('invariant');
-var mapObject = require('mapObject');
+const filterObject = require('filterObject');
+const invariant = require('invariant');
+const mapObject = require('mapObject');
 
 export type RelayQLFragmentBuilder =
   (variables: Variables) => RelayConcreteNode;
@@ -134,10 +134,10 @@ var buildRQL = {
               '`node(id: $id)`, not `node(id: $id) { ... }`.',
               query.fieldName
             );
-            const fragmentValues = filterObject(values, (_, name) =>
+            const fragmentVariables = filterObject(variables, (_, name) =>
               Component.hasVariable(name)
             );
-            children.push(Component.getFragment(queryName, fragmentValues));
+            children.push(Component.getFragment(queryName, fragmentVariables));
             node = {
               ...query,
               children,

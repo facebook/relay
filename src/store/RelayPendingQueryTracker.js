@@ -13,19 +13,19 @@
 
 'use strict';
 
-var Deferred = require('Deferred');
-var DliteFetchModeConstants = require('DliteFetchModeConstants');
-var PromiseMap = require('PromiseMap');
+const Deferred = require('Deferred');
+const DliteFetchModeConstants = require('DliteFetchModeConstants');
+const PromiseMap = require('PromiseMap');
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
-var RelayTaskScheduler = require('RelayTaskScheduler');
+const RelayTaskScheduler = require('RelayTaskScheduler');
 import type {QueryResult} from 'RelayTypes';
 
-var containsRelayQueryRootCall = require('containsRelayQueryRootCall');
-var everyObject = require('everyObject');
-var fetchRelayQuery = require('fetchRelayQuery');
-var invariant = require('invariant');
-var subtractRelayQuery = require('subtractRelayQuery');
+const containsRelayQueryRootCall = require('containsRelayQueryRootCall');
+const everyObject = require('everyObject');
+const fetchRelayQuery = require('fetchRelayQuery');
+const invariant = require('invariant');
+const subtractRelayQuery = require('subtractRelayQuery');
 
 type PendingQueryParameters = {
   fetchMode: DliteFetchModeConstants;
@@ -119,7 +119,7 @@ class PendingFetch {
 
   constructor(
     {fetchMode, forceIndex, query}: PendingQueryParameters,
-    {pendingFetchMap, preloadQueryMap, storeData}: {
+    {pendingFetchMap, preloadQueryMap, storeData, }: { // babel-eslint issue
       pendingFetchMap: {[queryID: string]: PendingState};
       preloadQueryMap: PromiseMap<Object, Error>;
       storeData: RelayStoreData;
@@ -236,7 +236,7 @@ class PendingFetch {
   ): void {
     this._fetchedSubtractedQuery = true;
 
-    RelayTaskScheduler.await(() => {
+    RelayTaskScheduler.enqueue(() => {
       var response = result.response;
       invariant(
         response && typeof response === 'object',

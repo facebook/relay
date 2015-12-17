@@ -11,15 +11,15 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest.dontMock('RelayContainer');
 
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-var React = require('React');
-var Relay = require('Relay');
-var RelayStoreData = require('RelayStoreData');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const React = require('React');
+const Relay = require('Relay');
+const RelayStoreData = require('RelayStoreData');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.hasOptimisticUpdate', () => {
   var MockContainer;
@@ -34,7 +34,7 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
       }
     }
     MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {foo: () => Relay.QL`fragment on Node{id}`}
+      fragments: {foo: () => Relay.QL`fragment on Node{id}`},
     });
     RelayTestRenderer = RelayTestUtils.createRenderer();
 

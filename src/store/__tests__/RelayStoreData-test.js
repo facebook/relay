@@ -11,18 +11,16 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest
-  .dontMock('GraphQLMutatorConstants')
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayStoreData = require('RelayStoreData');
-
-var RelayStoreGarbageCollector = require('RelayStoreGarbageCollector');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayStoreData = require('RelayStoreData');
+const RelayGarbageCollector = require('RelayGarbageCollector');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayStoreData', () => {
   var Relay;
@@ -60,6 +58,7 @@ describe('RelayStoreData', () => {
           topLevelComments: {
             count: 1,
           },
+          __typename: 'Story',
         },
       };
       storeData.handleQueryPayload(query, response);
@@ -97,6 +96,7 @@ describe('RelayStoreData', () => {
           topLevelComments: {
             count: 1,
           },
+          __typename: 'Story',
         },
       };
       storeData.handleQueryPayload(query, response);
@@ -243,7 +243,8 @@ describe('RelayStoreData', () => {
             topLevelComments: {
               count: 1,
             },
-          }
+            __typename: 'Story',
+          },
         };
         storeData.handleQueryPayload(query, response);
 
@@ -327,12 +328,14 @@ describe('RelayStoreData', () => {
 
     it('builds root queries using the path for non-refetchable IDs', () => {
       var storeData = new RelayStoreData();
-      var addressFragment = Relay.QL`fragment on User{id,address{city}}`;
-      var node = getVerbatimNode(Relay.QL`
+      var fragment = Relay.QL`fragment on StreetAddress{city}`;
+      var node = getNode(Relay.QL`
         query {
           node(id: "123") {
             id,
-            ${addressFragment}
+            address {
+              ${RelayTestUtils.createContainerFragment(fragment)}
+            }
           }
         }
       `);
@@ -347,13 +350,8 @@ describe('RelayStoreData', () => {
       };
       storeData.handleQueryPayload(node, payload);
 
-      var fragment = Relay.QL`
-        fragment on StreetAddress {
-          city,
-        }
-      `;
       var query = storeData.buildFragmentQueryForDataID(
-        getNode(fragment),
+        getNode(Relay.QL`fragment on StreetAddress{country}`),
         'client:1'
       );
       expect(query).toEqualQueryRoot(getNode(Relay.QL`
@@ -362,8 +360,12 @@ describe('RelayStoreData', () => {
             id,
             __typename,
             address {
+              # outer fragment from the path
               ... on StreetAddress {
-                city,
+                # inner fragment passed to buildFragmentQueryForDataID
+                ... on StreetAddress {
+                  country,
+                },
               },
             },
           },
@@ -375,9 +377,11 @@ describe('RelayStoreData', () => {
   describe('garbage collection', () => {
     it('initializes the garbage collector if no data has been added', () => {
       var data = new RelayStoreData();
-      expect(RelayStoreGarbageCollector.mock.instances.length).toBe(0);
+      expect(data.getGarbageCollector()).toBe(undefined);
       expect(() => data.initializeGarbageCollector()).not.toThrow();
-      expect(RelayStoreGarbageCollector.mock.instances.length).toBe(1);
+      expect(
+        data.getGarbageCollector() instanceof RelayGarbageCollector
+      ).toBe(true);
     });
 
     it('warns if initialized after data has been added', () => {
@@ -400,6 +404,7 @@ describe('RelayStoreData', () => {
       'registers created dataIDs in the garbage collector if it has been ' +
       'initialized',
       () => {
+        RelayGarbageCollector.prototype.register = jest.genMockFunction();
         var response = {node: {id: 0}};
         var data = new RelayStoreData();
         data.initializeGarbageCollector();

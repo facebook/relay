@@ -11,16 +11,17 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest.mock('warning');
 
-var QueryBuilder = require('QueryBuilder');
-var React = require('React');
-var Relay = require('Relay');
-var RelayQuery = require('RelayQuery');
-var buildRQL = require('buildRQL');
+const QueryBuilder = require('QueryBuilder');
+const React = require('React');
+const Relay = require('Relay');
+const RelayQuery = require('RelayQuery');
+const RelayTestUtils = require('RelayTestUtils');
+
+const buildRQL = require('buildRQL');
 
 describe('buildRQL', () => {
   var {getNode} = RelayTestUtils;
@@ -207,6 +208,46 @@ describe('buildRQL', () => {
       expect(query.getChildren()[2].equals(
         getNode(MockContainer.getFragment('foo'), variables)
       )).toBe(true);
+    });
+
+    it('produces equal results for implicit and explicit definitions', () => {
+      const MockContainer2 = Relay.createContainer(MockComponent, {
+        initialVariables: {
+          if: null,
+        },
+        fragments: {
+          foo: () => Relay.QL`fragment on Node { firstName(if: $if) }`,
+        },
+      });
+      const implicitBuilder = () => Relay.QL`
+        query {
+          viewer
+        }
+      `;
+      const explicitBuilder = (Component, variables) => Relay.QL`
+        query {
+          viewer {
+            ${Component.getFragment('foo', variables)}
+          }
+        }
+      `;
+      const initialVariables = {if: null};
+      const implicitNode = buildRQL.Query(
+        implicitBuilder,
+        MockContainer2,
+        'foo',
+        initialVariables,
+      );
+      const explicitNode = buildRQL.Query(
+        explicitBuilder,
+        MockContainer2,
+        'foo',
+        initialVariables,
+      );
+      const variables = {if: true};
+      const implicitQuery = getNode(implicitNode, variables);
+      const explicitQuery = getNode(explicitNode, variables);
+      expect(implicitQuery).toEqualQueryRoot(explicitQuery);
     });
 
     it('throws if non-scalar fields are given', () => {

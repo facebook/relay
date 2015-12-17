@@ -18,11 +18,11 @@ import type {
   ConcreteQuery,
   ConcreteSelection,
 } from 'ConcreteQuery';
-var QueryBuilder = require('QueryBuilder');
-var RelayQuery = require('RelayQuery');
+const QueryBuilder = require('QueryBuilder');
+const RelayQuery = require('RelayQuery');
 
-var callsToGraphQL = require('callsToGraphQL');
-var invariant = require('invariant');
+const callsToGraphQL = require('callsToGraphQL');
+const invariant = require('invariant');
 
 /**
  * @internal

@@ -15,10 +15,10 @@
 
 import type URI from 'URI';
 import type {ConfigQueries} from 'RelayQueryConfig';
-var RelayQueryConfig = require('RelayQueryConfig');
+const RelayQueryConfig = require('RelayQueryConfig');
 
-var forEachObject = require('forEachObject');
-var invariant = require('invariant');
+const forEachObject = require('forEachObject');
+const invariant = require('invariant');
 
 type ParamDefinition = {
   type: string;

@@ -11,15 +11,15 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest.mock('warning');
 
-var QueryBuilder = require('QueryBuilder');
-var Relay = require('Relay');
-var RelayFragmentReference = require('RelayFragmentReference');
-var RelayMetaRoute = require('RelayMetaRoute');
+const QueryBuilder = require('QueryBuilder');
+const Relay = require('Relay');
+const RelayFragmentReference = require('RelayFragmentReference');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayFragmentReference', () => {
   var route;
@@ -158,12 +158,12 @@ describe('RelayFragmentReference', () => {
     expect([
       'RelayFragmentReference: Variable `%s` is undefined in fragment `%s`.',
       'static',
-      node.name
+      node.name,
     ]).toBeWarnedNTimes(1);
     expect([
       'RelayFragmentReference: Variable `%s` is undefined in fragment `%s`.',
       'dynamic',
-      node.name
+      node.name,
     ]).toBeWarnedNTimes(1);
   });
 });

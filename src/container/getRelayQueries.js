@@ -12,20 +12,20 @@
 
 'use strict';
 
-var Map = require('Map');
+const Map = require('Map');
 import type {
   RelayLazyContainer,
-  RelayQueryConfigSpec
+  RelayQueryConfigSpec,
 } from 'RelayContainer';
 import type {RelayQuerySet} from 'RelayInternalTypes';
-var RelayMetaRoute = require('RelayMetaRoute');
-var RelayProfiler = require('RelayProfiler');
-var RelayQuery = require('RelayQuery');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayProfiler = require('RelayProfiler');
+const RelayQuery = require('RelayQuery');
 
-var buildRQL = require('buildRQL');
-var invariant = require('invariant');
-var stableStringify = require('stableStringify');
-var warning = require('warning');
+const buildRQL = require('buildRQL');
+const invariant = require('invariant');
+const stableStringify = require('stableStringify');
+const warning = require('warning');
 
 var queryCache = new Map();
 

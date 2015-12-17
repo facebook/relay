@@ -11,17 +11,18 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest.dontMock('RelayPendingQueryTracker');
 
-var DliteFetchModeConstants = require('DliteFetchModeConstants');
-var Relay = require('Relay');
-var RelayStoreData = require('RelayStoreData');
-var fetchRelayQuery = require('fetchRelayQuery');
-var subtractRelayQuery = require('subtractRelayQuery');
-var writeRelayQueryPayload = require('writeRelayQueryPayload');
+const DliteFetchModeConstants = require('DliteFetchModeConstants');
+const Relay = require('Relay');
+const RelayStoreData = require('RelayStoreData');
+const RelayTestUtils = require('RelayTestUtils');
+
+const fetchRelayQuery = require('fetchRelayQuery');
+const subtractRelayQuery = require('subtractRelayQuery');
+const writeRelayQueryPayload = require('writeRelayQueryPayload');
 
 describe('RelayPendingQueryTracker', () => {
   var pendingQueryTracker;
@@ -110,7 +111,7 @@ describe('RelayPendingQueryTracker', () => {
       [mockQueryC, mockQueryA],
     ]);
 
-    fetchRelayQuery.mock.requests[1].resolve({node: {}});
+    fetchRelayQuery.mock.requests[1].resolve({node: {__typename: 'User'}});
     jest.runAllTimers();
 
     subtractRelayQuery.mockClear();

@@ -11,12 +11,13 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
-var Relay = require('Relay');
-var generateRQLFieldAlias = require('generateRQLFieldAlias');
-var transformRelayQueryPayload = require('transformRelayQueryPayload');
+const Relay = require('Relay');
+const RelayTestUtils = require('RelayTestUtils');
+
+const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const transformRelayQueryPayload = require('transformRelayQueryPayload');
 
 describe('transformClientPayload()', () => {
   var {getNode} = RelayTestUtils;

@@ -11,14 +11,14 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
 jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
-var Relay = require('Relay');
+const Relay = require('Relay');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
   var RelayRecordStore;
@@ -47,15 +47,16 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: null
-        }
+          name: null,
+          __typename: 'User',
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {
           '123': true,
         },
-        updated: {}
+        updated: {},
       });
       expect(store.getField('123', 'name')).toBe(null);
     });
@@ -65,7 +66,7 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-        }
+        },
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -78,15 +79,15 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: null
-        }
+          name: null,
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
           '123': true,
-        }
+        },
       });
       expect(store.getField('123', 'name')).toBe(null);
     });
@@ -96,8 +97,8 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          name: 'Joe'
-        }
+          name: 'Joe',
+        },
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -110,15 +111,15 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: null
-        }
+          name: null,
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
           '123': true,
-        }
+        },
       });
       expect(store.getField('123', 'name')).toBe(null);
     });
@@ -136,8 +137,9 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: undefined
-        }
+          name: undefined,
+          __typename: 'User',
+        },
       };
       writePayload(store, query, payload);
       expect(store.getField('123', 'id')).toBe('123');
@@ -149,7 +151,7 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-        }
+        },
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -162,8 +164,8 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: undefined
-        }
+          name: undefined,
+        },
       };
       writePayload(store, query, payload);
       expect(store.getField('123', 'id')).toBe('123');
@@ -175,8 +177,8 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          name: 'Joe'
-        }
+          name: 'Joe',
+        },
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -189,8 +191,8 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: undefined
-        }
+          name: undefined,
+        },
       };
       writePayload(store, query, payload);
       expect(store.getField('123', 'name')).toBe('Joe');
@@ -201,8 +203,8 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
-          name: 'Joe'
-        }
+          name: 'Joe',
+        },
       };
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
@@ -215,15 +217,15 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: {
           id: '123',
-          name: 'Joseph'
-        }
+          name: 'Joseph',
+        },
       };
       var results = writePayload(store, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
-          '123': true
-        }
+          '123': true,
+        },
       });
       expect(store.getField('123', 'name')).toBe('Joseph');
     });

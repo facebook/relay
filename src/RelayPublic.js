@@ -13,20 +13,20 @@
 
 'use strict';
 
-var RelayContainer = require('RelayContainer');
-var RelayMutation = require('RelayMutation');
-var RelayNetworkLayer = require('RelayNetworkLayer');
-var RelayPropTypes = require('RelayPropTypes');
-var RelayQL = require('RelayQL');
-var RelayRootContainer = require('RelayRootContainer');
-var RelayRoute = require('RelayRoute');
-var RelayStore = require('RelayStore');
-var RelayTaskScheduler = require('RelayTaskScheduler');
-var RelayInternals = require('RelayInternals');
+const RelayContainer = require('RelayContainer');
+const RelayMutation = require('RelayMutation');
+const RelayNetworkLayer = require('RelayNetworkLayer');
+const RelayPropTypes = require('RelayPropTypes');
+const RelayQL = require('RelayQL');
+const RelayRootContainer = require('RelayRootContainer');
+const RelayRoute = require('RelayRoute');
+const RelayStore = require('RelayStore');
+const RelayTaskScheduler = require('RelayTaskScheduler');
+const RelayInternals = require('RelayInternals');
 
-var createRelayQuery = require('createRelayQuery');
-var getRelayQueries = require('getRelayQueries');
-var isRelayContainer = require('isRelayContainer');
+const createRelayQuery = require('createRelayQuery');
+const getRelayQueries = require('getRelayQueries');
+const isRelayContainer = require('isRelayContainer');
 
 if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
   global.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = RelayInternals;

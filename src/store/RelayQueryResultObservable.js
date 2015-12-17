@@ -13,8 +13,8 @@
 
 'use strict';
 
-var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 import type RelayStoreData from 'RelayStoreData';
 import type {
   StoreReaderData,
@@ -22,7 +22,7 @@ import type {
   SubscriptionCallbacks,
 } from 'RelayTypes';
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 /**
  * An Rx Observable representing the results of a fragment in the local cache.

@@ -9,7 +9,7 @@
 
 'use strict';
 
-var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 
 type Result = {
   isMatched: boolean;
@@ -17,7 +17,7 @@ type Result = {
   path: ?Array<string>;
 };
 
-var METADATA_KEYS = {
+const METADATA_KEYS = {
   '__dataID__': true,
   '__range__': true,
   '__resolvedFragmentMap__': true,
@@ -25,7 +25,7 @@ var METADATA_KEYS = {
   '__status__': true,
 };
 
-function matchRecord(
+function match(
   actual: any,
   expected: any,
   path: Array<string>
@@ -34,7 +34,7 @@ function matchRecord(
     return {
       isMatched: actual === expected,
       message: 'be ' + expected + ', but got ' + actual,
-      path
+      path,
     };
   }
 
@@ -45,52 +45,51 @@ function matchRecord(
         message: (
           'be ' + expected.toString() + ', but got ' + actual.toString()
         ),
-        path
+        path,
       };
     } else {
       return {
         isMatched: false,
         message: 'be ' + expected + ', but got ' + actual.toString(),
-        path
+        path,
       };
     }
   } else if (expected instanceof GraphQLFragmentPointer) {
     return {
       isMatched: false,
       message: 'be ' + expected.toString() + ', but got ' + actual,
-      path
+      path,
     };
   }
 
   // all properties (lest __dataID__s) of `actual` should be in `expected`
-  for (var key in actual) {
+  for (const key in actual) {
     if (expected.hasOwnProperty(key) !== actual.hasOwnProperty(key) &&
         !(key in METADATA_KEYS)) {
       return {
         isMatched: false,
         message: 'not have key ' + key,
-        path
+        path,
       };
     }
   }
   // all properties in `expected` should be in `actual`
-  var result;
-  for (var k in expected) {
+  for (const k in expected) {
     if (expected.hasOwnProperty(k) !== actual.hasOwnProperty(k)) {
       return {
         isMatched: false,
         message: 'have key ' + k,
-        path
+        path,
       };
     }
     if (k in METADATA_KEYS) {
       continue;
     }
-    var value = expected[k];
+    const value = expected[k];
     if (Array.isArray(value)) {
-      for (var jj = 0; jj < value.length; jj++) {
+      for (let jj = 0; jj < value.length; jj++) {
         path.push(k + '[' + jj + ']');
-        result = matchRecord(actual[k][jj], value[jj], path);
+        const result = match(actual[k][jj], value[jj], path);
         if (!result.isMatched) {
           return result;
         } else {
@@ -99,7 +98,7 @@ function matchRecord(
       }
     } else {
       path.push(k);
-      result = matchRecord(actual[k], value, path);
+      const result = match(actual[k], value, path);
       if (!result.isMatched) {
         return result;
       } else {
@@ -110,7 +109,17 @@ function matchRecord(
   return {
     isMatched: true,
     message: null,
-    path: null
+    path: null,
+  };
+}
+
+function matchRecord(actual: any, expected: any): Result {
+  const {isMatched, path, message} = match(actual, expected, []);
+  return {
+    pass: isMatched,
+    message: isMatched ?
+      null :
+      'Expected ' + path.join('.') + ' to '  + message,
   };
 }
 

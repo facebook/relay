@@ -11,13 +11,14 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
-var Relay = require('Relay');
-var RelayConnectionInterface = require('RelayConnectionInterface');
-var RelayQuery = require('RelayQuery');
-var generateRQLFieldAlias = require('generateRQLFieldAlias');
+const Relay = require('Relay');
+const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayQuery = require('RelayQuery');
+const RelayTestUtils = require('RelayTestUtils');
+
+const generateRQLFieldAlias = require('generateRQLFieldAlias');
 
 describe('RelayQueryField', () => {
   var {getNode} = RelayTestUtils;
@@ -380,7 +381,7 @@ describe('RelayQueryField', () => {
   });
 
   describe('getSerializationKey()', () => {
-    it('serializes all calls with hashing', () => {
+    it('serializes all calls', () => {
       expect(friendScalar.getSerializationKey()).toBe(generateRQLFieldAlias(
         'friends.after(offset).first(10).orderby(name)'
       ));
@@ -408,6 +409,39 @@ describe('RelayQueryField', () => {
       var pictureVariable =
         getNode(pictureVariableRQL, variables).getChildren()[0];
       expect(pictureVariable.getSerializationKey()).toBe(key);
+    });
+  });
+
+  describe('getShallowHash()', () => {
+    it('serializes all calls', () => {
+      expect(friendScalar.getShallowHash()).toBe(
+        'friends{after:"offset",first:"10",orderby:"name"}'
+      );
+    });
+
+    it('serializes argument literal values', () => {
+      var node = getNode(Relay.QL`
+        fragment on User {
+          profilePicture(size: ["32", "64"])
+        }
+      `);
+      expect(node.getChildren()[0].getShallowHash()).toBe(
+        'profilePicture{size:[0:"32",1:"64"]}'
+      );
+    });
+
+    it('serializes argument variable values', () => {
+      var node = getNode(Relay.QL`
+        fragment on User {
+          profilePicture(size: [$width, $height])
+        }
+      `, {
+        width: 32,
+        height: 64,
+      });
+      expect(node.getChildren()[0].getShallowHash()).toBe(
+        'profilePicture{size:[0:32,1:64]}'
+      );
     });
   });
 
@@ -515,7 +549,7 @@ describe('RelayQueryField', () => {
     // variables return their values
     expect(friendVariable.getCallsWithValues()).toEqual([
       {name: 'first', value: 10},
-      {name: 'after', value: 'offset'}
+      {name: 'after', value: 'offset'},
     ]);
 
     var pictureScalarRQL = Relay.QL`
@@ -525,7 +559,7 @@ describe('RelayQueryField', () => {
     `;
     var pictureScalar = getNode(pictureScalarRQL).getChildren()[0];
     expect(pictureScalar.getCallsWithValues()).toEqual([
-      {name: 'size', value: ['32', '64']}
+      {name: 'size', value: ['32', '64']},
     ]);
 
     var pictureVariableRQL = Relay.QL`
@@ -540,7 +574,7 @@ describe('RelayQueryField', () => {
     var pictureVariable =
       getNode(pictureVariableRQL, variables).getChildren()[0];
     expect(pictureVariable.getCallsWithValues()).toEqual([
-      {name: 'size', value: [32, '64']}
+      {name: 'size', value: [32, '64']},
     ]);
   });
 
@@ -565,7 +599,7 @@ describe('RelayQueryField', () => {
     );
     expect(clonedFeed.getSchemaName()).toBe('friends');
     expect(clonedFeed.getCallsWithValues()).toEqual([
-      {name: 'first', value: 25}
+      {name: 'first', value: 25},
     ]);
     expect(clonedFeed.getSerializationKey()).toEqual(
       generateRQLFieldAlias('friends.first(25)')

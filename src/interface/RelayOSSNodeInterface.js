@@ -17,9 +17,9 @@ import type {DataID} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type RelayRecordStore from 'RelayRecordStore';
 
-var forEachRootCallArg = require('forEachRootCallArg');
-var generateClientID = require('generateClientID');
-var invariant = require('invariant');
+const forEachRootCallArg = require('forEachRootCallArg');
+const generateClientID = require('generateClientID');
+const invariant = require('invariant');
 
 type PayloadResult = {
   dataID: DataID;
@@ -85,8 +85,8 @@ var RelayOSSNodeInterface = {
           } else {
             dataID = generateClientID();
           }
-          store.putDataID(storageKey, identifyingArgValue, dataID);
         }
+        store.putDataID(storageKey, identifyingArgValue, dataID);
         results.push({dataID, result});
       });
     }

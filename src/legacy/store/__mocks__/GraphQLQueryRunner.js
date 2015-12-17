@@ -11,7 +11,7 @@
 
 var GraphQLQueryRunner = jest.genMockFromModule('GraphQLQueryRunner');
 
-var resolveImmediate = require('resolveImmediate');
+const resolveImmediate = require('resolveImmediate');
 
 /**
  * Mock object to simulate the behavior of a request. Example usage:

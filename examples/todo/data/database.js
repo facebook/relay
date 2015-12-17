@@ -20,13 +20,13 @@ const VIEWER_ID = 'me';
 var viewer = new User();
 viewer.id = VIEWER_ID;
 var usersById = {
-  [VIEWER_ID]: viewer
+  [VIEWER_ID]: viewer,
 };
 
 // Mock todo data
 var todosById = {};
 var todoIdsByUser = {
-  [VIEWER_ID]: []
+  [VIEWER_ID]: [],
 };
 var nextTodoId = 0;
 addTodo('Taste JavaScript', true);

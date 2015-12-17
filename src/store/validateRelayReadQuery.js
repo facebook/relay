@@ -14,20 +14,17 @@
 'use strict';
 
 import type RelayQuery from 'RelayQuery';
-var RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQueryVisitor = require('RelayQueryVisitor');
 import type {StoreReaderOptions} from 'RelayTypes';
 
-var emptyFunction = require('emptyFunction');
-
-var SERIALIZATION_KEY = ('__serializationKey__': $FlowIssue); // task #7117200
+const emptyFunction = require('emptyFunction');
 
 type AliasMap = {
-  __serializationKey__?: SerializationKey;
-  [applicationName: string]: AliasMap;
+  children: {[applicationName: string]: AliasMap};
+  hash: ?string;
 };
-type SerializationKey = string;
 
-var validateRelayReadQuery = emptyFunction;
+let validateRelayReadQuery = emptyFunction;
 
 if (__DEV__) {
   // Wrap in an IIFE to avoid unwanted function hoisting.
@@ -47,37 +44,34 @@ if (__DEV__) {
       options?: StoreReaderOptions
     ): void {
       var validator = new RelayStoreReadValidator(options);
-      validator.visit(queryNode, {});
+      validator.visit(queryNode, {
+        children: {},
+        hash: null,
+      });
     };
 
-    function assertUniqueAlias(
-      field: RelayQuery.Field,
-      aliasMap: AliasMap,
-    ): void {
-      var serializationKey = field.getSerializationKey();
-      if (aliasMap[SERIALIZATION_KEY]) {
-        if (aliasMap[SERIALIZATION_KEY] !== serializationKey) {
-          console.error(
-            '`%s` is used as an alias more than once. Please use unique ' +
-            'aliases.',
-            field.getApplicationName()
-          );
-        }
-      } else {
-        aliasMap[SERIALIZATION_KEY] = serializationKey;
-      }
-    }
-
     /**
-     * Returns the nested AliasMap for `node`, initializing it to an empty map
-     * if it does not already exist.
+     * Returns the nested AliasMap for `node`, initializing if it necessary.
      */
-    function getAliasMap(node: RelayQuery.Field, aliasMap: AliasMap): AliasMap {
-      var applicationName = node.getApplicationName();
-      if (!aliasMap[applicationName]) {
-        aliasMap[applicationName] = {};
+    function getAliasMap(
+      node: RelayQuery.Field,
+      parentAliasMap: AliasMap
+    ): AliasMap {
+      const applicationName = node.getApplicationName();
+      const hash = node.getShallowHash();
+      const {children} = parentAliasMap;
+      if (!children.hasOwnProperty(applicationName)) {
+        children[applicationName] = {
+          children: {},
+          hash,
+        };
+      } else if (children[applicationName].hash !== hash) {
+        console.error(
+          '`%s` is used as an alias more than once. Please use unique aliases.',
+          applicationName
+        );
       }
-      return aliasMap[applicationName];
+      return children[applicationName];
     }
 
     class RelayStoreReadValidator extends RelayQueryVisitor<AliasMap> {
@@ -91,9 +85,11 @@ if (__DEV__) {
           (options && options.traverseFragmentReferences) || false;
       }
 
-      visitField(node: RelayQuery.Field, aliasMap: AliasMap): ?RelayQuery.Node {
-        aliasMap = getAliasMap(node, aliasMap);
-        assertUniqueAlias(node, aliasMap);
+      visitField(
+        node: RelayQuery.Field,
+        parentAliasMap: AliasMap
+      ): void {
+        const aliasMap = getAliasMap(node, parentAliasMap);
 
         if (node.isGenerated()) {
           return;
@@ -110,7 +106,7 @@ if (__DEV__) {
       visitFragment(
         node: RelayQuery.Fragment,
         aliasMap: AliasMap
-      ): ?RelayQuery.Node {
+      ): void {
         if (this._traverseFragmentReferences || !node.isContainerFragment()) {
           this.traverse(node, aliasMap);
         }

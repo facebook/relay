@@ -9,8 +9,8 @@
 
 'use strict';
 
-var emptyFunction = require('emptyFunction');
-var forEachObject = require('forEachObject');
+const emptyFunction = require('emptyFunction');
+const forEachObject = require('forEachObject');
 
 var RelayProfiler = {
   instrumentMethods: jest.genMockFunction().mockImplementation(

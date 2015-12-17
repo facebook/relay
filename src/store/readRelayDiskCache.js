@@ -13,27 +13,27 @@
 
 'use strict';
 
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 import type {
   DataID,
   Records,
   RelayQuerySet,
   RootCallMap,
 } from 'RelayInternalTypes';
-var RelayQuery = require('RelayQuery');
-var RelayQueryPath = require('RelayQueryPath');
+const RelayQuery = require('RelayQuery');
+const RelayQueryPath = require('RelayQueryPath');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
-var findRelayQueryLeaves = require('findRelayQueryLeaves');
+const findRelayQueryLeaves = require('findRelayQueryLeaves');
 import type {
   PendingItem,
   PendingNodes,
 } from 'findRelayQueryLeaves';
-var forEachObject = require('forEachObject');
-var forEachRootCallArg = require('forEachRootCallArg');
-var invariant = require('invariant');
-var isEmpty = require('isEmpty');
+const forEachObject = require('forEachObject');
+const forEachRootCallArg = require('forEachRootCallArg');
+const invariant = require('invariant');
+const isEmpty = require('isEmpty');
 
 type PendingRoots = {[key: string]: Array<RelayQuery.Root>};
 

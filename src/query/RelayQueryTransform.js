@@ -14,7 +14,7 @@
 'use strict';
 
 import type RelayQuery from 'RelayQuery';
-var RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQueryVisitor = require('RelayQueryVisitor');
 
 /**
  * @internal
@@ -57,19 +57,17 @@ class RelayQueryTransform<Ts> extends RelayQueryVisitor<Ts> {
     if (node.isScalar()) {
       return node;
     }
-
-    var nextChildren;
-    var children = node.getChildren();
-    for (var ii = 0; ii < children.length; ii++) {
-      var prevChild = children[ii];
-      var nextChild = this.visit(prevChild, nextState);
+    let nextChildren;
+    this.traverseChildren(node, nextState, (child, index, children) => {
+      const prevChild = children[index];
+      const nextChild = this.visit(prevChild, nextState);
       if (nextChild !== prevChild) {
-        nextChildren = nextChildren || children.slice(0, ii);
+        nextChildren = nextChildren || children.slice(0, index);
       }
       if (nextChildren && nextChild) {
         nextChildren.push(nextChild);
       }
-    }
+    });
     if (nextChildren) {
       if (!nextChildren.length) {
         return null;

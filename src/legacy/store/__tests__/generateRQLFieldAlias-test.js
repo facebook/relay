@@ -11,7 +11,7 @@
 
 'use strict';
 
-var generateRQLFieldAlias = require('generateRQLFieldAlias');
+const generateRQLFieldAlias = require('generateRQLFieldAlias');
 
 var ALIAS_HEURISTIC = /^[\w-]+$/;
 

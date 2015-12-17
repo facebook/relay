@@ -12,15 +12,15 @@
 
 'use strict';
 
-var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-var GraphQLSegment = require('GraphQLSegment');
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const GraphQLSegment = require('GraphQLSegment');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 
-var forEachObject = require('forEachObject');
-var invariant = require('invariant');
-var printRelayQueryCall = require('printRelayQueryCall');
-var warning = require('warning');
+const forEachObject = require('forEachObject');
+const invariant = require('invariant');
+const serializeRelayQueryCall = require('serializeRelayQueryCall');
+const warning = require('warning');
 
 var {
   END_CURSOR,
@@ -176,7 +176,7 @@ class GraphQLRange {
     // the range (i.e. last(N)).
     this._orderedSegments = [
       new GraphQLSegment(),
-      new GraphQLSegment()
+      new GraphQLSegment(),
     ];
 
     // GraphQLRange nodes can also support static queries like surrounds,
@@ -247,7 +247,7 @@ class GraphQLRange {
 
     this._staticQueriesMap[calls] = {
       edgeIDs: edgeIDsToStore,
-      cursors: cursorsToStore
+      cursors: cursorsToStore,
     };
   }
 
@@ -844,7 +844,7 @@ class GraphQLRange {
     var segment;
     var segmentIndex;
     var pageInfo = {
-      ...RelayConnectionInterface.getDefaultPageInfo()
+      ...RelayConnectionInterface.getDefaultPageInfo(),
     };
 
     var afterCursor = calls.after;
@@ -956,7 +956,7 @@ class GraphQLRange {
     var segment;
     var segmentIndex;
     var pageInfo = {
-      ...RelayConnectionInterface.getDefaultPageInfo()
+      ...RelayConnectionInterface.getDefaultPageInfo(),
     };
 
     var beforeCursor = calls.before;
@@ -1052,7 +1052,7 @@ class GraphQLRange {
       hasFirst,
       hasLast,
       staticQueriesMap,
-      orderedSegments
+      orderedSegments,
     ] = descriptor;
     var range = new GraphQLRange();
     range._hasFirst = hasFirst;
@@ -1068,13 +1068,13 @@ class GraphQLRange {
       this._hasFirst,
       this._hasLast,
       this._staticQueriesMap,
-      this._orderedSegments
+      this._orderedSegments,
     ];
   }
 
   __debug() {
     return {
-      orderedSegments: this._orderedSegments
+      orderedSegments: this._orderedSegments,
     };
   }
 
@@ -1095,7 +1095,9 @@ class GraphQLRange {
  * @return {string}
  */
 function _callsToString(calls) {
-  return calls.map(call => printRelayQueryCall(call).substring(1)).join(',');
+  return calls.map(
+    call => serializeRelayQueryCall(call).substring(1)
+  ).join(',');
 }
 
 module.exports = GraphQLRange;

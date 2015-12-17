@@ -13,12 +13,12 @@
 
 'use strict';
 
-var Deferred = require('Deferred');
+const Deferred = require('Deferred');
 import type {PrintedQuery} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type {QueryResult, Variables} from 'RelayTypes';
 
-var printRelayQuery = require('printRelayQuery');
+const printRelayQuery = require('printRelayQuery');
 
 /**
  * @internal

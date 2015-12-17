@@ -15,20 +15,20 @@
 
 import type {ConcreteFragment} from 'ConcreteQuery';
 import type {RelayConcreteNode} from 'RelayQL';
-var RelayFragmentReference = require('RelayFragmentReference');
+const RelayFragmentReference = require('RelayFragmentReference');
 import type RelayMetaRoute from 'RelayMetaRoute';
-var RelayStore = require('RelayStore');
+const RelayStore = require('RelayStore');
 import type {
   RelayMutationConfig,
   Variables,
 } from 'RelayTypes';
 
-var buildRQL = require('buildRQL');
+const buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder} from 'buildRQL';
-var forEachObject = require('forEachObject');
-var fromGraphQL = require('fromGraphQL');
-var invariant = require('invariant');
-var warning = require('warning');
+const forEachObject = require('forEachObject');
+const fromGraphQL = require('fromGraphQL');
+const invariant = require('invariant');
+const warning = require('warning');
 
 export type FileMap = {[key: string]: File};
 export type RelayMutationFragments<Tk> = {
@@ -42,6 +42,7 @@ export type RelayMutationFragments<Tk> = {
  */
 class RelayMutation<Tp: Object> {
   static name: $FlowIssue;
+  /* $FlowIssue(>=0.20.0) #9410317 */
   static fragments: RelayMutationFragments<$Keys<Tp>>;
   static initialVariables: Variables;
   static prepareVariables: ?(

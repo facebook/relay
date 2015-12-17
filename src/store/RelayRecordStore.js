@@ -15,7 +15,6 @@
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const GraphQLRange = require('GraphQLRange');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {
   Call,
@@ -201,8 +200,7 @@ class RelayRecordStore {
    */
   putRecord(
     dataID: DataID,
-    typeName: ?string,
-    path?: RelayQueryPath
+    typeName: ?string
   ): void {
     var target = this._queuedRecords || this._records;
     var prevRecord = target[dataID];
@@ -219,20 +217,18 @@ class RelayRecordStore {
     if (target === this._queuedRecords) {
       this._setClientMutationID(nextRecord);
     }
-    if (GraphQLStoreDataHandler.isClientID(dataID)) {
-      invariant(
-        path,
-        'RelayRecordStore.putRecord(): Expected a path for non-refetchable ' +
-        'record `%s`.',
-        dataID
-      );
-      nextRecord[PATH] = path;
-    }
     target[dataID] = nextRecord;
     var cacheWriter = this._cacheWriter;
     if (!this._queuedRecords && cacheWriter) {
       cacheWriter.writeField(dataID, '__dataID__', dataID, typeName);
     }
+  }
+
+  /**
+   * Set the path to a non-refetchable record.
+   */
+  putPathToRecord(dataID: DataID, path: RelayQueryPath): void {
+    this.putField(dataID, PATH, path);
   }
 
   /**
@@ -403,7 +399,7 @@ class RelayRecordStore {
       storageKey
     );
     record[storageKey] = value;
-    if (!this._queuedRecords && this._cacheWriter) {
+    if (!this._queuedRecords && this._cacheWriter && storageKey !== PATH) {
       var typeName = record.__typename;
       this._cacheWriter.writeField(dataID, storageKey, value, typeName);
     }
@@ -790,6 +786,7 @@ class RelayRecordStore {
     if (this._cachedRecords) {
       delete this._cachedRecords[dataID];
     }
+    delete this._nodeConnectionMap[dataID];
   }
 
   /**

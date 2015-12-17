@@ -242,7 +242,7 @@ class RelayDiffQueryBuilder {
           return rangeInfo.diffCalls.length > 0 ?
             {
               diffNode: node,
-              trackedNode: null
+              trackedNode: null,
             } :
             null;
         }
@@ -355,7 +355,9 @@ class RelayDiffQueryBuilder {
     // always be composed into, and therefore tracked by, their nearest
     // non-fragment parent.
     if (trackedNode && !(trackedNode instanceof RelayQuery.Fragment)) {
-      this._tracker.trackNodeForID(trackedNode, scope.dataID, path);
+      this._tracker.trackNodeForID(trackedNode, scope.dataID, {
+        isRoot: path.isRootPath(),
+      });
     }
 
     return {
@@ -580,7 +582,7 @@ class RelayDiffQueryBuilder {
 
     return {
       diffNode,
-      trackedNode
+      trackedNode,
     };
   }
 
@@ -621,7 +623,7 @@ class RelayDiffQueryBuilder {
     if (diffNode) {
       var {
         edges: diffEdgesField,
-        node: diffNodeField
+        node: diffNodeField,
       } = splitNodeAndEdgesFields(diffNode);
 
       // split missing `node` fields into a `node(id)` root query

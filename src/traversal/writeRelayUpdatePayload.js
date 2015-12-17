@@ -13,29 +13,29 @@
 
 'use strict';
 
-var GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {
   Call,
   DataID,
   RangeBehaviors,
-  UpdateOptions
+  UpdateOptions,
 } from 'RelayInternalTypes';
-var RelayMutationTracker = require('RelayMutationTracker');
-var RelayMutationType = require('RelayMutationType');
-var RelayNodeInterface = require('RelayNodeInterface');
-var RelayQuery = require('RelayQuery');
-var RelayQueryPath = require('RelayQueryPath');
+const RelayMutationTracker = require('RelayMutationTracker');
+const RelayMutationType = require('RelayMutationType');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayQuery = require('RelayQuery');
+const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryWriter from 'RelayQueryWriter';
-var RelayProfiler = require('RelayProfiler');
-var RelayRecordState = require('RelayRecordState');
+const RelayProfiler = require('RelayProfiler');
+const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 
-var generateClientEdgeID = require('generateClientEdgeID');
-var generateClientID = require('generateClientID');
-var invariant = require('invariant');
-var printRelayQueryCall = require('printRelayQueryCall');
-var warning = require('warning');
+const generateClientEdgeID = require('generateClientEdgeID');
+const generateClientID = require('generateClientID');
+const invariant = require('invariant');
+const serializeRelayQueryCall = require('serializeRelayQueryCall');
+const warning = require('warning');
 
 // TODO: Replace with enumeration for possible config types.
 /* OperationConfig was originally typed such that each property had the type
@@ -48,20 +48,20 @@ type Payload = mixed | PayloadObject | PayloadArray;
 type PayloadArray = Array<Payload>;
 type PayloadObject = {[key: string]: Payload};
 
-var {CLIENT_MUTATION_ID, EDGES} = RelayConnectionInterface;
-var {ANY_TYPE, ID, NODE, NODE_TYPE} = RelayNodeInterface;
-var {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
+const {CLIENT_MUTATION_ID, EDGES} = RelayConnectionInterface;
+const {ANY_TYPE, ID, NODE, NODE_TYPE} = RelayNodeInterface;
+const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 
-var EDGES_FIELD = RelayQuery.Field.build({
+const EDGES_FIELD = RelayQuery.Field.build({
   fieldName: EDGES,
   type: ANY_TYPE,
   metadata: {isPlural: true},
 });
-var IGNORED_KEYS = {
+const IGNORED_KEYS = {
   error: true,
   [CLIENT_MUTATION_ID]: true,
 };
-var STUB_CURSOR_ID = 'client:cursor';
+const STUB_CURSOR_ID = 'client:cursor';
 
 /**
  * @internal
@@ -116,7 +116,7 @@ function handleNodeDelete(
   payload: PayloadObject,
   config: OperationConfig
 ): void {
-  var recordIDs = payload[config.deletedIDFieldName];
+  const recordIDs = payload[config.deletedIDFieldName];
   if (!recordIDs) {
     // for some mutations, deletions don't always occur so if there's no field
     // in the payload, carry on
@@ -140,18 +140,18 @@ function deleteRecord(
   writer: RelayQueryWriter,
   recordID: DataID
 ): void {
-  var store = writer.getRecordStore();
+  const store = writer.getRecordStore();
   // skip if already deleted
-  var status = store.getRecordState(recordID);
+  const status = store.getRecordState(recordID);
   if (status === RelayRecordState.NONEXISTENT) {
     return;
   }
 
   // Delete the node from any ranges it may be a part of
-  var connectionIDs = store.getConnectionIDsForRecord(recordID);
+  const connectionIDs = store.getConnectionIDsForRecord(recordID);
   if (connectionIDs) {
     connectionIDs.forEach(connectionID => {
-      var edgeID = generateClientEdgeID(connectionID, recordID);
+      const edgeID = generateClientEdgeID(connectionID, recordID);
       store.applyRangeUpdate(connectionID, edgeID, REMOVE);
       writer.recordUpdate(edgeID);
       writer.recordUpdate(connectionID);
@@ -175,24 +175,24 @@ function handleMerge(
   payload: PayloadObject,
   operation: RelayQuery.Operation
 ): void {
-  var store = writer.getRecordStore();
+  const store = writer.getRecordStore();
 
   // because optimistic payloads may not contain all fields, we loop over
   // the data that is present and then have to recurse the query to find
   // the matching fields.
   //
   // TODO #7167718: more efficient mutation/subscription writes
-  for (var fieldName in payload) {
+  for (const fieldName in payload) {
     if (!payload.hasOwnProperty(fieldName)) {
       continue;
     }
-    var payloadData = payload[fieldName];
+    const payloadData = (payload[fieldName]: $FlowIssue); // #9357395
     if (typeof payloadData !== 'object' || payloadData == null) {
       continue;
     }
     // if the field is an argument-less root call, determine the corresponding
     // root record ID
-    var rootID = store.getDataID(fieldName);
+    const rootID = store.getDataID(fieldName);
     // check for valid data (has an ID or is an array) and write the field
     if (
       ID in payloadData ||
@@ -233,11 +233,11 @@ function mergeField(
     return;
   }
   // reassign to preserve type information in below closure
-  var payloadData = payload;
+  const payloadData = payload;
 
-  var store = writer.getRecordStore();
-  var recordID = getString(payloadData, ID);
-  var path;
+  const store = writer.getRecordStore();
+  let recordID = getString(payloadData, ID);
+  let path;
 
   if (recordID != null) {
     path = new RelayQueryPath(
@@ -270,7 +270,7 @@ function mergeField(
 
   // write the results for only the current field, for every instance of that
   // field in any subfield/fragment in the query.
-  var handleNode = (node) => {
+  const handleNode = node => {
     node.getChildren().forEach(child => {
       if (child instanceof RelayQuery.Fragment) {
         handleNode(child);
@@ -280,7 +280,7 @@ function mergeField(
       ) {
         // for flow: types are lost in closures
         if (path && recordID) {
-          var typeName = writer.getRecordTypeName(
+          const typeName = writer.getRecordTypeName(
             child,
             recordID,
             payloadData
@@ -318,18 +318,18 @@ function handleRangeAdd(
   config: OperationConfig,
   isOptimisticUpdate: boolean
 ): void {
-  var clientMutationID = getString(payload, CLIENT_MUTATION_ID);
+  const clientMutationID = getString(payload, CLIENT_MUTATION_ID);
   invariant(
     clientMutationID,
     'writeRelayUpdatePayload(): Expected operation `%s` to have a `%s`.',
     operation.getName(),
     CLIENT_MUTATION_ID
   );
-  var store = writer.getRecordStore();
+  const store = writer.getRecordStore();
 
   // Extracts the new edge from the payload
-  var edge = getObject(payload, config.edgeName);
-  var edgeNode = edge && getObject(edge, NODE);
+  const edge = getObject(payload, config.edgeName);
+  const edgeNode = edge && getObject(edge, NODE);
   if (!edge || !edgeNode) {
     warning(
       false,
@@ -342,9 +342,9 @@ function handleRangeAdd(
   }
 
   // Extract the id of the node with the connection that we are adding to.
-  var connectionParentID = config.parentID;
+  let connectionParentID = config.parentID;
   if (!connectionParentID) {
-    var edgeSource = getObject(edge, 'source');
+    const edgeSource = getObject(edge, 'source');
     if (edgeSource) {
       connectionParentID = getString(edgeSource, ID);
     }
@@ -356,19 +356,19 @@ function handleRangeAdd(
     config.edgeName
   );
 
-  var nodeID = getString(edgeNode, ID) || generateClientID();
-  var cursor = edge.cursor || STUB_CURSOR_ID;
-  var edgeData = {
+  const nodeID = getString(edgeNode, ID) || generateClientID();
+  const cursor = edge.cursor || STUB_CURSOR_ID;
+  const edgeData = {
     ...edge,
     cursor: cursor,
     node: {
       ...edgeNode,
-      id: nodeID
-    }
+      id: nodeID,
+    },
   };
 
   // add the node to every connection for this field
-  var connectionIDs =
+  const connectionIDs =
     store.getConnectionIDsForField(connectionParentID, config.connectionName);
   if (connectionIDs) {
     connectionIDs.forEach(connectionID => addRangeNode(
@@ -392,7 +392,7 @@ function handleRangeAdd(
     // non-optimistic updates check for the existence of a generated client
     // ID (from the above `if` clause) and link the client ID to the actual
     // server ID.
-    var clientNodeID =
+    const clientNodeID =
       RelayMutationTracker.getClientIDForMutation(clientMutationID);
     if (clientNodeID) {
       RelayMutationTracker.updateClientServerIDMap(
@@ -416,9 +416,9 @@ function addRangeNode(
   nodeID: DataID,
   edgeData: any
 ) {
-  var store = writer.getRecordStore();
-  var filterCalls = store.getRangeFilterCalls(connectionID);
-  var rangeBehavior = filterCalls ?
+  const store = writer.getRecordStore();
+  const filterCalls = store.getRangeFilterCalls(connectionID);
+  const rangeBehavior = filterCalls ?
     getRangeBehavior(config.rangeBehaviors, filterCalls) :
     null;
 
@@ -427,8 +427,8 @@ function addRangeNode(
     return;
   }
 
-  var edgeID = generateClientEdgeID(connectionID, nodeID);
-  var path = store.getPathToRecord(connectionID);
+  const edgeID = generateClientEdgeID(connectionID, nodeID);
+  let path = store.getPathToRecord(connectionID);
   invariant(
     path,
     'writeRelayUpdatePayload(): Expected a path for connection record, `%s`.',
@@ -437,13 +437,13 @@ function addRangeNode(
   path = path.getPath(EDGES_FIELD, edgeID);
 
   // create the edge record
-  var typeName = writer.getRecordTypeName(EDGES_FIELD, edgeID, edgeData);
+  const typeName = writer.getRecordTypeName(EDGES_FIELD, edgeID, edgeData);
   writer.createRecordIfMissing(EDGES_FIELD, edgeID, typeName, path);
 
   // write data for all `edges` fields
   // TODO #7167718: more efficient mutation/subscription writes
-  var hasEdgeField = false;
-  var handleNode = (node) => {
+  let hasEdgeField = false;
+  const handleNode = node => {
     node.getChildren().forEach(child => {
       if (child instanceof RelayQuery.Fragment) {
         handleNode(child);
@@ -499,18 +499,18 @@ function handleRangeDelete(
   payload: PayloadObject,
   config: OperationConfig
 ): void {
-  var maybeRecordID = getString(payload, config.deletedIDFieldName);
+  const maybeRecordID = getString(payload, config.deletedIDFieldName);
   invariant(
     maybeRecordID != null,
     'writeRelayUpdatePayload(): Missing ID for deleted record at field `%s`.',
     config.deletedIDFieldName
   );
-  var recordID = maybeRecordID; // Flow loses type refinements in closures
+  const recordID = maybeRecordID; // Flow loses type refinements in closures
 
   // Extract the id of the node with the connection that we are deleting from.
-  var store = writer.getRecordStore();
-  var connectionName = config.pathToConnection.pop();
-  var connectionParentID =
+  const store = writer.getRecordStore();
+  const connectionName = config.pathToConnection.pop();
+  const connectionParentID =
     getIDFromPath(store, config.pathToConnection, payload);
   // Restore pathToConnection to its original state
   config.pathToConnection.push(connectionName);
@@ -518,7 +518,7 @@ function handleRangeDelete(
     return;
   }
 
-  var connectionIDs = store.getConnectionIDsForField(
+  const connectionIDs = store.getConnectionIDsForField(
     connectionParentID,
     connectionName
   );
@@ -537,8 +537,8 @@ function deleteRangeEdge(
   connectionID: DataID,
   nodeID: DataID
 ): void {
-  var store = writer.getRecordStore();
-  var edgeID = generateClientEdgeID(connectionID, nodeID);
+  const store = writer.getRecordStore();
+  const edgeID = generateClientEdgeID(connectionID, nodeID);
   store.applyRangeUpdate(connectionID, edgeID, REMOVE);
 
   deleteRecord(writer, edgeID);
@@ -561,7 +561,7 @@ function getRangeBehavior(
   rangeBehaviors: RangeBehaviors,
   calls: Array<Call>
 ): ?string {
-  var call = calls.map(printRelayQueryCall).sort().join('').slice(1);
+  const call = calls.map(serializeRelayQueryCall).sort().join('').slice(1);
   return rangeBehaviors[call] || null;
 }
 
@@ -585,7 +585,7 @@ function getIDFromPath(
   // ['viewer']. We try to match it up with something in the root call mapping
   // first.
   if (path.length === 1) {
-    var rootCallID = store.getDataID(path[0]);
+    const rootCallID = store.getDataID(path[0]);
     if (rootCallID) {
       return rootCallID;
     }
@@ -594,7 +594,7 @@ function getIDFromPath(
     return payloadItem ? getObject(payloadItem, step) : null;
   }, payload);
   if (payloadItem) {
-    var id = getString(payloadItem, ID);
+    const id = getString(payloadItem, ID);
     invariant(
       id != null,
       'writeRelayUpdatePayload(): Expected `%s.id` to be a string.',
@@ -609,7 +609,7 @@ function getString(
   payload: PayloadObject,
   field: string
 ): ?string {
-  var value = payload[field];
+  let value = payload[field];
   // Coerce numbers to strings for backwards compatibility.
   if (typeof value === 'number') {
     warning(
@@ -634,7 +634,7 @@ function getObject(
   payload: PayloadObject,
   field: string
 ): ?PayloadObject {
-  var value = payload[field];
+  const value = payload[field];
   invariant(
     value == null || (typeof value === 'object' && !Array.isArray(value)),
     'writeRelayUpdatePayload(): Expected `%s` to be an object, got `%s`.',

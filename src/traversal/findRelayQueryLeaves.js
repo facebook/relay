@@ -13,16 +13,17 @@
 
 'use strict';
 
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {Call, DataID, Records} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type RelayQueryPath from 'RelayQueryPath';
-var RelayQueryVisitor = require('RelayQueryVisitor');
-var RelayRecordState = require('RelayRecordState');
+const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
-var isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 
 export type PendingItem = {
   node: RelayQuery.Node;
@@ -44,7 +45,7 @@ type FinderState = {
   rangeInfo: ?RangeInfo;
 };
 
-var {EDGES, PAGE_INFO} = RelayConnectionInterface;
+const {EDGES, PAGE_INFO} = RelayConnectionInterface;
 
 /**
  * @internal
@@ -116,7 +117,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   visitFragment(
     fragment: RelayQuery.Fragment,
     state: FinderState
-  ): ?RelayQuery.Node {
+  ): void {
     var dataID = state.dataID;
     var recordState = this._store.getRecordState(dataID);
     if (recordState === RelayRecordState.UNKNOWN) {
@@ -130,6 +131,12 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       fragment,
       this._store.getType(dataID)
     )) {
+      if (
+        fragment.isContainerFragment() &&
+        GraphQLStoreDataHandler.isClientID(dataID)
+      ) {
+        this._store.putPathToRecord(dataID, state.path);
+      }
       this.traverse(fragment, state);
     }
   }
@@ -137,7 +144,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   visitField(
     field: RelayQuery.Field,
     state: FinderState
-  ): ?RelayQuery.Node {
+  ): void {
     var dataID = state.dataID;
     var recordState = this._store.getRecordState(dataID);
     if (recordState === RelayRecordState.UNKNOWN) {

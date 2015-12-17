@@ -44,7 +44,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, '../website', BUILD_DIR, 'relay/prototyping'),
-    filename: '[name].js'
+    filename: '[name].js',
   },
   plugins: [
     new DefinePlugin({
@@ -55,14 +55,14 @@ module.exports = {
     new HTMLWebpackPlugin({
       chunks: ['graphiql'],
       filename: 'graphiql.html',
-      title: 'GraphiQL'
+      title: 'GraphiQL',
     }),
     new HTMLWebpackPlugin({
       chunks: ['playground'],
       filename: 'playground.html',
       inject: true,
       template: 'playground.html',
-      title: 'Relay Playground'
+      title: 'Relay Playground',
     }),
   ].concat(process.env.NODE_ENV === 'production'
     ? [

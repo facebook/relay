@@ -13,15 +13,15 @@
 
 'use strict';
 
-var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 import type RelayMutation from 'RelayMutation';
-var RelayMutationTransaction = require('RelayMutationTransaction');
-var RelayQuery = require('RelayQuery');
-var RelayQueryResultObservable = require('RelayQueryResultObservable');
-var RelayStoreData = require('RelayStoreData');
+const RelayMutationTransaction = require('RelayMutationTransaction');
+const RelayQuery = require('RelayQuery');
+const RelayQueryResultObservable = require('RelayQueryResultObservable');
+const RelayStoreData = require('RelayStoreData');
 
-var forEachRootCallArg = require('forEachRootCallArg');
-var readRelayQueryData = require('readRelayQueryData');
+const forEachRootCallArg = require('forEachRootCallArg');
+const readRelayQueryData = require('readRelayQueryData');
 
 import type {
   Abortable,
@@ -29,12 +29,12 @@ import type {
   RelayMutationTransactionCommitCallbacks,
   ReadyStateChangeCallback,
   StoreReaderData,
-  StoreReaderOptions
+  StoreReaderOptions,
 } from 'RelayTypes';
 
 import type {
   DataID,
-  RelayQuerySet
+  RelayQuerySet,
 } from 'RelayInternalTypes';
 
 var storeData = RelayStoreData.getDefaultInstance();

@@ -13,12 +13,12 @@
 
 'use strict';
 
-var RelayProfiler = require('RelayProfiler');
-var RelayQuery = require('RelayQuery');
-var RelayQueryTransform = require('RelayQueryTransform');
+const RelayProfiler = require('RelayProfiler');
+const RelayQuery = require('RelayQuery');
+const RelayQueryTransform = require('RelayQueryTransform');
 
-var areEqual = require('areEqual');
-var invariant = require('invariant');
+const areEqual = require('areEqual');
+const invariant = require('invariant');
 
 type SubtractState = {
   isEmpty: boolean;
@@ -168,7 +168,7 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
     return node.clone(node.getChildren().map(child => {
       var childState = {
         isEmpty: true,
-        subtrahend: state.subtrahend
+        subtrahend: state.subtrahend,
       };
       var diff = this.visit(child, childState);
       state.isEmpty = state.isEmpty && childState.isEmpty;

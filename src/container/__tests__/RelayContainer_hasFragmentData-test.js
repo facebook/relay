@@ -11,12 +11,12 @@
 
 'use strict';
 
-var RelayTestUtils = require('RelayTestUtils');
-RelayTestUtils.unmockRelay();
+require('configureForRelayOSS');
 
-var React = require('React');
-var Relay = require('Relay');
-var RelayStoreData = require('RelayStoreData');
+const React = require('React');
+const Relay = require('Relay');
+const RelayStoreData = require('RelayStoreData');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer', () => {
   describe('hasFragmentData()', () => {

@@ -17,7 +17,7 @@ import type {ClientMutationID} from 'RelayInternalTypes';
 import type RelayMutationQueue from 'RelayMutationQueue';
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 /**
  * @internal

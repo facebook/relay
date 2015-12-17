@@ -13,15 +13,15 @@
 
 'use strict';
 
-var GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
-var RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
-var RelayProfiler = require('RelayProfiler');
-var RelayQuery = require('RelayQuery');
-var RelayQueryVisitor = require('RelayQueryVisitor');
-var RelayRecordState = require('RelayRecordState');
+const RelayProfiler = require('RelayProfiler');
+const RelayQuery = require('RelayQuery');
+const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayRecordState = require('RelayRecordState');
 import type RelayStoreData from 'RelayStoreData';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
@@ -30,11 +30,11 @@ import type {
   StoreReaderOptions,
 } from 'RelayTypes';
 
-var callsFromGraphQL = require('callsFromGraphQL');
-var callsToGraphQL = require('callsToGraphQL');
-var invariant = require('invariant');
-var isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
-var validateRelayReadQuery = require('validateRelayReadQuery');
+const callsFromGraphQL = require('callsFromGraphQL');
+const callsToGraphQL = require('callsToGraphQL');
+const invariant = require('invariant');
+const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const validateRelayReadQuery = require('validateRelayReadQuery');
 
 export type DataIDSet = {[key: string]: boolean};
 export type StoreReaderResult = {
@@ -130,7 +130,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     return result;
   }
 
-  visitField(node: RelayQuery.Field, state: State): ?RelayQuery.Node {
+  visitField(node: RelayQuery.Field, state: State): void {
     // Check for range client IDs (eg. `someID_first(25)`) and unpack if
     // present, overriding `state`.
     this._handleRangeInfo(node, state);
@@ -166,7 +166,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     state.seenDataIDs[state.storeDataID] = true;
   }
 
-  visitFragment(node: RelayQuery.Fragment, state: State): ?RelayQuery.Node {
+  visitFragment(node: RelayQuery.Fragment, state: State): void {
     const dataID = getComponentDataID(state);
     if (node.isContainerFragment() && !this._traverseFragmentReferences) {
       state.seenDataIDs[dataID] = true;
@@ -434,7 +434,7 @@ class RelayRangeCallEnforcer extends RelayQueryVisitor<RelayQuery.Field> {
   visitField(
     node: RelayQuery.Field,
     parent: RelayQuery.Field
-  ): ?RelayQuery.Node {
+  ): void {
     var schemaName = node.getSchemaName();
     invariant(
       schemaName !== EDGES &&
@@ -495,11 +495,7 @@ function getDataValue(state: State, key: string): mixed {
   return data[key];
 }
 
-var instrumented = RelayProfiler.instrument(
+module.exports = RelayProfiler.instrument(
   'readRelayQueryData',
   readRelayQueryData
 );
-
-// #7573861: Type export collides with CommonJS export in presence of
-// `instrument()` call:
-module.exports = (instrumented: $FlowIssue);

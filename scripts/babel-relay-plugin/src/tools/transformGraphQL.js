@@ -13,7 +13,6 @@
 
 var babel = require('babel-core');
 var fs = require('fs');
-var path = require('path');
 var util = require('util');
 
 var getBabelRelayPlugin = require('../getBabelRelayPlugin');

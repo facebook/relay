@@ -1,4 +1,4 @@
-      /**
+/**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
  *
@@ -131,12 +131,6 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       fragment,
       this._store.getType(dataID)
     )) {
-      if (
-        fragment.isContainerFragment() &&
-        GraphQLStoreDataHandler.isClientID(dataID)
-      ) {
-        this._store.putPathToRecord(dataID, state.path);
-      }
       this.traverse(fragment, state);
     }
   }

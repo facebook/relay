@@ -149,6 +149,20 @@ class RelayRenderer extends React.Component {
     };
   }
 
+  /**
+   * @private
+   */
+  _buildAndSetState(
+    activeComponent: ?RelayContainer,
+    activeQueryConfig: ?RelayQueryConfigSpec,
+    readyState: ?ReadyState,
+    props: ?Object
+  ): void {
+    this.setState(this._buildState(
+      activeComponent, activeQueryConfig, readyState, props
+    ));
+  }
+
   getChildContext(): Object {
     return {route: this.props.queryConfig};
   }
@@ -162,7 +176,7 @@ class RelayRenderer extends React.Component {
    */
   _runQueries(
     {Component, forceFetch, queryConfig}: RelayRendererProps
-  ): RelayRendererState {
+  ): void {
     const querySet = getRelayQueries(Component, queryConfig);
     const onReadyStateChange = readyState => {
       if (!this.mounted) {
@@ -183,9 +197,7 @@ class RelayRenderer extends React.Component {
           ...mapObject(querySet, createFragmentPointerForRoot),
         };
       }
-      this.setState(this._buildState(
-        Component, queryConfig, readyState, props
-      ));
+      this._buildAndSetState(Component, queryConfig, readyState, props);
     };
 
     if (this.pendingRequest) {
@@ -195,8 +207,14 @@ class RelayRenderer extends React.Component {
     const request = this.pendingRequest = forceFetch ?
       RelayStore.forceFetch(querySet, onReadyStateChange) :
       RelayStore.primeCache(querySet, onReadyStateChange);
+  }
 
-    return this._buildState(
+  /**
+   * @private
+   */
+  _runQueriesAndSetState(props: RelayRendererProps): void {
+    this._runQueries(props);
+    this._buildAndSetState(
       this.state.activeComponent, this.state.activeQueryConfig, null, null
     );
   }
@@ -227,14 +245,14 @@ class RelayRenderer extends React.Component {
       'RelayRenderer: You tried to call `retry`, but the last request did ' +
       'not fail. You can only call this when the last request has failed.'
     );
-    this.setState(this._runQueries(this.props));
+    this._runQueriesAndSetState(this.props);
   }
 
   componentWillReceiveProps(nextProps: RelayRendererProps): void {
     if (nextProps.Component !== this.props.Component ||
         nextProps.queryConfig !== this.props.queryConfig ||
         (nextProps.forceFetch && !this.props.forceFetch)) {
-      this.setState(this._runQueries(nextProps));
+      this._runQueriesAndSetState(nextProps);
     }
   }
 

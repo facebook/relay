@@ -334,7 +334,9 @@ class RelayStoreData {
     dataID: DataID
   ): RelayQuery.Root {
     if (GraphQLStoreDataHandler.isClientID(dataID)) {
-      const path = this._queuedStore.getPathToRecord(dataID);
+      const path = this._queuedStore.getPathToRecord(
+        this._rangeData.getCanonicalClientID(dataID),
+      );
       invariant(
         path,
         'RelayStoreData.buildFragmentQueryForDataID(): Cannot refetch ' +

@@ -228,7 +228,6 @@ describe('printRelayOSSQuery', () => {
           node(id:"123") {
             id,
             __typename,
-            ...F0,
             ...F0
           }
         }
@@ -276,7 +275,6 @@ describe('printRelayOSSQuery', () => {
         fragment PrintRelayOSSQuery on Node {
           id,
           __typename,
-          ...F0,
           ...F0
         }
         fragment F0 on User {
@@ -288,8 +286,8 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints fragments with incrementing names', () => {
-      const fragmentA = Relay.QL`fragment on User { name }`;
-      const fragmentB = Relay.QL`fragment on User { name }`;
+      const fragmentA = Relay.QL`fragment on User { firstName }`;
+      const fragmentB = Relay.QL`fragment on User { lastName }`;
       const fragment = getNode(Relay.QL`
         fragment on Node {
           ${fragmentA},
@@ -305,10 +303,34 @@ describe('printRelayOSSQuery', () => {
           ...F1
         }
         fragment F0 on User {
-          name,
+          firstName,
           id
         }
         fragment F1 on User {
+          lastName,
+          id
+        }
+      `);
+      expect(variables).toEqual({});
+    });
+
+    it('prints fragments with identical children only once', () => {
+      const fragmentA = Relay.QL`fragment on User { name }`;
+      const fragmentB = Relay.QL`fragment on User { name }`;
+      const fragment = getNode(Relay.QL`
+        fragment on Node {
+          ${fragmentA},
+          ${fragmentB},
+        }
+      `);
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQuery on Node {
+          id,
+          __typename,
+          ...F0
+        }
+        fragment F0 on User {
           name,
           id
         }
@@ -517,7 +539,6 @@ describe('printRelayOSSQuery', () => {
           actor {
             id,
             __typename,
-            ...F0,
             ...F0
           }
         }

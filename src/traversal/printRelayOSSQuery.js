@@ -169,18 +169,20 @@ function printInlineFragment(
   if (!node.getChildren().length) {
     return null;
   }
-  let fragmentName;
-  const fragmentID = node.getFragmentID();
+  // Mapping from fragment "content" text to fragment name.
   const fragmentMap = printerState.fragmentMap;
-  if (fragmentMap.hasOwnProperty(fragmentID)) {
-    fragmentName = fragmentMap[fragmentID].name;
+  const fragmentText =
+    node.getType() +
+    printDirectives(node) +
+    printChildren(node, printerState);
+  let fragmentName;
+  if (fragmentMap.hasOwnProperty(fragmentText)) {
+    fragmentName = fragmentMap[fragmentText].name;
   } else {
-    const directives = printDirectives(node);
     fragmentName = 'F' + base62(printerState.fragmentCount++);
-    fragmentMap[fragmentID] = {
+    fragmentMap[fragmentText] = {
       name: fragmentName,
-      text: 'fragment ' + fragmentName + ' on ' + node.getType() + directives +
-        printChildren(node, printerState),
+      text: 'fragment ' + fragmentName + ' on ' + fragmentText,
     };
   }
   return '...' + fragmentName;
@@ -226,6 +228,7 @@ function printChildren(
   printerState: PrinterState
 ): string {
   let children;
+  const fragments = {};
   node.getChildren().forEach(node => {
     if (node instanceof RelayQuery.Field) {
       children = children || [];
@@ -238,7 +241,8 @@ function printChildren(
         node.constructor.name
       );
       const printedFragment = printInlineFragment(node, printerState);
-      if (printedFragment) {
+      if (printedFragment && !fragments.hasOwnProperty(printedFragment)) {
+        fragments[printedFragment] = true;
         children = children || [];
         children.push(printedFragment);
       }

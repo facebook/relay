@@ -433,7 +433,6 @@ var RelayTestUtils = {
           const RelayQueryPath = require('RelayQueryPath');
 
           const invariant = require('invariant');
-          const flattenRelayQuery = require('flattenRelayQuery');
           const printRelayQuery = require('printRelayQuery');
 
           invariant(
@@ -458,8 +457,8 @@ var RelayTestUtils = {
             RelayMetaRoute.get('$RelayTestUtils'),
             {}
           );
-          var actualQuery = flattenRelayQuery(actual.getQuery(fragment));
-          var expectedQuery = flattenRelayQuery(expected.getQuery(fragment));
+          var actualQuery = actual.getQuery(fragment);
+          var expectedQuery = expected.getQuery(fragment);
 
           if (!actualQuery.equals(expectedQuery)) {
             return {

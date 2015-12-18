@@ -17,6 +17,9 @@ const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
+import type RelayQueryPath from 'RelayQueryPath';
+
+const invariant = require('invariant');
 
 const TYPE = '__type__';
 
@@ -33,15 +36,20 @@ class RelayQueryTracker {
   trackNodeForID(
     node: RelayQuery.Node,
     dataID: DataID,
-    options: ?{isRoot: boolean}
+    path: ?RelayQueryPath
   ): void {
     // Non-refetchable nodes are tracked via their nearest-refetchable parent
-    // (except for id-less root records such as `viewer`).
-    if (
-      GraphQLStoreDataHandler.isClientID(dataID) &&
-      (!options || !options.isRoot)
-    ) {
-      return;
+    // (except for root call nodes)
+    if (GraphQLStoreDataHandler.isClientID(dataID)) {
+      invariant(
+        path,
+        'RelayQueryTracker.trackNodeForID(): Expected `path` for client ID, ' +
+        '`%s`.',
+        dataID
+      );
+      if (!path.isRootPath()) {
+        return;
+      }
     }
     // Don't track `__type__` fields
     if (node instanceof RelayQuery.Field && node.getSchemaName() === TYPE) {

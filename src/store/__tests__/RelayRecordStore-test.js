@@ -254,23 +254,30 @@ describe('RelayRecordStore', () => {
       expect(store.getPathToRecord(actorID)).toBe(undefined);
     });
 
-    it('sets/gets the path to a record', () => {
+    it('returns the path for non-refetchable records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
       var query = getNode(Relay.QL`
         query {
           viewer {
             actor {
-              id
+              address {
+                city
+              }
             }
           }
         }
       `);
+      var actorID = '123';
+      var addressID = 'client:1';
       var path = new RelayQueryPath(query);
-      var viewerID = 'client:1';
-      store.putRecord(viewerID, 'Viewer');
-      store.putPathToRecord(viewerID, path);
-      expect(store.getPathToRecord(viewerID)).toBe(path);
+      path = path.getPath(query.getFieldByStorageKey('actor'), actorID);
+      path = path.getPath(
+        query.getFieldByStorageKey('actor').getFieldByStorageKey('address'),
+        addressID
+      );
+      store.putRecord(addressID, 'Type', path);
+      expect(store.getPathToRecord(addressID)).toMatchPath(path);
     });
   });
 

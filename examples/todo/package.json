@@ -15,7 +15,7 @@
     "express-graphql": "^0.4.0",
     "graphql": "0.4.13",
     "graphql-relay": "^0.3.3",
-    "history": "^1.13.0",
+    "history": "1.13.0",
     "react": "^0.14.0",
     "react-dom": "^0.14.0",
     "react-relay": "file:../../",

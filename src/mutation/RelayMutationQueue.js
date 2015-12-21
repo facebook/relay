@@ -21,7 +21,6 @@ const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationRequest = require('RelayMutationRequest');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-const RelayNetworkLayer = require('RelayNetworkLayer');
 import type RelayStoreData from 'RelayStoreData';
 import type {FileMap} from 'RelayMutation';
 import type RelayMutation from 'RelayMutation';
@@ -238,7 +237,7 @@ class RelayMutationQueue {
       transaction.getQuery(this._storeData),
       transaction.getFiles(),
     );
-    RelayNetworkLayer.sendMutation(request);
+    this._storeData.getNetworkLayer().sendMutation(request);
 
     request.getPromise().done(
       result => this._handleCommitSuccess(transaction, result.response),

@@ -20,7 +20,6 @@ jest
 
 const DliteFetchModeConstants = require('DliteFetchModeConstants');
 const Relay = require('Relay');
-const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -30,6 +29,7 @@ const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 const warning = require('warning');
 
 describe('GraphQLQueryRunner', () => {
+  var networkLayer;
   var queryRunner;
   var pendingQueryTracker;
 
@@ -62,13 +62,14 @@ describe('GraphQLQueryRunner', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    RelayNetworkLayer.injectNetworkLayer({
-      supports: () => true,
-    });
-
     var storeData = new RelayStoreData();
+    networkLayer = storeData.getNetworkLayer();
     queryRunner = storeData.getQueryRunner();
     pendingQueryTracker = storeData.getPendingQueryTracker();
+
+    networkLayer.injectNetworkLayer({
+      supports: () => true,
+    });
 
     mockCallback = jest.genMockFunction();
     mockQuerySet = {
@@ -108,7 +109,7 @@ describe('GraphQLQueryRunner', () => {
   it('warns and uses fallback when defer is unsupported', () => {
     diffRelayQuery.mockImplementation(query => [query]);
     checkRelayQueryData.mockImplementation(() => false);
-    RelayNetworkLayer.injectNetworkLayer({
+    networkLayer.injectNetworkLayer({
       supports: () => false,
     });
 

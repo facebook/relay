@@ -12,7 +12,6 @@
 
 'use strict';
 
-const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayStoreData = require('RelayStoreData');
 
 const flattenRelayQuery = require('flattenRelayQuery');
@@ -25,7 +24,7 @@ const printRelayQuery = require('printRelayQuery');
  * @internal
  */
 var RelayInternals = {
-  NetworkLayer: RelayNetworkLayer,
+  NetworkLayer: RelayStoreData.getDefaultInstance().getNetworkLayer(),
   DefaultStoreData: RelayStoreData.getDefaultInstance(),
   flattenRelayQuery: flattenRelayQuery,
   printRelayQuery: printRelayQuery,

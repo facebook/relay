@@ -16,7 +16,6 @@
 const DliteFetchModeConstants = require('DliteFetchModeConstants');
 import type {RelayQuerySet} from 'RelayInternalTypes';
 import type {PendingFetch} from 'RelayPendingQueryTracker';
-const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
@@ -138,9 +137,10 @@ function hasItems(map: Object): boolean {
 }
 
 function splitAndFlattenQueries(
+  storeData: RelayStoreData,
   queries: Array<RelayQuery.Root>
 ): Array<RelayQuery.Root> {
-  if (!RelayNetworkLayer.supports('defer')) {
+  if (!storeData.getNetworkLayer().supports('defer')) {
     if (__DEV__) {
       queries.forEach(query => {
         warning(
@@ -259,7 +259,7 @@ function runQueries(
     var forceIndex = fetchMode === DliteFetchModeConstants.FETCH_MODE_REFETCH ?
       generateForceIndex() : null;
 
-    splitAndFlattenQueries(queries).forEach(query => {
+    splitAndFlattenQueries(storeData, queries).forEach(query => {
       var pendingFetch = storeData.getPendingQueryTracker().add(
         {query, fetchMode, forceIndex, storeData}
       );

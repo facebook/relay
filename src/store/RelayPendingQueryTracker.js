@@ -23,7 +23,6 @@ import type {QueryResult} from 'RelayTypes';
 
 const containsRelayQueryRootCall = require('containsRelayQueryRootCall');
 const everyObject = require('everyObject');
-const fetchRelayQuery = require('fetchRelayQuery');
 const invariant = require('invariant');
 const subtractRelayQuery = require('subtractRelayQuery');
 
@@ -143,7 +142,7 @@ class PendingFetch {
     } else {
       subtractedQuery = this._subtractPending(query);
       this._fetchSubtractedQueryPromise = subtractedQuery ?
-        fetchRelayQuery(subtractedQuery) :
+        storeData.getNetworkLayer().fetchRelayQuery(subtractedQuery) :
         Promise.resolve();
     }
 

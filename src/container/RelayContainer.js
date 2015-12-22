@@ -76,7 +76,6 @@ export type RootQueries = {
 var containerContextTypes = {
   route: RelayPropTypes.QueryConfig.isRequired,
 };
-var nextContainerID = 0;
 
 var storeData = RelayStoreData.getDefaultInstance();
 
@@ -99,8 +98,7 @@ storeData.getChangeEmitter().injectBatchingStrategy(
  */
 function createContainerComponent(
   Component: ReactClass,
-  spec: RelayContainerSpec,
-  containerID: string
+  spec: RelayContainerSpec
 ): RelayContainer {
   var componentName = Component.displayName || Component.name;
   var containerName = 'Relay(' + componentName + ')';
@@ -845,7 +843,6 @@ function create(
 ): RelayLazyContainer {
   var componentName = Component.displayName || Component.name;
   var containerName = 'Relay(' + componentName + ')';
-  var containerID = (nextContainerID++).toString(36);
 
   var fragments = spec.fragments;
   invariant(
@@ -861,7 +858,7 @@ function create(
   var Container;
   function ContainerConstructor(props, context) {
     if (!Container) {
-      Container = createContainerComponent(Component, spec, containerID);
+      Container = createContainerComponent(Component, spec);
     }
     return new Container(props, context);
   }

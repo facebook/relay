@@ -234,6 +234,7 @@ class RelayStoreData {
       'RelayStoreData: `readFromDiskCache` should only be called when cache ' +
       'manager is available.'
     );
+    var changeTracker = new RelayChangeTracker();
     var profile = RelayProfiler.profile('RelayStoreData.readFromDiskCache');
     readRelayDiskCache(
       queries,
@@ -241,12 +242,15 @@ class RelayStoreData {
       this._cachedRecords,
       this._cachedRootCallMap,
       cacheManager,
+      changeTracker,
       {
         onSuccess: () => {
+          this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
           profile.stop();
           callbacks.onSuccess && callbacks.onSuccess();
         },
         onFailure: () => {
+          this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
           profile.stop();
           callbacks.onFailure && callbacks.onFailure();
         },

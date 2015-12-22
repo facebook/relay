@@ -14,6 +14,7 @@
 'use strict';
 
 const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayChangeTracker = require('RelayChangeTracker');
 import type {
   DataID,
   Records,
@@ -48,6 +49,7 @@ function readRelayDiskCache(
   cachedRecords: Records,
   cachedRootCallMap: RootCallMap,
   cacheManager: CacheManager,
+  changeTracker: RelayChangeTracker,
   callbacks: CacheReadCallbacks
 ): void {
   var reader = new RelayCacheReader(
@@ -55,6 +57,7 @@ function readRelayDiskCache(
     cachedRecords,
     cachedRootCallMap,
     cacheManager,
+    changeTracker,
     callbacks
   );
 
@@ -67,6 +70,7 @@ class RelayCacheReader {
   _cachedRootCallMap: RootCallMap;
   _cacheManager: CacheManager;
   _callbacks: CacheReadCallbacks;
+  _changeTracker: RelayChangeTracker;
   _hasFailed: boolean;
   _pendingNodes: PendingNodes;
   _pendingRoots: PendingRoots;
@@ -76,6 +80,7 @@ class RelayCacheReader {
     cachedRecords: Records,
     cachedRootCallMap: RootCallMap,
     cacheManager: CacheManager,
+    changeTracker: RelayChangeTracker,
     callbacks: CacheReadCallbacks,
   ) {
     this._store = store;
@@ -83,6 +88,7 @@ class RelayCacheReader {
     this._cachedRootCallMap = cachedRootCallMap;
     this._cacheManager = cacheManager;
     this._callbacks = callbacks;
+    this._changeTracker = changeTracker;
 
     this._hasFailed = false;
     this._pendingNodes = {};
@@ -231,6 +237,20 @@ class RelayCacheReader {
           }
           if (value && GraphQLStoreDataHandler.isClientID(dataID)) {
             value.__path__ = pendingItems[0].path;
+          }
+          // Mark records as created/updated as necessary. Note that if the
+          // record is known to be deleted in the store then it will have been
+          // been marked as created already. Further, it does not need to be
+          // updated since no additional data can be read about a deleted node.
+          const recordState = this._store.getRecordState(dataID);
+          if (recordState === 'UNKNOWN' && value !== undefined) {
+            // Mark as created if the store did not have a value but disk cache
+            // did (either a known value or known deletion).
+            this._changeTracker.createID(dataID);
+          } else if (recordState === 'EXISTENT' && value != null) {
+            // Mark as updated only if a record exists in both the store and
+            // disk cache.
+            this._changeTracker.updateID(dataID);
           }
           this._cachedRecords[dataID] = value;
           var items = this._pendingNodes[dataID];

@@ -22,6 +22,7 @@ const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayMutation = require('RelayMutation');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationQueue = require('RelayMutationQueue');
+const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
 const readRelayQueryData = require('readRelayQueryData');
@@ -41,14 +42,15 @@ describe('RelayContext', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    relayContext = new RelayContext();
+    const storeData = new RelayStoreData();
+    relayContext = new RelayContext(storeData);
 
     filter = () => true;
     dataIDs = ['feedback_id', 'likers_id'];
     queries = {};
     callback = jest.genMockFunction();
-    queryRunner = relayContext.getStoreData().getQueryRunner();
-    recordStore = relayContext.getStoreData().getRecordStore();
+    queryRunner = storeData.getQueryRunner();
+    recordStore = storeData.getRecordStore();
   });
 
   describe('primeCache', () => {

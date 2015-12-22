@@ -14,17 +14,15 @@
 'use strict';
 
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+import type {GarbageCollectionScheduler} from 'RelayGarbageCollector';
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type RelayQuery from 'RelayQuery';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
-const RelayTaskScheduler = require('RelayTaskScheduler');
 
 const forEachRootCallArg = require('forEachRootCallArg');
-const invariant = require('invariant');
 const readRelayQueryData = require('readRelayQueryData');
-const warning = require('warning');
 
 import type {
   Abortable,
@@ -39,8 +37,6 @@ import type {
   DataID,
   RelayQuerySet,
 } from 'RelayInternalTypes';
-
-let defaultInstance;
 
 /**
  * @public
@@ -80,22 +76,8 @@ let defaultInstance;
 class RelayContext {
   _storeData: RelayStoreData;
 
-  static getDefaultInstance(): RelayContext {
-    if (!defaultInstance) {
-      defaultInstance = new RelayContext(RelayStoreData.getDefaultInstance());
-    }
-    return defaultInstance;
-  }
-
-  constructor(storeData: RelayStoreData = new RelayStoreData()) {
+  constructor(storeData: RelayStoreData) {
     this._storeData = storeData;
-  }
-
-  /**
-   * @internal
-   */
-  getStoreData(): RelayStoreData {
-    return this._storeData;
   }
 
   /**
@@ -200,44 +182,12 @@ class RelayContext {
   }
 
   /**
-   * Initializes garbage collection: must be called before any records are
-   * fetched. When records are collected after calls to `scheduleCollection` or
-   * `scheduleCollectionFromNode`, records are collected in steps, with a
-   * maximum of `stepLength` records traversed in a step. Steps are scheduled
-   * via `RelayTaskScheduler`.
+   * Creates a garbage collector for this instance. After initialization all
+   * newly added DataIDs will be registered in the created garbage collector.
+   * This will show a warning if data has already been added to the instance.
    */
-  initializeGarbageCollection(stepLength: number): void {
-    invariant(
-        stepLength > 0,
-        'RelayGarbageCollection: step length must be greater than zero, got ' +
-        '`%s`.',
-        stepLength
-    );
+  initializeGarbageCollection(scheduler: GarbageCollectionScheduler): void {
     this._storeData.initializeGarbageCollector(scheduler);
-
-    const pendingQueryTracker = this._storeData.getPendingQueryTracker();
-
-    function scheduler(run: () => boolean): void {
-      const runIteration = () => {
-        // TODO: #9366746: integrate RelayRenderer/Container with GC hold
-        warning(
-          !pendingQueryTracker.hasPendingQueries(),
-          'RelayGarbageCollection: GC is executing during a fetch, but the ' +
-          'pending query may rely on data that is collected.'
-        );
-        let iterations = 0;
-        let hasNext = true;
-        while (hasNext && (stepLength < 0 || iterations < stepLength)) {
-          hasNext = run();
-          iterations++;
-        }
-        // This is effectively a (possibly async) `while` loop
-        if (hasNext) {
-          RelayTaskScheduler.enqueue(runIteration);
-        }
-      };
-      RelayTaskScheduler.enqueue(runIteration);
-    }
   }
 
   /**

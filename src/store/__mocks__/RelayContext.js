@@ -11,7 +11,6 @@
 
 const RelayContext = jest.genMockFromModule('RelayContext');
 const RelayRecordStore = require('RelayRecordStore');
-const RelayStoreData = require('RelayStoreData');
 
 const resolveImmediate = require('resolveImmediate');
 
@@ -53,8 +52,6 @@ function genMockRequest(args) {
 }
 
 RelayContext.mockImplementation(function() {
-  this.getStoreData.mockReturnValue(new RelayStoreData());
-
   this.primeCache.mock.abort = [];
   this.primeCache.mock.requests = [];
   this.primeCache.mockImplementation((...args) => {
@@ -92,9 +89,5 @@ RelayContext.mockImplementation(function() {
 
   return this;
 });
-
-RelayContext.getDefaultInstance.mockReturnValue(
-  new RelayContext(RelayStoreData.getDefaultInstance())
-);
 
 module.exports = RelayContext;

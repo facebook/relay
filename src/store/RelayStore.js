@@ -14,5 +14,6 @@
 'use strict';
 
 const RelayContext = require('RelayContext');
+const RelayStoreData = require('RelayStoreData');
 
-module.exports = RelayContext.getDefaultInstance();
+module.exports = new RelayContext(RelayStoreData.getDefaultInstance());

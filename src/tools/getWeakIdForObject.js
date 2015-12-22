@@ -13,10 +13,12 @@
 
 'use strict';
 
+const base62 = require('base62');
+
 // Ensure non-guessable names for the id property in dev.
 var KEY = '$getWeakIdForObject';
 if (__DEV__) {
-  KEY += Math.random().toString(36).slice(2);
+  KEY += base62(Math.random()).slice(2);
 }
 
 var _nextNodeID = 0;
@@ -29,7 +31,7 @@ var _nextNodeID = 0;
 function getWeakIdForObject(node: Object): string {
   var id = node[KEY];
   if (id == null) {
-    id = (_nextNodeID++).toString(36);
+    id = base62(_nextNodeID++);
     node[KEY] = id;
   }
   return id;

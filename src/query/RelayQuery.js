@@ -53,7 +53,6 @@ type FragmentMetadata = {
   isDeferred: boolean;
   isContainerFragment: boolean;
 };
-type FragmentNames = {[key: string]: string};
 // TODO: replace once #6525923 is resolved
 type NextChildren = Array<any>;
 
@@ -360,7 +359,6 @@ class RelayQueryNode {
  */
 class RelayQueryRoot extends RelayQueryNode {
   __batchCall__: ?BatchCall;
-  __deferredFragmentNames__: ?FragmentNames;
   __id__: ?string;
   __identifyingArg__: ?Call;
   __storageKey__: ?string;
@@ -428,7 +426,6 @@ class RelayQueryRoot extends RelayQueryNode {
   ) {
     super(concreteNode, route, variables);
     this.__batchCall__ = undefined;
-    this.__deferredFragmentNames__ = undefined;
     this.__id__ = undefined;
     this.__identifyingArg__ = undefined;
     this.__storageKey__ = undefined;
@@ -547,16 +544,6 @@ class RelayQueryRoot extends RelayQueryNode {
 
   isPlural(): boolean {
     return !!(this.__concreteNode__: ConcreteQuery).metadata.isPlural;
-  }
-
-  getDeferredFragmentNames(): FragmentNames {
-    var fragmentNames = this.__deferredFragmentNames__;
-    if (!fragmentNames) {
-      fragmentNames = {};
-      getDeferredFragmentNamesForField(this, fragmentNames);
-      this.__deferredFragmentNames__ = fragmentNames;
-    }
-    return fragmentNames;
   }
 
   equals(that: RelayQueryNode): boolean {
@@ -1412,24 +1399,6 @@ function cloneChildren(
   } else {
     return children;
   }
-}
-
-/**
- * Returns the names of the deferred fragments in the query. Does not return
- * nested deferred fragment names.
- */
-function getDeferredFragmentNamesForField(
-  node: RelayQueryNode,
-  fragmentNames: FragmentNames
-): void {
-  if (node instanceof RelayQueryFragment && node.isDeferred()) {
-    var fragmentID = node.getFragmentID();
-    fragmentNames[fragmentID] = fragmentID;
-    return;
-  }
-  node.getChildren().forEach(
-    child => getDeferredFragmentNamesForField(child, fragmentNames)
-  );
 }
 
 /**

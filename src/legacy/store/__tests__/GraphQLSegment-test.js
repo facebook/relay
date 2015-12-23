@@ -153,6 +153,24 @@ describe('GraphQLSegment', () => {
 
   });
 
+  it('should handle repeated edges', () => {
+    console.warn = jest.genMockFunction();
+    var repeatedEdges = edges.concat(edges.slice(0, 1));
+
+    // Attempting to add edges 1 2 3 1.
+    segment.addEdgesAfterCursor(repeatedEdges, null);
+    expect(console.warn.mock.calls.length).toBe(1);
+    expect(console.warn).toBeCalledWith(
+      'Attempted to add an ID already in GraphQLSegment: %s',
+      'edge1'
+    );
+
+    // Should have skipped the repeated ones.
+    var metadata = getAllMetadata(segment);
+    expect(metadata.edgeIDs).toEqual(['edge1', 'edge2', 'edge3']);
+    expect(metadata.cursors).toEqual(['cursor1', 'cursor2', 'cursor3']);
+  });
+
   it('should prepend', () => {
     // Prepend on new segment
     segment.prependEdge(oneEdge);

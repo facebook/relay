@@ -97,7 +97,6 @@ class RelayQueryResultObservable {
     );
     var queryResolver = new GraphQLStoreQueryResolver(
       this._storeData,
-      this._fragmentPointer,
       () => this._onUpdate(queryResolver)
     );
     this._queryResolver = queryResolver;

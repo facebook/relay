@@ -471,7 +471,6 @@ function createContainerComponent(
         } else if (!queryResolver) {
           queryResolver = new GraphQLStoreQueryResolver(
             storeData,
-            fragmentPointer,
             this._handleFragmentDataUpdate.bind(this)
           );
           queryResolvers[fragmentName] = queryResolver;

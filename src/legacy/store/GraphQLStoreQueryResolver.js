@@ -38,7 +38,6 @@ type DataIDSet = {[dataID: DataID]: any};
  */
 class GraphQLStoreQueryResolver {
   _callback: Function;
-  _fragmentPointer: GraphQLFragmentPointer;
   _resolver: ?(
     GraphQLStorePluralQueryResolver |
     GraphQLStoreSingleQueryResolver
@@ -47,12 +46,10 @@ class GraphQLStoreQueryResolver {
 
   constructor(
     storeData: RelayStoreData,
-    fragmentPointer: GraphQLFragmentPointer,
     callback: Function
   ) {
     this.reset();
     this._callback = callback;
-    this._fragmentPointer = fragmentPointer;
     this._resolver = null;
     this._storeData = storeData;
   }
@@ -72,7 +69,7 @@ class GraphQLStoreQueryResolver {
   ): ?(StoreReaderData | Array<?StoreReaderData>) {
     var resolver = this._resolver;
     if (!resolver) {
-      resolver = this._fragmentPointer.getFragment().isPlural() ?
+      resolver = fragmentPointer.getFragment().isPlural() ?
         new GraphQLStorePluralQueryResolver(this._storeData, this._callback) :
         new GraphQLStoreSingleQueryResolver(this._storeData, this._callback);
       this._resolver = resolver;

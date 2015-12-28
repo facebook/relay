@@ -338,6 +338,61 @@ describe('printRelayOSSQuery', () => {
       expect(variables).toEqual({});
     });
 
+    it('prints fragments with different variables separately', () => {
+      const concreteFragment = Relay.QL`
+        fragment on User {
+          profilePicture(size: [$width, $height]) {
+            uri
+          }
+        }
+      `;
+      const fragment = getNode(Relay.QL`fragment on User { id }`).clone([
+        getNode(concreteFragment, {width: 32, height: 32}),
+        getNode(concreteFragment, {width: 64, height: 64}),
+      ]);
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQuery on User {
+          ...F0,
+          ...F1
+        }
+        fragment F0 on User {
+          ${generateRQLFieldAlias('profilePicture.size(32,32)')}:
+              profilePicture(size: [32, 32]) {
+            uri
+          },
+          id
+        }
+        fragment F1 on User {
+          ${generateRQLFieldAlias('profilePicture.size(64,64)')}:
+              profilePicture(size: [64, 64]) {
+            uri
+          },
+          id
+        }
+      `);
+      expect(variables).toEqual({});
+    });
+
+    it('prints fragments with different IDs but identical output once', () => {
+      const concreteFragment = Relay.QL`fragment on User { name }`;
+      const fragment = getNode(Relay.QL`fragment on User { id }`).clone([
+        getNode(concreteFragment, {value: 123}),
+        getNode(concreteFragment, {value: 456}),
+      ]);
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQuery on User {
+          ...F0
+        }
+        fragment F0 on User {
+          name,
+          id
+        }
+      `);
+      expect(variables).toEqual({});
+    });
+
     it('omits empty inline fragments', () => {
       const fragment = getNode(Relay.QL`
         fragment on Viewer {

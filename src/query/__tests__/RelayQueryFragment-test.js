@@ -121,7 +121,7 @@ describe('RelayQueryFragment', () => {
     expect(fragment.getDebugName()).toBe('RelayQueryFragment');
     expect(fragment.getType()).toBe('StreetAddress');
     expect(fragment.getFragmentID()).toBe(generateRQLFieldAlias(
-      '_RelayQueryFragment' + getWeakIdForObject(node) + '.$RelayTestUtils.{}'
+      fragment.getConcreteFragmentHash() + '.$RelayTestUtils.{}'
     ));
   });
 
@@ -130,17 +130,23 @@ describe('RelayQueryFragment', () => {
     var route = RelayMetaRoute.get('Foo');
     var variables = {};
     var fragment = RelayQuery.Fragment.create(node, route, variables);
-    var fragmentID = generateRQLFieldAlias('_RelayQueryFragment0.Foo.{}');
+    var fragmentID = generateRQLFieldAlias(
+      fragment.getConcreteFragmentHash() + '.Foo.{}'
+    );
     expect(fragment.getFragmentID()).toBe(fragmentID);
 
     route = RelayMetaRoute.get('Bar');
     fragment = RelayQuery.Fragment.create(node, route, variables);
-    fragmentID = generateRQLFieldAlias('_RelayQueryFragment0.Bar.{}');
+    fragmentID = generateRQLFieldAlias(
+      fragment.getConcreteFragmentHash() + '.Bar.{}'
+    );
     expect(fragment.getFragmentID()).toBe(fragmentID);
 
     variables = {foo: 'bar'};
     fragment = RelayQuery.Fragment.create(node, route, variables);
-    fragmentID = generateRQLFieldAlias('_RelayQueryFragment0.Bar.{foo:"bar"}');
+    fragmentID = generateRQLFieldAlias(
+      fragment.getConcreteFragmentHash() + '.Bar.{foo:"bar"}'
+    );
     expect(fragment.getFragmentID()).toBe(fragmentID);
   });
 
@@ -153,7 +159,9 @@ describe('RelayQueryFragment', () => {
     // fragment (`RelayQuery.Fragment.create` memoizes).
     var fragment1 = new RelayQuery.Fragment(node, route, variables);
     var fragment2 = new RelayQuery.Fragment(node, route, variables);
-    var fragmentID = generateRQLFieldAlias('_RelayQueryFragment0.Foo.{}');
+    var fragmentID = generateRQLFieldAlias(
+      fragment1.getConcreteFragmentHash() + '.Foo.{}'
+    );
 
     expect(fragment1).not.toBe(fragment2);
     expect(fragment1.getFragmentID()).toBe(fragmentID);
@@ -161,9 +169,9 @@ describe('RelayQueryFragment', () => {
   });
 
   it('returns different IDs for non-equivalent fragments', () => {
-    var node1 = Relay.QL`fragment on Node{id}`;
+    var node1 = Relay.QL`fragment on Actor { firstName }`;
     var fragment1 = getNode(node1);
-    var node2 = Relay.QL`fragment on Node{id}`;
+    var node2 = Relay.QL`fragment on Actor { lastName }`;
     var fragment2 = getNode(node2);
     expect(fragment1.getFragmentID()).not.toBe(fragment2.getFragmentID());
   });

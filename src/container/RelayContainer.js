@@ -494,7 +494,7 @@ function createContainerComponent(
     ): void {
       const fragmentPointers = this._fragmentPointers;
       fragmentNames.forEach(fragmentName => {
-        var propValue = props[fragmentName];
+        const propValue = props[fragmentName];
         warning(
           propValue !== undefined,
           'RelayContainer: Expected query `%s` to be supplied to `%s` as ' +
@@ -507,9 +507,9 @@ function createContainerComponent(
           fragmentPointers[fragmentName] = null;
           return;
         }
-        var fragment = getFragment(fragmentName, route, variables);
-        var concreteFragmentID = fragment.getConcreteFragmentID();
-        var dataIDOrIDs;
+        const fragment = getFragment(fragmentName, route, variables);
+        const concreteFragmentHash = fragment.getConcreteFragmentHash();
+        let dataIDOrIDs;
 
         if (fragment.isPlural()) {
           // Plural fragments require the prop value to be an array of fragment
@@ -524,7 +524,7 @@ function createContainerComponent(
           );
           if (propValue.length) {
             dataIDOrIDs = propValue.reduce((acc, item, ii) => {
-              var eachFragmentPointer = item[concreteFragmentID];
+              const eachFragmentPointer = item[concreteFragmentHash];
               invariant(
                 eachFragmentPointer,
                 'RelayContainer: Invalid prop `%s` supplied to `%s`, ' +
@@ -548,7 +548,7 @@ function createContainerComponent(
             fragmentName,
             componentName
           );
-          var fragmentPointer = propValue[concreteFragmentID];
+          const fragmentPointer = propValue[concreteFragmentHash];
           if (fragmentPointer) {
             dataIDOrIDs = fragmentPointer.getDataID();
           } else {
@@ -581,12 +581,12 @@ function createContainerComponent(
             return;
           }
           const fragment = getFragment(fragmentName, route, variables);
-          const concreteFragmentID = fragment.getConcreteFragmentID();
+          const concreteFragmentHash = fragment.getConcreteFragmentHash();
           Object.keys(props).forEach(propName => {
             warning(
               fragmentPointers[propName] ||
               !props[propName] ||
-              !props[propName][concreteFragmentID],
+              !props[propName][concreteFragmentHash],
               'RelayContainer: Expected record data for prop `%s` on `%s`, ' +
               'but it was instead on prop `%s`. Did you misspell a prop or ' +
               'pass record data into the wrong prop?',

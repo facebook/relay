@@ -530,8 +530,14 @@ module.exports = function (t, options) {
   }
 
   function validateConnectionField(field) {
-    invariant(!field.hasArgument('first') || !field.hasArgument('before'), 'Connection arguments `%s(before: <cursor>, first: <count>)` are ' + 'not supported. Use `(first: <count>)`, ' + '`(after: <cursor>, first: <count>)`, or ' + '`(before: <cursor>, last: <count>)`.', field.getName());
-    invariant(!field.hasArgument('last') || !field.hasArgument('after'), 'Connection arguments `%s(after: <cursor>, last: <count>)` are ' + 'not supported. Use `(last: <count>)`, ' + '`(before: <cursor>, last: <count>)`, or ' + '`(after: <cursor>, first: <count>)`.', field.getName());
+    var first = field.findArgument('first');
+    var last = field.findArgument('last');
+    var before = field.findArgument('before');
+    var after = field.findArgument('after');
+
+    invariant(!first || !last || first.isVariable() && last.isVariable(), 'Connection arguments `%s(first: <count>, last: <count>)` are ' + 'not supported unless both are variables. Use `(first: <count>)`, ' + '`(last: <count>)`, or `(first: $<var>, last: $<var>)`.', field.getName());
+    invariant(!first || !before || first.isVariable() && before.isVariable(), 'Connection arguments `%s(before: <cursor>, first: <count>)` are ' + 'not supported unless both are variables. Use `(first: <count>)`, ' + '`(after: <cursor>, first: <count>)`, `(before: <cursor>, last: <count>)`, ' + 'or `(before: $<var>, first: $<var>)`.', field.getName());
+    invariant(!last || !after || last.isVariable() && after.isVariable(), 'Connection arguments `%s(after: <cursor>, last: <count>)` are ' + 'not supported unless both are variables. Use `(last: <count>)`, ' + '`(before: <cursor>, last: <count>)`, `(after: <cursor>, first: <count>)`, ' + 'or `(after: $<var>, last: $<var>)`.', field.getName());
 
     // Use `any` because we already check `isConnection` before validating.
     var connectionNodeType = field.getType().getFieldDefinition(FIELDS.edges).getType().getFieldDefinition(FIELDS.node).getType();

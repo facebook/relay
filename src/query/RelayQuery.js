@@ -856,13 +856,17 @@ class RelayQueryFragment extends RelayQueryNode {
 
   /**
    * Returns an identifier for a fragment that is unique for any combination of
-   * concrete fragment, route name, and variables.
+   * concrete fragment, route name, and variables. This is used for memoizing
+   * traversals or communicating the status of fetching deferred fragments.
+   *
+   * NOTE: Two fragments with the same fragment ID may have different children
+   *       if one of them has been cloned with new children.
    */
   getFragmentID(): string {
     var fragmentID = this.__fragmentID__;
     if (!fragmentID) {
       fragmentID = generateRQLFieldAlias(
-        this.getConcreteFragmentHash() + '.' +
+        (this.__concreteNode__: ConcreteFragment).hash + '.' +
         this.__route__.name + '.' +
         stableStringify(this.__variables__)
       );

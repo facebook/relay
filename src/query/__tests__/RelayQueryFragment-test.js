@@ -105,8 +105,8 @@ describe('RelayQueryFragment', () => {
 
   it('equals fragments with different names', () => {
     // NOTE: Two fragments in the same scope will have different names.
-    var fragment1 = getNode(Relay.QL`fragment on Node{id}`);
-    var fragment2 = getNode(Relay.QL`fragment on Node{id}`);
+    var fragment1 = getNode(Relay.QL`fragment on Node { id }`);
+    var fragment2 = getNode(Relay.QL`fragment on Node { id }`);
     expect(fragment1.equals(fragment2)).toBe(true);
     expect(fragment2.equals(fragment1)).toBe(true);
   });
@@ -126,7 +126,7 @@ describe('RelayQueryFragment', () => {
   });
 
   it('returns a fragment ID based on route and variables', () => {
-    var node = Relay.QL`fragment on Node{id}`;
+    var node = Relay.QL`fragment on Node { id }`;
     var route = RelayMetaRoute.get('Foo');
     var variables = {};
     var fragment = RelayQuery.Fragment.create(node, route, variables);
@@ -151,7 +151,7 @@ describe('RelayQueryFragment', () => {
   });
 
   it('returns the same ID for equivalent fragments', () => {
-    var node = Relay.QL`fragment on Node{id}`;
+    var node = Relay.QL`fragment on Node { id }`;
     var route = RelayMetaRoute.get('Foo');
     var variables = {};
 
@@ -165,6 +165,18 @@ describe('RelayQueryFragment', () => {
 
     expect(fragment1).not.toBe(fragment2);
     expect(fragment1.getFragmentID()).toBe(fragmentID);
+    expect(fragment1.getFragmentID()).toBe(fragment2.getFragmentID());
+  });
+
+  it('returns the same ID for fragments cloned with new children', () => {
+    var node = Relay.QL`fragment on User { id, name }`;
+    var route = RelayMetaRoute.get('Foo');
+    var variables = {};
+
+    var fragment1 = RelayQuery.Fragment.create(node, route, variables);
+    var fragment2 = fragment1.clone([fragment1.getChildren()[0]]);
+
+    expect(fragment1).not.toBe(fragment2);
     expect(fragment1.getFragmentID()).toBe(fragment2.getFragmentID());
   });
 
@@ -221,7 +233,7 @@ describe('RelayQueryFragment', () => {
 
     // fragment without children
     expect(
-      getNode(Relay.QL`fragment on Viewer{${null}}`).isScalar()
+      getNode(Relay.QL`fragment on Viewer { ${null} }`).isScalar()
     ).toBe(false);
   });
 

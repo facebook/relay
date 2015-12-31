@@ -21,6 +21,7 @@ import type {
 const QueryBuilder = require('QueryBuilder');
 const RelayQuery = require('RelayQuery');
 
+const base62 = require('base62');
 const callsToGraphQL = require('callsToGraphQL');
 const invariant = require('invariant');
 
@@ -30,8 +31,10 @@ const invariant = require('invariant');
  * Converts a RelayQuery.Node into a plain object representation. This is
  * equivalent to the AST produced by `babel-relay-plugin` and is intended for
  * use in serializing RelayQuery nodes.
+ *
+ * NOTE: This is used by external open source projects.
  */
-var toGraphQL = {
+const toGraphQL = {
   Query(node: RelayQuery.Root): ConcreteQuery {
     const batchCall = node.getBatchCall();
     let identifyingArgValue;
@@ -73,7 +76,9 @@ var toGraphQL = {
     const fragment: ConcreteFragment = {
       children,
       kind: 'Fragment',
-      hash: node.getConcreteFragmentHash(),
+      hash: node.hasConcreteFragmentHash() ?
+        node.getConcreteFragmentHash() :
+        createClientFragmentHash(),
       metadata: {
         isAbstract: node.isAbstract(),
         plural: node.isPlural(),
@@ -98,6 +103,11 @@ var toGraphQL = {
     return field;
   },
 };
+
+let clientFragmentCount = 0;
+function createClientFragmentHash(): string {
+  return '_toGraphQL_' + base62(clientFragmentCount++);
+}
 
 function toGraphQLSelection(
   node: RelayQuery.Node

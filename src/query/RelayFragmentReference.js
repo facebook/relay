@@ -174,8 +174,6 @@ class RelayFragmentReference {
 
   /**
    * @private
-   *
-   * Memoize the fragment so it has the same `getWeakIdForObject`.
    */
   _getFragment(): ConcreteFragment {
     let fragment = this._fragment;

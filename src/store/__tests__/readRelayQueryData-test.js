@@ -287,7 +287,7 @@ describe('readRelayQueryData', () => {
     );
     var query = getNode(Relay.QL`query{viewer{${fragmentReference}}}`);
     var data = readData(getStoreData({records}), query, 'client:1');
-    var pointer = data[getNode(fragmentReference).getConcreteFragmentID()];
+    var pointer = data[getNode(fragmentReference).getConcreteFragmentHash()];
     expect(pointer instanceof GraphQLFragmentPointer).toBe(true);
     expect(data.__dataID__).toBe('client:1');
   });
@@ -761,7 +761,7 @@ describe('readRelayQueryData', () => {
     data = readData(getStoreData({records}), query, 'feedback_id');
 
     var fragmentPointer = data.comments.pageInfo[
-      getNode(fragmentReference).getConcreteFragmentID()
+      getNode(fragmentReference).getConcreteFragmentHash()
     ];
     expect(fragmentPointer instanceof GraphQLFragmentPointer).toBe(true);
     expect(fragmentPointer.getDataID()).toBe('comments_id_first(1)');
@@ -844,7 +844,7 @@ describe('readRelayQueryData', () => {
     data = readData(getStoreData({records}), query, 'feedback_id');
 
     var fragmentPointer = data.comments[
-      getNode(fragmentReference).getConcreteFragmentID()
+      getNode(fragmentReference).getConcreteFragmentHash()
     ];
     expect(fragmentPointer instanceof GraphQLFragmentPointer).toBe(true);
     expect(fragmentPointer.getDataID()).toBe('comments_id_first(1)');
@@ -903,9 +903,9 @@ describe('readRelayQueryData', () => {
     expect(data.screennames.length).toBe(2);
     var screennames = data.screennames;
     var namePointer1 =
-      screennames[0][getNode(fragmentReference).getConcreteFragmentID()];
+      screennames[0][getNode(fragmentReference).getConcreteFragmentHash()];
     var namePointer2 =
-      screennames[1][getNode(fragmentReference).getConcreteFragmentID()];
+      screennames[1][getNode(fragmentReference).getConcreteFragmentHash()];
     expect(namePointer1 instanceof GraphQLFragmentPointer).toBe(true);
     expect(namePointer1.getDataID()).toBe('client1');
     expect(namePointer1.getFragment())
@@ -1206,14 +1206,14 @@ describe('readRelayQueryData', () => {
     // (TODO: task to fix that hidden global state: #7250441)
     var data = readData(storeData, query, 'userID');
     var pointer = data.friends[
-      getNode(fragmentReference).getConcreteFragmentID()
+      getNode(fragmentReference).getConcreteFragmentHash()
     ];
     expect(pointer instanceof GraphQLFragmentPointer).toBe(true);
     expect(data).toEqual({
       __dataID__: 'userID',
       friends: {
         __dataID__: 'friendsID_first(25)',
-        [getNode(fragmentReference).getConcreteFragmentID()]: pointer,
+        [getNode(fragmentReference).getConcreteFragmentHash()]: pointer,
       },
     });
 

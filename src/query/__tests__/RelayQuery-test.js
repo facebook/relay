@@ -198,6 +198,7 @@ describe('RelayQuery', () => {
     describe('getConcreteFragmentHash()', () => {
       it('returns the hash of the fragment', () => {
         var fragment = getNode(Relay.QL`fragment on Node{id}`);
+        expect(fragment.hasConcreteFragmentHash()).toBe(true);
         // NOTE: This hash is created by `babel-relay-plugin` based on the
         // static content in the `Relay.QL` template string above.
         expect(fragment.getConcreteFragmentHash()).toBe('0nvclwGj');
@@ -206,18 +207,32 @@ describe('RelayQuery', () => {
       it('returns the hash of a cloned but identical fragment', () => {
         var fragment = getNode(Relay.QL`fragment on Node{id}`);
         var clone = fragment.clone(fragment.getChildren());
+        expect(clone.hasConcreteFragmentHash()).toBe(true);
         expect(clone.getConcreteFragmentHash())
           .toBe(fragment.getConcreteFragmentHash());
       });
 
-      it('returns null for fragments built on the client', () => {
+      it('returns the hash of a fragment built on the client', () => {
         var fragment = RelayQuery.Fragment.build(
           'TestFragment',
           'Node',
           [buildIdField()],
           {plural: true}
         );
-        expect(fragment.getConcreteFragmentHash()).toBe(null);
+        expect(fragment.hasConcreteFragmentHash()).toBe(true);
+        expect(fragment.getConcreteFragmentHash()).toBe('_0');
+      });
+
+      it('throws for fragments cloned with new children', () => {
+        var fragment = getNode(Relay.QL`fragment on Node{id}`);
+        var clone = fragment.clone([buildIdField()]);
+        expect(clone.hasConcreteFragmentHash()).toBe(false);
+        expect(() => {
+          clone.getConcreteFragmentHash();
+        }).toThrowError(
+          'RelayQueryFragment.getConcreteFragmentHash(): Cannot be called on ' +
+          'a cloned fragment.'
+        );
       });
     });
   });

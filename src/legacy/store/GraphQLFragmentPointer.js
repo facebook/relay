@@ -47,7 +47,7 @@ class GraphQLFragmentPointer {
     if (!fragment) {
       return null;
     }
-    var concreteFragmentID = fragment.getConcreteFragmentID();
+    const concreteFragmentHash = fragment.getConcreteFragmentHash();
     const storageKey = query.getStorageKey();
     const identifyingArg = query.getIdentifyingArg();
     const identifyingArgValue =
@@ -60,7 +60,7 @@ class GraphQLFragmentPointer {
           return null;
         }
         var pointer = GraphQLStoreDataHandler.createPointerWithID(dataID);
-        pointer[concreteFragmentID] =
+        pointer[concreteFragmentHash] =
           new GraphQLFragmentPointer([dataID], rootFragment);
         return (pointer: $FlowIssue);
       });
@@ -81,7 +81,7 @@ class GraphQLFragmentPointer {
     var result = {};
     // TODO(t7765591): Throw if `fragment` is not optional.
     var fragmentPointer = new GraphQLFragmentPointer(dataIDOrIDs, fragment);
-    result[concreteFragmentID] = fragmentPointer;
+    result[concreteFragmentHash] = fragmentPointer;
     return result;
   }
 

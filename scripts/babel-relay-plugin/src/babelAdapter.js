@@ -26,16 +26,16 @@ function babelAdapter(
 ): mixed {
   if (Plugin == null) {
     // Babel 6.
-    const { visitor: { Program, TaggedTemplateExpression } } = visitorsBuilder(t);
+    const {visitor: {Program, TaggedTemplateExpression}} = visitorsBuilder(t);
 
     const taggedTemplateExpressionVisitor = {
       TaggedTemplateExpression(path) {
-        return TaggedTemplateExpression(path, this);
+        TaggedTemplateExpression(path, this);
       }
     }
 
     /**
-     * Run both transforms on Program, to make sure that they run before other plugins
+     * Run both transforms on Program to make sure that they run before other plugins.
      */
     return {
       visitor: {

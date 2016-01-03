@@ -30,12 +30,12 @@ function babelAdapter(Plugin, t, name, visitorsBuilder) {
 
       var taggedTemplateExpressionVisitor = {
         TaggedTemplateExpression: function TaggedTemplateExpression(path) {
-          return _TaggedTemplateExpression(path, this);
+          _TaggedTemplateExpression(path, this);
         }
       };
 
       /**
-       * Run both transforms on Program, to make sure that they run before other plugins
+       * Run both transforms on Program to make sure that they run before other plugins.
        */
       return {
         v: {

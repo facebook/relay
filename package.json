@@ -72,6 +72,7 @@
     "persistModuleRegistryBetweenSpecs": true,
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
+      "<rootDir>/src/(.*).native.js",
       "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/))"
     ],
     "preprocessorIgnorePatterns": [
@@ -84,6 +85,7 @@
       "<rootDir>/src/"
     ],
     "unmockedModulePathPatterns": [
+      "<rootDir>/src/tools/RelayUnstableBatchedUpdates.js",
       "<rootDir>/node_modules/fbjs/node_modules/core-js/",
       "<rootDir>/node_modules/fbjs-scripts/node_modules/core-js/",
       "<rootDir>/node_modules/fbjs/node_modules/promise/",

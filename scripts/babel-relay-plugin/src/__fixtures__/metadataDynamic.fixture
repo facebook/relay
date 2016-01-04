@@ -71,7 +71,7 @@ var x = (function () {
             },
             type: 'String'
           }],
-          hash: 'ysvMwnFu',
+          hash: 'dbdV3o7m',
           kind: 'Fragment',
           metadata: {},
           name: 'Story',
@@ -127,7 +127,7 @@ var x = (function () {
       },
       type: 'PageInfo'
     }],
-    hash: 'ysvMwnFu',
+    hash: 'BB4EdiPK',
     kind: 'Fragment',
     metadata: {},
     name: 'MetadataDynamic',

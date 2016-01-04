@@ -22,7 +22,7 @@ var x = (function () {
       },
       type: 'String'
     }],
-    hash: 'QHQnGWzc',
+    hash: 'VAryH80E',
     kind: 'Fragment',
     metadata: {
       plural: true,

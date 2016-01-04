@@ -29,7 +29,7 @@ const {
 } = require('./RelayQLAST');
 const RelayQLPrinter = require('./RelayQLPrinter');
 
-const crypto = require('crypto');
+const hash = require('./hash');
 const invariant = require('./invariant');
 const util = require('util');
 
@@ -284,12 +284,6 @@ class RelayQLTransformer {
 
 function capitalize(string: string): string {
   return string[0].toUpperCase() + string.slice(1);
-}
-
-function hash(string: string): string {
-  const hash = crypto.createHash('sha1').update(string);
-  invariant(hash != null, 'Failed to create sha1 hash.');
-  return hash.digest('base64').substr(0, 8);
 }
 
 module.exports = RelayQLTransformer;

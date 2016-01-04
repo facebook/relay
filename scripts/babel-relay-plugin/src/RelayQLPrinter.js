@@ -28,6 +28,7 @@ const {
 } = require('./RelayQLAST');
 
 const find = require('./find');
+const hash = require('./hash');
 const invariant = require('./invariant');
 
 export type Printable = Object;
@@ -70,6 +71,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
   class RelayQLPrinter {
     documentHash: string;
+    fragmentCount: number;
     tagName: string;
     variableNames: {[variableName: string]: void};
 
@@ -79,8 +81,13 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       variableNames: {[variableName: string]: void}
     ) {
       this.documentHash = documentHash;
+      this.fragmentCount = 0;
       this.tagName = tagName;
       this.variableNames = variableNames;
+    }
+
+    generateFragmentHash(): string {
+      return hash(this.documentHash + (this.fragmentCount++)).substr(0, 8);
     }
 
     print(
@@ -202,7 +209,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       return codify({
         children: selections,
         directives: this.printDirectives(fragment.getDirectives()),
-        hash: t.valueToNode(this.documentHash),
+        hash: t.valueToNode(this.generateFragmentHash()),
         kind: t.valueToNode('Fragment'),
         metadata,
         name: t.valueToNode(fragment.getName()),

@@ -201,7 +201,7 @@ describe('RelayQuery', () => {
         expect(fragment.hasConcreteFragmentHash()).toBe(true);
         // NOTE: This hash is created by `babel-relay-plugin` based on the
         // static content in the `Relay.QL` template string above.
-        expect(fragment.getConcreteFragmentHash()).toBe('0nvclwGj');
+        expect(fragment.getConcreteFragmentHash()).toBe('Du2YY4jp');
       });
 
       it('returns the hash of a cloned but identical fragment', () => {

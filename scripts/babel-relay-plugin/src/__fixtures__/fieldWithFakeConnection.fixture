@@ -64,7 +64,7 @@ var foo = (function () {
       },
       type: 'String'
     }],
-    hash: 'ZYteePov',
+    hash: '+4/1CYF+',
     kind: 'Fragment',
     metadata: {},
     name: 'FieldWithFakeConnection',

@@ -44,7 +44,7 @@ var x = (function () {
       },
       type: 'String'
     }],
-    hash: 'rFJWsssx',
+    hash: 's6BrdIm5',
     kind: 'Fragment',
     metadata: {},
     name: 'MetadataVarArgs',

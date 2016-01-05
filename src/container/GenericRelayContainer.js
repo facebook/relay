@@ -110,7 +110,6 @@ function createContainerComponent(
 
 
     cleanup(): void {
-      // A guarded error in mounting might prevent initialization of resolvers.
       if (this._queryResolvers) {
         forEachObject(
           this._queryResolvers,
@@ -237,33 +236,28 @@ function createContainerComponent(
           this._createQuerySetAndFragmentPointers(nextVariables));
       }
 
-      var onReadyStateChange = readyState => {
+      const onReadyStateChange = readyState => {
         var {aborted, done, error, ready} = readyState;
         var isComplete = aborted || done || error;
         if (isComplete && this.pending === current) {
           this.pending = null;
         }
-        var partialState;
         if (ready && fragmentPointers) {
-          // Only update query data if variables changed. Otherwise, `querySet`
-          // and `fragmentPointers` will be empty, and `nextVariables` will be
-          // equal to `lastVariables`.
           this._fragmentPointers = fragmentPointers;
           this._updateQueryResolvers();
           var queryData = this._getQueryData(this.props);
           this._updateState(nextVariables, {data: queryData, ...readyState});
-        } else {
-          partialState = {};
         }
-
 
       };
 
+      const request = forceFetch ?
+        RelayStore.forceFetch(querySet, onReadyStateChange) :
+        RelayStore.primeCache(querySet, onReadyStateChange);
+
       var current = {
         variables: nextVariables,
-        request: forceFetch ?
-          RelayStore.forceFetch(querySet, onReadyStateChange) :
-          RelayStore.primeCache(querySet, onReadyStateChange),
+        request,
       };
       this.pending = current;
     }

@@ -68,7 +68,6 @@ function starWarsApp() {
         return;
       }
       starWarsApp.update(this.relayProps);
-
     }, false);
 
   }

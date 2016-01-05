@@ -59,7 +59,7 @@ var RelayNetworkLayer = {
   },
 };
 
-function getCurrentNetworkLayer(): NetworkLayer {
+function getCurrentNetworkLayer(): $FlowIssue {
   invariant(
     injectedNetworkLayer,
     'RelayNetworkLayer: Use `injectNetworkLayer` to configure a network layer.'

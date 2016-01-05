@@ -27,6 +27,8 @@ const RelayInternals = require('RelayInternals');
 const createRelayQuery = require('createRelayQuery');
 const getRelayQueries = require('getRelayQueries');
 const isRelayContainer = require('isRelayContainer');
+const GenericRelayRootContainer = require('GenericRelayRootContainer');
+const GenericRelayContainer = require('GenericRelayContainer');
 
 if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
   global.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = RelayInternals;
@@ -45,6 +47,8 @@ var RelayPublic = {
   Store: RelayStore,
 
   createContainer: RelayContainer.create,
+  createGenericContainer: GenericRelayContainer.create,
+  GenericRootContainer: GenericRelayRootContainer,
   createQuery: createRelayQuery,
   getQueries: getRelayQueries,
   injectNetworkLayer: RelayNetworkLayer.injectNetworkLayer,

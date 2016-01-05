@@ -13,21 +13,19 @@
 
 'use strict';
 
-const invariant = require('invariant');
+const RelayTaskQueue = require('RelayTaskQueue');
 
-type TaskCallback = () => void;
-type TaskExecutor = () => void;
+import type {TaskScheduler} from 'RelayTaskQueue';
 
-var queue: Array<TaskCallback> = [];
-var schedule: ?(executeTask: TaskExecutor) => void;
-var running: boolean = false;
+let queue: ?RelayTaskQueue;
+let scheduler: ?TaskScheduler;
 
 /**
  * Task scheduler used by Relay internals. Each task is a synchronous unit of
  * work that can be deferred by an injected scheduler function. For example,
  * an injected scheduler can defer each task to the next animation frame:
  *
- *   RelayTaskScheduler.injectScheduler(function(executeTask) {
+ *   RelayTaskScheduler.injectScheduler(executeTask => {
  *     // This function will be invoked whenever a task is enqueued. It will not
  *     // be invoked again until `executeTask` has been invoked. Also, invoking
  *     // `executeTask` more than once is an error.
@@ -38,19 +36,6 @@ var running: boolean = false;
  * finished. An injected scheduler using `setImmediate` can alter this behavior.
  */
 var RelayTaskScheduler = {
-  /**
-   * @public
-   *
-   * Injects a scheduling function that is invoked with a callback that will
-   * execute the next unit of work. The callback will return a promise that
-   * resolves with a new callback when the next unit of work is available.
-   */
-  injectScheduler: function(
-    injectedScheduler: (executeTask: TaskExecutor) => void
-  ): void {
-    schedule = injectedScheduler;
-  },
-
   /**
    * @internal
    *
@@ -70,7 +55,7 @@ var RelayTaskScheduler = {
    *     function(foo) {
    *       return 'bar';
    *     }
-   *   ).then(
+   *   ).done(
    *     function(bar) {
    *       // ...
    *     }
@@ -89,78 +74,27 @@ var RelayTaskScheduler = {
    *   ).catch(
    *     function(error) {}
    *   );
-
    */
-  enqueue: function(...callbacks: Array<(value: any) => any>): Promise<any> {
-    var promise = new Promise((resolve, reject) => {
-      var nextIndex = 0;
-      var error = null;
-      function enqueueNext(value: any): void {
-        if (error) {
-          reject(error);
-          return;
-        }
-        if (nextIndex >= callbacks.length) {
-          resolve(value);
-        } else {
-          queue.push(function(): void {
-            enqueueNext((function(): any {
-              var nextCallback = callbacks[nextIndex++];
-              try {
-                value = nextCallback(value);
-              } catch (e) {
-                error = e;
-                value = undefined;
-              }
-              return value;
-            })());
-          });
-        }
-      }
-      enqueueNext(undefined);
-    });
-    scheduleIfNecessary();
-    return promise;
+  enqueue(...callbacks: Array<(value: any) => any>): Promise<any> {
+    if (!queue) {
+      queue = new RelayTaskQueue(scheduler);
+    }
+    return queue.enqueue(...callbacks);
+  },
+
+  /**
+   * @public
+   *
+   * Injects a scheduling function that is invoked with a callback that will
+   * execute the next unit of work. The callback will return a promise that
+   * resolves with a new callback when the next unit of work is available.
+   */
+  injectScheduler(injectedScheduler: ?TaskScheduler): void {
+    scheduler = injectedScheduler;
+    if (queue) {
+      queue.injectScheduler(scheduler);
+    }
   },
 };
-
-function scheduleIfNecessary(): void {
-  if (running) {
-    return;
-  }
-  if (queue.length) {
-    running = true;
-    var executeTask = createTaskExecutor(queue.shift());
-    if (schedule) {
-      schedule(executeTask);
-    } else {
-      executeTask();
-    }
-  } else {
-    running = false;
-  }
-}
-
-function createTaskExecutor(callback: TaskCallback): TaskExecutor {
-  var invoked = false;
-  return function() {
-    invariant(!invoked, 'RelayTaskScheduler: Tasks can only be executed once.');
-    invoked = true;
-    invokeWithinScopedQueue(callback);
-    running = false;
-    scheduleIfNecessary();
-  };
-}
-
-function invokeWithinScopedQueue(callback: TaskCallback): void {
-  var originalQueue = queue;
-  queue = [];
-  try {
-    callback();
-  } finally {
-    Array.prototype.unshift.apply(originalQueue, queue);
-    queue = originalQueue;
-  }
-}
 
 module.exports = RelayTaskScheduler;

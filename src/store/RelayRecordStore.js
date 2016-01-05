@@ -480,7 +480,7 @@ class RelayRecordStore {
         dataID
       );
       return item.__dataID__;
-    });
+    }).filter(id => this.getRecordState(id) !== 'NONEXISTENT');
   }
 
   /**

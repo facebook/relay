@@ -426,10 +426,39 @@ describe('RelayRecordStore', () => {
             {__dataID__: 'item:2'},
           ],
         },
+        'item:1': {
+          __dataID__: 'item:1',
+        },
+        'item:2': {
+          __dataID__: 'item:2',
+        },
       };
       var store = new RelayRecordStore({records});
       expect(store.getLinkedRecordIDs('4', 'actors')).toEqual([
         'item:1',
+        'item:2',
+      ]);
+    });
+    it('filters data ID of deleted items', () => {
+      var records = {
+        '4': {
+          id: '4',
+          __dataID__: '4',
+          actors: [
+            {__dataID__: 'item:1'},
+            {__dataID__: 'item:2'},
+          ],
+        },
+        'item:1': {
+          __dataID__: 'item:1',
+        },
+        'item:2': {
+          __dataID__: 'item:2',
+        },
+      };
+      var store = new RelayRecordStore({records});
+      store.deleteRecord('item:1');
+      expect(store.getLinkedRecordIDs('4', 'actors')).toEqual([
         'item:2',
       ]);
     });

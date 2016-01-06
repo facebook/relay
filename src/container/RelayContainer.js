@@ -508,7 +508,7 @@ function createContainerComponent(
           return;
         }
         const fragment = getFragment(fragmentName, route, variables);
-        const concreteFragmentHash = fragment.getConcreteFragmentHash();
+        const structuralHash = fragment.getStructuralHash();
         let dataIDOrIDs;
 
         if (fragment.isPlural()) {
@@ -524,7 +524,7 @@ function createContainerComponent(
           );
           if (propValue.length) {
             dataIDOrIDs = propValue.reduce((acc, item, ii) => {
-              const eachFragmentPointer = item[concreteFragmentHash];
+              const eachFragmentPointer = item[structuralHash];
               invariant(
                 eachFragmentPointer,
                 'RelayContainer: Invalid prop `%s` supplied to `%s`, ' +
@@ -548,7 +548,7 @@ function createContainerComponent(
             fragmentName,
             componentName
           );
-          const fragmentPointer = propValue[concreteFragmentHash];
+          const fragmentPointer = propValue[structuralHash];
           if (fragmentPointer) {
             dataIDOrIDs = fragmentPointer.getDataID();
           } else {
@@ -581,12 +581,12 @@ function createContainerComponent(
             return;
           }
           const fragment = getFragment(fragmentName, route, variables);
-          const concreteFragmentHash = fragment.getConcreteFragmentHash();
+          const structuralHash = fragment.getStructuralHash();
           Object.keys(props).forEach(propName => {
             warning(
               fragmentPointers[propName] ||
               !props[propName] ||
-              !props[propName][concreteFragmentHash],
+              !props[propName][structuralHash],
               'RelayContainer: Expected record data for prop `%s` on `%s`, ' +
               'but it was instead on prop `%s`. Did you misspell a prop or ' +
               'pass record data into the wrong prop?',

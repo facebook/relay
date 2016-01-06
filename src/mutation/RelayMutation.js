@@ -255,7 +255,7 @@ class RelayMutation<Tp: Object> {
         fragmentBuilder,
         initialVariables
       ));
-      var concreteFragmentHash = fragment.getConcreteFragmentHash();
+      var structuralHash = fragment.getStructuralHash();
 
       if (fragment.isPlural()) {
         invariant(
@@ -266,7 +266,7 @@ class RelayMutation<Tp: Object> {
           this.constructor.name
         );
         var dataIDs = propValue.reduce((acc, item, ii) => {
-          var eachFragmentPointer = item[concreteFragmentHash];
+          var eachFragmentPointer = item[structuralHash];
           invariant(
             eachFragmentPointer,
             'RelayMutation: Invalid prop `%s` supplied to `%s`, ' +
@@ -287,7 +287,7 @@ class RelayMutation<Tp: Object> {
           fragmentName,
           this.constructor.name
         );
-        var fragmentPointer = propValue[concreteFragmentHash];
+        var fragmentPointer = propValue[structuralHash];
         if (fragmentPointer) {
           var dataID = fragmentPointer.getDataID();
           resolvedProps[fragmentName] = RelayStore.read(fragment, dataID);

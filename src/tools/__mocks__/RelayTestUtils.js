@@ -169,7 +169,7 @@ var RelayTestUtils = {
     );
 
     var fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
-    return {[fragment.getConcreteFragmentHash()]: fragmentPointer};
+    return {[fragment.getStructuralHash()]: fragmentPointer};
   },
 
   /**

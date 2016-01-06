@@ -176,7 +176,7 @@ function printInlineFragment(
   // Try not to print the same fragment more than once by using a cheap lookup
   // using the fragment ID. (This will only work for fragments that have not
   // been cloned with new children.)
-  const fragmentID = node.hasConcreteFragmentHash() ?
+  const fragmentID = node.hasStructuralHash() ?
     node.getFragmentID() :
     null;
 

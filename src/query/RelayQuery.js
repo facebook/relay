@@ -827,22 +827,30 @@ class RelayQueryFragment extends RelayQueryNode {
   }
 
   /**
-   * The "concrete hash" for a fragment is used to statically identify fragments
-   * that are structurally identical. This should only be called on fragments
-   * that have not been cloned (i.e. have not undergone any "transformers").
+   * The "structural hash" of a fragment statically identifies its structure;
+   * two fragments with the same structure will have the same hash. For example:
+   *
+   *   function createFragment() {
+   *     return Relay.QL`fragment on Node { id }`;
+   *   }
+   *   const hashA = createFragment().getStructuralHash();
+   *   const hashB = createFragment().getStructuralHash();
+   *   hashA === hashB; // true
+   *
+   * The hash is consistent between runtime sessions (e.g. server and client).
    */
-  getConcreteFragmentHash(): string {
+  getStructuralHash(): string {
     const hash = this.__hash__;
     invariant(
       hash != null,
-      'RelayQueryFragment.getConcreteFragmentHash(): ' +
-      'Cannot be called on a cloned fragment.'
+      'RelayQueryFragment.getStructuralHash(): Cannot get the structural ' +
+      'hash of a fragment cloned with new children.'
     );
     return hash;
   }
 
   /**
-   * Checks whether a fragment has a concrete fragment hash. Generally, this is
+   * Checks whether a fragment has a "structural hash". Generally, this check is
    * not necessary (e.g. fragments that are created by containers or mutations).
    *
    * Only fragments that are constructed by the `babel-relay-plugin` or by
@@ -850,7 +858,7 @@ class RelayQueryFragment extends RelayQueryNode {
    * are the result of cloning an existing fragment with new children do not
    * have concrete hashes.
    */
-  hasConcreteFragmentHash(): boolean {
+  hasStructuralHash(): boolean {
     return this.__hash__ != null;
   }
 

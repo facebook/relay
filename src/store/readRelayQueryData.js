@@ -176,7 +176,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       );
       this._setDataValue(
         state,
-        fragmentPointer.getFragment().getConcreteFragmentHash(),
+        fragmentPointer.getFragment().getStructuralHash(),
         fragmentPointer
       );
     } else if (isCompatibleRelayFragmentType(
@@ -302,7 +302,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
           );
           nextData = nextData || {};
           var concreteFragmentHash =
-            fragmentPointer.getFragment().getConcreteFragmentHash();
+            fragmentPointer.getFragment().getStructuralHash();
           nextData[concreteFragmentHash] = fragmentPointer;
         } else {
           child.getChildren().forEach(read);

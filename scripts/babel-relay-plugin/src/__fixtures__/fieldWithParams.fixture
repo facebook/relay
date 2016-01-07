@@ -71,7 +71,6 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: 'XXgVuD3f',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

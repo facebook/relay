@@ -76,7 +76,6 @@ var x = (function () {
           }
         }]
       }],
-      hash: '0GTPcyD7',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

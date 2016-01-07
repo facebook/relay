@@ -192,7 +192,6 @@ var foo = (function () {
         },
         type: "String"
       }],
-      hash: "iR7y7PJs",
       kind: "Fragment",
       metadata: {},
       name: "User",

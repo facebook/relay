@@ -62,7 +62,6 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: 'wPI2ajJP',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

@@ -141,7 +141,6 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: '9QQ96cVy',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

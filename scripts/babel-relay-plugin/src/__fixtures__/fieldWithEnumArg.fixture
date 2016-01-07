@@ -141,7 +141,6 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: '6/3znvty',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

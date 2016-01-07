@@ -41,7 +41,6 @@ var RelayQLSubscription = _require.RelayQLSubscription;
 var RelayQLType = _require.RelayQLType;
 
 var find = require('./find');
-var hash = require('./hash');
 var invariant = require('./invariant');
 
 module.exports = function (t, options) {
@@ -73,11 +72,9 @@ module.exports = function (t, options) {
   var NULL = t.nullLiteral();
 
   var RelayQLPrinter = (function () {
-    function RelayQLPrinter(documentHash, tagName, variableNames) {
+    function RelayQLPrinter(tagName, variableNames) {
       _classCallCheck(this, RelayQLPrinter);
 
-      this.documentHash = documentHash;
-      this.fragmentCount = 0;
       this.tagName = tagName;
       this.variableNames = variableNames;
     }
@@ -91,11 +88,6 @@ module.exports = function (t, options) {
      */
 
     _createClass(RelayQLPrinter, [{
-      key: 'generateFragmentHash',
-      value: function generateFragmentHash() {
-        return hash(this.documentHash + this.fragmentCount++).substr(0, 8);
-      }
-    }, {
       key: 'print',
       value: function print(definition, substitutions) {
         var printedDocument = undefined;
@@ -194,7 +186,6 @@ module.exports = function (t, options) {
         return codify({
           children: selections,
           directives: this.printDirectives(fragment.getDirectives()),
-          hash: t.valueToNode(this.generateFragmentHash()),
           kind: t.valueToNode('Fragment'),
           metadata: metadata,
           name: t.valueToNode(fragment.getName()),

@@ -64,7 +64,6 @@ var foo = (function () {
       },
       type: 'String'
     }],
-    hash: '+4/1CYF+',
     kind: 'Fragment',
     metadata: {},
     name: 'FieldWithFakeConnection',

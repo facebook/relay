@@ -137,7 +137,6 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: '6EdtcxIP',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

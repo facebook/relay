@@ -37,7 +37,6 @@ var RelayQLSubscription = _require.RelayQLSubscription;
 
 var RelayQLPrinter = require('./RelayQLPrinter');
 
-var hash = require('./hash');
 var invariant = require('./invariant');
 var util = require('util');
 
@@ -65,11 +64,10 @@ var RelayQLTransformer = (function () {
       var variableNames = _processTemplateLiteral.variableNames;
 
       var documentText = this.processTemplateText(templateText, documentName);
-      var documentHash = hash(documentText);
       var definition = this.processDocumentText(documentText, documentName);
 
       var Printer = RelayQLPrinter(t, this.options);
-      return new Printer(documentHash, tagName, variableNames).print(definition, substitutions);
+      return new Printer(tagName, variableNames).print(definition, substitutions);
     }
 
     /**

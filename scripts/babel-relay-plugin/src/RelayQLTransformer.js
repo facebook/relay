@@ -29,7 +29,6 @@ const {
 } = require('./RelayQLAST');
 const RelayQLPrinter = require('./RelayQLPrinter');
 
-const hash = require('./hash');
 const invariant = require('./invariant');
 const util = require('util');
 
@@ -99,11 +98,10 @@ class RelayQLTransformer {
       variableNames,
     } = this.processTemplateLiteral(node, documentName);
     const documentText = this.processTemplateText(templateText, documentName);
-    const documentHash = hash(documentText);
     const definition = this.processDocumentText(documentText, documentName);
 
     const Printer = RelayQLPrinter(t, this.options);
-    return new Printer(documentHash, tagName, variableNames)
+    return new Printer(tagName, variableNames)
       .print(definition, substitutions);
   }
 

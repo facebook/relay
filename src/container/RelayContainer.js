@@ -388,7 +388,7 @@ function createContainerComponent(
       );
       return storeData.getCachedStore().hasDeferredFragmentData(
         dataID,
-        fragment.getFragmentID()
+        fragment.getCompositeHash()
       );
     }
 
@@ -508,7 +508,7 @@ function createContainerComponent(
           return;
         }
         const fragment = getFragment(fragmentName, route, variables);
-        const structuralHash = fragment.getStructuralHash();
+        const fragmentHash = fragment.getConcreteNodeHash();
         let dataIDOrIDs;
 
         if (fragment.isPlural()) {
@@ -524,7 +524,7 @@ function createContainerComponent(
           );
           if (propValue.length) {
             dataIDOrIDs = propValue.reduce((acc, item, ii) => {
-              const eachFragmentPointer = item[structuralHash];
+              const eachFragmentPointer = item[fragmentHash];
               invariant(
                 eachFragmentPointer,
                 'RelayContainer: Invalid prop `%s` supplied to `%s`, ' +
@@ -548,7 +548,7 @@ function createContainerComponent(
             fragmentName,
             componentName
           );
-          const fragmentPointer = propValue[structuralHash];
+          const fragmentPointer = propValue[fragmentHash];
           if (fragmentPointer) {
             dataIDOrIDs = fragmentPointer.getDataID();
           } else {
@@ -581,12 +581,12 @@ function createContainerComponent(
             return;
           }
           const fragment = getFragment(fragmentName, route, variables);
-          const structuralHash = fragment.getStructuralHash();
+          const fragmentHash = fragment.getConcreteNodeHash();
           Object.keys(props).forEach(propName => {
             warning(
               fragmentPointers[propName] ||
               !props[propName] ||
-              !props[propName][structuralHash],
+              !props[propName][fragmentHash],
               'RelayContainer: Expected record data for prop `%s` on `%s`, ' +
               'but it was instead on prop `%s`. Did you misspell a prop or ' +
               'pass record data into the wrong prop?',

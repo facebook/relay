@@ -361,6 +361,49 @@ describe('printRelayOSSQuery', () => {
       expect(variables).toEqual({});
     });
 
+    it('prints fragments with different runtime children separately', () => {
+      let child;
+      child = Relay.QL`fragment on User { name }`;
+      const fragmentA = Relay.QL`fragment on User { ${child} }`;
+      child = Relay.QL`fragment on User { profilePicture { uri } }`;
+      const fragmentB = Relay.QL`fragment on User { ${child} }`;
+
+      const fragment = getNode(Relay.QL`
+        fragment on Node {
+          ${fragmentA},
+          ${fragmentB},
+        }
+      `);
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQuery on Node {
+          id,
+          __typename,
+          ...F1,
+          ...F3
+        }
+        fragment F0 on User {
+          name,
+          id
+        }
+        fragment F1 on User {
+          id,
+          ...F0
+        }
+        fragment F2 on User {
+          profilePicture {
+            uri
+          },
+          id
+        }
+        fragment F3 on User {
+          id,
+          ...F2
+        }
+      `);
+      expect(variables).toEqual({});
+    });
+
     it('prints fragments with different IDs but identical output once', () => {
       const concreteFragment = Relay.QL`fragment on User { name }`;
       const fragment = getNode(Relay.QL`fragment on User { id }`).clone([

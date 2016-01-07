@@ -30,7 +30,6 @@ import type {
 } from 'ConcreteQuery';
 const RelayNodeInterface = require('RelayNodeInterface');
 
-const base62 = require('base62');
 const invariant = require('invariant');
 
 const EMPTY_CALLS: Array<ConcreteCall> = [];
@@ -166,7 +165,6 @@ const QueryBuilder = {
     return {
       children: partialFragment.children || EMPTY_CHILDREN,
       directives: partialFragment.directives || EMPTY_DIRECTIVES,
-      hash: createClientFragmentHash(),
       kind: 'Fragment',
       metadata: {
         isAbstract: !!metadata.isAbstract,
@@ -328,22 +326,6 @@ const QueryBuilder = {
     }
   },
 };
-
-let clientFragmentCount = 0;
-
-/**
- * Hashes for fragments printed by `babel-relay-plugin` are encoded in Base64.
- * Hashes for fragments created on the client are namespaced with `_` (which is
- * not in the Base64 character set).
- *
- * NOTE: Unlike the hashes printed by `babel-relay-plugin`, hashes created on
- *       the client are not cross-VM safe. (For example, if we ever want to
- *       persist concrete nodes to disk, these hashes should be stripped and
- *       re-generated on each client.)
- */
-function createClientFragmentHash(): string {
-  return '_' + base62(clientFragmentCount++);
-}
 
 function isConcreteKind(node: mixed, kind: string): boolean {
   return (

@@ -47,7 +47,7 @@ class GraphQLFragmentPointer {
     if (!fragment) {
       return null;
     }
-    const structuralHash = fragment.getStructuralHash();
+    const fragmentHash = fragment.getConcreteNodeHash();
     const storageKey = query.getStorageKey();
     const identifyingArg = query.getIdentifyingArg();
     const identifyingArgValue =
@@ -60,7 +60,7 @@ class GraphQLFragmentPointer {
           return null;
         }
         var pointer = GraphQLStoreDataHandler.createPointerWithID(dataID);
-        pointer[structuralHash] =
+        pointer[fragmentHash] =
           new GraphQLFragmentPointer([dataID], rootFragment);
         return (pointer: $FlowIssue);
       });
@@ -81,7 +81,7 @@ class GraphQLFragmentPointer {
     var result = {};
     // TODO(t7765591): Throw if `fragment` is not optional.
     var fragmentPointer = new GraphQLFragmentPointer(dataIDOrIDs, fragment);
-    result[structuralHash] = fragmentPointer;
+    result[fragmentHash] = fragmentPointer;
     return result;
   }
 
@@ -139,7 +139,6 @@ class GraphQLFragmentPointer {
    * @unstable
    *
    * For debugging only, do not rely on this for comparing values at runtime.
-   * Instead, use `pointer.getFragment().getFragmentID()`.
    */
   toString(): string {
     return (

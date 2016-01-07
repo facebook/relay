@@ -14,12 +14,8 @@
 require('configureForRelayOSS');
 
 const Relay = require('Relay');
-const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
-
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const getWeakIdForObject = require('getWeakIdForObject');
 
 describe('RelayQueryFragment', () => {
   var {getNode} = RelayTestUtils;
@@ -120,72 +116,6 @@ describe('RelayQueryFragment', () => {
     var fragment = getNode(node);
     expect(fragment.getDebugName()).toBe('RelayQueryFragment');
     expect(fragment.getType()).toBe('StreetAddress');
-    expect(fragment.getFragmentID()).toBe(generateRQLFieldAlias(
-      fragment.getStructuralHash() + '.$RelayTestUtils.{}'
-    ));
-  });
-
-  it('returns a fragment ID based on route and variables', () => {
-    var node = Relay.QL`fragment on Node { id }`;
-    var route = RelayMetaRoute.get('Foo');
-    var variables = {};
-    var fragment = RelayQuery.Fragment.create(node, route, variables);
-    var fragmentID = generateRQLFieldAlias(
-      fragment.getStructuralHash() + '.Foo.{}'
-    );
-    expect(fragment.getFragmentID()).toBe(fragmentID);
-
-    route = RelayMetaRoute.get('Bar');
-    fragment = RelayQuery.Fragment.create(node, route, variables);
-    fragmentID = generateRQLFieldAlias(
-      fragment.getStructuralHash() + '.Bar.{}'
-    );
-    expect(fragment.getFragmentID()).toBe(fragmentID);
-
-    variables = {foo: 'bar'};
-    fragment = RelayQuery.Fragment.create(node, route, variables);
-    fragmentID = generateRQLFieldAlias(
-      fragment.getStructuralHash() + '.Bar.{foo:"bar"}'
-    );
-    expect(fragment.getFragmentID()).toBe(fragmentID);
-  });
-
-  it('returns the same ID for equivalent fragments', () => {
-    var node = Relay.QL`fragment on Node { id }`;
-    var route = RelayMetaRoute.get('Foo');
-    var variables = {};
-
-    // Explicitly using `new` operator here in order to get a non-memoized
-    // fragment (`RelayQuery.Fragment.create` memoizes).
-    var fragment1 = new RelayQuery.Fragment(node, route, variables);
-    var fragment2 = new RelayQuery.Fragment(node, route, variables);
-    var fragmentID = generateRQLFieldAlias(
-      fragment1.getStructuralHash() + '.Foo.{}'
-    );
-
-    expect(fragment1).not.toBe(fragment2);
-    expect(fragment1.getFragmentID()).toBe(fragmentID);
-    expect(fragment1.getFragmentID()).toBe(fragment2.getFragmentID());
-  });
-
-  it('returns the same ID for fragments cloned with new children', () => {
-    var node = Relay.QL`fragment on User { id, name }`;
-    var route = RelayMetaRoute.get('Foo');
-    var variables = {};
-
-    var fragment1 = RelayQuery.Fragment.create(node, route, variables);
-    var fragment2 = fragment1.clone([fragment1.getChildren()[0]]);
-
-    expect(fragment1).not.toBe(fragment2);
-    expect(fragment1.getFragmentID()).toBe(fragment2.getFragmentID());
-  });
-
-  it('returns different IDs for non-equivalent fragments', () => {
-    var node1 = Relay.QL`fragment on Actor { firstName }`;
-    var fragment1 = getNode(node1);
-    var node2 = Relay.QL`fragment on Actor { lastName }`;
-    var fragment2 = getNode(node2);
-    expect(fragment1.getFragmentID()).not.toBe(fragment2.getFragmentID());
   });
 
   it('returns children', () => {

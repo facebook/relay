@@ -195,43 +195,75 @@ describe('RelayQuery', () => {
       });
     });
 
-    describe('Structural()', () => {
-      it('returns the hash of the fragment', () => {
-        var fragment = getNode(Relay.QL`fragment on Node{id}`);
-        expect(fragment.hasStructuralHash()).toBe(true);
-        // NOTE: This hash is created by `babel-relay-plugin` based on the
-        // static content in the `Relay.QL` template string above.
-        expect(fragment.getStructuralHash()).toBe('Du2YY4jp');
+    describe('isCloned()', () => {
+      it('returns false for a plain fragment', () => {
+        const fragment = getNode(Relay.QL`fragment on Node { id, __typename }`);
+        expect(fragment.isCloned()).toBe(false);
       });
 
-      it('returns the hash of a cloned but identical fragment', () => {
-        var fragment = getNode(Relay.QL`fragment on Node{id}`);
-        var clone = fragment.clone(fragment.getChildren());
-        expect(clone.hasStructuralHash()).toBe(true);
-        expect(clone.getStructuralHash())
-          .toBe(fragment.getStructuralHash());
+      it('returns false for a fragment cloned with the same children', () => {
+        const fragment = getNode(Relay.QL`fragment on Node { id, __typename }`);
+        const fragmentClone = fragment.clone(fragment.getChildren());
+        expect(fragmentClone.isCloned()).toBe(false);
       });
 
-      it('returns the hash of a fragment built on the client', () => {
-        var fragment = RelayQuery.Fragment.build(
-          'TestFragment',
-          'Node',
-          [buildIdField()],
-          {plural: true}
+      it('returns true for a fragment cloned with new children', () => {
+        const fragment = getNode(Relay.QL`fragment on Node { id, __typename }`);
+        const fragmentClone = fragment.clone(fragment.getChildren().slice(1));
+        expect(fragmentClone.isCloned()).toBe(true);
+      });
+    });
+
+    describe('getConcreteNodeHash()', () => {
+      it('returns the same hash for two different RelayQuery nodes', () => {
+        const concreteNode = Relay.QL`fragment on Node { id }`;
+        const fragmentA = getNode(concreteNode);
+        const fragmentB = getNode(concreteNode);
+        expect(fragmentA.getConcreteNodeHash())
+          .toBe(fragmentB.getConcreteNodeHash());
+      });
+
+      it('returns a different hash for two different concrete nodes', () => {
+        const fragmentA = getNode(Relay.QL`fragment on Node { id }`);
+        const fragmentB = getNode(Relay.QL`fragment on Node { id }`);
+        expect(fragmentA.getConcreteNodeHash())
+          .not.toBe(fragmentB.getConcreteNodeHash());
+      });
+    });
+
+    describe('getCompositeHash()', () => {
+      it('returns one hash for nodes with the same variables / route', () => {
+        const node = Relay.QL`fragment on Node { id }`;
+        const route = RelayMetaRoute.get('route');
+        const variables = {foo: 123};
+        expect(
+          new RelayQuery.Fragment(node, route, variables).getCompositeHash()
+        ).toBe(
+          new RelayQuery.Fragment(node, route, variables).getCompositeHash()
         );
-        expect(fragment.hasStructuralHash()).toBe(true);
-        expect(fragment.getStructuralHash()).toBe('_0');
       });
 
-      it('throws for fragments cloned with new children', () => {
-        var fragment = getNode(Relay.QL`fragment on Node{id}`);
-        var clone = fragment.clone([buildIdField()]);
-        expect(clone.hasStructuralHash()).toBe(false);
-        expect(() => {
-          clone.getStructuralHash();
-        }).toThrowError(
-          'RelayQueryFragment.getStructuralHash(): Cannot get the structural ' +
-          'hash of a fragment cloned with new children.'
+      it('returns different hashes for nodes with different variables', () => {
+        const node = Relay.QL`fragment on Node { id }`;
+        const route = RelayMetaRoute.get('route');
+        const variablesA = {foo: 123};
+        const variablesB = {foo: 456};
+        expect(
+          new RelayQuery.Fragment(node, route, variablesA).getCompositeHash()
+        ).not.toBe(
+          new RelayQuery.Fragment(node, route, variablesB).getCompositeHash()
+        );
+      });
+
+      it('returns different hashes for nodes with different routes', () => {
+        const node = Relay.QL`fragment on Node { id }`;
+        const routeA = RelayMetaRoute.get('routeA');
+        const routeB = RelayMetaRoute.get('routeB');
+        const variables = {foo: 123};
+        expect(
+          new RelayQuery.Fragment(node, routeA, variables).getCompositeHash()
+        ).not.toBe(
+          new RelayQuery.Fragment(node, routeB, variables).getCompositeHash()
         );
       });
     });

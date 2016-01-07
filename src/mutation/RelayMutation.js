@@ -17,7 +17,7 @@ import type {ConcreteFragment} from 'ConcreteQuery';
 import type {RelayConcreteNode} from 'RelayQL';
 const RelayFragmentReference = require('RelayFragmentReference');
 import type RelayMetaRoute from 'RelayMetaRoute';
-const RelayStore = require('RelayStore');
+import type RelayStoreData from 'RelayStoreData';
 import type {
   RelayMutationConfig,
   Variables,
@@ -41,6 +41,7 @@ export type RelayMutationFragments<Tk> = {
  * RelayMutation is the base class for modeling mutations of data.
  */
 class RelayMutation<Tp: Object> {
+  static _didShowFakeDataWarning: boolean;
   static name: $FlowIssue;
   /* $FlowIssue(>=0.20.0) #9410317 */
   static fragments: RelayMutationFragments<$Keys<Tp>>;
@@ -50,12 +51,10 @@ class RelayMutation<Tp: Object> {
     route: RelayMetaRoute
   ) => Variables;
 
-  props: Tp;
-  _didShowFakeDataWarning: boolean;
+  _unresolvedProps: Tp;
 
   constructor(props: Tp) {
-    this._didShowFakeDataWarning = false;
-    this._resolveProps(props);
+    this._unresolvedProps = props;
   }
 
   /**
@@ -230,10 +229,16 @@ class RelayMutation<Tp: Object> {
     return null;
   }
 
-  _resolveProps(props: Tp): void {
-    const fragments = this.constructor.fragments;
-    const initialVariables = this.constructor.initialVariables || {};
+  /**
+   * @internal
+   */
+  static resolveProps(
+    storeData: RelayStoreData, mutation: RelayMutation<Tp>
+  ): Tp {
+    const fragments = this.fragments;
+    const initialVariables = this.initialVariables || {};
 
+    const props = mutation._unresolvedProps;
     const resolvedProps = {...props};
     forEachObject(fragments, (fragmentBuilder, fragmentName) => {
       var propValue = props[fragmentName];
@@ -242,7 +247,7 @@ class RelayMutation<Tp: Object> {
         'RelayMutation: Expected data for fragment `%s` to be supplied to ' +
         '`%s` as a prop. Pass an explicit `null` if this is intentional.',
         fragmentName,
-        this.constructor.name
+        this.name
       );
 
       if (!propValue) {
@@ -250,7 +255,7 @@ class RelayMutation<Tp: Object> {
       }
 
       var fragment = fromGraphQL.Fragment(buildMutationFragment(
-        this.constructor.name,
+        this.name,
         fragmentName,
         fragmentBuilder,
         initialVariables
@@ -263,7 +268,7 @@ class RelayMutation<Tp: Object> {
           'RelayMutation: Invalid prop `%s` supplied to `%s`, expected an ' +
           'array of records because the corresponding fragment is plural.',
           fragmentName,
-          this.constructor.name
+          this.name
         );
         var dataIDs = propValue.reduce((acc, item, ii) => {
           var eachFragmentPointer = item[fragmentHash];
@@ -272,25 +277,25 @@ class RelayMutation<Tp: Object> {
             'RelayMutation: Invalid prop `%s` supplied to `%s`, ' +
             'expected element at index %s to have query data.',
             fragmentName,
-            this.constructor.name,
+            this.name,
             ii
           );
           return acc.concat(eachFragmentPointer.getDataIDs());
         }, []);
 
-        resolvedProps[fragmentName] = RelayStore.readAll(fragment, dataIDs);
+        resolvedProps[fragmentName] = storeData.readAll(fragment, dataIDs);
       } else {
         invariant(
           !Array.isArray(propValue),
           'RelayMutation: Invalid prop `%s` supplied to `%s`, expected a ' +
           'single record because the corresponding fragment is not plural.',
           fragmentName,
-          this.constructor.name
+          this.name
         );
         var fragmentPointer = propValue[fragmentHash];
         if (fragmentPointer) {
           var dataID = fragmentPointer.getDataID();
-          resolvedProps[fragmentName] = RelayStore.read(fragment, dataID);
+          resolvedProps[fragmentName] = storeData.read(fragment, dataID);
         } else {
           if (__DEV__) {
             if (!this._didShowFakeDataWarning) {
@@ -302,14 +307,14 @@ class RelayMutation<Tp: Object> {
                 'you are purposely passing in mock data that conforms to ' +
                 'the shape of this mutation\'s fragment.',
                 fragmentName,
-                this.constructor.name
+                this.name
               );
             }
           }
         }
       }
     });
-    this.props = resolvedProps;
+    return resolvedProps;
   }
 
   static getFragment(

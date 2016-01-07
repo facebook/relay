@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayStore
+ * @providesModule RelayContext
  * @typechecks
  * @flow
  */
@@ -14,14 +14,17 @@
 'use strict';
 
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const ReactDOM = require('ReactDOM');
 import type RelayMutation from 'RelayMutation';
-const RelayMutationTransaction = require('RelayMutationTransaction');
-const RelayQuery = require('RelayQuery');
+import type RelayMutationTransaction from 'RelayMutationTransaction';
+import type RelayQuery from 'RelayQuery';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
+const RelayTaskScheduler = require('RelayTaskScheduler');
 
 const forEachRootCallArg = require('forEachRootCallArg');
-const readRelayQueryData = require('readRelayQueryData');
+const invariant = require('invariant');
+const warning = require('warning');
 
 import type {
   Abortable,
@@ -37,14 +40,10 @@ import type {
   RelayQuerySet,
 } from 'RelayInternalTypes';
 
-var storeData = RelayStoreData.getDefaultInstance();
-var queryRunner = storeData.getQueryRunner();
-var queuedStore = storeData.getQueuedStore();
-
 /**
  * @public
  *
- * RelayStore is a caching layer that records GraphQL response data and enables
+ * RelayContext is a caching layer that records GraphQL response data and enables
  * resolving and subscribing to queries.
  *
  * === onReadyStateChange ===
@@ -76,7 +75,25 @@ var queuedStore = storeData.getQueuedStore();
  *  }
  *
  */
-var RelayStore = {
+class RelayContext {
+  _storeData: RelayStoreData;
+
+  constructor() {
+    this._storeData = new RelayStoreData();
+
+    this.injectBatchingStrategy(ReactDOM.unstable_batchedUpdates);
+  }
+
+  injectBatchingStrategy(batchStrategy: (callback: Function) => void): void {
+    this._storeData.getChangeEmitter().injectBatchingStrategy(batchStrategy);
+  }
+
+  /**
+   * @internal
+   */
+  getStoreData(): RelayStoreData {
+    return this._storeData;
+  }
 
   /**
    * Primes the store by sending requests for any missing data that would be
@@ -86,8 +103,8 @@ var RelayStore = {
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
-    return queryRunner.run(querySet, callback);
-  },
+    return this._storeData.getQueryRunner().run(querySet, callback);
+  }
 
   /**
    * Forces the supplied set of queries to be fetched and written to the store.
@@ -97,8 +114,8 @@ var RelayStore = {
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
-    return queryRunner.forceFetch(querySet, callback);
-  },
+    return this._storeData.getQueryRunner().forceFetch(querySet, callback);
+  }
 
   /**
    * Reads query data anchored at the supplied data ID.
@@ -108,8 +125,8 @@ var RelayStore = {
     dataID: DataID,
     options?: StoreReaderOptions
   ): ?StoreReaderData {
-    return readRelayQueryData(storeData, node, dataID, options).data;
-  },
+    return this._storeData.read(node, dataID, options);
+  }
 
   /**
    * Reads query data anchored at the supplied data IDs.
@@ -119,10 +136,8 @@ var RelayStore = {
     dataIDs: Array<DataID>,
     options?: StoreReaderOptions
   ): Array<?StoreReaderData> {
-    return dataIDs.map(
-      dataID => readRelayQueryData(storeData, node, dataID, options).data
-    );
-  },
+    return this._storeData.readAll(node, dataIDs, options);
+  }
 
   /**
    * Reads query data, where each element in the result array corresponds to a
@@ -134,17 +149,18 @@ var RelayStore = {
     options?: StoreReaderOptions
   ): Array<?StoreReaderData> {
     const storageKey = root.getStorageKey();
-    var results = [];
+    const results = [];
     forEachRootCallArg(root, identifyingArgValue => {
-      var data;
-      var dataID = queuedStore.getDataID(storageKey, identifyingArgValue);
+      let data;
+      const dataID = this._storeData.getQueuedStore()
+        .getDataID(storageKey, identifyingArgValue);
       if (dataID != null) {
-        data = RelayStore.read(root, dataID, options);
+        data = this.read(root, dataID, options);
       }
       results.push(data);
     });
     return results;
-  },
+  }
 
   /**
    * Reads and subscribes to query data anchored at the supplied data ID. The
@@ -154,29 +170,95 @@ var RelayStore = {
     fragment: RelayQuery.Fragment,
     dataID: DataID
   ): Observable<?StoreReaderData> {
-    var fragmentPointer = new GraphQLFragmentPointer(
+    const fragmentPointer = new GraphQLFragmentPointer(
       fragment.isPlural()? [dataID] : dataID,
       fragment
     );
-    return new RelayQueryResultObservable(storeData, fragmentPointer);
-  },
+    return new RelayQueryResultObservable(this._storeData, fragmentPointer);
+  }
 
   applyUpdate(
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
-    return storeData.getMutationQueue().createTransaction(
+    return this._storeData.getMutationQueue().createTransaction(
       mutation,
       callbacks
     );
-  },
+  }
 
   update(
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): void {
     this.applyUpdate(mutation, callbacks).commit();
-  },
-};
+  }
 
-module.exports = RelayStore;
+  /**
+   * Initializes garbage collection: must be called before any records are
+   * fetched. When records are collected after calls to `scheduleCollection` or
+   * `scheduleCollectionFromNode`, records are collected in steps, with a
+   * maximum of `stepLength` records traversed in a step. Steps are scheduled
+   * via `RelayTaskScheduler`.
+   */
+  initializeGarbageCollector(stepLength: number): void {
+    invariant(
+        stepLength > 0,
+        'RelayGarbageCollection: step length must be greater than zero, got ' +
+        '`%s`.',
+        stepLength
+    );
+    this._storeData.initializeGarbageCollector(scheduler);
+
+    const pendingQueryTracker = this._storeData.getPendingQueryTracker();
+
+    function scheduler(run: () => boolean): void {
+      const runIteration = () => {
+        // TODO: #9366746: integrate RelayRenderer/Container with GC hold
+        warning(
+          !pendingQueryTracker.hasPendingQueries(),
+          'RelayGarbageCollection: GC is executing during a fetch, but the ' +
+          'pending query may rely on data that is collected.'
+        );
+        let iterations = 0;
+        let hasNext = true;
+        while (hasNext && (stepLength < 0 || iterations < stepLength)) {
+          hasNext = run();
+          iterations++;
+        }
+        // This is effectively a (possibly async) `while` loop
+        if (hasNext) {
+          RelayTaskScheduler.enqueue(runIteration);
+        }
+      };
+      RelayTaskScheduler.enqueue(runIteration);
+    }
+  }
+
+  /**
+   * Collects any un-referenced records in the store.
+   */
+  scheduleGarbageCollection(): void {
+    const garbageCollector = this._storeData.getGarbageCollector();
+
+    if (garbageCollector) {
+      garbageCollector.collect();
+    }
+  }
+
+  /**
+   * Collects any un-referenced records reachable from the given record via
+   * graph traversal of fields.
+   *
+   * NOTE: If the given record is still referenced, no records are collected.
+   */
+  scheduleGarbageCollectionFromNode(dataID: DataID): void {
+    const garbageCollector = this._storeData.getGarbageCollector();
+
+    if (garbageCollector) {
+      garbageCollector.collectFromNode(dataID);
+    }
+  }
+}
+
+module.exports = RelayContext;

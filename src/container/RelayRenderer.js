@@ -15,10 +15,10 @@
 
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const React = require('React');
+const RelayContext = require('RelayContext');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
 const RelayPropTypes = require('RelayPropTypes');
-const RelayStore = require('RelayStore');
-const RelayStoreData = require('RelayStoreData');
+import type RelayQuery from 'RelayQuery';
 import type {
   Abortable,
   ComponentReadyState,
@@ -36,6 +36,7 @@ type RelayRendererProps = {
   forceFetch?: ?boolean;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
   queryConfig: RelayQueryConfigSpec;
+  relayContext: RelayContext;
   render?: ?(renderArgs: RelayRendererRenderArgs) => ?ReactElement;
 };
 type RelayRendererRenderArgs = {
@@ -126,14 +127,15 @@ class RelayRenderer extends React.Component {
   }
 
   getChildContext(): Object {
-    return {route: this.props.queryConfig};
+    const {queryConfig: route, relayContext: relay} = this.props;
+    return {relay, route};
   }
 
   /**
    * @private
    */
   _runQueries(
-    {Component, forceFetch, queryConfig}: RelayRendererProps
+    {Component, forceFetch, queryConfig, relayContext}: RelayRendererProps
   ): RelayRendererState {
     const querySet = getRelayQueries(Component, queryConfig);
     const onReadyStateChange = readyState => {
@@ -152,7 +154,7 @@ class RelayRenderer extends React.Component {
       if (readyState.ready && !props) {
         props = {
           ...queryConfig.params,
-          ...mapObject(querySet, createFragmentPointerForRoot),
+          ...mapObject(querySet, this._createFragmentPointerForRoot.bind(this)),
         };
       }
       this.setState({
@@ -171,8 +173,8 @@ class RelayRenderer extends React.Component {
     };
 
     const request = forceFetch ?
-      RelayStore.forceFetch(querySet, onReadyStateChange) :
-      RelayStore.primeCache(querySet, onReadyStateChange);
+      relayContext.forceFetch(querySet, onReadyStateChange) :
+      relayContext.primeCache(querySet, onReadyStateChange);
 
     return {
       activeComponent: this.state ? this.state.activeComponent : null,
@@ -187,6 +189,18 @@ class RelayRenderer extends React.Component {
         stale: false,
       },
     };
+  }
+
+  /**
+   * @private
+   */
+  _createFragmentPointerForRoot(query: RelayQuery.Root): mixed {
+    return query ?
+      GraphQLFragmentPointer.createForRoot(
+        this.props.relayContext.getStoreData().getQueuedStore(),
+        query
+      ) :
+      null;
   }
 
   /**
@@ -221,6 +235,7 @@ class RelayRenderer extends React.Component {
   componentWillReceiveProps(nextProps: RelayRendererProps): void {
     if (nextProps.Component !== this.props.Component ||
         nextProps.queryConfig !== this.props.queryConfig ||
+        nextProps.relayContext !== this.props.relayContext ||
         (nextProps.forceFetch && !this.props.forceFetch)) {
       if (this.state.pendingRequest) {
         this.state.pendingRequest.abort();
@@ -283,24 +298,17 @@ class RelayRenderer extends React.Component {
   }
 }
 
-function createFragmentPointerForRoot(query) {
-  return query ?
-    GraphQLFragmentPointer.createForRoot(
-      RelayStoreData.getDefaultInstance().getQueuedStore(),
-      query
-    ) :
-    null;
-}
-
 RelayRenderer.propTypes = {
   Component: RelayPropTypes.Container,
   forceFetch: PropTypes.bool,
   onReadyStateChange: PropTypes.func,
   queryConfig: RelayPropTypes.QueryConfig.isRequired,
+  relayContext: PropTypes.instanceOf(RelayContext).isRequired,
   render: PropTypes.func,
 };
 
 RelayRenderer.childContextTypes = {
+  relay: PropTypes.instanceOf(RelayContext).isRequired,
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 

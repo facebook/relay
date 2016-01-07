@@ -18,6 +18,7 @@ jest.dontMock('RelayRenderer');
 const React = require('React');
 const ReactTestUtils = require('ReactTestUtils');
 const Relay = require('Relay');
+const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 
@@ -27,6 +28,7 @@ describe('RelayRenderer.validation', () => {
   let ShallowRenderer;
 
   let queryConfig;
+  let relayContext;
   const {error} = console;
 
   beforeEach(() => {
@@ -39,6 +41,7 @@ describe('RelayRenderer.validation', () => {
     ShallowRenderer = ReactTestUtils.createRenderer();
 
     queryConfig = RelayQueryConfig.genMockInstance();
+    relayContext = new RelayContext();
 
     console.error = jest.genMockFunction().mockImplementation(message => {
       throw new Error(message.replace(/Composite propType/, 'propType'));
@@ -51,14 +54,18 @@ describe('RelayRenderer.validation', () => {
 
   it('requires a valid `Component` prop', () => {
     expect(() => ShallowRenderer.render(
-      <RelayRenderer queryConfig={queryConfig} />
+      <RelayRenderer queryConfig={queryConfig} relayContext={relayContext} />
     )).toThrowError(
       'Warning: Failed propType: Required prop `Component` was not specified ' +
       'in `RelayRenderer`.'
     );
 
     expect(() => ShallowRenderer.render(
-      <RelayRenderer Component={MockComponent} queryConfig={queryConfig} />
+      <RelayRenderer
+        Component={MockComponent}
+        queryConfig={queryConfig}
+        relayContext={relayContext}
+      />
     )).toThrowError(
       'Warning: Failed propType: Invalid prop `Component` supplied to ' +
       '`RelayRenderer`, expected a RelayContainer.'
@@ -67,14 +74,18 @@ describe('RelayRenderer.validation', () => {
 
   it('requires a valid `queryConfig` prop', () => {
     expect(() => ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} />
+      <RelayRenderer Component={MockContainer}  relayContext={relayContext} />
     )).toThrowError(
       'Warning: Failed propType: Required prop `queryConfig` was not ' +
       'specified in `RelayRenderer`.'
     );
 
     expect(() => ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={{}} />
+      <RelayRenderer
+        Component={MockContainer}
+        queryConfig={{}}
+        relayContext={relayContext}
+      />
     )).toThrowError(
       'Warning: Failed propType: Required prop `queryConfig.name` was not ' +
       'specified in `RelayRenderer`.'

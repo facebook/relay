@@ -22,6 +22,7 @@ const React = require('React');
 const ReactDOM = require('ReactDOM');
 const RelayContainerComparators = require('RelayContainerComparators');
 const RelayContainerProxy = require('RelayContainerProxy');
+const RelayContext = require('RelayContext');
 const RelayFragmentReference = require('RelayFragmentReference');
 import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
@@ -29,8 +30,6 @@ const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
-const RelayStore = require('RelayStore');
-const RelayStoreData = require('RelayStoreData');
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
@@ -74,14 +73,9 @@ export type RootQueries = {
 };
 
 var containerContextTypes = {
+  relay: React.PropTypes.instanceOf(RelayContext).isRequired,
   route: RelayPropTypes.QueryConfig.isRequired,
 };
-
-var storeData = RelayStoreData.getDefaultInstance();
-
-storeData.getChangeEmitter().injectBatchingStrategy(
-  ReactDOM.unstable_batchedUpdates
-);
 
 /**
  * @public
@@ -116,6 +110,10 @@ function createContainerComponent(
     _hasStaleQueryData: boolean;
     _queryResolvers: {[key: string]: ?GraphQLStoreQueryResolver};
 
+    context: {
+      relay: RelayContext,
+      route: RelayQueryConfigSpec,
+    };
     pending: ?{
       variables: Variables;
       request: Abortable;
@@ -128,7 +126,15 @@ function createContainerComponent(
     constructor(props, context) {
       super(props, context);
 
-      var {route} = context;
+      var {relay, route} = context;
+      invariant(
+        relay instanceof RelayContext,
+        'RelayContainer: `%s` was rendered without a valid `relayContext`. ' +
+        'Make sure the `relayContext` is valid, and make sure that it is ' +
+        'correctly set on the parent component\'s context ' +
+        '(e.g. using <RelayRootContainer>).',
+        containerName
+      );
       invariant(
         route && typeof route.name === 'string',
         'RelayContainer: `%s` was rendered without a valid route. Make sure ' +
@@ -202,6 +208,7 @@ function createContainerComponent(
         }
 
         var fragmentPointer;
+        const storeData = this.context.relay.getStoreData();
         if (fragment.isPlural()) {
           invariant(
             Array.isArray(queryData),
@@ -313,8 +320,8 @@ function createContainerComponent(
       var current = {
         variables: nextVariables,
         request: forceFetch ?
-          RelayStore.forceFetch(querySet, onReadyStateChange) :
-          RelayStore.primeCache(querySet, onReadyStateChange),
+          this.context.relay.forceFetch(querySet, onReadyStateChange) :
+          this.context.relay.primeCache(querySet, onReadyStateChange),
       };
       this.pending = current;
     }
@@ -331,7 +338,7 @@ function createContainerComponent(
         'RelayContainer.hasOptimisticUpdate(): Expected a record in `%s`.',
         componentName
       );
-      return storeData.hasOptimisticUpdate(dataID);
+      return this.context.relay.getStoreData().hasOptimisticUpdate(dataID);
     }
 
     /**
@@ -344,6 +351,7 @@ function createContainerComponent(
         'RelayContainer.getPendingTransactions(): Expected a record in `%s`.',
         componentName
       );
+      const storeData = this.context.relay.getStoreData();
       const mutationIDs = storeData.getClientMutationIDs(dataID);
       if (!mutationIDs) {
         return null;
@@ -361,6 +369,7 @@ function createContainerComponent(
       fragmentReference: RelayFragmentReference,
       record: Object
     ): boolean {
+      const storeData = this.context.relay.getStoreData();
       if (!storeData.getPendingQueryTracker().hasPendingQueries()) {
         // nothing can be missing => must have data
         return true;
@@ -470,7 +479,7 @@ function createContainerComponent(
           }
         } else if (!queryResolver) {
           queryResolver = new GraphQLStoreQueryResolver(
-            storeData,
+            this.context.relay.getStoreData(),
             fragmentPointer,
             this._handleFragmentDataUpdate.bind(this)
           );
@@ -635,7 +644,8 @@ function createContainerComponent(
         return true;
       }
 
-      if (this.context.route !== nextContext.route) {
+      if (this.context.relay !== nextContext.relay ||
+          this.context.route !== nextContext.route) {
         return true;
       }
 

@@ -18,24 +18,22 @@ jest
   .dontMock('buildRQL');
 
 const Relay = require('Relay');
+const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
 const buildRQL = require('buildRQL');
 const fromGraphQL = require('fromGraphQL');
 
 describe('RelayMutation', function() {
-  var MockMutation;
-  var mockBarPointer;
-  var mockFooPointer;
-
-  var {getNode, getPointer} = RelayTestUtils;
-
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    var makeMockMutation = () => {
-      class MockMutationClass extends Relay.Mutation {}
-      MockMutationClass.fragments = {
+    jasmine.addMatchers(RelayTestUtils.matchers);
+  });
+
+  it('resolves props', () => {
+    class MockMutation extends Relay.Mutation {
+      static fragments = {
         bar: () => Relay.QL`
           fragment on Node {
             id,
@@ -47,35 +45,41 @@ describe('RelayMutation', function() {
           }
         `,
       };
-      return MockMutationClass;
-    };
-    MockMutation = makeMockMutation();
+    }
 
-    var mockBarRequiredFragment =
-      MockMutation.getFragment('bar').getFragment({});
-    var mockFooRequiredFragment =
-      MockMutation.getFragment('foo').getFragment({});
-    mockBarPointer = getPointer('bar', getNode(mockBarRequiredFragment));
-    mockFooPointer = getPointer('foo', getNode(mockFooRequiredFragment));
-
-    jasmine.addMatchers(RelayTestUtils.matchers);
-  });
-
-  it('resolves props', () => {
-    /* eslint-disable no-new */
-    new MockMutation({
-      bar: mockBarPointer,
-      foo: mockFooPointer,
-    });
-    /* eslint-enable no-new */
-    expect(Relay.Store.read.mock.calls.length).toBe(2);
-
-    var mockBarRequiredFragment = fromGraphQL.Fragment(buildRQL.Fragment(
+    const mockBarFragment = fromGraphQL.Fragment(buildRQL.Fragment(
       MockMutation.fragments.bar, []
     ));
-    expect(Relay.Store.read.mock.calls[0]).toEqual(
-      [mockBarRequiredFragment, 'bar']
-    );
+    const mockFooFragment = fromGraphQL.Fragment(buildRQL.Fragment(
+      MockMutation.fragments.foo, []
+    ));
+    const mockBarPointer = RelayTestUtils.getPointer('bar', mockBarFragment);
+    const mockFooPointer = RelayTestUtils.getPointer('foo', mockFooFragment);
+
+    const unresolvedProps = {
+      bar: mockBarPointer,
+      foo: mockFooPointer,
+    };
+    const resolvedProps = {
+      bar: {},
+      foo: {},
+    };
+
+    const storeData = new RelayStoreData();
+    storeData.read = jest.genMockFunction();
+    storeData.read.mockImplementation(({}, dataID) => resolvedProps[dataID]);
+
+    const mockMutation = new MockMutation(unresolvedProps);
+    const result = MockMutation.resolveProps(storeData, mockMutation);
+
+    expect(storeData.read.mock.calls).toEqual([
+      [mockBarFragment, 'bar'],
+      [mockFooFragment, 'foo'],
+    ]);
+
+    expect(Object.keys(result)).toEqual(['bar', 'foo']);
+    expect(result.bar).toBe(resolvedProps.bar);
+    expect(result.foo).toBe(resolvedProps.foo);
   });
 
   it('throws if mutation defines invalid `Relay.QL` fragment', () => {

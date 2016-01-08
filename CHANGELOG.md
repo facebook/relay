@@ -1,7 +1,20 @@
 ## master
 
+## 0.6.1 (January 8, 2016)
+
 * Renamed `RelayStore#commit` to `RelayStore#commitUpdate`. `RelayStore#commit`
   will be removed in v0.7.0.
+* Replaced `RelayTestUtils.unmockRelay();` with 
+  `require('configureForRelayOSS');` in tests.
+* Fragment names in printed queries are now less verbose.
+* Fixed a bug that caused queries to be printed incorrectly.
+* Eliminated concrete fragment hashes.
+* Connections now handle repeated edges more gracefully.
+* Created a new `RelayTaskQueue` class. Used it to back `RelayTaskScheduler`.
+* Reduced memory by only storing paths to container root nodes.
+* Renamed `RelayTaskScheduler#await` to `RelayTaskScheduler#enqueue`.
+* Fixed a series of memory leaks with a new GC implementation.
+* Tests now run with Jasmine 2.
 
 ## 0.6.0 (December 4, 2015)
 

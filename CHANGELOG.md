@@ -1,5 +1,8 @@
 ## master
 
+* Renamed `RelayStore#commit` to `RelayStore#commitUpdate`. `RelayStore#commit`
+  will be removed in v0.7.0.
+
 ## 0.6.0 (December 4, 2015)
 
 * Bump the `babel-relay-plugin` version to v0.6.0 (now Babel 6 compatible).

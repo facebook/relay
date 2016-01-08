@@ -3,7 +3,8 @@
 ## 0.6.1 (January 8, 2016)
 
 * Renamed `RelayStore#commit` to `RelayStore#commitUpdate`. `RelayStore#commit`
-  will be removed in v0.7.0.
+  will be removed in v0.7.0. For an automated codemod that you can use to 
+  update your Relay app, visit https://github.com/relayjs/relay-codemod
 * Replaced `RelayTestUtils.unmockRelay();` with 
   `require('configureForRelayOSS');` in tests.
 * Fragment names in printed queries are now less verbose.

@@ -71,13 +71,22 @@ class RelayDefaultNetworkLayer {
         result => result.json()
       ).then(payload => {
         if (payload.hasOwnProperty('errors')) {
-          var error = new Error(
-            'Server request for query `' + request.getDebugName() + '` ' +
-            'failed for the following reasons:\n\n' +
-            formatRequestErrors(request, payload.errors)
-          );
-          (error: any).source = payload;
-          request.reject(error);
+          if (payload.data && Object.keys(payload.data).length) {
+            console.error('Server request for query `' +
+              request.getDebugName() + '` ' +
+              'resolved with errors:\n\n' +
+              formatRequestErrors(request, payload.errors)
+            );
+            request.resolve({response: payload.data});
+          } else {
+            const error = new Error(
+              'Server request for query `' + request.getDebugName() + '` ' +
+              'failed for the following reasons:\n\n' +
+              formatRequestErrors(request, payload.errors)
+            );
+            (error: any).source = payload;
+            request.reject(error);
+          }
         } else if (!payload.hasOwnProperty('data')) {
           request.reject(new Error(
             'Server response was missing for query `' + request.getDebugName() +

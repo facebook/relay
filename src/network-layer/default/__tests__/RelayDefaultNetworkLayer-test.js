@@ -288,7 +288,7 @@ describe('RelayDefaultNetworkLayer', () => {
       );
     });
 
-    it('rejects errors in query responses', () => {
+    it('rejects errors in query responses when data is null or empty', () => {
       var rejectCallback = jest.genMockFunction();
       networkLayer.sendQueries([requestA]);
       requestA.getPromise().catch(rejectCallback);
@@ -318,6 +318,46 @@ describe('RelayDefaultNetworkLayer', () => {
         '         ^^^',
       ].join('\n'));
       expect(error.source).toEqual(payloadA);
+    });
+
+    it('doesnt reject errors in query responses when data is non-null', () => {
+      var resolveCallback = jest.genMockFunction();
+      // Mock console.error so we can spy on it
+      console.error = jest.genMockFunction();
+      networkLayer.sendQueries([requestA]);
+      requestA.getPromise().done(resolveCallback);
+      jest.runAllTimers();
+
+      var payloadA = {
+        data: {
+          '123': {
+            id: '123'
+          }
+        },
+        errors: [{
+          message: 'Something went wrong with this field.',
+          locations: [{
+            column: 7,
+            line: 1,
+          }],
+        }],
+      };
+      fetchWithRetries.mock.deferreds[0].resolve(genResponse(payloadA));
+      jest.runAllTimers();
+
+      expect(console.error).toBeCalledWith([
+        'Server request for query `RelayDefaultNetworkLayer` resolved ' +
+          'with errors:',
+        '',
+        '1. Something went wrong with this field.',
+        '   ' + requestA.getQueryString().substr(0, 60),
+        '         ^^^',
+      ].join('\n'));
+
+      expect(resolveCallback.mock.calls.length).toBe(1);
+      expect(resolveCallback.mock.calls[0][0]).toEqual({
+        response: payloadA.data,
+      });
     });
 
     it('rejects requests with missing responses', () => {

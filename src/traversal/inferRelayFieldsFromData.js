@@ -13,10 +13,10 @@
 
 'use strict';
 
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
+const RelayRecord = require('RelayRecord');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
@@ -50,7 +50,7 @@ function inferRelayFieldsFromData(
 ): Array<RelayQuery.Field> {
   const fields = [];
   forEachObject(data, (value, key) => {
-    if (!GraphQLStoreDataHandler.isMetadataKey(key)) {
+    if (!RelayRecord.isMetadataKey(key)) {
       fields.push(inferField(value, key));
     }
   });

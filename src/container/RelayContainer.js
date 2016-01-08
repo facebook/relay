@@ -16,7 +16,6 @@
 import type {ConcreteFragment} from 'ConcreteQuery';
 const ErrorUtils = require('ErrorUtils');
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
@@ -29,6 +28,7 @@ const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
+const RelayRecord = require('RelayRecord');
 const RelayStore = require('RelayStore');
 const RelayStoreData = require('RelayStoreData');
 import type {
@@ -211,7 +211,7 @@ function createContainerComponent(
           );
           var dataIDs = [];
           queryData.forEach((data, ii) => {
-            var dataID = GraphQLStoreDataHandler.getID(data);
+            var dataID = RelayRecord.getDataID(data);
             if (dataID) {
               querySet[fragmentName + ii] =
                 storeData.buildFragmentQueryForDataID(fragment, dataID);
@@ -224,7 +224,7 @@ function createContainerComponent(
         } else {
           /* $FlowFixMe(>=0.19.0) - queryData is mixed but getID expects Object
            */
-          var dataID = GraphQLStoreDataHandler.getID(queryData);
+          var dataID = RelayRecord.getDataID(queryData);
           if (dataID) {
             fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
             querySet[fragmentName] =
@@ -325,7 +325,7 @@ function createContainerComponent(
     hasOptimisticUpdate(
       record: Object
     ): boolean {
-      var dataID = GraphQLStoreDataHandler.getID(record);
+      var dataID = RelayRecord.getDataID(record);
       invariant(
         dataID != null,
         'RelayContainer.hasOptimisticUpdate(): Expected a record in `%s`.',
@@ -338,7 +338,7 @@ function createContainerComponent(
      * Returns the pending mutation transactions affecting the given record.
      */
     getPendingTransactions(record: Object): ?Array<RelayMutationTransaction> {
-      const dataID = GraphQLStoreDataHandler.getID(record);
+      const dataID = RelayRecord.getDataID(record);
       invariant(
         dataID != null,
         'RelayContainer.getPendingTransactions(): Expected a record in `%s`.',
@@ -366,7 +366,7 @@ function createContainerComponent(
         return true;
       }
       // convert builder -> fragment in order to get the fragment's name
-      const dataID = GraphQLStoreDataHandler.getID(record);
+      const dataID = RelayRecord.getDataID(record);
       invariant(
         dataID != null,
         'RelayContainer.hasFragmentData(): Second argument is not a valid ' +

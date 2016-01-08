@@ -13,8 +13,8 @@
 
 'use strict';
 
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayQuery = require('RelayQuery');
+const RelayRecord = require('RelayRecord');
 import type RelayRecordStore from 'RelayRecordStore';
 
 const invariant = require('invariant');
@@ -59,7 +59,7 @@ class GraphQLFragmentPointer {
         if (!dataID) {
           return null;
         }
-        var pointer = GraphQLStoreDataHandler.createPointerWithID(dataID);
+        const pointer = RelayRecord.create(dataID);
         pointer[fragmentHash] =
           new GraphQLFragmentPointer([dataID], rootFragment);
         return (pointer: $FlowIssue);

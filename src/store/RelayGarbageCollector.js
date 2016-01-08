@@ -14,9 +14,9 @@
 'use strict';
 
 const GraphQLRange = require('GraphQLRange');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 import type {DataID} from 'RelayInternalTypes';
 const RelayQueryPath = require('RelayQueryPath');
+const RelayRecord = require('RelayRecord');
 import type RelayStoreData from 'RelayStoreData';
 
 const forEachObject = require('forEachObject');
@@ -189,14 +189,14 @@ class RelayGarbageCollector {
       } else if (Array.isArray(value)) {
         value.forEach(item => {
           if (typeof item === 'object' && item !== null) {
-            const linkedID = GraphQLStoreDataHandler.getID(item);
+            const linkedID = RelayRecord.getDataID(item);
             if (linkedID) {
               this._collectionQueue.push(linkedID);
             }
           }
         });
       } else if (typeof value === 'object' && value !== null) {
-        const linkedID = GraphQLStoreDataHandler.getID(value);
+        const linkedID = RelayRecord.getDataID(value);
         if (linkedID) {
           this._collectionQueue.push(linkedID);
         }

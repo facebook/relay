@@ -60,11 +60,10 @@ time, and get the cursor as well:</p><pre class="prism language-javascript">quer
       <span class="token punctuation">]</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></pre><p>Notice that the cursor is a base64 string. That&#x27;s the pattern from earlier
-again, the server reminding us that this is an opaque string. We can pass this
-string back to the server as the <code>after</code> argument to the <code>ships</code> field, which
-will let us ask for the next three ships after the last one in the previous
-result:</p><pre class="prism language-javascript">query EndOfRebelShipsQuery <span class="token punctuation">{</span>
+<span class="token punctuation">}</span></pre><p>Notice that the cursor is a base64 string. That&#x27;s the pattern from earlier: the
+server is reminding us that this is an opaque string. We can pass this string
+back to the server as the <code>after</code> argument to the <code>ships</code> field, which will let
+us ask for the next three ships after the last one in the previous result:</p><pre class="prism language-javascript">query EndOfRebelShipsQuery <span class="token punctuation">{</span>
   rebels <span class="token punctuation">{</span>
     name<span class="token punctuation">,</span>
     <span class="token function">ships</span><span class="token punctuation">(</span>first<span class="token punctuation">:</span> <span class="token number">3</span> after<span class="token punctuation">:</span> <span class="token string">&quot;YXJyYXljb25uZWN0aW9uOjE=&quot;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>

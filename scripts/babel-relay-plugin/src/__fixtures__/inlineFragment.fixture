@@ -43,13 +43,11 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: '8jnPtCye',
       kind: 'Fragment',
       metadata: {},
       name: 'User',
       type: 'User'
     }],
-    hash: '8jnPtCye',
     kind: 'Fragment',
     metadata: {
       isAbstract: true

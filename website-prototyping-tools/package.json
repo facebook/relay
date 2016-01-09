@@ -36,6 +36,6 @@
   },
   "scripts": {
     "start": "webpack --watch --progress --colors",
-    "build": "NODE_ENV=production webpack -p --progress --colors --target-dir=build"
+    "build": "webpack --progress --colors --target-dir=build"
   }
 }

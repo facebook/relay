@@ -35,6 +35,7 @@ import type {
   Variables,
 } from 'RelayTypes';
 
+const base62 = require('base62');
 const flattenRelayQuery = require('flattenRelayQuery');
 const fromGraphQL = require('fromGraphQL');
 const invariant = require('invariant');
@@ -84,7 +85,7 @@ class RelayMutationQueue {
     mutation: RelayMutation,
     callbacks: ?RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
-    const id = (transactionIDCounter++).toString(36);
+    const id = base62(transactionIDCounter++);
     const mutationTransaction = new RelayMutationTransaction(this, id);
     const transaction = new PendingTransaction({
       id,

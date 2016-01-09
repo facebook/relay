@@ -13,7 +13,7 @@
 
 'use strict';
 
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayRecord = require('RelayRecord');
 
 import type {
   DataID,
@@ -48,7 +48,7 @@ var RelayMutationTracker = {
   */
   isClientOnlyID: function(dataID: DataID): boolean {
     return (
-      GraphQLStoreDataHandler.isClientID(dataID) &&
+      RelayRecord.isClientID(dataID) &&
       !clientIDToServerIDMap[dataID]
     );
   },

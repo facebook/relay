@@ -79,8 +79,8 @@ Here's an example of this mutation in use by a `LikeButton` component:
 ```
 class LikeButton extends React.Component {
   _handleLike = () => {
-    // To perform a mutation, pass an instance of one to `Relay.Store.update`
-    Relay.Store.update(new LikeStoryMutation({story: this.props.story}));
+    // To perform a mutation, pass an instance of one to `Relay.Store.commitUpdate`
+    Relay.Store.commitUpdate(new LikeStoryMutation({story: this.props.story}));
   }
   render() {
     return (

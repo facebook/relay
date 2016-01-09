@@ -182,9 +182,9 @@ describe('RelayContext', () => {
       });
     });
 
-    describe('update', () => {
+    describe('commitUpdate', () => {
       it('creates a new RelayMutationTransaction and commits it', () => {
-        relayContext.update(mockMutation, mockCallbacks);
+        relayContext.commitUpdate(mockMutation, mockCallbacks);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
           mockCallbacks

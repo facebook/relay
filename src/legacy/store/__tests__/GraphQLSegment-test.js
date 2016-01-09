@@ -14,8 +14,9 @@
 jest.dontMock('GraphQLSegment');
 
 const GraphQLSegment = require('GraphQLSegment');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
-GraphQLStoreDataHandler.getID.mockImplementation(function(data) {
+const RelayRecord = require('RelayRecord');
+
+RelayRecord.getDataID.mockImplementation(function(data) {
   return data.__dataID__;
 });
 
@@ -151,6 +152,24 @@ describe('GraphQLSegment', () => {
       ['cursor95', 'cursor96', 'cursor97', 'cursor98', 'cursor99', 'cursor100']
     );
 
+  });
+
+  it('should handle repeated edges', () => {
+    console.warn = jest.genMockFunction();
+    var repeatedEdges = edges.concat(edges.slice(0, 1));
+
+    // Attempting to add edges 1 2 3 1.
+    segment.addEdgesAfterCursor(repeatedEdges, null);
+    expect(console.warn.mock.calls.length).toBe(1);
+    expect(console.warn).toBeCalledWith(
+      'Attempted to add an ID already in GraphQLSegment: %s',
+      'edge1'
+    );
+
+    // Should have skipped the repeated ones.
+    var metadata = getAllMetadata(segment);
+    expect(metadata.edgeIDs).toEqual(['edge1', 'edge2', 'edge3']);
+    expect(metadata.cursors).toEqual(['cursor1', 'cursor2', 'cursor3']);
   });
 
   it('should prepend', () => {

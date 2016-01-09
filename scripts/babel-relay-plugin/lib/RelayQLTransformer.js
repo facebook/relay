@@ -37,7 +37,6 @@ var RelayQLSubscription = _require.RelayQLSubscription;
 
 var RelayQLPrinter = require('./RelayQLPrinter');
 
-var crypto = require('crypto');
 var invariant = require('./invariant');
 var util = require('util');
 
@@ -65,11 +64,10 @@ var RelayQLTransformer = (function () {
       var variableNames = _processTemplateLiteral.variableNames;
 
       var documentText = this.processTemplateText(templateText, documentName);
-      var documentHash = hash(documentText);
       var definition = this.processDocumentText(documentText, documentName);
 
       var Printer = RelayQLPrinter(t, this.options);
-      return new Printer(documentHash, tagName, variableNames).print(definition, substitutions);
+      return new Printer(tagName, variableNames).print(definition, substitutions);
     }
 
     /**
@@ -197,12 +195,6 @@ var RelayQLTransformer = (function () {
 
 function capitalize(string) {
   return string[0].toUpperCase() + string.slice(1);
-}
-
-function hash(string) {
-  var hash = crypto.createHash('sha1').update(string);
-  invariant(hash != null, 'Failed to create sha1 hash.');
-  return hash.digest('base64').substr(0, 8);
 }
 
 module.exports = RelayQLTransformer;

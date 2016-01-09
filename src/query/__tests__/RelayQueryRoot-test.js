@@ -378,56 +378,6 @@ describe('RelayQueryRoot', () => {
     expect(actorID.getVariables()).toBe(query.getVariables());
   });
 
-  it('returns deferred fragment names if present', () => {
-    var fragment2 = Relay.QL`
-      fragment on User {
-        name,
-      }
-    `;
-    var fragment1a = Relay.QL`
-      fragment on User {
-        id,
-        ${defer(fragment2)},
-      }
-    `;
-    var fragment1b = Relay.QL`
-      fragment on User {
-        id,
-        ${defer(fragment2)},
-      }
-    `;
-    var query = getNode(Relay.QL`
-      query {
-        viewer {
-          actor {
-            ${defer(fragment1a)},
-            ${Relay.QL`
-              fragment on User {
-                ${defer(fragment1b)},
-              }
-            `}
-          }
-        }
-      }
-    `);
-    // nested deferred fragment names are not included
-    var expected = {};
-    var fragment1aID = getNode(fragment1a).getFragmentID();
-    var fragment1bID = getNode(fragment1b).getFragmentID();
-    expected[fragment1aID] = fragment1aID;
-    expected[fragment1bID] = fragment1bID;
-    expect(query.getDeferredFragmentNames()).toEqual(expected);
-
-    query = getNode(Relay.QL`
-      query {
-        me {
-          id
-        }
-      }
-    `);
-    expect(query.getDeferredFragmentNames()).toEqual({});
-  });
-
   it('returns directives', () => {
     var query = getNode(Relay.QL`
       query {

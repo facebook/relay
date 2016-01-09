@@ -14,8 +14,8 @@
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const GraphQLSegment = require('GraphQLSegment');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayRecord = require('RelayRecord');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
@@ -118,7 +118,7 @@ function isValidRangeCallValues(calls) {
  */
 function validateEdge(edge) {
   invariant(
-    GraphQLStoreDataHandler.getID(edge) !== undefined,
+    RelayRecord.getDataID(edge) !== undefined,
     'GraphQLStore: `edge` must have a data id'
   );
   invariant(
@@ -241,7 +241,7 @@ class GraphQLRange {
 
     for (var ii = 0; ii < edges.length; ii++) {
       var edge = edges[ii];
-      edgeIDsToStore.push(GraphQLStoreDataHandler.getID(edge));
+      edgeIDsToStore.push(RelayRecord.getDataID(edge));
       cursorsToStore.push(edge.cursor);
     }
 
@@ -454,7 +454,7 @@ class GraphQLRange {
    * @param {object} edge
    */
   _removeEdgeIfApplicable(edge) {
-    var id = GraphQLStoreDataHandler.getID(edge);
+    var id = RelayRecord.getDataID(edge);
     var index = this._getSegmentIndexByID(id);
     if (index != null) {
       this._orderedSegments[index].removeEdge(id);
@@ -584,7 +584,7 @@ class GraphQLRange {
     }
 
     for (var ii = 0; ii < edgeIDs.length; ii++) {
-      if (edgeIDs[ii] !== GraphQLStoreDataHandler.getID(edges[ii])) {
+      if (edgeIDs[ii] !== RelayRecord.getDataID(edges[ii])) {
         warning(
           false,
           'Relay was unable to reconcile edges on a connection. This most ' +
@@ -705,7 +705,7 @@ class GraphQLRange {
 
     for (var ii = 1; ii <= edgeIDs.length; ii++) {
       if (edgeIDs[edgeIDs.length - ii] !==
-          GraphQLStoreDataHandler.getID(edges[edges.length - ii])) {
+          RelayRecord.getDataID(edges[edges.length - ii])) {
         warning(
           false,
           'Relay was unable to reconcile edges on a connection. This most ' +

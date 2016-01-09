@@ -32,19 +32,10 @@ var SchemaMetaFieldDef = _require$type_introspection.SchemaMetaFieldDef;
 var TypeMetaFieldDef = _require$type_introspection.TypeMetaFieldDef;
 var TypeNameMetaFieldDef = _require$type_introspection.TypeNameMetaFieldDef;
 
+var GraphQLRelayDirective = require('./GraphQLRelayDirective');
+
 var find = require('./find');
 var invariant = require('./invariant');
-
-var GraphQLRelayDirective = {
-  name: 'relay',
-  args: [{
-    name: 'pattern',
-    type: types.GraphQLBoolean
-  }, {
-    name: 'plural',
-    type: types.GraphQLBoolean
-  }]
-};
 
 var RelayQLNode = (function () {
   function RelayQLNode(context, ast) {

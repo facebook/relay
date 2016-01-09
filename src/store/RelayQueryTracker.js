@@ -13,11 +13,11 @@
 
 'use strict';
 
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 import type RelayQueryPath from 'RelayQueryPath';
+const RelayRecord = require('RelayRecord');
 
 const invariant = require('invariant');
 
@@ -40,7 +40,7 @@ class RelayQueryTracker {
   ): void {
     // Non-refetchable nodes are tracked via their nearest-refetchable parent
     // (except for root call nodes)
-    if (GraphQLStoreDataHandler.isClientID(dataID)) {
+    if (RelayRecord.isClientID(dataID)) {
       invariant(
         path,
         'RelayQueryTracker.trackNodeForID(): Expected `path` for client ID, ' +

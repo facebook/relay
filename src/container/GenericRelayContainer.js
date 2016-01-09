@@ -30,7 +30,7 @@ import type {RelayQLFragmentBuilder, RelayQLQueryBuilder} from 'buildRQL';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayRecord = require('RelayRecord');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayMetaRoute = require('RelayMetaRoute');
@@ -190,7 +190,7 @@ function createContainerComponent(
           );
           var dataIDs = [];
           queryData.forEach((data, ii) => {
-            var dataID = GraphQLStoreDataHandler.getID(data);
+            var dataID = RelayRecord.getDataID(data);
             if (dataID) {
               querySet[fragmentName + ii] =
                 storeData.buildFragmentQueryForDataID(fragment, dataID);
@@ -203,7 +203,7 @@ function createContainerComponent(
         } else {
           /* $FlowFixMe(>=0.19.0) - queryData is mixed but getID expects Object
            */
-          var dataID = GraphQLStoreDataHandler.getID(queryData);
+          var dataID = RelayRecord.getDataID(queryData);
           if (dataID) {
             fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
             querySet[fragmentName] =
@@ -268,7 +268,7 @@ function createContainerComponent(
     hasOptimisticUpdate(
       record: Object
     ): boolean {
-      var dataID = GraphQLStoreDataHandler.getID(record);
+      var dataID = RelayRecord.getDataID(record);
       invariant(
         dataID != null,
         'GenericRelayContainer.hasOptimisticUpdate(): Expected a record in `%s`.',
@@ -281,7 +281,7 @@ function createContainerComponent(
      * Returns the pending mutation transactions affecting the given record.
      */
     getPendingTransactions(record: Object): ?Array<RelayMutationTransaction> {
-      const dataID = GraphQLStoreDataHandler.getID(record);
+      const dataID = RelayRecord.getDataID(record);
       invariant(
         dataID != null,
         'GenericRelayContainer.getPendingTransactions(): Expected a record in `%s`.',
@@ -346,7 +346,7 @@ function createContainerComponent(
           return;
         }
         const fragment = getFragment(fragmentName, route, variables);
-        const concreteFragmentHash = fragment.getConcreteFragmentHash();
+        const concreteFragmentHash = fragment.getConcreteNodeHash();
         let dataIDOrIDs;
 
         if (fragment.isPlural()) {
@@ -419,7 +419,7 @@ function createContainerComponent(
             return;
           }
           const fragment = getFragment(fragmentName, route, variables);
-          const concreteFragmentHash = fragment.getConcreteFragmentHash();
+          const concreteFragmentHash = fragment.getConcreteNodeHash();
           Object.keys(props).forEach(propName => {
             warning(
               fragmentPointers[propName] ||

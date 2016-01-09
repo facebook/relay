@@ -16,7 +16,6 @@
 import type {ConcreteFragment} from 'ConcreteQuery';
 const ErrorUtils = require('ErrorUtils');
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
@@ -29,6 +28,7 @@ const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
+const RelayRecord = require('RelayRecord');
 const RelayStore = require('RelayStore');
 const RelayStoreData = require('RelayStoreData');
 import type {
@@ -211,7 +211,7 @@ function createContainerComponent(
           );
           var dataIDs = [];
           queryData.forEach((data, ii) => {
-            var dataID = GraphQLStoreDataHandler.getID(data);
+            var dataID = RelayRecord.getDataID(data);
             if (dataID) {
               querySet[fragmentName + ii] =
                 storeData.buildFragmentQueryForDataID(fragment, dataID);
@@ -224,7 +224,7 @@ function createContainerComponent(
         } else {
           /* $FlowFixMe(>=0.19.0) - queryData is mixed but getID expects Object
            */
-          var dataID = GraphQLStoreDataHandler.getID(queryData);
+          var dataID = RelayRecord.getDataID(queryData);
           if (dataID) {
             fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
             querySet[fragmentName] =
@@ -325,7 +325,7 @@ function createContainerComponent(
     hasOptimisticUpdate(
       record: Object
     ): boolean {
-      var dataID = GraphQLStoreDataHandler.getID(record);
+      var dataID = RelayRecord.getDataID(record);
       invariant(
         dataID != null,
         'RelayContainer.hasOptimisticUpdate(): Expected a record in `%s`.',
@@ -338,7 +338,7 @@ function createContainerComponent(
      * Returns the pending mutation transactions affecting the given record.
      */
     getPendingTransactions(record: Object): ?Array<RelayMutationTransaction> {
-      const dataID = GraphQLStoreDataHandler.getID(record);
+      const dataID = RelayRecord.getDataID(record);
       invariant(
         dataID != null,
         'RelayContainer.getPendingTransactions(): Expected a record in `%s`.',
@@ -366,7 +366,7 @@ function createContainerComponent(
         return true;
       }
       // convert builder -> fragment in order to get the fragment's name
-      const dataID = GraphQLStoreDataHandler.getID(record);
+      const dataID = RelayRecord.getDataID(record);
       invariant(
         dataID != null,
         'RelayContainer.hasFragmentData(): Second argument is not a valid ' +
@@ -388,7 +388,7 @@ function createContainerComponent(
       );
       return storeData.getCachedStore().hasDeferredFragmentData(
         dataID,
-        fragment.getFragmentID()
+        fragment.getCompositeHash()
       );
     }
 
@@ -494,7 +494,7 @@ function createContainerComponent(
     ): void {
       const fragmentPointers = this._fragmentPointers;
       fragmentNames.forEach(fragmentName => {
-        var propValue = props[fragmentName];
+        const propValue = props[fragmentName];
         warning(
           propValue !== undefined,
           'RelayContainer: Expected query `%s` to be supplied to `%s` as ' +
@@ -507,9 +507,9 @@ function createContainerComponent(
           fragmentPointers[fragmentName] = null;
           return;
         }
-        var fragment = getFragment(fragmentName, route, variables);
-        var concreteFragmentID = fragment.getConcreteFragmentID();
-        var dataIDOrIDs;
+        const fragment = getFragment(fragmentName, route, variables);
+        const fragmentHash = fragment.getConcreteNodeHash();
+        let dataIDOrIDs;
 
         if (fragment.isPlural()) {
           // Plural fragments require the prop value to be an array of fragment
@@ -524,7 +524,7 @@ function createContainerComponent(
           );
           if (propValue.length) {
             dataIDOrIDs = propValue.reduce((acc, item, ii) => {
-              var eachFragmentPointer = item[concreteFragmentID];
+              const eachFragmentPointer = item[fragmentHash];
               invariant(
                 eachFragmentPointer,
                 'RelayContainer: Invalid prop `%s` supplied to `%s`, ' +
@@ -548,7 +548,7 @@ function createContainerComponent(
             fragmentName,
             componentName
           );
-          var fragmentPointer = propValue[concreteFragmentID];
+          const fragmentPointer = propValue[fragmentHash];
           if (fragmentPointer) {
             dataIDOrIDs = fragmentPointer.getDataID();
           } else {
@@ -581,12 +581,12 @@ function createContainerComponent(
             return;
           }
           const fragment = getFragment(fragmentName, route, variables);
-          const concreteFragmentID = fragment.getConcreteFragmentID();
+          const fragmentHash = fragment.getConcreteNodeHash();
           Object.keys(props).forEach(propName => {
             warning(
               fragmentPointers[propName] ||
               !props[propName] ||
-              !props[propName][concreteFragmentID],
+              !props[propName][fragmentHash],
               'RelayContainer: Expected record data for prop `%s` on `%s`, ' +
               'but it was instead on prop `%s`. Did you misspell a prop or ' +
               'pass record data into the wrong prop?',

@@ -19,8 +19,8 @@ jest
   .mock('warning');
 
 const GraphQLRange = require('GraphQLRange');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayRecord = require('RelayRecord');
 
 function getFirstSegment(range) {
   return range.__debug().orderedSegments[0];
@@ -84,7 +84,7 @@ describe('GraphQLRange', () => {
     consoleError = console.error;
     consoleWarn = console.warn;
 
-    GraphQLStoreDataHandler.getID.mockImplementation(function(data) {
+    RelayRecord.getDataID.mockImplementation(function(data) {
       return data.__dataID__;
     });
     range = new GraphQLRange();

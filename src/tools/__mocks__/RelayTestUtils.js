@@ -9,6 +9,8 @@
 
 'use strict';
 
+const Map = require('Map');
+
 /**
  * Utility methods (eg. for unmocking Relay internals) and custom Jasmine
  * matchers.
@@ -167,7 +169,7 @@ var RelayTestUtils = {
     );
 
     var fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
-    return {[fragment.getConcreteFragmentID()]: fragmentPointer};
+    return {[fragment.getConcreteNodeHash()]: fragmentPointer};
   },
 
   /**
@@ -604,13 +606,32 @@ function printQueryComparison(actual, expected, message) {
 
 /**
  * @private
+ *
+ * Simulates sort key that existed when `getConcreteFragmentID` used to exist.
+ */
+const concreteFragmentSortKeys = new Map();
+function createFragmentSortKey(node) {
+  const stableStringify = require('stableStringify');
+  const concreteNode = node.__concreteNode__;
+  if (!concreteFragmentSortKeys.has(concreteNode)) {
+    concreteFragmentSortKeys.set(concreteNode, concreteFragmentSortKeys.size);
+  }
+  return [
+    concreteFragmentSortKeys.get(concreteNode),
+    node.getRoute().name,
+    stableStringify(node.getVariables()),
+  ].join('.');
+}
+
+/**
+ * @private
  */
 function sortRelayQuery(node) {
   const RelayQuery = require('RelayQuery');
 
   function getSortableKey(node) {
     return node instanceof RelayQuery.Fragment ?
-      node.getFragmentID() :
+      createFragmentSortKey(node) :
       node.getShallowHash();
   }
   function compare(a, b) {

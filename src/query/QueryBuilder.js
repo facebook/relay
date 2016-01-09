@@ -165,7 +165,6 @@ const QueryBuilder = {
     return {
       children: partialFragment.children || EMPTY_CHILDREN,
       directives: partialFragment.directives || EMPTY_DIRECTIVES,
-      hash: null, // Only present for transformed fragments.
       kind: 'Fragment',
       metadata: {
         isAbstract: !!metadata.isAbstract,

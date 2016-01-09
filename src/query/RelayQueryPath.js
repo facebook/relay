@@ -13,10 +13,10 @@
 
 'use strict';
 
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
+const RelayRecord = require('RelayRecord');
 
 const invariant = require('invariant');
 
@@ -101,7 +101,7 @@ class RelayQueryPath {
     node: RelayQuery.Field | RelayQuery.Fragment,
     dataID: DataID
   ): RelayQueryPath {
-    if (GraphQLStoreDataHandler.isClientID(dataID)) {
+    if (RelayRecord.isClientID(dataID)) {
       return new RelayQueryPath(node, this);
     } else {
       const root = RelayQuery.Root.build(

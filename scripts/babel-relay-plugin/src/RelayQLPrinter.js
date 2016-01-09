@@ -69,16 +69,13 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   const NULL = t.nullLiteral();
 
   class RelayQLPrinter {
-    documentHash: string;
     tagName: string;
     variableNames: {[variableName: string]: void};
 
     constructor(
-      documentHash: string,
       tagName: string,
       variableNames: {[variableName: string]: void}
     ) {
-      this.documentHash = documentHash;
       this.tagName = tagName;
       this.variableNames = variableNames;
     }
@@ -202,7 +199,6 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       return codify({
         children: selections,
         directives: this.printDirectives(fragment.getDirectives()),
-        hash: t.valueToNode(this.documentHash),
         kind: t.valueToNode('Fragment'),
         metadata,
         name: t.valueToNode(fragment.getName()),

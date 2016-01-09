@@ -227,7 +227,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     if (fragment.isDeferred()) {
       this._store.setHasDeferredFragmentData(
         recordID,
-        fragment.getFragmentID()
+        fragment.getCompositeHash()
       );
       this.recordUpdate(recordID);
     }

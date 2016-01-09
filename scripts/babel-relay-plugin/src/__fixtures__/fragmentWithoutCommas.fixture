@@ -27,7 +27,6 @@ var x = (function (RQL_0) {
       },
       type: 'String'
     }, Relay.QL.__frag(RQL_0)],
-    hash: 'SnasaB7u',
     kind: 'Fragment',
     metadata: {
       isAbstract: true

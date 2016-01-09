@@ -92,7 +92,6 @@ var x = (function () {
       },
       type: 'String'
     }],
-    hash: 'm+iXTD96',
     kind: 'Fragment',
     metadata: {
       pattern: true

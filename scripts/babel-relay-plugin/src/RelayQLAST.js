@@ -20,6 +20,7 @@ const {
     TypeNameMetaFieldDef,
   },
 } = require('./GraphQL');
+const GraphQLRelayDirective = require('./GraphQLRelayDirective');
 
 const find = require('./find');
 const invariant = require('./invariant');
@@ -49,20 +50,6 @@ type RelayQLSelection =
   RelayQLField |
   RelayQLFragmentSpread |
   RelayQLInlineFragment;
-
-const GraphQLRelayDirective = {
-  name: 'relay',
-  args: [
-    {
-      name: 'pattern',
-      type: types.GraphQLBoolean,
-    },
-    {
-      name: 'plural',
-      type: types.GraphQLBoolean,
-    },
-  ],
-};
 
 class RelayQLNode<T> {
   ast: T;

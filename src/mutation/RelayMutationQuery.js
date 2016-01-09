@@ -14,7 +14,6 @@
 'use strict';
 
 import type {ConcreteMutation} from 'ConcreteQuery';
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
@@ -22,6 +21,7 @@ const RelayMutationType = require('RelayMutationType');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 import type RelayQueryTracker from 'RelayQueryTracker';
+const RelayRecord = require('RelayRecord');
 import type {Variables} from 'RelayTypes';
 
 const flattenRelayQuery = require('flattenRelayQuery');
@@ -429,7 +429,7 @@ function buildEdgeField(
     }),
   ];
   if (RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD &&
-      !GraphQLStoreDataHandler.isClientID(parentID)) {
+      !RelayRecord.isClientID(parentID)) {
     fields.push(
       RelayQuery.Field.build({
         fieldName: 'source',

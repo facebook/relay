@@ -1,5 +1,22 @@
 ## master
 
+## 0.6.1 (January 8, 2016)
+
+* Renamed `RelayStore#update` to `RelayStore#commitUpdate`. `RelayStore#commit`
+  will be removed in v0.7.0. For an automated codemod that you can use to 
+  update your Relay app, visit https://github.com/relayjs/relay-codemod
+* Replaced `RelayTestUtils.unmockRelay();` with 
+  `require('configureForRelayOSS');` in tests.
+* Fragment names in printed queries are now less verbose.
+* Fixed a bug that caused queries to be printed incorrectly.
+* Eliminated concrete fragment hashes.
+* Connections now handle repeated edges more gracefully.
+* Created a new `RelayTaskQueue` class. Used it to back `RelayTaskScheduler`.
+* Reduced memory by only storing paths to container root nodes.
+* Renamed `RelayTaskScheduler#await` to `RelayTaskScheduler#enqueue`.
+* Fixed a series of memory leaks with a new GC implementation.
+* Tests now run with Jasmine 2.
+
 ## 0.6.0 (December 4, 2015)
 
 * Bump the `babel-relay-plugin` version to v0.6.0 (now Babel 6 compatible).

@@ -72,10 +72,9 @@ module.exports = function (t, options) {
   var NULL = t.nullLiteral();
 
   var RelayQLPrinter = (function () {
-    function RelayQLPrinter(documentHash, tagName, variableNames) {
+    function RelayQLPrinter(tagName, variableNames) {
       _classCallCheck(this, RelayQLPrinter);
 
-      this.documentHash = documentHash;
       this.tagName = tagName;
       this.variableNames = variableNames;
     }
@@ -187,7 +186,6 @@ module.exports = function (t, options) {
         return codify({
           children: selections,
           directives: this.printDirectives(fragment.getDirectives()),
-          hash: t.valueToNode(this.documentHash),
           kind: t.valueToNode('Fragment'),
           metadata: metadata,
           name: t.valueToNode(fragment.getName()),

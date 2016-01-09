@@ -101,7 +101,6 @@ export type ConcreteField = {
 export type ConcreteFragment = {
   children?: ?Array<?ConcreteSelection>;
   directives?: ?Array<ConcreteDirective>;
-  hash: ?string;
   kind: 'Fragment';
   metadata: {
     isAbstract?: boolean;

@@ -13,7 +13,6 @@
 
 'use strict';
 
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayChangeTracker = require('RelayChangeTracker');
 import type {
   DataID,
@@ -23,6 +22,7 @@ import type {
 } from 'RelayInternalTypes';
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
+const RelayRecord = require('RelayRecord');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
@@ -235,7 +235,7 @@ class RelayCacheReader {
             this._handleFailed();
             return;
           }
-          if (value && GraphQLStoreDataHandler.isClientID(dataID)) {
+          if (value && RelayRecord.isClientID(dataID)) {
             value.__path__ = pendingItems[0].path;
           }
           // Mark records as created/updated as necessary. Note that if the

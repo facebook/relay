@@ -24,7 +24,9 @@ const mapObject = require('mapObject');
 
 type PrinterState = {
   fragmentCount: number;
-  fragmentMap: {[fragmentID: string]: {name: string, text: string}};
+  fragmentNameByHash: {[fragmentHash: string]: string};
+  fragmentNameByText: {[fragmentText: string]: string};
+  fragmentTexts: Array<string>;
   variableCount: number;
   variableMap: {[variableID: string]: Variable};
 };
@@ -42,7 +44,9 @@ type Variable = {
 function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
   const printerState = {
     fragmentCount: 0,
-    fragmentMap: {},
+    fragmentNameByHash: {},
+    fragmentNameByText: {},
+    fragmentTexts: [],
     variableCount: 0,
     variableMap: {},
   };
@@ -64,18 +68,12 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
     queryText,
     'printRelayOSSQuery(): Unsupported node type.'
   );
-  // Reassign to preserve Flow type refinement within closure.
-  let text = queryText;
-  forEachObject(printerState.fragmentMap, fragment => {
-    text = text + ' ' + fragment.text;
-  });
-  const variables = mapObject(
-    printerState.variableMap,
-    variable => variable.value
-  );
   return {
-    text,
-    variables,
+    text: [queryText, ...printerState.fragmentTexts].join(' '),
+    variables: mapObject(
+      printerState.variableMap,
+      variable => variable.value
+    ),
   };
 }
 
@@ -169,21 +167,38 @@ function printInlineFragment(
   if (!node.getChildren().length) {
     return null;
   }
-  // Mapping from fragment "content" text to fragment name.
-  const fragmentMap = printerState.fragmentMap;
-  const fragmentText =
-    node.getType() +
-    printDirectives(node) +
-    printChildren(node, printerState);
+  const {
+    fragmentNameByHash,
+    fragmentNameByText,
+    fragmentTexts,
+  } = printerState;
+
+  // Try not to print the same fragment more than once by using a cheap lookup
+  // using the composite hash. (The composite hash will only be representative
+  // of the fragment if it has not been cloned.)
+  const fragmentHash = node.isCloned() ? null : node.getCompositeHash();
+
   let fragmentName;
-  if (fragmentMap.hasOwnProperty(fragmentText)) {
-    fragmentName = fragmentMap[fragmentText].name;
+  if (fragmentHash != null &&
+      fragmentNameByHash.hasOwnProperty(fragmentHash)) {
+    fragmentName = fragmentNameByHash[fragmentHash];
   } else {
-    fragmentName = 'F' + base62(printerState.fragmentCount++);
-    fragmentMap[fragmentText] = {
-      name: fragmentName,
-      text: 'fragment ' + fragmentName + ' on ' + fragmentText,
-    };
+    // Never re-print a fragment that is identical when printed to a previously
+    // printed fragment. Instead, re-use that previous fragment's name.
+    const fragmentText =
+      node.getType() +
+      printDirectives(node) +
+      printChildren(node, printerState);
+    if (fragmentNameByText.hasOwnProperty(fragmentText)) {
+      fragmentName = fragmentNameByText[fragmentText];
+    } else {
+      fragmentName = 'F' + base62(printerState.fragmentCount++);
+      if (fragmentHash != null) {
+        fragmentNameByHash[fragmentHash] = fragmentName;
+      }
+      fragmentNameByText[fragmentText] = fragmentName;
+      fragmentTexts.push('fragment ' + fragmentName + ' on ' + fragmentText);
+    }
   }
   return '...' + fragmentName;
 }
@@ -228,7 +243,7 @@ function printChildren(
   printerState: PrinterState
 ): string {
   let children;
-  const fragments = {};
+  let fragments;
   node.getChildren().forEach(node => {
     if (node instanceof RelayQuery.Field) {
       children = children || [];
@@ -241,7 +256,9 @@ function printChildren(
         node.constructor.name
       );
       const printedFragment = printInlineFragment(node, printerState);
-      if (printedFragment && !fragments.hasOwnProperty(printedFragment)) {
+      if (printedFragment &&
+          !(fragments && fragments.hasOwnProperty(printedFragment))) {
+        fragments = fragments || {};
         fragments[printedFragment] = true;
         children = children || [];
         children.push(printedFragment);

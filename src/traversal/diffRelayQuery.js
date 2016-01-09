@@ -13,13 +13,13 @@
 
 'use strict';
 
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryTracker from 'RelayQueryTracker';
+const RelayRecord = require('RelayRecord');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
@@ -598,7 +598,7 @@ class RelayDiffQueryBuilder {
     rangeInfo: RangeInfo
   ): ?DiffOutput {
     var nodeID = this._store.getLinkedRecordID(edgeID, NODE);
-    if (!nodeID || GraphQLStoreDataHandler.isClientID(nodeID)) {
+    if (!nodeID || RelayRecord.isClientID(nodeID)) {
       warning(
         false,
         'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +

@@ -15,7 +15,6 @@
 
 const GraphQLQueryRunner = require('GraphQLQueryRunner');
 const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 const RelayChangeTracker = require('RelayChangeTracker');
 import type {ChangeSet} from 'RelayChangeTracker';
@@ -38,6 +37,7 @@ const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayQueryWriter = require('RelayQueryWriter');
+const RelayRecord = require('RelayRecord');
 const RelayRecordStore = require('RelayRecordStore');
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
@@ -337,7 +337,7 @@ class RelayStoreData {
     fragment: RelayQuery.Fragment,
     dataID: DataID
   ): RelayQuery.Root {
-    if (GraphQLStoreDataHandler.isClientID(dataID)) {
+    if (RelayRecord.isClientID(dataID)) {
       const path = this._queuedStore.getPathToRecord(
         this._rangeData.getCanonicalClientID(dataID),
       );

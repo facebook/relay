@@ -14,13 +14,13 @@
 'use strict';
 
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayRecord = require('RelayRecord');
 const RelayRecordState = require('RelayRecordState');
 import type RelayStoreData from 'RelayStoreData';
 import type RelayRecordStore from 'RelayRecordStore';
@@ -176,7 +176,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       );
       this._setDataValue(
         state,
-        fragmentPointer.getFragment().getConcreteFragmentID(),
+        fragmentPointer.getFragment().getConcreteNodeHash(),
         fragmentPointer
       );
     } else if (isCompatibleRelayFragmentType(
@@ -301,9 +301,9 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
             child
           );
           nextData = nextData || {};
-          var concreteFragmentID =
-            fragmentPointer.getFragment().getConcreteFragmentID();
-          nextData[concreteFragmentID] = fragmentPointer;
+          var fragmentHash =
+            fragmentPointer.getFragment().getConcreteNodeHash();
+          nextData[fragmentHash] = fragmentPointer;
         } else {
           child.getChildren().forEach(read);
         }
@@ -473,10 +473,7 @@ function getComponentDataID(state: State): DataID {
 function getDataObject(state: State): Object {
   var data = state.data;
   if (!data) {
-    var pointer = GraphQLStoreDataHandler.createPointerWithID(
-      getComponentDataID(state)
-    );
-    data = state.data = pointer;
+    data = state.data = RelayRecord.create(getComponentDataID(state));
   }
   invariant(
     data instanceof Object,

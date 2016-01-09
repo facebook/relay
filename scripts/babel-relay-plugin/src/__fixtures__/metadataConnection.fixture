@@ -137,7 +137,6 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: 'q04Rl2BK',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

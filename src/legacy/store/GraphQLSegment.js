@@ -12,7 +12,7 @@
 
 'use strict';
 
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayRecord = require('RelayRecord');
 
 /**
  * Represents one contiguous segment of edges within a `GraphQLRange`. Has
@@ -245,6 +245,19 @@ class GraphQLSegment {
    * @param {number} index
    */
   _addEdgeAtIndex(edge, index) {
+    var edgeID = RelayRecord.getDataID(edge);
+    var cursor = edge.cursor;
+
+    var idIndex = this._getIndexForID(edgeID);
+    // If the id is has an index and is not deleted
+    if (idIndex !== undefined && this._getEdgeAtIndex(idIndex)) {
+      console.warn(
+        'Attempted to add an ID already in GraphQLSegment: %s',
+        edgeID
+      );
+      return;
+    }
+
     if (this.getLength() === 0) {
       this._minIndex = index;
       this._maxIndex = index;
@@ -258,18 +271,6 @@ class GraphQLSegment {
         `(${this._minIndex}, ${this._maxIndex})`
       );
 
-      return;
-    }
-    var edgeID = GraphQLStoreDataHandler.getID(edge);
-    var cursor = edge.cursor;
-
-    var idIndex = this._getIndexForID(edgeID);
-    // If the id is has an index and is not deleted
-    if (idIndex !== undefined && this._getEdgeAtIndex(idIndex)) {
-      console.warn(
-        'Attempted to add an ID already in GraphQLSegment: %s',
-        edgeID
-      );
       return;
     }
 

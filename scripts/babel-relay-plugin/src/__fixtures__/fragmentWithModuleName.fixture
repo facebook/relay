@@ -25,7 +25,6 @@ var x = (function () {
       },
       type: 'String'
     }],
-    hash: 'PvZb2X9S',
     kind: 'Fragment',
     metadata: {
       isAbstract: true
@@ -52,7 +51,6 @@ var y = (function () {
       },
       type: 'String'
     }],
-    hash: 'wcbudXsA',
     kind: 'Fragment',
     metadata: {
       isAbstract: true

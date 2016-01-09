@@ -74,7 +74,6 @@ var x = (function (RQL_0, RQL_1, RQL_2, RQL_3, RQL_4, RQL_5, RQL_6, RQL_7, RQL_8
         },
         type: 'String'
       }],
-      hash: 'JYt0H43a',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

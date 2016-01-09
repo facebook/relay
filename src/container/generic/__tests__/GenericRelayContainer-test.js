@@ -25,7 +25,6 @@ const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 
 
 describe('GenericRelayContainer', () => {
-  var MockComponent;
   var MockContainer;
 
   var mockBarFragment;

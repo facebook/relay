@@ -13,7 +13,6 @@
 
 'use strict';
 
-//
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
@@ -29,6 +28,7 @@ import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {RelayQLFragmentBuilder, RelayQLQueryBuilder} from 'buildRQL';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 
+
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const RelayRecord = require('RelayRecord');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
@@ -43,6 +43,9 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
+const testModule = require('testModule');
+const createQuerySetAndFragmentPointers = require('createQuerySetAndFragmentPointers');
+
 
 var storeData = RelayStoreData.getDefaultInstance();
 
@@ -51,12 +54,12 @@ type PropsIncludingRoute = {
   route: RelayQueryConfigSpec
 }
 
-
 function createContainerComponent(
   componentName: string,
   spec: RelayContainerSpec
 ): any {
   var containerName = 'Relay(' + componentName + ')';
+  console.log('HALLO' + testModule());
 
   var fragments = spec.fragments;
   var fragmentNames = Object.keys(fragments);
@@ -167,54 +170,6 @@ function createContainerComponent(
     }
 
 
-    _createQuerySetAndFragmentPointers(variables: Variables): {
-      fragmentPointers: {[key: string]: ?GraphQLFragmentPointer},
-      querySet: RelayQuerySet,
-    } {
-      var fragmentPointers = {};
-      var querySet = {};
-      fragmentNames.forEach(fragmentName => {
-        var fragment = getFragment(fragmentName, this.route, variables);
-        var queryData = this.queryData[fragmentName];
-        if (!fragment || queryData == null) {
-          return;
-        }
-
-        var fragmentPointer;
-        if (fragment.isPlural()) {
-          invariant(
-            Array.isArray(queryData),
-            'GenericRelayContainer: Invalid queryData for `%s`, expected an array ' +
-            'of records because the corresponding fragment is plural.',
-            fragmentName
-          );
-          var dataIDs = [];
-          queryData.forEach((data, ii) => {
-            var dataID = RelayRecord.getDataID(data);
-            if (dataID) {
-              querySet[fragmentName + ii] =
-                storeData.buildFragmentQueryForDataID(fragment, dataID);
-              dataIDs.push(dataID);
-            }
-          });
-          if (dataIDs.length) {
-            fragmentPointer = new GraphQLFragmentPointer(dataIDs, fragment);
-          }
-        } else {
-          /* $FlowFixMe(>=0.19.0) - queryData is mixed but getID expects Object
-           */
-          var dataID = RelayRecord.getDataID(queryData);
-          if (dataID) {
-            fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
-            querySet[fragmentName] =
-              storeData.buildFragmentQueryForDataID(fragment, dataID);
-          }
-        }
-
-        fragmentPointers[fragmentName] = fragmentPointer;
-      });
-      return {fragmentPointers, querySet};
-    }
 
     _runVariables(
       partialVariables: ?Variables,
@@ -233,7 +188,13 @@ function createContainerComponent(
       var fragmentPointers = null;
       if (forceFetch || !shallowEqual(nextVariables, lastVariables)) {
         ({querySet, fragmentPointers} =
-          this._createQuerySetAndFragmentPointers(nextVariables));
+          createQuerySetAndFragmentPointers(
+          containerName,
+          storeData,
+          this.variables,
+          this.route,
+          spec,
+          this.queryData));
       }
 
       const onReadyStateChange = readyState => {

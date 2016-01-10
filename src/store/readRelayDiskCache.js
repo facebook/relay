@@ -14,6 +14,7 @@
 'use strict';
 
 const RelayChangeTracker = require('RelayChangeTracker');
+import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {
   DataID,
   Records,
@@ -48,6 +49,7 @@ function readRelayDiskCache(
   store: RelayRecordStore,
   cachedRecords: Records,
   cachedRootCallMap: RootCallMap,
+  garbageCollector: ?RelayGarbageCollector,
   cacheManager: CacheManager,
   changeTracker: RelayChangeTracker,
   callbacks: CacheReadCallbacks
@@ -56,6 +58,7 @@ function readRelayDiskCache(
     store,
     cachedRecords,
     cachedRootCallMap,
+    garbageCollector,
     cacheManager,
     changeTracker,
     callbacks
@@ -71,6 +74,7 @@ class RelayCacheReader {
   _cacheManager: CacheManager;
   _callbacks: CacheReadCallbacks;
   _changeTracker: RelayChangeTracker;
+  _garbageCollector: ?RelayGarbageCollector;
   _hasFailed: boolean;
   _pendingNodes: PendingNodes;
   _pendingRoots: PendingRoots;
@@ -79,6 +83,7 @@ class RelayCacheReader {
     store: RelayRecordStore,
     cachedRecords: Records,
     cachedRootCallMap: RootCallMap,
+    garbageCollector: ?RelayGarbageCollector,
     cacheManager: CacheManager,
     changeTracker: RelayChangeTracker,
     callbacks: CacheReadCallbacks,
@@ -89,6 +94,7 @@ class RelayCacheReader {
     this._cacheManager = cacheManager;
     this._callbacks = callbacks;
     this._changeTracker = changeTracker;
+    this._garbageCollector = garbageCollector;
 
     this._hasFailed = false;
     this._pendingNodes = {};
@@ -244,6 +250,11 @@ class RelayCacheReader {
           // updated since no additional data can be read about a deleted node.
           const recordState = this._store.getRecordState(dataID);
           if (recordState === 'UNKNOWN' && value !== undefined) {
+            // Register immediately in case anything tries to read and subscribe
+            // to this record (which means incrementing reference counts).
+            if (this._garbageCollector) {
+              this._garbageCollector.register(dataID);
+            }
             // Mark as created if the store did not have a value but disk cache
             // did (either a known value or known deletion).
             this._changeTracker.createID(dataID);

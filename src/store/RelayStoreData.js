@@ -241,6 +241,7 @@ class RelayStoreData {
       this._queuedStore,
       this._cachedRecords,
       this._cachedRootCallMap,
+      this._garbageCollector,
       cacheManager,
       changeTracker,
       {

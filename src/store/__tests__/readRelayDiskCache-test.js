@@ -16,6 +16,7 @@ require('configureForRelayOSS');
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayChangeTracker = require('RelayChangeTracker');
+const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
@@ -25,14 +26,15 @@ const readRelayDiskCache = require('readRelayDiskCache');
 describe('readRelayDiskCache', () => {
   var {getNode} = RelayTestUtils;
 
-  function readDiskCache(
-    queries,
-    diskCacheData,
-    records,
+  function readDiskCache({
     cachedRecords,
-    rootCallMap,
     cachedRootCallMap,
-  ) {
+    diskCacheData,
+    garbageCollector,
+    queries,
+    records,
+    rootCallMap,
+  }) {
     cachedRecords = cachedRecords || {};
     cachedRootCallMap = cachedRootCallMap || {};
     diskCacheData = diskCacheData || {};
@@ -76,6 +78,7 @@ describe('readRelayDiskCache', () => {
       store,
       cachedRecords,
       cachedRootCallMap,
+      garbageCollector,
       cacheManager,
       changeTracker,
       callbacks
@@ -97,7 +100,7 @@ describe('readRelayDiskCache', () => {
         query {username(name:"yuzhi") {id}}
       `),
     };
-    var {cacheManager} = readDiskCache(queries);
+    var {cacheManager} = readDiskCache({queries});
 
     var mockReadRoot = cacheManager.readRootCall.mock;
     expect(mockReadRoot.calls.length).toBe(1);
@@ -110,7 +113,7 @@ describe('readRelayDiskCache', () => {
         query {node(id:"1055790163") {id}}
       `),
     };
-    var {cacheManager} = readDiskCache(queries);
+    var {cacheManager} = readDiskCache({queries});
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
   });
@@ -121,7 +124,7 @@ describe('readRelayDiskCache', () => {
         query {username(name:"yuzhi") {id}}
       `),
     };
-    var {cacheManager, callbacks} = readDiskCache(queries);
+    var {cacheManager, callbacks} = readDiskCache({queries});
 
     var mockReadRoot = cacheManager.readRootCall.mock;
     expect(mockReadRoot.calls.length).toBe(1);
@@ -140,7 +143,7 @@ describe('readRelayDiskCache', () => {
         query {username(name:"yuzhi") {id}}
       `),
     };
-    var diskData = {
+    var diskCacheData = {
       'username*yuzhi': '1055790163',
       '1055790163': {
         __dataID__: '1055790163',
@@ -150,7 +153,7 @@ describe('readRelayDiskCache', () => {
     };
 
     var {cacheManager, callbacks, changeTracker, store} =
-      readDiskCache(queries, diskData);
+      readDiskCache({queries, diskCacheData});
 
     var mockReadRoot = cacheManager.readRootCall.mock;
     expect(mockReadRoot.calls.length).toBe(1);
@@ -191,13 +194,8 @@ describe('readRelayDiskCache', () => {
     };
     var rootCallMap = {username: {yuzhi: '1055790163'}};
 
-    var {cacheManager, callbacks, changeTracker, store} = readDiskCache(
-      queries,
-      undefined,
-      records,
-      undefined,
-      rootCallMap
-    );
+    var {cacheManager, callbacks, changeTracker, store} =
+      readDiskCache({queries, records, rootCallMap});
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(0);
@@ -228,14 +226,8 @@ describe('readRelayDiskCache', () => {
     };
     var cachedRootCallMap = {username: {yuzhi: '1055790163'}};
 
-    var {cacheManager, callbacks, changeTracker, store} = readDiskCache(
-      queries,
-      undefined,
-      undefined,
-      cachedRecords,
-      undefined,
-      cachedRootCallMap
-    );
+    var {cacheManager, callbacks, changeTracker, store} =
+      readDiskCache({queries, cachedRecords, cachedRootCallMap});
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(0);
@@ -257,7 +249,7 @@ describe('readRelayDiskCache', () => {
         query {node(id:"1055790163") {id}}
       `),
     };
-    var {cacheManager, callbacks} = readDiskCache(queries);
+    var {cacheManager, callbacks} = readDiskCache({queries});
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -276,7 +268,7 @@ describe('readRelayDiskCache', () => {
     };
 
     // Missing `name`
-    var diskData = {
+    var diskCacheData = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
@@ -285,7 +277,7 @@ describe('readRelayDiskCache', () => {
     };
 
     var {cacheManager, callbacks, changeTracker, store} =
-      readDiskCache(queries, diskData);
+      readDiskCache({queries, diskCacheData});
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -317,7 +309,7 @@ describe('readRelayDiskCache', () => {
     };
 
     // Missing `hometownid`
-    var diskData = {
+    var diskCacheData = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
@@ -327,7 +319,7 @@ describe('readRelayDiskCache', () => {
     };
 
     var {cacheManager, callbacks, changeTracker, store} =
-      readDiskCache(queries, diskData);
+      readDiskCache({queries, diskCacheData});
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -365,7 +357,7 @@ describe('readRelayDiskCache', () => {
     };
 
     // Missing `sn2`
-    var diskData = {
+    var diskCacheData = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
@@ -379,7 +371,7 @@ describe('readRelayDiskCache', () => {
     };
 
     var {cacheManager, callbacks, changeTracker, store} =
-      readDiskCache(queries, diskData);
+      readDiskCache({queries, diskCacheData});
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -434,7 +426,7 @@ describe('readRelayDiskCache', () => {
     };
 
     // Missing `__range__`
-    var diskData = {
+    var diskCacheData = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
@@ -448,7 +440,7 @@ describe('readRelayDiskCache', () => {
     };
 
     var {cacheManager, callbacks, changeTracker, store} =
-      readDiskCache(queries, diskData);
+      readDiskCache({queries, diskCacheData});
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -500,7 +492,7 @@ describe('readRelayDiskCache', () => {
       `),
     };
 
-    var diskData = {
+    var diskCacheData = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
@@ -513,13 +505,14 @@ describe('readRelayDiskCache', () => {
       },
     };
 
-    diskData.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: [],
-      diffCalls: [RelayTestUtils.createCall('first', 5)],
-      pageInfo: {},
-    });
+    diskCacheData.friends_id.__range__.retrieveRangeInfoForQuery
+      .mockReturnValue({
+        requestedEdgeIDs: [],
+        diffCalls: [RelayTestUtils.createCall('first', 5)],
+        pageInfo: {},
+      });
     var {cacheManager, callbacks, changeTracker, store} =
-      readDiskCache(queries, diskData);
+      readDiskCache({queries, diskCacheData});
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -572,7 +565,7 @@ describe('readRelayDiskCache', () => {
     };
 
     // Missing `edge_id`
-    var diskData = {
+    var diskCacheData = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
@@ -585,13 +578,14 @@ describe('readRelayDiskCache', () => {
       },
     };
 
-    diskData.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: ['edge_id'],
-      diffCalls: [],
-      pageInfo: {},
-    });
+    diskCacheData.friends_id.__range__.retrieveRangeInfoForQuery
+      .mockReturnValue({
+        requestedEdgeIDs: ['edge_id'],
+        diffCalls: [],
+        pageInfo: {},
+      });
     var {cacheManager, callbacks, changeTracker, store} =
-      readDiskCache(queries, diskData);
+      readDiskCache({queries, diskCacheData});
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -649,7 +643,7 @@ describe('readRelayDiskCache', () => {
       `),
     };
 
-    var diskData = {
+    var diskCacheData = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
@@ -677,10 +671,10 @@ describe('readRelayDiskCache', () => {
       diffCalls: [],
       pageInfo: {},
     };
-    diskData['client:friends_id'].__range__.retrieveRangeInfoForQuery
+    diskCacheData['client:friends_id'].__range__.retrieveRangeInfoForQuery
       .mockReturnValue(rangeInfo);
     var {cacheManager, callbacks, changeTracker, store} =
-      readDiskCache(queries, diskData);
+      readDiskCache({queries, diskCacheData});
 
     expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -760,14 +754,14 @@ describe('readRelayDiskCache', () => {
         }
       `),
     };
-    var nodeData = {
+    var records = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
         __typename: 'User',
       },
     };
-    var diskData = {
+    var diskCacheData = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
@@ -780,7 +774,7 @@ describe('readRelayDiskCache', () => {
       },
     };
     var {callbacks, changeTracker, store} =
-      readDiskCache(queries, diskData, nodeData);
+      readDiskCache({queries, diskCacheData, records});
 
     jest.runAllTimers();
 
@@ -819,14 +813,14 @@ describe('readRelayDiskCache', () => {
         }
       `),
     };
-    var nodeData = {
+    var records = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
         __typename: 'User',
       },
     };
-    var diskData = {
+    var diskCacheData = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
@@ -837,7 +831,7 @@ describe('readRelayDiskCache', () => {
       'sn2': undefined,
     };
     var {callbacks, changeTracker, store} =
-      readDiskCache(queries, diskData, nodeData);
+      readDiskCache({queries, diskCacheData, records});
 
     jest.runAllTimers();
 
@@ -872,7 +866,7 @@ describe('readRelayDiskCache', () => {
         }
       `),
     };
-    var nodeData = {
+    var records = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
@@ -881,7 +875,7 @@ describe('readRelayDiskCache', () => {
       // linked from the above in diskCache only
       'sn1': null,
     };
-    var diskData = {
+    var diskCacheData = {
       '1055790163': {
         __dataID__: '1055790163',
         id: '1055790163',
@@ -894,7 +888,7 @@ describe('readRelayDiskCache', () => {
       },
     };
     var {callbacks, changeTracker, store} =
-      readDiskCache(queries, diskData, nodeData);
+      readDiskCache({queries, diskCacheData, records});
 
     jest.runAllTimers();
 
@@ -909,5 +903,34 @@ describe('readRelayDiskCache', () => {
         '1055790163': true,
       },
     });
+  });
+
+  it('registers new records with the garbage collector', () => {
+    const garbageCollector = new RelayGarbageCollector();
+    RelayGarbageCollector.prototype.register = jest.genMockFunction();
+    const queries = {
+      q0: getNode(Relay.QL`
+        query {
+          node(id: "123") {
+            id
+          }
+        }
+      `),
+    };
+    const records = {
+    };
+    const diskCacheData = {
+      '123': {
+        __dataID__: '123',
+        __typename: 'User',
+        id: '123',
+      },
+    };
+    readDiskCache({diskCacheData, garbageCollector, queries, records});
+
+    jest.runAllTimers();
+
+    expect(garbageCollector.register.mock.calls.length).toBe(1);
+    expect(garbageCollector.register.mock.calls[0][0]).toBe('123');
   });
 });

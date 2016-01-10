@@ -43,7 +43,6 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
-const testModule = require('testModule');
 const createQuerySetAndFragmentPointers = require('createQuerySetAndFragmentPointers');
 
 
@@ -59,7 +58,6 @@ function createContainerComponent(
   spec: RelayContainerSpec
 ): any {
   var containerName = 'Relay(' + componentName + ')';
-  console.log('HALLO' + testModule());
 
   var fragments = spec.fragments;
   var fragmentNames = Object.keys(fragments);

@@ -19,7 +19,7 @@
     "react": "^0.14.0",
     "react-dom": "^0.14.0",
     "react-relay": "file:../../",
-    "react-router": "^1.0.0",
+    "react-router": "1.0.0",
     "react-router-relay": "^0.8.0",
     "todomvc-app-css": "^2.0.3",
     "todomvc-common": "^1.0.2",

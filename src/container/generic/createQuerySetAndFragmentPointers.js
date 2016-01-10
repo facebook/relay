@@ -1,4 +1,4 @@
-/*
+/**
 * @providesModule createQuerySetAndFragmentPointers
 * @typechecks
 * @flow
@@ -20,6 +20,7 @@ const RelayStoreData = require('RelayStoreData');
 
 const buildRQL = require('buildRQL');
 const invariant = require('invariant');
+const forEachObject = require('forEachObject');
 
 
 
@@ -39,7 +40,8 @@ function createQuerySetAndFragmentPointers(
 } {
   var fragmentPointers = {};
   var querySet = {};
-  containerSpec.fragments.forEach((fragmentBuilder, fragmentName) => {
+
+  forEachObject(containerSpec.fragments, (fragmentBuilder, fragmentName) => {
     var fragment = createFragmentQueryNode(
       containerName,
       fragmentName,

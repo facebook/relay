@@ -31,15 +31,15 @@ This gets converted into an immediately-invoked function:
 
 ## Usage
 
-The easiest way to get started for now is with the [Relay Starter Kit](https://github.com/facebook/relay-starter-kit) - this includes an example schema file and configures the [`babel-relay-plugin`](https://www.npmjs.com/package/babel-relay-plugin) npm module to transpile queries.
+The easiest way to get started for now is with the [Relay Starter Kit](https://github.com/facebook/relay-starter-kit) - this includes an example schema file and configures the [`babel-plugin-relay`](https://www.npmjs.com/package/babel-plugin-relay) npm module to transpile queries.
 
 ## Advanced Usage
 
-If you're not using the starter kit, you'll have to configure `babel` to use the `babel-relay-plugin`. The steps are as follows:
+If you're not using the starter kit, you'll have to configure `babel` to use the `babel-plugin-relay`. The steps are as follows:
 
 ```javascript
-// `babel-relay-plugin` returns a function for creating plugin instances
-var getBabelRelayPlugin = require('babel-relay-plugin');
+// `babel-plugin-relay` returns a function for creating plugin instances
+var getBabelRelayPlugin = require('babel-plugin-relay');
 
 // load previously saved schema data (see "Schema JSON" below)
 var schemaData = require('schema.json');
@@ -68,7 +68,7 @@ If you're using a different GraphQL server implementation, we recommend adapting
 
 ## Additional Options
 
-By default, `babel-relay-plugin` catches GraphQL validation errors and logs them without exiting. The compiled code will also throw the same errors at runtime, making it obvious that something went wrong whether you're looking at your terminal or browser console.
+By default, `babel-plugin-relay` catches GraphQL validation errors and logs them without exiting. The compiled code will also throw the same errors at runtime, making it obvious that something went wrong whether you're looking at your terminal or browser console.
 
 When compiling code for production deployment, the plugin can be configured to immediately throw upon encountering a validation problem:
 

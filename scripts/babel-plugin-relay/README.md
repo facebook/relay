@@ -1,9 +1,9 @@
-# babel-relay-plugin
+# babel-plugin-relay
 
 ## Installation
 
 ```sh
-cd relay/scripts/babel-relay-plugin
+cd relay/scripts/babel-plugin-relay
 npm install
 ```
 

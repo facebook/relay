@@ -4,5 +4,5 @@ node_js:
 - '4'
 env:
 - TEST_DIR=.
-- TEST_DIR=scripts/babel-relay-plugin
+- TEST_DIR=scripts/babel-plugin-relay
 script: cd $TEST_DIR && npm install && npm test

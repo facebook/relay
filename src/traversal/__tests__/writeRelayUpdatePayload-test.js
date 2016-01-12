@@ -1236,5 +1236,121 @@ describe('writePayload()', () => {
         edgeID,
       ]);
     });
+
+    it('non-optimistically prepends comments without a client mutation ID', () => {
+      // create the mutation and payload
+      var input = {
+        actor_id: 'actor:123',
+        feedback_id: feedbackID,
+        message: {
+          text: 'Hello!',
+          ranges: [],
+        },
+      };
+
+      var mutation = getNode(Relay.QL`
+        mutation {
+          commentCreate(input:$input) {
+            feedback {
+              id,
+              topLevelComments {
+                count,
+              },
+            },
+            feedbackCommentEdge {
+              cursor,
+              node {
+                id,
+                body {
+                  text,
+                },
+              },
+              source {
+                id,
+              },
+            },
+          }
+        }
+      `, {
+        input: JSON.stringify(input),
+      });
+      var configs = [{
+        type: RelayMutationType.RANGE_ADD,
+        connectionName: 'topLevelComments',
+        edgeName: 'feedbackCommentEdge',
+        rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
+      }];
+
+      var nextCursor = 'comment789:cursor';
+      var nextNodeID = 'comment789';
+      var bodyID = 'client:2';
+      var nextEdgeID = generateClientEdgeID(connectionID, nextNodeID);
+      var payload = {
+        feedback: {
+          id: feedbackID,
+          topLevelComments: {
+            count: 2,
+          },
+        },
+        feedbackCommentEdge: {
+          cursor: nextCursor,
+          node: {
+            id: nextNodeID,
+            body: {
+              text: input.message.text,
+            },
+          },
+          source: {
+            id: feedbackID,
+          },
+        },
+      };
+
+      // write to base store
+      var changeTracker = new RelayChangeTracker();
+      var queryTracker = new RelayQueryTracker();
+      var writer = new RelayQueryWriter(
+        store,
+        queryTracker,
+        changeTracker
+      );
+
+      writeRelayUpdatePayload(
+        writer,
+        mutation,
+        payload,
+        {configs, isOptimisticUpdate: false}
+      );
+
+      expect(changeTracker.getChangeSet()).toEqual({
+        created: {
+          [nextNodeID]: true, // node added
+          [nextEdgeID]: true, // edge added
+          [bodyID]: true, // `body` subfield
+        },
+        updated: {
+          [connectionID]: true, // range item added & count changed
+        },
+      });
+
+      // base records are updated: edge/node added
+      expect(store.getField(connectionID, 'count')).toBe(2);
+      expect(store.getLinkedRecordID(nextEdgeID, 'source')).toBe(
+        feedbackID
+      );
+      expect(store.getField(nextEdgeID, 'cursor')).toBe(nextCursor);
+      expect(store.getLinkedRecordID(nextEdgeID, 'node')).toBe(nextNodeID);
+      expect(store.getField(nextNodeID, 'id')).toBe(nextNodeID);
+      expect(store.getType(nextNodeID)).toBe('Comment');
+      expect(store.getLinkedRecordID(nextNodeID, 'body')).toBe(bodyID);
+      expect(store.getField(bodyID, 'text')).toBe(input.message.text);
+      expect(store.getRangeMetadata(
+        connectionID,
+        [{name: 'first', value: '2'}]
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([
+        nextEdgeID,
+        edgeID,
+      ]);
+    });
   });
 });

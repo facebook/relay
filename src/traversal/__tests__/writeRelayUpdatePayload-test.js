@@ -1041,7 +1041,7 @@ describe('writePayload()', () => {
           node: {
             id: nextNodeID,
             body: {
-              text: input.message.text,
+              text: messageText,
             },
           },
           source: {
@@ -1219,7 +1219,7 @@ describe('writePayload()', () => {
       expect(store.getField(nextNodeID, 'id')).toBe(nextNodeID);
       expect(store.getType(nextNodeID)).toBe('Comment');
       expect(store.getLinkedRecordID(nextNodeID, 'body')).toBe(bodyID);
-      expect(store.getField(bodyID, 'text')).toBe(input.message.text);
+      expect(store.getField(bodyID, 'text')).toBe(messageText);
       expect(store.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '2'}]
@@ -1229,19 +1229,15 @@ describe('writePayload()', () => {
       ]);
     });
 
-    it('non-optimistically prepends comments without a client mutation ID', () => {
-      // create the mutation and payload
+    it('non-optimistically prepends comments for subscriptions', () => {
+      // create the subscription and payload
       var input = {
-        actor_id: 'actor:123',
-        feedback_id: feedbackID,
-        message: {
-          text: 'Hello!',
-          ranges: [],
-        },
+        feedbackId: feedbackID,
+        [RelayConnectionInterface.CLIENT_SUBSCRIPTION_ID]: '0',
       };
 
       var mutation = getNode(Relay.QL`
-        mutation {
+        subscription {
           commentCreate(input:$input) {
             feedback {
               id,
@@ -1273,11 +1269,14 @@ describe('writePayload()', () => {
         rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
       }];
 
+      var messageText = 'Hello!';
       var nextCursor = 'comment789:cursor';
       var nextNodeID = 'comment789';
       var bodyID = 'client:2';
       var nextEdgeID = generateClientEdgeID(connectionID, nextNodeID);
       var payload = {
+        [RelayConnectionInterface.CLIENT_SUBSCRIPTION_ID]:
+          input[RelayConnectionInterface.CLIENT_SUBSCRIPTION_ID],
         feedback: {
           id: feedbackID,
           topLevelComments: {

@@ -20,7 +20,7 @@ try {
 
   var body = fs.readFileSync(inFile, 'utf8');
   var ast = parse(body);
-  var astSchema = buildASTSchema(ast, 'Root', 'Mutation');
+  var astSchema = buildASTSchema(ast, 'Root', 'Mutation', 'Subscription');
   graphql(astSchema, introspectionQuery).then(
     function(result) {
       var out = JSON.stringify(result, null, 2);

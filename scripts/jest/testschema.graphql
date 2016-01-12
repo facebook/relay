@@ -24,6 +24,10 @@ type Mutation {
   viewerNotificationsUpdateAllSeenState(input: UpdateAllSeenStateInput): ViewerNotificationsUpdateAllSeenStateResponsePayload
 }
 
+type Subscription {
+  commentCreate(input: CommentCreateSubscriptionInput): CommentCreateSubscriptionResponsePayload
+}
+
 input ActorSubscribeInput {
   clientMutationId: String
   subscribeeId: ID
@@ -36,6 +40,11 @@ input ApplicationRequestDeleteAllInput {
 
 input CommentCreateInput {
   clientMutationId: String
+  feedbackId: ID
+}
+
+input CommentCreateSubscriptionInput {
+  clientSubscriptionId: String,
   feedbackId: ID
 }
 
@@ -117,6 +126,13 @@ type Comment implements Node {
 
 type CommentCreateResponsePayload {
   clientMutationId: String
+  comment: Comment
+  feedback: Feedback
+  feedbackCommentEdge: CommentsEdge
+}
+
+type CommentCreateSubscriptionResponsePayload {
+  clientSubscriptionId: String
   comment: Comment
   feedback: Feedback
   feedbackCommentEdge: CommentsEdge

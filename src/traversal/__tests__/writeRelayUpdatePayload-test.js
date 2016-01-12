@@ -1201,7 +1201,7 @@ describe('writePayload()', () => {
 
       writeRelayUpdatePayload(
         writer,
-        mutation,
+        subscription,
         payload,
         {configs, isOptimisticUpdate: false}
       );
@@ -1244,7 +1244,7 @@ describe('writePayload()', () => {
         [RelayConnectionInterface.CLIENT_SUBSCRIPTION_ID]: '0',
       };
 
-      var mutation = getNode(Relay.QL`
+      var subscription = getNode(Relay.QL`
         subscription {
           commentCreate(input:$input) {
             feedback {

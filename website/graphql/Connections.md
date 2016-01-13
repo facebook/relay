@@ -244,7 +244,7 @@ allow the client to slice the set of edges before it is returned.
 
 To enable forward pagination, two arguments are required.
 
- - `first` takes an positive integer.
+ - `first` takes a positive integer.
  - `after` takes the *cursor type* as described in the `cursor` field section.
 
 The server should use those two arguments to modify the edges returned by
@@ -255,7 +255,7 @@ most `first` edges.
 
 To enable backward pagination, two arguments are required.
 
- - `last` takes an positive integer.
+ - `last` takes a positive integer.
  - `before` takes the *cursor type* as described in the `cursor` field section.
 
 The server should use those two arguments to modify the edges returned by

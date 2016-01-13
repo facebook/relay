@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule readRelayDiskCache
+ * @providesModule RelayDiskCacheReader
  * @flow
  * @typechecks
  */
@@ -42,30 +42,54 @@ type PendingRoots = {[key: string]: Array<RelayQuery.Root>};
 /**
  * @internal
  *
- * Retrieves data for a query from disk into `cachedRecords` in RelayStore.
+ * Retrieves data for queries or fragments from disk into `cachedRecords`.
  */
-function readRelayDiskCache(
-  queries: RelayQuerySet,
-  store: RelayRecordStore,
-  cachedRecords: Records,
-  cachedRootCallMap: RootCallMap,
-  garbageCollector: ?RelayGarbageCollector,
-  cacheManager: CacheManager,
-  changeTracker: RelayChangeTracker,
-  callbacks: CacheReadCallbacks
-): void {
-  var reader = new RelayCacheReader(
-    store,
-    cachedRecords,
-    cachedRootCallMap,
-    garbageCollector,
-    cacheManager,
-    changeTracker,
-    callbacks
-  );
-
-  reader.read(queries);
-}
+const RelayDiskCacheReader = {
+  readFragment(
+    dataID: DataID,
+    fragment: RelayQuery.Fragment,
+    path: RelayQueryPath,
+    store: RelayRecordStore,
+    cachedRecords: Records,
+    cachedRootCallMap: RootCallMap,
+    garbageCollector: ?RelayGarbageCollector,
+    cacheManager: CacheManager,
+    changeTracker: RelayChangeTracker,
+    callbacks: CacheReadCallbacks,
+  ) {
+    var reader = new RelayCacheReader(
+      store,
+      cachedRecords,
+      cachedRootCallMap,
+      garbageCollector,
+      cacheManager,
+      changeTracker,
+      callbacks
+    );
+    reader.readFragment(dataID, fragment, path);
+  },
+  readQueries(
+    queries: RelayQuerySet,
+    store: RelayRecordStore,
+    cachedRecords: Records,
+    cachedRootCallMap: RootCallMap,
+    garbageCollector: ?RelayGarbageCollector,
+    cacheManager: CacheManager,
+    changeTracker: RelayChangeTracker,
+    callbacks: CacheReadCallbacks,
+  ) {
+    var reader = new RelayCacheReader(
+      store,
+      cachedRecords,
+      cachedRootCallMap,
+      garbageCollector,
+      cacheManager,
+      changeTracker,
+      callbacks
+    );
+    reader.read(queries);
+  },
+};
 
 class RelayCacheReader {
   _store: RelayRecordStore;
@@ -117,6 +141,25 @@ class RelayCacheReader {
         });
       }
     });
+
+    if (this._isDone()) {
+      this._callbacks.onSuccess && this._callbacks.onSuccess();
+    }
+  }
+
+  readFragment(
+    dataID: DataID,
+    fragment: RelayQuery.Fragment,
+    path: RelayQueryPath
+  ): void {
+    this._visitNode(
+      dataID,
+      {
+        node: fragment,
+        path,
+        rangeCalls: undefined,
+      }
+    );
 
     if (this._isDone()) {
       this._callbacks.onSuccess && this._callbacks.onSuccess();
@@ -305,4 +348,4 @@ class RelayCacheReader {
 
 }
 
-module.exports = readRelayDiskCache;
+module.exports = RelayDiskCacheReader;

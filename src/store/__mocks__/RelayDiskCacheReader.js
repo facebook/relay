@@ -9,6 +9,4 @@
 
 'use strict';
 
-module.exports = jest.genMockFunction().mockImplementation(
-  require.requireActual('readRelayDiskCache')
-);
+module.exports = require.requireActual('RelayDiskCacheReader');

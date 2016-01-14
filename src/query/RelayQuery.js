@@ -31,6 +31,7 @@ const RelayFragmentReference = require('RelayFragmentReference');
 import type {Call, Directive}  from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayProfiler = require('RelayProfiler');
+import type RelayQueryIndexPath from 'RelayQueryIndexPath';
 const RelayRouteFragment = require('RelayRouteFragment');
 import type {Variables} from 'RelayTypes';
 
@@ -1099,30 +1100,15 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   /**
-   * The name for the field when serializing the query or interpreting query
-   * responses from the server. The serialization key is derived from
-   * all calls/values and hashed for compactness.
-   *
-   * Given the GraphQL
-   *   `field(first: 10, foo: "bar", baz: "bat")`, or
-   *   `field(baz: "bat", foo: "bar", first: 10)`
-   *
-   * ...the following serialization key will be produced:
-   *   `generateRQLFieldAlias('field.bar(bat).first(10).foo(bar)')`
+   * Name used when printing the field to send to the server, or interpreting
+   * the server response.
    */
-  getSerializationKey(): string {
-    let serializationKey = this.__serializationKey__;
-    if (!serializationKey) {
-      serializationKey = generateRQLFieldAlias(
-        this.getSchemaName() +
-        this.getCallsWithValues()
-          .map(serializeRelayQueryCall)
-          .sort()
-          .join('')
-      );
-      this.__serializationKey__ = serializationKey;
+  getSerializationKey(indexPath: RelayQueryIndexPath): string {
+    const concreteCalls = (this.__concreteNode__: ConcreteField).calls;
+    if (concreteCalls && concreteCalls.length) {
+      return '_' + indexPath.getSerializationKey();
     }
-    return serializationKey;
+    return this.getSchemaName();
   }
 
   /**

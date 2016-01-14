@@ -18,7 +18,6 @@ const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 const flattenRelayQuery = require('flattenRelayQuery');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 
 describe('splitDeferredRelayQueries()', () => {
@@ -748,7 +747,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred[0].deferred).toEqual([]);
   });
 
-  it('uses the auto-generated alias in ref query paths', () => {
+  it('uses serialization keys in ref query paths', () => {
     var fragment = Relay.QL`fragment on User{firstName}`;
     var node = Relay.QL`
       query {
@@ -787,7 +786,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(required.getID()).toBe('q1');
 
     // deferred part
-    var alias = generateRQLFieldAlias('friends.first(5)');
+    const serializationKey = '_00'; // friends
     expect(deferred.length).toBe(1);
     expect(deferred[0].required.getName()).toBe(
       queryNode.getName()
@@ -801,7 +800,7 @@ describe('splitDeferredRelayQueries()', () => {
             }
           }
         `,
-        {path: '$.*.' + alias + '.edges.*.node.id'}
+        {path: `$.*.${serializationKey}.edges.*.node.id`}
       )
     ));
     expect(deferred[0].required.getID()).toBe('q2');
@@ -848,7 +847,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(required.getID()).toBe('q1');
 
     // deferred part
-    var alias = generateRQLFieldAlias('friends.first(5)');
+    const serializationKey = '_00'; // friends
     expect(deferred.length).toBe(1);
     expect(deferred[0].required.getName()).toBe(
       queryNode.getName()
@@ -862,7 +861,7 @@ describe('splitDeferredRelayQueries()', () => {
             }
           }
         `,
-        {path: '$.*.' + alias + '.edges.*.node.id'}
+        {path: `$.*.${serializationKey}.edges.*.node.id`}
       )
     ));
     expect(deferred[0].required.getID()).toBe('q2');

@@ -19,7 +19,6 @@ const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const printRelayOSSQuery = require('printRelayOSSQuery');
 
 describe('printRelayOSSQuery', () => {
@@ -344,15 +343,13 @@ describe('printRelayOSSQuery', () => {
           ...F1
         }
         fragment F0 on User {
-          ${generateRQLFieldAlias('profilePicture.size(32,32)')}:
-              profilePicture(size: [32, 32]) {
+          _00: profilePicture(size: [32, 32]) {
             uri
           },
           id
         }
         fragment F1 on User {
-          ${generateRQLFieldAlias('profilePicture.size(64,64)')}:
-              profilePicture(size: [64, 64]) {
+          _10: profilePicture(size: [64, 64]) {
             uri
           },
           id
@@ -450,7 +447,6 @@ describe('printRelayOSSQuery', () => {
 
   describe('fields', () => {
     it('prints a field with one argument', () => {
-      const alias = generateRQLFieldAlias('newsFeed.first(10)');
       const fragment = getNode(Relay.QL`
         fragment on Viewer {
           newsFeed(first:$first) {
@@ -465,7 +461,7 @@ describe('printRelayOSSQuery', () => {
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Viewer {
-          ${alias}:newsFeed(first:10) {
+          _0:newsFeed(first:10) {
             edges {
               node {
                 id,
@@ -484,7 +480,6 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints a field with multiple arguments', () => {
-      const alias = generateRQLFieldAlias('profilePicture.size(32,64)');
       const fragment = getNode(Relay.QL`
         fragment on Actor {
           profilePicture(size:["32","64"]) {
@@ -495,7 +490,7 @@ describe('printRelayOSSQuery', () => {
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Actor {
-          ${alias}:profilePicture(size:["32","64"]) {
+          _0:profilePicture(size:["32","64"]) {
             uri
           },
           id,
@@ -506,7 +501,6 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints a field with multiple variable arguments', () => {
-      const alias = generateRQLFieldAlias('profilePicture.size(32,64)');
       const fragment = getNode(Relay.QL`
         fragment on Actor {
           profilePicture(size:[$width,$height]) {
@@ -520,7 +514,7 @@ describe('printRelayOSSQuery', () => {
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Actor {
-          ${alias}:profilePicture(size:[32,64]) {
+          _0:profilePicture(size:[32,64]) {
             uri
           },
           id,
@@ -550,11 +544,10 @@ describe('printRelayOSSQuery', () => {
         orderby: ['name'],
         isViewerFriend: false,
       });
-      const alias = fragment.getChildren()[0].getSerializationKey();
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQuery on Actor {
-          ${alias}:friends(first:10,orderby:["name"],isViewerFriend:false) {
+          _0:friends(first:10,orderby:["name"],isViewerFriend:false) {
             edges {
               node {
                 id
@@ -589,7 +582,6 @@ describe('printRelayOSSQuery', () => {
       `, {
         env: enumValue,
       });
-      const alias = generateRQLFieldAlias('notifications.environment(WEB)');
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query PrintRelayOSSQuery($environment_0:Environment) {
@@ -598,7 +590,7 @@ describe('printRelayOSSQuery', () => {
           }
         }
         fragment F0 on Settings {
-          ${alias}:notifications(environment:$environment_0)
+          _00:notifications(environment:$environment_0)
         }
       `);
       expect(variables).toEqual({
@@ -659,7 +651,6 @@ describe('printRelayOSSQuery', () => {
       }
     `, {input: inputValue});
 
-    const alias = generateRQLFieldAlias('profilePicture.preset(SMALL)');
     const {text, variables} = printRelayOSSQuery(mutation);
     expect(text).toEqualPrintedQuery(`
       mutation PrintRelayOSSQuery(
@@ -671,7 +662,7 @@ describe('printRelayOSSQuery', () => {
           feedback {
             id,
             actor {
-              ${alias}: profilePicture(preset: $preset_1) {
+              _110: profilePicture(preset: $preset_1) {
                 uri
               },
               id,

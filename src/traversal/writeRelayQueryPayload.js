@@ -16,6 +16,7 @@
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
+const RelayQueryIndexPath = require('RelayQueryIndexPath');
 const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryWriter from 'RelayQueryWriter';
 
@@ -31,11 +32,12 @@ function writeRelayQueryPayload(
   payload: {[key: string]: mixed}
 ): void {
   const store = writer.getRecordStore();
+  const indexPath = new RelayQueryIndexPath();
   const path = new RelayQueryPath(query);
 
   RelayNodeInterface.getResultsFromPayload(store, query, payload)
     .forEach(({dataID, result}) => {
-      writer.writePayload(query, dataID, result, path);
+      writer.writePayload(query, dataID, result, path, indexPath);
     });
 }
 

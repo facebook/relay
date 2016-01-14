@@ -14,6 +14,7 @@
 'use strict';
 
 const RelayQuery = require('RelayQuery');
+const RelayQueryIndexPath = require('RelayQueryIndexPath');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 
 const invariant = require('invariant');
@@ -21,8 +22,9 @@ const mapObject = require('mapObject');
 
 type Payload = mixed;
 type PayloadState = {
-  client: Payload,
-  server: Payload,
+  client: Payload;
+  indexPath: RelayQueryIndexPath;
+  server: Payload;
 };
 
 /**
@@ -69,17 +71,30 @@ function transform(
   var serverData = {};
   transform.visit(root, {
     client: clientData,
+    indexPath: new RelayQueryIndexPath(),
     server: serverData,
   });
   return serverData;
 }
 
 class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
+  traverseChildren(
+    node: RelayQuery.Node,
+    state: PayloadState,
+    callback: (
+      child: RelayQuery.Node,
+      index: number,
+      children: Array<RelayQuery.Node>
+    ) => void
+  ): void {
+    state.indexPath.traverse(node, callback);
+  }
+
   visitField(
     node: RelayQuery.Field,
     state: PayloadState
   ): void {
-    var {client, server} = state;
+    var {client, indexPath, server} = state;
     // `client` represents the *parent* node value and should not be null
     // due to checks before traversing child values.
     invariant(
@@ -93,7 +108,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       node.getApplicationName()
     );
     var applicationName = node.getApplicationName();
-    var serializationKey = node.getSerializationKey();
+    var serializationKey = node.getSerializationKey(indexPath);
     var clientData = client[applicationName];
     var serverData = server[serializationKey];
 
@@ -120,6 +135,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
         }
         this.traverse(node, {
           client: clientItem,
+          indexPath,
           server: serverItem,
         });
       });
@@ -140,6 +156,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       }
       this.traverse(node, {
         client: clientData,
+        indexPath,
         server: serverData,
       });
     }

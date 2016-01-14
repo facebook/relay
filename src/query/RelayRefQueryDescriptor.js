@@ -14,6 +14,7 @@
 'use strict';
 
 import type RelayQuery from 'RelayQuery';
+import type RelayQueryIndexPath from 'RelayQueryIndexPath';
 
 export type NodePath = Array<RelayQuery.Node>;
 
@@ -30,10 +31,16 @@ export type NodePath = Array<RelayQuery.Node>;
 class RelayRefQueryDescriptor {
   node: RelayQuery.Node;
   nodePath: NodePath;
+  indexPath: RelayQueryIndexPath;
 
-  constructor(node: RelayQuery.Node, nodePath: NodePath) {
+  constructor(
+    node: RelayQuery.Node,
+    nodePath: NodePath,
+    indexPath: RelayQueryIndexPath
+  ) {
     this.node = node;
     this.nodePath = nodePath;
+    this.indexPath = indexPath;
   }
 }
 

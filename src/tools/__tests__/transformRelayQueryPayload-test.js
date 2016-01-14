@@ -65,14 +65,14 @@ describe('transformClientPayload()', () => {
       node: {
         __typename: undefined,
         id: '123',
-        [generateRQLFieldAlias('friends.first(1)')]: {
+        _0: {
           count: 1,
           edges: [
             {
               cursor: 'friend:cursor',
               node: {
                 id: 'client:1',
-                [generateRQLFieldAlias('profilePicture.size(32)')]: {
+                _01010: {
                   uri: 'friend.jpg',
                 },
               },
@@ -114,14 +114,14 @@ describe('transformClientPayload()', () => {
       123: {
         __typename: undefined,
         id: '123',
-        [generateRQLFieldAlias('profilePicture.size(32)')]: {
+        _20: {
           uri: '123.jpg',
         },
       },
       456: {
         __typename: undefined,
         id: '456',
-        [generateRQLFieldAlias('profilePicture.size(32)')]: {
+        _20: {
           uri: '456.jpg',
         },
       },
@@ -158,14 +158,14 @@ describe('transformClientPayload()', () => {
       {
         __typename: undefined,
         id: '123',
-        [generateRQLFieldAlias('profilePicture.size(32)')]: {
+        _20: {
           uri: '123.jpg',
         },
       },
       {
         __typename: undefined,
         id: '456',
-        [generateRQLFieldAlias('profilePicture.size(32)')]: {
+        _20: {
           uri: '456.jpg',
         },
       },
@@ -205,14 +205,14 @@ describe('transformClientPayload()', () => {
         {
           __typename: undefined,
           id: '123',
-          [generateRQLFieldAlias('profilePicture.size(32)')]: {
+          _20: {
             uri: '123.jpg',
           },
         },
         {
           __typename: undefined,
           id: '456',
-          [generateRQLFieldAlias('profilePicture.size(32)')]: {
+          _20: {
             uri: '456.jpg',
           },
         },

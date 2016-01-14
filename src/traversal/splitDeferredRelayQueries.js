@@ -17,6 +17,7 @@ const QueryBuilder = require('QueryBuilder');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
+const RelayQueryIndexPath = require('RelayQueryIndexPath');
 const RelayQueryTransform = require('RelayQueryTransform');
 const RelayRefQueryDescriptor = require('RelayRefQueryDescriptor');
 import type {NodePath} from 'RelayRefQueryDescriptor';
@@ -24,6 +25,7 @@ import type {NodePath} from 'RelayRefQueryDescriptor';
 const invariant = require('invariant');
 
 export type SplitQueries = {
+  __indexPath__: RelayQueryIndexPath;
   __nodePath__: NodePath;
   __parent__: ?SplitQueries;
   __refQuery__: ?RelayRefQueryDescriptor;
@@ -39,6 +41,7 @@ export type SplitQueries = {
 function splitDeferredRelayQueries(node: RelayQuery.Root): SplitQueries {
   const splitter = new GraphQLSplitDeferredQueries();
   const splitQueries = {
+    __indexPath__: new RelayQueryIndexPath(),
     __nodePath__: [],
     __parent__: null,
     __refQuery__: null,
@@ -93,7 +96,8 @@ function getRequisiteSiblings(
  */
 function wrapNode(
   node: RelayQuery.Node,
-  nodePath: NodePath
+  nodePath: NodePath,
+  indexPath: RelayQueryIndexPath
 ): (RelayQuery.Node | RelayRefQueryDescriptor) {
   for (let ii = nodePath.length - 1; ii >= 0; ii--) {
     const parent = nodePath[ii];
@@ -102,7 +106,11 @@ function wrapNode(
       parent.getInferredRootCallName()
     ) {
       // We can make a "ref query" at this point, so stop wrapping.
-      return new RelayRefQueryDescriptor(node, nodePath.slice(0, ii + 1));
+      return new RelayRefQueryDescriptor(
+        node,
+        nodePath.slice(0, ii + 1),
+        indexPath
+      );
     }
 
     const siblings = getRequisiteSiblings(node, parent);
@@ -111,6 +119,10 @@ function wrapNode(
     // Cast here because we know that `clone` will never return `null` (because
     // we always give it at least one child).
     node = (parent.clone(children): any);
+
+    if (ii > 0) {
+      indexPath = indexPath.pop();
+    }
   }
   invariant(
     node instanceof RelayQuery.Root,
@@ -189,7 +201,7 @@ function createRefQuery(
   descriptor: RelayRefQueryDescriptor,
   context: RelayQuery.Root
 ): RelayQuery.Root {
-  const node = descriptor.node;
+  const {node, nodePath, indexPath} = descriptor;
   invariant(
     node instanceof RelayQuery.Field ||
     node instanceof RelayQuery.Fragment,
@@ -199,15 +211,15 @@ function createRefQuery(
   // Build up JSONPath.
   const jsonPath = ['$', '*'];
   let parent;
-  for (let ii = 0; ii < descriptor.nodePath.length; ii++) {
-    parent = descriptor.nodePath[ii];
+  indexPath.forEach((indexPath, ii) => {
+    parent = nodePath[ii];
     if (parent instanceof RelayQuery.Field) {
-      jsonPath.push(parent.getSerializationKey());
+      jsonPath.push(parent.getSerializationKey(indexPath));
       if (parent.isPlural()) {
         jsonPath.push('*');
       }
     }
-  }
+  });
   invariant(
     jsonPath.length > 2,
     'splitDeferredRelayQueries(): Ref query requires a complete path.'
@@ -243,6 +255,18 @@ function createRefQuery(
  * of the input query.
  */
 class GraphQLSplitDeferredQueries extends RelayQueryTransform<SplitQueries> {
+  traverseChildren(
+    node: RelayQuery.Node,
+    state: SplitQueries,
+    callback: (
+      child: RelayQuery.Node,
+      index: number,
+      children: Array<RelayQuery.Node>
+    ) => void
+  ): void {
+    state.__indexPath__.traverse(node, callback);
+  }
+
   visitField(
     node: RelayQuery.Field,
     splitQueries: SplitQueries
@@ -283,8 +307,10 @@ class GraphQLSplitDeferredQueries extends RelayQueryTransform<SplitQueries> {
     }
 
     if (node.isDeferred()) {
+      const indexPath = splitQueries.__indexPath__;
       const nodePath = splitQueries.__nodePath__;
       const deferred: SplitQueries = {
+        __indexPath__: indexPath,
         __nodePath__: nodePath,
         __parent__: splitQueries,
         __refQuery__: null,
@@ -293,7 +319,7 @@ class GraphQLSplitDeferredQueries extends RelayQueryTransform<SplitQueries> {
       };
       const result = this.traverse(node, deferred);
       if (result) {
-        const wrapped = wrapNode(result, nodePath);
+        const wrapped = wrapNode(result, nodePath, indexPath.clone());
         if (wrapped instanceof RelayQuery.Root) {
           deferred.required = wrapped;
         } else if (wrapped instanceof RelayRefQueryDescriptor) { // for Flow

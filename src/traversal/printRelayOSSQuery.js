@@ -16,6 +16,7 @@
 import type {PrintedQuery} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
+const RelayQueryIndexPath = require('RelayQueryIndexPath');
 
 const base62 = require('base62');
 const forEachObject = require('forEachObject');
@@ -27,6 +28,7 @@ type PrinterState = {
   fragmentNameByHash: {[fragmentHash: string]: string};
   fragmentNameByText: {[fragmentText: string]: string};
   fragmentTexts: Array<string>;
+  indexPath: RelayQueryIndexPath;
   variableCount: number;
   variableMap: {[variableID: string]: Variable};
 };
@@ -47,6 +49,7 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
     fragmentNameByHash: {},
     fragmentNameByText: {},
     fragmentTexts: [],
+    indexPath: new RelayQueryIndexPath(),
     variableCount: 0,
     variableMap: {},
   };
@@ -212,7 +215,7 @@ function printField(
     'printRelayOSSQuery(): Query must be flattened before printing.'
   );
   const schemaName = node.getSchemaName();
-  const serializationKey = node.getSerializationKey();
+  const serializationKey = node.getSerializationKey(printerState.indexPath);
   const callsWithValues = node.getCallsWithValues();
   let fieldString = schemaName;
   let argStrings = null;
@@ -244,18 +247,18 @@ function printChildren(
 ): string {
   let children;
   let fragments;
-  node.getChildren().forEach(node => {
-    if (node instanceof RelayQuery.Field) {
+  printerState.indexPath.traverse(node, child => {
+    if (child instanceof RelayQuery.Field) {
       children = children || [];
-      children.push(printField(node, printerState));
+      children.push(printField(child, printerState));
     } else {
       invariant(
-        node instanceof RelayQuery.Fragment,
+        child instanceof RelayQuery.Fragment,
         'printRelayOSSQuery(): expected child node to be a `Field` or ' +
         '`Fragment`, got `%s`.',
-        node.constructor.name
+        child.constructor.name
       );
-      const printedFragment = printInlineFragment(node, printerState);
+      const printedFragment = printInlineFragment(child, printerState);
       if (printedFragment &&
           !(fragments && fragments.hasOwnProperty(printedFragment))) {
         fragments = fragments || {};

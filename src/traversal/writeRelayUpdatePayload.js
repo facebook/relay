@@ -25,6 +25,7 @@ const RelayMutationTracker = require('RelayMutationTracker');
 const RelayMutationType = require('RelayMutationType');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
+const RelayQueryIndexPath = require('RelayQueryIndexPath');
 const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryWriter from 'RelayQueryWriter';
 const RelayProfiler = require('RelayProfiler');
@@ -270,13 +271,14 @@ function mergeField(
 
   // write the results for only the current field, for every instance of that
   // field in any subfield/fragment in the query.
+  const indexPath = new RelayQueryIndexPath();
   const handleNode = node => {
-    node.getChildren().forEach(child => {
+    indexPath.traverse(node, child => {
       if (child instanceof RelayQuery.Fragment) {
         handleNode(child);
       } else if (
         child instanceof RelayQuery.Field &&
-        child.getSerializationKey() === fieldName
+        child.getSerializationKey(indexPath) === fieldName
       ) {
         // for flow: types are lost in closures
         if (path && recordID) {
@@ -296,7 +298,8 @@ function mergeField(
             child,
             recordID,
             payloadData,
-            path
+            path,
+            indexPath
           );
         }
       }
@@ -443,8 +446,9 @@ function addRangeNode(
   // write data for all `edges` fields
   // TODO #7167718: more efficient mutation/subscription writes
   let hasEdgeField = false;
+  const indexPath = new RelayQueryIndexPath();
   const handleNode = node => {
-    node.getChildren().forEach(child => {
+    indexPath.traverse(node, child => {
       if (child instanceof RelayQuery.Fragment) {
         handleNode(child);
       } else if (
@@ -457,7 +461,8 @@ function addRangeNode(
             child,
             edgeID,
             edgeData,
-            path
+            path,
+            indexPath
           );
         }
       }

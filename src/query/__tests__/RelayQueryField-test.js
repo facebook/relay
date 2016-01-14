@@ -16,6 +16,7 @@ require('configureForRelayOSS');
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQuery = require('RelayQuery');
+const RelayQueryIndexPath = require('RelayQueryIndexPath');
 const RelayTestUtils = require('RelayTestUtils');
 
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
@@ -381,34 +382,15 @@ describe('RelayQueryField', () => {
   });
 
   describe('getSerializationKey()', () => {
-    it('serializes all calls', () => {
-      expect(friendScalar.getSerializationKey()).toBe(generateRQLFieldAlias(
-        'friends.after(offset).first(10).orderby(name)'
-      ));
+    it('uses the index path for fields with calls', () => {
+      const indexPath = new RelayQueryIndexPath([[0]]);
+      expect(friendScalar.getSerializationKey(indexPath)).toBe('_0');
     });
 
-    it('substitutes variable values', () => {
-      var key = generateRQLFieldAlias('profilePicture.size(32,64)');
-      var pictureScalarRQL = Relay.QL`
-        fragment on User {
-          profilePicture(size:["32","64"])
-        }
-      `;
-      var pictureScalar = getNode(pictureScalarRQL).getChildren()[0];
-      expect(pictureScalar.getSerializationKey()).toBe(key);
-
-      var pictureVariableRQL = Relay.QL`
-        fragment on User {
-          profilePicture(size:[$width,$height])
-        }
-      `;
-      var variables = {
-        height: 64,
-        width: 32,
-      };
-      var pictureVariable =
-        getNode(pictureVariableRQL, variables).getChildren()[0];
-      expect(pictureVariable.getSerializationKey()).toBe(key);
+    it('uses the schema name for fields without calls', () => {
+      const indexPath = new RelayQueryIndexPath([[0]]);
+      expect(pageInfo.getSerializationKey(indexPath))
+        .toBe(RelayConnectionInterface.PAGE_INFO);
     });
   });
 
@@ -601,9 +583,6 @@ describe('RelayQueryField', () => {
     expect(clonedFeed.getCallsWithValues()).toEqual([
       {name: 'first', value: 25},
     ]);
-    expect(clonedFeed.getSerializationKey()).toEqual(
-      generateRQLFieldAlias('friends.first(25)')
-    );
     expect(clonedFeed.getStorageKey()).toEqual('friends');
 
     clonedFeed = friendVariable.cloneFieldWithCalls(

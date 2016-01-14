@@ -585,7 +585,7 @@ function createContainerComponent(
           Object.keys(props).forEach(propName => {
             warning(
               fragmentPointers[propName] ||
-              !props[propName] ||
+              !RelayRecord.isRecord(props[propName]) ||
               !props[propName][fragmentHash],
               'RelayContainer: Expected record data for prop `%s` on `%s`, ' +
               'but it was instead on prop `%s`. Did you misspell a prop or ' +

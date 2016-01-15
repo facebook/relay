@@ -401,7 +401,10 @@ class RelayDiffQueryBuilder {
       };
     }
     if (nextDataID === null) {
-      return null;
+      return {
+        diffNode: null,
+        trackedNode: field,
+      };
     }
 
     return this.traverse(

@@ -70,6 +70,101 @@ describe('diffRelayQuery - fragments', () => {
     expect(diffQueries.length).toBe(0);
   });
 
+  it('tracks fragments for null linked fields', () => {
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var tracker = new RelayQueryTracker();
+
+    var firstQuery = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ... on User {
+            firstName
+            address {
+              country
+            }
+          }
+        }
+      }
+    `);
+    var firstPayload = {
+      node: {
+        id: '123',
+        __typename: 'User',
+        firstName: 'Joe',
+        address: null
+      },
+    };
+    writePayload(store, firstQuery, firstPayload, tracker);
+    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(1);
+    expect(trackedQueries[0][1]).toBe('123');
+    expect(trackedQueries[0][0]).toEqualQueryRoot(getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ... on User {
+            firstName
+            address {
+              country
+            }
+          }
+        }
+      }
+    `))
+
+    // Create a second query that requests different data off of the `address` field
+    var secondQuery = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ... on User {
+            lastName
+            address {
+              city
+            }
+          }
+        }
+      }
+    `);
+
+    // Should only request the missing field `lastName` on User - `address` is null, so no need to fetch
+    var diffQueries = diffRelayQuery(secondQuery, store, tracker);
+    expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ... on User {
+            lastName
+          }
+        }
+      }
+    `));
+
+    // Should track the `address { city }` fragment, though, so we can remember it later
+    var secondPayload = {
+      node: {
+        id: '123',
+        __typename: 'User',
+        lastName: 'Smith',
+      },
+    };
+    writePayload(store, secondQuery, secondPayload, tracker);
+    trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(2);
+    expect(trackedQueries[1][1]).toBe('123');
+    expect(trackedQueries[1][0]).toEqualQueryRoot(getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ... on User {
+            lastName
+            address {
+              city
+            }
+          }
+        }
+      }
+    `))
+    expect(diffQueries.length).toBe(1);
+  });
+
   it('refetches matching fragments with missing fields', () => {
     var records = {};
     var store = new RelayRecordStore({records});

@@ -300,6 +300,50 @@ describe('printRelayOSSQuery', () => {
       expect(variables).toEqual({});
     });
 
+    it('prints fragments with correct serialization keys', () => {
+      const fragmentA = Relay.QL`
+        fragment on User {
+          profilePicture(size: ["32", "32"]) {
+            uri
+          }
+        }
+      `;
+      const fragment = getNode(Relay.QL`
+        fragment on Node {
+          ${fragmentA},
+          ... on User {
+            ${fragmentA}
+          }
+        }
+      `);
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQuery on Node {
+          id,
+          __typename,
+          ...F0,
+          ...F2
+        }
+        fragment F0 on User {
+          _20: profilePicture(size: ["32", "32"]) {
+            uri
+          },
+          id
+        }
+        fragment F1 on User {
+          _310: profilePicture(size: ["32", "32"]) {
+            uri
+          },
+          id
+        }
+        fragment F2 on User {
+          id,
+          ...F1
+        }
+      `);
+      expect(variables).toEqual({});
+    });
+
     it('prints fragments with identical children only once', () => {
       const fragmentA = Relay.QL`fragment on User { name }`;
       const fragmentB = Relay.QL`fragment on User { name }`;

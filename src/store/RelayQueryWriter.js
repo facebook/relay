@@ -17,7 +17,6 @@ const RelayQuery = require('RelayQuery');
 import type RelayChangeTracker from 'RelayChangeTracker';
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
-import type RelayQueryIndexPath from 'RelayQueryIndexPath';
 import type RelayQueryPath from 'RelayQueryPath';
 import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryVisitor = require('RelayQueryVisitor');
@@ -38,7 +37,6 @@ type WriterOptions = {
   updateTrackedQueries?: boolean;
 };
 type WriterState = {
-  indexPath: RelayQueryIndexPath;
   nodeID: ?DataID;
   path: RelayQueryPath;
   recordID: DataID;
@@ -110,24 +108,24 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     node: RelayQuery.Node,
     recordID: DataID,
     responseData: mixed,
-    path: RelayQueryPath,
-    indexPath: RelayQueryIndexPath
+    path: RelayQueryPath
   ): void {
     const state = {
-      indexPath,
       nodeID: null,
       path,
       recordID,
       responseData,
     };
+
     if (node instanceof RelayQuery.Field && !node.isScalar()) {
       // for non-scalar fields, the recordID is the parent
-      state.indexPath.traverse(node, child => {
+      node.getChildren().forEach(child => {
         this.visit(child, state);
       });
-    } else {
-      this.visit(node, state);
+      return;
     }
+
+    this.visit(node, state);
   }
 
   /**
@@ -181,18 +179,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
       this._queryTracker.trackNodeForID(node, recordID, path);
     }
-  }
-
-  traverseChildren(
-    node: RelayQuery.Node,
-    state: WriterState,
-    callback: (
-      child: RelayQuery.Node,
-      index: number,
-      children: Array<RelayQuery.Node>
-    ) => void
-  ): void {
-    state.indexPath.traverse(node, callback);
   }
 
   visitRoot(
@@ -281,7 +267,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     );
 
     // handle missing data
-    const fieldData = responseData[field.getSerializationKey(state.indexPath)];
+    const fieldData = responseData[field.getSerializationKey()];
     if (fieldData === undefined) {
       return;
     }
@@ -391,7 +377,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     }
 
     const connectionState = {
-      indexPath: state.indexPath,
       nodeID: null,
       path,
       recordID: connectionID,
@@ -410,7 +395,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     node: RelayQuery.Node, // the parent connection or an intermediary fragment
     state: WriterState
   ): void {
-    state.indexPath.traverse(node, child => {
+    node.getChildren().forEach(child => {
       if (child instanceof RelayQuery.Field) {
         if (child.getSchemaName() === EDGES) {
           this._writeEdges(connection, child, state);
@@ -536,7 +521,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // which would cause the generated ID here to not match the ID generated
       // in `_writeLink`.
       this.traverse(edges, {
-        indexPath: state.indexPath,
         nodeID,
         path,
         recordID: edgeID,
@@ -616,7 +600,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       );
 
       this.traverse(field, {
-        indexPath: state.indexPath,
         nodeID: null, // never propagate `nodeID` past the first linked field
         path,
         recordID: nextLinkedID,
@@ -687,7 +670,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     }
 
     this.traverse(field, {
-      indexPath: state.indexPath,
       nodeID: null,
       path,
       recordID: nextLinkedID,

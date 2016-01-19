@@ -25,6 +25,7 @@ const mapObject = require('mapObject');
 
 type PrinterState = {
   fragmentCount: number;
+  fragmentNameByHash: {[fragmentHash: string]: string};
   fragmentNameByText: {[fragmentText: string]: string};
   fragmentTexts: Array<string>;
   indexPath: RelayQueryIndexPath;
@@ -45,6 +46,7 @@ type Variable = {
 function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
   const printerState = {
     fragmentCount: 0,
+    fragmentNameByHash: {},
     fragmentNameByText: {},
     fragmentTexts: [],
     indexPath: new RelayQueryIndexPath(),
@@ -169,23 +171,37 @@ function printInlineFragment(
     return null;
   }
   const {
+    fragmentNameByHash,
     fragmentNameByText,
     fragmentTexts,
   } = printerState;
 
+  // Try not to print the same fragment more than once by using a cheap lookup
+  // using the composite hash. (The composite hash will only be representative
+  // of the fragment if it has not been cloned.)
+  const fragmentHash = node.isCloned() ? null : node.getCompositeHash();
+
   let fragmentName;
-  // Never re-print a fragment that is identical when printed to a previously
-  // printed fragment. Instead, re-use that previous fragment's name.
-  const fragmentText =
-    node.getType() +
-    printDirectives(node) +
-    printChildren(node, printerState);
-  if (fragmentNameByText.hasOwnProperty(fragmentText)) {
-    fragmentName = fragmentNameByText[fragmentText];
+  if (fragmentHash != null &&
+      fragmentNameByHash.hasOwnProperty(fragmentHash)) {
+    fragmentName = fragmentNameByHash[fragmentHash];
   } else {
-    fragmentName = 'F' + base62(printerState.fragmentCount++);
-    fragmentNameByText[fragmentText] = fragmentName;
-    fragmentTexts.push('fragment ' + fragmentName + ' on ' + fragmentText);
+    // Never re-print a fragment that is identical when printed to a previously
+    // printed fragment. Instead, re-use that previous fragment's name.
+    const fragmentText =
+      node.getType() +
+      printDirectives(node) +
+      printChildren(node, printerState);
+    if (fragmentNameByText.hasOwnProperty(fragmentText)) {
+      fragmentName = fragmentNameByText[fragmentText];
+    } else {
+      fragmentName = 'F' + base62(printerState.fragmentCount++);
+      if (fragmentHash != null) {
+        fragmentNameByHash[fragmentHash] = fragmentName;
+      }
+      fragmentNameByText[fragmentText] = fragmentName;
+      fragmentTexts.push('fragment ' + fragmentName + ' on ' + fragmentText);
+    }
   }
   return '...' + fragmentName;
 }

@@ -73,7 +73,7 @@
     "persistModuleRegistryBetweenSpecs": true,
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
-      "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/))"
+      "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"
     ],
     "preprocessorIgnorePatterns": [
       "<rootDir>/node_modules/"
@@ -86,10 +86,11 @@
     ],
     "unmockedModulePathPatterns": [
       "<rootDir>/node_modules/fbjs/node_modules/core-js/",
-      "<rootDir>/node_modules/fbjs-scripts/node_modules/core-js/",
+      "<rootDir>/node_modules/fbjs-scripts/",
       "<rootDir>/node_modules/fbjs/node_modules/promise/",
       "<rootDir>/node_modules/fbjs/lib/(?!(ErrorUtils.js$|fetch.js$|fetchWithRetries.js$))",
       "<rootDir>/node_modules/react/",
+      "<rootDir>/node_modules/react-dom/",
       "<rootDir>/node_modules/react-static-container/"
     ]
   }

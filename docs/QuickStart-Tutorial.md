@@ -335,6 +335,8 @@ Finally, let's tie it all together in `./js/components/App.js`:
 
 ```
 import CheckHidingSpotForTreasureMutation from '../mutations/CheckHidingSpotForTreasureMutation';
+import React from 'react';
+import Relay from 'react-relay';
 
 class App extends React.Component {
   _getHidingSpotStyle(hidingSpot) {

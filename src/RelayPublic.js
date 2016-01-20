@@ -20,6 +20,7 @@ const RelayQL = require('RelayQL');
 const RelayRootContainer = require('RelayRootContainer');
 const RelayRoute = require('RelayRoute');
 const RelayStore = require('RelayStore');
+const RelayStoreData = require('RelayStoreData');
 const RelayTaskScheduler = require('RelayTaskScheduler');
 const RelayInternals = require('RelayInternals');
 
@@ -30,6 +31,8 @@ const isRelayContainer = require('isRelayContainer');
 if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
   global.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = RelayInternals;
 }
+
+const networkLayer = RelayStoreData.getDefaultInstance().getNetworkLayer();
 
 /**
  * Relay contains the set of public methods used to initialize and orchestrate
@@ -46,8 +49,7 @@ var RelayPublic = {
   createContainer: RelayContainer.create,
   createQuery: createRelayQuery,
   getQueries: getRelayQueries,
-  injectNetworkLayer: RelayInternals.NetworkLayer.injectNetworkLayer
-    .bind(RelayInternals.NetworkLayer),
+  injectNetworkLayer: networkLayer.injectNetworkLayer.bind(networkLayer),
   injectTaskScheduler: RelayTaskScheduler.injectScheduler,
   isContainer: isRelayContainer,
 };

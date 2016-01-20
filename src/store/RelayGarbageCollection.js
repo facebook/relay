@@ -14,6 +14,7 @@
 'use strict';
 
 import type {DataID} from 'RelayInternalTypes';
+const RelayStore = require('RelayStore');
 const RelayStoreData = require('RelayStoreData');
 const RelayTaskScheduler = require('RelayTaskScheduler');
 
@@ -44,21 +45,14 @@ var RelayGarbageCollection = {
       stepLength
     );
     _stepLength = stepLength;
-    RelayStoreData
-      .getDefaultInstance()
-      .initializeGarbageCollector(scheduler);
+    RelayStore.initializeGarbageCollection(scheduler);
   },
 
   /**
    * Collects any un-referenced records in the store.
    */
   scheduleCollection(): void {
-    var garbageCollector =
-      RelayStoreData.getDefaultInstance().getGarbageCollector();
-
-    if (garbageCollector) {
-      garbageCollector.collect();
-    }
+    RelayStore.scheduleGarbageCollection();
   },
 
   /**
@@ -68,12 +62,7 @@ var RelayGarbageCollection = {
    * NOTE: If the given record is still referenced, no records are collected.
    */
   scheduleCollectionFromNode(dataID: DataID): void {
-    var garbageCollector =
-      RelayStoreData.getDefaultInstance().getGarbageCollector();
-
-    if (garbageCollector) {
-      garbageCollector.collectFromNode(dataID);
-    }
+    RelayStore.scheduleGarbageCollectionFromNode(dataID);
   },
 };
 

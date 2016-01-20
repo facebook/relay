@@ -1,7 +1,7 @@
 {
   "name": "react-relay",
   "description": "A framework for building data-driven React applications.",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "keywords": [
     "graphql",
     "react",
@@ -33,7 +33,7 @@
     "react-static-container": "^1.0.0-alpha.1"
   },
   "peerDependencies": {
-    "babel-relay-plugin": "0.6.1",
+    "babel-relay-plugin": "0.6.3",
     "react": "^0.14.0",
     "react-dom": "^0.14.0"
   },
@@ -73,7 +73,7 @@
     "persistModuleRegistryBetweenSpecs": true,
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
-      "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/))"
+      "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"
     ],
     "preprocessorIgnorePatterns": [
       "<rootDir>/node_modules/"
@@ -86,10 +86,11 @@
     ],
     "unmockedModulePathPatterns": [
       "<rootDir>/node_modules/fbjs/node_modules/core-js/",
-      "<rootDir>/node_modules/fbjs-scripts/node_modules/core-js/",
+      "<rootDir>/node_modules/fbjs-scripts/",
       "<rootDir>/node_modules/fbjs/node_modules/promise/",
       "<rootDir>/node_modules/fbjs/lib/(?!(ErrorUtils.js$|fetch.js$|fetchWithRetries.js$))",
       "<rootDir>/node_modules/react/",
+      "<rootDir>/node_modules/react-dom/",
       "<rootDir>/node_modules/react-static-container/"
     ]
   }

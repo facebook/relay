@@ -231,6 +231,40 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getField('123', 'id')).toBe('123');
     });
 
+    it('are created for plural identifying root calls', () => {
+      var records = {};
+      var store = new RelayRecordStore({records});
+      var query = getNode(Relay.QL`
+        query {
+          nodes(ids: ["123","456"]) {
+            id
+          }
+        }
+      `);
+      var payload = {
+        nodes: [
+          {
+            id: '123',
+          },
+          {
+            id: '456',
+          },
+        ],
+      };
+      var results = writeVerbatimPayload(store, query, payload);
+      expect(results).toEqual({
+        created: {
+          '123': true,
+          '456': true,
+        },
+        updated: {},
+      });
+      expect(store.getRecordState('123')).toBe('EXISTENT');
+      expect(store.getField('123', 'id')).toBe('123');
+      expect(store.getRecordState('456')).toBe('EXISTENT');
+      expect(store.getField('456', 'id')).toBe('456');
+    });
+
     it('requires arguments to `node()` root calls', () => {
       var records = {};
       var store = new RelayRecordStore({records});

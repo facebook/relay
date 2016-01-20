@@ -15,11 +15,11 @@
 
 const GraphQLQueryRunner = require('GraphQLQueryRunner');
 const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 const RelayChangeTracker = require('RelayChangeTracker');
 import type {ChangeSet} from 'RelayChangeTracker';
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayDiskCacheReader = require('RelayDiskCacheReader');
 import type {GarbageCollectionScheduler} from 'RelayGarbageCollector';
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayMutationQueue = require('RelayMutationQueue');
@@ -27,6 +27,7 @@ import type {
   ClientMutationID,
   DataID,
   NodeRangeMap,
+  QueryPayload,
   Records,
   RelayQuerySet,
   RootCallMap,
@@ -37,15 +38,16 @@ const RelayNodeInterface = require('RelayNodeInterface');
 const RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
+import type RelayQueryPath from 'RelayQueryPath';
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayQueryWriter = require('RelayQueryWriter');
+const RelayRecord = require('RelayRecord');
 const RelayRecordStore = require('RelayRecordStore');
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const generateForceIndex = require('generateForceIndex');
-const readRelayDiskCache = require('readRelayDiskCache');
 const warning = require('warning');
 const writeRelayQueryPayload = require('writeRelayQueryPayload');
 const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
@@ -231,19 +233,65 @@ class RelayStoreData {
     queries: RelayQuerySet,
     callbacks: CacheReadCallbacks
   ): void {
-    var cacheManager = this._cacheManager;
+    const cacheManager = this._cacheManager;
     invariant(
       cacheManager,
       'RelayStoreData: `readFromDiskCache` should only be called when cache ' +
       'manager is available.'
     );
-    var changeTracker = new RelayChangeTracker();
-    var profile = RelayProfiler.profile('RelayStoreData.readFromDiskCache');
-    readRelayDiskCache(
+    const changeTracker = new RelayChangeTracker();
+    const profile = RelayProfiler.profile('RelayStoreData.readFromDiskCache');
+    RelayDiskCacheReader.readQueries(
       queries,
       this._queuedStore,
       this._cachedRecords,
       this._cachedRootCallMap,
+      this._garbageCollector,
+      cacheManager,
+      changeTracker,
+      {
+        onSuccess: () => {
+          this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
+          profile.stop();
+          callbacks.onSuccess && callbacks.onSuccess();
+        },
+        onFailure: () => {
+          this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
+          profile.stop();
+          callbacks.onFailure && callbacks.onFailure();
+        },
+      }
+    );
+  }
+
+  /**
+   * Reads data for a fragment incrementally from disk cache.
+   * It calls onSuccess when all the data has been loaded into memory.
+   * It calls onFailure when some data is unabled to be satisfied from disk.
+   */
+  readFragmentFromDiskCache(
+    dataID: DataID,
+    fragment: RelayQuery.Fragment,
+    path: RelayQueryPath,
+    callbacks: CacheReadCallbacks
+  ): void {
+    const cacheManager = this._cacheManager;
+    invariant(
+      cacheManager,
+      'RelayStoreData: `readFragmentFromDiskCache` should only be called ' +
+      'when cache manager is available.'
+    );
+    const changeTracker = new RelayChangeTracker();
+    const profile =
+      RelayProfiler.profile('RelayStoreData.readFragmentFromDiskCache');
+    RelayDiskCacheReader.readFragment(
+      dataID,
+      fragment,
+      path,
+      this._queuedStore,
+      this._cachedRecords,
+      this._cachedRootCallMap,
+      this._garbageCollector,
       cacheManager,
       changeTracker,
       {
@@ -266,7 +314,7 @@ class RelayStoreData {
    */
   handleQueryPayload(
     query: RelayQuery.Root,
-    response: {[key: string]: mixed},
+    response: QueryPayload,
     forceIndex: ?number
   ): void {
     var profiler = RelayProfiler.profile('RelayStoreData.handleQueryPayload');
@@ -340,7 +388,7 @@ class RelayStoreData {
     fragment: RelayQuery.Fragment,
     dataID: DataID
   ): RelayQuery.Root {
-    if (GraphQLStoreDataHandler.isClientID(dataID)) {
+    if (RelayRecord.isClientID(dataID)) {
       const path = this._queuedStore.getPathToRecord(
         this._rangeData.getCanonicalClientID(dataID),
       );

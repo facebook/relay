@@ -13,7 +13,9 @@
 
 require('configureForRelayOSS');
 
-jest.dontMock('RelayPendingQueryTracker');
+jest
+  .dontMock('RelayPendingQueryTracker')
+  .dontMock('RelayTaskQueue');
 
 const DliteFetchModeConstants = require('DliteFetchModeConstants');
 const Relay = require('Relay');

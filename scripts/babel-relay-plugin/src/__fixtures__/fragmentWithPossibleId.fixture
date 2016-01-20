@@ -33,7 +33,6 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: 'Sb+rujhv',
       kind: 'Fragment',
       metadata: {},
       name: 'User',
@@ -55,7 +54,6 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: 'Sb+rujhv',
       kind: 'Fragment',
       metadata: {
         isAbstract: true
@@ -63,7 +61,6 @@ var x = (function () {
       name: 'IdFragment',
       type: 'Node'
     }],
-    hash: 'Sb+rujhv',
     kind: 'Fragment',
     metadata: {
       isAbstract: true

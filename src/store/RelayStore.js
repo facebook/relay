@@ -22,6 +22,7 @@ const RelayStoreData = require('RelayStoreData');
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const readRelayQueryData = require('readRelayQueryData');
+const warning = require('warning');
 
 import type {
   Abortable,
@@ -161,6 +162,10 @@ var RelayStore = {
     return new RelayQueryResultObservable(storeData, fragmentPointer);
   },
 
+  /**
+   * Adds an update to the store without committing it. The returned
+   * RelayMutationTransaction can be committed or rolled back at a later time.
+   */
   applyUpdate(
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
@@ -171,11 +176,34 @@ var RelayStore = {
     );
   },
 
+  /**
+   * Adds an update to the store and commits it immediately. Returns
+   * the RelayMutationTransaction.
+   */
+  commitUpdate(
+    mutation: RelayMutation,
+    callbacks?: RelayMutationTransactionCommitCallbacks
+  ): RelayMutationTransaction {
+    const transaction = this.applyUpdate(mutation, callbacks);
+    transaction.commit();
+    return transaction;
+  },
+
+  /**
+   * @deprecated
+   *
+   * Method renamed to commitUpdate
+   */
   update(
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): void {
-    this.applyUpdate(mutation, callbacks).commit();
+    warning(
+      false,
+      '`Relay.Store.update` is deprecated. Please use' +
+      ' `Relay.Store.commitUpdate` or `Relay.Store.applyUpdate` instead.'
+    );
+    this.commitUpdate(mutation, callbacks);
   },
 };
 

@@ -6,15 +6,15 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule readRelayDiskCache
+ * @providesModule RelayDiskCacheReader
  * @flow
  * @typechecks
  */
 
 'use strict';
 
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayChangeTracker = require('RelayChangeTracker');
+import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {
   DataID,
   Records,
@@ -23,6 +23,7 @@ import type {
 } from 'RelayInternalTypes';
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
+const RelayRecord = require('RelayRecord');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
@@ -41,28 +42,54 @@ type PendingRoots = {[key: string]: Array<RelayQuery.Root>};
 /**
  * @internal
  *
- * Retrieves data for a query from disk into `cachedRecords` in RelayStore.
+ * Retrieves data for queries or fragments from disk into `cachedRecords`.
  */
-function readRelayDiskCache(
-  queries: RelayQuerySet,
-  store: RelayRecordStore,
-  cachedRecords: Records,
-  cachedRootCallMap: RootCallMap,
-  cacheManager: CacheManager,
-  changeTracker: RelayChangeTracker,
-  callbacks: CacheReadCallbacks
-): void {
-  var reader = new RelayCacheReader(
-    store,
-    cachedRecords,
-    cachedRootCallMap,
-    cacheManager,
-    changeTracker,
-    callbacks
-  );
-
-  reader.read(queries);
-}
+const RelayDiskCacheReader = {
+  readFragment(
+    dataID: DataID,
+    fragment: RelayQuery.Fragment,
+    path: RelayQueryPath,
+    store: RelayRecordStore,
+    cachedRecords: Records,
+    cachedRootCallMap: RootCallMap,
+    garbageCollector: ?RelayGarbageCollector,
+    cacheManager: CacheManager,
+    changeTracker: RelayChangeTracker,
+    callbacks: CacheReadCallbacks,
+  ) {
+    var reader = new RelayCacheReader(
+      store,
+      cachedRecords,
+      cachedRootCallMap,
+      garbageCollector,
+      cacheManager,
+      changeTracker,
+      callbacks
+    );
+    reader.readFragment(dataID, fragment, path);
+  },
+  readQueries(
+    queries: RelayQuerySet,
+    store: RelayRecordStore,
+    cachedRecords: Records,
+    cachedRootCallMap: RootCallMap,
+    garbageCollector: ?RelayGarbageCollector,
+    cacheManager: CacheManager,
+    changeTracker: RelayChangeTracker,
+    callbacks: CacheReadCallbacks,
+  ) {
+    var reader = new RelayCacheReader(
+      store,
+      cachedRecords,
+      cachedRootCallMap,
+      garbageCollector,
+      cacheManager,
+      changeTracker,
+      callbacks
+    );
+    reader.read(queries);
+  },
+};
 
 class RelayCacheReader {
   _store: RelayRecordStore;
@@ -71,6 +98,7 @@ class RelayCacheReader {
   _cacheManager: CacheManager;
   _callbacks: CacheReadCallbacks;
   _changeTracker: RelayChangeTracker;
+  _garbageCollector: ?RelayGarbageCollector;
   _hasFailed: boolean;
   _pendingNodes: PendingNodes;
   _pendingRoots: PendingRoots;
@@ -79,6 +107,7 @@ class RelayCacheReader {
     store: RelayRecordStore,
     cachedRecords: Records,
     cachedRootCallMap: RootCallMap,
+    garbageCollector: ?RelayGarbageCollector,
     cacheManager: CacheManager,
     changeTracker: RelayChangeTracker,
     callbacks: CacheReadCallbacks,
@@ -89,6 +118,7 @@ class RelayCacheReader {
     this._cacheManager = cacheManager;
     this._callbacks = callbacks;
     this._changeTracker = changeTracker;
+    this._garbageCollector = garbageCollector;
 
     this._hasFailed = false;
     this._pendingNodes = {};
@@ -111,6 +141,25 @@ class RelayCacheReader {
         });
       }
     });
+
+    if (this._isDone()) {
+      this._callbacks.onSuccess && this._callbacks.onSuccess();
+    }
+  }
+
+  readFragment(
+    dataID: DataID,
+    fragment: RelayQuery.Fragment,
+    path: RelayQueryPath
+  ): void {
+    this._visitNode(
+      dataID,
+      {
+        node: fragment,
+        path,
+        rangeCalls: undefined,
+      }
+    );
 
     if (this._isDone()) {
       this._callbacks.onSuccess && this._callbacks.onSuccess();
@@ -235,7 +284,7 @@ class RelayCacheReader {
             this._handleFailed();
             return;
           }
-          if (value && GraphQLStoreDataHandler.isClientID(dataID)) {
+          if (value && RelayRecord.isClientID(dataID)) {
             value.__path__ = pendingItems[0].path;
           }
           // Mark records as created/updated as necessary. Note that if the
@@ -244,6 +293,11 @@ class RelayCacheReader {
           // updated since no additional data can be read about a deleted node.
           const recordState = this._store.getRecordState(dataID);
           if (recordState === 'UNKNOWN' && value !== undefined) {
+            // Register immediately in case anything tries to read and subscribe
+            // to this record (which means incrementing reference counts).
+            if (this._garbageCollector) {
+              this._garbageCollector.register(dataID);
+            }
             // Mark as created if the store did not have a value but disk cache
             // did (either a known value or known deletion).
             this._changeTracker.createID(dataID);
@@ -294,4 +348,4 @@ class RelayCacheReader {
 
 }
 
-module.exports = readRelayDiskCache;
+module.exports = RelayDiskCacheReader;

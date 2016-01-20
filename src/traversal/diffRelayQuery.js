@@ -13,13 +13,13 @@
 
 'use strict';
 
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryTracker from 'RelayQueryTracker';
+const RelayRecord = require('RelayRecord');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
@@ -596,18 +596,7 @@ class RelayDiffQueryBuilder {
     path: RelayQueryPath,
     edgeID: DataID,
     rangeInfo: RangeInfo
-  ): ?DiffOutput {
-    var nodeID = this._store.getLinkedRecordID(edgeID, NODE);
-    if (!nodeID || GraphQLStoreDataHandler.isClientID(nodeID)) {
-      warning(
-        false,
-        'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
-        'if the node is refetchable by `id`. Cannot refetch data for field ' +
-        '`%s`.',
-        connectionField.getStorageKey()
-      );
-      return null;
-    }
+  ): DiffOutput {
 
     var hasSplitQueries = false;
     var diffOutput = this.traverse(
@@ -617,54 +606,66 @@ class RelayDiffQueryBuilder {
     );
     var diffNode = diffOutput ? diffOutput.diffNode : null;
     var trackedNode = diffOutput ? diffOutput.trackedNode : null;
+    var nodeID = this._store.getLinkedRecordID(edgeID, NODE);
 
     if (diffNode) {
-      var {
-        edges: diffEdgesField,
-        node: diffNodeField,
-      } = splitNodeAndEdgesFields(diffNode);
-
-      // split missing `node` fields into a `node(id)` root query
-      if (diffNodeField) {
-        hasSplitQueries = true;
-        const nodeField = edgeField.getFieldByStorageKey('node');
-        invariant(
-          nodeField,
-          'RelayDiffQueryBuilder: expected a `node` field for connection `%s`.',
-          connectionField.getSchemaName()
+      if (!nodeID || RelayRecord.isClientID(nodeID)) {
+        warning(
+          false,
+          'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
+          'if the node is refetchable by `id`. Cannot refetch data for field ' +
+          '`%s`.',
+          connectionField.getStorageKey()
         );
-        this.splitQuery(buildRoot(
-          nodeID,
-          diffNodeField.getChildren(),
-          path.getName(),
-          nodeField.getType()
-        ));
-      }
+      } else {
+        var {
+          edges: diffEdgesField,
+          node: diffNodeField,
+        } = splitNodeAndEdgesFields(diffNode);
 
-      // split missing `edges` fields into a `connection.find(id)` query
-      // if `find` is supported, otherwise warn
-      if (diffEdgesField) {
-        if (connectionField.isFindable()) {
-          diffEdgesField = diffEdgesField
-            .clone(diffEdgesField.getChildren().concat(nodeWithID));
-          var connectionFind = connectionField.cloneFieldWithCalls(
-            [diffEdgesField],
-            rangeInfo.filterCalls.concat({name: 'find', value: nodeID})
+        // split missing `node` fields into a `node(id)` root query
+        if (diffNodeField) {
+          hasSplitQueries = true;
+          const nodeField = edgeField.getFieldByStorageKey('node');
+          invariant(
+            nodeField,
+            'RelayDiffQueryBuilder: expected a `node` field for connection ' +
+            '`%s`.',
+            connectionField.getSchemaName()
           );
-          if (connectionFind) {
-            hasSplitQueries = true;
-            // current path has `parent`, `connection`, `edges`; pop to parent
-            var connectionParent = path.getParent().getParent();
-            this.splitQuery(connectionParent.getQuery(connectionFind));
+          this.splitQuery(buildRoot(
+            nodeID,
+            diffNodeField.getChildren(),
+            path.getName(),
+            nodeField.getType()
+          ));
+        }
+
+        // split missing `edges` fields into a `connection.find(id)` query
+        // if `find` is supported, otherwise warn
+        if (diffEdgesField) {
+          if (connectionField.isFindable()) {
+            diffEdgesField = diffEdgesField
+              .clone(diffEdgesField.getChildren().concat(nodeWithID));
+            var connectionFind = connectionField.cloneFieldWithCalls(
+              [diffEdgesField],
+              rangeInfo.filterCalls.concat({name: 'find', value: nodeID})
+            );
+            if (connectionFind) {
+              hasSplitQueries = true;
+              // current path has `parent`, `connection`, `edges`; pop to parent
+              var connectionParent = path.getParent().getParent();
+              this.splitQuery(connectionParent.getQuery(connectionFind));
+            }
+          } else {
+            warning(
+              false,
+              'RelayDiffQueryBuilder: connection `edges{*}` fields can only ' +
+              'be refetched if the connection supports the `find` call. ' +
+              'Cannot refetch data for field `%s`.',
+              connectionField.getStorageKey()
+            );
           }
-        } else {
-          warning(
-            false,
-            'RelayDiffQueryBuilder: connection `edges{*}` fields can only be ' +
-            'refetched if the connection supports the `find` call. Cannot ' +
-            'refetch data for field `%s`.',
-            connectionField.getStorageKey()
-          );
         }
       }
     }

@@ -61,7 +61,7 @@ class RelayNetworkLayer {
     return networkLayer.supports(...options);
   }
 
-  _getCurrentNetworkLayer(): NetworkLayer {
+  _getCurrentNetworkLayer(): $FlowIssue {
     invariant(
       this._injectedNetworkLayer,
       'RelayNetworkLayer: Use `injectNetworkLayer` ' +

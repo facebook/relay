@@ -15,14 +15,14 @@
 
 const RelayQuery = require('RelayQuery');
 const RelayQueryVisitor = require('RelayQueryVisitor');
+import type {QueryPayload} from 'RelayInternalTypes';
 
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
-type Payload = mixed;
 type PayloadState = {
-  client: Payload,
-  server: Payload,
+  client: QueryPayload,
+  server: QueryPayload,
 };
 
 /**
@@ -33,23 +33,14 @@ type PayloadState = {
  */
 function transformRelayQueryPayload(
   root: RelayQuery.Root,
-  clientData: Payload
-): Payload {
-  // Handle both FB & OSS formats for root payloads on plural calls: FB
-  // returns objects with array values, OSS returns arrays.
+  clientData: QueryPayload
+): QueryPayload {
   if (clientData == null) {
     return clientData;
-  } else if (Array.isArray(clientData)) {
-    return clientData.map(item => transform(root, item));
   } else {
-    invariant(
-      typeof clientData === 'object',
-      'transformClientPayload(): Expected the root payload for query `%s` ' +
-      'to be an array or object, got `%s`.',
-      root.getName(),
-      clientData
-    );
     return mapObject(clientData, item => {
+      // Handle both FB & OSS formats for root payloads on plural calls: FB
+      // returns objects, OSS returns arrays.
       if (Array.isArray(item)) {
         return item.map(innerItem => transform(root, innerItem));
       }
@@ -60,8 +51,8 @@ function transformRelayQueryPayload(
 
 function transform(
   root: RelayQuery.Root,
-  clientData: Payload
-): Payload {
+  clientData: QueryPayload
+): QueryPayload {
   if (clientData == null) {
     return clientData;
   }
@@ -100,16 +91,16 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     if (node.isScalar() || clientData == null) {
       server[serializationKey] = clientData;
     } else if (Array.isArray(clientData)) {
-      invariant(
-        serverData == null || Array.isArray(serverData),
-        'RelayPayloadTransformer: Got conflicting values for field `%s`: ' +
-        'expected values to be arrays.',
-        applicationName
-      );
       if (serverData == null) {
         server[serializationKey] = serverData = [];
       }
       clientData.forEach((clientItem, index) => {
+        invariant(
+          Array.isArray(serverData),
+          'RelayPayloadTransformer: Got conflicting values for field `%s`: ' +
+          'expected values to be arrays.',
+          applicationName
+        );
         if (clientItem == null) {
           serverData[index] = clientItem;
           return;

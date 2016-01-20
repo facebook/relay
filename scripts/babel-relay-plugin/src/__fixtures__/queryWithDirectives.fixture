@@ -76,7 +76,6 @@ var x = (function () {
           }
         }]
       }],
-      hash: 'b8fdCz9J',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

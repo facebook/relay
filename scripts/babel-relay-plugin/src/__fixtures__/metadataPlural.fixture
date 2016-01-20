@@ -56,7 +56,6 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: 'Kcb4isAx',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

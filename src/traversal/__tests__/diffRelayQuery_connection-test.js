@@ -268,6 +268,185 @@ describe('diffRelayQuery', () => {
     ]).toBeWarnedNTimes(3);
   });
 
+  it('does not warn about unrefetchable `edges` when there is no missing data', () => {
+    const records = {};
+    const store = new RelayRecordStore({records}, {rootCallMap});
+    const tracker = new RelayQueryTracker();
+
+    // Provide empty IDs to simulate non-refetchable nodes
+    const writeQuery = getNode(Relay.QL`
+      query {
+        viewer {
+          newsFeed(first:"1") {
+            edges {
+              node {
+                message {
+                  text
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+    const payload = {
+      viewer: {
+        newsFeed: {
+          edges: [
+            {
+              cursor: 'c1',
+              node: {
+                __typename: 'Story',
+                message: {text: 's1'},
+              },
+            },
+          ],
+          [PAGE_INFO]: {
+            [HAS_NEXT_PAGE]: true,
+            [HAS_PREV_PAGE]: false,
+          },
+        },
+      },
+    };
+    writePayload(store, writeQuery, payload, tracker);
+
+    // `message{text}` available in the store.
+    // Does not warn that data cannot be refetched sine no data is missing.
+    const fetchQuery = getNode(Relay.QL`
+      query {
+        viewer {
+          newsFeed(first:"1") {
+            edges {
+              node {
+                message {
+                  text
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+    const diffQueries = diffRelayQuery(fetchQuery, store, tracker);
+    expect(diffQueries.length).toBe(0);
+    expect([
+      'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
+      'if the node is refetchable by `id`. Cannot refetch data for field ' +
+      '`%s`.',
+      'newsFeed',
+    ]).toBeWarnedNTimes(0);
+  });
+
+  it('fetches split queries under unrefetchable `edges`', () => {
+    const records = {};
+    const store = new RelayRecordStore({records}, {rootCallMap});
+    const tracker = new RelayQueryTracker();
+
+    // Provide empty IDs to simulate non-refetchable nodes
+    const writeQuery = getNode(Relay.QL`
+      query {
+        viewer {
+          newsFeed(first:"1") {
+            edges {
+              node {
+                feedback {
+                  id,
+                  comments(first:"1") {
+                    edges {
+                      node {
+                        id
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    const payload = {
+      viewer: {
+        newsFeed: {
+          edges: [
+            {
+              cursor: 'c1',
+              node: {
+                __typename: 'Story',
+                feedback: {
+                  __typename: 'Feedback',
+                  id: 'feedbackid',
+                  comments: {
+                    edges: [
+                      {
+                        cursor: 'commentcurser1',
+                        node: {
+                          __typename: 'Comment',
+                          id: 'commentid',
+                        },
+                      },
+                    ],
+                    [PAGE_INFO]: {
+                      [HAS_NEXT_PAGE]: true,
+                      [HAS_PREV_PAGE]: false,
+                    },
+                  },
+                },
+              },
+            },
+          ],
+          [PAGE_INFO]: {
+            [HAS_NEXT_PAGE]: true,
+            [HAS_PREV_PAGE]: false,
+          },
+        },
+      },
+    };
+    writePayload(store, writeQuery, payload, tracker);
+
+    // Missing the `body{text}` on comment.
+    const fetchQuery = getNode(Relay.QL`
+      query {
+        viewer {
+          newsFeed(first:"1") {
+            edges {
+              node {
+                feedback {
+                  id,
+                  comments(first:"1") {
+                    edges {
+                      node {
+                        id,
+                        body {text}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+    const diffQueries = diffRelayQuery(fetchQuery, store, tracker);
+    expect(diffQueries.length).toBe(1);
+    expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
+      query {
+        node(id:"commentid"){
+          __typename,
+          ... on Comment {id, body {text}}
+        }
+      }
+    `));
+    expect([
+      'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
+      'if the node is refetchable by `id`. Cannot refetch data for field ' +
+      '`%s`.',
+      'newsFeed',
+    ]).toBeWarnedNTimes(0);
+  });
+
   it('fetches missing `node` data via a `node()` query', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {rootCallMap});

@@ -453,6 +453,25 @@ describe('RelayContainer', function() {
     ]).toBeWarnedNTimes(1);
   });
 
+  it('does not warn if fragment hash exists on a different prop', () => {
+    const deceptiveArray = [];
+    deceptiveArray[Object.keys(mockFooPointer)[0]] = {};
+
+    RelayTestRenderer.render(
+      () => <MockContainer baz={deceptiveArray} />,
+      mockRoute
+    );
+
+    expect([
+      'RelayContainer: Expected record data for prop `%s` on `%s`, ' +
+      'but it was instead on prop `%s`. Did you misspell a prop or ' +
+      'pass record data into the wrong prop?',
+      'foo',
+      'MockComponent',
+      'baz',
+    ]).toBeWarnedNTimes(0);
+  });
+
   it('warns if a query is not passed in', () => {
     RelayTestRenderer.render(
       () => <MockContainer foo={null} />,

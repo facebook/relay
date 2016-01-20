@@ -15,7 +15,6 @@
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const GraphQLRange = require('GraphQLRange');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {
   Call,
@@ -29,6 +28,7 @@ import type {
 } from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
+const RelayRecord = require('RelayRecord');
 import type {RecordState} from 'RelayRecordState';
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {CacheWriter} from 'RelayTypes';
@@ -219,7 +219,7 @@ class RelayRecordStore {
     if (target === this._queuedRecords) {
       this._setClientMutationID(nextRecord);
     }
-    if (GraphQLStoreDataHandler.isClientID(dataID)) {
+    if (RelayRecord.isClientID(dataID)) {
       invariant(
         path,
         'RelayRecordStore.putRecord(): Expected a path for non-refetchable ' +

@@ -24,7 +24,7 @@ const mapObject = require('mapObject');
 
 type PrinterState = {
   fragmentCount: number;
-  fragmentNameByID: {[fragmentID: string]: string};
+  fragmentNameByHash: {[fragmentHash: string]: string};
   fragmentNameByText: {[fragmentText: string]: string};
   fragmentTexts: Array<string>;
   variableCount: number;
@@ -44,7 +44,7 @@ type Variable = {
 function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
   const printerState = {
     fragmentCount: 0,
-    fragmentNameByID: {},
+    fragmentNameByHash: {},
     fragmentNameByText: {},
     fragmentTexts: [],
     variableCount: 0,
@@ -168,22 +168,20 @@ function printInlineFragment(
     return null;
   }
   const {
-    fragmentNameByID,
+    fragmentNameByHash,
     fragmentNameByText,
     fragmentTexts,
   } = printerState;
 
   // Try not to print the same fragment more than once by using a cheap lookup
-  // using the fragment ID. (This will only work for fragments that have not
-  // been cloned with new children.)
-  const fragmentID = node.hasConcreteFragmentHash() ?
-    node.getFragmentID() :
-    null;
+  // using the composite hash. (The composite hash will only be representative
+  // of the fragment if it has not been cloned.)
+  const fragmentHash = node.isCloned() ? null : node.getCompositeHash();
 
   let fragmentName;
-  if (fragmentID != null &&
-      fragmentNameByID.hasOwnProperty(fragmentID)) {
-    fragmentName = fragmentNameByID[fragmentID];
+  if (fragmentHash != null &&
+      fragmentNameByHash.hasOwnProperty(fragmentHash)) {
+    fragmentName = fragmentNameByHash[fragmentHash];
   } else {
     // Never re-print a fragment that is identical when printed to a previously
     // printed fragment. Instead, re-use that previous fragment's name.
@@ -195,8 +193,8 @@ function printInlineFragment(
       fragmentName = fragmentNameByText[fragmentText];
     } else {
       fragmentName = 'F' + base62(printerState.fragmentCount++);
-      if (fragmentID != null) {
-        fragmentNameByID[fragmentID] = fragmentName;
+      if (fragmentHash != null) {
+        fragmentNameByHash[fragmentHash] = fragmentName;
       }
       fragmentNameByText[fragmentText] = fragmentName;
       fragmentTexts.push('fragment ' + fragmentName + ' on ' + fragmentText);
@@ -246,18 +244,18 @@ function printChildren(
 ): string {
   let children;
   let fragments;
-  node.getChildren().forEach(node => {
-    if (node instanceof RelayQuery.Field) {
+  node.getChildren().forEach(child => {
+    if (child instanceof RelayQuery.Field) {
       children = children || [];
-      children.push(printField(node, printerState));
+      children.push(printField(child, printerState));
     } else {
       invariant(
-        node instanceof RelayQuery.Fragment,
+        child instanceof RelayQuery.Fragment,
         'printRelayOSSQuery(): expected child node to be a `Field` or ' +
         '`Fragment`, got `%s`.',
-        node.constructor.name
+        child.constructor.name
       );
-      const printedFragment = printInlineFragment(node, printerState);
+      const printedFragment = printInlineFragment(child, printerState);
       if (printedFragment &&
           !(fragments && fragments.hasOwnProperty(printedFragment))) {
         fragments = fragments || {};

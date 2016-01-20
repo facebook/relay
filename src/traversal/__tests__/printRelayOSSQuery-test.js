@@ -209,35 +209,6 @@ describe('printRelayOSSQuery', () => {
         'printRelayOSSQuery(): Deferred queries are not supported.'
       );
     });
-
-    it('prints inline fragments as references', () => {
-      // the fragment has a different type than the containing field and cannot
-      // be flattened (User !== Node)
-      const fragment = Relay.QL`fragment on User { name }`;
-      const query = getNode(Relay.QL`
-        query {
-          node(id:"123") {
-            ${fragment},
-            ${fragment},
-          }
-        }
-      `);
-      const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
-        query PrintRelayOSSQuery {
-          node(id:"123") {
-            id,
-            __typename,
-            ...F0
-          }
-        }
-        fragment F0 on User {
-          name,
-          id
-        }
-      `);
-      expect(variables).toEqual({});
-    });
   });
 
   describe('fragments', () => {
@@ -261,24 +232,40 @@ describe('printRelayOSSQuery', () => {
       expect(variables).toEqual({});
     });
 
-    it('prints inline fragments as references', () => {
-      // these fragments have different types and cannot be flattened
-      const nestedFragment = Relay.QL`fragment on User { name }`;
+    it('prints inline fragments', () => {
       const fragment = getNode(Relay.QL`
-        fragment on Node {
-          ${nestedFragment},
-          ${nestedFragment},
+        fragment on Viewer {
+          actor {
+            id
+            ... on User {
+              name
+            }
+            ... on User {
+              profilePicture {
+                uri
+              }
+            }
+          }
         }
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Node {
-          id,
-          __typename,
-          ...F0
+        fragment PrintRelayOSSQuery on Viewer {
+          actor {
+            id,
+            __typename,
+            ...F0,
+            ...F1
+          }
         }
         fragment F0 on User {
           name,
+          id
+        }
+        fragment F1 on User {
+          profilePicture {
+            uri
+          },
           id
         }
       `);
@@ -374,6 +361,49 @@ describe('printRelayOSSQuery', () => {
       expect(variables).toEqual({});
     });
 
+    it('prints fragments with different runtime children separately', () => {
+      let child;
+      child = Relay.QL`fragment on User { name }`;
+      const fragmentA = Relay.QL`fragment on User { ${child} }`;
+      child = Relay.QL`fragment on User { profilePicture { uri } }`;
+      const fragmentB = Relay.QL`fragment on User { ${child} }`;
+
+      const fragment = getNode(Relay.QL`
+        fragment on Node {
+          ${fragmentA},
+          ${fragmentB},
+        }
+      `);
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQuery on Node {
+          id,
+          __typename,
+          ...F1,
+          ...F3
+        }
+        fragment F0 on User {
+          name,
+          id
+        }
+        fragment F1 on User {
+          id,
+          ...F0
+        }
+        fragment F2 on User {
+          profilePicture {
+            uri
+          },
+          id
+        }
+        fragment F3 on User {
+          id,
+          ...F2
+        }
+      `);
+      expect(variables).toEqual({});
+    });
+
     it('prints fragments with different IDs but identical output once', () => {
       const concreteFragment = Relay.QL`fragment on User { name }`;
       const fragment = getNode(Relay.QL`fragment on User { id }`).clone([
@@ -393,7 +423,7 @@ describe('printRelayOSSQuery', () => {
       expect(variables).toEqual({});
     });
 
-    it('omits empty inline fragments', () => {
+    it('omits empty fragments', () => {
       const fragment = getNode(Relay.QL`
         fragment on Viewer {
           actor {

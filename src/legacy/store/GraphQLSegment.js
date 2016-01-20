@@ -12,7 +12,7 @@
 
 'use strict';
 
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+const RelayRecord = require('RelayRecord');
 
 /**
  * Represents one contiguous segment of edges within a `GraphQLRange`. Has
@@ -245,7 +245,7 @@ class GraphQLSegment {
    * @param {number} index
    */
   _addEdgeAtIndex(edge, index) {
-    var edgeID = GraphQLStoreDataHandler.getID(edge);
+    var edgeID = RelayRecord.getDataID(edge);
     var cursor = edge.cursor;
 
     var idIndex = this._getIndexForID(edgeID);
@@ -360,6 +360,9 @@ class GraphQLSegment {
    * @param {?string} cursor
    */
   addEdgesAfterCursor(edges, cursor) {
+    if (!edges.length) {
+      return;
+    }
     // Default adding after with no cursor to -1
     // So the first element in the segment is stored at index 0
     var index = -1;
@@ -402,6 +405,9 @@ class GraphQLSegment {
    * @param {?string} cursor
    */
   addEdgesBeforeCursor(edges, cursor) {
+    if (!edges.length) {
+      return;
+    }
     // Default adding before with no cursor to 1
     // So the first element in the segment is stored at index 0
     var index = 1;

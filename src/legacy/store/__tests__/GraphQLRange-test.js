@@ -19,8 +19,8 @@ jest
   .mock('warning');
 
 const GraphQLRange = require('GraphQLRange');
-const GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayRecord = require('RelayRecord');
 
 function getFirstSegment(range) {
   return range.__debug().orderedSegments[0];
@@ -84,7 +84,7 @@ describe('GraphQLRange', () => {
     consoleError = console.error;
     consoleWarn = console.warn;
 
-    GraphQLStoreDataHandler.getID.mockImplementation(function(data) {
+    RelayRecord.getDataID.mockImplementation(function(data) {
       return data.__dataID__;
     });
     range = new GraphQLRange();
@@ -1251,6 +1251,63 @@ describe('GraphQLRange', () => {
     result = range.retrieveRangeInfoForQuery(queryCalls);
     expect(result.requestedEdgeIDs).toEqual(
       [edge98.__dataID__, edge99.__dataID__, edge100.__dataID__]
+    );
+  });
+
+  it('should reconcile duplicated queries with no cursor', () => {
+    console.error = jest.genMockFunction();
+    console.warn = jest.genMockFunction();
+
+    var queryCalls = [
+      {name: 'first', value: 3},
+    ];
+
+    var pageInfo = {
+      [HAS_NEXT_PAGE]: true,
+      [HAS_PREV_PAGE]: false,
+    };
+    const e1 = mockEdge('1', true);
+    const e2 = mockEdge('2', true);
+    const e3 = mockEdge('3', true);
+
+    var edges = [e1, e2, e3];
+
+    // Add items twice
+    range.addItems(queryCalls, edges, pageInfo);
+    range.addItems(queryCalls, edges, pageInfo);
+
+    expect(console.error.mock.calls.length).toBe(0);
+    expect(console.warn.mock.calls.length).toBe(0);
+
+    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    expect(result.requestedEdgeIDs).toEqual(
+      [e1.__dataID__, e2.__dataID__, e3.__dataID__]
+    );
+
+    queryCalls = [
+      {name: 'last', value: 3},
+    ];
+
+    pageInfo = {
+      [HAS_NEXT_PAGE]: false,
+      [HAS_PREV_PAGE]: true,
+    };
+    const e100 = mockEdge('100', true);
+    const e99 = mockEdge('99', true);
+    const e98 = mockEdge('98', true);
+
+    edges = [e98, e99, e100];
+
+    // Add items twice
+    range.addItems(queryCalls, edges, pageInfo);
+    range.addItems(queryCalls, edges, pageInfo);
+
+    expect(console.error.mock.calls.length).toBe(0);
+    expect(console.warn.mock.calls.length).toBe(0);
+
+    result = range.retrieveRangeInfoForQuery(queryCalls);
+    expect(result.requestedEdgeIDs).toEqual(
+      [e98.__dataID__, e99.__dataID__, e100.__dataID__]
     );
   });
 

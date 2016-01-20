@@ -22,7 +22,6 @@ var x = (function () {
       },
       type: 'String'
     }],
-    hash: 'QHQnGWzc',
     kind: 'Fragment',
     metadata: {
       plural: true,

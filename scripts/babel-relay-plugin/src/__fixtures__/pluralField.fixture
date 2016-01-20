@@ -74,7 +74,6 @@ var x = (function () {
         },
         type: 'String'
       }],
-      hash: 'EI7Xtg8w',
       kind: 'Fragment',
       metadata: {},
       name: 'Story',

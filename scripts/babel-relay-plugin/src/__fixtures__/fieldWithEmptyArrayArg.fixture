@@ -44,7 +44,6 @@ var x = (function () {
       },
       type: 'String'
     }],
-    hash: 'VJMspWEj',
     kind: 'Fragment',
     metadata: {},
     name: 'FieldWithEmptyArrayArg',

@@ -15,8 +15,8 @@ The Relay `Store` provides an API for dispatching mutations to the server.
 
 <ul class="apiIndex">
   <li>
-    <a href="#update-static-method">
-      <pre>static update(mutation, callbacks)</pre>
+    <a href="#commitupdate-static-method">
+      <pre>static commitUpdate(mutation, callbacks)</pre>
       Initiate processing of a mutation.
     </a>
   </li>
@@ -30,13 +30,13 @@ The Relay `Store` provides an API for dispatching mutations to the server.
 
 ## Methods
 
-### update (static method)
+### commitUpdate (static method)
 
 ```
-static update(mutation: RelayMutation, callbacks: {
+static commitUpdate(mutation: RelayMutation, callbacks: {
   onFailure?: (transaction: RelayMutationTransaction) => void;
   onSuccess?: (response: Object) => void;
-}): void
+}): RelayMutationTransaction
 
 // Argument to `onFailure` callback
 type Transaction = {
@@ -44,7 +44,7 @@ type Transaction = {
 }
 ```
 
-The `update` method is analagous to dispatching an action in Flux. Relay processes
+The `commitUpdate` method is analogous to dispatching an action in Flux. Relay processes
 the mutation as follows:
 
 - If the mutation defines an optimistic payload - a set of data to apply locally while waiting for the server response - Relay applies this change and updates any affected React components (note that optimistic updates do not overwrite known server data in the cache).
@@ -66,7 +66,7 @@ var onFailure = (transaction) => {
 };
 var mutation = new MyMutation({...});
 
-Relay.Store.update(mutation, {onFailure, onSuccess});
+Relay.Store.commitUpdate(mutation, {onFailure, onSuccess});
 ```
 
 ### applyUpdate (static method)

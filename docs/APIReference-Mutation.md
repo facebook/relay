@@ -204,7 +204,7 @@ Create a mutation instance using the `new` keyword, optionally passing it some p
 
 ```
 var bookFlightMutation = new BuyPlaneTicketMutation({airport: 'yvr'});
-Relay.Store.update(bookFlightMutation);
+Relay.Store.commitUpdate(bookFlightMutation);
 ```
 
 ### getConfigs (abstract method)
@@ -405,7 +405,7 @@ class AttachDocumentMutation extends Relay.Mutation {
 class FileUploader extends React.Component {
   handleSubmit() {
     var fileToAttach = this.refs.fileInput.files.item(0);
-    Relay.Store.update(
+    Relay.Store.commitUpdate(
       new AttachDocumentMutation({file: fileToAttach})
     );
   }

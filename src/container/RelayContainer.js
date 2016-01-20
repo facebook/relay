@@ -480,6 +480,9 @@ function createContainerComponent(
     }
 
     _handleFragmentDataUpdate(): void {
+      if (!this.mounted) {
+        return;
+      }
       var queryData = this._getQueryData(this.props);
       var updateProfiler = RelayProfiler.profile(
         'RelayContainer.handleFragmentDataUpdate'

@@ -27,6 +27,7 @@ import type {
   ClientMutationID,
   DataID,
   NodeRangeMap,
+  QueryPayload,
   Records,
   RelayQuerySet,
   RootCallMap,
@@ -310,7 +311,7 @@ class RelayStoreData {
    */
   handleQueryPayload(
     query: RelayQuery.Root,
-    response: {[key: string]: mixed},
+    response: QueryPayload,
     forceIndex: ?number
   ): void {
     var profiler = RelayProfiler.profile('RelayStoreData.handleQueryPayload');

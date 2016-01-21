@@ -32,7 +32,7 @@ function normalizeCode(code) {
 /**
  * Checks that `lib/` is up-to-date with `src/`.
  */
-describe('babel-relay-plugin', () => {
+describe('babel-plugin-relay', () => {
   beforeEach(() => {
     jasmine.addMatchers({
       toTransformInto() {

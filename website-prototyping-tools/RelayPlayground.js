@@ -25,7 +25,7 @@ import defer from 'lodash.defer';
 import errorCatcher from 'babel-plugin-react-error-catcher/error-catcher';
 import errorCatcherPlugin from 'babel-plugin-react-error-catcher';
 import evalSchema from './evalSchema';
-import getBabelRelayPlugin from 'babel-relay-plugin';
+import getBabelRelayPlugin from 'babel-plugin-relay';
 import {introspectionQuery} from 'graphql/utilities';
 import {graphql} from 'graphql';
 

@@ -273,42 +273,6 @@ class RelayRecordStore {
   }
 
   /**
-   * Returns whether an error occurred during a mutation affecting the
-   * given (queued) record.
-   */
-  hasMutationError(dataID: DataID): boolean {
-    if (this._queuedRecords) {
-      var record = this._queuedRecords[dataID];
-      return !!(
-        record && RelayRecordStatusMap.isErrorStatus(record.__status__)
-      );
-    }
-    return false;
-  }
-
-  /**
-   * Sets the mutation status of a queued record to the given value.
-   */
-  setMutationErrorStatus(dataID: DataID, hasError: boolean): void {
-    invariant(
-      this._queuedRecords,
-      'RelayRecordStore.setMutationErrorStatus(): Can only set the ' +
-      'mutation status of queued records.'
-    );
-    var record = this._queuedRecords[dataID];
-    invariant(
-      record,
-      'RelayRecordStore.setMutationErrorStatus(): Expected record `%s` to ' +
-      'exist before settings its mutation error status.',
-      dataID
-    );
-    record.__status__ = RelayRecordStatusMap.setErrorStatus(
-      record.__status__,
-      hasError
-    );
-  }
-
-  /**
    * Check whether a given record has received data for a deferred fragment.
    */
   hasDeferredFragmentData(dataID: DataID, fragmentID: string): boolean {

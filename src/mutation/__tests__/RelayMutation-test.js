@@ -18,6 +18,7 @@ jest
   .dontMock('buildRQL');
 
 const Relay = require('Relay');
+const RelayContext = require('RelayContext');
 const RelayTestUtils = require('RelayTestUtils');
 
 const buildRQL = require('buildRQL');
@@ -32,7 +33,7 @@ describe('RelayMutation', function() {
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    relayContext = Relay.Store;
+    relayContext = new RelayContext();
     relayContext.read = jest.genMockFunction();
 
     class MockMutation extends Relay.Mutation {
@@ -48,7 +49,7 @@ describe('RelayMutation', function() {
           }
         `,
       };
-    };
+    }
 
     mockBarFragment = fromGraphQL.Fragment(buildRQL.Fragment(
       MockMutation.fragments.bar, []

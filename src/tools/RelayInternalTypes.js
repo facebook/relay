@@ -80,6 +80,8 @@ export type NodeRangeMap = {
 
 export type RelayQuerySet = {[queryName: string]: ?RelayQuery.Root};
 
+export type QueryPayload = {[key: string]: mixed};
+
 export type UpdateOptions = {
   configs: Array<{[key: string]: mixed}>;
   isOptimisticUpdate: boolean;

@@ -38,6 +38,7 @@ const areEqual = require('areEqual');
 const callsFromGraphQL = require('callsFromGraphQL');
 const callsToGraphQL = require('callsToGraphQL');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const getConcreteFragmentHash = require('getConcreteFragmentHash');
 const invariant = require('invariant');
 const serializeRelayQueryCall = require('serializeRelayQueryCall');
 const shallowEqual = require('shallowEqual');
@@ -63,7 +64,6 @@ const FALSE = 'false';
 const SKIP = 'skip';
 const INCLUDE = 'include';
 
-let _nextFragmentID = 0;
 let _nextQueryID = 0;
 
 const DEFAULT_FRAGMENT_METADATA = {
@@ -840,12 +840,7 @@ class RelayQueryFragment extends RelayQueryNode {
    * This hash may change between runtime sessions (e.g. client and server).
    */
   getConcreteNodeHash(): string {
-    let instanceHash = this.__concreteNode__.__instanceHash__;
-    if (instanceHash == null) {
-      instanceHash = (_nextFragmentID++).toString();
-      this.__concreteNode__.__instanceHash__ = instanceHash;
-    }
-    return instanceHash;
+    return getConcreteFragmentHash((this.__concreteNode__: ConcreteFragment));
   }
 
   /**

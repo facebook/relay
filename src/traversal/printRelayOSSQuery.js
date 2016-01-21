@@ -244,18 +244,18 @@ function printChildren(
 ): string {
   let children;
   let fragments;
-  node.getChildren().forEach(node => {
-    if (node instanceof RelayQuery.Field) {
+  node.getChildren().forEach(child => {
+    if (child instanceof RelayQuery.Field) {
       children = children || [];
-      children.push(printField(node, printerState));
+      children.push(printField(child, printerState));
     } else {
       invariant(
-        node instanceof RelayQuery.Fragment,
+        child instanceof RelayQuery.Fragment,
         'printRelayOSSQuery(): expected child node to be a `Field` or ' +
         '`Fragment`, got `%s`.',
-        node.constructor.name
+        child.constructor.name
       );
-      const printedFragment = printInlineFragment(node, printerState);
+      const printedFragment = printInlineFragment(child, printerState);
       if (printedFragment &&
           !(fragments && fragments.hasOwnProperty(printedFragment))) {
         fragments = fragments || {};

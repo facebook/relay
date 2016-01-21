@@ -360,6 +360,9 @@ class GraphQLSegment {
    * @param {?string} cursor
    */
   addEdgesAfterCursor(edges, cursor) {
+    if (!edges.length) {
+      return;
+    }
     // Default adding after with no cursor to -1
     // So the first element in the segment is stored at index 0
     var index = -1;
@@ -402,6 +405,9 @@ class GraphQLSegment {
    * @param {?string} cursor
    */
   addEdgesBeforeCursor(edges, cursor) {
+    if (!edges.length) {
+      return;
+    }
     // Default adding before with no cursor to 1
     // So the first element in the segment is stored at index 0
     var index = 1;

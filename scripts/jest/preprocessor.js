@@ -45,7 +45,10 @@ var babelOptions = assign(
     blacklist: babelDefaultOptions.blacklist.concat('validation.react'),
     _moduleMap: fixModules(assign({}, babelDefaultOptions._moduleMap, require('fbjs/module-map'), {
       'React': 'react',
+      'reactComponentExpect': 'react/lib/reactComponentExpect',
+      'ReactDOM': 'react-dom',
       'ReactUpdates': 'react/lib/ReactUpdates',
+      'ReactTestUtils': 'react/lib/ReactTestUtils.js',
       'StaticContainer.react': 'react-static-container',
     })),
   }

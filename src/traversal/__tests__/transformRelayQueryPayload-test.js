@@ -140,36 +140,40 @@ describe('transformClientPayload()', () => {
         },
       }
     `);
-    var payload = [
-      {
-        id: '123',
-        profilePicture: {
-          uri: '123.jpg',
+    var payload = {
+      nodes: [
+        {
+          id: '123',
+          profilePicture: {
+            uri: '123.jpg',
+          },
         },
-      },
-      {
-        id: '456',
-        profilePicture: {
-          uri: '456.jpg',
+        {
+          id: '456',
+          profilePicture: {
+            uri: '456.jpg',
+          },
         },
-      },
-    ];
-    expect(transformRelayQueryPayload(query, payload)).toEqual([
-      {
-        __typename: undefined,
-        id: '123',
-        [generateRQLFieldAlias('profilePicture.size(32)')]: {
-          uri: '123.jpg',
+      ],
+    };
+    expect(transformRelayQueryPayload(query, payload)).toEqual({
+      nodes: [
+        {
+          __typename: undefined,
+          id: '123',
+          [generateRQLFieldAlias('profilePicture.size(32)')]: {
+            uri: '123.jpg',
+          },
         },
-      },
-      {
-        __typename: undefined,
-        id: '456',
-        [generateRQLFieldAlias('profilePicture.size(32)')]: {
-          uri: '456.jpg',
+        {
+          __typename: undefined,
+          id: '456',
+          [generateRQLFieldAlias('profilePicture.size(32)')]: {
+            uri: '456.jpg',
+          },
         },
-      },
-    ]);
+      ],
+    });
   });
 
   it('transforms plural root payloads of objects (FB)', () => {

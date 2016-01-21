@@ -343,7 +343,7 @@ class App extends React.Component {
       color = 'lightGrey';
     } else if (hidingSpot.hasBeenChecked) {
       if (hidingSpot.hasTreasure) {
-        color = 'green';
+        color = 'blue';
       } else {
         color = 'red';
       }

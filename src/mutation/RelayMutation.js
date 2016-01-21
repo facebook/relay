@@ -16,8 +16,8 @@
 import type {ConcreteFragment} from 'ConcreteQuery';
 import type {RelayConcreteNode} from 'RelayQL';
 const RelayFragmentReference = require('RelayFragmentReference');
+import type RelayContext from 'RelayContext';
 import type RelayMetaRoute from 'RelayMetaRoute';
-const RelayStore = require('RelayStore');
 import type {
   RelayMutationConfig,
   Variables,
@@ -35,8 +35,6 @@ export type RelayMutationFragments<Tk> = {
   [key: Tk]: RelayQLFragmentBuilder;
 };
 
-type RelayContext = typeof RelayStore;
-
 /**
  * @public
  *
@@ -53,9 +51,9 @@ class RelayMutation<Tp: Object> {
   ) => Variables;
 
   _context: RelayContext;
-  props: Tp;
   _didShowFakeDataWarning: boolean;
   _unresolvedProps: Tp;
+  props: Tp;
 
   constructor(props: Tp) {
     this._unresolvedProps = props;

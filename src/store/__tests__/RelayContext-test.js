@@ -11,12 +11,13 @@
 
 'use strict';
 
-jest.dontMock('RelayStore');
+jest.dontMock('RelayContext');
 
 require('configureForRelayOSS');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const Relay = require('Relay');
+const RelayContext = require('RelayContext');
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
 const RelayMutation = require('RelayMutation');
@@ -26,9 +27,8 @@ const RelayTestUtils = require('RelayTestUtils');
 
 const readRelayQueryData = require('readRelayQueryData');
 
-describe('RelayStore', () => {
-  var RelayStore;
-
+describe('RelayContext', () => {
+  var relayContext;
   var filter;
   var dataIDs;
   var queries;
@@ -41,19 +41,20 @@ describe('RelayStore', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    RelayStore = require('RelayStore');
+    const storeData = new RelayStoreData();
+    relayContext = new RelayContext(storeData);
 
     filter = () => true;
     dataIDs = ['feedback_id', 'likers_id'];
     queries = {};
     callback = jest.genMockFunction();
-    queryRunner = RelayStoreData.getDefaultInstance().getQueryRunner();
-    recordStore = RelayStoreData.getDefaultInstance().getRecordStore();
+    queryRunner = storeData.getQueryRunner();
+    recordStore = storeData.getRecordStore();
   });
 
   describe('primeCache', () => {
     it('invokes `GraphQLQueryRunner#run`', () => {
-      RelayStore.primeCache(queries, callback);
+      relayContext.primeCache(queries, callback);
 
       expect(queryRunner.run).toBeCalled();
       expect(queryRunner.run.mock.calls[0][0]).toBe(queries);
@@ -63,7 +64,7 @@ describe('RelayStore', () => {
 
   describe('forceFetch', () => {
     it('invokes `GraphQLQueryRunner#forceFetch`', () => {
-      RelayStore.forceFetch(queries, callback);
+      relayContext.forceFetch(queries, callback);
 
       expect(queryRunner.forceFetch).toBeCalled();
       expect(queryRunner.forceFetch.mock.calls[0][0]).toBe(queries);
@@ -73,7 +74,7 @@ describe('RelayStore', () => {
 
   describe('read', () => {
     it('invokes `readRelayQueryData`', () => {
-      RelayStore.read(queries, dataIDs[0]);
+      relayContext.read(queries, dataIDs[0]);
       expect(readRelayQueryData).toBeCalled();
       expect(readRelayQueryData.mock.calls[0][1]).toEqual(queries);
       expect(readRelayQueryData.mock.calls[0][2]).toBe(dataIDs[0]);
@@ -81,7 +82,7 @@ describe('RelayStore', () => {
     });
 
     it('invokes `readRelayQueryData` with a filter', () => {
-      RelayStore.read(queries, dataIDs[0], filter);
+      relayContext.read(queries, dataIDs[0], filter);
       expect(readRelayQueryData).toBeCalled();
       expect(readRelayQueryData.mock.calls[0][3]).toBe(filter);
     });
@@ -89,7 +90,7 @@ describe('RelayStore', () => {
 
   describe('readAll', () => {
     it('invokes `readRelayQueryData`', () => {
-      RelayStore.readAll(queries, dataIDs);
+      relayContext.readAll(queries, dataIDs);
       expect(readRelayQueryData.mock.calls.length).toBe(dataIDs.length);
       expect(readRelayQueryData.mock.calls.map(call => call[2])).toEqual(
         dataIDs
@@ -97,7 +98,7 @@ describe('RelayStore', () => {
     });
 
     it('invokes `readRelayQueryData` with a filter', () => {
-      RelayStore.readAll(queries, dataIDs, filter);
+      relayContext.readAll(queries, dataIDs, filter);
       expect(readRelayQueryData.mock.calls.length).toBe(dataIDs.length);
       readRelayQueryData.mock.calls.forEach((call) => {
         expect(call[3]).toBe(filter);
@@ -108,20 +109,32 @@ describe('RelayStore', () => {
   describe('readQuery', () => {
     it('accepts a query with no arguments', () => {
       recordStore.putDataID('viewer', null, 'client:1');
-      RelayStore.readQuery(getNode(Relay.QL`query{viewer{actor{id}}}`));
+      relayContext.readQuery(getNode(Relay.QL`query{viewer{actor{id}}}`));
       expect(readRelayQueryData.mock.calls.length).toBe(1);
       expect(readRelayQueryData.mock.calls[0][2]).toBe('client:1');
     });
 
     it('accepts a query with arguments', () => {
-      RelayStore.readQuery(getNode(Relay.QL`query{nodes(ids:["123","456"]){id}}`));
+      relayContext.readQuery(getNode(Relay.QL`
+        query {
+          nodes(ids:["123","456"]) {
+            id
+          }
+        }
+      `));
       expect(readRelayQueryData.mock.calls.length).toBe(2);
       expect(readRelayQueryData.mock.calls[0][2]).toBe('123');
       expect(readRelayQueryData.mock.calls[1][2]).toBe('456');
     });
 
     it('accepts a query with unrecognized arguments', () => {
-      var result = RelayStore.readQuery(getNode(Relay.QL`query{username(name:"foo"){id}}`));
+      var result = relayContext.readQuery(getNode(Relay.QL`
+        query {
+          username(name:"foo") {
+            id
+          }
+        }
+      `));
       expect(readRelayQueryData.mock.calls.length).toBe(0);
       expect(result).toEqual([undefined]);
     });
@@ -143,7 +156,7 @@ describe('RelayStore', () => {
         };
       });
 
-      var observer = RelayStore.observe(fragment, '123');
+      var observer = relayContext.observe(fragment, '123');
       var onNext = jest.genMockFunction();
       expect(observer instanceof RelayQueryResultObservable).toBe(true);
       observer.subscribe({onNext});
@@ -169,7 +182,8 @@ describe('RelayStore', () => {
 
     describe('applyUpdate', () => {
       it('creates a new RelayMutationTransaction without committing it', () => {
-        const transaction = RelayStore.applyUpdate(mockMutation, mockCallbacks);
+        const transaction =
+          relayContext.applyUpdate(mockMutation, mockCallbacks);
         expect(transaction).toEqual(mockTransaction);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
@@ -181,7 +195,7 @@ describe('RelayStore', () => {
 
     describe('commitUpdate', () => {
       it('creates a new RelayMutationTransaction and commits it', () => {
-        RelayStore.commitUpdate(mockMutation, mockCallbacks);
+        relayContext.commitUpdate(mockMutation, mockCallbacks);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
           mockCallbacks

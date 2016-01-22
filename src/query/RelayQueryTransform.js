@@ -58,7 +58,7 @@ class RelayQueryTransform<Ts> extends RelayQueryVisitor<Ts> {
       return node;
     }
     let nextChildren;
-    this.traverseChildren(node, nextState, (child, index, children) => {
+    this.traverseChildren(node, nextState, function(child, index, children) {
       const prevChild = children[index];
       const nextChild = this.visit(prevChild, nextState);
       if (nextChild !== prevChild) {
@@ -67,7 +67,7 @@ class RelayQueryTransform<Ts> extends RelayQueryVisitor<Ts> {
       if (nextChildren && nextChild) {
         nextChildren.push(nextChild);
       }
-    });
+    }, this);
     if (nextChildren) {
       if (!nextChildren.length) {
         return null;

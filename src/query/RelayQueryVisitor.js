@@ -65,9 +65,9 @@ class RelayQueryVisitor<Ts> {
     nextState: Ts
   ): ?Tn {
     if (!node.isScalar()) {
-      this.traverseChildren(node, nextState, child => {
+      this.traverseChildren(node, nextState, function(child) {
         this.visit(child, nextState);
-      });
+      }, this);
     }
     return node;
   }
@@ -79,11 +79,12 @@ class RelayQueryVisitor<Ts> {
       child: RelayQuery.Node,
       index: number,
       children: Array<RelayQuery.Node>
-    ) => void
+    ) => void,
+    context: any
   ): void {
     const children = node.getChildren();
     for (let index = 0; index < children.length; index++) {
-      callback(children[index], index, children);
+      callback.call(context, children[index], index, children);
     }
   }
 

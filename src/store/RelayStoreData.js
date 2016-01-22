@@ -42,6 +42,7 @@ const RelayQueryTracker = require('RelayQueryTracker');
 const RelayQueryWriter = require('RelayQueryWriter');
 const RelayRecord = require('RelayRecord');
 const RelayRecordStore = require('RelayRecordStore');
+const RelayStore = require('RelayStore');
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
@@ -53,9 +54,6 @@ const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 var {NODE_TYPE} = RelayNodeInterface;
-
-// The source of truth for application data.
-var _instance;
 
 /**
  * @internal
@@ -86,10 +84,7 @@ class RelayStoreData {
    * Get the data set backing actual Relay operations. Used in GraphQLStore.
    */
   static getDefaultInstance(): RelayStoreData {
-    if (!_instance) {
-      _instance = new RelayStoreData();
-    }
-    return _instance;
+    return RelayStore.getStoreData();
   }
 
   constructor() {

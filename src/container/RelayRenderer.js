@@ -15,7 +15,9 @@
 
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const React = require('React');
+const ReactDOM = require('ReactDOM');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
+const RelayContext = require('RelayContext');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayStore = require('RelayStore');
 const RelayStoreData = require('RelayStoreData');
@@ -54,6 +56,12 @@ type RelayRendererState = {
 };
 
 const {PropTypes} = React;
+
+var storeData = RelayStoreData.getDefaultInstance();
+
+storeData.getChangeEmitter().injectBatchingStrategy(
+  ReactDOM.unstable_batchedUpdates
+);
 
 /**
  * @public
@@ -126,7 +134,7 @@ class RelayRenderer extends React.Component {
   }
 
   getChildContext(): Object {
-    return {route: this.props.queryConfig};
+    return {relay: RelayStore, route: this.props.queryConfig};
   }
 
   /**
@@ -301,6 +309,7 @@ RelayRenderer.propTypes = {
 };
 
 RelayRenderer.childContextTypes = {
+  relay: PropTypes.instanceOf(RelayContext).isRequired,
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 

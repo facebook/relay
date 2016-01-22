@@ -18,11 +18,12 @@ jest.dontMock('RelayContainer');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');
 const Relay = require('Relay');
-const RelayStoreData = require('RelayStoreData');
+const RelayContext = require('RelayContext');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.hasOptimisticUpdate', () => {
   var MockContainer;
+  var relayContext;
   var RelayTestRenderer;
 
   beforeEach(() => {
@@ -36,6 +37,7 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {foo: () => Relay.QL`fragment on Node{id}`},
     });
+    relayContext = new RelayContext();
     RelayTestRenderer = RelayTestUtils.createRenderer();
 
     GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
@@ -48,7 +50,7 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
   it('throws for invalid records', () => {
     var instance = RelayTestRenderer.render(genMockPointer => {
       return <MockContainer foo={genMockPointer('123')} />;
-    });
+    }, relayContext);
 
     expect(() => {
       instance.hasOptimisticUpdate({});
@@ -59,23 +61,23 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
   });
 
   it('is only true for queued records', () => {
-    var storeData = RelayStoreData.getDefaultInstance();
+    var storeData = relayContext.getStoreData();
     var recordStore = storeData.getRecordStoreForOptimisticMutation('mutation');
     recordStore.putRecord('123', 'Type');
     var instance = RelayTestRenderer.render(genMockPointer => {
       return <MockContainer foo={genMockPointer('123')} />;
-    });
+    }, relayContext);
 
     expect(instance.hasOptimisticUpdate({__dataID__: '123'})).toBe(true);
   });
 
   it('is false for non-queued records', () => {
-    RelayStoreData.getDefaultInstance().getRecordStore()
+    relayContext.getStoreData().getRecordStore()
       .putRecord('123', 'Type');
 
     var instance = RelayTestRenderer.render(genMockPointer => {
       return <MockContainer foo={genMockPointer('123')} />;
-    });
+    }, relayContext);
     expect(instance.hasOptimisticUpdate({__dataID__: '123'})).toBe(false);
   });
 });

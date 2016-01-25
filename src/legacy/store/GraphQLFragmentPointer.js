@@ -67,11 +67,12 @@ class GraphQLFragmentPointer {
     }
     invariant(
       typeof identifyingArgValue === 'string' || identifyingArgValue == null,
-      'GraphQLFragmentPointer: Value for the argument to `%s` on query `%s` ' +
-      'should be a string, but it was set to `%s`. Check that the value is a ' +
-      'string.',
-      query.getFieldName(),
+      'GraphQLFragmentPointer: In query `%s` the value for argument `%s` ' +
+      'must be a string, but it was set to `%s`. Check that the value ' +
+      'is a string (Note: in Relay, this restriction applies to ' +
+      '`root query` arguments only).',
       query.getName(),
+      query.getFieldName(),
       identifyingArgValue
     );
     var dataIDOrIDs = store.getDataID(storageKey, identifyingArgValue);

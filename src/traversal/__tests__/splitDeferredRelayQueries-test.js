@@ -186,7 +186,7 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('splits nested deferred fragments', () => {
-    var nestedFragment = Relay.QL`fragment on NonNodeStory{message}`;
+    var nestedFragment = Relay.QL`fragment on NonNodeStory{message{text}}`;
     var fragment = Relay.QL`
       fragment on Viewer {
         newsFeed(first: "10") {

@@ -20,10 +20,14 @@ import type {
   ConcreteCallVariable,
   ConcreteDirective,
   ConcreteField,
+  ConcreteFieldMetadata,
   ConcreteFragment,
+  ConcreteFragmentMetadata,
   ConcreteFragmentReference,
   ConcreteMutation,
+  ConcreteOperationMetadata,
   ConcreteQuery,
+  ConcreteQueryMetadata,
   ConcreteSelection,
   ConcreteSubscription,
   ConcreteValue,
@@ -43,34 +47,6 @@ if (__DEV__) {
   Object.freeze(EMPTY_DIRECTIVES);
   Object.freeze(EMPTY_METADATA);
 }
-
-export type ConcreteFieldMetadata = {
-  inferredRootCallName?: ?string;
-  inferredPrimaryKey?: ?string;
-  isConnection?: boolean;
-  isFindable?: boolean;
-  isGenerated?: boolean;
-  isPlural?: boolean;
-  isRequisite?: boolean;
-  isAbstract?: boolean;
-};
-
-export type ConcreteFragmentMetadata = {
-  isAbstract?: boolean;
-  plural?: boolean;
-};
-
-export type ConcreteOperationMetadata = {
-  inputType?: ?string;
-};
-
-export type ConcreteQueryMetadata = {
-  identifyingArgName?: ?string;
-  identifyingArgType?: ?string;
-  isAbstract?: ?boolean;
-  isDeferred?: ?boolean;
-  isPlural?: ?boolean;
-};
 
 /**
  * @internal

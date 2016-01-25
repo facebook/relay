@@ -15,17 +15,15 @@
 
 import type {
   ConcreteField,
+  ConcreteFieldMetadata,
   ConcreteFragment,
   ConcreteMutation,
   ConcreteNode,
+  ConcreteOperationMetadata,
   ConcreteQuery,
+  ConcreteQueryMetadata,
 } from 'ConcreteQuery';
 const QueryBuilder = require('QueryBuilder');
-import type {
-  ConcreteFieldMetadata,
-  ConcreteOperationMetadata,
-  ConcreteQueryMetadata,
-} from 'QueryBuilder';
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayFragmentReference = require('RelayFragmentReference');
 import type {Call, Directive}  from 'RelayInternalTypes';

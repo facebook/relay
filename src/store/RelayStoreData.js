@@ -42,7 +42,6 @@ const RelayQueryTracker = require('RelayQueryTracker');
 const RelayQueryWriter = require('RelayQueryWriter');
 const RelayRecord = require('RelayRecord');
 const RelayRecordStore = require('RelayRecordStore');
-const RelayStore = require('RelayStore');
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
@@ -79,13 +78,6 @@ class RelayStoreData {
   _queryRunner: GraphQLQueryRunner;
   _rangeData: GraphQLStoreRangeUtils;
   _rootCallMap: RootCallMap;
-
-  /**
-   * Get the data set backing actual Relay operations. Used in GraphQLStore.
-   */
-  static getDefaultInstance(): RelayStoreData {
-    return RelayStore.getStoreData();
-  }
 
   constructor() {
     const cachedRecords: Records = ({}: $FixMe);

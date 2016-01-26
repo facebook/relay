@@ -19,7 +19,6 @@ const ReactDOM = require('ReactDOM');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
 const RelayPropTypes = require('RelayPropTypes');
 const RelayStore = require('RelayStore');
-const RelayStoreData = require('RelayStoreData');
 import type {
   Abortable,
   ComponentReadyState,
@@ -56,7 +55,7 @@ type RelayRendererState = {
 
 const {PropTypes} = React;
 
-var storeData = RelayStoreData.getDefaultInstance();
+var storeData = RelayStore.getStoreData();
 
 storeData.getChangeEmitter().injectBatchingStrategy(
   ReactDOM.unstable_batchedUpdates

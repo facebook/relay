@@ -14,6 +14,7 @@
 'use strict';
 
 const {PropTypes} = require('React');
+const RelayContext = require('RelayContext');
 
 const isRelayContainer = require('isRelayContainer');
 const sprintf = require('sprintf');
@@ -36,6 +37,8 @@ const RelayPropTypes = {
     }
     return null;
   },
+
+  Context: PropTypes.instanceOf(RelayContext),
 
   QueryConfig: PropTypes.shape({
     name: PropTypes.string.isRequired,

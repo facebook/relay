@@ -36,9 +36,10 @@ describe('RelayContainer', () => {
       });
       const relayContext = new RelayContext();
       const RelayTestRenderer = RelayTestUtils.createRenderer();
-      mockContainerInstance = RelayTestRenderer.render(genMockPointer => {
-        return <MockContainer foo={genMockPointer('42')} />;
-      }, relayContext);
+      mockContainerInstance = RelayTestRenderer.render(
+        genMockPointer => <MockContainer foo={genMockPointer('42')} />,
+        relayContext
+      );
       mockFragmentReference = MockContainer.getFragment('foo');
       mockPointer = {__dataID__: '42'};
       const storeData = relayContext.getStoreData();

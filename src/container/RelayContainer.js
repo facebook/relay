@@ -72,7 +72,7 @@ export type RootQueries = {
 };
 
 var containerContextTypes = {
-  relay: React.PropTypes.instanceOf(RelayContext).isRequired,
+  relay: RelayPropTypes.Context.isRequired,
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 
@@ -123,10 +123,8 @@ function createContainerComponent(
       var {relay, route} = context;
       invariant(
         relay instanceof RelayContext,
-        'RelayContainer: `%s` was rendered without a valid `relayContext`. ' +
-        'Make sure the `relayContext` is valid, and make sure that it is ' +
-        'correctly set on the parent component\'s context ' +
-        '(e.g. using <RelayRootContainer>).',
+        'RelayContainer: `%s` was rendered without an instance of ' +
+        '`RelayContext` passed as the `relay` property of the React context.',
         containerName
       );
       invariant(

@@ -303,10 +303,9 @@ describe('RelayContainer', function() {
     expect(() => ShallowRenderer.render(
       <MockContainer foo={mockFooPointer} />
     )).toFailInvariant(
-      'RelayContainer: `Relay(MockComponent)` was rendered without a valid ' +
-      '`relayContext`. Make sure the `relayContext` is valid, and make sure ' +
-      'that it is correctly set on the parent component\'s context ' +
-      '(e.g. using <RelayRootContainer>).'
+      'RelayContainer: `Relay(MockComponent)` was rendered without an ' +
+      'instance of `RelayContext` passed as the `relay` property of the ' +
+      'React context.'
     );
   });
 
@@ -348,13 +347,17 @@ describe('RelayContainer', function() {
       mockRelayContextA,
       mockRoute
     );
+
+    const mockResolvers = GraphQLStoreQueryResolver.mock.instances;
+    expect(mockResolvers.length).toBe(1);
+    expect(mockResolvers[0].reset).not.toBeCalled();
+
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,
       mockRelayContextB,
       mockRoute
     );
 
-    const mockResolvers = GraphQLStoreQueryResolver.mock.instances;
     expect(mockResolvers.length).toBe(2);
     expect(mockResolvers[1].mock.store).toBe(mockRelayContextB.getStoreData());
     expect(mockResolvers[0].reset).toBeCalled();
@@ -449,13 +452,17 @@ describe('RelayContainer', function() {
       mockRelayContext,
       mockRouteA
     );
+
+    const mockResolvers = GraphQLStoreQueryResolver.mock.instances;
+    expect(mockResolvers.length).toBe(1);
+    expect(mockResolvers[0].resolve.mock.calls.length).toBe(1);
+
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,
       mockRelayContext,
       mockRouteB
     );
 
-    const mockResolvers = GraphQLStoreQueryResolver.mock.instances;
     expect(mockResolvers.length).toBe(1);
     expect(mockResolvers[0].resolve.mock.calls.length).toBe(2);
   });

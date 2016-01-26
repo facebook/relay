@@ -48,9 +48,10 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
   });
 
   it('throws for invalid records', () => {
-    var instance = RelayTestRenderer.render(genMockPointer => {
-      return <MockContainer foo={genMockPointer('123')} />;
-    }, relayContext);
+    var instance = RelayTestRenderer.render(
+      genMockPointer => <MockContainer foo={genMockPointer('123')} />,
+      relayContext
+    );
 
     expect(() => {
       instance.hasOptimisticUpdate({});
@@ -64,9 +65,10 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
     var storeData = relayContext.getStoreData();
     var recordStore = storeData.getRecordStoreForOptimisticMutation('mutation');
     recordStore.putRecord('123', 'Type');
-    var instance = RelayTestRenderer.render(genMockPointer => {
-      return <MockContainer foo={genMockPointer('123')} />;
-    }, relayContext);
+    var instance = RelayTestRenderer.render(
+      genMockPointer => <MockContainer foo={genMockPointer('123')} />,
+      relayContext
+    );
 
     expect(instance.hasOptimisticUpdate({__dataID__: '123'})).toBe(true);
   });
@@ -75,9 +77,10 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
     relayContext.getStoreData().getRecordStore()
       .putRecord('123', 'Type');
 
-    var instance = RelayTestRenderer.render(genMockPointer => {
-      return <MockContainer foo={genMockPointer('123')} />;
-    }, relayContext);
+    var instance = RelayTestRenderer.render(
+      genMockPointer => <MockContainer foo={genMockPointer('123')} />,
+      relayContext
+    );
     expect(instance.hasOptimisticUpdate({__dataID__: '123'})).toBe(false);
   });
 });

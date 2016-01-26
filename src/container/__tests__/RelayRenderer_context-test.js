@@ -18,7 +18,6 @@ jest.dontMock('RelayRenderer');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
-const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 const RelayStore = require('RelayStore');
@@ -37,7 +36,7 @@ describe('RelayRenderer.context', () => {
 
     const container = document.createElement('div');
     const contextTypes = {
-      relay: React.PropTypes.instanceOf(RelayContext).isRequired,
+      relay: Relay.PropTypes.Context.isRequired,
       route: Relay.PropTypes.QueryConfig.isRequired,
     };
     jasmine.addMatchers({

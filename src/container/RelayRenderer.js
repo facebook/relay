@@ -17,7 +17,6 @@ const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
-const RelayContext = require('RelayContext');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayStore = require('RelayStore');
 const RelayStoreData = require('RelayStoreData');
@@ -134,7 +133,10 @@ class RelayRenderer extends React.Component {
   }
 
   getChildContext(): Object {
-    return {relay: RelayStore, route: this.props.queryConfig};
+    return {
+      relay: RelayStore,
+      route: this.props.queryConfig,
+    };
   }
 
   /**
@@ -294,7 +296,7 @@ class RelayRenderer extends React.Component {
 function createFragmentPointerForRoot(query) {
   return query ?
     GraphQLFragmentPointer.createForRoot(
-      RelayStoreData.getDefaultInstance().getQueuedStore(),
+      storeData.getQueuedStore(),
       query
     ) :
     null;
@@ -309,7 +311,7 @@ RelayRenderer.propTypes = {
 };
 
 RelayRenderer.childContextTypes = {
-  relay: PropTypes.instanceOf(RelayContext).isRequired,
+  relay: RelayPropTypes.Context.isRequired,
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 

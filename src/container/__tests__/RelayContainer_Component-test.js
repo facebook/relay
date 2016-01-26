@@ -55,9 +55,10 @@ describe('RelayContainer', function() {
     const relayContext = new RelayContext();
     var RelayTestRenderer = RelayTestUtils.createRenderer();
     mockRender = () => {
-      return RelayTestRenderer.render(genMockPointer => {
-        return <MockContainer foo={genMockPointer('42')} />;
-      }, relayContext);
+      return RelayTestRenderer.render(
+        genMockPointer => <MockContainer foo={genMockPointer('42')} />,
+        relayContext
+      );
     };
   });
 

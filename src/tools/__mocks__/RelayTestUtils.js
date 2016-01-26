@@ -47,7 +47,7 @@ var RelayTestUtils = {
       }
     }
     ContextSetter.childContextTypes = {
-      relay: React.PropTypes.instanceOf(RelayContext).isRequired,
+      relay: RelayPropTypes.Context.isRequired,
       route: RelayPropTypes.QueryConfig.isRequired,
     };
 

@@ -19,8 +19,37 @@ var path = require('path');
 
 function babelAdapter(Plugin, t, name, visitorsBuilder) {
   if (Plugin == null) {
-    // Babel 6.
-    return visitorsBuilder(t);
+    var _ret = (function () {
+      // Babel 6.
+
+      var _visitorsBuilder = visitorsBuilder(t);
+
+      var _visitorsBuilder$visitor = _visitorsBuilder.visitor;
+      var _Program = _visitorsBuilder$visitor.Program;
+      var _TaggedTemplateExpression = _visitorsBuilder$visitor.TaggedTemplateExpression;
+
+      var taggedTemplateExpressionVisitor = {
+        TaggedTemplateExpression: function TaggedTemplateExpression(path) {
+          _TaggedTemplateExpression(path, this);
+        }
+      };
+
+      /**
+       * Run both transforms on Program to make sure that they run before other plugins.
+       */
+      return {
+        v: {
+          visitor: {
+            Program: function Program(path, state) {
+              _Program(path, state);
+              path.traverse(taggedTemplateExpressionVisitor, state);
+            }
+          }
+        }
+      };
+    })();
+
+    if (typeof _ret === 'object') return _ret.v;
   }
   // Babel 5.
   var legacyT = _extends({}, t, {

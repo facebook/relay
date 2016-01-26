@@ -12,6 +12,8 @@
 
 'use strict';
 
+/* eslint-disable no-bitwise */
+
 const base62 = require('base62');
 const crc32 = require('crc32');
 
@@ -38,8 +40,8 @@ function generateRQLFieldAlias(input) {
   if (index === -1) {
     return input;
   }
-
-  return PREFIX + input.substr(0, index) + base62(Math.abs(crc32(input)));
+  // Unsign crc32 hash so we do not base62 encode a negative number.
+  return PREFIX + input.substr(0, index) + base62(crc32(input) >>> 0);
 }
 
 module.exports = generateRQLFieldAlias;

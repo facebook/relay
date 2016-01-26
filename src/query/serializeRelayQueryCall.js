@@ -29,36 +29,21 @@ function serializeRelayQueryCall(call: Call): string {
   var {value} = call;
   var valueString;
   if (Array.isArray(value)) {
-    valueString = flattenArray(value).map(sanitizeCallValue).join(',');
-  } else if (value != null) {
-    valueString = sanitizeCallValue(value);
+    valueString = flattenArray(value).map(serializeCallValue).join(',');
   } else {
-    valueString = '';
+    valueString = serializeCallValue(value);
   }
   return '.' + call.name + '(' + valueString +')';
 }
 
-function sanitizeCallValue(value: CallValue): string {
+function serializeCallValue(value: ?CallValue): string {
   if (value == null) {
     return '';
+  } else if (typeof value !== 'string') {
+    return JSON.stringify(value);
+  } else {
+    return value;
   }
-  // Special case for FB GraphQL to resolve ambiguity around "empty" arguments.
-  if (value === '') {
-    return '\ ';
-  }
-  if (typeof value !== 'string') {
-    value = JSON.stringify(value);
-  }
-  value = value.replace(/[)(}{><,.\\]/g, '\\$&');
-  // Works around a bug in Legacy GraphQL, see Task #7599025.
-  if (/ $/.test(value)) {
-    value += ' ';
-  }
-  return value.replace(/^( *)(.*?)( *)$/, (_, prefix, body, suffix) => (
-    '\\ '.repeat(prefix.length) +
-    body +
-    '\\ '.repeat(suffix.length)
-  ));
 }
 
 module.exports = serializeRelayQueryCall;

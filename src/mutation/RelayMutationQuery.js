@@ -432,8 +432,6 @@ function buildEdgeField(
       !RelayRecord.isClientID(parentID)) {
     fields.push(
       RelayQuery.Field.build({
-        fieldName: 'source',
-        type: ANY_TYPE,
         children: [
           RelayQuery.Field.build({
             fieldName: ID,
@@ -444,14 +442,18 @@ function buildEdgeField(
             type: 'String',
           }),
         ],
+        fieldName: 'source',
+        metadata: {canHaveSubselections: true},
+        type: ANY_TYPE,
       })
     );
   }
   fields.push(...edgeFields);
   var edgeField = flattenRelayQuery(RelayQuery.Field.build({
-    fieldName: edgeName,
-    type: ANY_TYPE,
     children: fields,
+    fieldName: edgeName,
+    metadata: {canHaveSubselections: true},
+    type: ANY_TYPE,
   }));
   invariant(
     edgeField instanceof RelayQuery.Field,

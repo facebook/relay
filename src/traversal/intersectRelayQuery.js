@@ -57,7 +57,7 @@ class RelayQueryIntersector extends RelayQueryTransform<RelayQuery.Node> {
     subjectNode: Tn,
     patternNode: RelayQuery.Node,
   ): ?Tn {
-    if (subjectNode.isScalar()) {
+    if (!subjectNode.canHaveSubselections()) {
       // Since `patternNode` exists, `subjectNode` must be in the intersection.
       return subjectNode;
     }

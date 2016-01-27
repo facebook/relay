@@ -117,7 +117,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       responseData,
     };
 
-    if (node instanceof RelayQuery.Field && !node.isScalar()) {
+    if (node instanceof RelayQuery.Field && node.canHaveSubselections()) {
       // for non-scalar fields, the recordID is the parent
       node.getChildren().forEach(child => {
         this.visit(child, state);
@@ -277,7 +277,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       return;
     }
 
-    if (field.isScalar()) {
+    if (!field.canHaveSubselections()) {
       this._writeScalar(field, state, recordID, fieldData);
     } else if (field.isConnection()) {
       this._writeConnection(field, state, recordID, fieldData);

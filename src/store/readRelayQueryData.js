@@ -135,7 +135,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     // present, overriding `state`.
     this._handleRangeInfo(node, state);
 
-    if (!node.isScalar() || node.isGenerated()) {
+    if (node.canHaveSubselections() || node.isGenerated()) {
       // Make sure we return at least the __dataID__.
       getDataObject(state);
     }
@@ -154,7 +154,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       node.getSchemaName() === PAGE_INFO
     ) {
       this._readPageInfo(node, rangeInfo, state);
-    } else if (node.isScalar()) {
+    } else if (!node.canHaveSubselections()) {
       this._readScalar(node, state);
     } else if (node.isPlural()) {
       this._readPlural(node, state);

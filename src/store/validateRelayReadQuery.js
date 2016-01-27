@@ -93,7 +93,7 @@ if (__DEV__) {
 
         if (node.isGenerated()) {
           return;
-        } else if (node.isScalar()) {
+        } else if (!node.canHaveSubselections()) {
           return;
         } else if (node.isPlural()) {
           this._readPlural(node, aliasMap);

@@ -327,18 +327,6 @@ describe('RelayQueryRoot', () => {
     expect(me.isGenerated()).toBe(false);
   });
 
-  it('is not scalar', () => {
-    // query with children
-    expect(me.isScalar()).toBe(false);
-
-    // empty query
-    var query = getNode({
-      ...Relay.QL`query { viewer }`,
-      children: [],
-    });
-    expect(query.isScalar()).toBe(false);
-  });
-
   it('returns the identifying argument type', () => {
     var nodeQuery = getNode(Relay.QL`query{node(id:"123"){id}}`);
     nodeQuery.getConcreteQueryNode().metadata = {
@@ -406,6 +394,20 @@ describe('RelayQueryRoot', () => {
     expect(getNode(Relay.QL`query { me }`).getType()).toBe('User');
     expect(getNode(Relay.QL`query { viewer }`).getType()).toBe('Viewer');
     expect(getNode(Relay.QL`query { node(id: "123") }`).getType()).toBe('Node');
+  });
+
+  describe('canHaveSubselections()', () => {
+    it('returns true', () => {
+      // query with children
+      expect(me.canHaveSubselections()).toBe(true);
+
+      // empty query
+      var query = getNode({
+        ...Relay.QL`query { viewer }`,
+        children: [],
+      });
+      expect(query.canHaveSubselections()).toBe(true);
+    });
   });
 
   describe('getStorageKey()', () => {

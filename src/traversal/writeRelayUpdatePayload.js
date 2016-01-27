@@ -55,7 +55,10 @@ const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 const EDGES_FIELD = RelayQuery.Field.build({
   fieldName: EDGES,
   type: ANY_TYPE,
-  metadata: {isPlural: true},
+  metadata: {
+    canHaveSubselections: true,
+    isPlural: true,
+  },
 });
 const IGNORED_KEYS = {
   error: true,

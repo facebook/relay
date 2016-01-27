@@ -138,7 +138,7 @@ function wrapNode(
  * no non-generated fields, and no ref query dependencies.
  */
 function isEmpty(node: RelayQuery.Node): boolean {
-  if (node.isScalar()) {
+  if (!node.canHaveSubselections()) {
     return node.isGenerated() && !node.isRefQueryDependency();
   } else {
     return node.getChildren().every(isEmpty);

@@ -47,6 +47,9 @@ const typeField = RelayQuery.Field.build({
 const nodeWithID = RelayQuery.Field.build({
   fieldName: RelayNodeInterface.NODE,
   children: [idField, typeField],
+  metadata: {
+    canHaveSubselections: true,
+  },
   type: NODE_TYPE,
 });
 
@@ -250,7 +253,7 @@ class RelayDiffQueryBuilder {
     }
 
     // default field diffing algorithm
-    if (node.isScalar()) {
+    if (!node.canHaveSubselections()) {
       return this.diffScalar(node, dataID);
     } else if (node.isGenerated()) {
       return {

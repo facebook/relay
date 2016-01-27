@@ -82,7 +82,7 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
     state: SubtractState
   ): ?RelayQuery.Node {
     var diff;
-    if (node.isScalar()) {
+    if (!node.canHaveSubselections()) {
       diff = this._subtractScalar(node, state);
     } else if (node.isConnection()) {
       diff = this._subtractConnection(node, state);
@@ -184,7 +184,7 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
 function isEmptyField(
   node: RelayQuery.Node
 ): boolean {
-  if (node instanceof RelayQuery.Field && node.isScalar()) {
+  if (node instanceof RelayQuery.Field && !node.canHaveSubselections()) {
     // Note: product-specific hacks use aliased cursors/ids to poll for data.
     // Without the alias check these queries would be considered empty.
     return (

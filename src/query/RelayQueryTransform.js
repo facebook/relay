@@ -54,7 +54,7 @@ class RelayQueryTransform<Ts> extends RelayQueryVisitor<Ts> {
     node: Tn,
     nextState: Ts
   ): ?Tn {
-    if (node.isScalar()) {
+    if (!node.canHaveSubselections()) {
       return node;
     }
     let nextChildren;

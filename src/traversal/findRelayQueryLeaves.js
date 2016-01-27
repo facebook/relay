@@ -158,7 +158,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       this._visitEdges(field, state);
     } else if (rangeInfo && field.getSchemaName() === PAGE_INFO) {
       this._visitPageInfo(field, state);
-    } else if (field.isScalar()) {
+    } else if (!field.canHaveSubselections()) {
       this._visitScalar(field, state);
     } else if (field.isPlural()) {
       this._visitPlural(field, state);

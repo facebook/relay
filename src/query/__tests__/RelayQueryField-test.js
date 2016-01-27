@@ -202,7 +202,7 @@ describe('RelayQueryField', () => {
   });
 
   it('scalar fields have no children', () => {
-    expect(nodeIdField.isScalar()).toBe(true);
+    expect(nodeIdField.canHaveSubselections()).toBe(false);
     expect(nodeIdField.getChildren().length).toBe(0);
   });
 
@@ -225,17 +225,17 @@ describe('RelayQueryField', () => {
     expect(clone.getFieldByStorageKey('canViewerComment')).toBe(undefined);
   });
 
-  it('throws if cloning a scalar field with children', () => {
+  it('throws if cloning a subselection-ineligible field with children', () => {
+    const expectedError = (
+      'RelayQueryNode: Cannot add children to field `id` because it does not ' +
+      'support sub-selections (sub-fields).'
+    );
     expect(() => {
       nodeIdField.clone([null]);
-    }).toFailInvariant(
-      'RelayQueryNode: Cannot add children to scalar field `id`.'
-    );
+    }).toFailInvariant(expectedError);
     expect(() => {
       nodeIdField.cloneFieldWithCalls([null], []);
-    }).toFailInvariant(
-      'RelayQueryField: Cannot add children to scalar fields.'
-    );
+    }).toFailInvariant(expectedError);
   });
 
   it('returns children', () => {
@@ -315,6 +315,25 @@ describe('RelayQueryField', () => {
         ],
       },
     ]);
+  });
+
+  describe('canHaveSubselections()', () => {
+    it('returns true for fields that support sub-selections', () => {
+      expect(edgesField.canHaveSubselections()).toBe(true);
+      expect(friendsConnectionField.canHaveSubselections()).toBe(true);
+      expect(friendsScalarField.canHaveSubselections()).toBe(true);
+      expect(friendsVariableField.canHaveSubselections()).toBe(true);
+      expect(nodeField.canHaveSubselections()).toBe(true);
+      expect(pageInfoField.canHaveSubselections()).toBe(true);
+      expect(userAddressField.canHaveSubselections()).toBe(true);
+    });
+
+    it('returns false for fields that do not support sub-selections', () => {
+      expect(aliasedIdField.canHaveSubselections()).toBe(false);
+      expect(cursorField.canHaveSubselections()).toBe(false);
+      expect(generatedIdField.canHaveSubselections()).toBe(false);
+      expect(nodeIdField.canHaveSubselections()).toBe(false);
+    });
   });
 
   describe('getRangeBehaviorKey()', () => {

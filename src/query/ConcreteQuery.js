@@ -79,6 +79,7 @@ export type ConcreteDirective = {
 };
 
 export type ConcreteFieldMetadata = {
+  canHaveSubselections?: ?boolean;
   inferredPrimaryKey?: ?string;
   inferredRootCallName?: ?string;
   isAbstract?: boolean;

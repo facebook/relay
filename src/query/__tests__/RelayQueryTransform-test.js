@@ -75,7 +75,7 @@ describe('RelayQueryTransform', () => {
   it('returns null if field visitors all return null for scalars', () => {
     class Nullify extends RelayQueryTransform<any> {
       visitField(field: RelayQuery.Field, state: any): ?RelayQuery.Node {
-        if (field.isScalar()) {
+        if (!field.canHaveSubselections()) {
           return null;
         }
         return this.traverse(field, state);

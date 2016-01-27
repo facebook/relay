@@ -157,16 +157,6 @@ describe('RelayQueryFragment', () => {
     expect(fragment.isGenerated()).toBe(false);
   });
 
-  it('is not scalar', () => {
-    // fragment with children
-    expect(fragment.isScalar()).toBe(false);
-
-    // fragment without children
-    expect(
-      getNode(Relay.QL`fragment on Viewer { ${null} }`).isScalar()
-    ).toBe(false);
-  });
-
   it('creates nodes', () => {
     var fragmentRQL = Relay.QL`
       fragment on StreetAddress {
@@ -197,5 +187,17 @@ describe('RelayQueryFragment', () => {
         ],
       },
     ]);
+  });
+
+  describe('canHaveSubselections()', () => {
+    it('returns true', () => {
+      // fragment with children
+      expect(fragment.canHaveSubselections()).toBe(true);
+
+      // fragment without children
+      expect(
+        getNode(Relay.QL`fragment on Viewer { ${null} }`).canHaveSubselections()
+      ).toBe(true);
+    });
   });
 });

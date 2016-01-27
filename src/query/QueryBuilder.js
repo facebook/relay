@@ -116,6 +116,7 @@ const QueryBuilder = {
       fieldName: partialField.fieldName,
       kind: 'Field',
       metadata: {
+        canHaveSubselections: !!partialMetadata.canHaveSubselections,
         inferredRootCallName: partialMetadata.inferredRootCallName,
         inferredPrimaryKey: partialMetadata.inferredPrimaryKey,
         isConnection: !!partialMetadata.isConnection,

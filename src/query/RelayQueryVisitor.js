@@ -64,7 +64,7 @@ class RelayQueryVisitor<Ts> {
     node: Tn,
     nextState: Ts
   ): ?Tn {
-    if (!node.isScalar()) {
+    if (node.canHaveSubselections()) {
       this.traverseChildren(node, nextState, function(child) {
         this.visit(child, nextState);
       }, this);

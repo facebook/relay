@@ -96,13 +96,13 @@ describe('inferRelayFieldsFromData', () => {
     });
 
     expect(inferredFields[0] instanceof RelayQuery.Field).toBe(true);
-    expect(inferredFields[0].isScalar()).toBe(true);
+    expect(inferredFields[0].canHaveSubselections()).toBe(false);
     expect(inferredFields[0].getSchemaName()).toBe('id');
 
     expect(inferredFields[1] instanceof RelayQuery.Field).toBe(true);
-    // Though this is not scalar, there is no way we can infer this from
-    // `address: null`. Defaults to true.
-    expect(inferredFields[1].isScalar()).toBe(true);
+    // Though this field can have subselections, there is no way we can infer
+    // this from `address: null`. Defaults to false.
+    expect(inferredFields[1].canHaveSubselections()).toBe(false);
     expect(inferredFields[1].getSchemaName()).toBe('address');
   });
 

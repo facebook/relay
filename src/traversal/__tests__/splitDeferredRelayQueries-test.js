@@ -966,6 +966,7 @@ describe('splitDeferredRelayQueries()', () => {
           fieldName: 'hometown',
           children: [id, getNode(defer(fragment))],
           metadata: {
+            canHaveSubselections: true,
             isGenerated: true,
             inferredPrimaryKey: 'id',
             inferredRootCallName: 'node',

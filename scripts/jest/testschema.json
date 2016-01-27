@@ -6726,6 +6726,22 @@
               "deprecationReason": null
             },
             {
+              "name": "allTimezones",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "TimezoneInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "isFbEmployee",
               "description": null,
               "args": [],
@@ -7004,6 +7020,29 @@
         },
         {
           "kind": "OBJECT",
+          "name": "TimezoneInfo",
+          "description": null,
+          "fields": [
+            {
+              "name": "timezone",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "NewsFeedConnection",
           "description": null,
           "fields": [
@@ -7193,29 +7232,6 @@
           "fields": [
             {
               "name": "text",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "TimezoneInfo",
-          "description": null,
-          "fields": [
-            {
-              "name": "timezone",
               "description": null,
               "args": [],
               "type": {

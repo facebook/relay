@@ -919,8 +919,6 @@ describe('RelayDiskCacheReader', () => {
 
       expect(callbacks.onFailure.mock.calls.length).toBe(0);
       expect(callbacks.onSuccess.mock.calls.length).toBe(1);
-      expect(store.getLinkedRecordIDs('1055790163', 'screennames'))
-        .toEqual(['sn1']);
       expect(store.getRecordState('sn1')).toBe('NONEXISTENT');
       expect(changeTracker.getChangeSet()).toEqual({
         created: {},

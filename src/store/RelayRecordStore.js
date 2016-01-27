@@ -472,15 +472,15 @@ class RelayRecordStore {
     );
     const linkedIDs = [];
     field.forEach((item, ii) => {
-      const id = item.__dataID__;
       invariant(
-        typeof item === 'object' && id,
+        typeof item === 'object' && item.__dataID__,
         'RelayRecordStore.getLinkedRecordIDs(): Expected element at index %s ' +
         'in field `%s` for record `%s` to be a linked record.',
         ii,
         storageKey,
         dataID
       );
+      const id = item.__dataID__;
       if (this.getRecordState(id) !== 'NONEXISTENT') {
         linkedIDs.push(id);
       }

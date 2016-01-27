@@ -119,7 +119,7 @@ class PendingFetch {
 
   constructor(
     {fetchMode, forceIndex, query}: PendingQueryParameters,
-    {pendingFetchMap, preloadQueryMap, storeData, }: { // babel-eslint issue
+    {pendingFetchMap, preloadQueryMap, storeData}: {
       pendingFetchMap: {[queryID: string]: PendingState};
       preloadQueryMap: PromiseMap<Object, Error>;
       storeData: RelayStoreData;

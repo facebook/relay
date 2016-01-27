@@ -15,6 +15,7 @@ require('configureForRelayOSS');
 
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 const flattenRelayQuery = require('flattenRelayQuery');
@@ -89,15 +90,20 @@ describe('inferRelayFieldsFromData', () => {
   });
 
   it('infers unterminated fields from null', () => {
-    expect(inferRelayFieldsFromData({
+    const inferredFields = inferRelayFieldsFromData({
       id: '123',
       address: null,
-    })).toEqualFields(Relay.QL`
-      fragment on Actor {
-        id,
-        address,
-      }
-    `);
+    });
+
+    expect(inferredFields[0] instanceof RelayQuery.Field).toBe(true);
+    expect(inferredFields[0].isScalar()).toBe(true);
+    expect(inferredFields[0].getSchemaName()).toBe('id');
+
+    expect(inferredFields[1] instanceof RelayQuery.Field).toBe(true);
+    // Though this is not scalar, there is no way we can infer this from
+    // `address: null`. Defaults to true.
+    expect(inferredFields[1].isScalar()).toBe(true);
+    expect(inferredFields[1].getSchemaName()).toBe('address');
   });
 
   it('infers plural fields from arrays of scalars', () => {

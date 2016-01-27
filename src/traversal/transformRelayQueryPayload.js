@@ -24,6 +24,18 @@ type PayloadState = {
   client: QueryPayload,
   server: QueryPayload,
 };
+type TransformConfig = {
+  getKeyForClientData: (field: RelayQuery.Field) => string;
+  traverseChildren: (
+    node: RelayQuery.Node,
+    callback: (
+      child: RelayQuery.Node,
+      index: number,
+      children: Array<RelayQuery.Node>
+    ) => void,
+    context: any
+  ) => void;
+};
 
 /**
  * Transforms "client" payloads with property keys that match the "application"
@@ -33,7 +45,8 @@ type PayloadState = {
  */
 function transformRelayQueryPayload(
   root: RelayQuery.Root,
-  clientData: QueryPayload
+  clientData: QueryPayload,
+  config?: TransformConfig
 ): QueryPayload {
   if (clientData == null) {
     return clientData;
@@ -42,23 +55,26 @@ function transformRelayQueryPayload(
       // Handle both FB & OSS formats for root payloads on plural calls: FB
       // returns objects, OSS returns arrays.
       if (Array.isArray(item)) {
-        return item.map(innerItem => transform(root, innerItem));
+        return item.map(
+          innerItem => transform(root, innerItem, config)
+        );
       }
-      return transform(root, item);
+      return transform(root, item, config);
     });
   }
 }
 
 function transform(
   root: RelayQuery.Root,
-  clientData: QueryPayload
+  clientData: QueryPayload,
+  config: ?TransformConfig
 ): QueryPayload {
   if (clientData == null) {
     return clientData;
   }
-  var transform = new RelayPayloadTransformer();
-  var serverData = {};
-  transform.visit(root, {
+  const transformer = new RelayPayloadTransformer(config);
+  const serverData = {};
+  transformer.visit(root, {
     client: clientData,
     server: serverData,
   });
@@ -66,27 +82,55 @@ function transform(
 }
 
 class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
+  _getKeyForClientData: (field: RelayQuery.Field) => string;
+  _traverseChildren: ?(
+    node: RelayQuery.Node,
+    callback: (
+      child: RelayQuery.Node,
+      index: number,
+      children: Array<RelayQuery.Node>
+    ) => void,
+    context: any
+  ) => void;
+
+  constructor(config: ?TransformConfig) {
+    super();
+    if (config) {
+      this._getKeyForClientData = config.getKeyForClientData;
+      this._traverseChildren = config.traverseChildren;
+    }
+  }
+
+  _getKeyForClientData(field: RelayQuery.Field): string {
+    return field.getApplicationName();
+  }
+
+  traverseChildren(
+    node: RelayQuery.Node,
+    nextState: PayloadState,
+    callback: (
+      child: RelayQuery.Node,
+      index: number,
+      children: Array<RelayQuery.Node>
+    ) => void,
+    context: any
+  ): void {
+    if (this._traverseChildren) {
+      this._traverseChildren(node, callback, context);
+    } else {
+      super.traverseChildren(node, nextState, callback, context);
+    }
+  }
+
   visitField(
     node: RelayQuery.Field,
     state: PayloadState
   ): void {
-    var {client, server} = state;
-    // `client` represents the *parent* node value and should not be null
-    // due to checks before traversing child values.
-    invariant(
-      typeof client === 'object' && client !== null,
-      'RelayPayloadTransformer: Expected a client value for field `%s`.',
-      node.getApplicationName()
-    );
-    invariant(
-      typeof server === 'object' && server !== null,
-      'RelayPayloadTransformer: Expected a server value for field `%s`.',
-      node.getApplicationName()
-    );
-    var applicationName = node.getApplicationName();
-    var serializationKey = node.getSerializationKey();
-    var clientData = client[applicationName];
-    var serverData = server[serializationKey];
+    const {client, server} = state;
+    const applicationName = this._getKeyForClientData(node);
+    const serializationKey = node.getSerializationKey();
+    const clientData = client[applicationName];
+    let serverData = server[serializationKey];
 
     if (node.isScalar() || clientData == null) {
       server[serializationKey] = clientData;
@@ -105,7 +149,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
           serverData[index] = clientItem;
           return;
         }
-        var serverItem = serverData && serverData[index];
+        let serverItem = serverData && serverData[index];
         if (serverItem == null) {
           serverData[index] = serverItem = {};
         }

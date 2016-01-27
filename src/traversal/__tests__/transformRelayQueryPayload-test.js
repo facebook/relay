@@ -14,16 +14,17 @@
 require('configureForRelayOSS');
 
 const Relay = require('Relay');
+const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const transformRelayQueryPayload = require('transformRelayQueryPayload');
 
 describe('transformClientPayload()', () => {
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   it('transforms singular root payloads', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id: "123") {
           friends(first:"1") {
@@ -42,7 +43,7 @@ describe('transformClientPayload()', () => {
         }
       }
     `);
-    var payload = {
+    const payload = {
       node: {
         id: '123',
         friends: {
@@ -85,7 +86,7 @@ describe('transformClientPayload()', () => {
   });
 
   it('transforms plural root payloads of arrays', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
@@ -96,7 +97,7 @@ describe('transformClientPayload()', () => {
         },
       }
     `);
-    var payload = {
+    const payload = {
       123: {
         id: '123',
         profilePicture: {
@@ -129,7 +130,7 @@ describe('transformClientPayload()', () => {
   });
 
   it('transforms plural root payloads of objects (OSS)', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
@@ -140,7 +141,7 @@ describe('transformClientPayload()', () => {
         },
       }
     `);
-    var payload = {
+    const payload = {
       nodes: [
         {
           id: '123',
@@ -177,7 +178,7 @@ describe('transformClientPayload()', () => {
   });
 
   it('transforms plural root payloads of objects (FB)', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
@@ -188,7 +189,7 @@ describe('transformClientPayload()', () => {
         },
       }
     `);
-    var payload = {
+    const payload = {
       nodes: [
         {
           id: '123',
@@ -222,5 +223,65 @@ describe('transformClientPayload()', () => {
         },
       ],
     });
+  });
+
+  it('uses the query interface to construct keys', () => {
+    const queryInterface = {
+      getKeyForClientData: jest.genMockFunction().mockImplementation(
+        field => Array.from(field.getApplicationName()).reverse().join('')
+      ),
+      traverseChildren: jest.genMockFunction().mockImplementation(
+        (node, callback, context) => node.getChildren().reverse().forEach(
+          (...args) => callback.apply(context, args)
+        )
+      ),
+    };
+    const query = getNode(Relay.QL`
+      query {
+        me {
+          id
+          name
+          profilePicture {
+            uri
+          }
+        }
+      }
+    `);
+    const payload = {
+      me: {
+        erutciPeliforp: {
+          iru: 'abc.jpg',
+        },
+        eman: 'ABC',
+        di: '123',
+      },
+    };
+    expect(
+      transformRelayQueryPayload(query, payload, queryInterface)
+    ).toEqual({
+      me: {
+        id: '123',
+        name: 'ABC',
+        profilePicture: {
+          uri: 'abc.jpg',
+        },
+      },
+    });
+
+    // `getKeyForClientData` should be called on every field.
+    expect(
+      queryInterface.getKeyForClientData.mock.calls.map(
+        ([field]) => field.getApplicationName()
+      )
+    ).toEqual(['profilePicture', 'uri', 'name', 'id']);
+
+    // `traverseChildren` should be called on every field with children.
+    expect(
+      queryInterface.traverseChildren.mock.calls.map(
+        ([node]) => node instanceof RelayQuery.Root ?
+          node.getFieldName() :
+          node.getApplicationName()
+      )
+    ).toEqual(['me', 'profilePicture']);
   });
 });

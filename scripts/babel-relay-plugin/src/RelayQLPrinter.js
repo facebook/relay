@@ -371,14 +371,15 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       const fieldType = field.getType();
 
       const metadata: {
+        canHaveSubselections?: boolean;
         inferredPrimaryKey?: ?string;
         inferredRootCallName?: ?string;
+        isAbstract?: boolean;
         isConnection?: boolean;
         isFindable?: boolean;
         isGenerated?: boolean;
         isPlural?: boolean;
         isRequisite?: boolean;
-        isAbstract?: boolean;
       } = {};
       const requisiteFields = {};
       let idFragment;
@@ -390,6 +391,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
       validateField(field, parent.getType());
 
+      if (fieldType.canHaveSubselections()) {
+        metadata.canHaveSubselections = true;
+      }
       // TODO: Generalize to non-`Node` types.
       if (fieldType.alwaysImplements('Node')) {
         metadata.inferredRootCallName = 'node';

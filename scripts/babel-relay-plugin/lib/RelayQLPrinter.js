@@ -333,6 +333,9 @@ module.exports = function (t, options) {
 
         validateField(field, parent.getType());
 
+        if (fieldType.canHaveSubselections()) {
+          metadata.canHaveSubselections = true;
+        }
         // TODO: Generalize to non-`Node` types.
         if (fieldType.alwaysImplements('Node')) {
           metadata.inferredRootCallName = 'node';

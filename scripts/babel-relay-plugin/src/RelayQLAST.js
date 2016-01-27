@@ -402,6 +402,13 @@ class RelayQLType {
     this.schemaModifiedType = schemaModifiedType;
   }
 
+  canHaveSubselections(): boolean {
+    return !(
+      this.schemaUnmodifiedType instanceof types.GraphQLScalarType ||
+      this.schemaUnmodifiedType instanceof types.GraphQLEnumType
+    );
+  }
+
   getName({modifiers}: {modifiers: boolean}): string {
     return modifiers ?
       this.schemaModifiedType.toString() :
@@ -522,24 +529,20 @@ class RelayQLType {
     return this.isNonNullType;
   }
 
-  isScalar(): boolean {
-    return this.schemaUnmodifiedType instanceof types.GraphQLScalarType;
-  }
-
   isConnection(): boolean {
     if (!/Connection$/.test(this.getName({modifiers: false}))) {
       return false;
     }
     const edges = this.getFieldDefinition('edges');
-    if (!edges || edges.getType().isScalar()) {
+    if (!edges || !edges.getType().canHaveSubselections()) {
       return false;
     }
     const node = edges.getType().getFieldDefinition('node');
-    if (!node || node.getType().isScalar()) {
+    if (!node || !node.getType().canHaveSubselections()) {
       return false;
     }
     const cursor = edges.getType().getFieldDefinition('cursor');
-    if (!cursor || !cursor.getType().isScalar()) {
+    if (!cursor || cursor.getType().canHaveSubselections()) {
       return false;
     }
     return true;

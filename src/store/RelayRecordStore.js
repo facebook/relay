@@ -66,7 +66,7 @@ export type RangeInfo = {
   requestedEdgeIDs: Array<string>;
   filteredEdges: Array<RangeEdge>;
 };
-type RangeOperation = 'append' | 'prepend' | 'remove';
+type RangeOperation = $Enum<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 
 type RecordCollection = {
   cachedRecords?: ?Records;

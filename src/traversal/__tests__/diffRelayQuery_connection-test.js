@@ -241,9 +241,37 @@ describe('diffRelayQuery', () => {
     };
     writePayload(store, writeQuery, payload, tracker);
 
+    // @relay(isConnectionWithoutNodeID: true) should silence the warning.
+    var fetchQueryA = getNode(Relay.QL`
+      query {
+        viewer {
+          newsFeed(first: "3") @relay(isConnectionWithoutNodeID: true) {
+            edges {
+              node {
+                feedback {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+    var diffQueries = diffRelayQuery(fetchQueryA, store, tracker);
+    expect(diffQueries.length).toBe(0);
+    expect([
+      'RelayDiffQueryBuilder: Field `node` on connection `%s` cannot be ' +
+      'retrieved if it does not have an `id` field. If you expect fields ' +
+      'to be retrieved on this field, add an `id` field in the schema. ' +
+      'If you choose to ignore this warning, you can silence it by ' +
+      'adding `@relay(isConnectionWithoutNodeID: true)` to the ' +
+      'connection field.',
+      'newsFeed',
+    ]).toBeWarnedNTimes(0);
+
     // `feedback{id}` is missing but there is no way to refetch it
     // Warn that data cannot be refetched
-    var fetchQuery = getNode(Relay.QL`
+    var fetchQueryB = getNode(Relay.QL`
       query {
         viewer {
           newsFeed(first:"3") {
@@ -258,12 +286,15 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var diffQueries = diffRelayQuery(fetchQuery, store, tracker);
-    expect(diffQueries.length).toBe(0);
+    diffRelayQuery(fetchQueryB, store, tracker);
+
     expect([
-      'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
-      'if the node is refetchable by `id`. Cannot refetch data for field ' +
-      '`%s`.',
+      'RelayDiffQueryBuilder: Field `node` on connection `%s` cannot be ' +
+      'retrieved if it does not have an `id` field. If you expect fields ' +
+      'to be retrieved on this field, add an `id` field in the schema. ' +
+      'If you choose to ignore this warning, you can silence it by ' +
+      'adding `@relay(isConnectionWithoutNodeID: true)` to the ' +
+      'connection field.',
       'newsFeed',
     ]).toBeWarnedNTimes(3);
   });
@@ -330,9 +361,12 @@ describe('diffRelayQuery', () => {
     const diffQueries = diffRelayQuery(fetchQuery, store, tracker);
     expect(diffQueries.length).toBe(0);
     expect([
-      'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
-      'if the node is refetchable by `id`. Cannot refetch data for field ' +
-      '`%s`.',
+      'RelayDiffQueryBuilder: Field `node` on connection `%s` cannot be ' +
+      'retrieved if it does not have an `id` field. If you expect fields ' +
+      'to be retrieved on this field, add an `id` field in the schema. ' +
+      'If you choose to ignore this warning, you can silence it by ' +
+      'adding `@relay(isConnectionWithoutNodeID: true)` to the ' +
+      'connection field.',
       'newsFeed',
     ]).toBeWarnedNTimes(0);
   });
@@ -440,9 +474,12 @@ describe('diffRelayQuery', () => {
       }
     `));
     expect([
-      'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
-      'if the node is refetchable by `id`. Cannot refetch data for field ' +
-      '`%s`.',
+      'RelayDiffQueryBuilder: Field `node` on connection `%s` cannot be ' +
+      'retrieved if it does not have an `id` field. If you expect fields ' +
+      'to be retrieved on this field, add an `id` field in the schema. ' +
+      'If you choose to ignore this warning, you can silence it by ' +
+      'adding `@relay(isConnectionWithoutNodeID: true)` to the ' +
+      'connection field.',
       'newsFeed',
     ]).toBeWarnedNTimes(0);
   });

@@ -1034,6 +1034,11 @@ class RelayQueryField extends RelayQueryNode {
     return !!(this.__concreteNode__: ConcreteField).metadata.isConnection;
   }
 
+  isConnectionWithoutNodeID(): boolean {
+    return !!(this.__concreteNode__: ConcreteField).metadata
+      .isConnectionWithoutNodeID;
+  }
+
   isPlural(): boolean {
     return !!(this.__concreteNode__: ConcreteField).metadata.isPlural;
   }

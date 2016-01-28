@@ -394,7 +394,7 @@ module.exports = function (t, options) {
           directives: this.printDirectives(field.getDirectives()),
           fieldName: t.valueToNode(field.getName()),
           kind: t.valueToNode('Field'),
-          metadata: objectify(metadata),
+          metadata: this.printRelayDirectiveMetadata(field, metadata),
           type: t.valueToNode(fieldType.getName({ modifiers: false }))
         });
       }

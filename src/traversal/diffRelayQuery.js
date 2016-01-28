@@ -614,10 +614,13 @@ class RelayDiffQueryBuilder {
     if (diffNode) {
       if (!nodeID || RelayRecord.isClientID(nodeID)) {
         warning(
-          false,
-          'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
-          'if the node is refetchable by `id`. Cannot refetch data for field ' +
-          '`%s`.',
+          connectionField.isConnectionWithoutNodeID(),
+          'RelayDiffQueryBuilder: Field `node` on connection `%s` cannot be ' +
+          'retrieved if it does not have an `id` field. If you expect fields ' +
+          'to be retrieved on this field, add an `id` field in the schema. ' +
+          'If you choose to ignore this warning, you can silence it by ' +
+          'adding `@relay(isConnectionWithoutNodeID: true)` to the ' +
+          'connection field.',
           connectionField.getStorageKey()
         );
       } else {
@@ -632,8 +635,8 @@ class RelayDiffQueryBuilder {
           const nodeField = edgeField.getFieldByStorageKey('node');
           invariant(
             nodeField,
-            'RelayDiffQueryBuilder: expected a `node` field for connection ' +
-            '`%s`.',
+            'RelayDiffQueryBuilder: Expected connection `%s` to have a ' +
+            '`node` field.',
             connectionField.getSchemaName()
           );
           this.splitQuery(buildRoot(

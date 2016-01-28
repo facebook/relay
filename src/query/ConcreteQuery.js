@@ -84,6 +84,7 @@ export type ConcreteFieldMetadata = {
   inferredRootCallName?: ?string;
   isAbstract?: boolean;
   isConnection?: boolean;
+  isConnectionWithoutNodeID?: boolean;
   isFindable?: boolean;
   isGenerated?: boolean;
   isPlural?: boolean;

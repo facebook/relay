@@ -190,7 +190,8 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       const selections = this.printSelections(
         fragment,
         requisiteFields,
-        idFragment ? [idFragment] : null
+        idFragment ? [idFragment] : null,
+        fragment.hasDirective('generated')
       );
       const metadata = this.printRelayDirectiveMetadata(fragment, {
         isAbstract: fragmentType.isAbstract(),
@@ -291,7 +292,8 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     printSelections(
       parent: RelayQLField | RelayQLFragment,
       requisiteFields: {[fieldName: string]: boolean},
-      extraFragments?: ?Array<RelayQLFragment>
+      extraFragments?: ?Array<RelayQLFragment>,
+      isGeneratedQuery = false
     ): Printable {
       const fields = [];
       const printedFragments = [];
@@ -317,7 +319,12 @@ module.exports = function(t: any, options: PrinterOptions): Function {
           printedFragments.push(this.printFragment(fragment));
         });
       }
-      const printedFields = this.printFields(fields, parent, requisiteFields);
+      const printedFields = this.printFields(
+        fields, 
+        parent, 
+        requisiteFields, 
+        isGeneratedQuery
+      );
       const selections = [...printedFields, ...printedFragments];
 
       if (selections.length) {
@@ -329,7 +336,8 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     printFields(
       fields: Array<RelayQLField>,
       parent: RelayQLField | RelayQLFragment,
-      requisiteFields: {[fieldName: string]: boolean}
+      requisiteFields: {[fieldName: string]: boolean},
+      isGeneratedQuery = false
     ): Array<Printable> {
       const parentType = parent.getType();
       if (parentType.isConnection() &&
@@ -344,7 +352,13 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       fields.forEach(field => {
         delete generatedFields[field.getName()];
         printedFields.push(
-          this.printField(field, parent, requisiteFields, generatedFields)
+          this.printField(
+            field, 
+            parent, 
+            requisiteFields, 
+            generatedFields, 
+            isGeneratedQuery
+          )
         );
       });
 
@@ -355,7 +369,8 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             generatedField,
             parent,
             requisiteFields,
-            generatedFields
+            generatedFields,
+            isGeneratedQuery
           )
         );
       });
@@ -366,7 +381,8 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       field: RelayQLField,
       parent: RelayQLField | RelayQLFragment,
       requisiteSiblings: {[fieldName: string]: boolean},
-      generatedSiblings: {[fieldName: string]: boolean}
+      generatedSiblings: {[fieldName: string]: boolean},
+      isGeneratedQuery = false
     ): Printable {
       const fieldType = field.getType();
 
@@ -389,7 +405,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         idFragment = fieldType.generateIdFragment();
       }
 
-      validateField(field, parent.getType());
+      if (!isGeneratedQuery) {
+        validateField(field, parent.getType());
+      }
 
       if (fieldType.canHaveSubselections()) {
         metadata.canHaveSubselections = true;
@@ -402,7 +420,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       if (fieldType.isConnection()) {
         if (field.hasDeclaredArgument('first') ||
             field.hasDeclaredArgument('last')) {
-          validateConnectionField(field);
+          if (!isGeneratedQuery) {
+            validateConnectionField(field);
+          }
           metadata.isConnection = true;
           if (field.hasDeclaredArgument('find')) {
             metadata.isFindable = true;
@@ -432,7 +452,8 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       const selections = this.printSelections(
         field,
         requisiteFields,
-        idFragment ? [idFragment] : null
+        idFragment ? [idFragment] : null,
+        isGeneratedQuery
       );
       const fieldAlias = field.getAlias();
       const args = field.getArguments();

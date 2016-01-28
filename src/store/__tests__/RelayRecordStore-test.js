@@ -381,7 +381,7 @@ describe('RelayRecordStore', () => {
   });
 
   describe('getLinkedRecordIDs()', () => {
-    it('throws if the data is an unexpected format', () => {
+    it('ensures that the data is an valid object', () => {
       var records = {
         'story': {
           actors: ['not an object'],
@@ -390,7 +390,19 @@ describe('RelayRecordStore', () => {
       var store = new RelayRecordStore({records});
       expect(() => {
         store.getLinkedRecordIDs('story', 'actors');
-      }).toThrow();
+      }).toThrowError(/Expected element at index/);
+    });
+
+    it('ensures that the data does not contain null values', () => {
+      var records = {
+        'story': {
+          actors: [null],
+        },
+      };
+      var store = new RelayRecordStore({records});
+      expect(() => {
+        store.getLinkedRecordIDs('story', 'actors');
+      }).toThrowError(/Expected element at index/);
     });
 
     it('returns undefined for unfetched fields', () => {

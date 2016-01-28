@@ -473,7 +473,7 @@ class RelayRecordStore {
     const linkedIDs = [];
     field.forEach((item, ii) => {
       invariant(
-        typeof item === 'object' && item.__dataID__,
+        typeof item === 'object' && item != null && item.__dataID__,
         'RelayRecordStore.getLinkedRecordIDs(): Expected element at index %s ' +
         'in field `%s` for record `%s` to be a linked record.',
         ii,

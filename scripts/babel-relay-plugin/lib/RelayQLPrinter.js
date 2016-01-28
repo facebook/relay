@@ -178,7 +178,7 @@ module.exports = function (t, options) {
         if (fragmentType.isAbstract()) {
           requisiteFields[FIELDS.__typename] = true;
         }
-        var selections = this.printSelections(fragment, requisiteFields, idFragment ? [idFragment] : null, fragment.hasDirective('generated'));
+        var selections = this.printSelections(fragment, requisiteFields, idFragment ? [idFragment] : null);
         var metadata = this.printRelayDirectiveMetadata(fragment, {
           isAbstract: fragmentType.isAbstract()
         });
@@ -261,8 +261,6 @@ module.exports = function (t, options) {
       value: function printSelections(parent, requisiteFields, extraFragments) {
         var _this = this;
 
-        var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
-
         var fields = [];
         var printedFragments = [];
         parent.getSelections().forEach(function (selection) {
@@ -283,7 +281,7 @@ module.exports = function (t, options) {
             printedFragments.push(_this.printFragment(fragment));
           });
         }
-        var printedFields = this.printFields(fields, parent, requisiteFields, isGeneratedQuery);
+        var printedFields = this.printFields(fields, parent, requisiteFields);
         var selections = [].concat(_toConsumableArray(printedFields), printedFragments);
 
         if (selections.length) {
@@ -295,8 +293,6 @@ module.exports = function (t, options) {
       key: 'printFields',
       value: function printFields(fields, parent, requisiteFields) {
         var _this2 = this;
-
-        var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
         var parentType = parent.getType();
         if (parentType.isConnection() && parentType.hasField(FIELDS.pageInfo) && fields.some(function (field) {
@@ -310,12 +306,12 @@ module.exports = function (t, options) {
         var printedFields = [];
         fields.forEach(function (field) {
           delete generatedFields[field.getName()];
-          printedFields.push(_this2.printField(field, parent, requisiteFields, generatedFields, isGeneratedQuery));
+          printedFields.push(_this2.printField(field, parent, requisiteFields, generatedFields));
         });
 
         Object.keys(generatedFields).forEach(function (fieldName) {
           var generatedField = parentType.generateField(fieldName);
-          printedFields.push(_this2.printField(generatedField, parent, requisiteFields, generatedFields, isGeneratedQuery));
+          printedFields.push(_this2.printField(generatedField, parent, requisiteFields, generatedFields));
         });
         return printedFields;
       }
@@ -323,8 +319,6 @@ module.exports = function (t, options) {
       key: 'printField',
       value: function printField(field, parent, requisiteSiblings, generatedSiblings) {
         var _this3 = this;
-
-        var isGeneratedQuery = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
 
         var fieldType = field.getType();
 
@@ -337,9 +331,7 @@ module.exports = function (t, options) {
           idFragment = fieldType.generateIdFragment();
         }
 
-        if (!isGeneratedQuery) {
-          validateField(field, parent.getType());
-        }
+        validateField(field, parent.getType());
 
         if (fieldType.canHaveSubselections()) {
           metadata.canHaveSubselections = true;
@@ -351,9 +343,7 @@ module.exports = function (t, options) {
         }
         if (fieldType.isConnection()) {
           if (field.hasDeclaredArgument('first') || field.hasDeclaredArgument('last')) {
-            if (!isGeneratedQuery) {
-              validateConnectionField(field);
-            }
+            validateConnectionField(field);
             metadata.isConnection = true;
             if (field.hasDeclaredArgument('find')) {
               metadata.isFindable = true;
@@ -380,7 +370,7 @@ module.exports = function (t, options) {
           metadata.isRequisite = true;
         }
 
-        var selections = this.printSelections(field, requisiteFields, idFragment ? [idFragment] : null, isGeneratedQuery);
+        var selections = this.printSelections(field, requisiteFields, idFragment ? [idFragment] : null);
         var fieldAlias = field.getAlias();
         var args = field.getArguments();
         var calls = args.length ? t.arrayExpression(args.map(function (arg) {

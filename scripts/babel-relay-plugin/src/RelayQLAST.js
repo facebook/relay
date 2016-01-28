@@ -105,10 +105,6 @@ class RelayQLNode<T> {
     );
   }
 
-  hasDirective(name: string): boolean {
-    return (this.ast.directives || []).some(d => d.name.value === name);
-  }
-
   isPattern(): boolean {
     return this.context.isPattern;
   }

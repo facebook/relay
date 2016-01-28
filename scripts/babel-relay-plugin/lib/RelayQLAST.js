@@ -98,13 +98,6 @@ var RelayQLNode = (function () {
       });
     }
   }, {
-    key: 'hasDirective',
-    value: function hasDirective(name) {
-      return (this.ast.directives || []).some(function (d) {
-        return d.name.value === name;
-      });
-    }
-  }, {
     key: 'isPattern',
     value: function isPattern() {
       return this.context.isPattern;

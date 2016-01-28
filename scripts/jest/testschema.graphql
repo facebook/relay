@@ -20,6 +20,7 @@ type Mutation {
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
   feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
   nodeSavedState(input: NodeSaveStateInput): NodeSavedStateResponsePayload
+  unfriend(input: UnfriendInput): UnfriendResponsePayload
   viewerNotificationsUpdateAllSeenState(input: UpdateAllSeenStateInput): ViewerNotificationsUpdateAllSeenStateResponsePayload
 }
 
@@ -535,6 +536,17 @@ type TopLevelCommentsConnection {
 type Type {
   id: ID!
   name: String
+}
+
+input UnfriendInput {
+  clientMutationId: String
+  friendId: ID
+}
+
+type UnfriendResponsePayload {
+  actor: Actor
+  clientMutationId: String
+  formerFriend: User
 }
 
 type User implements Node Actor {

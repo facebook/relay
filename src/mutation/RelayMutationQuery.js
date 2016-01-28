@@ -31,6 +31,9 @@ const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 const intersectRelayQuery = require('intersectRelayQuery');
 const invariant = require('invariant');
 
+// This should probably use disjoint unions.
+type MutationConfig = {[key: string]: $FlowFixMe};
+
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment;
   tracker: RelayQueryTracker;
@@ -300,12 +303,7 @@ var RelayMutationQuery = {
       mutation,
       tracker,
     }: {
-      /* Previously each element of configs had the type mixed, which meant
-       * that they couldn't be used in configs.forEach without being
-       * inspected at runtime. I think this is probably a good use case for
-       * disjoin unions (flowtype.org/blog/2015/07/03/Disjoint-Unions.html)
-       */
-      configs: Array<{[key: string]: $FlowFixMe}>;
+      configs: Array<MutationConfig>;
       fatQuery: RelayQuery.Fragment;
       input: Variables,
       mutationName: string;
@@ -354,10 +352,14 @@ var RelayMutationQuery = {
             parentName: config.parentName,
             tracker,
           }));
-          children.push(RelayQuery.Field.build({
-            fieldName: config.deletedIDFieldName,
-            type: 'String',
-          }));
+          children.push(
+            Array.isArray(config.deletedIDFieldName) ?
+              buildDeletedConnectionNodeIDField(config.deletedIDFieldName) :
+              RelayQuery.Field.build({
+                fieldName: config.deletedIDFieldName,
+                type: 'String',
+              })
+          );
           break;
 
         case RelayMutationType.FIELDS_CHANGE:
@@ -411,6 +413,26 @@ function buildMutationFragment(
     return fragment;
   }
   return null;
+}
+
+function buildDeletedConnectionNodeIDField(
+  fieldNames: Array<string>
+): RelayQuery.Field {
+  let field = RelayQuery.Field.build({
+    fieldName: ID,
+    type: 'String',
+  });
+  for (let ii = fieldNames.length - 1; ii >= 0; ii--) {
+    field = RelayQuery.Field.build({
+      fieldName: fieldNames[ii],
+      type: ANY_TYPE,
+      children: [field],
+      metadata: {
+        canHaveSubselections: true,
+      },
+    });
+  }
+  return field;
 }
 
 function buildEdgeField(

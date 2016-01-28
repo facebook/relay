@@ -152,12 +152,13 @@ class RelayMutation<Tp: Object> {
    *      parentName: string;
    *      parentID: string;
    *      connectionName: string;
-   *      deletedIDFieldName: string;
+   *      deletedIDFieldName: string | Array<string>;
    *      pathToConnection: Array<string>;
    *    }
    *    where `parentName`, `parentID`, `connectionName` and
-   *    `deletedIDFieldName` refer to the same things as in NODE_DELETE,
-   *    `pathToConnection` provides a path from `parentName` to
+   *    `deletedIDFieldName` refer to the same things as in NODE_DELETE.
+   *    `deletedIDFieldName` can also be a path from the response root to the
+   *    deleted node. `pathToConnection` is a path from `parentName` to
    *    `connectionName`.
    *
    * -  REQUIRED_CHILDREN is used to append additional children (fragments or

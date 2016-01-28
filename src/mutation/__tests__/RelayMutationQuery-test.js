@@ -786,7 +786,7 @@ describe('RelayMutationQuery', () => {
         .toEqualQueryNode(expectedMutationQuery);
     });
 
-    it('creates a query for RANGE_DELETE', () => {
+    it('creates a query for RANGE_DELETE with a shallow deleted field', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
           comments(first:"10") {
@@ -851,6 +851,70 @@ describe('RelayMutationQuery', () => {
 
       expect(query)
         .toEqualQueryNode(expectedMutationQuery);
+    });
+
+    it('creates a query for RANGE_DELETE with a deep deleted field', () => {
+      tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
+        fragment on Actor {
+          friends(first: "10") {
+            edges {
+              node {
+                name
+              }
+            }
+          }
+        }
+      `));
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
+        fragment on UnfriendResponsePayload {
+          actor {
+            friends
+          }
+          clientMutationId
+        }
+      `);
+      const configs = [
+        {
+          type: RelayMutationType.RANGE_DELETE,
+          parentName: 'actor',
+          parentID: '123',
+          connectionName: 'friends',
+          deletedIDFieldName: ['formerFriend'],
+          pathToConnection: ['actor', 'friends'],
+        },
+      ];
+
+      const mutation = Relay.QL`mutation{ unfriend(input: $input) }`;
+      const mutationName = 'UnfriendMutation';
+      const variables = {input: ''};
+      const query = RelayMutationQuery.buildQuery({
+        tracker,
+        fatQuery,
+        configs,
+        mutationName,
+        mutation,
+      });
+
+      const expectedConcreteNode = Relay.QL`
+        mutation {
+          unfriend(input: $input) {
+            clientMutationId,
+            formerFriend {
+              id
+            }
+            ${Relay.QL`
+              fragment on UnfriendResponsePayload {
+                actor {
+                  id
+                }
+              }
+            `},
+          }
+        }
+      `;
+      expect(query).toEqualQueryNode(
+        getNodeWithoutSource(expectedConcreteNode, variables)
+      );
     });
 
     it('creates a query for FIELDS_CHANGE', () => {

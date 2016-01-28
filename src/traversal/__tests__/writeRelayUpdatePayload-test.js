@@ -260,6 +260,122 @@ describe('writePayload()', () => {
         [{name: 'first', value: '1'}]
       ).filteredEdges.map(edge => edge.edgeID)).toEqual([]);
     });
+
+    it('removes range edge with a "deleted field ID path"', () => {
+      writePayload(
+        store,
+        getNode(Relay.QL`
+          query {
+            viewer {
+              actor {
+                friends(first: "1") {
+                  edges {
+                    node {
+                      id
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `),
+        {
+          viewer: {
+            actor: {
+              id: '123',
+              friends: {
+                edges: [
+                  {
+                    node: {
+                      id: '456',
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        }
+      );
+      const friendConnectionID = store.getLinkedRecordID('123', 'friends');
+      const friendEdgeID = generateClientEdgeID(friendConnectionID, '456');
+
+      const input = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        friendId: '456',
+      };
+      const mutation = getNode(Relay.QL`
+        mutation {
+          unfriend(input: $input) {
+            actor {
+              friends(first: "1") {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+            formerFriend {
+              id
+            }
+          }
+        }
+      `, {
+        input: JSON.stringify(input),
+      });
+      const configs = [{
+        type: RelayMutationType.RANGE_DELETE,
+        parentName: 'actor',
+        parentID: '123',
+        connectionName: 'friends',
+        deletedIDFieldName: ['formerFriend'],
+        pathToConnection: ['actor', 'friends'],
+      }];
+
+      const payload = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        actor: {
+          id: '123',
+          friends: {
+            edges: [],
+          },
+        },
+        formerFriend: {
+          id: '456',
+        },
+      };
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const writer = new RelayQueryWriter(
+        store,
+        queryTracker,
+        changeTracker
+      );
+
+      writeRelayUpdatePayload(
+        writer,
+        mutation,
+        payload,
+        {configs, isOptimisticUpdate: false}
+      );
+
+      expect(changeTracker.getChangeSet()).toEqual({
+        created: {},
+        updated: {
+          [friendConnectionID]: true,
+          [friendEdgeID]: true,
+        },
+      });
+
+      expect(store.getRecordState(friendEdgeID)).toBe('NONEXISTENT');
+      expect(store.getRecordState('456')).toBe('EXISTENT');
+      // the range no longer returns this edge
+      expect(store.getRangeMetadata(
+        friendConnectionID,
+        [{name: 'first', value: '1'}]
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([]);
+    });
   });
 
   describe('node/range delete mutations', () => {

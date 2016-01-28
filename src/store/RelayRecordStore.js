@@ -623,7 +623,7 @@ class RelayRecordStore {
       };
     }
     var queuedRecord = this._queuedRecords ?
-      (this._queuedRecords: $FixMe)[connectionID] :
+      this._queuedRecords[connectionID] :
       null;
     var {
       diffCalls,

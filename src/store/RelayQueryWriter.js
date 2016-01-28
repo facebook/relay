@@ -511,7 +511,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         generateClientID()
       );
       // TODO: Flow: `nodeID` is `string`
-      const edgeID = generateClientEdgeID(connectionID, (nodeID: any));
+      const edgeID = generateClientEdgeID(connectionID, nodeID);
       const path = state.path.getPath(edges, edgeID);
       this.createRecordIfMissing(edges, edgeID, null, path);
       fetchedEdgeIDs.push(edgeID);
@@ -581,7 +581,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       );
 
       // Reuse existing generated IDs if the node does not have its own `id`.
-      // TODO: Flow: `nextRecord` is asserted as typeof === 'object'
       const prevLinkedID = prevLinkedIDs && prevLinkedIDs[nextIndex];
       const nextLinkedID = (
         nextRecord[ID] ||
@@ -649,11 +648,10 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // was already generated it is reused). `node`s within a connection are
     // a special case as the ID used here must match the one generated prior to
     // storing the parent `edge`.
-    // TODO: Flow: `fieldData` is asserted as typeof === 'object'
     const prevLinkedID = this._store.getLinkedRecordID(recordID, storageKey);
     const nextLinkedID = (
       (field.getSchemaName() === NODE && nodeID) ||
-      (fieldData: any)[ID] ||
+      fieldData[ID] ||
       prevLinkedID ||
       generateClientID()
     );

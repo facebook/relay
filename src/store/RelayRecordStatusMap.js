@@ -24,14 +24,14 @@ var ERROR_MASK = 0x02;
 function set(status: ?number, value: boolean, mask: number): number {
   status = status || 0;
   if (value) {
-    return status | mask;
+    return status | mask; // eslint-disable-line no-bitwise
   } else {
-    return status & ~mask;
+    return status & ~mask; // eslint-disable-line no-bitwise
   }
 }
 
 function check(status: ?number, mask: number): boolean {
-  return ((status || 0) & mask) != 0;
+  return ((status || 0) & mask) != 0; // eslint-disable-line no-bitwise
 }
 /**
  * A set of functions for modifying `__status__` on records inside of

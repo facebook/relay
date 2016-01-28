@@ -18,7 +18,6 @@ jest.mock('warning');
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayQueryPath = require('RelayQueryPath');
-const RelayRecordStatusMap = require('RelayRecordStatusMap');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRecordStore', () => {

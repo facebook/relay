@@ -19,7 +19,7 @@ const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryRoot', () => {
-  var {defer, getNode} = RelayTestUtils;
+  var {getNode} = RelayTestUtils;
 
   var me;
   var usernames;

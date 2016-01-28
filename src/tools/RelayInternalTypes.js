@@ -59,6 +59,8 @@ export type Record = {
   __mutationIDs__?: Array<ClientMutationID>;
   __range__?: GraphQLRange;
   __resolvedDeferredFragments__?: {[fragmentID: string]: boolean};
+  __resolvedFragmentMap__?: {[fragmentID: string]: boolean};
+  __resolvedFragmentMapGeneration__?: number;
   __path__?: RelayQueryPath;
   __status__?: number;
   __typename?: ?string;

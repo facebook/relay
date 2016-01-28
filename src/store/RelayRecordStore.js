@@ -442,9 +442,7 @@ class RelayRecordStore {
       recordID,
       parentID
     );
-    var fieldValue = {
-      __dataID__: recordID,
-    };
+    var fieldValue = RelayRecord.create(recordID);
     parent[storageKey] = fieldValue;
     if (!this._queuedRecords && this._cacheWriter) {
       this._cacheWriter.writeField(parentID, storageKey, fieldValue);
@@ -507,9 +505,7 @@ class RelayRecordStore {
         recordID,
         parentID
       );
-      return {
-        __dataID__: recordID,
-      };
+      return RelayRecord.create(recordID);
     });
     parent[storageKey] = records;
     if (!this._queuedRecords && this._cacheWriter) {
@@ -909,9 +905,7 @@ class RelayRecordStore {
     // not already exist there.
     var source = this._queuedRecords || this._records;
     if (!source[dataID]) {
-      record = source[dataID] = ({
-        __dataID__: dataID,
-      }: $FixMe);
+      record = source[dataID] = RelayRecord.create(dataID);
     }
     if (source === this._queuedRecords) {
       this._setClientMutationID(record);

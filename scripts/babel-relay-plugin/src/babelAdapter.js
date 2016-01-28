@@ -26,25 +26,7 @@ function babelAdapter(
 ): mixed {
   if (Plugin == null) {
     // Babel 6.
-    const {visitor: {Program, TaggedTemplateExpression}} = visitorsBuilder(t);
-
-    const taggedTemplateExpressionVisitor = {
-      TaggedTemplateExpression(path) {
-        TaggedTemplateExpression(path, this);
-      }
-    }
-
-    /**
-     * Run both transforms on Program to make sure that they run before other plugins.
-     */
-    return {
-      visitor: {
-        Program(path, state) {
-          Program(path, state);
-          path.traverse(taggedTemplateExpressionVisitor, state);
-        }
-      }
-    }
+    return visitorsBuilder(t);
   }
   // Babel 5.
   const legacyT = {

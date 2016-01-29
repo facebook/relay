@@ -787,13 +787,11 @@ class RelayRecordStore {
     );
     var record: ?Record = this._queuedRecords[connectionID];
     if (!record) {
-      // $FlowIssue: this fails with:
-      // "property `append/prepend/remove` not found in object literal"
-      record = ({__dataID__: connectionID}: $FlowIssue);
+      record = {__dataID__: connectionID};
       this._queuedRecords[connectionID] = record;
     }
     this._setClientMutationID(record);
-    var queue: ?Array<DataID> = (record[operation]: any);
+    var queue: ?Array<DataID> = record[operation];
     if (!queue) {
       queue = [];
       record[operation] = queue;

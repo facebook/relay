@@ -155,7 +155,7 @@ class RentMovieMutation extends Relay.Mutation {
     if (formatPreference) {
       overrideVariables.format = formatPreference;
     }
-    return {...prevVariables, overrideVariables};
+    return {...prevVariables, ...overrideVariables};
   };
   static fragments = {
     // Now we can use the variables we've prepared to fetch movies

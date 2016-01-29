@@ -12,7 +12,7 @@
 
 const GraphQLStoreRangeUtils = require.requireActual('GraphQLStoreRangeUtils');
 
-Object.keys(GraphQLStoreRangeUtils.prototype).forEach(name => {
+Object.getOwnPropertyNames(GraphQLStoreRangeUtils.prototype).forEach(name => {
   const property = GraphQLStoreRangeUtils.prototype[name];
   if (typeof property === 'function') {
     GraphQLStoreRangeUtils.prototype[name] =

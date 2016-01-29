@@ -25,7 +25,7 @@ const RelayNetworkLayer = require('RelayNetworkLayer');
 import type RelayStoreData from 'RelayStoreData';
 import type {FileMap} from 'RelayMutation';
 import type RelayMutation from 'RelayMutation';
-import type RelayQuery from 'RelayQuery';
+const RelayQuery = require('RelayQuery');
 import type {ClientMutationID} from 'RelayInternalTypes';
 import type {
   RelayMutationConfig,
@@ -365,9 +365,18 @@ class PendingTransaction {
 
   getFatQuery(): RelayQuery.Fragment {
     if (!this._fatQuery) {
+      const fragment = fromGraphQL.Fragment(this.mutation.getFatQuery());
+      invariant(
+        fragment instanceof RelayQuery.Fragment,
+        'RelayMutationQueue: Expected `getFatQuery` to return a GraphQL ' +
+        'Fragment'
+      );
       this._fatQuery = nullthrows(flattenRelayQuery(
-        fromGraphQL.Fragment(this.mutation.getFatQuery()),
-        {shouldRemoveFragments: true}
+        fragment,
+        {
+          preserveEmptyNodes: fragment.isPattern(),
+          shouldRemoveFragments: true,
+        }
       ));
     }
     return this._fatQuery;

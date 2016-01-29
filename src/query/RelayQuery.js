@@ -884,6 +884,10 @@ class RelayQueryFragment extends RelayQueryNode {
     return this.__metadata__.isDeferred;
   }
 
+  isPattern(): boolean {
+    return !!(this.__concreteNode__: ConcreteFragment).metadata.pattern;
+  }
+
   isPlural(): boolean {
     const metadata = (this.__concreteNode__: ConcreteFragment).metadata;
     return !!(

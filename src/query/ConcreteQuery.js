@@ -104,6 +104,7 @@ export type ConcreteField = {
 
 export type ConcreteFragmentMetadata = {
   isAbstract?: boolean;
+  pattern?: boolean;
   plural?: boolean;
 };
 
@@ -114,6 +115,7 @@ export type ConcreteFragment = {
   metadata: {
     isAbstract?: boolean;
     isPlural?: boolean; // FB Printer
+    pattern?: boolean;  // from @relay directive
     plural?: boolean;   // OSS Printer from `@relay`
   };
   name: string;

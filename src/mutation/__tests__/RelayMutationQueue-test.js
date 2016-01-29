@@ -50,6 +50,7 @@ describe('RelayMutationQueue', () => {
       mutationNode = Relay.QL`mutation{commentCreate(input:$input)}`;
       fatQuery = Relay.QL`fragment on Comment @relay(pattern: true) {
         ... on Comment {
+          likers
           doesViewerLike
         }
       }`;
@@ -83,6 +84,7 @@ describe('RelayMutationQueue', () => {
       expect(RelayMutationQuery.buildQuery.mock.calls).toEqual([[{
         configs: 'optimisticConfigs',
         fatQuery: flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
+          preserveEmptyNodes: true,
           shouldRemoveFragments: true,
         }),
         input: {
@@ -112,6 +114,7 @@ describe('RelayMutationQueue', () => {
         RelayMutationQuery.buildQueryForOptimisticUpdate.mock.calls
       ).toEqual([[{
         fatQuery: flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
+          preserveEmptyNodes: true,
           shouldRemoveFragments: true,
         }),
         mutation: mutationNode,

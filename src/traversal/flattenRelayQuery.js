@@ -15,7 +15,7 @@
 
 const Map = require('Map');
 const RelayProfiler = require('RelayProfiler');
-import type RelayQuery from 'RelayQuery';
+const RelayQuery = require('RelayQuery');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 
 const sortTypeFirst = require('sortTypeFirst');
@@ -27,7 +27,8 @@ type FlattenedQuery = {
   flattenedFragmentMap: Map<string, FlattenedQuery>;
 };
 export type FlattenRelayQueryOptions = {
-  shouldRemoveFragments: boolean;
+  preserveEmptyNodes?: boolean;
+  shouldRemoveFragments?: boolean;
 };
 
 /**
@@ -53,7 +54,7 @@ function flattenRelayQuery<Tn: RelayQuery.Node>(
     flattenedFragmentMap: new Map(),
   };
   flattener.traverse(node, state);
-  return toQuery(node, state);
+  return toQuery(node, state, !!(options && options.preserveEmptyNodes));
 }
 
 function toQuery<Tn: RelayQuery.Node>(
@@ -61,22 +62,28 @@ function toQuery<Tn: RelayQuery.Node>(
   {
     flattenedFieldMap,
     flattenedFragmentMap,
-  }: FlattenedQuery
+  }: FlattenedQuery,
+  preserveEmptyNodes: boolean
 ): ?Tn {
   const children = [];
   const aliases = Array.from(flattenedFieldMap.keys()).sort(sortTypeFirst);
   aliases.forEach(alias => {
     var field = flattenedFieldMap.get(alias);
     if (field) {
-      children.push(toQuery(field.node, field));
+      children.push(toQuery(field.node, field, preserveEmptyNodes));
     }
   });
   Array.from(flattenedFragmentMap.keys()).forEach(type => {
     var fragment = flattenedFragmentMap.get(type);
     if (fragment) {
-      children.push(toQuery(fragment.node, fragment));
+      children.push(toQuery(fragment.node, fragment, preserveEmptyNodes));
     }
   });
+  // Pattern nodes may contain non-scalar fields without children that
+  // should not be removed.
+  if (preserveEmptyNodes && node.canHaveSubselections() && !children.length) {
+    return node;
+  }
   return node.clone(children);
 }
 

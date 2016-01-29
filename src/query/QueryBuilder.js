@@ -145,6 +145,7 @@ const QueryBuilder = {
       kind: 'Fragment',
       metadata: {
         isAbstract: !!metadata.isAbstract,
+        pattern: !!metadata.pattern,
         plural: !!metadata.plural, // match the `@relay` argument name
       },
       name: partialFragment.name,

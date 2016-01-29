@@ -173,4 +173,20 @@ describe('flattenRelayQuery', () => {
       shouldRemoveFragments: true,
     })).toEqualQueryNode(expected);
   });
+
+  it('optionally preserves empty non-leaf nodes', () => {
+    var node = getNode(Relay.QL`
+      fragment on Comment {
+        likers # can have sub-selections, normally is removed
+        doesViewerLike
+      }
+    `);
+    const flattened = flattenRelayQuery(node, {
+      preserveEmptyNodes: true,
+    });
+    expect(flattened.getChildren().length).toBe(3);
+    expect(flattened.getChildren()[0].getSchemaName()).toBe('likers');
+    expect(flattened.getChildren()[1].getSchemaName()).toBe('doesViewerLike');
+    expect(flattened.getChildren()[2].getSchemaName()).toBe('id');
+  });
 });

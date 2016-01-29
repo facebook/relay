@@ -432,8 +432,11 @@ class RelayDiffQueryBuilder {
         trackedNode: null,
       };
     } else if (linkedIDs === null || linkedIDs.length === 0) {
-      // empty array means nothing to fetch
-      return null;
+      // Don't fetch if array is null or empty, but still track the fragment
+      return {
+        diffNode: null,
+        trackedNode: field,
+      };
     } else if (field.getInferredRootCallName() === NODE) {
       // The items in this array are fetchable and may have been filled in
       // from other sources, so check them all. For example, `Story{actors}`
@@ -508,9 +511,12 @@ class RelayDiffQueryBuilder {
         trackedNode: null,
       };
     }
-    // Skip if the connection is deleted.
+    // Don't fetch if connection is null, but continue to track the fragment
     if (connectionID === null) {
-      return null;
+      return {
+        diffNode: null,
+        trackedNode: field,
+      };
     }
     // If metadata fields but not edges are fetched, diff as a normal field.
     // In practice, `rangeInfo` is `undefined` if unfetched, `null` if the

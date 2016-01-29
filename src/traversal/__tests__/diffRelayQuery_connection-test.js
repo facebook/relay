@@ -982,4 +982,68 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toContainQueryNode(getNode(nodeFragment));
     expect(diffQueries[1]).toContainQueryNode(getNode(edgeFragment));
   });
+
+  it('tracks fragments for null connections', () => {
+    var records = {};
+    var store = new RelayRecordStore({records}, {rootCallMap});
+    var tracker = new RelayQueryTracker();
+
+    // Create the first query with a selection on a connection
+    var firstQuery = getNode(Relay.QL`
+      query {
+        viewer {
+          newsFeed(first:"3") {
+            edges {
+              node {
+                id
+                actor {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    // Write the payload with a null connection, but ensure we track the fragment
+    var firstPayload = {
+      viewer: {
+        newsFeed: null
+      },
+    };
+    writePayload(store, firstQuery, firstPayload, tracker);
+    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(1);
+    expect(trackedQueries[0][1]).toBe('client:1');
+    expect(trackedQueries[0][0]).toEqualQueryRoot(firstQuery)
+
+    // Create a second query that requests a different selection on the null connection
+    var secondQuery = getNode(Relay.QL`
+      query {
+        viewer {
+          newsFeed(first:"3") {
+            edges {
+              node {
+                message {
+                  text
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    // Everything can be diffed out, connection is null
+    var diffQueries = diffRelayQuery(secondQuery, store, tracker);
+    expect(diffQueries.length).toBe(0);
+
+    // Should track the new `message { text }` fragment, though, so we can remember it later
+    trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(2);
+    expect(trackedQueries[1][1]).toBe('client:1');
+    expect(trackedQueries[1][0]).toEqualQueryRoot(secondQuery)
+  });
+
 });

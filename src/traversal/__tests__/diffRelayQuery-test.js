@@ -24,7 +24,7 @@ const diffRelayQuery = require('diffRelayQuery');
 describe('diffRelayQuery', () => {
   var RelayRecordStore;
 
-  var {defer, getNode, getVerbatimNode} = RelayTestUtils;
+  var {defer, getNode, getVerbatimNode, writePayload} = RelayTestUtils;
 
   var rootCallMap;
 
@@ -1928,4 +1928,113 @@ describe('diffRelayQuery', () => {
       }
     `));
   });
+
+  it('tracks fragments on null plural fields', () => {
+    var records = {};
+    var store = new RelayRecordStore({records}, {rootCallMap});
+    var tracker = new RelayQueryTracker();
+
+    // Create the first query with a selection on a plural field
+    var firstQuery = getNode(Relay.QL`
+      query {
+        node(id: "123") {
+          id
+          __typename
+          actors {
+            id
+          }
+        }
+      }
+    `);
+
+    // Write the payload with a null plural field, but ensure we track the fragment
+    var firstPayload = {
+      node: {
+        id: '123',
+        __typename: 'User',
+        actors: null
+      },
+    };
+    writePayload(store, firstQuery, firstPayload, tracker);
+    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(1);
+    expect(trackedQueries[0][1]).toBe('123');
+    expect(trackedQueries[0][0]).toEqualQueryRoot(firstQuery)
+
+    // Create a second query that requests a different selection on the null plural field
+    var secondQuery = getNode(Relay.QL`
+      query {
+        node(id: "123") {
+          actors {
+            name
+          }
+        }
+      }
+    `);
+
+    // Everything can be diffed out, plural field is null
+    var diffQueries = diffRelayQuery(secondQuery, store, tracker);
+    expect(diffQueries.length).toBe(0);
+
+    // Should track the new `actors { name }` fragment, though, so we can remember it later
+    trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(2);
+    expect(trackedQueries[1][1]).toBe('123');
+    expect(trackedQueries[1][0]).toEqualQueryRoot(secondQuery)
+  });
+
+  it('tracks fragments on empty plural fields', () => {
+    var records = {};
+    var store = new RelayRecordStore({records}, {rootCallMap});
+    var tracker = new RelayQueryTracker();
+
+    // Create the first query with a selection on a plural field
+    var firstQuery = getNode(Relay.QL`
+      query {
+        node(id: "123") {
+          id
+          __typename
+          actors {
+            id
+          }
+        }
+      }
+    `);
+
+    // Write the payload with an empty plural field, but ensure we track the fragment
+    var firstPayload = {
+      node: {
+        id: '123',
+        __typename: 'User',
+        actors: []
+      },
+    };
+    writePayload(store, firstQuery, firstPayload, tracker);
+    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(1);
+    expect(trackedQueries[0][1]).toBe('123');
+    expect(trackedQueries[0][0]).toEqualQueryRoot(firstQuery)
+
+    // Create a second query that requests a different selection on the empty plural field
+    var secondQuery = getNode(Relay.QL`
+      query {
+        node(id: "123") {
+          actors {
+            name
+          }
+        }
+      }
+    `);
+
+    // Everything can be diffed out, plural field is empty
+    var diffQueries = diffRelayQuery(secondQuery, store, tracker);
+    expect(diffQueries.length).toBe(0);
+
+    // Should track the new `actors { name }` fragment, though, so we can remember it later
+    trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(2);
+    expect(trackedQueries[1][1]).toBe('123');
+    expect(trackedQueries[1][0]).toEqualQueryRoot(secondQuery)
+  });
+
 });

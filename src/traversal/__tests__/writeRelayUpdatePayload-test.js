@@ -1246,7 +1246,7 @@ describe('writePayload()', () => {
 
       var subscription = getNode(Relay.QL`
         subscription {
-          commentCreate(input:$input) {
+          commentCreateSubscribe(input:$input) {
             feedback {
               id,
               topLevelComments {

@@ -390,9 +390,15 @@ function handleRangeAdd(
     ));
   }
 
-  const clientMutationID = getString(payload, CLIENT_MUTATION_ID);
-  // subscriptions won't have a clientMutationID so never optimistically add
-  if (clientMutationID) {
+  if (operation instanceof RelayQuery.Mutation) {
+    const clientMutationID = getString(payload, CLIENT_MUTATION_ID);
+    invariant(
+      clientMutationID,
+      'writeRelayUpdatePayload(): Expected operation `%s` to have a `%s`.',
+      operation.getName(),
+      CLIENT_MUTATION_ID
+    );
+
     if (isOptimisticUpdate) {
       // optimistic updates need to record the generated client ID for
       // a to-be-created node

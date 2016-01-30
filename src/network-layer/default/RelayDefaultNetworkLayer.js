@@ -15,6 +15,8 @@
 
 import type RelayMutationRequest from 'RelayMutationRequest';
 import type RelayQueryRequest from 'RelayQueryRequest';
+import type RelaySubscriptionRequest from 'RelaySubscriptionRequest';
+import type {Subscription} from 'RelayTypes';
 
 const fetch = require('fetch');
 const fetchWithRetries = require('fetchWithRetries');
@@ -42,6 +44,7 @@ class RelayDefaultNetworkLayer {
     var self: any = this;
     self.sendMutation = this.sendMutation.bind(this);
     self.sendQueries = this.sendQueries.bind(this);
+    self.sendSubscription = this.sendSubscription.bind(this);
     self.supports = this.supports.bind(this);
   }
 
@@ -90,6 +93,13 @@ class RelayDefaultNetworkLayer {
         error => request.reject(error)
       )
     )));
+  }
+
+  sendSubscription(request: RelaySubscriptionRequest): Subscription {
+    throw new Error(
+      'RelayDefaultNetworkLayer: `sendSubscription` is not implemented in the ' +
+      'default network layer.  A custom network layer must be injected.'
+    );
   }
 
   supports(...options: Array<string>): boolean {

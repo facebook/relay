@@ -20,6 +20,7 @@ const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationRequest = require('RelayMutationRequest');
 const RelayQuery = require('RelayQuery');
 const RelayQueryRequest = require('RelayQueryRequest');
+const RelaySubscriptionRequest = require('RelaySubscriptionRequest');
 const RelayTestUtils = require('RelayTestUtils');
 
 const fetch = require('fetch');
@@ -340,6 +341,43 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(rejectACallback.mock.calls[0][0].message).toEqual(
         'Server response was missing for query `RelayDefaultNetworkLayer`.'
       );
+    });
+  });
+
+  describe('sendSubscription', () => {
+    let request;
+    let variables;
+
+    beforeEach(() => {
+      variables = {
+        input: {
+          [RelayConnectionInterface.CLIENT_SUBSCRIPTION_ID]: 'client:a',
+          feedbackId: 4,
+        },
+      };
+
+      const subscription = RelayTestUtils.getNode(Relay.QL`
+        subscription {
+          commentCreateSubscribe(input:$input) {
+            clientSubscriptionId
+          }
+        }
+      `, variables);
+
+      const observer = {};
+
+      request = new RelaySubscriptionRequest(subscription, observer);
+    });
+
+    it('throws on all subscription requests', () => {
+      expect(() => networkLayer.sendSubscription(request)).toThrowError(
+        'RelayDefaultNetworkLayer: `sendSubscription` is not implemented in the ' +
+        'default network layer.  A custom network layer must be injected.'
+      );
+
+      expect(request.onNext).not.toBeCalled();
+      expect(request.onError).not.toBeCalled();
+      expect(request.onCompleted).not.toBeCalled();
     });
   });
 });

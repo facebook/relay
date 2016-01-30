@@ -16,8 +16,11 @@
 import type RelayMutationRequest from 'RelayMutationRequest';
 const RelayProfiler = require('RelayProfiler');
 import type RelayQueryRequest from 'RelayQueryRequest';
+import type RelaySubscriptionRequest from 'RelaySubscriptionRequest';
+import type {Subscription} from 'RelayTypes';
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 type NetworkLayer = {
   sendMutation: (mutationRequest: RelayMutationRequest) => ?Promise;
@@ -53,6 +56,40 @@ var RelayNetworkLayer = {
     }
   },
 
+  sendSubscription(subscriptionRequest: RelaySubscriptionRequest): Subscription {
+    const networkLayer = getCurrentNetworkLayer();
+
+    invariant(
+      networkLayer.sendSubscription
+      && typeof networkLayer.sendSubscription === 'function',
+      '%s: does not support subscriptions.  Expected `sendSubscription` to be ' +
+      'a function',
+      networkLayer.constructor.name
+    );
+
+    const result = networkLayer.sendSubscription(subscriptionRequest);
+
+    if (result) {
+      if (typeof result === 'function') {
+        return {
+          dispose: result,
+        };
+      } else if (result.dispose && typeof result.dispose === 'function') {
+        return result;
+      }
+    }
+
+    warning(
+      false,
+      'RelayNetworkLayer: `sendSubscription` should return a disposable ' +
+      'or a function.'
+    );
+
+    return {
+      dispose() { }, // noop
+    };
+  },
+
   supports(...options: Array<string>): boolean {
     var networkLayer = getCurrentNetworkLayer();
     return networkLayer.supports(...options);
@@ -70,6 +107,7 @@ function getCurrentNetworkLayer(): $FlowIssue {
 RelayProfiler.instrumentMethods(RelayNetworkLayer, {
   sendMutation: 'RelayNetworkLayer.sendMutation',
   sendQueries: 'RelayNetworkLayer.sendQueries',
+  sendSubscription: 'RelayNetworkLayer.sendSubscription',
 });
 
 module.exports = RelayNetworkLayer;

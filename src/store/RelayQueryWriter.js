@@ -22,6 +22,7 @@ import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
+import type RelayRecordWriter from 'RelayRecordWriter';
 
 const generateClientEdgeID = require('generateClientEdgeID');
 const generateClientID = require('generateClientID');
@@ -59,9 +60,11 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   _store: RelayRecordStore;
   _queryTracker: RelayQueryTracker;
   _updateTrackedQueries: boolean;
+  _writer: RelayRecordWriter;
 
   constructor(
     store: RelayRecordStore,
+    writer: RelayRecordWriter,
     queryTracker: RelayQueryTracker,
     changeTracker: RelayChangeTracker,
     options?: WriterOptions
@@ -73,6 +76,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this._store = store;
     this._queryTracker = queryTracker;
     this._updateTrackedQueries = !!(options && options.updateTrackedQueries);
+    this._writer = writer;
   }
 
   getRecordStore(): RelayRecordStore {

@@ -25,32 +25,31 @@ const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMutationType = require('RelayMutationType');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayQueryWriter = require('RelayQueryWriter');
+const RelayRecordStore = require('RelayRecordStore');
+const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 const generateClientEdgeID = require('generateClientEdgeID');
 const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 describe('writePayload()', () => {
-  var RelayRecordStore;
-
   var {getNode, writePayload} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    RelayRecordStore = require('RelayRecordStore');
-
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('range delete mutations', () => {
-    var store, queueStore, commentID, connectionID, edgeID;
+    var store, queueStore, writer, queueWriter, commentID, connectionID, edgeID;
 
     beforeEach(() => {
       var records = {};
       var queuedRecords = {};
       var nodeConnectionMap = {};
-      var rootCallMaps = {rootCallMap: {}};
+      var rootCallMap = {};
+      var rootCallMaps = {rootCallMap};
 
       commentID = '123';
 
@@ -64,6 +63,20 @@ describe('writePayload()', () => {
         rootCallMaps,
         nodeConnectionMap,
         undefined, /* cacheManager */
+        'mutationID'
+      );
+      writer = new RelayRecordWriter(
+        records,
+        rootCallMap,
+        false,
+        nodeConnectionMap
+      );
+      queueWriter = new RelayRecordWriter(
+        queuedRecords,
+        rootCallMap,
+        true,
+        nodeConnectionMap,
+        null,
         'mutationID'
       );
 
@@ -97,7 +110,7 @@ describe('writePayload()', () => {
           },
         },
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
       connectionID = store.getLinkedRecordID(
         'feedback_id',
         'topLevelComments'
@@ -148,6 +161,7 @@ describe('writePayload()', () => {
       var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         queueStore,
+        queueWriter,
         queryTracker,
         changeTracker
       );
@@ -231,6 +245,7 @@ describe('writePayload()', () => {
       var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         store,
+        writer,
         queryTracker,
         changeTracker
       );
@@ -264,6 +279,7 @@ describe('writePayload()', () => {
     it('removes range edge with a "deleted field ID path"', () => {
       writePayload(
         store,
+        writer,
         getNode(Relay.QL`
           query {
             viewer {
@@ -347,14 +363,15 @@ describe('writePayload()', () => {
       };
       const changeTracker = new RelayChangeTracker();
       const queryTracker = new RelayQueryTracker();
-      const writer = new RelayQueryWriter(
+      const queryWriter = new RelayQueryWriter(
         store,
+        writer,
         queryTracker,
         changeTracker
       );
 
       writeRelayUpdatePayload(
-        writer,
+        queryWriter,
         mutation,
         payload,
         {configs, isOptimisticUpdate: false}
@@ -379,14 +396,15 @@ describe('writePayload()', () => {
   });
 
   describe('node/range delete mutations', () => {
-    var store, queueStore, feedbackID, connectionID, firstCommentID,
-      secondCommentID, firstEdgeID, secondEdgeID;
+    var store, queueStore, writer, queueWriter, feedbackID, connectionID,
+      firstCommentID,  secondCommentID, firstEdgeID, secondEdgeID;
 
     beforeEach(() => {
       var records = {};
       var queuedRecords = {};
       var nodeConnectionMap = {};
-      var rootCallMaps = {rootCallMap: {}};
+      var rootCallMap = {};
+      var rootCallMaps = {rootCallMap};
 
       feedbackID = 'feedback123';
       firstCommentID = 'comment456';
@@ -401,6 +419,20 @@ describe('writePayload()', () => {
         rootCallMaps,
         nodeConnectionMap,
         undefined, /* cacheManager */
+        'mutationID'
+      );
+      writer = new RelayRecordWriter(
+        records,
+        rootCallMap,
+        false,
+        nodeConnectionMap
+      );
+      queueWriter = new RelayRecordWriter(
+        queuedRecords,
+        rootCallMap,
+        true,
+        nodeConnectionMap,
+        null,
         'mutationID'
       );
 
@@ -441,7 +473,7 @@ describe('writePayload()', () => {
         },
       };
 
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
       connectionID = store.getLinkedRecordID(feedbackID, 'topLevelComments');
       firstEdgeID = generateClientEdgeID(connectionID, firstCommentID);
       secondEdgeID = generateClientEdgeID(connectionID, secondCommentID);
@@ -491,6 +523,7 @@ describe('writePayload()', () => {
       var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         queueStore,
+        queueWriter,
         queryTracker,
         changeTracker
       );
@@ -587,6 +620,7 @@ describe('writePayload()', () => {
       var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         store,
+        writer,
         queryTracker,
         changeTracker
       );
@@ -626,12 +660,14 @@ describe('writePayload()', () => {
   });
 
   describe('plural node delete mutation', () => {
-    var store, queueStore, firstRequestID, secondRequestID, thirdRequestID;
+    var store, queueStore, writer, queueWriter, firstRequestID, secondRequestID,
+      thirdRequestID;
 
     beforeEach(() => {
       var records = {};
       var queuedRecords = {};
-      var rootCallMaps = {rootCallMap: {}};
+      var rootCallMap = {};
+      var rootCallMaps = {rootCallMap};
 
       firstRequestID = 'request1';
       secondRequestID = 'request2';
@@ -647,6 +683,19 @@ describe('writePayload()', () => {
         rootCallMaps,
         {},
         undefined, /* cacheManager */
+        'mutationID'
+      );
+      writer = new RelayRecordWriter(
+        records,
+        rootCallMap,
+        false
+      );
+      queueWriter = new RelayRecordWriter(
+        queuedRecords,
+        rootCallMap,
+        true,
+        {},
+        null,
         'mutationID'
       );
 
@@ -665,7 +714,7 @@ describe('writePayload()', () => {
         ],
       };
 
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
 
     });
     it('optimistically deletes requests', () => {
@@ -700,6 +749,7 @@ describe('writePayload()', () => {
       var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         queueStore,
+        queueWriter,
         queryTracker,
         changeTracker
       );
@@ -764,6 +814,7 @@ describe('writePayload()', () => {
       var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         store,
+        writer,
         queryTracker,
         changeTracker
       );
@@ -792,13 +843,15 @@ describe('writePayload()', () => {
   });
 
   describe('range add mutations', () => {
-    var store, queueStore, feedbackID, connectionID, commentID, edgeID;
+    var store, queueStore, writer, queueWriter, feedbackID, connectionID,
+      commentID, edgeID;
 
     beforeEach(() => {
       var records = {};
       var queuedRecords = {};
       var nodeConnectionMap = {};
-      var rootCallMaps = {rootCallMap: {}};
+      var rootCallMap = {};
+      var rootCallMaps = {rootCallMap};
 
       feedbackID = 'feedback123';
       commentID = 'comment456';
@@ -812,6 +865,20 @@ describe('writePayload()', () => {
         rootCallMaps,
         nodeConnectionMap,
         undefined, /* cacheManager */
+        'mutationID'
+      );
+      writer = new RelayRecordWriter(
+        records,
+        rootCallMap,
+        false,
+        nodeConnectionMap
+      );
+      queueWriter = new RelayRecordWriter(
+        queuedRecords,
+        rootCallMap,
+        true,
+        nodeConnectionMap,
+        null,
         'mutationID'
       );
 
@@ -846,7 +913,7 @@ describe('writePayload()', () => {
         },
       };
 
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
       connectionID = store.getLinkedRecordID(feedbackID, 'topLevelComments');
       edgeID = generateClientEdgeID(connectionID, commentID);
     });
@@ -892,6 +959,7 @@ describe('writePayload()', () => {
       var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         queueStore,
+        queueWriter,
         queryTracker,
         changeTracker
       );
@@ -995,6 +1063,7 @@ describe('writePayload()', () => {
       var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         queueStore,
+        queueWriter,
         queryTracker,
         changeTracker
       );
@@ -1125,6 +1194,7 @@ describe('writePayload()', () => {
       var queryTracker = new RelayQueryTracker();
       var writer = new RelayQueryWriter(
         store,
+        writer,
         queryTracker,
         changeTracker
       );

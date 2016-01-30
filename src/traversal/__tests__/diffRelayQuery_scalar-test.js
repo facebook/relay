@@ -25,6 +25,7 @@ const diffRelayQuery = require('diffRelayQuery');
 
 describe('diffRelayQuery', () => {
   var RelayRecordStore;
+  var RelayRecordWriter;
 
   var {getNode, writePayload} = RelayTestUtils;
 
@@ -32,6 +33,7 @@ describe('diffRelayQuery', () => {
     jest.resetModuleRegistry();
 
     RelayRecordStore = require('RelayRecordStore');
+    RelayRecordWriter = require('RelayRecordWriter');
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
@@ -77,6 +79,7 @@ describe('diffRelayQuery', () => {
   it('keeps unfetched scalar fields', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var writer = new RelayRecordWriter(records, {}, false);
     var tracker = new RelayQueryTracker();
 
     var writeQuery = getNode(Relay.QL`
@@ -93,7 +96,7 @@ describe('diffRelayQuery', () => {
         __typename: 'User',
       },
     };
-    writePayload(store, writeQuery, payload, tracker);
+    writePayload(store, writer, writeQuery, payload, tracker);
 
     var fetchQuery = getNode(Relay.QL`
       query {

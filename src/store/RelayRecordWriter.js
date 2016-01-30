@@ -54,7 +54,7 @@ type EdgeData = {
 };
 type PageInfo = {[key: string]: mixed};
 
-type RangeOperation = 'append' | 'prepend' | 'remove';
+type RangeOperation = $Enum<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 
 /**
  * @internal
@@ -582,13 +582,11 @@ class RelayRecordWriter {
   ): void {
     let record: ?Record = this._getRecordForWrite(connectionID);
     if (!record) {
-      // $FlowIssue: this fails with:
-      // "property `append/prepend/remove` not found in object literal"
-      record = ({__dataID__: connectionID}: $FlowIssue);
+      record = {__dataID__: connectionID};
       this._records[connectionID] = record;
       this._setClientMutationID(record);
     }
-    let queue: ?Array<DataID> = (record[operation]: any);
+    let queue: ?Array<DataID> = record[operation];
     if (!queue) {
       queue = [];
       record[operation] = queue;

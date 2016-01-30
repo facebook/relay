@@ -22,6 +22,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
   var RelayRecordStore;
+  var RelayRecordWriter;
 
   var {getNode, writePayload} = RelayTestUtils;
 
@@ -29,6 +30,7 @@ describe('writeRelayQueryPayload()', () => {
     jest.resetModuleRegistry();
 
     RelayRecordStore = require('RelayRecordStore');
+    RelayRecordWriter = require('RelayRecordWriter');
   });
 
   describe('plural linked fields', () => {
@@ -40,6 +42,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
 
       var query = getNode(Relay.QL`
         query {
@@ -58,7 +61,7 @@ describe('writeRelayQueryPayload()', () => {
           allPhones: [],
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -77,6 +80,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var phone = {
         isVerified: true,
         phoneNumber: {
@@ -103,7 +107,7 @@ describe('writeRelayQueryPayload()', () => {
           allPhones: [phone],
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           'client:1': true,
@@ -156,6 +160,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var newPhone = {
         isVerified: true,
         phoneNumber: {
@@ -182,7 +187,7 @@ describe('writeRelayQueryPayload()', () => {
           allPhones: [newPhone],
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -226,6 +231,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -247,7 +253,7 @@ describe('writeRelayQueryPayload()', () => {
           }],
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -287,6 +293,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -306,7 +313,7 @@ describe('writeRelayQueryPayload()', () => {
           allPhones: [phone],
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {},
@@ -334,6 +341,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
 
       var query = getNode(Relay.QL`
         query {
@@ -352,7 +360,7 @@ describe('writeRelayQueryPayload()', () => {
           allPhones: [],
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {},
@@ -364,6 +372,7 @@ describe('writeRelayQueryPayload()', () => {
     it('records the concrete type if `__typename` is present', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id: "1") {
@@ -384,7 +393,7 @@ describe('writeRelayQueryPayload()', () => {
           __typename: 'Story',
         },
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
       expect(store.getType('123')).toBe('User');
     });
   });

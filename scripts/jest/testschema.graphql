@@ -25,7 +25,7 @@ type Mutation {
 }
 
 type Subscription {
-  commentCreate(input: CommentCreateSubscriptionInput): CommentCreateSubscriptionResponsePayload
+  commentCreateSubscribe(input: CommentCreateSubscribeInput): CommentCreateSubscribeResponsePayload
 }
 
 input ActorSubscribeInput {
@@ -43,7 +43,7 @@ input CommentCreateInput {
   feedbackId: ID
 }
 
-input CommentCreateSubscriptionInput {
+input CommentCreateSubscribeInput {
   clientSubscriptionId: String,
   feedbackId: ID
 }
@@ -131,7 +131,7 @@ type CommentCreateResponsePayload {
   feedbackCommentEdge: CommentsEdge
 }
 
-type CommentCreateSubscriptionResponsePayload {
+type CommentCreateSubscribeResponsePayload {
   clientSubscriptionId: String
   comment: Comment
   feedback: Feedback

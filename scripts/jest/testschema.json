@@ -8122,7 +8122,7 @@
           "description": null,
           "fields": [
             {
-              "name": "commentCreate",
+              "name": "commentCreateSubscribe",
               "description": null,
               "args": [
                 {
@@ -8130,7 +8130,7 @@
                   "description": null,
                   "type": {
                     "kind": "INPUT_OBJECT",
-                    "name": "CommentCreateSubscriptionInput",
+                    "name": "CommentCreateSubscribeInput",
                     "ofType": null
                   },
                   "defaultValue": null
@@ -8138,7 +8138,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "CommentCreateSubscriptionResponsePayload",
+                "name": "CommentCreateSubscribeResponsePayload",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -8152,7 +8152,7 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "CommentCreateSubscriptionInput",
+          "name": "CommentCreateSubscribeInput",
           "description": null,
           "fields": null,
           "inputFields": [
@@ -8183,7 +8183,7 @@
         },
         {
           "kind": "OBJECT",
-          "name": "CommentCreateSubscriptionResponsePayload",
+          "name": "CommentCreateSubscribeResponsePayload",
           "description": null,
           "fields": [
             {

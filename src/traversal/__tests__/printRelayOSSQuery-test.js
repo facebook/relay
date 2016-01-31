@@ -775,6 +775,9 @@ describe('printRelayOSSQuery', () => {
             topLevelComments {
               count,
             },
+            profilePicture(preset: SMALL) {
+              uri
+            },
           },
           feedbackCommentEdge {
             cursor,
@@ -792,10 +795,12 @@ describe('printRelayOSSQuery', () => {
       }
     `, {input: inputValue});
 
+    const alias = generateRQLFieldAlias('profilePicture.preset(SMALL)');
     const {text, variables} = printRelayOSSQuery(subscription);
     expect(text).toEqualPrintedQuery(`
       subscription PrintRelayOSSQuery(
-        $input_0: CommentCreateSubscribeInput
+        $input_0: CommentCreateSubscribeInput,
+        $preset_1: PhotoSize
       ) {
         commentCreateSubscribe(input: $input_0) {
           clientSubscriptionId,
@@ -803,6 +808,9 @@ describe('printRelayOSSQuery', () => {
             id,
             topLevelComments {
               count
+            },
+            ${alias}: profilePicture(preset: $preset_1) {
+              uri
             }
           },
           feedbackCommentEdge {
@@ -822,6 +830,7 @@ describe('printRelayOSSQuery', () => {
     `);
     expect(variables).toEqual({
       input_0: inputValue,
+      preset_1: 'SMALL',
     });
   });
 

@@ -20,7 +20,6 @@ import type RelaySubscriptionRequest from 'RelaySubscriptionRequest';
 import type {Subscription} from 'RelayTypes';
 
 const invariant = require('invariant');
-const warning = require('warning');
 
 type NetworkLayer = {
   sendMutation: (mutationRequest: RelayMutationRequest) => ?Promise;
@@ -60,34 +59,23 @@ var RelayNetworkLayer = {
     const networkLayer = getCurrentNetworkLayer();
 
     invariant(
-      networkLayer.sendSubscription
-      && typeof networkLayer.sendSubscription === 'function',
+      typeof networkLayer.sendSubscription === 'function',
       '%s: does not support subscriptions.  Expected `sendSubscription` to be ' +
-      'a function',
+      'a function.',
       networkLayer.constructor.name
     );
 
     const result = networkLayer.sendSubscription(subscriptionRequest);
 
-    if (result) {
-      if (typeof result === 'function') {
-        return {
-          dispose: result,
-        };
-      } else if (result.dispose && typeof result.dispose === 'function') {
-        return result;
-      }
-    }
-
-    warning(
-      false,
-      'RelayNetworkLayer: `sendSubscription` should return a disposable ' +
-      'or a function.'
+    invariant(
+      result && typeof result.dispose === 'function',
+      'RelayNetworkLayer: `sendSubscription` should return an object with a ' +
+      '`dispose` property that is a no-argument function.  This function is ' +
+      'called when the client unsubscribes from the subscription ' +
+      'and any network layer resources can be cleaned up.'
     );
 
-    return {
-      dispose() { }, // noop
-    };
+    return result;
   },
 
   supports(...options: Array<string>): boolean {

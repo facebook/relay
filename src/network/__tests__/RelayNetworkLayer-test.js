@@ -13,14 +13,9 @@
 
 require('configureForRelayOSS');
 
-jest
-  .mock('warning');
-
 const Deferred = require('Deferred');
 const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayTestUtils = require('RelayTestUtils');
-
-const warning = require('warning');
 
 describe('RelayNetworkLayer', () => {
   var RelayQuery;
@@ -36,7 +31,9 @@ describe('RelayNetworkLayer', () => {
     injectedNetworkLayer = {
       sendMutation: jest.genMockFunction(),
       sendQueries: jest.genMockFunction(),
-      sendSubscription: jest.genMockFunction(),
+      sendSubscription: jest.genMockFunction().mockReturnValue({
+        dispose: jest.genMockFunction(),
+      }),
       supports: jest.genMockFunction().mockReturnValue(true),
     };
     RelayNetworkLayer.injectNetworkLayer(injectedNetworkLayer);
@@ -177,7 +174,7 @@ describe('RelayNetworkLayer', () => {
         RelayNetworkLayer.sendSubscription({subscription});
       }).toFailInvariant(
         'CustomNetworkLayer: does not support subscriptions.  Expected `sendSubscription` to be ' +
-        'a function'
+        'a function.'
       );
     });
 
@@ -203,28 +200,27 @@ describe('RelayNetworkLayer', () => {
       expect(injectedReturnValue.dispose).toBeCalled();
     });
 
-    it('coerces function return values into disposables', () => {
-      const injectedReturnValue = jest.genMockFunction();
-      injectedNetworkLayer.sendSubscription.mockReturnValue(injectedReturnValue);
-      const returnValue = RelayNetworkLayer.sendSubscription({subscription});
+    it('throws when the return value is not a disposable', () => {
 
-      expect(typeof returnValue.dispose).toBe('function');
-      expect(injectedReturnValue).not.toBeCalled();
+      const message = 'RelayNetworkLayer: `sendSubscription` should return an ' +
+      'object with a `dispose` property that is a no-argument function.  This ' +
+      'function is called when the client unsubscribes from the ' +
+      'subscription and any network layer resources can be cleaned up.';
 
-      returnValue.dispose();
-      expect(injectedReturnValue).toBeCalled();
-    });
-
-    it('warns when the return value is not a disposable and returns a default disposable', () => {
       injectedNetworkLayer.sendSubscription.mockReturnValue(null);
-      const returnValue = RelayNetworkLayer.sendSubscription({subscription});
+      expect(() => {
+        RelayNetworkLayer.sendSubscription({subscription});
+      }).toFailInvariant(message);
 
-      expect(warning.mock.calls[0]).toEqual([
-        false,
-        'RelayNetworkLayer: `sendSubscription` should return a disposable or a function.',
-      ]);
+      injectedNetworkLayer.sendSubscription.mockReturnValue({});
+      expect(() => {
+        RelayNetworkLayer.sendSubscription({subscription});
+      }).toFailInvariant(message);
 
-      expect(typeof returnValue.dispose).toBe('function');
+      injectedNetworkLayer.sendSubscription.mockReturnValue(jest.genMockFunction);
+      expect(() => {
+        RelayNetworkLayer.sendSubscription({subscription});
+      }).toFailInvariant(message);
     });
   });
 });

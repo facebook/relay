@@ -370,7 +370,7 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('throws on all subscription requests', () => {
-      expect(() => networkLayer.sendSubscription(request)).toThrowError(
+      expect(() => networkLayer.sendSubscription(request)).toFailInvariant(
         'RelayDefaultNetworkLayer: `sendSubscription` is not implemented in the ' +
         'default network layer.  A custom network layer must be injected.'
       );

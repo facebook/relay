@@ -83,6 +83,10 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     return this._store;
   }
 
+  getRecordWriter(): RelayRecordWriter {
+    return this._writer;
+  }
+
   getRecordTypeName(
     node: RelayQuery.Node,
     recordID: DataID,

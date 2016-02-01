@@ -32,9 +32,10 @@ function writeRelayQueryPayload(
   payload: QueryPayload
 ): void {
   const store = writer.getRecordStore();
+  const recordWriter = writer.getRecordWriter();
   const path = new RelayQueryPath(query);
 
-  RelayNodeInterface.getResultsFromPayload(store, query, payload)
+  RelayNodeInterface.getResultsFromPayload(store, recordWriter, query, payload)
     .forEach(({dataID, result}) => {
       writer.writePayload(query, dataID, result, path);
     });

@@ -46,8 +46,9 @@ describe('writeRelayQueryPayload()', () => {
 
     it('is created for argument-less custom root calls with an id', () => {
       var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
+      var rootCallMap = {};
+      var store = new RelayRecordStore({records}, {rootCallMap});
+      var writer = new RelayRecordWriter(records, rootCallMap, false);
       var query = getNode(Relay.QL`
         query {
           me {
@@ -74,8 +75,9 @@ describe('writeRelayQueryPayload()', () => {
 
     it('is created for argument-less custom root calls without an id', () => {
       var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
+      var rootCallMap = {};
+      var store = new RelayRecordStore({records}, {rootCallMap});
+      var writer = new RelayRecordWriter(records, rootCallMap, false);
       var query = getNode(Relay.QL`
         query {
           viewer {
@@ -152,8 +154,9 @@ describe('writeRelayQueryPayload()', () => {
 
     it('is created for custom root calls with an id', () => {
       var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
+      var rootCallMap = {};
+      var store = new RelayRecordStore({records}, {rootCallMap});
+      var writer = new RelayRecordWriter(records, rootCallMap, false);
       var query = getNode(Relay.QL`
         query {
           username(name:"yuzhi") {
@@ -180,8 +183,9 @@ describe('writeRelayQueryPayload()', () => {
 
     it('is created for custom root calls without an id', () => {
       var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
+      var rootCallMap = {};
+      var store = new RelayRecordStore({records}, {rootCallMap});
+      var writer = new RelayRecordWriter(records, rootCallMap, false);
       // note: this test simulates an `id`-less root call
       var query = getNode(Relay.QL`
         query {

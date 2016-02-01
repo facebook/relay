@@ -35,6 +35,7 @@ import type {CacheWriter} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
+const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 const warning = require('warning');
 
 const {CURSOR, NODE} = RelayConnectionInterface;
@@ -785,16 +786,17 @@ class RelayRecordStore {
       operation,
       connectionID
     );
-    var record: ?Record = this._queuedRecords[connectionID];
+    let record: ?Record = this._queuedRecords[connectionID];
     if (!record) {
       record = {__dataID__: connectionID};
       this._queuedRecords[connectionID] = record;
     }
     this._setClientMutationID(record);
-    var queue: ?Array<DataID> = record[operation];
+    const key = rangeOperationToMetadataKey[operation];
+    let queue: ?Array<DataID> = record[key];
     if (!queue) {
       queue = [];
-      record[operation] = queue;
+      record[key] = queue;
     }
     if (operation === PREPEND) {
       queue.unshift(edgeID);

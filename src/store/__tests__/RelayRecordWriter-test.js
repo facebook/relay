@@ -21,6 +21,7 @@ const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 const {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
+const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 
 describe('RelayRecordWriter', () => {
 
@@ -614,7 +615,11 @@ describe('RelayRecordWriter', () => {
 
     it('optimistically prepends edges to queued stores', () => {
       var {edgeID} = addEdgeToStore(optimisticWriter);
-      optimisticWriter.applyRangeUpdate(connectionID, edgeID, PREPEND);
+      optimisticWriter.applyRangeUpdate(
+        connectionID,
+        edgeID,
+        rangeOperationToMetadataKey[PREPEND]
+      );
 
       // contains prepended edge
       var calls = [{name: 'first', value: 2}];
@@ -657,7 +662,11 @@ describe('RelayRecordWriter', () => {
 
     it('optimistically appends edges to queued stores', () => {
       var {edgeID, nodeID} = addEdgeToStore(optimisticWriter);
-      optimisticWriter.applyRangeUpdate(connectionID, edgeID, APPEND);
+      optimisticWriter.applyRangeUpdate(
+        connectionID,
+        edgeID,
+        rangeOperationToMetadataKey[APPEND]
+      );
 
       // contains appended edge
       var calls = [{name: 'last', value: 2}];
@@ -699,7 +708,11 @@ describe('RelayRecordWriter', () => {
     });
 
     it('optimistically deletes existing edges from queued stores', () => {
-      optimisticWriter.applyRangeUpdate(connectionID, firstEdgeID, REMOVE);
+      optimisticWriter.applyRangeUpdate(
+        connectionID,
+        firstEdgeID,
+        rangeOperationToMetadataKey[REMOVE]
+      );
 
       // does not contain removed edge
       var calls = [{name: 'first', value: 2}];

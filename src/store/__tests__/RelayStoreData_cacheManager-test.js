@@ -22,7 +22,7 @@ const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMockCacheManager = require('RelayMockCacheManager');
 const RelayMutationType = require('RelayMutationType');
-const RelayStoreData = require('RelayStoreData');
+const RelayStore = require('RelayStore');
 const RelayTestUtils = require('RelayTestUtils');
 
 const transformRelayQueryPayload = require('transformRelayQueryPayload');
@@ -55,7 +55,7 @@ describe('RelayStoreData', function() {
     } = RelayConnectionInterface);
 
     cacheManager = RelayMockCacheManager.genCacheManager();
-    storeData = RelayStoreData.getDefaultInstance();
+    storeData = RelayStore.getStoreData();
     storeData.injectCacheManager(cacheManager);
 
     jasmine.addMatchers({

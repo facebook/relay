@@ -36,15 +36,17 @@ describe('RelayRenderer.context', () => {
 
     const container = document.createElement('div');
     const contextTypes = {
+      relay: Relay.PropTypes.Context.isRequired,
       route: Relay.PropTypes.QueryConfig.isRequired,
     };
     jasmine.addMatchers({
       toRenderQueryConfig() {
         return {
           compare(actual, expected) {
+            let context;
             class MockChild extends React.Component {
               render() {
-                actual = this.context.route;
+                context = this.context;
                 return null;
               }
             }
@@ -58,7 +60,7 @@ describe('RelayRenderer.context', () => {
             const mockRequests = RelayStore.primeCache.mock.requests;
             mockRequests[mockRequests.length - 1].block();
             return {
-              pass: actual === expected,
+              pass: context.relay === RelayStore && context.route === expected,
             };
           },
         };

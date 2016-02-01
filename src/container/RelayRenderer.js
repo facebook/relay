@@ -18,7 +18,6 @@ const React = require('React');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
 const RelayPropTypes = require('RelayPropTypes');
 const RelayStore = require('RelayStore');
-const RelayStoreData = require('RelayStoreData');
 import type {
   Abortable,
   ComponentReadyState,
@@ -30,6 +29,7 @@ const StaticContainer = require('StaticContainer.react');
 const getRelayQueries = require('getRelayQueries');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
+const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 
 type RelayRendererProps = {
   Component: RelayContainer;
@@ -54,6 +54,12 @@ type RelayRendererState = {
 };
 
 const {PropTypes} = React;
+
+var storeData = RelayStore.getStoreData();
+
+storeData.getChangeEmitter().injectBatchingStrategy(
+  relayUnstableBatchedUpdates
+);
 
 /**
  * @public
@@ -126,7 +132,10 @@ class RelayRenderer extends React.Component {
   }
 
   getChildContext(): Object {
-    return {route: this.props.queryConfig};
+    return {
+      relay: RelayStore,
+      route: this.props.queryConfig,
+    };
   }
 
   /**
@@ -286,7 +295,7 @@ class RelayRenderer extends React.Component {
 function createFragmentPointerForRoot(query) {
   return query ?
     GraphQLFragmentPointer.createForRoot(
-      RelayStoreData.getDefaultInstance().getQueuedStore(),
+      storeData.getQueuedStore(),
       query
     ) :
     null;
@@ -301,6 +310,7 @@ RelayRenderer.propTypes = {
 };
 
 RelayRenderer.childContextTypes = {
+  relay: RelayPropTypes.Context.isRequired,
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 

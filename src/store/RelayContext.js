@@ -76,8 +76,15 @@ import type {
 class RelayContext {
   _storeData: RelayStoreData;
 
-  constructor(storeData: RelayStoreData) {
-    this._storeData = storeData;
+  constructor() {
+    this._storeData = new RelayStoreData();
+  }
+
+  /**
+   * @internal
+   */
+  getStoreData(): RelayStoreData {
+    return this._storeData;
   }
 
   /**

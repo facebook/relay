@@ -35,6 +35,7 @@ import type {Variables} from 'RelayTypes';
 const areEqual = require('areEqual');
 const callsFromGraphQL = require('callsFromGraphQL');
 const callsToGraphQL = require('callsToGraphQL');
+const directivesToGraphQL = require('directivesToGraphQL');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const getConcreteFragmentHash = require('getConcreteFragmentHash');
 const invariant = require('invariant');
@@ -974,6 +975,7 @@ class RelayQueryField extends RelayQueryNode {
    */
   static build({
     alias,
+    directives,
     calls,
     children,
     fieldName,
@@ -981,6 +983,7 @@ class RelayQueryField extends RelayQueryNode {
     type,
   }: {
     alias?: ?string;
+    directives?: ?Array<Directive>;
     calls?: ?Array<Call>;
     children?: ?NextChildren;
     fieldName: string;
@@ -991,6 +994,7 @@ class RelayQueryField extends RelayQueryNode {
     var concreteField = QueryBuilder.createField({
       alias,
       calls: calls ? callsToGraphQL(calls) : null,
+      directives: directives ? directivesToGraphQL(directives) : null,
       fieldName,
       metadata,
       type,

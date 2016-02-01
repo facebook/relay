@@ -20,6 +20,7 @@ import type {
   ConcreteCallVariable,
   ConcreteDirective,
   ConcreteDirectiveArgument,
+  ConcreteDirectiveValue,
   ConcreteField,
   ConcreteFieldMetadata,
   ConcreteFragment,
@@ -107,6 +108,16 @@ const QueryBuilder = {
       arguments: args,
       kind: 'Directive',
       name,
+    };
+  },
+
+  createDirectiveArgument(
+    name: string,
+    value: ?ConcreteDirectiveValue
+  ): ConcreteDirectiveArgument {
+    return {
+      name,
+      value,
     };
   },
 

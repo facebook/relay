@@ -78,10 +78,8 @@ type RootCallMapCollection = {
  * TODO: #6584253 Mediate access to node/cached/queued data via RelayRecordStore
  */
 class RelayRecordStore {
-  _cacheWriter: ?CacheWriter;
   _cachedRecords: ?Records;
   _cachedRootCallMap: RootCallMap;
-  _clientMutationID: ?ClientMutationID;
   _queuedRecords: ?Records;
   _records: Records;
   _nodeConnectionMap: NodeRangeMap;
@@ -92,14 +90,10 @@ class RelayRecordStore {
     records: RecordCollection,
     rootCallMaps?: ?RootCallMapCollection,
     nodeConnectionMap?: ?NodeRangeMap,
-    cacheWriter?: ?CacheWriter,
-    clientMutationID?: ?ClientMutationID
   ) {
-    this._cacheWriter = cacheWriter;
     this._cachedRecords = records.cachedRecords;
     this._cachedRootCallMap =
       (rootCallMaps && rootCallMaps.cachedRootCallMap) || {};
-    this._clientMutationID = clientMutationID;
     this._queuedRecords = records.queuedRecords;
     this._nodeConnectionMap = nodeConnectionMap || {};
     this._records = records.records;

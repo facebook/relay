@@ -538,10 +538,7 @@ class RelayStoreData {
     return new RelayRecordStore(
       {records},
       {rootCallMap},
-      this._nodeRangeMap,
-      this._cacheManager ?
-        this._cacheManager.getMutationWriter() :
-        null
+      this._nodeRangeMap
     );
   }
 
@@ -569,9 +566,7 @@ class RelayStoreData {
     return new RelayRecordStore(
       {cachedRecords, queuedRecords, records},
       {cachedRootCallMap, rootCallMap},
-      this._nodeRangeMap,
-      null, // don't cache optimistic data
-      clientMutationID
+      this._nodeRangeMap
     );
   }
 
@@ -612,14 +607,12 @@ function createRecordCollection({
     cachedStore: new RelayRecordStore(
       {cachedRecords, records},
       {cachedRootCallMap, rootCallMap},
-      nodeRangeMap,
-      cacheWriter
+      nodeRangeMap
     ),
     recordStore: new RelayRecordStore(
       {records},
       {rootCallMap},
-      nodeRangeMap,
-      cacheWriter
+      nodeRangeMap
     ),
   };
 }

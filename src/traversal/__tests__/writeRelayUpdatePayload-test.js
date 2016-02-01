@@ -61,9 +61,7 @@ describe('writePayload()', () => {
       queueStore = new RelayRecordStore(
         {records, queuedRecords},
         rootCallMaps,
-        nodeConnectionMap,
-        undefined, /* cacheManager */
-        'mutationID'
+        nodeConnectionMap
       );
       writer = new RelayRecordWriter(
         records,
@@ -417,9 +415,7 @@ describe('writePayload()', () => {
       queueStore = new RelayRecordStore(
         {records, queuedRecords},
         rootCallMaps,
-        nodeConnectionMap,
-        undefined, /* cacheManager */
-        'mutationID'
+        nodeConnectionMap
       );
       writer = new RelayRecordWriter(
         records,
@@ -681,9 +677,7 @@ describe('writePayload()', () => {
       queueStore = new RelayRecordStore(
         {records, queuedRecords},
         rootCallMaps,
-        {},
-        undefined, /* cacheManager */
-        'mutationID'
+        {}
       );
       writer = new RelayRecordWriter(
         records,
@@ -863,9 +857,7 @@ describe('writePayload()', () => {
       queueStore = new RelayRecordStore(
         {records, queuedRecords},
         rootCallMaps,
-        nodeConnectionMap,
-        undefined, /* cacheManager */
-        'mutationID'
+        nodeConnectionMap
       );
       writer = new RelayRecordWriter(
         records,

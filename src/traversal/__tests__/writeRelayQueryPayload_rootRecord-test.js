@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -23,6 +23,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
   var RelayRecordStore;
+  var RelayRecordWriter;
 
   var {
     getNode,
@@ -36,6 +37,7 @@ describe('writeRelayQueryPayload()', () => {
     jest.resetModuleRegistry();
 
     RelayRecordStore = require('RelayRecordStore');
+    RelayRecordWriter = require('RelayRecordWriter');
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
@@ -45,6 +47,7 @@ describe('writeRelayQueryPayload()', () => {
     it('is created for argument-less custom root calls with an id', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           me {
@@ -57,7 +60,7 @@ describe('writeRelayQueryPayload()', () => {
           id: '123',
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           123: true,
@@ -72,6 +75,7 @@ describe('writeRelayQueryPayload()', () => {
     it('is created for argument-less custom root calls without an id', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           viewer {
@@ -88,7 +92,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           'client:1': true,
@@ -111,6 +115,7 @@ describe('writeRelayQueryPayload()', () => {
       const rootCallMap = {};
       const records = {};
       const store = new RelayRecordStore({records}, {rootCallMap});
+      const writer = new RelayRecordWriter(records, rootCallMap, false);
       const cachedStore = new RelayRecordStore(
         {records, cachedRecords},
         {cachedRootCallMap, rootCallMap}
@@ -131,7 +136,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      const results = writePayload(cachedStore, query, payload);
+      const results = writePayload(cachedStore, writer, query, payload);
       expect(results).toEqual({
         created: {
           '123': true,
@@ -148,6 +153,7 @@ describe('writeRelayQueryPayload()', () => {
     it('is created for custom root calls with an id', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           username(name:"yuzhi") {
@@ -160,7 +166,7 @@ describe('writeRelayQueryPayload()', () => {
           id: '1055790163',
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           '1055790163': true,
@@ -175,6 +181,7 @@ describe('writeRelayQueryPayload()', () => {
     it('is created for custom root calls without an id', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       // note: this test simulates an `id`-less root call
       var query = getNode(Relay.QL`
         query {
@@ -191,7 +198,7 @@ describe('writeRelayQueryPayload()', () => {
           name: 'Yuzhi Zheng',
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           'client:1': true,
@@ -206,6 +213,7 @@ describe('writeRelayQueryPayload()', () => {
     it('is created for custom root calls with batch call variables', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getRefNode(Relay.QL`
         query {
           nodes(ids:$ref_q0) {
@@ -220,7 +228,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         ],
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           '123': true,
@@ -234,6 +242,7 @@ describe('writeRelayQueryPayload()', () => {
     it('are created for plural identifying root calls', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           nodes(ids: ["123","456"]) {
@@ -251,7 +260,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         ],
       };
-      var results = writeVerbatimPayload(store, query, payload);
+      var results = writeVerbatimPayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           '123': true,
@@ -268,6 +277,7 @@ describe('writeRelayQueryPayload()', () => {
     it('requires arguments to `node()` root calls', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node {
@@ -279,7 +289,7 @@ describe('writeRelayQueryPayload()', () => {
         node: null,
       };
       expect(() => {
-        writePayload(store, query, payload);
+        writePayload(store, writer, query, payload);
       }).toFailInvariant(
         'RelayRecordStore.getDataID(): Argument to `node()` cannot be ' +
         'null or undefined.'
@@ -289,6 +299,7 @@ describe('writeRelayQueryPayload()', () => {
     it('is created and set to null when the response is null', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -299,7 +310,7 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: null,
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {},
@@ -315,6 +326,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -325,7 +337,7 @@ describe('writeRelayQueryPayload()', () => {
       var payload = {
         node: null,
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -338,6 +350,7 @@ describe('writeRelayQueryPayload()', () => {
     it('requires an array if root args is an array', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           nodes(ids:["123", "456"]) {
@@ -352,7 +365,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       expect(() => {
-        writePayload(store, query, payload);
+        writePayload(store, writer, query, payload);
       }).toFailInvariant(
         'RelayOSSNodeInterface: Expected payload for root field `nodes` to ' +
         'be an array with 2 results, instead received a single non-array ' +
@@ -363,6 +376,7 @@ describe('writeRelayQueryPayload()', () => {
     it('requires a single result if root args is a single value', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           me {
@@ -383,7 +397,7 @@ describe('writeRelayQueryPayload()', () => {
         ],
       };
       expect(() => {
-        writePayload(store, query, payload);
+        writePayload(store, writer, query, payload);
       }).toFailInvariant(
         'RelayOSSNodeInterface: Expected payload for root field `me` to be a ' +
         'single non-array result, instead received an array with 2 results.'
@@ -393,6 +407,7 @@ describe('writeRelayQueryPayload()', () => {
     it('handles plural results for ref queries', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getRefNode(Relay.QL`
         query {
           nodes(ids:$ref_q0) {
@@ -415,7 +430,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         ],
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
       expect(store.getRecordState('123')).toBe('EXISTENT');
       expect(store.getField('123', 'name')).toBe('Yuzhi');
       expect(store.getRecordState('456')).toBe('EXISTENT');
@@ -425,6 +440,7 @@ describe('writeRelayQueryPayload()', () => {
     it('is not created when the response is undefined', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -436,7 +452,7 @@ describe('writeRelayQueryPayload()', () => {
         node: undefined,
       };
       expect(() => {
-        writePayload(store, query, payload);
+        writePayload(store, writer, query, payload);
       }).toFailInvariant(
         'RelayQueryWriter: Unexpectedly encountered `undefined` in payload. ' +
         'Cannot set root record `123` to undefined.'
@@ -452,6 +468,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -465,7 +482,7 @@ describe('writeRelayQueryPayload()', () => {
         node: undefined,
       };
       expect(() => {
-        writePayload(store, query, payload);
+        writePayload(store, writer, query, payload);
       }).toFailInvariant(
         'RelayQueryWriter: Unexpectedly encountered `undefined` in payload. ' +
         'Cannot set root record `123` to undefined.'
@@ -476,6 +493,7 @@ describe('writeRelayQueryPayload()', () => {
     it('is created when a new record returns a value', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -488,7 +506,7 @@ describe('writeRelayQueryPayload()', () => {
           id: '123',
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           '123': true,
@@ -506,6 +524,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -518,7 +537,7 @@ describe('writeRelayQueryPayload()', () => {
           id: '123',
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {},
@@ -535,6 +554,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -549,7 +569,7 @@ describe('writeRelayQueryPayload()', () => {
           name: 'Joseph',
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -568,6 +588,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -581,7 +602,7 @@ describe('writeRelayQueryPayload()', () => {
           name: 'Joseph',
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {},
@@ -593,6 +614,7 @@ describe('writeRelayQueryPayload()', () => {
     it('records the concrete type if `__typename` is present', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id: "123") {
@@ -608,13 +630,14 @@ describe('writeRelayQueryPayload()', () => {
           foo: 'bar',
         },
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
       expect(store.getType('123')).toBe('User');
     });
 
     it('warns if the typename cannot be determined for a node', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       // No `id` or `__typename` fields
       var query = getVerbatimNode(Relay.QL`
         query {
@@ -631,7 +654,7 @@ describe('writeRelayQueryPayload()', () => {
           name: 'Joe',
         },
       };
-      writeVerbatimPayload(store, query, payload);
+      writeVerbatimPayload(store, writer, query, payload);
       expect(store.getType('123')).toBe(null);
       expect([
         'RelayQueryWriter: Could not find a type name for record `%s`.',
@@ -642,6 +665,7 @@ describe('writeRelayQueryPayload()', () => {
     it('stores types for client records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           viewer {
@@ -660,7 +684,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
       expect(store.getType('client:1')).toBe('Viewer');
     });
   });

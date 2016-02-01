@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -55,7 +55,10 @@ const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 const EDGES_FIELD = RelayQuery.Field.build({
   fieldName: EDGES,
   type: ANY_TYPE,
-  metadata: {isPlural: true},
+  metadata: {
+    canHaveSubselections: true,
+    isPlural: true,
+  },
 });
 const IGNORED_KEYS = {
   error: true,
@@ -499,16 +502,20 @@ function handleRangeDelete(
   payload: PayloadObject,
   config: OperationConfig
 ): void {
-  const maybeRecordID = getString(payload, config.deletedIDFieldName);
+  const store = writer.getRecordStore();
+
+  const recordID =
+    Array.isArray(config.deletedIDFieldName) ?
+      getIDFromPath(store, config.deletedIDFieldName, payload) :
+      getString(payload, config.deletedIDFieldName);
+
   invariant(
-    maybeRecordID != null,
+    recordID != null,
     'writeRelayUpdatePayload(): Missing ID for deleted record at field `%s`.',
     config.deletedIDFieldName
   );
-  const recordID = maybeRecordID; // Flow loses type refinements in closures
 
   // Extract the id of the node with the connection that we are deleting from.
-  const store = writer.getRecordStore();
   const connectionName = config.pathToConnection.pop();
   const connectionParentID =
     getIDFromPath(store, config.pathToConnection, payload);

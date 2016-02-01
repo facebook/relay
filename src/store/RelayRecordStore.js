@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -66,7 +66,7 @@ export type RangeInfo = {
   requestedEdgeIDs: Array<string>;
   filteredEdges: Array<RangeEdge>;
 };
-type RangeOperation = 'append' | 'prepend' | 'remove';
+type RangeOperation = $Enum<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 
 type RecordCollection = {
   cachedRecords?: ?Records;
@@ -442,9 +442,7 @@ class RelayRecordStore {
       recordID,
       parentID
     );
-    var fieldValue = {
-      __dataID__: recordID,
-    };
+    var fieldValue = RelayRecord.create(recordID);
     parent[storageKey] = fieldValue;
     if (!this._queuedRecords && this._cacheWriter) {
       this._cacheWriter.writeField(parentID, storageKey, fieldValue);
@@ -507,9 +505,7 @@ class RelayRecordStore {
         recordID,
         parentID
       );
-      return {
-        __dataID__: recordID,
-      };
+      return RelayRecord.create(recordID);
     });
     parent[storageKey] = records;
     if (!this._queuedRecords && this._cacheWriter) {
@@ -623,7 +619,7 @@ class RelayRecordStore {
       };
     }
     var queuedRecord = this._queuedRecords ?
-      (this._queuedRecords: $FixMe)[connectionID] :
+      this._queuedRecords[connectionID] :
       null;
     var {
       diffCalls,
@@ -791,13 +787,11 @@ class RelayRecordStore {
     );
     var record: ?Record = this._queuedRecords[connectionID];
     if (!record) {
-      // $FlowIssue: this fails with:
-      // "property `append/prepend/remove` not found in object literal"
-      record = ({__dataID__: connectionID}: $FlowIssue);
+      record = {__dataID__: connectionID};
       this._queuedRecords[connectionID] = record;
     }
     this._setClientMutationID(record);
-    var queue: ?Array<DataID> = (record[operation]: any);
+    var queue: ?Array<DataID> = record[operation];
     if (!queue) {
       queue = [];
       record[operation] = queue;
@@ -909,9 +903,7 @@ class RelayRecordStore {
     // not already exist there.
     var source = this._queuedRecords || this._records;
     if (!source[dataID]) {
-      record = source[dataID] = ({
-        __dataID__: dataID,
-      }: $FixMe);
+      record = source[dataID] = RelayRecord.create(dataID);
     }
     if (source === this._queuedRecords) {
       this._setClientMutationID(record);

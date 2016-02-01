@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -22,6 +22,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
   var RelayRecordStore;
+  var RelayRecordWriter;
 
   var {getNode, writePayload} = RelayTestUtils;
 
@@ -29,6 +30,7 @@ describe('writeRelayQueryPayload()', () => {
     jest.resetModuleRegistry();
 
     RelayRecordStore = require('RelayRecordStore');
+    RelayRecordWriter = require('RelayRecordWriter');
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
@@ -37,6 +39,7 @@ describe('writeRelayQueryPayload()', () => {
     it('created with null when the response is null', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -51,7 +54,7 @@ describe('writeRelayQueryPayload()', () => {
           __typename: 'User',
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           '123': true,
@@ -69,6 +72,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -82,7 +86,7 @@ describe('writeRelayQueryPayload()', () => {
           name: null,
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -101,6 +105,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -114,7 +119,7 @@ describe('writeRelayQueryPayload()', () => {
           name: null,
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -127,6 +132,7 @@ describe('writeRelayQueryPayload()', () => {
     it('does not add undefined fields to a new record', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -141,7 +147,7 @@ describe('writeRelayQueryPayload()', () => {
           __typename: 'User',
         },
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
       expect(store.getField('123', 'id')).toBe('123');
       expect(store.getField('123', 'name')).toBe(undefined);
     });
@@ -154,6 +160,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -167,7 +174,7 @@ describe('writeRelayQueryPayload()', () => {
           name: undefined,
         },
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
       expect(store.getField('123', 'id')).toBe('123');
       expect(store.getField('123', 'name')).toBe(undefined);
     });
@@ -181,6 +188,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -194,7 +202,7 @@ describe('writeRelayQueryPayload()', () => {
           name: undefined,
         },
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
       expect(store.getField('123', 'name')).toBe('Joe');
     });
 
@@ -207,6 +215,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -220,7 +229,7 @@ describe('writeRelayQueryPayload()', () => {
           name: 'Joseph',
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {

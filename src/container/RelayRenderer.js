@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -15,7 +15,6 @@
 
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const React = require('React');
-const ReactDOM = require('ReactDOM');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
 const RelayPropTypes = require('RelayPropTypes');
 const RelayStore = require('RelayStore');
@@ -30,6 +29,7 @@ const StaticContainer = require('StaticContainer.react');
 const getRelayQueries = require('getRelayQueries');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
+const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 
 type RelayRendererProps = {
   Component: RelayContainer;
@@ -58,7 +58,7 @@ const {PropTypes} = React;
 var storeData = RelayStore.getStoreData();
 
 storeData.getChangeEmitter().injectBatchingStrategy(
-  ReactDOM.unstable_batchedUpdates
+  relayUnstableBatchedUpdates
 );
 
 /**

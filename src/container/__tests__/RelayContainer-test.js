@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -203,23 +203,23 @@ describe('RelayContainer', function() {
   });
 
   describe('conditional fragments', () => {
-    var MockFeed;
-    var feedFragment;
+    let MockProfile;
+    let profileFragment;
 
     beforeEach(() => {
-      MockFeed = Relay.createContainer(MockComponent, {
+      MockProfile = Relay.createContainer(MockComponent, {
         fragments: {
           viewer: () => Relay.QL`
             fragment on Viewer {
-              newsFeed,
+              primaryEmail
             }
           `,
         },
       });
-      feedFragment = QueryBuilder.createFragment({
+      profileFragment = QueryBuilder.createFragment({
         name: 'Test',
         type: 'Viewer',
-        children: [QueryBuilder.createField({fieldName: 'newsFeed'})],
+        children: [QueryBuilder.createField({fieldName: 'primaryEmail'})],
       });
     });
 
@@ -231,7 +231,7 @@ describe('RelayContainer', function() {
         fragments: {
           viewer: variables => Relay.QL`
             fragment on Viewer {
-              ${MockFeed.getFragment('viewer').if(variables.hasSideshow)},
+              ${MockProfile.getFragment('viewer').if(variables.hasSideshow)},
             }
           `,
         },
@@ -247,7 +247,7 @@ describe('RelayContainer', function() {
       var expected = RelayQuery.Fragment.build(
         'Test',
         'Viewer',
-        [getNode(feedFragment)]
+        [getNode(profileFragment)]
       );
       expect(fragment).toEqualQueryNode(expected);
 
@@ -269,9 +269,9 @@ describe('RelayContainer', function() {
         fragments: {
           viewer: variables => Relay.QL`
             fragment on Viewer {
-              ${MockFeed
-            .getFragment('viewer')
-            .unless(variables.hasSideshow)},
+              ${MockProfile
+                .getFragment('viewer')
+                .unless(variables.hasSideshow)},
             }
           `,
         },
@@ -292,7 +292,7 @@ describe('RelayContainer', function() {
       var expected = RelayQuery.Fragment.build(
         'Test',
         'Viewer',
-        [getNode(feedFragment)],
+        [getNode(profileFragment)],
       );
       expect(fragment).toEqualQueryNode(expected);
     });

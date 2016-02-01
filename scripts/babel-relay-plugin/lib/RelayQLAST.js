@@ -1,6 +1,6 @@
 // @generated
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -95,6 +95,13 @@ var RelayQLNode = (function () {
 
       return (this.ast.directives || []).map(function (directive) {
         return new RelayQLDirective(_this2.context, directive);
+      });
+    }
+  }, {
+    key: 'hasDirective',
+    value: function hasDirective(name) {
+      return (this.ast.directives || []).some(function (d) {
+        return d.name.value === name;
       });
     }
   }, {
@@ -451,6 +458,11 @@ var RelayQLType = (function () {
   }
 
   _createClass(RelayQLType, [{
+    key: 'canHaveSubselections',
+    value: function canHaveSubselections() {
+      return !(this.schemaUnmodifiedType instanceof types.GraphQLScalarType || this.schemaUnmodifiedType instanceof types.GraphQLEnumType);
+    }
+  }, {
     key: 'getName',
     value: function getName(_ref) {
       var modifiers = _ref.modifiers;
@@ -573,26 +585,21 @@ var RelayQLType = (function () {
       return this.isNonNullType;
     }
   }, {
-    key: 'isScalar',
-    value: function isScalar() {
-      return this.schemaUnmodifiedType instanceof types.GraphQLScalarType;
-    }
-  }, {
     key: 'isConnection',
     value: function isConnection() {
       if (!/Connection$/.test(this.getName({ modifiers: false }))) {
         return false;
       }
       var edges = this.getFieldDefinition('edges');
-      if (!edges || edges.getType().isScalar()) {
+      if (!edges || !edges.getType().canHaveSubselections()) {
         return false;
       }
       var node = edges.getType().getFieldDefinition('node');
-      if (!node || node.getType().isScalar()) {
+      if (!node || !node.getType().canHaveSubselections()) {
         return false;
       }
       var cursor = edges.getType().getFieldDefinition('cursor');
-      if (!cursor || !cursor.getType().isScalar()) {
+      if (!cursor || cursor.getType().canHaveSubselections()) {
         return false;
       }
       return true;

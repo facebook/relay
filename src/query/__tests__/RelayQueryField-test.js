@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -23,15 +23,18 @@ const generateRQLFieldAlias = require('generateRQLFieldAlias');
 describe('RelayQueryField', () => {
   var {getNode} = RelayTestUtils;
 
-  var nodeId;
-  var aliasedId;
-  var userAddress;
-  var friendScalar;
-  var friendVariable;
-  var generatedId;
-  var generatedIdRQL;
-  var pageInfo;
-  var cursor;
+  let aliasedIdField;
+  let cursorField;
+  let edgesField;
+  let friendsScalarField;
+  let friendsConnectionField;
+  let friendsVariableField;
+  let generatedIdField;
+  let generatedIdFieldRQL;
+  let nodeField;
+  let nodeIdField;
+  let pageInfoField;
+  let userAddressField;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -43,8 +46,8 @@ describe('RelayQueryField', () => {
         id
       }
     `;
-    nodeId = getNode(scalarRQL).getChildren()[0];
-    expect(nodeId.getSchemaName()).toBe('id');
+    nodeIdField = getNode(scalarRQL).getChildren()[0];
+    expect(nodeIdField.getSchemaName()).toBe('id');
 
     var query = getNode(Relay.QL`
       query {
@@ -59,9 +62,11 @@ describe('RelayQueryField', () => {
         }
       }
     `);
-    aliasedId = query.getChildren()[0].getChildren()[0].getChildren()[0]
-      .getChildren()[0];
-    expect(aliasedId.getSchemaName()).toBe('id');
+    friendsConnectionField = query.getChildren()[0];
+    edgesField = friendsConnectionField.getChildren()[0];
+    nodeField = edgesField.getChildren()[0];
+    aliasedIdField =  nodeField.getChildren()[0];
+    expect(aliasedIdField.getSchemaName()).toBe('id');
 
     var groupRQL = Relay.QL`
       fragment on User {
@@ -70,10 +75,10 @@ describe('RelayQueryField', () => {
         }
       }
     `;
-    userAddress = getNode(groupRQL).getChildren()[0];
-    expect(userAddress.getSchemaName()).toBe('address');
+    userAddressField = getNode(groupRQL).getChildren()[0];
+    expect(userAddressField.getSchemaName()).toBe('address');
 
-    var friendScalarRQL = Relay.QL`
+    var friendsScalarFieldRQL = Relay.QL`
       fragment on User {
         friend_scalar: friends
           (first:"10",after:"offset",orderby:"name") {
@@ -85,16 +90,19 @@ describe('RelayQueryField', () => {
         }
       }
     `;
-    friendScalar = getNode(friendScalarRQL).getChildren()[0];
-    expect(friendScalar.getSchemaName()).toBe('friends');
-    pageInfo = getNode(friendScalarRQL).getChildren()[0].getChildren()[1];
-    expect(pageInfo.getSchemaName()).toBe(RelayConnectionInterface.PAGE_INFO);
+    friendsScalarField = getNode(friendsScalarFieldRQL).getChildren()[0];
+    expect(friendsScalarField.getSchemaName()).toBe('friends');
+    pageInfoField = getNode(friendsScalarFieldRQL)
+      .getChildren()[0]
+      .getChildren()[1];
+    expect(pageInfoField.getSchemaName())
+      .toBe(RelayConnectionInterface.PAGE_INFO);
     // feed.edges.cursor
-    cursor = getNode(friendScalarRQL)
+    cursorField = getNode(friendsScalarFieldRQL)
       .getChildren()[0].getChildren()[0].getChildren()[1];
-    expect(cursor.getSchemaName()).toBe('cursor');
+    expect(cursorField.getSchemaName()).toBe('cursor');
 
-    var friendVariableRQL = Relay.QL`
+    var friendsVariableFieldRQL = Relay.QL`
       fragment on User {
         friends_variable: friends(first:$first,after:$after) {
           edges {
@@ -109,16 +117,17 @@ describe('RelayQueryField', () => {
       after: 'offset',
       first: 10,
     };
-    friendVariable = getNode(friendVariableRQL, variables).getChildren()[0];
-    expect(friendVariable.getSchemaName()).toBe('friends');
+    friendsVariableField =
+      getNode(friendsVariableFieldRQL, variables).getChildren()[0];
+    expect(friendsVariableField.getSchemaName()).toBe('friends');
 
-    generatedIdRQL = Relay.QL`
+    generatedIdFieldRQL = Relay.QL`
       fragment on User {
         name
       }
     `;
-    generatedId = getNode(generatedIdRQL).getChildren()[1];
-    expect(generatedId.getSchemaName()).toBe('id');
+    generatedIdField = getNode(generatedIdFieldRQL).getChildren()[1];
+    expect(generatedIdField.getSchemaName()).toBe('id');
   });
 
   it('returns the type', () => {
@@ -133,25 +142,25 @@ describe('RelayQueryField', () => {
   });
 
   it('gets children by storage key', () => {
-    var edges = friendScalar.getFieldByStorageKey('edges');
-    expect(edges).toBe(friendScalar.getChildren()[0]);
+    var edges = friendsScalarField.getFieldByStorageKey('edges');
+    expect(edges).toBe(friendsScalarField.getChildren()[0]);
   });
 
   it('gets children by field', () => {
-    var edges = friendScalar.getFieldByStorageKey('edges');
-    expect(edges).toBe(friendScalar.getChildren()[0]);
-    var varFeedEdges = friendVariable.getField(edges);
-    expect(varFeedEdges).toBe(friendVariable.getChildren()[0]);
+    var edges = friendsScalarField.getFieldByStorageKey('edges');
+    expect(edges).toBe(friendsScalarField.getChildren()[0]);
+    var varFeedEdges = friendsVariableField.getField(edges);
+    expect(varFeedEdges).toBe(friendsVariableField.getChildren()[0]);
   });
 
   it('equals the same fields', () => {
-    expect(nodeId.equals(nodeId)).toBe(true);
-    expect(userAddress.equals(userAddress)).toBe(true);
-    expect(friendScalar.equals(friendScalar)).toBe(true);
-    expect(friendVariable.equals(friendVariable)).toBe(true);
-    expect(generatedId.equals(generatedId)).toBe(true);
-    expect(pageInfo.equals(pageInfo)).toBe(true);
-    expect(cursor.equals(cursor)).toBe(true);
+    expect(nodeIdField.equals(nodeIdField)).toBe(true);
+    expect(userAddressField.equals(userAddressField)).toBe(true);
+    expect(friendsScalarField.equals(friendsScalarField)).toBe(true);
+    expect(friendsVariableField.equals(friendsVariableField)).toBe(true);
+    expect(generatedIdField.equals(generatedIdField)).toBe(true);
+    expect(pageInfoField.equals(pageInfoField)).toBe(true);
+    expect(cursorField.equals(cursorField)).toBe(true);
   });
 
   it('equals equivalent fields', () => {
@@ -171,8 +180,8 @@ describe('RelayQueryField', () => {
       getNode(pictureVariableRQL,  variables).getChildren()[0];
     expect(pictureScalar.equals(pictureVariable)).toBe(true);
 
-    var diffId = getNode(generatedIdRQL).getChildren()[1];
-    expect(generatedId.equals(diffId)).toBe(true);
+    var diffId = getNode(generatedIdFieldRQL).getChildren()[1];
+    expect(generatedIdField.equals(diffId)).toBe(true);
   });
 
   it('does not equal fields with different values', () => {
@@ -193,12 +202,12 @@ describe('RelayQueryField', () => {
   });
 
   it('scalar fields have no children', () => {
-    expect(nodeId.isScalar()).toBe(true);
-    expect(nodeId.getChildren().length).toBe(0);
+    expect(nodeIdField.canHaveSubselections()).toBe(false);
+    expect(nodeIdField.getChildren().length).toBe(0);
   });
 
   it('returns the same object when cloning a scalar field', () => {
-    expect(nodeId.clone([])).toBe(nodeId);
+    expect(nodeIdField.clone([])).toBe(nodeIdField);
   });
 
   it('clones with updated children', () => {
@@ -216,51 +225,51 @@ describe('RelayQueryField', () => {
     expect(clone.getFieldByStorageKey('canViewerComment')).toBe(undefined);
   });
 
-  it('throws if cloning a scalar field with children', () => {
-    expect(() => {
-      nodeId.clone([null]);
-    }).toFailInvariant(
-      'RelayQueryNode: Cannot add children to scalar field `id`.'
+  it('throws if cloning a subselection-ineligible field with children', () => {
+    const expectedError = (
+      'RelayQueryNode: Cannot add children to field `id` because it does not ' +
+      'support sub-selections (sub-fields).'
     );
     expect(() => {
-      nodeId.cloneFieldWithCalls([null], []);
-    }).toFailInvariant(
-      'RelayQueryField: Cannot add children to scalar fields.'
-    );
+      nodeIdField.clone([null]);
+    }).toFailInvariant(expectedError);
+    expect(() => {
+      nodeIdField.cloneFieldWithCalls([null], []);
+    }).toFailInvariant(expectedError);
   });
 
   it('returns children', () => {
-    var children = userAddress.getChildren();
+    var children = userAddressField.getChildren();
     expect(children.length).toBe(1);
     expect(children[0].getSchemaName()).toBe('city');
   });
 
   it('return the same object when cloning with the same children', () => {
-    var children = userAddress.getChildren();
+    var children = userAddressField.getChildren();
     var child = children[0];
-    expect(userAddress.clone(children)).toBe(userAddress);
-    expect(userAddress.clone([child])).toBe(userAddress);
-    expect(userAddress.clone([child, null])).toBe(userAddress);
-    expect(userAddress.clone([null, child, null])).toBe(userAddress);
+    expect(userAddressField.clone(children)).toBe(userAddressField);
+    expect(userAddressField.clone([child])).toBe(userAddressField);
+    expect(userAddressField.clone([child, null])).toBe(userAddressField);
+    expect(userAddressField.clone([null, child, null])).toBe(userAddressField);
   });
 
   it('returns a new object when cloning with different children', () => {
-    expect(userAddress.clone([nodeId])).not.toBe(userAddress);
+    expect(userAddressField.clone([nodeIdField])).not.toBe(userAddressField);
   });
 
   it('returns null when cloning without children', () => {
-    expect(userAddress.clone([])).toBe(null);
-    expect(userAddress.clone([null])).toBe(null);
-    expect(userAddress.cloneFieldWithCalls([], [])).toBe(null);
-    expect(userAddress.cloneFieldWithCalls([null], [])).toBe(null);
+    expect(userAddressField.clone([])).toBe(null);
+    expect(userAddressField.clone([null])).toBe(null);
+    expect(userAddressField.cloneFieldWithCalls([], [])).toBe(null);
+    expect(userAddressField.cloneFieldWithCalls([null], [])).toBe(null);
   });
 
   it('returns the schema/application names', () => {
-    expect(friendScalar.getSchemaName()).toBe('friends');
-    expect(friendScalar.getApplicationName()).toBe('friend_scalar');
+    expect(friendsScalarField.getSchemaName()).toBe('friends');
+    expect(friendsScalarField.getApplicationName()).toBe('friend_scalar');
 
-    expect(friendVariable.getSchemaName()).toBe('friends');
-    expect(friendVariable.getApplicationName()).toBe('friends_variable');
+    expect(friendsVariableField.getSchemaName()).toBe('friends');
+    expect(friendsVariableField.getApplicationName()).toBe('friends_variable');
   });
 
   it('returns call types', () => {
@@ -306,6 +315,25 @@ describe('RelayQueryField', () => {
         ],
       },
     ]);
+  });
+
+  describe('canHaveSubselections()', () => {
+    it('returns true for fields that support sub-selections', () => {
+      expect(edgesField.canHaveSubselections()).toBe(true);
+      expect(friendsConnectionField.canHaveSubselections()).toBe(true);
+      expect(friendsScalarField.canHaveSubselections()).toBe(true);
+      expect(friendsVariableField.canHaveSubselections()).toBe(true);
+      expect(nodeField.canHaveSubselections()).toBe(true);
+      expect(pageInfoField.canHaveSubselections()).toBe(true);
+      expect(userAddressField.canHaveSubselections()).toBe(true);
+    });
+
+    it('returns false for fields that do not support sub-selections', () => {
+      expect(aliasedIdField.canHaveSubselections()).toBe(false);
+      expect(cursorField.canHaveSubselections()).toBe(false);
+      expect(generatedIdField.canHaveSubselections()).toBe(false);
+      expect(nodeIdField.canHaveSubselections()).toBe(false);
+    });
   });
 
   describe('getRangeBehaviorKey()', () => {
@@ -382,9 +410,9 @@ describe('RelayQueryField', () => {
 
   describe('getSerializationKey()', () => {
     it('serializes all calls', () => {
-      expect(friendScalar.getSerializationKey()).toBe(generateRQLFieldAlias(
-        'friends.after(offset).first(10).orderby(name)'
-      ));
+      expect(friendsScalarField.getSerializationKey()).toBe(
+        generateRQLFieldAlias('friends.after(offset).first(10).orderby(name)')
+      );
     });
 
     it('substitutes variable values', () => {
@@ -414,7 +442,7 @@ describe('RelayQueryField', () => {
 
   describe('getShallowHash()', () => {
     it('serializes all calls', () => {
-      expect(friendScalar.getShallowHash()).toBe(
+      expect(friendsScalarField.getShallowHash()).toBe(
         'friends{after:"offset",first:"10",orderby:"name"}'
       );
     });
@@ -541,13 +569,13 @@ describe('RelayQueryField', () => {
 
   it('returns arguments with values', () => {
     // scalar values are converted to strings
-    expect(friendScalar.getCallsWithValues()).toEqual([
+    expect(friendsScalarField.getCallsWithValues()).toEqual([
       {name: 'first', value: '10'},
       {name: 'after', value: 'offset'},
       {name: 'orderby', value: 'name'},
     ]);
     // variables return their values
-    expect(friendVariable.getCallsWithValues()).toEqual([
+    expect(friendsVariableField.getCallsWithValues()).toEqual([
       {name: 'first', value: 10},
       {name: 'after', value: 'offset'},
     ]);
@@ -593,8 +621,8 @@ describe('RelayQueryField', () => {
   });
 
   it('clones with different call values', () => {
-    var clonedFeed = friendVariable.cloneFieldWithCalls(
-      friendVariable.getChildren(),
+    var clonedFeed = friendsVariableField.cloneFieldWithCalls(
+      friendsVariableField.getChildren(),
       [{name: 'first', value: 25}]
     );
     expect(clonedFeed.getSchemaName()).toBe('friends');
@@ -606,14 +634,14 @@ describe('RelayQueryField', () => {
     );
     expect(clonedFeed.getStorageKey()).toEqual('friends');
 
-    clonedFeed = friendVariable.cloneFieldWithCalls(
-      friendVariable.getChildren(),
+    clonedFeed = friendsVariableField.cloneFieldWithCalls(
+      friendsVariableField.getChildren(),
       [
         {name: 'first', value: 10},
         {name: 'after', value: 'offset'},
       ]
     );
-    expect(clonedFeed).toBe(friendVariable);
+    expect(clonedFeed).toBe(friendsVariableField);
   });
 
   it('returns isAbstract', () => {
@@ -634,63 +662,63 @@ describe('RelayQueryField', () => {
   });
 
   it('returns isGenerated', () => {
-    expect(aliasedId.isGenerated()).toBe(false);
-    expect(cursor.isGenerated()).toBe(true);
-    expect(userAddress.isGenerated()).toBe(false);
-    expect(generatedId.isGenerated()).toBe(true);
-    expect(nodeId.isGenerated()).toBe(false);
-    expect(pageInfo.isGenerated()).toBe(true);
+    expect(aliasedIdField.isGenerated()).toBe(false);
+    expect(cursorField.isGenerated()).toBe(true);
+    expect(userAddressField.isGenerated()).toBe(false);
+    expect(generatedIdField.isGenerated()).toBe(true);
+    expect(nodeIdField.isGenerated()).toBe(false);
+    expect(pageInfoField.isGenerated()).toBe(true);
   });
 
   it('returns isRefQueryDependency', () => {
     // Not ref query dependencies:
-    expect(aliasedId.isRefQueryDependency()).toBe(false);
-    expect(cursor.isRefQueryDependency()).toBe(false);
-    expect(userAddress.isRefQueryDependency()).toBe(false);
-    expect(generatedId.isRefQueryDependency()).toBe(false);
-    expect(nodeId.isRefQueryDependency()).toBe(false);
-    expect(pageInfo.isRefQueryDependency()).toBe(false);
+    expect(aliasedIdField.isRefQueryDependency()).toBe(false);
+    expect(cursorField.isRefQueryDependency()).toBe(false);
+    expect(userAddressField.isRefQueryDependency()).toBe(false);
+    expect(generatedIdField.isRefQueryDependency()).toBe(false);
+    expect(nodeIdField.isRefQueryDependency()).toBe(false);
+    expect(pageInfoField.isRefQueryDependency()).toBe(false);
 
     // Pretend some of them are ref query dependencies:
-    expect(aliasedId.cloneAsRefQueryDependency().isRefQueryDependency())
+    expect(aliasedIdField.cloneAsRefQueryDependency().isRefQueryDependency())
       .toBe(true);
-    expect(cursor.cloneAsRefQueryDependency().isRefQueryDependency())
+    expect(cursorField.cloneAsRefQueryDependency().isRefQueryDependency())
       .toBe(true);
-    expect(generatedId.cloneAsRefQueryDependency().isRefQueryDependency())
+    expect(generatedIdField.cloneAsRefQueryDependency().isRefQueryDependency())
       .toBe(true);
-    expect(nodeId.cloneAsRefQueryDependency().isRefQueryDependency())
+    expect(nodeIdField.cloneAsRefQueryDependency().isRefQueryDependency())
       .toBe(true);
-    expect(pageInfo.cloneAsRefQueryDependency().isRefQueryDependency())
+    expect(pageInfoField.cloneAsRefQueryDependency().isRefQueryDependency())
       .toBe(true);
   });
 
   it('returns isRequisite', () => {
-    expect(aliasedId.isRequisite()).toBe(true);
-    expect(cursor.isRequisite()).toBe(true);
-    expect(userAddress.isRequisite()).toBe(false);
-    expect(generatedId.isRequisite()).toBe(true);
-    expect(nodeId.isRequisite()).toBe(true);
-    expect(pageInfo.isRequisite()).toBe(true);
+    expect(aliasedIdField.isRequisite()).toBe(true);
+    expect(cursorField.isRequisite()).toBe(true);
+    expect(userAddressField.isRequisite()).toBe(false);
+    expect(generatedIdField.isRequisite()).toBe(true);
+    expect(nodeIdField.isRequisite()).toBe(true);
+    expect(pageInfoField.isRequisite()).toBe(true);
   });
 
   it('returns isFindable', () => {
-    expect(nodeId.isFindable()).toBe(false);
-    expect(friendScalar.isFindable()).toBe(true);
-    expect(userAddress.isFindable()).toBe(false);
+    expect(nodeIdField.isFindable()).toBe(false);
+    expect(friendsScalarField.isFindable()).toBe(true);
+    expect(userAddressField.isFindable()).toBe(false);
   });
 
   it('returns the inferred primary key', () => {
     var field = getNode(Relay.QL`fragment on Story{feedback}`).getChildren()[0];
     expect(field.getInferredPrimaryKey()).toBe('id');
 
-    expect(friendScalar.getInferredPrimaryKey()).toBe(undefined);
+    expect(friendsScalarField.getInferredPrimaryKey()).toBe(undefined);
   });
 
   it('returns the inferred root call name', () => {
     var field = getNode(Relay.QL`fragment on Story{feedback}`).getChildren()[0];
     expect(field.getInferredRootCallName()).toBe('node');
 
-    expect(friendScalar.getInferredRootCallName()).toBe(undefined);
+    expect(friendsScalarField.getInferredRootCallName()).toBe(undefined);
   });
 
   it('creates nodes', () => {
@@ -699,11 +727,11 @@ describe('RelayQueryField', () => {
         actorCount
       }
     `;
-    var node = nodeId.createNode(fragmentRQL);
+    var node = nodeIdField.createNode(fragmentRQL);
     expect(node instanceof RelayQuery.Fragment).toBe(true);
     expect(node.getType()).toBe('FeedUnit');
-    expect(node.getRoute()).toBe(nodeId.getRoute());
-    expect(node.getVariables()).toBe(nodeId.getVariables());
+    expect(node.getRoute()).toBe(nodeIdField.getRoute());
+    expect(node.getVariables()).toBe(nodeIdField.getVariables());
     expect(node.getFieldByStorageKey('actorCount').getType()).toBe('Int');
   });
 

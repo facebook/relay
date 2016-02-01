@@ -155,7 +155,7 @@ class RentMovieMutation extends Relay.Mutation {
     if (formatPreference) {
       overrideVariables.format = formatPreference;
     }
-    return {...prevVariables, overrideVariables};
+    return {...prevVariables, ...overrideVariables};
   };
   static fragments = {
     // Now we can use the variables we've prepared to fetch movies
@@ -271,9 +271,9 @@ Given a parent, a connection, and one or more DataIDs in the response payload, R
 
   The field name in the response that represents the connection
 
-- `deletedIDFieldName: DataID | Array<DataID>`
+- `deletedIDFieldName: string`
 
-  One or more DataIDs corresponding to nodes to remove from the connection and delete from the store
+  The field name in the response that contains the DataID of the deleted node
 
 #### Example
 
@@ -390,9 +390,9 @@ Given a parent, a connection, one or more DataIDs in the response payload, and a
 
   The field name in the response that represents the connection
 
-- `deletedIDFieldName: DataID | Array<DataID>`
+- `deletedIDFieldName: string | Array<string>`
 
-  One or more DataIDs corresponding to nodes to remove from the connection
+  The field name in the response that contains the DataID of the removed node, or the path to the node removed from the connection
 
 - `pathToConnection: Array<string>`
 

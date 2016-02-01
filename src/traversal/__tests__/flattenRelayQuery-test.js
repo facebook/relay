@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -172,5 +172,21 @@ describe('flattenRelayQuery', () => {
     expect(flattenRelayQuery(node, {
       shouldRemoveFragments: true,
     })).toEqualQueryNode(expected);
+  });
+
+  it('optionally preserves empty non-leaf nodes', () => {
+    var node = getNode(Relay.QL`
+      fragment on Comment {
+        likers # can have sub-selections, normally is removed
+        doesViewerLike
+      }
+    `);
+    const flattened = flattenRelayQuery(node, {
+      preserveEmptyNodes: true,
+    });
+    expect(flattened.getChildren().length).toBe(3);
+    expect(flattened.getChildren()[0].getSchemaName()).toBe('likers');
+    expect(flattened.getChildren()[1].getSchemaName()).toBe('doesViewerLike');
+    expect(flattened.getChildren()[2].getSchemaName()).toBe('id');
   });
 });

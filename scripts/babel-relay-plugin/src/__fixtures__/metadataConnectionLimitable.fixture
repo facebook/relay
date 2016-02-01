@@ -30,6 +30,7 @@ var x = (function () {
           fieldName: 'node',
           kind: 'Field',
           metadata: {
+            canHaveSubselections: true,
             isRequisite: true
           },
           type: 'Config'
@@ -45,13 +46,16 @@ var x = (function () {
         fieldName: 'edges',
         kind: 'Field',
         metadata: {
+          canHaveSubselections: true,
           isPlural: true
         },
         type: 'ConfigsConnectionEdge'
       }],
       fieldName: '__configs__',
       kind: 'Field',
-      metadata: {},
+      metadata: {
+        canHaveSubselections: true
+      },
       type: 'ConfigsConnection'
     }],
     fieldName: 'viewer',

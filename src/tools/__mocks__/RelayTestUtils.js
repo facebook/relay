@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -508,11 +508,12 @@ var RelayTestUtils = {
    * writing; property keys are rewritten from application names into
    * serialization keys matching the fields in the query.
    */
-  writePayload(store, query, payload, tracker, options) {
+  writePayload(store, writer, query, payload, tracker, options) {
     const transformRelayQueryPayload = require('transformRelayQueryPayload');
 
     return RelayTestUtils.writeVerbatimPayload(
       store,
+      writer,
       query,
       transformRelayQueryPayload(query, payload),
       tracker,
@@ -524,7 +525,7 @@ var RelayTestUtils = {
    * Helper to write the result payload into a store. Unlike `writePayload`,
    * the payload is not transformed first.
    */
-  writeVerbatimPayload(store, query, payload, tracker, options) {
+  writeVerbatimPayload(store, writer, query, payload, tracker, options) {
     const RelayChangeTracker = require('RelayChangeTracker');
     const RelayQueryTracker = require('RelayQueryTracker');
     const RelayQueryWriter = require('RelayQueryWriter');
@@ -533,14 +534,15 @@ var RelayTestUtils = {
     tracker = tracker || new RelayQueryTracker();
     options = options || {};
     var changeTracker = new RelayChangeTracker();
-    var writer = new RelayQueryWriter(
+    var queryWriter = new RelayQueryWriter(
       store,
+      writer,
       tracker,
       changeTracker,
       options
     );
     writeRelayQueryPayload(
-      writer,
+      queryWriter,
       query,
       payload,
     );

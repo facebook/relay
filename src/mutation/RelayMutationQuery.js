@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -30,6 +30,9 @@ const nullthrows = require('nullthrows');
 const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 const intersectRelayQuery = require('intersectRelayQuery');
 const invariant = require('invariant');
+
+// This should probably use disjoint unions.
+type MutationConfig = {[key: string]: $FlowFixMe};
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment;
@@ -300,12 +303,7 @@ var RelayMutationQuery = {
       mutation,
       tracker,
     }: {
-      /* Previously each element of configs had the type mixed, which meant
-       * that they couldn't be used in configs.forEach without being
-       * inspected at runtime. I think this is probably a good use case for
-       * disjoin unions (flowtype.org/blog/2015/07/03/Disjoint-Unions.html)
-       */
-      configs: Array<{[key: string]: $FlowFixMe}>;
+      configs: Array<MutationConfig>;
       fatQuery: RelayQuery.Fragment;
       input: Variables,
       mutationName: string;
@@ -354,10 +352,14 @@ var RelayMutationQuery = {
             parentName: config.parentName,
             tracker,
           }));
-          children.push(RelayQuery.Field.build({
-            fieldName: config.deletedIDFieldName,
-            type: 'String',
-          }));
+          children.push(
+            Array.isArray(config.deletedIDFieldName) ?
+              buildDeletedConnectionNodeIDField(config.deletedIDFieldName) :
+              RelayQuery.Field.build({
+                fieldName: config.deletedIDFieldName,
+                type: 'String',
+              })
+          );
           break;
 
         case RelayMutationType.FIELDS_CHANGE:
@@ -413,6 +415,26 @@ function buildMutationFragment(
   return null;
 }
 
+function buildDeletedConnectionNodeIDField(
+  fieldNames: Array<string>
+): RelayQuery.Field {
+  let field = RelayQuery.Field.build({
+    fieldName: ID,
+    type: 'String',
+  });
+  for (let ii = fieldNames.length - 1; ii >= 0; ii--) {
+    field = RelayQuery.Field.build({
+      fieldName: fieldNames[ii],
+      type: ANY_TYPE,
+      children: [field],
+      metadata: {
+        canHaveSubselections: true,
+      },
+    });
+  }
+  return field;
+}
+
 function buildEdgeField(
   parentID: DataID,
   edgeName: string,
@@ -432,8 +454,6 @@ function buildEdgeField(
       !RelayRecord.isClientID(parentID)) {
     fields.push(
       RelayQuery.Field.build({
-        fieldName: 'source',
-        type: ANY_TYPE,
         children: [
           RelayQuery.Field.build({
             fieldName: ID,
@@ -444,14 +464,18 @@ function buildEdgeField(
             type: 'String',
           }),
         ],
+        fieldName: 'source',
+        metadata: {canHaveSubselections: true},
+        type: ANY_TYPE,
       })
     );
   }
   fields.push(...edgeFields);
   var edgeField = flattenRelayQuery(RelayQuery.Field.build({
-    fieldName: edgeName,
-    type: ANY_TYPE,
     children: fields,
+    fieldName: edgeName,
+    metadata: {canHaveSubselections: true},
+    type: ANY_TYPE,
   }));
   invariant(
     edgeField instanceof RelayQuery.Field,

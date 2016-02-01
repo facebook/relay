@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -25,6 +25,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
   var RelayRecordStore;
+  var RelayRecordWriter;
 
   var {getNode, writePayload} = RelayTestUtils;
   var END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO, START_CURSOR;
@@ -33,6 +34,7 @@ describe('writeRelayQueryPayload()', () => {
     jest.resetModuleRegistry();
 
     RelayRecordStore = require('RelayRecordStore');
+    RelayRecordWriter = require('RelayRecordWriter');
 
     ({
       END_CURSOR,
@@ -48,6 +50,7 @@ describe('writeRelayQueryPayload()', () => {
   it('creates empty first() connection records', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var writer = new RelayRecordWriter(records, {}, false);
     var query = getNode(Relay.QL`
       query {
         node(id:"123") {
@@ -84,7 +87,7 @@ describe('writeRelayQueryPayload()', () => {
       },
     };
 
-    var results = writePayload(store, query, payload);
+    var results = writePayload(store, writer, query, payload);
     expect(results).toEqual({
       created: {
         '123': true,
@@ -111,6 +114,7 @@ describe('writeRelayQueryPayload()', () => {
   it('creates first() connection records', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var writer = new RelayRecordWriter(records, {}, false);
     var query = getNode(Relay.QL`
       query {
         node(id:"123") {
@@ -173,7 +177,7 @@ describe('writeRelayQueryPayload()', () => {
         __typename: 'User',
       },
     };
-    var results = writePayload(store, query, payload);
+    var results = writePayload(store, writer, query, payload);
     expect(results).toEqual({
       created: {
         '123': true,
@@ -217,6 +221,7 @@ describe('writeRelayQueryPayload()', () => {
   it('skips over null edges and nodes', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var writer = new RelayRecordWriter(records, {}, false);
     var query = getNode(Relay.QL`
       query {
         node(id:"123") {
@@ -260,7 +265,7 @@ describe('writeRelayQueryPayload()', () => {
         __typename: 'User',
       },
     };
-    var results = writePayload(store, query, payload);
+    var results = writePayload(store, writer, query, payload);
     expect(results).toEqual({
       created: {
         '123': true,
@@ -292,6 +297,7 @@ describe('writeRelayQueryPayload()', () => {
   it('creates range when a connection record already exists', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var writer = new RelayRecordWriter(records, {}, false);
     var query = getNode(Relay.QL`
       query {
         node(id:"123") {
@@ -306,7 +312,7 @@ describe('writeRelayQueryPayload()', () => {
         __typename: 'User',
       },
     };
-    writePayload(store, query, payload);
+    writePayload(store, writer, query, payload);
 
     query = getNode(Relay.QL`
       query {
@@ -351,7 +357,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       },
     };
-    var results = writePayload(store, query, payload);
+    var results = writePayload(store, writer, query, payload);
     expect(results).toEqual({
       created: {
         'client:client:1:friend1ID': true,  // edges
@@ -383,6 +389,7 @@ describe('writeRelayQueryPayload()', () => {
   it('should throw when connection is missing required calls', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var writer = new RelayRecordWriter(records, {}, false);
     var edgesFragment = Relay.QL`
       fragment on FriendsConnection {
         edges {
@@ -432,7 +439,7 @@ describe('writeRelayQueryPayload()', () => {
         __typename: 'User',
       },
     };
-    expect(() => writePayload(store, query, payload)).toFailInvariant(
+    expect(() => writePayload(store, writer, query, payload)).toFailInvariant(
       'RelayQueryWriter: Cannot write edges for connection ' +
       '`friends.isViewerFriend(true)` on record `client:1` without ' +
       '`first`, `last`, or `find` argument.'
@@ -440,7 +447,7 @@ describe('writeRelayQueryPayload()', () => {
   });
 
   describe('first() connections with existing data', () => {
-    var store;
+    var store, writer;
 
     beforeEach(() => {
       var query = getNode(Relay.QL`
@@ -476,7 +483,8 @@ describe('writeRelayQueryPayload()', () => {
       };
       var records = {};
       store = new RelayRecordStore({records});
-      writePayload(store, query, payload);
+      writer = new RelayRecordWriter(records, {}, false);
+      writePayload(store, writer, query, payload);
     });
 
     it('appends new edges', () => {
@@ -510,7 +518,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           'node2': true,
@@ -575,7 +583,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -640,7 +648,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           '456': true, // `source` added
@@ -702,7 +710,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           'node1b': true,
@@ -762,7 +770,8 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      var results = writePayload(store, query, payload, null, {forceIndex: 1});
+      var results =
+        writePayload(store, writer, query, payload, null, {forceIndex: 1});
       expect(results).toEqual({
         created: {
           'node1b': true,

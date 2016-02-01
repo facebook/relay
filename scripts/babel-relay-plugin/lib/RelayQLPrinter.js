@@ -1,6 +1,6 @@
 // @generated
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -178,7 +178,7 @@ module.exports = function (t, options) {
         if (fragmentType.isAbstract()) {
           requisiteFields[FIELDS.__typename] = true;
         }
-        var selections = this.printSelections(fragment, requisiteFields, idFragment ? [idFragment] : null);
+        var selections = this.printSelections(fragment, requisiteFields, idFragment ? [idFragment] : null, fragment.hasDirective('generated'));
         var metadata = this.printRelayDirectiveMetadata(fragment, {
           isAbstract: fragmentType.isAbstract()
         });
@@ -261,6 +261,8 @@ module.exports = function (t, options) {
       value: function printSelections(parent, requisiteFields, extraFragments) {
         var _this = this;
 
+        var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+
         var fields = [];
         var printedFragments = [];
         parent.getSelections().forEach(function (selection) {
@@ -281,7 +283,7 @@ module.exports = function (t, options) {
             printedFragments.push(_this.printFragment(fragment));
           });
         }
-        var printedFields = this.printFields(fields, parent, requisiteFields);
+        var printedFields = this.printFields(fields, parent, requisiteFields, isGeneratedQuery);
         var selections = [].concat(_toConsumableArray(printedFields), printedFragments);
 
         if (selections.length) {
@@ -293,6 +295,8 @@ module.exports = function (t, options) {
       key: 'printFields',
       value: function printFields(fields, parent, requisiteFields) {
         var _this2 = this;
+
+        var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
         var parentType = parent.getType();
         if (parentType.isConnection() && parentType.hasField(FIELDS.pageInfo) && fields.some(function (field) {
@@ -306,12 +310,12 @@ module.exports = function (t, options) {
         var printedFields = [];
         fields.forEach(function (field) {
           delete generatedFields[field.getName()];
-          printedFields.push(_this2.printField(field, parent, requisiteFields, generatedFields));
+          printedFields.push(_this2.printField(field, parent, requisiteFields, generatedFields, isGeneratedQuery));
         });
 
         Object.keys(generatedFields).forEach(function (fieldName) {
           var generatedField = parentType.generateField(fieldName);
-          printedFields.push(_this2.printField(generatedField, parent, requisiteFields, generatedFields));
+          printedFields.push(_this2.printField(generatedField, parent, requisiteFields, generatedFields, isGeneratedQuery));
         });
         return printedFields;
       }
@@ -319,6 +323,8 @@ module.exports = function (t, options) {
       key: 'printField',
       value: function printField(field, parent, requisiteSiblings, generatedSiblings) {
         var _this3 = this;
+
+        var isGeneratedQuery = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
 
         var fieldType = field.getType();
 
@@ -331,8 +337,13 @@ module.exports = function (t, options) {
           idFragment = fieldType.generateIdFragment();
         }
 
-        validateField(field, parent.getType());
+        if (!isGeneratedQuery) {
+          validateField(field, parent.getType());
+        }
 
+        if (fieldType.canHaveSubselections()) {
+          metadata.canHaveSubselections = true;
+        }
         // TODO: Generalize to non-`Node` types.
         if (fieldType.alwaysImplements('Node')) {
           metadata.inferredRootCallName = 'node';
@@ -340,7 +351,9 @@ module.exports = function (t, options) {
         }
         if (fieldType.isConnection()) {
           if (field.hasDeclaredArgument('first') || field.hasDeclaredArgument('last')) {
-            validateConnectionField(field);
+            if (!isGeneratedQuery) {
+              validateConnectionField(field);
+            }
             metadata.isConnection = true;
             if (field.hasDeclaredArgument('find')) {
               metadata.isFindable = true;
@@ -367,7 +380,7 @@ module.exports = function (t, options) {
           metadata.isRequisite = true;
         }
 
-        var selections = this.printSelections(field, requisiteFields, idFragment ? [idFragment] : null);
+        var selections = this.printSelections(field, requisiteFields, idFragment ? [idFragment] : null, isGeneratedQuery);
         var fieldAlias = field.getAlias();
         var args = field.getArguments();
         var calls = args.length ? t.arrayExpression(args.map(function (arg) {
@@ -381,7 +394,7 @@ module.exports = function (t, options) {
           directives: this.printDirectives(field.getDirectives()),
           fieldName: t.valueToNode(field.getName()),
           kind: t.valueToNode('Field'),
-          metadata: objectify(metadata),
+          metadata: this.printRelayDirectiveMetadata(field, metadata),
           type: t.valueToNode(fieldType.getName({ modifiers: false }))
         });
       }

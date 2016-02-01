@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -75,7 +75,7 @@ describe('RelayQueryTransform', () => {
   it('returns null if field visitors all return null for scalars', () => {
     class Nullify extends RelayQueryTransform<any> {
       visitField(field: RelayQuery.Field, state: any): ?RelayQuery.Node {
-        if (field.isScalar()) {
+        if (!field.canHaveSubselections()) {
           return null;
         }
         return this.traverse(field, state);

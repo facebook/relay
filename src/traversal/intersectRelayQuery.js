@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -57,7 +57,7 @@ class RelayQueryIntersector extends RelayQueryTransform<RelayQuery.Node> {
     subjectNode: Tn,
     patternNode: RelayQuery.Node,
   ): ?Tn {
-    if (subjectNode.isScalar()) {
+    if (!subjectNode.canHaveSubselections()) {
       // Since `patternNode` exists, `subjectNode` must be in the intersection.
       return subjectNode;
     }

@@ -30,6 +30,7 @@ var foo = (function () {
           fieldName: 'node',
           kind: 'Field',
           metadata: {
+            canHaveSubselections: true,
             inferredRootCallName: 'node',
             inferredPrimaryKey: 'id',
             isRequisite: true
@@ -47,13 +48,16 @@ var foo = (function () {
         fieldName: 'edges',
         kind: 'Field',
         metadata: {
+          canHaveSubselections: true,
           isPlural: true
         },
         type: 'FakeEdge'
       }],
       fieldName: 'fakeConnection',
       kind: 'Field',
-      metadata: {},
+      metadata: {
+        canHaveSubselections: true
+      },
       type: 'FakeConnection'
     }, {
       fieldName: 'id',

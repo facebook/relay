@@ -159,7 +159,7 @@ describe('writePayload()', () => {
       // write to the queued store
       var changeTracker = new RelayChangeTracker();
       var queryTracker = new RelayQueryTracker();
-      var writer = new RelayQueryWriter(
+      var queryWriter = new RelayQueryWriter(
         queueStore,
         queueWriter,
         queryTracker,
@@ -167,7 +167,7 @@ describe('writePayload()', () => {
       );
 
       writeRelayUpdatePayload(
-        writer,
+        queryWriter,
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -243,7 +243,7 @@ describe('writePayload()', () => {
       // write to the queued store
       var changeTracker = new RelayChangeTracker();
       var queryTracker = new RelayQueryTracker();
-      var writer = new RelayQueryWriter(
+      var queryWriter = new RelayQueryWriter(
         store,
         writer,
         queryTracker,
@@ -251,7 +251,7 @@ describe('writePayload()', () => {
       );
 
       writeRelayUpdatePayload(
-        writer,
+        queryWriter,
         mutation,
         payload,
         {configs, isOptimisticUpdate: false}
@@ -521,7 +521,7 @@ describe('writePayload()', () => {
       // write to the queued store
       var changeTracker = new RelayChangeTracker();
       var queryTracker = new RelayQueryTracker();
-      var writer = new RelayQueryWriter(
+      var queryWriter = new RelayQueryWriter(
         queueStore,
         queueWriter,
         queryTracker,
@@ -529,7 +529,7 @@ describe('writePayload()', () => {
       );
 
       writeRelayUpdatePayload(
-        writer,
+        queryWriter,
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -618,7 +618,7 @@ describe('writePayload()', () => {
       // write to the base store
       var changeTracker = new RelayChangeTracker();
       var queryTracker = new RelayQueryTracker();
-      var writer = new RelayQueryWriter(
+      var queryWriter = new RelayQueryWriter(
         store,
         writer,
         queryTracker,
@@ -626,7 +626,7 @@ describe('writePayload()', () => {
       );
 
       writeRelayUpdatePayload(
-        writer,
+        queryWriter,
         mutation,
         payload,
         {configs, isOptimisticUpdate: false}
@@ -747,7 +747,7 @@ describe('writePayload()', () => {
       // write to the queued store
       var changeTracker = new RelayChangeTracker();
       var queryTracker = new RelayQueryTracker();
-      var writer = new RelayQueryWriter(
+      var queryWriter = new RelayQueryWriter(
         queueStore,
         queueWriter,
         queryTracker,
@@ -755,7 +755,7 @@ describe('writePayload()', () => {
       );
 
       writeRelayUpdatePayload(
-        writer,
+        queryWriter,
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -812,7 +812,7 @@ describe('writePayload()', () => {
       // write to the base store
       var changeTracker = new RelayChangeTracker();
       var queryTracker = new RelayQueryTracker();
-      var writer = new RelayQueryWriter(
+      var queryWriter = new RelayQueryWriter(
         store,
         writer,
         queryTracker,
@@ -820,7 +820,7 @@ describe('writePayload()', () => {
       );
 
       writeRelayUpdatePayload(
-        writer,
+        queryWriter,
         mutation,
         payload,
         {configs, isOptimisticUpdate: false}
@@ -957,7 +957,7 @@ describe('writePayload()', () => {
       // write to queued store
       var changeTracker = new RelayChangeTracker();
       var queryTracker = new RelayQueryTracker();
-      var writer = new RelayQueryWriter(
+      var queryWriter = new RelayQueryWriter(
         queueStore,
         queueWriter,
         queryTracker,
@@ -965,7 +965,7 @@ describe('writePayload()', () => {
       );
 
       writeRelayUpdatePayload(
-        writer,
+        queryWriter,
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -1061,7 +1061,7 @@ describe('writePayload()', () => {
       // write to queued store
       var changeTracker = new RelayChangeTracker();
       var queryTracker = new RelayQueryTracker();
-      var writer = new RelayQueryWriter(
+      var queryWriter = new RelayQueryWriter(
         queueStore,
         queueWriter,
         queryTracker,
@@ -1069,7 +1069,7 @@ describe('writePayload()', () => {
       );
 
       writeRelayUpdatePayload(
-        writer,
+        queryWriter,
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -1192,7 +1192,7 @@ describe('writePayload()', () => {
       // write to base store
       var changeTracker = new RelayChangeTracker();
       var queryTracker = new RelayQueryTracker();
-      var writer = new RelayQueryWriter(
+      var queryWriter = new RelayQueryWriter(
         store,
         writer,
         queryTracker,
@@ -1200,7 +1200,7 @@ describe('writePayload()', () => {
       );
 
       writeRelayUpdatePayload(
-        writer,
+        queryWriter,
         mutation,
         payload,
         {configs, isOptimisticUpdate: false}

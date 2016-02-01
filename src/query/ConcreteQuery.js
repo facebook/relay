@@ -70,12 +70,14 @@ export type ConcreteCallVariable = {
 };
 
 export type ConcreteDirective = {
-  arguments: Array<{
-    name: string;
-    value: ?ConcreteDirectiveValue;
-  }>;
+  arguments: Array<ConcreteDirectiveArgument>;
   kind: 'Directive';
   name: string;
+};
+
+export type ConcreteDirectiveArgument = {
+  name: string;
+  value: ?ConcreteDirectiveValue;
 };
 
 export type ConcreteFieldMetadata = {

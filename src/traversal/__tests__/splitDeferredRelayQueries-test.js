@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -186,7 +186,7 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('splits nested deferred fragments', () => {
-    var nestedFragment = Relay.QL`fragment on NonNodeStory{message}`;
+    var nestedFragment = Relay.QL`fragment on NonNodeStory{message{text}}`;
     var fragment = Relay.QL`
       fragment on Viewer {
         newsFeed(first: "10") {
@@ -966,6 +966,7 @@ describe('splitDeferredRelayQueries()', () => {
           fieldName: 'hometown',
           children: [id, getNode(defer(fragment))],
           metadata: {
+            canHaveSubselections: true,
             isGenerated: true,
             inferredPrimaryKey: 'id',
             inferredRootCallName: 'node',

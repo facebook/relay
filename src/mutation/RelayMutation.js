@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -59,8 +59,8 @@ class RelayMutation<Tp: Object> {
   }
 
   /**
-   * Each mutation has a server name which is used by clients to communicate the
-   * type of mutation that should be executed on the server.
+   * Each mutation corresponds to a field on the server which is used by clients
+   * to communicate the type of mutation to be executed.
    */
   getMutation(): RelayConcreteNode {
     invariant(
@@ -78,7 +78,7 @@ class RelayMutation<Tp: Object> {
    * the tracked query we have for a given node (ie. the pieces of data we've
    * previously queried for and have therefore written to the store).
    *
-   * Fat queries can be written like normal graphql queries with one main
+   * Fat queries can be written like normal GraphQL queries with one main
    * exception: fat queries use childless non-scalar fields to indicate that
    * anything under that field may change. For example, the fat query for
    * feedback_like contains the field `like_sentence` with no child fields.
@@ -152,17 +152,23 @@ class RelayMutation<Tp: Object> {
    *      parentName: string;
    *      parentID: string;
    *      connectionName: string;
-   *      deletedIDFieldName: string;
+   *      deletedIDFieldName: string | Array<string>;
    *      pathToConnection: Array<string>;
    *    }
    *    where `parentName`, `parentID`, `connectionName` and
-   *    `deletedIDFieldName` refer to the same things as in NODE_DELETE,
-   *    `pathToConnection` provides a path from `parentName` to
+   *    `deletedIDFieldName` refer to the same things as in NODE_DELETE.
+   *    `deletedIDFieldName` can also be a path from the response root to the
+   *    deleted node. `pathToConnection` is a path from `parentName` to
    *    `connectionName`.
    *
    * -  REQUIRED_CHILDREN is used to append additional children (fragments or
-   *    fields) to the mutation query. Any data fetched as a result of these
-   *    children is not written to the client store. Please avoid using this.
+   *    fields) to the mutation query. Any data fetched for these children is
+   *    not written to the client store, but you can add code to process it
+   *    in the `onSuccess` callback passed to the `RelayContext` `applyUpdate`
+   *    method. You may need to use this, for example, to fetch fields on a new
+   *    object created by the mutation (and which Relay would normally not
+   *    attempt to fetch because it has not previously fetched anything for that
+   *    object).
    *    {
    *      type: RelayMutationType.REQUIRED_CHILDREN;
    *      children: Array<RelayQuery.Node>;

@@ -24,6 +24,7 @@ var x = (function () {
       fieldName: 'pendingPosts',
       kind: 'Field',
       metadata: {
+        canHaveSubselections: true,
         isConnection: true
       },
       type: 'PendingPostsConnection'

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -76,7 +76,7 @@ describe('serializeRelayQueryCall', () => {
       value: JSON.stringify({query: 'Menlo Park'}),
     };
     expect(serializeRelayQueryCall(call)).toEqual(
-      '.checkin_search_query(\\{"query":"Menlo Park"\\})'
+      '.checkin_search_query({"query":"Menlo Park"})'
     );
   });
 
@@ -86,27 +86,17 @@ describe('serializeRelayQueryCall', () => {
       value: '',
     };
     expect(serializeRelayQueryCall(call)).toEqual(
-      '.query(\ )'
+      '.query()'
     );
   });
 
-  it('escapes leading and trailing whitespace', () => {
-    // Extra trailing space is a workaround, see Task #7599025.
-    var values = {
-      ' ': '\\ \\ ',
-      '  ': '\\ \\ \\ ',
-      ' x': '\\ x',
-      'x ': 'x\\ \\ ',
-      ' x ': '\\ x\\ \\ ',
-      'x y': 'x y',
+  it('serializes string values with leading/trailing whitespace', () => {
+    var call = {
+      name: 'query',
+      value: ' ',
     };
-    Object.keys(values).forEach(value => {
-      var call = {
-        name: 'node',
-        value,
-      };
-      var expected = values[value];
-      expect(serializeRelayQueryCall(call)).toEqual('.node(' + expected + ')');
-    });
+    expect(serializeRelayQueryCall(call)).toEqual(
+      '.query( )'
+    );
   });
 });

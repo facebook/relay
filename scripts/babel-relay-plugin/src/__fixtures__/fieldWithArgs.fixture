@@ -60,7 +60,9 @@ var x = (function () {
         }],
         fieldName: 'profilePicture',
         kind: 'Field',
-        metadata: {},
+        metadata: {
+          canHaveSubselections: true
+        },
         type: 'ProfilePicture'
       }, {
         fieldName: 'id',

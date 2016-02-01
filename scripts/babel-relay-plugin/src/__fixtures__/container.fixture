@@ -25,6 +25,7 @@ Relay.createContainer(Component, {
             fieldName: 'actor',
             kind: 'Field',
             metadata: {
+              canHaveSubselections: true,
               inferredRootCallName: 'node',
               inferredPrimaryKey: 'id'
             },

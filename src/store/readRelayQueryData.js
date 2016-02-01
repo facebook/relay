@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -107,7 +107,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
   ): StoreReaderResult {
     var result = {
       data: (undefined: $FlowIssue),
-      dataIDs: ({}: $FlowIssue),
+      dataIDs: {},
     };
     var rangeData = this._rangeData.parseRangeClientID(dataID);
     var status = this._recordStore.getRecordState(
@@ -135,7 +135,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     // present, overriding `state`.
     this._handleRangeInfo(node, state);
 
-    if (!node.isScalar() || node.isGenerated()) {
+    if (node.canHaveSubselections() || node.isGenerated()) {
       // Make sure we return at least the __dataID__.
       getDataObject(state);
     }
@@ -154,7 +154,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       node.getSchemaName() === PAGE_INFO
     ) {
       this._readPageInfo(node, rangeInfo, state);
-    } else if (node.isScalar()) {
+    } else if (!node.canHaveSubselections()) {
       this._readScalar(node, state);
     } else if (node.isPlural()) {
       this._readPlural(node, state);

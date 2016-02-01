@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -43,6 +43,7 @@ const RelayQueryTracker = require('RelayQueryTracker');
 const RelayQueryWriter = require('RelayQueryWriter');
 const RelayRecord = require('RelayRecord');
 const RelayRecordStore = require('RelayRecordStore');
+const RelayRecordWriter = require('RelayRecordWriter');
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
@@ -95,12 +96,12 @@ class RelayStoreData {
   }
 
   constructor() {
-    const cachedRecords: Records = ({}: $FixMe);
+    const cachedRecords: Records = {};
     const cachedRootCallMap: RootCallMap = {};
-    const queuedRecords: Records = ({}: $FixMe);
-    const records: Records = ({}: $FixMe);
+    const queuedRecords: Records = {};
+    const records: Records = {};
     const rootCallMap: RootCallMap = {};
-    const nodeRangeMap: NodeRangeMap = ({}: $FixMe);
+    const nodeRangeMap: NodeRangeMap = {};
     const {
       cachedStore,
       queuedStore,
@@ -321,6 +322,7 @@ class RelayStoreData {
     var changeTracker = new RelayChangeTracker();
     var writer = new RelayQueryWriter(
       this._recordStore,
+      this.getRecordWriter(),
       this._queryTracker,
       changeTracker,
       {
@@ -348,6 +350,7 @@ class RelayStoreData {
     var profiler = RelayProfiler.profile('RelayStoreData.handleUpdatePayload');
     var changeTracker = new RelayChangeTracker();
     var store;
+    var recordWriter;
     if (isOptimisticUpdate) {
       var clientMutationID = payload[CLIENT_MUTATION_ID];
       invariant(
@@ -357,11 +360,15 @@ class RelayStoreData {
         CLIENT_MUTATION_ID
       );
       store = this.getRecordStoreForOptimisticMutation(clientMutationID);
+      recordWriter =
+        this.getRecordWriterForOptimisticMutation(clientMutationID);
     } else {
       store = this._getRecordStoreForMutation();
+      recordWriter = this._getRecordWriterForMutation();
     }
     var writer = new RelayQueryWriter(
       store,
+      recordWriter,
       this._queryTracker,
       changeTracker,
       {
@@ -464,6 +471,21 @@ class RelayStoreData {
     return this._recordStore;
   }
 
+  /**
+   * Get the record writer for the base data.
+   */
+  getRecordWriter(): RelayRecordWriter {
+    return new RelayRecordWriter(
+      this._records,
+      this._rootCallMap,
+      false, // isOptimistic
+      (this._nodeRangeMap: $FixMe),
+      this._cacheManager ?
+        this._cacheManager.getQueryWriter() :
+        null
+    );
+  }
+
   getQueryTracker(): RelayQueryTracker {
     return this._queryTracker;
   }
@@ -521,8 +543,20 @@ class RelayStoreData {
     var rootCallMap = this._rootCallMap;
 
     return new RelayRecordStore(
-      ({records}: $FixMe),
-      ({rootCallMap}: $FixMe),
+      {records},
+      {rootCallMap},
+      this._nodeRangeMap,
+      this._cacheManager ?
+        this._cacheManager.getMutationWriter() :
+        null
+    );
+  }
+
+  _getRecordWriterForMutation(): RelayRecordWriter {
+    return new RelayRecordWriter(
+      this._records,
+      this._rootCallMap,
+      false, // isOptimistic
       (this._nodeRangeMap: $FixMe),
       this._cacheManager ?
         this._cacheManager.getMutationWriter() :
@@ -540,13 +574,27 @@ class RelayStoreData {
     var records = this._records;
 
     return new RelayRecordStore(
-      ({cachedRecords, queuedRecords, records}: $FixMe),
-      ({cachedRootCallMap, rootCallMap}: $FixMe),
-      (this._nodeRangeMap: $FixMe),
+      {cachedRecords, queuedRecords, records},
+      {cachedRootCallMap, rootCallMap},
+      this._nodeRangeMap,
       null, // don't cache optimistic data
       clientMutationID
     );
   }
+
+  getRecordWriterForOptimisticMutation(
+    clientMutationID: ClientMutationID
+  ): RelayRecordWriter {
+    return new RelayRecordWriter(
+      this._queuedRecords,
+      this._rootCallMap,
+      true, // isOptimistic
+      this._nodeRangeMap,
+      null, // don't cache optimistic data
+      clientMutationID
+    );
+  }
+
 }
 
 function createRecordCollection({
@@ -564,20 +612,20 @@ function createRecordCollection({
 } {
   return {
     queuedStore: new RelayRecordStore(
-      ({cachedRecords, queuedRecords, records}: $FixMe),
-      ({cachedRootCallMap, rootCallMap}: $FixMe),
-      (nodeRangeMap: $FixMe)
+      {cachedRecords, queuedRecords, records},
+      {cachedRootCallMap, rootCallMap},
+      nodeRangeMap
     ),
     cachedStore: new RelayRecordStore(
-      ({cachedRecords, records}: $FixMe),
-      ({cachedRootCallMap, rootCallMap}: $FixMe),
-      (nodeRangeMap: $FixMe),
+      {cachedRecords, records},
+      {cachedRootCallMap, rootCallMap},
+      nodeRangeMap,
       cacheWriter
     ),
     recordStore: new RelayRecordStore(
-      ({records}: $FixMe),
-      ({rootCallMap}: $FixMe),
-      (nodeRangeMap: $FixMe),
+      {records},
+      {rootCallMap},
+      nodeRangeMap,
       cacheWriter
     ),
   };

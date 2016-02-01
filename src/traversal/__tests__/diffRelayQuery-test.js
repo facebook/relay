@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -104,15 +104,19 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id,
-          profilePicture(size:"32")
+          profilePicture(size:"32") { uri }
         }
       }
     `);
     var records = {
+      'client:1': {
+        __dataID__: 'client:1',
+        uri: 'https://facebook.com',
+      },
       '4': {
         __dataID__: '4',
         id: '4',
-        'profilePicture{size:"32"}': 'https://facebook.com',
+        'profilePicture{size:"32"}': {__dataID__: 'client:1'},
       },
     };
     var store = new RelayRecordStore({records});
@@ -126,15 +130,19 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id,
-          profilePicture(size:"64")
+          profilePicture(size:"64") { uri }
         }
       }
     `);
     var records = {
+      'client:1': {
+        __dataID__: 'client:1',
+        uri: 'https://facebook.com',
+      },
       '4': {
         __dataID__: '4',
         id: '4',
-        'profilePicture{size:"32"}': 'https://facebook.com',
+        'profilePicture{size:"32"}': {__dataID__: 'client:1'},
       },
     };
     var store = new RelayRecordStore({records});

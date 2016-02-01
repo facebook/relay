@@ -20,6 +20,7 @@ type Mutation {
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
   feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
   nodeSavedState(input: NodeSaveStateInput): NodeSavedStateResponsePayload
+  unfriend(input: UnfriendInput): UnfriendResponsePayload
   viewerNotificationsUpdateAllSeenState(input: UpdateAllSeenStateInput): ViewerNotificationsUpdateAllSeenStateResponsePayload
 }
 
@@ -537,6 +538,17 @@ type Type {
   name: String
 }
 
+input UnfriendInput {
+  clientMutationId: String
+  friendId: ID
+}
+
+type UnfriendResponsePayload {
+  actor: Actor
+  clientMutationId: String
+  formerFriend: User
+}
+
 type User implements Node Actor {
   actor: Actor
   actors: [Actor]
@@ -579,6 +591,7 @@ type Viewer {
   __configs__(named: [String]): ConfigsConnection
   __type__: Type
   actor: Actor
+  allTimezones: [TimezoneInfo]
   isFbEmployee: Boolean
   newsFeed(after: String, first: String, find: ID): NewsFeedConnection
   notificationStories(after: String, first: String): NewsFeedConnection

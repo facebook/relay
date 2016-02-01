@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -21,13 +21,13 @@ jest
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQueryTracker = require('RelayQueryTracker');
+const RelayRecordStore = require('RelayRecordStore');
+const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 const diffRelayQuery = require('diffRelayQuery');
 
 describe('diffRelayQuery', () => {
-  var RelayRecordStore;
-
   var {getNode, getVerbatimNode, writePayload} = RelayTestUtils;
   var HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
 
@@ -35,8 +35,6 @@ describe('diffRelayQuery', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    RelayRecordStore = require('RelayRecordStore');
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
 
@@ -73,6 +71,7 @@ describe('diffRelayQuery', () => {
   it('removes completely fetched connections', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {rootCallMap});
+    var writer = new RelayRecordWriter(records, rootCallMap, false);
     var tracker = new RelayQueryTracker();
 
     var payload = {
@@ -104,7 +103,7 @@ describe('diffRelayQuery', () => {
       }
     `);
     // Write full data for all 3 items
-    writePayload(store, query, payload, tracker);
+    writePayload(store, writer, query, payload, tracker);
 
     // Everything can be diffed out
     var diffQueries = diffRelayQuery(query, store, tracker);
@@ -114,6 +113,7 @@ describe('diffRelayQuery', () => {
   it('returns range extensions for partially fetched connections', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {rootCallMap});
+    var writer = new RelayRecordWriter(records, rootCallMap, false);
     var tracker = new RelayQueryTracker();
 
     // Write full data for 3 of 5 records, nothing for edges 4-5
@@ -163,7 +163,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    writePayload(store, query, payload, tracker);
+    writePayload(store, writer, query, payload, tracker);
 
     // Nothing to fetch for records 1-3, fetch extension of range for 4-5
     var diffQueries = diffRelayQuery(query, store, tracker);
@@ -188,6 +188,7 @@ describe('diffRelayQuery', () => {
   it('does not fetch missing `edges` data for generated `node` ids', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {rootCallMap});
+    var writer = new RelayRecordWriter(records, rootCallMap, false);
     var tracker = new RelayQueryTracker();
 
     // Provide empty IDs to simulate non-refetchable nodes
@@ -239,11 +240,39 @@ describe('diffRelayQuery', () => {
         },
       },
     };
-    writePayload(store, writeQuery, payload, tracker);
+    writePayload(store, writer, writeQuery, payload, tracker);
+
+    // @relay(isConnectionWithoutNodeID: true) should silence the warning.
+    var fetchQueryA = getNode(Relay.QL`
+      query {
+        viewer {
+          newsFeed(first: "3") @relay(isConnectionWithoutNodeID: true) {
+            edges {
+              node {
+                feedback {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+    var diffQueries = diffRelayQuery(fetchQueryA, store, tracker);
+    expect(diffQueries.length).toBe(0);
+    expect([
+      'RelayDiffQueryBuilder: Field `node` on connection `%s` cannot be ' +
+      'retrieved if it does not have an `id` field. If you expect fields ' +
+      'to be retrieved on this field, add an `id` field in the schema. ' +
+      'If you choose to ignore this warning, you can silence it by ' +
+      'adding `@relay(isConnectionWithoutNodeID: true)` to the ' +
+      'connection field.',
+      'newsFeed',
+    ]).toBeWarnedNTimes(0);
 
     // `feedback{id}` is missing but there is no way to refetch it
     // Warn that data cannot be refetched
-    var fetchQuery = getNode(Relay.QL`
+    var fetchQueryB = getNode(Relay.QL`
       query {
         viewer {
           newsFeed(first:"3") {
@@ -258,12 +287,15 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var diffQueries = diffRelayQuery(fetchQuery, store, tracker);
-    expect(diffQueries.length).toBe(0);
+    diffRelayQuery(fetchQueryB, store, tracker);
+
     expect([
-      'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
-      'if the node is refetchable by `id`. Cannot refetch data for field ' +
-      '`%s`.',
+      'RelayDiffQueryBuilder: Field `node` on connection `%s` cannot be ' +
+      'retrieved if it does not have an `id` field. If you expect fields ' +
+      'to be retrieved on this field, add an `id` field in the schema. ' +
+      'If you choose to ignore this warning, you can silence it by ' +
+      'adding `@relay(isConnectionWithoutNodeID: true)` to the ' +
+      'connection field.',
       'newsFeed',
     ]).toBeWarnedNTimes(3);
   });
@@ -271,6 +303,7 @@ describe('diffRelayQuery', () => {
   it('does not warn about unrefetchable `edges` when there is no missing data', () => {
     const records = {};
     const store = new RelayRecordStore({records}, {rootCallMap});
+    const writer = new RelayRecordWriter(records, rootCallMap, false);
     const tracker = new RelayQueryTracker();
 
     // Provide empty IDs to simulate non-refetchable nodes
@@ -308,7 +341,7 @@ describe('diffRelayQuery', () => {
         },
       },
     };
-    writePayload(store, writeQuery, payload, tracker);
+    writePayload(store, writer, writeQuery, payload, tracker);
 
     // `message{text}` available in the store.
     // Does not warn that data cannot be refetched sine no data is missing.
@@ -330,9 +363,12 @@ describe('diffRelayQuery', () => {
     const diffQueries = diffRelayQuery(fetchQuery, store, tracker);
     expect(diffQueries.length).toBe(0);
     expect([
-      'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
-      'if the node is refetchable by `id`. Cannot refetch data for field ' +
-      '`%s`.',
+      'RelayDiffQueryBuilder: Field `node` on connection `%s` cannot be ' +
+      'retrieved if it does not have an `id` field. If you expect fields ' +
+      'to be retrieved on this field, add an `id` field in the schema. ' +
+      'If you choose to ignore this warning, you can silence it by ' +
+      'adding `@relay(isConnectionWithoutNodeID: true)` to the ' +
+      'connection field.',
       'newsFeed',
     ]).toBeWarnedNTimes(0);
   });
@@ -340,6 +376,7 @@ describe('diffRelayQuery', () => {
   it('fetches split queries under unrefetchable `edges`', () => {
     const records = {};
     const store = new RelayRecordStore({records}, {rootCallMap});
+    const writer = new RelayRecordWriter(records, rootCallMap, false);
     const tracker = new RelayQueryTracker();
 
     // Provide empty IDs to simulate non-refetchable nodes
@@ -403,7 +440,7 @@ describe('diffRelayQuery', () => {
         },
       },
     };
-    writePayload(store, writeQuery, payload, tracker);
+    writePayload(store, writer, writeQuery, payload, tracker);
 
     // Missing the `body{text}` on comment.
     const fetchQuery = getNode(Relay.QL`
@@ -440,9 +477,12 @@ describe('diffRelayQuery', () => {
       }
     `));
     expect([
-      'RelayDiffQueryBuilder: connection `node{*}` can only be refetched ' +
-      'if the node is refetchable by `id`. Cannot refetch data for field ' +
-      '`%s`.',
+      'RelayDiffQueryBuilder: Field `node` on connection `%s` cannot be ' +
+      'retrieved if it does not have an `id` field. If you expect fields ' +
+      'to be retrieved on this field, add an `id` field in the schema. ' +
+      'If you choose to ignore this warning, you can silence it by ' +
+      'adding `@relay(isConnectionWithoutNodeID: true)` to the ' +
+      'connection field.',
       'newsFeed',
     ]).toBeWarnedNTimes(0);
   });
@@ -450,6 +490,7 @@ describe('diffRelayQuery', () => {
   it('fetches missing `node` data via a `node()` query', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {rootCallMap});
+    var writer = new RelayRecordWriter(records, rootCallMap, false);
     var tracker = new RelayQueryTracker();
 
     var payload = {
@@ -503,7 +544,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    writePayload(store, writeQuery, payload, tracker);
+    writePayload(store, writer, writeQuery, payload, tracker);
 
     // Split one `node()` query per edge to fetch missing `feedback{id}`
     var fetchQuery = getNode(Relay.QL`
@@ -574,6 +615,7 @@ describe('diffRelayQuery', () => {
      'data via a `connection.find()` query if connection is findable', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {rootCallMap});
+    var writer = new RelayRecordWriter(records, rootCallMap, false);
     var tracker = new RelayQueryTracker();
 
     var payload = {
@@ -627,7 +669,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    writePayload(store, writeQuery, payload, tracker);
+    writePayload(store, writer, writeQuery, payload, tracker);
 
     // node: `feedback{id}` is missing (fetch via node() query)
     // edges: `sortKey` is missing (fetch via .find() query)
@@ -758,6 +800,7 @@ describe('diffRelayQuery', () => {
      'unfetchable `edges` data if connection is not findable', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {rootCallMap});
+    var writer = new RelayRecordWriter(records, rootCallMap, false);
     var tracker = new RelayQueryTracker();
 
     var payload = {
@@ -811,7 +854,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    writePayload(store, writeQuery, payload, tracker);
+    writePayload(store, writer, writeQuery, payload, tracker);
 
     // node: `feedback{id}` is missing (fetch via node() query)
     // edges: `showBeeper` is missing but cannot be refetched because
@@ -890,6 +933,7 @@ describe('diffRelayQuery', () => {
   it('does not flatten fragments when creating new root queries', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {rootCallMap});
+    var writer = new RelayRecordWriter(records, rootCallMap, false);
     var tracker = new RelayQueryTracker();
 
     var payload = {
@@ -920,7 +964,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    writePayload(store, writeQuery, payload, tracker);
+    writePayload(store, writer, writeQuery, payload, tracker);
 
     // node: `feedback{id}` is missing (fetch via node() query)
     // edges: `sortKey` is missing (fetch via .find() query)

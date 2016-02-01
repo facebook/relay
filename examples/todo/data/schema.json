@@ -7,6 +7,7 @@
       "mutationType": {
         "name": "Mutation"
       },
+      "subscriptionType": null,
       "types": [
         {
           "kind": "OBJECT",
@@ -94,16 +95,6 @@
                   "defaultValue": "\"any\""
                 },
                 {
-                  "name": "before",
-                  "description": null,
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
                   "name": "after",
                   "description": null,
                   "type": {
@@ -119,6 +110,16 @@
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
                     "ofType": null
                   },
                   "defaultValue": null
@@ -276,7 +277,7 @@
         {
           "kind": "SCALAR",
           "name": "ID",
-          "description": null,
+          "description": "The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `\"4\"`) or integer (such as `4`) input value will be accepted as an ID.",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -286,7 +287,7 @@
         {
           "kind": "SCALAR",
           "name": "String",
-          "description": null,
+          "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -296,7 +297,7 @@
         {
           "kind": "SCALAR",
           "name": "Boolean",
-          "description": null,
+          "description": "The `Boolean` scalar type represents `true` or `false`.",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -306,7 +307,7 @@
         {
           "kind": "SCALAR",
           "name": "Int",
-          "description": null,
+          "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^53 - 1) and 2^53 - 1 since represented in JSON as double-precision floating point numbers specifiedby [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -1188,7 +1189,7 @@
         {
           "kind": "OBJECT",
           "name": "__Schema",
-          "description": "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query and mutation operations.",
+          "description": "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.",
           "fields": [
             {
               "name": "types",
@@ -1242,6 +1243,18 @@
               "deprecationReason": null
             },
             {
+              "name": "subscriptionType",
+              "description": "If this server support subscription, the type that subscription operations will be rooted at.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "__Type",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "directives",
               "description": "A list of all directives supported by this server.",
               "args": [],
@@ -1273,7 +1286,7 @@
         {
           "kind": "OBJECT",
           "name": "__Type",
-          "description": null,
+          "description": "The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.\n\nDepending on the kind of a type, certain fields describe information about that type. Scalar types provide no information beyond a name and description, while Enum types provide their values. Object and Interface types provide the fields they describe. Abstract types, Union and Interface, provide the Object types possible at runtime. List and NonNull types compose other types.",
           "fields": [
             {
               "name": "kind",
@@ -1458,7 +1471,7 @@
         {
           "kind": "ENUM",
           "name": "__TypeKind",
-          "description": "An enum describing what kind of type a given __Type is",
+          "description": "An enum describing what kind of type a given `__Type` is.",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -1517,7 +1530,7 @@
         {
           "kind": "OBJECT",
           "name": "__Field",
-          "description": null,
+          "description": "Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.",
           "fields": [
             {
               "name": "name",
@@ -1623,7 +1636,7 @@
         {
           "kind": "OBJECT",
           "name": "__InputValue",
-          "description": null,
+          "description": "Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.",
           "fields": [
             {
               "name": "name",
@@ -1671,7 +1684,7 @@
             },
             {
               "name": "defaultValue",
-              "description": null,
+              "description": "A GraphQL-formatted string representing the default value for this input value.",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1690,7 +1703,7 @@
         {
           "kind": "OBJECT",
           "name": "__EnumValue",
-          "description": null,
+          "description": "One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.",
           "fields": [
             {
               "name": "name",
@@ -1757,7 +1770,7 @@
         {
           "kind": "OBJECT",
           "name": "__Directive",
-          "description": null,
+          "description": "A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.\n\nIn some cases, you need to provide options to alter GraphQL’s execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.",
           "fields": [
             {
               "name": "name",

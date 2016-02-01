@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -48,6 +48,7 @@ describe('RelayMutationQueue', () => {
       mutationNode = Relay.QL`mutation{commentCreate(input:$input)}`;
       fatQuery = Relay.QL`fragment on Comment @relay(pattern: true) {
         ... on Comment {
+          likers
           doesViewerLike
         }
       }`;
@@ -81,6 +82,7 @@ describe('RelayMutationQueue', () => {
       expect(RelayMutationQuery.buildQuery.mock.calls).toEqual([[{
         configs: 'optimisticConfigs',
         fatQuery: flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
+          preserveEmptyNodes: true,
           shouldRemoveFragments: true,
         }),
         input: {
@@ -110,6 +112,7 @@ describe('RelayMutationQueue', () => {
         RelayMutationQuery.buildQueryForOptimisticUpdate.mock.calls
       ).toEqual([[{
         fatQuery: flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
+          preserveEmptyNodes: true,
           shouldRemoveFragments: true,
         }),
         mutation: mutationNode,

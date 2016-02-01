@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -78,6 +78,19 @@ export type ConcreteDirective = {
   name: string;
 };
 
+export type ConcreteFieldMetadata = {
+  canHaveSubselections?: ?boolean;
+  inferredPrimaryKey?: ?string;
+  inferredRootCallName?: ?string;
+  isAbstract?: boolean;
+  isConnection?: boolean;
+  isConnectionWithoutNodeID?: boolean;
+  isFindable?: boolean;
+  isGenerated?: boolean;
+  isPlural?: boolean;
+  isRequisite?: boolean;
+};
+
 export type ConcreteField = {
   alias?: ?string;
   calls?: ?Array<ConcreteCall>;
@@ -85,17 +98,14 @@ export type ConcreteField = {
   directives?: ?Array<ConcreteDirective>;
   fieldName: string;
   kind: 'Field';
-  metadata: {
-    inferredRootCallName?: ?string;
-    inferredPrimaryKey?: ?string;
-    isConnection?: boolean;
-    isFindable?: boolean;
-    isGenerated?: boolean;
-    isPlural?: boolean;
-    isRequisite?: boolean;
-    isAbstract?: boolean;
-  };
+  metadata: ConcreteFieldMetadata;
   type: string;
+};
+
+export type ConcreteFragmentMetadata = {
+  isAbstract?: boolean;
+  pattern?: boolean;
+  plural?: boolean;
 };
 
 export type ConcreteFragment = {
@@ -105,6 +115,7 @@ export type ConcreteFragment = {
   metadata: {
     isAbstract?: boolean;
     isPlural?: boolean; // FB Printer
+    pattern?: boolean;  // from @relay directive
     plural?: boolean;   // OSS Printer from `@relay`
   };
   name: string;
@@ -126,6 +137,18 @@ export type ConcreteMutation = {
   };
   name: string;
   responseType: string;
+};
+
+export type ConcreteOperationMetadata = {
+  inputType?: ?string;
+};
+
+export type ConcreteQueryMetadata = {
+  identifyingArgName?: ?string;
+  identifyingArgType?: ?string;
+  isAbstract?: ?boolean;
+  isDeferred?: ?boolean;
+  isPlural?: ?boolean;
 };
 
 export type ConcreteQuery = {

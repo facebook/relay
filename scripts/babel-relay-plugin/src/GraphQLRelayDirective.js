@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -16,13 +16,21 @@ const types = require('./GraphQL').type;
 
 module.exports = {
   name: 'relay',
-  description: 'The @relay directive on fragments.',
+  description: 'The @relay directive.',
   args: [
+    {
+      name: 'isConnectionWithoutNodeID',
+      description:
+        'Marks a connection field as containing nodes without `id` fields. ' +
+        'This is used to silence the warning when diffing connections.',
+      type: types.GraphQLBoolean,
+      defaultValue: (null: ?boolean),
+    },
     {
       name: 'pattern',
       description:
-        'Marks a fragment as intended for pattern matching (as ' +
-        'opposed to fetching).',
+        'Marks a fragment as intended for pattern matching (as opposed to ' +
+        'fetching).',
       type: types.GraphQLBoolean,
       defaultValue: (null: ?boolean),
     },
@@ -35,5 +43,5 @@ module.exports = {
   ],
   onOperation: false,
   onFragment: true,
-  onField: false,
+  onField: true,
 };

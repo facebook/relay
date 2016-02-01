@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -59,6 +59,7 @@ function inferRelayFieldsFromData(
 
 function inferField(value: mixed, key: string): RelayQuery.Field {
   const metadata = {
+    canHaveSubselections: true,
     isPlural: false,
   };
   let children;
@@ -67,12 +68,14 @@ function inferField(value: mixed, key: string): RelayQuery.Field {
     if (element && typeof element === 'object') {
       children = inferRelayFieldsFromData(element);
     } else {
+      metadata.canHaveSubselections = false;
       children = [];
     }
     metadata.isPlural = true;
   } else if (typeof value === 'object' && value !== null) {
     children = inferRelayFieldsFromData(value);
   } else {
+    metadata.canHaveSubselections = false;
     children = [];
   }
   if (key === NODE) {

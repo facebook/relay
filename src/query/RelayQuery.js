@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -15,17 +15,15 @@
 
 import type {
   ConcreteField,
+  ConcreteFieldMetadata,
   ConcreteFragment,
   ConcreteMutation,
   ConcreteNode,
+  ConcreteOperationMetadata,
   ConcreteQuery,
+  ConcreteQueryMetadata,
 } from 'ConcreteQuery';
 const QueryBuilder = require('QueryBuilder');
-import type {
-  ConcreteFieldMetadata,
-  ConcreteOperationMetadata,
-  ConcreteQueryMetadata,
-} from 'QueryBuilder';
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayFragmentReference = require('RelayFragmentReference');
 import type {Call, Directive}  from 'RelayInternalTypes';
@@ -156,6 +154,10 @@ class RelayQueryNode {
     this.__storageKey__ = null;
   }
 
+  canHaveSubselections(): boolean {
+    return true;
+  }
+
   isGenerated(): boolean {
     return false;
   }
@@ -164,16 +166,13 @@ class RelayQueryNode {
     return false;
   }
 
-  isScalar(): boolean {
-    return false;
-  }
-
   clone(children: NextChildren): ?RelayQueryNode {
-    if (this.isScalar()) {
+    if (!this.canHaveSubselections()) {
       // Compact new children *after* this check, for consistency.
       invariant(
         children.length === 0,
-        'RelayQueryNode: Cannot add children to scalar field `%s`.',
+        'RelayQueryNode: Cannot add children to field `%s` because it does ' +
+        'not support sub-selections (sub-fields).',
         this instanceof RelayQueryField ? this.getSchemaName() : null
       );
       return this;
@@ -290,7 +289,7 @@ class RelayQueryNode {
     var hasDeferredDescendant = this.__hasDeferredDescendant__;
     if (hasDeferredDescendant == null) {
       hasDeferredDescendant =
-        !this.isScalar() &&
+        this.canHaveSubselections() &&
         this.getChildren().some(child => child.hasDeferredDescendant());
       this.__hasDeferredDescendant__ = hasDeferredDescendant;
     }
@@ -429,6 +428,10 @@ class RelayQueryRoot extends RelayQueryNode {
 
     // Ensure IDs are generated in the order that queries are created
     this.getID();
+  }
+
+  canHaveSubselections(): boolean {
+    return true;
   }
 
   getName(): string {
@@ -581,6 +584,10 @@ class RelayQueryOperation extends RelayQueryNode {
       this.constructor.name !== 'RelayQueryOperation',
       'RelayQueryOperation: Abstract class cannot be instantiated.'
     );
+  }
+
+  canHaveSubselections(): boolean {
+    return true;
   }
 
   getName(): string {
@@ -819,6 +826,10 @@ class RelayQueryFragment extends RelayQueryNode {
     this.__metadata__ = metadata || DEFAULT_FRAGMENT_METADATA;
   }
 
+  canHaveSubselections(): boolean {
+    return true;
+  }
+
   getDebugName(): string {
     return (this.__concreteNode__: ConcreteFragment).name;
   }
@@ -871,6 +882,10 @@ class RelayQueryFragment extends RelayQueryNode {
 
   isDeferred(): boolean {
     return this.__metadata__.isDeferred;
+  }
+
+  isPattern(): boolean {
+    return !!(this.__concreteNode__: ConcreteFragment).metadata.pattern;
   }
 
   isPlural(): boolean {
@@ -1001,6 +1016,12 @@ class RelayQueryField extends RelayQueryNode {
     this.__shallowHash__ = undefined;
   }
 
+  canHaveSubselections(): boolean {
+    return !!(
+      (this.__concreteNode__: ConcreteField).metadata.canHaveSubselections
+    );
+  }
+
   isAbstract(): boolean {
     return !!(this.__concreteNode__: ConcreteField).metadata.isAbstract;
   }
@@ -1017,6 +1038,11 @@ class RelayQueryField extends RelayQueryNode {
     return !!(this.__concreteNode__: ConcreteField).metadata.isConnection;
   }
 
+  isConnectionWithoutNodeID(): boolean {
+    return !!(this.__concreteNode__: ConcreteField).metadata
+      .isConnectionWithoutNodeID;
+  }
+
   isPlural(): boolean {
     return !!(this.__concreteNode__: ConcreteField).metadata.isPlural;
   }
@@ -1027,14 +1053,6 @@ class RelayQueryField extends RelayQueryNode {
 
   isRequisite(): boolean {
     return !!(this.__concreteNode__: ConcreteField).metadata.isRequisite;
-  }
-
-  isScalar(): boolean {
-    const concreteChildren = (this.__concreteNode__: ConcreteField).children;
-    return (
-      (!this.__children__ || this.__children__.length === 0) &&
-      (!concreteChildren || concreteChildren.length === 0)
-    );
   }
 
   getDebugName(): string {
@@ -1229,11 +1247,13 @@ class RelayQueryField extends RelayQueryNode {
     children: NextChildren,
     calls: Array<Call>
   ): ?RelayQueryField {
-    if (this.isScalar()) {
+    if (!this.canHaveSubselections()) {
       // Compact new children *after* this check, for consistency.
       invariant(
         children.length === 0,
-        'RelayQueryField: Cannot add children to scalar fields.'
+        'RelayQueryNode: Cannot add children to field `%s` because it does ' +
+        'not support sub-selections (sub-fields).',
+        this.getSchemaName()
       );
     }
 

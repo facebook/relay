@@ -18,17 +18,15 @@ jest.mock('warning');
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayQueryPath = require('RelayQueryPath');
+const RelayRecordStore = require('RelayRecordStore');
+const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRecordStore', () => {
-  var RelayRecordStore;
-
   var {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    RelayRecordStore = require('RelayRecordStore');
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
@@ -165,6 +163,7 @@ describe('RelayRecordStore', () => {
     it('returns undefined for refetchable records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           viewer {
@@ -177,13 +176,14 @@ describe('RelayRecordStore', () => {
       var actorID = '123';
       var path = new RelayQueryPath(query);
       path = path.getPath(query.getFieldByStorageKey('actor'), actorID);
-      store.putRecord(actorID, path);
+      writer.putRecord(actorID, 'Type', path);
       expect(store.getPathToRecord(actorID)).toBe(undefined);
     });
 
     it('returns the path for non-refetchable records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           viewer {
@@ -203,7 +203,7 @@ describe('RelayRecordStore', () => {
         query.getFieldByStorageKey('actor').getFieldByStorageKey('address'),
         addressID
       );
-      store.putRecord(addressID, 'Type', path);
+      writer.putRecord(addressID, 'Type', path);
       expect(store.getPathToRecord(addressID)).toMatchPath(path);
     });
   });
@@ -611,13 +611,14 @@ describe('RelayRecordStore', () => {
         },
       };
       var store = new RelayRecordStore({records}, null, nodeRangeMap);
+      var writer = new RelayRecordWriter(records, {}, false, nodeRangeMap);
       expect(store.getConnectionIDsForRecord('1')).toEqual([
         'range:1',
         'range:2',
       ]);
 
       // node/connection link is cleared when the node is deleted
-      store.deleteRecord('1');
+      writer.deleteRecord('1');
       expect(store.getConnectionIDsForRecord('1')).toEqual(null);
     });
   });
@@ -637,7 +638,8 @@ describe('RelayRecordStore', () => {
     it('returns undefined if the connection is unfetched', () => {
       var records = {};
       var store = new RelayRecordStore({records});
-      store.putRecord('1', 'Type');
+      var writer = new RelayRecordWriter(records, {}, false);
+      writer.putRecord('1', 'Type');
       expect(store.getConnectionIDsForField('1', 'news_feed')).toBe(undefined);
     });
 
@@ -737,61 +739,6 @@ describe('RelayRecordStore', () => {
       const store = new RelayRecordStore({records});
       expect(store.hasDeferredFragmentData('a', 'fragID')).toBe(false);
       expect(store.hasDeferredFragmentData('b', 'fragID')).toBe(false);
-    });
-  });
-
-  describe('setHasDeferredFragmentData()', () => {
-    it('creates a cache in honor of the first entry', () => {
-      const records = {'a': {}};
-      const store = new RelayRecordStore({records});
-      store.setHasDeferredFragmentData('a', 'fragID');
-      expect(records.a.hasOwnProperty('__resolvedFragmentMap__')).toBe(true);
-    });
-
-    it('creates a key in an already existing cache', () => {
-      const resolvedFragmentMap = {'fragID': true};
-      const records = {
-        'a': {'__resolvedFragmentMap__': resolvedFragmentMap},
-      };
-      const store = new RelayRecordStore({records});
-      store.setHasDeferredFragmentData('a', 'otherFragID');
-      expect(resolvedFragmentMap.hasOwnProperty('otherFragID')).toBe(true);
-    });
-
-    it('increments the generation when a fragment\'s resolvedness ' +
-       'changes', () => {
-      const records = {
-        // No resolved fragment map at all
-        'a': {},
-        // Map does not contain a key corresponding to our fragment
-        'b': {
-          '__resolvedFragmentMap__': {'otherFragID': true},
-          '__resolvedFragmentMapGeneration__': 0,
-        },
-      };
-      const store = new RelayRecordStore({records});
-      store.setHasDeferredFragmentData('a', 'fragID');
-      expect(records.a.__resolvedFragmentMapGeneration__).toBe(0);
-      store.setHasDeferredFragmentData('b', 'fragID');
-      expect(records.b.__resolvedFragmentMapGeneration__).toBe(1);
-    });
-
-    it('increments the generation even when a fragment\'s resolvedness ' +
-       'does not change', () => {
-      const records = {
-        // No resolved fragment map at all
-        'a': {},
-        // Map contains a key corresponding to our fragment
-        'b': {
-          '__resolvedFragmentMap__': {'fragID': true},
-          '__resolvedFragmentMapGeneration__': 0,
-        },
-      };
-      const store = new RelayRecordStore({records});
-      store.setHasDeferredFragmentData('a', 'fragID');
-      expect(records.a.__resolvedFragmentMapGeneration__).toBe(0);
-      store.setHasDeferredFragmentData('b', 'fragID');
-      expect(records.b.__resolvedFragmentMapGeneration__).toBe(1);
     });
   });
 });

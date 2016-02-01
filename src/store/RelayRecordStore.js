@@ -28,9 +28,7 @@ import type {
 } from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
-const RelayRecord = require('RelayRecord');
 import type {RecordState} from 'RelayRecordState';
-const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {CacheWriter} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
@@ -38,23 +36,14 @@ const invariant = require('invariant');
 const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 const warning = require('warning');
 
-const {CURSOR, NODE} = RelayConnectionInterface;
+const {NODE} = RelayConnectionInterface;
 const EMPTY = '';
 const FILTER_CALLS = '__filterCalls__';
 const FORCE_INDEX = '__forceIndex__';
 const RANGE = '__range__';
 const RESOLVED_FRAGMENT_MAP = '__resolvedFragmentMap__';
-const RESOLVED_FRAGMENT_MAP_GENERATION = '__resolvedFragmentMapGeneration__';
 const PATH = '__path__';
-const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 
-type EdgeData = {
-  __dataID__: DataID;
-  cursor: mixed;
-  node: {
-    __dataID__: DataID;
-  };
-};
 type PageInfo = {[key: string]: mixed};
 type RangeEdge = {
   edgeID: string;
@@ -67,7 +56,6 @@ export type RangeInfo = {
   requestedEdgeIDs: Array<string>;
   filteredEdges: Array<RangeEdge>;
 };
-type RangeOperation = $Enum<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 
 type RecordCollection = {
   cachedRecords?: ?Records;
@@ -157,34 +145,6 @@ class RelayRecordStore {
   }
 
   /**
-   * Associate a data ID with a storage key (and optionally an identifying
-   * argument value) for a root query.
-   */
-  putDataID(
-    storageKey: string,
-    identifyingArgValue: ?string,
-    dataID: DataID
-  ): void {
-    if (RelayNodeInterface.isNodeRootCall(storageKey)) {
-      invariant(
-        identifyingArgValue != null,
-        'RelayRecordStore.putDataID(): Argument to `%s()` ' +
-        'cannot be null or undefined.',
-        storageKey
-      );
-      return;
-    }
-    if (identifyingArgValue == null) {
-      identifyingArgValue = EMPTY;
-    }
-    this._rootCallMap[storageKey] = this._rootCallMap[storageKey] || {};
-    this._rootCallMap[storageKey][identifyingArgValue] = dataID;
-    if (this._cacheWriter) {
-      this._cacheWriter.writeRootCall(storageKey, identifyingArgValue, dataID);
-    }
-  }
-
-  /**
    * Returns the status of the record stored at `dataID`.
    */
   getRecordState(dataID: DataID): RecordState {
@@ -195,45 +155,6 @@ class RelayRecordStore {
       return 'UNKNOWN';
     }
     return 'EXISTENT';
-  }
-
-  /**
-   * Create an empty record at `dataID` if a record does not already exist.
-   */
-  putRecord(
-    dataID: DataID,
-    typeName: ?string,
-    path?: RelayQueryPath
-  ): void {
-    var target = this._queuedRecords || this._records;
-    var prevRecord = target[dataID];
-    if (prevRecord) {
-      if (target === this._queuedRecords) {
-        this._setClientMutationID(prevRecord);
-      }
-      return;
-    }
-    var nextRecord: Record = ({
-      __dataID__: dataID,
-      __typename: typeName,
-    }: $FixMe);
-    if (target === this._queuedRecords) {
-      this._setClientMutationID(nextRecord);
-    }
-    if (RelayRecord.isClientID(dataID)) {
-      invariant(
-        path,
-        'RelayRecordStore.putRecord(): Expected a path for non-refetchable ' +
-        'record `%s`.',
-        dataID
-      );
-      nextRecord[PATH] = path;
-    }
-    target[dataID] = nextRecord;
-    var cacheWriter = this._cacheWriter;
-    if (!this._queuedRecords && cacheWriter) {
-      cacheWriter.writeField(dataID, '__dataID__', dataID, typeName);
-    }
   }
 
   /**
@@ -289,53 +210,6 @@ class RelayRecordStore {
     return !!(resolvedFragmentMap && resolvedFragmentMap[fragmentID]);
   }
 
-  /**
-   * Mark a given record as having received data for a deferred fragment.
-   */
-  setHasDeferredFragmentData(
-    dataID: DataID,
-    fragmentID: string
-  ): void {
-    var record = this._getRecord(dataID);
-    invariant(
-      record,
-      'RelayRecordStore.setHasDeferredFragmentData(): Expected record `%s` ' +
-      'to exist before marking it as having received data for the deferred ' +
-      'fragment with id `%s`.',
-      dataID,
-      fragmentID
-    );
-    let resolvedFragmentMap = record[RESOLVED_FRAGMENT_MAP];
-    if (typeof resolvedFragmentMap !== 'object' || !resolvedFragmentMap) {
-      resolvedFragmentMap = {};
-    }
-    resolvedFragmentMap[fragmentID] = true;
-    record[RESOLVED_FRAGMENT_MAP] = resolvedFragmentMap;
-    if (typeof record[RESOLVED_FRAGMENT_MAP_GENERATION] === 'number') {
-      record[RESOLVED_FRAGMENT_MAP_GENERATION]++;
-    } else {
-      record[RESOLVED_FRAGMENT_MAP_GENERATION] = 0;
-    }
-  }
-
-  /**
-   * Delete the record at `dataID`, setting its value to `null`.
-   */
-  deleteRecord(
-    dataID: DataID
-  ): void {
-    var target = this._queuedRecords || this._records;
-    target[dataID] = null;
-
-    // Remove any links for this record
-    if (!this._queuedRecords) {
-      delete this._nodeConnectionMap[dataID];
-      if (this._cacheWriter) {
-        this._cacheWriter.writeNode(dataID, null);
-      }
-    }
-  }
-
   getType(dataID: DataID): ?string {
     // `__typename` property is typed as `string`
     return (this._getField(dataID, '__typename'): any);
@@ -349,50 +223,6 @@ class RelayRecordStore {
     storageKey: string
   ): ?FieldValue {
     return this._getField(dataID, storageKey);
-  }
-
-  /**
-   * Sets the value of a scalar field.
-   */
-  putField(
-    dataID: DataID,
-    storageKey: string,
-    value: FieldValue
-  ) {
-    var record = this._getRecordForWrite(dataID);
-    invariant(
-      record,
-      'RelayRecordStore.putField(): Expected record `%s` to exist before ' +
-      'writing field `%s`.',
-      dataID,
-      storageKey
-    );
-    record[storageKey] = value;
-    if (!this._queuedRecords && this._cacheWriter) {
-      var typeName = record.__typename;
-      this._cacheWriter.writeField(dataID, storageKey, value, typeName);
-    }
-  }
-
-  /**
-   * Clears the value of a field by setting it to null/undefined.
-   */
-  deleteField(
-    dataID: DataID,
-    storageKey: string
-  ): void {
-    var record = this._getRecordForWrite(dataID);
-    invariant(
-      record,
-      'RelayRecordStore.deleteField(): Expected record `%s` to exist before ' +
-      'deleting field `%s`.',
-      dataID,
-      storageKey
-    );
-    record[storageKey] = null;
-    if (!this._queuedRecords && this._cacheWriter) {
-      this._cacheWriter.writeField(dataID, storageKey, null);
-    }
   }
 
   /**
@@ -417,37 +247,6 @@ class RelayRecordStore {
       dataID
     );
     return field.__dataID__;
-  }
-
-  /**
-   * Creates/updates a link between two records via the given field.
-   */
-  putLinkedRecordID(
-    parentID: DataID,
-    storageKey: string,
-    recordID: DataID
-  ): void {
-    var parent = this._getRecordForWrite(parentID);
-    invariant(
-      parent,
-      'RelayRecordStore.putLinkedRecordID(): Expected record `%s` to exist ' +
-      'before linking to record `%s`.',
-      parentID,
-      recordID
-    );
-    var record = this._getRecord(recordID);
-    invariant(
-      record,
-      'RelayRecordStore.putLinkedRecordID(): Expected record `%s` to exist ' +
-      'before linking from record `%s`.',
-      recordID,
-      parentID
-    );
-    var fieldValue = RelayRecord.create(recordID);
-    parent[storageKey] = fieldValue;
-    if (!this._queuedRecords && this._cacheWriter) {
-      this._cacheWriter.writeField(parentID, storageKey, fieldValue);
-    }
   }
 
   /**
@@ -480,38 +279,6 @@ class RelayRecordStore {
       );
       return item.__dataID__;
     });
-  }
-
-  /**
-   * Creates/updates a one-to-many link between records via the given field.
-   */
-  putLinkedRecordIDs(
-    parentID: DataID,
-    storageKey: string,
-    recordIDs: Array<DataID>
-  ): void {
-    var parent = this._getRecordForWrite(parentID);
-    invariant(
-      parent,
-      'RelayRecordStore.putLinkedRecordIDs(): Expected record `%s` to exist ' +
-      'before linking records.',
-      parentID
-    );
-    var records = recordIDs.map(recordID => {
-      var record = this._getRecord(recordID);
-      invariant(
-        record,
-        'RelayRecordStore.putLinkedRecordIDs(): Expected record `%s` to ' +
-        'exist before linking from `%s`.',
-        recordID,
-        parentID
-      );
-      return RelayRecord.create(recordID);
-    });
-    parent[storageKey] = records;
-    if (!this._queuedRecords && this._cacheWriter) {
-      this._cacheWriter.writeField(parentID, storageKey, records);
-    }
   }
 
   /**
@@ -653,40 +420,6 @@ class RelayRecordStore {
   }
 
   /**
-   * Creates a range at `dataID` with an optional `forceIndex`.
-   */
-  putRange(
-    connectionID: DataID,
-    calls: Array<Call>,
-    forceIndex?: ?number
-  ): void {
-    invariant(
-      !this._queuedRecords,
-      'RelayRecordStore.putRange(): Cannot create a queued range.'
-    );
-    var record = this._getRecord(connectionID);
-    invariant(
-      record,
-      'RelayRecordStore.putRange(): Expected record `%s` to exist before ' +
-      'adding a range.',
-      connectionID
-    );
-    var range = new GraphQLRange();
-    var filterCalls = getFilterCalls(calls);
-    forceIndex = forceIndex || 0;
-    record.__filterCalls__ = filterCalls;
-    record.__forceIndex__ = forceIndex;
-    record.__range__ = range;
-
-    var cacheWriter = this._cacheWriter;
-    if (!this._queuedRecords && cacheWriter) {
-      cacheWriter.writeField(connectionID, FILTER_CALLS, filterCalls);
-      cacheWriter.writeField(connectionID, FORCE_INDEX, forceIndex);
-      cacheWriter.writeField(connectionID, RANGE, range);
-    }
-  }
-
-  /**
    * Returns whether there is a range at `connectionID`.
    */
   hasRange(connectionID: DataID): boolean {
@@ -694,54 +427,8 @@ class RelayRecordStore {
   }
 
   /**
-   * Adds newly fetched edges to a range.
-   */
-  putRangeEdges(
-    connectionID: DataID,
-    calls: Array<Call>,
-    pageInfo: PageInfo,
-    edges: Array<DataID>
-  ): void {
-    var range: ?GraphQLRange = (this._getField(connectionID, RANGE): any);
-    invariant(
-      range,
-      'RelayRecordStore.putRangeEdges(): Expected record `%s` to exist and ' +
-      'have a range.',
-      connectionID
-    );
-    var edgesData = [];
-    edges.forEach(edgeID => {
-      var edgeData = this._getRangeEdgeData(edgeID);
-      edgesData.push(edgeData);
-      this._addConnectionForNode(connectionID, edgeData.node.__dataID__);
-    });
-    range.addItems(
-      calls,
-      edgesData,
-      pageInfo
-    );
-    if (!this._queuedRecords && this._cacheWriter) {
-      this._cacheWriter.writeField(connectionID, RANGE, range);
-    }
-  }
-
-  /**
-   * Prepend, append, or delete edges to/from a range.
-   */
-  applyRangeUpdate(
-    connectionID: DataID,
-    edgeID: DataID,
-    operation: RangeOperation
-  ): void {
-    if (this._queuedRecords) {
-      this._applyOptimisticRangeUpdate(connectionID, edgeID, operation);
-    } else {
-      this._applyServerRangeUpdate(connectionID, edgeID, operation);
-    }
-  }
-
-  /**
-   * Completely removes the record identified by `dataID` from the store
+   * Completely removes the record identified by `dataID` from the store.
+   * This is only used by garbage collection.
    */
   removeRecord(dataID: DataID): void {
     delete this._records[dataID];
@@ -755,128 +442,6 @@ class RelayRecordStore {
   }
 
   /**
-   * Get edge data in a format compatibile with `GraphQLRange`.
-   * TODO: change `GraphQLRange` to accept `(edgeID, cursor, nodeID)` tuple
-   */
-  _getRangeEdgeData(edgeID: DataID): EdgeData {
-    var nodeID = this.getLinkedRecordID(edgeID, NODE);
-    invariant(
-      nodeID,
-      'RelayRecordStore: Expected edge `%s` to have a `node` record.',
-      edgeID
-    );
-    return {
-      __dataID__: edgeID,
-      cursor: this.getField(edgeID, CURSOR),
-      node: {
-        __dataID__: nodeID,
-      },
-    };
-  }
-
-  _applyOptimisticRangeUpdate(
-    connectionID: DataID,
-    edgeID: DataID,
-    operation: RangeOperation
-  ): void {
-    invariant(
-      this._queuedRecords,
-      'RelayRecordStore: Expected queued records to exist for optimistic ' +
-      '`%s` update to record `%s`.',
-      operation,
-      connectionID
-    );
-    let record: ?Record = this._queuedRecords[connectionID];
-    if (!record) {
-      record = {__dataID__: connectionID};
-      this._queuedRecords[connectionID] = record;
-    }
-    this._setClientMutationID(record);
-    const key = rangeOperationToMetadataKey[operation];
-    let queue: ?Array<DataID> = record[key];
-    if (!queue) {
-      queue = [];
-      record[key] = queue;
-    }
-    if (operation === PREPEND) {
-      queue.unshift(edgeID);
-    } else {
-      queue.push(edgeID);
-    }
-  }
-
-  _applyServerRangeUpdate(
-    connectionID: DataID,
-    edgeID: DataID,
-    operation: RangeOperation
-  ): void {
-    invariant(
-      this._records,
-      'RelayRecordStore: Expected base records to exist for `%s` update to ' +
-      'record `%s`.',
-      operation,
-      connectionID
-    );
-    var range: ?GraphQLRange = (this._getField(connectionID, RANGE): any);
-    invariant(
-      range,
-      'RelayRecordStore: Cannot apply `%s` update to non-existent record `%s`.',
-      operation,
-      connectionID
-    );
-    if (operation === REMOVE) {
-      range.removeEdgeWithID(edgeID);
-      var nodeID = this.getLinkedRecordID(edgeID, 'node');
-      if (nodeID) {
-        this._removeConnectionForNode(connectionID, nodeID);
-      }
-    } else {
-      var edgeData = this._getRangeEdgeData(edgeID);
-      this._addConnectionForNode(connectionID, edgeData.node.__dataID__);
-      if (operation === APPEND) {
-        range.appendEdge(this._getRangeEdgeData(edgeID));
-      } else {
-        // prepend
-        range.prependEdge(this._getRangeEdgeData(edgeID));
-      }
-    }
-    if (this._cacheWriter) {
-      this._cacheWriter.writeField(connectionID, RANGE, range);
-    }
-  }
-
-  /**
-   * Record that the node is contained in the connection.
-   */
-  _addConnectionForNode(
-    connectionID: DataID,
-    nodeID: DataID
-  ): void {
-    var connectionMap = this._nodeConnectionMap[nodeID];
-    if (!connectionMap) {
-      connectionMap = {};
-      this._nodeConnectionMap[nodeID] = connectionMap;
-    }
-    connectionMap[connectionID] = true;
-  }
-
-  /**
-   * Record that the given node is no longer part of the connection.
-   */
-  _removeConnectionForNode(
-    connectionID: DataID,
-    nodeID: DataID
-  ): void {
-    var connectionMap = this._nodeConnectionMap[nodeID];
-    if (connectionMap) {
-      delete connectionMap[connectionID];
-      if (Object.keys(connectionMap).length === 0) {
-        delete this._nodeConnectionMap[nodeID];
-      }
-    }
-  }
-
-  /**
    * Gets the first version of the record from the available caches.
    */
   _getRecord(dataID: DataID): ?Record {
@@ -887,30 +452,6 @@ class RelayRecordStore {
     } else if (this._cachedRecords) {
       return this._cachedRecords[dataID];
     }
-  }
-
-  /**
-   * If the record is in the store, gets or creates a version of the record
-   * in the store being used for writes.
-   */
-  _getRecordForWrite(dataID: DataID): ?Record {
-    // Cannot write to non-existent records, so ensure the record exists first.
-    // Returning null/undefined allows for local invariant checks at call sites
-    // with specific error messaging.
-    var record = this._getRecord(dataID);
-    if (!record) {
-      return record;
-    }
-    // Create an empty version of the record in the writable store if it does
-    // not already exist there.
-    var source = this._queuedRecords || this._records;
-    if (!source[dataID]) {
-      record = source[dataID] = RelayRecord.create(dataID);
-    }
-    if (source === this._queuedRecords) {
-      this._setClientMutationID(record);
-    }
-    return record;
   }
 
   /**
@@ -929,27 +470,6 @@ class RelayRecordStore {
       }
     }
     return undefined;
-  }
-
-  /**
-   * Injects the client mutation id associated with the record store instance
-   * into the given record.
-   */
-  _setClientMutationID(record: Record): void {
-    var clientMutationID = this._clientMutationID;
-    invariant(
-      clientMutationID,
-      'RelayRecordStore: _clientMutationID cannot be null/undefined.'
-    );
-    var mutationIDs: Array<ClientMutationID> = record.__mutationIDs__ || [];
-    if (mutationIDs.indexOf(clientMutationID) === -1) {
-      mutationIDs.push(clientMutationID);
-      record.__mutationIDs__ = mutationIDs;
-    }
-    record.__status__ = RelayRecordStatusMap.setOptimisticStatus(
-      0,
-      true
-    );
   }
 }
 

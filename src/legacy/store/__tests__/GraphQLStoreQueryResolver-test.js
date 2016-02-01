@@ -428,8 +428,8 @@ describe('GraphQLStoreQueryResolver', () => {
         storeData.getChangeEmitter().addListenerForIDs.mock.calls[0][1];
 
       // Remove the link to viewer.actor and broadcast an update
-      storeData.getRecordStore().putField('client:1', 'actor', null);
-      storeData.getRecordStore().putField('client:1', 'newsFeed', null);
+      storeData.getRecordWriter().putField('client:1', 'actor', null);
+      storeData.getRecordWriter().putField('client:1', 'newsFeed', null);
       callback(['client:1']);
 
       // re-read and increment/decrement GC ref counts

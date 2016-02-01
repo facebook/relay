@@ -34,6 +34,7 @@ const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {CacheWriter} from 'RelayTypes';
 
 const invariant = require('invariant');
+const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 
 const {CURSOR, NODE} = RelayConnectionInterface;
 const EMPTY = '';
@@ -584,12 +585,13 @@ class RelayRecordWriter {
     if (!record) {
       record = {__dataID__: connectionID};
       this._records[connectionID] = record;
-      this._setClientMutationID(record);
     }
-    let queue: ?Array<DataID> = record[operation];
+    this._setClientMutationID(record);
+    const key = rangeOperationToMetadataKey[operation];
+    let queue: ?Array<DataID> = record[key];
     if (!queue) {
       queue = [];
-      record[operation] = queue;
+      record[key] = queue;
     }
     if (operation === PREPEND) {
       queue.unshift(edgeID);

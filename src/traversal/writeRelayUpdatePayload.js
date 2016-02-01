@@ -144,6 +144,7 @@ function deleteRecord(
   recordID: DataID
 ): void {
   const store = writer.getRecordStore();
+  const recordWriter = writer.getRecordWriter();
   // skip if already deleted
   const status = store.getRecordState(recordID);
   if (status === RelayRecordState.NONEXISTENT) {
@@ -155,7 +156,7 @@ function deleteRecord(
   if (connectionIDs) {
     connectionIDs.forEach(connectionID => {
       const edgeID = generateClientEdgeID(connectionID, recordID);
-      store.applyRangeUpdate(connectionID, edgeID, REMOVE);
+      recordWriter.applyRangeUpdate(connectionID, edgeID, REMOVE);
       writer.recordUpdate(edgeID);
       writer.recordUpdate(connectionID);
       // edges are never nodes, so this will not infinitely recurse
@@ -164,7 +165,7 @@ function deleteRecord(
   }
 
   // delete the node
-  store.deleteRecord(recordID);
+  recordWriter.deleteRecord(recordID);
   writer.recordUpdate(recordID);
 }
 
@@ -420,6 +421,7 @@ function addRangeNode(
   edgeData: any
 ) {
   const store = writer.getRecordStore();
+  const recordWriter = writer.getRecordWriter();
   const filterCalls = store.getRangeFilterCalls(connectionID);
   const rangeBehavior = filterCalls ?
     getRangeBehavior(config.rangeBehaviors, filterCalls) :
@@ -477,7 +479,7 @@ function addRangeNode(
 
   // append/prepend the item to the range.
   if (rangeBehavior in GraphQLMutatorConstants.RANGE_OPERATIONS) {
-    store.applyRangeUpdate(connectionID, edgeID, (rangeBehavior: any));
+    recordWriter.applyRangeUpdate(connectionID, edgeID, (rangeBehavior: any));
     if (writer.hasChangeToRecord(edgeID)) {
       writer.recordUpdate(connectionID);
     }
@@ -544,9 +546,9 @@ function deleteRangeEdge(
   connectionID: DataID,
   nodeID: DataID
 ): void {
-  const store = writer.getRecordStore();
+  const recordWriter = writer.getRecordWriter();
   const edgeID = generateClientEdgeID(connectionID, nodeID);
-  store.applyRangeUpdate(connectionID, edgeID, REMOVE);
+  recordWriter.applyRangeUpdate(connectionID, edgeID, REMOVE);
 
   deleteRecord(writer, edgeID);
   if (writer.hasChangeToRecord(edgeID)) {

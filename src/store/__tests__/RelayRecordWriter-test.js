@@ -21,7 +21,6 @@ const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 const {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
-const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 
 describe('RelayRecordWriter', () => {
 
@@ -556,7 +555,7 @@ describe('RelayRecordWriter', () => {
       var edge = addEdgeToStore(writer);
       firstEdgeID = edge.edgeID;
       firstNodeID = edge.nodeID;
-      store.putRangeEdges(
+      writer.putRangeEdges(
         connectionID,
         [{name: 'first', value: 1}],
         {
@@ -569,7 +568,7 @@ describe('RelayRecordWriter', () => {
       // ...and a last edge
       edge = addEdgeToStore(writer);
       lastEdgeID = edge.edgeID;
-      store.putRangeEdges(
+      writer.putRangeEdges(
         connectionID,
         [{name: 'last', value: 1}],
         {
@@ -618,7 +617,7 @@ describe('RelayRecordWriter', () => {
       optimisticWriter.applyRangeUpdate(
         connectionID,
         edgeID,
-        rangeOperationToMetadataKey[PREPEND]
+        PREPEND
       );
 
       // contains prepended edge
@@ -665,7 +664,7 @@ describe('RelayRecordWriter', () => {
       optimisticWriter.applyRangeUpdate(
         connectionID,
         edgeID,
-        rangeOperationToMetadataKey[APPEND]
+        APPEND
       );
 
       // contains appended edge
@@ -711,7 +710,7 @@ describe('RelayRecordWriter', () => {
       optimisticWriter.applyRangeUpdate(
         connectionID,
         firstEdgeID,
-        rangeOperationToMetadataKey[REMOVE]
+        REMOVE
       );
 
       // does not contain removed edge
@@ -759,6 +758,61 @@ describe('RelayRecordWriter', () => {
       expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         lastEdgeID,
       ]);
+    });
+  });
+
+  describe('setHasDeferredFragmentData()', () => {
+    it('creates a cache in honor of the first entry', () => {
+      const records = {'a': {}};
+      const store = new RelayRecordWriter(records, {}, false);
+      store.setHasDeferredFragmentData('a', 'fragID');
+      expect(records.a.hasOwnProperty('__resolvedFragmentMap__')).toBe(true);
+    });
+
+    it('creates a key in an already existing cache', () => {
+      const resolvedFragmentMap = {'fragID': true};
+      const records = {
+        'a': {'__resolvedFragmentMap__': resolvedFragmentMap},
+      };
+      const store = new RelayRecordWriter(records, {}, false);
+      store.setHasDeferredFragmentData('a', 'otherFragID');
+      expect(resolvedFragmentMap.hasOwnProperty('otherFragID')).toBe(true);
+    });
+
+    it('increments the generation when a fragment\'s resolvedness ' +
+       'changes', () => {
+      const records = {
+        // No resolved fragment map at all
+        'a': {},
+        // Map does not contain a key corresponding to our fragment
+        'b': {
+          '__resolvedFragmentMap__': {'otherFragID': true},
+          '__resolvedFragmentMapGeneration__': 0,
+        },
+      };
+      const store = new RelayRecordWriter(records, {}, false);
+      store.setHasDeferredFragmentData('a', 'fragID');
+      expect(records.a.__resolvedFragmentMapGeneration__).toBe(0);
+      store.setHasDeferredFragmentData('b', 'fragID');
+      expect(records.b.__resolvedFragmentMapGeneration__).toBe(1);
+    });
+
+    it('increments the generation even when a fragment\'s resolvedness ' +
+       'does not change', () => {
+      const records = {
+        // No resolved fragment map at all
+        'a': {},
+        // Map contains a key corresponding to our fragment
+        'b': {
+          '__resolvedFragmentMap__': {'fragID': true},
+          '__resolvedFragmentMapGeneration__': 0,
+        },
+      };
+      const store = new RelayRecordWriter(records, {}, false);
+      store.setHasDeferredFragmentData('a', 'fragID');
+      expect(records.a.__resolvedFragmentMapGeneration__).toBe(0);
+      store.setHasDeferredFragmentData('b', 'fragID');
+      expect(records.b.__resolvedFragmentMapGeneration__).toBe(1);
     });
   });
 });

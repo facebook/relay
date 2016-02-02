@@ -367,9 +367,7 @@ class RelayRecordWriter {
       recordID,
       parentID
     );
-    const fieldValue = {
-      __dataID__: recordID,
-    };
+    const fieldValue = RelayRecord.create(recordID);
     parent[storageKey] = fieldValue;
     if (!this._isOptimisticWrite && this._cacheWriter) {
       this._cacheWriter.writeField(parentID, storageKey, fieldValue);
@@ -432,9 +430,7 @@ class RelayRecordWriter {
         recordID,
         parentID
       );
-      return {
-        __dataID__: recordID,
-      };
+      return RelayRecord.create(recordID);
     });
     parent[storageKey] = records;
     if (!this._isOptimisticWrite && this._cacheWriter) {
@@ -570,9 +566,7 @@ class RelayRecordWriter {
     return {
       __dataID__: edgeID,
       cursor: this.getField(edgeID, CURSOR),
-      node: {
-        __dataID__: nodeID,
-      },
+      node: RelayRecord.create(nodeID),
     };
   }
 
@@ -583,7 +577,7 @@ class RelayRecordWriter {
   ): void {
     let record: ?Record = this._getRecordForWrite(connectionID);
     if (!record) {
-      record = {__dataID__: connectionID};
+      record = RelayRecord.create(connectionID);
       this._records[connectionID] = record;
     }
     this._setClientMutationID(record);

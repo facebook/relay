@@ -14,7 +14,11 @@
 'use strict';
 
 const RelayConnectionInterface = require('RelayConnectionInterface');
-import type {Call, DataID, Records} from 'RelayInternalTypes';
+import type {
+  Call,
+  DataID,
+  RecordMap,
+} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type RelayQueryPath from 'RelayQueryPath';
 const RelayQueryVisitor = require('RelayQueryVisitor');
@@ -59,7 +63,7 @@ const {EDGES, PAGE_INFO} = RelayConnectionInterface;
  */
 function findRelayQueryLeaves(
   store: RelayRecordStore,
-  cachedRecords: Records,
+  cachedRecords: RecordMap,
   queryNode: RelayQuery.Node,
   dataID: DataID,
   path: RelayQueryPath,
@@ -82,11 +86,11 @@ function findRelayQueryLeaves(
 }
 
 class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
-  _cachedRecords: Records;
+  _cachedRecords: RecordMap;
   _pendingNodes: PendingNodes;
   _store: RelayRecordStore;
 
-  constructor(store: RelayRecordStore, cachedRecords: Records = {}) {
+  constructor(store: RelayRecordStore, cachedRecords: RecordMap = {}) {
     super();
     this._store = store;
     this._cachedRecords = cachedRecords;

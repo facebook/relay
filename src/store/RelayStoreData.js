@@ -28,7 +28,7 @@ import type {
   DataID,
   NodeRangeMap,
   QueryPayload,
-  Records,
+  RecordMap,
   RelayQuerySet,
   RootCallMap,
   UpdateOptions,
@@ -66,7 +66,7 @@ var _instance;
  */
 class RelayStoreData {
   _cacheManager: ?CacheManager;
-  _cachedRecords: Records;
+  _cachedRecords: RecordMap;
   _cachedRootCallMap: RootCallMap;
   _cachedStore: RelayRecordStore;
   _changeEmitter: GraphQLStoreChangeEmitter;
@@ -74,8 +74,8 @@ class RelayStoreData {
   _mutationQueue: RelayMutationQueue;
   _nodeRangeMap: NodeRangeMap;
   _pendingQueryTracker: RelayPendingQueryTracker;
-  _records: Records;
-  _queuedRecords: Records;
+  _records: RecordMap;
+  _queuedRecords: RecordMap;
   _queuedStore: RelayRecordStore;
   _recordStore: RelayRecordStore;
   _queryTracker: RelayQueryTracker;
@@ -94,10 +94,10 @@ class RelayStoreData {
   }
 
   constructor() {
-    const cachedRecords: Records = {};
+    const cachedRecords: RecordMap = {};
     const cachedRootCallMap: RootCallMap = {};
-    const queuedRecords: Records = {};
-    const records: Records = {};
+    const queuedRecords: RecordMap = {};
+    const records: RecordMap = {};
     const rootCallMap: RootCallMap = {};
     const nodeRangeMap: NodeRangeMap = {};
     const {
@@ -416,11 +416,11 @@ class RelayStoreData {
     );
   }
 
-  getNodeData(): Records {
+  getNodeData(): RecordMap {
     return this._records;
   }
 
-  getQueuedData(): Records {
+  getQueuedData(): RecordMap {
     return this._queuedRecords;
   }
 
@@ -431,7 +431,7 @@ class RelayStoreData {
     });
   }
 
-  getCachedData(): Records {
+  getCachedData(): RecordMap {
     return this._cachedRecords;
   }
 

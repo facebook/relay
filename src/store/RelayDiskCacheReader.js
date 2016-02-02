@@ -17,7 +17,7 @@ const RelayChangeTracker = require('RelayChangeTracker');
 import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {
   DataID,
-  Records,
+  RecordMap,
   RelayQuerySet,
   RootCallMap,
 } from 'RelayInternalTypes';
@@ -50,7 +50,7 @@ const RelayDiskCacheReader = {
     fragment: RelayQuery.Fragment,
     path: RelayQueryPath,
     store: RelayRecordStore,
-    cachedRecords: Records,
+    cachedRecords: RecordMap,
     cachedRootCallMap: RootCallMap,
     garbageCollector: ?RelayGarbageCollector,
     cacheManager: CacheManager,
@@ -71,7 +71,7 @@ const RelayDiskCacheReader = {
   readQueries(
     queries: RelayQuerySet,
     store: RelayRecordStore,
-    cachedRecords: Records,
+    cachedRecords: RecordMap,
     cachedRootCallMap: RootCallMap,
     garbageCollector: ?RelayGarbageCollector,
     cacheManager: CacheManager,
@@ -93,7 +93,7 @@ const RelayDiskCacheReader = {
 
 class RelayCacheReader {
   _store: RelayRecordStore;
-  _cachedRecords: Records;
+  _cachedRecords: RecordMap;
   _cachedRootCallMap: RootCallMap;
   _cacheManager: CacheManager;
   _callbacks: CacheReadCallbacks;
@@ -105,7 +105,7 @@ class RelayCacheReader {
 
   constructor(
     store: RelayRecordStore,
-    cachedRecords: Records,
+    cachedRecords: RecordMap,
     cachedRootCallMap: RootCallMap,
     garbageCollector: ?RelayGarbageCollector,
     cacheManager: CacheManager,

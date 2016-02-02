@@ -23,7 +23,7 @@ import type {
   FieldValue,
   NodeRangeMap,
   Record,
-  Records,
+  RecordMap,
   RootCallMap,
 } from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
@@ -66,12 +66,12 @@ class RelayRecordWriter {
   _cacheWriter: ?CacheWriter;
   _clientMutationID: ?ClientMutationID;
   _isOptimisticWrite: boolean;
-  _records: Records;
+  _records: RecordMap;
   _nodeConnectionMap: NodeRangeMap;
   _rootCallMap: RootCallMap;
 
   constructor(
-    records: Records,
+    records: RecordMap,
     rootCallMap: RootCallMap,
     isOptimistic: boolean,
     nodeConnectionMap?: ?NodeRangeMap,

@@ -23,7 +23,7 @@ import type {
   FieldValue,
   NodeRangeMap,
   Record,
-  Records,
+  RecordMap,
   RootCallMap,
 } from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
@@ -58,9 +58,9 @@ export type RangeInfo = {
 };
 
 type RecordCollection = {
-  cachedRecords?: ?Records;
-  queuedRecords?: ?Records;
-  records: Records;
+  cachedRecords?: ?RecordMap;
+  queuedRecords?: ?RecordMap;
+  records: RecordMap;
 };
 
 type RootCallMapCollection = {
@@ -78,13 +78,13 @@ type RootCallMapCollection = {
  * TODO: #6584253 Mediate access to node/cached/queued data via RelayRecordStore
  */
 class RelayRecordStore {
-  _cachedRecords: ?Records;
+  _cachedRecords: ?RecordMap;
   _cachedRootCallMap: RootCallMap;
-  _queuedRecords: ?Records;
-  _records: Records;
+  _queuedRecords: ?RecordMap;
+  _records: RecordMap;
   _nodeConnectionMap: NodeRangeMap;
   _rootCallMap: RootCallMap;
-  _storage: Array<Records>;
+  _storage: Array<RecordMap>;
 
   constructor(
     records: RecordCollection,

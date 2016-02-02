@@ -66,7 +66,7 @@ export type Record = {
   __typename?: ?string;
 };
 
-export type Records = {[key: DataID]: ?Record};
+export type RecordMap = {[key: DataID]: ?Record};
 
 // Maps root calls to a single data ID through an indentifying arg (or EMPTY)
 // eg. username(name: "joe")   => '123'

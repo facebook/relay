@@ -325,17 +325,17 @@ describe('RelayQuery', () => {
       it('builds directives with argument values', () => {
         const field = RelayQuery.Field.build({
           directives: [{
-            name: 'foo',
-            arguments: [{
+            args: [{
               name: 'bar',
               value: 'baz',
             }],
+            name: 'foo',
           }],
           fieldName: 'profilePicture',
           type: 'ProfilePicture',
         });
         expect(field.getDirectives()).toEqual([{
-          arguments: [{name: 'bar', value: 'baz'}],
+          args: [{name: 'bar', value: 'baz'}],
           name: 'foo',
         }]);
       });

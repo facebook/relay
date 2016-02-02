@@ -26,7 +26,7 @@ const QueryBuilder = require('QueryBuilder');
 function directivesToGraphQL(
   directives: Array<Directive>
 ): Array<ConcreteDirective> {
-  return directives.map(({name, arguments: args}) => {
+  return directives.map(({name, args}) => {
     const concreteArguments = args.map(({name, value}) => {
       let concreteArgument = null;
       if (Array.isArray(value)) {

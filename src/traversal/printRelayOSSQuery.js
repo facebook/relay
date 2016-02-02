@@ -250,9 +250,9 @@ function printDirectives(node) {
   let directiveStrings;
   node.getDirectives().forEach(directive => {
     let dirString = '@' + directive.name;
-    if (directive.arguments.length) {
+    if (directive.args.length) {
       dirString +=
-        '(' + directive.arguments.map(printDirective).join(',') + ')';
+        '(' + directive.args.map(printDirective).join(',') + ')';
     }
     directiveStrings = directiveStrings || [];
     directiveStrings.push(dirString);

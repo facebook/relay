@@ -36,8 +36,8 @@ export type ClientMutationID = string;
 export type DataID = string;
 
 export type Directive = {
+  args: Array<Call>;
   name: string;
-  arguments: Array<Call>;
 };
 
 export type FieldValue = mixed;

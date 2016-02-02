@@ -743,10 +743,10 @@ describe('RelayQueryField', () => {
     `, {cond: true}).getChildren()[0];
     expect(field.getDirectives()).toEqual([
       {
-        name: 'include',
-        arguments: [
+        args: [
           {name: 'if', value: true},
         ],
+        name: 'include',
       },
     ]);
   });

@@ -234,9 +234,9 @@ class RelayQueryNode {
     }
     return this.getDirectives().every(directive => {
       if (directive.name === SKIP) {
-        return !directive.arguments.some(arg => arg.name === IF && !!arg.value);
+        return !directive.args.some(arg => arg.name === IF && !!arg.value);
       } else if (directive.name === INCLUDE) {
-        return !directive.arguments.some(arg => arg.name === IF && !arg.value);
+        return !directive.args.some(arg => arg.name === IF && !arg.value);
       }
       return true;
     });
@@ -246,8 +246,8 @@ class RelayQueryNode {
     const concreteDirectives = (this.__concreteNode__: ConcreteNode).directives;
     if (concreteDirectives) {
       return this.__concreteNode__.directives.map(directive => ({
+        args: callsFromGraphQL(directive.args, this.__variables__),
         name: directive.name,
-        arguments: callsFromGraphQL(directive.arguments, this.__variables__),
       }));
     }
     return EMPTY_DIRECTIVES;

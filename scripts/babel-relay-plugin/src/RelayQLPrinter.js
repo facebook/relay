@@ -544,7 +544,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
           t.objectExpression([
             property('kind', t.valueToNode('Directive')),
             property('name', t.valueToNode(directive.getName())),
-            property('arguments', t.arrayExpression(
+            property('args', t.arrayExpression(
               directive.getArguments().map(
                 arg => t.objectExpression([
                   property('name', t.valueToNode(arg.getName())),

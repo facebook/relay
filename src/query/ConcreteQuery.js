@@ -70,7 +70,7 @@ export type ConcreteCallVariable = {
 };
 
 export type ConcreteDirective = {
-  arguments: Array<ConcreteDirectiveArgument>;
+  args: Array<ConcreteDirectiveArgument>;
   kind: 'Directive';
   name: string;
 };

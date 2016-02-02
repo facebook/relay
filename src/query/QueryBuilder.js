@@ -105,7 +105,7 @@ const QueryBuilder = {
     args: Array<ConcreteDirectiveArgument>
   ): ConcreteDirective {
     return {
-      arguments: args,
+      args,
       kind: 'Directive',
       name,
     };

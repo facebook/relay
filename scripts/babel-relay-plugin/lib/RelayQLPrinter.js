@@ -464,7 +464,7 @@ module.exports = function (t, options) {
           if (directive.getName() === 'relay') {
             return;
           }
-          printedDirectives.push(t.objectExpression([property('kind', t.valueToNode('Directive')), property('name', t.valueToNode(directive.getName())), property('arguments', t.arrayExpression(directive.getArguments().map(function (arg) {
+          printedDirectives.push(t.objectExpression([property('kind', t.valueToNode('Directive')), property('name', t.valueToNode(directive.getName())), property('args', t.arrayExpression(directive.getArguments().map(function (arg) {
             return t.objectExpression([property('name', t.valueToNode(arg.getName())), property('value', _this5.printArgumentValue(arg))]);
           })))]));
         });

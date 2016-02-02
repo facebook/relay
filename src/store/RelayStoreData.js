@@ -28,7 +28,6 @@ import type {
   DataID,
   NodeRangeMap,
   QueryPayload,
-  RecordMap,
   RelayQuerySet,
   RootCallMap,
   UpdateOptions,
@@ -41,6 +40,7 @@ import type RelayQueryPath from 'RelayQueryPath';
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayQueryWriter = require('RelayQueryWriter');
 const RelayRecord = require('RelayRecord');
+import type {RecordMap} from 'RelayRecord';
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';

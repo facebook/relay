@@ -17,11 +17,11 @@ const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {
   Call,
   DataID,
-  RecordMap,
 } from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type RelayQueryPath from 'RelayQueryPath';
 const RelayQueryVisitor = require('RelayQueryVisitor');
+import type {RecordMap} from 'RelayRecord';
 const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';

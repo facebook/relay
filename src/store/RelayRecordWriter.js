@@ -22,13 +22,15 @@ import type {
   DataID,
   FieldValue,
   NodeRangeMap,
-  Record,
-  RecordMap,
   RootCallMap,
 } from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
 const RelayRecord = require('RelayRecord');
+import type {
+  Record,
+  RecordMap,
+} from 'RelayRecord';
 import type {RecordState} from 'RelayRecordState';
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {CacheWriter} from 'RelayTypes';

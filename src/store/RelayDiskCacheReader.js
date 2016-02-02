@@ -17,13 +17,13 @@ const RelayChangeTracker = require('RelayChangeTracker');
 import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {
   DataID,
-  RecordMap,
   RelayQuerySet,
   RootCallMap,
 } from 'RelayInternalTypes';
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecord = require('RelayRecord');
+import type {RecordMap} from 'RelayRecord';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 

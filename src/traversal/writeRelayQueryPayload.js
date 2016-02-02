@@ -35,8 +35,15 @@ function writeRelayQueryPayload(
   const recordWriter = writer.getRecordWriter();
   const path = new RelayQueryPath(query);
 
-  RelayNodeInterface.getResultsFromPayload(store, recordWriter, query, payload)
-    .forEach(({dataID, result}) => {
+  RelayNodeInterface.getResultsFromPayload(store, query, payload)
+    .forEach(({dataID, result, rootCallInfo}) => {
+      if (rootCallInfo) {
+        recordWriter.putDataID(
+          rootCallInfo.storageKey,
+          rootCallInfo.identifyingArgValue,
+          dataID
+        );
+      }
       writer.writePayload(query, dataID, result, path);
     });
 }

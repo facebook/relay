@@ -16,7 +16,6 @@
 import type {DataID} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type RelayRecordStore from 'RelayRecordStore';
-import type RelayRecordWriter from 'RelayRecordWriter';
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const generateClientID = require('generateClientID');
@@ -25,7 +24,13 @@ const invariant = require('invariant');
 type PayloadResult = {
   dataID: DataID;
   result: mixed;
+  rootCallInfo?: RootCallInfo;
 };
+
+type RootCallInfo = {
+  storageKey: string;
+  identifyingArgValue: ?string;
+}
 
 /**
  * @internal
@@ -49,7 +54,6 @@ var RelayOSSNodeInterface = {
 
   getResultsFromPayload(
     store: RelayRecordStore,
-    writer: RelayRecordWriter,
     query: RelayQuery.Root,
     payload: {[key: string]: mixed}
   ): Array<PayloadResult> {
@@ -88,8 +92,11 @@ var RelayOSSNodeInterface = {
             dataID = generateClientID();
           }
         }
-        writer.putDataID(storageKey, identifyingArgValue, dataID);
-        results.push({dataID, result});
+        results.push({
+          dataID,
+          result,
+          rootCallInfo: {storageKey, identifyingArgValue},
+        });
       });
     }
 

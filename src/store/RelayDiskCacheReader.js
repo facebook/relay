@@ -25,7 +25,11 @@ const RelayQueryPath = require('RelayQueryPath');
 const RelayRecord = require('RelayRecord');
 import type {RecordMap} from 'RelayRecord';
 import type RelayRecordStore from 'RelayRecordStore';
-import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
+import type {
+  Abortable,
+  CacheManager,
+  CacheReadCallbacks,
+} from 'RelayTypes';
 
 const findRelayQueryLeaves = require('findRelayQueryLeaves');
 import type {
@@ -56,7 +60,7 @@ const RelayDiskCacheReader = {
     cacheManager: CacheManager,
     changeTracker: RelayChangeTracker,
     callbacks: CacheReadCallbacks,
-  ) {
+  ): Abortable {
     var reader = new RelayCacheReader(
       store,
       cachedRecords,
@@ -67,7 +71,14 @@ const RelayDiskCacheReader = {
       callbacks
     );
     reader.readFragment(dataID, fragment, path);
+
+    return {
+      abort() {
+        reader.abort();
+      },
+    };
   },
+
   readQueries(
     queries: RelayQuerySet,
     store: RelayRecordStore,
@@ -77,7 +88,7 @@ const RelayDiskCacheReader = {
     cacheManager: CacheManager,
     changeTracker: RelayChangeTracker,
     callbacks: CacheReadCallbacks,
-  ) {
+  ): Abortable {
     var reader = new RelayCacheReader(
       store,
       cachedRecords,
@@ -88,6 +99,12 @@ const RelayDiskCacheReader = {
       callbacks
     );
     reader.read(queries);
+
+    return {
+      abort() {
+        reader.abort();
+      },
+    };
   },
 };
 
@@ -99,9 +116,9 @@ class RelayCacheReader {
   _callbacks: CacheReadCallbacks;
   _changeTracker: RelayChangeTracker;
   _garbageCollector: ?RelayGarbageCollector;
-  _hasFailed: boolean;
   _pendingNodes: PendingNodes;
   _pendingRoots: PendingRoots;
+  _state: 'PENDING' | 'LOADING' | 'COMPLETED';
 
   constructor(
     store: RelayRecordStore,
@@ -120,20 +137,33 @@ class RelayCacheReader {
     this._changeTracker = changeTracker;
     this._garbageCollector = garbageCollector;
 
-    this._hasFailed = false;
     this._pendingNodes = {};
     this._pendingRoots = {};
+    this._state = 'PENDING';
+  }
+
+  abort(): void {
+    invariant(
+      this._state === 'LOADING',
+      'RelayCacheReader: Can only abort an in-progress read operation.'
+    );
+    this._state = 'COMPLETED';
   }
 
   read(queries: RelayQuerySet): void {
+    invariant(
+      this._state === 'PENDING',
+      'RelayCacheReader: A `read` is in progress.'
+    );
+    this._state = 'LOADING';
     forEachObject(queries, query => {
-      if (this._hasFailed) {
+      if (this._state === 'COMPLETED') {
         return;
       }
       if (query) {
         const storageKey = query.getStorageKey();
         forEachRootCallArg(query, identifyingArgValue => {
-          if (this._hasFailed) {
+          if (this._state === 'COMPLETED') {
             return;
           }
           identifyingArgValue = identifyingArgValue || '';
@@ -143,7 +173,7 @@ class RelayCacheReader {
     });
 
     if (this._isDone()) {
-      this._callbacks.onSuccess && this._callbacks.onSuccess();
+      this._handleSuccess();
     }
   }
 
@@ -152,6 +182,11 @@ class RelayCacheReader {
     fragment: RelayQuery.Fragment,
     path: RelayQueryPath
   ): void {
+    invariant(
+      this._state === 'PENDING',
+      'RelayCacheReader: A `read` is in progress.'
+    );
+    this._state = 'LOADING';
     this._visitNode(
       dataID,
       {
@@ -162,7 +197,7 @@ class RelayCacheReader {
     );
 
     if (this._isDone()) {
-      this._callbacks.onSuccess && this._callbacks.onSuccess();
+      this._handleSuccess();
     }
   }
 
@@ -209,7 +244,7 @@ class RelayCacheReader {
         storageKey,
         identifyingArgValue,
         (error, value) => {
-          if (this._hasFailed) {
+          if (this._state === 'COMPLETED') {
             return;
           }
           if (error) {
@@ -229,7 +264,7 @@ class RelayCacheReader {
           } else {
             const dataID = value;
             roots.forEach(root => {
-              if (this._hasFailed) {
+              if (this._state === 'COMPLETED') {
                 return;
               }
               this._visitNode(
@@ -243,7 +278,7 @@ class RelayCacheReader {
             });
           }
           if (this._isDone()) {
-            this._callbacks.onSuccess && this._callbacks.onSuccess();
+            this._handleSuccess();
           }
         }
       );
@@ -277,7 +312,7 @@ class RelayCacheReader {
       this._cacheManager.readNode(
         dataID,
         (error, value) => {
-          if (this._hasFailed) {
+          if (this._state === 'COMPLETED') {
             return;
           }
           if (error) {
@@ -314,14 +349,14 @@ class RelayCacheReader {
             this._handleFailed();
           } else {
             items.forEach(item => {
-              if (this._hasFailed) {
+              if (this._state == 'COMPLETED') {
                 return;
               }
               this._visitNode(dataID, item);
             });
           }
           if (this._isDone()) {
-            this._callbacks.onSuccess && this._callbacks.onSuccess();
+            this._handleSuccess();
           }
         }
       );
@@ -332,18 +367,28 @@ class RelayCacheReader {
     return (
       isEmpty(this._pendingRoots) &&
       isEmpty(this._pendingNodes) &&
-      !this._hasFailed
+      this._state === 'LOADING'
     );
   }
 
   _handleFailed(): void {
     invariant(
-      !this._hasFailed,
-      'RelayStoreReader: Query set already failed'
+      this._state !== 'COMPLETED',
+      'RelayStoreReader: Query set already failed/completed.'
     );
 
-    this._hasFailed = true;
+    this._state = 'COMPLETED';
     this._callbacks.onFailure && this._callbacks.onFailure();
+  }
+
+  _handleSuccess(): void {
+    invariant(
+      this._state !== 'COMPLETED',
+      'RelayStoreReader: Query set already failed/completed.'
+    );
+
+    this._state = 'COMPLETED';
+    this._callbacks.onSuccess && this._callbacks.onSuccess();
   }
 
 }

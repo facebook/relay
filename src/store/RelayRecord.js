@@ -21,6 +21,10 @@ import type {
 } from 'RelayInternalTypes';
 import type RelayQueryPath from 'RelayQueryPath';
 
+type FieldMap = {
+  [key: string]: mixed;
+};
+
 export type Record = {
   [key: string]: mixed;
   __dataID__: string;
@@ -63,8 +67,15 @@ const RelayRecord = {
 
   MetadataKey,
 
-  create(dataID: string): Object {
+  create(dataID: string): Record {
     return {__dataID__: dataID};
+  },
+
+  createWithFields(dataID: string, fieldMap: FieldMap): Record {
+    return {
+      __dataID__: dataID,
+      ...fieldMap,
+    };
   },
 
   isRecord(value: mixed): boolean {

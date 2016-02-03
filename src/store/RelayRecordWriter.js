@@ -167,11 +167,9 @@ class RelayRecordWriter {
     if (prevRecord) {
       return;
     }
-    // TODO: Use `RelayRecord`, #9790614.
-    const nextRecord: Record = ({
-      __dataID__: dataID,
+    const nextRecord = RelayRecord.createWithFields(dataID, {
       __typename: typeName,
-    }: $FixMe);
+    });
     if (this._isOptimisticWrite) {
       this._setClientMutationID(nextRecord);
     }
@@ -565,11 +563,10 @@ class RelayRecordWriter {
       'RelayRecordWriter: Expected edge `%s` to have a `node` record.',
       edgeID
     );
-    return {
-      __dataID__: edgeID,
+    return RelayRecord.createWithFields(edgeID, {
       cursor: this.getField(edgeID, CURSOR),
       node: RelayRecord.create(nodeID),
-    };
+    });
   }
 
   _applyOptimisticRangeUpdate(

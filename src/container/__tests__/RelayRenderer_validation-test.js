@@ -20,6 +20,7 @@ const ReactTestUtils = require('ReactTestUtils');
 const Relay = require('Relay');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRenderer.validation', () => {
   let MockComponent;
@@ -31,6 +32,7 @@ describe('RelayRenderer.validation', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
+    jasmine.addMatchers(RelayTestUtils.matchers);
 
     MockComponent = React.createClass({render: () => <div />});
     MockContainer = Relay.createContainer(MockComponent, {
@@ -46,15 +48,23 @@ describe('RelayRenderer.validation', () => {
   });
 
   afterEach(() => {
+    jest.dontMock('warning');
     console.error = error;
   });
 
-  it('requires a valid `Component` prop', () => {
+  it('requires a valid `Container` prop', () => {
     expect(() => ShallowRenderer.render(
       <RelayRenderer queryConfig={queryConfig} />
     )).toThrowError(
-      'Warning: Failed propType: Required prop `Component` was not specified ' +
+      'Warning: Failed propType: Required prop `Container` was not specified ' +
       'in `RelayRenderer`.'
+    );
+
+    expect(() => ShallowRenderer.render(
+      <RelayRenderer Container={MockComponent} queryConfig={queryConfig} />
+    )).toThrowError(
+      'Warning: Failed propType: Invalid prop `Container` supplied to ' +
+      '`RelayRenderer`, expected a RelayContainer.'
     );
 
     expect(() => ShallowRenderer.render(
@@ -63,6 +73,22 @@ describe('RelayRenderer.validation', () => {
       'Warning: Failed propType: Invalid prop `Component` supplied to ' +
       '`RelayRenderer`, expected a RelayContainer.'
     );
+  });
+
+  it('warns about use of deprecated `Component` prop', () => {
+    jest.mock('warning');
+    ShallowRenderer.render(
+      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+    );
+
+    // Warning gets emitted twice because the props actually get checked twice:
+    // 1. `createElement` calls `checkPropTypes`
+    // 2. `ShallowRenderer.render` calls `mountComponent`, which checks types.
+    expect([
+      'RelayRenderer: Received deprecated `Component` prop on `%s`. ' +
+      'Pass your Relay.Container via the `Container` prop instead.',
+      'RelayRenderer',
+    ]).toBeWarnedNTimes(2);
   });
 
   it('requires a valid `queryConfig` prop', () => {

@@ -29,10 +29,18 @@ const StaticContainer = require('StaticContainer.react');
 
 const getRelayQueries = require('getRelayQueries');
 const invariant = require('invariant');
+const isRelayContainer = require('isRelayContainer');
 const mapObject = require('mapObject');
+const sprintf = require('sprintf');
+const warning = require('warning');
 
 type RelayRendererProps = {
-  Component: RelayContainer;
+  // (GitHub #790): Once Component prop is fully removed this becomes mandatory.
+  Container?: RelayContainer;
+
+  // @deprecated: Use `Container` instead.
+  Component?: RelayContainer;
+
   forceFetch?: ?boolean;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
   queryConfig: RelayQueryConfigSpec;
@@ -46,7 +54,7 @@ type RelayRendererRenderArgs = {
   stale: boolean;
 };
 type RelayRendererState = {
-  activeComponent: ?RelayContainer;
+  activeContainer: ?RelayContainer;
   activeQueryConfig: ?RelayQueryConfigSpec;
   pendingRequest: ?Abortable;
   readyState: ?ComponentReadyState;
@@ -54,6 +62,46 @@ type RelayRendererState = {
 };
 
 const {PropTypes} = React;
+
+/**
+ * (GitHub #790): Remove once Component prop deprecation is complete.
+ */
+function containerFromProps(props: RelayRendererProps): RelayContainer {
+  const Container = props.Container || props.Component;
+  return (Container: any); // Non-null-ness is enforced by validator below.
+}
+
+/**
+ * (GitHub #790): Remove once Component prop deprecation is complete.
+ */
+function componentPropTypeValidator(
+  props: Object, propName: string, componentName: string
+): ?Error {
+  if (__DEV__) {
+    warning(
+      propName !== 'Component' || !props.hasOwnProperty('Component'),
+      'RelayRenderer: Received deprecated `Component` prop on `%s`. ' +
+      'Pass your Relay.Container via the `Container` prop instead.',
+      componentName
+    );
+  }
+  const {Component, Container} = props;
+  if ((Component || Container) == null) {
+    return new Error(sprintf(
+      'Required prop `Container` was not specified in `%s`.',
+      componentName
+    ));
+  } else if (
+    propName === 'Container' && Container && !isRelayContainer(Container) ||
+    propName === 'Component' && Component && !isRelayContainer(Component)) {
+    return new Error(sprintf(
+      'Invalid prop `%s` supplied to `%s`, expected a RelayContainer.',
+      propName,
+      componentName
+    ));
+  }
+  return null;
+}
 
 /**
  * @public
@@ -132,10 +180,10 @@ class RelayRenderer extends React.Component {
   /**
    * @private
    */
-  _runQueries(
-    {Component, forceFetch, queryConfig}: RelayRendererProps
-  ): RelayRendererState {
-    const querySet = getRelayQueries(Component, queryConfig);
+  _runQueries(props: RelayRendererProps): RelayRendererState {
+    const {forceFetch, queryConfig} = props;
+    const Container = containerFromProps(props);
+    const querySet = getRelayQueries(Container, queryConfig);
     const onReadyStateChange = readyState => {
       if (!this.mounted) {
         this._handleReadyStateChange({...readyState, mounted: false});
@@ -156,7 +204,7 @@ class RelayRenderer extends React.Component {
         };
       }
       this.setState({
-        activeComponent: Component,
+        activeContainer: Container,
         activeQueryConfig: queryConfig,
         pendingRequest,
         readyState: {...readyState, mounted: true},
@@ -175,7 +223,7 @@ class RelayRenderer extends React.Component {
       RelayStore.primeCache(querySet, onReadyStateChange);
 
     return {
-      activeComponent: this.state ? this.state.activeComponent : null,
+      activeContainer: this.state ? this.state.activeContainer : null,
       activeQueryConfig: this.state ? this.state.activeQueryConfig : null,
       pendingRequest: request,
       readyState: null,
@@ -193,14 +241,15 @@ class RelayRenderer extends React.Component {
    * Returns whether or not the view should be updated during the current render
    * pass. This is false between invoking `Relay.Store.{primeCache,forceFetch}`
    * and the first invocation of the `onReadyStateChange` callback if there is
-   * an actively rendered component and query configuration.
+   * an actively rendered container and query configuration.
    *
    * @private
    */
   _shouldUpdate(): boolean {
-    const {activeComponent, activeQueryConfig} = this.state;
+    const {activeContainer, activeQueryConfig} = this.state;
+    const Container = containerFromProps(this.props);
     return (
-      (!activeComponent || this.props.Component === activeComponent) &&
+      (!activeContainer || Container === activeContainer) &&
       (!activeQueryConfig || this.props.queryConfig === activeQueryConfig)
     );
   }
@@ -219,7 +268,9 @@ class RelayRenderer extends React.Component {
   }
 
   componentWillReceiveProps(nextProps: RelayRendererProps): void {
-    if (nextProps.Component !== this.props.Component ||
+    const Container = containerFromProps(this.props);
+    const nextContainer = containerFromProps(nextProps);
+    if (nextContainer !== Container ||
         nextProps.queryConfig !== this.props.queryConfig ||
         (nextProps.forceFetch && !this.props.forceFetch)) {
       if (this.state.pendingRequest) {
@@ -263,12 +314,13 @@ class RelayRenderer extends React.Component {
     let children;
     let shouldUpdate = this._shouldUpdate();
     if (shouldUpdate) {
-      const {Component, render} = this.props;
+      const {render} = this.props;
+      const Container = containerFromProps(this.props);
       const {renderArgs} = this.state;
       if (render) {
         children = render(renderArgs);
       } else if (renderArgs.props) {
-        children = <Component {...renderArgs.props} />;
+        children = <Container {...renderArgs.props} />;
       }
     }
     if (children === undefined) {
@@ -293,7 +345,13 @@ function createFragmentPointerForRoot(query) {
 }
 
 RelayRenderer.propTypes = {
-  Component: RelayPropTypes.Container,
+  // @deprecated Use `Container` instead.
+  Component: componentPropTypeValidator,
+
+  // (GitHub #790): Once Component is fully removed, can replace this with
+  // `RelayPropTypes.Container`.
+  Container: componentPropTypeValidator,
+
   forceFetch: PropTypes.bool,
   onReadyStateChange: PropTypes.func,
   queryConfig: RelayPropTypes.QueryConfig.isRequired,

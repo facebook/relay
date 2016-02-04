@@ -16,7 +16,7 @@ require('configureForRelayOSS');
 jest.dontMock('RelayRenderer');
 
 const React = require('React');
-const ReactTestUtils = require('ReactTestUtils');
+const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
@@ -25,8 +25,8 @@ const RelayStore = require('RelayStore');
 describe('RelayRenderer.onReadyStateChange', () => {
   let MockComponent;
   let MockContainer;
-  let ShallowRenderer;
 
+  let container;
   let queryConfig;
 
   beforeEach(() => {
@@ -36,8 +36,8 @@ describe('RelayRenderer.onReadyStateChange', () => {
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
-    ShallowRenderer = ReactTestUtils.createRenderer();
 
+    container = document.createElement('div');
     queryConfig = RelayQueryConfig.genMockInstance();
   });
 
@@ -45,12 +45,13 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   beforeEach(() => {
     onReadyStateChange = jest.genMockFunction();
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Component={MockContainer}
         queryConfig={queryConfig}
         onReadyStateChange={onReadyStateChange}
-      />
+      />,
+      container
     );
     const defaultState = {
       aborted: false,
@@ -163,12 +164,13 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   it('does nothing when aborted from query configuration change', () => {
     expect(request => {
-      ShallowRenderer.render(
+      ReactDOM.render(
         <RelayRenderer
           Component={MockContainer}
           queryConfig={RelayQueryConfig.genMockInstance()}
           onReadyStateChange={onReadyStateChange}
-        />
+        />,
+        container
       );
     }).toTriggerReadyStateChanges([
       // Nothing.
@@ -177,7 +179,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   it('is aborted and not mounted when aborted from unmounting', () => {
     expect(request => {
-      ShallowRenderer.unmount();
+      ReactDOM.unmountComponentAtNode(container);
     }).toTriggerReadyStateChanges([
       {aborted: true, mounted: false},
     ]);

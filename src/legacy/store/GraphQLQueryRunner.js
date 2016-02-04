@@ -28,7 +28,6 @@ const everyObject = require('everyObject');
 const flattenSplitRelayQueries = require('flattenSplitRelayQueries');
 const forEachObject = require('forEachObject');
 const generateForceIndex = require('generateForceIndex');
-const invariant = require('invariant');
 const mapObject = require('mapObject');
 const resolveImmediate = require('resolveImmediate');
 const someObject = require('someObject');
@@ -186,7 +185,7 @@ function runQueries(
       return;
     }
     if (readyState.done || readyState.error) {
-      invariant(
+      warning(
         partial.aborted,
         'GraphQLQueryRunner: Unexpected ready state change.'
       );

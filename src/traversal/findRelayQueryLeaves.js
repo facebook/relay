@@ -18,6 +18,7 @@ import type {
   Call,
   DataID,
 } from 'RelayInternalTypes';
+const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 import type RelayQueryPath from 'RelayQueryPath';
 const RelayQueryVisitor = require('RelayQueryVisitor');
@@ -309,4 +310,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   }
 }
 
-module.exports = findRelayQueryLeaves;
+module.exports = RelayProfiler.instrument(
+  'findRelayQueryLeaves',
+  findRelayQueryLeaves
+);

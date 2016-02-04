@@ -20,6 +20,7 @@ import type {
   RelayQuerySet,
   RootCallMap,
 } from 'RelayInternalTypes';
+const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecord = require('RelayRecord');
@@ -167,7 +168,7 @@ class RelayCacheReader {
             return;
           }
           identifyingArgValue = identifyingArgValue || '';
-          this._visitRoot(storageKey, identifyingArgValue, query);
+          this.visitRoot(storageKey, identifyingArgValue, query);
         });
       }
     });
@@ -187,7 +188,7 @@ class RelayCacheReader {
       'RelayCacheReader: A `read` is in progress.'
     );
     this._state = 'LOADING';
-    this._visitNode(
+    this.visitNode(
       dataID,
       {
         node: fragment,
@@ -201,7 +202,7 @@ class RelayCacheReader {
     }
   }
 
-  _visitRoot(
+  visitRoot(
     storageKey: string,
     identifyingArgValue: string,
     query: RelayQuery.Root
@@ -216,10 +217,10 @@ class RelayCacheReader {
         // Already attempted to read this root from cache.
         this._handleFailed();
       } else {
-        this._queueRoot(storageKey, identifyingArgValue, query);
+        this.queueRoot(storageKey, identifyingArgValue, query);
       }
     } else {
-      this._visitNode(
+      this.visitNode(
         dataID,
         {
           node: query,
@@ -230,7 +231,7 @@ class RelayCacheReader {
     }
   }
 
-  _queueRoot(
+  queueRoot(
     storageKey: string,
     identifyingArgValue: string,
     query: RelayQuery.Root
@@ -267,7 +268,7 @@ class RelayCacheReader {
               if (this._state === 'COMPLETED') {
                 return;
               }
-              this._visitNode(
+              this.visitNode(
                 dataID,
                 {
                   node: root,
@@ -285,7 +286,7 @@ class RelayCacheReader {
     }
   }
 
-  _visitNode(dataID: DataID, pendingItem: PendingItem): void {
+  visitNode(dataID: DataID, pendingItem: PendingItem): void {
     var {missingData, pendingNodes} = findRelayQueryLeaves(
       this._store,
       this._cachedRecords,
@@ -300,11 +301,11 @@ class RelayCacheReader {
       return;
     }
     forEachObject(pendingNodes, (pendingItems, dataID) => {
-      this._queueNode(dataID, pendingItems);
+      this.queueNode(dataID, pendingItems);
     });
   }
 
-  _queueNode(dataID: DataID, pendingItems: Array<PendingItem>): void {
+  queueNode(dataID: DataID, pendingItems: Array<PendingItem>): void {
     if (this._pendingNodes.hasOwnProperty(dataID)) {
       this._pendingNodes[dataID].push(...pendingItems);
     } else {
@@ -349,10 +350,10 @@ class RelayCacheReader {
             this._handleFailed();
           } else {
             items.forEach(item => {
-              if (this._state == 'COMPLETED') {
+              if (this._state === 'COMPLETED') {
                 return;
               }
-              this._visitNode(dataID, item);
+              this.visitNode(dataID, item);
             });
           }
           if (this._isDone()) {
@@ -392,5 +393,14 @@ class RelayCacheReader {
   }
 
 }
+
+RelayProfiler.instrumentMethods(RelayCacheReader.prototype, {
+  read: 'RelayCacheReader.read',
+  readFragment: 'RelayCacheReader.readFragment',
+  visitRoot: 'RelayCacheReader.visitRoot',
+  queueRoot: 'RelayCacheReader.queueRoot',
+  visitNode: 'RelayCacheReader.visitNode',
+  queueNode: 'RelayCacheReader.queueNode',
+});
 
 module.exports = RelayDiskCacheReader;

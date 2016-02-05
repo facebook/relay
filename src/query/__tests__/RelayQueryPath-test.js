@@ -47,9 +47,9 @@ describe('RelayQueryPath', () => {
     expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"123") {
-          id,
-          __typename,
-          ${fragment},
+          id
+          __typename
+          ${fragment}
         }
       }
     `));
@@ -72,8 +72,8 @@ describe('RelayQueryPath', () => {
     expect(path.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
       query {
         me {
-          id,
-          ${fragment},
+          id
+          ${fragment}
         }
       }
     `));
@@ -101,7 +101,7 @@ describe('RelayQueryPath', () => {
     expect(path.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
       query {
         viewer {
-          ${fragment},
+          ${fragment}
         }
       }
     `));
@@ -135,7 +135,8 @@ describe('RelayQueryPath', () => {
     expect(path.getQuery(city)).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"123") {
-          id,
+          id
+          __typename
           address {
             city
           }
@@ -168,7 +169,9 @@ describe('RelayQueryPath', () => {
     expect(path.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"123") {
-          ${fragment},
+          id
+          __typename
+          ${fragment}
         }
       }
     `));

@@ -386,7 +386,7 @@ class RelayQueryRoot extends RelayQueryNode {
     fieldName: string,
     value: mixed,
     children: ?Array<RelayQueryNode>,
-    metadata: ?ConcreteQueryMetadata,
+    metadata: ConcreteQueryMetadata,
     type: string
   ): RelayQueryRoot {
     const nextChildren = children ? children.filter(child => !!child) : [];

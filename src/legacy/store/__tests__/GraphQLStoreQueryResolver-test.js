@@ -74,7 +74,6 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
       mockCallback
     );
     var resolved = resolver.resolve(fragmentPointer);
@@ -100,7 +99,6 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
       mockCallback
     );
     resolver.resolve(fragmentPointer);
@@ -120,7 +118,6 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
       mockCallback
     );
 
@@ -144,7 +141,6 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
       mockCallback
     );
 
@@ -178,7 +174,6 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointerA,
       mockCallback
     );
 
@@ -203,7 +198,6 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
       mockCallback
     );
 
@@ -229,7 +223,6 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
       mockCallback
     );
 
@@ -259,7 +252,6 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
       mockCallback
     );
 
@@ -282,7 +274,6 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
       mockCallback
     );
 
@@ -321,7 +312,6 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
       mockCallback
     );
 
@@ -397,7 +387,6 @@ describe('GraphQLStoreQueryResolver', () => {
       );
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
-        fragmentPointer,
         jest.genMockFunction()
       );
       // read data and set up subscriptions
@@ -420,7 +409,6 @@ describe('GraphQLStoreQueryResolver', () => {
       );
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
-        fragmentPointer,
         jest.genMockFunction()
       );
       // read data and increment GC ref counts
@@ -454,7 +442,6 @@ describe('GraphQLStoreQueryResolver', () => {
       );
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
-        fragmentPointer,
         jest.genMockFunction()
       );
       // read data and increment GC ref counts

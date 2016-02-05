@@ -16,6 +16,7 @@
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const React = require('React');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
+import type {GarbageCollectionHold} from 'RelayGarbageCollector';
 const RelayPropTypes = require('RelayPropTypes');
 const RelayStore = require('RelayStore');
 const RelayStoreData = require('RelayStoreData');
@@ -163,12 +164,16 @@ function componentPropTypeValidator(
  *
  */
 class RelayRenderer extends React.Component {
+  gcHold: ?GarbageCollectionHold;
   mounted: boolean;
   props: RelayRendererProps;
   state: RelayRendererState;
 
   constructor(props: RelayRendererProps, context: any) {
     super(props, context);
+    const garbageCollector =
+      RelayStoreData.getDefaultInstance().getGarbageCollector();
+    this.gcHold = garbageCollector && garbageCollector.acquireHold();
     this.mounted = true;
     this.state = this._runQueries(this.props);
   }
@@ -307,6 +312,10 @@ class RelayRenderer extends React.Component {
     if (this.state.pendingRequest) {
       this.state.pendingRequest.abort();
     }
+    if (this.gcHold) {
+      this.gcHold.release();
+    }
+    this.gcHold = null;
     this.mounted = false;
   }
 

@@ -21,6 +21,7 @@ const Relay = require('Relay');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 const RelayStore = require('RelayStore');
+const RelayStoreData = require('RelayStoreData');
 
 describe('RelayRenderer.render', () => {
   let MockComponent;
@@ -209,5 +210,35 @@ describe('RelayRenderer.render', () => {
     update();
 
     expect(render.mock.calls.length).toBe(5);
+  });
+
+  describe('GC integration', () => {
+    let garbageCollector;
+
+    beforeEach(() => {
+      const storeData = RelayStoreData.getDefaultInstance();
+      storeData.initializeGarbageCollector(jest.genMockFunction());
+      garbageCollector = storeData.getGarbageCollector();
+    });
+
+    it('acquires a GC hold when mounted', () => {
+      garbageCollector.acquireHold = jest.genMockFunction();
+      ShallowRenderer.render(
+        <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      );
+      expect(garbageCollector.acquireHold).toBeCalled();
+    });
+
+    it('releases its GC hold when unmounted', () => {
+      const release = jest.genMockFunction();
+      garbageCollector.acquireHold =
+        jest.genMockFunction().mockReturnValue({release});
+      ShallowRenderer.render(
+        <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      );
+      expect(release).not.toBeCalled();
+      ShallowRenderer.unmount();
+      expect(release).toBeCalled();
+    });
   });
 });

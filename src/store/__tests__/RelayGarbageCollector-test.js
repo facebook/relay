@@ -71,6 +71,7 @@ describe('RelayGarbageCollector', () => {
       garbageCollector.register('referenced');
       garbageCollector.incrementReferenceCount('referenced');
       garbageCollector.collect();
+      jest.runOnlyPendingTimers();
       expect(storeData.getNodeData()).toEqual({
         referenced: records.referenced,
       });
@@ -102,6 +103,7 @@ describe('RelayGarbageCollector', () => {
       garbageCollector.register('unreachable');
 
       garbageCollector.collectFromNode('a');
+      jest.runOnlyPendingTimers();
       expect(storeData.getNodeData()).toEqual({
         unreachable: {__dataID__: 'unreachable'},
       });
@@ -128,6 +130,7 @@ describe('RelayGarbageCollector', () => {
       garbageCollector.incrementReferenceCount('referenced');
 
       garbageCollector.collectFromNode('a');
+      jest.runOnlyPendingTimers();
       expect(storeData.getNodeData()).toEqual({
         referenced: {__dataID__: 'referenced'},
       });
@@ -152,6 +155,7 @@ describe('RelayGarbageCollector', () => {
       garbageCollector.register('deleted');
 
       garbageCollector.collectFromNode('a');
+      jest.runOnlyPendingTimers();
       expect(storeData.getNodeData()).toEqual({});
     });
 
@@ -205,6 +209,7 @@ describe('RelayGarbageCollector', () => {
       );
       const viewerID = storeData.getRecordStore().getDataID('viewer', null);
       garbageCollector.collectFromNode(viewerID);
+      jest.runOnlyPendingTimers();
       expect(storeData.getNodeData()).toEqual({
         unreachable: {__dataID__: 'unreachable'},
       });
@@ -220,6 +225,7 @@ describe('RelayGarbageCollector', () => {
       const {garbageCollector, storeData} = createGC(records);
       garbageCollector.register('a');
       garbageCollector.collectFromNode('a');
+      jest.runOnlyPendingTimers();
       expect(storeData.getNodeData()).toEqual({});
     });
 
@@ -231,9 +237,11 @@ describe('RelayGarbageCollector', () => {
       const {release} = garbageCollector.acquireHold();
       garbageCollector.register('a');
       garbageCollector.collectFromNode('a');
+      jest.runOnlyPendingTimers();
       // not collected while hold is active
       expect(storeData.getNodeData()).toEqual(records);
       release();
+      jest.runOnlyPendingTimers();
       expect(storeData.getNodeData()).toEqual({});
     });
 
@@ -257,12 +265,14 @@ describe('RelayGarbageCollector', () => {
       );
       garbageCollector.register('a');
       garbageCollector.collect();
+      jest.runOnlyPendingTimers();
 
       const {release} = garbageCollector.acquireHold();
       run();
       // not collected while hold is active
       expect(storeData.getNodeData()).toEqual(records);
       release();
+      jest.runOnlyPendingTimers();
       expect(storeData.getNodeData()).toEqual(records);
       run();
       expect(storeData.getNodeData()).toEqual({});
@@ -324,6 +334,7 @@ describe('RelayGarbageCollector', () => {
       garbageCollector.register('d');
 
       garbageCollector.collectFromNode('a', 1);
+      jest.runOnlyPendingTimers();
       expect(storeData.getNodeData()).toEqual(records);
       expect(run()).toBe(true);
       expect(storeData.getNodeData()).toEqual({
@@ -358,11 +369,14 @@ describe('RelayGarbageCollector', () => {
       garbageCollector.register('b');
       garbageCollector.collectFromNode('a');
       garbageCollector.collectFromNode('a');
+      jest.runOnlyPendingTimers();
       expect(scheduler.mock.calls.length).toBe(1);
       run();
       run(); // 'a' is enqueued twice
       scheduler.mockClear();
       garbageCollector.collectFromNode('b');
+      jest.runOnlyPendingTimers();
+      jest.runOnlyPendingTimers();
       expect(scheduler.mock.calls.length).toBe(1);
     });
   });

@@ -404,6 +404,7 @@ describe('GraphQLStoreQueryResolver', () => {
       queryResolver.resolve(fragmentPointer);
       // evict unreferenced nodes
       storeData.getGarbageCollector().collect();
+      jest.runAllTimers();
       // nodes referenced by the fragment should not be evicted
       expect(Object.keys(storeData.getNodeData())).toEqual([
         '123',      // viewer.actor
@@ -437,6 +438,7 @@ describe('GraphQLStoreQueryResolver', () => {
 
       // evict unreferenced nodes
       storeData.getGarbageCollector().collect();
+      jest.runAllTimers();
       // nodes referenced by the fragment should not be evicted
       expect(Object.keys(storeData.getNodeData())).toEqual([
         // '123' (actor) is unreferenced and collected
@@ -462,8 +464,39 @@ describe('GraphQLStoreQueryResolver', () => {
 
       // evict unreferenced nodes
       storeData.getGarbageCollector().collect();
+      jest.runAllTimers();
       // all nodes are unreferenced and should be removed
       expect(storeData.getNodeData()).toEqual({});
+    });
+
+    it('does not reference unfetched records', () => {
+      // Remove the linked records but not the links to them. Although the
+      // resolver will subscribe to updates on these records, it should not
+      // increment references to them since they are unfetched and therefore
+      // not registered with the garbage collector.
+      storeData.getRecordStore().removeRecord('123'); // viewer.actor
+      storeData.getRecordStore().removeRecord('client:2'); // viewer.newsFeed
+
+      const fragmentPointer = new GraphQLFragmentPointer(
+        'client:1',
+        getNode(fragment)
+      );
+      const queryResolver = new GraphQLStoreQueryResolver(
+        storeData,
+        fragmentPointer,
+        jest.genMockFunction()
+      );
+      // read data and set up subscriptions
+      queryResolver.resolve(fragmentPointer);
+      // evict unreferenced nodes
+      storeData.getGarbageCollector().collect();
+      jest.runAllTimers();
+      // nodes referenced by the fragment should not be evicted
+      expect(Object.keys(storeData.getNodeData())).toEqual([
+        // '123' (actor) is unreferenced and collected
+        // 'client:2' (viewer.newsFeed) is unreferenced and collected
+        'client:1', // viewer
+      ]);
     });
   });
 });

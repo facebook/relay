@@ -28,7 +28,7 @@ const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 const warning = require('warning');
 
-const {ID, NODE_TYPE, TYPENAME} = RelayNodeInterface;
+const {ID, NODE_TYPE, STRING_TYPE, TYPENAME} = RelayNodeInterface;
 const {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
 const idField = RelayQuery.Field.build({
   fieldName: ID,
@@ -91,11 +91,15 @@ function diffRelayQuery(
   );
   let metadata;
   if (rootIdentifyingArg != null) {
-    metadata = {};
-    metadata.identifyingArgName = rootIdentifyingArg.name;
-    if (rootIdentifyingArg.type != null) {
-      metadata.identifyingArgType = rootIdentifyingArg.type;
-    }
+    metadata = {
+      identifyingArgName: rootIdentifyingArg.name,
+      identifyingArgType: rootIdentifyingArg.type != null ?
+        rootIdentifyingArg.type :
+        STRING_TYPE,
+      isAbstract: true,
+      isDeferred: false,
+      isPlural: false,
+    };
   }
   const fieldName = root.getFieldName();
   const storageKey = root.getStorageKey();
@@ -819,7 +823,13 @@ function buildRoot(
     NODE,
     rootID,
     children,
-    {identifyingArgName: RelayNodeInterface.ID},
+    {
+      identifyingArgName: ID,
+      identifyingArgType: STRING_TYPE,
+      isAbstract: true,
+      isDeferred: false,
+      isPlural: false,
+    },
     NODE_TYPE
   );
 }

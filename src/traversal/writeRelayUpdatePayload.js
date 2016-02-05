@@ -49,7 +49,7 @@ type PayloadArray = Array<Payload>;
 type PayloadObject = {[key: string]: Payload};
 
 const {CLIENT_MUTATION_ID, EDGES} = RelayConnectionInterface;
-const {ANY_TYPE, ID, NODE, NODE_TYPE} = RelayNodeInterface;
+const {ANY_TYPE, ID, NODE, STRING_TYPE, NODE_TYPE} = RelayNodeInterface;
 const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 
 const EDGES_FIELD = RelayQuery.Field.build({
@@ -241,6 +241,13 @@ function mergeField(
 
   const store = writer.getRecordStore();
   let recordID = getString(payloadData, ID);
+  const metadata = {
+    identifyingArgName: ID,
+    identifyingArgType: STRING_TYPE,
+    isAbstract: true,
+    isDeferred: false,
+    isPlural: false,
+  };
   let path;
 
   if (recordID != null) {
@@ -250,7 +257,7 @@ function mergeField(
         NODE,
         recordID,
         null,
-        {identifyingArgName: ID},
+        metadata,
         NODE_TYPE
       )
     );
@@ -262,7 +269,7 @@ function mergeField(
       fieldName,
       null,
       null,
-      null,
+      metadata,
       ANY_TYPE
     ));
   }

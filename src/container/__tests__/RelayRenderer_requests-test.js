@@ -42,7 +42,7 @@ describe('RelayRenderer', function() {
 
     queryConfig = RelayQueryConfig.genMockInstance();
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     );
   });
 
@@ -53,7 +53,7 @@ describe('RelayRenderer', function() {
 
   it('does nothing when `Component` and `queryConfig` are unchanged', () => {
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     );
     expect(getRelayQueries.mock.calls).toEqual([[MockContainer, queryConfig]]);
     expect(RelayStore.primeCache.mock.calls.length).toBe(1);
@@ -63,7 +63,7 @@ describe('RelayRenderer', function() {
     RelayStore.primeCache.mock.requests[0].succeed();
 
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     );
     expect(getRelayQueries.mock.calls).toEqual([[MockContainer, queryConfig]]);
     expect(RelayStore.primeCache.mock.calls.length).toBe(1);
@@ -76,7 +76,7 @@ describe('RelayRenderer', function() {
     });
     ShallowRenderer.render(
       <RelayRenderer
-        Component={AnotherContainer}
+        Container={AnotherContainer}
         queryConfig={queryConfig}
       />
     );
@@ -90,7 +90,7 @@ describe('RelayRenderer', function() {
   it('primes new queries when `queryConfig` changes', () => {
     var anotherRoute = RelayQueryConfig.genMockInstance();
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={anotherRoute} />
+      <RelayRenderer Container={MockContainer} queryConfig={anotherRoute} />
     );
     expect(getRelayQueries.mock.calls).toEqual([
       [MockContainer, queryConfig],
@@ -102,7 +102,7 @@ describe('RelayRenderer', function() {
   it('force fetches when the `forceFetch` prop is true', () => {
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         forceFetch={true}
       />

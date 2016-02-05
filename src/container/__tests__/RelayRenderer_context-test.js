@@ -69,19 +69,19 @@ describe('RelayRenderer.context', () => {
   it('sets query config on context', () => {
     const queryConfig = RelayQueryConfig.genMockInstance();
     expect(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     ).toRenderQueryConfig(queryConfig);
   });
 
   it('updates query config on context', () => {
     const queryConfigA = RelayQueryConfig.genMockInstance();
     expect(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfigA} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfigA} />
     ).toRenderQueryConfig(queryConfigA);
 
     const queryConfigB = RelayQueryConfig.genMockInstance();
     expect(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfigB} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfigB} />
     ).toRenderQueryConfig(queryConfigB);
   });
 });

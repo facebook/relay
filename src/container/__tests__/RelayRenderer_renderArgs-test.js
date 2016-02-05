@@ -44,7 +44,7 @@ describe('RelayRenderer.renderArgs', () => {
     render = jest.genMockFunction();
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         render={render}
       />
@@ -158,7 +158,7 @@ describe('RelayRenderer.renderArgs', () => {
   it('is `stale` if force fetching when data is fulfillable', () => {
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         forceFetch={true}
         render={render}
@@ -212,7 +212,7 @@ describe('RelayRenderer.renderArgs', () => {
 
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         render={render}
       />

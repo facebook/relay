@@ -105,7 +105,7 @@ function RelayRootContainer({
 }: RootContainerProps): ReactElement {
   return (
     <RelayRenderer
-      Component={Component}
+      Container={Component}
       forceFetch={forceFetch}
       onReadyStateChange={onReadyStateChange}
       queryConfig={route}

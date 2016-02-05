@@ -66,13 +66,6 @@ describe('RelayRenderer.validation', () => {
       'Warning: Failed propType: Invalid prop `Container` supplied to ' +
       '`RelayRenderer`, expected a RelayContainer.'
     );
-
-    expect(() => ShallowRenderer.render(
-      <RelayRenderer Component={MockComponent} queryConfig={queryConfig} />
-    )).toThrowError(
-      'Warning: Failed propType: Invalid prop `Component` supplied to ' +
-      '`RelayRenderer`, expected a RelayContainer.'
-    );
   });
 
   it('warns about use of deprecated `Component` prop', () => {
@@ -93,14 +86,14 @@ describe('RelayRenderer.validation', () => {
 
   it('requires a valid `queryConfig` prop', () => {
     expect(() => ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} />
+      <RelayRenderer Container={MockContainer} />
     )).toThrowError(
       'Warning: Failed propType: Required prop `queryConfig` was not ' +
       'specified in `RelayRenderer`.'
     );
 
     expect(() => ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={{}} />
+      <RelayRenderer Container={MockContainer} queryConfig={{}} />
     )).toThrowError(
       'Warning: Failed propType: Required prop `queryConfig.name` was not ' +
       'specified in `RelayRenderer`.'

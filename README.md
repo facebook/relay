@@ -12,6 +12,12 @@ Relay is a JavaScript framework for building data-driven React applications.
 
 The repository comes with an implementation of [TodoMVC](http://todomvc.com/). To try it out:
 
+You must have installed *babel-core* and *babel-cli* with global.If you still,install them follow command.
+```
+npm i -g babel-core
+npm i -g babel-cli
+```
+
 ```
 git clone https://github.com/facebook/relay.git
 cd relay/examples/todo && npm install

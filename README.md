@@ -24,6 +24,10 @@ Then, just point your browser at `http://localhost:3000`.
 
 We actively welcome pull requests, learn how to [contribute](./CONTRIBUTING.md).
 
+## Users
+
+We have a [community-maintained list](./USERS.md) of people and projects using Relay in production.
+
 ## License
 
 Relay is [BSD licensed](./LICENSE). We also provide an additional [patent grant](./PATENTS).

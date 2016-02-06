@@ -19,7 +19,6 @@ import type {RelayQueryConfigSpec} from 'RelayContainer';
 import type {GarbageCollectionHold} from 'RelayGarbageCollector';
 const RelayPropTypes = require('RelayPropTypes');
 const RelayStore = require('RelayStore');
-const RelayStoreData = require('RelayStoreData');
 import type {
   Abortable,
   ComponentReadyState,
@@ -172,14 +171,17 @@ class RelayRenderer extends React.Component {
   constructor(props: RelayRendererProps, context: any) {
     super(props, context);
     const garbageCollector =
-      RelayStoreData.getDefaultInstance().getGarbageCollector();
+      RelayStore.getStoreData().getGarbageCollector();
     this.gcHold = garbageCollector && garbageCollector.acquireHold();
     this.mounted = true;
     this.state = this._runQueries(this.props);
   }
 
   getChildContext(): Object {
-    return {route: this.props.queryConfig};
+    return {
+      relay: RelayStore,
+      route: this.props.queryConfig,
+    };
   }
 
   /**
@@ -347,7 +349,7 @@ class RelayRenderer extends React.Component {
 function createFragmentPointerForRoot(query) {
   return query ?
     GraphQLFragmentPointer.createForRoot(
-      RelayStoreData.getDefaultInstance().getQueuedStore(),
+      RelayStore.getStoreData().getQueuedStore(),
       query
     ) :
     null;
@@ -368,6 +370,7 @@ RelayRenderer.propTypes = {
 };
 
 RelayRenderer.childContextTypes = {
+  relay: RelayPropTypes.Context.isRequired,
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 

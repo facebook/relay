@@ -55,9 +55,6 @@ const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 var {NODE_TYPE} = RelayNodeInterface;
 
-// The source of truth for application data.
-var _instance;
-
 /**
  * @internal
  *
@@ -82,16 +79,6 @@ class RelayStoreData {
   _queryRunner: GraphQLQueryRunner;
   _rangeData: GraphQLStoreRangeUtils;
   _rootCallMap: RootCallMap;
-
-  /**
-   * Get the data set backing actual Relay operations. Used in GraphQLStore.
-   */
-  static getDefaultInstance(): RelayStoreData {
-    if (!_instance) {
-      _instance = new RelayStoreData();
-    }
-    return _instance;
-  }
 
   constructor() {
     const cachedRecords: RecordMap = {};

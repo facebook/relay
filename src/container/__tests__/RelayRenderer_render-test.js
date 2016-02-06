@@ -21,7 +21,6 @@ const Relay = require('Relay');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 const RelayStore = require('RelayStore');
-const RelayStoreData = require('RelayStoreData');
 
 describe('RelayRenderer.render', () => {
   let MockComponent;
@@ -216,7 +215,7 @@ describe('RelayRenderer.render', () => {
     let garbageCollector;
 
     beforeEach(() => {
-      const storeData = RelayStoreData.getDefaultInstance();
+      const storeData = RelayStore.getStoreData();
       storeData.initializeGarbageCollector(jest.genMockFunction());
       garbageCollector = storeData.getGarbageCollector();
     });

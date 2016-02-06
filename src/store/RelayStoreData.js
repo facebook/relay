@@ -398,7 +398,13 @@ class RelayStoreData {
       RelayNodeInterface.NODE,
       dataID,
       [fragment],
-      {identifyingArgName: RelayNodeInterface.ID},
+      {
+        identifyingArgName: RelayNodeInterface.ID,
+        identifyingArgType: RelayNodeInterface.STRING_TYPE,
+        isAbstract: true,
+        isDeferred: false,
+        isPlural: false,
+      },
       NODE_TYPE
     );
   }

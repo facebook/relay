@@ -190,6 +190,34 @@ describe('printRelayOSSQuery', () => {
       });
     });
 
+    it('dedupes arguments', () => {
+      const enumValue = 'WEB';
+      const query = getNode(Relay.QL`
+        query FooQuery {
+          defaultSettings {
+            web: notifications(environment: WEB),
+            foo: notifications(environment: $env)
+          }
+        }
+      `, {
+        env: enumValue,
+      });
+      const alias1 = query.getChildren()[0].getSerializationKey();
+      const alias2 = query.getChildren()[1].getSerializationKey();
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query FooQuery($environment_0:Environment) {
+          defaultSettings {
+            ${alias1}: notifications(environment:$environment_0),
+            ${alias2}: notifications(environment:$environment_0)
+          }
+        }
+      `);
+      expect(variables).toEqual({
+        environment_0: enumValue,
+      });
+    });
+
     it('throws for ref queries', () => {
       const query = RelayQuery.Root.build(
         'RefQueryName',

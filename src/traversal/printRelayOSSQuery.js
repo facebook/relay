@@ -301,6 +301,14 @@ function createVariable(
   type: string,
   printerState: PrinterState
 ): string {
+  const existingIds = Object.keys(printerState.variableMap);
+  for (let i = 0; i < existingIds.length; i++) {
+    const existingId = existingIds[i];
+    const existingVariable = printerState.variableMap[existingId];
+    if (existingVariable.type === type && Object.is(existingVariable.value, value)) {
+      return existingId;
+    }
+  }
   const variableID = name + '_' + base62(printerState.variableCount++);
   printerState.variableMap[variableID] = {
     type,

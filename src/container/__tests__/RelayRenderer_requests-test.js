@@ -88,13 +88,16 @@ describe('RelayRenderer', function() {
   });
 
   it('primes new queries when `queryConfig` changes', () => {
-    var anotherRoute = RelayQueryConfig.genMockInstance();
+    const anotherQueryConfig = RelayQueryConfig.genMockInstance();
     ShallowRenderer.render(
-      <RelayRenderer Container={MockContainer} queryConfig={anotherRoute} />
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={anotherQueryConfig}
+      />
     );
     expect(getRelayQueries.mock.calls).toEqual([
       [MockContainer, queryConfig],
-      [MockContainer, anotherRoute],
+      [MockContainer, anotherQueryConfig],
     ]);
     expect(RelayStore.primeCache.mock.calls.length).toBe(2);
   });
@@ -109,5 +112,39 @@ describe('RelayRenderer', function() {
     );
     expect(getRelayQueries).toBeCalledWith(MockContainer, queryConfig);
     expect(RelayStore.forceFetch).toBeCalled();
+  });
+
+  it('calls `onForceFetch` hook if supplied', () => {
+    const onForceFetch = jest.genMockFunction();
+    const onPrimeCache = jest.genMockFunction();
+
+    ShallowRenderer.render(
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={queryConfig}
+        forceFetch={true}
+        onForceFetch={onForceFetch}
+        onPrimeCache={onPrimeCache}
+      />
+    );
+    expect(onForceFetch).toBeCalled();
+    expect(onPrimeCache).not.toBeCalled();
+  });
+
+  it('calls `onPrimeCache` hook if supplied', () => {
+    const anotherQueryConfig = RelayQueryConfig.genMockInstance();
+    const onForceFetch = jest.genMockFunction();
+    const onPrimeCache = jest.genMockFunction();
+
+    ShallowRenderer.render(
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={anotherQueryConfig}
+        onForceFetch={onForceFetch}
+        onPrimeCache={onPrimeCache}
+      />
+    );
+    expect(onForceFetch).not.toBeCalled();
+    expect(onPrimeCache).toBeCalled();
   });
 });

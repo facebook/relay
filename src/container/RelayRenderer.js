@@ -17,6 +17,7 @@ const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const React = require('React');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
 import type {GarbageCollectionHold} from 'RelayGarbageCollector';
+import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayPropTypes = require('RelayPropTypes');
 const RelayStore = require('RelayStore');
 import type {
@@ -42,10 +43,20 @@ type RelayRendererProps = {
   Component?: RelayContainer;
 
   forceFetch?: ?boolean;
+  onForceFetch?: ?(
+    querySet: RelayQuerySet,
+    callback: (readyState: ReadyState) => void
+  ) => Abortable;
+  onPrimeCache?: ?(
+    querySet: RelayQuerySet,
+    callback: (readyState: ReadyState) => void
+  ) => Abortable;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
   queryConfig: RelayQueryConfigSpec;
-  render?: ?(renderArgs: RelayRendererRenderArgs) => ?ReactElement;
+  render?: ?RelayRendererRenderCallback;
 };
+export type RelayRendererRenderCallback =
+  (renderArgs: RelayRendererRenderArgs) => ?ReactElement;
 type RelayRendererRenderArgs = {
   done: boolean;
   error: ?Error;
@@ -226,8 +237,16 @@ class RelayRenderer extends React.Component {
     };
 
     const request = forceFetch ?
-      RelayStore.forceFetch(querySet, onReadyStateChange) :
-      RelayStore.primeCache(querySet, onReadyStateChange);
+      (
+        props.onForceFetch ?
+          props.onForceFetch(querySet, onReadyStateChange) :
+          RelayStore.forceFetch(querySet, onReadyStateChange)
+      ) :
+      (
+        props.onPrimeCache ?
+          props.onPrimeCache(querySet, onReadyStateChange) :
+          RelayStore.primeCache(querySet, onReadyStateChange)
+      );
 
     return {
       activeContainer: this.state ? this.state.activeContainer : null,

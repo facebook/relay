@@ -1300,7 +1300,7 @@ describe('writePayload()', () => {
       // write to base store
       var changeTracker = new RelayChangeTracker();
       var queryTracker = new RelayQueryTracker();
-      var writer = new RelayQueryWriter(
+      var queryWriter = new RelayQueryWriter(
         store,
         writer,
         queryTracker,
@@ -1308,7 +1308,7 @@ describe('writePayload()', () => {
       );
 
       writeRelayUpdatePayload(
-        writer,
+        queryWriter,
         subscription,
         payload,
         {configs, isOptimisticUpdate: false}

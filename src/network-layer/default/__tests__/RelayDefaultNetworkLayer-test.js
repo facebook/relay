@@ -347,6 +347,7 @@ describe('RelayDefaultNetworkLayer', () => {
   describe('sendSubscription', () => {
     let request;
     let variables;
+    let observer;
 
     beforeEach(() => {
       variables = {
@@ -364,9 +365,14 @@ describe('RelayDefaultNetworkLayer', () => {
         }
       `, variables);
 
-      const observer = {};
+      observer = {
+        onNext: jest.genMockFunction(),
+        onError: jest.genMockFunction(),
+        onCompleted: jest.genMockFunction(),
+      };
 
-      request = new RelaySubscriptionRequest(subscription, observer);
+      request = new RelaySubscriptionRequest(subscription);
+      request.subscribe(observer);
     });
 
     it('throws on all subscription requests', () => {
@@ -375,9 +381,9 @@ describe('RelayDefaultNetworkLayer', () => {
         'default network layer.  A custom network layer must be injected.'
       );
 
-      expect(request.onNext).not.toBeCalled();
-      expect(request.onError).not.toBeCalled();
-      expect(request.onCompleted).not.toBeCalled();
+      expect(observer.onNext).not.toBeCalled();
+      expect(observer.onError).not.toBeCalled();
+      expect(observer.onCompleted).not.toBeCalled();
     });
   });
 });

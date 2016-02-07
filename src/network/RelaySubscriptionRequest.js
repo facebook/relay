@@ -15,8 +15,14 @@
 
 import type {PrintedQuery} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
-import type {SubscriptionResult, SubscriptionCallbacks, Variables} from 'RelayTypes';
+import type {
+  Subscription,
+  SubscriptionResult,
+  SubscriptionCallbacks,
+  Variables,
+} from 'RelayTypes';
 
+const invariant = require('invariant');
 const printRelayQuery = require('printRelayQuery');
 
 /**
@@ -25,17 +31,24 @@ const printRelayQuery = require('printRelayQuery');
  * Instances of these are made available via `RelayNetworkLayer.sendSubscription`.
  */
 class RelaySubscriptionRequest {
-  _subscription: RelayQuery.Subscription;
+  _active: boolean;
+  _disposable: ?Subscription;
+  _disposed: boolean;
+  _observers: Array<SubscriptionCallbacks<SubscriptionResult>>;
+  _observersCount: number;
   _printedQuery: ?PrintedQuery;
-  _observer: SubscriptionCallbacks<SubscriptionResult>;
+  _subscription: RelayQuery.Subscription;
 
   constructor(
     subscription: RelayQuery.Subscription,
-    observer: SubscriptionCallbacks<SubscriptionResult>
   ) {
-    this._subscription = subscription;
-    this._observer = observer;
+    this._active = true;
+    this._disposable = null;
+    this._disposed = false;
+    this._observers = [];
+    this._observersCount = 0;
     this._printedQuery = null;
+    this._subscription = subscription;
   }
 
   /**
@@ -79,10 +92,81 @@ class RelaySubscriptionRequest {
   /**
    * @public
    *
+   *
+   */
+  subscribe(observer: SubscriptionCallbacks<SubscriptionResult>): Subscription {
+    invariant(
+      this._active,
+      'RelaySubscriptionRequest: Cannot subscribe to disposed subscription.'
+    );
+
+    const observerIndex = this._observers.length;
+    this._observers.push(observer);
+    this._observersCount += 1;
+
+    return {
+      dispose: () => {
+        invariant(
+          this._observers[observerIndex],
+          'RelaySubscriptionRequest: Subscriptions may only be disposed once.'
+        );
+        delete this._observers[observerIndex];
+        this._observersCount -= 1;
+        if (this._observersCount === 0) {
+          this.dispose();
+        }
+      },
+    };
+  }
+
+  /**
+   * @internal
+   *
+   *
+   */
+  dispose() {
+    this._active = false;
+    if (!this._disposed) {
+      this._disposed = true;
+      if (this._disposable) {
+        this._disposable.dispose();
+      }
+    }
+  }
+
+  /**
+   * @internal
+   *
+   *
+   */
+  setDisposable(disposable: Subscription): void {
+    invariant(
+      !this._disposable,
+      'RelaySubscriptionRequest: attempting to set disposable more than once'
+    );
+
+    this._disposable = disposable;
+    if (this._disposed) {
+      this._disposable.dispose();
+    }
+  }
+
+  /**
+   * @public
+   *
    * Called when new event data is received for the subscription.
    */
   onNext(result: SubscriptionResult): void {
-    this._observer.onNext(result);
+    if (this._active) {
+      try {
+        this._observers.forEach(observer => {
+          observer.onNext && observer.onNext(result);
+        });
+      } catch (e) {
+        this.dispose();
+        throw e;
+      }
+    }
   }
 
   /**
@@ -92,7 +176,16 @@ class RelaySubscriptionRequest {
    * subscription.
    */
   onError(err: any): void {
-    this._observer.onError(err);
+    if (this._active) {
+      this._active = false;
+      try {
+        this._observers.forEach(observer => {
+          observer.onError && observer.onError(err);
+        });
+      } finally {
+        this.dispose();
+      }
+    }
   }
 
   /**
@@ -102,7 +195,16 @@ class RelaySubscriptionRequest {
    * the subscription.
    */
   onCompleted(): void {
-    this._observer.onCompleted();
+    if (this._active) {
+      this._active = false;
+      try {
+        this._observers.forEach(observer => {
+          observer.onCompleted && observer.onCompleted();
+        });
+      } finally {
+        this.dispose();
+      }
+    }
   }
 
   /**

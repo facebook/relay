@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -47,7 +47,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
     onReadyStateChange = jest.genMockFunction();
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         onReadyStateChange={onReadyStateChange}
       />
@@ -165,7 +165,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
     expect(request => {
       ShallowRenderer.render(
         <RelayRenderer
-          Component={MockContainer}
+          Container={MockContainer}
           queryConfig={RelayQueryConfig.genMockInstance()}
           onReadyStateChange={onReadyStateChange}
         />

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -14,6 +14,5 @@
 'use strict';
 
 const RelayContext = require('RelayContext');
-const RelayStoreData = require('RelayStoreData');
 
-module.exports = new RelayContext(RelayStoreData.getDefaultInstance());
+module.exports = new RelayContext();

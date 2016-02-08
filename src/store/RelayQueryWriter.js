@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -22,6 +22,7 @@ import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
+import type RelayRecordWriter from 'RelayRecordWriter';
 
 const generateClientEdgeID = require('generateClientEdgeID');
 const generateClientID = require('generateClientID');
@@ -59,9 +60,11 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   _store: RelayRecordStore;
   _queryTracker: RelayQueryTracker;
   _updateTrackedQueries: boolean;
+  _writer: RelayRecordWriter;
 
   constructor(
     store: RelayRecordStore,
+    writer: RelayRecordWriter,
     queryTracker: RelayQueryTracker,
     changeTracker: RelayChangeTracker,
     options?: WriterOptions
@@ -73,10 +76,15 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this._store = store;
     this._queryTracker = queryTracker;
     this._updateTrackedQueries = !!(options && options.updateTrackedQueries);
+    this._writer = writer;
   }
 
   getRecordStore(): RelayRecordStore {
     return this._store;
+  }
+
+  getRecordWriter(): RelayRecordWriter {
+    return this._writer;
   }
 
   getRecordTypeName(
@@ -117,7 +125,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       responseData,
     };
 
-    if (node instanceof RelayQuery.Field && !node.isScalar()) {
+    if (node instanceof RelayQuery.Field && node.canHaveSubselections()) {
       // for non-scalar fields, the recordID is the parent
       node.getChildren().forEach(child => {
         this.visit(child, state);
@@ -172,8 +180,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     path: RelayQueryPath
   ): void {
     const recordState = this._store.getRecordState(recordID);
+    this._writer.putRecord(recordID, typeName, path);
     if (recordState !== RelayRecordState.EXISTENT) {
-      this._store.putRecord(recordID, typeName, path);
       this.recordCreate(recordID);
     }
     if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
@@ -196,7 +204,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         'Cannot set root record `%s` to undefined.',
         recordID
       );
-      this._store.deleteRecord(recordID);
+      this._writer.deleteRecord(recordID);
       if (recordState === RelayRecordState.EXISTENT) {
         this.recordUpdate(recordID);
       }
@@ -208,14 +216,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       'an array or object.',
       recordID
     );
-    if (recordState !== RelayRecordState.EXISTENT) {
-      const typeName = this.getRecordTypeName(root, recordID, responseData);
-      this._store.putRecord(recordID, typeName, path);
-      this.recordCreate(recordID);
-    }
-    if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
-      this._queryTracker.trackNodeForID(root, recordID, path);
-    }
+    const typeName = this.getRecordTypeName(root, recordID, responseData);
+    this.createRecordIfMissing(root, recordID, typeName, path);
     this.traverse(root, state);
   }
 
@@ -225,7 +227,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   ): void {
     const {recordID} = state;
     if (fragment.isDeferred()) {
-      this._store.setHasDeferredFragmentData(
+      this._writer.setHasDeferredFragmentData(
         recordID,
         fragment.getCompositeHash()
       );
@@ -255,7 +257,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       responseData,
     } = state;
     invariant(
-      this._store.getRecordState(recordID) === RelayRecordState.EXISTENT,
+      this._writer.getRecordState(recordID) === RelayRecordState.EXISTENT,
       'RelayQueryWriter: Cannot update a non-existent record, `%s`.',
       recordID
     );
@@ -272,12 +274,12 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       return;
     }
     if (fieldData === null) {
-      this._store.deleteField(recordID, field.getStorageKey());
+      this._writer.deleteField(recordID, field.getStorageKey());
       this.recordUpdate(recordID);
       return;
     }
 
-    if (field.isScalar()) {
+    if (!field.canHaveSubselections()) {
       this._writeScalar(field, state, recordID, fieldData);
     } else if (field.isConnection()) {
       this._writeConnection(field, state, recordID, fieldData);
@@ -304,7 +306,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // always update the store to ensure the value is present in the appropriate
     // data sink (records/queuedRecords), but only record an update if the value
     // changed.
-    this._store.putField(recordID, storageKey, nextValue);
+    this._writer.putField(recordID, storageKey, nextValue);
 
     // TODO: Flow: `nextValue` is an array, array indexing should work
     if (
@@ -351,8 +353,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // always update the store to ensure the value is present in the appropriate
     // data sink (records/queuedRecords), but only record an update if the value
     // changed.
-    this._store.putRecord(connectionID, null, path);
-    this._store.putLinkedRecordID(recordID, storageKey, connectionID);
+    this._writer.putRecord(connectionID, null, path);
+    this._writer.putLinkedRecordID(recordID, storageKey, connectionID);
     // record the create/update only if something changed
     if (connectionRecordState !== RelayRecordState.EXISTENT) {
       this.recordUpdate(recordID);
@@ -368,7 +370,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         (!this._store.hasRange(connectionID) ||
          (this._forceIndex &&
           this._forceIndex > this._store.getRangeForceIndex(connectionID)))) {
-      this._store.putRange(
+      this._writer.putRange(
         connectionID,
         field.getCallsWithValues(),
         this._forceIndex
@@ -511,7 +513,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         generateClientID()
       );
       // TODO: Flow: `nodeID` is `string`
-      const edgeID = generateClientEdgeID(connectionID, (nodeID: any));
+      const edgeID = generateClientEdgeID(connectionID, nodeID);
       const path = state.path.getPath(edges, edgeID);
       this.createRecordIfMissing(edges, edgeID, null, path);
       fetchedEdgeIDs.push(edgeID);
@@ -531,7 +533,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
 
     const pageInfo = connectionData[PAGE_INFO] ||
       RelayConnectionInterface.getDefaultPageInfo();
-    this._store.putRangeEdges(
+    this._writer.putRangeEdges(
       connectionID,
       rangeCalls,
       pageInfo,
@@ -581,7 +583,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       );
 
       // Reuse existing generated IDs if the node does not have its own `id`.
-      // TODO: Flow: `nextRecord` is asserted as typeof === 'object'
       const prevLinkedID = prevLinkedIDs && prevLinkedIDs[nextIndex];
       const nextLinkedID = (
         nextRecord[ID] ||
@@ -609,7 +610,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       nextIndex++;
     });
 
-    this._store.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
+    this._writer.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
 
     // Check if length has changed
     isUpdate = (
@@ -649,11 +650,10 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // was already generated it is reused). `node`s within a connection are
     // a special case as the ID used here must match the one generated prior to
     // storing the parent `edge`.
-    // TODO: Flow: `fieldData` is asserted as typeof === 'object'
     const prevLinkedID = this._store.getLinkedRecordID(recordID, storageKey);
     const nextLinkedID = (
       (field.getSchemaName() === NODE && nodeID) ||
-      (fieldData: any)[ID] ||
+      fieldData[ID] ||
       prevLinkedID ||
       generateClientID()
     );
@@ -664,7 +664,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // always update the store to ensure the value is present in the appropriate
     // data sink (record/queuedRecords), but only record an update if the value
     // changed.
-    this._store.putLinkedRecordID(recordID, storageKey, nextLinkedID);
+    this._writer.putLinkedRecordID(recordID, storageKey, nextLinkedID);
     if (prevLinkedID !== nextLinkedID || this.isNewRecord(nextLinkedID)) {
       this.recordUpdate(recordID);
     }

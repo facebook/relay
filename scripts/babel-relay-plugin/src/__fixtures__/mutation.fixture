@@ -27,7 +27,9 @@ var x = (function () {
       children: [{
         fieldName: 'profilePicture',
         kind: 'Field',
-        metadata: {},
+        metadata: {
+          canHaveSubselections: true
+        },
         type: 'ProfilePicture'
       }, {
         fieldName: 'id',
@@ -41,6 +43,7 @@ var x = (function () {
       fieldName: 'actor',
       kind: 'Field',
       metadata: {
+        canHaveSubselections: true,
         inferredRootCallName: 'node',
         inferredPrimaryKey: 'id'
       },

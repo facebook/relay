@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -19,6 +19,7 @@ const RelayRecord = require('RelayRecord');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
+const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 const serializeRelayQueryCall = require('serializeRelayQueryCall');
 const warning = require('warning');
 
@@ -732,10 +733,10 @@ class GraphQLRange {
 
   /**
    * @param {array<object>} queryCalls
-   * @param {?object} optimisticData
+   * @param {?object} queuedRecord
    * @return {object} includes fields: requestedEdgeIDs, diffCalls
    */
-  retrieveRangeInfoForQuery(queryCalls, optimisticData) {
+  retrieveRangeInfoForQuery(queryCalls, queuedRecord) {
     var calls = callsArrayToObject(queryCalls);
 
     if (isStaticCall(calls)) {
@@ -781,12 +782,12 @@ class GraphQLRange {
     if (calls.first) {
       return this._retrieveRangeInfoForFirstQuery(
         queryCalls,
-        optimisticData
+        queuedRecord
       );
     } else if (calls.last) {
       return this._retrieveRangeInfoForLastQuery(
         queryCalls,
-        optimisticData
+        queuedRecord
       );
     }
   }
@@ -822,25 +823,54 @@ class GraphQLRange {
   }
 
   /**
+   * @param {object} queuedRecord
+   * @return {?array<string>}
+   */
+  _getAppendedIDsForQueuedRecord(queuedRecord) {
+    return queuedRecord[
+      rangeOperationToMetadataKey[GraphQLMutatorConstants.APPEND]
+    ];
+  }
+
+  /**
+   * @param {object} queuedRecord
+   * @return {?array<string>}
+   */
+  _getRemovedIDsForQueuedRecord(queuedRecord) {
+    return queuedRecord[
+      rangeOperationToMetadataKey[GraphQLMutatorConstants.REMOVE]
+    ];
+  }
+
+  /**
+   * @param {object} queuedRecord
+   * @return {?array<string>}
+   */
+  _getPrependedIDsForQueuedRecord(queuedRecord) {
+    return queuedRecord[
+      rangeOperationToMetadataKey[GraphQLMutatorConstants.PREPEND]
+    ];
+  }
+
+  /**
    * @param {array<object>} queryCalls
-   * @param {?object} optimisticData
+   * @param {?object} queuedRecord
    * @return {object} includes fields: requestedEdgeIDs, diffCalls
    */
   _retrieveRangeInfoForFirstQuery(
     queryCalls,
-    optimisticData
+    queuedRecord
   ) {
-    var appendEdgeIDs = [];
-    var prependEdgeIDs = [];
-    var deleteIDs = [];
-    if (optimisticData) {
-      appendEdgeIDs = optimisticData[GraphQLMutatorConstants.APPEND] || [];
-      prependEdgeIDs = optimisticData[GraphQLMutatorConstants.PREPEND] || [];
-      deleteIDs = optimisticData[GraphQLMutatorConstants.REMOVE] || [];
+    let appendEdgeIDs;
+    let prependEdgeIDs;
+    let removeIDs;
+    if (queuedRecord) {
+      appendEdgeIDs = this._getAppendedIDsForQueuedRecord(queuedRecord);
+      prependEdgeIDs = this._getPrependedIDsForQueuedRecord(queuedRecord);
+      removeIDs = this._getRemovedIDsForQueuedRecord(queuedRecord);
     }
-
     var calls = callsArrayToObject(queryCalls);
-    var countNeeded = calls.first + deleteIDs.length;
+    let countNeeded = calls.first + (removeIDs ? removeIDs.length : 0);
     var segment;
     var segmentIndex;
     var pageInfo = {
@@ -863,7 +893,7 @@ class GraphQLRange {
       }
       segment = this._orderedSegments[segmentIndex];
     } else {
-      var prependEdgesCount = prependEdgeIDs.length;
+      const prependEdgesCount = prependEdgeIDs ? prependEdgeIDs.length : 0;
       countNeeded -= prependEdgesCount;
 
       segmentIndex = 0;
@@ -910,16 +940,16 @@ class GraphQLRange {
       }
     }
 
-    if (optimisticData) {
-      if (prependEdgeIDs.length && !calls.after) {
+    if (queuedRecord) {
+      if (prependEdgeIDs && prependEdgeIDs.length && !calls.after) {
         requestedEdgeIDs = prependEdgeIDs.concat(requestedEdgeIDs);
       }
-      if (appendEdgeIDs.length && !pageInfo[HAS_NEXT_PAGE]) {
+      if (appendEdgeIDs && appendEdgeIDs.length && !pageInfo[HAS_NEXT_PAGE]) {
         requestedEdgeIDs = requestedEdgeIDs.concat(appendEdgeIDs);
       }
-      if (deleteIDs.length) {
+      if (removeIDs && removeIDs.length) {
         requestedEdgeIDs = requestedEdgeIDs.filter(function(edgeID) {
-          return (deleteIDs.indexOf(edgeID) == -1);
+          return (removeIDs.indexOf(edgeID) == -1);
         });
       }
       if (requestedEdgeIDs.length > calls.first) {
@@ -936,23 +966,23 @@ class GraphQLRange {
 
   /**
    * @param {array<object>} queryCalls
-   * @param {?object} optimisticData
+   * @param {?object} queuedRecord
    * @return {object} includes fields: requestedEdgeIDs, diffCalls
    */
   _retrieveRangeInfoForLastQuery(
     queryCalls,
-    optimisticData
+    queuedRecord
   ) {
-    var appendEdgeIDs = [];
-    var prependEdgeIDs = [];
-    var deleteIDs = [];
-    if (optimisticData) {
-      appendEdgeIDs = optimisticData[GraphQLMutatorConstants.APPEND] || [];
-      prependEdgeIDs = optimisticData[GraphQLMutatorConstants.PREPEND] || [];
-      deleteIDs = optimisticData[GraphQLMutatorConstants.REMOVE] || [];
+    let appendEdgeIDs;
+    let prependEdgeIDs;
+    let removeIDs;
+    if (queuedRecord) {
+      appendEdgeIDs = this._getAppendedIDsForQueuedRecord(queuedRecord);
+      prependEdgeIDs = this._getPrependedIDsForQueuedRecord(queuedRecord);
+      removeIDs = this._getRemovedIDsForQueuedRecord(queuedRecord);
     }
     var calls = callsArrayToObject(queryCalls);
-    var countNeeded = calls.last + deleteIDs.length;
+    let countNeeded = calls.last + (removeIDs ? removeIDs.length : 0);
     var segment;
     var segmentIndex;
     var pageInfo = {
@@ -975,7 +1005,7 @@ class GraphQLRange {
       }
       segment = this._orderedSegments[segmentIndex];
     } else {
-      var appendEdgesCount = appendEdgeIDs.length;
+      const appendEdgesCount = appendEdgeIDs ? appendEdgeIDs.length : 0;
       countNeeded -= appendEdgesCount;
 
       segmentIndex = this._orderedSegments.length - 1;
@@ -1022,16 +1052,16 @@ class GraphQLRange {
       }
     }
 
-    if (optimisticData) {
-      if (appendEdgeIDs.length && !calls.before) {
+    if (queuedRecord) {
+      if (appendEdgeIDs && appendEdgeIDs.length && !calls.before) {
         requestedEdgeIDs = requestedEdgeIDs.concat(appendEdgeIDs);
       }
-      if (prependEdgeIDs.length && !pageInfo[HAS_PREV_PAGE]) {
+      if (prependEdgeIDs && prependEdgeIDs.length && !pageInfo[HAS_PREV_PAGE]) {
         requestedEdgeIDs = prependEdgeIDs.concat(requestedEdgeIDs);
       }
-      if (deleteIDs.length) {
+      if (removeIDs && removeIDs.length) {
         requestedEdgeIDs = requestedEdgeIDs.filter(function(edgeID) {
-          return (deleteIDs.indexOf(edgeID) == -1);
+          return (removeIDs.indexOf(edgeID) == -1);
         });
       }
       if (requestedEdgeIDs.length > calls.last) {

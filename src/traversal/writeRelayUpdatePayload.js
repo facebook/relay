@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -55,7 +55,10 @@ const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 const EDGES_FIELD = RelayQuery.Field.build({
   fieldName: EDGES,
   type: ANY_TYPE,
-  metadata: {isPlural: true},
+  metadata: {
+    canHaveSubselections: true,
+    isPlural: true,
+  },
 });
 const IGNORED_KEYS = {
   error: true,
@@ -141,6 +144,7 @@ function deleteRecord(
   recordID: DataID
 ): void {
   const store = writer.getRecordStore();
+  const recordWriter = writer.getRecordWriter();
   // skip if already deleted
   const status = store.getRecordState(recordID);
   if (status === RelayRecordState.NONEXISTENT) {
@@ -152,7 +156,7 @@ function deleteRecord(
   if (connectionIDs) {
     connectionIDs.forEach(connectionID => {
       const edgeID = generateClientEdgeID(connectionID, recordID);
-      store.applyRangeUpdate(connectionID, edgeID, REMOVE);
+      recordWriter.applyRangeUpdate(connectionID, edgeID, REMOVE);
       writer.recordUpdate(edgeID);
       writer.recordUpdate(connectionID);
       // edges are never nodes, so this will not infinitely recurse
@@ -161,7 +165,7 @@ function deleteRecord(
   }
 
   // delete the node
-  store.deleteRecord(recordID);
+  recordWriter.deleteRecord(recordID);
   writer.recordUpdate(recordID);
 }
 
@@ -417,6 +421,7 @@ function addRangeNode(
   edgeData: any
 ) {
   const store = writer.getRecordStore();
+  const recordWriter = writer.getRecordWriter();
   const filterCalls = store.getRangeFilterCalls(connectionID);
   const rangeBehavior = filterCalls ?
     getRangeBehavior(config.rangeBehaviors, filterCalls) :
@@ -474,7 +479,7 @@ function addRangeNode(
 
   // append/prepend the item to the range.
   if (rangeBehavior in GraphQLMutatorConstants.RANGE_OPERATIONS) {
-    store.applyRangeUpdate(connectionID, edgeID, (rangeBehavior: any));
+    recordWriter.applyRangeUpdate(connectionID, edgeID, (rangeBehavior: any));
     if (writer.hasChangeToRecord(edgeID)) {
       writer.recordUpdate(connectionID);
     }
@@ -499,16 +504,20 @@ function handleRangeDelete(
   payload: PayloadObject,
   config: OperationConfig
 ): void {
-  const maybeRecordID = getString(payload, config.deletedIDFieldName);
+  const store = writer.getRecordStore();
+
+  const recordID =
+    Array.isArray(config.deletedIDFieldName) ?
+      getIDFromPath(store, config.deletedIDFieldName, payload) :
+      getString(payload, config.deletedIDFieldName);
+
   invariant(
-    maybeRecordID != null,
+    recordID != null,
     'writeRelayUpdatePayload(): Missing ID for deleted record at field `%s`.',
     config.deletedIDFieldName
   );
-  const recordID = maybeRecordID; // Flow loses type refinements in closures
 
   // Extract the id of the node with the connection that we are deleting from.
-  const store = writer.getRecordStore();
   const connectionName = config.pathToConnection.pop();
   const connectionParentID =
     getIDFromPath(store, config.pathToConnection, payload);
@@ -537,9 +546,9 @@ function deleteRangeEdge(
   connectionID: DataID,
   nodeID: DataID
 ): void {
-  const store = writer.getRecordStore();
+  const recordWriter = writer.getRecordWriter();
   const edgeID = generateClientEdgeID(connectionID, nodeID);
-  store.applyRangeUpdate(connectionID, edgeID, REMOVE);
+  recordWriter.applyRangeUpdate(connectionID, edgeID, REMOVE);
 
   deleteRecord(writer, edgeID);
   if (writer.hasChangeToRecord(edgeID)) {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -39,7 +39,7 @@ describe('RelayRenderer.abort', () => {
     function render() {
       const queryConfig = RelayQueryConfig.genMockInstance();
       ShallowRenderer.render(
-        <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+        <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
       );
       const index = RelayStore.primeCache.mock.calls.length - 1;
       return {

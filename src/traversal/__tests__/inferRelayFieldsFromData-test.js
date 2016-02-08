@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -15,6 +15,7 @@ require('configureForRelayOSS');
 
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 const flattenRelayQuery = require('flattenRelayQuery');
@@ -89,15 +90,20 @@ describe('inferRelayFieldsFromData', () => {
   });
 
   it('infers unterminated fields from null', () => {
-    expect(inferRelayFieldsFromData({
+    const inferredFields = inferRelayFieldsFromData({
       id: '123',
       address: null,
-    })).toEqualFields(Relay.QL`
-      fragment on Actor {
-        id,
-        address,
-      }
-    `);
+    });
+
+    expect(inferredFields[0] instanceof RelayQuery.Field).toBe(true);
+    expect(inferredFields[0].canHaveSubselections()).toBe(false);
+    expect(inferredFields[0].getSchemaName()).toBe('id');
+
+    expect(inferredFields[1] instanceof RelayQuery.Field).toBe(true);
+    // Though this field can have subselections, there is no way we can infer
+    // this from `address: null`. Defaults to false.
+    expect(inferredFields[1].canHaveSubselections()).toBe(false);
+    expect(inferredFields[1].getSchemaName()).toBe('address');
   });
 
   it('infers plural fields from arrays of scalars', () => {

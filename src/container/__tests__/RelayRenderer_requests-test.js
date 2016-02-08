@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -42,7 +42,7 @@ describe('RelayRenderer', function() {
 
     queryConfig = RelayQueryConfig.genMockInstance();
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     );
   });
 
@@ -53,7 +53,7 @@ describe('RelayRenderer', function() {
 
   it('does nothing when `Component` and `queryConfig` are unchanged', () => {
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     );
     expect(getRelayQueries.mock.calls).toEqual([[MockContainer, queryConfig]]);
     expect(RelayStore.primeCache.mock.calls.length).toBe(1);
@@ -63,7 +63,7 @@ describe('RelayRenderer', function() {
     RelayStore.primeCache.mock.requests[0].succeed();
 
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     );
     expect(getRelayQueries.mock.calls).toEqual([[MockContainer, queryConfig]]);
     expect(RelayStore.primeCache.mock.calls.length).toBe(1);
@@ -76,7 +76,7 @@ describe('RelayRenderer', function() {
     });
     ShallowRenderer.render(
       <RelayRenderer
-        Component={AnotherContainer}
+        Container={AnotherContainer}
         queryConfig={queryConfig}
       />
     );
@@ -88,13 +88,16 @@ describe('RelayRenderer', function() {
   });
 
   it('primes new queries when `queryConfig` changes', () => {
-    var anotherRoute = RelayQueryConfig.genMockInstance();
+    const anotherQueryConfig = RelayQueryConfig.genMockInstance();
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={anotherRoute} />
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={anotherQueryConfig}
+      />
     );
     expect(getRelayQueries.mock.calls).toEqual([
       [MockContainer, queryConfig],
-      [MockContainer, anotherRoute],
+      [MockContainer, anotherQueryConfig],
     ]);
     expect(RelayStore.primeCache.mock.calls.length).toBe(2);
   });
@@ -102,12 +105,46 @@ describe('RelayRenderer', function() {
   it('force fetches when the `forceFetch` prop is true', () => {
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         forceFetch={true}
       />
     );
     expect(getRelayQueries).toBeCalledWith(MockContainer, queryConfig);
     expect(RelayStore.forceFetch).toBeCalled();
+  });
+
+  it('calls `onForceFetch` hook if supplied', () => {
+    const onForceFetch = jest.genMockFunction();
+    const onPrimeCache = jest.genMockFunction();
+
+    ShallowRenderer.render(
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={queryConfig}
+        forceFetch={true}
+        onForceFetch={onForceFetch}
+        onPrimeCache={onPrimeCache}
+      />
+    );
+    expect(onForceFetch).toBeCalled();
+    expect(onPrimeCache).not.toBeCalled();
+  });
+
+  it('calls `onPrimeCache` hook if supplied', () => {
+    const anotherQueryConfig = RelayQueryConfig.genMockInstance();
+    const onForceFetch = jest.genMockFunction();
+    const onPrimeCache = jest.genMockFunction();
+
+    ShallowRenderer.render(
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={anotherQueryConfig}
+        onForceFetch={onForceFetch}
+        onPrimeCache={onPrimeCache}
+      />
+    );
+    expect(onForceFetch).not.toBeCalled();
+    expect(onPrimeCache).toBeCalled();
   });
 });

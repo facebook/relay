@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -20,14 +20,15 @@ const RelayTestUtils = require('RelayTestUtils');
 describe('RelayQueryMutation', () => {
   var {getNode} = RelayTestUtils;
 
+  let input;
+  let mutationQuery;
+
   beforeEach(() => {
     jest.resetModuleRegistry();
 
     jasmine.addMatchers(RelayTestUtils.matchers);
-  });
 
-  it('creates mutations', () => {
-    var input = JSON.stringify({
+    input = JSON.stringify({
       [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'mutation:id',
       actor: 'actor:id',
       feedback_id: 'feedback:id',
@@ -35,7 +36,7 @@ describe('RelayQueryMutation', () => {
         text: 'comment!',
       },
     });
-    var mutationQuery = getNode(Relay.QL`
+    mutationQuery = getNode(Relay.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId,
@@ -46,6 +47,9 @@ describe('RelayQueryMutation', () => {
         }
       }
     `, {input});
+  });
+
+  it('creates mutations', () => {
     expect(mutationQuery.getName()).toBe('RelayQueryMutation');
     expect(mutationQuery.getResponseType()).toBe(
       'CommentCreateResponsePayload'
@@ -68,25 +72,6 @@ describe('RelayQueryMutation', () => {
   });
 
   it('clones mutations', () => {
-    var input = JSON.stringify({
-      [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'mutation:id',
-      actor: 'actor:id',
-      feedback_id: 'feedback:id',
-      message: {
-        text: 'comment!',
-      },
-    });
-    var mutationQuery = getNode(Relay.QL`
-      mutation {
-        commentCreate(input:$input) {
-          clientMutationId,
-          feedbackCommentEdge {
-            node {id},
-            source {id}
-          }
-        }
-      }
-    `, {input});
     var clone = mutationQuery.clone(mutationQuery.getChildren());
     expect(clone).toBe(mutationQuery);
 
@@ -104,25 +89,6 @@ describe('RelayQueryMutation', () => {
   });
 
   it('tests for equality', () => {
-    var input = JSON.stringify({
-      [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'mutation:id',
-      actor: 'actor:id',
-      feedback_id: 'feedback:id',
-      message: {
-        text: 'comment!',
-      },
-    });
-    var mutationQuery = getNode(Relay.QL`
-      mutation {
-        commentCreate(input:$input) {
-          clientMutationId,
-          feedbackCommentEdge {
-            node {id},
-            source {id}
-          }
-        }
-      }
-    `, {input});
     var equivalentQuery = getNode(Relay.QL`
       mutation {
         commentCreate(input:$input) {
@@ -150,5 +116,11 @@ describe('RelayQueryMutation', () => {
     expect(mutationQuery).not.toBe(equivalentQuery);
     expect(mutationQuery.equals(equivalentQuery)).toBe(true);
     expect(mutationQuery.equals(differentQuery)).toBe(false);
+  });
+
+  describe('canHaveSubselections()', () => {
+    it('returns true', () => {
+      expect(mutationQuery.canHaveSubselections()).toBe(true);
+    });
   });
 });

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -14,10 +14,15 @@
 'use strict';
 
 const RelayConnectionInterface = require('RelayConnectionInterface');
-import type {Call, DataID, Records} from 'RelayInternalTypes';
+import type {
+  Call,
+  DataID,
+} from 'RelayInternalTypes';
+const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 import type RelayQueryPath from 'RelayQueryPath';
 const RelayQueryVisitor = require('RelayQueryVisitor');
+import type {RecordMap} from 'RelayRecord';
 const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
@@ -59,7 +64,7 @@ const {EDGES, PAGE_INFO} = RelayConnectionInterface;
  */
 function findRelayQueryLeaves(
   store: RelayRecordStore,
-  cachedRecords: Records,
+  cachedRecords: RecordMap,
   queryNode: RelayQuery.Node,
   dataID: DataID,
   path: RelayQueryPath,
@@ -82,11 +87,11 @@ function findRelayQueryLeaves(
 }
 
 class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
-  _cachedRecords: Records;
+  _cachedRecords: RecordMap;
   _pendingNodes: PendingNodes;
   _store: RelayRecordStore;
 
-  constructor(store: RelayRecordStore, cachedRecords: Records = {}) {
+  constructor(store: RelayRecordStore, cachedRecords: RecordMap = {}) {
     super();
     this._store = store;
     this._cachedRecords = cachedRecords;
@@ -158,7 +163,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       this._visitEdges(field, state);
     } else if (rangeInfo && field.getSchemaName() === PAGE_INFO) {
       this._visitPageInfo(field, state);
-    } else if (field.isScalar()) {
+    } else if (!field.canHaveSubselections()) {
       this._visitScalar(field, state);
     } else if (field.isPlural()) {
       this._visitPlural(field, state);
@@ -305,4 +310,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   }
 }
 
-module.exports = findRelayQueryLeaves;
+module.exports = RelayProfiler.instrument(
+  'findRelayQueryLeaves',
+  findRelayQueryLeaves
+);

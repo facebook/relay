@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -61,14 +61,16 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
       constructor.name || '<<anonymous>>'
     );
 
-    if (!uri && path) {
-      uri = createURI(constructor, this.params);
-    }
 
+    // $FlowIssue #9905535 - Object.defineProperty doesn't understand getters
     Object.defineProperty(this, 'uri', {
       enumerable: true,
-      value: uri,
-      writable: false,
+      get: function() {
+        if (!uri && path) {
+          uri = createURI(constructor, this.params);
+        }
+        return uri;
+      },
     });
   }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -133,7 +133,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
       this._checkEdges(field, state);
     } else if (rangeInfo && field.getSchemaName() === PAGE_INFO) {
       this._checkPageInfo(field, state);
-    } else if (field.isScalar()) {
+    } else if (!field.canHaveSubselections()) {
       this._checkScalar(field, state);
     } else if (field.isPlural()) {
       this._checkPlural(field, state);

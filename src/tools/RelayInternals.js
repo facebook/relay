@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -13,7 +13,7 @@
 'use strict';
 
 const RelayNetworkLayer = require('RelayNetworkLayer');
-const RelayStoreData = require('RelayStoreData');
+const RelayStore = require('RelayStore');
 
 const flattenRelayQuery = require('flattenRelayQuery');
 const printRelayQuery = require('printRelayQuery');
@@ -26,7 +26,7 @@ const printRelayQuery = require('printRelayQuery');
  */
 var RelayInternals = {
   NetworkLayer: RelayNetworkLayer,
-  DefaultStoreData: RelayStoreData.getDefaultInstance(),
+  DefaultStoreData: RelayStore.getStoreData(),
   flattenRelayQuery: flattenRelayQuery,
   printRelayQuery: printRelayQuery,
 };

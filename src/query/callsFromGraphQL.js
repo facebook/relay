@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -45,12 +45,12 @@ function callsFromGraphQL(
     var {name, value} = callsOrDirectives[ii];
     if (value != null) {
       if (Array.isArray(value)) {
-        value = value.map(arg => getCallVaue(arg, variables));
+        value = value.map(arg => getCallValue(arg, variables));
       } else if (value.kind === 'BatchCallVariable') {
         // Batch calls are handled separately
         value = null;
       } else {
-        value = getCallVaue(value, variables);
+        value = getCallValue(value, variables);
       }
     }
     orderedCalls.push({name, value});
@@ -58,7 +58,7 @@ function callsFromGraphQL(
   return orderedCalls;
 }
 
-function getCallVaue(
+function getCallValue(
   value: ConcreteCallValue | ConcreteCallVariable,
   variables: Variables
 ): ?CallValue {

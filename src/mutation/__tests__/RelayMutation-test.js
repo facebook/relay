@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -14,15 +14,14 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('RelayMutation')
-  .dontMock('buildRQL');
+  .dontMock('RelayMutation');
 
 const Relay = require('Relay');
 const RelayContext = require('RelayContext');
+const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 const buildRQL = require('buildRQL');
-const fromGraphQL = require('fromGraphQL');
 
 describe('RelayMutation', function() {
   let mockBarFragment;
@@ -30,41 +29,60 @@ describe('RelayMutation', function() {
   let mockMutation;
   let relayContext;
 
+  const {getNode, getPointer} = RelayTestUtils;
+
   beforeEach(function() {
     jest.resetModuleRegistry();
 
     relayContext = new RelayContext();
     relayContext.read = jest.genMockFunction();
 
-    class MockMutation extends Relay.Mutation {
-      static fragments = {
+    const initialVariables = {isRelative: false};
+
+    const makeMockMutation = () => {
+      class MockMutationClass extends Relay.Mutation {}
+      MockMutationClass.fragments = {
+        foo: () => Relay.QL`
+          fragment on Comment {
+            url(relative: $isRelative)
+          }
+        `,
         bar: () => Relay.QL`
           fragment on Node {
             id,
           }
         `,
-        foo: () => Relay.QL`
-          fragment on Node {
-            id,
-          }
-        `,
       };
-    }
+      MockMutationClass.initialVariables = initialVariables;
+      return MockMutationClass;
+    };
+    const MockMutation = makeMockMutation();
 
-    mockBarFragment = fromGraphQL.Fragment(buildRQL.Fragment(
-      MockMutation.fragments.bar, []
-    ));
-    mockFooFragment = fromGraphQL.Fragment(buildRQL.Fragment(
-      MockMutation.fragments.foo, []
-    ));
+    const mockFooRequiredFragment =
+      MockMutation.getFragment('foo').getFragment({});
+    const mockBarRequiredFragment =
+      MockMutation.getFragment('bar').getFragment({});
+    const mockFooPointer = getPointer('foo', getNode(mockFooRequiredFragment));
+    const mockBarPointer = getPointer('bar', getNode(mockBarRequiredFragment));
 
-    const mockBarPointer = RelayTestUtils.getPointer('bar', mockBarFragment);
-    const mockFooPointer = RelayTestUtils.getPointer('foo', mockFooFragment);
+    // RelayMetaRoute.get(...)
+    const mockRoute = {name: '$RelayMutation_MockMutationClass'};
 
     mockMutation = new MockMutation({
       bar: mockBarPointer,
       foo: mockFooPointer,
     });
+    /* eslint-enable no-new */
+    mockFooFragment = RelayQuery.Fragment.create(
+      buildRQL.Fragment(MockMutation.fragments.foo, initialVariables),
+      mockRoute,
+      initialVariables
+    );
+    mockBarFragment = RelayQuery.Fragment.create(
+      buildRQL.Fragment(MockMutation.fragments.bar, initialVariables),
+      mockRoute,
+      initialVariables
+    );
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
@@ -72,9 +90,9 @@ describe('RelayMutation', function() {
   it('throws if used in different Relay contexts', () => {
     mockMutation.bindContext(relayContext);
     expect(() => {
-      mockMutation.bindContext({});
+      mockMutation.bindContext(new RelayContext());
     }).toFailInvariant(
-      'MockMutation: Mutation instance cannot be used ' +
+      'MockMutationClass: Mutation instance cannot be used ' +
       'in different Relay contexts.'
     );
   });
@@ -94,8 +112,8 @@ describe('RelayMutation', function() {
     mockMutation.bindContext(relayContext);
     mockMutation.bindContext(relayContext);
     expect(relayContext.read.mock.calls).toEqual([
-      [mockBarFragment, 'bar'],
-      [mockFooFragment, 'foo'],
+      [/* fragment */mockFooFragment, /* dataID */'foo'],
+      [/* fragment */mockBarFragment, /* dataID */'bar'],
     ]);
   });
 
@@ -110,8 +128,8 @@ describe('RelayMutation', function() {
     mockMutation.bindContext(relayContext);
 
     expect(relayContext.read.mock.calls).toEqual([
-      [mockBarFragment, 'bar'],
-      [mockFooFragment, 'foo'],
+      [/* fragment */mockFooFragment, /* dataID */'foo'],
+      [/* fragment */mockBarFragment, /* dataID */'bar'],
     ]);
 
     expect(mockMutation.props).toEqual(resolvedProps);

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -32,10 +32,18 @@ function writeRelayQueryPayload(
   payload: QueryPayload
 ): void {
   const store = writer.getRecordStore();
+  const recordWriter = writer.getRecordWriter();
   const path = new RelayQueryPath(query);
 
   RelayNodeInterface.getResultsFromPayload(store, query, payload)
-    .forEach(({dataID, result}) => {
+    .forEach(({dataID, result, rootCallInfo}) => {
+      if (rootCallInfo) {
+        recordWriter.putDataID(
+          rootCallInfo.storageKey,
+          rootCallInfo.identifyingArgValue,
+          dataID
+        );
+      }
       writer.writePayload(query, dataID, result, path);
     });
 }

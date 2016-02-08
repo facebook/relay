@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -23,6 +23,7 @@ const QueryBuilder = require('QueryBuilder');
 const React = require('React');
 const ReactTestUtils = require('ReactTestUtils');
 const Relay = require('Relay');
+const RelayContext = require('RelayContext');
 const RelayQuery = require('RelayQuery');
 const RelayRoute = require('RelayRoute');
 const RelayTestUtils = require('RelayTestUtils');
@@ -37,6 +38,7 @@ describe('RelayContainer', function() {
   var mockFooFragment;
   var mockFooPointer;
   var mockRoute;
+  var relayContext;
 
   var {getNode, getPointer} = RelayTestUtils;
 
@@ -61,6 +63,7 @@ describe('RelayContainer', function() {
     });
     MockContainer.mock = {render};
 
+    relayContext = new RelayContext();
     mockRoute = RelayRoute.genMockInstance();
     mockFooFragment = getNode(MockContainer.getFragment('foo').getFragment({}));
     mockFooPointer = getPointer('42', mockFooFragment);
@@ -200,23 +203,23 @@ describe('RelayContainer', function() {
   });
 
   describe('conditional fragments', () => {
-    var MockFeed;
-    var feedFragment;
+    let MockProfile;
+    let profileFragment;
 
     beforeEach(() => {
-      MockFeed = Relay.createContainer(MockComponent, {
+      MockProfile = Relay.createContainer(MockComponent, {
         fragments: {
           viewer: () => Relay.QL`
             fragment on Viewer {
-              newsFeed,
+              primaryEmail
             }
           `,
         },
       });
-      feedFragment = QueryBuilder.createFragment({
+      profileFragment = QueryBuilder.createFragment({
         name: 'Test',
         type: 'Viewer',
-        children: [QueryBuilder.createField({fieldName: 'newsFeed'})],
+        children: [QueryBuilder.createField({fieldName: 'primaryEmail'})],
       });
     });
 
@@ -228,7 +231,7 @@ describe('RelayContainer', function() {
         fragments: {
           viewer: variables => Relay.QL`
             fragment on Viewer {
-              ${MockFeed.getFragment('viewer').if(variables.hasSideshow)},
+              ${MockProfile.getFragment('viewer').if(variables.hasSideshow)},
             }
           `,
         },
@@ -244,7 +247,7 @@ describe('RelayContainer', function() {
       var expected = RelayQuery.Fragment.build(
         'Test',
         'Viewer',
-        [getNode(feedFragment)]
+        [getNode(profileFragment)]
       );
       expect(fragment).toEqualQueryNode(expected);
 
@@ -266,9 +269,9 @@ describe('RelayContainer', function() {
         fragments: {
           viewer: variables => Relay.QL`
             fragment on Viewer {
-              ${MockFeed
-            .getFragment('viewer')
-            .unless(variables.hasSideshow)},
+              ${MockProfile
+                .getFragment('viewer')
+                .unless(variables.hasSideshow)},
             }
           `,
         },
@@ -289,16 +292,28 @@ describe('RelayContainer', function() {
       var expected = RelayQuery.Fragment.build(
         'Test',
         'Viewer',
-        [getNode(feedFragment)],
+        [getNode(profileFragment)],
       );
       expect(fragment).toEqualQueryNode(expected);
     });
   });
 
-  it('throws if rendered without a route', () => {
+  it('throws if rendered without a relay context', () => {
     var ShallowRenderer = ReactTestUtils.createRenderer();
     expect(() => ShallowRenderer.render(
       <MockContainer foo={mockFooPointer} />
+    )).toFailInvariant(
+      'RelayContainer: `Relay(MockComponent)` was rendered without a Relay ' +
+      'context. Make sure the `relay` property on the React context is an ' +
+      'instance of `RelayContext`.',
+    );
+  });
+
+  it('throws if rendered without a route', () => {
+    var ShallowRenderer = ReactTestUtils.createRenderer();
+    expect(() => ShallowRenderer.render(
+      <MockContainer foo={mockFooPointer} />,
+      {relay: relayContext}
     )).toFailInvariant(
       'RelayContainer: `Relay(MockComponent)` was rendered without a valid ' +
       'route. Make sure the route is valid, and make sure that it is ' +
@@ -310,16 +325,44 @@ describe('RelayContainer', function() {
   it('creates resolvers for each query prop with a fragment pointer', () => {
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,
+      relayContext,
       mockRoute
     );
     expect(GraphQLStoreQueryResolver.mock.instances.length).toBe(1);
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} bar={[mockBarPointer]} />,
+      relayContext,
       mockRoute
     );
     // `foo` resolver is re-used, `bar` is added
     expect(GraphQLStoreQueryResolver.mock.instances.length).toBe(2);
+  });
+
+  it('recreates resolvers when relay context changes', () => {
+    var relayContextA = new RelayContext();
+    var relayContextB = new RelayContext();
+
+    RelayTestRenderer.render(
+      () => <MockContainer foo={mockFooPointer} />,
+      relayContextA,
+      mockRoute
+    );
+
+    const mockResolvers = GraphQLStoreQueryResolver.mock.instances;
+    expect(mockResolvers.length).toBe(1);
+    expect(mockResolvers[0].reset).not.toBeCalled();
+
+    RelayTestRenderer.render(
+      () => <MockContainer foo={mockFooPointer} />,
+      relayContextB,
+      mockRoute
+    );
+
+    expect(mockResolvers.length).toBe(2);
+    expect(mockResolvers[1].mock.store).toBe(relayContextB.getStoreData());
+    expect(mockResolvers[0].reset).toBeCalled();
+    expect(mockResolvers[1].reset).not.toBeCalled();
   });
 
   it('reuses resolvers even if route changes', () => {
@@ -331,10 +374,12 @@ describe('RelayContainer', function() {
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,
+      relayContext,
       mockRouteA
     );
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,
+      relayContext,
       mockRouteB
     );
 
@@ -345,6 +390,7 @@ describe('RelayContainer', function() {
   it('resolves each prop with a query', () => {
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,
+      relayContext,
       mockRoute
     );
     var fragmentPointer = mockFooPointer[Object.keys(mockFooPointer)[0]];
@@ -362,6 +408,7 @@ describe('RelayContainer', function() {
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,
+      relayContext,
       mockRoute
     );
 
@@ -373,6 +420,54 @@ describe('RelayContainer', function() {
     expect(mockResolvers[0].resolve.mock.calls.length).toBe(2);
   });
 
+  it('re-resolves props when relay context changes', () => {
+    var relayContextA = new RelayContext();
+    var relayContextB = new RelayContext();
+
+    RelayTestRenderer.render(
+      () => <MockContainer foo={mockFooPointer} />,
+      relayContextA,
+      mockRoute
+    );
+    RelayTestRenderer.render(
+      () => <MockContainer foo={mockFooPointer} />,
+      relayContextB,
+      mockRoute
+    );
+
+    const mockResolvers = GraphQLStoreQueryResolver.mock.instances;
+    expect(mockResolvers.length).toBe(2);
+    expect(mockResolvers[0].resolve.mock.calls.length).toBe(1);
+    expect(mockResolvers[1].resolve.mock.calls.length).toBe(1);
+  });
+
+  it('re-resolves props when route changes', () => {
+    var MockRouteA = RelayRoute.genMock();
+    var MockRouteB = RelayRoute.genMock();
+
+    var mockRouteA = new MockRouteA();
+    var mockRouteB = new MockRouteB();
+
+    RelayTestRenderer.render(
+      () => <MockContainer foo={mockFooPointer} />,
+      relayContext,
+      mockRouteA
+    );
+
+    const mockResolvers = GraphQLStoreQueryResolver.mock.instances;
+    expect(mockResolvers.length).toBe(1);
+    expect(mockResolvers[0].resolve.mock.calls.length).toBe(1);
+
+    RelayTestRenderer.render(
+      () => <MockContainer foo={mockFooPointer} />,
+      relayContext,
+      mockRouteB
+    );
+
+    expect(mockResolvers.length).toBe(1);
+    expect(mockResolvers[0].resolve.mock.calls.length).toBe(2);
+  });
+
   it('resolves with most recent props', () => {
     var mockPointerA = getPointer('42', mockFooFragment);
     var fragmentPointerA = mockPointerA[Object.keys(mockPointerA)[0]];
@@ -381,10 +476,12 @@ describe('RelayContainer', function() {
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockPointerA} />,
+      relayContext,
       mockRoute
     );
     RelayTestRenderer.render(
       () => <MockContainer foo={mockPointerB} />,
+      relayContext,
       mockRoute
     );
 
@@ -402,6 +499,7 @@ describe('RelayContainer', function() {
   it('does not create resolvers for null/undefined props', () => {
     RelayTestRenderer.render(
       () => <MockContainer foo={null} bar={undefined} />,
+      relayContext,
       mockRoute
     );
 
@@ -416,6 +514,7 @@ describe('RelayContainer', function() {
     var mockData = {};
     RelayTestRenderer.render(
       () => <MockContainer foo={mockData} bar={null} />,
+      relayContext,
       mockRoute
     );
 
@@ -440,6 +539,7 @@ describe('RelayContainer', function() {
 
     RelayTestRenderer.render(
       () => <MockContainer baz={mockFooPointer} />,
+      relayContext,
       mockRoute
     );
 
@@ -459,6 +559,7 @@ describe('RelayContainer', function() {
 
     RelayTestRenderer.render(
       () => <MockContainer baz={deceptiveArray} />,
+      relayContext,
       mockRoute
     );
 
@@ -475,6 +576,7 @@ describe('RelayContainer', function() {
   it('warns if a query is not passed in', () => {
     RelayTestRenderer.render(
       () => <MockContainer foo={null} />,
+      relayContext,
       mockRoute
     );
 
@@ -498,6 +600,7 @@ describe('RelayContainer', function() {
     expect(() => {
       RelayTestRenderer.render(
         () => <MockContainer foo={mockData} />,
+        relayContext,
         mockRoute
       );
     }).toFailInvariant(
@@ -512,6 +615,7 @@ describe('RelayContainer', function() {
     expect(() => {
       RelayTestRenderer.render(
         () => <MockContainer bar={mockData} />,
+        relayContext,
         mockRoute
       );
     }).toFailInvariant(
@@ -526,6 +630,7 @@ describe('RelayContainer', function() {
     expect(() => {
       RelayTestRenderer.render(
         () => <MockContainer bar={mockData} />,
+        relayContext,
         mockRoute
       );
     }).toFailInvariant(
@@ -541,6 +646,7 @@ describe('RelayContainer', function() {
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,
+      relayContext,
       mockRoute
     );
 
@@ -564,6 +670,7 @@ describe('RelayContainer', function() {
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,
+      relayContext,
       mockRoute
     );
 
@@ -610,6 +717,7 @@ describe('RelayContainer', function() {
 
     RelayTestRenderer.render(
       () => <MockFastContainer foo={mockPointerA} />,
+      relayContext,
       mockRoute
     );
     expect(render.mock.calls.length).toBe(1);
@@ -619,6 +727,7 @@ describe('RelayContainer', function() {
     // Component wants to update, RelayContainer doesn't.
     RelayTestRenderer.render(
       () => <MockFastContainer foo={mockPointerA} />,
+      relayContext,
       mockRoute
     );
     expect(render.mock.calls.length).toBe(1);
@@ -626,6 +735,7 @@ describe('RelayContainer', function() {
     // Component wants to update, RelayContainer does too.
     RelayTestRenderer.render(
       () => <MockFastContainer foo={mockPointerB} />,
+      relayContext,
       mockRoute
     );
     expect(render.mock.calls.length).toBe(2);
@@ -635,6 +745,7 @@ describe('RelayContainer', function() {
     // Component doesn't want to update, RelayContainer does.
     RelayTestRenderer.render(
       () => <MockFastContainer foo={mockPointerC} />,
+      relayContext,
       mockRoute
     );
     expect(render.mock.calls.length).toBe(2);
@@ -642,6 +753,7 @@ describe('RelayContainer', function() {
     // Component doesn't want to update, RelayContainer doesn't either.
     RelayTestRenderer.render(
       () => <MockFastContainer foo={mockPointerC} />,
+      relayContext,
       mockRoute
     );
     expect(render.mock.calls.length).toBe(2);
@@ -649,6 +761,7 @@ describe('RelayContainer', function() {
     shouldComponentUpdate.mockReturnValue(true);
     RelayTestRenderer.render(
       () => <MockFastContainer foo={mockPointerC} thing="scalar" />,
+      relayContext,
       mockRoute
     );
     expect(render.mock.calls.length).toBe(3);

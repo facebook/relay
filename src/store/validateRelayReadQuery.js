@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -93,7 +93,7 @@ if (__DEV__) {
 
         if (node.isGenerated()) {
           return;
-        } else if (node.isScalar()) {
+        } else if (!node.canHaveSubselections()) {
           return;
         } else if (node.isPlural()) {
           this._readPlural(node, aliasMap);

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -22,6 +22,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
   var RelayRecordStore;
+  var RelayRecordWriter;
 
   var {getNode, writePayload} = RelayTestUtils;
 
@@ -29,6 +30,7 @@ describe('writeRelayQueryPayload()', () => {
     jest.resetModuleRegistry();
 
     RelayRecordStore = require('RelayRecordStore');
+    RelayRecordWriter = require('RelayRecordWriter');
   });
 
   describe('plural scalar fields', () => {
@@ -42,6 +44,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var newEmail = 'user2@example.com';
       var query = getNode(Relay.QL`
         query {
@@ -56,7 +59,7 @@ describe('writeRelayQueryPayload()', () => {
           emailAddresses: [newEmail],
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -76,6 +79,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var newEmail = 'user2@example.com';
       var query = getNode(Relay.QL`
         query {
@@ -90,7 +94,7 @@ describe('writeRelayQueryPayload()', () => {
           emailAddresses: [newEmail, email],
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -111,6 +115,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var newEmail = 'user2@example.com';
       var query = getNode(Relay.QL`
         query {
@@ -125,7 +130,7 @@ describe('writeRelayQueryPayload()', () => {
           emailAddresses: [email, newEmail],
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -146,6 +151,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
 
       var query = getNode(Relay.QL`
         query {
@@ -160,7 +166,7 @@ describe('writeRelayQueryPayload()', () => {
           emailAddresses: [email],
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {},

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -21,7 +21,6 @@ import type {
 const QueryBuilder = require('QueryBuilder');
 const RelayQuery = require('RelayQuery');
 
-const base62 = require('base62');
 const callsToGraphQL = require('callsToGraphQL');
 const invariant = require('invariant');
 
@@ -100,11 +99,6 @@ const toGraphQL = {
     return field;
   },
 };
-
-let clientFragmentCount = 0;
-function createClientFragmentHash(): string {
-  return '_toGraphQL_' + base62(clientFragmentCount++);
-}
 
 function toGraphQLSelection(
   node: RelayQuery.Node

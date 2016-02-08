@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -118,7 +118,7 @@ describe('RelayStoreData', () => {
     it('writes server payloads to `records`', () => {
       var storeData = new RelayStoreData();
       // create the root node
-      storeData.getRecordStore().putRecord('123');
+      storeData.getRecordWriter().putRecord('123');
 
       var mutationQuery = getNode(Relay.QL`
         mutation {
@@ -164,7 +164,7 @@ describe('RelayStoreData', () => {
     it('writes optimistic payloads to `queuedRecords`', () => {
       var storeData = new RelayStoreData();
       // create the root node
-      storeData.getRecordStore().putRecord('123');
+      storeData.getRecordWriter().putRecord('123');
 
       var mutationQuery = getNode(Relay.QL`
         mutation {
@@ -384,19 +384,19 @@ describe('RelayStoreData', () => {
     });
 
     it('warns if initialized after data has been added', () => {
-      // Mock console.error so we can spy on it
-      console.error = jest.genMockFunction();
+      jest.mock('warning');
+
       var response = {node: {id: 0, __typename: 'User'}};
       var data = new RelayStoreData();
       var query = getNode(Relay.QL`query{node(id:"a") {id}}`);
       data.handleQueryPayload(query, response);
-      expect(console.error).not.toBeCalled();
-      data.initializeGarbageCollector();
-      expect(console.error).toBeCalledWith(
-        'Warning: ' +
+
+      const warningMsg =
         'RelayStoreData: Garbage collection can only be initialized when ' +
-        'no data is present.'
-      );
+        'no data is present.';
+      expect([warningMsg]).toBeWarnedNTimes(0);
+      data.initializeGarbageCollector();
+      expect([warningMsg]).toBeWarnedNTimes(1);
     });
 
     it(

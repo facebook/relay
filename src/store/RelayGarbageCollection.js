@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -14,7 +14,7 @@
 'use strict';
 
 import type {DataID} from 'RelayInternalTypes';
-const RelayStoreData = require('RelayStoreData');
+const RelayStore = require('RelayStore');
 const RelayTaskScheduler = require('RelayTaskScheduler');
 
 const invariant = require('invariant');
@@ -44,17 +44,14 @@ var RelayGarbageCollection = {
       stepLength
     );
     _stepLength = stepLength;
-    RelayStoreData
-      .getDefaultInstance()
-      .initializeGarbageCollector(scheduler);
+    RelayStore.getStoreData().initializeGarbageCollector(scheduler);
   },
 
   /**
    * Collects any un-referenced records in the store.
    */
   scheduleCollection(): void {
-    var garbageCollector =
-      RelayStoreData.getDefaultInstance().getGarbageCollector();
+    var garbageCollector = RelayStore.getStoreData().getGarbageCollector();
 
     if (garbageCollector) {
       garbageCollector.collect();
@@ -68,8 +65,7 @@ var RelayGarbageCollection = {
    * NOTE: If the given record is still referenced, no records are collected.
    */
   scheduleCollectionFromNode(dataID: DataID): void {
-    var garbageCollector =
-      RelayStoreData.getDefaultInstance().getGarbageCollector();
+    var garbageCollector = RelayStore.getStoreData().getGarbageCollector();
 
     if (garbageCollector) {
       garbageCollector.collectFromNode(dataID);
@@ -79,7 +75,7 @@ var RelayGarbageCollection = {
 
 function scheduler(run: () => boolean): void {
   const pendingQueryTracker =
-    RelayStoreData.getDefaultInstance().getPendingQueryTracker();
+      RelayStore.getStoreData().getPendingQueryTracker();
   const runIteration = () => {
     // TODO: #9366746: integrate RelayRenderer/Container with GC hold
     warning(

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -42,36 +42,32 @@ type Variable = {
  * supplied `node` must be flattened (and not contain fragments).
  */
 function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
+  const fragmentTexts = [];
+  const variableMap = {};
   const printerState = {
     fragmentCount: 0,
     fragmentNameByHash: {},
     fragmentNameByText: {},
-    fragmentTexts: [],
+    fragmentTexts,
     variableCount: 0,
-    variableMap: {},
+    variableMap,
   };
   let queryText = null;
   if (node instanceof RelayQuery.Root) {
     queryText = printRoot(node, printerState);
   } else if (node instanceof RelayQuery.Mutation) {
     queryText = printMutation(node, printerState);
-  } else {
-    // NOTE: `node` shouldn't be a field or fragment except for debugging. There
-    // is no guarantee that it would be a valid server request if printed.
-    if (node instanceof RelayQuery.Fragment) {
-      queryText = printFragment(node, printerState);
-    } else if (node instanceof RelayQuery.Field) {
-      queryText = printField(node, printerState);
-    }
+  } else if (node instanceof RelayQuery.Fragment) {
+    queryText = printFragment(node, printerState);
   }
   invariant(
     queryText,
     'printRelayOSSQuery(): Unsupported node type.'
   );
   return {
-    text: [queryText, ...printerState.fragmentTexts].join(' '),
+    text: [queryText, ...fragmentTexts].join(' '),
     variables: mapObject(
-      printerState.variableMap,
+      variableMap,
       variable => variable.value
     ),
   };
@@ -160,124 +156,103 @@ function printFragment(
     node.getType() + directives + printChildren(node, printerState);
 }
 
-function printInlineFragment(
-  node: RelayQuery.Fragment,
-  printerState: PrinterState
-): ?string {
-  if (!node.getChildren().length) {
-    return null;
-  }
-  const {
-    fragmentNameByHash,
-    fragmentNameByText,
-    fragmentTexts,
-  } = printerState;
-
-  // Try not to print the same fragment more than once by using a cheap lookup
-  // using the composite hash. (The composite hash will only be representative
-  // of the fragment if it has not been cloned.)
-  const fragmentHash = node.isCloned() ? null : node.getCompositeHash();
-
-  let fragmentName;
-  if (fragmentHash != null &&
-      fragmentNameByHash.hasOwnProperty(fragmentHash)) {
-    fragmentName = fragmentNameByHash[fragmentHash];
-  } else {
-    // Never re-print a fragment that is identical when printed to a previously
-    // printed fragment. Instead, re-use that previous fragment's name.
-    const fragmentText =
-      node.getType() +
-      printDirectives(node) +
-      printChildren(node, printerState);
-    if (fragmentNameByText.hasOwnProperty(fragmentText)) {
-      fragmentName = fragmentNameByText[fragmentText];
-    } else {
-      fragmentName = 'F' + base62(printerState.fragmentCount++);
-      if (fragmentHash != null) {
-        fragmentNameByHash[fragmentHash] = fragmentName;
-      }
-      fragmentNameByText[fragmentText] = fragmentName;
-      fragmentTexts.push('fragment ' + fragmentName + ' on ' + fragmentText);
-    }
-  }
-  return '...' + fragmentName;
-}
-
-function printField(
-  node: RelayQuery.Field,
-  printerState: PrinterState
-): string {
-  invariant(
-    node instanceof RelayQuery.Field,
-    'printRelayOSSQuery(): Query must be flattened before printing.'
-  );
-  const schemaName = node.getSchemaName();
-  const serializationKey = node.getSerializationKey();
-  const callsWithValues = node.getCallsWithValues();
-  let fieldString = schemaName;
-  let argStrings = null;
-  if (callsWithValues.length) {
-    callsWithValues.forEach(({name, value}) => {
-      const argString = printArgument(
-        name,
-        value,
-        node.getCallType(name),
-        printerState
-      );
-      if (argString) {
-        argStrings = argStrings || [];
-        argStrings.push(argString);
-      }
-    });
-    if (argStrings) {
-      fieldString += '(' + argStrings.join(',') + ')';
-    }
-  }
-  const directives = printDirectives(node);
-  return (serializationKey !== schemaName ? serializationKey + ':' : '') +
-    fieldString + directives + printChildren(node, printerState);
-}
-
 function printChildren(
   node: RelayQuery.Node,
   printerState: PrinterState
 ): string {
-  let children;
+  const childrenText = [];
+  const children = node.getChildren();
   let fragments;
-  node.getChildren().forEach(child => {
+  for (let ii = 0; ii < children.length; ii++) {
+    const child = children[ii];
     if (child instanceof RelayQuery.Field) {
-      children = children || [];
-      children.push(printField(child, printerState));
+      let fieldText = child.getSchemaName();
+      const fieldCalls = child.getCallsWithValues();
+      if (fieldCalls.length) {
+        fieldText = child.getSerializationKey() + ':' + fieldText;
+        const argTexts = [];
+        for (let jj = 0; jj < fieldCalls.length; jj++) {
+          const {name, value} = fieldCalls[jj];
+          const argText = printArgument(
+            name,
+            value,
+            child.getCallType(name),
+            printerState
+          );
+          if (argText) {
+            argTexts.push(argText);
+          }
+        }
+        if (argTexts.length) {
+          fieldText += '(' + argTexts.join(',') + ')';
+        }
+      }
+      fieldText += printDirectives(child);
+      if (child.getChildren().length) {
+        fieldText += printChildren(child, printerState);
+      }
+      childrenText.push(fieldText);
+    } else if (child instanceof RelayQuery.Fragment) {
+      if (child.getChildren().length) {
+        const {
+          fragmentNameByHash,
+          fragmentNameByText,
+          fragmentTexts,
+        } = printerState;
+
+        // Avoid walking fragments if we have printed the same one before.
+        const fragmentHash = child.isCloned() ? null : child.getCompositeHash();
+
+        let fragmentName;
+        if (fragmentHash != null &&
+            fragmentNameByHash.hasOwnProperty(fragmentHash)) {
+          fragmentName = fragmentNameByHash[fragmentHash];
+        } else {
+          // Avoid reprinting a fragment that is identical to another fragment.
+          const fragmentText =
+            child.getType() +
+            printDirectives(child) +
+            printChildren(child, printerState);
+          if (fragmentNameByText.hasOwnProperty(fragmentText)) {
+            fragmentName = fragmentNameByText[fragmentText];
+          } else {
+            fragmentName = 'F' + base62(printerState.fragmentCount++);
+            if (fragmentHash != null) {
+              fragmentNameByHash[fragmentHash] = fragmentName;
+            }
+            fragmentNameByText[fragmentText] = fragmentName;
+            fragmentTexts.push(
+              'fragment ' + fragmentName + ' on ' + fragmentText
+            );
+          }
+        }
+        if (!fragments || !fragments.hasOwnProperty(fragmentName)) {
+          fragments = fragments || {};
+          fragments[fragmentName] = true;
+          childrenText.push('...' + fragmentName);
+        }
+      }
     } else {
       invariant(
-        child instanceof RelayQuery.Fragment,
-        'printRelayOSSQuery(): expected child node to be a `Field` or ' +
-        '`Fragment`, got `%s`.',
+        false,
+        'printRelayOSSQuery(): Expected a field or fragment, got `%s`.',
         child.constructor.name
       );
-      const printedFragment = printInlineFragment(child, printerState);
-      if (printedFragment &&
-          !(fragments && fragments.hasOwnProperty(printedFragment))) {
-        fragments = fragments || {};
-        fragments[printedFragment] = true;
-        children = children || [];
-        children.push(printedFragment);
-      }
     }
-  });
-  if (!children) {
+  }
+  if (!childrenText) {
     return '';
   }
-  return '{' + children.join(',') + '}';
+  return childrenText.length ? '{' + childrenText.join(',') + '}' : '';
 }
 
 function printDirectives(node) {
   let directiveStrings;
   node.getDirectives().forEach(directive => {
     let dirString = '@' + directive.name;
-    if (directive.arguments.length) {
+    if (directive.args.length) {
       dirString +=
-        '(' + directive.arguments.map(printDirective).join(',') + ')';
+        '(' + directive.args.map(printDirective).join(',') + ')';
     }
     directiveStrings = directiveStrings || [];
     directiveStrings.push(dirString);

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -1824,7 +1824,7 @@ describe('GraphQLRange', () => {
 
     var result = range.retrieveRangeInfoForQuery(
       [{name: 'first', value: 3}],
-      {'prepend': [edge4.__dataID__]}
+      {__rangeOperationPrepend__: [edge4.__dataID__]}
     );
 
     expect(result.requestedEdgeIDs).toEqual(
@@ -1834,7 +1834,7 @@ describe('GraphQLRange', () => {
 
     result = range.retrieveRangeInfoForQuery(
       [{name: 'first', value: 3}],
-      {'prepend': [edge4.__dataID__, edge5.__dataID__]}
+      {__rangeOperationPrepend__: [edge4.__dataID__, edge5.__dataID__]}
     );
 
     expect(result.requestedEdgeIDs).toEqual(
@@ -1845,7 +1845,7 @@ describe('GraphQLRange', () => {
     // append shouldn't affect 'first' call
     result = range.retrieveRangeInfoForQuery(
       [{name: 'first', value: 3}],
-      {'append': [edge4.__dataID__, edge5.__dataID__]}
+      {__rangeOperationAppend__: [edge4.__dataID__, edge5.__dataID__]}
     );
 
     expect(result.requestedEdgeIDs).toEqual(
@@ -1856,7 +1856,7 @@ describe('GraphQLRange', () => {
     result = range.retrieveRangeInfoForQuery(
       [{name: 'first', value: 2}],
       {
-        'remove': [edge1.__dataID__],
+        __rangeOperationRemove__: [edge1.__dataID__],
       }
     );
 
@@ -1868,8 +1868,8 @@ describe('GraphQLRange', () => {
     result = range.retrieveRangeInfoForQuery(
       [{name: 'first', value: 3}],
       {
-        'prepend': [edge4.__dataID__, edge5.__dataID__],
-        'remove': [edge4.__dataID__, edge1.__dataID__],
+        __rangeOperationPrepend__: [edge4.__dataID__, edge5.__dataID__],
+        __rangeOperationRemove__: [edge4.__dataID__, edge1.__dataID__],
       }
     );
 
@@ -1894,7 +1894,7 @@ describe('GraphQLRange', () => {
 
     var result = range.retrieveRangeInfoForQuery(
       [{name: 'first', value: 4}],
-      {'append': [edge4.__dataID__]}
+      {__rangeOperationAppend__: [edge4.__dataID__]}
     );
 
     expect(result.requestedEdgeIDs).toEqual(
@@ -1905,7 +1905,7 @@ describe('GraphQLRange', () => {
     // Should not return extra edges
     result = range.retrieveRangeInfoForQuery(
       [{name: 'first', value: 3}],
-      {'append': [edge4.__dataID__]}
+      {__rangeOperationAppend__: [edge4.__dataID__]}
     );
 
     expect(result.requestedEdgeIDs).toEqual(
@@ -1928,7 +1928,7 @@ describe('GraphQLRange', () => {
 
     var result = range.retrieveRangeInfoForQuery(
       [{name: 'last', value: 3}],
-      {'append': [edge97.__dataID__]}
+      {__rangeOperationAppend__: [edge97.__dataID__]}
     );
 
     expect(result.requestedEdgeIDs).toEqual(
@@ -1938,7 +1938,7 @@ describe('GraphQLRange', () => {
 
     result = range.retrieveRangeInfoForQuery(
       [{name: 'last', value: 3}],
-      {'append': [edge97.__dataID__, edge96.__dataID__]}
+      {__rangeOperationAppend__: [edge97.__dataID__, edge96.__dataID__]}
     );
 
     expect(result.requestedEdgeIDs).toEqual(
@@ -1949,7 +1949,7 @@ describe('GraphQLRange', () => {
     // prepend shouldn't affect 'last' call
     result = range.retrieveRangeInfoForQuery(
       [{name: 'last', value: 3}],
-      {'prepend': [edge97.__dataID__, edge96.__dataID__]}
+      {__rangeOperationPrepend__: [edge97.__dataID__, edge96.__dataID__]}
     );
 
     expect(result.requestedEdgeIDs).toEqual(
@@ -1959,7 +1959,7 @@ describe('GraphQLRange', () => {
 
     result = range.retrieveRangeInfoForQuery(
       [{name: 'last', value: 2}],
-      {'remove': [edge99.__dataID__]}
+      {__rangeOperationRemove__: [edge99.__dataID__]}
     );
 
     expect(result.requestedEdgeIDs).toEqual(
@@ -1970,8 +1970,8 @@ describe('GraphQLRange', () => {
     result = range.retrieveRangeInfoForQuery(
       [{name: 'last', value: 3}],
       {
-        'append': [edge97.__dataID__, edge96.__dataID__],
-        'remove': [edge100.__dataID__, edge96.__dataID__],
+        __rangeOperationAppend__: [edge97.__dataID__, edge96.__dataID__],
+        __rangeOperationRemove__: [edge100.__dataID__, edge96.__dataID__],
       }
     );
 
@@ -1996,7 +1996,7 @@ describe('GraphQLRange', () => {
 
     var result = range.retrieveRangeInfoForQuery(
       [{name: 'last', value: 4}],
-      {'prepend': [edge97.__dataID__]}
+      {__rangeOperationPrepend__: [edge97.__dataID__]}
     );
 
     expect(result.requestedEdgeIDs).toEqual([
@@ -2010,7 +2010,7 @@ describe('GraphQLRange', () => {
     // Should not return extra edges
     result = range.retrieveRangeInfoForQuery(
       [{name: 'last', value: 3}],
-      {'prepend': [edge97.__dataID__]}
+      {__rangeOperationPrepend__: [edge97.__dataID__]}
     );
 
     expect(result.requestedEdgeIDs).toEqual([

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -19,11 +19,17 @@ import type {
   ConcreteCallValue,
   ConcreteCallVariable,
   ConcreteDirective,
+  ConcreteDirectiveArgument,
+  ConcreteDirectiveValue,
   ConcreteField,
+  ConcreteFieldMetadata,
   ConcreteFragment,
+  ConcreteFragmentMetadata,
   ConcreteFragmentReference,
   ConcreteMutation,
+  ConcreteOperationMetadata,
   ConcreteQuery,
+  ConcreteQueryMetadata,
   ConcreteSelection,
   ConcreteSubscription,
   ConcreteValue,
@@ -43,34 +49,6 @@ if (__DEV__) {
   Object.freeze(EMPTY_DIRECTIVES);
   Object.freeze(EMPTY_METADATA);
 }
-
-export type ConcreteFieldMetadata = {
-  inferredRootCallName?: ?string;
-  inferredPrimaryKey?: ?string;
-  isConnection?: boolean;
-  isFindable?: boolean;
-  isGenerated?: boolean;
-  isPlural?: boolean;
-  isRequisite?: boolean;
-  isAbstract?: boolean;
-};
-
-export type ConcreteFragmentMetadata = {
-  isAbstract?: boolean;
-  plural?: boolean;
-};
-
-export type ConcreteOperationMetadata = {
-  inputType?: ?string;
-};
-
-export type ConcreteQueryMetadata = {
-  identifyingArgName?: ?string;
-  identifyingArgType?: ?string;
-  isAbstract?: ?boolean;
-  isDeferred?: ?boolean;
-  isPlural?: ?boolean;
-};
 
 /**
  * @internal
@@ -122,6 +100,27 @@ const QueryBuilder = {
     };
   },
 
+  createDirective(
+    name: string,
+    args: Array<ConcreteDirectiveArgument>
+  ): ConcreteDirective {
+    return {
+      args,
+      kind: 'Directive',
+      name,
+    };
+  },
+
+  createDirectiveArgument(
+    name: string,
+    value: ?ConcreteDirectiveValue
+  ): ConcreteDirectiveArgument {
+    return {
+      name,
+      value,
+    };
+  },
+
   createField(partialField: {
     alias?: ?string;
     calls?: ?Array<ConcreteCall>;
@@ -140,6 +139,7 @@ const QueryBuilder = {
       fieldName: partialField.fieldName,
       kind: 'Field',
       metadata: {
+        canHaveSubselections: !!partialMetadata.canHaveSubselections,
         inferredRootCallName: partialMetadata.inferredRootCallName,
         inferredPrimaryKey: partialMetadata.inferredPrimaryKey,
         isConnection: !!partialMetadata.isConnection,
@@ -168,6 +168,7 @@ const QueryBuilder = {
       kind: 'Fragment',
       metadata: {
         isAbstract: !!metadata.isAbstract,
+        pattern: !!metadata.pattern,
         plural: !!metadata.plural, // match the `@relay` argument name
       },
       name: partialFragment.name,

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -276,7 +276,7 @@ describe('RelayQuery', () => {
         expect(field instanceof RelayQuery.Field).toBe(true);
         expect(field.getSchemaName()).toBe('id');
         expect(field.getApplicationName()).toBe('id');
-        expect(field.isScalar()).toBe(true);
+        expect(field.canHaveSubselections()).toBe(false);
         expect(field.getChildren().length).toBe(0);
         expect(field.getCallsWithValues()).toEqual([]);
       });
@@ -287,9 +287,10 @@ describe('RelayQuery', () => {
         var field = RelayQuery.Field.build({
           fieldName: 'node',
           children: [child, fragment],
+          metadata: {canHaveSubselections: true},
           type: 'Node',
         });
-        expect(field.isScalar()).toBe(false);
+        expect(field.canHaveSubselections()).toBe(true);
         var children = field.getChildren();
         expect(children.length).toBe(2);
         expect(children[0]).toBe(child);
@@ -302,6 +303,7 @@ describe('RelayQuery', () => {
           calls: [
             {name: 'size', value: 32},
           ],
+          metadata: {canHaveSubselections: true},
           type: 'ProfilePicture',
         });
         expect(field.getCallsWithValues()).toEqual([
@@ -312,11 +314,30 @@ describe('RelayQuery', () => {
           calls: [
             {name: 'size', value: ['32']},
           ],
+          metadata: {canHaveSubselections: true},
           type: 'ProfilePicture',
         });
         expect(field.getCallsWithValues()).toEqual([
           {name: 'size', value: ['32']},
         ]);
+      });
+
+      it('builds directives with argument values', () => {
+        const field = RelayQuery.Field.build({
+          directives: [{
+            args: [{
+              name: 'bar',
+              value: 'baz',
+            }],
+            name: 'foo',
+          }],
+          fieldName: 'profilePicture',
+          type: 'ProfilePicture',
+        });
+        expect(field.getDirectives()).toEqual([{
+          args: [{name: 'bar', value: 'baz'}],
+          name: 'foo',
+        }]);
       });
     });
   });

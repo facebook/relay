@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -26,6 +26,7 @@ const invariant = require('invariant');
 
 describe('writePayload()', () => {
   var RelayRecordStore;
+  var RelayRecordWriter;
 
   var {
     getNode,
@@ -50,6 +51,7 @@ describe('writePayload()', () => {
     jest.resetModuleRegistry();
 
     RelayRecordStore = require('RelayRecordStore');
+    RelayRecordWriter = require('RelayRecordWriter');
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
@@ -58,6 +60,7 @@ describe('writePayload()', () => {
     it('writes path for id-less root records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           viewer {
@@ -75,7 +78,7 @@ describe('writePayload()', () => {
           },
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           'client:1': true,
@@ -96,6 +99,7 @@ describe('writePayload()', () => {
     it('does not write paths to refetchable root records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -109,7 +113,7 @@ describe('writePayload()', () => {
           __typename: 'User',
         },
       };
-      var results = writePayload(store, query, payload);
+      var results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           '123': true,
@@ -124,6 +128,7 @@ describe('writePayload()', () => {
     it('writes paths to non-refetchable linked records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           viewer {
@@ -146,7 +151,7 @@ describe('writePayload()', () => {
           },
         },
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
 
       // linked nodes use a minimal path from the nearest refetchable node
       var addressID = 'client:2';  // The generated id *after* viewer
@@ -167,6 +172,7 @@ describe('writePayload()', () => {
     it('writes paths to plural linked fields', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var phone = {
         isVerified: true,
         phoneNumber: {
@@ -193,7 +199,7 @@ describe('writePayload()', () => {
           allPhones: [phone],
         },
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
 
       // plural fields must be refetched through the parent
       // get linked records to verify the client id
@@ -215,6 +221,7 @@ describe('writePayload()', () => {
     it('writes paths to connection records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -249,7 +256,7 @@ describe('writePayload()', () => {
           },
         },
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
 
       // connections and edges must be refetched through the parent
       var path = new RelayQueryPath(query)
@@ -273,7 +280,9 @@ describe('writePayload()', () => {
 
     it('writes paths with fragments', () => {
       var records = {};
-      var store = new RelayRecordStore({records});
+      var rootCallMap = {};
+      var store = new RelayRecordStore({records}, {rootCallMap});
+      var writer = new RelayRecordWriter(records, rootCallMap, false);
       var fragment = Relay.QL`fragment on Viewer {
         actor {
           id
@@ -296,7 +305,7 @@ describe('writePayload()', () => {
           },
         },
       };
-      writePayload(store, query, payload);
+      writePayload(store, writer, query, payload);
 
       var viewerID = store.getDataID('viewer');
       var actorID = store.getLinkedRecordID(viewerID, 'actor');
@@ -312,6 +321,7 @@ describe('writePayload()', () => {
     it('tracks new root records', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var tracker = new RelayQueryTracker();
       var query = getNode(Relay.QL`
         query {
@@ -328,7 +338,7 @@ describe('writePayload()', () => {
           __typename: 'User',
         },
       };
-      writePayload(store, query, payload, tracker);
+      writePayload(store, writer, query, payload, tracker);
       var trackedQueries = tracker.trackNodeForID.mock.calls;
       expect(trackedQueries.length).toBe(1);
       expect(trackedQueries[0][1]).toBe('123');
@@ -338,6 +348,7 @@ describe('writePayload()', () => {
     it('tracks new records in fragments', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var tracker = new RelayQueryTracker();
 
       // `address` will be encountered twice, both occurrences must be tracked
@@ -361,7 +372,7 @@ describe('writePayload()', () => {
       };
       var addressID = 'client:1';
       var addressFragment = getNode(fragment).getChildren()[0];
-      writePayload(store, query, payload, tracker);
+      writePayload(store, writer, query, payload, tracker);
       var trackedQueries = tracker.trackNodeForID.mock.calls;
       expect(trackedQueries.length).toBe(3);
       expect(trackedQueries[1][1]).toBe(addressID);
@@ -377,6 +388,7 @@ describe('writePayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           viewer {
@@ -396,7 +408,7 @@ describe('writePayload()', () => {
         },
       };
       var tracker = new RelayQueryTracker();
-      writePayload(store, query, payload, tracker);
+      writePayload(store, writer, query, payload, tracker);
       var trackedQueries = tracker.trackNodeForID.mock.calls;
       expect(trackedQueries.length).toBe(1);
       expect(trackedQueries[0][1]).toBe('123');
@@ -411,6 +423,7 @@ describe('writePayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -438,7 +451,7 @@ describe('writePayload()', () => {
         },
       };
       var tracker = new RelayQueryTracker();
-      writePayload(store, query, payload, tracker);
+      writePayload(store, writer, query, payload, tracker);
       var trackedQueries = tracker.trackNodeForID.mock.calls;
       // creates `allPhones` record and linked `phoneNumber` field
       expect(trackedQueries.length).toBe(2);
@@ -460,6 +473,7 @@ describe('writePayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -490,7 +504,7 @@ describe('writePayload()', () => {
         },
       };
       var tracker = new RelayQueryTracker();
-      writePayload(store, query, payload, tracker);
+      writePayload(store, writer, query, payload, tracker);
       var trackedQueries = tracker.trackNodeForID.mock.calls;
       expect(trackedQueries.length).toBe(3);
       // track range node
@@ -519,6 +533,7 @@ describe('writePayload()', () => {
         },
       };
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -549,7 +564,7 @@ describe('writePayload()', () => {
         },
       };
       var tracker = new RelayQueryTracker();
-      writePayload(store, query, payload, tracker);
+      writePayload(store, writer, query, payload, tracker);
       expect(tracker.trackNodeForID.mock.calls.length).toBe(3);
 
       // write an additional node and verify only the new edge and node are
@@ -585,7 +600,7 @@ describe('writePayload()', () => {
       };
       tracker = new RelayQueryTracker();
       tracker.trackNodeForID.mockClear();
-      writePayload(store, query, payload, tracker);
+      writePayload(store, writer, query, payload, tracker);
       var trackedQueries = tracker.trackNodeForID.mock.calls;
       expect(trackedQueries.length).toBe(2);
       // track new edge
@@ -603,6 +618,7 @@ describe('writePayload()', () => {
     it('re-tracks all nodes if `updateTrackedQueries` is enabled', () => {
       var records = {};
       var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
       var query = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -649,20 +665,20 @@ describe('writePayload()', () => {
       };
       // populate the store and record the original tracked queries
       var tracker = new RelayQueryTracker();
-      writePayload(store, query, payload, tracker);
+      writePayload(store, writer, query, payload, tracker);
       var prevTracked = tracker.trackNodeForID.mock.calls.slice();
       expect(prevTracked.length).toBe(6);
 
       // rewriting the same payload by default does not track anything
       tracker = new RelayQueryTracker();
       tracker.trackNodeForID.mockClear();
-      writePayload(store, query, payload, tracker);
+      writePayload(store, writer, query, payload, tracker);
       expect(tracker.trackNodeForID.mock.calls.length).toBe(0);
 
       // force-tracking should track the original nodes again
       tracker = new RelayQueryTracker();
       tracker.trackNodeForID.mockClear();
-      writePayload(store, query, payload, tracker, {
+      writePayload(store, writer, query, payload, tracker, {
         updateTrackedQueries: true,
       });
       var nextTracked = tracker.trackNodeForID.mock.calls;
@@ -677,6 +693,7 @@ describe('writePayload()', () => {
   it('skips non-matching fragments', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var writer = new RelayRecordWriter(records, {}, false);
     var query = getNode(Relay.QL`
       query {
         node(id: "123") {
@@ -705,7 +722,7 @@ describe('writePayload()', () => {
         },
       },
     };
-    writeVerbatimPayload(store, query, payload);
+    writeVerbatimPayload(store, writer, query, payload);
     expect(store.getField('123', 'firstName')).toBe('Joe');
     expect(store.getField('123', 'name')).toBe('Joe');
     // `body` only exists on `Comment` which does not match the record type

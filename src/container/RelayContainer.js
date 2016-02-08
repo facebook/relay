@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -18,9 +18,9 @@ const ErrorUtils = require('ErrorUtils');
 const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');
-const ReactDOM = require('ReactDOM');
 const RelayContainerComparators = require('RelayContainerComparators');
 const RelayContainerProxy = require('RelayContainerProxy');
+const RelayContext = require('RelayContext');
 const RelayFragmentReference = require('RelayFragmentReference');
 import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
@@ -29,14 +29,11 @@ const RelayPropTypes = require('RelayPropTypes');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
-const RelayStore = require('RelayStore');
-const RelayStoreData = require('RelayStoreData');
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
   RelayContainer,
   RelayProp,
-  Subscription,
   Variables,
 } from 'RelayTypes';
 import type URI from 'URI';
@@ -47,6 +44,7 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const prepareRelayContainerProps = require('prepareRelayContainerProps');
+const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
 const isReactComponent = require('isReactComponent');
@@ -74,14 +72,9 @@ export type RootQueries = {
 };
 
 var containerContextTypes = {
+  relay: RelayPropTypes.Context,
   route: RelayPropTypes.QueryConfig.isRequired,
 };
-
-var storeData = RelayStoreData.getDefaultInstance();
-
-storeData.getChangeEmitter().injectBatchingStrategy(
-  ReactDOM.unstable_batchedUpdates
-);
 
 /**
  * @public
@@ -110,7 +103,6 @@ function createContainerComponent(
 
   class RelayContainer extends React.Component {
     mounted: boolean;
-    _deferredSubscriptions: ?{[subscriptionKey: string]: Subscription};
     _didShowFakeDataWarning: boolean;
     _fragmentPointers: {[key: string]: ?GraphQLFragmentPointer};
     _hasStaleQueryData: boolean;
@@ -128,7 +120,14 @@ function createContainerComponent(
     constructor(props, context) {
       super(props, context);
 
-      var {route} = context;
+      var {relay, route} = context;
+      invariant(
+        relay instanceof RelayContext,
+        'RelayContainer: `%s` was rendered without a Relay context. Make ' +
+        'sure the `relay` property on the React context is an instance of ' +
+        '`RelayContext`.',
+        containerName
+      );
       invariant(
         route && typeof route.name === 'string',
         'RelayContainer: `%s` was rendered without a valid route. Make sure ' +
@@ -144,7 +143,6 @@ function createContainerComponent(
       self.hasOptimisticUpdate = this.hasOptimisticUpdate.bind(this);
       self.setVariables = this.setVariables.bind(this);
 
-      this._deferredSubscriptions = null;
       this._didShowFakeDataWarning = false;
       this._fragmentPointers = {};
       this._hasStaleQueryData = false;
@@ -194,6 +192,7 @@ function createContainerComponent(
     } {
       var fragmentPointers = {};
       var querySet = {};
+      const storeData = this.context.relay.getStoreData();
       fragmentNames.forEach(fragmentName => {
         var fragment = getFragment(fragmentName, this.context.route, variables);
         var queryData = this.state.queryData[fragmentName];
@@ -277,7 +276,7 @@ function createContainerComponent(
           // and `fragmentPointers` will be empty, and `nextVariables` will be
           // equal to `lastVariables`.
           this._fragmentPointers = fragmentPointers;
-          this._updateQueryResolvers();
+          this._updateQueryResolvers(this.context.relay);
           var queryData = this._getQueryData(this.props);
           partialState = {variables: nextVariables, queryData};
         } else {
@@ -286,7 +285,7 @@ function createContainerComponent(
         var mounted = this.mounted;
         if (mounted) {
           var updateProfiler = RelayProfiler.profile('RelayContainer.update');
-          ReactDOM.unstable_batchedUpdates(() => {
+          relayUnstableBatchedUpdates(() => {
             this.setState(partialState, () => {
               updateProfiler.stop();
               if (isComplete) {
@@ -313,8 +312,8 @@ function createContainerComponent(
       var current = {
         variables: nextVariables,
         request: forceFetch ?
-          RelayStore.forceFetch(querySet, onReadyStateChange) :
-          RelayStore.primeCache(querySet, onReadyStateChange),
+          this.context.relay.forceFetch(querySet, onReadyStateChange) :
+          this.context.relay.primeCache(querySet, onReadyStateChange),
       };
       this.pending = current;
     }
@@ -331,7 +330,7 @@ function createContainerComponent(
         'RelayContainer.hasOptimisticUpdate(): Expected a record in `%s`.',
         componentName
       );
-      return storeData.hasOptimisticUpdate(dataID);
+      return this.context.relay.getStoreData().hasOptimisticUpdate(dataID);
     }
 
     /**
@@ -344,6 +343,7 @@ function createContainerComponent(
         'RelayContainer.getPendingTransactions(): Expected a record in `%s`.',
         componentName
       );
+      const storeData = this.context.relay.getStoreData();
       const mutationIDs = storeData.getClientMutationIDs(dataID);
       if (!mutationIDs) {
         return null;
@@ -361,6 +361,7 @@ function createContainerComponent(
       fragmentReference: RelayFragmentReference,
       record: Object
     ): boolean {
+      const storeData = this.context.relay.getStoreData();
       if (!storeData.getPendingQueryTracker().hasPendingQueries()) {
         // nothing can be missing => must have data
         return true;
@@ -393,46 +394,66 @@ function createContainerComponent(
     }
 
     componentWillMount(): void {
-      if (this.context.route.useMockData) {
+      const {relay, route} = this.context;
+      if (route.useMockData) {
         return;
       }
-      var variables =
-        getVariablesWithPropOverrides(spec, this.props, initialVariables);
-      this._updateFragmentPointers(this.props, this.context.route, variables);
-      this._updateQueryResolvers();
-      var queryData = this._getQueryData(this.props);
-
-      this.setState({
-        variables,
-        queryData,
-      });
+      this.setState(
+        this._initialize(
+          this.props,
+          relay,
+          route,
+          initialVariables
+        )
+      );
     }
 
     componentWillReceiveProps(
       nextProps: Object,
       nextContext?: Object
     ): void {
-      var {route} = nullthrows(nextContext);
+      const {relay, route} = nullthrows(nextContext);
       if (route.useMockData) {
         return;
       }
       this.setState(state => {
-        var variables = getVariablesWithPropOverrides(
-          spec,
+        if (this.context.relay !== relay) {
+          this._cleanup();
+        }
+        return this._initialize(
           nextProps,
+          relay,
+          route,
           resetPropOverridesForVariables(spec, nextProps, state.variables)
         );
-        this._updateFragmentPointers(nextProps, route, variables);
-        this._updateQueryResolvers();
-        return {
-          variables,
-          queryData: this._getQueryData(nextProps),
-        };
       });
-
     }
 
     componentWillUnmount(): void {
+      this._cleanup();
+      this.mounted = false;
+    }
+
+    _initialize(
+      props: Object,
+      relayContext: RelayContext,
+      route: RelayQueryConfigSpec,
+      prevVariables: Variables
+    ): { variables: Variables, queryData: {[propName: string]: mixed} } {
+      const variables = getVariablesWithPropOverrides(
+        spec,
+        props,
+        prevVariables
+      );
+      this._updateFragmentPointers(props, route, variables);
+      this._updateQueryResolvers(relayContext);
+      return {
+        variables,
+        queryData: this._getQueryData(props),
+      };
+    }
+
+    _cleanup(): void {
       // A guarded error in mounting might prevent initialization of resolvers.
       if (this._queryResolvers) {
         forEachObject(
@@ -440,11 +461,6 @@ function createContainerComponent(
           queryResolver => queryResolver && queryResolver.reset()
         );
       }
-
-      if (this._deferredSubscriptions) {
-        forEachObject(this._deferredSubscriptions, sub => sub.dispose());
-      }
-      this._deferredSubscriptions = null;
 
       this._fragmentPointers = {};
       this._queryResolvers = {};
@@ -454,10 +470,9 @@ function createContainerComponent(
         pending.request.abort();
         this.pending = null;
       }
-      this.mounted = false;
     }
 
-    _updateQueryResolvers(): void {
+    _updateQueryResolvers(relayContext: RelayContext): void {
       var fragmentPointers = this._fragmentPointers;
       var queryResolvers = this._queryResolvers;
       fragmentNames.forEach(fragmentName => {
@@ -470,7 +485,7 @@ function createContainerComponent(
           }
         } else if (!queryResolver) {
           queryResolver = new GraphQLStoreQueryResolver(
-            storeData,
+            relayContext.getStoreData(),
             fragmentPointer,
             this._handleFragmentDataUpdate.bind(this)
           );
@@ -638,7 +653,8 @@ function createContainerComponent(
         return true;
       }
 
-      if (this.context.route !== nextContext.route) {
+      if (this.context.relay !== nextContext.relay ||
+          this.context.route !== nextContext.route) {
         return true;
       }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -24,7 +24,13 @@ const invariant = require('invariant');
 type PayloadResult = {
   dataID: DataID;
   result: mixed;
+  rootCallInfo?: RootCallInfo;
 };
+
+type RootCallInfo = {
+  storageKey: string;
+  identifyingArgValue: ?string;
+}
 
 /**
  * @internal
@@ -86,8 +92,11 @@ var RelayOSSNodeInterface = {
             dataID = generateClientID();
           }
         }
-        store.putDataID(storageKey, identifyingArgValue, dataID);
-        results.push({dataID, result});
+        results.push({
+          dataID,
+          result,
+          rootCallInfo: {storageKey, identifyingArgValue},
+        });
       });
     }
 

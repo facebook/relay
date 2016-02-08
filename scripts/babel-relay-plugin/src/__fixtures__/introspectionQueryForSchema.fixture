@@ -22,6 +22,7 @@ var foo = (function () {
       fieldName: "types",
       kind: "Field",
       metadata: {
+        canHaveSubselections: true,
         isPlural: true
       },
       type: "__Type"

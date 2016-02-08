@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -43,17 +43,14 @@ class RelayQueryConfig<Tv: Object> {
     Object.defineProperty(this, 'name', {
       enumerable: true,
       value: this.constructor.routeName,
-      writable: false,
     });
     Object.defineProperty(this, 'params', {
       enumerable: true,
       value: this.prepareVariables({...initialVariables}) || {},
-      writable: false,
     });
     Object.defineProperty(this, 'queries', {
       enumerable: true,
       value: {...this.constructor.queries},
-      writable: false,
     });
 
     if (__DEV__) {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -26,6 +26,7 @@ const diffRelayQuery = require('diffRelayQuery');
 
 describe('diffRelayQuery - fragments', () => {
   var RelayRecordStore;
+  var RelayRecordWriter;
 
   var {getNode, writePayload} = RelayTestUtils;
   var HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
@@ -38,6 +39,7 @@ describe('diffRelayQuery - fragments', () => {
     jest.resetModuleRegistry();
 
     RelayRecordStore = require('RelayRecordStore');
+    RelayRecordWriter = require('RelayRecordWriter');
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
 
     jasmine.addMatchers(RelayTestUtils.matchers);
@@ -46,6 +48,7 @@ describe('diffRelayQuery - fragments', () => {
   it('removes matching fragments with fetched fields', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var writer = new RelayRecordWriter(records, {}, false);
     var tracker = new RelayQueryTracker();
 
     var query = getNode(Relay.QL`
@@ -64,7 +67,7 @@ describe('diffRelayQuery - fragments', () => {
         firstName: 'Joe',
       },
     };
-    writePayload(store, query, payload, tracker);
+    writePayload(store, writer, query, payload, tracker);
 
     var diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
@@ -73,6 +76,7 @@ describe('diffRelayQuery - fragments', () => {
   it('refetches matching fragments with missing fields', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var writer = new RelayRecordWriter(records, {}, false);
     var tracker = new RelayQueryTracker();
 
     var query = getNode(Relay.QL`
@@ -92,7 +96,7 @@ describe('diffRelayQuery - fragments', () => {
         firstName: 'Joe', // missing `lastName`
       },
     };
-    writePayload(store, query, payload, tracker);
+    writePayload(store, writer, query, payload, tracker);
 
     var diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
@@ -110,6 +114,7 @@ describe('diffRelayQuery - fragments', () => {
   it('removes non-matching fragments if other fields are fetched', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var writer = new RelayRecordWriter(records, {}, false);
     var tracker = new RelayQueryTracker();
 
     var query = getNode(Relay.QL`
@@ -131,7 +136,7 @@ describe('diffRelayQuery - fragments', () => {
         firstName: 'Joe',
       },
     };
-    writePayload(store, query, payload, tracker);
+    writePayload(store, writer, query, payload, tracker);
 
     var diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
@@ -140,6 +145,7 @@ describe('diffRelayQuery - fragments', () => {
   it('refetches non-matching fragments if other fields are missing', () => {
     var records = {};
     var store = new RelayRecordStore({records});
+    var writer = new RelayRecordWriter(records, {}, false);
     var tracker = new RelayQueryTracker();
 
     var query = getNode(Relay.QL`
@@ -162,7 +168,7 @@ describe('diffRelayQuery - fragments', () => {
         firstName: 'Joe', // missing `lastName`
       },
     };
-    writePayload(store, query, payload, tracker);
+    writePayload(store, writer, query, payload, tracker);
 
     var diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
@@ -183,6 +189,7 @@ describe('diffRelayQuery - fragments', () => {
   it('removes non-matching fragments if connection fields are fetched', () => {
     var records = {};
     var store = new RelayRecordStore({records}, {rootCallMap});
+    var writer = new RelayRecordWriter(records, rootCallMap, false);
     var tracker = new RelayQueryTracker();
 
     var payload = {
@@ -227,7 +234,7 @@ describe('diffRelayQuery - fragments', () => {
         }
       }
     `);
-    writePayload(store, query, payload, tracker);
+    writePayload(store, writer, query, payload, tracker);
 
     var diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
@@ -238,6 +245,7 @@ describe('diffRelayQuery - fragments', () => {
     () => {
       var records = {};
       var store = new RelayRecordStore({records}, {rootCallMap});
+      var writer = new RelayRecordWriter(records, rootCallMap, false);
       var tracker = new RelayQueryTracker();
 
       var payload = {
@@ -285,7 +293,7 @@ describe('diffRelayQuery - fragments', () => {
           }
         }
       `);
-      writePayload(store, query, payload, tracker);
+      writePayload(store, writer, query, payload, tracker);
 
       var diffQueries = diffRelayQuery(query, store, tracker);
       expect(diffQueries.length).toBe(1);

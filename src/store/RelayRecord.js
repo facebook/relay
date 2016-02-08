@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -13,12 +13,43 @@
 
 'use strict';
 
+import type GraphQLRange from 'GraphQLRange';
+import type {
+  Call,
+  ClientMutationID,
+  DataID,
+} from 'RelayInternalTypes';
+import type RelayQueryPath from 'RelayQueryPath';
+
+type FieldMap = {
+  [key: string]: mixed;
+};
+
+export type Record = {
+  [key: string]: mixed;
+  __dataID__: string;
+  __filterCalls__?: Array<Call>;
+  __forceIndex__?: number;
+  __mutationIDs__?: Array<ClientMutationID>;
+  __path__?: RelayQueryPath;
+  __range__?: GraphQLRange;
+  __resolvedDeferredFragments__?: {[fragmentID: string]: boolean};
+  __resolvedFragmentMapGeneration__?: number;
+  __resolvedFragmentMap__?: {[fragmentID: string]: boolean};
+  __status__?: number;
+  __typename?: ?string;
+};
+
+export type RecordMap = {[key: DataID]: ?Record};
+
 const MetadataKey = {
   DATA_ID: '__dataID__',
   FILTER_CALLS: '__filterCalls__',
   FORCE_INDEX: '__forceIndex__',
+  MUTATION_IDS: '__mutationIDs__',
   PATH: '__path__',
   RANGE: '__range__',
+  RESOLVED_DEFERRED_FRAGMENTS: '__resolvedDeferredFragments__',
   RESOLVED_FRAGMENT_MAP: '__resolvedFragmentMap__',
   RESOLVED_FRAGMENT_MAP_GENERATION: '__resolvedFragmentMapGeneration__',
   STATUS: '__status__',
@@ -36,8 +67,15 @@ const RelayRecord = {
 
   MetadataKey,
 
-  create(dataID: string): Object {
+  create(dataID: string): Record {
     return {__dataID__: dataID};
+  },
+
+  createWithFields(dataID: string, fieldMap: FieldMap): Record {
+    return {
+      __dataID__: dataID,
+      ...fieldMap,
+    };
   },
 
   isRecord(value: mixed): boolean {

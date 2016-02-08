@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -20,11 +20,11 @@ import type URI from 'URI';
 import type {
   DataID,
   FieldValue,
-  Record,
 } from 'RelayInternalTypes';
 import type RelayFragmentReference from 'RelayFragmentReference';
 import type RelayMetaRoute from 'RelayMetaRoute';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
+import type {Record} from 'RelayRecord';
 import type {RelayConcreteNode} from 'RelayQL';
 
 // Routes and variables

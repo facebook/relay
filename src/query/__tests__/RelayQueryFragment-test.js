@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -157,16 +157,6 @@ describe('RelayQueryFragment', () => {
     expect(fragment.isGenerated()).toBe(false);
   });
 
-  it('is not scalar', () => {
-    // fragment with children
-    expect(fragment.isScalar()).toBe(false);
-
-    // fragment without children
-    expect(
-      getNode(Relay.QL`fragment on Viewer { ${null} }`).isScalar()
-    ).toBe(false);
-  });
-
   it('creates nodes', () => {
     var fragmentRQL = Relay.QL`
       fragment on StreetAddress {
@@ -191,11 +181,23 @@ describe('RelayQueryFragment', () => {
     `, {cond: true});
     expect(fragment.getDirectives()).toEqual([
       {
-        name: 'include',
-        arguments: [
+        args: [
           {name: 'if', value: true},
         ],
+        name: 'include',
       },
     ]);
+  });
+
+  describe('canHaveSubselections()', () => {
+    it('returns true', () => {
+      // fragment with children
+      expect(fragment.canHaveSubselections()).toBe(true);
+
+      // fragment without children
+      expect(
+        getNode(Relay.QL`fragment on Viewer { ${null} }`).canHaveSubselections()
+      ).toBe(true);
+    });
   });
 });

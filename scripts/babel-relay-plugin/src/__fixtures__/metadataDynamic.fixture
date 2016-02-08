@@ -56,6 +56,7 @@ var x = (function () {
             fieldName: 'attachments',
             kind: 'Field',
             metadata: {
+              canHaveSubselections: true,
               inferredRootCallName: 'node',
               inferredPrimaryKey: 'id',
               isAbstract: true,
@@ -79,6 +80,7 @@ var x = (function () {
         fieldName: 'node',
         kind: 'Field',
         metadata: {
+          canHaveSubselections: true,
           inferredRootCallName: 'node',
           inferredPrimaryKey: 'id',
           isAbstract: true,
@@ -97,6 +99,7 @@ var x = (function () {
       fieldName: 'edges',
       kind: 'Field',
       metadata: {
+        canHaveSubselections: true,
         isPlural: true
       },
       type: 'NewsFeedConnectionEdge'
@@ -121,6 +124,7 @@ var x = (function () {
       fieldName: 'pageInfo',
       kind: 'Field',
       metadata: {
+        canHaveSubselections: true,
         isGenerated: true,
         isRequisite: true
       },

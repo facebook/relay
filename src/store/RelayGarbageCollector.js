@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -21,6 +21,7 @@ import type RelayStoreData from 'RelayStoreData';
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
+const resolveImmediate = require('resolveImmediate');
 
 export type GarbageCollectionHold = {release: () => void};
 export type GarbageCollectionScheduler = (collect: () => boolean) => void;
@@ -35,6 +36,7 @@ class RelayGarbageCollector {
   _activeHoldCount: number;
   _collectionQueue: Array<DataID>;
   _isCollecting: boolean;
+  _isScheduled: boolean;
   _refCounts: {[key: DataID]: number};
   _scheduler: GarbageCollectionScheduler;
   _storeData: RelayStoreData;
@@ -46,6 +48,7 @@ class RelayGarbageCollector {
     this._activeHoldCount = 0;
     this._collectionQueue = [];
     this._isCollecting = false;
+    this._isScheduled = false;
     this._refCounts = {};
     this._scheduler = scheduler;
     this._storeData = storeData;
@@ -137,6 +140,17 @@ class RelayGarbageCollector {
   }
 
   _scheduleCollection(): void {
+    if (this._isScheduled) {
+      return;
+    }
+    this._isScheduled = true;
+    resolveImmediate(() => {
+      this._isScheduled = false;
+      this._processQueue();
+    });
+  }
+
+  _processQueue() {
     if (
       this._isCollecting ||
       this._activeHoldCount ||

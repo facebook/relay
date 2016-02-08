@@ -130,6 +130,7 @@ var foo = (function () {
             fieldName: "node",
             kind: "Field",
             metadata: {
+              canHaveSubselections: true,
               inferredRootCallName: "node",
               inferredPrimaryKey: "id",
               isRequisite: true
@@ -147,6 +148,7 @@ var foo = (function () {
           fieldName: "edges",
           kind: "Field",
           metadata: {
+            canHaveSubselections: true,
             isPlural: true
           },
           type: "UserConnectionEdge"
@@ -171,6 +173,7 @@ var foo = (function () {
           fieldName: "pageInfo",
           kind: "Field",
           metadata: {
+            canHaveSubselections: true,
             isGenerated: true,
             isRequisite: true
           },
@@ -179,6 +182,7 @@ var foo = (function () {
         fieldName: "friends",
         kind: "Field",
         metadata: {
+          canHaveSubselections: true,
           isConnection: true,
           isFindable: true
         },

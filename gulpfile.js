@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
+ * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -32,7 +32,7 @@ var PRODUCTION_HEADER = [
   '/**',
   ' * Relay v<%= version %>',
   ' *',
-  ' * Copyright 2013-2015, Facebook, Inc.',
+  ' * Copyright (c) 2013-present, Facebook, Inc.',
   ' * All rights reserved.',
   ' *',
   ' * This source code is licensed under the BSD-style license found in the',
@@ -64,6 +64,7 @@ var babelOpts = {
   _moduleMap: objectAssign({}, require('fbjs/module-map'), {
     'React': 'react',
     'ReactDOM': 'react-dom',
+    'ReactNative': 'react-native',
     'StaticContainer.react': 'react-static-container',
   }),
 };

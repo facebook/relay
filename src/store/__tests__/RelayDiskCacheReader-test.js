@@ -77,8 +77,9 @@ describe('RelayDiskCacheReader', () => {
       onFailure: jest.genMockFunction(),
     };
 
+    let abort;
     if (queries) {
-      RelayDiskCacheReader.readQueries(
+      ({abort} = RelayDiskCacheReader.readQueries(
         queries,
         store,
         cachedRecords,
@@ -87,9 +88,9 @@ describe('RelayDiskCacheReader', () => {
         cacheManager,
         changeTracker,
         callbacks
-      );
+      ));
     } else if (dataID && fragment && path) {
-      RelayDiskCacheReader.readFragment(
+      ({abort} = RelayDiskCacheReader.readFragment(
         dataID,
         fragment,
         path,
@@ -100,12 +101,12 @@ describe('RelayDiskCacheReader', () => {
         cacheManager,
         changeTracker,
         callbacks
-      );
+      ));
     } else {
       invariant(false, 'Input did not match for reading queries nor fragments');
     }
 
-    return {cacheManager, callbacks, changeTracker, store};
+    return {abort, cacheManager, callbacks, changeTracker, store};
   }
 
   beforeEach(() => {
@@ -1163,6 +1164,75 @@ describe('RelayDiskCacheReader', () => {
         created: {},
         updated: {},
       });
+    });
+  });
+
+  describe('abort', () => {
+    it('does not call `onSuccess` if aborted', () => {
+      var fragment = getNode(Relay.QL`
+        fragment on Node {
+          id,
+          name,
+        }
+      `);
+      var path = new RelayQueryPath(getNode(Relay.QL`
+        query {
+          node(id: "1055790163") {id}
+        }
+     `));
+      var dataID = '1055790163';
+      var diskCacheData = {
+        '1055790163': {
+          __dataID__: '1055790163',
+          id: '1055790163',
+          name: 'Yuzhi Zheng',
+          __typename: 'User',
+        },
+      };
+
+      var {abort, callbacks, store} =
+        readDiskCache({dataID, fragment, path, diskCacheData});
+
+      abort();
+      // this would read 1055790163 from cache if not aborted
+      jest.runAllTimers();
+
+      expect(store.getRecordState('1055790163')).toBe('UNKNOWN');
+      expect(callbacks.onFailure).not.toBeCalled();
+      expect(callbacks.onSuccess).not.toBeCalled();
+    });
+
+    it('does not `onFailure` if aborted', () => {
+      var fragment = getNode(Relay.QL`
+        fragment on Node {
+          id,
+          name,
+        }
+      `);
+      var path = new RelayQueryPath(getNode(Relay.QL`
+        query {
+          node(id: "1055790163") {id}
+        }
+     `));
+      var dataID = '1055790163';
+      var diskCacheData = {
+        '1055790163': {
+          __dataID__: '1055790163',
+          id: '1055790163',
+          __typename: 'User',
+        },
+      };
+
+      var {abort, callbacks, store} =
+        readDiskCache({dataID, fragment, path, diskCacheData});
+
+      abort();
+      // The read would fail since `name` is missing from cached data.
+      jest.runAllTimers();
+
+      expect(store.getRecordState('1055790163')).toBe('UNKNOWN');
+      expect(callbacks.onFailure).not.toBeCalled();
+      expect(callbacks.onSuccess).not.toBeCalled();
     });
   });
 });

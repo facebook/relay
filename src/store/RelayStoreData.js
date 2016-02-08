@@ -28,7 +28,6 @@ import type {
   DataID,
   NodeRangeMap,
   QueryPayload,
-  Records,
   RelayQuerySet,
   RootCallMap,
   UpdateOptions,
@@ -42,6 +41,7 @@ import type RelayQueryPath from 'RelayQueryPath';
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayQueryWriter = require('RelayQueryWriter');
 const RelayRecord = require('RelayRecord');
+import type {RecordMap} from 'RelayRecord';
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
@@ -56,9 +56,6 @@ const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 var {NODE_TYPE} = RelayNodeInterface;
 
-// The source of truth for application data.
-var _instance;
-
 /**
  * @internal
  *
@@ -67,7 +64,7 @@ var _instance;
  */
 class RelayStoreData {
   _cacheManager: ?CacheManager;
-  _cachedRecords: Records;
+  _cachedRecords: RecordMap;
   _cachedRootCallMap: RootCallMap;
   _cachedStore: RelayRecordStore;
   _changeEmitter: GraphQLStoreChangeEmitter;
@@ -76,8 +73,8 @@ class RelayStoreData {
   _networkLayer: RelayNetworkLayer;
   _nodeRangeMap: NodeRangeMap;
   _pendingQueryTracker: RelayPendingQueryTracker;
-  _records: Records;
-  _queuedRecords: Records;
+  _records: RecordMap;
+  _queuedRecords: RecordMap;
   _queuedStore: RelayRecordStore;
   _recordStore: RelayRecordStore;
   _queryTracker: RelayQueryTracker;
@@ -85,21 +82,11 @@ class RelayStoreData {
   _rangeData: GraphQLStoreRangeUtils;
   _rootCallMap: RootCallMap;
 
-  /**
-   * Get the data set backing actual Relay operations. Used in GraphQLStore.
-   */
-  static getDefaultInstance(): RelayStoreData {
-    if (!_instance) {
-      _instance = new RelayStoreData();
-    }
-    return _instance;
-  }
-
   constructor() {
-    const cachedRecords: Records = {};
+    const cachedRecords: RecordMap = {};
     const cachedRootCallMap: RootCallMap = {};
-    const queuedRecords: Records = {};
-    const records: Records = {};
+    const queuedRecords: RecordMap = {};
+    const records: RecordMap = {};
     const rootCallMap: RootCallMap = {};
     const nodeRangeMap: NodeRangeMap = {};
     const {
@@ -419,11 +406,11 @@ class RelayStoreData {
     );
   }
 
-  getNodeData(): Records {
+  getNodeData(): RecordMap {
     return this._records;
   }
 
-  getQueuedData(): Records {
+  getQueuedData(): RecordMap {
     return this._queuedRecords;
   }
 
@@ -434,7 +421,7 @@ class RelayStoreData {
     });
   }
 
-  getCachedData(): Records {
+  getCachedData(): RecordMap {
     return this._cachedRecords;
   }
 
@@ -545,10 +532,7 @@ class RelayStoreData {
     return new RelayRecordStore(
       {records},
       {rootCallMap},
-      this._nodeRangeMap,
-      this._cacheManager ?
-        this._cacheManager.getMutationWriter() :
-        null
+      this._nodeRangeMap
     );
   }
 
@@ -576,9 +560,7 @@ class RelayStoreData {
     return new RelayRecordStore(
       {cachedRecords, queuedRecords, records},
       {cachedRootCallMap, rootCallMap},
-      this._nodeRangeMap,
-      null, // don't cache optimistic data
-      clientMutationID
+      this._nodeRangeMap
     );
   }
 
@@ -619,14 +601,12 @@ function createRecordCollection({
     cachedStore: new RelayRecordStore(
       {cachedRecords, records},
       {cachedRootCallMap, rootCallMap},
-      nodeRangeMap,
-      cacheWriter
+      nodeRangeMap
     ),
     recordStore: new RelayRecordStore(
       {records},
       {rootCallMap},
-      nodeRangeMap,
-      cacheWriter
+      nodeRangeMap
     ),
   };
 }

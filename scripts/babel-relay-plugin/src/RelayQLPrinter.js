@@ -43,7 +43,7 @@ type PrinterOptions = {
 
 module.exports = function(t: any, options: PrinterOptions): Function {
   const formatFields = options.snakeCase ?
-    fields => {
+    function<T: Object>(fields: T): {[keys: $Keys<T>]: string} {
       const formatted = {};
       Object.keys(fields).forEach(name => {
         formatted[name] =
@@ -51,7 +51,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       });
       return formatted;
     } :
-    fields => fields;
+    function<T>(fields: T): T { return fields };
 
   const FIELDS = formatFields({
     __typename: '__typename',
@@ -320,9 +320,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         });
       }
       const printedFields = this.printFields(
-        fields, 
-        parent, 
-        requisiteFields, 
+        fields,
+        parent,
+        requisiteFields,
         isGeneratedQuery
       );
       const selections = [...printedFields, ...printedFragments];
@@ -353,10 +353,10 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         delete generatedFields[field.getName()];
         printedFields.push(
           this.printField(
-            field, 
-            parent, 
-            requisiteFields, 
-            generatedFields, 
+            field,
+            parent,
+            requisiteFields,
+            generatedFields,
             isGeneratedQuery
           )
         );
@@ -544,7 +544,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
           t.objectExpression([
             property('kind', t.valueToNode('Directive')),
             property('name', t.valueToNode(directive.getName())),
-            property('arguments', t.arrayExpression(
+            property('args', t.arrayExpression(
               directive.getArguments().map(
                 arg => t.objectExpression([
                   property('name', t.valueToNode(arg.getName())),

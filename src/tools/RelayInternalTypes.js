@@ -36,8 +36,8 @@ export type ClientMutationID = string;
 export type DataID = string;
 
 export type Directive = {
+  args: Array<Call>;
   name: string;
-  arguments: Array<Call>;
 };
 
 export type FieldValue = mixed;
@@ -50,23 +50,6 @@ export type PrintedQuery = {
   text: string;
   variables: {[key: string]: mixed};
 };
-
-export type Record = {
-  [key: string]: mixed;
-  __dataID__: string;
-  __filterCalls__?: Array<Call>;
-  __forceIndex__?: number;
-  __mutationIDs__?: Array<ClientMutationID>;
-  __range__?: GraphQLRange;
-  __resolvedDeferredFragments__?: {[fragmentID: string]: boolean};
-  __resolvedFragmentMap__?: {[fragmentID: string]: boolean};
-  __resolvedFragmentMapGeneration__?: number;
-  __path__?: RelayQueryPath;
-  __status__?: number;
-  __typename?: ?string;
-};
-
-export type Records = {[key: DataID]: ?Record};
 
 // Maps root calls to a single data ID through an indentifying arg (or EMPTY)
 // eg. username(name: "joe")   => '123'

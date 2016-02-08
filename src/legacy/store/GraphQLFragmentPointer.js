@@ -15,6 +15,7 @@
 
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
+import type {Record} from 'RelayRecord';
 import type RelayRecordStore from 'RelayRecordStore';
 
 const invariant = require('invariant');
@@ -24,7 +25,6 @@ import type {DataID} from 'RelayInternalTypes';
 
 type FragmentPointerObject = {
   [key: string]: GraphQLFragmentPointer;
-  __dataID__?: DataID;
 };
 
 /**
@@ -42,7 +42,7 @@ class GraphQLFragmentPointer {
   static createForRoot(
     store: RelayRecordStore,
     query: RelayQuery.Root
-  ): ?FragmentPointerObject | Array<?FragmentPointerObject> {
+  ): ?FragmentPointerObject | Array<?Record> {
     var fragment = getRootFragment(query);
     if (!fragment) {
       return null;
@@ -59,10 +59,9 @@ class GraphQLFragmentPointer {
         if (!dataID) {
           return null;
         }
-        const pointer = RelayRecord.create(dataID);
-        pointer[fragmentHash] =
-          new GraphQLFragmentPointer([dataID], rootFragment);
-        return (pointer: $FlowIssue);
+        return RelayRecord.createWithFields(dataID, {
+          [fragmentHash]: new GraphQLFragmentPointer([dataID], rootFragment),
+        });
       });
     }
     invariant(
@@ -78,11 +77,10 @@ class GraphQLFragmentPointer {
     if (!dataIDOrIDs) {
       return null;
     }
-    var result = {};
     // TODO(t7765591): Throw if `fragment` is not optional.
-    var fragmentPointer = new GraphQLFragmentPointer(dataIDOrIDs, fragment);
-    result[fragmentHash] = fragmentPointer;
-    return result;
+    return  {
+      [fragmentHash]: new GraphQLFragmentPointer(dataIDOrIDs, fragment),
+    };
   }
 
   constructor(

@@ -22,18 +22,21 @@ import type {
   DataID,
   FieldValue,
   NodeRangeMap,
-  Record,
-  Records,
   RootCallMap,
 } from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 import type RelayQueryPath from 'RelayQueryPath';
 const RelayRecord = require('RelayRecord');
+import type {
+  Record,
+  RecordMap,
+} from 'RelayRecord';
 import type {RecordState} from 'RelayRecordState';
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {CacheWriter} from 'RelayTypes';
 
 const invariant = require('invariant');
+const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 
 const {CURSOR, NODE} = RelayConnectionInterface;
 const EMPTY = '';
@@ -65,12 +68,12 @@ class RelayRecordWriter {
   _cacheWriter: ?CacheWriter;
   _clientMutationID: ?ClientMutationID;
   _isOptimisticWrite: boolean;
-  _records: Records;
+  _records: RecordMap;
   _nodeConnectionMap: NodeRangeMap;
   _rootCallMap: RootCallMap;
 
   constructor(
-    records: Records,
+    records: RecordMap,
     rootCallMap: RootCallMap,
     isOptimistic: boolean,
     nodeConnectionMap?: ?NodeRangeMap,
@@ -164,11 +167,9 @@ class RelayRecordWriter {
     if (prevRecord) {
       return;
     }
-    // TODO: Use `RelayRecord`, #9790614.
-    const nextRecord: Record = ({
-      __dataID__: dataID,
+    const nextRecord = RelayRecord.createWithFields(dataID, {
       __typename: typeName,
-    }: $FixMe);
+    });
     if (this._isOptimisticWrite) {
       this._setClientMutationID(nextRecord);
     }
@@ -366,9 +367,7 @@ class RelayRecordWriter {
       recordID,
       parentID
     );
-    const fieldValue = {
-      __dataID__: recordID,
-    };
+    const fieldValue = RelayRecord.create(recordID);
     parent[storageKey] = fieldValue;
     if (!this._isOptimisticWrite && this._cacheWriter) {
       this._cacheWriter.writeField(parentID, storageKey, fieldValue);
@@ -431,9 +430,7 @@ class RelayRecordWriter {
         recordID,
         parentID
       );
-      return {
-        __dataID__: recordID,
-      };
+      return RelayRecord.create(recordID);
     });
     parent[storageKey] = records;
     if (!this._isOptimisticWrite && this._cacheWriter) {
@@ -566,13 +563,10 @@ class RelayRecordWriter {
       'RelayRecordWriter: Expected edge `%s` to have a `node` record.',
       edgeID
     );
-    return {
-      __dataID__: edgeID,
+    return RelayRecord.createWithFields(edgeID, {
       cursor: this.getField(edgeID, CURSOR),
-      node: {
-        __dataID__: nodeID,
-      },
-    };
+      node: RelayRecord.create(nodeID),
+    });
   }
 
   _applyOptimisticRangeUpdate(
@@ -582,14 +576,15 @@ class RelayRecordWriter {
   ): void {
     let record: ?Record = this._getRecordForWrite(connectionID);
     if (!record) {
-      record = {__dataID__: connectionID};
+      record = RelayRecord.create(connectionID);
       this._records[connectionID] = record;
-      this._setClientMutationID(record);
     }
-    let queue: ?Array<DataID> = record[operation];
+    this._setClientMutationID(record);
+    const key = rangeOperationToMetadataKey[operation];
+    let queue: ?Array<DataID> = record[key];
     if (!queue) {
       queue = [];
-      record[operation] = queue;
+      record[key] = queue;
     }
     if (operation === PREPEND) {
       queue.unshift(edgeID);

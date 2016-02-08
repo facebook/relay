@@ -280,8 +280,9 @@ describe('writePayload()', () => {
 
     it('writes paths with fragments', () => {
       var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
+      var rootCallMap = {};
+      var store = new RelayRecordStore({records}, {rootCallMap});
+      var writer = new RelayRecordWriter(records, rootCallMap, false);
       var fragment = Relay.QL`fragment on Viewer {
         actor {
           id

@@ -64,14 +64,14 @@ describe('RelayRenderer.render', () => {
 
   it('defaults to null if unready and `render` is not supplied', () => {
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     );
     expect(null).toBeShallowRenderedChild();
   });
 
   it('defaults to component if ready and `render` is not supplied', () => {
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     );
     RelayStore.primeCache.mock.requests[0].resolve();
 
@@ -83,7 +83,7 @@ describe('RelayRenderer.render', () => {
   it('renders null if `render` returns null', () => {
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         render={() => null}
       />
@@ -96,7 +96,7 @@ describe('RelayRenderer.render', () => {
     const prevView = <span />;
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         render={() => prevView}
       />
@@ -106,7 +106,7 @@ describe('RelayRenderer.render', () => {
 
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         render={() => undefined}
       />
@@ -118,7 +118,7 @@ describe('RelayRenderer.render', () => {
     const prevView = <span />;
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         render={() => prevView}
       />
@@ -129,7 +129,7 @@ describe('RelayRenderer.render', () => {
     const nextView = <div />;
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         render={() => nextView}
       />
@@ -142,7 +142,7 @@ describe('RelayRenderer.render', () => {
     const render = jest.genMockFunction().mockReturnValue(initialView);
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         render={render}
       />
@@ -153,12 +153,12 @@ describe('RelayRenderer.render', () => {
 
   it('renders when updated before the initial request is sent', () => {
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     );
     const loadingView = <div />;
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={RelayQueryConfig.genMockInstance()}
         render={() => loadingView}
       />
@@ -169,14 +169,14 @@ describe('RelayRenderer.render', () => {
 
   it('does not render when updated after the initial request is sent', () => {
     ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     );
     RelayStore.primeCache.mock.requests[0].block();
 
     const loadingView = <div />;
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={RelayQueryConfig.genMockInstance()}
         render={() => loadingView}
       />
@@ -193,7 +193,7 @@ describe('RelayRenderer.render', () => {
     function update() {
       ShallowRenderer.render(
         <RelayRenderer
-          Component={MockContainer}
+          Container={MockContainer}
           queryConfig={queryConfig}
           render={render}
         />
@@ -209,5 +209,35 @@ describe('RelayRenderer.render', () => {
     update();
 
     expect(render.mock.calls.length).toBe(5);
+  });
+
+  describe('GC integration', () => {
+    let garbageCollector;
+
+    beforeEach(() => {
+      const storeData = RelayStore.getStoreData();
+      storeData.initializeGarbageCollector(jest.genMockFunction());
+      garbageCollector = storeData.getGarbageCollector();
+    });
+
+    it('acquires a GC hold when mounted', () => {
+      garbageCollector.acquireHold = jest.genMockFunction();
+      ShallowRenderer.render(
+        <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
+      );
+      expect(garbageCollector.acquireHold).toBeCalled();
+    });
+
+    it('releases its GC hold when unmounted', () => {
+      const release = jest.genMockFunction();
+      garbageCollector.acquireHold =
+        jest.genMockFunction().mockReturnValue({release});
+      ShallowRenderer.render(
+        <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
+      );
+      expect(release).not.toBeCalled();
+      ShallowRenderer.unmount();
+      expect(release).toBeCalled();
+    });
   });
 });

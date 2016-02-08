@@ -32,7 +32,7 @@ if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
   global.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = RelayInternals;
 }
 
-const networkLayer = RelayStoreData.getDefaultInstance().getNetworkLayer();
+const networkLayer = RelayStore.getStoreData().getNetworkLayer();
 
 /**
  * Relay contains the set of public methods used to initialize and orchestrate

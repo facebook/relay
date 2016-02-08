@@ -321,6 +321,24 @@ describe('RelayQuery', () => {
           {name: 'size', value: ['32']},
         ]);
       });
+
+      it('builds directives with argument values', () => {
+        const field = RelayQuery.Field.build({
+          directives: [{
+            args: [{
+              name: 'bar',
+              value: 'baz',
+            }],
+            name: 'foo',
+          }],
+          fieldName: 'profilePicture',
+          type: 'ProfilePicture',
+        });
+        expect(field.getDirectives()).toEqual([{
+          args: [{name: 'bar', value: 'baz'}],
+          name: 'foo',
+        }]);
+      });
     });
   });
 

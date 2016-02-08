@@ -1,34 +1,42 @@
 #!/usr/bin/env node
 
-var babel = require('babel');
-var fs = require('fs');
-var glob = require('glob');
-var mkdirp = require('mkdirp');
-var path = require('path');
-var rimraf = require('rimraf');
+const babel = require('babel');
+const crypto = require('crypto');
+const fs = require('fs');
+const glob = require('glob');
+const mkdirp = require('mkdirp');
+const path = require('path');
+const rimraf = require('rimraf');
 
-var root = path.resolve(__dirname, '..');
-var lib = path.join(root, 'lib');
-var src = path.join(root, 'src');
+const root = path.resolve(__dirname, '..');
+const lib = path.join(root, 'lib');
+const src = path.join(root, 'src');
 
 // Blow away prior build artifacts.
 rimraf.sync(lib);
 
+// Accumulate a hash that can be used as a cache breaker.
+const hash = crypto.createHash('sha1');
+
 // Get the files to transform
-var files = glob.sync('**/*.js', {
+const files = glob.sync('**/*.js', {
   cwd: src,
   ignore: '**/__tests__/*'}
 );
-files.forEach((file) => {
+files.forEach(file => {
   // Make sure file is fully resolved
-  var srcFile = path.resolve(src, file);
-  var libFile = path.resolve(lib, file);
+  const srcFile = path.resolve(src, file);
+  const libFile = path.resolve(lib, file);
 
   // Make sure the full path the destination file exists so we can write to it
   mkdirp.sync(path.dirname(libFile));
-  var code = babel.transformFileSync(srcFile).code;
+  const result = babel.transformFileSync(srcFile);
 
   // Prepend @generated annotation
-  code = '// @generated\n' + code;
+  const code = '// @generated\n' + result.code;
   fs.writeFile(libFile, code, 'utf8');
+  hash.update(code);
 });
+
+const hashFile = path.resolve(lib, 'HASH');
+fs.writeFile(hashFile, hash.digest('base64'), 'utf8');

@@ -22,6 +22,7 @@ const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const Relay = require('Relay');
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayRecordStore = require('RelayRecordStore');
+const RelayRecordWriter = require('RelayRecordWriter');
 const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -35,6 +36,7 @@ describe('RelayQueryResultObservable', () => {
   var records;
   var results;
   var store;
+  var writer;
 
   // helper functions
   var {getNode} = RelayTestUtils;
@@ -80,6 +82,7 @@ describe('RelayQueryResultObservable', () => {
       name: 'Joe',
     };
     store = new RelayRecordStore({records});
+    writer = new RelayRecordWriter(records, {}, false);
     storeData = new RelayStoreData();
 
     storeData.getQueuedStore = jest.genMockFunction().mockImplementation(() => {
@@ -145,7 +148,7 @@ describe('RelayQueryResultObservable', () => {
       subscriber.mockClear();
     });
 
-    store.putField('123', 'name', 'Joseph');
+    writer.putField('123', 'name', 'Joseph');
     results.name = 'Joseph';
     changeEmitter.broadcastChangeForID('123');
     jest.runAllTimers();
@@ -164,7 +167,7 @@ describe('RelayQueryResultObservable', () => {
     subscriber.mockClear();
     subscription.dispose();
 
-    store.putField('123', 'name', 'Joseph');
+    writer.putField('123', 'name', 'Joseph');
     results.name = 'Joseph';
     changeEmitter.broadcastChangeForID('123');
     jest.runAllTimers();
@@ -185,7 +188,7 @@ describe('RelayQueryResultObservable', () => {
     subscriber.mockClear();
 
     // fetching the record calls onNext
-    store.putRecord('oops');
+    writer.putRecord('oops');
     changeEmitter.broadcastChangeForID('oops');
     jest.runAllTimers();
     expect(subscriber.onCompleted).not.toBeCalled();
@@ -202,7 +205,7 @@ describe('RelayQueryResultObservable', () => {
     subscriber.mockClear();
 
     // deleting the record calls onNext
-    store.deleteRecord('123');
+    writer.deleteRecord('123');
     changeEmitter.broadcastChangeForID('123');
     jest.runAllTimers();
     expect(subscriber.onCompleted).not.toBeCalled();
@@ -211,7 +214,7 @@ describe('RelayQueryResultObservable', () => {
     subscriber.mockClear();
 
     // restoring the record calls onNext
-    store.putRecord('123');
+    writer.putRecord('123');
     changeEmitter.broadcastChangeForID('123');
     jest.runAllTimers();
     expect(subscriber.onCompleted).not.toBeCalled();
@@ -237,7 +240,7 @@ describe('RelayQueryResultObservable', () => {
     subscriber.mockClear();
 
     // restoring the record calls onNext
-    store.putRecord('123');
+    writer.putRecord('123');
     changeEmitter.broadcastChangeForID('123');
     jest.runAllTimers();
     expect(subscriber.onCompleted).not.toBeCalled();

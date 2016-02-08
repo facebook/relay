@@ -39,7 +39,7 @@ describe('RelayRenderer.abort', () => {
     function render() {
       const queryConfig = RelayQueryConfig.genMockInstance();
       ShallowRenderer.render(
-        <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
+        <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
       );
       const index = RelayStore.primeCache.mock.calls.length - 1;
       return {

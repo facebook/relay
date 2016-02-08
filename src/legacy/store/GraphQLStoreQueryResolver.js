@@ -290,6 +290,7 @@ class GraphQLStoreSingleQueryResolver {
   ): void {
     if (this._garbageCollector) {
       const garbageCollector = this._garbageCollector;
+      const cachedStore = this._storeData.getCachedStore();
       const rangeData = this._storeData.getRangeData();
 
       const prevDataIDs = this._subscribedIDs;
@@ -297,16 +298,20 @@ class GraphQLStoreSingleQueryResolver {
 
       // Note: the same canonical ID may appear in both removed and added: in
       // that case, it would have been:
-      // - previous: canonical ID ref count is incremented
-      // - current: canonical ID is incremented *and* decremented
-      // In both cases the next ref count change is +1.
+      // - previous step: canonical ID ref count was incremented
+      // - current step: canonical ID is incremented *and* decremented
+      // Note that the net ref count change is +1.
       added.forEach(id => {
         id = rangeData.getCanonicalClientID(id);
-        garbageCollector.incrementReferenceCount(id);
+        if (cachedStore.getRecordState(id) !== 'UNKNOWN') {
+          garbageCollector.incrementReferenceCount(id);
+        }
       });
       removed.forEach(id => {
         id = rangeData.getCanonicalClientID(id);
-        garbageCollector.decrementReferenceCount(id);
+        if (cachedStore.getRecordState(id) !== 'UNKNOWN') {
+          garbageCollector.decrementReferenceCount(id);
+        }
       });
     }
   }

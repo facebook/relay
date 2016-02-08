@@ -376,10 +376,10 @@ describe('RelayQueryRoot', () => {
     `, {cond: true});
     expect(query.getDirectives()).toEqual([
       {
-        name: 'include',
-        arguments: [
+        args: [
           {name: 'if', value: true},
         ],
+        name: 'include',
       },
     ]);
   });

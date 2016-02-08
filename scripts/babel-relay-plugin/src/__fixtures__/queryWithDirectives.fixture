@@ -44,7 +44,7 @@ var x = (function () {
         directives: [{
           kind: 'Directive',
           name: 'skip',
-          arguments: [{
+          args: [{
             name: 'if',
             value: {
               kind: 'CallVariable',
@@ -68,7 +68,7 @@ var x = (function () {
       directives: [{
         kind: 'Directive',
         name: 'include',
-        arguments: [{
+        args: [{
           name: 'if',
           value: {
             kind: 'CallVariable',
@@ -84,7 +84,7 @@ var x = (function () {
     directives: [{
       kind: 'Directive',
       name: 'include',
-      arguments: [{
+      args: [{
         name: 'if',
         value: {
           kind: 'CallVariable',

@@ -19,7 +19,6 @@ const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const Relay = require('Relay');
 const RelayContext = require('RelayContext');
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
-const RelayStoreData = require('RelayStoreData');
 const RelayMutation = require('RelayMutation');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationQueue = require('RelayMutationQueue');
@@ -33,7 +32,7 @@ describe('RelayContext', () => {
   var dataIDs;
   var queries;
   var callback;
-  var recordStore;
+  var recordWriter;
   var queryRunner;
 
   var {getNode} = RelayTestUtils;
@@ -41,15 +40,14 @@ describe('RelayContext', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    const storeData = new RelayStoreData();
-    relayContext = new RelayContext(storeData);
+    relayContext = new RelayContext();
 
     filter = () => true;
     dataIDs = ['feedback_id', 'likers_id'];
     queries = {};
     callback = jest.genMockFunction();
-    queryRunner = storeData.getQueryRunner();
-    recordStore = storeData.getRecordStore();
+    queryRunner = relayContext.getStoreData().getQueryRunner();
+    recordWriter = relayContext.getStoreData().getRecordWriter();
   });
 
   describe('primeCache', () => {
@@ -108,7 +106,7 @@ describe('RelayContext', () => {
 
   describe('readQuery', () => {
     it('accepts a query with no arguments', () => {
-      recordStore.putDataID('viewer', null, 'client:1');
+      recordWriter.putDataID('viewer', null, 'client:1');
       relayContext.readQuery(getNode(Relay.QL`query{viewer{actor{id}}}`));
       expect(readRelayQueryData.mock.calls.length).toBe(1);
       expect(readRelayQueryData.mock.calls[0][2]).toBe('client:1');

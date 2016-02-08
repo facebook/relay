@@ -16,7 +16,8 @@
 import type {ConcreteFragment} from 'ConcreteQuery';
 import type {RelayConcreteNode} from 'RelayQL';
 const RelayFragmentReference = require('RelayFragmentReference');
-import type RelayMetaRoute from 'RelayMetaRoute';
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayQuery = require('RelayQuery');
 const RelayStore = require('RelayStore');
 import type {
   RelayMutationConfig,
@@ -26,7 +27,6 @@ import type {
 const buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder} from 'buildRQL';
 const forEachObject = require('forEachObject');
-const fromGraphQL = require('fromGraphQL');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -255,12 +255,16 @@ class RelayMutation<Tp: Object> {
         return;
       }
 
-      var fragment = fromGraphQL.Fragment(buildMutationFragment(
-        this.constructor.name,
-        fragmentName,
-        fragmentBuilder,
+      const fragment = RelayQuery.Fragment.create(
+        buildMutationFragment(
+          this.constructor.name,
+          fragmentName,
+          fragmentBuilder,
+          initialVariables
+        ),
+        RelayMetaRoute.get(`$RelayMutation_${this.constructor.name}`),
         initialVariables
-      ));
+      );
       var fragmentHash = fragment.getConcreteNodeHash();
 
       if (fragment.isPlural()) {

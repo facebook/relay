@@ -22,6 +22,7 @@ const RelayStoreData = require('RelayStoreData');
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const readRelayQueryData = require('readRelayQueryData');
+const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
 
 import type {
@@ -76,8 +77,18 @@ import type {
 class RelayContext {
   _storeData: RelayStoreData;
 
-  constructor(storeData: RelayStoreData) {
-    this._storeData = storeData;
+  constructor() {
+    this._storeData = new RelayStoreData();
+    this._storeData.getChangeEmitter().injectBatchingStrategy(
+      relayUnstableBatchedUpdates
+    );
+  }
+
+  /**
+   * @internal
+   */
+  getStoreData(): RelayStoreData {
+    return this._storeData;
   }
 
   /**

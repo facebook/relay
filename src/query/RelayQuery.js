@@ -35,6 +35,7 @@ import type {Variables} from 'RelayTypes';
 const areEqual = require('areEqual');
 const callsFromGraphQL = require('callsFromGraphQL');
 const callsToGraphQL = require('callsToGraphQL');
+const directivesToGraphQL = require('directivesToGraphQL');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const getConcreteFragmentHash = require('getConcreteFragmentHash');
 const invariant = require('invariant');
@@ -233,9 +234,9 @@ class RelayQueryNode {
     }
     return this.getDirectives().every(directive => {
       if (directive.name === SKIP) {
-        return !directive.arguments.some(arg => arg.name === IF && !!arg.value);
+        return !directive.args.some(arg => arg.name === IF && !!arg.value);
       } else if (directive.name === INCLUDE) {
-        return !directive.arguments.some(arg => arg.name === IF && !arg.value);
+        return !directive.args.some(arg => arg.name === IF && !arg.value);
       }
       return true;
     });
@@ -244,10 +245,18 @@ class RelayQueryNode {
   getDirectives(): Array<Directive> {
     const concreteDirectives = (this.__concreteNode__: ConcreteNode).directives;
     if (concreteDirectives) {
-      return this.__concreteNode__.directives.map(directive => ({
-        name: directive.name,
-        arguments: callsFromGraphQL(directive.arguments, this.__variables__),
-      }));
+      return this.__concreteNode__.directives.map(directive => {
+        // FIXME Debugging #9934204
+        // In cases where the concrete directive is missing the `args` property,
+        // make the choice of the legacy `arguments` property.
+        const args = directive.hasOwnProperty('args') ?
+          directive.args :
+          directive.arguments;
+        return {
+          args: callsFromGraphQL(args, this.__variables__),
+          name: directive.name,
+        };
+      });
     }
     return EMPTY_DIRECTIVES;
   }
@@ -974,6 +983,7 @@ class RelayQueryField extends RelayQueryNode {
    */
   static build({
     alias,
+    directives,
     calls,
     children,
     fieldName,
@@ -981,6 +991,7 @@ class RelayQueryField extends RelayQueryNode {
     type,
   }: {
     alias?: ?string;
+    directives?: ?Array<Directive>;
     calls?: ?Array<Call>;
     children?: ?NextChildren;
     fieldName: string;
@@ -991,6 +1002,7 @@ class RelayQueryField extends RelayQueryNode {
     var concreteField = QueryBuilder.createField({
       alias,
       calls: calls ? callsToGraphQL(calls) : null,
+      directives: directives ? directivesToGraphQL(directives) : null,
       fieldName,
       metadata,
       type,

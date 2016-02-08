@@ -43,7 +43,7 @@ var fromGraphQL = {
     var node = createNode(query, RelayQuery.Fragment);
     invariant(
       node instanceof RelayQuery.Fragment,
-      'fromGraphQL.Field(): Expected a GraphQL fragment node.'
+      'fromGraphQL.Fragment(): Expected a GraphQL fragment node.'
     );
     return node;
   },
@@ -51,7 +51,7 @@ var fromGraphQL = {
     var node = createNode(query, RelayQuery.Root);
     invariant(
       node instanceof RelayQuery.Root,
-      'fromGraphQL.Operation(): Expected a root node.'
+      'fromGraphQL.Query(): Expected a root node.'
     );
     return node;
   },

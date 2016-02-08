@@ -22,6 +22,7 @@ const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMutation = require('RelayMutation');
 const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
+const RelayStore = require('RelayStore');
 const RelayStoreData = require('RelayStoreData');
 
 const flattenRelayQuery = require('flattenRelayQuery');
@@ -36,7 +37,7 @@ describe('RelayMutationQueue', () => {
     jest.resetModuleRegistry();
 
     RelayStoreData.prototype.handleUpdatePayload = jest.genMockFunction();
-    storeData = RelayStoreData.getDefaultInstance();
+    storeData = RelayStore.getStoreData();
     mutationQueue = storeData.getMutationQueue();
     networkLayer = storeData.getNetworkLayer();
   });

@@ -6,13 +6,8 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayStore
- * @flow
- * @typechecks
  */
 
 'use strict';
 
-const RelayContext = require('RelayContext');
-
-module.exports = new RelayContext();
+module.exports = require.requireActual('rangeOperationToMetadataKey');

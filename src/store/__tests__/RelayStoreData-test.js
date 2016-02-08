@@ -118,7 +118,7 @@ describe('RelayStoreData', () => {
     it('writes server payloads to `records`', () => {
       var storeData = new RelayStoreData();
       // create the root node
-      storeData.getRecordStore().putRecord('123');
+      storeData.getRecordWriter().putRecord('123');
 
       var mutationQuery = getNode(Relay.QL`
         mutation {
@@ -164,7 +164,7 @@ describe('RelayStoreData', () => {
     it('writes optimistic payloads to `queuedRecords`', () => {
       var storeData = new RelayStoreData();
       // create the root node
-      storeData.getRecordStore().putRecord('123');
+      storeData.getRecordWriter().putRecord('123');
 
       var mutationQuery = getNode(Relay.QL`
         mutation {

@@ -47,7 +47,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
     onReadyStateChange = jest.genMockFunction();
     ShallowRenderer.render(
       <RelayRenderer
-        Component={MockContainer}
+        Container={MockContainer}
         queryConfig={queryConfig}
         onReadyStateChange={onReadyStateChange}
       />
@@ -165,7 +165,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
     expect(request => {
       ShallowRenderer.render(
         <RelayRenderer
-          Component={MockContainer}
+          Container={MockContainer}
           queryConfig={RelayQueryConfig.genMockInstance()}
           onReadyStateChange={onReadyStateChange}
         />

@@ -36,12 +36,7 @@ const sprintf = require('sprintf');
 const warning = require('warning');
 
 type RelayRendererProps = {
-  // (GitHub #790): Once Component prop is fully removed this becomes mandatory.
-  Container?: RelayContainer;
-
-  // @deprecated: Use `Container` instead.
-  Component?: RelayContainer;
-
+  Container: RelayContainer;
   forceFetch?: ?boolean;
   onForceFetch?: ?(
     querySet: RelayQuerySet,
@@ -73,46 +68,6 @@ type RelayRendererState = {
 };
 
 const {PropTypes} = React;
-
-/**
- * (GitHub #790): Remove once Component prop deprecation is complete.
- */
-function containerFromProps(props: RelayRendererProps): RelayContainer {
-  const Container = props.Container || props.Component;
-  return (Container: any); // Non-null-ness is enforced by validator below.
-}
-
-/**
- * (GitHub #790): Remove once Component prop deprecation is complete.
- */
-function componentPropTypeValidator(
-  props: Object, propName: string, componentName: string
-): ?Error {
-  if (__DEV__) {
-    warning(
-      propName !== 'Component' || !props.hasOwnProperty('Component'),
-      'RelayRenderer: Received deprecated `Component` prop on `%s`. ' +
-      'Pass your Relay.Container via the `Container` prop instead.',
-      componentName
-    );
-  }
-  const {Component, Container} = props;
-  if ((Component || Container) == null) {
-    return new Error(sprintf(
-      'Required prop `Container` was not specified in `%s`.',
-      componentName
-    ));
-  } else if (
-    propName === 'Container' && Container && !isRelayContainer(Container) ||
-    propName === 'Component' && Component && !isRelayContainer(Component)) {
-    return new Error(sprintf(
-      'Invalid prop `%s` supplied to `%s`, expected a RelayContainer.',
-      propName,
-      componentName
-    ));
-  }
-  return null;
-}
 
 /**
  * @public
@@ -199,8 +154,7 @@ class RelayRenderer extends React.Component {
    * @private
    */
   _runQueries(props: RelayRendererProps): RelayRendererState {
-    const {forceFetch, queryConfig} = props;
-    const Container = containerFromProps(props);
+    const {Container, forceFetch, queryConfig} = props;
     const querySet = getRelayQueries(Container, queryConfig);
     const onReadyStateChange = readyState => {
       if (!this.mounted) {
@@ -273,7 +227,7 @@ class RelayRenderer extends React.Component {
    */
   _shouldUpdate(): boolean {
     const {activeContainer, activeQueryConfig} = this.state;
-    const Container = containerFromProps(this.props);
+    const {Container} = this.props;
     return (
       (!activeContainer || Container === activeContainer) &&
       (!activeQueryConfig || this.props.queryConfig === activeQueryConfig)
@@ -294,9 +248,7 @@ class RelayRenderer extends React.Component {
   }
 
   componentWillReceiveProps(nextProps: RelayRendererProps): void {
-    const Container = containerFromProps(this.props);
-    const nextContainer = containerFromProps(nextProps);
-    if (nextContainer !== Container ||
+    if (nextProps.Container !== this.props.Container ||
         nextProps.queryConfig !== this.props.queryConfig ||
         (nextProps.forceFetch && !this.props.forceFetch)) {
       if (this.state.pendingRequest) {
@@ -344,8 +296,7 @@ class RelayRenderer extends React.Component {
     let children;
     let shouldUpdate = this._shouldUpdate();
     if (shouldUpdate) {
-      const {render} = this.props;
-      const Container = containerFromProps(this.props);
+      const {Container, render} = this.props;
       const {renderArgs} = this.state;
       if (render) {
         children = render(renderArgs);
@@ -375,13 +326,7 @@ function createFragmentPointerForRoot(query) {
 }
 
 RelayRenderer.propTypes = {
-  // @deprecated Use `Container` instead.
-  Component: componentPropTypeValidator,
-
-  // (GitHub #790): Once Component is fully removed, can replace this with
-  // `RelayPropTypes.Container`.
-  Container: componentPropTypeValidator,
-
+  Container: RelayPropTypes.Container,
   forceFetch: PropTypes.bool,
   onReadyStateChange: PropTypes.func,
   queryConfig: RelayPropTypes.QueryConfig.isRequired,

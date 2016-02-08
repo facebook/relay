@@ -48,7 +48,6 @@ describe('RelayRenderer.validation', () => {
   });
 
   afterEach(() => {
-    jest.dontMock('warning');
     console.error = error;
   });
 
@@ -66,22 +65,6 @@ describe('RelayRenderer.validation', () => {
       'Warning: Failed propType: Invalid prop `Container` supplied to ' +
       '`RelayRenderer`, expected a RelayContainer.'
     );
-  });
-
-  it('warns about use of deprecated `Component` prop', () => {
-    jest.mock('warning');
-    ShallowRenderer.render(
-      <RelayRenderer Component={MockContainer} queryConfig={queryConfig} />
-    );
-
-    // Warning gets emitted twice because the props actually get checked twice:
-    // 1. `createElement` calls `checkPropTypes`
-    // 2. `ShallowRenderer.render` calls `mountComponent`, which checks types.
-    expect([
-      'RelayRenderer: Received deprecated `Component` prop on `%s`. ' +
-      'Pass your Relay.Container via the `Container` prop instead.',
-      'RelayRenderer',
-    ]).toBeWarnedNTimes(2);
   });
 
   it('requires a valid `queryConfig` prop', () => {

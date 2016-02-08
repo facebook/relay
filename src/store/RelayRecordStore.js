@@ -13,7 +13,6 @@
 
 'use strict';
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const GraphQLRange = require('GraphQLRange');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {
@@ -31,11 +30,9 @@ import type {
   RecordMap,
 } from 'RelayRecord';
 import type {RecordState} from 'RelayRecordState';
-import type {CacheWriter} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 const warning = require('warning');
 
 const {NODE} = RelayConnectionInterface;

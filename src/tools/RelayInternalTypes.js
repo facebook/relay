@@ -20,9 +20,7 @@
  */
 
 import typeof GraphQLMutatorConstants from 'GraphQLMutatorConstants';
-import type GraphQLRange from 'GraphQLRange';
 import type RelayQuery from 'RelayQuery';
-import type RelayQueryPath from 'RelayQueryPath';
 
 export type Call = {
   name: string;

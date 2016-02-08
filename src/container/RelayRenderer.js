@@ -30,10 +30,7 @@ const StaticContainer = require('StaticContainer.react');
 
 const getRelayQueries = require('getRelayQueries');
 const invariant = require('invariant');
-const isRelayContainer = require('isRelayContainer');
 const mapObject = require('mapObject');
-const sprintf = require('sprintf');
-const warning = require('warning');
 
 type RelayRendererProps = {
   Container: RelayContainer;

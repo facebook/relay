@@ -300,9 +300,9 @@ function createVariable(
   type: string,
   printerState: PrinterState
 ): string {
-  const {variableMap} = printerState;
-  if (variableMap.has(value)) {
-    return variableMap.get(value).variableID;
+  const existingVariable = printerState.variableMap.get(value);
+  if (existingVariable) {
+    return existingVariable.variableID;
   } else {
     const variableID = name + '_' + base62(printerState.variableCount++);
     printerState.variableMap.set(value, {

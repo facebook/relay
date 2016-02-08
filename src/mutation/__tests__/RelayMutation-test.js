@@ -40,7 +40,9 @@ describe('RelayMutation', function() {
     const initialVariables = {isRelative: false};
 
     const makeMockMutation = () => {
-      class MockMutationClass extends Relay.Mutation {}
+      class MockMutationClass extends Relay.Mutation {
+        didResolveProps = jest.genMockFunction();
+      }
       MockMutationClass.fragments = {
         foo: () => Relay.QL`
           fragment on Comment {
@@ -135,6 +137,34 @@ describe('RelayMutation', function() {
     expect(mockMutation.props).toEqual(resolvedProps);
     expect(mockMutation.props.bar).toBe(resolvedProps.bar);
     expect(mockMutation.props.foo).toBe(resolvedProps.foo);
+  });
+
+  it('calls `didResolveProps` after resolving props', () => {
+    const resolvedProps = {
+      bar: {},
+      foo: {},
+    };
+
+    relayContext.read.mockImplementation(({}, dataID) => resolvedProps[dataID]);
+
+    mockMutation.didResolveProps.mockImplementation(function() {
+      expect(this.props).toEqual(resolvedProps);
+      expect(this.props.bar).toBe(resolvedProps.bar);
+      expect(this.props.foo).toBe(resolvedProps.foo);
+    });
+
+    expect(mockMutation.didResolveProps).not.toBeCalled();
+
+    mockMutation.bindContext(relayContext);
+
+    expect(mockMutation.didResolveProps).toBeCalled();
+  });
+
+  it('calls `didResolveProps` only once', () => {
+    mockMutation.bindContext(relayContext);
+    mockMutation.bindContext(relayContext);
+
+    expect(mockMutation.didResolveProps.mock.calls.length).toBe(1);
   });
 
   it('throws if mutation defines invalid `Relay.QL` fragment', () => {

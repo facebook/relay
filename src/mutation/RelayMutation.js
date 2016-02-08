@@ -67,6 +67,7 @@ class RelayMutation<Tp: Object> {
     if (!this._context) {
       this._context = context;
       this._resolveProps();
+      this.didResolveProps();
     } else {
       invariant(
         context === this._context,
@@ -75,6 +76,11 @@ class RelayMutation<Tp: Object> {
       );
     }
   }
+
+  /**
+   * This hook is invoked when props have been resolved
+   */
+  didResolveProps() {}
 
   /**
    * Each mutation corresponds to a field on the server which is used by clients

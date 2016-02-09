@@ -73,6 +73,63 @@ describe('diffRelayQuery - fragments', () => {
     expect(diffQueries.length).toBe(0);
   });
 
+  it('tracks fragments for null linked fields', () => {
+    var records = {};
+    var store = new RelayRecordStore({records});
+    var tracker = new RelayQueryTracker();
+
+    // Create the first query with a selection on a linked field
+    var firstQuery = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ... on User {
+            address {
+              country
+            }
+          }
+        }
+      }
+    `);
+
+    // Write the payload with a null linked field, but ensure we track the fragment
+    var firstPayload = {
+      node: {
+        id: '123',
+        __typename: 'User',
+        firstName: 'Joe',
+        address: null
+      },
+    };
+    writePayload(store, firstQuery, firstPayload, tracker);
+    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(1);
+    expect(trackedQueries[0][1]).toBe('123');
+    expect(trackedQueries[0][0]).toEqualQueryRoot(firstQuery)
+
+    // Create a second query that requests a different selection on the null linked field
+    var secondQuery = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ... on User {
+            address {
+              city
+            }
+          }
+        }
+      }
+    `);
+
+    // Everything can be diffed out, linked field is null
+    var diffQueries = diffRelayQuery(secondQuery, store, tracker);
+    expect(diffQueries.length).toBe(0);
+
+    // Should track the new `address { city }` fragment, though, so we can remember it later
+    trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(2);
+    expect(trackedQueries[1][1]).toBe('123');
+    expect(trackedQueries[1][0]).toEqualQueryRoot(secondQuery)
+  });
+
   it('refetches matching fragments with missing fields', () => {
     var records = {};
     var store = new RelayRecordStore({records});

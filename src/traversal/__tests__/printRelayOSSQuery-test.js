@@ -190,6 +190,78 @@ describe('printRelayOSSQuery', () => {
       });
     });
 
+    it('dedupes enum variables', () => {
+      const enumValue = 'WEB';
+      const query = getNode(Relay.QL`
+        query FooQuery {
+          defaultSettings {
+            web: notifications(environment: WEB)
+            foo: notifications(environment: $env)
+          }
+        }
+      `, {
+        env: enumValue,
+      });
+      const alias = generateRQLFieldAlias('notifications.environment(WEB)');
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query FooQuery($environment_0:Environment) {
+          defaultSettings {
+            ${alias}: notifications(environment:$environment_0),
+            ${alias}: notifications(environment:$environment_0)
+          }
+        }
+      `);
+      expect(variables).toEqual({
+        environment_0: enumValue,
+      });
+    });
+
+    it('dedupes object variables', () => {
+      const query1 = {query: 'foo'};
+      const query2 = {query: 'foo'};
+      const query = getNode(Relay.QL`
+        query FooQuery {
+          node(id: "123") {
+            ... on User {
+              foo: storySearch(query: $query1) {
+                id
+              }
+              bar: storySearch(query: $query2) {
+                id
+              }
+            }
+          }
+        }
+      `, {
+        query1,
+        query2,
+      });
+      const alias = generateRQLFieldAlias('storySearch.query({"query":"foo"})');
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query FooQuery($query_0: StorySearchInput) {
+          node(id: "123") {
+            id,
+            __typename,
+            ...F0
+          }
+        }
+        fragment F0 on User {
+          ${alias}: storySearch(query: $query_0) {
+            id
+          },
+          ${alias}: storySearch(query: $query_0) {
+            id
+          },
+          id
+        }
+      `);
+      expect(variables).toEqual({
+        query_0: query1,
+      });
+    });
+
     it('throws for ref queries', () => {
       const query = RelayQuery.Root.build(
         'RefQueryName',

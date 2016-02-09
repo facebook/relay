@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const babel = require('babel');
+const babel = require('babel-core');
 const crypto = require('crypto');
 const fs = require('fs');
 const glob = require('glob');

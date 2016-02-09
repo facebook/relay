@@ -29,6 +29,7 @@ const RelayPropTypes = require('RelayPropTypes');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
+const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
@@ -390,6 +391,17 @@ function createContainerComponent(
       return storeData.getCachedStore().hasDeferredFragmentData(
         dataID,
         fragment.getCompositeHash()
+      );
+    }
+
+    /**
+     * Determine if the supplied record might be missing data.
+     */
+    hasPartialData(
+      record: Object
+    ): boolean {
+      return RelayRecordStatusMap.isPartialStatus(
+        record[RelayRecord.MetadataKey.STATUS]
       );
     }
 

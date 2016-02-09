@@ -190,6 +190,33 @@ describe('printRelayOSSQuery', () => {
       });
     });
 
+    it('dedupes arguments', () => {
+      const enumValue = 'WEB';
+      const query = getNode(Relay.QL`
+        query FooQuery {
+          defaultSettings {
+            web: notifications(environment: WEB)
+            foo: notifications(environment: $env)
+          }
+        }
+      `, {
+        env: enumValue,
+      });
+      const alias = generateRQLFieldAlias('notifications.environment(WEB)');
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query FooQuery($environment_0:Environment) {
+          defaultSettings {
+            ${alias}: notifications(environment:$environment_0),
+            ${alias}: notifications(environment:$environment_0)
+          }
+        }
+      `);
+      expect(variables).toEqual({
+        environment_0: enumValue,
+      });
+    });
+
     it('throws for ref queries', () => {
       const query = RelayQuery.Root.build(
         'RefQueryName',

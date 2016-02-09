@@ -14,8 +14,9 @@
 'use strict';
 
 const Deferred = require('Deferred');
-const DliteFetchModeConstants = require('DliteFetchModeConstants');
 const PromiseMap = require('PromiseMap');
+const RelayFetchMode = require('RelayFetchMode');
+import type {FetchMode} from 'RelayFetchMode';
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
 const RelayTaskScheduler = require('RelayTaskScheduler');
@@ -28,7 +29,7 @@ const invariant = require('invariant');
 const subtractRelayQuery = require('subtractRelayQuery');
 
 type PendingQueryParameters = {
-  fetchMode: DliteFetchModeConstants;
+  fetchMode: FetchMode;
   forceIndex: ?number;
   query: RelayQuery.Root;
 };
@@ -137,7 +138,7 @@ class PendingFetch {
     this._storeData = storeData;
 
     var subtractedQuery;
-    if (fetchMode === DliteFetchModeConstants.FETCH_MODE_PRELOAD) {
+    if (fetchMode === RelayFetchMode.PRELOAD) {
       subtractedQuery = query;
       this._fetchSubtractedQueryPromise = this._preloadQueryMap.get(queryID);
     } else {

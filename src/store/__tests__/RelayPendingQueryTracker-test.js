@@ -17,8 +17,8 @@ jest
   .dontMock('RelayPendingQueryTracker')
   .dontMock('RelayTaskQueue');
 
-const DliteFetchModeConstants = require('DliteFetchModeConstants');
 const Relay = require('Relay');
+const RelayFetchMode = require('RelayFetchMode');
 const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -42,7 +42,7 @@ describe('RelayPendingQueryTracker', () => {
     subtractRelayQuery.mockImplementation(query => query);
 
     addPending = ({query, fetchMode}) => {
-      fetchMode = fetchMode || DliteFetchModeConstants.FETCH_MODE_CLIENT;
+      fetchMode = fetchMode || RelayFetchMode.CLIENT;
       return pendingQueryTracker.add({
         query,
         fetchMode,
@@ -374,7 +374,7 @@ describe('RelayPendingQueryTracker', () => {
 
     addPending({
       query: mockQuery,
-      fetchMode: DliteFetchModeConstants.FETCH_MODE_PRELOAD,
+      fetchMode: RelayFetchMode.PRELOAD,
     });
 
     pendingQueryTracker.resolvePreloadQuery(
@@ -405,7 +405,7 @@ describe('RelayPendingQueryTracker', () => {
 
     addPending({
       query: mockQuery,
-      fetchMode: DliteFetchModeConstants.FETCH_MODE_PRELOAD,
+      fetchMode: RelayFetchMode.PRELOAD,
     });
 
     jest.runAllTimers();
@@ -426,7 +426,7 @@ describe('RelayPendingQueryTracker', () => {
 
     var mockPending = addPending({
       query: mockQuery,
-      fetchMode: DliteFetchModeConstants.FETCH_MODE_PRELOAD,
+      fetchMode: RelayFetchMode.PRELOAD,
     });
     var mockCallback = jest.genMockFunction();
     mockPending.catch(mockCallback);

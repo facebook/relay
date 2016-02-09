@@ -259,6 +259,35 @@ describe('RelayRenderer.render', () => {
       expect(garbageCollector.acquireHold).toBeCalled();
     });
 
+    it('reacquires a GC hold when Relay context is changed', () => {
+      const release = jest.genMockFunction();
+      garbageCollector.acquireHold =
+        jest.genMockFunction().mockReturnValue({release});
+      ShallowRenderer.render(
+        <RelayRenderer
+          Container={MockContainer}
+          queryConfig={queryConfig}
+          relayContext={relayContext}
+        />
+      );
+      expect(release).not.toBeCalled();
+
+      const newRelayContext = new RelayContext();
+      const storeData = newRelayContext.getStoreData();
+      storeData.initializeGarbageCollector(jest.genMockFunction());
+      const newGarbageCollector = storeData.getGarbageCollector();
+      newGarbageCollector.acquireHold = jest.genMockFunction();
+      ShallowRenderer.render(
+        <RelayRenderer
+          Container={MockContainer}
+          queryConfig={queryConfig}
+          relayContext={newRelayContext}
+        />
+      );
+      expect(release).toBeCalled();
+      expect(newGarbageCollector.acquireHold).toBeCalled();
+    });
+
     it('releases its GC hold when unmounted', () => {
       const release = jest.genMockFunction();
       garbageCollector.acquireHold =
@@ -268,6 +297,33 @@ describe('RelayRenderer.render', () => {
           Container={MockContainer}
           queryConfig={queryConfig}
           relayContext={relayContext}
+        />
+      );
+      expect(release).not.toBeCalled();
+      ShallowRenderer.unmount();
+      expect(release).toBeCalled();
+    });
+
+    it('releases reacquired GC hold when unmounted', () => {
+      ShallowRenderer.render(
+        <RelayRenderer
+          Container={MockContainer}
+          queryConfig={queryConfig}
+          relayContext={relayContext}
+        />
+      );
+      const newRelayContext = new RelayContext();
+      const storeData = newRelayContext.getStoreData();
+      storeData.initializeGarbageCollector(jest.genMockFunction());
+      const newGarbageCollector = storeData.getGarbageCollector();
+      const release = jest.genMockFunction();
+      newGarbageCollector.acquireHold =
+        jest.genMockFunction().mockReturnValue({release});
+      ShallowRenderer.render(
+        <RelayRenderer
+          Container={MockContainer}
+          queryConfig={queryConfig}
+          relayContext={newRelayContext}
         />
       );
       expect(release).not.toBeCalled();

@@ -57,7 +57,7 @@ describe('RelayRenderer', function() {
     expect(relayContext.primeCache).toBeCalled();
   });
 
-  it('does nothing when `Component` and `queryConfig` are unchanged', () => {
+  it('does nothing when required props are unchanged', () => {
     ShallowRenderer.render(
       <RelayRenderer
         Container={MockContainer}
@@ -116,6 +116,23 @@ describe('RelayRenderer', function() {
       [MockContainer, anotherQueryConfig],
     ]);
     expect(relayContext.primeCache.mock.calls.length).toBe(2);
+  });
+
+  it('primes new queries when `relayContext` changes', () => {
+    const anotherRelayContext = new RelayContext();
+    ShallowRenderer.render(
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={queryConfig}
+        relayContext={anotherRelayContext}
+      />
+    );
+    expect(getRelayQueries.mock.calls).toEqual([
+      [MockContainer, queryConfig],
+      [MockContainer, queryConfig],
+    ]);
+    expect(relayContext.primeCache.mock.calls.length).toBe(1);
+    expect(anotherRelayContext.primeCache.mock.calls.length).toBe(1);
   });
 
   it('force fetches when the `forceFetch` prop is true', () => {

@@ -53,6 +53,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     } :
     function<T>(fields: T): T { return fields };
 
+  const EMPTY_ARRAY = t.arrayExpression([]);
   const FIELDS = formatFields({
     __typename: '__typename',
     clientMutationId: 'clientMutationId',
@@ -297,6 +298,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     ): Printable {
       const fields = [];
       const printedFragments = [];
+      let didPrintFragmentReference = false;
       parent.getSelections().forEach(selection => {
         if (selection instanceof RelayQLFragmentSpread) {
           // Assume that all spreads exist via template substitution.
@@ -306,6 +308,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             'references.'
           );
           printedFragments.push(this.printFragmentReference(selection));
+          didPrintFragmentReference = true;
         } else if (selection instanceof RelayQLInlineFragment) {
           printedFragments.push(this.printFragment(selection.getFragment()));
         } else if (selection instanceof RelayQLField) {
@@ -328,7 +331,10 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       const selections = [...printedFields, ...printedFragments];
 
       if (selections.length) {
-        return t.arrayExpression(selections);
+        const arrayExpressionOfSelections = t.arrayExpression(selections);
+        return didPrintFragmentReference ?
+          shallowFlatten(arrayExpressionOfSelections) :
+          arrayExpressionOfSelections;
       }
       return NULL;
     }
@@ -786,6 +792,16 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
   function property(name: string, value: mixed): Printable {
     return t.objectProperty(t.identifier(name), value);
+  }
+
+  function shallowFlatten(arr: mixed) {
+    return t.callExpression(
+    	t.memberExpression(
+        t.memberExpression(EMPTY_ARRAY, t.identifier('concat')),
+        t.identifier('apply')
+      ),
+      [EMPTY_ARRAY, arr]
+    )
   }
 
   return RelayQLPrinter;

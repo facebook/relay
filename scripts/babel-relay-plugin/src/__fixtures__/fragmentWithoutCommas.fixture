@@ -11,7 +11,7 @@ Output:
 var Relay = require('react-relay');
 var x = (function (RQL_0) {
   return {
-    children: [{
+    children: [].concat.apply([],[{
       fieldName: 'id',
       kind: 'Field',
       metadata: {
@@ -26,7 +26,7 @@ var x = (function (RQL_0) {
         isRequisite: true
       },
       type: 'String'
-    }, Relay.QL.__frag(RQL_0)],
+    }, Relay.QL.__frag(RQL_0)]),
     kind: 'Fragment',
     metadata: {
       isAbstract: true

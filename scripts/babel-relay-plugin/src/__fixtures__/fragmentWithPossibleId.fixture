@@ -65,7 +65,7 @@ var x = (function () {
     metadata: {
       isAbstract: true
     },
-    name: 'FragmentWithPossibleId',
+    name: 'FragmentWithPossibleIdRelayQL',
     type: 'Actor'
   };
 })();

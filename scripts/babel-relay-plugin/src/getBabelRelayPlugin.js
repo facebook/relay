@@ -106,10 +106,24 @@ function getBabelRelayPlugin(
           const {documentName} = state.file.opts;
           invariant(documentName, 'Expected `documentName` to have been set.');
 
+          let p = path;
+          let propName = null;
+          while (!propName && (p = p.parentPath)) {
+            if (p.isProperty()) {
+              propName = p.node.key.name;
+            }
+          }
+
           let result;
           try {
             result =
-              transformer.transform(t, node.quasi, documentName, tagName);
+              transformer.transform(
+                t,
+                node.quasi,
+                documentName,
+                tagName,
+                propName,
+              );
           } catch (error) {
             // Print a console warning and replace the code with a function
             // that will immediately throw an error in the browser.

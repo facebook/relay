@@ -27,7 +27,7 @@ var x = (function () {
       plural: true,
       isAbstract: true
     },
-    name: 'FragmentDirectives',
+    name: 'FragmentDirectivesRelayQL',
     type: 'Node'
   };
 })();

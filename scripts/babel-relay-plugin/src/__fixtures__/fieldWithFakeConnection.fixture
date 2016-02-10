@@ -70,7 +70,7 @@ var foo = (function () {
     }],
     kind: 'Fragment',
     metadata: {},
-    name: 'FieldWithFakeConnection',
+    name: 'FieldWithFakeConnectionRelayQL',
     type: 'User'
   };
 })();

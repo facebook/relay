@@ -90,14 +90,15 @@ class RelayQLTransformer {
     t: any, // Babel
     node: TemplateLiteral,
     documentName: string,
-    tagName: string
+    tagName: string,
+    propName: ?string,
   ): Printable {
     const {
       substitutions,
       templateText,
       variableNames,
     } = this.processTemplateLiteral(node, documentName);
-    const documentText = this.processTemplateText(templateText, documentName);
+    const documentText = this.processTemplateText(templateText, documentName, propName);
     const definition = this.processDocumentText(documentText, documentName);
 
     const Printer = RelayQLPrinter(t, this.options);
@@ -151,7 +152,8 @@ class RelayQLTransformer {
    */
   processTemplateText(
     templateText: string,
-    documentName: string
+    documentName: string,
+    propName: ?string,
   ): string {
     const pattern = /^(fragment|mutation|query|subscription)\s*(\w*)?([\s\S]*)/;
     const matches = pattern.exec(templateText);
@@ -166,7 +168,9 @@ class RelayQLTransformer {
     let rest = matches[3];
     // Allow `fragment on Type {...}`.
     if (type === 'fragment' && name === 'on') {
-      name = documentName;
+      name = documentName + 
+        (propName ? '_' + capitalize(propName) : '') + 
+        'RelayQL';
       rest = 'on' + rest;
     }
     const definitionName = capitalize(name);

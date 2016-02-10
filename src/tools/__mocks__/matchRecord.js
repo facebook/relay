@@ -9,7 +9,7 @@
 
 'use strict';
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 
 type Result = {
   isMatched: boolean;
@@ -38,8 +38,8 @@ function match(
     };
   }
 
-  if (actual instanceof GraphQLFragmentPointer) {
-    if (expected instanceof GraphQLFragmentPointer) {
+  if (actual instanceof RelayFragmentPointer) {
+    if (expected instanceof RelayFragmentPointer) {
       return {
         isMatched: actual.equals(expected),
         message: (
@@ -54,7 +54,7 @@ function match(
         path,
       };
     }
-  } else if (expected instanceof GraphQLFragmentPointer) {
+  } else if (expected instanceof RelayFragmentPointer) {
     return {
       isMatched: false,
       message: 'be ' + expected.toString() + ', but got ' + actual,

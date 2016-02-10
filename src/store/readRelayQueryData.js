@@ -13,7 +13,7 @@
 
 'use strict';
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
@@ -173,7 +173,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     const dataID = getComponentDataID(state);
     if (node.isContainerFragment() && !this._traverseFragmentReferences) {
       state.seenDataIDs[dataID] = true;
-      const fragmentPointer = new GraphQLFragmentPointer(
+      const fragmentPointer = new RelayFragmentPointer(
         node.isPlural() ? [dataID] : dataID,
         node
       );
@@ -319,7 +319,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     var read = child => {
       if (child instanceof RelayQuery.Fragment) {
         if (child.isContainerFragment() && !this._traverseFragmentReferences) {
-          var fragmentPointer = new GraphQLFragmentPointer(
+          var fragmentPointer = new RelayFragmentPointer(
             getComponentDataID(state),
             child
           );

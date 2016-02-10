@@ -13,7 +13,7 @@
 
 'use strict';
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 
 /**
  * Recycles subtrees from `prevData` by replacing equal subtrees in `nextData`.
@@ -24,9 +24,9 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
     return nextData;
   }
   var canRecycle = false;
-  if (prevData instanceof GraphQLFragmentPointer) {
+  if (prevData instanceof RelayFragmentPointer) {
     canRecycle =
-      nextData instanceof GraphQLFragmentPointer &&
+      nextData instanceof RelayFragmentPointer &&
       nextData.equals(prevData);
   } else {
     var isPrevArray = Array.isArray(prevData);

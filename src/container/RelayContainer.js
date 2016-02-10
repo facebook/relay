@@ -15,7 +15,7 @@
 
 import type {ConcreteFragment} from 'ConcreteQuery';
 const ErrorUtils = require('ErrorUtils');
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');
 const RelayContainerComparators = require('RelayContainerComparators');
@@ -105,7 +105,7 @@ function createContainerComponent(
   class RelayContainer extends React.Component {
     mounted: boolean;
     _didShowFakeDataWarning: boolean;
-    _fragmentPointers: {[key: string]: ?GraphQLFragmentPointer};
+    _fragmentPointers: {[key: string]: ?RelayFragmentPointer};
     _hasStaleQueryData: boolean;
     _queryResolvers: {[key: string]: ?GraphQLStoreQueryResolver};
 
@@ -188,7 +188,7 @@ function createContainerComponent(
      * `_fragmentPointers` property.
      */
     _createQuerySetAndFragmentPointers(variables: Variables): {
-      fragmentPointers: {[key: string]: ?GraphQLFragmentPointer},
+      fragmentPointers: {[key: string]: ?RelayFragmentPointer},
       querySet: RelayQuerySet,
     } {
       var fragmentPointers = {};
@@ -219,14 +219,14 @@ function createContainerComponent(
             }
           });
           if (dataIDs.length) {
-            fragmentPointer = new GraphQLFragmentPointer(dataIDs, fragment);
+            fragmentPointer = new RelayFragmentPointer(dataIDs, fragment);
           }
         } else {
           /* $FlowFixMe(>=0.19.0) - queryData is mixed but getID expects Object
            */
           var dataID = RelayRecord.getDataID(queryData);
           if (dataID) {
-            fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
+            fragmentPointer = new RelayFragmentPointer(dataID, fragment);
             querySet[fragmentName] =
               storeData.buildFragmentQueryForDataID(fragment, dataID);
           }
@@ -601,7 +601,7 @@ function createContainerComponent(
           }
         }
         fragmentPointers[fragmentName] = dataIDOrIDs ?
-          new GraphQLFragmentPointer(dataIDOrIDs, fragment) :
+          new RelayFragmentPointer(dataIDOrIDs, fragment) :
           null;
       });
       if (__DEV__) {

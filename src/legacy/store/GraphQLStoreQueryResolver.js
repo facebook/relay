@@ -14,7 +14,7 @@
 'use strict';
 
 import type {ChangeSubscription} from 'GraphQLStoreChangeEmitter';
-import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
+import type RelayFragmentPointer from 'RelayFragmentPointer';
 import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
@@ -37,7 +37,7 @@ type DataIDSet = {[dataID: DataID]: any};
  */
 class GraphQLStoreQueryResolver {
   _callback: Function;
-  _fragmentPointer: GraphQLFragmentPointer;
+  _fragmentPointer: RelayFragmentPointer;
   _resolver: ?(
     GraphQLStorePluralQueryResolver |
     GraphQLStoreSingleQueryResolver
@@ -46,7 +46,7 @@ class GraphQLStoreQueryResolver {
 
   constructor(
     storeData: RelayStoreData,
-    fragmentPointer: GraphQLFragmentPointer,
+    fragmentPointer: RelayFragmentPointer,
     callback: Function
   ) {
     this.reset();
@@ -67,7 +67,7 @@ class GraphQLStoreQueryResolver {
   }
 
   resolve(
-    fragmentPointer: GraphQLFragmentPointer
+    fragmentPointer: RelayFragmentPointer
   ): ?(StoreReaderData | Array<?StoreReaderData>) {
     var resolver = this._resolver;
     if (!resolver) {
@@ -110,7 +110,7 @@ class GraphQLStorePluralQueryResolver {
    * the last call to `resolve`, the same array will be returned. Otherwise, a
    * new array will be returned.
    */
-  resolve(fragmentPointer: GraphQLFragmentPointer): Array<?StoreReaderData> {
+  resolve(fragmentPointer: RelayFragmentPointer): Array<?StoreReaderData> {
     var prevResults = this._results;
     var nextResults;
 
@@ -189,7 +189,7 @@ class GraphQLStoreSingleQueryResolver {
    * NOTE: `nextPluralID` should only be passed by the plural query resolver.
    */
   resolve(
-    fragmentPointer: GraphQLFragmentPointer,
+    fragmentPointer: RelayFragmentPointer,
     nextPluralID?: ?DataID
   ): ?StoreReaderData {
     var nextFragment = fragmentPointer.getFragment();

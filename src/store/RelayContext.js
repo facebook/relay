@@ -13,7 +13,7 @@
 
 'use strict';
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type RelayQuery from 'RelayQuery';
@@ -168,7 +168,7 @@ class RelayContext {
     fragment: RelayQuery.Fragment,
     dataID: DataID
   ): Observable<?StoreReaderData> {
-    var fragmentPointer = new GraphQLFragmentPointer(
+    var fragmentPointer = new RelayFragmentPointer(
       fragment.isPlural()? [dataID] : dataID,
       fragment
     );

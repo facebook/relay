@@ -13,7 +13,7 @@
 
 'use strict';
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 import type RelayStoreData from 'RelayStoreData';
 import type {
@@ -46,7 +46,7 @@ const invariant = require('invariant');
  */
 class RelayQueryResultObservable {
   _data: ?StoreReaderData;
-  _fragmentPointer: GraphQLFragmentPointer;
+  _fragmentPointer: RelayFragmentPointer;
   _queryResolver: ?GraphQLStoreQueryResolver;
   _storeData: RelayStoreData;
   _subscriptionCallbacks: Array<SubscriptionCallbacks<?StoreReaderData>>;
@@ -54,7 +54,7 @@ class RelayQueryResultObservable {
 
   constructor(
     storeData: RelayStoreData,
-    fragmentPointer: GraphQLFragmentPointer
+    fragmentPointer: RelayFragmentPointer
   ) {
     this._data = undefined;
     this._fragmentPointer = fragmentPointer;

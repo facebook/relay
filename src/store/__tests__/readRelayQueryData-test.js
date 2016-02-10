@@ -13,7 +13,7 @@
 
 require('configureForRelayOSS');
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
@@ -288,7 +288,7 @@ describe('readRelayQueryData', () => {
     var query = getNode(Relay.QL`query{viewer{${fragmentReference}}}`);
     var data = readData(getStoreData({records}), query, 'client:1');
     var pointer = data[getNode(fragmentReference).getConcreteNodeHash()];
-    expect(pointer instanceof GraphQLFragmentPointer).toBe(true);
+    expect(pointer instanceof RelayFragmentPointer).toBe(true);
     expect(data.__dataID__).toBe('client:1');
   });
 
@@ -763,7 +763,7 @@ describe('readRelayQueryData', () => {
     var fragmentPointer = data.comments.pageInfo[
       getNode(fragmentReference).getConcreteNodeHash()
     ];
-    expect(fragmentPointer instanceof GraphQLFragmentPointer).toBe(true);
+    expect(fragmentPointer instanceof RelayFragmentPointer).toBe(true);
     expect(fragmentPointer.getDataID()).toBe('comments_id_first(1)');
     expect(fragmentPointer.getFragment())
       .toEqualQueryNode(getNode(fragmentReference.getFragment()));
@@ -846,13 +846,13 @@ describe('readRelayQueryData', () => {
     var fragmentPointer = data.comments[
       getNode(fragmentReference).getConcreteNodeHash()
     ];
-    expect(fragmentPointer instanceof GraphQLFragmentPointer).toBe(true);
+    expect(fragmentPointer instanceof RelayFragmentPointer).toBe(true);
     expect(fragmentPointer.getDataID()).toBe('comments_id_first(1)');
     expect(fragmentPointer.getFragment())
       .toEqualQueryNode(getNode(fragmentReference.getFragment()));
   });
 
-  it('returns GraphQLFragmentPointers for child queries', () => {
+  it('returns RelayFragmentPointers for child queries', () => {
     var records = {
       user_id: {
         __dataID__: 'user_id',
@@ -906,11 +906,11 @@ describe('readRelayQueryData', () => {
       screennames[0][getNode(fragmentReference).getConcreteNodeHash()];
     var namePointer2 =
       screennames[1][getNode(fragmentReference).getConcreteNodeHash()];
-    expect(namePointer1 instanceof GraphQLFragmentPointer).toBe(true);
+    expect(namePointer1 instanceof RelayFragmentPointer).toBe(true);
     expect(namePointer1.getDataID()).toBe('client1');
     expect(namePointer1.getFragment())
       .toEqualQueryNode(getNode(fragmentReference.getFragment()));
-    expect(namePointer2 instanceof GraphQLFragmentPointer).toBe(true);
+    expect(namePointer2 instanceof RelayFragmentPointer).toBe(true);
     expect(namePointer2.getDataID()).toBe('client2');
     expect(namePointer2.getFragment())
       .toEqualQueryNode(getNode(fragmentReference.getFragment()));
@@ -1208,7 +1208,7 @@ describe('readRelayQueryData', () => {
     var pointer = data.friends[
       getNode(fragmentReference).getConcreteNodeHash()
     ];
-    expect(pointer instanceof GraphQLFragmentPointer).toBe(true);
+    expect(pointer instanceof RelayFragmentPointer).toBe(true);
     expect(data).toEqual({
       __dataID__: 'userID',
       friends: {

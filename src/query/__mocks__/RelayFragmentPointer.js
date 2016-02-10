@@ -9,11 +9,11 @@
 
 'use strict';
 
-var GraphQLFragmentPointer = require.requireActual('GraphQLFragmentPointer');
+var RelayFragmentPointer = require.requireActual('RelayFragmentPointer');
 
-GraphQLFragmentPointer.createForRoot =
+RelayFragmentPointer.createForRoot =
   jest.genMockFunction().mockImplementation(
-    GraphQLFragmentPointer.createForRoot
+    RelayFragmentPointer.createForRoot
   );
 
-module.exports = GraphQLFragmentPointer;
+module.exports = RelayFragmentPointer;

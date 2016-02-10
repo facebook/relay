@@ -32,26 +32,26 @@ class Todo extends React.Component {
         viewer: this.props.viewer,
       })
     );
-  }
+  };
   _handleDestroyClick = () => {
     this._removeTodo();
-  }
+  };
   _handleLabelDoubleClick = () => {
     this._setEditMode(true);
-  }
+  };
   _handleTextInputCancel = () => {
     this._setEditMode(false);
-  }
+  };
   _handleTextInputDelete = () => {
     this._setEditMode(false);
     this._removeTodo();
-  }
+  };
   _handleTextInputSave = (text) => {
     this._setEditMode(false);
     Relay.Store.commitUpdate(
       new RenameTodoMutation({todo: this.props.todo, text})
     );
-  }
+  };
   _removeTodo() {
     Relay.Store.commitUpdate(
       new RemoveTodoMutation({todo: this.props.todo, viewer: this.props.viewer})
@@ -59,7 +59,7 @@ class Todo extends React.Component {
   }
   _setEditMode = (shouldEdit) => {
     this.setState({isEditing: shouldEdit});
-  }
+  };
   renderTextInput() {
     return (
       <TodoTextInput

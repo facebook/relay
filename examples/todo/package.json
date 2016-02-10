@@ -6,24 +6,30 @@
     "preinstall": "cd ../.. && npm install --ignore-scripts && cd scripts/babel-relay-plugin && npm install --ignore-scripts"
   },
   "dependencies": {
-    "babel": "5.8.23",
-    "babel-core": "^5.8.25",
-    "babel-loader": "5.3.2",
+    "babel-core": "6.5.1",
+    "babel-loader": "6.2.2",
+    "babel-polyfill": "6.5.0",
+    "babel-preset-es2015": "6.5.0",
+    "babel-preset-react": "6.5.0",
+    "babel-preset-stage-0": "6.5.0",
     "babel-relay-plugin": "file:../../scripts/babel-relay-plugin/",
-    "classnames": "^2.1.5",
-    "express": "^4.13.3",
-    "express-graphql": "^0.4.0",
-    "graphql": "0.4.13",
-    "graphql-relay": "^0.3.3",
-    "history": "1.13.0",
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0",
+    "classnames": "2.1.5",
+    "express": "4.13.4",
+    "express-graphql": "0.4.9",
+    "graphql": "0.4.17",
+    "graphql-relay": "0.3.6",
+    "history": "1.17.0",
+    "react": "0.14.7",
+    "react-dom": "0.14.7",
     "react-relay": "file:../../",
-    "react-router": "^1.0.0",
-    "react-router-relay": "^0.8.0",
-    "todomvc-app-css": "^2.0.3",
-    "todomvc-common": "^1.0.2",
-    "webpack": "^1.12.2",
-    "webpack-dev-server": "^1.12.0"
+    "react-router": "1.0.3",
+    "react-router-relay": "0.8.0",
+    "todomvc-app-css": "2.0.4",
+    "todomvc-common": "1.0.2",
+    "webpack": "1.12.13",
+    "webpack-dev-server": "1.14.1"
+  },
+  "devDependencies": {
+    "babel-cli": "6.5.1"
   }
 }

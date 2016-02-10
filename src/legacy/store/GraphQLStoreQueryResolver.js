@@ -22,7 +22,6 @@ import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
 import type {StoreReaderData} from 'RelayTypes';
 
-const filterExclusiveKeys = require('filterExclusiveKeys');
 const readRelayQueryData = require('readRelayQueryData');
 const recycleNodesInto = require('recycleNodesInto');
 
@@ -290,28 +289,21 @@ class GraphQLStoreSingleQueryResolver {
   ): void {
     if (this._garbageCollector) {
       const garbageCollector = this._garbageCollector;
-      const cachedStore = this._storeData.getCachedStore();
       const rangeData = this._storeData.getRangeData();
-
       const prevDataIDs = this._subscribedIDs;
-      const [removed, added] = filterExclusiveKeys(prevDataIDs, nextDataIDs);
 
       // Note: the same canonical ID may appear in both removed and added: in
       // that case, it would have been:
       // - previous step: canonical ID ref count was incremented
       // - current step: canonical ID is incremented *and* decremented
       // Note that the net ref count change is +1.
-      added.forEach(id => {
+      Object.keys(nextDataIDs).forEach(id => {
         id = rangeData.getCanonicalClientID(id);
-        if (cachedStore.getRecordState(id) !== 'UNKNOWN') {
-          garbageCollector.incrementReferenceCount(id);
-        }
+        garbageCollector.incrementReferenceCount(id);
       });
-      removed.forEach(id => {
+      Object.keys(prevDataIDs).forEach(id => {
         id = rangeData.getCanonicalClientID(id);
-        if (cachedStore.getRecordState(id) !== 'UNKNOWN') {
-          garbageCollector.decrementReferenceCount(id);
-        }
+        garbageCollector.decrementReferenceCount(id);
       });
     }
   }

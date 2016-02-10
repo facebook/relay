@@ -91,7 +91,7 @@ class RelayQLTransformer {
     node: TemplateLiteral,
     documentName: string,
     tagName: string,
-    propName: ?string,
+    propName: ?string
   ): Printable {
     const {
       substitutions,
@@ -153,7 +153,7 @@ class RelayQLTransformer {
   processTemplateText(
     templateText: string,
     documentName: string,
-    propName: ?string,
+    propName: ?string
   ): string {
     const pattern = /^(fragment|mutation|query|subscription)\s*(\w*)?([\s\S]*)/;
     const matches = pattern.exec(templateText);

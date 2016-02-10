@@ -122,7 +122,7 @@ function getBabelRelayPlugin(
                 node.quasi,
                 documentName,
                 tagName,
-                propName,
+                propName
               );
           } catch (error) {
             // Print a console warning and replace the code with a function

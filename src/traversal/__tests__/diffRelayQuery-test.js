@@ -673,13 +673,25 @@ describe('diffRelayQuery', () => {
     var diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
-    expect(diffQueries[0]).toEqualQueryRoot(getNode(
-      Relay.QL`query{nodes(ids:["4"]) {id, name}}`
-    ));
+    expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
+      query {
+        nodes(ids:["4"]) {
+          id
+          __typename
+          name
+        }
+      }
+    `));
     expect(diffQueries[1].getName()).toBe(query.getName());
-    expect(diffQueries[1]).toEqualQueryRoot(getNode(
-      Relay.QL`query{nodes(ids:["4808495"]) {id, name}}`
-    ));
+    expect(diffQueries[1]).toEqualQueryRoot(getNode(Relay.QL`
+      query {
+        nodes(ids:["4808495"]) {
+          id
+          __typename
+          name
+        }
+      }
+    `));
   });
 
   it('splits viewer-rooted queries', () => {

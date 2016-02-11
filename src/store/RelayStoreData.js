@@ -53,7 +53,16 @@ const writeRelayQueryPayload = require('writeRelayQueryPayload');
 const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
-var {NODE_TYPE} = RelayNodeInterface;
+var {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
+
+const idField = RelayQuery.Field.build({
+  fieldName: ID,
+  type: 'String',
+});
+const typeField = RelayQuery.Field.build({
+  fieldName: TYPENAME,
+  type: 'String',
+});
 
 /**
  * @internal
@@ -395,10 +404,16 @@ class RelayStoreData {
     // may not exist on the `Node` type.
     return RelayQuery.Root.build(
       fragment.getDebugName() || 'UnknownQuery',
-      RelayNodeInterface.NODE,
+      NODE,
       dataID,
-      [fragment],
-      {identifyingArgName: RelayNodeInterface.ID},
+      [idField, typeField, fragment],
+      {
+        identifyingArgName: ID,
+        identifyingArgType: ID_TYPE,
+        isAbstract: true,
+        isDeferred: false,
+        isPlural: false,
+      },
       NODE_TYPE
     );
   }

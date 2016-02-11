@@ -20,6 +20,7 @@ const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
 const RelayContext = require('RelayContext');
 const RelayMetaRoute = require('RelayMetaRoute');
+const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.setVariables', function() {
@@ -441,7 +442,9 @@ describe('RelayContainer.setVariables', function() {
       // `prepareVariables` output is used to prime the cache...
       var queries = relayContext.primeCache.mock.calls[0][0];
       var query = queries[Object.keys(queries)[0]];
-      var fragment = query.getChildren()[0];
+      var fragment = query.getChildren().find(
+        child => child instanceof RelayQuery.Fragment
+      );
       expect(fragment.getVariables()).toEqual(nextVariables);
 
       jest.runAllTimers();

@@ -94,7 +94,7 @@ Relay makes use of GraphQL mutations; operations that enable us to mutate data o
 ### fragments (static property)
 
 ```
-static fragments: RelayMutationFragments<$Enum<Tp>>
+static fragments: RelayMutationFragments<$Keys<Tp>>
 
 // Type of RelayMutationFragments
 type RelayMutationFragments<Tk> = {
@@ -311,7 +311,7 @@ class DestroyShipMutation extends Relay.Mutation {
 
 ```
 static getFragment(
-  fragmentName: $Enum<Tp>,
+  fragmentName: $Keys<Tp>,
   variableMapping?: Variables
 ): RelayFragmentReference
 

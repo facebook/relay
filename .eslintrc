@@ -11,7 +11,7 @@ rules:
   react/jsx-uses-react: 2
 
 globals:
-  $Enum: true
+  $Keys: true
   $FixMe: true
   $FlowFixMe: true
   $FlowIssue: true

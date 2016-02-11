@@ -71,5 +71,5 @@ export type UpdateOptions = {
 };
 
 export type RangeBehaviors = {
-  [key: string]: $Enum<GraphQLMutatorConstants.RANGE_OPERATIONS>;
+  [key: string]: $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 };

@@ -13,7 +13,7 @@
 
 'use strict';
 
-export type RecordState = $Enum<typeof RelayRecordState>;
+export type RecordState = $Keys<typeof RelayRecordState>;
 
 var RelayRecordState = {
   /**

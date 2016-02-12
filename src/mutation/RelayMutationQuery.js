@@ -369,6 +369,14 @@ var RelayMutationQuery = {
             tracker,
           }));
           break;
+
+        default:
+          invariant(
+            false,
+            'RelayMutationQuery: Unrecognized config key `%s` for `%s`.',
+            config.type,
+            mutationName
+          );
       }
     });
 

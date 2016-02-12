@@ -1202,5 +1202,31 @@ describe('RelayMutationQuery', () => {
       expect(query)
         .toEqualQueryNode(expectedMutationQuery);
     });
+
+    it('complains about unknown config types', () => {
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
+        fragment on UnfriendResponsePayload {
+          clientMutationId
+        }
+      `);
+      const configs = [
+        {
+          type: 'COSMIC_RAY_BIT_FLIP',
+        },
+      ];
+
+      const mutation = Relay.QL`mutation{ unfriend(input: $input) }`;
+      const mutationName = 'UnfriendMutation';
+      expect(() => RelayMutationQuery.buildQuery({
+        tracker,
+        fatQuery,
+        configs,
+        mutationName,
+        mutation,
+      })).toFailInvariant(
+        'RelayMutationQuery: Unrecognized config key `COSMIC_RAY_BIT_FLIP` ' +
+        'for `UnfriendMutation`.'
+      );
+    });
   });
 });

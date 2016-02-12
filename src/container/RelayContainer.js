@@ -142,6 +142,7 @@ function createContainerComponent(
       self.getPendingTransactions = this.getPendingTransactions.bind(this);
       self.hasFragmentData = this.hasFragmentData.bind(this);
       self.hasOptimisticUpdate = this.hasOptimisticUpdate.bind(this);
+      self.hasPartialData = this.hasPartialData.bind(this);
       self.setVariables = this.setVariables.bind(this);
 
       this._didShowFakeDataWarning = false;
@@ -698,6 +699,7 @@ function createContainerComponent(
         getPendingTransactions: this.getPendingTransactions,
         hasFragmentData: this.hasFragmentData,
         hasOptimisticUpdate: this.hasOptimisticUpdate,
+        hasPartialData: this.hasPartialData,
         route: this.context.route,
         setVariables: this.setVariables,
         variables: this.state.variables,

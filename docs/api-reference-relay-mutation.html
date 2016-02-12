@@ -72,7 +72,7 @@
   </li>
 </ul>
 
-</div><h2><a class="anchor" name="properties"></a>Properties <a class="hash-link" href="#properties">#</a></h2><h3><a class="anchor" name="fragments-static-property"></a>fragments (static property) <a class="hash-link" href="#fragments-static-property">#</a></h3><pre class="prism language-javascript"><span class="token keyword">static</span> fragments<span class="token punctuation">:</span> RelayMutationFragments<span class="token operator">&lt;</span>$Enum<span class="token operator">&lt;</span>Tp<span class="token operator">&gt;</span><span class="token operator">&gt;</span>
+</div><h2><a class="anchor" name="properties"></a>Properties <a class="hash-link" href="#properties">#</a></h2><h3><a class="anchor" name="fragments-static-property"></a>fragments (static property) <a class="hash-link" href="#fragments-static-property">#</a></h3><pre class="prism language-javascript"><span class="token keyword">static</span> fragments<span class="token punctuation">:</span> RelayMutationFragments<span class="token operator">&lt;</span>$Keys<span class="token operator">&lt;</span>Tp<span class="token operator">&gt;</span><span class="token operator">&gt;</span>
 
 <span spellcheck="true" class="token comment">// Type of RelayMutationFragments</span>
 type RelayMutationFragments<span class="token operator">&lt;</span>Tk<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
@@ -165,7 +165,7 @@ Relay<span class="token punctuation">.</span>Store<span class="token punctuation
     <span class="token punctuation">}</span><span class="token punctuation">;</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span></pre><blockquote><p>Warning</p><p>The term ‘variables’ here refers to the input to the server-side mutation, <strong>not</strong> to the variables made available to this mutation&#x27;s fragment builders.</p></blockquote><h3><a class="anchor" name="getfragment-static-method"></a>getFragment (static method) <a class="hash-link" href="#getfragment-static-method">#</a></h3><pre class="prism language-javascript"><span class="token keyword">static</span> <span class="token function">getFragment</span><span class="token punctuation">(</span>
-  fragmentName<span class="token punctuation">:</span> $Enum<span class="token operator">&lt;</span>Tp<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+  fragmentName<span class="token punctuation">:</span> $Keys<span class="token operator">&lt;</span>Tp<span class="token operator">&gt;</span><span class="token punctuation">,</span>
   variableMapping<span class="token operator">?</span><span class="token punctuation">:</span> Variables
 <span class="token punctuation">)</span><span class="token punctuation">:</span> RelayFragmentReference
 

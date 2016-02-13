@@ -59,6 +59,7 @@ type RelayRendererRenderArgs = {
 };
 type RelayRendererState = {
   activeContainer: ?RelayContainer;
+  activeContext: ?RelayContext;
   activeQueryConfig: ?RelayQueryConfigSpec;
   pendingRequest: ?Abortable;
   readyState: ?ComponentReadyState;
@@ -176,6 +177,7 @@ class RelayRenderer extends React.Component {
       }
       this.setState({
         activeContainer: Container,
+        activeContext: relayContext,
         activeQueryConfig: queryConfig,
         pendingRequest,
         readyState: {...readyState, mounted: true},
@@ -203,6 +205,7 @@ class RelayRenderer extends React.Component {
 
     return {
       activeContainer: this.state ? this.state.activeContainer : null,
+      activeContext: this.state ? this.state.activeContext : null,
       activeQueryConfig: this.state ? this.state.activeQueryConfig : null,
       pendingRequest: request,
       readyState: null,
@@ -220,16 +223,17 @@ class RelayRenderer extends React.Component {
    * Returns whether or not the view should be updated during the current render
    * pass. This is false between invoking `Relay.Store.{primeCache,forceFetch}`
    * and the first invocation of the `onReadyStateChange` callback if there is
-   * an actively rendered container and query configuration.
+   * an actively rendered Relay context, container and query configuration.
    *
    * @private
    */
   _shouldUpdate(): boolean {
-    const {activeContainer, activeQueryConfig} = this.state;
-    const {Container} = this.props;
+    const {activeContainer, activeContext, activeQueryConfig} = this.state;
+    const {Container, queryConfig, relayContext} = this.props;
     return (
       (!activeContainer || Container === activeContainer) &&
-      (!activeQueryConfig || this.props.queryConfig === activeQueryConfig)
+      (!activeContext || relayContext === activeContext) &&
+      (!activeQueryConfig || queryConfig === activeQueryConfig)
     );
   }
 

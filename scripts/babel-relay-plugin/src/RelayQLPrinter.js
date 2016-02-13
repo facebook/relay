@@ -51,7 +51,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       });
       return formatted;
     } :
-    function<T>(fields: T): T { return fields };
+    function<T>(fields: T): T { return fields; };
 
   const EMPTY_ARRAY = t.arrayExpression([]);
   const FIELDS = formatFields({
@@ -796,12 +796,12 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
   function shallowFlatten(arr: mixed) {
     return t.callExpression(
-    	t.memberExpression(
+      t.memberExpression(
         t.memberExpression(EMPTY_ARRAY, t.identifier('concat')),
         t.identifier('apply')
       ),
       [EMPTY_ARRAY, arr]
-    )
+    );
   }
 
   return RelayQLPrinter;

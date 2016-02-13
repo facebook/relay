@@ -380,7 +380,7 @@ describe('RelayRecordStore', () => {
   });
 
   describe('getLinkedRecordIDs()', () => {
-    it('throws if the data is an unexpected format', () => {
+    it('ensures that the data is an valid object', () => {
       var records = {
         'story': {
           actors: ['not an object'],
@@ -389,7 +389,19 @@ describe('RelayRecordStore', () => {
       var store = new RelayRecordStore({records});
       expect(() => {
         store.getLinkedRecordIDs('story', 'actors');
-      }).toThrow();
+      }).toThrowError(/Expected element at index/);
+    });
+
+    it('ensures that the data does not contain null values', () => {
+      var records = {
+        'story': {
+          actors: [null],
+        },
+      };
+      var store = new RelayRecordStore({records});
+      expect(() => {
+        store.getLinkedRecordIDs('story', 'actors');
+      }).toThrowError(/Expected element at index/);
     });
 
     it('returns undefined for unfetched fields', () => {
@@ -425,10 +437,39 @@ describe('RelayRecordStore', () => {
             {__dataID__: 'item:2'},
           ],
         },
+        'item:1': {
+          __dataID__: 'item:1',
+        },
+        'item:2': {
+          __dataID__: 'item:2',
+        },
       };
       var store = new RelayRecordStore({records});
       expect(store.getLinkedRecordIDs('4', 'actors')).toEqual([
         'item:1',
+        'item:2',
+      ]);
+    });
+    it('filters data ID of deleted items', () => {
+      var records = {
+        '4': {
+          id: '4',
+          __dataID__: '4',
+          actors: [
+            {__dataID__: 'item:1'},
+            {__dataID__: 'item:2'},
+          ],
+        },
+        'item:1': {
+          __dataID__: 'item:1',
+        },
+        'item:2': {
+          __dataID__: 'item:2',
+        },
+      };
+      var store = new RelayRecordStore({records});
+      store.deleteRecord('item:1');
+      expect(store.getLinkedRecordIDs('4', 'actors')).toEqual([
         'item:2',
       ]);
     });

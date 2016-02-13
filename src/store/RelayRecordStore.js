@@ -250,7 +250,7 @@ class RelayRecordStore {
     dataID: DataID,
     storageKey: string
   ): ?Array<DataID> {
-    var field = this._getField(dataID, storageKey);
+    const field = this._getField(dataID, storageKey);
     if (field == null) {
       return field;
     }
@@ -261,17 +261,22 @@ class RelayRecordStore {
       storageKey,
       dataID
     );
-    return field.map((item, ii) => {
+    const linkedIDs = [];
+    field.forEach((item, ii) => {
       invariant(
-        typeof item === 'object' && item.__dataID__,
+        typeof item === 'object' && item != null && item.__dataID__,
         'RelayRecordStore.getLinkedRecordIDs(): Expected element at index %s ' +
         'in field `%s` for record `%s` to be a linked record.',
         ii,
         storageKey,
         dataID
       );
-      return item.__dataID__;
+      const id = item.__dataID__;
+      if (this.getRecordState(id) !== 'NONEXISTENT') {
+        linkedIDs.push(id);
+      }
     });
+    return linkedIDs;
   }
 
   /**

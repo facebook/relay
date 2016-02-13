@@ -13,14 +13,14 @@
 
 require('configureForRelayOSS');
 
-jest.dontMock('GraphQLFragmentPointer');
+jest.dontMock('RelayFragmentPointer');
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const Relay = require('Relay');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
-describe('GraphQLFragmentPointer', () => {
+describe('RelayFragmentPointer', () => {
   var {getNode, getRefNode} = RelayTestUtils;
 
   beforeEach(() => {
@@ -52,7 +52,7 @@ describe('GraphQLFragmentPointer', () => {
       var rootFragment = Relay.QL`fragment on Node{id}`;
       var root = getNode(Relay.QL`query{node(id:"123"){${rootFragment}}}`);
 
-      var result = GraphQLFragmentPointer.createForRoot(recordStore, root);
+      var result = RelayFragmentPointer.createForRoot(recordStore, root);
       var resultKeys = Object.keys(result);
       expect(resultKeys.length).toBe(1);
 
@@ -73,11 +73,11 @@ describe('GraphQLFragmentPointer', () => {
       `);
 
       expect(() => {
-        GraphQLFragmentPointer.createForRoot(recordStore, root);
+        RelayFragmentPointer.createForRoot(recordStore, root);
       }).toFailInvariant(
         'Queries supplied at the root should contain exactly one fragment ' +
         '(e.g. `${Component.getFragment(\'...\')}`). Query ' +
-        '`GraphQLFragmentPointer` contains more than one fragment.'
+        '`RelayFragmentPointer` contains more than one fragment.'
       );
     });
 
@@ -85,10 +85,10 @@ describe('GraphQLFragmentPointer', () => {
       var root = getNode(Relay.QL`query{username(name:"foo"){name}}`);
 
       expect(() => {
-        GraphQLFragmentPointer.createForRoot(recordStore, root);
+        RelayFragmentPointer.createForRoot(recordStore, root);
       }).toFailInvariant(
         'Queries supplied at the root should contain exactly one fragment ' +
-        'and no fields. Query `GraphQLFragmentPointer` contains a field, ' +
+        'and no fields. Query `RelayFragmentPointer` contains a field, ' +
         '`name`. If you need to fetch fields, declare them in a Relay ' +
         'container.',
       );
@@ -102,10 +102,10 @@ describe('GraphQLFragmentPointer', () => {
       );
 
       expect(() => {
-        GraphQLFragmentPointer.createForRoot(recordStore, root);
+        RelayFragmentPointer.createForRoot(recordStore, root);
       }).toFailInvariant(
         'Queries supplied at the root cannot have batch call variables. ' +
-        'Query `GraphQLFragmentPointer` has a batch call variable, `ref_q0`.'
+        'Query `RelayFragmentPointer` has a batch call variable, `ref_q0`.'
       );
     });
 
@@ -116,7 +116,7 @@ describe('GraphQLFragmentPointer', () => {
       var root = getNode(Relay.QL`query{viewer{${ref}}}`);
 
       expect(
-        GraphQLFragmentPointer.createForRoot(recordStore, root)
+        RelayFragmentPointer.createForRoot(recordStore, root)
       ).toBeNull();
     });
   });
@@ -137,64 +137,64 @@ describe('GraphQLFragmentPointer', () => {
     });
 
     it('creates singular pointers', () => {
-      var pointer = new GraphQLFragmentPointer('123', singularFragment);
+      var pointer = new RelayFragmentPointer('123', singularFragment);
 
       expect(pointer.getDataID()).toBe('123');
       expect(pointer.getFragment()).toBe(singularFragment);
       expect(pointer.equals(pointer)).toBeTruthy();
       expect(() => pointer.getDataIDs()).toFailInvariant(
-        'GraphQLFragmentPointer.getDataIDs(): Bad call for non-plural fragment.'
+        'RelayFragmentPointer.getDataIDs(): Bad call for non-plural fragment.'
       );
     });
 
     it('creates plural pointers', () => {
-      var pointer = new GraphQLFragmentPointer(['123'], pluralFragment);
+      var pointer = new RelayFragmentPointer(['123'], pluralFragment);
 
       expect(pointer.getDataIDs()).toEqual(['123']);
       expect(pointer.getFragment()).toBe(pluralFragment);
       expect(pointer.equals(pointer)).toBeTruthy();
       expect(() => pointer.getDataID()).toFailInvariant(
-        'GraphQLFragmentPointer.getDataID(): Bad call for plural fragment.'
+        'RelayFragmentPointer.getDataID(): Bad call for plural fragment.'
       );
     });
 
     /* eslint-disable no-new */
     it('throws when creating a singular pointer with multiple IDs', () => {
       expect(() => {
-        new GraphQLFragmentPointer(['123'], singularFragment);
+        new RelayFragmentPointer(['123'], singularFragment);
       }).toFailInvariant(
-        'GraphQLFragmentPointer: Wrong plurality, array of data IDs ' +
+        'RelayFragmentPointer: Wrong plurality, array of data IDs ' +
         'supplied with non-plural fragment.'
       );
     });
 
     it('throws when creating a plural pointer with a single ID', () => {
       expect(() => {
-        new GraphQLFragmentPointer('123', pluralFragment);
+        new RelayFragmentPointer('123', pluralFragment);
       }).toFailInvariant(
-        'GraphQLFragmentPointer: Wrong plurality, single data ID supplied ' +
+        'RelayFragmentPointer: Wrong plurality, single data ID supplied ' +
         'with plural fragment.'
       );
     });
     /* eslint-enable no-new */
 
     it('singular pointers are equals() to matching pointers', () => {
-      var pointer = new GraphQLFragmentPointer('123', singularFragment);
+      var pointer = new RelayFragmentPointer('123', singularFragment);
       var another =
-        new GraphQLFragmentPointer('123', getNode(singular, variables));
+        new RelayFragmentPointer('123', getNode(singular, variables));
 
       expect(pointer).toEqualPointer(another);
     });
 
     it('singular pointers are not equals() to different pointers', () => {
-      var pointer = new GraphQLFragmentPointer('123', singularFragment);
+      var pointer = new RelayFragmentPointer('123', singularFragment);
       // different id
       expect(pointer).not.toEqualPointer(
-        new GraphQLFragmentPointer('456', getNode(singular, variables))
+        new RelayFragmentPointer('456', getNode(singular, variables))
       );
       // different fragment
       expect(pointer).not.toEqualPointer(
-        new GraphQLFragmentPointer(
+        new RelayFragmentPointer(
           '123',
           getNode(Relay.QL`fragment on Node{id}`, variables)
         )
@@ -202,13 +202,13 @@ describe('GraphQLFragmentPointer', () => {
       // different variables
       var differentVariables = {...variables, d: 'different'};
       expect(pointer).not.toEqualPointer(
-        new GraphQLFragmentPointer('123', getNode(singular, differentVariables))
+        new RelayFragmentPointer('123', getNode(singular, differentVariables))
       );
     });
 
     it('plural pointers are equals() to matching pointers', () => {
-      var pointer = new GraphQLFragmentPointer(['123'], pluralFragment);
-      var another = new GraphQLFragmentPointer(
+      var pointer = new RelayFragmentPointer(['123'], pluralFragment);
+      var another = new RelayFragmentPointer(
         ['123'],
         getNode(plural, variables)
       );
@@ -217,17 +217,17 @@ describe('GraphQLFragmentPointer', () => {
     });
 
     it('plural pointers are not equals() to different pointers', () => {
-      var pointer = new GraphQLFragmentPointer(['123'], pluralFragment);
+      var pointer = new RelayFragmentPointer(['123'], pluralFragment);
       // different id
       expect(pointer).not.toEqualPointer(
-        new GraphQLFragmentPointer(['456'], getNode(plural, variables))
+        new RelayFragmentPointer(['456'], getNode(plural, variables))
       );
       expect(pointer).not.toEqualPointer(
-        new GraphQLFragmentPointer(['123', '456'], getNode(plural, variables))
+        new RelayFragmentPointer(['123', '456'], getNode(plural, variables))
       );
       // different fragment
       expect(pointer).not.toEqualPointer(
-        new GraphQLFragmentPointer(
+        new RelayFragmentPointer(
           ['123'],
           getNode(Relay.QL`fragment on Node @relay(plural:true){id}`, variables)
         )
@@ -235,7 +235,7 @@ describe('GraphQLFragmentPointer', () => {
       // different variables
       var differentVariables = {...variables, d: 'different'};
       expect(pointer).not.toEqualPointer(
-        new GraphQLFragmentPointer(['123'], getNode(plural, differentVariables))
+        new RelayFragmentPointer(['123'], getNode(plural, differentVariables))
       );
     });
   });

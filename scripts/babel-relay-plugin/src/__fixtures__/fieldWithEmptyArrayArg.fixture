@@ -47,7 +47,7 @@ var x = (function () {
     }],
     kind: 'Fragment',
     metadata: {},
-    name: 'FieldWithEmptyArrayArg',
+    name: 'FieldWithEmptyArrayArgRelayQL',
     type: 'User'
   };
 })();

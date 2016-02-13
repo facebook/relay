@@ -121,7 +121,10 @@ function wrapNode(
   const identifyingArgValue = (identifyingArg && identifyingArg.value) || null;
   const metadata = {
     identifyingArgName,
+    identifyingArgType: RelayNodeInterface.ID_TYPE,
+    isAbstract: true,
     isDeferred: true,
+    isPlural: false,
   };
   return RelayQuery.Root.build(
     node.getName(),
@@ -228,7 +231,10 @@ function createRefQuery(
     [node],
     {
       identifyingArgName: RelayNodeInterface.ID,
+      identifyingArgType: RelayNodeInterface.ID_TYPE,
+      isAbstract: true,
       isDeferred: true,
+      isPlural: false,
     },
     RelayNodeInterface.NODE_TYPE
   );

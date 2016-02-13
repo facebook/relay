@@ -26,7 +26,7 @@ var x = (function () {
     metadata: {
       isAbstract: true
     },
-    name: 'MetadataRequisite',
+    name: 'MetadataRequisiteRelayQL',
     type: 'Node'
   };
 })();

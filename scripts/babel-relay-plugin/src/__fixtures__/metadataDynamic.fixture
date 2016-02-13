@@ -132,7 +132,7 @@ var x = (function () {
     }],
     kind: 'Fragment',
     metadata: {},
-    name: 'MetadataDynamic',
+    name: 'MetadataDynamicRelayQL',
     type: 'NewsFeedConnection'
   };
 })();

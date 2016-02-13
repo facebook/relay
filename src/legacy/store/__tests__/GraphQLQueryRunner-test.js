@@ -15,12 +15,11 @@ require('configureForRelayOSS');
 
 jest
   .mock('warning')
-  .dontMock('DliteFetchModeConstants')
   .dontMock('GraphQLQueryRunner')
   .dontMock('RelayTaskQueue');
 
-const DliteFetchModeConstants = require('DliteFetchModeConstants');
 const Relay = require('Relay');
+const RelayFetchMode = require('RelayFetchMode');
 const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
@@ -509,12 +508,12 @@ describe('GraphQLQueryRunner', () => {
     });
 
     it('does in preload mode', () => {
-      fetchMode = DliteFetchModeConstants.FETCH_MODE_PRELOAD;
+      fetchMode = RelayFetchMode.PRELOAD;
       runTest();
     });
 
     it('does in client mode', () => {
-      fetchMode = DliteFetchModeConstants.FETCH_MODE_CLIENT;
+      fetchMode = RelayFetchMode.CLIENT;
       runTest();
     });
   });

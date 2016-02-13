@@ -72,6 +72,9 @@ export type RelayProp = {
   hasOptimisticUpdate: (
     record: Object
   ) => boolean,
+  hasPartialData: (
+    record: Object
+  ) => boolean,
   route: RelayMetaRoute,
   setVariables: (
     partialVariables?: ?Variables,

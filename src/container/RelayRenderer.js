@@ -13,7 +13,7 @@
 
 'use strict';
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const React = require('React');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
 import type RelayContext from 'RelayContext';
@@ -330,7 +330,7 @@ class RelayRenderer extends React.Component {
 
 function createFragmentPointerForRoot(relayContext, query) {
   return query ?
-    GraphQLFragmentPointer.createForRoot(
+    RelayFragmentPointer.createForRoot(
       relayContext.getStoreData().getQueuedStore(),
       query
     ) :

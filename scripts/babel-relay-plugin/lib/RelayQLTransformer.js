@@ -56,14 +56,14 @@ var RelayQLTransformer = (function () {
   _createClass(RelayQLTransformer, [{
     key: 'transform',
     value: function transform(t, // Babel
-    node, documentName, tagName) {
+    node, documentName, tagName, propName) {
       var _processTemplateLiteral = this.processTemplateLiteral(node, documentName);
 
       var substitutions = _processTemplateLiteral.substitutions;
       var templateText = _processTemplateLiteral.templateText;
       var variableNames = _processTemplateLiteral.variableNames;
 
-      var documentText = this.processTemplateText(templateText, documentName);
+      var documentText = this.processTemplateText(templateText, documentName, propName);
       var definition = this.processDocumentText(documentText, documentName);
 
       var Printer = RelayQLPrinter(t, this.options);
@@ -107,7 +107,7 @@ var RelayQLTransformer = (function () {
      */
   }, {
     key: 'processTemplateText',
-    value: function processTemplateText(templateText, documentName) {
+    value: function processTemplateText(templateText, documentName, propName) {
       var pattern = /^(fragment|mutation|query|subscription)\s*(\w*)?([\s\S]*)/;
       var matches = pattern.exec(templateText);
       invariant(matches, 'You supplied a GraphQL document named `%s` with invalid syntax. It ' + 'must start with `fragment`, `mutation`, `query`, or `subscription`.', documentName);
@@ -116,7 +116,7 @@ var RelayQLTransformer = (function () {
       var rest = matches[3];
       // Allow `fragment on Type {...}`.
       if (type === 'fragment' && name === 'on') {
-        name = documentName;
+        name = documentName + (propName ? '_' + capitalize(propName) : '') + 'RelayQL';
         rest = 'on' + rest;
       }
       var definitionName = capitalize(name);

@@ -15,7 +15,7 @@
 
 import type {ConcreteFragment} from 'ConcreteQuery';
 const ErrorUtils = require('ErrorUtils');
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');
 const RelayContainerComparators = require('RelayContainerComparators');
@@ -29,6 +29,7 @@ const RelayPropTypes = require('RelayPropTypes');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
+const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
@@ -104,7 +105,7 @@ function createContainerComponent(
   class RelayContainer extends React.Component {
     mounted: boolean;
     _didShowFakeDataWarning: boolean;
-    _fragmentPointers: {[key: string]: ?GraphQLFragmentPointer};
+    _fragmentPointers: {[key: string]: ?RelayFragmentPointer};
     _hasStaleQueryData: boolean;
     _queryResolvers: {[key: string]: ?GraphQLStoreQueryResolver};
 
@@ -141,6 +142,7 @@ function createContainerComponent(
       self.getPendingTransactions = this.getPendingTransactions.bind(this);
       self.hasFragmentData = this.hasFragmentData.bind(this);
       self.hasOptimisticUpdate = this.hasOptimisticUpdate.bind(this);
+      self.hasPartialData = this.hasPartialData.bind(this);
       self.setVariables = this.setVariables.bind(this);
 
       this._didShowFakeDataWarning = false;
@@ -187,7 +189,7 @@ function createContainerComponent(
      * `_fragmentPointers` property.
      */
     _createQuerySetAndFragmentPointers(variables: Variables): {
-      fragmentPointers: {[key: string]: ?GraphQLFragmentPointer},
+      fragmentPointers: {[key: string]: ?RelayFragmentPointer},
       querySet: RelayQuerySet,
     } {
       var fragmentPointers = {};
@@ -218,14 +220,14 @@ function createContainerComponent(
             }
           });
           if (dataIDs.length) {
-            fragmentPointer = new GraphQLFragmentPointer(dataIDs, fragment);
+            fragmentPointer = new RelayFragmentPointer(dataIDs, fragment);
           }
         } else {
           /* $FlowFixMe(>=0.19.0) - queryData is mixed but getID expects Object
            */
           var dataID = RelayRecord.getDataID(queryData);
           if (dataID) {
-            fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
+            fragmentPointer = new RelayFragmentPointer(dataID, fragment);
             querySet[fragmentName] =
               storeData.buildFragmentQueryForDataID(fragment, dataID);
           }
@@ -390,6 +392,17 @@ function createContainerComponent(
       return storeData.getCachedStore().hasDeferredFragmentData(
         dataID,
         fragment.getCompositeHash()
+      );
+    }
+
+    /**
+     * Determine if the supplied record might be missing data.
+     */
+    hasPartialData(
+      record: Object
+    ): boolean {
+      return RelayRecordStatusMap.isPartialStatus(
+        record[RelayRecord.MetadataKey.STATUS]
       );
     }
 
@@ -589,7 +602,7 @@ function createContainerComponent(
           }
         }
         fragmentPointers[fragmentName] = dataIDOrIDs ?
-          new GraphQLFragmentPointer(dataIDOrIDs, fragment) :
+          new RelayFragmentPointer(dataIDOrIDs, fragment) :
           null;
       });
       if (__DEV__) {
@@ -686,6 +699,7 @@ function createContainerComponent(
         getPendingTransactions: this.getPendingTransactions,
         hasFragmentData: this.hasFragmentData,
         hasOptimisticUpdate: this.hasOptimisticUpdate,
+        hasPartialData: this.hasPartialData,
         route: this.context.route,
         setVariables: this.setVariables,
         variables: this.state.variables,

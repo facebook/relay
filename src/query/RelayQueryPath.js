@@ -109,7 +109,13 @@ class RelayQueryPath {
         RelayNodeInterface.NODE,
         dataID,
         [idField, typeField],
-        {identifyingArgName: RelayNodeInterface.ID},
+        {
+          identifyingArgName: RelayNodeInterface.ID,
+          identifyingArgType: RelayNodeInterface.ID_TYPE,
+          isAbstract: true,
+          isDeferred: false,
+          isPlural: false,
+        },
         NODE_TYPE
       );
       return new RelayQueryPath(root);

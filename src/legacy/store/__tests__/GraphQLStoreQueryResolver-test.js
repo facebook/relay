@@ -18,7 +18,7 @@ jest
   .dontMock('GraphQLSegment')
   .dontMock('GraphQLStoreQueryResolver');
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const Relay = require('Relay');
 const RelayStoreData = require('RelayStoreData');
@@ -65,7 +65,7 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should resolve a pointer', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
+    var fragmentPointer = new RelayFragmentPointer(
       '1038750002',
       mockQueryFragment
     );
@@ -89,7 +89,7 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should subscribe to IDs in resolved pointer', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
+    var fragmentPointer = new RelayFragmentPointer(
       '1038750002',
       mockQueryFragment
     );
@@ -111,7 +111,7 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should not re-resolve pointers without change events', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
+    var fragmentPointer = new RelayFragmentPointer(
       '1038750002',
       mockQueryFragment
     );
@@ -135,7 +135,7 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should re-resolve pointers with change events', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
+    var fragmentPointer = new RelayFragmentPointer(
       '1038750002',
       mockQueryFragment
     );
@@ -167,11 +167,11 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should re-resolve pointers whose calls differ', () => {
-    var fragmentPointerA = new GraphQLFragmentPointer(
+    var fragmentPointerA = new RelayFragmentPointer(
       'client:123_first(10)',
       mockQueryFragment
     );
-    var fragmentPointerB = new GraphQLFragmentPointer(
+    var fragmentPointerB = new RelayFragmentPointer(
       'client:123_first(20)',
       mockQueryFragment
     );
@@ -193,7 +193,7 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should invoke the callback when change events fire', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
+    var fragmentPointer = new RelayFragmentPointer(
       '1038750002',
       mockQueryFragment
     );
@@ -217,7 +217,7 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should resolve an array of pointers', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
+    var fragmentPointer = new RelayFragmentPointer(
       ['1', '2'],
       mockPluralQueryFragment
     );
@@ -247,7 +247,7 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should not re-resolve if the pointer array has no changes', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
+    var fragmentPointer = new RelayFragmentPointer(
       ['1', '2'],
       mockPluralQueryFragment
     );
@@ -270,7 +270,7 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should only re-resolve pointers with changes in an array', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
+    var fragmentPointer = new RelayFragmentPointer(
       ['1', '2'],
       mockPluralQueryFragment
     );
@@ -305,11 +305,11 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should create a new array if the pointer array shortens', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
+    var fragmentPointer = new RelayFragmentPointer(
       ['1', '2'],
       mockPluralQueryFragment
     );
-    var fragmentPointerB = new GraphQLFragmentPointer(
+    var fragmentPointerB = new RelayFragmentPointer(
       ['1'],
       mockPluralQueryFragment
     );
@@ -391,7 +391,7 @@ describe('GraphQLStoreQueryResolver', () => {
     });
 
     it('increments references to read data', () => {
-      const fragmentPointer = new GraphQLFragmentPointer(
+      const fragmentPointer = new RelayFragmentPointer(
         'client:1',
         getNode(fragment)
       );
@@ -414,7 +414,7 @@ describe('GraphQLStoreQueryResolver', () => {
     });
 
     it('decrements references to previously read fields', () => {
-      const fragmentPointer = new GraphQLFragmentPointer(
+      const fragmentPointer = new RelayFragmentPointer(
         'client:1',
         getNode(fragment)
       );
@@ -448,7 +448,7 @@ describe('GraphQLStoreQueryResolver', () => {
     });
 
     it('decrements references when reset', () => {
-      const fragmentPointer = new GraphQLFragmentPointer(
+      const fragmentPointer = new RelayFragmentPointer(
         'client:1',
         getNode(fragment)
       );
@@ -467,36 +467,6 @@ describe('GraphQLStoreQueryResolver', () => {
       jest.runAllTimers();
       // all nodes are unreferenced and should be removed
       expect(storeData.getNodeData()).toEqual({});
-    });
-
-    it('does not reference unfetched records', () => {
-      // Remove the linked records but not the links to them. Although the
-      // resolver will subscribe to updates on these records, it should not
-      // increment references to them since they are unfetched and therefore
-      // not registered with the garbage collector.
-      storeData.getRecordStore().removeRecord('123'); // viewer.actor
-      storeData.getRecordStore().removeRecord('client:2'); // viewer.newsFeed
-
-      const fragmentPointer = new GraphQLFragmentPointer(
-        'client:1',
-        getNode(fragment)
-      );
-      const queryResolver = new GraphQLStoreQueryResolver(
-        storeData,
-        fragmentPointer,
-        jest.genMockFunction()
-      );
-      // read data and set up subscriptions
-      queryResolver.resolve(fragmentPointer);
-      // evict unreferenced nodes
-      storeData.getGarbageCollector().collect();
-      jest.runAllTimers();
-      // nodes referenced by the fragment should not be evicted
-      expect(Object.keys(storeData.getNodeData())).toEqual([
-        // '123' (actor) is unreferenced and collected
-        // 'client:2' (viewer.newsFeed) is unreferenced and collected
-        'client:1', // viewer
-      ]);
     });
   });
 });

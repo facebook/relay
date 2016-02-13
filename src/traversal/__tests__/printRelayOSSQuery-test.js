@@ -190,6 +190,78 @@ describe('printRelayOSSQuery', () => {
       });
     });
 
+    it('dedupes enum variables', () => {
+      const enumValue = 'WEB';
+      const query = getNode(Relay.QL`
+        query FooQuery {
+          defaultSettings {
+            web: notifications(environment: WEB)
+            foo: notifications(environment: $env)
+          }
+        }
+      `, {
+        env: enumValue,
+      });
+      const alias = generateRQLFieldAlias('notifications.environment(WEB)');
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query FooQuery($environment_0:Environment) {
+          defaultSettings {
+            ${alias}: notifications(environment:$environment_0),
+            ${alias}: notifications(environment:$environment_0)
+          }
+        }
+      `);
+      expect(variables).toEqual({
+        environment_0: enumValue,
+      });
+    });
+
+    it('dedupes object variables', () => {
+      const query1 = {query: 'foo'};
+      const query2 = {query: 'foo'};
+      const query = getNode(Relay.QL`
+        query FooQuery {
+          node(id: "123") {
+            ... on User {
+              foo: storySearch(query: $query1) {
+                id
+              }
+              bar: storySearch(query: $query2) {
+                id
+              }
+            }
+          }
+        }
+      `, {
+        query1,
+        query2,
+      });
+      const alias = generateRQLFieldAlias('storySearch.query({"query":"foo"})');
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query FooQuery($query_0: StorySearchInput) {
+          node(id: "123") {
+            id,
+            __typename,
+            ...F0
+          }
+        }
+        fragment F0 on User {
+          ${alias}: storySearch(query: $query_0) {
+            id
+          },
+          ${alias}: storySearch(query: $query_0) {
+            id
+          },
+          id
+        }
+      `);
+      expect(variables).toEqual({
+        query_0: query1,
+      });
+    });
+
     it('throws for ref queries', () => {
       const query = RelayQuery.Root.build(
         'RefQueryName',
@@ -222,7 +294,7 @@ describe('printRelayOSSQuery', () => {
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Viewer {
+        fragment PrintRelayOSSQueryRelayQL on Viewer {
           actor {
             id,
             __typename
@@ -250,7 +322,7 @@ describe('printRelayOSSQuery', () => {
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Viewer {
+        fragment PrintRelayOSSQueryRelayQL on Viewer {
           actor {
             id,
             __typename,
@@ -283,7 +355,7 @@ describe('printRelayOSSQuery', () => {
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Node {
+        fragment PrintRelayOSSQueryRelayQL on Node {
           id,
           __typename,
           ...F0,
@@ -312,7 +384,7 @@ describe('printRelayOSSQuery', () => {
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Node {
+        fragment PrintRelayOSSQueryRelayQL on Node {
           id,
           __typename,
           ...F0
@@ -339,7 +411,7 @@ describe('printRelayOSSQuery', () => {
       ]);
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on User {
+        fragment PrintRelayOSSQueryRelayQL on User {
           ...F0,
           ...F1
         }
@@ -376,7 +448,7 @@ describe('printRelayOSSQuery', () => {
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Node {
+        fragment PrintRelayOSSQueryRelayQL on Node {
           id,
           __typename,
           ...F1,
@@ -412,7 +484,7 @@ describe('printRelayOSSQuery', () => {
       ]);
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on User {
+        fragment PrintRelayOSSQueryRelayQL on User {
           ...F0
         }
         fragment F0 on User {
@@ -438,7 +510,7 @@ describe('printRelayOSSQuery', () => {
       `, {false: false});
       const {text} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Viewer {
+        fragment PrintRelayOSSQueryRelayQL on Viewer {
           actor {
             id,
             __typename
@@ -464,7 +536,7 @@ describe('printRelayOSSQuery', () => {
       `, {first: 10});
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Viewer {
+        fragment PrintRelayOSSQueryRelayQL on Viewer {
           ${alias}:newsFeed(first:10) {
             edges {
               node {
@@ -494,7 +566,7 @@ describe('printRelayOSSQuery', () => {
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Actor {
+        fragment PrintRelayOSSQueryRelayQL on Actor {
           ${alias}:profilePicture(size:["32","64"]) {
             uri
           },
@@ -519,7 +591,7 @@ describe('printRelayOSSQuery', () => {
       });
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Actor {
+        fragment PrintRelayOSSQueryRelayQL on Actor {
           ${alias}:profilePicture(size:[32,64]) {
             uri
           },
@@ -553,7 +625,7 @@ describe('printRelayOSSQuery', () => {
       const alias = fragment.getChildren()[0].getSerializationKey();
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Actor {
+        fragment PrintRelayOSSQueryRelayQL on Actor {
           ${alias}:friends(first:10,orderby:["name"],isViewerFriend:false) {
             edges {
               node {
@@ -620,7 +692,7 @@ describe('printRelayOSSQuery', () => {
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
-        fragment PrintRelayOSSQuery on Viewer {
+        fragment PrintRelayOSSQueryRelayQL on Viewer {
           actor {
             id,
             __typename,

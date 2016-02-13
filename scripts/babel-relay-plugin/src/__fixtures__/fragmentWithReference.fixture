@@ -27,7 +27,7 @@ var x = (function (RQL_0) {
     metadata: {
       isAbstract: true
     },
-    name: 'FragmentWithReference',
+    name: 'FragmentWithReferenceRelayQL',
     type: 'Node'
   };
 })(reference);

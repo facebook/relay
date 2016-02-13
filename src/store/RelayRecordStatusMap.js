@@ -20,6 +20,10 @@ var OPTIMISTIC_MASK = 0x01;
  * Record was part of a mutation that resulted in an error.
  */
 var ERROR_MASK = 0x02;
+/**
+ * The subtree of data from this record contains partial data.
+ */
+var PARTIAL_MASK = 0x04;
 
 function set(status: ?number, value: boolean, mask: number): number {
   status = status || 0;
@@ -52,6 +56,16 @@ var RelayRecordStatusMap = {
 
   isErrorStatus: function(status: ?number): boolean {
     return check(status, ERROR_MASK);
+  },
+
+  // Should only be used on records read out from RelayRecordStore
+  // by `readRelayQueryData`.
+  setPartialStatus: function(status: ?number, value: boolean): number {
+    return set(status, value, PARTIAL_MASK);
+  },
+
+  isPartialStatus: function(status: ?number): boolean {
+    return check(status, PARTIAL_MASK);
   },
 };
 

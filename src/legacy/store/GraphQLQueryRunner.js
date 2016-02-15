@@ -13,7 +13,8 @@
 
 'use strict';
 
-const DliteFetchModeConstants = require('DliteFetchModeConstants');
+const RelayFetchMode = require('RelayFetchMode');
+import type {FetchMode} from 'RelayFetchMode';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 import type {PendingFetch} from 'RelayPendingQueryTracker';
 const RelayProfiler = require('RelayProfiler');
@@ -68,21 +69,19 @@ class GraphQLQueryRunner {
   /**
    * Fetches data required to resolve a set of queries. See the `RelayStore`
    * module for documentation on the callback.
-   *
-   * Fetch mode must be a value in `DliteFetchModeConstants`.
    */
   run(
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback,
-    fetchMode?: string
+    fetchMode?: FetchMode
   ): Abortable {
-    fetchMode = fetchMode || DliteFetchModeConstants.FETCH_MODE_CLIENT;
-    var profiler = fetchMode === DliteFetchModeConstants.FETCH_MODE_REFETCH ?
+    fetchMode = fetchMode || RelayFetchMode.CLIENT;
+    var profiler = fetchMode === RelayFetchMode.REFETCH ?
       RelayProfiler.profile('GraphQLQueryRunner.forceFetch') :
       RelayProfiler.profile('GraphQLQueryRunner.primeCache');
 
     var diffQueries = [];
-    if (fetchMode === DliteFetchModeConstants.FETCH_MODE_CLIENT) {
+    if (fetchMode === RelayFetchMode.CLIENT) {
       forEachObject(querySet, query => {
         if (query) {
           diffQueries.push(...diffRelayQuery(
@@ -120,7 +119,7 @@ class GraphQLQueryRunner {
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
-    var fetchMode = DliteFetchModeConstants.FETCH_MODE_REFETCH;
+    var fetchMode = RelayFetchMode.REFETCH;
     var profiler = RelayProfiler.profile('GraphQLQueryRunner.forceFetch');
     var queries = [];
     forEachObject(querySet, query => {
@@ -169,7 +168,7 @@ function runQueries(
   storeData: RelayStoreData,
   queries: Array<RelayQuery.Root>,
   callback: ReadyStateChangeCallback,
-  fetchMode: string,
+  fetchMode: FetchMode,
   profiler: RelayProfileHandler
 ): Abortable {
   var readyState = {
@@ -255,7 +254,7 @@ function runQueries(
   }
 
   RelayTaskScheduler.enqueue(() => {
-    var forceIndex = fetchMode === DliteFetchModeConstants.FETCH_MODE_REFETCH ?
+    var forceIndex = fetchMode === RelayFetchMode.REFETCH ?
       generateForceIndex() : null;
 
     splitAndFlattenQueries(storeData, queries).forEach(query => {

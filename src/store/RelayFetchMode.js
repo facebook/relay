@@ -5,15 +5,20 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule RelayFetchMode
+ * @typechecks
+ * @flow
  */
 
 'use strict';
 
-var GraphQLFragmentPointer = require.requireActual('GraphQLFragmentPointer');
+export type FetchMode = $Keys<typeof RelayFetchMode>;
 
-GraphQLFragmentPointer.createForRoot =
-  jest.genMockFunction().mockImplementation(
-    GraphQLFragmentPointer.createForRoot
-  );
+const RelayFetchMode = Object.freeze({
+  CLIENT: 'CLIENT',
+  PRELOAD: 'PRELOAD',
+  REFETCH: 'REFETCH',
+});
 
-module.exports = GraphQLFragmentPointer;
+module.exports = RelayFetchMode;

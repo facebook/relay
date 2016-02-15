@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule GraphQLFragmentPointer
+ * @providesModule RelayFragmentPointer
  * @flow
  * @typechecks
  */
@@ -24,15 +24,17 @@ const shallowEqual = require('shallowEqual');
 import type {DataID} from 'RelayInternalTypes';
 
 type FragmentPointerObject = {
-  [key: string]: GraphQLFragmentPointer;
+  [key: string]: RelayFragmentPointer;
 };
 
 /**
  * Fragment pointers encapsulate the fetched data for a fragment reference. They
  * are opaque tokens that are used by Relay containers to read data that is then
  * passed to the underlying React component.
+ *
+ * @internal
  */
-class GraphQLFragmentPointer {
+class RelayFragmentPointer {
   _dataIDOrIDs: DataID | Array<DataID>;
   _fragment: RelayQuery.Fragment;
 
@@ -60,13 +62,13 @@ class GraphQLFragmentPointer {
           return null;
         }
         return RelayRecord.createWithFields(dataID, {
-          [fragmentHash]: new GraphQLFragmentPointer([dataID], rootFragment),
+          [fragmentHash]: new RelayFragmentPointer([dataID], rootFragment),
         });
       });
     }
     invariant(
       typeof identifyingArgValue === 'string' || identifyingArgValue == null,
-      'GraphQLFragmentPointer: Value for the argument to `%s` on query `%s` ' +
+      'RelayFragmentPointer: Value for the argument to `%s` on query `%s` ' +
       'should be a string, but it was set to `%s`. Check that the value is a ' +
       'string.',
       query.getFieldName(),
@@ -79,7 +81,7 @@ class GraphQLFragmentPointer {
     }
     // TODO(t7765591): Throw if `fragment` is not optional.
     return  {
-      [fragmentHash]: new GraphQLFragmentPointer(dataIDOrIDs, fragment),
+      [fragmentHash]: new RelayFragmentPointer(dataIDOrIDs, fragment),
     };
   }
 
@@ -91,7 +93,7 @@ class GraphQLFragmentPointer {
     var isPlural = fragment.isPlural();
     invariant(
       isArray === isPlural,
-      'GraphQLFragmentPointer: Wrong plurality, %s supplied with %s fragment.',
+      'RelayFragmentPointer: Wrong plurality, %s supplied with %s fragment.',
       isArray ? 'array of data IDs' : 'single data ID',
       isPlural ? 'plural' : 'non-plural'
     );
@@ -106,7 +108,7 @@ class GraphQLFragmentPointer {
   getDataID(): DataID {
     invariant(
       !Array.isArray(this._dataIDOrIDs),
-      'GraphQLFragmentPointer.getDataID(): Bad call for plural fragment.'
+      'RelayFragmentPointer.getDataID(): Bad call for plural fragment.'
     );
     return this._dataIDOrIDs;
   }
@@ -117,7 +119,7 @@ class GraphQLFragmentPointer {
   getDataIDs(): Array<DataID> {
     invariant(
       Array.isArray(this._dataIDOrIDs),
-      'GraphQLFragmentPointer.getDataIDs(): Bad call for non-plural fragment.'
+      'RelayFragmentPointer.getDataIDs(): Bad call for non-plural fragment.'
     );
     return this._dataIDOrIDs;
   }
@@ -126,7 +128,7 @@ class GraphQLFragmentPointer {
     return this._fragment;
   }
 
-  equals(that: GraphQLFragmentPointer): boolean {
+  equals(that: RelayFragmentPointer): boolean {
     return (
       shallowEqual(this._dataIDOrIDs, that._dataIDOrIDs) &&
       this._fragment.isEquivalent(that._fragment)
@@ -140,7 +142,7 @@ class GraphQLFragmentPointer {
    */
   toString(): string {
     return (
-      'GraphQLFragmentPointer(ids: ' +
+      'RelayFragmentPointer(ids: ' +
       JSON.stringify(this._dataIDOrIDs) +
       ', fragment: `' +
       this.getFragment().getDebugName() +
@@ -187,4 +189,4 @@ function getRootFragment(query: RelayQuery.Root): ?RelayQuery.Fragment {
   return fragment;
 }
 
-module.exports = GraphQLFragmentPointer;
+module.exports = RelayFragmentPointer;

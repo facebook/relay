@@ -33,7 +33,7 @@ Relay.createContainer(Component, {
           }],
           kind: 'Fragment',
           metadata: {},
-          name: 'Container',
+          name: 'ContainerRelayQL',
           type: 'Viewer'
         };
       })();

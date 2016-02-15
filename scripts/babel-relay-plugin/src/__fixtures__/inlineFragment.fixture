@@ -52,7 +52,7 @@ var x = (function () {
     metadata: {
       isAbstract: true
     },
-    name: 'InlineFragment',
+    name: 'InlineFragmentRelayQL',
     type: 'Node'
   };
 })();

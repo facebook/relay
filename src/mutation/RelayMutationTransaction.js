@@ -71,7 +71,7 @@ class RelayMutationTransaction {
     return this._mutationQueue.getError(this._id);
   }
 
-  getStatus(): $Enum<typeof RelayMutationTransactionStatus> {
+  getStatus(): $Keys<typeof RelayMutationTransactionStatus> {
     return this._mutationQueue.getStatus(this._id);
   }
 }

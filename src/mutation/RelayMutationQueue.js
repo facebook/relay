@@ -110,7 +110,7 @@ class RelayMutationQueue {
 
   getStatus(
     id: ClientMutationID
-  ): $Enum<typeof RelayMutationTransactionStatus> {
+  ): $Keys<typeof RelayMutationTransactionStatus> {
     return this._get(id).status;
   }
 
@@ -311,7 +311,7 @@ class PendingTransaction {
   mutationTransaction: RelayMutationTransaction;
   onFailure: ?RelayMutationTransactionCommitFailureCallback;
   onSuccess: ?RelayMutationTransactionCommitSuccessCallback;
-  status: $Enum<typeof RelayMutationTransactionStatus>;
+  status: $Keys<typeof RelayMutationTransactionStatus>;
 
   // Lazily computed and memoized private properties
   _callName: string;

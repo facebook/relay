@@ -13,14 +13,13 @@
 
 'use strict';
 
+const Map = require('Map');
 import type {PrintedQuery} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 
 const base62 = require('base62');
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const mapObject = require('mapObject');
 
 type PrinterState = {
   fragmentCount: number;
@@ -28,11 +27,12 @@ type PrinterState = {
   fragmentNameByText: {[fragmentText: string]: string};
   fragmentTexts: Array<string>;
   variableCount: number;
-  variableMap: {[variableID: string]: Variable};
+  variableMap: Map<mixed, Variable>;
 };
 type Variable = {
   type: string;
   value: mixed;
+  variableID: string;
 };
 
 /**
@@ -43,7 +43,7 @@ type Variable = {
  */
 function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
   const fragmentTexts = [];
-  const variableMap = {};
+  const variableMap = new Map();
   const printerState = {
     fragmentCount: 0,
     fragmentNameByHash: {},
@@ -64,12 +64,12 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
     queryText,
     'printRelayOSSQuery(): Unsupported node type.'
   );
+  const variables = {};
+  variableMap.forEach(({value, variableID}) => variables[variableID] = value);
+
   return {
     text: [queryText, ...fragmentTexts].join(' '),
-    variables: mapObject(
-      variableMap,
-      variable => variable.value
-    ),
+    variables,
   };
 }
 
@@ -129,17 +129,18 @@ function printMutation(
   );
   // Note: children must be traversed before printing variable definitions
   const children = printChildren(node, printerState);
-  const mutationString = node.getName() + printVariableDefinitions(printerState);
+  const mutationString =
+    node.getName() + printVariableDefinitions(printerState);
   const fieldName = call.name + '(' + inputString + ')';
 
   return 'mutation ' + mutationString + '{' + fieldName + children + '}';
 }
 
-function printVariableDefinitions(printerState: PrinterState): string {
+function printVariableDefinitions({variableMap}: PrinterState): string {
   let argStrings = null;
-  forEachObject(printerState.variableMap, (variable, variableID) => {
+  variableMap.forEach(({type, variableID}) => {
     argStrings = argStrings || [];
-    argStrings.push('$' + variableID + ':' + variable.type);
+    argStrings.push('$' + variableID + ':' + type);
   });
   if (argStrings) {
     return '(' + argStrings.join(',') + ')';
@@ -301,12 +302,19 @@ function createVariable(
   type: string,
   printerState: PrinterState
 ): string {
-  const variableID = name + '_' + base62(printerState.variableCount++);
-  printerState.variableMap[variableID] = {
-    type,
-    value,
-  };
-  return variableID;
+  const valueKey = JSON.stringify(value);
+  const existingVariable = printerState.variableMap.get(valueKey);
+  if (existingVariable) {
+    return existingVariable.variableID;
+  } else {
+    const variableID = name + '_' + base62(printerState.variableCount++);
+    printerState.variableMap.set(valueKey, {
+      type,
+      value,
+      variableID,
+    });
+    return variableID;
+  }
 }
 
 module.exports = RelayProfiler.instrument(

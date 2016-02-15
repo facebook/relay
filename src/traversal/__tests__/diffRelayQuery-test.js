@@ -17,6 +17,7 @@ const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayQuery = require('RelayQuery');
 const RelayQueryTracker = require('RelayQueryTracker');
+const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 const diffRelayQuery = require('diffRelayQuery');
@@ -24,7 +25,7 @@ const diffRelayQuery = require('diffRelayQuery');
 describe('diffRelayQuery', () => {
   var RelayRecordStore;
 
-  var {defer, getNode, getVerbatimNode} = RelayTestUtils;
+  var {defer, getNode, getVerbatimNode, writePayload} = RelayTestUtils;
 
   var rootCallMap;
 
@@ -672,13 +673,25 @@ describe('diffRelayQuery', () => {
     var diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
-    expect(diffQueries[0]).toEqualQueryRoot(getNode(
-      Relay.QL`query{nodes(ids:["4"]) {id, name}}`
-    ));
+    expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
+      query {
+        nodes(ids:["4"]) {
+          id
+          __typename
+          name
+        }
+      }
+    `));
     expect(diffQueries[1].getName()).toBe(query.getName());
-    expect(diffQueries[1]).toEqualQueryRoot(getNode(
-      Relay.QL`query{nodes(ids:["4808495"]) {id, name}}`
-    ));
+    expect(diffQueries[1]).toEqualQueryRoot(getNode(Relay.QL`
+      query {
+        nodes(ids:["4808495"]) {
+          id
+          __typename
+          name
+        }
+      }
+    `));
   });
 
   it('splits viewer-rooted queries', () => {
@@ -1928,4 +1941,115 @@ describe('diffRelayQuery', () => {
       }
     `));
   });
+
+  it('tracks fragments on null plural fields', () => {
+    var records = {};
+    var store = new RelayRecordStore({records}, {rootCallMap});
+    var writer = new RelayRecordWriter(records, rootCallMap, false);
+    var tracker = new RelayQueryTracker();
+
+    // Create the first query with a selection on a plural field.
+    var firstQuery = getNode(Relay.QL`
+      query {
+        node(id: "123") {
+          id
+          __typename
+          actors {
+            id
+          }
+        }
+      }
+    `);
+
+    var firstPayload = {
+      node: {
+        id: '123',
+        __typename: 'User',
+        actors: null,
+      },
+    };
+    writePayload(store, writer, firstQuery, firstPayload, tracker);
+    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(1);
+    expect(trackedQueries[0][1]).toBe('123');
+    expect(trackedQueries[0][0]).toEqualQueryRoot(firstQuery);
+
+    // Create a second query that requests a different selection on the null
+    // plural field.
+    var secondQuery = getNode(Relay.QL`
+      query {
+        node(id: "123") {
+          actors {
+            name
+          }
+        }
+      }
+    `);
+
+    // Everything can be diffed out, plural field is null
+    var diffQueries = diffRelayQuery(secondQuery, store, tracker);
+    expect(diffQueries.length).toBe(0);
+
+    // Ensure the new `actors { name }` field is tracked.
+    trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(2);
+    expect(trackedQueries[1][1]).toBe('123');
+    expect(trackedQueries[1][0]).toEqualQueryRoot(secondQuery);
+  });
+
+  it('tracks fragments on empty plural fields', () => {
+    var records = {};
+    var store = new RelayRecordStore({records}, {rootCallMap});
+    var writer = new RelayRecordWriter(records, rootCallMap, false);
+    var tracker = new RelayQueryTracker();
+
+    // Create the first query with a selection on a plural field
+    var firstQuery = getNode(Relay.QL`
+      query {
+        node(id: "123") {
+          id
+          __typename
+          actors {
+            id
+          }
+        }
+      }
+    `);
+
+    var firstPayload = {
+      node: {
+        id: '123',
+        __typename: 'User',
+        actors: [],
+      },
+    };
+    writePayload(store, writer, firstQuery, firstPayload, tracker);
+    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(1);
+    expect(trackedQueries[0][1]).toBe('123');
+    expect(trackedQueries[0][0]).toEqualQueryRoot(firstQuery);
+
+    // Create a second query that requests a different selection on the empty
+    // plural field.
+    var secondQuery = getNode(Relay.QL`
+      query {
+        node(id: "123") {
+          actors {
+            name
+          }
+        }
+      }
+    `);
+
+    // Everything can be diffed out, plural field is empty.
+    var diffQueries = diffRelayQuery(secondQuery, store, tracker);
+    expect(diffQueries.length).toBe(0);
+
+    // Ensure the new `actors { name }` field is tracked.
+    trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(2);
+    expect(trackedQueries[1][1]).toBe('123');
+    expect(trackedQueries[1][0]).toEqualQueryRoot(secondQuery);
+  });
+
 });

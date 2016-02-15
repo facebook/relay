@@ -20,9 +20,7 @@
  */
 
 import typeof GraphQLMutatorConstants from 'GraphQLMutatorConstants';
-import type GraphQLRange from 'GraphQLRange';
 import type RelayQuery from 'RelayQuery';
-import type RelayQueryPath from 'RelayQueryPath';
 
 export type Call = {
   name: string;
@@ -73,5 +71,5 @@ export type UpdateOptions = {
 };
 
 export type RangeBehaviors = {
-  [key: string]: $Enum<GraphQLMutatorConstants.RANGE_OPERATIONS>;
+  [key: string]: $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 };

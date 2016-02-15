@@ -56,6 +56,7 @@ module.exports = function (t, options) {
     return fields;
   };
 
+  var EMPTY_ARRAY = t.arrayExpression([]);
   var FIELDS = formatFields({
     __typename: '__typename',
     clientMutationId: 'clientMutationId',
@@ -265,11 +266,13 @@ module.exports = function (t, options) {
 
         var fields = [];
         var printedFragments = [];
+        var didPrintFragmentReference = false;
         parent.getSelections().forEach(function (selection) {
           if (selection instanceof RelayQLFragmentSpread) {
             // Assume that all spreads exist via template substitution.
             invariant(selection.getDirectives().length === 0, 'Directives are not yet supported for `${fragment}`-style fragment ' + 'references.');
             printedFragments.push(_this.printFragmentReference(selection));
+            didPrintFragmentReference = true;
           } else if (selection instanceof RelayQLInlineFragment) {
             printedFragments.push(_this.printFragment(selection.getFragment()));
           } else if (selection instanceof RelayQLField) {
@@ -287,7 +290,8 @@ module.exports = function (t, options) {
         var selections = [].concat(_toConsumableArray(printedFields), printedFragments);
 
         if (selections.length) {
-          return t.arrayExpression(selections);
+          var arrayExpressionOfSelections = t.arrayExpression(selections);
+          return didPrintFragmentReference ? shallowFlatten(arrayExpressionOfSelections) : arrayExpressionOfSelections;
         }
         return NULL;
       }
@@ -610,6 +614,10 @@ module.exports = function (t, options) {
 
   function property(name, value) {
     return t.objectProperty(t.identifier(name), value);
+  }
+
+  function shallowFlatten(arr) {
+    return t.callExpression(t.memberExpression(t.memberExpression(EMPTY_ARRAY, t.identifier('concat')), t.identifier('apply')), [EMPTY_ARRAY, arr]);
   }
 
   return RelayQLPrinter;

@@ -15,7 +15,7 @@ require('configureForRelayOSS');
 
 jest.dontMock('recycleNodesInto');
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const Relay = require('Relay');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -186,7 +186,7 @@ describe('recycleNodesInto', () => {
 
       var fragment = getNode(Relay.QL`fragment on Node{id}`);
       getPointer = function(dataID) {
-        return new GraphQLFragmentPointer(dataID, fragment);
+        return new RelayFragmentPointer(dataID, fragment);
       };
     });
 

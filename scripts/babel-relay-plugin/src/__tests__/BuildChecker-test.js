@@ -11,7 +11,7 @@
 
 'use strict';
 
-const babel = require('babel');
+const babel = require('babel-core');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');

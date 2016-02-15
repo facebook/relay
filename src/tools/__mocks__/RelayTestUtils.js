@@ -166,7 +166,7 @@ var RelayTestUtils = {
   },
 
   getPointer(dataID, fragment) {
-    const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+    const RelayFragmentPointer = require('RelayFragmentPointer');
     const RelayQuery = require('RelayQuery');
     const invariant = require('invariant');
 
@@ -176,7 +176,7 @@ var RelayTestUtils = {
       fragment.constructor.name
     );
 
-    var fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
+    var fragmentPointer = new RelayFragmentPointer(dataID, fragment);
     return {
       __dataID__: dataID,
       [fragment.getConcreteNodeHash()]: fragmentPointer,

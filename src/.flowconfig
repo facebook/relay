@@ -6,7 +6,6 @@
 
 [include]
 ../node_modules/fbjs/lib
-../node_modules/fbjs/node_modules/promise
 ../node_modules/react
 ../node_modules/react-static-container/lib
 

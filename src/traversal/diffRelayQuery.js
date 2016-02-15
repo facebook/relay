@@ -28,7 +28,7 @@ const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 const warning = require('warning');
 
-const {ID, NODE_TYPE, TYPENAME} = RelayNodeInterface;
+const {ID, ID_TYPE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 const {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
 const idField = RelayQuery.Field.build({
   fieldName: ID,
@@ -91,11 +91,15 @@ function diffRelayQuery(
   );
   let metadata;
   if (rootIdentifyingArg != null) {
-    metadata = {};
-    metadata.identifyingArgName = rootIdentifyingArg.name;
-    if (rootIdentifyingArg.type != null) {
-      metadata.identifyingArgType = rootIdentifyingArg.type;
-    }
+    metadata = {
+      identifyingArgName: rootIdentifyingArg.name,
+      identifyingArgType: rootIdentifyingArg.type != null ?
+        rootIdentifyingArg.type :
+        ID_TYPE,
+      isAbstract: true,
+      isDeferred: false,
+      isPlural: false,
+    };
   }
   const fieldName = root.getFieldName();
   const storageKey = root.getStorageKey();
@@ -401,7 +405,10 @@ class RelayDiffQueryBuilder {
       };
     }
     if (nextDataID === null) {
-      return null;
+      return {
+        diffNode: null,
+        trackedNode: field,
+      };
     }
 
     return this.traverse(
@@ -429,8 +436,11 @@ class RelayDiffQueryBuilder {
         trackedNode: null,
       };
     } else if (linkedIDs === null || linkedIDs.length === 0) {
-      // empty array means nothing to fetch
-      return null;
+      // Don't fetch if array is null or empty, but still track the fragment
+      return {
+        diffNode: null,
+        trackedNode: field,
+      };
     } else if (field.getInferredRootCallName() === NODE) {
       // The items in this array are fetchable and may have been filled in
       // from other sources, so check them all. For example, `Story{actors}`
@@ -505,9 +515,12 @@ class RelayDiffQueryBuilder {
         trackedNode: null,
       };
     }
-    // Skip if the connection is deleted.
+    // Don't fetch if connection is null, but continue to track the fragment
     if (connectionID === null) {
-      return null;
+      return {
+        diffNode: null,
+        trackedNode: field,
+      };
     }
     // If metadata fields but not edges are fetched, diff as a normal field.
     // In practice, `rangeInfo` is `undefined` if unfetched, `null` if the
@@ -819,7 +832,13 @@ function buildRoot(
     NODE,
     rootID,
     children,
-    {identifyingArgName: RelayNodeInterface.ID},
+    {
+      identifyingArgName: ID,
+      identifyingArgType: ID_TYPE,
+      isAbstract: true,
+      isDeferred: false,
+      isPlural: false,
+    },
     NODE_TYPE
   );
 }

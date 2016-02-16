@@ -118,6 +118,14 @@ describe('validateMutationConfig()', () => {
       );
     });
 
+    it('does not complain if optional keys are missing', () => {
+      delete config.parentName;
+      expect(() => validateMutationConfig(
+        config,
+        'MyMutation'
+      )).not.toThrowError();
+    });
+
     it('complains about extraneous keys', () => {
       expect(() => validateMutationConfig({
         ...config,
@@ -137,6 +145,18 @@ describe('validateMutationConfig()', () => {
         'validateMutationConfig: Unexpected key `connectoinname` in ' +
         '`RANGE_ADD` config for `MyMutation`; did you mean ' +
         '`connectionName`?'
+      );
+    });
+
+    it('suggests alternatives for optional keys', () => {
+      delete config.parentName;
+      expect(() => validateMutationConfig({
+        ...config,
+        parentaNme: 'todos',
+      }, 'MyMutation')).toFailInvariant(
+        'validateMutationConfig: Unexpected key `parentaNme` in ' +
+        '`RANGE_ADD` config for `MyMutation`; did you mean ' +
+        '`parentName`?'
       );
     });
   });

@@ -19,20 +19,26 @@ const invariant = require('invariant');
 const sprintf = require('sprintf');
 const testEditDistance = require('testEditDistance');
 
+type PropertyDescription = {
+  [name: string]: boolean;
+};
+
 const FUZZY_THRESHOLD = 3;
+const OPTIONAL = false;
+const REQUIRED = true;
 
 function validateMutationConfig(
   config: RelayMutationConfig,
   name: string,
 ): void {
-  function assertValid(...properties: Array<string>): void {
+  function assertValid(properties: PropertyDescription): void {
     // Check for unexpected properties.
     Object.keys(config).forEach(property => {
       if (property === 'type') {
         return;
       }
 
-      if (properties.indexOf(property) === -1) {
+      if (!properties.hasOwnProperty(property)) {
         const message = sprintf(
           'validateMutationConfig: Unexpected key `%s` in `%s` config ' +
           'for `%s`',
@@ -40,7 +46,7 @@ function validateMutationConfig(
           config.type,
           name
         );
-        const suggestion = properties.find(
+        const suggestion = Object.keys(properties).find(
           candidate => testEditDistance(candidate, property, FUZZY_THRESHOLD)
         );
         if (suggestion) {
@@ -54,8 +60,9 @@ function validateMutationConfig(
     });
 
     // Check for missing properties.
-    properties.forEach(property => {
-      if (!config[property]) {
+    Object.keys(properties).forEach(property => {
+      const isRequired = properties[property];
+      if (isRequired && !config[property]) {
         invariant(
           false,
           'validateMutationConfig: `%s` config on `%s` must have property ' +
@@ -70,40 +77,44 @@ function validateMutationConfig(
 
   switch (config.type) {
     case 'FIELDS_CHANGE':
-      assertValid('fieldIDs');
+      assertValid({
+        fieldIDs: REQUIRED,
+      });
       break;
 
     case 'RANGE_ADD':
-      assertValid(
-        'connectionName',
-        'edgeName',
-        'parentID',
-        'parentName',
-        'rangeBehaviors',
-      );
+      assertValid({
+        connectionName: REQUIRED,
+        edgeName: REQUIRED,
+        parentID: REQUIRED,
+        parentName: OPTIONAL,
+        rangeBehaviors: REQUIRED,
+      });
       break;
 
     case 'NODE_DELETE':
-      assertValid(
-        'connectionName',
-        'deletedIDFieldName',
-        'parentID',
-        'parentName',
-      );
+      assertValid({
+        connectionName: REQUIRED,
+        deletedIDFieldName: REQUIRED,
+        parentID: REQUIRED,
+        parentName: REQUIRED,
+      });
       break;
 
     case 'RANGE_DELETE':
-      assertValid(
-        'connectionName',
-        'deletedIDFieldName',
-        'parentID',
-        'parentName',
-        'pathToConnection',
-      );
+      assertValid({
+        connectionName: REQUIRED,
+        deletedIDFieldName: REQUIRED,
+        parentID: REQUIRED,
+        parentName: REQUIRED,
+        pathToConnection: REQUIRED,
+      });
       break;
 
     case 'REQUIRED_CHILDREN':
-      assertValid('children');
+      assertValid({
+        children: REQUIRED,
+      });
       break;
 
     default:

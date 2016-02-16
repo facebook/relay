@@ -15,6 +15,7 @@ require('configureForRelayOSS');
 
 jest.dontMock('RelayFragmentPointer');
 
+const stringifyArg = require('RelayRecordUtil').stringifyArg;
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const Relay = require('Relay');
 const RelayRecord = require('RelayRecord');
@@ -60,6 +61,40 @@ describe('RelayFragmentPointer', () => {
           [getNode(rootFragment).getConcreteFragmentID()]: '123',
         },
       });
+    });
+
+    it('creates a wrapped fragment pointer with number arg', () => {
+      var rootFragment = Relay.QL`fragment on Node{id}`;
+      var root = getNode(Relay.QL`query{node(id:123){${rootFragment}}}`);
+
+      var result = RelayFragmentPointer.createForRoot(recordStore, root);
+      var resultKeys = Object.keys(result);
+      expect(resultKeys.length).toBe(1);
+
+      var fragmentPointer = result[resultKeys[0]];
+      expect(fragmentPointer.getDataID()).toBe(stringifyArg(123));
+      expect(fragmentPointer.getFragment()).toEqualQueryNode(
+        getNode(rootFragment)
+      );
+    });
+
+    it('creates a wrapped fragment pointer with object arg', () => {
+      var rootFragment = Relay.QL`fragment on Node{id}`;
+      var root = getNode(Relay.QL`query{
+        usertemp(tuple:{name:"tom",age:18}){
+          ${rootFragment}
+        }
+       }`);
+      console.warn(JSON.stringify(root));
+      var result = RelayFragmentPointer.createForRoot(recordStore, root);
+      var resultKeys = Object.keys(result);
+      expect(resultKeys.length).toBe(1);
+
+      var fragmentPointer = result[resultKeys[0]];
+      expect(fragmentPointer.getDataID()).toBe(stringifyArg({name:'tom',age:18}));
+      expect(fragmentPointer.getFragment()).toEqualQueryNode(
+        getNode(rootFragment)
+      );
     });
 
     it('throws if multiple root fragments are present', () => {

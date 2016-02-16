@@ -91,11 +91,13 @@ const RelayFragmentPointer = {
         return record;
       });
     }
+    let argType = typeof identifyingArgValue;
     invariant(
-      typeof identifyingArgValue === 'string' || identifyingArgValue == null,
+      typeof argType === 'string' || identifyingArgValue == null
+        || argType === 'number' || argType == 'object',
       'RelayFragmentPointer: Value for the argument to `%s` on query `%s` ' +
-      'should be a string, but it was set to `%s`. Check that the value is a ' +
-      'string.',
+      'should be string|number|object, but it was set to `%s`. Check that ' +
+      'the value is a string|number|object.',
       query.getFieldName(),
       query.getName(),
       identifyingArgValue

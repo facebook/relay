@@ -7,3 +7,4 @@ npm-debug.log
 /website/src/relay/docs
 /website/src/relay/graphql
 /website/src/relay/prototyping
+.idea

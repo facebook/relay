@@ -8,6 +8,7 @@ type Root {
   nodes(ids: [ID!]): [Node]
   username(name: String!): Actor
   usernames(names: [String!]!): [Actor]
+  usertemp(tuple: tupleUser!): Actor
   viewer: Viewer
   _mutation: Mutation
 }
@@ -624,4 +625,9 @@ enum PhotoSize {
 type Settings {
   notificationSounds: Boolean
   notifications(environment: Environment): Boolean
+}
+
+input tupleUser{
+  name: String!
+  age: Int!
 }

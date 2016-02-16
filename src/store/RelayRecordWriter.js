@@ -34,6 +34,7 @@ import type {
 import type {RecordState} from 'RelayRecordState';
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {CacheWriter} from 'RelayTypes';
+const stringifyArg= require('RelayRecordUtil').stringifyArg;
 
 const invariant = require('invariant');
 const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
@@ -94,7 +95,7 @@ class RelayRecordWriter {
    */
   getDataID(
     storageKey: string,
-    identifyingArgValue: ?string
+    identifyingArgValue: ?any
   ): ?DataID {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
       invariant(
@@ -103,11 +104,12 @@ class RelayRecordWriter {
         'cannot be null or undefined.',
         storageKey
       );
-      return identifyingArgValue;
+      return stringifyArg(identifyingArgValue);
     }
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
+    identifyingArgValue=stringifyArg(identifyingArgValue);
     if (this._rootCallMap.hasOwnProperty(storageKey) &&
         this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)) {
       return this._rootCallMap[storageKey][identifyingArgValue];
@@ -120,7 +122,7 @@ class RelayRecordWriter {
    */
   putDataID(
     storageKey: string,
-    identifyingArgValue: ?string,
+    identifyingArgValue: ?any,
     dataID: DataID
   ): void {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
@@ -135,6 +137,7 @@ class RelayRecordWriter {
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
+    identifyingArgValue=stringifyArg(identifyingArgValue);
     this._rootCallMap[storageKey] = this._rootCallMap[storageKey] || {};
     this._rootCallMap[storageKey][identifyingArgValue] = dataID;
     if (this._cacheWriter) {

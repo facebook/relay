@@ -47,7 +47,7 @@ const invariant = require('invariant');
 class RelayQueryResultObservable {
   _data: ?StoreReaderData;
   _fragmentPointer: RelayFragmentPointer;
-  _queryResolver: ?GraphQLStoreQueryResolver;
+  _fragmentResolver: ?GraphQLStoreQueryResolver;
   _storeData: RelayStoreData;
   _subscriptionCallbacks: Array<SubscriptionCallbacks<?StoreReaderData>>;
   _subscriptionCount: number;
@@ -58,7 +58,7 @@ class RelayQueryResultObservable {
   ) {
     this._data = undefined;
     this._fragmentPointer = fragmentPointer;
-    this._queryResolver = null;
+    this._fragmentResolver = null;
     this._storeData = storeData;
     this._subscriptionCallbacks = [];
     this._subscriptionCount = 0;
@@ -92,28 +92,28 @@ class RelayQueryResultObservable {
 
   _observe(): GraphQLStoreQueryResolver {
     invariant(
-      !this._queryResolver,
+      !this._fragmentResolver,
       'RelayQueryResultObservable: Initialized twice.'
     );
-    var queryResolver = new GraphQLStoreQueryResolver(
+    var fragmentResolver = new GraphQLStoreQueryResolver(
       this._storeData,
       this._fragmentPointer,
-      () => this._onUpdate(queryResolver)
+      () => this._onUpdate(fragmentResolver)
     );
-    this._queryResolver = queryResolver;
-    return queryResolver;
+    this._fragmentResolver = fragmentResolver;
+    return fragmentResolver;
   }
 
   _unobserve(): void {
-    if (this._queryResolver) {
+    if (this._fragmentResolver) {
       this._data = undefined;
-      this._queryResolver.reset();
-      this._queryResolver = null;
+      this._fragmentResolver.dispose();
+      this._fragmentResolver = null;
     }
   }
 
-  _onUpdate(queryResolver: GraphQLStoreQueryResolver): void {
-    this._resolveData(queryResolver);
+  _onUpdate(fragmentResolver: GraphQLStoreQueryResolver): void {
+    this._resolveData(fragmentResolver);
     this._subscriptionCallbacks.forEach(callbacks => this._fire(callbacks));
   }
 
@@ -121,8 +121,8 @@ class RelayQueryResultObservable {
     callbacks.onNext && callbacks.onNext(this._data);
   }
 
-  _resolveData(queryResolver: GraphQLStoreQueryResolver): void {
-    var data = queryResolver.resolve(this._fragmentPointer);
+  _resolveData(fragmentResolver: GraphQLStoreQueryResolver): void {
+    var data = fragmentResolver.resolve(this._fragmentPointer);
     invariant(
       !Array.isArray(data),
       'RelayQueryResultObservable: Plural fragments are not supported.'

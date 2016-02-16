@@ -303,9 +303,25 @@ describe('RelayContainer', function() {
     expect(() => ShallowRenderer.render(
       <MockContainer foo={mockFooPointer} />
     )).toFailInvariant(
-      'RelayContainer: `Relay(MockComponent)` was rendered without a Relay ' +
-      'context. Make sure the `relay` property on the React context is an ' +
-      'instance of `RelayContext`.',
+      'RelayContainer: `Relay(MockComponent)` was rendered with invalid ' +
+      'Relay context `undefined`. Make sure the `relay` property on the ' +
+      'React context conforms to the `RelayContext` interface.'
+    );
+  });
+
+  it('throws if rendered with an invalid relay context', () => {
+    const fakeContext = {
+      getStoreData: null,
+      getFragmentResolver: null,
+    };
+    const ShallowRenderer = ReactTestUtils.createRenderer();
+    expect(() => ShallowRenderer.render(
+      <MockContainer foo={mockFooPointer} />,
+      {relay: fakeContext}
+    )).toFailInvariant(
+      'RelayContainer: `Relay(MockComponent)` was rendered with invalid ' +
+      'Relay context `[object Object]`. Make sure the `relay` property on ' +
+      'the React context conforms to the `RelayContext` interface.'
     );
   });
 

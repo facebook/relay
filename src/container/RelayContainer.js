@@ -43,6 +43,7 @@ const buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder, RelayQLQueryBuilder} from 'buildRQL';
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
+const isRelayContext = require('isRelayContext');
 const nullthrows = require('nullthrows');
 const prepareRelayContainerProps = require('prepareRelayContainerProps');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
@@ -123,11 +124,12 @@ function createContainerComponent(
 
       var {relay, route} = context;
       invariant(
-        relay instanceof RelayContext,
-        'RelayContainer: `%s` was rendered without a Relay context. Make ' +
-        'sure the `relay` property on the React context is an instance of ' +
-        '`RelayContext`.',
-        containerName
+        isRelayContext(relay),
+        'RelayContainer: `%s` was rendered with invalid Relay context `%s`. ' +
+        'Make sure the `relay` property on the React context conforms to the ' +
+        '`RelayContext` interface.',
+        containerName,
+        relay
       );
       invariant(
         route && typeof route.name === 'string',

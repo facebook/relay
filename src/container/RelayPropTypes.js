@@ -14,9 +14,9 @@
 'use strict';
 
 const {PropTypes} = require('React');
-const RelayContext = require('RelayContext');
 
 const isRelayContainer = require('isRelayContainer');
+const isRelayContext = require('isRelayContext');
 const sprintf = require('sprintf');
 
 const RelayPropTypes = {
@@ -38,7 +38,19 @@ const RelayPropTypes = {
     return null;
   },
 
-  Context: PropTypes.instanceOf(RelayContext),
+  Context(props: Object, propName: string, componentName: string): ?Error {
+    const context = props[propName];
+    if (!isRelayContext(context)) {
+      return new Error(sprintf(
+        'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
+        'an object conforming to the `RelayContext` interface.',
+        propName,
+        componentName,
+        context
+      ));
+    }
+    return null;
+  },
 
   QueryConfig: PropTypes.shape({
     name: PropTypes.string.isRequired,

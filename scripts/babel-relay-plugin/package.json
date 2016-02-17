@@ -30,7 +30,7 @@
     "rimraf": "^2.1"
   },
   "dependencies": {
-    "graphql": "0.4.17"
+    "graphql": "^0.4.17"
   },
   "jest": {
     "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",

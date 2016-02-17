@@ -303,59 +303,6 @@ describe('GraphQLQueryRunner', () => {
     ]);
   });
 
-  it('ignores subsequent calls to abort', () => {
-    diffRelayQuery.mockImplementation(query => [query]);
-    mockSplitDeferredQueries();
-
-    var request = queryRunner.run(mockQuerySet, mockCallback);
-    request.abort();
-    jest.runAllTimers();
-
-    request.abort();
-    jest.runAllTimers();
-
-    expect(mockCallback.mock.calls).toEqual([
-      [{aborted: true, done: false, error: null, ready: false, stale: false}],
-    ]);
-  });
-
-  it('ignores calls to abort after being done', () => {
-    diffRelayQuery.mockImplementation(query => [query]);
-    mockSplitDeferredQueries();
-
-    var request = queryRunner.run(mockQuerySet, mockCallback);
-    jest.runAllTimers();
-
-    pendingQueryTracker.add.mock.fetches[0].resolve();
-    pendingQueryTracker.add.mock.fetches[1].resolve();
-    jest.runAllTimers();
-
-    var before = mockCallback.mock.calls.length;
-
-    expect(() => {
-      request.abort();
-      jest.runAllTimers();
-    }).not.toThrow();
-
-    expect(mockCallback.mock.calls.length - before).toBe(0);
-  });
-
-  it('ignores state changes after being aborted', () => {
-    diffRelayQuery.mockImplementation(query => [query]);
-    mockSplitDeferredQueries();
-
-    queryRunner.run(mockQuerySet, mockCallback).abort();
-    jest.runAllTimers();
-
-    pendingQueryTracker.add.mock.fetches[0].resolve();
-    pendingQueryTracker.add.mock.fetches[1].resolve();
-    jest.runAllTimers();
-
-    expect(mockCallback.mock.calls).toEqual([
-      [{aborted: true, done: false, error: null, ready: false, stale: false}],
-    ]);
-  });
-
   it('is ready if required data is in disk cache', () => {
     diffRelayQuery.mockImplementation(query => [query]);
     RelayStoreData.prototype.hasCacheManager =

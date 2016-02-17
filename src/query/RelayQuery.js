@@ -246,14 +246,8 @@ class RelayQueryNode {
     const concreteDirectives = (this.__concreteNode__: ConcreteNode).directives;
     if (concreteDirectives) {
       return this.__concreteNode__.directives.map(directive => {
-        // FIXME Debugging #9934204
-        // In cases where the concrete directive is missing the `args` property,
-        // make the choice of the legacy `arguments` property.
-        const args = directive.hasOwnProperty('args') ?
-          directive.args :
-          directive.arguments;
         return {
-          args: callsFromGraphQL(args, this.__variables__),
+          args: callsFromGraphQL(directive.args, this.__variables__),
           name: directive.name,
         };
       });

@@ -91,15 +91,16 @@ const RelayFragmentPointer = {
         return record;
       });
     }
-    let argType = typeof identifyingArgValue;
+    const argType = typeof identifyingArgValue;
     invariant(
       typeof argType !== 'function' && argType !== 'symbol',
-      'RelayFragmentPointer: Value for the argument to `%s` on query `%s` ' +
-      'should be boolean|string|number|object, but it was set to `%s`. ' +
-      'And this should not happen, must be some bugs in code of Relay',
+      'RelayFragmentPointer: Type for the argument to `%s` on query `%s` ' +
+      'should be boolean|string|number|object, but the type of arg(`%s`) is ' +
+      '`%s`. ',
       query.getFieldName(),
       query.getName(),
-      identifyingArgValue
+      identifyingArgValue,
+      argType,
     );
     const dataID = store.getDataID(storageKey, identifyingArgValue);
     if (!dataID) {

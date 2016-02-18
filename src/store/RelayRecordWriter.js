@@ -34,11 +34,10 @@ import type {
 import type {RecordState} from 'RelayRecordState';
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {CacheWriter} from 'RelayTypes';
-const stableStringify= require('stableStringify');
 
 const invariant = require('invariant');
 const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
-
+const stableStringify = require('stableStringify');
 const {CURSOR, NODE} = RelayConnectionInterface;
 const EMPTY = '';
 const FILTER_CALLS = '__filterCalls__';
@@ -95,7 +94,7 @@ class RelayRecordWriter {
    */
   getDataID(
     storageKey: string,
-    identifyingArgValue: ?any
+    identifyingArgValue: any
   ): ?DataID {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
       invariant(
@@ -109,10 +108,10 @@ class RelayRecordWriter {
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
-    identifyingArgValue=stableStringify(identifyingArgValue);
+    const identifyingArgHash = stableStringify(identifyingArgValue);
     if (this._rootCallMap.hasOwnProperty(storageKey) &&
-        this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)) {
-      return this._rootCallMap[storageKey][identifyingArgValue];
+        this._rootCallMap[storageKey].hasOwnProperty(identifyingArgHash)) {
+      return this._rootCallMap[storageKey][identifyingArgHash];
     }
   }
 
@@ -122,7 +121,7 @@ class RelayRecordWriter {
    */
   putDataID(
     storageKey: string,
-    identifyingArgValue: ?any,
+    identifyingArgValue: mixed,
     dataID: DataID
   ): void {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
@@ -137,11 +136,11 @@ class RelayRecordWriter {
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
-    identifyingArgValue=stableStringify(identifyingArgValue);
+    const identifyingArgHash = stableStringify(identifyingArgValue);
     this._rootCallMap[storageKey] = this._rootCallMap[storageKey] || {};
-    this._rootCallMap[storageKey][identifyingArgValue] = dataID;
+    this._rootCallMap[storageKey][identifyingArgHash] = dataID;
     if (this._cacheWriter) {
-      this._cacheWriter.writeRootCall(storageKey, identifyingArgValue, dataID);
+      this._cacheWriter.writeRootCall(storageKey, identifyingArgHash, dataID);
     }
   }
 

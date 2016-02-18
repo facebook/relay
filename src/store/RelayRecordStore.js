@@ -117,7 +117,7 @@ class RelayRecordStore {
    */
   getDataID(
     storageKey: string,
-    identifyingArgValue: ?any
+    identifyingArgValue: any
   ): ?DataID {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
       invariant(
@@ -131,12 +131,12 @@ class RelayRecordStore {
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
-    identifyingArgValue=stableStringify(identifyingArgValue);
+    const identifyingArgHash = stableStringify(identifyingArgValue);
     if (this._rootCallMap.hasOwnProperty(storageKey) &&
-        this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)) {
-      return this._rootCallMap[storageKey][identifyingArgValue];
+        this._rootCallMap[storageKey].hasOwnProperty(identifyingArgHash)) {
+      return this._rootCallMap[storageKey][identifyingArgHash];
     } else if (this._cachedRootCallMap.hasOwnProperty(storageKey)) {
-      return this._cachedRootCallMap[storageKey][identifyingArgValue];
+      return this._cachedRootCallMap[storageKey][identifyingArgHash];
     }
   }
 

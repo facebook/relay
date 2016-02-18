@@ -12,18 +12,47 @@
 
 'use strict';
 
-function isObject(value: mixed) {
-  return (
-    value !== null &&
-    Object.prototype.toString.call(value) === '[object Object]'
-  );
+/**
+ * Maintence a comletely support type list
+ * For function expansions in the future
+ */
+function getStableType(value) {
+  if (value===null) { 
+    return 'null';
+  }
+  const valueType = typeof value;
+  switch (valueType) {
+    case 'string':
+    case 'number':
+    case 'boolean':
+    case 'symbol':
+    case 'undefined':
+      return valueType;
+    case 'object':
+      const subType = Object.prototype.toString.call(value);
+      switch (subType) {
+        case '[object Array]':
+          return 'array';
+        case '[object Object]':
+          return 'object';
+        case '[object Function]':
+        case '[object RegExp]':
+        default:
+          return 'unsupported';   
+      }
+    default:
+      return 'unsupported';    
+  }
 }
 
 /**
- * Simple recursive stringifier that handles basic objects (does not handle
- * corner cases such as circular references) and produces a JSON-like
- * serialization suitable for use as a cache key or other similar internal
- * book-keeping detail.
+ * Return a customized ordered JSON serialization.
+ * (does not handle corner cases such as circular references)
+ * For compatible with old unit test code by other files. 
+ * It remains to be a unstandardise JSON which cannt be parsed by JSON.parse
+ * If need to be a standardise JSON, just `Double quotes` key, 
+ * Change `${key}:${orderedJSON(input[key])}`
+ * To     `"${key}":${orderedJSON(input[key])}`
  *
  * Sample input:
  *
@@ -48,38 +77,52 @@ function isObject(value: mixed) {
  *    {
  *      extra:null,
  *      misc:true,
- *      top1:[0:{first:true},1:{first:false},2:"random"],
- *      top2:{middle:{inner:[0:1,1:"foo",2:[0:"bar",1:2]],other:false}}
+ *      top1:[{first:true},{first:false},"random"],
+ *      top2:{middle:{inner:[1,"foo",["bar",2]],other:false}}
  *    }
  */
-function stableStringify(input: any): string {
-  const inputIsArray = Array.isArray(input);
-  const inputIsObject = isObject(input);
-  if (inputIsArray || inputIsObject) {
-    var keys = Object.keys(input);
-    if (keys.length) {
-      var result = [];
+function orderedJSON(input: any): string {
+  switch (getStableType(input)) {
+    case 'array':
+      const array_strs = input
+        .map(orderedJSON)
+        .filter(v => v!=null);
+      return `[${array_strs.join(',')}]`;
+      
+    case 'object':
+      const keys = Object.keys(input);
       keys.sort();
-
-      for (var i = 0; i < keys.length; i++) {
-        var key = keys[i];
-        var value = input[key];
-        if (isObject(value) || Array.isArray(value)) {
-          value = stableStringify(value);
-        } else {
-          value = JSON.stringify(value);
-        }
-        result.push(key + ':' + value);
-      }
-
-      if (inputIsArray) {
-        return '[' + result.join(',') + ']';
-      } else {
-        return '{' + result.join(',') + '}';
-      }
-    }
+      const object_strs = keys.map(key =>
+        `${key}:${orderedJSON(input[key])}`
+      );
+      return `{${object_strs.join(',')}}`;
+      
+    case 'unsupported':
+    default :
+      return JSON.stringify(input);
   }
-  return JSON.stringify(input);
+}
+
+/*
+ * serialization javascript input to string
+ * for string|number|boolean return plain String.
+ * For complex object return orderedJSON-like string.
+ * This switch is for consistence with Previously existing code
+ * (ex: the root node argument)
+ *
+ * Suitable for use as a cache key or other similar internal
+ * book-keeping detail.
+ * 
+ */
+function stableStringify(input: mixed): string {
+  switch (typeof input) {
+    case 'string':
+    case 'number':
+    case 'boolean':
+      return input.toString();
+    default :
+      return orderedJSON(input);
+  }
 }
 
 module.exports = stableStringify;

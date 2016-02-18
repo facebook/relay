@@ -454,7 +454,7 @@ describe('RelayQueryField', () => {
         }
       `);
       expect(node.getChildren()[0].getShallowHash()).toBe(
-        'profilePicture{size:[0:"32",1:"64"]}'
+        'profilePicture{size:["32","64"]}'
       );
     });
 
@@ -468,7 +468,7 @@ describe('RelayQueryField', () => {
         height: 64,
       });
       expect(node.getChildren()[0].getShallowHash()).toBe(
-        'profilePicture{size:[0:32,1:64]}'
+        'profilePicture{size:[32,64]}'
       );
     });
   });
@@ -531,7 +531,7 @@ describe('RelayQueryField', () => {
     });
 
     it('substitutes variable values', () => {
-      var key = 'profilePicture{size:[0:"32",1:"64"]}';
+      var key = 'profilePicture{size:["32","64"]}';
       var pictureScalarRQL = Relay.QL`
         fragment on User {
           profilePicture(size:["32","64"])

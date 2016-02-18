@@ -336,7 +336,7 @@ describe('RelayQueryRoot', () => {
     const nodeIdentifyingArg = nodeQuery.getIdentifyingArg();
     expect(nodeIdentifyingArg).toBeDefined();
     expect(nodeIdentifyingArg.type).toBe('scalar');
-
+    
     var me = getNode(Relay.QL`query{me{id}}`);
     const meIdentifyingArg = me.getIdentifyingArg();
     expect(meIdentifyingArg).toBeUndefined();
@@ -350,17 +350,10 @@ describe('RelayQueryRoot', () => {
         }
       }
     `);
-    nQuery.getConcreteQueryNode().metadata= {
-      identifyingArgName: 'number',
-      identifyingArgType: 'scalar' };
     const nodeIdentifyingArg = nQuery.getIdentifyingArg();
-
-    expect(nodeIdentifyingArg).toBeDefined();
-    expect(nodeIdentifyingArg.type).toBe('scalar');
     expect(nodeIdentifyingArg).toEqual({
       name: 'number',
-      type: 'scalar',
-      value: 5
+      value: 5,
     });
   });
 
@@ -376,15 +369,12 @@ describe('RelayQueryRoot', () => {
       identifyingArgName: 'query',
       identifyingArgType: 'CheckinSearchInput!' };
     const nodeIdentifyingArg = nQuery.getIdentifyingArg();
-
-    expect(nodeIdentifyingArg).toBeDefined();
-    expect(nodeIdentifyingArg.type).toBe('CheckinSearchInput!');
     expect(nodeIdentifyingArg).toEqual({
       name: 'query',
       type: 'CheckinSearchInput!',
       value: {
         query: 'objectArg',
-      }
+      },
     });
   });
 
@@ -401,17 +391,14 @@ describe('RelayQueryRoot', () => {
       identifyingArgName: 'waypoints',
       identifyingArgType: '[Waypoint!]!' };
     const nodeIdentifyingArg = wayQuery.getIdentifyingArg();
-
-    expect(nodeIdentifyingArg).toBeDefined();
-    expect(nodeIdentifyingArg.type).toBe('[Waypoint!]!');
     expect(nodeIdentifyingArg).toEqual(
       {
         name: 'waypoints',
         value: [
-          { uri: 's', dumbNumber: { '0': 1, '1': 7 } },
-          { uri: 'a', dumbNumber: { '0': 88, '1': 666 } },
+          { uri: 's', dumbNumber: [1, 7] },
+          { uri: 'a', dumbNumber: [88, 666] },
         ],
-        type: '[Waypoint!]!'
+        type: '[Waypoint!]!',
       }
     );
   });

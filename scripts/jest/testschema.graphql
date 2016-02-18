@@ -8,7 +8,6 @@ type Root {
   nodes(ids: [ID!]): [Node]
   username(name: String!): Actor
   usernames(names: [String!]!): [Actor]
-  checkinSearchQuery(query: CheckinSearchInput!): CheckinSearchResult
   fastestRoute(waypoints: [Waypoint!]!): Route
   task(number: Int!): Task
   viewer: Viewer
@@ -627,11 +626,6 @@ enum PhotoSize {
 type Settings {
   notificationSounds: Boolean
   notifications(environment: Environment): Boolean
-}
-
-input tupleUser{
-  name: String!
-  age: Int!
 }
 
 input Waypoint{

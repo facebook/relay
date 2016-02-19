@@ -36,6 +36,7 @@ const areEqual = require('areEqual');
 const callsFromGraphQL = require('callsFromGraphQL');
 const callsToGraphQL = require('callsToGraphQL');
 const directivesToGraphQL = require('directivesToGraphQL');
+const generateConcreteFragmentID = require('generateConcreteFragmentID');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const invariant = require('invariant');
 const serializeRelayQueryCall = require('serializeRelayQueryCall');
@@ -763,7 +764,6 @@ class RelayQuerySubscription extends RelayQueryOperation {
  */
 class RelayQueryFragment extends RelayQueryNode {
   __compositeHash__: ?string;
-  __isCloned__: boolean;
   __metadata__: FragmentMetadata;
 
   /**
@@ -824,7 +824,6 @@ class RelayQueryFragment extends RelayQueryNode {
   ) {
     super(concreteNode, route, variables);
     this.__compositeHash__ = null;
-    this.__isCloned__ = false;
     this.__metadata__ = metadata || DEFAULT_FRAGMENT_METADATA;
   }
 
@@ -837,15 +836,6 @@ class RelayQueryFragment extends RelayQueryNode {
   }
 
   /**
-   * Checks whether a fragment has been cloned such that the concrete node is no
-   * longer representative of this instance. This will return true for fragments
-   * that are the result of cloning with new children.
-   */
-  isCloned(): boolean {
-    return this.__isCloned__;
-  }
-
-  /**
    * The "concrete fragment id" uniquely identifies a Relay.QL`fragment ...`
    * within the source code of an application and will remain the same across
    * runs of a particular version of an application.
@@ -855,12 +845,12 @@ class RelayQueryFragment extends RelayQueryNode {
   }
 
   /**
-   * The "composite hash" is similar to the concrete instance hash, but is also
-   * uniquely differentiates between varying variable values or route names. It
-   * should also be used with `isCloned()`.
+   * The "composite hash" is similar to the concrete instance hash, but it also
+   * differentiates between varying variable values or route names.
    *
-   * The composite hash is used to identify fragment pointers in records. It is
-   * also used to store the status of fetching deferred fragments.
+   * The composite hash is used to:
+   * - Avoid printing the same fragment twice, in order to reduce upload size.
+   * - Remember which deferred fragment/data pairs have been fetched.
    */
   getCompositeHash(): string {
     let compositeHash = this.__compositeHash__;
@@ -917,7 +907,10 @@ class RelayQueryFragment extends RelayQueryNode {
     var clone = super.clone(children);
     if (clone !== this &&
         clone instanceof RelayQueryFragment) {
-      clone.__isCloned__ = true;
+      clone.__concreteNode__ = {
+        ...clone.__concreteNode__,
+        id: generateConcreteFragmentID(),
+      };
       clone.__metadata__ = {
         ...this.__metadata__,
       };

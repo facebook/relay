@@ -195,25 +195,6 @@ describe('RelayQuery', () => {
       });
     });
 
-    describe('isCloned()', () => {
-      it('returns false for a plain fragment', () => {
-        const fragment = getNode(Relay.QL`fragment on Node { id, __typename }`);
-        expect(fragment.isCloned()).toBe(false);
-      });
-
-      it('returns false for a fragment cloned with the same children', () => {
-        const fragment = getNode(Relay.QL`fragment on Node { id, __typename }`);
-        const fragmentClone = fragment.clone(fragment.getChildren());
-        expect(fragmentClone.isCloned()).toBe(false);
-      });
-
-      it('returns true for a fragment cloned with new children', () => {
-        const fragment = getNode(Relay.QL`fragment on Node { id, __typename }`);
-        const fragmentClone = fragment.clone(fragment.getChildren().slice(1));
-        expect(fragmentClone.isCloned()).toBe(true);
-      });
-    });
-
     describe('getConcreteFragmentID()', () => {
       it('returns the same id for two different RelayQuery nodes', () => {
         const concreteNode = Relay.QL`fragment on Node { id }`;
@@ -265,6 +246,20 @@ describe('RelayQuery', () => {
         ).not.toBe(
           new RelayQuery.Fragment(node, routeB, variables).getCompositeHash()
         );
+      });
+
+      it('returns one hash for nodes cloned with the same children', () => {
+        const fragment = getNode(Relay.QL`fragment on Node { id, __typename }`);
+        const fragmentClone = fragment.clone(fragment.getChildren());
+        expect(fragmentClone.getCompositeHash())
+          .toBe(fragment.getCompositeHash());
+      });
+
+      it('returns different hashes for nodes cloned with new children', () => {
+        const fragment = getNode(Relay.QL`fragment on Node { id, __typename }`);
+        const fragmentClone = fragment.clone(fragment.getChildren().slice(1));
+        expect(fragmentClone.getCompositeHash())
+          .not.toBe(fragment.getCompositeHash());
       });
     });
   });

@@ -416,7 +416,8 @@ describe('RelayContainer', function() {
       relayContext,
       mockRoute
     );
-    var fragmentPointer = mockFooPointer[Object.keys(mockFooPointer)[0]];
+    var fragmentPointer =
+      mockFooPointer[mockFooFragment.getConcreteFragmentID()];
 
     expect(relayContext.getFragmentResolver.mock.calls.length).toBe(1);
     var mockResolvers = GraphQLStoreQueryResolver.mock.instances;
@@ -496,9 +497,11 @@ describe('RelayContainer', function() {
 
   it('resolves with most recent props', () => {
     var mockPointerA = getPointer('42', mockFooFragment);
-    var fragmentPointerA = mockPointerA[Object.keys(mockPointerA)[0]];
+    var fragmentPointerA =
+      mockPointerA[mockFooFragment.getConcreteFragmentID()];
     var mockPointerB = getPointer('43', mockFooFragment);
-    var fragmentPointerB = mockPointerB[Object.keys(mockPointerB)[0]];
+    var fragmentPointerB =
+      mockPointerB[mockFooFragment.getConcreteFragmentID()];
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockPointerA} />,

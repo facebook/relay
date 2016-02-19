@@ -113,6 +113,7 @@ export type ConcreteFragmentMetadata = {
 export type ConcreteFragment = {
   children?: ?Array<?ConcreteSelection>;
   directives?: ?Array<ConcreteDirective>;
+  id: string;
   kind: 'Fragment';
   metadata: {
     isAbstract?: boolean;

@@ -49,7 +49,7 @@ class RelayFragmentPointer {
     if (!fragment) {
       return null;
     }
-    const fragmentHash = fragment.getConcreteNodeHash();
+    const fragmentID = fragment.getConcreteFragmentID();
     const storageKey = query.getStorageKey();
     const identifyingArg = query.getIdentifyingArg();
     const identifyingArgValue =
@@ -62,7 +62,7 @@ class RelayFragmentPointer {
           return null;
         }
         return RelayRecord.createWithFields(dataID, {
-          [fragmentHash]: new RelayFragmentPointer([dataID], rootFragment),
+          [fragmentID]: new RelayFragmentPointer([dataID], rootFragment),
         });
       });
     }
@@ -81,7 +81,7 @@ class RelayFragmentPointer {
     }
     // TODO(t7765591): Throw if `fragment` is not optional.
     return  {
-      [fragmentHash]: new RelayFragmentPointer(dataIDOrIDs, fragment),
+      [fragmentID]: new RelayFragmentPointer(dataIDOrIDs, fragment),
     };
   }
 

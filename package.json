@@ -61,8 +61,8 @@
     "webpack-stream": "^2.1.0"
   },
   "devEngines": {
-    "node": ">=5.x",
-    "npm": ">=3.x"
+    "node": ">=4.x",
+    "npm": ">=2.x"
   },
   "jest": {
     "rootDir": "",
@@ -85,6 +85,13 @@
       "<rootDir>/src/"
     ],
     "unmockedModulePathPatterns": [
+      "<rootDir>/node_modules/fbjs/node_modules/core-js/",
+      "<rootDir>/node_modules/fbjs-scripts/",
+      "<rootDir>/node_modules/fbjs/node_modules/promise/",
+      "<rootDir>/node_modules/fbjs/lib/(?!(ErrorUtils.js$|fetch.js$|fetchWithRetries.js$))",
+      "<rootDir>/node_modules/react/",
+      "<rootDir>/node_modules/react-dom/",
+      "<rootDir>/node_modules/react-static-container/",
       "<rootDir>/node_modules/(?!(fbjs/lib/ErrorUtils.js$|fbjs/lib/fetch.js$|fbjs/lib/fetchWithRetries.js$))"
     ]
   }

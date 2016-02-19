@@ -16,7 +16,7 @@ require('configureForRelayOSS');
 jest.dontMock('RelayRenderer');
 
 const React = require('React');
-const ReactTestUtils = require('ReactTestUtils');
+const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
 const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
@@ -25,8 +25,8 @@ const RelayRenderer = require('RelayRenderer');
 describe('RelayRenderer.renderArgs', () => {
   let MockComponent;
   let MockContainer;
-  let ShallowRenderer;
 
+  let container;
   let queryConfig;
   let relayContext;
   let render;
@@ -38,19 +38,20 @@ describe('RelayRenderer.renderArgs', () => {
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
-    ShallowRenderer = ReactTestUtils.createRenderer();
 
+    container = document.createElement('div');
     queryConfig = RelayQueryConfig.genMockInstance();
     relayContext = new RelayContext();
 
     render = jest.genMockFunction();
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         relayContext={relayContext}
         render={render}
-      />
+      />,
+      container
     );
     jasmine.addMatchers({
       toRenderWithArgs() {
@@ -159,14 +160,15 @@ describe('RelayRenderer.renderArgs', () => {
   });
 
   it('is `stale` if force fetching when data is fulfillable', () => {
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         forceFetch={true}
         relayContext={relayContext}
         render={render}
-      />
+      />,
+      container
     );
     expect(request => request.resolve({stale: true})).toRenderWithArgs({
       done: false,
@@ -214,13 +216,14 @@ describe('RelayRenderer.renderArgs', () => {
     const MockQueryConfig = RelayQueryConfig.genMock();
     queryConfig = new MockQueryConfig({foo: 123, bar: 456});
 
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         relayContext={relayContext}
         render={render}
-      />
+      />,
+      container
     );
     expect(request => request.resolve()).toRenderWithArgs({
       done: false,

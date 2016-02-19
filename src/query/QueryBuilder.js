@@ -36,6 +36,7 @@ import type {
 } from 'ConcreteQuery';
 const RelayNodeInterface = require('RelayNodeInterface');
 
+const generateConcreteFragmentID = require('generateConcreteFragmentID');
 const invariant = require('invariant');
 
 const EMPTY_CALLS: Array<ConcreteCall> = [];
@@ -165,6 +166,7 @@ const QueryBuilder = {
     return {
       children: partialFragment.children || EMPTY_CHILDREN,
       directives: partialFragment.directives || EMPTY_DIRECTIVES,
+      id: generateConcreteFragmentID(),
       kind: 'Fragment',
       metadata: {
         isAbstract: !!metadata.isAbstract,

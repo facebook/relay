@@ -50,6 +50,9 @@ function babelAdapter(
         const filename = state.opts.filename;
         state.opts.compatState = compatState = {
           file: {
+            code: state.code != null ?
+              state.code :
+              state.file.code,
             opts: {
               basename: path.basename(filename, path.extname(filename)),
               filename,

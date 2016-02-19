@@ -98,8 +98,9 @@ describe('RelayRenderer.validation', () => {
     expect(() => ShallowRenderer.render(
       <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     )).toThrowError(
-      'Warning: Failed propType: Required prop `relayContext` was not ' +
-      'specified in `RelayRenderer`.'
+      'Warning: Failed propType: Invalid prop/context `relayContext` ' +
+      'supplied to `RelayRenderer`, expected `undefined` to be an object ' +
+      'conforming to the `RelayContext` interface.'
     );
 
     expect(() => ShallowRenderer.render(
@@ -109,9 +110,9 @@ describe('RelayRenderer.validation', () => {
         relayContext={{}}
       />
     )).toThrowError(
-      'Warning: Failed propType: Invalid prop `relayContext` of type ' +
-      '`Object` supplied to `RelayRenderer`, expected instance of ' +
-      '`RelayContext`.'
+      'Warning: Failed propType: Invalid prop/context `relayContext` ' +
+      'supplied to `RelayRenderer`, expected `[object Object]` to be an ' +
+      'object conforming to the `RelayContext` interface.'
     );
   });
 

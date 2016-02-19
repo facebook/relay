@@ -16,7 +16,7 @@ require('configureForRelayOSS');
 jest.dontMock('RelayRenderer');
 
 const React = require('React');
-const ReactTestUtils = require('ReactTestUtils');
+const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
 const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
@@ -27,8 +27,8 @@ const getRelayQueries = require('getRelayQueries');
 describe('RelayRenderer', function() {
   let MockComponent;
   let MockContainer;
-  let ShallowRenderer;
 
+  let container;
   let queryConfig;
   let relayContext;
 
@@ -39,16 +39,17 @@ describe('RelayRenderer', function() {
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
-    ShallowRenderer = ReactTestUtils.createRenderer();
 
+    container = document.createElement('div');
     queryConfig = RelayQueryConfig.genMockInstance();
     relayContext = new RelayContext();
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         relayContext={relayContext}
-      />
+      />,
+      container
     );
   });
 
@@ -58,12 +59,13 @@ describe('RelayRenderer', function() {
   });
 
   it('does nothing when required props are unchanged', () => {
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         relayContext={relayContext}
-      />
+      />,
+      container
     );
     expect(getRelayQueries.mock.calls).toEqual([[MockContainer, queryConfig]]);
     expect(relayContext.primeCache.mock.calls.length).toBe(1);
@@ -72,12 +74,13 @@ describe('RelayRenderer', function() {
   it('does nothing when `Component` and `queryConfig` are resolved', () => {
     relayContext.primeCache.mock.requests[0].succeed();
 
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         relayContext={relayContext}
-      />
+      />,
+      container
     );
     expect(getRelayQueries.mock.calls).toEqual([[MockContainer, queryConfig]]);
     expect(relayContext.primeCache.mock.calls.length).toBe(1);
@@ -88,12 +91,13 @@ describe('RelayRenderer', function() {
     const AnotherContainer = Relay.createContainer(AnotherComponent, {
       fragments: {},
     });
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={AnotherContainer}
         queryConfig={queryConfig}
         relayContext={relayContext}
-      />
+      />,
+      container
     );
     expect(getRelayQueries.mock.calls).toEqual([
       [MockContainer, queryConfig],
@@ -104,12 +108,13 @@ describe('RelayRenderer', function() {
 
   it('primes new queries when `queryConfig` changes', () => {
     const anotherQueryConfig = RelayQueryConfig.genMockInstance();
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={anotherQueryConfig}
         relayContext={relayContext}
-      />
+      />,
+      container
     );
     expect(getRelayQueries.mock.calls).toEqual([
       [MockContainer, queryConfig],
@@ -120,12 +125,13 @@ describe('RelayRenderer', function() {
 
   it('primes new queries when `relayContext` changes', () => {
     const anotherRelayContext = new RelayContext();
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         relayContext={anotherRelayContext}
-      />
+      />,
+      container
     );
     expect(getRelayQueries.mock.calls).toEqual([
       [MockContainer, queryConfig],
@@ -136,13 +142,14 @@ describe('RelayRenderer', function() {
   });
 
   it('force fetches when the `forceFetch` prop is true', () => {
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         relayContext={relayContext}
         forceFetch={true}
-      />
+      />,
+      container
     );
     expect(getRelayQueries).toBeCalledWith(MockContainer, queryConfig);
     expect(relayContext.forceFetch).toBeCalled();
@@ -152,7 +159,7 @@ describe('RelayRenderer', function() {
     const onForceFetch = jest.genMockFunction();
     const onPrimeCache = jest.genMockFunction();
 
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
@@ -160,7 +167,8 @@ describe('RelayRenderer', function() {
         forceFetch={true}
         onForceFetch={onForceFetch}
         onPrimeCache={onPrimeCache}
-      />
+      />,
+      container
     );
     expect(onForceFetch).toBeCalled();
     expect(onPrimeCache).not.toBeCalled();
@@ -171,14 +179,15 @@ describe('RelayRenderer', function() {
     const onForceFetch = jest.genMockFunction();
     const onPrimeCache = jest.genMockFunction();
 
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={anotherQueryConfig}
         relayContext={relayContext}
         onForceFetch={onForceFetch}
         onPrimeCache={onPrimeCache}
-      />
+      />,
+      container
     );
     expect(onForceFetch).not.toBeCalled();
     expect(onPrimeCache).toBeCalled();

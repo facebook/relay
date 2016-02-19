@@ -9,8 +9,6 @@
 
 'use strict';
 
-const RelayFragmentPointer = require('RelayFragmentPointer');
-
 type Result = {
   isMatched: boolean;
   message: ?string;
@@ -34,30 +32,6 @@ function match(
     return {
       isMatched: actual === expected,
       message: 'be ' + expected + ', but got ' + actual,
-      path,
-    };
-  }
-
-  if (actual instanceof RelayFragmentPointer) {
-    if (expected instanceof RelayFragmentPointer) {
-      return {
-        isMatched: actual.equals(expected),
-        message: (
-          'be ' + expected.toString() + ', but got ' + actual.toString()
-        ),
-        path,
-      };
-    } else {
-      return {
-        isMatched: false,
-        message: 'be ' + expected + ', but got ' + actual.toString(),
-        path,
-      };
-    }
-  } else if (expected instanceof RelayFragmentPointer) {
-    return {
-      isMatched: false,
-      message: 'be ' + expected.toString() + ', but got ' + actual,
       path,
     };
   }

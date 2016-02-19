@@ -145,6 +145,7 @@ var x = (function () {
         },
         type: 'String'
       }],
+      id: 'dRRUtCt6aHlk:c',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

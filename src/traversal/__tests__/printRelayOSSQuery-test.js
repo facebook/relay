@@ -53,6 +53,39 @@ describe('printRelayOSSQuery', () => {
       expect(variables).toEqual({});
     });
 
+    it('prints a generated query with one root argument', () => {
+      const query = RelayQuery.Root.build(
+        'FooQuery',
+        'node',
+        '123',
+        [
+          RelayQuery.Field.build({
+            fieldName: 'id',
+            type: 'String',
+          }),
+        ],
+        {
+          identifyingArgName: RelayNodeInterface.ID,
+          identifyingArgType: RelayNodeInterface.ID_TYPE,
+          isAbstract: true,
+          isDeferred: false,
+          isPlural: false,
+        },
+        'Node'
+      );
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query FooQuery($id_0: ID!) {
+          node(id: $id_0) {
+            id
+          }
+        }
+      `);
+      expect(variables).toEqual({
+        id_0: '123',
+      });
+    });
+
     it('prints a query with one root argument', () => {
       const query = getNode(Relay.QL`
         query {

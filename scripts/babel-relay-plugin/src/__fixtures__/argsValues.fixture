@@ -196,6 +196,7 @@ var foo = (function () {
         },
         type: "String"
       }],
+      id: "7vSjsNp8hOe/:0",
       kind: "Fragment",
       metadata: {},
       name: "User",

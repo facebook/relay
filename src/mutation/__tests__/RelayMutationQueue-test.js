@@ -24,6 +24,7 @@ const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 const RelayStore = require('RelayStore');
 const RelayStoreData = require('RelayStoreData');
+const RelayTestUtils = require('RelayTestUtils');
 
 const flattenRelayQuery = require('flattenRelayQuery');
 const fromGraphQL = require('fromGraphQL');
@@ -42,6 +43,8 @@ describe('RelayMutationQueue', () => {
     RelayStoreData.prototype.handleUpdatePayload = jest.genMockFunction();
     storeData = RelayStore.getStoreData();
     mutationQueue = storeData.getMutationQueue();
+
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('constructor', () => {
@@ -82,20 +85,22 @@ describe('RelayMutationQueue', () => {
       expect(transaction.getStatus()).toBe(
         RelayMutationTransactionStatus.UNCOMMITTED
       );
-      expect(RelayMutationQuery.buildQuery.mock.calls).toEqual([[{
-        configs: 'optimisticConfigs',
-        fatQuery: flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
+      const buildQueryCalls = RelayMutationQuery.buildQuery.mock.calls;
+      expect(buildQueryCalls.length).toBe(1);
+      expect(buildQueryCalls[0][0].configs).toBe('optimisticConfigs');
+      expect(buildQueryCalls[0][0].input).toEqual({
+        ...input,
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+      });
+      expect(buildQueryCalls[0][0].mutation).toBe(mutationNode);
+      expect(buildQueryCalls[0][0].mutationName).toBe('RelayMutation');
+      expect(buildQueryCalls[0][0].tracker).toBe(storeData.getQueryTracker());
+      expect(buildQueryCalls[0][0].fatQuery).toEqualQueryNode(
+        flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
           preserveEmptyNodes: true,
           shouldRemoveFragments: true,
-        }),
-        input: {
-          ...input,
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        },
-        mutation: mutationNode,
-        mutationName: 'RelayMutation',
-        tracker: storeData.getQueryTracker(),
-      }]]);
+        })
+      );
       expect(storeData.handleUpdatePayload.mock.calls).toEqual([[
         'optimisticQuery',
         {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
@@ -111,19 +116,20 @@ describe('RelayMutationQueue', () => {
 
       mutationQueue.createTransaction(mockMutation);
 
-      expect(
-        RelayMutationQuery.buildQueryForOptimisticUpdate.mock.calls
-      ).toEqual([[{
-        fatQuery: flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
+      const buildQueryCalls =
+        RelayMutationQuery.buildQueryForOptimisticUpdate.mock.calls;
+      expect(buildQueryCalls.length).toBe(1);
+      expect(buildQueryCalls[0][0].mutation).toBe(mutationNode);
+      expect(buildQueryCalls[0][0].response).toEqual({
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+      });
+      expect(buildQueryCalls[0][0].tracker).toBe(storeData.getQueryTracker());
+      expect(buildQueryCalls[0][0].fatQuery).toEqualQueryNode(
+        flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
           preserveEmptyNodes: true,
           shouldRemoveFragments: true,
-        }),
-        mutation: mutationNode,
-        response: {
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        },
-        tracker: storeData.getQueryTracker(),
-      }]]);
+        })
+      );
       expect(storeData.handleUpdatePayload.mock.calls).toEqual([[
         'optimisticQuery',
         {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},

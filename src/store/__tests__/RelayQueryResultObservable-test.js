@@ -57,11 +57,7 @@ describe('RelayQueryResultObservable', () => {
   }
 
   function observeRelayQueryData(dataID) {
-    var fragmentPointer = new RelayFragmentPointer(
-      dataID,
-      query
-    );
-    return new RelayQueryResultObservable(storeData, fragmentPointer);
+    return new RelayQueryResultObservable(storeData, query, dataID);
   }
 
   beforeEach(() => {

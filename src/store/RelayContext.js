@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayFragmentPointer = require('RelayFragmentPointer');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type RelayQuery from 'RelayQuery';
@@ -38,6 +38,30 @@ import type {
   DataID,
   RelayQuerySet,
 } from 'RelayInternalTypes';
+
+export type FragmentResolver = {
+  dispose: () => void;
+  resolve: (
+    fragment: RelayQuery.Fragment,
+    dataIDs: DataID | Array<DataID>
+  ) => ?(StoreReaderData | Array<?StoreReaderData>);
+};
+
+export type RelayContextInterface = {
+  forceFetch: (
+    querySet: RelayQuerySet,
+    onReadyStateChange: ReadyStateChangeCallback
+  ) => Abortable;
+  getFragmentResolver: (
+    fragment: RelayQuery.Fragment,
+    onNext: () => void
+  ) => FragmentResolver;
+  getStoreData: () => RelayStoreData;
+  primeCache: (
+    querySet: RelayQuerySet,
+    onReadyStateChange: ReadyStateChangeCallback
+  ) => Abortable;
+};
 
 /**
  * @public
@@ -168,11 +192,25 @@ class RelayContext {
     fragment: RelayQuery.Fragment,
     dataID: DataID
   ): Observable<?StoreReaderData> {
-    var fragmentPointer = new RelayFragmentPointer(
-      fragment.isPlural()? [dataID] : dataID,
-      fragment
+    return new RelayQueryResultObservable(this._storeData, fragment, dataID);
+  }
+
+  /**
+   * @internal
+   *
+   * Returns a fragment "resolver" - a subscription to the results of a fragment
+   * and a means to access the latest results. This is a transitional API and
+   * not recommended for general use.
+   */
+  getFragmentResolver(
+    fragment: RelayQuery.Fragment,
+    onNext: () => void
+  ): FragmentResolver {
+    return new GraphQLStoreQueryResolver(
+      this._storeData,
+      fragment,
+      onNext
     );
-    return new RelayQueryResultObservable(this._storeData, fragmentPointer);
   }
 
   /**

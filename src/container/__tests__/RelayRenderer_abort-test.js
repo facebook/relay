@@ -16,7 +16,7 @@ require('configureForRelayOSS');
 jest.dontMock('RelayRenderer');
 
 const React = require('React');
-const ReactTestUtils = require('ReactTestUtils');
+const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
 const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
@@ -25,7 +25,6 @@ const RelayRenderer = require('RelayRenderer');
 describe('RelayRenderer.abort', () => {
   let MockComponent;
   let MockContainer;
-  let ShallowRenderer;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -34,18 +33,20 @@ describe('RelayRenderer.abort', () => {
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
-    ShallowRenderer = ReactTestUtils.createRenderer();
+
+    const container = document.createElement('div');
 
     const relayContext = new RelayContext();
 
     function render() {
       const queryConfig = RelayQueryConfig.genMockInstance();
-      ShallowRenderer.render(
+      ReactDOM.render(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}
           relayContext={relayContext}
-        />
+        />,
+        container
       );
       const index = relayContext.primeCache.mock.calls.length - 1;
       return {
@@ -71,7 +72,7 @@ describe('RelayRenderer.abort', () => {
           compare(actual) {
             const {abort, request} = render();
             actual(request);
-            ShallowRenderer.unmount();
+            ReactDOM.unmountComponentAtNode(container);
             return {
               pass: abort.mock.calls.length > 0,
             };

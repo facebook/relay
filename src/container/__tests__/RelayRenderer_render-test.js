@@ -16,19 +16,33 @@ require('configureForRelayOSS');
 jest.dontMock('RelayRenderer');
 
 const React = require('React');
+const ReactDOM = require('ReactDOM');
 const ReactTestUtils = require('ReactTestUtils');
 const Relay = require('Relay');
 const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
+const StaticContainer = require('StaticContainer.react');
 
 describe('RelayRenderer.render', () => {
   let MockComponent;
   let MockContainer;
-  let ShallowRenderer;
 
+  let container;
   let queryConfig;
   let relayContext;
+  let renderedComponent;
+
+  function renderElement(element) {
+    renderedComponent = ReactDOM.render(element, container);
+  }
+
+  function getRenderOutput() {
+    return ReactTestUtils.findRenderedComponentWithType(
+      renderedComponent,
+      StaticContainer
+    );
+  }
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -37,13 +51,13 @@ describe('RelayRenderer.render', () => {
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
-    ShallowRenderer = ReactTestUtils.createRenderer();
 
+    container = document.createElement('div');
     queryConfig = RelayQueryConfig.genMockInstance();
     relayContext = new RelayContext();
 
     jasmine.addMatchers({
-      toBeShallowUpdated() {
+      toBeUpdated() {
         return {
           compare(actual) {
             return {
@@ -52,11 +66,11 @@ describe('RelayRenderer.render', () => {
           },
         };
       },
-      toBeShallowRenderedChild() {
+      toBeRenderedChild() {
         return {
           compare(actual) {
             return {
-              pass: ShallowRenderer.getRenderOutput().props.children === actual,
+              pass: getRenderOutput().props.children === actual,
             };
           },
         };
@@ -65,18 +79,18 @@ describe('RelayRenderer.render', () => {
   });
 
   it('defaults to null if unready and `render` is not supplied', () => {
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         relayContext={relayContext}
       />
     );
-    expect(null).toBeShallowRenderedChild();
+    expect(null).toBeRenderedChild();
   });
 
   it('defaults to component if ready and `render` is not supplied', () => {
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
@@ -85,13 +99,13 @@ describe('RelayRenderer.render', () => {
     );
     relayContext.primeCache.mock.requests[0].resolve();
 
-    const output = ShallowRenderer.getRenderOutput().props.children;
+    const output = getRenderOutput().props.children;
     expect(output.type).toBe(MockContainer);
     expect(output.props).toEqual({});
   });
 
   it('renders null if `render` returns null', () => {
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
@@ -100,12 +114,12 @@ describe('RelayRenderer.render', () => {
       />
     );
     relayContext.primeCache.mock.requests[0].block();
-    expect(null).toBeShallowRenderedChild();
+    expect(null).toBeRenderedChild();
   });
 
   it('renders previous view if `render` returns undefined', () => {
     const prevView = <span />;
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
@@ -114,9 +128,9 @@ describe('RelayRenderer.render', () => {
       />
     );
     relayContext.primeCache.mock.requests[0].block();
-    expect(prevView).toBeShallowRenderedChild();
+    expect(prevView).toBeRenderedChild();
 
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
@@ -124,12 +138,12 @@ describe('RelayRenderer.render', () => {
         render={() => undefined}
       />
     );
-    expect(ShallowRenderer.getRenderOutput()).not.toBeShallowUpdated();
+    expect(getRenderOutput()).not.toBeUpdated();
   });
 
   it('renders new view if `render` return a new view', () => {
     const prevView = <span />;
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
@@ -138,10 +152,10 @@ describe('RelayRenderer.render', () => {
       />
     );
     relayContext.primeCache.mock.requests[0].block();
-    expect(prevView).toBeShallowRenderedChild();
+    expect(prevView).toBeRenderedChild();
 
     const nextView = <div />;
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
@@ -149,13 +163,13 @@ describe('RelayRenderer.render', () => {
         render={() => nextView}
       />
     );
-    expect(nextView).toBeShallowRenderedChild();
+    expect(nextView).toBeRenderedChild();
   });
 
   it('renders when mounted before a request is sent', () => {
     const initialView = <div />;
     const render = jest.genMockFunction().mockReturnValue(initialView);
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
@@ -164,11 +178,11 @@ describe('RelayRenderer.render', () => {
       />
     );
     expect(render).toBeCalled();
-    expect(initialView).toBeShallowRenderedChild();
+    expect(initialView).toBeRenderedChild();
   });
 
   it('renders when updated before the initial request is sent', () => {
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
@@ -176,7 +190,7 @@ describe('RelayRenderer.render', () => {
       />
     );
     const loadingView = <div />;
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={RelayQueryConfig.genMockInstance()}
@@ -185,11 +199,11 @@ describe('RelayRenderer.render', () => {
       />
     );
     // Since RelayRenderer has not yet sent a request, view gets to update.
-    expect(ShallowRenderer.getRenderOutput()).toBeShallowUpdated();
+    expect(getRenderOutput()).toBeUpdated();
   });
 
   it('does not render when updated after the initial request is sent', () => {
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
@@ -199,7 +213,7 @@ describe('RelayRenderer.render', () => {
     relayContext.primeCache.mock.requests[0].block();
 
     const loadingView = <div />;
-    ShallowRenderer.render(
+    renderElement(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={RelayQueryConfig.genMockInstance()}
@@ -209,15 +223,15 @@ describe('RelayRenderer.render', () => {
     );
     // RelayRenderer does not synchronously update because the ready state (and
     // therefore render arguments) for the new `queryConfig` is not yet known.
-    expect(ShallowRenderer.getRenderOutput()).not.toBeShallowUpdated();
+    expect(getRenderOutput()).not.toBeUpdated();
     relayContext.primeCache.mock.requests[1].block();
-    expect(loadingView).toBeShallowRenderedChild();
+    expect(loadingView).toBeRenderedChild();
   });
 
   it('renders whenever updated after request is sent', () => {
     const render = jest.genMockFunction();
     function update() {
-      ShallowRenderer.render(
+      renderElement(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}
@@ -238,6 +252,32 @@ describe('RelayRenderer.render', () => {
     expect(render.mock.calls.length).toBe(5);
   });
 
+  it('renders once after each ready state change', () => {
+    const render = jest.genMockFunction();
+
+    renderElement(
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={queryConfig}
+        relayContext={relayContext}
+        render={render}
+      />
+    );
+
+    const request = relayContext.primeCache.mock.requests[0];
+
+    expect(render.mock.calls.length).toBe(1);
+
+    request.block();
+    expect(render.mock.calls.length).toBe(2);
+
+    request.resolve();
+    expect(render.mock.calls.length).toBe(3);
+
+    request.succeed();
+    expect(render.mock.calls.length).toBe(4);
+  });
+
   describe('GC integration', () => {
     let garbageCollector;
 
@@ -249,7 +289,7 @@ describe('RelayRenderer.render', () => {
 
     it('acquires a GC hold when mounted', () => {
       garbageCollector.acquireHold = jest.genMockFunction();
-      ShallowRenderer.render(
+      renderElement(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}
@@ -263,7 +303,7 @@ describe('RelayRenderer.render', () => {
       const release = jest.genMockFunction();
       garbageCollector.acquireHold =
         jest.genMockFunction().mockReturnValue({release});
-      ShallowRenderer.render(
+      renderElement(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}
@@ -277,7 +317,7 @@ describe('RelayRenderer.render', () => {
       storeData.initializeGarbageCollector(jest.genMockFunction());
       const newGarbageCollector = storeData.getGarbageCollector();
       newGarbageCollector.acquireHold = jest.genMockFunction();
-      ShallowRenderer.render(
+      renderElement(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}
@@ -292,7 +332,7 @@ describe('RelayRenderer.render', () => {
       const release = jest.genMockFunction();
       garbageCollector.acquireHold =
         jest.genMockFunction().mockReturnValue({release});
-      ShallowRenderer.render(
+      renderElement(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}
@@ -300,12 +340,12 @@ describe('RelayRenderer.render', () => {
         />
       );
       expect(release).not.toBeCalled();
-      ShallowRenderer.unmount();
+      ReactDOM.unmountComponentAtNode(container);
       expect(release).toBeCalled();
     });
 
     it('releases reacquired GC hold when unmounted', () => {
-      ShallowRenderer.render(
+      renderElement(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}
@@ -319,7 +359,7 @@ describe('RelayRenderer.render', () => {
       const release = jest.genMockFunction();
       newGarbageCollector.acquireHold =
         jest.genMockFunction().mockReturnValue({release});
-      ShallowRenderer.render(
+      renderElement(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}
@@ -327,7 +367,7 @@ describe('RelayRenderer.render', () => {
         />
       );
       expect(release).not.toBeCalled();
-      ShallowRenderer.unmount();
+      ReactDOM.unmountComponentAtNode(container);
       expect(release).toBeCalled();
     });
   });

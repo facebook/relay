@@ -42,7 +42,7 @@ describe('RelayRenderer.context', () => {
 
     const container = document.createElement('div');
     const contextTypes = {
-      relay: Relay.PropTypes.Context.isRequired,
+      relay: Relay.PropTypes.Context,
       route: Relay.PropTypes.QueryConfig.isRequired,
     };
     jasmine.addMatchers({

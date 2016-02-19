@@ -16,7 +16,7 @@ require('configureForRelayOSS');
 jest.dontMock('RelayRenderer');
 
 const React = require('React');
-const ReactTestUtils = require('ReactTestUtils');
+const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
 const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
@@ -25,8 +25,8 @@ const RelayRenderer = require('RelayRenderer');
 describe('RelayRenderer.onReadyStateChange', () => {
   let MockComponent;
   let MockContainer;
-  let ShallowRenderer;
 
+  let container;
   let queryConfig;
   let relayContext;
 
@@ -37,8 +37,8 @@ describe('RelayRenderer.onReadyStateChange', () => {
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
-    ShallowRenderer = ReactTestUtils.createRenderer();
 
+    container = document.createElement('div');
     queryConfig = RelayQueryConfig.genMockInstance();
     relayContext = new RelayContext();
   });
@@ -47,13 +47,14 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   beforeEach(() => {
     onReadyStateChange = jest.genMockFunction();
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         onReadyStateChange={onReadyStateChange}
         relayContext={relayContext}
-      />
+      />,
+      container
     );
     const defaultState = {
       aborted: false,
@@ -166,13 +167,14 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   it('does nothing when aborted from query configuration change', () => {
     expect(request => {
-      ShallowRenderer.render(
+      ReactDOM.render(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={RelayQueryConfig.genMockInstance()}
           onReadyStateChange={onReadyStateChange}
           relayContext={relayContext}
-        />
+        />,
+        container
       );
     }).toTriggerReadyStateChanges([
       // Nothing.
@@ -181,7 +183,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   it('is aborted and not mounted when aborted from unmounting', () => {
     expect(request => {
-      ShallowRenderer.unmount();
+      ReactDOM.unmountComponentAtNode(container);
     }).toTriggerReadyStateChanges([
       {aborted: true, mounted: false},
     ]);

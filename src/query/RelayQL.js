@@ -44,6 +44,16 @@ function RelayQL(
   );
 }
 
+function assertValidFragment(substitution: any): void {
+  invariant(
+    substitution instanceof RelayFragmentReference ||
+    QueryBuilder.getFragment(substitution) ||
+    QueryBuilder.getFragmentReference(substitution),
+    'RelayQL: Invalid fragment composition, use ' +
+    '`${Child.getFragment(\'name\')}`.'
+  );
+}
+
 /**
  * Private helper methods used by the transformed code.
  */
@@ -54,13 +64,11 @@ Object.assign(RelayQL, {
       return new RelayRouteFragment(substitution);
     }
     if (substitution != null) {
-      invariant(
-        substitution instanceof RelayFragmentReference ||
-        QueryBuilder.getFragment(substitution) ||
-        QueryBuilder.getFragmentReference(substitution),
-        'RelayQL: Invalid fragment composition, use ' +
-        '`${Child.getFragment(\'name\')}`.'
-      );
+      if (Array.isArray(substitution)) {
+        substitution.forEach(assertValidFragment);
+      } else {
+        assertValidFragment(substitution);
+      }
     }
     return substitution;
   },
@@ -75,18 +83,6 @@ Object.assign(RelayQL, {
       );
     }
     return QueryBuilder.createCallValue(expression);
-  },
-  __varDEPRECATED(expression: mixed): mixed {
-    const variable = QueryBuilder.getCallVariable(expression);
-    if (variable) {
-      invariant(
-        false,
-        'RelayQL: Invalid argument `%s` supplied via template substitution. ' +
-        'Instead, use an inline variable (e.g. `comments(count: $count)`).',
-        variable.callVariableName
-      );
-    }
-    return expression;
   },
 });
 

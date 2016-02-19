@@ -21,7 +21,7 @@ var x = (function (RQL_0) {
         callVariableName: 'input'
       }
     }],
-    children: [].concat.apply([],[{
+    children: [].concat.apply([], [{
       fieldName: 'clientMutationId',
       kind: 'Field',
       metadata: {

@@ -201,6 +201,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       return codify({
         children: selections,
         directives: this.printDirectives(fragment.getDirectives()),
+        id: t.valueToNode(fragment.getFragmentID()),
         kind: t.valueToNode('Fragment'),
         metadata,
         name: t.valueToNode(fragment.getName()),

@@ -37,6 +37,8 @@ var GraphQLRelayDirective = require('./GraphQLRelayDirective');
 var find = require('./find');
 var invariant = require('./invariant');
 
+var _nextFragmentID = 0;
+
 var RelayQLNode = (function () {
   function RelayQLNode(context, ast) {
     _classCallCheck(this, RelayQLNode);
@@ -146,10 +148,23 @@ var RelayQLFragment = (function (_RelayQLDefinition) {
       });
     });
     _get(Object.getPrototypeOf(RelayQLFragment.prototype), 'constructor', this).call(this, _extends({}, context, { isPattern: isPattern }), ast);
+    this.fragmentID = null;
     this.parentType = parentType;
   }
 
   _createClass(RelayQLFragment, [{
+    key: 'getFragmentID',
+    value: function getFragmentID() {
+      if (this.fragmentID == null) {
+        var suffix = (_nextFragmentID++).toString(32);
+        // The fragmentLocationID is the same for all inline/nested fragments
+        // within each Relay.QL tagged template expression; the auto-incrementing
+        // suffix distinguishes these fragments from each other.
+        this.fragmentID = this.context.fragmentLocationID + ':' + suffix;
+      }
+      return this.fragmentID;
+    }
+  }, {
     key: 'getType',
     value: function getType() {
       var type = this.ast.typeCondition;

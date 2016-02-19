@@ -143,6 +143,7 @@ var x = (function () {
         },
         type: 'String'
       }],
+      id: 'ptGsI0gOvEjC:2',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

@@ -22,7 +22,7 @@ class TodoApp extends React.Component {
     Relay.Store.commitUpdate(
       new AddTodoMutation({text, viewer: this.props.viewer})
     );
-  }
+  };
   render() {
     var hasTodos = this.props.viewer.totalCount > 0;
     return (

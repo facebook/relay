@@ -114,7 +114,7 @@ describe('RelayQueryFragment', () => {
       }
     `;
     var fragment = getNode(node);
-    expect(fragment.getDebugName()).toBe('RelayQueryFragment');
+    expect(fragment.getDebugName()).toBe('RelayQueryFragmentRelayQL');
     expect(fragment.getType()).toBe('StreetAddress');
   });
 
@@ -122,7 +122,7 @@ describe('RelayQueryFragment', () => {
     var children = fragment.getChildren();
     expect(children.length).toBe(2);
     expect(children[0].getSchemaName()).toBe('country');
-    expect(children[1].getDebugName()).toBe('RelayQueryFragment');
+    expect(children[1].getDebugName()).toBe('RelayQueryFragmentRelayQL');
   });
 
   it('returns same object when cloning with same children', () => {

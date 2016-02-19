@@ -13,12 +13,14 @@
 
 'use strict';
 
-const DliteFetchModeConstants = require('DliteFetchModeConstants');
+const RelayFetchMode = require('RelayFetchMode');
+import type {FetchMode} from 'RelayFetchMode';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 import type {PendingFetch} from 'RelayPendingQueryTracker';
 const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
+const RelayReadyState = require('RelayReadyState');
 import type RelayStoreData from 'RelayStoreData';
 const RelayTaskScheduler = require('RelayTaskScheduler');
 
@@ -39,13 +41,6 @@ import type {
   ReadyStateChangeCallback,
 } from 'RelayTypes';
 
-type PartialReadyState = {
-  aborted?: boolean;
-  done?: boolean;
-  error?: Error;
-  ready?: boolean;
-  stale?: boolean;
-};
 type RelayProfileHandler = {stop: () => void};
 
 /**
@@ -69,21 +64,19 @@ class GraphQLQueryRunner {
   /**
    * Fetches data required to resolve a set of queries. See the `RelayStore`
    * module for documentation on the callback.
-   *
-   * Fetch mode must be a value in `DliteFetchModeConstants`.
    */
   run(
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback,
-    fetchMode?: string
+    fetchMode?: FetchMode
   ): Abortable {
-    fetchMode = fetchMode || DliteFetchModeConstants.FETCH_MODE_CLIENT;
-    var profiler = fetchMode === DliteFetchModeConstants.FETCH_MODE_REFETCH ?
+    fetchMode = fetchMode || RelayFetchMode.CLIENT;
+    var profiler = fetchMode === RelayFetchMode.REFETCH ?
       RelayProfiler.profile('GraphQLQueryRunner.forceFetch') :
       RelayProfiler.profile('GraphQLQueryRunner.primeCache');
 
     var diffQueries = [];
-    if (fetchMode === DliteFetchModeConstants.FETCH_MODE_CLIENT) {
+    if (fetchMode === RelayFetchMode.CLIENT) {
       forEachObject(querySet, query => {
         if (query) {
           diffQueries.push(...diffRelayQuery(
@@ -121,7 +114,7 @@ class GraphQLQueryRunner {
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
-    var fetchMode = DliteFetchModeConstants.FETCH_MODE_REFETCH;
+    var fetchMode = RelayFetchMode.REFETCH;
     var profiler = RelayProfiler.profile('GraphQLQueryRunner.forceFetch');
     var queries = [];
     forEachObject(querySet, query => {
@@ -169,44 +162,10 @@ function runQueries(
   storeData: RelayStoreData,
   queries: Array<RelayQuery.Root>,
   callback: ReadyStateChangeCallback,
-  fetchMode: string,
+  fetchMode: FetchMode,
   profiler: RelayProfileHandler
 ): Abortable {
-  var readyState = {
-    aborted: false,
-    done: false,
-    error: null,
-    ready: false,
-    stale: false,
-  };
-  var scheduled = false;
-  function setReadyState(partial: PartialReadyState): void {
-    if (readyState.aborted) {
-      return;
-    }
-    if (readyState.done || readyState.error) {
-      warning(
-        partial.aborted,
-        'GraphQLQueryRunner: Unexpected ready state change.'
-      );
-      return;
-    }
-    readyState = {
-      aborted: partial.aborted != null ? partial.aborted : readyState.aborted,
-      done: partial.done != null ? partial.done : readyState.done,
-      error: partial.error != null ? partial.error : readyState.error,
-      ready: partial.ready != null ? partial.ready : readyState.ready,
-      stale: partial.stale != null ? partial.stale : readyState.stale,
-    };
-    if (scheduled) {
-      return;
-    }
-    scheduled = true;
-    resolveImmediate(() => {
-      scheduled = false;
-      callback(readyState);
-    });
-  }
+  const readyState = new RelayReadyState(callback);
 
   var remainingFetchMap: {[queryID: string]: PendingFetch} = {};
   var remainingRequiredFetchMap: {[queryID: string]: PendingFetch} = {};
@@ -225,19 +184,19 @@ function runQueries(
 
     if (someObject(remainingFetchMap, query => query.isResolvable())) {
       // The other resolvable query will resolve imminently and call
-      // `setReadyState` instead.
+      // `readyState.update` instead.
       return;
     }
 
     if (hasItems(remainingFetchMap)) {
-      setReadyState({done: false, ready: true, stale: false});
+      readyState.update({done: false, ready: true, stale: false});
     } else {
-      setReadyState({done: true, ready: true, stale: false});
+      readyState.update({done: true, ready: true, stale: false});
     }
   }
 
   function onRejected(pendingFetch: PendingFetch, error: Error) {
-    setReadyState({error});
+    readyState.update({error});
 
     var pendingQuery = pendingFetch.getQuery();
     var pendingQueryID = pendingQuery.getID();
@@ -255,7 +214,7 @@ function runQueries(
   }
 
   RelayTaskScheduler.enqueue(() => {
-    var forceIndex = fetchMode === DliteFetchModeConstants.FETCH_MODE_REFETCH ?
+    var forceIndex = fetchMode === RelayFetchMode.REFETCH ?
       generateForceIndex() : null;
 
     splitAndFlattenQueries(queries).forEach(query => {
@@ -274,12 +233,12 @@ function runQueries(
     });
 
     if (!hasItems(remainingFetchMap)) {
-      setReadyState({done: true, ready: true});
+      readyState.update({done: true, ready: true});
     } else {
       if (!hasItems(remainingRequiredFetchMap)) {
-        setReadyState({ready: true});
+        readyState.update({ready: true});
       } else {
-        setReadyState({ready: false});
+        readyState.update({ready: false});
         resolveImmediate(() => {
           if (storeData.hasCacheManager()) {
             var requiredQueryMap = mapObject(
@@ -289,14 +248,14 @@ function runQueries(
             storeData.readFromDiskCache(requiredQueryMap, {
               onSuccess: () => {
                 if (hasItems(remainingRequiredFetchMap)) {
-                  setReadyState({ready: true, stale: true});
+                  readyState.update({ready: true, stale: true});
                 }
               },
             });
           } else {
             if (everyObject(remainingRequiredFetchMap, canResolve)) {
               if (hasItems(remainingRequiredFetchMap)) {
-                setReadyState({ready: true, stale: true});
+                readyState.update({ready: true, stale: true});
               }
             }
           }
@@ -309,7 +268,7 @@ function runQueries(
 
   return {
     abort(): void {
-      setReadyState({aborted: true});
+      readyState.update({aborted: true});
     },
   };
 }

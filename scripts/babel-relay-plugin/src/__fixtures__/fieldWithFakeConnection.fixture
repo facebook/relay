@@ -68,9 +68,10 @@ var foo = (function () {
       },
       type: 'String'
     }],
+    id: 'LUWdmGzrlfjf:e',
     kind: 'Fragment',
     metadata: {},
-    name: 'FieldWithFakeConnection',
+    name: 'FieldWithFakeConnectionRelayQL',
     type: 'User'
   };
 })();

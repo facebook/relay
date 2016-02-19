@@ -8,6 +8,7 @@
  *
  * @providesModule generateRQLFieldAlias
  * @typechecks
+ * @flow
  */
 
 'use strict';
@@ -20,6 +21,8 @@ const crc32 = require('crc32');
 var PREFIX = '_';
 
 /**
+ * @internal
+ *
  * Sanitizes a stringified GraphQL field (including any calls and their values)
  * to produce a valid alias.
  *
@@ -28,13 +31,8 @@ var PREFIX = '_';
  * between components requesting the same fields. (Explicit aliases are only
  * needed within a single component when it uses the same field multiple times,
  * in order to differentiate these fields in the props).
- *
- * @internal
- *
- * @param {string} input
- * @return {string}
  */
-function generateRQLFieldAlias(input) {
+function generateRQLFieldAlias(input: string): string {
   // Field names with no calls can be used as aliases without encoding
   var index = input.indexOf('.');
   if (index === -1) {

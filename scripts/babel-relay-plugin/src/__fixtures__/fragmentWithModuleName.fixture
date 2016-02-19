@@ -25,6 +25,7 @@ var x = (function () {
       },
       type: 'String'
     }],
+    id: '8eAZa3uRn4XK:i',
     kind: 'Fragment',
     metadata: {
       isAbstract: true
@@ -51,6 +52,7 @@ var y = (function () {
       },
       type: 'String'
     }],
+    id: 'i8LCtT+AsLwr:j',
     kind: 'Fragment',
     metadata: {
       isAbstract: true

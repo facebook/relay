@@ -145,14 +145,16 @@ describe('RelayContext', () => {
           id
         }
       `);
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
-        expect(pointer.getFragment()).toBe(fragment);
-        expect(pointer.getDataID()).toBe('123');
-        return {
-          __dataID__: '123',
-          id: '123',
-        };
-      });
+      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(
+        (pointerFragment, dataID) => {
+          expect(pointerFragment).toBe(fragment);
+          expect(dataID).toBe('123');
+          return {
+            __dataID__: '123',
+            id: '123',
+          };
+        }
+      );
 
       var observer = relayContext.observe(fragment, '123');
       var onNext = jest.genMockFunction();

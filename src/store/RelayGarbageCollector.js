@@ -22,6 +22,7 @@ import type RelayStoreData from 'RelayStoreData';
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
+const warning = require('warning');
 
 export type GarbageCollectionHold = {release: () => void};
 export type GarbageCollectionScheduler = (collect: () => boolean) => void;
@@ -61,25 +62,27 @@ class RelayGarbageCollector {
   }
 
   incrementReferenceCount(dataID: DataID): void {
-    invariant(
-      this._refCounts.hasOwnProperty(dataID),
-      'RelayGarbageCollector: must register `%s` before referencing.',
-      dataID
-    );
+    // Inlined `register` since this is a reasonably hot code path.
+    if (!this._refCounts.hasOwnProperty(dataID)) {
+      this._refCounts[dataID] = 0;
+    }
     this._refCounts[dataID]++;
   }
 
   decrementReferenceCount(dataID: DataID): void {
-    invariant(
-      this._refCounts.hasOwnProperty(dataID),
-      'RelayGarbageCollector: must register `%s` before dereferencing.',
-      dataID
-    );
-    invariant(
-      this._refCounts[dataID] > 0,
-      'RelayGarbageCollector: cannot decrease references below zero for `%s`.',
-      dataID
-    );
+    if (
+      !this._refCounts.hasOwnProperty(dataID) ||
+      this._refCounts[dataID] <= 0
+    ) {
+      warning(
+        false,
+        'RelayGarbageCollector: Expected id `%s` be referenced before being ' +
+        'unreferenced.',
+        dataID
+      );
+      this._refCounts[dataID] = 0;
+      return;
+    }
     this._refCounts[dataID]--;
   }
 
@@ -164,32 +167,43 @@ class RelayGarbageCollector {
     const cachedRecords = this._storeData.getCachedData();
     const freshRecords = this._storeData.getNodeData();
     this._scheduler(() => {
-      // handle async scheduling
-      if (this._activeHoldCount || !this._collectionQueue.length) {
-        return this._isCollecting = false;
+      // exit if a hold was acquired since the last execution
+      if (this._activeHoldCount) {
+        this._isCollecting = false;
+        return false;
       }
 
-      let dataID;
-      let refCount;
-      // find the next record to collect
-      do {
-        dataID = this._collectionQueue.shift();
-        refCount = this._refCounts[dataID];
-      } while (dataID && refCount === undefined || refCount > 0);
-      const cachedRecord = cachedRecords[dataID];
-      if (cachedRecord) {
-        this._traverseRecord(cachedRecord);
+      const dataID = this._getNextUnreferencedID();
+      if (dataID) {
+        const cachedRecord = cachedRecords[dataID];
+        if (cachedRecord) {
+          this._traverseRecord(cachedRecord);
+        }
+        const freshRecord = freshRecords[dataID];
+        if (freshRecord) {
+          this._traverseRecord(freshRecord);
+        }
+        this._collectRecord(dataID);
       }
-      const freshRecord = freshRecords[dataID];
-      if (freshRecord) {
-        this._traverseRecord(freshRecord);
-      }
-      this._collectRecord(dataID);
 
       // only allow new collections to be scheduled once the current one
       // is complete
-      return this._isCollecting = !!this._collectionQueue.length;
+      this._isCollecting = !!this._collectionQueue.length;
+      return this._isCollecting;
     });
+  }
+
+  _getNextUnreferencedID(): ?DataID {
+    while (this._collectionQueue.length) {
+      const dataID = this._collectionQueue.shift();
+      if (
+        this._refCounts.hasOwnProperty(dataID) &&
+        this._refCounts[dataID] === 0
+      ) {
+        return dataID;
+      }
+    }
+    return null;
   }
 
   _traverseRecord(record: {[key: string]: mixed}): void {
@@ -197,21 +211,23 @@ class RelayGarbageCollector {
       if (value instanceof RelayQueryPath) {
         return;
       } else if (value instanceof GraphQLRange) {
-        value.getEdgeIDs().forEach(
-          id => this._collectionQueue.push(id)
-        );
+        value.getEdgeIDs().forEach(id => {
+          if (id != null) {
+            this._collectionQueue.push(id);
+          }
+        });
       } else if (Array.isArray(value)) {
         value.forEach(item => {
           if (typeof item === 'object' && item !== null) {
             const linkedID = RelayRecord.getDataID(item);
-            if (linkedID) {
+            if (linkedID != null) {
               this._collectionQueue.push(linkedID);
             }
           }
         });
       } else if (typeof value === 'object' && value !== null) {
         const linkedID = RelayRecord.getDataID(value);
-        if (linkedID) {
+        if (linkedID != null) {
           this._collectionQueue.push(linkedID);
         }
       }

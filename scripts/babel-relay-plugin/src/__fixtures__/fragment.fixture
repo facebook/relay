@@ -22,11 +22,12 @@ var x = (function () {
       },
       type: 'String'
     }],
+    id: 'xNupCo5yp7aB:g',
     kind: 'Fragment',
     metadata: {
       isAbstract: true
     },
-    name: 'Fragment',
+    name: 'FragmentRelayQL',
     type: 'Node'
   };
 })();

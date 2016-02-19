@@ -304,32 +304,36 @@ describe('RelayStoreData', () => {
   describe('buildFragmentQueryForDataID', () => {
     it('builds root queries for refetchable IDs', () => {
       var data = new RelayStoreData();
-      var fragment = Relay.QL`
-        fragment on Node {
-          id,
-          __typename,
-          name,
+      var fragment = getNode(Relay.QL`
+        fragment on User {
+          id
+          name
         }
-      `;
-      var node = getNode(fragment);
+      `);
       var query = data.buildFragmentQueryForDataID(
-        node,
+        fragment,
         '123'
       );
-      expect(query).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+      expect(query).toEqualQueryRoot(getNode(Relay.QL`
         query {
           node(id:"123") {
-            ${fragment}
+            id
+            __typename
+            ... on User {
+              id
+              name
+            }
           }
         }
       `));
-      expect(query.getName()).toBe(node.getDebugName());
+      expect(query.getName()).toBe(fragment.getDebugName());
+      expect(query.isAbstract()).toBe(true);
     });
 
     it('builds root queries using the path for non-refetchable IDs', () => {
       var storeData = new RelayStoreData();
       var addressFragment = Relay.QL`fragment on User{id,address{city}}`;
-      var node = getVerbatimNode(Relay.QL`
+      var node = getNode(Relay.QL`
         query {
           node(id: "123") {
             id,
@@ -348,15 +352,12 @@ describe('RelayStoreData', () => {
       };
       storeData.handleQueryPayload(node, payload);
 
-      var fragment = Relay.QL`
+      var fragment = getNode(Relay.QL`
         fragment on StreetAddress {
           city,
         }
-      `;
-      var query = storeData.buildFragmentQueryForDataID(
-        getNode(fragment),
-        'client:1'
-      );
+      `);
+      var query = storeData.buildFragmentQueryForDataID(fragment, 'client:1');
       expect(query).toEqualQueryRoot(getNode(Relay.QL`
         query {
           node(id: "123") {
@@ -370,6 +371,8 @@ describe('RelayStoreData', () => {
           },
         }
       `));
+      expect(query.getName()).toBe(node.getName());
+      expect(query.isAbstract()).toBe(true);
     });
   });
 

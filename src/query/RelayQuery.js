@@ -36,8 +36,8 @@ const areEqual = require('areEqual');
 const callsFromGraphQL = require('callsFromGraphQL');
 const callsToGraphQL = require('callsToGraphQL');
 const directivesToGraphQL = require('directivesToGraphQL');
+const generateConcreteFragmentID = require('generateConcreteFragmentID');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const getConcreteFragmentHash = require('getConcreteFragmentHash');
 const invariant = require('invariant');
 const serializeRelayQueryCall = require('serializeRelayQueryCall');
 const shallowEqual = require('shallowEqual');
@@ -246,14 +246,8 @@ class RelayQueryNode {
     const concreteDirectives = (this.__concreteNode__: ConcreteNode).directives;
     if (concreteDirectives) {
       return this.__concreteNode__.directives.map(directive => {
-        // FIXME Debugging #9934204
-        // In cases where the concrete directive is missing the `args` property,
-        // make the choice of the legacy `arguments` property.
-        const args = directive.hasOwnProperty('args') ?
-          directive.args :
-          directive.arguments;
         return {
-          args: callsFromGraphQL(args, this.__variables__),
+          args: callsFromGraphQL(directive.args, this.__variables__),
           name: directive.name,
         };
       });
@@ -377,7 +371,7 @@ class RelayQueryRoot extends RelayQueryNode {
     fieldName: string,
     value: mixed,
     children: ?Array<RelayQueryNode>,
-    metadata: ?ConcreteQueryMetadata,
+    metadata: ConcreteQueryMetadata,
     type: string
   ): RelayQueryRoot {
     const nextChildren = children ? children.filter(child => !!child) : [];
@@ -770,7 +764,6 @@ class RelayQuerySubscription extends RelayQueryOperation {
  */
 class RelayQueryFragment extends RelayQueryNode {
   __compositeHash__: ?string;
-  __isCloned__: boolean;
   __metadata__: FragmentMetadata;
 
   /**
@@ -831,7 +824,6 @@ class RelayQueryFragment extends RelayQueryNode {
   ) {
     super(concreteNode, route, variables);
     this.__compositeHash__ = null;
-    this.__isCloned__ = false;
     this.__metadata__ = metadata || DEFAULT_FRAGMENT_METADATA;
   }
 
@@ -844,39 +836,28 @@ class RelayQueryFragment extends RelayQueryNode {
   }
 
   /**
-   * Checks whether a fragment has been cloned such that the concrete node is no
-   * longer representative of this instance. This will return true for fragments
-   * that are the result of cloning with new children.
+   * The "concrete fragment id" uniquely identifies a Relay.QL`fragment ...`
+   * within the source code of an application and will remain the same across
+   * runs of a particular version of an application.
    */
-  isCloned(): boolean {
-    return this.__isCloned__;
+  getConcreteFragmentID(): string {
+    return (this.__concreteNode__: ConcreteFragment).id;
   }
 
   /**
-   * The "concrete node hash" of a fragment uniquely identifies the instance of
-   * the concrete node. This method should be used with `isCloned()` if you may
-   * be dealing with fragments that have been cloned with new children.
+   * The "composite hash" is similar to the concrete instance hash, but it also
+   * differentiates between varying variable values or route names.
    *
-   * This hash may change between runtime sessions (e.g. client and server).
-   */
-  getConcreteNodeHash(): string {
-    return getConcreteFragmentHash((this.__concreteNode__: ConcreteFragment));
-  }
-
-  /**
-   * The "composite hash" is similar to the concrete instance hash, but is also
-   * uniquely differentiates between varying variable values or route names. It
-   * should also be used with `isCloned()`.
-   *
-   * The composite hash is used to identify fragment pointers in records. It is
-   * also used to store the status of fetching deferred fragments.
+   * The composite hash is used to:
+   * - Avoid printing the same fragment twice, in order to reduce upload size.
+   * - Remember which deferred fragment/data pairs have been fetched.
    */
   getCompositeHash(): string {
     let compositeHash = this.__compositeHash__;
     if (!compositeHash) {
       // TODO: Simplify this hash function, #9599170.
       compositeHash = generateRQLFieldAlias(
-        this.getConcreteNodeHash() +
+        this.getConcreteFragmentID() +
         '.' + this.__route__.name +
         '.' + stableStringify(this.__variables__)
       );
@@ -926,7 +907,10 @@ class RelayQueryFragment extends RelayQueryNode {
     var clone = super.clone(children);
     if (clone !== this &&
         clone instanceof RelayQueryFragment) {
-      clone.__isCloned__ = true;
+      clone.__concreteNode__ = {
+        ...clone.__concreteNode__,
+        id: generateConcreteFragmentID(),
+      };
       clone.__metadata__ = {
         ...this.__metadata__,
       };

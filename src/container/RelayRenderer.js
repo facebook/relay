@@ -13,7 +13,7 @@
 
 'use strict';
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const React = require('React');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
 import type {GarbageCollectionHold} from 'RelayGarbageCollector';
@@ -30,18 +30,10 @@ const StaticContainer = require('StaticContainer.react');
 
 const getRelayQueries = require('getRelayQueries');
 const invariant = require('invariant');
-const isRelayContainer = require('isRelayContainer');
 const mapObject = require('mapObject');
-const sprintf = require('sprintf');
-const warning = require('warning');
 
 type RelayRendererProps = {
-  // (GitHub #790): Once Component prop is fully removed this becomes mandatory.
-  Container?: RelayContainer;
-
-  // @deprecated: Use `Container` instead.
-  Component?: RelayContainer;
-
+  Container: RelayContainer;
   forceFetch?: ?boolean;
   onForceFetch?: ?(
     querySet: RelayQuerySet,
@@ -67,52 +59,11 @@ type RelayRendererRenderArgs = {
 type RelayRendererState = {
   activeContainer: ?RelayContainer;
   activeQueryConfig: ?RelayQueryConfigSpec;
-  pendingRequest: ?Abortable;
   readyState: ?ComponentReadyState;
   renderArgs: RelayRendererRenderArgs;
 };
 
 const {PropTypes} = React;
-
-/**
- * (GitHub #790): Remove once Component prop deprecation is complete.
- */
-function containerFromProps(props: RelayRendererProps): RelayContainer {
-  const Container = props.Container || props.Component;
-  return (Container: any); // Non-null-ness is enforced by validator below.
-}
-
-/**
- * (GitHub #790): Remove once Component prop deprecation is complete.
- */
-function componentPropTypeValidator(
-  props: Object, propName: string, componentName: string
-): ?Error {
-  if (__DEV__) {
-    warning(
-      propName !== 'Component' || !props.hasOwnProperty('Component'),
-      'RelayRenderer: Received deprecated `Component` prop on `%s`. ' +
-      'Pass your Relay.Container via the `Container` prop instead.',
-      componentName
-    );
-  }
-  const {Component, Container} = props;
-  if ((Component || Container) == null) {
-    return new Error(sprintf(
-      'Required prop `Container` was not specified in `%s`.',
-      componentName
-    ));
-  } else if (
-    propName === 'Container' && Container && !isRelayContainer(Container) ||
-    propName === 'Component' && Component && !isRelayContainer(Component)) {
-    return new Error(sprintf(
-      'Invalid prop `%s` supplied to `%s`, expected a RelayContainer.',
-      propName,
-      componentName
-    ));
-  }
-  return null;
-}
 
 /**
  * @public
@@ -176,6 +127,7 @@ function componentPropTypeValidator(
 class RelayRenderer extends React.Component {
   gcHold: ?GarbageCollectionHold;
   mounted: boolean;
+  pendingRequest: ?Abortable;
   props: RelayRendererProps;
   state: RelayRendererState;
 
@@ -185,7 +137,31 @@ class RelayRenderer extends React.Component {
       RelayStore.getStoreData().getGarbageCollector();
     this.gcHold = garbageCollector && garbageCollector.acquireHold();
     this.mounted = true;
-    this.state = this._runQueries(this.props);
+    this.pendingRequest = null;
+    this.state = this._buildState(null, null, null, null);
+  }
+
+  /**
+   * @private
+   */
+  _buildState(
+    activeContainer: ?RelayContainer,
+    activeQueryConfig: ?RelayQueryConfigSpec,
+    readyState: ?ReadyState,
+    props: ?Object
+  ): RelayRendererState {
+    return {
+      activeContainer,
+      activeQueryConfig,
+      readyState: readyState && {...readyState, mounted: true},
+      renderArgs: {
+        done: !!readyState && readyState.done,
+        error: readyState && readyState.error,
+        props,
+        retry: () => this._retry(),
+        stale: !!readyState && readyState.stale,
+      },
+    };
   }
 
   getChildContext(): Object {
@@ -195,72 +171,67 @@ class RelayRenderer extends React.Component {
     };
   }
 
+  componentDidMount(): void {
+    this._runQueries(this.props);
+  }
+
   /**
    * @private
    */
-  _runQueries(props: RelayRendererProps): RelayRendererState {
-    const {forceFetch, queryConfig} = props;
-    const Container = containerFromProps(props);
+  _runQueries(
+    {
+      Container,
+      forceFetch,
+      onForceFetch,
+      onPrimeCache,
+      queryConfig,
+    }: RelayRendererProps
+  ): void {
     const querySet = getRelayQueries(Container, queryConfig);
     const onReadyStateChange = readyState => {
       if (!this.mounted) {
         this._handleReadyStateChange({...readyState, mounted: false});
         return;
       }
-      let {pendingRequest, renderArgs: {props}} = this.state;
-      if (request !== pendingRequest) {
+      if (request !== this.pendingRequest) {
         // Ignore (abort) ready state if we have a new pending request.
         return;
       }
       if (readyState.aborted || readyState.done || readyState.error) {
-        pendingRequest = null;
+        this.pendingRequest = null;
       }
+      let {props} = this.state.renderArgs;
       if (readyState.ready && !props) {
         props = {
           ...queryConfig.params,
           ...mapObject(querySet, createFragmentPointerForRoot),
         };
       }
-      this.setState({
-        activeContainer: Container,
-        activeQueryConfig: queryConfig,
-        pendingRequest,
-        readyState: {...readyState, mounted: true},
-        renderArgs: {
-          done: readyState.done,
-          error: readyState.error,
-          props,
-          retry: this.state.renderArgs.retry,
-          stale: readyState.stale,
-        },
-      });
+      this.setState(
+        this._buildState(
+          Container,
+          queryConfig,
+          readyState,
+          props
+        )
+      );
     };
 
-    const request = forceFetch ?
+    if (this.pendingRequest) {
+      this.pendingRequest.abort();
+    }
+
+    const request = this.pendingRequest = forceFetch ?
       (
-        props.onForceFetch ?
-          props.onForceFetch(querySet, onReadyStateChange) :
+        onForceFetch ?
+          onForceFetch(querySet, onReadyStateChange) :
           RelayStore.forceFetch(querySet, onReadyStateChange)
       ) :
       (
-        props.onPrimeCache ?
-          props.onPrimeCache(querySet, onReadyStateChange) :
+        onPrimeCache ?
+          onPrimeCache(querySet, onReadyStateChange) :
           RelayStore.primeCache(querySet, onReadyStateChange)
       );
-
-    return {
-      activeContainer: this.state ? this.state.activeContainer : null,
-      activeQueryConfig: this.state ? this.state.activeQueryConfig : null,
-      pendingRequest: request,
-      readyState: null,
-      renderArgs: {
-        done: false,
-        error: null,
-        props: null,
-        retry: this._retry.bind(this),
-        stale: false,
-      },
-    };
   }
 
   /**
@@ -273,10 +244,25 @@ class RelayRenderer extends React.Component {
    */
   _shouldUpdate(): boolean {
     const {activeContainer, activeQueryConfig} = this.state;
-    const Container = containerFromProps(this.props);
+    const {Container} = this.props;
     return (
       (!activeContainer || Container === activeContainer) &&
       (!activeQueryConfig || this.props.queryConfig === activeQueryConfig)
+    );
+  }
+
+  /**
+   * @private
+   */
+  _runQueriesAndSetState(props: RelayRendererProps): void {
+    this._runQueries(props);
+    this.setState(
+      this._buildState(
+        this.state.activeContainer,
+        this.state.activeQueryConfig,
+        null,
+        null
+      )
     );
   }
 
@@ -290,19 +276,14 @@ class RelayRenderer extends React.Component {
       'RelayRenderer: You tried to call `retry`, but the last request did ' +
       'not fail. You can only call this when the last request has failed.'
     );
-    this.setState(this._runQueries(this.props));
+    this._runQueriesAndSetState(this.props);
   }
 
   componentWillReceiveProps(nextProps: RelayRendererProps): void {
-    const Container = containerFromProps(this.props);
-    const nextContainer = containerFromProps(nextProps);
-    if (nextContainer !== Container ||
+    if (nextProps.Container !== this.props.Container ||
         nextProps.queryConfig !== this.props.queryConfig ||
         (nextProps.forceFetch && !this.props.forceFetch)) {
-      if (this.state.pendingRequest) {
-        this.state.pendingRequest.abort();
-      }
-      this.setState(this._runQueries(nextProps));
+      this._runQueriesAndSetState(nextProps);
     }
   }
 
@@ -330,8 +311,8 @@ class RelayRenderer extends React.Component {
   }
 
   componentWillUnmount(): void {
-    if (this.state.pendingRequest) {
-      this.state.pendingRequest.abort();
+    if (this.pendingRequest) {
+      this.pendingRequest.abort();
     }
     if (this.gcHold) {
       this.gcHold.release();
@@ -344,8 +325,7 @@ class RelayRenderer extends React.Component {
     let children;
     let shouldUpdate = this._shouldUpdate();
     if (shouldUpdate) {
-      const {render} = this.props;
-      const Container = containerFromProps(this.props);
+      const {Container, render} = this.props;
       const {renderArgs} = this.state;
       if (render) {
         children = render(renderArgs);
@@ -367,7 +347,7 @@ class RelayRenderer extends React.Component {
 
 function createFragmentPointerForRoot(query) {
   return query ?
-    GraphQLFragmentPointer.createForRoot(
+    RelayFragmentPointer.createForRoot(
       RelayStore.getStoreData().getQueuedStore(),
       query
     ) :
@@ -375,13 +355,7 @@ function createFragmentPointerForRoot(query) {
 }
 
 RelayRenderer.propTypes = {
-  // @deprecated Use `Container` instead.
-  Component: componentPropTypeValidator,
-
-  // (GitHub #790): Once Component is fully removed, can replace this with
-  // `RelayPropTypes.Container`.
-  Container: componentPropTypeValidator,
-
+  Container: RelayPropTypes.Container,
   forceFetch: PropTypes.bool,
   onReadyStateChange: PropTypes.func,
   queryConfig: RelayPropTypes.QueryConfig.isRequired,
@@ -389,7 +363,7 @@ RelayRenderer.propTypes = {
 };
 
 RelayRenderer.childContextTypes = {
-  relay: RelayPropTypes.Context.isRequired,
+  relay: RelayPropTypes.Context,
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 

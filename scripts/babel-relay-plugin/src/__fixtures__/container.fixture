@@ -31,9 +31,10 @@ Relay.createContainer(Component, {
             },
             type: 'User'
           }],
+          id: 'okH/bEm+BsZO:6',
           kind: 'Fragment',
           metadata: {},
-          name: 'Container',
+          name: 'ContainerRelayQL',
           type: 'Viewer'
         };
       })();

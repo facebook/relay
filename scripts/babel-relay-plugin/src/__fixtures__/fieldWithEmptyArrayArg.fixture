@@ -45,9 +45,10 @@ var x = (function () {
       },
       type: 'String'
     }],
+    id: 'RAqyiHXQIf4h:b',
     kind: 'Fragment',
     metadata: {},
-    name: 'FieldWithEmptyArrayArg',
+    name: 'FieldWithEmptyArrayArgRelayQL',
     type: 'User'
   };
 })();

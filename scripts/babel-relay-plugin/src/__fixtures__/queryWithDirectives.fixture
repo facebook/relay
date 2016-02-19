@@ -76,6 +76,7 @@ var x = (function () {
           }
         }]
       }],
+      id: 'OucjrEJhDOCC:13',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

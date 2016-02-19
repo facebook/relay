@@ -15,6 +15,7 @@
 
 import type {ConcreteFragment} from 'ConcreteQuery';
 import type {RelayConcreteNode} from 'RelayQL';
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const RelayFragmentReference = require('RelayFragmentReference');
 import type RelayContext from 'RelayContext';
 const RelayMetaRoute = require('RelayMetaRoute');
@@ -50,10 +51,10 @@ class RelayMutation<Tp: Object> {
     route: RelayMetaRoute
   ) => Variables;
 
+  props: Tp;
   _context: RelayContext;
   _didShowFakeDataWarning: boolean;
   _unresolvedProps: Tp;
-  props: Tp;
 
   constructor(props: Tp) {
     this._didShowFakeDataWarning = false;
@@ -276,7 +277,17 @@ class RelayMutation<Tp: Object> {
         this.constructor.name
       );
 
-      if (!propValue) {
+      if (propValue == null) {
+        return;
+      }
+      if (typeof propValue !== 'object') {
+        warning(
+          false,
+          'RelayMutation: Expected data for fragment `%s` supplied to `%s` ' +
+          'to be an object.',
+          fragmentName,
+          this.constructor.name
+        );
         return;
       }
 
@@ -290,7 +301,6 @@ class RelayMutation<Tp: Object> {
         RelayMetaRoute.get(`$RelayMutation_${this.constructor.name}`),
         initialVariables
       );
-      var fragmentHash = fragment.getConcreteNodeHash();
 
       if (fragment.isPlural()) {
         invariant(
@@ -300,18 +310,26 @@ class RelayMutation<Tp: Object> {
           fragmentName,
           this.constructor.name
         );
-        var dataIDs = propValue.reduce((acc, item, ii) => {
-          var eachFragmentPointer = item[fragmentHash];
+        var dataIDs = propValue.map((item, ii) => {
           invariant(
-            eachFragmentPointer,
+            typeof item === 'object' && item != null,
             'RelayMutation: Invalid prop `%s` supplied to `%s`, ' +
             'expected element at index %s to have query data.',
             fragmentName,
             this.constructor.name,
             ii
           );
-          return acc.concat(eachFragmentPointer.getDataIDs());
-        }, []);
+          const dataID = RelayFragmentPointer.getDataID(item, fragment);
+          invariant(
+            dataID,
+            'RelayMutation: Invalid prop `%s` supplied to `%s`, ' +
+            'expected element at index %s to have query data.',
+            fragmentName,
+            this.constructor.name,
+            ii
+          );
+          return dataID;
+        });
 
         resolvedProps[fragmentName] = this._context.readAll(fragment, dataIDs);
       } else {
@@ -322,9 +340,8 @@ class RelayMutation<Tp: Object> {
           fragmentName,
           this.constructor.name
         );
-        var fragmentPointer = propValue[fragmentHash];
-        if (fragmentPointer) {
-          var dataID = fragmentPointer.getDataID();
+        var dataID = RelayFragmentPointer.getDataID(propValue, fragment);
+        if (dataID) {
           resolvedProps[fragmentName] = this._context.read(fragment, dataID);
         } else {
           if (__DEV__) {

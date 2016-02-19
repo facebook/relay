@@ -57,7 +57,7 @@ type EdgeData = {
 };
 type PageInfo = {[key: string]: mixed};
 
-type RangeOperation = $Enum<GraphQLMutatorConstants.RANGE_OPERATIONS>;
+type RangeOperation = $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 
 /**
  * @internal

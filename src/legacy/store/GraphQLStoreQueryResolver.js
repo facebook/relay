@@ -14,7 +14,6 @@
 'use strict';
 
 import type {ChangeSubscription} from 'GraphQLStoreChangeEmitter';
-import type GraphQLFragmentPointer from 'GraphQLFragmentPointer';
 import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
@@ -22,9 +21,9 @@ import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
 import type {StoreReaderData} from 'RelayTypes';
 
-const filterExclusiveKeys = require('filterExclusiveKeys');
 const readRelayQueryData = require('readRelayQueryData');
 const recycleNodesInto = require('recycleNodesInto');
+const warning = require('warning');
 
 type DataIDSet = {[dataID: DataID]: any};
 
@@ -38,7 +37,7 @@ type DataIDSet = {[dataID: DataID]: any};
  */
 class GraphQLStoreQueryResolver {
   _callback: Function;
-  _fragmentPointer: GraphQLFragmentPointer;
+  _fragment: RelayQuery.Fragment;
   _resolver: ?(
     GraphQLStorePluralQueryResolver |
     GraphQLStoreSingleQueryResolver
@@ -47,37 +46,91 @@ class GraphQLStoreQueryResolver {
 
   constructor(
     storeData: RelayStoreData,
-    fragmentPointer: GraphQLFragmentPointer,
+    fragment: RelayQuery.Fragment,
     callback: Function
   ) {
-    this.reset();
+    this.dispose();
     this._callback = callback;
-    this._fragmentPointer = fragmentPointer;
+    this._fragment = fragment;
     this._resolver = null;
     this._storeData = storeData;
   }
 
   /**
-   * Resets the resolver's internal state such that future `resolve()` results
+   * disposes the resolver's internal state such that future `resolve()` results
    * will not be `===` to previous results, and unsubscribes any subscriptions.
    */
-  reset(): void {
+  dispose(): void {
     if (this._resolver) {
-      this._resolver.reset();
+      this._resolver.dispose();
     }
   }
 
   resolve(
-    fragmentPointer: GraphQLFragmentPointer
+    fragment: RelayQuery.Fragment,
+    dataIDs: DataID | Array<DataID>
   ): ?(StoreReaderData | Array<?StoreReaderData>) {
-    var resolver = this._resolver;
-    if (!resolver) {
-      resolver = this._fragmentPointer.getFragment().isPlural() ?
-        new GraphQLStorePluralQueryResolver(this._storeData, this._callback) :
-        new GraphQLStoreSingleQueryResolver(this._storeData, this._callback);
-      this._resolver = resolver;
+    // Warn but don't crash if resolved with the wrong fragment.
+    if (this._fragment.getConcreteFragmentID() !==
+      fragment.getConcreteFragmentID()
+    ) {
+      warning(
+        false,
+        'GraphQLStoreQueryResolver: Expected `resolve` to be called with the ' +
+        'same concrete fragment as the constructor. The resolver was created ' +
+        'with fragment `%s` but resolved with fragment `%s`.',
+        this._fragment.getDebugName(),
+        fragment.getDebugName()
+      );
     }
-    return resolver.resolve(fragmentPointer);
+    // Rather than crash on mismatched plurality of fragment/ids just warn
+    // and resolve as if the fragment's pluarity matched the format of the ids.
+    // Note that the inverse - attempt to resolve based on fragment plurarity -
+    // doesn't work because there's no way convert plural ids to singular w/o
+    // losing data.
+    if (Array.isArray(dataIDs)) {
+      // Fragment should be plural if data is pluaral.
+      warning(
+        fragment.isPlural(),
+        'GraphQLStoreQueryResolver: Expected id/fragment plurality to be ' +
+        'consistent: got plural ids for singular fragment `%s`.',
+        fragment.getDebugName()
+      );
+      let resolver = this._resolver;
+      if (resolver instanceof GraphQLStoreSingleQueryResolver) {
+        resolver.dispose();
+        resolver = null;
+      }
+      if (!resolver) {
+        resolver = new GraphQLStorePluralQueryResolver(
+          this._storeData,
+          this._callback
+        );
+      }
+      this._resolver = resolver;
+      return resolver.resolve(fragment, dataIDs);
+    } else {
+      // Fragment should be singular if data is singular.
+      warning(
+        !fragment.isPlural(),
+        'GraphQLStoreQueryResolver: Expected id/fragment plurality to be ' +
+        'consistent: got a singular id for plural fragment `%s`.',
+        fragment.getDebugName()
+      );
+      let resolver = this._resolver;
+      if (resolver instanceof GraphQLStorePluralQueryResolver) {
+        resolver.dispose();
+        resolver = null;
+      }
+      if (!resolver) {
+        resolver = new GraphQLStoreSingleQueryResolver(
+          this._storeData,
+          this._callback
+        );
+      }
+      this._resolver = resolver;
+      return resolver.resolve(fragment, dataIDs);
+    }
   }
 }
 
@@ -91,14 +144,14 @@ class GraphQLStorePluralQueryResolver {
   _storeData: RelayStoreData;
 
   constructor(storeData: RelayStoreData, callback: Function) {
-    this.reset();
+    this.dispose();
     this._callback = callback;
     this._storeData = storeData;
   }
 
-  reset(): void {
+  dispose(): void {
     if (this._resolvers) {
-      this._resolvers.forEach(resolver => resolver.reset());
+      this._resolvers.forEach(resolver => resolver.dispose());
     }
     this._resolvers = [];
     this._results = [];
@@ -111,11 +164,13 @@ class GraphQLStorePluralQueryResolver {
    * the last call to `resolve`, the same array will be returned. Otherwise, a
    * new array will be returned.
    */
-  resolve(fragmentPointer: GraphQLFragmentPointer): Array<?StoreReaderData> {
+  resolve(
+    fragment: RelayQuery.Fragment,
+    nextIDs: Array<DataID>
+  ): Array<?StoreReaderData> {
     var prevResults = this._results;
     var nextResults;
 
-    var nextIDs = fragmentPointer.getDataIDs();
     var prevLength = prevResults.length;
     var nextLength = nextIDs.length;
     var resolvers = this._resolvers;
@@ -127,7 +182,7 @@ class GraphQLStorePluralQueryResolver {
       );
     }
     while (resolvers.length > nextLength) {
-      resolvers.pop().reset();
+      resolvers.pop().dispose();
     }
 
     // Allocate `nextResults` if and only if results have changed.
@@ -135,7 +190,7 @@ class GraphQLStorePluralQueryResolver {
       nextResults = [];
     }
     for (var ii = 0; ii < nextLength; ii++) {
-      var nextResult = resolvers[ii].resolve(fragmentPointer, nextIDs[ii]);
+      var nextResult = resolvers[ii].resolve(fragment, nextIDs[ii]);
       if (nextResults || ii >= prevLength || nextResult !== prevResults[ii]) {
         nextResults = nextResults || prevResults.slice(0, ii);
         nextResults.push(nextResult);
@@ -164,14 +219,14 @@ class GraphQLStoreSingleQueryResolver {
   _subscription: ?ChangeSubscription;
 
   constructor(storeData: RelayStoreData, callback: Function) {
-    this.reset();
+    this.dispose();
     this._callback = callback;
     this._garbageCollector = storeData.getGarbageCollector();
     this._storeData = storeData;
     this._subscribedIDs = {};
   }
 
-  reset(): void {
+  dispose(): void {
     if (this._subscription) {
       this._subscription.remove();
     }
@@ -186,17 +241,12 @@ class GraphQLStoreSingleQueryResolver {
 
   /**
    * Resolves data for a single fragment pointer.
-   *
-   * NOTE: `nextPluralID` should only be passed by the plural query resolver.
    */
   resolve(
-    fragmentPointer: GraphQLFragmentPointer,
-    nextPluralID?: ?DataID
+    nextFragment: RelayQuery.Fragment,
+    nextID: DataID
   ): ?StoreReaderData {
-    var nextFragment = fragmentPointer.getFragment();
     var prevFragment = this._fragment;
-
-    var nextID = nextPluralID || fragmentPointer.getDataID();
     var prevID = this._resultID;
     var nextResult;
     var prevResult = this._result;
@@ -290,28 +340,21 @@ class GraphQLStoreSingleQueryResolver {
   ): void {
     if (this._garbageCollector) {
       const garbageCollector = this._garbageCollector;
-      const cachedStore = this._storeData.getCachedStore();
       const rangeData = this._storeData.getRangeData();
-
       const prevDataIDs = this._subscribedIDs;
-      const [removed, added] = filterExclusiveKeys(prevDataIDs, nextDataIDs);
 
       // Note: the same canonical ID may appear in both removed and added: in
       // that case, it would have been:
       // - previous step: canonical ID ref count was incremented
       // - current step: canonical ID is incremented *and* decremented
       // Note that the net ref count change is +1.
-      added.forEach(id => {
+      Object.keys(nextDataIDs).forEach(id => {
         id = rangeData.getCanonicalClientID(id);
-        if (cachedStore.getRecordState(id) !== 'UNKNOWN') {
-          garbageCollector.incrementReferenceCount(id);
-        }
+        garbageCollector.incrementReferenceCount(id);
       });
-      removed.forEach(id => {
+      Object.keys(prevDataIDs).forEach(id => {
         id = rangeData.getCanonicalClientID(id);
-        if (cachedStore.getRecordState(id) !== 'UNKNOWN') {
-          garbageCollector.decrementReferenceCount(id);
-        }
+        garbageCollector.decrementReferenceCount(id);
       });
     }
   }

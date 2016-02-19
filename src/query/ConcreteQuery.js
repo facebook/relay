@@ -113,6 +113,7 @@ export type ConcreteFragmentMetadata = {
 export type ConcreteFragment = {
   children?: ?Array<?ConcreteSelection>;
   directives?: ?Array<ConcreteDirective>;
+  id: string;
   kind: 'Fragment';
   metadata: {
     isAbstract?: boolean;
@@ -146,11 +147,11 @@ export type ConcreteOperationMetadata = {
 };
 
 export type ConcreteQueryMetadata = {
-  identifyingArgName?: ?string;
-  identifyingArgType?: ?string;
-  isAbstract?: ?boolean;
-  isDeferred?: ?boolean;
-  isPlural?: ?boolean;
+  identifyingArgName: ?string;
+  identifyingArgType: ?string;
+  isAbstract: ?boolean;
+  isDeferred: ?boolean;
+  isPlural: ?boolean;
 };
 
 export type ConcreteQuery = {

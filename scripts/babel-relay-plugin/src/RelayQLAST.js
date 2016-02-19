@@ -43,6 +43,7 @@ type GraphQLSchemaType = Object;
 
 type RelayQLContext = {
   definitionName: string;
+  fragmentLocationID: string;
   isPattern: boolean;
   schema: GraphQLSchema;
 };
@@ -50,6 +51,8 @@ type RelayQLSelection =
   RelayQLField |
   RelayQLFragmentSpread |
   RelayQLInlineFragment;
+
+let _nextFragmentID = 0;
 
 class RelayQLNode<T> {
   ast: T;
@@ -125,6 +128,7 @@ class RelayQLFragment extends RelayQLDefinition<
   GraphQLInlineFragment
 > {
   parentType: ?RelayQLType;
+  fragmentID: ?string;
 
   constructor(
     context: RelayQLContext,
@@ -141,7 +145,19 @@ class RelayQLFragment extends RelayQLDefinition<
       ))
     ));
     super({...context, isPattern}, ast);
+    this.fragmentID = null;
     this.parentType = parentType;
+  }
+
+  getFragmentID(): string {
+    if (this.fragmentID == null) {
+      let suffix = (_nextFragmentID++).toString(32);
+      // The fragmentLocationID is the same for all inline/nested fragments
+      // within each Relay.QL tagged template expression; the auto-incrementing
+      // suffix distinguishes these fragments from each other.
+      this.fragmentID = `${this.context.fragmentLocationID}:${suffix}`;
+    }
+    return this.fragmentID;
   }
 
   getType(): RelayQLType {

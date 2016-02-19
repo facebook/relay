@@ -15,20 +15,23 @@
 
 import type {ConcreteFragment} from 'ConcreteQuery';
 const ErrorUtils = require('ErrorUtils');
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const React = require('React');
 const RelayContainerComparators = require('RelayContainerComparators');
 const RelayContainerProxy = require('RelayContainerProxy');
-const RelayContext = require('RelayContext');
+import type {
+  FragmentResolver,
+  RelayContextInterface,
+} from 'RelayContext';
 const RelayFragmentReference = require('RelayFragmentReference');
-import type {RelayQuerySet} from 'RelayInternalTypes';
+import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
+const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
@@ -42,6 +45,7 @@ const buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder, RelayQLQueryBuilder} from 'buildRQL';
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
+const isRelayContext = require('isRelayContext');
 const nullthrows = require('nullthrows');
 const prepareRelayContainerProps = require('prepareRelayContainerProps');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
@@ -49,6 +53,10 @@ const shallowEqual = require('shallowEqual');
 const warning = require('warning');
 const isReactComponent = require('isReactComponent');
 
+type FragmentPointer = {
+  fragment: RelayQuery.Fragment,
+  dataIDs: DataID | Array<DataID>
+};
 export type RelayContainerSpec = {
   initialVariables?: Variables;
   prepareVariables?: (
@@ -65,7 +73,7 @@ export type RelayQueryConfigSpec = {
   params: Variables;
   queries: RootQueries;
   uri?: ?URI;
-  useMockData?: bool;
+  useMockData?: boolean;
 };
 export type RootQueries = {
   [queryName: string]: RelayQLQueryBuilder;
@@ -104,9 +112,9 @@ function createContainerComponent(
   class RelayContainer extends React.Component {
     mounted: boolean;
     _didShowFakeDataWarning: boolean;
-    _fragmentPointers: {[key: string]: ?GraphQLFragmentPointer};
+    _fragmentPointers: {[key: string]: ?FragmentPointer};
     _hasStaleQueryData: boolean;
-    _queryResolvers: {[key: string]: ?GraphQLStoreQueryResolver};
+    _fragmentResolvers: {[key: string]: ?FragmentResolver};
 
     pending: ?{
       variables: Variables;
@@ -122,11 +130,12 @@ function createContainerComponent(
 
       var {relay, route} = context;
       invariant(
-        relay instanceof RelayContext,
-        'RelayContainer: `%s` was rendered without a Relay context. Make ' +
-        'sure the `relay` property on the React context is an instance of ' +
-        '`RelayContext`.',
-        containerName
+        isRelayContext(relay),
+        'RelayContainer: `%s` was rendered with invalid Relay context `%s`. ' +
+        'Make sure the `relay` property on the React context conforms to the ' +
+        '`RelayContext` interface.',
+        containerName,
+        relay
       );
       invariant(
         route && typeof route.name === 'string',
@@ -141,12 +150,13 @@ function createContainerComponent(
       self.getPendingTransactions = this.getPendingTransactions.bind(this);
       self.hasFragmentData = this.hasFragmentData.bind(this);
       self.hasOptimisticUpdate = this.hasOptimisticUpdate.bind(this);
+      self.hasPartialData = this.hasPartialData.bind(this);
       self.setVariables = this.setVariables.bind(this);
 
       this._didShowFakeDataWarning = false;
       this._fragmentPointers = {};
       this._hasStaleQueryData = false;
-      this._queryResolvers = {};
+      this._fragmentResolvers = {};
 
       this.mounted = true;
       this.pending = null;
@@ -187,7 +197,7 @@ function createContainerComponent(
      * `_fragmentPointers` property.
      */
     _createQuerySetAndFragmentPointers(variables: Variables): {
-      fragmentPointers: {[key: string]: ?GraphQLFragmentPointer},
+      fragmentPointers: {[key: string]: ?FragmentPointer},
       querySet: RelayQuerySet,
     } {
       var fragmentPointers = {};
@@ -208,7 +218,7 @@ function createContainerComponent(
             'of records because the corresponding fragment is plural.',
             fragmentName
           );
-          var dataIDs = [];
+          const dataIDs = [];
           queryData.forEach((data, ii) => {
             var dataID = RelayRecord.getDataID(data);
             if (dataID) {
@@ -218,14 +228,17 @@ function createContainerComponent(
             }
           });
           if (dataIDs.length) {
-            fragmentPointer = new GraphQLFragmentPointer(dataIDs, fragment);
+            fragmentPointer = {fragment, dataIDs};
           }
         } else {
           /* $FlowFixMe(>=0.19.0) - queryData is mixed but getID expects Object
            */
-          var dataID = RelayRecord.getDataID(queryData);
+          const dataID = RelayRecord.getDataID(queryData);
           if (dataID) {
-            fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
+            fragmentPointer = {
+              fragment,
+              dataIDs: dataID,
+            };
             querySet[fragmentName] =
               storeData.buildFragmentQueryForDataID(fragment, dataID);
           }
@@ -276,7 +289,7 @@ function createContainerComponent(
           // and `fragmentPointers` will be empty, and `nextVariables` will be
           // equal to `lastVariables`.
           this._fragmentPointers = fragmentPointers;
-          this._updateQueryResolvers(this.context.relay);
+          this._updateFragmentResolvers(this.context.relay);
           var queryData = this._getQueryData(this.props);
           partialState = {variables: nextVariables, queryData};
         } else {
@@ -393,6 +406,17 @@ function createContainerComponent(
       );
     }
 
+    /**
+     * Determine if the supplied record might be missing data.
+     */
+    hasPartialData(
+      record: Object
+    ): boolean {
+      return RelayRecordStatusMap.isPartialStatus(
+        record[RelayRecord.MetadataKey.STATUS]
+      );
+    }
+
     componentWillMount(): void {
       const {relay, route} = this.context;
       if (route.useMockData) {
@@ -436,7 +460,7 @@ function createContainerComponent(
 
     _initialize(
       props: Object,
-      relayContext: RelayContext,
+      relayContext: RelayContextInterface,
       route: RelayQueryConfigSpec,
       prevVariables: Variables
     ): { variables: Variables, queryData: {[propName: string]: mixed} } {
@@ -446,7 +470,7 @@ function createContainerComponent(
         prevVariables
       );
       this._updateFragmentPointers(props, route, variables);
-      this._updateQueryResolvers(relayContext);
+      this._updateFragmentResolvers(relayContext);
       return {
         variables,
         queryData: this._getQueryData(props),
@@ -455,15 +479,15 @@ function createContainerComponent(
 
     _cleanup(): void {
       // A guarded error in mounting might prevent initialization of resolvers.
-      if (this._queryResolvers) {
+      if (this._fragmentResolvers) {
         forEachObject(
-          this._queryResolvers,
-          queryResolver => queryResolver && queryResolver.reset()
+          this._fragmentResolvers,
+          fragmentResolver => fragmentResolver && fragmentResolver.dispose()
         );
       }
 
       this._fragmentPointers = {};
-      this._queryResolvers = {};
+      this._fragmentResolvers = {};
 
       var pending = this.pending;
       if (pending) {
@@ -472,24 +496,23 @@ function createContainerComponent(
       }
     }
 
-    _updateQueryResolvers(relayContext: RelayContext): void {
+    _updateFragmentResolvers(relayContext: RelayContextInterface): void {
       var fragmentPointers = this._fragmentPointers;
-      var queryResolvers = this._queryResolvers;
+      var fragmentResolvers = this._fragmentResolvers;
       fragmentNames.forEach(fragmentName => {
         var fragmentPointer = fragmentPointers[fragmentName];
-        var queryResolver = queryResolvers[fragmentName];
+        var fragmentResolver = fragmentResolvers[fragmentName];
         if (!fragmentPointer) {
-          if (queryResolver) {
-            queryResolver.reset();
-            queryResolvers[fragmentName] = null;
+          if (fragmentResolver) {
+            fragmentResolver.dispose();
+            fragmentResolvers[fragmentName] = null;
           }
-        } else if (!queryResolver) {
-          queryResolver = new GraphQLStoreQueryResolver(
-            relayContext.getStoreData(),
-            fragmentPointer,
+        } else if (!fragmentResolver) {
+          fragmentResolver = relayContext.getFragmentResolver(
+            fragmentPointer.fragment,
             this._handleFragmentDataUpdate.bind(this)
           );
-          queryResolvers[fragmentName] = queryResolver;
+          fragmentResolvers[fragmentName] = fragmentResolver;
         }
       });
     }
@@ -515,18 +538,29 @@ function createContainerComponent(
         const propValue = props[fragmentName];
         warning(
           propValue !== undefined,
-          'RelayContainer: Expected query `%s` to be supplied to `%s` as ' +
-          'a prop from the parent. Pass an explicit `null` if this is ' +
-          'intentional.',
+          'RelayContainer: Expected prop `%s` to be supplied to `%s`, but ' +
+          'got `undefined`. Pass an explicit `null` if this is intentional.',
           fragmentName,
           componentName
         );
-        if (!propValue) {
+        if (propValue == null) {
+          fragmentPointers[fragmentName] = null;
+          return;
+        }
+        // handle invalid prop values using a warning at first.
+        if (typeof propValue !== 'object') {
+          warning(
+            false,
+            'RelayContainer: Expected prop `%s` supplied to `%s` to be an ' +
+            'object, got `%s`.',
+            fragmentName,
+            componentName,
+            propValue
+          );
           fragmentPointers[fragmentName] = null;
           return;
         }
         const fragment = getFragment(fragmentName, route, variables);
-        const fragmentHash = fragment.getConcreteNodeHash();
         let dataIDOrIDs;
 
         if (fragment.isPlural()) {
@@ -536,60 +570,62 @@ function createContainerComponent(
           invariant(
             Array.isArray(propValue),
             'RelayContainer: Invalid prop `%s` supplied to `%s`, expected an ' +
-            'array of records because the corresponding fragment is plural.',
+            'array of records because the corresponding fragment has ' +
+            '`@relay(plural: true)`.',
             fragmentName,
             componentName
           );
-          if (propValue.length) {
-            dataIDOrIDs = propValue.reduce((acc, item, ii) => {
-              const eachFragmentPointer = item[fragmentHash];
-              invariant(
-                eachFragmentPointer,
-                'RelayContainer: Invalid prop `%s` supplied to `%s`, ' +
-                'expected element at index %s to have query data.',
-                fragmentName,
-                componentName,
-                ii
-              );
-              return acc.concat(eachFragmentPointer.getDataIDs());
-            }, []);
-          } else {
-            // An empty plural fragment cannot be observed; the empty array prop
-            // can be passed as-is to the component.
-            dataIDOrIDs = null;
+          let dataIDs = null;
+          propValue.forEach((item, ii) => {
+            if (typeof item === 'object' && item != null) {
+              const dataID = RelayFragmentPointer.getDataID(item, fragment);
+              if (dataID) {
+                dataIDs = dataIDs || [];
+                dataIDs.push(dataID);
+              }
+            }
+          });
+          if (dataIDs) {
+            invariant(
+              dataIDs.length === propValue.length,
+              'RelayContainer: Invalid prop `%s` supplied to `%s`. Some ' +
+              'array items contain data fetched by Relay and some items ' +
+              'contain null/mock data.',
+              fragmentName,
+              componentName
+            );
           }
+          dataIDOrIDs = dataIDs;
         } else {
           invariant(
             !Array.isArray(propValue),
             'RelayContainer: Invalid prop `%s` supplied to `%s`, expected a ' +
-            'single record because the corresponding fragment is not plural.',
+            'single record because the corresponding fragment is not plural ' +
+            '(i.e. does not have `@relay(plural: true)`).',
             fragmentName,
             componentName
           );
-          const fragmentPointer = propValue[fragmentHash];
-          if (fragmentPointer) {
-            dataIDOrIDs = fragmentPointer.getDataID();
-          } else {
-            // TODO: Throw when we have mock data validation, #6332949.
-            dataIDOrIDs = null;
-            if (__DEV__) {
-              if (!route.useMockData && !this._didShowFakeDataWarning) {
-                this._didShowFakeDataWarning = true;
-                warning(
-                  false,
-                  'RelayContainer: Expected prop `%s` supplied to `%s` to ' +
-                  'be data fetched by Relay. This is likely an error unless ' +
-                  'you are purposely passing in mock data that conforms to ' +
-                  'the shape of this component\'s fragment.',
-                  fragmentName,
-                  componentName
-                );
-              }
+          dataIDOrIDs = RelayFragmentPointer.getDataID(propValue, fragment);
+        }
+        if (dataIDOrIDs == null) {
+          // TODO: Throw when we have mock data validation, #6332949.
+          if (__DEV__) {
+            if (!route.useMockData && !this._didShowFakeDataWarning) {
+              this._didShowFakeDataWarning = true;
+              warning(
+                false,
+                'RelayContainer: Expected prop `%s` supplied to `%s` to ' +
+                'be data fetched by Relay. This is likely an error unless ' +
+                'you are purposely passing in mock data that conforms to ' +
+                'the shape of this component\'s fragment.',
+                fragmentName,
+                componentName
+              );
             }
           }
         }
         fragmentPointers[fragmentName] = dataIDOrIDs ?
-          new GraphQLFragmentPointer(dataIDOrIDs, fragment) :
+          {fragment, dataIDs: dataIDOrIDs} :
           null;
       });
       if (__DEV__) {
@@ -599,12 +635,16 @@ function createContainerComponent(
             return;
           }
           const fragment = getFragment(fragmentName, route, variables);
-          const fragmentHash = fragment.getConcreteNodeHash();
           Object.keys(props).forEach(propName => {
             warning(
               fragmentPointers[propName] ||
               !RelayRecord.isRecord(props[propName]) ||
-              !props[propName][fragmentHash],
+              typeof props[propName] !== 'object' ||
+              props[propName] == null ||
+              !RelayFragmentPointer.getDataID(
+                props[propName],
+                fragment
+              ),
               'RelayContainer: Expected record data for prop `%s` on `%s`, ' +
               'but it was instead on prop `%s`. Did you misspell a prop or ' +
               'pass record data into the wrong prop?',
@@ -622,17 +662,20 @@ function createContainerComponent(
     ): Object {
       var queryData = {};
       var fragmentPointers = this._fragmentPointers;
-      forEachObject(this._queryResolvers, (queryResolver, propName) => {
+      forEachObject(this._fragmentResolvers, (fragmentResolver, propName) => {
         var propValue = props[propName];
         var fragmentPointer = fragmentPointers[propName];
 
         if (!propValue || !fragmentPointer) {
           // Clear any subscriptions since there is no data.
-          queryResolver && queryResolver.reset();
+          fragmentResolver && fragmentResolver.dispose();
           // Allow mock data to pass through without modification.
           queryData[propName] = propValue;
         } else {
-          queryData[propName] = queryResolver.resolve(fragmentPointer);
+          queryData[propName] = fragmentResolver.resolve(
+            fragmentPointer.fragment,
+            fragmentPointer.dataIDs
+          );
         }
         if (this.state.queryData.hasOwnProperty(propName) &&
             queryData[propName] !== this.state.queryData[propName]) {
@@ -686,6 +729,7 @@ function createContainerComponent(
         getPendingTransactions: this.getPendingTransactions,
         hasFragmentData: this.hasFragmentData,
         hasOptimisticUpdate: this.hasOptimisticUpdate,
+        hasPartialData: this.hasPartialData,
         route: this.context.route,
         setVariables: this.setVariables,
         variables: this.state.variables,

@@ -1,7 +1,7 @@
 {
   "name": "react-relay",
   "description": "A framework for building data-driven React applications.",
-  "version": "0.6.1",
+  "version": "0.7.1",
   "keywords": [
     "graphql",
     "react",
@@ -33,7 +33,7 @@
     "react-static-container": "^1.0.0-alpha.1"
   },
   "peerDependencies": {
-    "babel-relay-plugin": "0.6.3",
+    "babel-relay-plugin": "0.7.1",
     "react": "^0.14.0"
   },
   "devDependencies": {
@@ -52,7 +52,7 @@
     "gulp-flatten": "^0.1.0",
     "gulp-header": "^1.2.2",
     "gulp-util": "^3.0.6",
-    "jest-cli": "^0.8.1",
+    "jest-cli": "^0.9.0-fb1",
     "object-assign": "^3.0.0",
     "react": "^0.14.0",
     "react-dom": "^0.14.0",
@@ -80,6 +80,7 @@
     ],
     "testPathDirs": [
       "<rootDir>/node_modules/fbjs/lib/",
+      "<rootDir>/node_modules/fbjs-scripts/jest",
       "<rootDir>/node_modules/react/lib/",
       "<rootDir>/node_modules/react-static-container/lib/",
       "<rootDir>/src/"

@@ -1,12 +1,48 @@
 ## master
 
-* Added support for array paths in `deletedIDFieldName` for `RANGE_DELETE`
-  mutations.
+## 0.7.1 (February 18, 2016)
+
+* Having fixed a bug, now you can *actually* interpolate an array of fragments
+  into a `Relay.QL` query. eg. `${containers.map(c => c.getFragment('foo'))}`
+
+## 0.7.0 (February 12, 2016)
+
+* Eliminated a race condition that would cause `RelayGarbageCollector` to fatal
+  when, in the middle of a `readRelayDiskCache` traversal, a container attempts
+  to subscribe to a record not yet registered with the garbage collector.
+* The garbage collector now strictly increments references to all subscribed
+  nodes, and strictly decrements references to all previously subscribed nodes,
+  eliminating a class of race condition by ensuring an exact 1:1 correspondence
+  of increment/decrement calls for a given node.
+* Replaced `GraphQLStoreDataHandler` with `RelayRecord`, and added the
+  `RelayRecord#isRecord` method.
+* Introduced `RelayQueryIndexPath` which tracks fragment indexes to the nearest
+  parent field during query traversal. This replaces the existing logic used to
+  generate field serialization keys.
+* Added `RelayContext`, a step toward making all Relay state contextual.
+* Improved query printing performance via short circuiting and inlining.
+* Moved record writing functions out of `RelayRecordStore` and into a new
+  `RelayRecordWriter` class.
+* The Babel plugin now prints `canHaveSubselections` metadata on object-like
+  fields that can contain child fields, making it possible to determine if a
+  given field in a query is a true leaf node, or an object-type field having no
+  subselections. This replaces `RelayQueryNode#isScalar` with
+  `RelayQueryNode#canHaveSubselections`.
+* `RANGE_DELETE` mutation configs now allow you to specify an array path to a
+  deleted node, rather than just a `deletedIDFieldName`.
+* Renamed `Records` to `RecordMap`.
+* Record reads from cache managers are now abortable. If the network request
+  finishes before the cache read, for instance, the cache read can be cancelled.
+* Added USERS.md; a catalog of products and developers that use Relay.
+* You can now interpolate an array of fragments into a `Relay.QL` query. eg.
+  `${containers.map(c => c.getFragment('foo'))}`
+* Fixed a bug where invalid queries could be printed due to different variables
+  having the same value; duplicates are now avoided.
 
 ## 0.6.1 (January 8, 2016)
 
 * Renamed `RelayStore#update` to `RelayStore#commitUpdate`. `RelayStore#commit`
-  will be removed in v0.7.0. For an automated codemod that you can use to
+  will be removed in v0.8.0. For an automated codemod that you can use to
   update your Relay app, visit https://github.com/relayjs/relay-codemod
 * Replaced `RelayTestUtils.unmockRelay();` with
   `require('configureForRelayOSS');` in tests.

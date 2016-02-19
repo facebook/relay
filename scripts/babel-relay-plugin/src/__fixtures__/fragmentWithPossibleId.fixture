@@ -33,6 +33,7 @@ var x = (function () {
         },
         type: 'String'
       }],
+      id: 'dNUZm2RVoXq0:l',
       kind: 'Fragment',
       metadata: {},
       name: 'User',
@@ -54,6 +55,7 @@ var x = (function () {
         },
         type: 'String'
       }],
+      id: 'dNUZm2RVoXq0:m',
       kind: 'Fragment',
       metadata: {
         isAbstract: true
@@ -61,11 +63,12 @@ var x = (function () {
       name: 'IdFragment',
       type: 'Node'
     }],
+    id: 'dNUZm2RVoXq0:n',
     kind: 'Fragment',
     metadata: {
       isAbstract: true
     },
-    name: 'FragmentWithPossibleId',
+    name: 'FragmentWithPossibleIdRelayQL',
     type: 'Actor'
   };
 })();

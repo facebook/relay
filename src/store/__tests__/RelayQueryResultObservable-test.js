@@ -18,7 +18,7 @@ jest
   .dontMock('GraphQLStoreChangeEmitter')
   .dontMock('GraphQLStoreQueryResolver');
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const Relay = require('Relay');
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayRecordStore = require('RelayRecordStore');
@@ -57,11 +57,7 @@ describe('RelayQueryResultObservable', () => {
   }
 
   function observeRelayQueryData(dataID) {
-    var fragmentPointer = new GraphQLFragmentPointer(
-      dataID,
-      query
-    );
-    return new RelayQueryResultObservable(storeData, fragmentPointer);
+    return new RelayQueryResultObservable(storeData, query, dataID);
   }
 
   beforeEach(() => {

@@ -22,6 +22,7 @@ const QueryBuilder = require('QueryBuilder');
 const RelayQuery = require('RelayQuery');
 
 const callsToGraphQL = require('callsToGraphQL');
+const generateConcreteFragmentID = require('generateConcreteFragmentID');
 const invariant = require('invariant');
 
 /**
@@ -74,6 +75,7 @@ const toGraphQL = {
     const children = node.getChildren().map(toGraphQLSelection);
     const fragment: ConcreteFragment = {
       children,
+      id: generateConcreteFragmentID(),
       kind: 'Fragment',
       metadata: {
         isAbstract: node.isAbstract(),

@@ -47,7 +47,7 @@ var RelayTestUtils = {
       }
     }
     ContextSetter.childContextTypes = {
-      relay: RelayPropTypes.Context.isRequired,
+      relay: RelayPropTypes.Context,
       route: RelayPropTypes.QueryConfig.isRequired,
     };
 
@@ -166,7 +166,8 @@ var RelayTestUtils = {
   },
 
   getPointer(dataID, fragment) {
-    const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+    const RelayFragmentPointer = require('RelayFragmentPointer');
+    const RelayRecord = require('RelayRecord');
     const RelayQuery = require('RelayQuery');
     const invariant = require('invariant');
 
@@ -176,11 +177,9 @@ var RelayTestUtils = {
       fragment.constructor.name
     );
 
-    var fragmentPointer = new GraphQLFragmentPointer(dataID, fragment);
-    return {
-      __dataID__: dataID,
-      [fragment.getConcreteNodeHash()]: fragmentPointer,
-    };
+    const record = RelayRecord.create(dataID);
+    RelayFragmentPointer.addFragment(record, fragment, dataID);
+    return record;
   },
 
   /**

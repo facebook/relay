@@ -13,7 +13,7 @@
 
 'use strict';
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
+const RelayFragmentPointer = require('RelayFragmentPointer');
 import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
@@ -22,6 +22,7 @@ const RelayQuery = require('RelayQuery');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecord = require('RelayRecord');
 const RelayRecordState = require('RelayRecordState');
+const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type RelayStoreData from 'RelayStoreData';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
@@ -45,6 +46,7 @@ export type StoreReaderResult = {
 type State = {
   componentDataID: ?DataID;
   data: mixed;
+  isPartial: boolean;
   parent: ?RelayQuery.Field;
   rangeInfo: ?RangeInfo;
   seenDataIDs: DataIDSet;
@@ -117,6 +119,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       var state = {
         componentDataID: null,
         data: undefined,
+        isPartial: false,
         parent: null,
         rangeInfo: null,
         seenDataIDs: result.dataIDs,
@@ -170,15 +173,8 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     const dataID = getComponentDataID(state);
     if (node.isContainerFragment() && !this._traverseFragmentReferences) {
       state.seenDataIDs[dataID] = true;
-      const fragmentPointer = new GraphQLFragmentPointer(
-        node.isPlural() ? [dataID] : dataID,
-        node
-      );
-      this._setDataValue(
-        state,
-        fragmentPointer.getFragment().getConcreteNodeHash(),
-        fragmentPointer
-      );
+      const data = getDataObject(state);
+      RelayFragmentPointer.addFragment(data, node, dataID);
     } else if (isCompatibleRelayFragmentType(
       node,
       this._recordStore.getType(dataID)
@@ -191,6 +187,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     var storageKey = node.getStorageKey();
     var field = this._recordStore.getField(state.storeDataID, storageKey);
     if (field === undefined) {
+      state.isPartial = true;
       return;
     } else if (field === null && !state.data) {
       state.data = null;
@@ -218,12 +215,16 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
         var nextState = {
           componentDataID: null,
           data,
+          isPartial: false,
           parent: node,
           rangeInfo: null,
           seenDataIDs: state.seenDataIDs,
           storeDataID: dataID,
         };
         node.getChildren().forEach(child => this.visit(child, nextState));
+        if (nextState.isPartial) {
+          state.isPartial = true;
+        }
         return nextState.data;
       });
       this._setDataValue(state, applicationName, nextData);
@@ -239,6 +240,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       storageKey
     );
     if (!dataID) {
+      state.isPartial = true;
       return;
     }
     enforceRangeCalls(node);
@@ -246,16 +248,23 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     var nextState = {
       componentDataID: this._getConnectionClientID(node, dataID),
       data: getDataValue(state, applicationName),
+      isPartial: false,
       parent: node,
       rangeInfo: metadata && calls.length ? metadata : null,
       seenDataIDs: state.seenDataIDs,
       storeDataID: dataID,
     };
     this.traverse(node, nextState);
+    if (nextState.isPartial) {
+      state.isPartial = true;
+    }
     this._setDataValue(state, applicationName, nextState.data);
   }
 
   _readEdges(node: RelayQuery.Field, rangeInfo: RangeInfo, state: State): void {
+    if (rangeInfo.diffCalls.length) {
+      state.isPartial = true;
+    }
     var previousData = getDataValue(state, EDGES);
     var edges = rangeInfo.filteredEdges.map((edgeData, ii) => {
       var data;
@@ -265,12 +274,16 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       var nextState = {
         componentDataID: null,
         data,
+        isPartial: false,
         parent: node,
         rangeInfo: null,
         seenDataIDs: state.seenDataIDs,
         storeDataID: edgeData.edgeID,
       };
       this.traverse(node, nextState);
+      if (nextState.isPartial) {
+        state.isPartial = true;
+      }
       return nextState.data;
     });
     this._setDataValue(state, EDGES, edges);
@@ -287,6 +300,9 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       'readRelayQueryData(): Missing field, `%s`.',
       PAGE_INFO
     );
+    if (rangeInfo.diffCalls.length) {
+      state.isPartial = true;
+    }
     var info = pageInfo; // for Flow
     var nextData;
 
@@ -296,14 +312,13 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     var read = child => {
       if (child instanceof RelayQuery.Fragment) {
         if (child.isContainerFragment() && !this._traverseFragmentReferences) {
-          var fragmentPointer = new GraphQLFragmentPointer(
-            getComponentDataID(state),
-            child
-          );
+          const dataID = getComponentDataID(state);
           nextData = nextData || {};
-          var fragmentHash =
-            fragmentPointer.getFragment().getConcreteNodeHash();
-          nextData[fragmentHash] = fragmentPointer;
+          RelayFragmentPointer.addFragment(
+            nextData,
+            child,
+            dataID
+          );
         } else {
           child.getChildren().forEach(read);
         }
@@ -331,12 +346,16 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       state.storeDataID, storageKey
     );
     if (dataID == null) {
+      if (dataID === undefined) {
+        state.isPartial = true;
+      }
       this._setDataValue(state, applicationName, dataID);
       return;
     }
     var nextState = {
       componentDataID: null,
       data: getDataValue(state, applicationName),
+      isPartial: false,
       parent: node,
       rangeInfo: null,
       seenDataIDs: state.seenDataIDs,
@@ -348,6 +367,9 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       getDataObject(nextState);
     }
     this.traverse(node, nextState);
+    if (nextState.isPartial) {
+      state.isPartial = true;
+    }
     this._setDataValue(state, applicationName, nextState.data);
   }
 
@@ -374,6 +396,11 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
         data[metadataKey] = metadataValue;
       }
     });
+    // Set the partial bit after metadata has been copied over.
+    if (state.isPartial) {
+      data.__status__ =
+        RelayRecordStatusMap.setPartialStatus(data.__status__, true);
+    }
   }
 
   /**

@@ -27,9 +27,11 @@ describe('RelayQL', () => {
     expect(() => {
       // Transform cannot find this call site.
       badQL`
-        viewer() {
-          actor {
-            id
+        query {
+          viewer {
+            actor {
+              id
+            }
           }
         }
       `;
@@ -98,6 +100,101 @@ describe('RelayQL', () => {
     }).toThrowError(
       'RelayQL: Invalid argument `size` supplied via template substitution. ' +
       'Instead, use an inline variable (e.g. `comments(count: $count)`).'
+    );
+  });
+
+  it('permits fragment substitutions', () => {
+    const fragment = QueryBuilder.createFragment({
+      name: 'Foo',
+      type: 'Bar',
+    });
+    expect(() => {
+      Relay.QL`
+        query {
+          viewer {
+            ${fragment}
+          }
+        }
+      `;
+    }).not.toThrow();
+  });
+
+  it('permits fragment reference substitutions', () => {
+    const fragmentReference = QueryBuilder.createFragmentReference(
+      QueryBuilder.createFragment({
+        name: 'Foo',
+        type: 'Bar',
+      })
+    );
+    expect(() => {
+      Relay.QL`
+        query {
+          viewer {
+            ${fragmentReference}
+          }
+        }
+      `;
+    }).not.toThrow();
+  });
+
+  it('permits an array of fragment substitutions', () => {
+    const fragment = QueryBuilder.createFragment({
+      name: 'Foo',
+      type: 'Bar',
+    });
+    expect(() => {
+      Relay.QL`
+        query {
+          viewer {
+            ${[fragment]}
+          }
+        }
+      `;
+    }).not.toThrow();
+  });
+
+  it('throws for invalid fragment substitutions', () => {
+    expect(() => {
+      Relay.QL`
+        query {
+          viewer {
+            ${'foo'}
+          }
+        }
+      `;
+    }).toFailInvariant(
+      'RelayQL: Invalid fragment composition, use ' +
+      '`${Child.getFragment(\'name\')}`.'
+    );
+
+    expect(() => {
+      Relay.QL`
+        query {
+          viewer {
+            ${['foo']}
+          }
+        }
+      `;
+    }).toFailInvariant(
+      'RelayQL: Invalid fragment composition, use ' +
+      '`${Child.getFragment(\'name\')}`.'
+    );
+
+    const fragment = QueryBuilder.createFragment({
+      name: 'Foo',
+      type: 'Bar',
+    });
+    expect(() => {
+      Relay.QL`
+        query {
+          viewer {
+            ${[[fragment]]}
+          }
+        }
+      `;
+    }).toFailInvariant(
+      'RelayQL: Invalid fragment composition, use ' +
+      '`${Child.getFragment(\'name\')}`.'
     );
   });
 });

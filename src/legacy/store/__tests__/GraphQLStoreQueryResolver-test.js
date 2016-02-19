@@ -18,7 +18,6 @@ jest
   .dontMock('GraphQLSegment')
   .dontMock('GraphQLStoreQueryResolver');
 
-const GraphQLFragmentPointer = require('GraphQLFragmentPointer');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const Relay = require('Relay');
 const RelayStoreData = require('RelayStoreData');
@@ -31,6 +30,7 @@ describe('GraphQLStoreQueryResolver', () => {
   var changeEmitter;
   var storeData;
 
+  var dataID;
   var mockCallback;
   var mockQueryFragment;
   var mockPluralQueryFragment;
@@ -52,6 +52,7 @@ describe('GraphQLStoreQueryResolver', () => {
     storeData = new RelayStoreData();
     changeEmitter = storeData.getChangeEmitter();
 
+    dataID = '1038750002';
     mockCallback = jest.genMockFunction();
     mockQueryFragment = getNode(Relay.QL`fragment on Node{id,name}`);
     mockPluralQueryFragment = getNode(Relay.QL`
@@ -65,34 +66,24 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should resolve a pointer', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
-      '1038750002',
-      mockQueryFragment
-    );
     var mockResult = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
     readRelayQueryData.mockReturnValue({data: mockResult});
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
+      mockQueryFragment,
       mockCallback
     );
-    var resolved = resolver.resolve(fragmentPointer);
+    var resolved = resolver.resolve(mockQueryFragment, dataID);
 
     expect(resolved).toBe(mockResult);
 
     expect(readRelayQueryData).toBeCalled();
     expect(readRelayQueryData.mock.calls[0][1]).toBe(mockQueryFragment);
-    expect(readRelayQueryData.mock.calls[0][2]).toEqual(
-      fragmentPointer.getDataID()
-    );
+    expect(readRelayQueryData.mock.calls[0][2]).toEqual(dataID);
   });
 
   it('should subscribe to IDs in resolved pointer', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
-      '1038750002',
-      mockQueryFragment
-    );
     var mockResult = {
       '1038750002': {__dataID__: '1038750002', id: '1038750002', name: 'Tim'},
     };
@@ -100,10 +91,10 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
+      mockQueryFragment,
       mockCallback
     );
-    resolver.resolve(fragmentPointer);
+    resolver.resolve(mockQueryFragment, dataID);
 
     var addListenersForIDs = changeEmitter.addListenerForIDs;
     expect(addListenersForIDs).toBeCalled();
@@ -111,47 +102,39 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should not re-resolve pointers without change events', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
-      '1038750002',
-      mockQueryFragment
-    );
     var mockResultA = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
     var mockResultB = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
+      mockQueryFragment,
       mockCallback
     );
 
     readRelayQueryData.mockReturnValue({data: mockResultA});
-    var resolvedA = resolver.resolve(fragmentPointer);
+    var resolvedA = resolver.resolve(mockQueryFragment, dataID);
 
     readRelayQueryData.mockReturnValue({data: mockResultB});
-    var resolvedB = resolver.resolve(fragmentPointer);
+    var resolvedB = resolver.resolve(mockQueryFragment, dataID);
 
     expect(readRelayQueryData.mock.calls.length).toBe(1);
     expect(resolvedA).toBe(resolvedB);
   });
 
   it('should re-resolve pointers with change events', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
-      '1038750002',
-      mockQueryFragment
-    );
     var mockResultA = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
     var mockResultB = {__dataID__: '1038750002', id: '1038750002', name: 'Tee'};
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
+      mockQueryFragment,
       mockCallback
     );
 
     mockReader({
       [mockResultA.id]: mockResultA,
     });
-    var resolvedA = resolver.resolve(fragmentPointer);
+    var resolvedA = resolver.resolve(mockQueryFragment, dataID);
 
     var callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
     callback(['1038750002']);
@@ -159,7 +142,7 @@ describe('GraphQLStoreQueryResolver', () => {
     mockReader({
       [mockResultB.id]: mockResultB,
     });
-    var resolvedB = resolver.resolve(fragmentPointer);
+    var resolvedB = resolver.resolve(mockQueryFragment, dataID);
 
     expect(readRelayQueryData.mock.calls.length).toBe(2);
     expect(resolvedA).toBe(mockResultA);
@@ -167,18 +150,12 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should re-resolve pointers whose calls differ', () => {
-    var fragmentPointerA = new GraphQLFragmentPointer(
-      'client:123_first(10)',
-      mockQueryFragment
-    );
-    var fragmentPointerB = new GraphQLFragmentPointer(
-      'client:123_first(20)',
-      mockQueryFragment
-    );
+    var dataIDA = 'client:123_first(10)';
+    var dataIDB = 'client:123_first(20)';
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointerA,
+      mockQueryFragment,
       mockCallback
     );
 
@@ -186,29 +163,25 @@ describe('GraphQLStoreQueryResolver', () => {
       // The canonical ID of a range customarily excludes the calls
       jest.genMockFunction().mockReturnValue('client:123');
 
-    resolver.resolve(fragmentPointerA);
-    resolver.resolve(fragmentPointerB);
+    resolver.resolve(mockQueryFragment, dataIDA);
+    resolver.resolve(mockQueryFragment, dataIDB);
 
     expect(readRelayQueryData.mock.calls.length).toBe(2);
   });
 
   it('should invoke the callback when change events fire', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
-      '1038750002',
-      mockQueryFragment
-    );
     var mockResult = {
       '1038750002': {__dataID__: '1038750002', id: '1038750002', name: 'Tim'},
     };
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
+      mockQueryFragment,
       mockCallback
     );
 
     mockReader(mockResult);
-    resolver.resolve(fragmentPointer);
+    resolver.resolve(mockQueryFragment, dataID);
 
     var callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
     callback(['1038750002']);
@@ -217,10 +190,6 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should resolve an array of pointers', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
-      ['1', '2'],
-      mockPluralQueryFragment
-    );
     var mockResults = {
       '1': {__dataID__: '1', name: 'One'},
       '2': {__dataID__: '2', name: 'Two'},
@@ -229,28 +198,20 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
+      mockPluralQueryFragment,
       mockCallback
     );
 
-    var resolved = resolver.resolve(fragmentPointer);
+    var resolved = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
     expect(resolved.length).toBe(2);
     expect(resolved[0]).toBe(mockResults['1']);
     expect(resolved[1]).toBe(mockResults['2']);
 
-    expect(readRelayQueryData.mock.calls[0][2]).toEqual(
-      fragmentPointer.getDataIDs()[0]
-    );
-    expect(readRelayQueryData.mock.calls[1][2]).toEqual(
-      fragmentPointer.getDataIDs()[1]
-    );
+    expect(readRelayQueryData.mock.calls[0][2]).toEqual('1');
+    expect(readRelayQueryData.mock.calls[1][2]).toEqual('2');
   });
 
   it('should not re-resolve if the pointer array has no changes', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
-      ['1', '2'],
-      mockPluralQueryFragment
-    );
     var mockResults = {
       '1': {__dataID__: '1', name: 'One'},
       '2': {__dataID__: '2', name: 'Two'},
@@ -259,21 +220,17 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
+      mockPluralQueryFragment,
       mockCallback
     );
 
-    var resolvedA = resolver.resolve(fragmentPointer);
-    var resolvedB = resolver.resolve(fragmentPointer);
+    var resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
+    var resolvedB = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
 
     expect(resolvedA).toBe(resolvedB);
   });
 
   it('should only re-resolve pointers with changes in an array', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
-      ['1', '2'],
-      mockPluralQueryFragment
-    );
     var mockResults = {
       '1': {__dataID__: '1', name: 'One'},
       '2': {__dataID__: '2', name: 'Two'},
@@ -282,17 +239,17 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
+      mockPluralQueryFragment,
       mockCallback
     );
 
-    var resolvedA = resolver.resolve(fragmentPointer);
+    var resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
 
     mockResults['1'] = {__dataID__: '1', name: 'Won'};
     var callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
     callback(['1']);
 
-    var resolvedB = resolver.resolve(fragmentPointer);
+    var resolvedB = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
 
     expect(resolvedA).not.toBe(resolvedB);
 
@@ -305,14 +262,6 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should create a new array if the pointer array shortens', () => {
-    var fragmentPointer = new GraphQLFragmentPointer(
-      ['1', '2'],
-      mockPluralQueryFragment
-    );
-    var fragmentPointerB = new GraphQLFragmentPointer(
-      ['1'],
-      mockPluralQueryFragment
-    );
     var mockResults = {
       '1': {__dataID__: '1', name: 'One'},
       '2': {__dataID__: '2', name: 'Two'},
@@ -321,12 +270,12 @@ describe('GraphQLStoreQueryResolver', () => {
 
     var resolver = new GraphQLStoreQueryResolver(
       storeData,
-      fragmentPointer,
+      mockPluralQueryFragment,
       mockCallback
     );
 
-    var resolvedA = resolver.resolve(fragmentPointer);
-    var resolvedB = resolver.resolve(fragmentPointerB);
+    var resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
+    var resolvedB = resolver.resolve(mockPluralQueryFragment, ['1']);
 
     expect(resolvedA).not.toBe(resolvedB);
 
@@ -335,6 +284,7 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   describe('garbage collection', () => {
+    let dataID;
     let fragment;
 
     beforeEach(() => {
@@ -350,7 +300,7 @@ describe('GraphQLStoreQueryResolver', () => {
           }
         }
       `);
-      fragment = Relay.QL`
+      let concreteFragment = Relay.QL`
         fragment on Viewer {
           actor {
             id
@@ -363,7 +313,7 @@ describe('GraphQLStoreQueryResolver', () => {
       const query = getNode(Relay.QL`
         query {
           viewer {
-            ${fragment}
+            ${concreteFragment}
           }
         }
       `);
@@ -388,20 +338,18 @@ describe('GraphQLStoreQueryResolver', () => {
         transformRelayQueryPayload(query, payload),
         1
       );
+      dataID = 'client:1';
+      fragment = getNode(concreteFragment);
     });
 
     it('increments references to read data', () => {
-      const fragmentPointer = new GraphQLFragmentPointer(
-        'client:1',
-        getNode(fragment)
-      );
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
-        fragmentPointer,
+        fragment,
         jest.genMockFunction()
       );
       // read data and set up subscriptions
-      queryResolver.resolve(fragmentPointer);
+      queryResolver.resolve(fragment, dataID);
       // evict unreferenced nodes
       storeData.getGarbageCollector().collect();
       jest.runAllTimers();
@@ -414,17 +362,13 @@ describe('GraphQLStoreQueryResolver', () => {
     });
 
     it('decrements references to previously read fields', () => {
-      const fragmentPointer = new GraphQLFragmentPointer(
-        'client:1',
-        getNode(fragment)
-      );
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
-        fragmentPointer,
+        fragment,
         jest.genMockFunction()
       );
       // read data and increment GC ref counts
-      queryResolver.resolve(fragmentPointer);
+      queryResolver.resolve(fragment, dataID);
       const callback =
         storeData.getChangeEmitter().addListenerForIDs.mock.calls[0][1];
 
@@ -434,7 +378,7 @@ describe('GraphQLStoreQueryResolver', () => {
       callback(['client:1']);
 
       // re-read and increment/decrement GC ref counts
-      queryResolver.resolve(fragmentPointer);
+      queryResolver.resolve(fragment, dataID);
 
       // evict unreferenced nodes
       storeData.getGarbageCollector().collect();
@@ -447,56 +391,22 @@ describe('GraphQLStoreQueryResolver', () => {
       ]);
     });
 
-    it('decrements references when reset', () => {
-      const fragmentPointer = new GraphQLFragmentPointer(
-        'client:1',
-        getNode(fragment)
-      );
+    it('decrements references when disposed', () => {
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
-        fragmentPointer,
+        fragment,
         jest.genMockFunction()
       );
       // read data and increment GC ref counts
-      queryResolver.resolve(fragmentPointer);
+      queryResolver.resolve(fragment, dataID);
       // reset the resolver; should unreference all nodes
-      queryResolver.reset();
+      queryResolver.dispose();
 
       // evict unreferenced nodes
       storeData.getGarbageCollector().collect();
       jest.runAllTimers();
       // all nodes are unreferenced and should be removed
       expect(storeData.getNodeData()).toEqual({});
-    });
-
-    it('does not reference unfetched records', () => {
-      // Remove the linked records but not the links to them. Although the
-      // resolver will subscribe to updates on these records, it should not
-      // increment references to them since they are unfetched and therefore
-      // not registered with the garbage collector.
-      storeData.getRecordStore().removeRecord('123'); // viewer.actor
-      storeData.getRecordStore().removeRecord('client:2'); // viewer.newsFeed
-
-      const fragmentPointer = new GraphQLFragmentPointer(
-        'client:1',
-        getNode(fragment)
-      );
-      const queryResolver = new GraphQLStoreQueryResolver(
-        storeData,
-        fragmentPointer,
-        jest.genMockFunction()
-      );
-      // read data and set up subscriptions
-      queryResolver.resolve(fragmentPointer);
-      // evict unreferenced nodes
-      storeData.getGarbageCollector().collect();
-      jest.runAllTimers();
-      // nodes referenced by the fragment should not be evicted
-      expect(Object.keys(storeData.getNodeData())).toEqual([
-        // '123' (actor) is unreferenced and collected
-        // 'client:2' (viewer.newsFeed) is unreferenced and collected
-        'client:1', // viewer
-      ]);
     });
   });
 });

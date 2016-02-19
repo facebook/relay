@@ -20,6 +20,7 @@ const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
 const RelayContext = require('RelayContext');
 const RelayMetaRoute = require('RelayMetaRoute');
+const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.setVariables', function() {
@@ -33,11 +34,14 @@ describe('RelayContainer.setVariables', function() {
   var relayContext;
   var render;
 
+  const {getNode} = RelayTestUtils;
+
   beforeEach(function() {
     jest.resetModuleRegistry();
 
+    const fragment = Relay.QL`fragment on Node{url(site:$site)}`;
     entityQuery = jest.genMockFunction().mockImplementation(
-      () => Relay.QL`fragment on Node{url(site:$site)}`
+      () => fragment
     );
     render = jest.genMockFunction().mockImplementation(() => <div />);
 
@@ -53,10 +57,13 @@ describe('RelayContainer.setVariables', function() {
 
     relayContext = new RelayContext();
 
-    GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
-      expect(pointer.getDataID()).toBe('42');
+    GraphQLStoreQueryResolver.mockDefaultResolveImplementation((_, dataID) => {
+      expect(dataID).toBe('42');
       return {
         __dataID__: '42',
+        __fragments__: {
+          [getNode(fragment).getConcreteFragmentID()]: '42',
+        },
         id: '42',
         url: '//url',
         profilePicture: {
@@ -112,8 +119,8 @@ describe('RelayContainer.setVariables', function() {
       });
 
       // Return an array
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointers => {
-        expect(pointers.getDataIDs()).toEqual(['21', '42']);
+      GraphQLStoreQueryResolver.mockDefaultResolveImplementation((_, ids) => {
+        expect(ids).toEqual(['21', '42']);
         return [
           {
             __dataID__: '21',
@@ -134,13 +141,14 @@ describe('RelayContainer.setVariables', function() {
         ];
       });
 
-      var mockPointer = getPointer(
-        ['21', '42'],
-        getNode(MockContainer.getFragment('entity').getFragment())
-      );
+      var fragment = getNode(MockContainer.getFragment('entity').getFragment());
+      var mockPointers = [
+        getPointer('21', fragment),
+        getPointer('42', fragment),
+      ];
       mockInstance = RelayTestUtils.createRenderer(domContainer).render(
         genMockPointer => (
-          <MockContainer entity={[mockPointer]} />
+          <MockContainer entity={mockPointers} />
         ),
         relayContext
       );
@@ -182,8 +190,8 @@ describe('RelayContainer.setVariables', function() {
         {__dataID__: '21', id: '21', url: '//www'},
         {__dataID__: '42', id: '42', url: '//www'},
       ];
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
-        expect(pointer.getFragment().getVariables()).toEqual({site: 'www'});
+      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(fragment => {
+        expect(fragment.getVariables()).toEqual({site: 'www'});
         return updatedQueryData;
       });
       relayContext.primeCache.mock.requests[0].succeed();
@@ -270,8 +278,8 @@ describe('RelayContainer.setVariables', function() {
       jest.runAllTimers();
 
       var updatedQueryData = {__dataID__: '42', id: '42', url: '//www'};
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
-        expect(pointer.getFragment().getVariables()).toEqual({site: 'www'});
+      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(fragment => {
+        expect(fragment.getVariables()).toEqual({site: 'www'});
         return updatedQueryData;
       });
       relayContext.primeCache.mock.requests[0].succeed();
@@ -441,7 +449,9 @@ describe('RelayContainer.setVariables', function() {
       // `prepareVariables` output is used to prime the cache...
       var queries = relayContext.primeCache.mock.calls[0][0];
       var query = queries[Object.keys(queries)[0]];
-      var fragment = query.getChildren()[0];
+      var fragment = query.getChildren().find(
+        child => child instanceof RelayQuery.Fragment
+      );
       expect(fragment.getVariables()).toEqual(nextVariables);
 
       jest.runAllTimers();

@@ -75,6 +75,7 @@ var x = (function () {
         },
         type: 'String'
       }],
+      id: 'PNWj2QeO3q0w:12',
       kind: 'Fragment',
       metadata: {},
       name: 'Story',

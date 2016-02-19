@@ -187,6 +187,7 @@ module.exports = function (t, options) {
         return codify({
           children: selections,
           directives: this.printDirectives(fragment.getDirectives()),
+          id: t.valueToNode(fragment.getFragmentID()),
           kind: t.valueToNode('Fragment'),
           metadata: metadata,
           name: t.valueToNode(fragment.getName()),

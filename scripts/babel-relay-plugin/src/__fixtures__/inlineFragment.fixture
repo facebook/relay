@@ -43,11 +43,13 @@ var x = (function () {
         },
         type: 'String'
       }],
+      id: 'dDCJUnpyqMbd:q',
       kind: 'Fragment',
       metadata: {},
       name: 'User',
       type: 'User'
     }],
+    id: 'dDCJUnpyqMbd:r',
     kind: 'Fragment',
     metadata: {
       isAbstract: true

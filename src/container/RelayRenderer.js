@@ -331,7 +331,7 @@ RelayRenderer.propTypes = {
 };
 
 RelayRenderer.childContextTypes = {
-  relay: RelayPropTypes.Context.isRequired,
+  relay: RelayPropTypes.Context,
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 

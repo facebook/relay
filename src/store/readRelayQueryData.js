@@ -173,15 +173,8 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     const dataID = getComponentDataID(state);
     if (node.isContainerFragment() && !this._traverseFragmentReferences) {
       state.seenDataIDs[dataID] = true;
-      const fragmentPointer = new RelayFragmentPointer(
-        node.isPlural() ? [dataID] : dataID,
-        node
-      );
-      this._setDataValue(
-        state,
-        fragmentPointer.getFragment().getConcreteFragmentID(),
-        fragmentPointer
-      );
+      const data = getDataObject(state);
+      RelayFragmentPointer.addFragment(data, node, dataID);
     } else if (isCompatibleRelayFragmentType(
       node,
       this._recordStore.getType(dataID)
@@ -319,14 +312,13 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     var read = child => {
       if (child instanceof RelayQuery.Fragment) {
         if (child.isContainerFragment() && !this._traverseFragmentReferences) {
-          var fragmentPointer = new RelayFragmentPointer(
-            getComponentDataID(state),
-            child
-          );
+          const dataID = getComponentDataID(state);
           nextData = nextData || {};
-          var fragmentID =
-            fragmentPointer.getFragment().getConcreteFragmentID();
-          nextData[fragmentID] = fragmentPointer;
+          RelayFragmentPointer.addFragment(
+            nextData,
+            child,
+            dataID
+          );
         } else {
           child.getChildren().forEach(read);
         }

@@ -41,8 +41,8 @@ describe('RelayContainer.hasPartialData', () => {
     relayContext = new RelayContext();
     RelayTestRenderer = RelayTestUtils.createRenderer();
 
-    GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
-      return {__dataID__: pointer.getDataID(), id: pointer.getDataID()};
+    GraphQLStoreQueryResolver.mockDefaultResolveImplementation((_, dataID) => {
+      return {__dataID__: dataID, id: dataID};
     });
 
     jasmine.addMatchers(RelayTestUtils.matchers);

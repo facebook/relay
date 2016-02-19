@@ -14,7 +14,6 @@
 'use strict';
 
 import type {ChangeSubscription} from 'GraphQLStoreChangeEmitter';
-import type RelayFragmentPointer from 'RelayFragmentPointer';
 import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {DataID} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
@@ -24,6 +23,7 @@ import type {StoreReaderData} from 'RelayTypes';
 
 const readRelayQueryData = require('readRelayQueryData');
 const recycleNodesInto = require('recycleNodesInto');
+const warning = require('warning');
 
 type DataIDSet = {[dataID: DataID]: any};
 
@@ -37,7 +37,7 @@ type DataIDSet = {[dataID: DataID]: any};
  */
 class GraphQLStoreQueryResolver {
   _callback: Function;
-  _fragmentPointer: RelayFragmentPointer;
+  _fragment: RelayQuery.Fragment;
   _resolver: ?(
     GraphQLStorePluralQueryResolver |
     GraphQLStoreSingleQueryResolver
@@ -46,12 +46,12 @@ class GraphQLStoreQueryResolver {
 
   constructor(
     storeData: RelayStoreData,
-    fragmentPointer: RelayFragmentPointer,
+    fragment: RelayQuery.Fragment,
     callback: Function
   ) {
     this.dispose();
     this._callback = callback;
-    this._fragmentPointer = fragmentPointer;
+    this._fragment = fragment;
     this._resolver = null;
     this._storeData = storeData;
   }
@@ -67,16 +67,70 @@ class GraphQLStoreQueryResolver {
   }
 
   resolve(
-    fragmentPointer: RelayFragmentPointer
+    fragment: RelayQuery.Fragment,
+    dataIDs: DataID | Array<DataID>
   ): ?(StoreReaderData | Array<?StoreReaderData>) {
-    var resolver = this._resolver;
-    if (!resolver) {
-      resolver = this._fragmentPointer.getFragment().isPlural() ?
-        new GraphQLStorePluralQueryResolver(this._storeData, this._callback) :
-        new GraphQLStoreSingleQueryResolver(this._storeData, this._callback);
-      this._resolver = resolver;
+    // Warn but don't crash if resolved with the wrong fragment.
+    if (this._fragment.getConcreteFragmentID() !==
+      fragment.getConcreteFragmentID()
+    ) {
+      warning(
+        false,
+        'GraphQLStoreQueryResolver: Expected `resolve` to be called with the ' +
+        'same concrete fragment as the constructor. The resolver was created ' +
+        'with fragment `%s` but resolved with fragment `%s`.',
+        this._fragment.getDebugName(),
+        fragment.getDebugName()
+      );
     }
-    return resolver.resolve(fragmentPointer);
+    // Rather than crash on mismatched plurality of fragment/ids just warn
+    // and resolve as if the fragment's pluarity matched the format of the ids.
+    // Note that the inverse - attempt to resolve based on fragment plurarity -
+    // doesn't work because there's no way convert plural ids to singular w/o
+    // losing data.
+    if (Array.isArray(dataIDs)) {
+      // Fragment should be plural if data is pluaral.
+      warning(
+        fragment.isPlural(),
+        'GraphQLStoreQueryResolver: Expected id/fragment plurality to be ' +
+        'consistent: got plural ids for singular fragment `%s`.',
+        fragment.getDebugName()
+      );
+      let resolver = this._resolver;
+      if (resolver instanceof GraphQLStoreSingleQueryResolver) {
+        resolver.dispose();
+        resolver = null;
+      }
+      if (!resolver) {
+        resolver = new GraphQLStorePluralQueryResolver(
+          this._storeData,
+          this._callback
+        );
+      }
+      this._resolver = resolver;
+      return resolver.resolve(fragment, dataIDs);
+    } else {
+      // Fragment should be singular if data is singular.
+      warning(
+        !fragment.isPlural(),
+        'GraphQLStoreQueryResolver: Expected id/fragment plurality to be ' +
+        'consistent: got a singular id for plural fragment `%s`.',
+        fragment.getDebugName()
+      );
+      let resolver = this._resolver;
+      if (resolver instanceof GraphQLStorePluralQueryResolver) {
+        resolver.dispose();
+        resolver = null;
+      }
+      if (!resolver) {
+        resolver = new GraphQLStoreSingleQueryResolver(
+          this._storeData,
+          this._callback
+        );
+      }
+      this._resolver = resolver;
+      return resolver.resolve(fragment, dataIDs);
+    }
   }
 }
 
@@ -110,11 +164,13 @@ class GraphQLStorePluralQueryResolver {
    * the last call to `resolve`, the same array will be returned. Otherwise, a
    * new array will be returned.
    */
-  resolve(fragmentPointer: RelayFragmentPointer): Array<?StoreReaderData> {
+  resolve(
+    fragment: RelayQuery.Fragment,
+    nextIDs: Array<DataID>
+  ): Array<?StoreReaderData> {
     var prevResults = this._results;
     var nextResults;
 
-    var nextIDs = fragmentPointer.getDataIDs();
     var prevLength = prevResults.length;
     var nextLength = nextIDs.length;
     var resolvers = this._resolvers;
@@ -134,7 +190,7 @@ class GraphQLStorePluralQueryResolver {
       nextResults = [];
     }
     for (var ii = 0; ii < nextLength; ii++) {
-      var nextResult = resolvers[ii].resolve(fragmentPointer, nextIDs[ii]);
+      var nextResult = resolvers[ii].resolve(fragment, nextIDs[ii]);
       if (nextResults || ii >= prevLength || nextResult !== prevResults[ii]) {
         nextResults = nextResults || prevResults.slice(0, ii);
         nextResults.push(nextResult);
@@ -185,17 +241,12 @@ class GraphQLStoreSingleQueryResolver {
 
   /**
    * Resolves data for a single fragment pointer.
-   *
-   * NOTE: `nextPluralID` should only be passed by the plural query resolver.
    */
   resolve(
-    fragmentPointer: RelayFragmentPointer,
-    nextPluralID?: ?DataID
+    nextFragment: RelayQuery.Fragment,
+    nextID: DataID
   ): ?StoreReaderData {
-    var nextFragment = fragmentPointer.getFragment();
     var prevFragment = this._fragment;
-
-    var nextID = nextPluralID || fragmentPointer.getDataID();
     var prevID = this._resultID;
     var nextResult;
     var prevResult = this._result;

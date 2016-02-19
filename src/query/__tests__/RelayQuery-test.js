@@ -215,7 +215,7 @@ describe('RelayQuery', () => {
     });
 
     describe('getConcreteFragmentID()', () => {
-      it('returns the same hash for two different RelayQuery nodes', () => {
+      it('returns the same id for two different RelayQuery nodes', () => {
         const concreteNode = Relay.QL`fragment on Node { id }`;
         const fragmentA = getNode(concreteNode);
         const fragmentB = getNode(concreteNode);
@@ -223,7 +223,7 @@ describe('RelayQuery', () => {
           .toBe(fragmentB.getConcreteFragmentID());
       });
 
-      it('returns a different hash for two different concrete nodes', () => {
+      it('returns a different id for two different concrete nodes', () => {
         const fragmentA = getNode(Relay.QL`fragment on Node { id }`);
         const fragmentB = getNode(Relay.QL`fragment on Node { id }`);
         expect(fragmentA.getConcreteFragmentID())

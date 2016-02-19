@@ -19,8 +19,10 @@ const RelayFragmentPointer = require('RelayFragmentPointer');
 const React = require('React');
 const RelayContainerComparators = require('RelayContainerComparators');
 const RelayContainerProxy = require('RelayContainerProxy');
-import type {FragmentResolver} from 'RelayContext';
-const RelayContext = require('RelayContext');
+import type {
+  FragmentResolver,
+  RelayContextInterface,
+} from 'RelayContext';
 const RelayFragmentReference = require('RelayFragmentReference');
 import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
@@ -458,7 +460,7 @@ function createContainerComponent(
 
     _initialize(
       props: Object,
-      relayContext: RelayContext,
+      relayContext: RelayContextInterface,
       route: RelayQueryConfigSpec,
       prevVariables: Variables
     ): { variables: Variables, queryData: {[propName: string]: mixed} } {
@@ -494,7 +496,7 @@ function createContainerComponent(
       }
     }
 
-    _updateFragmentResolvers(relayContext: RelayContext): void {
+    _updateFragmentResolvers(relayContext: RelayContextInterface): void {
       var fragmentPointers = this._fragmentPointers;
       var fragmentResolvers = this._fragmentResolvers;
       fragmentNames.forEach(fragmentName => {

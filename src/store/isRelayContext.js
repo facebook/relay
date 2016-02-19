@@ -21,8 +21,10 @@ function isRelayContext(context: mixed): boolean {
   return (
     typeof context === 'object' &&
     context !== null &&
+    typeof context.forceFetch === 'function' &&
     typeof context.getFragmentResolver === 'function' &&
-    typeof context.getStoreData === 'function'
+    typeof context.getStoreData === 'function' &&
+    typeof context.primeCache === 'function'
   );
 }
 

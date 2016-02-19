@@ -47,6 +47,22 @@ export type FragmentResolver = {
   ) => ?(StoreReaderData | Array<?StoreReaderData>);
 };
 
+export type RelayContextInterface = {
+  forceFetch: (
+    querySet: RelayQuerySet,
+    onReadyStateChange: ReadyStateChangeCallback
+  ) => Abortable;
+  getFragmentResolver: (
+    fragment: RelayQuery.Fragment,
+    onNext: () => void
+  ) => FragmentResolver;
+  getStoreData: () => RelayStoreData;
+  primeCache: (
+    querySet: RelayQuerySet,
+    onReadyStateChange: ReadyStateChangeCallback
+  ) => Abortable;
+};
+
 /**
  * @public
  *

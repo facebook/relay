@@ -30,7 +30,7 @@ describe('isRelayContext()', () => {
     expect(isRelayContext(context)).toBe(true);
   });
 
-  it('returns false for objects that do not conform to the inerface', () => {
+  it('returns false for objects that do not conform to the interface', () => {
     const fakeContext = {
       getFragmentResolver: null,
       getStoreData: null,

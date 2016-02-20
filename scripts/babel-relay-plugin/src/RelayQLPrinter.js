@@ -537,7 +537,11 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       }
       return codify({
         kind: t.valueToNode('CallValue'),
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
         callValue: printObject(value),
+=======
+        callValue: printObject(value)
+>>>>>>> printRelayOSSQuery-test.js test failed
       });
     }
 
@@ -783,6 +787,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   function printObject(jsValue: any):String {
     var keys = Object.keys(jsValue);
     var jsType = typeof jsValue;
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
     if (jsType == 'object' && keys.length > 0) {
       if (Array.isArray(jsValue)) {
         return t.arrayExpression(jsValue.map(printObject));
@@ -792,6 +797,19 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         ));
       }
     }else {
+=======
+    if(jsType == 'object' && keys.length>0){
+      if(Array.isArray(jsValue)){
+        return t.arrayExpression(jsValue.map(value=>
+          printObject(value)
+        ));
+      }else {
+        return t.objectExpression(keys.map(key=>
+          property(key,printObject( jsValue[key]))
+        ));
+      }
+    }else{
+>>>>>>> printRelayOSSQuery-test.js test failed
       return t.valueToNode(jsValue);
     }
   }

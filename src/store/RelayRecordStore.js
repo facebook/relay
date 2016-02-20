@@ -30,7 +30,7 @@ import type {
   RecordMap,
 } from 'RelayRecord';
 import type {RecordState} from 'RelayRecordState';
-const stableStringify= require('stableStringify');
+const stableStringifyTmp= require('stableStringifyTmp');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
@@ -117,7 +117,11 @@ class RelayRecordStore {
    */
   getDataID(
     storageKey: string,
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
     identifyingArgValue: any
+=======
+    identifyingArgValue: mixed
+>>>>>>> printRelayOSSQuery-test.js test failed
   ): ?DataID {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
       invariant(
@@ -131,7 +135,11 @@ class RelayRecordStore {
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
     const identifyingArgHash = stableStringify(identifyingArgValue);
+=======
+    const identifyingArgHash = stableStringifyTmp(identifyingArgValue);
+>>>>>>> printRelayOSSQuery-test.js test failed
     if (this._rootCallMap.hasOwnProperty(storageKey) &&
         this._rootCallMap[storageKey].hasOwnProperty(identifyingArgHash)) {
       return this._rootCallMap[storageKey][identifyingArgHash];

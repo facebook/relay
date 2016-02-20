@@ -351,6 +351,11 @@ describe('RelayQueryRoot', () => {
       }
     `);
     const nodeIdentifyingArg = nQuery.getIdentifyingArg();
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
+=======
+
+    expect(nodeIdentifyingArg).toBeDefined();
+>>>>>>> printRelayOSSQuery-test.js test failed
     expect(nodeIdentifyingArg).toEqual({
       name: 'number',
       value: 5,
@@ -369,6 +374,11 @@ describe('RelayQueryRoot', () => {
       identifyingArgName: 'query',
       identifyingArgType: 'CheckinSearchInput!' };
     const nodeIdentifyingArg = nQuery.getIdentifyingArg();
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
+=======
+
+    expect(nodeIdentifyingArg).toBeDefined();
+>>>>>>> printRelayOSSQuery-test.js test failed
     expect(nodeIdentifyingArg).toEqual({
       name: 'query',
       type: 'CheckinSearchInput!',
@@ -391,12 +401,22 @@ describe('RelayQueryRoot', () => {
       identifyingArgName: 'waypoints',
       identifyingArgType: '[Waypoint!]!' };
     const nodeIdentifyingArg = wayQuery.getIdentifyingArg();
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
+=======
+
+    expect(nodeIdentifyingArg).toBeDefined();
+>>>>>>> printRelayOSSQuery-test.js test failed
     expect(nodeIdentifyingArg).toEqual(
       {
         name: 'waypoints',
         value: [
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
           { uri: 's', dumbNumber: [1, 7] },
           { uri: 'a', dumbNumber: [88, 666] },
+=======
+          { uri: 's', dumbNumber: [1,7] },
+          { uri: 'a', dumbNumber: [88,666] },
+>>>>>>> printRelayOSSQuery-test.js test failed
         ],
         type: '[Waypoint!]!',
       }

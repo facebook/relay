@@ -37,7 +37,11 @@ import type {CacheWriter} from 'RelayTypes';
 
 const invariant = require('invariant');
 const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
 const stableStringify = require('stableStringify');
+=======
+const stableStringifyTmp = require('stableStringifyTmp');
+>>>>>>> printRelayOSSQuery-test.js test failed
 const {CURSOR, NODE} = RelayConnectionInterface;
 const EMPTY = '';
 const FILTER_CALLS = '__filterCalls__';
@@ -94,7 +98,11 @@ class RelayRecordWriter {
    */
   getDataID(
     storageKey: string,
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
     identifyingArgValue: any
+=======
+    identifyingArgValue: mixed
+>>>>>>> printRelayOSSQuery-test.js test failed
   ): ?DataID {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
       invariant(
@@ -108,7 +116,11 @@ class RelayRecordWriter {
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
     const identifyingArgHash = stableStringify(identifyingArgValue);
+=======
+    const identifyingArgHash = stableStringifyTmp(identifyingArgValue);
+>>>>>>> printRelayOSSQuery-test.js test failed
     if (this._rootCallMap.hasOwnProperty(storageKey) &&
         this._rootCallMap[storageKey].hasOwnProperty(identifyingArgHash)) {
       return this._rootCallMap[storageKey][identifyingArgHash];
@@ -136,7 +148,11 @@ class RelayRecordWriter {
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
+<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
     const identifyingArgHash = stableStringify(identifyingArgValue);
+=======
+    identifyingArgValue = stableStringifyTmp(identifyingArgValue);
+>>>>>>> printRelayOSSQuery-test.js test failed
     this._rootCallMap[storageKey] = this._rootCallMap[storageKey] || {};
     this._rootCallMap[storageKey][identifyingArgHash] = dataID;
     if (this._cacheWriter) {

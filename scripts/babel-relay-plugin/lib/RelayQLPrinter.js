@@ -454,56 +454,10 @@ module.exports = function (t, options) {
             return _this4.printArgumentValue(element);
           }));
         }
-        if (true || !value.hasOwnProperty("0")) {
-          return codify({
-            kind: t.valueToNode('CallValue'),
-            callValue: this.printObject(value)
-          });
-        } else {
-          return codify({
-            kind: t.valueToNode('CallValue'),
-            callValue: t.valueToNode(value)
-          });
-        }
-      }
-
-      // todo array!
-    }, {
-      key: 'printObject',
-      value: function printObject(v) {
-        var keys = Object.keys(v);
-        if (typeof v === "object" && keys.length > 0) {
-          var properties = [];
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
-
-          try {
-            for (var _iterator = keys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var key = _step.value;
-
-              properties.push(property(key, this.printObject(v[key])));
-            }
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator['return']) {
-                _iterator['return']();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
-          }
-
-          var ob = t.objectExpression(properties);
-          return ob;
-        } else {
-          return t.valueToNode(v);
-        }
+        return codify({
+          kind: t.valueToNode('CallValue'),
+          callValue: printObject(value)
+        });
       }
     }, {
       key: 'printDirectives',
@@ -646,6 +600,24 @@ module.exports = function (t, options) {
       }
       return t.memberExpression(acc, t.identifier(name));
     }, null);
+  }
+
+  function printObject(jsValue) {
+    var keys = Object.keys(jsValue);
+    var jsType = typeof jsValue;
+    if (jsType == 'object' && keys.length > 0) {
+      if (Array.isArray(jsValue)) {
+        return t.arrayExpression(jsValue.map(function (value) {
+          return printObject(value);
+        }));
+      } else {
+        return t.objectExpression(keys.map(function (key) {
+          return property(key, printObject(jsValue[key]));
+        }));
+      }
+    } else {
+      return t.valueToNode(jsValue);
+    }
   }
 
   function objectify(obj) {

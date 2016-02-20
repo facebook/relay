@@ -447,31 +447,7 @@ var RelayQLArgument = (function () {
             return new RelayQLArgument(_this6.context, _extends({}, _this6.ast, { value: value }), _this6.type.ofType());
           });
         case 'ObjectValue':
-          return _recurValue(value);
-      }
-      // unlike ListValue, ObjectValue return a
-      // plain javascript object(key-value)
-      function _recurValue(astValue) {
-        switch (astValue.kind) {
-          case 'IntValue':
-            return parseInt(astValue.value, 10);
-          case 'FloatValue':
-            return parseFloat(astValue.value);
-          case 'StringValue':
-          case 'BooleanValue':
-          case 'EnumValue':
-            return astValue.value;
-          case 'ListValue':
-            return astValue.values.map(function (v) {
-              return _recurValue(v);
-            });
-          case 'ObjectValue':
-            var ob = {};
-            astValue.fields.map(function (field) {
-              ob[field.name.value] = _recurValue(field.value);
-            });
-            return ob;
-        }
+          return getInputObjectValue(value);
       }
       invariant(false, 'Unexpected argument kind: %s', value.kind);
     }
@@ -841,6 +817,31 @@ function stripMarkerTypes(schemaModifiedType) {
     schemaUnmodifiedType = schemaUnmodifiedType.ofType;
   }
   return { isListType: isListType, isNonNullType: isNonNullType, schemaUnmodifiedType: schemaUnmodifiedType };
+}
+
+// unlike ListValue, ObjectValue return a
+// plain javascript object(key-value)
+function getInputObjectValue(inputObject) {
+  switch (inputObject.kind) {
+    case 'IntValue':
+      return parseInt(inputObject.value, 10);
+    case 'FloatValue':
+      return parseFloat(inputObject.value);
+    case 'StringValue':
+    case 'BooleanValue':
+    case 'EnumValue':
+      return inputObject.value;
+    case 'ListValue':
+      return inputObject.values.map(function (v) {
+        return getInputObjectValue(v);
+      });
+    case 'ObjectValue':
+      var ob = {};
+      inputObject.fields.map(function (field) {
+        ob[field.name.value] = getInputObjectValue(field.value);
+      });
+      return ob;
+  }
 }
 
 module.exports = {

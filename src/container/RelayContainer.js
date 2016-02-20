@@ -39,7 +39,6 @@ import type {
   RelayProp,
   Variables,
 } from 'RelayTypes';
-import type URI from 'URI';
 
 const buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder, RelayQLQueryBuilder} from 'buildRQL';
@@ -72,7 +71,6 @@ export type RelayQueryConfigSpec = {
   name: string;
   params: Variables;
   queries: RootQueries;
-  uri?: ?URI;
   useMockData?: boolean;
 };
 export type RootQueries = {

@@ -13,7 +13,6 @@
 
 require('configureForRelayOSS');
 
-const RelayFragmentPointer = require('RelayFragmentPointer');
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
@@ -28,7 +27,7 @@ const readRelayQueryData = require('readRelayQueryData');
 describe('readRelayQueryData', () => {
   var RelayRecordStore;
 
-  var {getNode} = RelayTestUtils;
+  var {getNode, getVerbatimNode} = RelayTestUtils;
   var END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO, START_CURSOR;
 
   function getStoreData(records) {
@@ -265,6 +264,45 @@ describe('readRelayQueryData', () => {
       __dataID__: 'a',
       __resolvedFragmentMapGeneration__: 42,
       firstName: 'Steve',
+    });
+  });
+
+  it('retrieves resolved fragment map info for fragment references', () => {
+    var records = {
+      user: {
+        __dataID__: 'a',
+        address: {
+          __dataID__: 'address',
+        },
+      },
+      address: {
+        __dataID__: 'address',
+        __resolvedFragmentMapGeneration__: 42,
+        city: 'Menlo Park',
+      },
+    };
+    var fragment = Relay.QL`fragment on StreetAddress { city }`;
+    var fragmentReference = RelayFragmentReference.createForContainer(
+      () => fragment,
+      {}
+    );
+    var query = getVerbatimNode(Relay.QL`
+      fragment on User {
+        address {
+          ${fragmentReference}
+        }
+      }
+    `);
+    var data = readData(getStoreData({records}), query, 'user');
+    expect(data).toEqual({
+      __dataID__: 'user',
+      address: {
+        __dataID__: 'address',
+        __fragments__: {
+          [fragment.id]: 'address',
+        },
+        __resolvedFragmentMapGeneration__: 42,
+      },
     });
   });
 

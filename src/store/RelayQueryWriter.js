@@ -46,6 +46,7 @@ type WriterState = {
 
 const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
 const {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
+const {EXISTENT} = RelayRecordState;
 
 /**
  * @internal
@@ -99,6 +100,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     let typeName = payload[TYPENAME];
     if (typeName == null && !node.isAbstract()) {
       typeName = node.getType();
+    } else if (this._store.getRecordState(recordID) === EXISTENT) {
+      typeName = this._store.getType(recordID);
     }
     warning(
       typeName && typeName !== ANY_TYPE,
@@ -181,7 +184,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   ): void {
     const recordState = this._store.getRecordState(recordID);
     this._writer.putRecord(recordID, typeName, path);
-    if (recordState !== RelayRecordState.EXISTENT) {
+    if (recordState !== EXISTENT) {
       this.recordCreate(recordID);
     }
     if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
@@ -205,7 +208,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         recordID
       );
       this._writer.deleteRecord(recordID);
-      if (recordState === RelayRecordState.EXISTENT) {
+      if (recordState === EXISTENT) {
         this.recordUpdate(recordID);
       }
       return;
@@ -257,7 +260,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       responseData,
     } = state;
     invariant(
-      this._writer.getRecordState(recordID) === RelayRecordState.EXISTENT,
+      this._writer.getRecordState(recordID) === EXISTENT,
       'RelayQueryWriter: Cannot update a non-existent record, `%s`.',
       recordID
     );
@@ -356,7 +359,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this._writer.putRecord(connectionID, null, path);
     this._writer.putLinkedRecordID(recordID, storageKey, connectionID);
     // record the create/update only if something changed
-    if (connectionRecordState !== RelayRecordState.EXISTENT) {
+    if (connectionRecordState !== EXISTENT) {
       this.recordUpdate(recordID);
       this.recordCreate(connectionID);
     }

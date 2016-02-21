@@ -47,6 +47,7 @@ var babelOptions = assign(
       'React': 'react',
       'reactComponentExpect': 'react/lib/reactComponentExpect',
       'ReactDOM': 'react-dom',
+      'ReactDOMServer': 'react-dom/server',
       'ReactUpdates': 'react/lib/ReactUpdates',
       'ReactTestUtils': 'react/lib/ReactTestUtils.js',
       'StaticContainer.react': 'react-static-container',

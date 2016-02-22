@@ -63,13 +63,6 @@ module.exports = {
   getCacheKey: createCacheKeyFunction([
     __filename,
     SCHEMA_PATH,
-    path.join(
-      __dirname,
-      '..',
-      '..',
-      'node_modules',
-      'babel-relay-plugin',
-      'package.json'
-    ),
+    path.join(__dirname, '..', 'babel-relay-plugin', 'package.json'),
   ]),
 };

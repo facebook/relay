@@ -22,13 +22,9 @@
                   "name": "query",
                   "description": null,
                   "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "INPUT_OBJECT",
-                      "name": "CheckinSearchInput",
-                      "ofType": null
-                    }
+                    "kind": "INPUT_OBJECT",
+                    "name": "CheckinSearchInput",
+                    "ofType": null
                   },
                   "defaultValue": null
                 }

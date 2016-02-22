@@ -607,9 +607,7 @@ module.exports = function (t, options) {
     var jsType = typeof jsValue;
     if (jsType == 'object' && keys.length > 0) {
       if (Array.isArray(jsValue)) {
-        return t.arrayExpression(jsValue.map(function (value) {
-          return printObject(value);
-        }));
+        return t.arrayExpression(jsValue.map(printObject));
       } else {
         return t.objectExpression(keys.map(function (key) {
           return property(key, printObject(jsValue[key]));

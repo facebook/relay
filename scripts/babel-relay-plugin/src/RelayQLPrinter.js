@@ -537,11 +537,15 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       }
       return codify({
         kind: t.valueToNode('CallValue'),
+<<<<<<< 29c8c3d92a0b4ab8533aad1345898f9ab7561f88
 <<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
         callValue: printObject(value),
 =======
         callValue: printObject(value)
 >>>>>>> printRelayOSSQuery-test.js test failed
+=======
+        callValue: printObject(value),
+>>>>>>> fixGraphQLFragment
       });
     }
 
@@ -787,6 +791,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   function printObject(jsValue: any):String {
     var keys = Object.keys(jsValue);
     var jsType = typeof jsValue;
+<<<<<<< 29c8c3d92a0b4ab8533aad1345898f9ab7561f88
 <<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
     if (jsType == 'object' && keys.length > 0) {
       if (Array.isArray(jsValue)) {
@@ -803,13 +808,22 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         return t.arrayExpression(jsValue.map(value=>
           printObject(value)
         ));
+=======
+    if (jsType == 'object' && keys.length > 0) {
+      if (Array.isArray(jsValue)) {
+        return t.arrayExpression(jsValue.map(printObject));
+>>>>>>> fixGraphQLFragment
       }else {
-        return t.objectExpression(keys.map(key=>
-          property(key,printObject( jsValue[key]))
+        return t.objectExpression(keys.map(key =>
+          property(key, printObject(jsValue[key]))
         ));
       }
+<<<<<<< 29c8c3d92a0b4ab8533aad1345898f9ab7561f88
     }else{
 >>>>>>> printRelayOSSQuery-test.js test failed
+=======
+    }else {
+>>>>>>> fixGraphQLFragment
       return t.valueToNode(jsValue);
     }
   }

@@ -832,9 +832,7 @@ function getInputObjectValue(inputObject) {
     case 'EnumValue':
       return inputObject.value;
     case 'ListValue':
-      return inputObject.values.map(function (v) {
-        return getInputObjectValue(v);
-      });
+      return inputObject.values.map(getInputObjectValue);
     case 'ObjectValue':
       var ob = {};
       inputObject.fields.map(function (field) {

@@ -94,14 +94,9 @@ const RelayFragmentPointer = {
     const argType = typeof identifyingArgValue;
     invariant(
       typeof argType !== 'function' && argType !== 'symbol',
-<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
       'RelayFragmentPointer: Type for the argument to `%s` on query `%s` ' +
       'should be boolean|string|number|object, but the type of arg(`%s`) is ' +
       '`%s`. ',
-=======
-      'RelayFragmentPointer: Value for the argument to `%s` on query `%s` ' +
-      'should be boolean|string|number|object, but it was set to `%s`. ',
->>>>>>> printRelayOSSQuery-test.js test failed
       query.getFieldName(),
       query.getName(),
       identifyingArgValue,

@@ -336,10 +336,7 @@ describe('RelayQueryRoot', () => {
     const nodeIdentifyingArg = nodeQuery.getIdentifyingArg();
     expect(nodeIdentifyingArg).toBeDefined();
     expect(nodeIdentifyingArg.type).toBe('scalar');
-<<<<<<< 29c8c3d92a0b4ab8533aad1345898f9ab7561f88
     
-=======
->>>>>>> fixGraphQLFragment
     var me = getNode(Relay.QL`query{me{id}}`);
     const meIdentifyingArg = me.getIdentifyingArg();
     expect(meIdentifyingArg).toBeUndefined();
@@ -354,14 +351,6 @@ describe('RelayQueryRoot', () => {
       }
     `);
     const nodeIdentifyingArg = nQuery.getIdentifyingArg();
-<<<<<<< 29c8c3d92a0b4ab8533aad1345898f9ab7561f88
-<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
-=======
-
-=======
->>>>>>> fixGraphQLFragment
-    expect(nodeIdentifyingArg).toBeDefined();
->>>>>>> printRelayOSSQuery-test.js test failed
     expect(nodeIdentifyingArg).toEqual({
       name: 'number',
       value: 5,
@@ -380,11 +369,6 @@ describe('RelayQueryRoot', () => {
       identifyingArgName: 'query',
       identifyingArgType: 'CheckinSearchInput!' };
     const nodeIdentifyingArg = nQuery.getIdentifyingArg();
-<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
-=======
-
-    expect(nodeIdentifyingArg).toBeDefined();
->>>>>>> printRelayOSSQuery-test.js test failed
     expect(nodeIdentifyingArg).toEqual({
       name: 'query',
       type: 'CheckinSearchInput!',
@@ -407,27 +391,12 @@ describe('RelayQueryRoot', () => {
       identifyingArgName: 'waypoints',
       identifyingArgType: '[Waypoint!]!' };
     const nodeIdentifyingArg = wayQuery.getIdentifyingArg();
-<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
-=======
-
-    expect(nodeIdentifyingArg).toBeDefined();
->>>>>>> printRelayOSSQuery-test.js test failed
     expect(nodeIdentifyingArg).toEqual(
       {
         name: 'waypoints',
         value: [
-<<<<<<< 29c8c3d92a0b4ab8533aad1345898f9ab7561f88
-<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
           { uri: 's', dumbNumber: [1, 7] },
           { uri: 'a', dumbNumber: [88, 666] },
-=======
-          { uri: 's', dumbNumber: [1,7] },
-          { uri: 'a', dumbNumber: [88,666] },
->>>>>>> printRelayOSSQuery-test.js test failed
-=======
-          { uri: 's', dumbNumber: [1, 7] },
-          { uri: 'a', dumbNumber: [88, 666] },
->>>>>>> fixGraphQLFragment
         ],
         type: '[Waypoint!]!',
       }

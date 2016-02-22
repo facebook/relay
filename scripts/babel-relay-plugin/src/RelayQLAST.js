@@ -151,7 +151,7 @@ class RelayQLFragment extends RelayQLDefinition<
 
   getFragmentID(): string {
     if (this.fragmentID == null) {
-      let suffix = (_nextFragmentID++).toString(32);
+      const suffix = (_nextFragmentID++).toString(32);
       // The fragmentLocationID is the same for all inline/nested fragments
       // within each Relay.QL tagged template expression; the auto-incrementing
       // suffix distinguishes these fragments from each other.
@@ -772,18 +772,8 @@ function stripMarkerTypes(schemaModifiedType: GraphQLSchemaType): {
 
 // unlike ListValue, ObjectValue return a
 // plain javascript object(key-value)
-<<<<<<< 29c8c3d92a0b4ab8533aad1345898f9ab7561f88
-<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
 function getInputObjectValue(inputObject) {
   switch (inputObject.kind) {
-=======
-function getInputObjectValue(inputObject){
-  switch (inputObject.kind){
->>>>>>> printRelayOSSQuery-test.js test failed
-=======
-function getInputObjectValue(inputObject) {
-  switch (inputObject.kind) {
->>>>>>> fixGraphQLFragment
     case 'IntValue':
       return parseInt(inputObject.value, 10);
     case 'FloatValue':
@@ -793,26 +783,10 @@ function getInputObjectValue(inputObject) {
     case 'EnumValue':
       return inputObject.value;
     case 'ListValue':
-<<<<<<< 29c8c3d92a0b4ab8533aad1345898f9ab7561f88
-<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
       return inputObject.values.map(getInputObjectValue);
     case 'ObjectValue':
       const ob={};
       inputObject.fields.map(field => {
-=======
-      return inputObject.values.map(v=>
-        getInputObjectValue(v)
-      );
-    case 'ObjectValue':
-      var ob={};
-      inputObject.fields.map(field=>{
->>>>>>> printRelayOSSQuery-test.js test failed
-=======
-      return inputObject.values.map(getInputObjectValue);
-    case 'ObjectValue':
-      const ob={};
-      inputObject.fields.map(field => {
->>>>>>> fixGraphQLFragment
         ob[field.name.value] = getInputObjectValue(field.value);
       });
       return ob;

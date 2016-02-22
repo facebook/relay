@@ -117,15 +117,7 @@ class RelayRecordStore {
    */
   getDataID(
     storageKey: string,
-<<<<<<< 29c8c3d92a0b4ab8533aad1345898f9ab7561f88
-<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
     identifyingArgValue: any
-=======
-    identifyingArgValue: mixed
->>>>>>> printRelayOSSQuery-test.js test failed
-=======
-    identifyingArgValue: any
->>>>>>> fixGraphQLFragment
   ): ?DataID {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
       invariant(
@@ -139,15 +131,7 @@ class RelayRecordStore {
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
-<<<<<<< 29c8c3d92a0b4ab8533aad1345898f9ab7561f88
-<<<<<<< b8a3fc4f90915502cb5467bbb1207ad8462ba9de
     const identifyingArgHash = stableStringify(identifyingArgValue);
-=======
-    const identifyingArgHash = stableStringifyTmp(identifyingArgValue);
->>>>>>> printRelayOSSQuery-test.js test failed
-=======
-    const identifyingArgHash = stableStringify(identifyingArgValue);
->>>>>>> fixGraphQLFragment
     if (this._rootCallMap.hasOwnProperty(storageKey) &&
         this._rootCallMap[storageKey].hasOwnProperty(identifyingArgHash)) {
       return this._rootCallMap[storageKey][identifyingArgHash];

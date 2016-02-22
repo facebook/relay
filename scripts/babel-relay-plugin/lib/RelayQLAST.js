@@ -446,6 +446,32 @@ var RelayQLArgument = (function () {
           return value.values.map(function (value) {
             return new RelayQLArgument(_this6.context, _extends({}, _this6.ast, { value: value }), _this6.type.ofType());
           });
+        case 'ObjectValue':
+          return _recurValue(value);
+      }
+      // unlike ListValue, ObjectValue return a
+      // plain javascript object(key-value)
+      function _recurValue(astValue) {
+        switch (astValue.kind) {
+          case 'IntValue':
+            return parseInt(astValue.value, 10);
+          case 'FloatValue':
+            return parseFloat(astValue.value);
+          case 'StringValue':
+          case 'BooleanValue':
+          case 'EnumValue':
+            return astValue.value;
+          case 'ListValue':
+            return astValue.values.map(function (v) {
+              return _recurValue(v);
+            });
+          case 'ObjectValue':
+            var ob = {};
+            astValue.fields.map(function (field) {
+              ob[field.name.value] = _recurValue(field.value);
+            });
+            return ob;
+        }
       }
       invariant(false, 'Unexpected argument kind: %s', value.kind);
     }

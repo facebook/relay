@@ -8,7 +8,9 @@ type Root {
   nodes(ids: [ID!]): [Node]
   username(name: String!): Actor
   usernames(names: [String!]!): [Actor]
-  usertemp(tuple: tupleUser!): Actor
+  checkinSearchQuery(query: CheckinSearchInput!): CheckinSearchResult
+  fastestRoute(waypoints: [Waypoint!]!): Route
+  task(number: Int!): Task
   viewer: Viewer
   _mutation: Mutation
 }
@@ -630,4 +632,17 @@ type Settings {
 input tupleUser{
   name: String!
   age: Int!
+}
+
+input Waypoint{
+  uri: String!
+  dumbNumber: [Int!]!
+}
+
+type Route{
+  dumb: String!
+}
+
+type Task{
+  dumb: String!
 }

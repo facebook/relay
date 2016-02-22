@@ -93,11 +93,10 @@ const RelayFragmentPointer = {
     }
     let argType = typeof identifyingArgValue;
     invariant(
-      typeof argType === 'string' || identifyingArgValue == null
-        || argType === 'number' || argType == 'object',
+      typeof argType !== 'function' && argType !== 'symbol',
       'RelayFragmentPointer: Value for the argument to `%s` on query `%s` ' +
-      'should be string|number|object, but it was set to `%s`. Check that ' +
-      'the value is a string|number|object.',
+      'should be boolean|string|number|object, but it was set to `%s`. ' +
+      'And this should not happen, must be some bugs in code of Relay',
       query.getFieldName(),
       query.getName(),
       identifyingArgValue

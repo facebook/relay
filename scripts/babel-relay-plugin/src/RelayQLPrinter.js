@@ -535,11 +535,34 @@ module.exports = function(t: any, options: PrinterOptions): Function {
           value.map(element => this.printArgumentValue(element))
         );
       }
-      return codify({
-        kind: t.valueToNode('CallValue'),
-        callValue: t.valueToNode(value),
-      });
+      if(true||!value.hasOwnProperty("0")){
+        return codify({
+          kind: t.valueToNode('CallValue'),
+          callValue: this.printObject(value)
+        });
+      }else {
+        return codify({
+          kind: t.valueToNode('CallValue'),
+          callValue: t.valueToNode(value)
+        });
+      }
     }
+
+    // todo array!
+    printObject(v){
+      var keys = Object.keys(v);
+      if( typeof v ==="object" && keys.length>0){
+        var properties = [];
+        for(var key of keys){
+          properties.push(property(key,this.printObject( v[key])));
+        }
+        var ob =t.objectExpression(properties);
+        return ob;
+      }else {
+        return t.valueToNode(v);
+      }
+    }
+
 
     printDirectives(directives: Array<RelayQLDirective>): Printable {
       const printedDirectives = [];

@@ -22,9 +22,13 @@
                   "name": "query",
                   "description": null,
                   "type": {
-                    "kind": "INPUT_OBJECT",
-                    "name": "CheckinSearchInput",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "CheckinSearchInput",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": null
                 }
@@ -220,18 +224,52 @@
               "deprecationReason": null
             },
             {
-              "name": "usertemp",
+              "name": "fastestRoute",
               "description": null,
               "args": [
                 {
-                  "name": "tuple",
+                  "name": "waypoints",
                   "description": null,
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
                     "ofType": {
-                      "kind": "INPUT_OBJECT",
-                      "name": "tupleUser",
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                          "kind": "INPUT_OBJECT",
+                          "name": "Waypoint"
+                        }
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Route",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "task",
+              "description": null,
+              "args": [
+                {
+                  "name": "number",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Int",
                       "ofType": null
                     }
                   },
@@ -239,8 +277,8 @@
                 }
               ],
               "type": {
-                "kind": "INTERFACE",
-                "name": "Actor",
+                "kind": "OBJECT",
+                "name": "Task",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -6766,12 +6804,12 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "tupleUser",
+          "name": "Waypoint",
           "description": null,
           "fields": null,
           "inputFields": [
             {
-              "name": "name",
+              "name": "uri",
               "description": null,
               "type": {
                 "kind": "NON_NULL",
@@ -6785,21 +6823,82 @@
               "defaultValue": null
             },
             {
-              "name": "age",
+              "name": "dumbNumber",
               "description": null,
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Int"
+                    }
+                  }
                 }
               },
               "defaultValue": null
             }
           ],
           "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "Route",
+          "description": null,
+          "fields": [
+            {
+              "name": "dumb",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "Task",
+          "description": null,
+          "fields": [
+            {
+              "name": "dumb",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
           "enumValues": null,
           "possibleTypes": null
         },

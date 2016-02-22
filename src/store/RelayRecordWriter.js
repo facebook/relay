@@ -34,7 +34,7 @@ import type {
 import type {RecordState} from 'RelayRecordState';
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {CacheWriter} from 'RelayTypes';
-const stringifyArg= require('RelayRecordUtil').stringifyArg;
+const stableStringify= require('stableStringify');
 
 const invariant = require('invariant');
 const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
@@ -104,12 +104,12 @@ class RelayRecordWriter {
         'cannot be null or undefined.',
         storageKey
       );
-      return stringifyArg(identifyingArgValue);
+      return identifyingArgValue;
     }
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
-    identifyingArgValue=stringifyArg(identifyingArgValue);
+    identifyingArgValue=stableStringify(identifyingArgValue);
     if (this._rootCallMap.hasOwnProperty(storageKey) &&
         this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)) {
       return this._rootCallMap[storageKey][identifyingArgValue];
@@ -137,7 +137,7 @@ class RelayRecordWriter {
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
-    identifyingArgValue=stringifyArg(identifyingArgValue);
+    identifyingArgValue=stableStringify(identifyingArgValue);
     this._rootCallMap[storageKey] = this._rootCallMap[storageKey] || {};
     this._rootCallMap[storageKey][identifyingArgValue] = dataID;
     if (this._cacheWriter) {

@@ -30,7 +30,7 @@ import type {
   RecordMap,
 } from 'RelayRecord';
 import type {RecordState} from 'RelayRecordState';
-const stringifyArg= require('RelayRecordUtil').stringifyArg;
+const stableStringify= require('stableStringify');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
@@ -126,12 +126,12 @@ class RelayRecordStore {
         'cannot be null or undefined.',
         storageKey
       );
-      return stringifyArg(identifyingArgValue);
+      return identifyingArgValue;
     }
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
-    identifyingArgValue=stringifyArg(identifyingArgValue);
+    identifyingArgValue=stableStringify(identifyingArgValue);
     if (this._rootCallMap.hasOwnProperty(storageKey) &&
         this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)) {
       return this._rootCallMap[storageKey][identifyingArgValue];

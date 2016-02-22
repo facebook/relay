@@ -342,6 +342,80 @@ describe('RelayQueryRoot', () => {
     expect(meIdentifyingArg).toBeUndefined();
   });
 
+  it('returns the identifying number argument ', () => {
+    var nQuery = getNode(Relay.QL`
+      query {
+        task(number:5){
+          dumb,
+        }
+      }
+    `);
+    nQuery.getConcreteQueryNode().metadata= {
+      identifyingArgName: 'number',
+      identifyingArgType: 'scalar' };
+    const nodeIdentifyingArg = nQuery.getIdentifyingArg();
+
+    expect(nodeIdentifyingArg).toBeDefined();
+    expect(nodeIdentifyingArg.type).toBe('scalar');
+    expect(nodeIdentifyingArg).toEqual({
+      name: 'number',
+      type: 'scalar',
+      value: 5
+    });
+  });
+
+  it('returns the identifying object argument ', () => {
+    var nQuery = getNode(Relay.QL`
+      query {
+        checkinSearchQuery(query:{query:"objectArg"}){
+          query,
+        }
+      }
+    `);
+    nQuery.getConcreteQueryNode().metadata= {
+      identifyingArgName: 'query',
+      identifyingArgType: 'CheckinSearchInput!' };
+    const nodeIdentifyingArg = nQuery.getIdentifyingArg();
+
+    expect(nodeIdentifyingArg).toBeDefined();
+    expect(nodeIdentifyingArg.type).toBe('CheckinSearchInput!');
+    expect(nodeIdentifyingArg).toEqual({
+      name: 'query',
+      type: 'CheckinSearchInput!',
+      value: {
+        query: 'objectArg',
+      }
+    });
+  });
+
+  it('returns the identifying list-object argument ', () => {
+    var wayQuery = getNode(Relay.QL`
+      query {
+        fastestRoute(waypoints:[{uri:"s",dumbNumber:[1,7]},
+          {uri:"a",dumbNumber:[88,666]}]){
+          dumb,
+        }
+      }
+    `);
+    wayQuery.getConcreteQueryNode().metadata= {
+      identifyingArgName: 'waypoints',
+      identifyingArgType: '[Waypoint!]!' };
+    const nodeIdentifyingArg = wayQuery.getIdentifyingArg();
+
+    expect(nodeIdentifyingArg).toBeDefined();
+    expect(nodeIdentifyingArg.type).toBe('[Waypoint!]!');
+    expect(nodeIdentifyingArg).toEqual(
+      {
+        name: 'waypoints',
+        value: [
+          { uri: 's', dumbNumber: { '0': 1, '1': 7 } },
+          { uri: 'a', dumbNumber: { '0': 88, '1': 666 } },
+        ],
+        type: '[Waypoint!]!'
+      }
+    );
+  });
+
   it('creates nodes', () => {
     var query = getNode(Relay.QL`
       query {

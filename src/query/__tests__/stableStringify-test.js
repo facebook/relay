@@ -13,6 +13,24 @@
 
 const stableStringify = require('stableStringify');
 
+var util = require('util');
+function mylog(msg, v) {
+  console.warn(`\n-----${msg}>>>>>>>type=[${Object.prototype.toString.call(v)}]--`);
+  console.warn(util.inspect(v,true,3,true));
+  console.warn(`<<<<<<<<<<<<<<---`);
+}
+/*
+describe('test!', () => {
+  
+    it('treat "holes-array" as an object', () => {
+      var array = [null, , null, 'foo'];
+      mylog(`[null, , null, 'foo']`,array);
+      expect(stableStringify(array)).toBe('{0:null,2:null,3:"foo"}');
+    });
+  });  
+  
+  */
+
 describe('stableStringify', () => {
   it('stringifies non-objects', () => {
     expect(stableStringify('foo')).toBe('foo');
@@ -51,11 +69,57 @@ describe('stableStringify', () => {
     expect(stableStringify(array)).toBe('["foo","bar","baz"]');
   });
 
-  it('skips "holes" in sparse arrays', () => {
-    var array = [];
-    array[5] = 'foo';
-    expect(stableStringify(array)).toBe('["foo"]');
+  describe('Consistent with Javascript-related special array behavior', () => {
+    // Todo Consider if should treat undefined as same as a holes?
+    it('treat "holes-array" as an object', () => {      
+      var array =[];
+      array[1] = undefined;
+      array[999] = 'foo';
+      expect(stableStringify(
+        array
+      )).toBe('{1:undefined,999:"foo"}');
+      
+      // Though `[ , , ]` is not allow by fb'eslint
+      // It may be passed in by outside code.
+      expect(stableStringify(
+        [ , , , 'foo']
+      )).toBe('{3:"foo"}');
+      
+      expect(stableStringify(
+        [null, undefined, null, 'foo']
+      )).toBe('[null,,null,"foo"]');
+      
+      expect(stableStringify(
+        [null, , null, 'foo']
+      )).toBe('{0:null,2:null,3:"foo"}');
+
+    });
+    
+    // Javascript function arguments is an `[object Arguments]`
+    // Just be treated as an object
+    it('consistent with Javascript function arguments', () => {
+      function jsArgs(a, b, c) {
+        return arguments;
+      }
+      
+      expect(stableStringify(
+        jsArgs(null,undefined,null,'foo')
+        ))
+      .toBe('{0:null,1:undefined,2:null,3:"foo"}');
+      
+      var array =[ , 'bar', , 'foo'];
+      expect(stableStringify(jsArgs(...array)))
+      .toBe('{0:undefined,1:"bar",2:undefined,3:"foo"}');
+      
+      array =[];
+      array[3] = 'foo';
+      expect(stableStringify(jsArgs(...array)))
+      .toBe('{0:undefined,1:undefined,2:undefined,3:"foo"}');
+      
+    });
+    
   });
+    
 
   it('stringifies nested structures', () => {
     var object = {

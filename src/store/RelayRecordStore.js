@@ -30,12 +30,11 @@ import type {
   RecordMap,
 } from 'RelayRecord';
 import type {RecordState} from 'RelayRecordState';
-const stableStringify= require('stableStringify');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
-
+const stableStringify= require('stableStringify');
 const {NODE} = RelayConnectionInterface;
 const EMPTY = '';
 const FILTER_CALLS = '__filterCalls__';

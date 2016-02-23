@@ -16,7 +16,7 @@
  * Maintence a comletely support type list
  * For function expansions in the future
  */
-function getStableType(value) {
+function getStableType(value: any): string {
   if (value===null) { 
     return 'null';
   }
@@ -32,13 +32,18 @@ function getStableType(value) {
       const subType = Object.prototype.toString.call(value);
       switch (subType) {
         case '[object Array]':
-          return 'array';
+          if (value.length == Object.keys(value).length) {
+            return 'array';
+          }else {
+            return 'object';
+          }
         case '[object Object]':
+        case '[object Arguments]':
           return 'object';
         case '[object Function]':
         case '[object RegExp]':
         default:
-          return 'unsupported';   
+          return 'tojson';   
       }
     default:
       return 'unsupported';    
@@ -84,20 +89,21 @@ function getStableType(value) {
 function orderedJSON(input: any): string {
   switch (getStableType(input)) {
     case 'array':
-      const array_strs = input
+      const array_fields = input
         .map(orderedJSON)
-        .filter(v => v!=null);
-      return `[${array_strs.join(',')}]`;
+        .join(',');
+      return `[${array_fields}]`;
       
     case 'object':
       const keys = Object.keys(input);
       keys.sort();
-      const object_strs = keys.map(key =>
-        `${key}:${orderedJSON(input[key])}`
-      );
-      return `{${object_strs.join(',')}}`;
+      const object_fields = keys
+        .map(key => `${key}:${orderedJSON(input[key])}`)
+        .join(',');
+      return `{${object_fields}}`;
       
     case 'unsupported':
+    case 'tojson':
     default :
       return JSON.stringify(input);
   }
@@ -114,8 +120,8 @@ function orderedJSON(input: any): string {
  * book-keeping detail.
  * 
  */
-function stableStringify(input: mixed): string {
-  switch (typeof input) {
+function stableStringify(input: any): string {
+  switch (getStableType(input)) {
     case 'string':
     case 'number':
     case 'boolean':

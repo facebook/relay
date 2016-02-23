@@ -94,16 +94,20 @@ class RelayRecordWriter {
    */
   getDataID(
     storageKey: string,
-    identifyingArgValue: any
+    identifyingArgValue: mixed
   ): ?DataID {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
-      invariant(
-        identifyingArgValue != null,
-        'RelayRecordWriter.getDataID(): Argument to `%s()` ' +
-        'cannot be null or undefined.',
-        storageKey
-      );
-      return identifyingArgValue;
+      if (identifyingArgValue != null && 
+        typeof identifyingArgValue === 'string') {
+        return identifyingArgValue;
+      }else {
+        invariant(
+          false,
+          'RelayRecordWriter.getDataID(): Argument to `%s()` ' +
+          'cannot be null or undefined.',
+          storageKey
+        );
+      }
     }
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;

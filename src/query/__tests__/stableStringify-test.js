@@ -13,24 +13,6 @@
 
 const stableStringify = require('stableStringify');
 
-var util = require('util');
-function mylog(msg, v) {
-  console.warn(`\n-----${msg}>>>>>>>type=[${Object.prototype.toString.call(v)}]--`);
-  console.warn(util.inspect(v,true,3,true));
-  console.warn(`<<<<<<<<<<<<<<---`);
-}
-/*
-describe('test!', () => {
-  
-    it('treat "holes-array" as an object', () => {
-      var array = [null, , null, 'foo'];
-      mylog(`[null, , null, 'foo']`,array);
-      expect(stableStringify(array)).toBe('{0:null,2:null,3:"foo"}');
-    });
-  });  
-  
-  */
-
 describe('stableStringify', () => {
   it('stringifies non-objects', () => {
     expect(stableStringify('foo')).toBe('foo');

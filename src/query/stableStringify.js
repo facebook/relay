@@ -120,8 +120,8 @@ function orderedJSON(input: any): string {
  * book-keeping detail.
  * 
  */
-function stableStringify(input: any): string {
-  switch (getStableType(input)) {
+function stableStringify(input: mixed): string {
+  switch (typeof input) {
     case 'string':
     case 'number':
     case 'boolean':

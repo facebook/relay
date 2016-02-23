@@ -666,6 +666,37 @@ describe('writeRelayQueryPayload()', () => {
       ]).toBeWarnedNTimes(1);
     });
 
+    it('does not warn if the typename is already known', () => {
+      var records = {};
+      var store = new RelayRecordStore({records});
+      var writer = new RelayRecordWriter(records, {}, false);
+
+      // Add the record to the store with a concrete type
+      writer.putRecord('123', 'User', null);
+      // No `id` or `__typename` fields
+      var query = getVerbatimNode(Relay.QL`
+        query {
+          node(id: "123") {
+            name
+          }
+        }
+      `);
+      // No typename in the payload; this will warn for new records, but
+      // shouldn't for existing ones with a known type.
+      var payload = {
+        node: {
+          id: '123',
+          name: 'Joe',
+        },
+      };
+      writeVerbatimPayload(store, writer, query, payload);
+      expect(store.getType('123')).toBe('User');
+      expect([
+        'RelayQueryWriter: Could not find a type name for record `%s`.',
+        '123',
+      ]).toBeWarnedNTimes(0);
+    });
+
     it('stores types for client records', () => {
       var records = {};
       var store = new RelayRecordStore({records});

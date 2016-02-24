@@ -56,11 +56,10 @@ class MockRelayContext extends RelayContext {
   constructor() {
     super();
 
-    for (let method in RelayContext.prototype) {
-      if (RelayContext.prototype.hasOwnProperty(method)) {
-        const protoMethod = RelayContext.prototype[method].bind(this);
-        this[method] = jest.genMockFunction().mockImplementation(protoMethod);
-      }
+    for (const method of ['getFragmentResolver', 'read']) {
+      this[method] = jest.genMockFn().mockImplementation(
+        RelayContext.prototype[method]
+      );
     }
 
     this.primeCache = jest.genMockFunction();

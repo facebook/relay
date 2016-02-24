@@ -202,11 +202,10 @@ function printChildren(
         } = printerState;
 
         // Avoid walking fragments if we have printed the same one before.
-        const fragmentHash = child.isCloned() ? null : child.getCompositeHash();
+        const fragmentHash = child.getCompositeHash();
 
         let fragmentName;
-        if (fragmentHash != null &&
-            fragmentNameByHash.hasOwnProperty(fragmentHash)) {
+        if (fragmentNameByHash.hasOwnProperty(fragmentHash)) {
           fragmentName = fragmentNameByHash[fragmentHash];
         } else {
           // Avoid reprinting a fragment that is identical to another fragment.
@@ -218,9 +217,7 @@ function printChildren(
             fragmentName = fragmentNameByText[fragmentText];
           } else {
             fragmentName = 'F' + base62(printerState.fragmentCount++);
-            if (fragmentHash != null) {
-              fragmentNameByHash[fragmentHash] = fragmentName;
-            }
+            fragmentNameByHash[fragmentHash] = fragmentName;
             fragmentNameByText[fragmentText] = fragmentName;
             fragmentTexts.push(
               'fragment ' + fragmentName + ' on ' + fragmentText

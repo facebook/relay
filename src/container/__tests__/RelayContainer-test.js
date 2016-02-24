@@ -416,14 +416,15 @@ describe('RelayContainer', function() {
       relayContext,
       mockRoute
     );
-    var fragmentPointer =
-      mockFooPointer[mockFooFragment.getConcreteFragmentID()];
+    var fragment = getNode(MockContainer.getFragment('foo'));
 
     expect(relayContext.getFragmentResolver.mock.calls.length).toBe(1);
     var mockResolvers = GraphQLStoreQueryResolver.mock.instances;
     expect(mockResolvers.length).toBe(1);
-    expect(mockResolvers[0].resolve.mock.calls[0][0].getFragment())
-      .toEqualQueryNode(fragmentPointer.getFragment());
+    expect(mockResolvers[0].resolve.mock.calls[0][0])
+      .toEqualQueryNode(fragment);
+    expect(mockResolvers[0].resolve.mock.calls[0][1])
+      .toEqual(mockFooPointer.__dataID__);
   });
 
   it('re-resolves props when notified of changes', () => {
@@ -496,12 +497,9 @@ describe('RelayContainer', function() {
   });
 
   it('resolves with most recent props', () => {
+    var fooFragment = getNode(MockContainer.getFragment('foo'));
     var mockPointerA = getPointer('42', mockFooFragment);
-    var fragmentPointerA =
-      mockPointerA[mockFooFragment.getConcreteFragmentID()];
     var mockPointerB = getPointer('43', mockFooFragment);
-    var fragmentPointerB =
-      mockPointerB[mockFooFragment.getConcreteFragmentID()];
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockPointerA} />,
@@ -519,10 +517,14 @@ describe('RelayContainer', function() {
     expect(mockResolvers.length).toBe(1);
     expect(mockResolvers[0].dispose.mock.calls.length).toBe(0);
     expect(mockResolvers[0].resolve.mock.calls.length).toBe(2);
-    expect(mockResolvers[0].resolve.mock.calls[0][0].getFragment())
-      .toEqualQueryNode(fragmentPointerA.getFragment());
-    expect(mockResolvers[0].resolve.mock.calls[1][0].getFragment())
-      .toEqualQueryNode(fragmentPointerB.getFragment());
+    expect(mockResolvers[0].resolve.mock.calls[0][0])
+      .toEqualQueryNode(fooFragment);
+    expect(mockResolvers[0].resolve.mock.calls[0][1])
+      .toEqual(mockPointerA.__dataID__);
+    expect(mockResolvers[0].resolve.mock.calls[1][0])
+      .toEqualQueryNode(fooFragment);
+    expect(mockResolvers[0].resolve.mock.calls[1][1])
+      .toEqual(mockPointerB.__dataID__);
   });
 
   it('does not create resolvers for null/undefined props', () => {
@@ -603,7 +605,7 @@ describe('RelayContainer', function() {
     ]).toBeWarnedNTimes(0);
   });
 
-  it('warns if a query is not passed in', () => {
+  it('warns if a fragment is not passed in', () => {
     RelayTestRenderer.render(
       () => <MockContainer foo={null} />,
       relayContext,
@@ -617,11 +619,32 @@ describe('RelayContainer', function() {
     expect(props.foo).toBe(null);
 
     expect([
-      'RelayContainer: Expected query `%s` to be supplied to `%s` as ' +
-      'a prop from the parent. Pass an explicit `null` if this is ' +
-      'intentional.',
+      'RelayContainer: Expected prop `%s` to be supplied to `%s`, but ' +
+      'got `undefined`. Pass an explicit `null` if this is intentional.',
       'bar',
       'MockComponent',
+    ]).toBeWarnedNTimes(1);
+  });
+
+  it('warns if a fragment prop is not an object', () => {
+    RelayTestRenderer.render(
+      () => <MockContainer foo={''} />,
+      relayContext,
+      mockRoute
+    );
+
+    var mockResolvers = GraphQLStoreQueryResolver.mock.instances;
+    expect(mockResolvers.length).toBe(0);
+    var props = MockContainer.mock.render.mock.calls[0].props;
+    expect(props.bar).toBe(undefined);
+    expect(props.foo).toBe('');
+
+    expect([
+      'RelayContainer: Expected prop `%s` supplied to `%s` to be an ' +
+      'object, got `%s`.',
+      'foo',
+      'MockComponent',
+      '',
     ]).toBeWarnedNTimes(1);
   });
 
@@ -636,7 +659,7 @@ describe('RelayContainer', function() {
     }).toFailInvariant(
       'RelayContainer: Invalid prop `foo` supplied to `MockComponent`, ' +
       'expected a single record because the corresponding fragment is not ' +
-      'plural.'
+      'plural (i.e. does not have `@relay(plural: true)`).'
     );
   });
 
@@ -650,13 +673,31 @@ describe('RelayContainer', function() {
       );
     }).toFailInvariant(
       'RelayContainer: Invalid prop `bar` supplied to `MockComponent`, ' +
-      'expected an array of records because the corresponding fragment is ' +
-      'plural.'
+      'expected an array of records because the corresponding fragment has ' +
+      '`@relay(plural: true)`.'
     );
   });
 
-  it('throws if plural fragment is missing fragment pointers', () => {
+  it('warns if plural fragment array item is missing fragment pointers', () => {
     var mockData = [{}];
+    RelayTestRenderer.render(
+      () => <MockContainer bar={mockData} />,
+      relayContext,
+      mockRoute
+    );
+
+    expect([
+      'RelayContainer: Expected prop `%s` supplied to `%s` to ' +
+      'be data fetched by Relay. This is likely an error unless ' +
+      'you are purposely passing in mock data that conforms to ' +
+      'the shape of this component\'s fragment.',
+      'bar',
+      'MockComponent',
+    ]).toBeWarnedNTimes(1);
+  });
+
+  it('throws if some plural fragment items are null', () => {
+    var mockData = [mockBarPointer, null];
     expect(() => {
       RelayTestRenderer.render(
         () => <MockContainer bar={mockData} />,
@@ -664,9 +705,36 @@ describe('RelayContainer', function() {
         mockRoute
       );
     }).toFailInvariant(
-      'RelayContainer: Invalid prop `bar` supplied to `MockComponent`, ' +
-      'expected element at index 0 to have query data.'
+      'RelayContainer: Invalid prop `bar` supplied to `MockComponent`. Some ' +
+      'array items contain data fetched by Relay and some items contain ' +
+      'null/mock data.'
     );
+  });
+
+  it('throws if some but not all plural fragment items are mocked', () => {
+    var mockData = [mockBarPointer, {}];
+    expect(() => {
+      RelayTestRenderer.render(
+        () => <MockContainer bar={mockData} />,
+        relayContext,
+        mockRoute
+      );
+    }).toFailInvariant(
+      'RelayContainer: Invalid prop `bar` supplied to `MockComponent`. Some ' +
+      'array items contain data fetched by Relay and some items contain ' +
+      'null/mock data.'
+    );
+  });
+
+  it('passes through empty arrays for plural fragments', () => {
+    RelayTestRenderer.render(
+      () => <MockContainer bar={[]} />,
+      relayContext,
+      mockRoute
+    );
+    expect(MockContainer.mock.render.mock.calls.length).toBe(1);
+    expect(MockContainer.mock.render.mock.calls[0].props.bar).toEqual([]);
+    expect(relayContext.getFragmentResolver).not.toBeCalled();
   });
 
   it('does not re-render if props resolve to the same object', () => {
@@ -736,8 +804,8 @@ describe('RelayContainer', function() {
       },
     });
 
-    GraphQLStoreQueryResolver.mockResolveImplementation(0, (pointer) => {
-      return mockDataSet[pointer.getDataID()];
+    GraphQLStoreQueryResolver.mockResolveImplementation(0, (_, dataID) => {
+      return mockDataSet[dataID];
     });
     mockFooFragment =
       getNode(MockFastContainer.getFragment('foo').getFragment({}));

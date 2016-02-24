@@ -13,7 +13,6 @@
 
 require('configureForRelayOSS');
 
-const RelayFragmentPointer = require('RelayFragmentPointer');
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
@@ -28,7 +27,7 @@ const readRelayQueryData = require('readRelayQueryData');
 describe('readRelayQueryData', () => {
   var RelayRecordStore;
 
-  var {getNode} = RelayTestUtils;
+  var {getNode, getVerbatimNode} = RelayTestUtils;
   var END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO, START_CURSOR;
 
   function getStoreData(records) {
@@ -268,6 +267,45 @@ describe('readRelayQueryData', () => {
     });
   });
 
+  it('retrieves resolved fragment map info for fragment references', () => {
+    var records = {
+      user: {
+        __dataID__: 'a',
+        address: {
+          __dataID__: 'address',
+        },
+      },
+      address: {
+        __dataID__: 'address',
+        __resolvedFragmentMapGeneration__: 42,
+        city: 'Menlo Park',
+      },
+    };
+    var fragment = Relay.QL`fragment on StreetAddress { city }`;
+    var fragmentReference = RelayFragmentReference.createForContainer(
+      () => fragment,
+      {}
+    );
+    var query = getVerbatimNode(Relay.QL`
+      fragment on User {
+        address {
+          ${fragmentReference}
+        }
+      }
+    `);
+    var data = readData(getStoreData({records}), query, 'user');
+    expect(data).toEqual({
+      __dataID__: 'user',
+      address: {
+        __dataID__: 'address',
+        __fragments__: {
+          [fragment.id]: 'address',
+        },
+        __resolvedFragmentMapGeneration__: 42,
+      },
+    });
+  });
+
   it('populates data ID for nodes containing only non-local fragments', () => {
     var records = {
       'client:1': {
@@ -281,15 +319,17 @@ describe('readRelayQueryData', () => {
         firstName: 'Greg',
       },
     };
+    var fragment = Relay.QL`fragment on Viewer{actor{firstName}}`;
     var fragmentReference = RelayFragmentReference.createForContainer(
-      () => Relay.QL`fragment on Viewer{actor{firstName}}`,
+      () => fragment,
       {}
     );
     var query = getNode(Relay.QL`query{viewer{${fragmentReference}}}`);
     var data = readData(getStoreData({records}), query, 'client:1');
-    var pointer = data[getNode(fragmentReference).getConcreteFragmentID()];
-    expect(pointer instanceof RelayFragmentPointer).toBe(true);
     expect(data.__dataID__).toBe('client:1');
+    expect(data.__fragments__).toEqual({
+      [getNode(fragment).getConcreteFragmentID()]: 'client:1',
+    });
   });
 
   it('reads data for non-container fragment references', () => {
@@ -760,13 +800,11 @@ describe('readRelayQueryData', () => {
 
     data = readData(getStoreData({records}), query, 'feedback_id');
 
-    var fragmentPointer = data.comments.pageInfo[
-      getNode(fragmentReference).getConcreteFragmentID()
-    ];
-    expect(fragmentPointer instanceof RelayFragmentPointer).toBe(true);
-    expect(fragmentPointer.getDataID()).toBe('comments_id_first(1)');
-    expect(fragmentPointer.getFragment())
-      .toEqualQueryNode(getNode(fragmentReference.getFragment()));
+    const fragmentSourceID =
+      getNode(fragmentReference.getFragment()).getConcreteFragmentID();
+    expect(data.comments.pageInfo.__fragments__).toEqual({
+      [fragmentSourceID]: 'comments_id_first(1)',
+    });
   });
 
   it('retrieves data and fragment pointers from range', () => {
@@ -843,13 +881,11 @@ describe('readRelayQueryData', () => {
 
     data = readData(getStoreData({records}), query, 'feedback_id');
 
-    var fragmentPointer = data.comments[
-      getNode(fragmentReference).getConcreteFragmentID()
-    ];
-    expect(fragmentPointer instanceof RelayFragmentPointer).toBe(true);
-    expect(fragmentPointer.getDataID()).toBe('comments_id_first(1)');
-    expect(fragmentPointer.getFragment())
-      .toEqualQueryNode(getNode(fragmentReference.getFragment()));
+    const fragmentSourceID =
+      getNode(fragmentReference.getFragment()).getConcreteFragmentID();
+    expect(data.comments.__fragments__).toEqual({
+      [fragmentSourceID]: 'comments_id_first(1)',
+    });
   });
 
   it('returns RelayFragmentPointers for child queries', () => {
@@ -902,18 +938,16 @@ describe('readRelayQueryData', () => {
     expect(data.hometown.name).toEqual('hometown name');
     expect(data.screennames.length).toBe(2);
     var screennames = data.screennames;
-    var namePointer1 =
-      screennames[0][getNode(fragmentReference).getConcreteFragmentID()];
-    var namePointer2 =
-      screennames[1][getNode(fragmentReference).getConcreteFragmentID()];
-    expect(namePointer1 instanceof RelayFragmentPointer).toBe(true);
-    expect(namePointer1.getDataID()).toBe('client1');
-    expect(namePointer1.getFragment())
-      .toEqualQueryNode(getNode(fragmentReference.getFragment()));
-    expect(namePointer2 instanceof RelayFragmentPointer).toBe(true);
-    expect(namePointer2.getDataID()).toBe('client2');
-    expect(namePointer2.getFragment())
-      .toEqualQueryNode(getNode(fragmentReference.getFragment()));
+    const fragmentSourceID0 =
+      getNode(fragmentReference.getFragment()).getConcreteFragmentID();
+    expect(screennames[0].__fragments__).toEqual({
+      [fragmentSourceID0]: 'client1',
+    });
+    const fragmentSourceID1 =
+      getNode(fragmentReference.getFragment()).getConcreteFragmentID();
+    expect(screennames[1].__fragments__).toEqual({
+      [fragmentSourceID1]: 'client2',
+    });
   });
 
   it('reads dataID if a linked dataID is `null` or `undefined`', () => {
@@ -1205,15 +1239,15 @@ describe('readRelayQueryData', () => {
     // GraphQLStoreRangeUtils rangeData cache.
     // (TODO: task to fix that hidden global state: #7250441)
     var data = readData(storeData, query, 'userID');
-    var pointer = data.friends[
-      getNode(fragmentReference).getConcreteFragmentID()
-    ];
-    expect(pointer instanceof RelayFragmentPointer).toBe(true);
+    const fragmentSourceID =
+      getNode(fragmentReference.getFragment()).getConcreteFragmentID();
     expect(data).toEqual({
       __dataID__: 'userID',
       friends: {
         __dataID__: 'friendsID_first(25)',
-        [getNode(fragmentReference).getConcreteFragmentID()]: pointer,
+        __fragments__: {
+          [fragmentSourceID]: 'friendsID_first(25)',
+        },
       },
     });
 

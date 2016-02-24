@@ -14,7 +14,6 @@
 'use strict';
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const RelayFragmentPointer = require('RelayFragmentPointer');
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type RelayQuery from 'RelayQuery';
@@ -43,8 +42,25 @@ import type {
 export type FragmentResolver = {
   dispose: () => void;
   resolve: (
-    fragmentPointer: RelayFragmentPointer
+    fragment: RelayQuery.Fragment,
+    dataIDs: DataID | Array<DataID>
   ) => ?(StoreReaderData | Array<?StoreReaderData>);
+};
+
+export type RelayContextInterface = {
+  forceFetch: (
+    querySet: RelayQuerySet,
+    onReadyStateChange: ReadyStateChangeCallback
+  ) => Abortable;
+  getFragmentResolver: (
+    fragment: RelayQuery.Fragment,
+    onNext: () => void
+  ) => FragmentResolver;
+  getStoreData: () => RelayStoreData;
+  primeCache: (
+    querySet: RelayQuerySet,
+    onReadyStateChange: ReadyStateChangeCallback
+  ) => Abortable;
 };
 
 /**
@@ -176,11 +192,7 @@ class RelayContext {
     fragment: RelayQuery.Fragment,
     dataID: DataID
   ): Observable<?StoreReaderData> {
-    var fragmentPointer = new RelayFragmentPointer(
-      fragment.isPlural()? [dataID] : dataID,
-      fragment
-    );
-    return new RelayQueryResultObservable(this._storeData, fragmentPointer);
+    return new RelayQueryResultObservable(this._storeData, fragment, dataID);
   }
 
   /**
@@ -191,12 +203,12 @@ class RelayContext {
    * not recommended for general use.
    */
   getFragmentResolver(
-    fragmentPointer: RelayFragmentPointer,
+    fragment: RelayQuery.Fragment,
     onNext: () => void
   ): FragmentResolver {
     return new GraphQLStoreQueryResolver(
       this._storeData,
-      fragmentPointer,
+      fragment,
       onNext
     );
   }

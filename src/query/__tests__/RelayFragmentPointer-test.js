@@ -17,6 +17,7 @@ jest.dontMock('RelayFragmentPointer');
 
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const Relay = require('Relay');
+const RelayRecord = require('RelayRecord');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -53,14 +54,12 @@ describe('RelayFragmentPointer', () => {
       var root = getNode(Relay.QL`query{node(id:"123"){${rootFragment}}}`);
 
       var result = RelayFragmentPointer.createForRoot(recordStore, root);
-      var resultKeys = Object.keys(result);
-      expect(resultKeys.length).toBe(1);
-
-      var fragmentPointer = result[resultKeys[0]];
-      expect(fragmentPointer.getDataID()).toBe('123');
-      expect(fragmentPointer.getFragment()).toEqualQueryNode(
-        getNode(rootFragment)
-      );
+      expect(result).toEqual({
+        __dataID__: '123',
+        __fragments__: {
+          [getNode(rootFragment).getConcreteFragmentID()]: '123',
+        },
+      });
     });
 
     it('throws if multiple root fragments are present', () => {
@@ -121,122 +120,41 @@ describe('RelayFragmentPointer', () => {
     });
   });
 
-  describe('plurality', () => {
-    var variables;
-    var singular;
-    var singularFragment;
-    var plural;
-    var pluralFragment;
+  describe('addFragment()', () => {
+    let dataID;
+    let fragment;
+    let pluralFragment;
 
     beforeEach(() => {
-      variables = {a: true, b: 1, c: ''};
-      singular = Relay.QL`fragment on Node{id,name}`;
-      singularFragment = getNode(singular, variables);
-      plural = Relay.QL`fragment on Node @relay(plural:true){id,name}`;
-      pluralFragment = getNode(plural, variables);
-    });
-
-    it('creates singular pointers', () => {
-      var pointer = new RelayFragmentPointer('123', singularFragment);
-
-      expect(pointer.getDataID()).toBe('123');
-      expect(pointer.getFragment()).toBe(singularFragment);
-      expect(pointer.equals(pointer)).toBeTruthy();
-      expect(() => pointer.getDataIDs()).toFailInvariant(
-        'RelayFragmentPointer.getDataIDs(): Bad call for non-plural fragment.'
+      dataID = '123';
+      fragment = getNode(Relay.QL`fragment on Node { id }`);
+      pluralFragment = getNode(
+        Relay.QL`fragment on Node @relay(plural:true) { id }`
       );
     });
 
-    it('creates plural pointers', () => {
-      var pointer = new RelayFragmentPointer(['123'], pluralFragment);
+    it('adds singular fragments to pointer objects', () => {
+      const record = RelayRecord.create(dataID);
+      RelayFragmentPointer.addFragment(record, fragment, dataID);
 
-      expect(pointer.getDataIDs()).toEqual(['123']);
-      expect(pointer.getFragment()).toBe(pluralFragment);
-      expect(pointer.equals(pointer)).toBeTruthy();
-      expect(() => pointer.getDataID()).toFailInvariant(
-        'RelayFragmentPointer.getDataID(): Bad call for plural fragment.'
-      );
+      expect(record).toEqual({
+        __dataID__: dataID,
+        __fragments__: {
+          [fragment.getConcreteFragmentID()]: dataID,
+        },
+      });
     });
 
-    /* eslint-disable no-new */
-    it('throws when creating a singular pointer with multiple IDs', () => {
-      expect(() => {
-        new RelayFragmentPointer(['123'], singularFragment);
-      }).toFailInvariant(
-        'RelayFragmentPointer: Wrong plurality, array of data IDs ' +
-        'supplied with non-plural fragment.'
-      );
-    });
+    it('adds plural fragments to pointer objects', () => {
+      const record = RelayRecord.create(dataID);
+      RelayFragmentPointer.addFragment(record, pluralFragment, dataID);
 
-    it('throws when creating a plural pointer with a single ID', () => {
-      expect(() => {
-        new RelayFragmentPointer('123', pluralFragment);
-      }).toFailInvariant(
-        'RelayFragmentPointer: Wrong plurality, single data ID supplied ' +
-        'with plural fragment.'
-      );
-    });
-    /* eslint-enable no-new */
-
-    it('singular pointers are equals() to matching pointers', () => {
-      var pointer = new RelayFragmentPointer('123', singularFragment);
-      var another =
-        new RelayFragmentPointer('123', getNode(singular, variables));
-
-      expect(pointer).toEqualPointer(another);
-    });
-
-    it('singular pointers are not equals() to different pointers', () => {
-      var pointer = new RelayFragmentPointer('123', singularFragment);
-      // different id
-      expect(pointer).not.toEqualPointer(
-        new RelayFragmentPointer('456', getNode(singular, variables))
-      );
-      // different fragment
-      expect(pointer).not.toEqualPointer(
-        new RelayFragmentPointer(
-          '123',
-          getNode(Relay.QL`fragment on Node{id}`, variables)
-        )
-      );
-      // different variables
-      var differentVariables = {...variables, d: 'different'};
-      expect(pointer).not.toEqualPointer(
-        new RelayFragmentPointer('123', getNode(singular, differentVariables))
-      );
-    });
-
-    it('plural pointers are equals() to matching pointers', () => {
-      var pointer = new RelayFragmentPointer(['123'], pluralFragment);
-      var another = new RelayFragmentPointer(
-        ['123'],
-        getNode(plural, variables)
-      );
-
-      expect(pointer).toEqualPointer(another);
-    });
-
-    it('plural pointers are not equals() to different pointers', () => {
-      var pointer = new RelayFragmentPointer(['123'], pluralFragment);
-      // different id
-      expect(pointer).not.toEqualPointer(
-        new RelayFragmentPointer(['456'], getNode(plural, variables))
-      );
-      expect(pointer).not.toEqualPointer(
-        new RelayFragmentPointer(['123', '456'], getNode(plural, variables))
-      );
-      // different fragment
-      expect(pointer).not.toEqualPointer(
-        new RelayFragmentPointer(
-          ['123'],
-          getNode(Relay.QL`fragment on Node @relay(plural:true){id}`, variables)
-        )
-      );
-      // different variables
-      var differentVariables = {...variables, d: 'different'};
-      expect(pointer).not.toEqualPointer(
-        new RelayFragmentPointer(['123'], getNode(plural, differentVariables))
-      );
+      expect(record).toEqual({
+        __dataID__: dataID,
+        __fragments__: {
+          [pluralFragment.getConcreteFragmentID()]: dataID,
+        },
+      });
     });
   });
 });

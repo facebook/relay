@@ -28,7 +28,7 @@ export type ParamDefinitions = {[param: string]: ParamDefinition};
 type StringOrURI = string | URI;
 type URICreator = (routeConstructor: any, params: Object) => ?StringOrURI;
 
-var createURI: $FlowIssue = () => null;
+let createURI: $FlowIssue = () => null;
 
 /**
  * Describes the root queries, param definitions and other metadata for a given
@@ -45,8 +45,8 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
 
   constructor(initialVariables?: ?Tv, uri?: StringOrURI) {
     super(initialVariables);
-    var constructor = this.constructor;
-    var {
+    const constructor = this.constructor;
+    const {
       routeName,
       path,
     } = constructor;
@@ -75,12 +75,12 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
   }
 
   prepareVariables(prevVariables: ?Tv): ?Tv {
-    var {
+    const {
       paramDefinitions,
       prepareParams,
       routeName,
     } = this.constructor;
-    var params = prevVariables;
+    let params = prevVariables;
     if (prepareParams) {
       /* $FlowFixMe(>=0.17.0) - params is ?Tv but prepareParams expects Tv */
       params = prepareParams(params);

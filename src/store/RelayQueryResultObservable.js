@@ -13,8 +13,9 @@
 
 'use strict';
 
-const RelayFragmentPointer = require('RelayFragmentPointer');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+import type {DataID} from 'RelayInternalTypes';
+import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
 import type {
   StoreReaderData,
@@ -46,7 +47,8 @@ const invariant = require('invariant');
  */
 class RelayQueryResultObservable {
   _data: ?StoreReaderData;
-  _fragmentPointer: RelayFragmentPointer;
+  _dataID: DataID;
+  _fragment: RelayQuery.Fragment;
   _fragmentResolver: ?GraphQLStoreQueryResolver;
   _storeData: RelayStoreData;
   _subscriptionCallbacks: Array<SubscriptionCallbacks<?StoreReaderData>>;
@@ -54,10 +56,12 @@ class RelayQueryResultObservable {
 
   constructor(
     storeData: RelayStoreData,
-    fragmentPointer: RelayFragmentPointer
+    fragment: RelayQuery.Fragment,
+    dataID: DataID
   ) {
     this._data = undefined;
-    this._fragmentPointer = fragmentPointer;
+    this._dataID = dataID;
+    this._fragment = fragment;
     this._fragmentResolver = null;
     this._storeData = storeData;
     this._subscriptionCallbacks = [];
@@ -97,7 +101,7 @@ class RelayQueryResultObservable {
     );
     var fragmentResolver = new GraphQLStoreQueryResolver(
       this._storeData,
-      this._fragmentPointer,
+      this._fragment,
       () => this._onUpdate(fragmentResolver)
     );
     this._fragmentResolver = fragmentResolver;
@@ -122,7 +126,7 @@ class RelayQueryResultObservable {
   }
 
   _resolveData(fragmentResolver: GraphQLStoreQueryResolver): void {
-    var data = fragmentResolver.resolve(this._fragmentPointer);
+    var data = fragmentResolver.resolve(this._fragment, this._dataID);
     invariant(
       !Array.isArray(data),
       'RelayQueryResultObservable: Plural fragments are not supported.'

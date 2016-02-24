@@ -64,7 +64,7 @@ In React, rendering a view requires two inputs: the *component* to render, and a
 ReactDOM.render(
   <RelayRootContainer
     Component={StoryContainer}
-    route={
+    route={{
       queries: {
         story: () => Relay.QL`
           query {
@@ -72,7 +72,7 @@ ReactDOM.render(
           }
         `
       },
-    }
+    }}
   />,
   rootEl
 )

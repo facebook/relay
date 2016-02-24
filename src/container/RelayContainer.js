@@ -573,6 +573,11 @@ function createContainerComponent(
             fragmentName,
             componentName
           );
+          if (!propValue.length) {
+            // Nothing to observe: pass the empty array through
+            fragmentPointers[fragmentName] = null;
+            return;
+          }
           let dataIDs = null;
           propValue.forEach((item, ii) => {
             if (typeof item === 'object' && item != null) {

@@ -16,6 +16,7 @@
 import type RelayQuery from 'RelayQuery';
 
 const invariant = require('invariant');
+const stableStringify = require('stableStringify');
 
 /**
  * @internal
@@ -40,9 +41,11 @@ function forEachRootCallArg(
     } else {
       invariant(
         typeof identifyingArgValue === 'string' ||
+        typeof identifyingArgValue === 'object' ||
+        typeof identifyingArgValue === 'boolean' ||
         typeof identifyingArgValue === 'number',
         'Relay: Expected arguments to root field `%s` to each be strings/' +
-        'numbers, got `%s`.',
+        'numbers|object|boolean, got `%s`.',
         query.getFieldName(),
         JSON.stringify(identifyingArgValue)
       );

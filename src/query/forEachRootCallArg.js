@@ -27,7 +27,7 @@ const stableStringify = require('stableStringify');
  */
 function forEachRootCallArg(
   query: RelayQuery.Root,
-  callback: (identifyingArgValue: ?string) => void
+  callback: (identifyingArgValue: ?any) => void
 ): void {
   invariant(
     !query.getBatchCall(),
@@ -49,7 +49,9 @@ function forEachRootCallArg(
         query.getFieldName(),
         JSON.stringify(identifyingArgValue)
       );
-      fn('' + identifyingArgValue);
+      // ToDo: Why fn(identifyingArgValue) will 
+      // auto stringify identifyingArgValue ?
+      fn(identifyingArgValue);
     }
   }
   const identifyingArg = query.getIdentifyingArg();

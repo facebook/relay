@@ -726,6 +726,17 @@ describe('RelayContainer', function() {
     );
   });
 
+  it('passes through empty arrays for plural fragments', () => {
+    RelayTestRenderer.render(
+      () => <MockContainer bar={[]} />,
+      relayContext,
+      mockRoute
+    );
+    expect(MockContainer.mock.render.mock.calls.length).toBe(1);
+    expect(MockContainer.mock.render.mock.calls[0].props.bar).toEqual([]);
+    expect(relayContext.getFragmentResolver).not.toBeCalled();
+  });
+
   it('does not re-render if props resolve to the same object', () => {
     var mockData = {__dataID__: '42', id: '42', name: 'Tim'};
 

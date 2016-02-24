@@ -214,20 +214,20 @@ describe('RelayQuery', () => {
       });
     });
 
-    describe('getConcreteNodeHash()', () => {
+    describe('getConcreteFragmentID()', () => {
       it('returns the same hash for two different RelayQuery nodes', () => {
         const concreteNode = Relay.QL`fragment on Node { id }`;
         const fragmentA = getNode(concreteNode);
         const fragmentB = getNode(concreteNode);
-        expect(fragmentA.getConcreteNodeHash())
-          .toBe(fragmentB.getConcreteNodeHash());
+        expect(fragmentA.getConcreteFragmentID())
+          .toBe(fragmentB.getConcreteFragmentID());
       });
 
       it('returns a different hash for two different concrete nodes', () => {
         const fragmentA = getNode(Relay.QL`fragment on Node { id }`);
         const fragmentB = getNode(Relay.QL`fragment on Node { id }`);
-        expect(fragmentA.getConcreteNodeHash())
-          .not.toBe(fragmentB.getConcreteNodeHash());
+        expect(fragmentA.getConcreteFragmentID())
+          .not.toBe(fragmentB.getConcreteFragmentID());
       });
     });
 

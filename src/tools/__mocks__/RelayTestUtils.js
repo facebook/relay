@@ -47,7 +47,7 @@ var RelayTestUtils = {
       }
     }
     ContextSetter.childContextTypes = {
-      relay: RelayPropTypes.Context.isRequired,
+      relay: RelayPropTypes.Context,
       route: RelayPropTypes.QueryConfig.isRequired,
     };
 
@@ -179,7 +179,7 @@ var RelayTestUtils = {
     var fragmentPointer = new RelayFragmentPointer(dataID, fragment);
     return {
       __dataID__: dataID,
-      [fragment.getConcreteNodeHash()]: fragmentPointer,
+      [fragment.getConcreteFragmentID()]: fragmentPointer,
     };
   },
 

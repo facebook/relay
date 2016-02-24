@@ -56,18 +56,18 @@ var RelayQLTransformer = (function () {
   _createClass(RelayQLTransformer, [{
     key: 'transform',
     value: function transform(t, // Babel
-    node, documentName, tagName, propName) {
-      var _processTemplateLiteral = this.processTemplateLiteral(node, documentName);
+    node, options) {
+      var _processTemplateLiteral = this.processTemplateLiteral(node, options.documentName);
 
       var substitutions = _processTemplateLiteral.substitutions;
       var templateText = _processTemplateLiteral.templateText;
       var variableNames = _processTemplateLiteral.variableNames;
 
-      var documentText = this.processTemplateText(templateText, documentName, propName);
-      var definition = this.processDocumentText(documentText, documentName);
+      var documentText = this.processTemplateText(templateText, options);
+      var definition = this.processDocumentText(documentText, options);
 
       var Printer = RelayQLPrinter(t, this.options);
-      return new Printer(tagName, variableNames).print(definition, substitutions);
+      return new Printer(options.tagName, variableNames).print(definition, substitutions);
     }
 
     /**
@@ -107,7 +107,10 @@ var RelayQLTransformer = (function () {
      */
   }, {
     key: 'processTemplateText',
-    value: function processTemplateText(templateText, documentName, propName) {
+    value: function processTemplateText(templateText, _ref) {
+      var documentName = _ref.documentName;
+      var propName = _ref.propName;
+
       var pattern = /^(fragment|mutation|query|subscription)\s*(\w*)?([\s\S]*)/;
       var matches = pattern.exec(templateText);
       invariant(matches, 'You supplied a GraphQL document named `%s` with invalid syntax. It ' + 'must start with `fragment`, `mutation`, `query`, or `subscription`.', documentName);
@@ -128,7 +131,10 @@ var RelayQLTransformer = (function () {
      */
   }, {
     key: 'processDocumentText',
-    value: function processDocumentText(documentText, documentName) {
+    value: function processDocumentText(documentText, _ref2) {
+      var documentName = _ref2.documentName;
+      var fragmentLocationID = _ref2.fragmentLocationID;
+
       var document = parser.parse(new Source(documentText, documentName));
       var validationErrors = this.validateDocument(document);
       if (validationErrors) {
@@ -142,7 +148,9 @@ var RelayQLTransformer = (function () {
       var context = {
         definitionName: capitalize(documentName),
         isPattern: false,
-        schema: this.schema
+        nodeIndex: 0,
+        schema: this.schema,
+        fragmentLocationID: fragmentLocationID
       };
       if (definition.kind === 'FragmentDefinition') {
         return new RelayQLFragment(context, definition);

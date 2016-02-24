@@ -303,9 +303,25 @@ describe('RelayContainer', function() {
     expect(() => ShallowRenderer.render(
       <MockContainer foo={mockFooPointer} />
     )).toFailInvariant(
-      'RelayContainer: `Relay(MockComponent)` was rendered without a Relay ' +
-      'context. Make sure the `relay` property on the React context is an ' +
-      'instance of `RelayContext`.',
+      'RelayContainer: `Relay(MockComponent)` was rendered with invalid ' +
+      'Relay context `undefined`. Make sure the `relay` property on the ' +
+      'React context conforms to the `RelayContext` interface.'
+    );
+  });
+
+  it('throws if rendered with an invalid relay context', () => {
+    const fakeContext = {
+      getStoreData: null,
+      getFragmentResolver: null,
+    };
+    const ShallowRenderer = ReactTestUtils.createRenderer();
+    expect(() => ShallowRenderer.render(
+      <MockContainer foo={mockFooPointer} />,
+      {relay: fakeContext}
+    )).toFailInvariant(
+      'RelayContainer: `Relay(MockComponent)` was rendered with invalid ' +
+      'Relay context `[object Object]`. Make sure the `relay` property on ' +
+      'the React context conforms to the `RelayContext` interface.'
     );
   });
 
@@ -328,6 +344,7 @@ describe('RelayContainer', function() {
       relayContext,
       mockRoute
     );
+    expect(relayContext.getFragmentResolver.mock.calls.length).toBe(1);
     expect(GraphQLStoreQueryResolver.mock.instances.length).toBe(1);
 
     RelayTestRenderer.render(
@@ -336,6 +353,7 @@ describe('RelayContainer', function() {
       mockRoute
     );
     // `foo` resolver is re-used, `bar` is added
+    expect(relayContext.getFragmentResolver.mock.calls.length).toBe(2);
     expect(GraphQLStoreQueryResolver.mock.instances.length).toBe(2);
   });
 
@@ -349,9 +367,11 @@ describe('RelayContainer', function() {
       mockRoute
     );
 
+    expect(relayContextA.getFragmentResolver.mock.calls.length).toBe(1);
     const mockResolvers = GraphQLStoreQueryResolver.mock.instances;
     expect(mockResolvers.length).toBe(1);
-    expect(mockResolvers[0].reset).not.toBeCalled();
+    expect(mockResolvers[0].dispose).not.toBeCalled();
+    relayContextA.getFragmentResolver.mockClear();
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,
@@ -359,10 +379,12 @@ describe('RelayContainer', function() {
       mockRoute
     );
 
+    expect(relayContextA.getFragmentResolver.mock.calls.length).toBe(0);
+    expect(relayContextB.getFragmentResolver.mock.calls.length).toBe(1);
     expect(mockResolvers.length).toBe(2);
     expect(mockResolvers[1].mock.store).toBe(relayContextB.getStoreData());
-    expect(mockResolvers[0].reset).toBeCalled();
-    expect(mockResolvers[1].reset).not.toBeCalled();
+    expect(mockResolvers[0].dispose).toBeCalled();
+    expect(mockResolvers[1].dispose).not.toBeCalled();
   });
 
   it('reuses resolvers even if route changes', () => {
@@ -383,8 +405,9 @@ describe('RelayContainer', function() {
       mockRouteB
     );
 
+    expect(relayContext.getFragmentResolver.mock.calls.length).toBe(1);
     expect(GraphQLStoreQueryResolver.mock.instances.length).toBe(1);
-    expect(GraphQLStoreQueryResolver.mock.instances[0].reset).not.toBeCalled();
+    expect(GraphQLStoreQueryResolver.mock.instances[0].dispose).not.toBeCalled();
   });
 
   it('resolves each prop with a query', () => {
@@ -393,8 +416,10 @@ describe('RelayContainer', function() {
       relayContext,
       mockRoute
     );
-    var fragmentPointer = mockFooPointer[Object.keys(mockFooPointer)[0]];
+    var fragmentPointer =
+      mockFooPointer[mockFooFragment.getConcreteFragmentID()];
 
+    expect(relayContext.getFragmentResolver.mock.calls.length).toBe(1);
     var mockResolvers = GraphQLStoreQueryResolver.mock.instances;
     expect(mockResolvers.length).toBe(1);
     expect(mockResolvers[0].resolve.mock.calls[0][0].getFragment())
@@ -412,11 +437,12 @@ describe('RelayContainer', function() {
       mockRoute
     );
 
+    expect(relayContext.getFragmentResolver.mock.calls.length).toBe(1);
     var mockResolvers = GraphQLStoreQueryResolver.mock.instances;
     mockResolvers[0].mock.callback();
 
     expect(mockResolvers.length).toBe(1);
-    expect(mockResolvers[0].reset.mock.calls.length).toBe(0);
+    expect(mockResolvers[0].dispose.mock.calls.length).toBe(0);
     expect(mockResolvers[0].resolve.mock.calls.length).toBe(2);
   });
 
@@ -454,6 +480,7 @@ describe('RelayContainer', function() {
       mockRouteA
     );
 
+    expect(relayContext.getFragmentResolver.mock.calls.length).toBe(1);
     const mockResolvers = GraphQLStoreQueryResolver.mock.instances;
     expect(mockResolvers.length).toBe(1);
     expect(mockResolvers[0].resolve.mock.calls.length).toBe(1);
@@ -470,9 +497,11 @@ describe('RelayContainer', function() {
 
   it('resolves with most recent props', () => {
     var mockPointerA = getPointer('42', mockFooFragment);
-    var fragmentPointerA = mockPointerA[Object.keys(mockPointerA)[0]];
+    var fragmentPointerA =
+      mockPointerA[mockFooFragment.getConcreteFragmentID()];
     var mockPointerB = getPointer('43', mockFooFragment);
-    var fragmentPointerB = mockPointerB[Object.keys(mockPointerB)[0]];
+    var fragmentPointerB =
+      mockPointerB[mockFooFragment.getConcreteFragmentID()];
 
     RelayTestRenderer.render(
       () => <MockContainer foo={mockPointerA} />,
@@ -488,7 +517,7 @@ describe('RelayContainer', function() {
     var mockResolvers = GraphQLStoreQueryResolver.mock.instances;
 
     expect(mockResolvers.length).toBe(1);
-    expect(mockResolvers[0].reset.mock.calls.length).toBe(0);
+    expect(mockResolvers[0].dispose.mock.calls.length).toBe(0);
     expect(mockResolvers[0].resolve.mock.calls.length).toBe(2);
     expect(mockResolvers[0].resolve.mock.calls[0][0].getFragment())
       .toEqualQueryNode(fragmentPointerA.getFragment());
@@ -503,6 +532,7 @@ describe('RelayContainer', function() {
       mockRoute
     );
 
+    expect(relayContext.getFragmentResolver.mock.calls.length).toBe(0);
     var mockResolvers = GraphQLStoreQueryResolver.mock.instances;
     expect(mockResolvers.length).toBe(0);
     var props = MockContainer.mock.render.mock.calls[0].props;

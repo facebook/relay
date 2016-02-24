@@ -447,7 +447,7 @@ describe('GraphQLStoreQueryResolver', () => {
       ]);
     });
 
-    it('decrements references when reset', () => {
+    it('decrements references when disposed', () => {
       const fragmentPointer = new RelayFragmentPointer(
         'client:1',
         getNode(fragment)
@@ -460,7 +460,7 @@ describe('GraphQLStoreQueryResolver', () => {
       // read data and increment GC ref counts
       queryResolver.resolve(fragmentPointer);
       // reset the resolver; should unreference all nodes
-      queryResolver.reset();
+      queryResolver.dispose();
 
       // evict unreferenced nodes
       storeData.getGarbageCollector().collect();

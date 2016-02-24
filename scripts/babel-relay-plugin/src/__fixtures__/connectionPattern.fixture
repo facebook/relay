@@ -96,6 +96,7 @@ var x = (function () {
       },
       type: 'String'
     }],
+    id: 'k317qPCVHPHq:1',
     kind: 'Fragment',
     metadata: {
       pattern: true

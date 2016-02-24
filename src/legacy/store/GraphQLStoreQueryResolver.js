@@ -49,7 +49,7 @@ class GraphQLStoreQueryResolver {
     fragmentPointer: RelayFragmentPointer,
     callback: Function
   ) {
-    this.reset();
+    this.dispose();
     this._callback = callback;
     this._fragmentPointer = fragmentPointer;
     this._resolver = null;
@@ -57,12 +57,12 @@ class GraphQLStoreQueryResolver {
   }
 
   /**
-   * Resets the resolver's internal state such that future `resolve()` results
+   * disposes the resolver's internal state such that future `resolve()` results
    * will not be `===` to previous results, and unsubscribes any subscriptions.
    */
-  reset(): void {
+  dispose(): void {
     if (this._resolver) {
-      this._resolver.reset();
+      this._resolver.dispose();
     }
   }
 
@@ -90,14 +90,14 @@ class GraphQLStorePluralQueryResolver {
   _storeData: RelayStoreData;
 
   constructor(storeData: RelayStoreData, callback: Function) {
-    this.reset();
+    this.dispose();
     this._callback = callback;
     this._storeData = storeData;
   }
 
-  reset(): void {
+  dispose(): void {
     if (this._resolvers) {
-      this._resolvers.forEach(resolver => resolver.reset());
+      this._resolvers.forEach(resolver => resolver.dispose());
     }
     this._resolvers = [];
     this._results = [];
@@ -126,7 +126,7 @@ class GraphQLStorePluralQueryResolver {
       );
     }
     while (resolvers.length > nextLength) {
-      resolvers.pop().reset();
+      resolvers.pop().dispose();
     }
 
     // Allocate `nextResults` if and only if results have changed.
@@ -163,14 +163,14 @@ class GraphQLStoreSingleQueryResolver {
   _subscription: ?ChangeSubscription;
 
   constructor(storeData: RelayStoreData, callback: Function) {
-    this.reset();
+    this.dispose();
     this._callback = callback;
     this._garbageCollector = storeData.getGarbageCollector();
     this._storeData = storeData;
     this._subscribedIDs = {};
   }
 
-  reset(): void {
+  dispose(): void {
     if (this._subscription) {
       this._subscription.remove();
     }

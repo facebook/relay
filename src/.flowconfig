@@ -3,6 +3,7 @@
 .*/node_modules/graphql/.*
 .*/react/node_modules/.*
 .*/react-static-container/node_modules/.*
+.*/babel-relay-plugin/node_modules/.*
 
 [include]
 ../node_modules/fbjs/lib

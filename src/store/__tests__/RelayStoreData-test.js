@@ -358,19 +358,21 @@ describe('RelayStoreData', () => {
         }
       `);
       var query = storeData.buildFragmentQueryForDataID(fragment, 'client:1');
-      expect(query).toEqualQueryRoot(getNode(Relay.QL`
-        query {
-          node(id: "123") {
-            id,
-            __typename,
-            address {
-              ... on StreetAddress {
-                city,
+      expect(query).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+        query RelayStoreData($id_0: ID!) {
+          node(id: $id_0) {
+            ... on User {
+              id,
+              __typename,
+              address {
+                ... on StreetAddress {
+                  city,
+                },
               },
-            },
+            }
           },
         }
-      `));
+      `, {id_0: '123'}));
       expect(query.getName()).toBe(node.getName());
       expect(query.isAbstract()).toBe(true);
     });

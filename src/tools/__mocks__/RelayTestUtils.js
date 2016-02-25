@@ -441,6 +441,7 @@ var RelayTestUtils = {
         compare(actual, expected) {
           const QueryBuilder = require('QueryBuilder');
           const RelayMetaRoute = require('RelayMetaRoute');
+          const RelayNodeInterface = require('RelayNodeInterface');
           const RelayQuery = require('RelayQuery');
           const RelayQueryPath = require('RelayQueryPath');
 
@@ -469,8 +470,23 @@ var RelayTestUtils = {
             RelayMetaRoute.get('$RelayTestUtils'),
             {}
           );
-          var actualQuery = actual.getQuery(fragment);
-          var expectedQuery = expected.getQuery(fragment);
+          const mockStore = {
+            getDataID(fieldName: string, id: string): string {
+              invariant(
+                fieldName === RelayNodeInterface.NODE,
+                'RelayTestUtils: Cannot `getDataID` for non-node root call ' +
+                '`%s`.',
+                fieldName
+              );
+              return id;
+            },
+            getType() {
+              return 'RelayTestUtils';
+            },
+          };
+
+          var actualQuery = actual.getQuery(mockStore, fragment);
+          var expectedQuery = expected.getQuery(mockStore, fragment);
 
           if (!actualQuery.equals(expectedQuery)) {
             return {

@@ -13,15 +13,25 @@
 
 require('configureForRelayOSS');
 
+jest.mock('warning');
+
 const Relay = require('Relay');
 const RelayQueryPath = require('RelayQueryPath');
+const RelayRecordStore = require('RelayRecordStore');
+const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryPath', () => {
-  var {getNode} = RelayTestUtils;
+  var {getNode, getVerbatimNode} = RelayTestUtils;
+  let store;
+  let writer;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
+
+    const records = {};
+    store = new RelayRecordStore({records});
+    writer = new RelayRecordWriter(records);
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
@@ -36,6 +46,8 @@ describe('RelayQueryPath', () => {
     `);
     var fragment = Relay.QL`
       fragment on Node {
+        id
+        __typename
         name
       }
     `;
@@ -43,13 +55,16 @@ describe('RelayQueryPath', () => {
     var path = new RelayQueryPath(query);
     expect(path.getName()).toBe(query.getName());
 
-    var pathQuery = path.getQuery(getNode(fragment));
-    expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
+    writer.putRecord('123', 'User');
+    var pathQuery = path.getQuery(store, getNode(fragment));
+    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"123") {
-          id
-          __typename
-          ${fragment}
+          ... on User {
+            id
+            __typename
+            ${fragment}
+          }
         }
       }
     `));
@@ -69,7 +84,8 @@ describe('RelayQueryPath', () => {
       }
     `;
     var path = new RelayQueryPath(query);
-    expect(path.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
+    var pathQuery = path.getQuery(store, getNode(fragment));
+    expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
       query {
         me {
           id
@@ -98,7 +114,8 @@ describe('RelayQueryPath', () => {
       }
     `;
     var path = new RelayQueryPath(query);
-    expect(path.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
+    var pathQuery = path.getQuery(store, getNode(fragment));
+    expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
       query {
         viewer {
           ${fragment}
@@ -130,16 +147,19 @@ describe('RelayQueryPath', () => {
     `).getFieldByStorageKey('city');
 
     // address is not refetchable, has client ID
+    writer.putRecord('123', 'User');
     var root = new RelayQueryPath(query);
     var path = root.getPath(address, 'client:1');
-    var pathQuery = path.getQuery(city);
-    expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
+    var pathQuery = path.getQuery(store, city);
+    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"123") {
-          id
-          __typename
-          address {
-            city
+          ... on User {
+            id
+            __typename
+            address {
+              city
+            }
           }
         }
       }
@@ -167,17 +187,69 @@ describe('RelayQueryPath', () => {
     `;
 
     // actor has an ID and is refetchable
+    writer.putRecord('123', 'User');
     var root = new RelayQueryPath(query);
     var path = root.getPath(actor, '123');
-    expect(path.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
+    var pathQuery = path.getQuery(store, getNode(fragment));
+    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"123") {
-          id
-          __typename
-          ${fragment}
+          ... on User {
+            id
+            __typename
+            ... on Node {
+              id
+              __typename
+              name
+            }
+          }
         }
       }
     `));
     expect(path.getName()).toBe(query.getName());
+  });
+
+  it('warns if the root record\'s type is unknown', () => {
+    var query = getNode(Relay.QL`
+      query {
+        viewer {
+          actor {
+            id
+          }
+        }
+      }
+    `);
+    var actor = query.getFieldByStorageKey('actor');
+    var fragment = Relay.QL`
+      fragment on Node {
+        name
+      }
+    `;
+
+    // actor has an ID and is refetchable, but the type of actor is unknown.
+    var root = new RelayQueryPath(query);
+    var path = root.getPath(actor, '123');
+    var pathQuery = path.getQuery(store, getNode(fragment));
+    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+      query {
+        node(id:"123") {
+          # not wrapped in a concrete fragment because the type is unknown.
+          id
+          __typename
+          ... on Node {
+            id
+            __typename
+            name
+          }
+        }
+      }
+    `));
+    expect(path.getName()).toBe(query.getName());
+    expect([
+      'RelayQueryPath: No typename found for %s record `%s`. Generating a ' +
+      'possibly invalid query.',
+      'unknown',
+      '123',
+    ]).toBeWarnedNTimes(1);
   });
 });

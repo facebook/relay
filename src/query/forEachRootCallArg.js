@@ -27,7 +27,7 @@ const stableStringify = require('stableStringify');
  */
 function forEachRootCallArg(
   query: RelayQuery.Root,
-  callback: (identifyingArgValue: ?any) => void
+  callback: (identifyingArgValue: mixed) => void
 ): void {
   invariant(
     !query.getBatchCall(),

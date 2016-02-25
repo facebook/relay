@@ -121,6 +121,12 @@ function orderedJSON(input: any): string {
  * 
  */
 function stableStringify(input: mixed): string {
+  if (input==null) { 
+    // This is improtant at this time.
+    // Should delete all `not null check for input` outside
+    // to avoid same magic result for null 
+    return '';
+  }
   switch (typeof input) {
     case 'string':
     case 'number':

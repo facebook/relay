@@ -29,7 +29,7 @@ type PayloadResult = {
 
 type RootCallInfo = {
   storageKey: string;
-  identifyingArgValue: ?string;
+  identifyingArgValue: mixed;
 }
 
 /**

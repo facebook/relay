@@ -39,7 +39,6 @@ const invariant = require('invariant');
 const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 const stableStringify = require('stableStringify');
 const {CURSOR, NODE} = RelayConnectionInterface;
-const EMPTY = '';
 const FILTER_CALLS = '__filterCalls__';
 const FORCE_INDEX = '__forceIndex__';
 const RANGE = '__range__';
@@ -109,9 +108,6 @@ class RelayRecordWriter {
         );
       }
     }
-    if (identifyingArgValue == null) {
-      identifyingArgValue = EMPTY;
-    }
     const identifyingArgHash = stableStringify(identifyingArgValue);
     if (this._rootCallMap.hasOwnProperty(storageKey) &&
         this._rootCallMap[storageKey].hasOwnProperty(identifyingArgHash)) {
@@ -136,9 +132,6 @@ class RelayRecordWriter {
         storageKey
       );
       return;
-    }
-    if (identifyingArgValue == null) {
-      identifyingArgValue = EMPTY;
     }
     const identifyingArgHash = stableStringify(identifyingArgValue);
     this._rootCallMap[storageKey] = this._rootCallMap[storageKey] || {};

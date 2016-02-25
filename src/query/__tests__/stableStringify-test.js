@@ -20,8 +20,9 @@ describe('stableStringify', () => {
     expect(stableStringify(-1)).toBe('-1');
     expect(stableStringify(true)).toBe('true');
     expect(stableStringify(false)).toBe('false');
-    expect(stableStringify(null)).toBe('null');
-    expect(stableStringify()).toBe(undefined);
+    expect(stableStringify(null)).toBe('');
+    expect(stableStringify(undefined)).toBe('');
+    expect(stableStringify()).toBe('');
   });
 
   it('stringifies empty objects', () => {

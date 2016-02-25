@@ -36,7 +36,6 @@ const invariant = require('invariant');
 const warning = require('warning');
 const stableStringify= require('stableStringify');
 const {NODE} = RelayConnectionInterface;
-const EMPTY = '';
 const FILTER_CALLS = '__filterCalls__';
 const FORCE_INDEX = '__forceIndex__';
 const RANGE = '__range__';
@@ -130,9 +129,6 @@ class RelayRecordStore {
           storageKey
         );
       }
-    }
-    if (identifyingArgValue == null) {
-      identifyingArgValue = EMPTY;
     }
     const identifyingArgHash = stableStringify(identifyingArgValue);
     if (this._rootCallMap.hasOwnProperty(storageKey) &&

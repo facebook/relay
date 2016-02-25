@@ -3,6 +3,7 @@
 .*/node_modules/graphql/.*
 .*/react/node_modules/.*
 .*/react-static-container/node_modules/.*
+.*/node_modules/base62
 
 [include]
 ../node_modules/fbjs/lib

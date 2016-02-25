@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "babel-runtime": "5.8.24",
-    "fbjs": "^0.7.0",
+    "fbjs": "^0.8.0-alpha.1",
     "react-static-container": "^1.0.0-alpha.1"
   },
   "peerDependencies": {

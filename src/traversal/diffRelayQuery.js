@@ -674,7 +674,9 @@ class RelayDiffQueryBuilder {
               hasSplitQueries = true;
               // current path has `parent`, `connection`, `edges`; pop to parent
               var connectionParent = path.getParent().getParent();
-              this.splitQuery(connectionParent.getQuery(connectionFind));
+              var connectionQuery =
+                connectionParent.getQuery(this._store, connectionFind);
+              this.splitQuery(connectionQuery);
             }
           } else {
             warning(

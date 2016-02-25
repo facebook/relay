@@ -15,13 +15,17 @@ require('configureForRelayOSS');
 
 const Relay = require('Relay');
 const RelayQueryPath = require('RelayQueryPath');
+const RelayRecordStore = require('RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryPath', () => {
   var {getNode} = RelayTestUtils;
+  let store;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
+
+    store = new RelayRecordStore({record: {}});
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
@@ -43,7 +47,7 @@ describe('RelayQueryPath', () => {
     var path = new RelayQueryPath(query);
     expect(path.getName()).toBe(query.getName());
 
-    var pathQuery = path.getQuery(getNode(fragment));
+    var pathQuery = path.getQuery(store, getNode(fragment));
     expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"123") {
@@ -69,7 +73,8 @@ describe('RelayQueryPath', () => {
       }
     `;
     var path = new RelayQueryPath(query);
-    expect(path.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
+    var pathQuery = path.getQuery(store, getNode(fragment));
+    expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
       query {
         me {
           id
@@ -98,7 +103,8 @@ describe('RelayQueryPath', () => {
       }
     `;
     var path = new RelayQueryPath(query);
-    expect(path.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
+    var pathQuery = path.getQuery(store, getNode(fragment));
+    expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
       query {
         viewer {
           ${fragment}
@@ -132,7 +138,7 @@ describe('RelayQueryPath', () => {
     // address is not refetchable, has client ID
     var root = new RelayQueryPath(query);
     var path = root.getPath(address, 'client:1');
-    var pathQuery = path.getQuery(city);
+    var pathQuery = path.getQuery(store, city);
     expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"123") {
@@ -169,7 +175,8 @@ describe('RelayQueryPath', () => {
     // actor has an ID and is refetchable
     var root = new RelayQueryPath(query);
     var path = root.getPath(actor, '123');
-    expect(path.getQuery(getNode(fragment))).toEqualQueryRoot(getNode(Relay.QL`
+    var pathQuery = path.getQuery(store, getNode(fragment));
+    expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"123") {
           id

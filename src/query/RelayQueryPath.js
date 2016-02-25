@@ -17,8 +17,11 @@ import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
+import type RelayRecordStore from 'RelayRecordStore';
 
 const invariant = require('invariant');
+const stableStringify = require('stableStringify');
+const warning = require('warning');
 
 const {ID, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 
@@ -129,6 +132,7 @@ class RelayQueryPath {
    * The query also includes any ID fields along the way.
    */
   getQuery(
+    store: RelayRecordStore,
     appendNode: RelayQuery.Fragment | RelayQuery.Field
   ): RelayQuery.Root {
     let node = this._node;
@@ -162,20 +166,37 @@ class RelayQueryPath {
       node instanceof RelayQuery.Root,
       'RelayQueryPath: Expected a root node.'
     );
+    let children = [
+      child,
+      (node: $FlowIssue).getFieldByStorageKey(ID),
+      (node: $FlowIssue).getFieldByStorageKey(TYPENAME),
+    ];
     const metadata = {...node.getConcreteQueryNode().metadata};
     const identifyingArg = node.getIdentifyingArg();
     if (identifyingArg && identifyingArg.name != null) {
       metadata.identifyingArgName = identifyingArg.name;
     }
+    if (identifyingArg && identifyingArg.value != null) {
+      const rootType = store.getType(stableStringify(identifyingArg.value));
+      warning(
+        rootType != null,
+        'RelayQueryPath: Expected a typename for record `%s`. Generating a ' +
+        'possibly invalid query.',
+        identifyingArg.value
+      );
+      if (rootType != null) {
+        children = [RelayQuery.Fragment.build(
+          this.getName(),
+          rootType,
+          children
+        )];
+      }
+    }
     return RelayQuery.Root.build(
       this.getName(),
       node.getFieldName(),
       (identifyingArg && identifyingArg.value) || null,
-      [
-        child,
-        (node: $FlowIssue).getFieldByStorageKey(ID),
-        (node: $FlowIssue).getFieldByStorageKey(TYPENAME),
-      ],
+      children,
       metadata,
       node.getType()
     );

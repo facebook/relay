@@ -469,8 +469,14 @@ var RelayTestUtils = {
             RelayMetaRoute.get('$RelayTestUtils'),
             {}
           );
-          var actualQuery = actual.getQuery(fragment);
-          var expectedQuery = expected.getQuery(fragment);
+          const mockStore = {
+            getType() {
+              return 'RelayTestUtils';
+            },
+          };
+
+          var actualQuery = actual.getQuery(mockStore, fragment);
+          var expectedQuery = expected.getQuery(mockStore, fragment);
 
           if (!actualQuery.equals(expectedQuery)) {
             return {

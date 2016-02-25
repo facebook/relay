@@ -1,6 +1,7 @@
 [ignore]
 .*/__fixtures__/.*
 .*/__tests__/.*
+../../../node_modules/util/
 
 [include]
 ../node_modules/

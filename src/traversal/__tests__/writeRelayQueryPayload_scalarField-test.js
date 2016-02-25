@@ -49,9 +49,9 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           name: null,
-          __typename: 'User',
         },
       };
       var results = writePayload(store, writer, query, payload);
@@ -82,6 +82,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           name: null,
         },
@@ -115,6 +116,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           name: null,
         },
@@ -170,6 +172,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           name: undefined,
         },
@@ -198,6 +201,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           name: undefined,
         },
@@ -225,6 +229,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           name: 'Joseph',
         },

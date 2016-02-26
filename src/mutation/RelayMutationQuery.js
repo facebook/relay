@@ -67,8 +67,8 @@ type OptimisticUpdateQueryBuilderConfig =
     response: Object;
   };
 
-const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
-const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
+var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
+var {ANY_TYPE, ID, TYPENAME, NODE_TYPE} = RelayNodeInterface;
 
 /**
  * @internal
@@ -108,7 +108,25 @@ const RelayMutationQuery = {
       if (trackedField) {
         const mutationField = intersectRelayQuery(trackedField, fatField);
         if (mutationField) {
-          mutatedFields.push(mutationField);
+          // The type of `fatField` and the type of our `trackedChildren` may be
+          // incompatible due to the nature of query tracking. Since we don't
+          // have sufficient type information to prune the `trackedChildren`
+          // here, the next best thing is to insert a `... on Node` fragment to
+          // provide an "indirection layer" that avoids type conflicts. The
+          // resulting query will be larger than necessary, but at least it will
+          // be valid! (see https://github.com/facebook/relay/issues/782)
+          // NOTE: This won't work for at least one, maybe two reasons:
+          // #1: still need to wrap the query in a fragment on it's own type
+          // #2: "indirecting" via Node might not always work, e.g. union types
+          var nodeFragment = RelayQuery.Fragment.build(
+            'buildFragmentForFields',
+            NODE_TYPE,
+            mutationField.getChildren()
+          );
+          var indirectField = mutationField.clone([nodeFragment]);
+          if (indirectField) {
+            mutatedFields.push(indirectField);
+          }
         }
       }
     });

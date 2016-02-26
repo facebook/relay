@@ -3,7 +3,9 @@
 .*/__tests__/.*
 
 [include]
+../node_modules/
 ../../node_modules/
+../../../node_modules/util/
 
 [libs]
 ../interfaces

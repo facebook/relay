@@ -41,6 +41,34 @@ describe('RelayFragmentPointer', () => {
     });
   });
 
+  describe('create()', () => {
+    const dataID = '123';
+
+    it('creates a fragment prop for a singular fragment', () => {
+      const fragment = getNode(Relay.QL`fragment on Node { id }`);
+      const fragmentProp = RelayFragmentPointer.create(dataID, fragment);
+      expect(fragmentProp).toEqual({
+        __dataID__: dataID,
+        __fragments__: {
+          [fragment.getConcreteFragmentID()]: dataID,
+        },
+      });
+    });
+
+    it('adds plural fragments to objects', () => {
+      const pluralFragment = getNode(
+        Relay.QL`fragment on Node @relay(plural:true) { id }`
+      );
+      const fragmentProp = RelayFragmentPointer.create(dataID, pluralFragment);
+      expect(fragmentProp).toEqual({
+        __dataID__: dataID,
+        __fragments__: {
+          [pluralFragment.getConcreteFragmentID()]: dataID,
+        },
+      });
+    });
+  });
+
   describe('createForRoot', () => {
     var recordStore;
 
@@ -121,36 +149,33 @@ describe('RelayFragmentPointer', () => {
   });
 
   describe('addFragment()', () => {
-    let dataID;
-    let fragment;
-    let pluralFragment;
+    const dataID = '123';
+    let obj;
 
     beforeEach(() => {
-      dataID = '123';
-      fragment = getNode(Relay.QL`fragment on Node { id }`);
-      pluralFragment = getNode(
-        Relay.QL`fragment on Node @relay(plural:true) { id }`
-      );
+      obj = {foo: 'bar'};
     });
 
-    it('adds singular fragments to pointer objects', () => {
-      const record = RelayRecord.create(dataID);
-      RelayFragmentPointer.addFragment(record, fragment, dataID);
+    it('adds singular fragments to objects', () => {
+      const fragment = getNode(Relay.QL`fragment on Node { id }`);
+      RelayFragmentPointer.addFragment(obj, fragment, dataID);
 
-      expect(record).toEqual({
-        __dataID__: dataID,
+      expect(obj).toEqual({
+        foo: 'bar',
         __fragments__: {
           [fragment.getConcreteFragmentID()]: dataID,
         },
       });
     });
 
-    it('adds plural fragments to pointer objects', () => {
-      const record = RelayRecord.create(dataID);
-      RelayFragmentPointer.addFragment(record, pluralFragment, dataID);
+    it('adds plural fragments to objects', () => {
+      const pluralFragment = getNode(
+        Relay.QL`fragment on Node @relay(plural:true) { id }`
+      );
+      RelayFragmentPointer.addFragment(obj, pluralFragment, dataID);
 
-      expect(record).toEqual({
-        __dataID__: dataID,
+      expect(obj).toEqual({
+        foo: 'bar',
         __fragments__: {
           [pluralFragment.getConcreteFragmentID()]: dataID,
         },

@@ -167,7 +167,6 @@ var RelayTestUtils = {
 
   getPointer(dataID, fragment) {
     const RelayFragmentPointer = require('RelayFragmentPointer');
-    const RelayRecord = require('RelayRecord');
     const RelayQuery = require('RelayQuery');
     const invariant = require('invariant');
 
@@ -177,9 +176,7 @@ var RelayTestUtils = {
       fragment.constructor.name
     );
 
-    const record = RelayRecord.create(dataID);
-    RelayFragmentPointer.addFragment(record, fragment, dataID);
-    return record;
+    return RelayFragmentPointer.create(dataID, fragment);
   },
 
   /**

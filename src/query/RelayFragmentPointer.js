@@ -68,6 +68,15 @@ const RelayFragmentPointer = {
     return null;
   },
 
+  create(
+    dataID: DataID,
+    fragment: RelayQuery.Fragment
+  ): FragmentProp {
+    const record = RelayRecord.create(dataID);
+    RelayFragmentPointer.addFragment(record, fragment, dataID);
+    return record;
+  },
+
   createForRoot(
     store: RelayRecordStore,
     query: RelayQuery.Root
@@ -86,9 +95,7 @@ const RelayFragmentPointer = {
         if (!dataID) {
           return null;
         }
-        const record = RelayRecord.create(dataID);
-        RelayFragmentPointer.addFragment(record, fragment, dataID);
-        return record;
+        return RelayFragmentPointer.create(dataID, fragment);
       });
     }
     invariant(
@@ -105,9 +112,7 @@ const RelayFragmentPointer = {
       // TODO(t7765591): Throw if `fragment` is not optional.
       return null;
     }
-    const record = RelayRecord.create(dataID);
-    RelayFragmentPointer.addFragment(record, fragment, dataID);
-    return record;
+    return RelayFragmentPointer.create(dataID, fragment);
   },
 };
 

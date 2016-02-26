@@ -217,6 +217,9 @@ export type QueryResult = {
   ref_params?: ?{[name: string]: mixed};
   response: Object;
 };
+export type SubscriptionResult = {
+  response: Object;
+};
 
 // Utility
 export type Abortable = {

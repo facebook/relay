@@ -794,6 +794,79 @@ describe('printRelayOSSQuery', () => {
     });
   });
 
+  it('prints a subscription', () => {
+    const inputValue = {
+      clientSubscriptionId: '123',
+      feedbackId: '456',
+    };
+    const subscription = getNode(Relay.QL`
+      subscription {
+        commentCreateSubscribe(input:$input) {
+          clientSubscriptionId,
+          feedback {
+            id,
+            topLevelComments {
+              count,
+            },
+            profilePicture(preset: SMALL) {
+              uri
+            },
+          },
+          feedbackCommentEdge {
+            cursor,
+            node {
+              id,
+              body {
+                text,
+              },
+            },
+            source {
+              id,
+            },
+          },
+        }
+      }
+    `, {input: inputValue});
+
+    const alias = generateRQLFieldAlias('profilePicture.preset(SMALL)');
+    const {text, variables} = printRelayOSSQuery(subscription);
+    expect(text).toEqualPrintedQuery(`
+      subscription PrintRelayOSSQuery(
+        $input_0: CommentCreateSubscribeInput,
+        $preset_1: PhotoSize
+      ) {
+        commentCreateSubscribe(input: $input_0) {
+          clientSubscriptionId,
+          feedback {
+            id,
+            topLevelComments {
+              count
+            },
+            ${alias}: profilePicture(preset: $preset_1) {
+              uri
+            }
+          },
+          feedbackCommentEdge {
+            cursor,
+            node {
+              id,
+              body {
+                text
+              }
+            },
+            source {
+              id
+            }
+          }
+        }
+      }
+    `);
+    expect(variables).toEqual({
+      input_0: inputValue,
+      preset_1: 'SMALL',
+    });
+  });
+
   it('prints directives', () => {
     const params = {cond: true};
     const nestedFragment = Relay.QL`

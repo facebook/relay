@@ -20,6 +20,7 @@ const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationRequest = require('RelayMutationRequest');
 const RelayQuery = require('RelayQuery');
 const RelayQueryRequest = require('RelayQueryRequest');
+const RelaySubscriptionRequest = require('RelaySubscriptionRequest');
 const RelayTestUtils = require('RelayTestUtils');
 
 const fetch = require('fetch');
@@ -340,6 +341,49 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(rejectACallback.mock.calls[0][0].message).toEqual(
         'Server response was missing for query `RelayDefaultNetworkLayer`.'
       );
+    });
+  });
+
+  describe('sendSubscription', () => {
+    let request;
+    let variables;
+    let observer;
+
+    beforeEach(() => {
+      variables = {
+        input: {
+          [RelayConnectionInterface.CLIENT_SUBSCRIPTION_ID]: 'client:a',
+          feedbackId: 4,
+        },
+      };
+
+      const subscription = RelayTestUtils.getNode(Relay.QL`
+        subscription {
+          commentCreateSubscribe(input:$input) {
+            clientSubscriptionId
+          }
+        }
+      `, variables);
+
+      observer = {
+        onNext: jest.genMockFunction(),
+        onError: jest.genMockFunction(),
+        onCompleted: jest.genMockFunction(),
+      };
+
+      request = new RelaySubscriptionRequest(subscription);
+      request.subscribe(observer);
+    });
+
+    it('throws on all subscription requests', () => {
+      expect(() => networkLayer.sendSubscription(request)).toFailInvariant(
+        'RelayDefaultNetworkLayer: `sendSubscription` is not implemented in the ' +
+        'default network layer.  A custom network layer must be injected.'
+      );
+
+      expect(observer.onNext).not.toBeCalled();
+      expect(observer.onError).not.toBeCalled();
+      expect(observer.onCompleted).not.toBeCalled();
     });
   });
 });

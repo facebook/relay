@@ -329,13 +329,6 @@ function handleRangeAdd(
   config: OperationConfig,
   isOptimisticUpdate: boolean
 ): void {
-  const clientMutationID = getString(payload, CLIENT_MUTATION_ID);
-  invariant(
-    clientMutationID,
-    'writeRelayUpdatePayload(): Expected operation `%s` to have a `%s`.',
-    operation.getName(),
-    CLIENT_MUTATION_ID
-  );
   const store = writer.getRecordStore();
 
   // Extracts the new edge from the payload
@@ -392,25 +385,35 @@ function handleRangeAdd(
     ));
   }
 
-  if (isOptimisticUpdate) {
-    // optimistic updates need to record the generated client ID for
-    // a to-be-created node
-    RelayMutationTracker.putClientIDForMutation(
-      nodeID,
-      clientMutationID
+  if (operation instanceof RelayQuery.Mutation) {
+    const clientMutationID = getString(payload, CLIENT_MUTATION_ID);
+    invariant(
+      clientMutationID,
+      'writeRelayUpdatePayload(): Expected operation `%s` to have a `%s`.',
+      operation.getName(),
+      CLIENT_MUTATION_ID
     );
-  } else {
-    // non-optimistic updates check for the existence of a generated client
-    // ID (from the above `if` clause) and link the client ID to the actual
-    // server ID.
-    const clientNodeID =
-      RelayMutationTracker.getClientIDForMutation(clientMutationID);
-    if (clientNodeID) {
-      RelayMutationTracker.updateClientServerIDMap(
-        clientNodeID,
-        nodeID
+
+    if (isOptimisticUpdate) {
+      // optimistic updates need to record the generated client ID for
+      // a to-be-created node
+      RelayMutationTracker.putClientIDForMutation(
+        nodeID,
+        clientMutationID
       );
-      RelayMutationTracker.deleteClientIDForMutation(clientMutationID);
+    } else {
+      // non-optimistic updates check for the existence of a generated client
+      // ID (from the above `if` clause) and link the client ID to the actual
+      // server ID.
+      const clientNodeID =
+        RelayMutationTracker.getClientIDForMutation(clientMutationID);
+      if (clientNodeID) {
+        RelayMutationTracker.updateClientServerIDMap(
+          clientNodeID,
+          nodeID
+        );
+        RelayMutationTracker.deleteClientIDForMutation(clientMutationID);
+      }
     }
   }
 }

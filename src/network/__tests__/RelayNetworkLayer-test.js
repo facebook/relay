@@ -31,6 +31,9 @@ describe('RelayNetworkLayer', () => {
     injectedNetworkLayer = {
       sendMutation: jest.genMockFunction(),
       sendQueries: jest.genMockFunction(),
+      sendSubscription: jest.genMockFunction().mockReturnValue({
+        dispose: jest.genMockFunction(),
+      }),
       supports: jest.genMockFunction().mockReturnValue(true),
     };
     RelayNetworkLayer.injectNetworkLayer(injectedNetworkLayer);
@@ -137,6 +140,87 @@ describe('RelayNetworkLayer', () => {
 
       expect(resolvedCallback).not.toBeCalled();
       expect(rejectedCallback).toBeCalledWith(error);
+    });
+  });
+
+  describe('sendSubscription', () => {
+    var subscription;
+
+    beforeEach(() => {
+      subscription = {};
+    });
+
+    it('throws when no network layer is injected', () => {
+      RelayNetworkLayer.injectNetworkLayer(null);
+      expect(() => {
+        RelayNetworkLayer.sendSubscription({subscription});
+      }).toFailInvariant(
+        'RelayNetworkLayer: Use `injectNetworkLayer` to configure a network ' +
+        'layer.'
+      );
+    });
+
+    it('throws when network layer does not implement sendSubscription', () => {
+      class CustomNetworkLayer { }
+      injectedNetworkLayer = new CustomNetworkLayer();
+      Object.assign(injectedNetworkLayer, {
+        sendMutation: jest.genMockFunction(),
+        sendQueries: jest.genMockFunction(),
+        supports: jest.genMockFunction().mockReturnValue(true),
+      });
+
+      RelayNetworkLayer.injectNetworkLayer(injectedNetworkLayer);
+      expect(() => {
+        RelayNetworkLayer.sendSubscription({subscription});
+      }).toFailInvariant(
+        'CustomNetworkLayer: does not support subscriptions.  Expected `sendSubscription` to be ' +
+        'a function.'
+      );
+    });
+
+    it('delegates subscription to the injected network layer', () => {
+      RelayNetworkLayer.sendSubscription({subscription});
+      expect(injectedNetworkLayer.sendSubscription).toBeCalled();
+
+      const pendingSubscription = injectedNetworkLayer.sendSubscription.mock.calls[0][0];
+      expect(pendingSubscription.subscription).toBe(subscription);
+    });
+
+    it('returns a disposable that calls the network layers return value disposable', () => {
+      const injectedReturnValue = {
+        dispose: jest.genMockFunction(),
+      };
+      injectedNetworkLayer.sendSubscription.mockReturnValue(injectedReturnValue);
+      const returnValue = RelayNetworkLayer.sendSubscription({subscription});
+
+      expect(typeof returnValue.dispose).toBe('function');
+      expect(injectedReturnValue.dispose).not.toBeCalled();
+
+      returnValue.dispose();
+      expect(injectedReturnValue.dispose).toBeCalled();
+    });
+
+    it('throws when the return value is not a disposable', () => {
+
+      const message = 'RelayNetworkLayer: `sendSubscription` should return an ' +
+      'object with a `dispose` property that is a no-argument function.  This ' +
+      'function is called when the client unsubscribes from the ' +
+      'subscription and any network layer resources can be cleaned up.';
+
+      injectedNetworkLayer.sendSubscription.mockReturnValue(null);
+      expect(() => {
+        RelayNetworkLayer.sendSubscription({subscription});
+      }).toFailInvariant(message);
+
+      injectedNetworkLayer.sendSubscription.mockReturnValue({});
+      expect(() => {
+        RelayNetworkLayer.sendSubscription({subscription});
+      }).toFailInvariant(message);
+
+      injectedNetworkLayer.sendSubscription.mockReturnValue(jest.genMockFunction);
+      expect(() => {
+        RelayNetworkLayer.sendSubscription({subscription});
+      }).toFailInvariant(message);
     });
   });
 });

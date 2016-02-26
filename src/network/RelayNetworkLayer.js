@@ -16,6 +16,8 @@
 import type RelayMutationRequest from 'RelayMutationRequest';
 const RelayProfiler = require('RelayProfiler');
 import type RelayQueryRequest from 'RelayQueryRequest';
+import type RelaySubscriptionRequest from 'RelaySubscriptionRequest';
+import type {Subscription} from 'RelayTypes';
 
 const invariant = require('invariant');
 
@@ -53,6 +55,29 @@ var RelayNetworkLayer = {
     }
   },
 
+  sendSubscription(subscriptionRequest: RelaySubscriptionRequest): Subscription {
+    const networkLayer = getCurrentNetworkLayer();
+
+    invariant(
+      typeof networkLayer.sendSubscription === 'function',
+      '%s: does not support subscriptions.  Expected `sendSubscription` to be ' +
+      'a function.',
+      networkLayer.constructor.name
+    );
+
+    const result = networkLayer.sendSubscription(subscriptionRequest);
+
+    invariant(
+      result && typeof result.dispose === 'function',
+      'RelayNetworkLayer: `sendSubscription` should return an object with a ' +
+      '`dispose` property that is a no-argument function.  This function is ' +
+      'called when the client unsubscribes from the subscription ' +
+      'and any network layer resources can be cleaned up.'
+    );
+
+    return result;
+  },
+
   supports(...options: Array<string>): boolean {
     var networkLayer = getCurrentNetworkLayer();
     return networkLayer.supports(...options);
@@ -70,6 +95,7 @@ function getCurrentNetworkLayer(): $FlowIssue {
 RelayProfiler.instrumentMethods(RelayNetworkLayer, {
   sendMutation: 'RelayNetworkLayer.sendMutation',
   sendQueries: 'RelayNetworkLayer.sendQueries',
+  sendSubscription: 'RelayNetworkLayer.sendSubscription',
 });
 
 module.exports = RelayNetworkLayer;

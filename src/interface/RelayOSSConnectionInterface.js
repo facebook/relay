@@ -36,6 +36,7 @@ var REQUIRED_RANGE_CALLS = {
  */
 var RelayOSSConnectionInterface = {
   CLIENT_MUTATION_ID: 'clientMutationId',
+  CLIENT_SUBSCRIPTION_ID: 'clientSubscriptionId',
   CURSOR: 'cursor',
   EDGES: 'edges',
   END_CURSOR: 'endCursor',

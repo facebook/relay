@@ -48,6 +48,10 @@ const RESOLVED_FRAGMENT_MAP_GENERATION = '__resolvedFragmentMapGeneration__';
 const PATH = '__path__';
 const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 
+import type {
+  PageInfo,
+} from 'RelayConnectionInterface';
+
 type EdgeData = {
   __dataID__: DataID;
   cursor: mixed;
@@ -55,7 +59,6 @@ type EdgeData = {
     __dataID__: DataID;
   };
 };
-type PageInfo = {[key: string]: mixed};
 
 type RangeOperation = $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 

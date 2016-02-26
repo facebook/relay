@@ -43,11 +43,15 @@ const RANGE = '__range__';
 const RESOLVED_FRAGMENT_MAP = '__resolvedFragmentMap__';
 const PATH = '__path__';
 
-type PageInfo = {[key: string]: mixed};
+import type {
+  PageInfo,
+} from 'RelayConnectionInterface';
+
 type RangeEdge = {
   edgeID: string;
   nodeID: ?string;
 };
+
 export type RangeInfo = {
   diffCalls: Array<Call>;
   filterCalls: Array<Call>;

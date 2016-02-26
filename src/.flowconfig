@@ -8,6 +8,7 @@
 ../node_modules/fbjs/lib
 ../node_modules/react
 ../node_modules/react-static-container/lib
+../node_modules/base62
 
 [libs]
 ../node_modules/fbjs/flow/lib

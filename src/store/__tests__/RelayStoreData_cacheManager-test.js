@@ -110,18 +110,24 @@ describe('RelayStoreData', function() {
 
   it('caches node metadata', () => {
     var query = getNode(Relay.QL`query{node(id:"123"){id}}`);
-    var response = {node: {id: '123'}};
+    var response = {
+      node: {
+        __typename: 'User',
+        id: '123',
+      },
+    };
     storeData.handleQueryPayload(query, response);
     var {queryWriter} = cacheManager.mocks;
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
-      writeField: 2,
+      writeField: 3,
       writeRootCall: 0,
     });
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
+        __typename: 'User',
         id: '123',
       },
     });
@@ -129,13 +135,18 @@ describe('RelayStoreData', function() {
 
   it('caches custom root calls', () => {
     var query = getNode(Relay.QL`query{username(name:"yuzhi"){id}}`);
-    var response = {username: {id: '123'}};
+    var response = {
+      username: {
+        __typename: 'User',
+        id: '123',
+      },
+    };
     storeData.handleQueryPayload(query, response);
     var {queryWriter} = cacheManager.mocks;
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
-      writeField: 2,
+      writeField: 3,
       writeRootCall: 1,
     });
     expect(queryWriter.writeRootCall).toBeCalledWith(
@@ -146,6 +157,7 @@ describe('RelayStoreData', function() {
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
+        __typename: 'User',
         id: '123',
       },
     });
@@ -153,7 +165,12 @@ describe('RelayStoreData', function() {
 
   it('caches nodes with client IDs', () => {
     var query = getNode(Relay.QL`query{viewer{isFbEmployee}}`);
-    var response = {viewer: {isFbEmployee: true}};
+    var response = {
+      viewer: {
+        __typename: 'User',
+        isFbEmployee: true,
+      },
+    };
     storeData.handleQueryPayload(query, response);
     var {queryWriter} = cacheManager.mocks;
 
@@ -184,8 +201,10 @@ describe('RelayStoreData', function() {
     `);
     var response = {
       node: {
+        __typename: 'User',
         id: '123',
         hometown: {
+          __typename: 'Page',
           id: '456',
           url: 'http://...',
         },
@@ -196,7 +215,7 @@ describe('RelayStoreData', function() {
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
-      writeField: 6,
+      writeField: 7,
       writeRootCall: 0,
     });
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
@@ -226,6 +245,7 @@ describe('RelayStoreData', function() {
     `);
     var response = {
       node: {
+        __typename: 'User',
         id: '123',
         screennames: [
           {service: 'GTALK'},
@@ -239,12 +259,13 @@ describe('RelayStoreData', function() {
     expect(getPathToRecord('client:1')).toEqual(getPathToRecord('client:2'));
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
-      writeField: 7,
+      writeField: 8,
       writeRootCall: 0,
     });
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
+        __typename: 'User',
         id: '123',
         screennames: [
           {__dataID__: 'client:1'},
@@ -284,17 +305,20 @@ describe('RelayStoreData', function() {
     `);
     var response = transformRelayQueryPayload(query, {
       node: {
+        __typename: 'User',
         id: '123',
         friends: {
           edges: [
             {
               node: {
+                __typename: 'User',
                 id: '1',
               },
               cursor: '1',
             },
             {
               node: {
+                __typename: 'User',
                 id: '2',
               },
               cursor: '2',
@@ -312,7 +336,7 @@ describe('RelayStoreData', function() {
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
-      writeField: 18,
+      writeField: 19,
       writeRootCall: 0,
     });
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
@@ -370,6 +394,7 @@ describe('RelayStoreData', function() {
     `);
     var response = transformRelayQueryPayload(query, {
       node: {
+        __typename: 'User',
         id: '123',
         friends: {
           edges: [],
@@ -385,7 +410,7 @@ describe('RelayStoreData', function() {
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
-      writeField: 8,
+      writeField: 9,
       writeRootCall: 0,
     });
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
@@ -405,7 +430,13 @@ describe('RelayStoreData', function() {
 
   it('caches simple mutations', () => {
     var query = getNode(Relay.QL`query{node(id:"123"){id,doesViewerLike}}`);
-    var response = {node: {id: '123', doesViewerLike: false}};
+    var response = {
+      node: {
+        __typename: 'User',
+        id: '123',
+        doesViewerLike: false,
+      },
+    };
     storeData.handleQueryPayload(query, response);
     var {mutationWriter} = cacheManager.mocks;
 
@@ -468,6 +499,7 @@ describe('RelayStoreData', function() {
     `);
     var response = transformRelayQueryPayload(query, {
       node: {
+        __typename: 'Story',
         id: '123',
         comments: {
           count: 2,
@@ -484,7 +516,6 @@ describe('RelayStoreData', function() {
             [HAS_NEXT_PAGE]: true,
           },
         },
-        __typename: 'Story',
       },
     });
     storeData.handleQueryPayload(query, response);
@@ -528,6 +559,7 @@ describe('RelayStoreData', function() {
         id: '123',
       },
       feedbackCommentEdge: {
+        __typename: 'User',
         node: {
           id: '2',
         },
@@ -589,6 +621,7 @@ describe('RelayStoreData', function() {
     `);
     var response = transformRelayQueryPayload(query, {
       node: {
+        __typename: 'Story',
         id: '123',
         comments: {
           count: 2,
@@ -605,7 +638,6 @@ describe('RelayStoreData', function() {
             [HAS_NEXT_PAGE]: true,
           },
         },
-        __typename: 'Story',
       },
     });
     storeData.handleQueryPayload(query, response);

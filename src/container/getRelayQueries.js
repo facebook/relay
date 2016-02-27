@@ -42,6 +42,9 @@ function getRelayQueries(
     queryCache.set(Component, {});
   }
   var cacheKey = route.name + ':' + stableStringify(route.params);
+  /* $FlowFixMe(>=0.22.0): Error discovered while adding Flow types
+   * to Map and Set. This is often because .get() can return null.
+   */
   var cache = queryCache.get(Component);
   if (cache.hasOwnProperty(cacheKey)) {
     return cache[cacheKey];

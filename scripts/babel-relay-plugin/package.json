@@ -6,7 +6,7 @@
   "repository": "facebook/relay",
   "main": "lib/getBabelRelayPlugin.js",
   "scripts": {
-    "build": "scripts/build-lib",
+    "build": "node scripts/build-lib",
     "lint": "eslint .",
     "prepublish": "npm run build",
     "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; NODE_ENV=test jest $@ || EXIT=$?; exit $EXIT; }; f",

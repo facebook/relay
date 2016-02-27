@@ -336,10 +336,71 @@ describe('RelayQueryRoot', () => {
     const nodeIdentifyingArg = nodeQuery.getIdentifyingArg();
     expect(nodeIdentifyingArg).toBeDefined();
     expect(nodeIdentifyingArg.type).toBe('scalar');
-
+    
     var me = getNode(Relay.QL`query{me{id}}`);
     const meIdentifyingArg = me.getIdentifyingArg();
     expect(meIdentifyingArg).toBeUndefined();
+  });
+
+  it('returns the identifying number argument ', () => {
+    var nQuery = getNode(Relay.QL`
+      query {
+        task(number:5){
+          dumb,
+        }
+      }
+    `);
+    const nodeIdentifyingArg = nQuery.getIdentifyingArg();
+    expect(nodeIdentifyingArg).toEqual({
+      name: 'number',
+      value: 5,
+    });
+  });
+
+  it('returns the identifying object argument ', () => {
+    var nQuery = getNode(Relay.QL`
+      query {
+        checkinSearchQuery(query:{query:"objectArg"}){
+          query,
+        }
+      }
+    `);
+    nQuery.getConcreteQueryNode().metadata= {
+      identifyingArgName: 'query',
+      identifyingArgType: 'CheckinSearchInput!' };
+    const nodeIdentifyingArg = nQuery.getIdentifyingArg();
+    expect(nodeIdentifyingArg).toEqual({
+      name: 'query',
+      type: 'CheckinSearchInput!',
+      value: {
+        query: 'objectArg',
+      },
+    });
+  });
+
+  it('returns the identifying list-object argument ', () => {
+    var wayQuery = getNode(Relay.QL`
+      query {
+        fastestRoute(waypoints:[{uri:"s",dumbNumber:[1,7]},
+          {uri:"a",dumbNumber:[88,666]}]){
+          dumb,
+        }
+      }
+    `);
+    wayQuery.getConcreteQueryNode().metadata= {
+      identifyingArgName: 'waypoints',
+      identifyingArgType: '[Waypoint!]!' };
+    const nodeIdentifyingArg = wayQuery.getIdentifyingArg();
+    expect(nodeIdentifyingArg).toEqual(
+      {
+        name: 'waypoints',
+        value: [
+          { uri: 's', dumbNumber: [1, 7] },
+          { uri: 'a', dumbNumber: [88, 666] },
+        ],
+        type: '[Waypoint!]!',
+      }
+    );
   });
 
   it('creates nodes', () => {

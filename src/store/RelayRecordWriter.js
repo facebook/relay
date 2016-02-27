@@ -37,9 +37,8 @@ import type {CacheWriter} from 'RelayTypes';
 
 const invariant = require('invariant');
 const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
-
+const stableStringify = require('stableStringify');
 const {CURSOR, NODE} = RelayConnectionInterface;
-const EMPTY = '';
 const FILTER_CALLS = '__filterCalls__';
 const FORCE_INDEX = '__forceIndex__';
 const RANGE = '__range__';
@@ -97,23 +96,25 @@ class RelayRecordWriter {
    */
   getDataID(
     storageKey: string,
-    identifyingArgValue: ?string
+    identifyingArgValue: mixed
   ): ?DataID {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
-      invariant(
-        identifyingArgValue != null,
-        'RelayRecordWriter.getDataID(): Argument to `%s()` ' +
-        'cannot be null or undefined.',
-        storageKey
-      );
-      return identifyingArgValue;
+      if (identifyingArgValue != null && 
+        typeof identifyingArgValue === 'string') {
+        return identifyingArgValue;
+      }else {
+        invariant(
+          false,
+          'RelayRecordWriter.getDataID(): Argument to `%s()` ' +
+          'cannot be null or undefined.',
+          storageKey
+        );
+      }
     }
-    if (identifyingArgValue == null) {
-      identifyingArgValue = EMPTY;
-    }
+    const identifyingArgHash = stableStringify(identifyingArgValue);
     if (this._rootCallMap.hasOwnProperty(storageKey) &&
-        this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)) {
-      return this._rootCallMap[storageKey][identifyingArgValue];
+        this._rootCallMap[storageKey].hasOwnProperty(identifyingArgHash)) {
+      return this._rootCallMap[storageKey][identifyingArgHash];
     }
   }
 
@@ -123,7 +124,7 @@ class RelayRecordWriter {
    */
   putDataID(
     storageKey: string,
-    identifyingArgValue: ?string,
+    identifyingArgValue: mixed,
     dataID: DataID
   ): void {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
@@ -135,13 +136,11 @@ class RelayRecordWriter {
       );
       return;
     }
-    if (identifyingArgValue == null) {
-      identifyingArgValue = EMPTY;
-    }
+    const identifyingArgHash = stableStringify(identifyingArgValue);
     this._rootCallMap[storageKey] = this._rootCallMap[storageKey] || {};
-    this._rootCallMap[storageKey][identifyingArgValue] = dataID;
+    this._rootCallMap[storageKey][identifyingArgHash] = dataID;
     if (this._cacheWriter) {
-      this._cacheWriter.writeRootCall(storageKey, identifyingArgValue, dataID);
+      this._cacheWriter.writeRootCall(storageKey, identifyingArgHash, dataID);
     }
   }
 

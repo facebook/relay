@@ -16,6 +16,7 @@
 import type RelayQuery from 'RelayQuery';
 
 const invariant = require('invariant');
+const stableStringify = require('stableStringify');
 
 /**
  * @internal
@@ -26,7 +27,7 @@ const invariant = require('invariant');
  */
 function forEachRootCallArg(
   query: RelayQuery.Root,
-  callback: (identifyingArgValue: ?string) => void
+  callback: (identifyingArgValue: mixed) => void
 ): void {
   invariant(
     !query.getBatchCall(),
@@ -40,13 +41,17 @@ function forEachRootCallArg(
     } else {
       invariant(
         typeof identifyingArgValue === 'string' ||
+        typeof identifyingArgValue === 'object' ||
+        typeof identifyingArgValue === 'boolean' ||
         typeof identifyingArgValue === 'number',
         'Relay: Expected arguments to root field `%s` to each be strings/' +
-        'numbers, got `%s`.',
+        'numbers|object|boolean, got `%s`.',
         query.getFieldName(),
         JSON.stringify(identifyingArgValue)
       );
-      fn('' + identifyingArgValue);
+      // ToDo: Why fn(identifyingArgValue) will 
+      // auto stringify identifyingArgValue ?
+      fn(identifyingArgValue);
     }
   }
   const identifyingArg = query.getIdentifyingArg();

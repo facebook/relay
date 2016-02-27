@@ -34,9 +34,8 @@ import type {RecordState} from 'RelayRecordState';
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
-
+const stableStringify= require('stableStringify');
 const {NODE} = RelayConnectionInterface;
-const EMPTY = '';
 const FILTER_CALLS = '__filterCalls__';
 const FORCE_INDEX = '__forceIndex__';
 const RANGE = '__range__';
@@ -116,28 +115,31 @@ class RelayRecordStore {
   /**
    * Get the data ID associated with a storage key (and optionally an
    * identifying argument value) for a root query.
+   * toDO ?any should be something like number|string|object
    */
   getDataID(
     storageKey: string,
-    identifyingArgValue: ?string
+    identifyingArgValue: mixed
   ): ?DataID {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
-      invariant(
-        identifyingArgValue != null,
-        'RelayRecordStore.getDataID(): Argument to `%s()` ' +
-        'cannot be null or undefined.',
-        storageKey
-      );
-      return identifyingArgValue;
+      if (identifyingArgValue != null && 
+        typeof identifyingArgValue === 'string') {
+        return identifyingArgValue;
+      }else {
+        invariant(
+          false,
+          'RelayRecordStore.getDataID(): Argument to `%s()` ' +
+          'cannot be null or undefined.',
+          storageKey
+        );
+      }
     }
-    if (identifyingArgValue == null) {
-      identifyingArgValue = EMPTY;
-    }
+    const identifyingArgHash = stableStringify(identifyingArgValue);
     if (this._rootCallMap.hasOwnProperty(storageKey) &&
-        this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)) {
-      return this._rootCallMap[storageKey][identifyingArgValue];
+        this._rootCallMap[storageKey].hasOwnProperty(identifyingArgHash)) {
+      return this._rootCallMap[storageKey][identifyingArgHash];
     } else if (this._cachedRootCallMap.hasOwnProperty(storageKey)) {
-      return this._cachedRootCallMap[storageKey][identifyingArgValue];
+      return this._cachedRootCallMap[storageKey][identifyingArgHash];
     }
   }
 

@@ -151,7 +151,7 @@ class RelayQLFragment extends RelayQLDefinition<
 
   getFragmentID(): string {
     if (this.fragmentID == null) {
-      let suffix = (_nextFragmentID++).toString(32);
+      const suffix = (_nextFragmentID++).toString(32);
       // The fragmentLocationID is the same for all inline/nested fragments
       // within each Relay.QL tagged template expression; the auto-incrementing
       // suffix distinguishes these fragments from each other.
@@ -397,6 +397,8 @@ class RelayQLArgument {
             this.type.ofType()
           )
         );
+      case 'ObjectValue':
+        return getInputObjectValue(value);
     }
     invariant(false, 'Unexpected argument kind: %s', value.kind);
   }
@@ -766,6 +768,29 @@ function stripMarkerTypes(schemaModifiedType: GraphQLSchemaType): {
     schemaUnmodifiedType = schemaUnmodifiedType.ofType;
   }
   return {isListType, isNonNullType, schemaUnmodifiedType};
+}
+
+// unlike ListValue, ObjectValue return a
+// plain javascript object(key-value)
+function getInputObjectValue(inputObject) {
+  switch (inputObject.kind) {
+    case 'IntValue':
+      return parseInt(inputObject.value, 10);
+    case 'FloatValue':
+      return parseFloat(inputObject.value);
+    case 'StringValue':
+    case 'BooleanValue':
+    case 'EnumValue':
+      return inputObject.value;
+    case 'ListValue':
+      return inputObject.values.map(getInputObjectValue);
+    case 'ObjectValue':
+      const ob={};
+      inputObject.fields.map(field => {
+        ob[field.name.value] = getInputObjectValue(field.value);
+      });
+      return ob;
+  }
 }
 
 module.exports = {

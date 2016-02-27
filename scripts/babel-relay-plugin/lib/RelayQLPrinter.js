@@ -456,7 +456,7 @@ module.exports = function (t, options) {
         }
         return codify({
           kind: t.valueToNode('CallValue'),
-          callValue: t.valueToNode(value)
+          callValue: printObject(value)
         });
       }
     }, {
@@ -600,6 +600,22 @@ module.exports = function (t, options) {
       }
       return t.memberExpression(acc, t.identifier(name));
     }, null);
+  }
+
+  function printObject(jsValue) {
+    var keys = Object.keys(jsValue);
+    var jsType = typeof jsValue;
+    if (jsType == 'object' && keys.length > 0) {
+      if (Array.isArray(jsValue)) {
+        return t.arrayExpression(jsValue.map(printObject));
+      } else {
+        return t.objectExpression(keys.map(function (key) {
+          return property(key, printObject(jsValue[key]));
+        }));
+      }
+    } else {
+      return t.valueToNode(jsValue);
+    }
   }
 
   function objectify(obj) {

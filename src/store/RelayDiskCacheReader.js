@@ -41,6 +41,7 @@ const forEachObject = require('forEachObject');
 const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
 const isEmpty = require('isEmpty');
+const stableStringify= require('stableStringify');
 
 type PendingRoots = {[key: string]: Array<RelayQuery.Root>};
 
@@ -167,7 +168,6 @@ class RelayCacheReader {
           if (this._state === 'COMPLETED') {
             return;
           }
-          identifyingArgValue = identifyingArgValue || '';
           this.visitRoot(storageKey, identifyingArgValue, query);
         });
       }
@@ -204,20 +204,21 @@ class RelayCacheReader {
 
   visitRoot(
     storageKey: string,
-    identifyingArgValue: string,
+    identifyingArgValue: mixed,
     query: RelayQuery.Root
   ): void {
     var dataID = this._store.getDataID(storageKey, identifyingArgValue);
     if (dataID == null) {
+      const identifyingArgHash = stableStringify(identifyingArgValue); 
       if (this._cachedRootCallMap.hasOwnProperty(storageKey) &&
           this._cachedRootCallMap[storageKey].hasOwnProperty(
-            identifyingArgValue
+            identifyingArgHash
           )
       ) {
         // Already attempted to read this root from cache.
         this._handleFailed();
       } else {
-        this.queueRoot(storageKey, identifyingArgValue, query);
+        this.queueRoot(storageKey, identifyingArgHash, query);
       }
     } else {
       this.visitNode(
@@ -233,17 +234,17 @@ class RelayCacheReader {
 
   queueRoot(
     storageKey: string,
-    identifyingArgValue: string,
+    identifyingArgHash: string,
     query: RelayQuery.Root
   ) {
-    var rootKey = storageKey + '*' + identifyingArgValue;
+    var rootKey = storageKey + '*' + identifyingArgHash;
     if (this._pendingRoots.hasOwnProperty(rootKey)) {
       this._pendingRoots[rootKey].push(query);
     } else {
       this._pendingRoots[rootKey] = [query];
       this._cacheManager.readRootCall(
         storageKey,
-        identifyingArgValue,
+        identifyingArgHash,
         (error, value) => {
           if (this._state === 'COMPLETED') {
             return;
@@ -257,8 +258,8 @@ class RelayCacheReader {
 
           this._cachedRootCallMap[storageKey] =
             this._cachedRootCallMap[storageKey] || {};
-          this._cachedRootCallMap[storageKey][identifyingArgValue] = value;
-          if (this._cachedRootCallMap[storageKey][identifyingArgValue] ==
+          this._cachedRootCallMap[storageKey][identifyingArgHash] = value;
+          if (this._cachedRootCallMap[storageKey][identifyingArgHash] ==
               null) {
             // Read from cache and we still don't have valid `dataID`.
             this._handleFailed();

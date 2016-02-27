@@ -98,14 +98,16 @@ const RelayFragmentPointer = {
         return RelayFragmentPointer.create(dataID, fragment);
       });
     }
+    const argType = typeof identifyingArgValue;
     invariant(
-      typeof identifyingArgValue === 'string' || identifyingArgValue == null,
-      'RelayFragmentPointer: Value for the argument to `%s` on query `%s` ' +
-      'should be a string, but it was set to `%s`. Check that the value is a ' +
-      'string.',
+      typeof argType !== 'function' && argType !== 'symbol',
+      'RelayFragmentPointer: Type for the argument to `%s` on query `%s` ' +
+      'should be boolean|string|number|object, but the type of arg(`%s`) is ' +
+      '`%s`. ',
       query.getFieldName(),
       query.getName(),
-      identifyingArgValue
+      identifyingArgValue,
+      argType,
     );
     const dataID = store.getDataID(storageKey, identifyingArgValue);
     if (!dataID) {

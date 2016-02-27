@@ -446,6 +446,8 @@ var RelayQLArgument = (function () {
           return value.values.map(function (value) {
             return new RelayQLArgument(_this6.context, _extends({}, _this6.ast, { value: value }), _this6.type.ofType());
           });
+        case 'ObjectValue':
+          return getInputObjectValue(value);
       }
       invariant(false, 'Unexpected argument kind: %s', value.kind);
     }
@@ -815,6 +817,29 @@ function stripMarkerTypes(schemaModifiedType) {
     schemaUnmodifiedType = schemaUnmodifiedType.ofType;
   }
   return { isListType: isListType, isNonNullType: isNonNullType, schemaUnmodifiedType: schemaUnmodifiedType };
+}
+
+// unlike ListValue, ObjectValue return a
+// plain javascript object(key-value)
+function getInputObjectValue(inputObject) {
+  switch (inputObject.kind) {
+    case 'IntValue':
+      return parseInt(inputObject.value, 10);
+    case 'FloatValue':
+      return parseFloat(inputObject.value);
+    case 'StringValue':
+    case 'BooleanValue':
+    case 'EnumValue':
+      return inputObject.value;
+    case 'ListValue':
+      return inputObject.values.map(getInputObjectValue);
+    case 'ObjectValue':
+      var ob = {};
+      inputObject.fields.map(function (field) {
+        ob[field.name.value] = getInputObjectValue(field.value);
+      });
+      return ob;
+  }
 }
 
 module.exports = {

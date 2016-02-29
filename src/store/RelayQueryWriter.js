@@ -17,7 +17,8 @@ const RelayQuery = require('RelayQuery');
 import type RelayChangeTracker from 'RelayChangeTracker';
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
-import type RelayQueryPath from 'RelayQueryPath';
+import type {QueryPath} from 'RelayQueryPath';
+const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecordState = require('RelayRecordState');
@@ -39,7 +40,7 @@ type WriterOptions = {
 };
 type WriterState = {
   nodeID: ?DataID;
-  path: RelayQueryPath;
+  path: QueryPath;
   recordID: DataID;
   responseData: ?mixed;
 };
@@ -121,7 +122,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     node: RelayQuery.Node,
     recordID: DataID,
     responseData: mixed,
-    path: RelayQueryPath
+    path: QueryPath
   ): void {
     const state = {
       nodeID: null,
@@ -181,7 +182,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   createRecordIfMissing(
     node: RelayQuery.Node,
     recordID: DataID,
-    path: RelayQueryPath,
+    path: QueryPath,
     payload: ?Object
   ): void {
     const recordState = this._store.getRecordState(recordID);
@@ -245,7 +246,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       this._isOptimisticUpdate ||
       isCompatibleRelayFragmentType(fragment, this._store.getType(recordID))
     ) {
-      const path = state.path.getPath(fragment, recordID);
+      const path = RelayQueryPath.getPath(state.path, fragment, recordID);
       this.traverse(fragment, {
         ...state,
         path,
@@ -354,7 +355,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         (connectionData: $FixMe)[EDGES]
       )
     );
-    const path = state.path.getPath(field, connectionID);
+    const path = RelayQueryPath.getPath(state.path, field, connectionID);
     // always update the store to ensure the value is present in the appropriate
     // data sink (records/queuedRecords), but only record an update if the value
     // changed.
@@ -519,7 +520,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       );
       // TODO: Flow: `nodeID` is `string`
       const edgeID = generateClientEdgeID(connectionID, nodeID);
-      const path = state.path.getPath(edges, edgeID);
+      const path = RelayQueryPath.getPath(state.path, edges, edgeID);
       this.createRecordIfMissing(edges, edgeID, path, null);
       fetchedEdgeIDs.push(edgeID);
 
@@ -596,7 +597,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       );
       nextLinkedIDs.push(nextLinkedID);
 
-      const path = state.path.getPath(field, nextLinkedID);
+      const path = RelayQueryPath.getPath(state.path, field, nextLinkedID);
       this.createRecordIfMissing(field, nextLinkedID, path, nextRecord);
       isUpdate = (
         isUpdate ||
@@ -662,7 +663,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       generateClientID()
     );
 
-    const path = state.path.getPath(field, nextLinkedID);
+    const path = RelayQueryPath.getPath(state.path, field, nextLinkedID);
     this.createRecordIfMissing(field, nextLinkedID, path, fieldData);
     // always update the store to ensure the value is present in the appropriate
     // data sink (record/queuedRecords), but only record an update if the value

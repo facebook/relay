@@ -22,6 +22,7 @@ import type {
 } from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
+import type {QueryPath} from 'RelayQueryPath';
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecord = require('RelayRecord');
 import type {RecordMap} from 'RelayRecord';
@@ -53,7 +54,7 @@ const RelayDiskCacheReader = {
   readFragment(
     dataID: DataID,
     fragment: RelayQuery.Fragment,
-    path: RelayQueryPath,
+    path: QueryPath,
     store: RelayRecordStore,
     cachedRecords: RecordMap,
     cachedRootCallMap: RootCallMap,
@@ -181,7 +182,7 @@ class RelayCacheReader {
   readFragment(
     dataID: DataID,
     fragment: RelayQuery.Fragment,
-    path: RelayQueryPath
+    path: QueryPath
   ): void {
     invariant(
       this._state === 'PENDING',
@@ -224,7 +225,7 @@ class RelayCacheReader {
         dataID,
         {
           node: query,
-          path: new RelayQueryPath(query),
+          path: RelayQueryPath.create(query),
           rangeCalls: undefined,
         }
       );
@@ -272,7 +273,7 @@ class RelayCacheReader {
                 dataID,
                 {
                   node: root,
-                  path: new RelayQueryPath(root),
+                  path: RelayQueryPath.create(root),
                   rangeCalls: undefined,
                 }
               );

@@ -174,8 +174,11 @@ describe('RelayRecordStore', () => {
         }
       `);
       var actorID = '123';
-      var path = new RelayQueryPath(query);
-      path = path.getPath(query.getFieldByStorageKey('actor'), actorID);
+      var path = RelayQueryPath.getPath(
+        RelayQueryPath.create(query),
+        query.getFieldByStorageKey('actor'),
+        actorID
+      );
       writer.putRecord(actorID, 'Type', path);
       expect(store.getPathToRecord(actorID)).toBe(undefined);
     });
@@ -197,9 +200,12 @@ describe('RelayRecordStore', () => {
       `);
       var actorID = '123';
       var addressID = 'client:1';
-      var path = new RelayQueryPath(query);
-      path = path.getPath(query.getFieldByStorageKey('actor'), actorID);
-      path = path.getPath(
+      var path = RelayQueryPath.getPath(
+        RelayQueryPath.getPath(
+          RelayQueryPath.create(query),
+          query.getFieldByStorageKey('actor'),
+          actorID
+        ),
         query.getFieldByStorageKey('actor').getFieldByStorageKey('address'),
         addressID
       );

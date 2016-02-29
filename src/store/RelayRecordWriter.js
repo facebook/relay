@@ -25,7 +25,7 @@ import type {
   RootCallMap,
 } from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
-import type RelayQueryPath from 'RelayQueryPath';
+import type {QueryPath} from 'RelayQueryPath';
 const RelayRecord = require('RelayRecord');
 import type {
   Record,
@@ -164,7 +164,7 @@ class RelayRecordWriter {
   putRecord(
     dataID: DataID,
     typeName: ?string,
-    path?: RelayQueryPath
+    path?: QueryPath
   ): void {
     const prevRecord = this._getRecordForWrite(dataID);
     if (prevRecord) {
@@ -197,7 +197,7 @@ class RelayRecordWriter {
    */
   getPathToRecord(
     dataID: DataID
-  ): ?RelayQueryPath {
+  ): ?QueryPath {
     return (this._getField(dataID, PATH): any);
   }
 

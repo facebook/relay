@@ -244,26 +244,11 @@ function mergeField(
   let path;
 
   if (recordID != null) {
-    path = new RelayQueryPath(
-      RelayQuery.Root.build(
-        'writeRelayUpdatePayload',
-        NODE,
-        recordID,
-        null,
-        {
-          identifyingArgName: ID,
-          identifyingArgType: ID_TYPE,
-          isAbstract: true,
-          isDeferred: false,
-          isPlural: false,
-        },
-        NODE_TYPE
-      )
-    );
+    path = RelayQueryPath.createForID(recordID, 'writeRelayUpdatePayload');
   } else {
     recordID = store.getDataID(fieldName);
     // Root fields that do not accept arguments
-    path = new RelayQueryPath(RelayQuery.Root.build(
+    path = RelayQueryPath.create(RelayQuery.Root.build(
       'writeRelayUpdatePayload',
       fieldName,
       null,
@@ -446,7 +431,7 @@ function addRangeNode(
     'writeRelayUpdatePayload(): Expected a path for connection record, `%s`.',
     connectionID
   );
-  path = path.getPath(EDGES_FIELD, edgeID);
+  path = RelayQueryPath.getPath(path, EDGES_FIELD, edgeID);
 
   // create the edge record
   writer.createRecordIfMissing(EDGES_FIELD, edgeID, path, edgeData);

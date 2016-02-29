@@ -17,6 +17,7 @@ const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
+import type {QueryPath} from 'RelayQueryPath';
 const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayRecord = require('RelayRecord');
@@ -78,7 +79,7 @@ function diffRelayQuery(
   store: RelayRecordStore,
   tracker: RelayQueryTracker
 ): Array<RelayQuery.Root> {
-  var path = new RelayQueryPath(root);
+  var path = RelayQueryPath.create(root);
   var queries = [];
 
   var visitor = new RelayDiffQueryBuilder(store, tracker);
@@ -186,7 +187,7 @@ class RelayDiffQueryBuilder {
 
   visit(
     node: RelayQuery.Node,
-    path: RelayQueryPath,
+    path: QueryPath,
     scope: DiffScope
   ): ?DiffOutput {
     if (node instanceof RelayQuery.Field) {
@@ -200,7 +201,7 @@ class RelayDiffQueryBuilder {
 
   visitRoot(
     node: RelayQuery.Root,
-    path: RelayQueryPath,
+    path: QueryPath,
     scope: DiffScope
   ): ?DiffOutput {
     return this.traverse(node, path, scope);
@@ -208,7 +209,7 @@ class RelayDiffQueryBuilder {
 
   visitFragment(
     node: RelayQuery.Fragment,
-    path: RelayQueryPath,
+    path: QueryPath,
     scope: DiffScope
   ): ?DiffOutput {
     return this.traverse(node, path, scope);
@@ -220,7 +221,7 @@ class RelayDiffQueryBuilder {
    */
   visitField(
     node: RelayQuery.Field,
-    path: RelayQueryPath,
+    path: QueryPath,
     {connectionField, dataID, edgeID, rangeInfo}: DiffScope
   ): ?DiffOutput {
     // special case when inside a connection traversal
@@ -231,7 +232,7 @@ class RelayDiffQueryBuilder {
           return this.diffConnectionEdge(
             connectionField,
             node, // edge field
-            path.getPath(node, edgeID),
+            RelayQueryPath.getPath(path, node, edgeID),
             edgeID,
             rangeInfo
           );
@@ -278,7 +279,7 @@ class RelayDiffQueryBuilder {
    */
   traverse(
     node: RelayQuery.Node,
-    path: RelayQueryPath,
+    path: QueryPath,
     scope: DiffScope
   ): ?DiffOutput {
     let diffNode;
@@ -393,7 +394,7 @@ class RelayDiffQueryBuilder {
    */
   diffLink(
     field: RelayQuery.Field,
-    path: RelayQueryPath,
+    path: QueryPath,
     dataID: DataID,
   ): ?DiffOutput {
     var nextDataID =
@@ -413,7 +414,7 @@ class RelayDiffQueryBuilder {
 
     return this.traverse(
       field,
-      path.getPath(field, nextDataID),
+      RelayQueryPath.getPath(path, field, nextDataID),
       makeScope(nextDataID)
     );
   }
@@ -424,7 +425,7 @@ class RelayDiffQueryBuilder {
    */
   diffPluralLink(
     field: RelayQuery.Field,
-    path: RelayQueryPath,
+    path: QueryPath,
     dataID: DataID
   ): ?DiffOutput {
     var linkedIDs =
@@ -450,7 +451,7 @@ class RelayDiffQueryBuilder {
       linkedIDs.forEach(itemID => {
         var itemState = this.traverse(
           field,
-          path.getPath(field, itemID),
+          RelayQueryPath.getPath(path, field, itemID),
           makeScope(itemID)
         );
         if (itemState) {
@@ -462,7 +463,7 @@ class RelayDiffQueryBuilder {
             this.splitQuery(buildRoot(
               itemID,
               itemState.diffNode.getChildren(),
-              path.getName(),
+              RelayQueryPath.getName(path),
               field.getType()
             ));
           }
@@ -484,7 +485,7 @@ class RelayDiffQueryBuilder {
       var sampleItemID = linkedIDs[0];
       return this.traverse(
         field,
-        path.getPath(field, sampleItemID),
+        RelayQueryPath.getPath(path, field, sampleItemID),
         makeScope(sampleItemID)
       );
     }
@@ -499,7 +500,7 @@ class RelayDiffQueryBuilder {
    */
   diffConnection(
     field: RelayQuery.Field,
-    path: RelayQueryPath,
+    path: QueryPath,
     dataID: DataID,
   ): ?DiffOutput {
     var store: RelayRecordStore = this._store;
@@ -528,7 +529,7 @@ class RelayDiffQueryBuilder {
     if (rangeInfo == null) {
       return this.traverse(
         field,
-        path.getPath(field, connectionID),
+        RelayQueryPath.getPath(path, field, connectionID),
         makeScope(connectionID)
       );
     }
@@ -547,7 +548,7 @@ class RelayDiffQueryBuilder {
         };
         var diffOutput = this.traverse(
           field,
-          path.getPath(field, edge.edgeID),
+          RelayQueryPath.getPath(path, field, edge.edgeID),
           scope
         );
         // If any edges were missing data (resulting in a split query),
@@ -568,7 +569,7 @@ class RelayDiffQueryBuilder {
     // diff non-`edges` fields such as `count`
     var diffOutput = this.traverse(
       field,
-      path.getPath(field, connectionID),
+      RelayQueryPath.getPath(path, field, connectionID),
       scope
     );
     var diffNode = diffOutput ? diffOutput.diffNode : null;
@@ -609,7 +610,7 @@ class RelayDiffQueryBuilder {
   diffConnectionEdge(
     connectionField: RelayQuery.Field,
     edgeField: RelayQuery.Field,
-    path: RelayQueryPath,
+    path: QueryPath,
     edgeID: DataID,
     rangeInfo: RangeInfo
   ): DiffOutput {
@@ -617,7 +618,7 @@ class RelayDiffQueryBuilder {
     var hasSplitQueries = false;
     var diffOutput = this.traverse(
       edgeField,
-      path.getPath(edgeField, edgeID),
+      RelayQueryPath.getPath(path, edgeField, edgeID),
       makeScope(edgeID)
     );
     var diffNode = diffOutput ? diffOutput.diffNode : null;
@@ -655,7 +656,7 @@ class RelayDiffQueryBuilder {
           this.splitQuery(buildRoot(
             nodeID,
             diffNodeField.getChildren(),
-            path.getName(),
+            RelayQueryPath.getName(path),
             nodeField.getType()
           ));
         }
@@ -673,9 +674,14 @@ class RelayDiffQueryBuilder {
             if (connectionFind) {
               hasSplitQueries = true;
               // current path has `parent`, `connection`, `edges`; pop to parent
-              var connectionParent = path.getParent().getParent();
-              var connectionQuery =
-                connectionParent.getQuery(this._store, connectionFind);
+              var connectionParent = RelayQueryPath.getParent(
+                RelayQueryPath.getParent(path)
+              )
+              var connectionQuery = RelayQueryPath.getQuery(
+                this._store,
+                connectionParent,
+                connectionFind
+              );
               this.splitQuery(connectionQuery);
             }
           } else {

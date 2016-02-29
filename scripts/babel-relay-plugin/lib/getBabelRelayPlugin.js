@@ -162,7 +162,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
               if (options.debug) {
                 console.error(error.stack);
               }
-              if (options.abortOnError) {
+              if (state.opts && state.opts.enforceSchema) {
                 throw new Error('Aborting due to GraphQL validation/transform error(s).');
               }
             }

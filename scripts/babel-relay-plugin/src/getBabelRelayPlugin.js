@@ -34,7 +34,6 @@ type GraphQLSchemaProvider = (Object | () => Object);
 function getBabelRelayPlugin(
   schemaProvider: GraphQLSchemaProvider,
   pluginOptions?: ?{
-    abortOnError?: ?boolean;
     debug?: ?boolean;
     inputArgumentName?: ?string;
     snakeCase?: ?boolean;
@@ -203,7 +202,7 @@ function getBabelRelayPlugin(
             if (options.debug) {
               console.error(error.stack);
             }
-            if (options.abortOnError) {
+            if (state.opts && state.opts.enforceSchema) {
               throw new Error(
                 'Aborting due to GraphQL validation/transform error(s).'
               );

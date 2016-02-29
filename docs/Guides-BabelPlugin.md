@@ -73,7 +73,9 @@ By default, `babel-relay-plugin` catches GraphQL validation errors and logs them
 When compiling code for production deployment, the plugin can be configured to immediately throw upon encountering a validation problem:
 
 ```javascript
-var plugin = getBabelRelayPlugin(schemaData, {
-  abortOnError: true,
+babel.transform(source, {
+  plugins: [
+    [getBabelRelayPlugin(schemaData), {enforceSchema: true}],
+  ],
 });
 ```

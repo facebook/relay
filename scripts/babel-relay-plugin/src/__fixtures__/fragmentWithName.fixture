@@ -22,7 +22,7 @@ var x = (function () {
       },
       type: 'String'
     }],
-    id: 'lO6582eWhl9f:k',
+    id: 'lO6582eWhl9f:0',
     kind: 'Fragment',
     metadata: {
       isAbstract: true

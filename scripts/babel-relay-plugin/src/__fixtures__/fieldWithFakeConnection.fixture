@@ -68,7 +68,7 @@ var foo = (function () {
       },
       type: 'String'
     }],
-    id: 'LUWdmGzrlfjf:e',
+    id: 'LUWdmGzrlfjf:0',
     kind: 'Fragment',
     metadata: {},
     name: 'FieldWithFakeConnectionRelayQL',

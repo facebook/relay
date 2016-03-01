@@ -22,7 +22,7 @@ var x = (function () {
       },
       type: 'String'
     }],
-    id: 'xNupCo5yp7aB:10',
+    id: 'xNupCo5yp7aB:0',
     kind: 'Fragment',
     metadata: {
       isAbstract: true

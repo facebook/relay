@@ -10,6 +10,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+'use strict';
+
 /**
  * This defines a basic set of data for our Star Wars Schema.
  *
@@ -102,6 +104,10 @@ export function createShip(shipName, factionId) {
 
 export function getShip(id) {
   return data.Ship[id];
+}
+
+export function getShips(id) {
+  return data.Faction[id].ships.map(id => data.Ship[id]);
 }
 
 export function getFaction(id) {

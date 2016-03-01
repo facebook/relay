@@ -138,6 +138,14 @@ class RelayContext {
   }
 
   /**
+   * Resets the store
+   */
+  reset(): void {
+    console.log('test');
+    this._storeData = new RelayStoreData();
+  }
+
+  /**
    * Reads query data anchored at the supplied data ID.
    */
   read(

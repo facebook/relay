@@ -101,6 +101,10 @@ class RelayMutationQueue {
     return mutationTransaction;
   }
 
+  hasPendingMutations(): boolean {
+    return Object.keys(this._pendingTransactionMap).length === 0;
+  }
+
   getTransaction(id: ClientMutationID): RelayMutationTransaction {
     return this._get(id).mutationTransaction;
   }

@@ -54,6 +54,10 @@ class GraphQLStoreChangeEmitter {
     this._subscribers = [];
   }
 
+  hasActiveListeners(): boolean {
+    return this._subscribers.some(subscriber => !!subscriber);
+  }
+
   addListenerForIDs(
     ids: Array<string>,
     callback: SubscriptionCallback

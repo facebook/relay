@@ -70,6 +70,15 @@ describe('RelayContext', () => {
     });
   });
 
+  describe('reset', () => {
+    it('invokes `GraphQLQueryRunner#forceFetch`', () => {
+      expect(relayContext.getStoreData()).toBe(1);
+      relayContext.reset();
+
+      expect(relayContext.getStoreData()).toBe(1);
+    });
+  });
+
   describe('read', () => {
     it('invokes `readRelayQueryData`', () => {
       relayContext.read(queries, dataIDs[0]);

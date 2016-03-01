@@ -110,7 +110,7 @@
               "deprecationReason": null
             },
             {
-              "name": "fid",
+              "name": "factionId",
               "description": "id of faction in db",
               "args": [],
               "type": {

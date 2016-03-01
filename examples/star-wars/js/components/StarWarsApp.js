@@ -19,27 +19,31 @@ class StarWarsApp extends React.Component {
   constructor() {
     super();
     this.state = {
+      factionId: 1,
       shipName: '',
-      factionId: 1
     };
   }
 
-  addship() {
+  handleAddShip() {
     var name = this.state.shipName;
     Relay.Store.update(
-      new AddShipMutation({name, faction: this.props.factions[this.state.factionId]})
+      new AddShipMutation({
+        name,
+        faction: this.props.factions[this.state.factionId],
+      })
     );
+    this.setState({shipName: ''});
   }
 
   handleInputChange(e) {
     this.setState({
-      shipName: e.target.value
+      shipName: e.target.value,
     });
   }
 
   handleSelectionChange(e) {
     this.setState({
-      factionId: e.target.value
+      factionId: e.target.value,
     });
   }
 
@@ -73,7 +77,7 @@ class StarWarsApp extends React.Component {
                   </select>
                 </li>
                 <li>
-                  <button onClick={this.addship.bind(this)} > Add ship </button>
+                  <button onClick={this.handleAddShip.bind(this)}>Add Ship</button>
                 </li>
               </ol>
             </li>
@@ -88,7 +92,7 @@ export default Relay.createContainer(StarWarsApp, {
     factions: () => Relay.QL`
       fragment on Faction @relay(plural: true) {
         id,
-        fid,
+        factionId,
         name,
         ships(first: 10) {
           edges {

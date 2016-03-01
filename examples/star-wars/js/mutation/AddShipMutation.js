@@ -3,28 +3,30 @@ import Relay from 'react-relay';
 export default class AddShipMutation extends Relay.Mutation {
 
   static fragments = {
-    faction: () => Relay.QL`fragment on Faction {
-      id,
-      fid
-    }`,
+    faction: () => Relay.QL`
+      fragment on Faction {
+        id,
+        factionId
+      }
+    `,
   };
 
   getMutation() {
-    return Relay.QL`mutation{ introduceShip }`;
+    return Relay.QL`mutation { introduceShip }`;
   }
 
   getVariables() {
     return {
       shipName: this.props.name,
-      factionId: this.props.faction.fid,
+      factionId: this.props.faction.factionId,
     };
   }
 
   getFatQuery() {
     return Relay.QL`
-      fragment on IntroduceShipPayload {
+      fragment on IntroduceShipPayload @relay(pattern: true) {
         faction {
-          name,
+          name
           ships {
             edges {
               node {
@@ -32,8 +34,8 @@ export default class AddShipMutation extends Relay.Mutation {
               }
             }
           }
-        },
-        newShipEdge,
+        }
+        newShipEdge
       }
     `;
   }
@@ -56,14 +58,13 @@ export default class AddShipMutation extends Relay.Mutation {
     return {
       newShipEdge: {
         node: {
-          name: this.props.name
-        }
+          name: this.props.name,
+        },
       },
       faction: {
-        id: this.props.faction.id
-      }
+        id: this.props.faction.id,
+      },
     };
   }
+
 }
-
-

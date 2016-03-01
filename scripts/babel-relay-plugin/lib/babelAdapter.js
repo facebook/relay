@@ -15,10 +15,11 @@
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var babel = require('babel-core');
 var path = require('path');
 
 function babelAdapter(Plugin, t, name, visitorsBuilder) {
-  if (Plugin == null) {
+  if (Plugin == null || /^6\./.test(babel.version)) {
     // Babel 6.
     return visitorsBuilder(t);
   }

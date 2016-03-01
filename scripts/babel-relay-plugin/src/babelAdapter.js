@@ -12,6 +12,7 @@
 
 'use strict';
 
+const babel = require('babel-core');
 const path = require('path');
 
 function babelAdapter(
@@ -24,7 +25,7 @@ function babelAdapter(
     };
   }
 ): mixed {
-  if (Plugin == null) {
+  if (Plugin == null || /^6\./.test(babel.version)) {
     // Babel 6.
     return visitorsBuilder(t);
   }

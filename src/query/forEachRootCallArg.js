@@ -16,7 +16,6 @@
 import type RelayQuery from 'RelayQuery';
 
 const invariant = require('invariant');
-const stableStringify = require('stableStringify');
 
 /**
  * @internal
@@ -49,8 +48,6 @@ function forEachRootCallArg(
         query.getFieldName(),
         JSON.stringify(identifyingArgValue)
       );
-      // ToDo: Why fn(identifyingArgValue) will 
-      // auto stringify identifyingArgValue ?
       fn(identifyingArgValue);
     }
   }

@@ -421,7 +421,7 @@ var RelayTestUtils = {
     toFailInvariant() {
       return {
         compare(actual, expected) {
-          expect(actual).toThrowError(expected);
+          expect(actual).toThrowError('Invariant Violation: ' + expected);
           return {
             pass: true,
           };

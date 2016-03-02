@@ -172,7 +172,7 @@ describe('RelayRecordWriter', () => {
       expect(() => {
         store.deleteField('1', 'name', null);
       }).toThrowError(
-        'RelayRecordWriter.deleteField(): Expected record `1` to exist ' +
+        'Invariant Violation: RelayRecordWriter.deleteField(): Expected record `1` to exist ' +
         'before deleting field `name`.'
       );
     });

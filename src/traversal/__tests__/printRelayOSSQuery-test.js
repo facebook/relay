@@ -187,8 +187,8 @@ describe('printRelayOSSQuery', () => {
       });
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
-        query FooQuery($environment_0:Environment) {
-          settings(environment:$environment_0) {
+        query FooQuery($environment_0: Environment!) {
+          settings(environment: $environment_0) {
             notificationSounds
           }
         }
@@ -212,8 +212,8 @@ describe('printRelayOSSQuery', () => {
 
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
-        query PrintRelayOSSQuery($query_0:CheckinSearchInput) {
-          checkinSearchQuery(query:$query_0) {
+        query PrintRelayOSSQuery($query_0: CheckinSearchInput!) {
+          checkinSearchQuery(query: $query_0) {
             query
           }
         }
@@ -238,10 +238,10 @@ describe('printRelayOSSQuery', () => {
       const alias = generateRQLFieldAlias('notifications.environment(WEB)');
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
-        query FooQuery($environment_0:Environment) {
+        query FooQuery($environment_0: Environment!) {
           defaultSettings {
-            ${alias}: notifications(environment:$environment_0),
-            ${alias}: notifications(environment:$environment_0)
+            ${alias}: notifications(environment: $environment_0),
+            ${alias}: notifications(environment: $environment_0)
           }
         }
       `);
@@ -273,7 +273,7 @@ describe('printRelayOSSQuery', () => {
       const alias = generateRQLFieldAlias('storySearch.query({"query":"foo"})');
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
-        query FooQuery($query_0: StorySearchInput) {
+        query FooQuery($query_0: StorySearchInput!) {
           node(id: "123") {
             id,
             __typename,
@@ -697,13 +697,13 @@ describe('printRelayOSSQuery', () => {
       const alias = generateRQLFieldAlias('notifications.environment(WEB)');
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
-        query PrintRelayOSSQuery($environment_0:Environment) {
+        query PrintRelayOSSQuery($environment_0: Environment!) {
           defaultSettings {
             ...F0
           }
         }
         fragment F0 on Settings {
-          ${alias}:notifications(environment:$environment_0)
+          ${alias}:notifications(environment: $environment_0)
         }
       `);
       expect(variables).toEqual({
@@ -748,7 +748,7 @@ describe('printRelayOSSQuery', () => {
     };
     const mutation = getNode(Relay.QL`
       mutation {
-        feedbackLike(input:$input) {
+        feedbackLike(input: $input) {
           clientMutationId,
           feedback {
             id,
@@ -768,8 +768,8 @@ describe('printRelayOSSQuery', () => {
     const {text, variables} = printRelayOSSQuery(mutation);
     expect(text).toEqualPrintedQuery(`
       mutation PrintRelayOSSQuery(
-        $input_0: FeedbackLikeInput,
-        $preset_1: PhotoSize
+        $input_0: FeedbackLikeInput!,
+        $preset_1: PhotoSize!
       ) {
         feedbackLike(input: $input_0) {
           clientMutationId,

@@ -2,7 +2,7 @@ Input:
 var Relay = require('Relay');
 var q = Relay.QL`
   query {
-    search(query: $query) {
+    search(query: {queryText: "Relay"}) {
       title,
     },
   }
@@ -19,8 +19,10 @@ var q = (function () {
       },
       name: 'query',
       value: {
-        kind: 'CallVariable',
-        callVariableName: 'query'
+        kind: 'CallValue',
+        callValue: {
+          queryText: 'Relay'
+        }
       }
     }],
     children: [{
@@ -36,7 +38,7 @@ var q = (function () {
       identifyingArgName: 'query',
       identifyingArgType: 'SearchInput!'
     },
-    name: 'QueryWithObjectArg',
+    name: 'QueryWithObjectArgValue',
     type: 'SearchResult'
   };
 })();

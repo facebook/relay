@@ -1,0 +1,15 @@
+Input:
+var Relay = require('Relay');
+var q = Relay.QL`
+  query {
+    searchAll(queries: [{queryText: $query}]) {
+      title,
+    },
+  }
+`;
+
+Output:
+var Relay = require('Relay');
+var q = (function () {
+  throw new Error('GraphQL validation/transform error ``Unexpected nested variable `query`; variables are supported as top-level arguments - `node(id: $id)` - or directly within lists - `nodes(ids: [$id])`.`` in file `queryWithArrayObjectNestedVariable.fixture`.');
+})();

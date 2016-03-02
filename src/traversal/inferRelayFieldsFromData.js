@@ -113,7 +113,7 @@ function buildField(
         const value = captures[2].split(',');
         return {
           name: captures[1],
-          value: value.length === 1 ? value[0] : value,
+          value: value.length === 1 ? value[0] : (value: any),
         };
       });
     }

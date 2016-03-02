@@ -21,6 +21,8 @@ jest
 const Relay = require('Relay');
 const RelayTestUtils = require('RelayTestUtils');
 
+const stableStringify = require('stableStringify');
+
 describe('writeRelayQueryPayload()', () => {
   var RelayRecordStore;
   var RelayRecordWriter;
@@ -277,6 +279,113 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getRecordState('456')).toBe('EXISTENT');
       expect(store.getField('456', 'id')).toBe('456');
     });
+
+    it('are created for numeric identifying arguments', () => {
+      var records = {};
+      var rootCallMap = {};
+      var store = new RelayRecordStore({records}, {rootCallMap});
+      var writer = new RelayRecordWriter(records, rootCallMap, false);
+      var query = getNode(Relay.QL`
+        query {
+          task(number: 5) {
+            title
+          }
+        }
+      `);
+      expect(query.getIdentifyingArg().value).toBe(5);
+      var payload = {
+        task: {
+          title: 'Relay Next',
+        },
+      };
+      var results = writeVerbatimPayload(store, writer, query, payload);
+      expect(results).toEqual({
+        created: {
+          'client:1': true,
+        },
+        updated: {},
+      });
+      expect(store.getRecordState('client:1')).toBe('EXISTENT');
+      expect(store.getField('client:1', 'title')).toBe('Relay Next');
+      expect(store.getDataID('task', '5')).toBe('client:1');
+    });
+
+    it('are created for object identifying arguments', () => {
+      var records = {};
+      var rootCallMap = {};
+      var store = new RelayRecordStore({records}, {rootCallMap});
+      var writer = new RelayRecordWriter(records, rootCallMap, false);
+      var query = getNode(Relay.QL`
+        query {
+          checkinSearchQuery(query: {query: "Facebook"}) {
+            query,
+          }
+        }
+      `);
+      var payload = {
+        checkinSearchQuery: {
+          query: 'Facebook',
+        },
+      };
+      var results = writeVerbatimPayload(store, writer, query, payload);
+      expect(results).toEqual({
+        created: {
+          'client:1': true,
+        },
+        updated: {},
+      });
+      expect(store.getRecordState('client:1')).toBe('EXISTENT');
+      expect(store.getField('client:1', 'query')).toBe('Facebook');
+      const identifyingArgKey = stableStringify({query: 'Facebook'});
+      expect(store.getDataID('checkinSearchQuery', identifyingArgKey)).toBe(
+        'client:1'
+      );
+    });
+
+    // TODO: support plural non-identifying root arguments
+    // it('are created for array identifying arguments', () => {
+    //   var records = {};
+    //   var rootCallMap = {};
+    //   var store = new RelayRecordStore({records}, {rootCallMap});
+    //   var writer = new RelayRecordWriter(records, rootCallMap, false);
+    //   const waypoints = [
+    //     {lat: '0.0', lon: '0.0'},
+    //     {lat: '1.1', lon: '1.1'}
+    //   ];
+    //   var query = getNode(Relay.QL`
+    //     query {
+    //       route(waypoints: $waypoints) {
+    //         steps {
+    //           note
+    //         }
+    //       }
+    //     }
+    //   `, {waypoints});
+    //   var payload = {
+    //     route: {
+    //       steps: [
+    //         {
+    //           note: 'Depart',
+    //         },
+    //       ],
+    //     },
+    //   };
+    //   var results = writeVerbatimPayload(store, writer, query, payload);
+    //   expect(results).toEqual({
+    //     created: {
+    //       'client:1': true,
+    //       'client:2': true,
+    //     },
+    //     updated: {},
+    //   });
+    //   expect(store.getRecordState('client:1')).toBe('EXISTENT');
+    //   expect(store.getLinkedRecordIDs('client:1', 'steps')).toBe(['client:2']);
+    //   expect(store.getField('client:2', 'note')).toBe('Depart');
+    //   const identifyingArgKey = stableStringify(waypoints);
+    //   expect(store.getDataID('route', identifyingArgKey)).toBe(
+    //     'client:1'
+    //   );
+    // });
 
     it('requires arguments to `node()` root calls', () => {
       var records = {};

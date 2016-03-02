@@ -59,20 +59,36 @@ function callsFromGraphQL(
 }
 
 function getCallValue(
-  value: ConcreteCallValue | ConcreteCallVariable,
+  concreteValue: ConcreteCallValue | ConcreteCallVariable,
   variables: Variables
 ): ?CallValue {
-  if (value.kind === 'CallValue') {
-    return value.callValue;
+  let callValue;
+  if (concreteValue.kind === 'CallValue') {
+    callValue = concreteValue.callValue;
   } else {
-    var variableName = value.callVariableName;
+    var variableName = concreteValue.callVariableName;
     invariant(
       variables.hasOwnProperty(variableName),
       'callsFromGraphQL(): Expected a declared value for variable, `$%s`.',
       variableName
     );
-    return variables[variableName];
+    callValue = variables[variableName];
   }
+  const valueType = typeof callValue;
+  // Perform a shallow check to ensure the value conforms to `CallValue` type:
+  // skip testing recursive array/object values.
+  invariant (
+    callValue == null ||
+    valueType === 'boolean' ||
+    valueType === 'number' ||
+    valueType === 'string' ||
+    valueType === 'object' ||
+    Array.isArray(valueType),
+    'callsFromGraphQL(): Expected value to be null, a boolean, string, ' +
+    'or an array/object of the same, but got `%s`.',
+    JSON.stringify(callValue)
+  );
+  return (callValue: any);
 }
 
 module.exports = callsFromGraphQL;

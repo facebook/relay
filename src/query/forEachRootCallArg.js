@@ -13,9 +13,16 @@
 
 'use strict';
 
+import type {CallValue} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 
 const invariant = require('invariant');
+const stableStringify = require('stableStringify');
+
+type IdentifyingArg = {
+  identifyingArgValue: CallValue;
+  identifyingArgKey: ?string;
+};
 
 /**
  * @internal
@@ -26,7 +33,7 @@ const invariant = require('invariant');
  */
 function forEachRootCallArg(
   query: RelayQuery.Root,
-  callback: (identifyingArgValue: ?string) => void
+  callback: (identifyingArg: IdentifyingArg) => void
 ): void {
   invariant(
     !query.getBatchCall(),
@@ -35,18 +42,15 @@ function forEachRootCallArg(
   function each(identifyingArgValue, fn) {
     if (Array.isArray(identifyingArgValue)) {
       identifyingArgValue.forEach(value => each(value, fn));
-    } else if (identifyingArgValue == null) {
-      fn(identifyingArgValue);
     } else {
-      invariant(
-        typeof identifyingArgValue === 'string' ||
-        typeof identifyingArgValue === 'number',
-        'Relay: Expected arguments to root field `%s` to each be strings/' +
-        'numbers, got `%s`.',
-        query.getFieldName(),
-        JSON.stringify(identifyingArgValue)
-      );
-      fn('' + identifyingArgValue);
+      fn({
+        identifyingArgValue,
+        identifyingArgKey: identifyingArgValue == null ?
+          null :
+          typeof identifyingArgValue === 'string' ?
+            identifyingArgValue :
+            stableStringify(identifyingArgValue),
+      });
     }
   }
   const identifyingArg = query.getIdentifyingArg();

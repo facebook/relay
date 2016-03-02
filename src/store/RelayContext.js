@@ -21,6 +21,7 @@ const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
 
 const forEachRootCallArg = require('forEachRootCallArg');
+const invariant = require('invariant');
 const readRelayQueryData = require('readRelayQueryData');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
@@ -138,10 +139,17 @@ class RelayContext {
   }
 
   /**
-   * Resets the store
+   * Resets the store, given there are no active components mounted or queries
+   * running.
    */
   reset(): void {
-    console.log('test');
+    invariant(
+      !this._storeData.getChangeEmitter().hasActiveListeners() &&
+      !this._storeData.getMutationQueue().hasPendingMutations() &&
+      !this._storeData.getPendingQueryTracker().hasPendingQueries(),
+      'RelayStore.reset(): Cannot reset the store while there are active ' +
+      'Relay Containers or pending mutations/queries.'
+    );
     this._storeData = new RelayStoreData();
   }
 

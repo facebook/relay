@@ -10384,6 +10384,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var RelayStoreData = __webpack_require__(169);
 
 	var forEachRootCallArg = __webpack_require__(30);
+	var invariant = __webpack_require__(2);
 	var readRelayQueryData = __webpack_require__(94);
 	var relayUnstableBatchedUpdates = __webpack_require__(95);
 	var warning = __webpack_require__(5);
@@ -10463,7 +10464,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	   */
 
 	  RelayContext.prototype.reset = function reset() {
-	    console.log('test');
+	    !(!this._storeData.getChangeEmitter().hasActiveListeners() && !this._storeData.getMutationQueue().hasPendingMutations() && !this._storeData.getPendingQueryTracker().hasPendingQueries()) ?  true ? invariant(false, 'RelayStore.reset(): Cannot reset the store while there are active ' + 'Relay Containers or pending mutations/queries.') : invariant(false) : undefined;
 	    this._storeData = new RelayStoreData();
 	  };
 

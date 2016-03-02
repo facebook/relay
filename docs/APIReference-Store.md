@@ -26,6 +26,13 @@ The Relay `Store` provides an API for dispatching mutations to the server.
       Adds a MutationTransaction to the queue without committing it.
     </a>
   </li>
+  </li>
+  <li>
+    <a href="#reset">
+      <pre>reset()</pre>
+      Resets/clears the Relay cache.
+    </a>
+  </li>
 </ul>
 
 ## Methods
@@ -100,4 +107,21 @@ var mutation = new MyMutation({...});
 var transaction = Relay.Store.applyUpdate(mutation, {onFailure, onSuccess});
 
 transaction.commit();
+```
+
+### reset
+
+```
+reset(): void
+```
+
+The `reset` clears the cache, given that no queries or mutations are pending and no component that depends on data from the cache is mounted.
+
+
+#### Example
+
+```
+// The User has logged out, all relay containers unmounted and any pending
+// relay requests are finished or aborted
+Relay.Store.reset();
 ```

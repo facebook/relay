@@ -1,6 +1,8 @@
 .nvmrc
 node_modules
 npm-debug.log
+/dist/
+/lib/
 /website/build
 /website/src/relay/docs
 /website/src/relay/graphql

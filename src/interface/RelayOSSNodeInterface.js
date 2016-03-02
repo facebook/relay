@@ -29,7 +29,7 @@ type PayloadResult = {
 
 type RootCallInfo = {
   storageKey: string;
-  identifyingArgValue: ?string;
+  identifyingArgKey: ?string;
 }
 
 /**
@@ -80,9 +80,9 @@ var RelayOSSNodeInterface = {
       var records = getPayloadRecords(query, payload);
       var ii = 0;
       const storageKey = query.getStorageKey();
-      forEachRootCallArg(query, identifyingArgValue => {
+      forEachRootCallArg(query, ({identifyingArgKey}) => {
         var result = records[ii++];
-        var dataID = store.getDataID(storageKey, identifyingArgValue);
+        var dataID = store.getDataID(storageKey, identifyingArgKey);
         if (dataID == null) {
           var payloadID = typeof result === 'object' && result ?
             result[RelayOSSNodeInterface.ID] :
@@ -96,7 +96,7 @@ var RelayOSSNodeInterface = {
         results.push({
           dataID,
           result,
-          rootCallInfo: {storageKey, identifyingArgValue},
+          rootCallInfo: {storageKey, identifyingArgKey},
         });
       });
     }
@@ -111,23 +111,23 @@ function getPayloadRecords(
 ): Array<mixed> {
   var fieldName = query.getFieldName();
   const identifyingArg = query.getIdentifyingArg();
-  const identifyingArgValue = (identifyingArg && identifyingArg.value) || null;
+  const identifyingArgKey = (identifyingArg && identifyingArg.value) || null;
   var records = payload[fieldName];
   if (!query.getBatchCall()) {
-    if (Array.isArray(identifyingArgValue)) {
+    if (Array.isArray(identifyingArgKey)) {
       invariant(
         Array.isArray(records),
         'RelayOSSNodeInterface: Expected payload for root field `%s` to be ' +
         'an array with %s results, instead received a single non-array result.',
         fieldName,
-        identifyingArgValue.length
+        identifyingArgKey.length
       );
       invariant(
-        records.length === identifyingArgValue.length,
+        records.length === identifyingArgKey.length,
         'RelayOSSNodeInterface: Expected payload for root field `%s` to be ' +
         'an array with %s results, instead received an array with %s results.',
         fieldName,
-        identifyingArgValue.length,
+        identifyingArgKey.length,
         records.length
       );
     } else if (Array.isArray(records)) {

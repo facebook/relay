@@ -599,7 +599,7 @@ describe('readRelayQueryData', () => {
     `);
     expect(
       () => readData(getStoreData({records}), query, 'story_id')
-    ).toThrowError('Invariant Violation: ' + error);
+    ).toFailInvariant(error);
 
     // Note that `pageInfo` also triggers the error...
     const pageInfoFragment = Relay.QL`
@@ -620,7 +620,7 @@ describe('readRelayQueryData', () => {
     `);
     expect(
       () => readData(getStoreData({records}), query, 'story_id')
-    ).toThrowError('Invariant Violation: ' + error);
+    ).toFailInvariant(error);
 
     // ...but not `count`:
     query = getNode(Relay.QL`fragment on Story{feedback{likers{count}}}`);
@@ -662,12 +662,12 @@ describe('readRelayQueryData', () => {
       fragment on Story{feedback{likers{${fragmentReference}}}}
     `);
     expect(() => readData(getStoreData({records}), query, 'story_id'))
-      .toThrowError('Invariant Violation: ' + error);
+      .toFailInvariant(error);
 
     let fragment = Relay.QL`fragment on LikersOfContentConnection{pageInfo}`;
     query = getNode(Relay.QL`fragment on Story{feedback{likers{${fragment}}}}`);
     expect(() => readData(getStoreData({records}), query, 'story_id'))
-      .toThrowError('Invariant Violation: ' + error);
+      .toFailInvariant(error);
 
     fragment = Relay.QL`fragment on LikersOfContentConnection{count}`;
     query = getNode(Relay.QL`fragment on Story{feedback{likers{${fragment}}}}`);

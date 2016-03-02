@@ -103,15 +103,9 @@ function diffRelayQuery(
   }
   const fieldName = root.getFieldName();
   const storageKey = root.getStorageKey();
-  forEachRootCallArg(root, identifyingArgValue => {
+  forEachRootCallArg(root, ({identifyingArgValue, identifyingArgKey}) => {
     var nodeRoot;
     if (isPluralCall) {
-      invariant(
-        identifyingArgValue != null,
-        'diffRelayQuery(): Unexpected null or undefined value in root call ' +
-        'argument array for query, `%s(...).',
-        fieldName
-      );
       nodeRoot = RelayQuery.Root.build(
         root.getName(),
         fieldName,
@@ -126,7 +120,7 @@ function diffRelayQuery(
     }
 
     // The whole query must be fetched if the root dataID is unknown.
-    var dataID = store.getDataID(storageKey, identifyingArgValue);
+    var dataID = store.getDataID(storageKey, identifyingArgKey);
     if (dataID == null) {
       queries.push(nodeRoot);
       return;

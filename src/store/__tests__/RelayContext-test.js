@@ -34,6 +34,9 @@ describe('RelayContext', () => {
   var callback;
   var recordWriter;
   var queryRunner;
+  var changeEmitter;
+  var mutationQueue;
+  var pendingQueryTracker;
 
   var {getNode} = RelayTestUtils;
 
@@ -48,6 +51,10 @@ describe('RelayContext', () => {
     callback = jest.genMockFunction();
     queryRunner = relayContext.getStoreData().getQueryRunner();
     recordWriter = relayContext.getStoreData().getRecordWriter();
+    changeEmitter = relayContext.getStoreData().getChangeEmitter();
+    mutationQueue = relayContext.getStoreData().getMutationQueue();
+    mutationQueue.hasPendingMutations = jest.genMockFunction();
+    pendingQueryTracker = relayContext.getStoreData().getPendingQueryTracker();
   });
 
   describe('primeCache', () => {
@@ -71,11 +78,12 @@ describe('RelayContext', () => {
   });
 
   describe('reset', () => {
-    it('invokes `GraphQLQueryRunner#forceFetch`', () => {
-      expect(relayContext.getStoreData()).toBe(1);
+    fit('invokes its invariant', () => {
       relayContext.reset();
 
-      expect(relayContext.getStoreData()).toBe(1);
+      expect(changeEmitter.hasActiveListeners).toBeCalled();
+      expect(mutationQueue.hasPendingMutations).toBeCalled();
+      expect(pendingQueryTracker.hasPendingQueries).toBeCalled();
     });
   });
 

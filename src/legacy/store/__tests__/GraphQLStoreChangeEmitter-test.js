@@ -39,7 +39,10 @@ describe('GraphQLStoreChangeEmitter', () => {
   });
 
   it('should broadcast changes asynchronously', () => {
+    expect(changeEmitter.hasActiveListeners()).toBe(false);
     changeEmitter.addListenerForIDs(['foo'], mockCallback);
+    expect(changeEmitter.hasActiveListeners()).toBe(true);
+    
     changeEmitter.broadcastChangeForID('foo');
 
     expect(mockCallback).not.toBeCalled();

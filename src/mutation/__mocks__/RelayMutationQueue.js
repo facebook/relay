@@ -9,4 +9,10 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayMutationQueue');
+const relayMutationQueue = require.requireActual('RelayMutationQueue');
+
+// relayMutationQueue.hasPendingMutations = jest.genMockFunction().mockImplementation(() => {
+//   return false;
+// });
+
+module.exports = relayMutationQueue;

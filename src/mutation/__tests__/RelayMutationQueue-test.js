@@ -65,7 +65,11 @@ describe('RelayMutationQueue', () => {
     });
 
     it('does not update store if there is no optimistic response', () => {
+      expect(mutationQueue.hasPendingMutations()).toBe(false);
+
       var transaction = mutationQueue.createTransaction(mockMutation);
+
+      expect(mutationQueue.hasPendingMutations()).toBe(true);
 
       expect(transaction.getStatus()).toBe(
         RelayMutationTransactionStatus.UNCOMMITTED
@@ -80,7 +84,11 @@ describe('RelayMutationQueue', () => {
       mockMutation.getOptimisticConfigs.mockReturnValue('optimisticConfigs');
       RelayMutationQuery.buildQuery.mockReturnValue('optimisticQuery');
 
+      expect(mutationQueue.hasPendingMutations()).toBe(false);
+
       var transaction = mutationQueue.createTransaction(mockMutation);
+
+      expect(mutationQueue.hasPendingMutations()).toBe(true);
 
       expect(transaction.getStatus()).toBe(
         RelayMutationTransactionStatus.UNCOMMITTED
@@ -114,7 +122,11 @@ describe('RelayMutationQueue', () => {
         'optimisticQuery'
       );
 
+      expect(mutationQueue.hasPendingMutations()).toBe(false);
+
       mutationQueue.createTransaction(mockMutation);
+
+      expect(mutationQueue.hasPendingMutations()).toBe(true);
 
       const buildQueryCalls =
         RelayMutationQuery.buildQueryForOptimisticUpdate.mock.calls;
@@ -163,8 +175,14 @@ describe('RelayMutationQueue', () => {
     });
 
     it('throws if commit is called more than once', () => {
+      expect(mutationQueue.hasPendingMutations()).toBe(false);
+
       var transaction = mutationQueue.createTransaction(mockMutation1);
+
+      expect(mutationQueue.hasPendingMutations()).toBe(true);
+
       transaction.commit();
+
       expect(() => transaction.commit()).toThrowError(
         'RelayMutationTransaction: Only transactions with status ' +
         '`UNCOMMITTED` can be comitted.'
@@ -172,11 +190,14 @@ describe('RelayMutationQueue', () => {
     });
 
     it('calls `onSuccess` with response', () => {
+      expect(mutationQueue.hasPendingMutations()).toBe(false);
+
       var successCallback1 = jest.genMockFunction();
       var transaction1 = mutationQueue.createTransaction(
         mockMutation1,
         {onSuccess: successCallback1}
       );
+      expect(mutationQueue.hasPendingMutations()).toBe(true);
       transaction1.commit();
       expect(RelayNetworkLayer.sendMutation.mock.calls.length).toBe(1);
 
@@ -184,9 +205,12 @@ describe('RelayMutationQueue', () => {
       request.resolve({response: {'res': 'ponse'}});
       jest.runAllTimers();
       expect(successCallback1.mock.calls).toEqual([[{'res': 'ponse'}]]);
+      expect(mutationQueue.hasPendingMutations()).toBe(false);
     });
 
     it('calls `onFailure` with transaction', () => {
+      expect(mutationQueue.hasPendingMutations()).toBe(false);
+
       var failureCallback1 = jest.genMockFunction().mockImplementation(
         transaction => {
           expect(transaction).toBe(transaction1);
@@ -197,6 +221,7 @@ describe('RelayMutationQueue', () => {
         mockMutation1,
         {onFailure: failureCallback1}
       );
+      expect(mutationQueue.hasPendingMutations()).toBe(true);
       var mockError = new Error('error');
       transaction1.commit();
 
@@ -205,9 +230,10 @@ describe('RelayMutationQueue', () => {
       request.reject(mockError);
       jest.runAllTimers();
       expect(failureCallback1).toBeCalled();
+      expect(mutationQueue.hasPendingMutations()).toBe(false);
     });
 
-    it('queues commits for colliding transactions', () => {
+    it('queues commits for colliding transactions', () => {  
       var successCallback1 = jest.genMockFunction();
       var transaction1 = mutationQueue.createTransaction(
         mockMutation1,

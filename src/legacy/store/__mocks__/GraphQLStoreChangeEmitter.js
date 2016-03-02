@@ -21,6 +21,10 @@ GraphQLStoreChangeEmitter.mockImplementation(function() {
     return returnValue;
   });
 
+  this.hasActiveListeners.mockImplementation(() => {
+    return false;
+  });
+
   return this;
 });
 

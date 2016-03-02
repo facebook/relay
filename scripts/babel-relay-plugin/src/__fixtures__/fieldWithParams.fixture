@@ -73,7 +73,7 @@ var x = (function () {
         },
         type: 'String'
       }],
-      id: 'eryiJuqVSufS:f',
+      id: 'eryiJuqVSufS:0',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

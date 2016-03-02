@@ -141,7 +141,7 @@ var x = (function () {
         },
         type: 'String'
       }],
-      id: 'C+6HBasJOQFL:s',
+      id: 'C+6HBasJOQFL:0',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

@@ -74,7 +74,7 @@ var x = (function () {
         },
         type: 'String'
       }],
-      id: 'zIlVHlBwD1Nv:9',
+      id: 'zIlVHlBwD1Nv:0',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

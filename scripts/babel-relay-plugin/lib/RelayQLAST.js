@@ -37,8 +37,6 @@ var GraphQLRelayDirective = require('./GraphQLRelayDirective');
 var find = require('./find');
 var invariant = require('./invariant');
 
-var _nextFragmentID = 0;
-
 var RelayQLNode = (function () {
   function RelayQLNode(context, ast) {
     _classCallCheck(this, RelayQLNode);
@@ -156,7 +154,7 @@ var RelayQLFragment = (function (_RelayQLDefinition) {
     key: 'getFragmentID',
     value: function getFragmentID() {
       if (this.fragmentID == null) {
-        var suffix = (_nextFragmentID++).toString(32);
+        var suffix = this.context.generateID();
         // The fragmentLocationID is the same for all inline/nested fragments
         // within each Relay.QL tagged template expression; the auto-incrementing
         // suffix distinguishes these fragments from each other.

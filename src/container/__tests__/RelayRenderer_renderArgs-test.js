@@ -21,6 +21,7 @@ const Relay = require('Relay');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 const RelayStore = require('RelayStore');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRenderer.renderArgs', () => {
   let MockComponent;
@@ -50,6 +51,7 @@ describe('RelayRenderer.renderArgs', () => {
       />,
       container
     );
+    jasmine.addMatchers(RelayTestUtils.matchers);
     jasmine.addMatchers({
       toRenderWithArgs() {
         return {
@@ -202,8 +204,8 @@ describe('RelayRenderer.renderArgs', () => {
 
     const {retry} = render.mock.calls[1][0];
     expect(typeof retry).toBe('function');
-    expect(() => retry()).toThrowError(
-      'Invariant Violation: RelayRenderer: You tried to call `retry`, but the last request did ' +
+    expect(() => retry()).toFailInvariant(
+      'RelayRenderer: You tried to call `retry`, but the last request did ' +
       'not fail. You can only call this when the last request has failed.'
     );
   });

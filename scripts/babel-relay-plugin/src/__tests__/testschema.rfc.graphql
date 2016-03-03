@@ -3,7 +3,8 @@ type Root {
   nodes(ids: [Int]): [Node]
   media(id: Int): Media
   viewer: Viewer
-  search(query: [SearchInput!]): [SearchResult]
+  search(query: SearchInput!): [SearchResult]
+  searchAll(queries: [SearchInput!]!): [SearchResult]
   _invalid: InvalidType
   actor: Actor
 }
@@ -21,7 +22,7 @@ type SearchResult {
 }
 
 input SearchInput {
-  query: String
+  queryText: String
 }
 
 type Mutation {

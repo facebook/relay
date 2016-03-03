@@ -537,7 +537,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       }
       return codify({
         kind: t.valueToNode('CallValue'),
-        callValue: t.valueToNode(value),
+        callValue: printLiteralValue(value),
       });
     }
 
@@ -793,6 +793,21 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
   function property(name: string, value: mixed): Printable {
     return t.objectProperty(t.identifier(name), value);
+  }
+
+  function printLiteralValue(value: mixed): Printable {
+    if (value == null) {
+      return NULL;
+    } else if (Array.isArray(value)) {
+      return t.arrayExpression(value.map(printLiteralValue));
+    } else if (typeof value === 'object' && value != null) {
+      const objectValue = value;
+      return t.objectExpression(Object.keys(objectValue).map(key =>
+        property(key, printLiteralValue(objectValue[key]))
+      ));
+    } else {
+      return t.valueToNode(value);
+    }
   }
 
   function shallowFlatten(arr: mixed) {

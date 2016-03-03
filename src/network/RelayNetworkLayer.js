@@ -21,7 +21,7 @@ const RelayQueryRequest = require('RelayQueryRequest');
 const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
 
-type NetworkLayer = {
+export type NetworkLayer = {
   sendMutation: (mutationRequest: RelayMutationRequest) => ?Promise;
   sendQueries: (queryRequests: Array<RelayQueryRequest>) => ?Promise;
   supports: (...options: Array<string>) => boolean;

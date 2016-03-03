@@ -14,8 +14,10 @@
 'use strict';
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
+import type { NetworkLayer } from 'RelayNetworkLayer';
 import type RelayQuery from 'RelayQuery';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
@@ -106,6 +108,7 @@ class RelayContext {
     this._storeData.getChangeEmitter().injectBatchingStrategy(
       relayUnstableBatchedUpdates
     );
+    this.injectNetworkLayer(new RelayDefaultNetworkLayer('/graphql'));
   }
 
   /**
@@ -113,6 +116,10 @@ class RelayContext {
    */
   getStoreData(): RelayStoreData {
     return this._storeData;
+  }
+
+  injectNetworkLayer(networkLayer: ?NetworkLayer) {
+    this._storeData.getNetworkLayer().injectNetworkLayer(networkLayer);
   }
 
   /**

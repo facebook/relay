@@ -1,12 +1,8 @@
 Input:
 var Relay = require('react-relay');
 var x = Relay.QL`
-  query {
-    node(id: 123) {
-      ... on User {
-        realName: name,
-      },
-    },
+  fragment on Actor @relay(isStaticFragment: true) {
+    name
   }
 `;
 
@@ -14,22 +10,10 @@ Output:
 var Relay = require('react-relay');
 var x = (function () {
   return {
-    calls: [{
-      kind: 'Call',
-      metadata: {},
-      name: 'id',
-      value: {
-        kind: 'CallValue',
-        callValue: 123
-      }
-    }],
     children: [{
-      fieldName: 'id',
+      fieldName: 'name',
       kind: 'Field',
-      metadata: {
-        isGenerated: true,
-        isRequisite: true
-      },
+      metadata: {},
       type: 'String'
     }, {
       fieldName: '__typename',
@@ -41,13 +25,14 @@ var x = (function () {
       type: 'String'
     }, {
       children: [{
-        alias: 'realName',
-        fieldName: 'name',
+        fieldName: 'id',
         kind: 'Field',
-        metadata: {},
+        metadata: {
+          isRequisite: true
+        },
         type: 'String'
       }, {
-        fieldName: 'id',
+        fieldName: '__typename',
         kind: 'Field',
         metadata: {
           isGenerated: true,
@@ -57,17 +42,19 @@ var x = (function () {
       }],
       id: Relay.QL.__id(),
       kind: 'Fragment',
-      metadata: {},
-      name: 'User',
-      type: 'User'
+      metadata: {
+        isAbstract: true
+      },
+      name: 'IdFragment',
+      type: 'Node'
     }],
-    fieldName: 'node',
-    kind: 'Query',
+    id: 'kw9vpPb2ZM1/:0',
+    kind: 'Fragment',
     metadata: {
-      isAbstract: true,
-      identifyingArgName: 'id'
+      isStaticFragment: true,
+      isAbstract: true
     },
-    name: 'FieldWithAlias',
-    type: 'Node'
+    name: 'FragmentWithStaticIDRelayQL',
+    type: 'Actor'
   };
 })();

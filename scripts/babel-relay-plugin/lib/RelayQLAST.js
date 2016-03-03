@@ -139,28 +139,39 @@ var RelayQLFragment = (function (_RelayQLDefinition) {
   function RelayQLFragment(context, ast, parentType) {
     _classCallCheck(this, RelayQLFragment);
 
-    // @relay(pattern: true)
-    var isPattern = (ast.directives || []).some(function (directive) {
-      return directive.name.value === 'relay' && (directive.arguments || []).some(function (arg) {
-        return arg.name.value === 'pattern' && arg.value.kind === 'BooleanValue' && arg.value.value;
-      });
+    var relayDirectiveArgs = {};
+    var relayDirective = (ast.directives || []).find(function (directive) {
+      return directive.name.value === 'relay';
     });
+    if (relayDirective) {
+      (relayDirective.arguments || []).forEach(function (arg) {
+        relayDirectiveArgs[arg.name.value] = arg.value;
+      });
+    }
+
+    // @relay(pattern: true)
+    var isPattern = relayDirectiveArgs.pattern && relayDirectiveArgs.pattern.kind === 'BooleanValue' && relayDirectiveArgs.pattern.value;
+
+    // @relay(isStaticFragment: true)
+    var isStaticFragment = relayDirectiveArgs.isStaticFragment && relayDirectiveArgs.isStaticFragment.kind === 'BooleanValue' && relayDirectiveArgs.isStaticFragment.value;
+
     _get(Object.getPrototypeOf(RelayQLFragment.prototype), 'constructor', this).call(this, _extends({}, context, { isPattern: isPattern }), ast);
-    this.fragmentID = null;
+    this.hasStaticFragmentID = isStaticFragment;
     this.parentType = parentType;
+    this.staticFragmentID = null;
   }
 
   _createClass(RelayQLFragment, [{
-    key: 'getFragmentID',
-    value: function getFragmentID() {
-      if (this.fragmentID == null) {
+    key: 'getStaticFragmentID',
+    value: function getStaticFragmentID() {
+      if (this.hasStaticFragmentID && this.staticFragmentID == null) {
         var suffix = this.context.generateID();
         // The fragmentLocationID is the same for all inline/nested fragments
         // within each Relay.QL tagged template expression; the auto-incrementing
         // suffix distinguishes these fragments from each other.
-        this.fragmentID = this.context.fragmentLocationID + ':' + suffix;
+        this.staticFragmentID = this.context.fragmentLocationID + ':' + suffix;
       }
-      return this.fragmentID;
+      return this.staticFragmentID;
     }
   }, {
     key: 'getType',

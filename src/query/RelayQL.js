@@ -17,6 +17,7 @@ const QueryBuilder = require('QueryBuilder');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayRouteFragment = require('RelayRouteFragment');
 
+const generateConcreteFragmentID = require('generateConcreteFragmentID');
 const invariant = require('invariant');
 
 export type RelayConcreteNode = mixed;
@@ -84,6 +85,9 @@ Object.assign(RelayQL, {
     }
     return QueryBuilder.createCallValue(expression);
   },
+  __id(): string {
+    return generateConcreteFragmentID();
+  }
 });
 
 module.exports = RelayQL;

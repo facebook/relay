@@ -196,7 +196,7 @@ var foo = (function () {
         },
         type: "String"
       }],
-      id: "7vSjsNp8hOe/:0",
+      id: Relay.QL.__id(),
       kind: "Fragment",
       metadata: {},
       name: "User",

@@ -96,7 +96,7 @@ var x = (function () {
       },
       type: 'String'
     }],
-    id: 'k317qPCVHPHq:0',
+    id: Relay.QL.__id(),
     kind: 'Fragment',
     metadata: {
       pattern: true

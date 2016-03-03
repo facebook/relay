@@ -22,7 +22,7 @@ var x = (function () {
       },
       type: 'String'
     }],
-    id: 'xNupCo5yp7aB:0',
+    id: Relay.QL.__id(),
     kind: 'Fragment',
     metadata: {
       isAbstract: true

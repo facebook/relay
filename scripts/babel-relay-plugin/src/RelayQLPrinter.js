@@ -201,12 +201,27 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       return codify({
         children: selections,
         directives: this.printDirectives(fragment.getDirectives()),
-        id: t.valueToNode(fragment.getFragmentID()),
+        id: this.printFragmentID(fragment),
         kind: t.valueToNode('Fragment'),
         metadata,
         name: t.valueToNode(fragment.getName()),
         type: t.valueToNode(fragmentType.getName({modifiers: false})),
       });
+    }
+
+    printFragmentID(fragment: RelayQLFragment): Printable {
+      const staticFragmentID = fragment.getStaticFragmentID();
+      if (staticFragmentID == null) {
+        return t.callExpression(
+          t.memberExpression(
+            identify(this.tagName),
+            t.identifier('__id')
+          ),
+          []
+        );
+      } else {
+        return t.valueToNode(staticFragmentID);
+      }
     }
 
     printMutation(mutation: RelayQLMutation): Printable {

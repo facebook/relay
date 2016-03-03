@@ -187,12 +187,22 @@ module.exports = function (t, options) {
         return codify({
           children: selections,
           directives: this.printDirectives(fragment.getDirectives()),
-          id: t.valueToNode(fragment.getFragmentID()),
+          id: this.printFragmentID(fragment),
           kind: t.valueToNode('Fragment'),
           metadata: metadata,
           name: t.valueToNode(fragment.getName()),
           type: t.valueToNode(fragmentType.getName({ modifiers: false }))
         });
+      }
+    }, {
+      key: 'printFragmentID',
+      value: function printFragmentID(fragment) {
+        var staticFragmentID = fragment.getStaticFragmentID();
+        if (staticFragmentID == null) {
+          return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__id')), []);
+        } else {
+          return t.valueToNode(staticFragmentID);
+        }
       }
     }, {
       key: 'printMutation',

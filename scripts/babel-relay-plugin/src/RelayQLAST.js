@@ -127,37 +127,52 @@ class RelayQLFragment extends RelayQLDefinition<
   GraphQLFragmentDefinition |
   GraphQLInlineFragment
 > {
+  hasStaticFragmentID: boolean;
   parentType: ?RelayQLType;
-  fragmentID: ?string;
+  staticFragmentID: ?string;
 
   constructor(
     context: RelayQLContext,
     ast: GraphQLFragmentDefinition | GraphQLInlineFragment,
     parentType?: RelayQLType
   ) {
+    const relayDirectiveArgs = {};
+    const relayDirective = (ast.directives || []).find(
+      directive => directive.name.value === 'relay'
+    );
+    if (relayDirective) {
+      (relayDirective.arguments || []).forEach(arg => {
+        relayDirectiveArgs[arg.name.value] = arg.value;
+      });
+    }
+
     // @relay(pattern: true)
-    const isPattern = (ast.directives || []).some(directive => (
-      (directive.name.value === 'relay') &&
-      (directive.arguments || []).some(arg => (
-        arg.name.value === 'pattern' &&
-        arg.value.kind === 'BooleanValue' &&
-        arg.value.value
-      ))
-    ));
+    const isPattern =
+      relayDirectiveArgs.pattern &&
+      relayDirectiveArgs.pattern.kind === 'BooleanValue' &&
+      relayDirectiveArgs.pattern.value;
+
+    // @relay(isStaticFragment: true)
+    const isStaticFragment =
+      relayDirectiveArgs.isStaticFragment &&
+      relayDirectiveArgs.isStaticFragment.kind === 'BooleanValue' &&
+      relayDirectiveArgs.isStaticFragment.value;
+
     super({...context, isPattern}, ast);
-    this.fragmentID = null;
+    this.hasStaticFragmentID = isStaticFragment;
     this.parentType = parentType;
+    this.staticFragmentID = null;
   }
 
-  getFragmentID(): string {
-    if (this.fragmentID == null) {
+  getStaticFragmentID(): ?string {
+    if (this.hasStaticFragmentID && this.staticFragmentID == null) {
       let suffix = this.context.generateID();
       // The fragmentLocationID is the same for all inline/nested fragments
       // within each Relay.QL tagged template expression; the auto-incrementing
       // suffix distinguishes these fragments from each other.
-      this.fragmentID = `${this.context.fragmentLocationID}:${suffix}`;
+      this.staticFragmentID = `${this.context.fragmentLocationID}:${suffix}`;
     }
-    return this.fragmentID;
+    return this.staticFragmentID;
   }
 
   getType(): RelayQLType {

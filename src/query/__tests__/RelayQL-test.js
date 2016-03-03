@@ -197,4 +197,28 @@ describe('RelayQL', () => {
       '`${Child.getFragment(\'name\')}`.'
     );
   });
+
+  it('generates unique concrete fragment IDs', () => {
+    const getFragment = () => Relay.QL`
+      fragment on Node {
+        id
+      }
+    `;
+    const nodeA = getFragment();
+    const nodeB = getFragment();
+    expect(nodeA).not.toBe(nodeB);
+    expect(nodeA.id).not.toBe(nodeB.id);
+  });
+
+  it('generates identical concrete IDs for static fragments', () => {
+    const getFragment = () => Relay.QL`
+      fragment on Node @relay(isStaticFragment: true) {
+        id
+      }
+    `;
+    const nodeA = getFragment();
+    const nodeB = getFragment();
+    expect(nodeA).not.toBe(nodeB);
+    expect(nodeA.id).toBe(nodeB.id);
+  });
 });

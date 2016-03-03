@@ -43,13 +43,13 @@ var x = (function () {
         },
         type: 'String'
       }],
-      id: 'dDCJUnpyqMbd:0',
+      id: Relay.QL.__id(),
       kind: 'Fragment',
       metadata: {},
       name: 'User',
       type: 'User'
     }],
-    id: 'dDCJUnpyqMbd:1',
+    id: Relay.QL.__id(),
     kind: 'Fragment',
     metadata: {
       isAbstract: true

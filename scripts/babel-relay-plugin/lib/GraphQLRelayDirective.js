@@ -24,6 +24,11 @@ module.exports = {
     type: types.GraphQLBoolean,
     defaultValue: null
   }, {
+    name: 'isStaticFragment',
+    description: 'Marks a fragment as static. A static fragment will share the same ' + 'identity regardless of how many times the expression is evaluated.',
+    type: types.GraphQLBoolean,
+    defaultValue: null
+  }, {
     name: 'pattern',
     description: 'Marks a fragment as intended for pattern matching (as opposed to ' + 'fetching).',
     type: types.GraphQLBoolean,

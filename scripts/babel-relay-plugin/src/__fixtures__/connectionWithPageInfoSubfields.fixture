@@ -141,7 +141,7 @@ var x = (function () {
         },
         type: 'String'
       }],
-      id: 'LK+x4YTqVFKq:0',
+      id: Relay.QL.__id(),
       kind: 'Fragment',
       metadata: {},
       name: 'User',

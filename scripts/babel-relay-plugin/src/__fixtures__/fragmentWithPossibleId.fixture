@@ -33,7 +33,7 @@ var x = (function () {
         },
         type: 'String'
       }],
-      id: 'dNUZm2RVoXq0:0',
+      id: Relay.QL.__id(),
       kind: 'Fragment',
       metadata: {},
       name: 'User',
@@ -55,7 +55,7 @@ var x = (function () {
         },
         type: 'String'
       }],
-      id: 'dNUZm2RVoXq0:1',
+      id: Relay.QL.__id(),
       kind: 'Fragment',
       metadata: {
         isAbstract: true
@@ -63,7 +63,7 @@ var x = (function () {
       name: 'IdFragment',
       type: 'Node'
     }],
-    id: 'dNUZm2RVoXq0:2',
+    id: Relay.QL.__id(),
     kind: 'Fragment',
     metadata: {
       isAbstract: true

@@ -22,10 +22,8 @@ const QueryBuilder = require('QueryBuilder');
 import type {RelayConcreteNode} from 'RelayQL';
 const RelayProfiler = require('RelayProfiler');
 import type {RelayContainer, Variables} from 'RelayTypes';
-const Set = require('Set');
 
 const filterObject = require('filterObject');
-const generateConcreteFragmentID = require('generateConcreteFragmentID');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
@@ -36,7 +34,6 @@ export type RelayQLQueryBuilder =
 
 // Cache results of executing fragment query builders.
 const fragmentCache = new Map();
-const concreteFragmentIDSet = new Set();
 
 // Cache results of executing component-specific route query builders.
 const queryCache = new Map();
@@ -90,13 +87,6 @@ var buildRQL = {
     if (!fragment) {
       return fragment;
     }
-    if (concreteFragmentIDSet.has(fragment.id)) {
-      fragment = {
-        ...fragment,
-        id: generateConcreteFragmentID(),
-      };
-    }
-    concreteFragmentIDSet.add(fragment.id);
     fragmentCache.set(fragmentBuilder, fragment);
     return fragment;
   },

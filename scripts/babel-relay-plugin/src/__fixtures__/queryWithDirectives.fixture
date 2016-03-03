@@ -76,7 +76,7 @@ var x = (function () {
           }
         }]
       }],
-      id: 'OucjrEJhDOCC:0',
+      id: Relay.QL.__id(),
       kind: 'Fragment',
       metadata: {},
       name: 'User',

@@ -166,7 +166,7 @@ describe('RelayMutationQueue', () => {
       var transaction = mutationQueue.createTransaction(mockMutation1);
       transaction.commit();
       expect(() => transaction.commit()).toThrowError(
-        'Invariant Violation: RelayMutationTransaction: Only transactions with status ' +
+        'RelayMutationTransaction: Only transactions with status ' +
         '`UNCOMMITTED` can be comitted.'
       );
     });
@@ -322,7 +322,7 @@ describe('RelayMutationQueue', () => {
       expect(failureCallback1).toBeCalled();
       expect(failureCallback2).toBeCalled();
       expect(() => transaction1.getStatus()).toThrowError(
-        'Invariant Violation: RelayMutationQueue: `0` is not a valid pending transaction ID.'
+        'RelayMutationQueue: `0` is not a valid pending transaction ID.'
       );
       expect(transaction2.getStatus()).toBe(
         RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED
@@ -427,7 +427,7 @@ describe('RelayMutationQueue', () => {
         RelayMutationTransactionStatus.COMMIT_FAILED
       );
       expect(() => transaction2.getStatus()).toThrowError(
-        'Invariant Violation: RelayMutationQueue: `1` is not a valid pending transaction ID.'
+        'RelayMutationQueue: `1` is not a valid pending transaction ID.'
       );
       expect(transaction3.getStatus()).toBe(
         RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED

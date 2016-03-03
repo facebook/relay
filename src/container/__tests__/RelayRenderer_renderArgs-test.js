@@ -203,7 +203,7 @@ describe('RelayRenderer.renderArgs', () => {
     const {retry} = render.mock.calls[1][0];
     expect(typeof retry).toBe('function');
     expect(() => retry()).toThrowError(
-      'Invariant Violation: RelayRenderer: You tried to call `retry`, but the last request did ' +
+      'RelayRenderer: You tried to call `retry`, but the last request did ' +
       'not fail. You can only call this when the last request has failed.'
     );
   });

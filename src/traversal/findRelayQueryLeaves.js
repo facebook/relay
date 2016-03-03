@@ -20,7 +20,8 @@ import type {
 } from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
-import type RelayQueryPath from 'RelayQueryPath';
+import type {QueryPath} from 'RelayQueryPath';
+const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 import type {RecordMap} from 'RelayRecord';
 const RelayRecordState = require('RelayRecordState');
@@ -31,7 +32,7 @@ const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 
 export type PendingItem = {
   node: RelayQuery.Node;
-  path: RelayQueryPath;
+  path: QueryPath;
   rangeCalls: ?Array<Call>;
 };
 
@@ -44,7 +45,7 @@ export type FinderResult = {
 type FinderState = {
   dataID: DataID;
   missingData: boolean;
-  path: RelayQueryPath;
+  path: QueryPath;
   rangeCalls: ?Array<Call>;
   rangeInfo: ?RangeInfo;
 };
@@ -67,7 +68,7 @@ function findRelayQueryLeaves(
   cachedRecords: RecordMap,
   queryNode: RelayQuery.Node,
   dataID: DataID,
-  path: RelayQueryPath,
+  path: QueryPath,
   rangeCalls: ?Array<Call>
 ): FinderResult {
   var finder = new RelayQueryLeavesFinder(store, cachedRecords);
@@ -198,7 +199,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
         var nextState = {
           dataID: dataIDs[ii],
           missingData: false,
-          path: state.path.getPath(field, dataIDs[ii]),
+          path: RelayQueryPath.getPath(state.path, field, dataIDs[ii]),
           rangeCalls: undefined,
           rangeInfo: undefined,
         };
@@ -222,7 +223,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       var nextState: FinderState = {
         dataID,
         missingData: false,
-        path: state.path.getPath(field, dataID),
+        path: RelayQueryPath.getPath(state.path, field, dataID),
         rangeCalls: calls,
         rangeInfo: null,
       };
@@ -254,7 +255,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       var nextState = {
         dataID: edgeIDs[ii],
         missingData: false,
-        path: state.path.getPath(field, edgeIDs[ii]),
+        path: RelayQueryPath.getPath(state.path, field, edgeIDs[ii]),
         rangeCalls: undefined,
         rangeInfo: undefined,
       };
@@ -282,7 +283,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       var nextState = {
         dataID,
         missingData: false,
-        path: state.path.getPath(field, dataID),
+        path: RelayQueryPath.getPath(state.path, field, dataID),
         rangeCalls: undefined,
         rangeInfo: undefined,
       };

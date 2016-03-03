@@ -561,7 +561,7 @@ class RelayQueryRoot extends RelayQueryNode {
     }
     if (
       this.getFieldName() !== that.getFieldName() ||
-      !areEqual(this.getCallsWithValues(), that.getCallsWithValues())
+      !areEqualCallValues(this.getCallsWithValues(), that.getCallsWithValues())
     ) {
       return false;
     }
@@ -1221,7 +1221,7 @@ class RelayQueryField extends RelayQueryNode {
     if (
       this.getSchemaName() !== that.getSchemaName() ||
       this.getApplicationName() !== that.getApplicationName() ||
-      !areEqual(this.getCallsWithValues(), that.getCallsWithValues())
+      !areEqualCallValues(this.getCallsWithValues(), that.getCallsWithValues())
     ) {
       return false;
     }
@@ -1434,6 +1434,18 @@ function serializeCalls(calls: Array<Call>): string {
   } else {
     return '';
   }
+}
+
+function areEqualCallValues(
+  thisCalls: Array<Call>,
+  thatCalls: Array<Call>
+): boolean {
+  if (thisCalls.length !== thatCalls.length) {
+    return false;
+  }
+  return thisCalls.every(({name, value}, ii) =>
+    thatCalls[ii].name === name && areEqual(thatCalls[ii].value, value)
+  );
 }
 
 RelayProfiler.instrumentMethods(RelayQueryNode.prototype, {

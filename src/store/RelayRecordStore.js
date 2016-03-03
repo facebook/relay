@@ -24,7 +24,7 @@ import type {
   RootCallMap,
 } from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
-import type RelayQueryPath from 'RelayQueryPath';
+import type {QueryPath} from 'RelayQueryPath';
 import type {
   Record,
   RecordMap,
@@ -159,8 +159,8 @@ class RelayRecordStore {
    */
   getPathToRecord(
     dataID: DataID
-  ): ?RelayQueryPath {
-    var path: ?RelayQueryPath = (this._getField(dataID, PATH): any);
+  ): ?QueryPath {
+    var path: ?QueryPath = (this._getField(dataID, PATH): any);
     return path;
   }
 

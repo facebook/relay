@@ -19,7 +19,7 @@ import type {
   ClientMutationID,
   DataID,
 } from 'RelayInternalTypes';
-import type RelayQueryPath from 'RelayQueryPath';
+import type {QueryPath} from 'RelayQueryPath';
 
 type FieldMap = {
   [key: string]: mixed;
@@ -31,7 +31,7 @@ export type Record = {
   __filterCalls__?: Array<Call>;
   __forceIndex__?: number;
   __mutationIDs__?: Array<ClientMutationID>;
-  __path__?: RelayQueryPath;
+  __path__?: QueryPath;
   __range__?: GraphQLRange;
   __resolvedDeferredFragments__?: {[fragmentID: string]: boolean};
   __resolvedFragmentMapGeneration__?: number;

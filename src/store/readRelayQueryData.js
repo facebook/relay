@@ -23,9 +23,9 @@ const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecord = require('RelayRecord');
 const RelayRecordState = require('RelayRecordState');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
-import type RelayStoreData from 'RelayStoreData';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
+import type RelayStoreData from 'RelayStoreData';
 import type {
   StoreReaderData,
   StoreReaderOptions,

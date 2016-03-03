@@ -208,7 +208,7 @@ class RelayGarbageCollector {
 
   _traverseRecord(record: {[key: string]: mixed}): void {
     forEachObject(record, (value, storageKey) => {
-      if (value instanceof RelayQueryPath) {
+      if (storageKey === RelayRecord.MetadataKey.PATH) {
         return;
       } else if (value instanceof GraphQLRange) {
         value.getEdgeIDs().forEach(id => {

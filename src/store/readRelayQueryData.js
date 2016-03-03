@@ -116,7 +116,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       rangeData ? rangeData.dataID : dataID
     );
     if (status === RelayRecordState.EXISTENT) {
-      var state = {
+      const state = this._createState({
         componentDataID: null,
         data: undefined,
         isPartial: false,
@@ -124,7 +124,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
         rangeInfo: null,
         seenDataIDs: result.dataIDs,
         storeDataID: dataID,
-      };
+      });
       this.visit(queryNode, state);
       result.data = state.data;
     } else if (status === RelayRecordState.NONEXISTENT) {
@@ -184,12 +184,21 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     }
   }
 
+  _createState(state: State): State {
+    // If we have a valid `dataID`, ensure that a record is created for it even
+    // if we do not actually end up populating it with fields.
+    const status = this._recordStore.getRecordState(state.storeDataID);
+    if (status === RelayRecordState.EXISTENT) {
+      getDataObject(state);
+    }
+    return state;
+  }
+
   _readScalar(node: RelayQuery.Field, state: State): void {
     var storageKey = node.getStorageKey();
     var field = this._recordStore.getField(state.storeDataID, storageKey);
     if (field === undefined) {
       state.isPartial = true;
-      return;
     } else if (field === null && !state.data) {
       state.data = null;
     } else {
@@ -213,7 +222,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
         if (previousData instanceof Object) {
           data = previousData[ii];
         }
-        var nextState = {
+        const nextState = this._createState({
           componentDataID: null,
           data,
           isPartial: false,
@@ -221,7 +230,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
           rangeInfo: null,
           seenDataIDs: state.seenDataIDs,
           storeDataID: dataID,
-        };
+        });
         node.getChildren().forEach(child => this.visit(child, nextState));
         if (nextState.isPartial) {
           state.isPartial = true;
@@ -246,7 +255,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     }
     enforceRangeCalls(node);
     var metadata = this._recordStore.getRangeMetadata(dataID, calls);
-    var nextState = {
+    const nextState = this._createState({
       componentDataID: this._getConnectionClientID(node, dataID),
       data: getDataValue(state, applicationName),
       isPartial: false,
@@ -254,7 +263,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       rangeInfo: metadata && calls.length ? metadata : null,
       seenDataIDs: state.seenDataIDs,
       storeDataID: dataID,
-    };
+    });
     this.traverse(node, nextState);
     if (nextState.isPartial) {
       state.isPartial = true;
@@ -272,7 +281,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       if (previousData instanceof Object) {
         data = previousData[ii];
       }
-      var nextState = {
+      const nextState = this._createState({
         componentDataID: null,
         data,
         isPartial: false,
@@ -280,7 +289,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
         rangeInfo: null,
         seenDataIDs: state.seenDataIDs,
         storeDataID: edgeData.edgeID,
-      };
+      });
       this.traverse(node, nextState);
       if (nextState.isPartial) {
         state.isPartial = true;
@@ -353,7 +362,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       this._setDataValue(state, applicationName, dataID);
       return;
     }
-    var nextState = {
+    const nextState = this._createState({
       componentDataID: null,
       data: getDataValue(state, applicationName),
       isPartial: false,
@@ -361,12 +370,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       rangeInfo: null,
       seenDataIDs: state.seenDataIDs,
       storeDataID: dataID,
-    };
-    var status = this._recordStore.getRecordState(dataID);
-    if (status === RelayRecordState.EXISTENT) {
-      // Make sure we return at least the __dataID__.
-      getDataObject(nextState);
-    }
+    });
     this.traverse(node, nextState);
     if (nextState.isPartial) {
       state.isPartial = true;

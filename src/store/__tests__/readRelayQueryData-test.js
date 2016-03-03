@@ -1034,32 +1034,141 @@ describe('readRelayQueryData', () => {
     expect('actor' in data).toBe(false);
   });
 
-  it('allocates linked fields even if all child fields are null', () => {
+  it('allocates fragments even if all child fields are null', () => {
     const query = getNode(Relay.QL`
-      query {
-        node(id:"123") {
-          birthdate {
-            year,
-          },
+      fragment on Feedback {
+        id
+      }
+    `);
+    const records = {
+      feedbackID: {
+        __dataID__: 'feedbackID',
+        id: null,
+      },
+    };
+    const store = getStoreData({records});
+    const {data, dataIDs} = readRelayQueryData(store, query, 'feedbackID');
+    expect(data).toEqual({
+      __dataID__: 'feedbackID',
+      id: null,
+    });
+    expect(dataIDs).toEqual({
+      feedbackID: true,
+    });
+  });
+
+  it('allocates connection fields even if all child fields are null', () => {
+    const query = getNode(Relay.QL`
+      fragment on Feedback {
+        comments {
+          count
         }
       }
     `);
     const records = {
-      '123': {
-        __dataID__: '123',
-        birthdate: {
-          __dataID__: 'client:1',
+      feedbackID: {
+        __dataID__: 'feedbackID',
+        comments: {
+          __dataID__: 'commentsID',
         },
       },
-      'client:1': {
-        __dataID__: 'client:1',
+      commentsID: {
+        __dataID__: 'commentsID',
+        count: null,
+      },
+    };
+    const store = getStoreData({records});
+    const {data, dataIDs} = readRelayQueryData(store, query, 'feedbackID');
+    expect(data).toEqual({
+      __dataID__: 'feedbackID',
+      comments: {
+        __dataID__: 'commentsID',
+        count: null,
+      },
+    });
+    expect(dataIDs).toEqual({
+      commentsID: true,
+      feedbackID: true,
+    });
+  });
+
+  it('allocates plural fields even if all child fields are null', () => {
+    const query = getNode(Relay.QL`
+      fragment on User {
+        allPhones {
+          isVerified
+        }
+      }
+    `);
+    const records = {
+      userID: {
+        __dataID__: 'userID',
+        allPhones: [{__dataID__: 'phone1ID'}, {__dataID__: 'phone2ID'}],
+      },
+      phone1ID: {
+        __dataID__: 'phone1ID',
+        isVerified: null,
+      },
+      phone2ID: {
+        __dataID__: 'phone2ID',
+        isVerified: null,
+      },
+    };
+    const store = getStoreData({records});
+    const {data, dataIDs} = readRelayQueryData(store, query, 'userID');
+    expect(data).toEqual({
+      __dataID__: 'userID',
+      allPhones: [
+        {
+          __dataID__: 'phone1ID',
+          isVerified: null,
+        },
+        {
+          __dataID__: 'phone2ID',
+          isVerified: null,
+        },
+      ],
+    });
+    expect(dataIDs).toEqual({
+      phone1ID: true,
+      phone2ID: true,
+      userID: true,
+    });
+  });
+
+  it('allocates linked fields even if all child fields are null', () => {
+    const query = getNode(Relay.QL`
+      fragment on User {
+        birthdate {
+          year
+        }
+      }
+    `);
+    const records = {
+      userID: {
+        __dataID__: 'userID',
+        birthdate: {
+          __dataID__: 'birthdateID',
+        },
+      },
+      birthdateID: {
+        __dataID__: 'birthdateID',
         year: null,
       },
     };
-    const data = readData(getStoreData({records}), query, '123');
-
-    expect(data.birthdate).not.toBeNull();
-    expect(data.birthdate.year).toBeNull();
+    const store = getStoreData({records});
+    const {data, dataIDs} = readRelayQueryData(store, query, 'userID');
+    expect(data).toEqual({
+      __dataID__: 'userID',
+      birthdate: {
+        __dataID__: 'birthdateID',
+        year: null,
+      },
+    });
+    expect(dataIDs).toEqual({
+      birthdateID: true,
+      userID: true,
+    });
   });
 
   it('reads fields for connections without calls', () => {
@@ -1406,7 +1515,7 @@ describe('readRelayQueryData', () => {
     });
   });
 
-  it('returns undefined for non-matching fragments', () => {
+  it('omits fields for non-matching fragments', () => {
     const records = {
       123: {
         __dataID__: '123',
@@ -1416,7 +1525,7 @@ describe('readRelayQueryData', () => {
     };
     const query = getNode(Relay.QL`fragment on Page { id }`);
     const data = readData(getStoreData({records}), query, '123');
-    expect(data).toEqual(undefined);
+    expect(data).toEqual({__dataID__: '123'});
   });
 
   it('skips non-matching child fragments', () => {

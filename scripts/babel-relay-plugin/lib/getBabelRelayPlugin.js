@@ -54,17 +54,18 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
           /**
            * Extract the module name from `@providesModule`.
            */
-          Program: function Program(_ref2, state) {
+
+          Program: function (_ref2, state) {
             var parent = _ref2.parent;
 
             if (state.file.opts.documentName) {
               return;
             }
-            var documentName = undefined;
+            var documentName = void 0;
             if (parent.comments && parent.comments.length) {
               var docblock = parent.comments[0].value || '';
               var propertyRegex = /@(\S+) *(\S*)/g;
-              var captures = undefined;
+              var captures = void 0;
               while (captures = propertyRegex.exec(docblock)) {
                 var property = captures[1];
                 var value = captures[2];
@@ -76,19 +77,21 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
             }
             var basename = state.file.opts.basename;
             if (basename && !documentName) {
-              var captures = basename.match(/^[_A-Za-z][_0-9A-Za-z]*/);
-              if (captures) {
-                documentName = captures[0];
+              var _captures = basename.match(/^[_A-Za-z][_0-9A-Za-z]*/);
+              if (_captures) {
+                documentName = _captures[0];
               }
             }
             state.file.opts.documentName = documentName || 'UnknownFile';
           },
 
+
           /**
            * Transform Relay.QL`...`.
            */
-          TaggedTemplateExpression: function TaggedTemplateExpression(path, state) {
+          TaggedTemplateExpression: function (path, state) {
             var node = path.node;
+
 
             var tag = path.get('tag');
             var tagName = tag.matchesPattern('Relay.QL') ? 'Relay.QL' : tag.isIdentifier({ name: 'RelayQL' }) ? 'RelayQL' : null;
@@ -119,7 +122,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
               }
             }
 
-            var result = undefined;
+            var result = void 0;
             try {
               result = transformer.transform(t, node.quasi, {
                 documentName: documentName,

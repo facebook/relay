@@ -14,6 +14,7 @@
 
 var babel = require('babel-core');
 var fs = require('fs');
+var getBabelOptions = require('fbjs-scripts/babel-6/default-options');
 var util = require('util');
 
 var getBabelRelayPlugin = require('../getBabelRelayPlugin');
@@ -38,12 +39,14 @@ function transformGraphQL(schemaPath, source, filename) {
     substituteVariables: true,
     suppressWarnings: true
   });
-  return babel.transform(source, {
-    compact: false,
-    filename: filename,
-    plugins: [plugin],
-    blacklist: ['strict']
-  }).code;
+
+  var babelOptions = getBabelOptions({
+    moduleOpts: { prefix: '' }
+  });
+  babelOptions.plugins.unshift(plugin);
+  babelOptions.filename = filename;
+  babelOptions.retainLines = true;
+  return babel.transform(source, babelOptions).code;
 }
 
 module.exports = transformGraphQL;

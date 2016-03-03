@@ -1,4 +1,6 @@
 // @generated
+'use strict';
+
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -13,8 +15,6 @@
 /**
  * Generates `testschema.rfc.json` from `testschema.rfc.graphql`.
  */
-
-'use strict';
 
 var fs = require('fs');
 var path = require('path');

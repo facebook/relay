@@ -21,6 +21,7 @@ const Relay = require('Relay');
 const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRenderer.renderArgs', () => {
   let MockComponent;
@@ -53,6 +54,7 @@ describe('RelayRenderer.renderArgs', () => {
       />,
       container
     );
+    jasmine.addMatchers(RelayTestUtils.matchers);
     jasmine.addMatchers({
       toRenderWithArgs() {
         return {
@@ -206,7 +208,7 @@ describe('RelayRenderer.renderArgs', () => {
 
     const {retry} = render.mock.calls[1][0];
     expect(typeof retry).toBe('function');
-    expect(() => retry()).toThrowError(
+    expect(() => retry()).toFailInvariant(
       'RelayRenderer: You tried to call `retry`, but the last request did ' +
       'not fail. You can only call this when the last request has failed.'
     );

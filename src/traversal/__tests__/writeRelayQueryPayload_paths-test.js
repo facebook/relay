@@ -195,6 +195,7 @@ describe('writePayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           allPhones: [phone],
         },
@@ -240,6 +241,7 @@ describe('writePayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           friends: {
             edges: [
@@ -446,6 +448,7 @@ describe('writePayload()', () => {
       };
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           allPhones: [phone],
         },
@@ -489,6 +492,7 @@ describe('writePayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           friends: {
             edges: [
@@ -549,6 +553,7 @@ describe('writePayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           friends: {
             edges: [

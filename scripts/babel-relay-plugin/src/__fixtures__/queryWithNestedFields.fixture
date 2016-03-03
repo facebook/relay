@@ -64,7 +64,7 @@ var x = (function () {
         },
         type: 'String'
       }],
-      id: 'tBKaPqKgOrD0:16',
+      id: 'tBKaPqKgOrD0:0',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

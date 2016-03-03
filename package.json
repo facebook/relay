@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "babel-runtime": "5.8.24",
-    "fbjs": "^0.7.0",
+    "fbjs": "^0.8.0-alpha.1",
     "react-static-container": "^1.0.0-alpha.1"
   },
   "peerDependencies": {
@@ -52,7 +52,7 @@
     "gulp-flatten": "^0.1.0",
     "gulp-header": "^1.2.2",
     "gulp-util": "^3.0.6",
-    "jest-cli": "^0.9.0-fb1",
+    "jest-cli": "^0.9.0-fb3",
     "object-assign": "^3.0.0",
     "react": "^0.14.0",
     "react-dom": "^0.14.0",

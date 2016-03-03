@@ -22,8 +22,10 @@ const QueryBuilder = require('QueryBuilder');
 import type {RelayConcreteNode} from 'RelayQL';
 const RelayProfiler = require('RelayProfiler');
 import type {RelayContainer, Variables} from 'RelayTypes';
+const Set = require('Set');
 
 const filterObject = require('filterObject');
+const generateConcreteFragmentID = require('generateConcreteFragmentID');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
@@ -33,10 +35,11 @@ export type RelayQLQueryBuilder =
   (Component: RelayContainer, params: Variables) => RelayConcreteNode;
 
 // Cache results of executing fragment query builders.
-var fragmentCache = new Map();
+const fragmentCache = new Map();
+const concreteFragmentIDSet = new Set();
 
 // Cache results of executing component-specific route query builders.
-var queryCache = new Map();
+const queryCache = new Map();
 
 function isDeprecatedCallWithArgCountGreaterThan(
   nodeBuilder: Function,
@@ -70,20 +73,32 @@ var buildRQL = {
     fragmentBuilder: RelayQLFragmentBuilder,
     values: Variables
   ): ?ConcreteFragment {
-    var node = fragmentCache.get(fragmentBuilder);
-    if (!node) {
-      var variables = toVariables(values);
-      invariant(
-        !isDeprecatedCallWithArgCountGreaterThan(fragmentBuilder, 1),
-        'Relay.QL: Deprecated usage detected. If you are trying to define a ' +
-        'fragment, use `variables => Relay.QL`.'
-      );
-      node = fragmentBuilder(variables);
-      fragmentCache.set(fragmentBuilder, node);
-    }
+    let node = fragmentCache.get(fragmentBuilder);
     if (node) {
       return QueryBuilder.getFragment(node);
     }
+    const variables = toVariables(values);
+    invariant(
+      !isDeprecatedCallWithArgCountGreaterThan(fragmentBuilder, 1),
+      'Relay.QL: Deprecated usage detected. If you are trying to define a ' +
+      'fragment, use `variables => Relay.QL`.'
+    );
+    node = fragmentBuilder(variables);
+    let fragment = node != null ?
+      QueryBuilder.getFragment(node) :
+      null;
+    if (!fragment) {
+      return fragment;
+    }
+    if (concreteFragmentIDSet.has(fragment.id)) {
+      fragment = {
+        ...fragment,
+        id: generateConcreteFragmentID(),
+      };
+    }
+    concreteFragmentIDSet.add(fragment.id);
+    fragmentCache.set(fragmentBuilder, fragment);
+    return fragment;
   },
 
   Query(

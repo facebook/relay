@@ -1753,6 +1753,7 @@ describe('diffRelayQuery', () => {
     var records = {
       '4': {
         __dataID__: '4',
+        __typename: 'User',
         id: '4',
         name: 'Mark Zuckerberg',
         friends: {__dataID__: 'client:1'},
@@ -1800,18 +1801,20 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         nodes(ids:"4") {
-          id,
-          __typename,
-          friends(find:"4808495") {
-            edges {
-              cursor,
-              node {
-                id,
-                __typename, # not strictly required here
-              },
-              source {
-                id,
-                firstName
+          ... on User {
+            id,
+            __typename,
+            friends(find:"4808495") {
+              edges {
+                cursor,
+                node {
+                  id,
+                  __typename, # not strictly required here
+                },
+                source {
+                  id,
+                  firstName
+                }
               }
             }
           }

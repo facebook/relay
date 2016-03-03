@@ -47,6 +47,7 @@ var babelOptions = assign(
       'React': 'react',
       'reactComponentExpect': 'react/lib/reactComponentExpect',
       'ReactDOM': 'react-dom',
+      'ReactDOMServer': 'react-dom/server',
       'ReactUpdates': 'react/lib/ReactUpdates',
       'ReactTestUtils': 'react/lib/ReactTestUtils.js',
       'StaticContainer.react': 'react-static-container',
@@ -62,13 +63,6 @@ module.exports = {
   getCacheKey: createCacheKeyFunction([
     __filename,
     SCHEMA_PATH,
-    path.join(
-      __dirname,
-      '..',
-      '..',
-      'node_modules',
-      'babel-relay-plugin',
-      'package.json'
-    ),
+    path.join(__dirname, '..', 'babel-relay-plugin', 'package.json'),
   ]),
 };

@@ -191,6 +191,7 @@ describe('RelayQueryResultObservable', () => {
     expect(subscriber.onError).not.toBeCalled();
     expect(subscriber.onNext).toBeCalledWith({
       __dataID__: 'oops',
+      __status__: 4,
     });
   });
 
@@ -217,6 +218,7 @@ describe('RelayQueryResultObservable', () => {
     expect(subscriber.onError).not.toBeCalled();
     expect(subscriber.onNext).toBeCalledWith({
       __dataID__: '123',
+      __status__: 4,
     });
   });
 
@@ -243,6 +245,7 @@ describe('RelayQueryResultObservable', () => {
     expect(subscriber.onError).not.toBeCalled();
     expect(subscriber.onNext).toBeCalledWith({
       __dataID__: '123',
+      __status__: 4,
     });
   });
 });

@@ -148,7 +148,7 @@ var RelayQLTransformer = (function () {
       var context = {
         definitionName: capitalize(documentName),
         isPattern: false,
-        nodeIndex: 0,
+        generateID: createIDGenerator(),
         schema: this.schema,
         fragmentLocationID: fragmentLocationID
       };
@@ -203,6 +203,16 @@ var RelayQLTransformer = (function () {
 
 function capitalize(string) {
   return string[0].toUpperCase() + string.slice(1);
+}
+
+/**
+ * Utility to generate locally scoped auto-incrementing IDs.
+ */
+function createIDGenerator() {
+  var _id = 0;
+  return function () {
+    return (_id++).toString(32);
+  };
 }
 
 module.exports = RelayQLTransformer;

@@ -398,7 +398,7 @@ class RelayStoreData {
         'record `%s` without a path.',
         dataID
       );
-      return path.getQuery(fragment);
+      return path.getQuery(this._cachedStore, fragment);
     }
     // Fragment fields cannot be spread directly into the root because they
     // may not exist on the `Node` type.

@@ -103,7 +103,7 @@ function diffRelayQuery(
   }
   const fieldName = root.getFieldName();
   const storageKey = root.getStorageKey();
-  forEachRootCallArg(root, identifyingArgValue => {
+  forEachRootCallArg(root, ({identifyingArgValue, identifyingArgKey}) => {
     var nodeRoot;
     if (isPluralCall) {
       invariant(
@@ -126,7 +126,7 @@ function diffRelayQuery(
     }
 
     // The whole query must be fetched if the root dataID is unknown.
-    var dataID = store.getDataID(storageKey, identifyingArgValue);
+    var dataID = store.getDataID(storageKey, identifyingArgKey);
     if (dataID == null) {
       queries.push(nodeRoot);
       return;
@@ -674,7 +674,9 @@ class RelayDiffQueryBuilder {
               hasSplitQueries = true;
               // current path has `parent`, `connection`, `edges`; pop to parent
               var connectionParent = path.getParent().getParent();
-              this.splitQuery(connectionParent.getQuery(connectionFind));
+              var connectionQuery =
+                connectionParent.getQuery(this._store, connectionFind);
+              this.splitQuery(connectionQuery);
             }
           } else {
             warning(

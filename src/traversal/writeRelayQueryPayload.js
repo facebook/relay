@@ -40,7 +40,7 @@ function writeRelayQueryPayload(
       if (rootCallInfo) {
         recordWriter.putDataID(
           rootCallInfo.storageKey,
-          rootCallInfo.identifyingArgValue,
+          rootCallInfo.identifyingArgKey,
           dataID
         );
       }

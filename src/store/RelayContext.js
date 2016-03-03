@@ -173,9 +173,9 @@ class RelayContext {
     const queuedStore = this._storeData.getQueuedStore();
     const storageKey = root.getStorageKey();
     var results = [];
-    forEachRootCallArg(root, identifyingArgValue => {
+    forEachRootCallArg(root, ({identifyingArgKey}) => {
       let data;
-      const dataID = queuedStore.getDataID(storageKey, identifyingArgValue);
+      const dataID = queuedStore.getDataID(storageKey, identifyingArgKey);
       if (dataID != null) {
         data = this.read(root, dataID, options);
       }

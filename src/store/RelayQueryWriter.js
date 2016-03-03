@@ -46,6 +46,7 @@ type WriterState = {
 
 const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
 const {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
+const {EXISTENT} = RelayRecordState;
 
 /**
  * @internal
@@ -97,8 +98,12 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       return null;
     }
     let typeName = payload[TYPENAME];
-    if (typeName == null && !node.isAbstract()) {
-      typeName = node.getType();
+    if (typeName == null) {
+      if (!node.isAbstract()) {
+        typeName = node.getType();
+      } else {
+        typeName = this._store.getType(recordID);
+      }
     }
     warning(
       typeName && typeName !== ANY_TYPE,
@@ -176,12 +181,13 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   createRecordIfMissing(
     node: RelayQuery.Node,
     recordID: DataID,
-    typeName: ?string,
-    path: RelayQueryPath
+    path: RelayQueryPath,
+    payload: ?Object
   ): void {
     const recordState = this._store.getRecordState(recordID);
+    const typeName = payload && this.getRecordTypeName(node, recordID, payload);
     this._writer.putRecord(recordID, typeName, path);
-    if (recordState !== RelayRecordState.EXISTENT) {
+    if (recordState !== EXISTENT) {
       this.recordCreate(recordID);
     }
     if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
@@ -205,7 +211,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         recordID
       );
       this._writer.deleteRecord(recordID);
-      if (recordState === RelayRecordState.EXISTENT) {
+      if (recordState === EXISTENT) {
         this.recordUpdate(recordID);
       }
       return;
@@ -216,8 +222,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       'an array or object.',
       recordID
     );
-    const typeName = this.getRecordTypeName(root, recordID, responseData);
-    this.createRecordIfMissing(root, recordID, typeName, path);
+    this.createRecordIfMissing(root, recordID, path, responseData);
     this.traverse(root, state);
   }
 
@@ -257,7 +262,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       responseData,
     } = state;
     invariant(
-      this._writer.getRecordState(recordID) === RelayRecordState.EXISTENT,
+      this._writer.getRecordState(recordID) === EXISTENT,
       'RelayQueryWriter: Cannot update a non-existent record, `%s`.',
       recordID
     );
@@ -356,7 +361,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this._writer.putRecord(connectionID, null, path);
     this._writer.putLinkedRecordID(recordID, storageKey, connectionID);
     // record the create/update only if something changed
-    if (connectionRecordState !== RelayRecordState.EXISTENT) {
+    if (connectionRecordState !== EXISTENT) {
       this.recordUpdate(recordID);
       this.recordCreate(connectionID);
     }
@@ -515,7 +520,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // TODO: Flow: `nodeID` is `string`
       const edgeID = generateClientEdgeID(connectionID, nodeID);
       const path = state.path.getPath(edges, edgeID);
-      this.createRecordIfMissing(edges, edgeID, null, path);
+      this.createRecordIfMissing(edges, edgeID, path, null);
       fetchedEdgeIDs.push(edgeID);
 
       // Write data for the edge, using `nodeID` as the id for direct descendant
@@ -592,8 +597,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       nextLinkedIDs.push(nextLinkedID);
 
       const path = state.path.getPath(field, nextLinkedID);
-      const typeName = this.getRecordTypeName(field, nextLinkedID, nextRecord);
-      this.createRecordIfMissing(field, nextLinkedID, typeName, path);
+      this.createRecordIfMissing(field, nextLinkedID, path, nextRecord);
       isUpdate = (
         isUpdate ||
         nextLinkedID !== prevLinkedID ||
@@ -659,8 +663,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     );
 
     const path = state.path.getPath(field, nextLinkedID);
-    const typeName = this.getRecordTypeName(field, nextLinkedID, fieldData);
-    this.createRecordIfMissing(field, nextLinkedID, typeName, path);
+    this.createRecordIfMissing(field, nextLinkedID, path, fieldData);
     // always update the store to ensure the value is present in the appropriate
     // data sink (record/queuedRecords), but only record an update if the value
     // changed.

@@ -15,7 +15,15 @@
 
 import type {Call} from 'RelayInternalTypes';
 
-var CONNECTION_CALLS = {
+export type PageInfo = {
+  endCursor: ?string;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  startCursor: ?string;
+};
+
+const CLIENT_MUTATION_ID = 'clientMutationId';
+const CONNECTION_CALLS = {
   'after': true,
   'before': true,
   'find': true,
@@ -23,27 +31,35 @@ var CONNECTION_CALLS = {
   'last': true,
   'surrounds': true,
 };
-var REQUIRED_RANGE_CALLS = {
+const CURSOR = 'cursor';
+const EDGES = 'edges';
+const END_CURSOR = 'endCursor';
+const HAS_NEXT_PAGE = 'hasNextPage';
+const HAS_PREV_PAGE = 'hasPreviousPage';
+const NODE = 'node';
+const PAGE_INFO = 'pageInfo';
+const REQUIRED_RANGE_CALLS = {
   'find': true,
   'first': true,
   'last': true,
 };
+const START_CURSOR = 'startCursor';
 
 /**
  * @internal
  *
  * Defines logic relevant to the informal "Connection" GraphQL interface.
  */
-var RelayOSSConnectionInterface = {
-  CLIENT_MUTATION_ID: 'clientMutationId',
-  CURSOR: 'cursor',
-  EDGES: 'edges',
-  END_CURSOR: 'endCursor',
-  HAS_NEXT_PAGE: 'hasNextPage',
-  HAS_PREV_PAGE: 'hasPreviousPage',
-  NODE: 'node',
-  PAGE_INFO: 'pageInfo',
-  START_CURSOR: 'startCursor',
+const RelayOSSConnectionInterface = {
+  CLIENT_MUTATION_ID,
+  CURSOR,
+  EDGES,
+  END_CURSOR,
+  HAS_NEXT_PAGE,
+  HAS_PREV_PAGE,
+  NODE,
+  PAGE_INFO,
+  START_CURSOR,
 
   /**
    * Whether `edges` fields are expected to have `source` fields.
@@ -70,13 +86,13 @@ var RelayOSSConnectionInterface = {
   /**
    * Gets a default record representing a connection's `PAGE_INFO`.
    */
-  getDefaultPageInfo(): {[key: string]: mixed} {
-    var pageInfo = {};
-    pageInfo[RelayOSSConnectionInterface.START_CURSOR] = undefined;
-    pageInfo[RelayOSSConnectionInterface.END_CURSOR] = undefined;
-    pageInfo[RelayOSSConnectionInterface.HAS_NEXT_PAGE] = false;
-    pageInfo[RelayOSSConnectionInterface.HAS_PREV_PAGE] = false;
-    return pageInfo;
+  getDefaultPageInfo(): PageInfo {
+    return {
+      [END_CURSOR]: undefined,
+      [HAS_NEXT_PAGE]: false,
+      [HAS_PREV_PAGE]: false,
+      [START_CURSOR]: undefined,
+    };
   },
 };
 

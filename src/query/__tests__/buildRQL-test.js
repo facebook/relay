@@ -110,6 +110,20 @@ describe('buildRQL', () => {
       var node2 = buildRQL.Fragment(builder, {sizeVariable: null});
       expect(node1 === node2).toBe(true);
     });
+
+    it('generates distinct fragments per fragment builder', () => {
+      var concreteFragment = Relay.QL`fragment on Node { id }`;
+      var builder1 = () => concreteFragment;
+      var builder2 = () => concreteFragment;
+      var node1 = buildRQL.Fragment(builder1);
+      var node2 = buildRQL.Fragment(builder2);
+      expect(node1).toBe(concreteFragment);
+      expect(node1).not.toBe(node2);
+      expect(node1.id).not.toBe(node2.id);
+      expect(getNode(node1)).toEqualQueryNode(getNode(node2));
+      expect(buildRQL.Fragment(builder1)).toBe(node1);
+      expect(buildRQL.Fragment(builder2)).toBe(node2);
+    });
   });
 
   describe('Query()', () => {

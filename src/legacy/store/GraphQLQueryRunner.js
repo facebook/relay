@@ -41,8 +41,6 @@ import type {
   ReadyStateChangeCallback,
 } from 'RelayTypes';
 
-type RelayProfileHandler = {stop: () => void};
-
 /**
  * This is the high-level entry point for sending queries to the GraphQL
  * endpoint. It provides methods for scheduling queries (`run`), force-fetching
@@ -68,39 +66,9 @@ class GraphQLQueryRunner {
   run(
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback,
-    fetchMode?: FetchMode
+    fetchMode?: FetchMode = RelayFetchMode.CLIENT
   ): Abortable {
-    fetchMode = fetchMode || RelayFetchMode.CLIENT;
-    var profiler = fetchMode === RelayFetchMode.REFETCH ?
-      RelayProfiler.profile('GraphQLQueryRunner.forceFetch') :
-      RelayProfiler.profile('GraphQLQueryRunner.primeCache');
-
-    var diffQueries = [];
-    if (fetchMode === RelayFetchMode.CLIENT) {
-      forEachObject(querySet, query => {
-        if (query) {
-          diffQueries.push(...diffRelayQuery(
-            query,
-            this._storeData.getRecordStore(),
-            this._storeData.getQueryTracker()
-          ));
-        }
-      });
-    } else {
-      forEachObject(querySet, query => {
-        if (query) {
-          diffQueries.push(query);
-        }
-      });
-    }
-
-    return runQueries(
-      this._storeData,
-      diffQueries,
-      callback,
-      fetchMode,
-      profiler
-    );
+    return runQueries(this._storeData, querySet, callback, fetchMode);
   }
 
   /**
@@ -114,14 +82,8 @@ class GraphQLQueryRunner {
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
-    var fetchMode = RelayFetchMode.REFETCH;
-    var profiler = RelayProfiler.profile('GraphQLQueryRunner.forceFetch');
-    var queries = [];
-    forEachObject(querySet, query => {
-      query && queries.push(query);
-    });
-
-    return runQueries(this._storeData, queries, callback, fetchMode, profiler);
+    const fetchMode = RelayFetchMode.REFETCH;
+    return runQueries(this._storeData, querySet, callback, fetchMode);
   }
 }
 
@@ -160,11 +122,14 @@ function splitAndFlattenQueries(
 
 function runQueries(
   storeData: RelayStoreData,
-  queries: Array<RelayQuery.Root>,
+  querySet: RelayQuerySet,
   callback: ReadyStateChangeCallback,
-  fetchMode: FetchMode,
-  profiler: RelayProfileHandler
+  fetchMode: FetchMode
 ): Abortable {
+  const profiler = fetchMode === RelayFetchMode.REFETCH ?
+    RelayProfiler.profile('GraphQLQueryRunner.forceFetch') :
+    RelayProfiler.profile('GraphQLQueryRunner.primeCache');
+
   const readyState = new RelayReadyState(callback);
 
   var remainingFetchMap: {[queryID: string]: PendingFetch} = {};
@@ -214,8 +179,28 @@ function runQueries(
   }
 
   RelayTaskScheduler.enqueue(() => {
-    var forceIndex = fetchMode === RelayFetchMode.REFETCH ?
-      generateForceIndex() : null;
+    const forceIndex = fetchMode === RelayFetchMode.REFETCH ?
+      generateForceIndex() :
+      null;
+
+    const queries = [];
+    if (fetchMode === RelayFetchMode.CLIENT) {
+      forEachObject(querySet, query => {
+        if (query) {
+          queries.push(...diffRelayQuery(
+            query,
+            storeData.getRecordStore(),
+            storeData.getQueryTracker()
+          ));
+        }
+      });
+    } else {
+      forEachObject(querySet, query => {
+        if (query) {
+          queries.push(query);
+        }
+      });
+    }
 
     splitAndFlattenQueries(queries).forEach(query => {
       var pendingFetch = storeData.getPendingQueryTracker().add(

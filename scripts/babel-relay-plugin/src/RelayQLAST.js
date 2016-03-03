@@ -33,6 +33,7 @@ import type {
   FragmentSpread as GraphQLFragmentSpread,
   InlineFragment as GraphQLInlineFragment,
   OperationDefinition as GraphQLOperationDefinition,
+  Value as GraphQLValue,
 } from 'GraphQLAST';
 
 // TODO: Import types from `graphql`.
@@ -44,6 +45,7 @@ type GraphQLSchemaType = Object;
 type RelayQLContext = {
   definitionName: string;
   fragmentLocationID: string;
+  generateID: () => string;
   isPattern: boolean;
   schema: GraphQLSchema;
 };
@@ -51,8 +53,6 @@ type RelayQLSelection =
   RelayQLField |
   RelayQLFragmentSpread |
   RelayQLInlineFragment;
-
-let _nextFragmentID = 0;
 
 class RelayQLNode<T> {
   ast: T;
@@ -151,7 +151,7 @@ class RelayQLFragment extends RelayQLDefinition<
 
   getFragmentID(): string {
     if (this.fragmentID == null) {
-      let suffix = (_nextFragmentID++).toString(32);
+      let suffix = this.context.generateID();
       // The fragmentLocationID is the same for all inline/nested fragments
       // within each Relay.QL tagged template expression; the auto-incrementing
       // suffix distinguishes these fragments from each other.
@@ -380,25 +380,17 @@ class RelayQLArgument {
       'Cannot get value of an argument variable.'
     );
     const value = this.ast.value;
-    switch (value.kind) {
-      case 'IntValue':
-        return parseInt(value.value, 10);
-      case 'FloatValue':
-        return parseFloat(value.value);
-      case 'StringValue':
-      case 'BooleanValue':
-      case 'EnumValue':
-        return value.value;
-      case 'ListValue':
-        return value.values.map(
-          value => new RelayQLArgument(
-            this.context,
-            {...this.ast, value},
-            this.type.ofType()
-          )
-        );
+    if (value.kind === 'ListValue') {
+      return value.values.map(
+        value => new RelayQLArgument(
+          this.context,
+          {...this.ast, value},
+          this.type.ofType()
+        )
+      );
+    } else {
+      return getLiteralValue(value);
     }
-    invariant(false, 'Unexpected argument kind: %s', value.kind);
   }
 }
 
@@ -766,6 +758,41 @@ function stripMarkerTypes(schemaModifiedType: GraphQLSchemaType): {
     schemaUnmodifiedType = schemaUnmodifiedType.ofType;
   }
   return {isListType, isNonNullType, schemaUnmodifiedType};
+}
+
+function getLiteralValue(value: GraphQLValue): mixed {
+  switch (value.kind) {
+    case 'IntValue':
+      return parseInt(value.value, 10);
+    case 'FloatValue':
+      return parseFloat(value.value);
+    case 'StringValue':
+    case 'BooleanValue':
+    case 'EnumValue':
+      return value.value;
+    case 'ListValue':
+      return value.values.map(getLiteralValue);
+    case 'ObjectValue':
+      const object = {};
+      value.fields.forEach(field => {
+        object[field.name.value] = getLiteralValue(field.value);
+      });
+      return object;
+    case 'Variable':
+      invariant(
+        false,
+        'Unexpected nested variable `%s`; variables are supported as top-' +
+        'level arguments - `node(id: $id)` - or directly within lists - ' +
+        '`nodes(ids: [$id])`.',
+        value.name.value
+      );
+    default:
+      invariant(
+        false,
+        'Unexpected value kind: %s',
+        value.kind
+      );
+  }
 }
 
 module.exports = {

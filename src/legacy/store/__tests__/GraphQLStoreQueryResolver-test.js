@@ -320,12 +320,14 @@ describe('GraphQLStoreQueryResolver', () => {
       const payload = {
         viewer: {
           actor: {
+            __typename: 'User',
             id: '123',
           },
           newsFeed: {
             edges: [
               {
                 node: {
+                  __typename: 'Story',
                   id: '456',
                 },
               },

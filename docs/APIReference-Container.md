@@ -134,6 +134,9 @@ module.exports = Relay.createContainer(ProfilePicture, {
   fragments: {
     user: () => Relay.QL`
       # The variable defined above is available here as `$size`.
+      # Any variable referenced here is required to have been defined in initialVariables above.
+      # An `undefined` variable value will throw an `Invariant Violation` exception.
+      # Use `null` to initialize unknown values.
       fragment on User { profilePicture(size: $size) { ... } }
     `,
   },

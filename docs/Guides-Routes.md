@@ -123,7 +123,7 @@ window.addEventListener('popstate', () => {
       Component={UserProfile}
       route={profileRoute}
     />,
-    container
+    document.getElementById('app')
   );
 });
 ```

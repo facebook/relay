@@ -17,8 +17,11 @@ import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
+const RelayRecordState = require('RelayRecordState');
+import type RelayRecordStore from 'RelayRecordStore';
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 const {ID, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 
@@ -129,6 +132,7 @@ class RelayQueryPath {
    * The query also includes any ID fields along the way.
    */
   getQuery(
+    store: RelayRecordStore,
     appendNode: RelayQuery.Fragment | RelayQuery.Field
   ): RelayQuery.Root {
     let node = this._node;
@@ -162,20 +166,73 @@ class RelayQueryPath {
       node instanceof RelayQuery.Root,
       'RelayQueryPath: Expected a root node.'
     );
+    let children = [
+      child,
+      (node: $FlowIssue).getFieldByStorageKey(ID),
+      (node: $FlowIssue).getFieldByStorageKey(TYPENAME),
+    ];
     const metadata = {...node.getConcreteQueryNode().metadata};
     const identifyingArg = node.getIdentifyingArg();
     if (identifyingArg && identifyingArg.name != null) {
       metadata.identifyingArgName = identifyingArg.name;
     }
+    // At this point `children` will be a partial query such as:
+    //   id
+    //   __typename
+    //   fieldOnFoo { ${appendNode} }
+    //
+    // In which `fieldOnFoo` is a field of type `Foo`, and cannot be queried on
+    // `Node`. To make the query valid it must be wrapped in a conditioning
+    // fragment based on the concrete type of the root id:
+    //   node(id: $rootID) {
+    //     ... on TypeOFRootID {
+    //        # above Fragment
+    //     }
+    //   }
+    if (identifyingArg && identifyingArg.value != null) {
+      const identifyingArgValue = identifyingArg.value;
+      if (
+        typeof identifyingArgValue !== 'string' &&
+        typeof identifyingArgValue !== 'number'
+      ) {
+        // TODO #8054994: Supporting aribtrary identifying value types
+        invariant(
+          false,
+          'Relay: Expected argument to root field `%s` to be a string or ' +
+          'number, got `%s`.',
+          node.getFieldName(),
+          JSON.stringify(identifyingArgValue)
+        );
+      }
+      const rootID = store.getDataID(
+        node.getFieldName(),
+        '' + identifyingArgValue
+      );
+      const rootType = rootID && store.getType(rootID);
+      if (rootType != null) {
+        children = [RelayQuery.Fragment.build(
+          this.getName(),
+          rootType,
+          children
+        )];
+      } else {
+        const recordState = rootID != null ?
+          store.getRecordState(rootID) :
+          RelayRecordState.UNKNOWN;
+        warning(
+          false,
+          'RelayQueryPath: No typename found for %s record `%s`. ' +
+          'Generating a possibly invalid query.',
+          recordState.toLowerCase(),
+          identifyingArgValue
+        );
+      }
+    }
     return RelayQuery.Root.build(
       this.getName(),
       node.getFieldName(),
       (identifyingArg && identifyingArg.value) || null,
-      [
-        child,
-        (node: $FlowIssue).getFieldByStorageKey(ID),
-        (node: $FlowIssue).getFieldByStorageKey(TYPENAME),
-      ],
+      children,
       metadata,
       node.getType()
     );

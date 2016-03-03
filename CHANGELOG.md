@@ -1,5 +1,10 @@
 ## master
 
+## 0.7.1 (February 18, 2016)
+
+* Having fixed a bug, now you can *actually* interpolate an array of fragments
+  into a `Relay.QL` query. eg. `${containers.map(c => c.getFragment('foo'))}`
+
 ## 0.7.0 (February 12, 2016)
 
 * Eliminated a race condition that would cause `RelayGarbageCollector` to fatal

@@ -16,17 +16,18 @@ require('configureForRelayOSS');
 jest.dontMock('RelayRenderer');
 
 const React = require('React');
-const ReactTestUtils = require('ReactTestUtils');
+const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 const RelayStore = require('RelayStore');
+const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRenderer.renderArgs', () => {
   let MockComponent;
   let MockContainer;
-  let ShallowRenderer;
 
+  let container;
   let queryConfig;
   let render;
 
@@ -37,18 +38,20 @@ describe('RelayRenderer.renderArgs', () => {
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
-    ShallowRenderer = ReactTestUtils.createRenderer();
 
+    container = document.createElement('div');
     queryConfig = RelayQueryConfig.genMockInstance();
 
     render = jest.genMockFunction();
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         render={render}
-      />
+      />,
+      container
     );
+    jasmine.addMatchers(RelayTestUtils.matchers);
     jasmine.addMatchers({
       toRenderWithArgs() {
         return {
@@ -156,13 +159,14 @@ describe('RelayRenderer.renderArgs', () => {
   });
 
   it('is `stale` if force fetching when data is fulfillable', () => {
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         forceFetch={true}
         render={render}
-      />
+      />,
+      container
     );
     expect(request => request.resolve({stale: true})).toRenderWithArgs({
       done: false,
@@ -200,7 +204,7 @@ describe('RelayRenderer.renderArgs', () => {
 
     const {retry} = render.mock.calls[1][0];
     expect(typeof retry).toBe('function');
-    expect(() => retry()).toThrowError(
+    expect(() => retry()).toFailInvariant(
       'RelayRenderer: You tried to call `retry`, but the last request did ' +
       'not fail. You can only call this when the last request has failed.'
     );
@@ -210,12 +214,13 @@ describe('RelayRenderer.renderArgs', () => {
     const MockQueryConfig = RelayQueryConfig.genMock();
     queryConfig = new MockQueryConfig({foo: 123, bar: 456});
 
-    ShallowRenderer.render(
+    ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         render={render}
-      />
+      />,
+      container
     );
     expect(request => request.resolve()).toRenderWithArgs({
       done: false,

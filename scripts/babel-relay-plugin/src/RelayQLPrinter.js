@@ -51,7 +51,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       });
       return formatted;
     } :
-    function<T>(fields: T): T { return fields };
+    function<T>(fields: T): T { return fields; };
 
   const EMPTY_ARRAY = t.arrayExpression([]);
   const FIELDS = formatFields({
@@ -201,6 +201,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       return codify({
         children: selections,
         directives: this.printDirectives(fragment.getDirectives()),
+        id: t.valueToNode(fragment.getFragmentID()),
         kind: t.valueToNode('Fragment'),
         metadata,
         name: t.valueToNode(fragment.getName()),
@@ -536,7 +537,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       }
       return codify({
         kind: t.valueToNode('CallValue'),
-        callValue: t.valueToNode(value),
+        callValue: printLiteralValue(value),
       });
     }
 
@@ -794,14 +795,29 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     return t.objectProperty(t.identifier(name), value);
   }
 
+  function printLiteralValue(value: mixed): Printable {
+    if (value == null) {
+      return NULL;
+    } else if (Array.isArray(value)) {
+      return t.arrayExpression(value.map(printLiteralValue));
+    } else if (typeof value === 'object' && value != null) {
+      const objectValue = value;
+      return t.objectExpression(Object.keys(objectValue).map(key =>
+        property(key, printLiteralValue(objectValue[key]))
+      ));
+    } else {
+      return t.valueToNode(value);
+    }
+  }
+
   function shallowFlatten(arr: mixed) {
     return t.callExpression(
-    	t.memberExpression(
+      t.memberExpression(
         t.memberExpression(EMPTY_ARRAY, t.identifier('concat')),
         t.identifier('apply')
       ),
       [EMPTY_ARRAY, arr]
-    )
+    );
   }
 
   return RelayQLPrinter;

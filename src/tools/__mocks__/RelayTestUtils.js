@@ -47,7 +47,7 @@ var RelayTestUtils = {
       }
     }
     ContextSetter.childContextTypes = {
-      relay: RelayPropTypes.Context.isRequired,
+      relay: RelayPropTypes.Context,
       route: RelayPropTypes.QueryConfig.isRequired,
     };
 
@@ -176,11 +176,7 @@ var RelayTestUtils = {
       fragment.constructor.name
     );
 
-    var fragmentPointer = new RelayFragmentPointer(dataID, fragment);
-    return {
-      __dataID__: dataID,
-      [fragment.getConcreteNodeHash()]: fragmentPointer,
-    };
+    return RelayFragmentPointer.create(dataID, fragment);
   },
 
   /**
@@ -442,6 +438,7 @@ var RelayTestUtils = {
         compare(actual, expected) {
           const QueryBuilder = require('QueryBuilder');
           const RelayMetaRoute = require('RelayMetaRoute');
+          const RelayNodeInterface = require('RelayNodeInterface');
           const RelayQuery = require('RelayQuery');
           const RelayQueryPath = require('RelayQueryPath');
 
@@ -470,8 +467,23 @@ var RelayTestUtils = {
             RelayMetaRoute.get('$RelayTestUtils'),
             {}
           );
-          var actualQuery = actual.getQuery(fragment);
-          var expectedQuery = expected.getQuery(fragment);
+          const mockStore = {
+            getDataID(fieldName: string, id: string): string {
+              invariant(
+                fieldName === RelayNodeInterface.NODE,
+                'RelayTestUtils: Cannot `getDataID` for non-node root call ' +
+                '`%s`.',
+                fieldName
+              );
+              return id;
+            },
+            getType() {
+              return 'RelayTestUtils';
+            },
+          };
+
+          var actualQuery = actual.getQuery(mockStore, fragment);
+          var expectedQuery = expected.getQuery(mockStore, fragment);
 
           if (!actualQuery.equals(expectedQuery)) {
             return {

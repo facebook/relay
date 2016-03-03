@@ -110,6 +110,18 @@
               "deprecationReason": null
             },
             {
+              "name": "factionId",
+              "description": "id of faction in db",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "name",
               "description": "The name of the faction.",
               "args": [],
@@ -545,12 +557,12 @@
           "description": null,
           "fields": [
             {
-              "name": "ship",
+              "name": "newShipEdge",
               "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
-                "name": "Ship",
+                "name": "ShipEdge",
                 "ofType": null
               },
               "isDeprecated": false,

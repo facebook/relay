@@ -31,6 +31,7 @@ Relay.createContainer(Component, {
             },
             type: 'User'
           }],
+          id: 'okH/bEm+BsZO:0',
           kind: 'Fragment',
           metadata: {},
           name: 'ContainerRelayQL',

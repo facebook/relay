@@ -47,8 +47,8 @@ describe('RelayContainer', function() {
     // Create default container for tests
     mockCreateContainer(MockComponent);
 
-    GraphQLStoreQueryResolver.mockDefaultResolveImplementation((pointer) => {
-      expect(pointer.getDataID()).toBe('42');
+    GraphQLStoreQueryResolver.mockDefaultResolveImplementation((_, dataID) => {
+      expect(dataID).toBe('42');
       return {__dataID__: '42', id: '42', url: null};
     });
 

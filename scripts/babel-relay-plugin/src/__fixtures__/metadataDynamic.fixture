@@ -72,6 +72,7 @@ var x = (function () {
             },
             type: 'String'
           }],
+          id: 'B8asXVuHwFNu:0',
           kind: 'Fragment',
           metadata: {},
           name: 'Story',
@@ -130,6 +131,7 @@ var x = (function () {
       },
       type: 'PageInfo'
     }],
+    id: 'B8asXVuHwFNu:1',
     kind: 'Fragment',
     metadata: {},
     name: 'MetadataDynamicRelayQL',

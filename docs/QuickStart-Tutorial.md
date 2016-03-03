@@ -29,8 +29,8 @@ We need a place to hide our treasure, a way to check hiding spots for treasure, 
  */
 
 // Model types
-export class Game extends Object {}
-export class HidingSpot extends Object {}
+export class Game {}
+export class HidingSpot {}
 
 // Mock data
 var game = new Game();

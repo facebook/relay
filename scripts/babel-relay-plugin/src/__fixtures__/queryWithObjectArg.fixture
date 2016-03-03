@@ -15,7 +15,7 @@ var q = (function () {
     calls: [{
       kind: 'Call',
       metadata: {
-        type: '[SearchInput!]'
+        type: 'SearchInput!'
       },
       name: 'query',
       value: {
@@ -34,7 +34,7 @@ var q = (function () {
     metadata: {
       isPlural: true,
       identifyingArgName: 'query',
-      identifyingArgType: '[SearchInput!]'
+      identifyingArgType: 'SearchInput!'
     },
     name: 'QueryWithObjectArg',
     type: 'SearchResult'

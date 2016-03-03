@@ -15,16 +15,20 @@
 
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
-import type {Record} from 'RelayRecord';
 import type RelayRecordStore from 'RelayRecordStore';
 
+const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
-const shallowEqual = require('shallowEqual');
 
 import type {DataID} from 'RelayInternalTypes';
+import type {Record} from 'RelayRecord';
 
-type FragmentPointerObject = {
-  [key: string]: RelayFragmentPointer;
+type FragmentDataIDMap = {
+  [fragmentID: string]: DataID;
+};
+type FragmentProp = {
+  __dataID__: DataID,
+  __fragments__: FragmentDataIDMap;
 };
 
 /**
@@ -34,127 +38,77 @@ type FragmentPointerObject = {
  *
  * @internal
  */
-class RelayFragmentPointer {
-  _dataIDOrIDs: DataID | Array<DataID>;
-  _fragment: RelayQuery.Fragment;
+const RelayFragmentPointer = {
+  addFragment(
+    record: Record,
+    fragment: RelayQuery.Fragment,
+    dataID: DataID
+  ): void {
+    let fragmentMap = record.__fragments__;
+    if (fragmentMap == null) {
+      fragmentMap = record.__fragments__ = {};
+    }
+    invariant(
+      typeof fragmentMap === 'object' && fragmentMap != null,
+      'RelayFragmentPointer: Expected record to contain a fragment map, got ' +
+      '`%s` for record `%s`.',
+      fragmentMap,
+      record.__dataID__
+    );
+    fragmentMap[fragment.getConcreteFragmentID()] = dataID;
+  },
 
-  /**
-   * Creates a valid prop value to be passed into the top-level Relay container.
-   */
-  static createForRoot(
+  getDataID(
+    record: Record,
+    fragment: RelayQuery.Fragment
+  ): ?DataID {
+    let fragmentMap = record.__fragments__;
+    if (typeof fragmentMap === 'object' && fragmentMap != null) {
+      return fragmentMap[fragment.getConcreteFragmentID()];
+    }
+    return null;
+  },
+
+  create(
+    dataID: DataID,
+    fragment: RelayQuery.Fragment
+  ): FragmentProp {
+    const record = RelayRecord.create(dataID);
+    RelayFragmentPointer.addFragment(record, fragment, dataID);
+    return record;
+  },
+
+  createForRoot(
     store: RelayRecordStore,
     query: RelayQuery.Root
-  ): ?FragmentPointerObject | Array<?Record> {
-    var fragment = getRootFragment(query);
+  ): ?FragmentProp | ?Array<?FragmentProp> {
+    const fragment = getRootFragment(query);
     if (!fragment) {
       return null;
     }
-    const fragmentHash = fragment.getConcreteNodeHash();
     const storageKey = query.getStorageKey();
+    const pointers = [];
+    forEachRootCallArg(query, ({identifyingArgKey}) => {
+      const dataID = store.getDataID(storageKey, identifyingArgKey);
+      if (dataID == null) {
+        pointers.push(null);
+      } else {
+        pointers.push(RelayFragmentPointer.create(dataID, fragment));
+      }
+    });
+    // Distinguish between singular/plural queries.
     const identifyingArg = query.getIdentifyingArg();
     const identifyingArgValue =
       (identifyingArg && identifyingArg.value) || null;
     if (Array.isArray(identifyingArgValue)) {
-      var rootFragment = fragment; // for Flow
-      return identifyingArgValue.map(singleIdentifyingArgValue => {
-        var dataID = store.getDataID(storageKey, singleIdentifyingArgValue);
-        if (!dataID) {
-          return null;
-        }
-        return RelayRecord.createWithFields(dataID, {
-          [fragmentHash]: new RelayFragmentPointer([dataID], rootFragment),
-        });
-      });
+      return pointers;
     }
-    invariant(
-      typeof identifyingArgValue === 'string' || identifyingArgValue == null,
-      'RelayFragmentPointer: Value for the argument to `%s` on query `%s` ' +
-      'should be a string, but it was set to `%s`. Check that the value is a ' +
-      'string.',
-      query.getFieldName(),
-      query.getName(),
-      identifyingArgValue
-    );
-    var dataIDOrIDs = store.getDataID(storageKey, identifyingArgValue);
-    if (!dataIDOrIDs) {
-      return null;
-    }
-    // TODO(t7765591): Throw if `fragment` is not optional.
-    return  {
-      [fragmentHash]: new RelayFragmentPointer(dataIDOrIDs, fragment),
-    };
-  }
-
-  constructor(
-    dataIDOrIDs: DataID | Array<DataID>,
-    fragment: RelayQuery.Fragment
-  ) {
-    var isArray = Array.isArray(dataIDOrIDs);
-    var isPlural = fragment.isPlural();
-    invariant(
-      isArray === isPlural,
-      'RelayFragmentPointer: Wrong plurality, %s supplied with %s fragment.',
-      isArray ? 'array of data IDs' : 'single data ID',
-      isPlural ? 'plural' : 'non-plural'
-    );
-
-    this._dataIDOrIDs = dataIDOrIDs;
-    this._fragment = fragment;
-  }
-
-  /**
-   * Get the data ID for a singular query fragment.
-   */
-  getDataID(): DataID {
-    invariant(
-      !Array.isArray(this._dataIDOrIDs),
-      'RelayFragmentPointer.getDataID(): Bad call for plural fragment.'
-    );
-    return this._dataIDOrIDs;
-  }
-
-  /**
-   * Get the data ID for a plural query fragment.
-   */
-  getDataIDs(): Array<DataID> {
-    invariant(
-      Array.isArray(this._dataIDOrIDs),
-      'RelayFragmentPointer.getDataIDs(): Bad call for non-plural fragment.'
-    );
-    return this._dataIDOrIDs;
-  }
-
-  getFragment(): RelayQuery.Fragment {
-    return this._fragment;
-  }
-
-  equals(that: RelayFragmentPointer): boolean {
-    return (
-      shallowEqual(this._dataIDOrIDs, that._dataIDOrIDs) &&
-      this._fragment.isEquivalent(that._fragment)
-    );
-  }
-
-  /**
-   * @unstable
-   *
-   * For debugging only, do not rely on this for comparing values at runtime.
-   */
-  toString(): string {
-    return (
-      'RelayFragmentPointer(ids: ' +
-      JSON.stringify(this._dataIDOrIDs) +
-      ', fragment: `' +
-      this.getFragment().getDebugName() +
-      ', params: ' +
-      JSON.stringify(this._fragment.getVariables()) +
-      ')'
-    );
-  }
-}
+    return pointers[0];
+  },
+};
 
 function getRootFragment(query: RelayQuery.Root): ?RelayQuery.Fragment {
-  var batchCall = query.getBatchCall();
+  const batchCall = query.getBatchCall();
   if (batchCall) {
     invariant(
       false,
@@ -164,7 +118,7 @@ function getRootFragment(query: RelayQuery.Root): ?RelayQuery.Fragment {
       batchCall.refParamName
     );
   }
-  var fragment;
+  let fragment;
   query.getChildren().forEach(child => {
     if (child instanceof RelayQuery.Fragment) {
       invariant(

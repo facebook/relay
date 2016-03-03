@@ -146,10 +146,23 @@ var RelayQLFragment = (function (_RelayQLDefinition) {
       });
     });
     _get(Object.getPrototypeOf(RelayQLFragment.prototype), 'constructor', this).call(this, _extends({}, context, { isPattern: isPattern }), ast);
+    this.fragmentID = null;
     this.parentType = parentType;
   }
 
   _createClass(RelayQLFragment, [{
+    key: 'getFragmentID',
+    value: function getFragmentID() {
+      if (this.fragmentID == null) {
+        var suffix = this.context.generateID();
+        // The fragmentLocationID is the same for all inline/nested fragments
+        // within each Relay.QL tagged template expression; the auto-incrementing
+        // suffix distinguishes these fragments from each other.
+        this.fragmentID = this.context.fragmentLocationID + ':' + suffix;
+      }
+      return this.fragmentID;
+    }
+  }, {
     key: 'getType',
     value: function getType() {
       var type = this.ast.typeCondition;
@@ -418,21 +431,13 @@ var RelayQLArgument = (function () {
 
       invariant(!this.isVariable(), 'Cannot get value of an argument variable.');
       var value = this.ast.value;
-      switch (value.kind) {
-        case 'IntValue':
-          return parseInt(value.value, 10);
-        case 'FloatValue':
-          return parseFloat(value.value);
-        case 'StringValue':
-        case 'BooleanValue':
-        case 'EnumValue':
-          return value.value;
-        case 'ListValue':
-          return value.values.map(function (value) {
-            return new RelayQLArgument(_this6.context, _extends({}, _this6.ast, { value: value }), _this6.type.ofType());
-          });
+      if (value.kind === 'ListValue') {
+        return value.values.map(function (value) {
+          return new RelayQLArgument(_this6.context, _extends({}, _this6.ast, { value: value }), _this6.type.ofType());
+        });
+      } else {
+        return getLiteralValue(value);
       }
-      invariant(false, 'Unexpected argument kind: %s', value.kind);
     }
   }]);
 
@@ -800,6 +805,31 @@ function stripMarkerTypes(schemaModifiedType) {
     schemaUnmodifiedType = schemaUnmodifiedType.ofType;
   }
   return { isListType: isListType, isNonNullType: isNonNullType, schemaUnmodifiedType: schemaUnmodifiedType };
+}
+
+function getLiteralValue(value) {
+  switch (value.kind) {
+    case 'IntValue':
+      return parseInt(value.value, 10);
+    case 'FloatValue':
+      return parseFloat(value.value);
+    case 'StringValue':
+    case 'BooleanValue':
+    case 'EnumValue':
+      return value.value;
+    case 'ListValue':
+      return value.values.map(getLiteralValue);
+    case 'ObjectValue':
+      var object = {};
+      value.fields.forEach(function (field) {
+        object[field.name.value] = getLiteralValue(field.value);
+      });
+      return object;
+    case 'Variable':
+      invariant(false, 'Unexpected nested variable `%s`; variables are supported as top-' + 'level arguments - `node(id: $id)` - or directly within lists - ' + '`nodes(ids: [$id])`.', value.name.value);
+    default:
+      invariant(false, 'Unexpected value kind: %s', value.kind);
+  }
 }
 
 module.exports = {

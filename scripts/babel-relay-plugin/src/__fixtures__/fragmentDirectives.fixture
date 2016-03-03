@@ -22,6 +22,7 @@ var x = (function () {
       },
       type: 'String'
     }],
+    id: 'ozBVuIInxLw9:0',
     kind: 'Fragment',
     metadata: {
       plural: true,

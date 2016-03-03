@@ -145,6 +145,7 @@ var x = (function () {
         },
         type: 'String'
       }],
+      id: 'QMqt+yyYMWEg:0',
       kind: 'Fragment',
       metadata: {},
       name: 'User',

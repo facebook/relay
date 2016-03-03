@@ -24,6 +24,7 @@ const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 const RelayStore = require('RelayStore');
 const RelayStoreData = require('RelayStoreData');
+const RelayTestUtils = require('RelayTestUtils');
 
 const flattenRelayQuery = require('flattenRelayQuery');
 const fromGraphQL = require('fromGraphQL');
@@ -40,6 +41,8 @@ describe('RelayMutationQueue', () => {
     storeData = RelayStore.getStoreData();
     mutationQueue = storeData.getMutationQueue();
     networkLayer = storeData.getNetworkLayer();
+
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('constructor', () => {
@@ -80,20 +83,22 @@ describe('RelayMutationQueue', () => {
       expect(transaction.getStatus()).toBe(
         RelayMutationTransactionStatus.UNCOMMITTED
       );
-      expect(RelayMutationQuery.buildQuery.mock.calls).toEqual([[{
-        configs: 'optimisticConfigs',
-        fatQuery: flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
+      const buildQueryCalls = RelayMutationQuery.buildQuery.mock.calls;
+      expect(buildQueryCalls.length).toBe(1);
+      expect(buildQueryCalls[0][0].configs).toBe('optimisticConfigs');
+      expect(buildQueryCalls[0][0].input).toEqual({
+        ...input,
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+      });
+      expect(buildQueryCalls[0][0].mutation).toBe(mutationNode);
+      expect(buildQueryCalls[0][0].mutationName).toBe('RelayMutation');
+      expect(buildQueryCalls[0][0].tracker).toBe(storeData.getQueryTracker());
+      expect(buildQueryCalls[0][0].fatQuery).toEqualQueryNode(
+        flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
           preserveEmptyNodes: true,
           shouldRemoveFragments: true,
-        }),
-        input: {
-          ...input,
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        },
-        mutation: mutationNode,
-        mutationName: 'RelayMutation',
-        tracker: storeData.getQueryTracker(),
-      }]]);
+        })
+      );
       expect(storeData.handleUpdatePayload.mock.calls).toEqual([[
         'optimisticQuery',
         {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
@@ -109,19 +114,20 @@ describe('RelayMutationQueue', () => {
 
       mutationQueue.createTransaction(mockMutation);
 
-      expect(
-        RelayMutationQuery.buildQueryForOptimisticUpdate.mock.calls
-      ).toEqual([[{
-        fatQuery: flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
+      const buildQueryCalls =
+        RelayMutationQuery.buildQueryForOptimisticUpdate.mock.calls;
+      expect(buildQueryCalls.length).toBe(1);
+      expect(buildQueryCalls[0][0].mutation).toBe(mutationNode);
+      expect(buildQueryCalls[0][0].response).toEqual({
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+      });
+      expect(buildQueryCalls[0][0].tracker).toBe(storeData.getQueryTracker());
+      expect(buildQueryCalls[0][0].fatQuery).toEqualQueryNode(
+        flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
           preserveEmptyNodes: true,
           shouldRemoveFragments: true,
-        }),
-        mutation: mutationNode,
-        response: {
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        },
-        tracker: storeData.getQueryTracker(),
-      }]]);
+        })
+      );
       expect(storeData.handleUpdatePayload.mock.calls).toEqual([[
         'optimisticQuery',
         {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
@@ -157,7 +163,7 @@ describe('RelayMutationQueue', () => {
     it('throws if commit is called more than once', () => {
       var transaction = mutationQueue.createTransaction(mockMutation1);
       transaction.commit();
-      expect(() => transaction.commit()).toThrowError(
+      expect(() => transaction.commit()).toFailInvariant(
         'RelayMutationTransaction: Only transactions with status ' +
         '`UNCOMMITTED` can be comitted.'
       );
@@ -313,7 +319,7 @@ describe('RelayMutationQueue', () => {
 
       expect(failureCallback1).toBeCalled();
       expect(failureCallback2).toBeCalled();
-      expect(() => transaction1.getStatus()).toThrowError(
+      expect(() => transaction1.getStatus()).toFailInvariant(
         'RelayMutationQueue: `0` is not a valid pending transaction ID.'
       );
       expect(transaction2.getStatus()).toBe(
@@ -418,7 +424,7 @@ describe('RelayMutationQueue', () => {
       expect(transaction1.getStatus()).toBe(
         RelayMutationTransactionStatus.COMMIT_FAILED
       );
-      expect(() => transaction2.getStatus()).toThrowError(
+      expect(() => transaction2.getStatus()).toFailInvariant(
         'RelayMutationQueue: `1` is not a valid pending transaction ID.'
       );
       expect(transaction3.getStatus()).toBe(

@@ -10,6 +10,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+'use strict';
+
 import {
   GraphQLID,
   GraphQLList,
@@ -23,6 +25,7 @@ import {
   connectionArgs,
   connectionDefinitions,
   connectionFromArray,
+  cursorForObjectInConnection,
   fromGlobalId,
   globalIdField,
   mutationWithClientMutationId,
@@ -30,10 +33,11 @@ import {
 } from 'graphql-relay';
 
 import {
-  getFaction,
-  getShip,
-  getFactions,
   createShip,
+  getFaction,
+  getFactions,
+  getShip,
+  getShips,
 } from './database';
 
 /**
@@ -171,8 +175,10 @@ var shipType = new GraphQLObjectType({
  *     node: Ship
  *   }
  */
-var {connectionType: shipConnection} =
-  connectionDefinitions({name: 'Ship', nodeType: shipType});
+var {
+  connectionType: shipConnection,
+  edgeType: ShipEdge,
+} = connectionDefinitions({name: 'Ship', nodeType: shipType});
 
 /**
  * We define our faction type, which implements the node interface.
@@ -189,6 +195,11 @@ var factionType = new GraphQLObjectType({
   description: 'A faction in the Star Wars saga',
   fields: () => ({
     id: globalIdField('Faction'),
+    factionId: {
+      type: GraphQLString,
+      description: 'id of faction in db',
+      resolve: (faction) => faction.id,
+    },
     name: {
       type: GraphQLString,
       description: 'The name of the faction.',
@@ -259,9 +270,18 @@ var shipMutation = mutationWithClientMutationId({
     },
   },
   outputFields: {
-    ship: {
-      type: shipType,
-      resolve: (payload) => getShip(payload.shipId),
+    newShipEdge: {
+      type: ShipEdge,
+      resolve: (payload) => {
+        var ship = getShip(payload.shipId);
+        return {
+          cursor: cursorForObjectInConnection(
+            getShips(payload.factionId),
+            ship
+          ),
+          node: ship,
+        };
+      },
     },
     faction: {
       type: factionType,

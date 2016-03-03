@@ -1,0 +1,44 @@
+Input:
+var Relay = require('Relay');
+var q = Relay.QL`
+  query {
+    search(query: {queryText: "Relay"}) {
+      title,
+    },
+  }
+`;
+
+Output:
+var Relay = require('Relay');
+var q = (function () {
+  return {
+    calls: [{
+      kind: 'Call',
+      metadata: {
+        type: 'SearchInput!'
+      },
+      name: 'query',
+      value: {
+        kind: 'CallValue',
+        callValue: {
+          queryText: 'Relay'
+        }
+      }
+    }],
+    children: [{
+      fieldName: 'title',
+      kind: 'Field',
+      metadata: {},
+      type: 'String'
+    }],
+    fieldName: 'search',
+    kind: 'Query',
+    metadata: {
+      isPlural: true,
+      identifyingArgName: 'query',
+      identifyingArgType: 'SearchInput!'
+    },
+    name: 'QueryWithObjectArgValue',
+    type: 'SearchResult'
+  };
+})();

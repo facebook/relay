@@ -19,6 +19,7 @@ import type {RelayQuerySet} from 'RelayInternalTypes';
 import type {PendingFetch} from 'RelayPendingQueryTracker';
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
+const RelayReadyState = require('RelayReadyState');
 import type RelayStoreData from 'RelayStoreData';
 const RelayTaskScheduler = require('RelayTaskScheduler');
 
@@ -38,15 +39,6 @@ import type {
   Abortable,
   ReadyStateChangeCallback,
 } from 'RelayTypes';
-
-type PartialReadyState = {
-  aborted?: boolean;
-  done?: boolean;
-  error?: Error;
-  ready?: boolean;
-  stale?: boolean;
-};
-type RelayProfileHandler = {stop: () => void};
 
 /**
  * This is the high-level entry point for sending queries to the GraphQL
@@ -73,39 +65,9 @@ class GraphQLQueryRunner {
   run(
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback,
-    fetchMode?: FetchMode
+    fetchMode?: FetchMode = RelayFetchMode.CLIENT
   ): Abortable {
-    fetchMode = fetchMode || RelayFetchMode.CLIENT;
-    var profiler = fetchMode === RelayFetchMode.REFETCH ?
-      RelayProfiler.profile('GraphQLQueryRunner.forceFetch') :
-      RelayProfiler.profile('GraphQLQueryRunner.primeCache');
-
-    var diffQueries = [];
-    if (fetchMode === RelayFetchMode.CLIENT) {
-      forEachObject(querySet, query => {
-        if (query) {
-          diffQueries.push(...diffRelayQuery(
-            query,
-            this._storeData.getRecordStore(),
-            this._storeData.getQueryTracker()
-          ));
-        }
-      });
-    } else {
-      forEachObject(querySet, query => {
-        if (query) {
-          diffQueries.push(query);
-        }
-      });
-    }
-
-    return runQueries(
-      this._storeData,
-      diffQueries,
-      callback,
-      fetchMode,
-      profiler
-    );
+    return runQueries(this._storeData, querySet, callback, fetchMode);
   }
 
   /**
@@ -119,14 +81,8 @@ class GraphQLQueryRunner {
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback
   ): Abortable {
-    var fetchMode = RelayFetchMode.REFETCH;
-    var profiler = RelayProfiler.profile('GraphQLQueryRunner.forceFetch');
-    var queries = [];
-    forEachObject(querySet, query => {
-      query && queries.push(query);
-    });
-
-    return runQueries(this._storeData, queries, callback, fetchMode, profiler);
+    const fetchMode = RelayFetchMode.REFETCH;
+    return runQueries(this._storeData, querySet, callback, fetchMode);
   }
 }
 
@@ -166,46 +122,15 @@ function splitAndFlattenQueries(
 
 function runQueries(
   storeData: RelayStoreData,
-  queries: Array<RelayQuery.Root>,
+  querySet: RelayQuerySet,
   callback: ReadyStateChangeCallback,
-  fetchMode: FetchMode,
-  profiler: RelayProfileHandler
+  fetchMode: FetchMode
 ): Abortable {
-  var readyState = {
-    aborted: false,
-    done: false,
-    error: null,
-    ready: false,
-    stale: false,
-  };
-  var scheduled = false;
-  function setReadyState(partial: PartialReadyState): void {
-    if (readyState.aborted) {
-      return;
-    }
-    if (readyState.done || readyState.error) {
-      warning(
-        partial.aborted,
-        'GraphQLQueryRunner: Unexpected ready state change.'
-      );
-      return;
-    }
-    readyState = {
-      aborted: partial.aborted != null ? partial.aborted : readyState.aborted,
-      done: partial.done != null ? partial.done : readyState.done,
-      error: partial.error != null ? partial.error : readyState.error,
-      ready: partial.ready != null ? partial.ready : readyState.ready,
-      stale: partial.stale != null ? partial.stale : readyState.stale,
-    };
-    if (scheduled) {
-      return;
-    }
-    scheduled = true;
-    resolveImmediate(() => {
-      scheduled = false;
-      callback(readyState);
-    });
-  }
+  const profiler = fetchMode === RelayFetchMode.REFETCH ?
+    RelayProfiler.profile('GraphQLQueryRunner.forceFetch') :
+    RelayProfiler.profile('GraphQLQueryRunner.primeCache');
+
+  const readyState = new RelayReadyState(callback);
 
   var remainingFetchMap: {[queryID: string]: PendingFetch} = {};
   var remainingRequiredFetchMap: {[queryID: string]: PendingFetch} = {};
@@ -224,19 +149,19 @@ function runQueries(
 
     if (someObject(remainingFetchMap, query => query.isResolvable())) {
       // The other resolvable query will resolve imminently and call
-      // `setReadyState` instead.
+      // `readyState.update` instead.
       return;
     }
 
     if (hasItems(remainingFetchMap)) {
-      setReadyState({done: false, ready: true, stale: false});
+      readyState.update({done: false, ready: true, stale: false});
     } else {
-      setReadyState({done: true, ready: true, stale: false});
+      readyState.update({done: true, ready: true, stale: false});
     }
   }
 
   function onRejected(pendingFetch: PendingFetch, error: Error) {
-    setReadyState({error});
+    readyState.update({error});
 
     var pendingQuery = pendingFetch.getQuery();
     var pendingQueryID = pendingQuery.getID();
@@ -254,8 +179,28 @@ function runQueries(
   }
 
   RelayTaskScheduler.enqueue(() => {
-    var forceIndex = fetchMode === RelayFetchMode.REFETCH ?
-      generateForceIndex() : null;
+    const forceIndex = fetchMode === RelayFetchMode.REFETCH ?
+      generateForceIndex() :
+      null;
+
+    const queries = [];
+    if (fetchMode === RelayFetchMode.CLIENT) {
+      forEachObject(querySet, query => {
+        if (query) {
+          queries.push(...diffRelayQuery(
+            query,
+            storeData.getRecordStore(),
+            storeData.getQueryTracker()
+          ));
+        }
+      });
+    } else {
+      forEachObject(querySet, query => {
+        if (query) {
+          queries.push(query);
+        }
+      });
+    }
 
     splitAndFlattenQueries(storeData, queries).forEach(query => {
       var pendingFetch = storeData.getPendingQueryTracker().add(
@@ -273,12 +218,12 @@ function runQueries(
     });
 
     if (!hasItems(remainingFetchMap)) {
-      setReadyState({done: true, ready: true});
+      readyState.update({done: true, ready: true});
     } else {
       if (!hasItems(remainingRequiredFetchMap)) {
-        setReadyState({ready: true});
+        readyState.update({ready: true});
       } else {
-        setReadyState({ready: false});
+        readyState.update({ready: false});
         resolveImmediate(() => {
           if (storeData.hasCacheManager()) {
             var requiredQueryMap = mapObject(
@@ -288,14 +233,14 @@ function runQueries(
             storeData.readFromDiskCache(requiredQueryMap, {
               onSuccess: () => {
                 if (hasItems(remainingRequiredFetchMap)) {
-                  setReadyState({ready: true, stale: true});
+                  readyState.update({ready: true, stale: true});
                 }
               },
             });
           } else {
             if (everyObject(remainingRequiredFetchMap, canResolve)) {
               if (hasItems(remainingRequiredFetchMap)) {
-                setReadyState({ready: true, stale: true});
+                readyState.update({ready: true, stale: true});
               }
             }
           }
@@ -308,7 +253,7 @@ function runQueries(
 
   return {
     abort(): void {
-      setReadyState({aborted: true});
+      readyState.update({aborted: true});
     },
   };
 }

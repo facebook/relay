@@ -9,7 +9,7 @@
 
 'use strict';
 
-const RelayContext = jest.genMockFromModule('RelayContext');
+const RelayContext = require.requireActual('RelayContext');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayStoreData = require('RelayStoreData');
 
@@ -52,46 +52,53 @@ function genMockRequest(args) {
   };
 }
 
-RelayContext.mockImplementation(function() {
-  this.getStoreData =
-    jest.genMockFunction().mockReturnValue(new RelayStoreData());
+class MockRelayContext extends RelayContext {
+  constructor() {
+    super();
 
-  this.primeCache.mock.abort = [];
-  this.primeCache.mock.requests = [];
-  this.primeCache.mockImplementation((...args) => {
-    const request = genMockRequest(args);
-    const returnValue = {
-      abort: jest.genMockFunction().mockImplementation(() => {
-        resolveImmediate(request.abort);
-      }),
+    for (const method of ['getFragmentResolver', 'read']) {
+      this[method] = jest.genMockFn().mockImplementation(
+        RelayContext.prototype[method]
+      );
+    }
+
+    this.primeCache = jest.genMockFunction();
+    this.primeCache.mock.abort = [];
+    this.primeCache.mock.requests = [];
+    this.primeCache.mockImplementation((...args) => {
+      const request = genMockRequest(args);
+      const returnValue = {
+        abort: jest.genMockFunction().mockImplementation(() => {
+          resolveImmediate(request.abort);
+        }),
+      };
+      this.primeCache.mock.abort.push(returnValue.abort);
+      this.primeCache.mock.requests.push(request);
+      return returnValue;
+    });
+
+    this.forceFetch = jest.genMockFunction();
+    this.forceFetch.mock.abort = [];
+    this.forceFetch.mock.requests = [];
+    this.forceFetch.mockImplementation((...args) => {
+      const request = genMockRequest(args);
+      const returnValue = {
+        abort: jest.genMockFunction().mockImplementation(() => {
+          resolveImmediate(request.abort);
+        }),
+      };
+      this.forceFetch.mock.abort.push(returnValue.abort);
+      this.forceFetch.mock.requests.push(request);
+      return returnValue;
+    });
+
+    this.mock = {
+      setMockRecords: records => {
+        this.mock.recordStore = new RelayRecordStore({records});
+      },
+      recordStore: null,
     };
-    this.primeCache.mock.abort.push(returnValue.abort);
-    this.primeCache.mock.requests.push(request);
-    return returnValue;
-  });
+  }
+}
 
-  this.forceFetch.mock.abort = [];
-  this.forceFetch.mock.requests = [];
-  this.forceFetch.mockImplementation((...args) => {
-    const request = genMockRequest(args);
-    const returnValue = {
-      abort: jest.genMockFunction().mockImplementation(() => {
-        resolveImmediate(request.abort);
-      }),
-    };
-    this.forceFetch.mock.abort.push(returnValue.abort);
-    this.forceFetch.mock.requests.push(request);
-    return returnValue;
-  });
-
-  this.mock = {
-    setMockRecords: records => {
-      this.mock.recordStore = new RelayRecordStore({records});
-    },
-    recordStore: null,
-  };
-
-  return this;
-});
-
-module.exports = RelayContext;
+module.exports = MockRelayContext;

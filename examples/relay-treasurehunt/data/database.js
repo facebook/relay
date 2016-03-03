@@ -11,8 +11,8 @@
  */
 
 // Model types
-export class Game extends Object {}
-export class HidingSpot extends Object {}
+export class Game {}
+export class HidingSpot {}
 
 // Mock data
 var game = new Game();

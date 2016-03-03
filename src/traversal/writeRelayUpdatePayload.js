@@ -296,17 +296,12 @@ function mergeField(
       ) {
         // for flow: types are lost in closures
         if (path && recordID) {
-          const typeName = writer.getRecordTypeName(
-            child,
-            recordID,
-            payloadData
-          );
           // ensure the record exists and then update it
           writer.createRecordIfMissing(
             child,
             recordID,
-            typeName,
-            path
+            path,
+            payloadData
           );
           writer.writePayload(
             child,
@@ -454,8 +449,7 @@ function addRangeNode(
   path = path.getPath(EDGES_FIELD, edgeID);
 
   // create the edge record
-  const typeName = writer.getRecordTypeName(EDGES_FIELD, edgeID, edgeData);
-  writer.createRecordIfMissing(EDGES_FIELD, edgeID, typeName, path);
+  writer.createRecordIfMissing(EDGES_FIELD, edgeID, path, edgeData);
 
   // write data for all `edges` fields
   // TODO #7167718: more efficient mutation/subscription writes

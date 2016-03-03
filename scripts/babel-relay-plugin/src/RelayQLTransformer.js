@@ -72,6 +72,12 @@ type TransformerOptions = {
   substituteVariables: boolean;
   validator: ?Validator;
 };
+type TextTransformOptions = {
+  documentName: string;
+  fragmentLocationID: string;
+  propName: ?string;
+  tagName: string;
+};
 
 /**
  * Transforms a TemplateLiteral node into a RelayQLDefinition, which is then
@@ -89,20 +95,18 @@ class RelayQLTransformer {
   transform(
     t: any, // Babel
     node: TemplateLiteral,
-    documentName: string,
-    tagName: string,
-    propName: ?string
+    options: TextTransformOptions
   ): Printable {
     const {
       substitutions,
       templateText,
       variableNames,
-    } = this.processTemplateLiteral(node, documentName);
-    const documentText = this.processTemplateText(templateText, documentName, propName);
-    const definition = this.processDocumentText(documentText, documentName);
+    } = this.processTemplateLiteral(node, options.documentName);
+    const documentText = this.processTemplateText(templateText, options);
+    const definition = this.processDocumentText(documentText, options);
 
     const Printer = RelayQLPrinter(t, this.options);
-    return new Printer(tagName, variableNames)
+    return new Printer(options.tagName, variableNames)
       .print(definition, substitutions);
   }
 
@@ -152,8 +156,7 @@ class RelayQLTransformer {
    */
   processTemplateText(
     templateText: string,
-    documentName: string,
-    propName: ?string
+    {documentName, propName}: TextTransformOptions
   ): string {
     const pattern = /^(fragment|mutation|query|subscription)\s*(\w*)?([\s\S]*)/;
     const matches = pattern.exec(templateText);
@@ -168,8 +171,8 @@ class RelayQLTransformer {
     let rest = matches[3];
     // Allow `fragment on Type {...}`.
     if (type === 'fragment' && name === 'on') {
-      name = documentName + 
-        (propName ? '_' + capitalize(propName) : '') + 
+      name = documentName +
+        (propName ? '_' + capitalize(propName) : '') +
         'RelayQL';
       rest = 'on' + rest;
     }
@@ -182,7 +185,7 @@ class RelayQLTransformer {
    */
   processDocumentText(
     documentText: string,
-    documentName: string
+    {documentName, fragmentLocationID}: TextTransformOptions
   ): RelayQLDefinition {
     const document = parser.parse(new Source(documentText, documentName));
     const validationErrors = this.validateDocument(document);
@@ -200,7 +203,9 @@ class RelayQLTransformer {
     const context = {
       definitionName: capitalize(documentName),
       isPattern: false,
+      generateID: createIDGenerator(),
       schema: this.schema,
+      fragmentLocationID,
     };
     if (definition.kind === 'FragmentDefinition') {
       return new RelayQLFragment(context, definition);
@@ -286,6 +291,14 @@ class RelayQLTransformer {
 
 function capitalize(string: string): string {
   return string[0].toUpperCase() + string.slice(1);
+}
+
+/**
+ * Utility to generate locally scoped auto-incrementing IDs.
+ */
+function createIDGenerator(): () => string {
+  let _id = 0;
+  return () => (_id++).toString(32);
 }
 
 module.exports = RelayQLTransformer;

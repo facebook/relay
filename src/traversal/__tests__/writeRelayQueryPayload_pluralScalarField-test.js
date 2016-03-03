@@ -39,6 +39,7 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
+          __typename: 'User',
           id: '123',
           emailAddresses: [email],
         },
@@ -55,6 +56,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           emailAddresses: [newEmail],
         },
@@ -74,6 +76,7 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
+          __typename: 'User',
           id: '123',
           emailAddresses: [email],
         },
@@ -90,6 +93,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           emailAddresses: [newEmail, email],
         },
@@ -110,6 +114,7 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
+          __typename: 'User',
           id: '123',
           emailAddresses: [email],
         },
@@ -126,6 +131,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           emailAddresses: [email, newEmail],
         },
@@ -146,6 +152,7 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
+          __typename: 'User',
           id: '123',
           emailAddresses: [email],
         },
@@ -162,6 +169,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           emailAddresses: [email],
         },

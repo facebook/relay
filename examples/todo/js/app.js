@@ -10,7 +10,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import 'babel/polyfill';
+import 'babel-polyfill';
 import 'todomvc-common';
 import {createHashHistory} from 'history';
 import {IndexRoute, Route} from 'react-router';

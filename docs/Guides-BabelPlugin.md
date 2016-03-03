@@ -31,7 +31,7 @@ This gets converted into an immediately-invoked function:
 
 ## Usage
 
-The easiest way to get started for now is with the [Relay Starter Kit](https://github.com/facebook/relay-starter-kit) - this includes an example schema file and configures the [`babel-relay-plugin`](https://www.npmjs.com/package/babel-relay-plugin) npm module to transpile queries.
+The easiest way to get started for now is with the [Relay Starter Kit](https://github.com/relayjs/relay-starter-kit) - this includes an example schema file and configures the [`babel-relay-plugin`](https://www.npmjs.com/package/babel-relay-plugin) npm module to transpile queries.
 
 ## Advanced Usage
 
@@ -73,7 +73,9 @@ By default, `babel-relay-plugin` catches GraphQL validation errors and logs them
 When compiling code for production deployment, the plugin can be configured to immediately throw upon encountering a validation problem:
 
 ```javascript
-var plugin = getBabelRelayPlugin(schemaData, {
-  abortOnError: true,
+babel.transform(source, {
+  plugins: [
+    [getBabelRelayPlugin(schemaData), {enforceSchema: true}],
+  ],
 });
 ```

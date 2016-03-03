@@ -57,6 +57,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           allPhones: [],
         },
@@ -103,6 +104,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           allPhones: [phone],
         },
@@ -142,6 +144,7 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
+          __typename: 'User',
           id: '123',
           allPhones: [
             {__dataID__: 'client:1'},
@@ -183,6 +186,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           allPhones: [newPhone],
         },
@@ -213,6 +217,7 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
+          __typename: 'User',
           id: '123',
           allPhones: [
             {__dataID__: 'client:1'},
@@ -246,6 +251,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           allPhones: [{
             displayNumber: '1-800-555-1212',
@@ -275,6 +281,7 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
+          __typename: 'User',
           id: '123',
           allPhones: [
             {__dataID__: 'client:1'},
@@ -309,6 +316,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           allPhones: [phone],
         },
@@ -336,6 +344,7 @@ describe('writeRelayQueryPayload()', () => {
       var records = {
         '123': {
           __dataID__: '123',
+          __typename: 'User',
           id: '123',
           allPhones: [],
         },
@@ -356,6 +365,7 @@ describe('writeRelayQueryPayload()', () => {
       `);
       var payload = {
         node: {
+          __typename: 'User',
           id: '123',
           allPhones: [],
         },
@@ -377,8 +387,8 @@ describe('writeRelayQueryPayload()', () => {
         query {
           node(id: "1") {
             actors {
-              id,
               __typename
+              id
             }
           }
         }
@@ -387,8 +397,8 @@ describe('writeRelayQueryPayload()', () => {
         node: {
           id: '1',
           actors: [{
-            id: '123',
             __typename: 'User',
+            id: '123',
           }],
           __typename: 'Story',
         },

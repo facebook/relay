@@ -187,6 +187,7 @@ module.exports = function (t, options) {
         return codify({
           children: selections,
           directives: this.printDirectives(fragment.getDirectives()),
+          id: t.valueToNode(fragment.getFragmentID()),
           kind: t.valueToNode('Fragment'),
           metadata: metadata,
           name: t.valueToNode(fragment.getName()),
@@ -455,7 +456,7 @@ module.exports = function (t, options) {
         }
         return codify({
           kind: t.valueToNode('CallValue'),
-          callValue: t.valueToNode(value)
+          callValue: printLiteralValue(value)
         });
       }
     }, {
@@ -614,6 +615,27 @@ module.exports = function (t, options) {
 
   function property(name, value) {
     return t.objectProperty(t.identifier(name), value);
+  }
+
+  function printLiteralValue(value) {
+    if (value == null) {
+      return NULL;
+    } else if (Array.isArray(value)) {
+      return t.arrayExpression(value.map(printLiteralValue));
+    } else if (typeof value === 'object' && value != null) {
+      var _ret2 = (function () {
+        var objectValue = value;
+        return {
+          v: t.objectExpression(Object.keys(objectValue).map(function (key) {
+            return property(key, printLiteralValue(objectValue[key]));
+          }))
+        };
+      })();
+
+      if (typeof _ret2 === 'object') return _ret2.v;
+    } else {
+      return t.valueToNode(value);
+    }
   }
 
   function shallowFlatten(arr) {

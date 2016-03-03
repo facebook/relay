@@ -139,13 +139,24 @@ function printMutation(
 function printVariableDefinitions({variableMap}: PrinterState): string {
   let argStrings = null;
   variableMap.forEach(({type, variableID}) => {
+    // To ensure that the value can flow into a nullable or non-nullable
+    // argument, print it as non-nullable. Note that variables are not created
+    // for null values (the argument is omitted instead).
+    const nonNullType = printNonNullType(type);
     argStrings = argStrings || [];
-    argStrings.push('$' + variableID + ':' + type);
+    argStrings.push('$' + variableID + ':' + nonNullType);
   });
   if (argStrings) {
     return '(' + argStrings.join(',') + ')';
   }
   return '';
+}
+
+function printNonNullType(type: string): string {
+  if (type.endsWith('!')) {
+    return type;
+  }
+  return type + '!';
 }
 
 function printFragment(
@@ -202,11 +213,10 @@ function printChildren(
         } = printerState;
 
         // Avoid walking fragments if we have printed the same one before.
-        const fragmentHash = child.isCloned() ? null : child.getCompositeHash();
+        const fragmentHash = child.getCompositeHash();
 
         let fragmentName;
-        if (fragmentHash != null &&
-            fragmentNameByHash.hasOwnProperty(fragmentHash)) {
+        if (fragmentNameByHash.hasOwnProperty(fragmentHash)) {
           fragmentName = fragmentNameByHash[fragmentHash];
         } else {
           // Avoid reprinting a fragment that is identical to another fragment.
@@ -218,9 +228,7 @@ function printChildren(
             fragmentName = fragmentNameByText[fragmentText];
           } else {
             fragmentName = 'F' + base62(printerState.fragmentCount++);
-            if (fragmentHash != null) {
-              fragmentNameByHash[fragmentHash] = fragmentName;
-            }
+            fragmentNameByHash[fragmentHash] = fragmentName;
             fragmentNameByText[fragmentText] = fragmentName;
             fragmentTexts.push(
               'fragment ' + fragmentName + ' on ' + fragmentText
@@ -302,6 +310,11 @@ function createVariable(
   type: string,
   printerState: PrinterState
 ): string {
+  invariant(
+    value != null,
+    'printRelayOSSQuery: Expected a non-null value for variable `%s`.',
+    name
+  );
   const valueKey = JSON.stringify(value);
   const existingVariable = printerState.variableMap.get(valueKey);
   if (existingVariable) {

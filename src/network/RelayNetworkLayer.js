@@ -22,7 +22,9 @@ const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
 
 export type NetworkLayer = {
+  // $FlowFixMe(>=0.16.0)
   sendMutation: (mutationRequest: RelayMutationRequest) => ?Promise;
+  // $FlowFixMe(>=0.16.0)
   sendQueries: (queryRequests: Array<RelayQueryRequest>) => ?Promise;
   supports: (...options: Array<string>) => boolean;
 };

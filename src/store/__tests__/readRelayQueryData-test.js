@@ -1027,7 +1027,7 @@ describe('readRelayQueryData', () => {
     };
 
     const data = readData(getStoreData({records}), query, 'client:1');
-    expect(data).toEqual({__dataID__: 'client:1'});
+    expect(data.__dataID__).toBe('client:1');
 
     // Extra assertion because `toEqual` matcher skips over properties with
     // undefined values...
@@ -1431,6 +1431,7 @@ describe('readRelayQueryData', () => {
     const records = {
       feedbackID: {
         __dataID__: 'feedbackID',
+        id: 'feedbackID',
         topLevelComments: {
           __dataID__: 'commentsID',
         },
@@ -1443,7 +1444,7 @@ describe('readRelayQueryData', () => {
     };
 
     GraphQLRange.prototype.retrieveRangeInfoForQuery.mockReturnValue({
-      requestedEdgeIDs: ['comment_edge_id'],
+      requestedEdgeIDs: ['commentEdgeID'],
       diffCalls: [],
       pageInfo: {
         [START_CURSOR]: 'cursor',
@@ -1461,6 +1462,7 @@ describe('readRelayQueryData', () => {
     );
     expect(data).toEqual({
       __dataID__: 'feedbackID',
+      id: 'feedbackID',
       topLevelComments: {
         __dataID__: 'commentsID_first(1)',
         [PAGE_INFO]: {
@@ -1552,227 +1554,254 @@ describe('readRelayQueryData', () => {
     });
   });
 
-  // TODO: Fix these tests, #10252182.
+  describe('readRelayQueryData-partialStatus', () => {
+    beforeEach(() => {
+      jasmine.addMatchers({
+        toHavePartialStatus() {
+          return {
+            compare(record) {
+              const isValidRecord =
+                typeof record === 'object' && record && !Array.isArray(record);
+              if (isValidRecord) {
+                if (record.hasOwnProperty('__status__') &&
+                    RelayRecordStatusMap.isPartialStatus(record.__status__)) {
+                  return {
+                    pass: true,
+                  };
+                } else {
+                  return {
+                    pass: false,
+                    message:
+                      'Expected record to have partial status, but it does ' +
+                      'not:\n' + JSON.stringify(record, null, 2)
+                  };
+                }
+              } else {
+                return {
+                  pass: false,
+                  message:
+                    'Expected a record to have partial status, but the ' +
+                    'supplied value is not a valid record: ' + record,
+                };
+              }
+            },
+          };
+        },
+      });
+    });
 
-  // describe('readRelayQueryData-partialStatus', () => {
-  //   it('marks nodes with missing scalar field as partial', () => {
-  //     const records = {
-  //       feedbackID: {
-  //         __dataID__: 'feedbackID',
-  //         id: 'feedbackID',
-  //       },
-  //     };
-  //     // Missing `doesViewerLike` in store
-  //     const query = getNode(Relay.QL`
-  //       fragment on Feedback {
-  //         id,
-  //         doesViewerLike,
-  //       }
-  //     `);
+    it('marks nodes with missing scalar field as partial', () => {
+      const records = {
+        feedbackID: {
+          __dataID__: 'feedbackID',
+          id: 'feedbackID',
+        },
+      };
+      // Missing `doesViewerLike` in store
+      const query = getNode(Relay.QL`
+        fragment on Feedback {
+          id
+          doesViewerLike
+        }
+      `);
+      const data = readData(getStoreData({records}), query, 'feedbackID');
 
-  //     const data = readData(getStoreData({records}), query, 'feedbackID');
-  //     expect(RelayRecordStatusMap.isPartialStatus(data.__status__))
-  //       .toBe(true);
-  //   });
+      expect(data).toHavePartialStatus();
+    });
 
-  //   it('marks nested nodes with missing field as partial', () => {
-  //     const records = {
-  //       feedbackID: {
-  //         __dataID__: 'feedbackID',
-  //         id: 'feedbackID',
-  //         comments: {__dataID__: 'client:1'},
-  //       },
-  //       'client:1': {
-  //         __dataID__:'client:1',
-  //       },
-  //     };
-  //     // Missing `comments {count}` in store
-  //     const query = getNode(Relay.QL`
-  //       fragment on Feedback {
-  //         id,
-  //         comments {count}
-  //       }
-  //     `);
+    it('marks nested nodes with missing field as partial', () => {
+      const records = {
+        feedbackID: {
+          __dataID__: 'feedbackID',
+          id: 'feedbackID',
+          comments: {__dataID__: 'commentsID'},
+        },
+        commentsID: {
+          __dataID__:'commentsID',
+        },
+      };
+      // Missing `comments.count` in store
+      const query = getNode(Relay.QL`
+        fragment on Feedback {
+          id
+          comments {
+            count
+          }
+        }
+      `);
+      const data = readData(getStoreData({records}), query, 'feedbackID');
 
-  //     const data = readData(getStoreData({records}), query, 'feedbackID');
-  //     expect(RelayRecordStatusMap.isPartialStatus(data.__status__))
-  //       .toBe(true);
-  //     expect(RelayRecordStatusMap.isPartialStatus(data.comments.__status__))
-  //       .toBe(true);
-  //   });
+      expect(data).toHavePartialStatus();
+      expect(data.comments).toHavePartialStatus();
+    });
 
-  //   it('marks nodes with missing linked nodes as partial', () => {
-  //     const records = {
-  //       'client:1': {
-  //         __dataID__: 'client:1',
-  //         actor: {
-  //           __dataID__: '660361306',
-  //         },
-  //       },
-  //     };
-  //     // Missing the actor node.
-  //     const query = getNode(Relay.QL`query{viewer{actor{firstName}}}`);
-  //     const data = readData(getStoreData({records}), query, 'client:1');
-  //     expect(RelayRecordStatusMap.isPartialStatus(data.__status__))
-  //       .toBe(true);
-  //   });
+    it('marks nodes with missing linked nodes as partial', () => {
+      const records = {
+        'client:1': {
+          __dataID__: 'client:1',
+          actor: {
+            __dataID__: '123',
+          },
+        },
+      };
+      // Missing the actor node.
+      const query = getNode(Relay.QL`
+        query {
+          viewer {
+            actor {
+              firstName
+            }
+          }
+        }
+      `);
+      const data = readData(getStoreData({records}), query, 'client:1');
 
-  //   it('marks nodes with missing plural linked nodes as partial', () => {
-  //     const records = {
-  //       '660361306': {
-  //         __dataID__: '660361306',
-  //         allPhones: [{__dataID__: 'client:1'}, {__dataID__: 'client:1'}],
-  //       },
-  //       'client:1': {
-  //         __dataID__: 'client:1',
-  //       },
-  //       'client:2': {
-  //         __dataID__: 'client:2',
-  //         isVerified: true,
-  //       },
-  //     };
-  //     // Missing the `isVerified` in the first element.
-  //     const query = getNode(Relay.QL`
-  //       fragment on User {
-  //         allPhones {
-  //           isVerified,
-  //         },
-  //       }
-  //     `);
-  //     const data = readData(getStoreData({records}), query, '660361306');
-  //     expect(RelayRecordStatusMap.isPartialStatus(data.__status__))
-  //       .toBe(true);
-  //     const firstPhone = data.allPhones[0];
-  //     expect(RelayRecordStatusMap.isPartialStatus(firstPhone.__status__))
-  //       .toBe(true);
-  //   });
+      expect(data).toHavePartialStatus();
+    });
 
-  //   it('marks nodes with missing edges as partial', () => {
-  //     const records = {
-  //       feedback_id: {
-  //         __dataID__: 'feedback_id',
-  //         comments: {
-  //           __dataID__: 'comments_id',
-  //         },
-  //       },
-  //       comments_id: {
-  //         __dataID__: 'comments_id',
-  //         __range__: new GraphQLRange(),
-  //       },
-  //       comment_node_id: {
-  //         __dataID__: 'comment_node_id',
-  //         id: 'comment_node_id',
-  //       },
-  //       comment_edge_id: {
-  //         __dataID__: 'comment_edge_id',
-  //         node: {__dataID__: 'comment_node_id'},
-  //         cursor: 'cursor',
-  //       },
-  //     };
-  //     const query = getNode(Relay.QL`
-  //       fragment on Feedback {
-  //         comments(first:"5") {
-  //           edges {
-  //             node {
-  //               id
-  //             },
-  //           },
-  //           pageInfo {
-  //             startCursor
-  //           },
-  //         },
-  //       },
-  //     `);
+    it('marks nodes with missing plural linked nodes as partial', () => {
+      const records = {
+        '123': {
+          __dataID__: '123',
+          allPhones: [
+            {__dataID__: 'client:1'},
+            {__dataID__: 'client:2'},
+          ],
+        },
+        'client:1': {
+          __dataID__: 'client:1',
+        },
+        'client:2': {
+          __dataID__: 'client:2',
+          isVerified: true,
+        },
+      };
+      // Missing `isVerified` in the first element.
+      const query = getNode(Relay.QL`
+        fragment on User {
+          allPhones {
+            isVerified
+          }
+        }
+      `);
+      const data = readData(getStoreData({records}), query, '123');
 
-  //     // Missing edges due to non-empty diffCalls.
-  //     GraphQLRange.prototype.retrieveRangeInfoForQuery.mockReturnValue({
-  //       requestedEdgeIDs: ['comment_edge_id'],
-  //       diffCalls: [RelayTestUtils.createCall('first', 4)],
-  //       pageInfo: {
-  //         [START_CURSOR]: 'cursor',
-  //         [END_CURSOR]: 'cursor',
-  //         [HAS_NEXT_PAGE]: true,
-  //         [HAS_PREV_PAGE]: false,
-  //       },
-  //     });
+      expect(data).toHavePartialStatus();
+      expect(data.allPhones[0]).toHavePartialStatus();
+    });
 
-  //     const data = readData(
-  //       getStoreData({records}),
-  //       query,
-  //       'feedback_id',
-  //       {traverseFragmentReferences: true}
-  //     );
-  //     expect(RelayRecordStatusMap.isPartialStatus(data.__status__))
-  //       .toBe(true);
-  //     const comments = data[comments];
-  //     expect(RelayRecordStatusMap.isPartialStatus(comments.__status__))
-  //       .toBe(true);
-  //   });
+    it('marks nodes with missing edges as partial', () => {
+      const records = {
+        feedbackID: {
+          __dataID__: 'feedbackID',
+          comments: {
+            __dataID__: 'commentsID',
+          },
+        },
+        commentsID: {
+          __dataID__: 'commentsID',
+          __range__: new GraphQLRange(),
+        },
+        commentEdgeID: {
+          __dataID__: 'commentEdgeID',
+          node: {__dataID__: 'commentNodeID'},
+          cursor: 'cursor',
+        },
+        commentNodeID: {
+          __dataID__: 'commentNodeID',
+          id: 'commentNodeID',
+        },
+      };
+      const query = getNode(Relay.QL`
+        fragment on Feedback {
+          comments(first: "5") {
+            edges {
+              node {
+                id
+              }
+            }
+            pageInfo {
+              startCursor
+            }
+          }
+        },
+      `);
+      // Missing edges due to non-empty `diffCalls`.
+      GraphQLRange.prototype.retrieveRangeInfoForQuery.mockReturnValue({
+        requestedEdgeIDs: ['commentEdgeID'],
+        diffCalls: [RelayTestUtils.createCall('first', 4)],
+        pageInfo: {
+          [START_CURSOR]: 'cursor',
+          [END_CURSOR]: 'cursor',
+          [HAS_NEXT_PAGE]: true,
+          [HAS_PREV_PAGE]: false,
+        },
+      });
+      const data = readData(getStoreData({records}), query, 'feedbackID', {
+        traverseFragmentReferences: true,
+      });
 
-  //   it('marks nodes with missing edge data as partial', () => {
-  //     const records = {
-  //       feedback_id: {
-  //         __dataID__: 'feedback_id',
-  //         comments: {
-  //           __dataID__: 'comments_id',
-  //         },
-  //       },
-  //       comments_id: {
-  //         __dataID__: 'comments_id',
-  //         __range__: new GraphQLRange(),
-  //       },
-  //       comment_node_id: {
-  //         __dataID__: 'comment_node_id',
-  //         id: 'comment_node_id',
-  //       },
-  //       comment_edge_id: {
-  //         __dataID__: 'comment_edge_id',
-  //         node: {__dataID__: 'comment_node_id'},
-  //         cursor: 'cursor',
-  //       },
-  //     };
-  //     // Missing `body{text}` on the comment
-  //     const query = getNode(Relay.QL`
-  //       fragment on Feedback {
-  //         comments(first:"1") {
-  //           edges {
-  //             node {
-  //               id,
-  //               body {text}
-  //             },
-  //           },
-  //           pageInfo {
-  //             startCursor
-  //           }
-  //         }
-  //       }
-  //     `);
+      expect(data).toHavePartialStatus();
+      expect(data.comments).toHavePartialStatus();
+    });
 
-  //     GraphQLRange.prototype.retrieveRangeInfoForQuery.mockReturnValue({
-  //       requestedEdgeIDs: ['comment_edge_id'],
-  //       diffCalls: [],
-  //       pageInfo: {
-  //         [START_CURSOR]: 'cursor',
-  //         [END_CURSOR]: 'cursor',
-  //         [HAS_NEXT_PAGE]: true,
-  //         [HAS_PREV_PAGE]: false,
-  //       },
-  //     });
+    it('marks nodes with missing edge data as partial', () => {
+      const records = {
+        feedbackID: {
+          __dataID__: 'feedbackID',
+          comments: {
+            __dataID__: 'commentsID',
+          },
+        },
+        commentsID: {
+          __dataID__: 'commentsID',
+          __range__: new GraphQLRange(),
+        },
+        commentEdgeID: {
+          __dataID__: 'commentEdgeID',
+          node: {__dataID__: 'commentNodeID'},
+          cursor: 'cursor',
+        },
+        commentNodeID: {
+          __dataID__: 'commentNodeID',
+          id: 'commentNodeID',
+        },
+      };
+      // Missing `body.text` on the comment.
+      const query = getNode(Relay.QL`
+        fragment on Feedback {
+          comments(first: "1") {
+            edges {
+              node {
+                id,
+                body {
+                  text
+                }
+              }
+            }
+            pageInfo {
+              startCursor
+            }
+          }
+        }
+      `);
+      GraphQLRange.prototype.retrieveRangeInfoForQuery.mockReturnValue({
+        requestedEdgeIDs: ['commentEdgeID'],
+        diffCalls: [],
+        pageInfo: {
+          [START_CURSOR]: 'cursor',
+          [END_CURSOR]: 'cursor',
+          [HAS_NEXT_PAGE]: true,
+          [HAS_PREV_PAGE]: false,
+        },
+      });
+      const data = readData(getStoreData({records}), query, 'feedbackID', {
+        traverseFragmentReferences: true,
+      });
 
-  //     const data = readData(
-  //       getStoreData({records}),
-  //       query,
-  //       'feedback_id',
-  //       {traverseFragmentReferences: true}
-  //     );
-  //     expect(RelayRecordStatusMap.isPartialStatus(data.__status__))
-  //       .toBe(true);
-  //     const comments = data[comments];
-  //     expect(RelayRecordStatusMap.isPartialStatus(comments.__status__))
-  //       .toBe(true);
-  //     const comment = comments.edges[0].node;
-  //     expect(RelayRecordStatusMap.isPartialStatus(comment.__status__))
-  //       .toBe(true);
-  //   });
-  // });
+      expect(data).toHavePartialStatus();
+      expect(data.comments).toHavePartialStatus();
+      expect(data.comments.edges[0].node).toHavePartialStatus();
+    });
+  });
 });

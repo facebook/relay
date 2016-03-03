@@ -133,6 +133,12 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     return result;
   }
 
+  visit(node: RelayQuery.Node, state: State): ?RelayQuery.Node {
+    const result = super.visit(node, state);
+    this._updateMetadataFields(state);
+    return result;
+  }
+
   visitField(node: RelayQuery.Field, state: State): void {
     // Check for range client IDs (eg. `someID_first(25)`) and unpack if
     // present, overriding `state`.
@@ -175,7 +181,6 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       state.seenDataIDs[dataID] = true;
       const data = getDataObject(state);
       RelayFragmentPointer.addFragment(data, node, dataID);
-      this._setMetadataFields(state); // deferred fragment generation, etc
     } else if (isCompatibleRelayFragmentType(
       node,
       this._recordStore.getType(dataID)
@@ -390,11 +395,13 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       return;
     }
     data[key] = value;
-    this._setMetadataFields(state);
   }
 
-  _setMetadataFields(state: State): void {
-    var data = getDataObject(state); // ensure __dataID__
+  _updateMetadataFields(state: State): void {
+    const data = state.data;
+    if (!(data instanceof Object)) {
+      return;
+    }
     // Copy metadata like `__resolvedFragmentMapGeneration__` and `__status__`.
     METADATA_KEYS.forEach(metadataKey => {
       const metadataValue = this._recordStore.getField(

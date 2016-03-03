@@ -27,7 +27,13 @@ export type Call = {
   type?: string;
   value: CallValue;
 };
-export type CallValue = mixed;
+export type CallValue = ?(
+  boolean |
+  number |
+  string |
+  {[key: string]: CallValue} |
+  Array<CallValue>
+);
 
 export type ClientMutationID = string;
 

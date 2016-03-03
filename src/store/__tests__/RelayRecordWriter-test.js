@@ -171,7 +171,7 @@ describe('RelayRecordWriter', () => {
       const store = new RelayRecordWriter({}, {}, false);
       expect(() => {
         store.deleteField('1', 'name', null);
-      }).toThrowError(
+      }).toFailInvariant(
         'RelayRecordWriter.deleteField(): Expected record `1` to exist ' +
         'before deleting field `name`.'
       );

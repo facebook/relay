@@ -163,12 +163,12 @@ class RelayCacheReader {
       }
       if (query) {
         const storageKey = query.getStorageKey();
-        forEachRootCallArg(query, identifyingArgValue => {
+        forEachRootCallArg(query, ({identifyingArgKey}) => {
           if (this._state === 'COMPLETED') {
             return;
           }
-          identifyingArgValue = identifyingArgValue || '';
-          this.visitRoot(storageKey, identifyingArgValue, query);
+          identifyingArgKey = identifyingArgKey || '';
+          this.visitRoot(storageKey, identifyingArgKey, query);
         });
       }
     });
@@ -204,20 +204,20 @@ class RelayCacheReader {
 
   visitRoot(
     storageKey: string,
-    identifyingArgValue: string,
+    identifyingArgKey: string,
     query: RelayQuery.Root
   ): void {
-    var dataID = this._store.getDataID(storageKey, identifyingArgValue);
+    var dataID = this._store.getDataID(storageKey, identifyingArgKey);
     if (dataID == null) {
       if (this._cachedRootCallMap.hasOwnProperty(storageKey) &&
           this._cachedRootCallMap[storageKey].hasOwnProperty(
-            identifyingArgValue
+            identifyingArgKey
           )
       ) {
         // Already attempted to read this root from cache.
         this._handleFailed();
       } else {
-        this.queueRoot(storageKey, identifyingArgValue, query);
+        this.queueRoot(storageKey, identifyingArgKey, query);
       }
     } else {
       this.visitNode(
@@ -233,17 +233,17 @@ class RelayCacheReader {
 
   queueRoot(
     storageKey: string,
-    identifyingArgValue: string,
+    identifyingArgKey: string,
     query: RelayQuery.Root
   ) {
-    var rootKey = storageKey + '*' + identifyingArgValue;
+    var rootKey = storageKey + '*' + identifyingArgKey;
     if (this._pendingRoots.hasOwnProperty(rootKey)) {
       this._pendingRoots[rootKey].push(query);
     } else {
       this._pendingRoots[rootKey] = [query];
       this._cacheManager.readRootCall(
         storageKey,
-        identifyingArgValue,
+        identifyingArgKey,
         (error, value) => {
           if (this._state === 'COMPLETED') {
             return;
@@ -257,8 +257,8 @@ class RelayCacheReader {
 
           this._cachedRootCallMap[storageKey] =
             this._cachedRootCallMap[storageKey] || {};
-          this._cachedRootCallMap[storageKey][identifyingArgValue] = value;
-          if (this._cachedRootCallMap[storageKey][identifyingArgValue] ==
+          this._cachedRootCallMap[storageKey][identifyingArgKey] = value;
+          if (this._cachedRootCallMap[storageKey][identifyingArgKey] ==
               null) {
             // Read from cache and we still don't have valid `dataID`.
             this._handleFailed();

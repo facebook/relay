@@ -165,7 +165,7 @@ describe('RelayMutationQueue', () => {
     it('throws if commit is called more than once', () => {
       var transaction = mutationQueue.createTransaction(mockMutation1);
       transaction.commit();
-      expect(() => transaction.commit()).toThrowError(
+      expect(() => transaction.commit()).toFailInvariant(
         'RelayMutationTransaction: Only transactions with status ' +
         '`UNCOMMITTED` can be comitted.'
       );
@@ -321,7 +321,7 @@ describe('RelayMutationQueue', () => {
 
       expect(failureCallback1).toBeCalled();
       expect(failureCallback2).toBeCalled();
-      expect(() => transaction1.getStatus()).toThrowError(
+      expect(() => transaction1.getStatus()).toFailInvariant(
         'RelayMutationQueue: `0` is not a valid pending transaction ID.'
       );
       expect(transaction2.getStatus()).toBe(
@@ -426,7 +426,7 @@ describe('RelayMutationQueue', () => {
       expect(transaction1.getStatus()).toBe(
         RelayMutationTransactionStatus.COMMIT_FAILED
       );
-      expect(() => transaction2.getStatus()).toThrowError(
+      expect(() => transaction2.getStatus()).toFailInvariant(
         'RelayMutationQueue: `1` is not a valid pending transaction ID.'
       );
       expect(transaction3.getStatus()).toBe(

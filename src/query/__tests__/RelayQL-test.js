@@ -97,7 +97,7 @@ describe('RelayQL', () => {
           }
         }
       `;
-    }).toThrowError(
+    }).toFailInvariant(
       'RelayQL: Invalid argument `size` supplied via template substitution. ' +
       'Instead, use an inline variable (e.g. `comments(count: $count)`).'
     );

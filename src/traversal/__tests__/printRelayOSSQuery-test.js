@@ -223,6 +223,30 @@ describe('printRelayOSSQuery', () => {
       });
     });
 
+    it('prints literal object call values', () => {
+      const query = getNode(Relay.QL`
+        query {
+          checkinSearchQuery(query: {query: "Menlo Park"}) {
+            query,
+          }
+        }
+      `);
+
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query PrintRelayOSSQuery($query_0: CheckinSearchInput!) {
+          checkinSearchQuery(query: $query_0) {
+            query
+          }
+        }
+      `);
+      expect(variables).toEqual({
+        query_0: {
+          query: 'Menlo Park',
+        },
+      });
+    });
+
     it('dedupes enum variables', () => {
       const enumValue = 'WEB';
       const query = getNode(Relay.QL`

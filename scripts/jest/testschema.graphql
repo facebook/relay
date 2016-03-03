@@ -1,15 +1,36 @@
 type Root {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings,
-  settings(environment: Environment): Settings
+  route(waypoints: [WayPoint!]!): Route
   me: User
-  story: Story
   node(id: ID): Node
   nodes(ids: [ID!]): [Node]
+  settings(environment: Environment): Settings
+  story: Story
+  task(number: Int): Task
   username(name: String!): Actor
   usernames(names: [String!]!): [Actor]
   viewer: Viewer
   _mutation: Mutation
+}
+
+type Task {
+  title: String
+}
+
+input WayPoint {
+  lat: String
+  lon: String
+}
+
+type Route {
+  steps: [RouteStep]
+}
+
+type RouteStep {
+  lat: String
+  lon: String
+  note: String
 }
 
 type Mutation {

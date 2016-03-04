@@ -14,11 +14,11 @@ import 'codemirror/mode/javascript/javascript';
 
 import Codemirror from 'react-codemirror';
 import React from 'react';
-import ReactDOM from 'react/lib/ReactDOM';
+import ReactChildren from 'react-children';
+import ReactDOM from 'react-dom';
 import Relay from 'react-relay'; window.Relay = Relay;
 import RelayLocalSchema from 'relay-local-schema';
 
-import babel from 'babel-core/browser';
 import babelRelayPlaygroundPlugin from './babelRelayPlaygroundPlugin';
 import debounce from 'lodash.debounce';
 import defer from 'lodash.defer';
@@ -26,6 +26,7 @@ import errorCatcher from 'babel-plugin-react-error-catcher/error-catcher';
 import errorCatcherPlugin from 'babel-plugin-react-error-catcher';
 import evalSchema from './evalSchema';
 import getBabelRelayPlugin from 'babel-relay-plugin';
+import {transform} from 'babel-core';
 import {introspectionQuery} from 'graphql/utilities';
 import {graphql} from 'graphql';
 
@@ -96,7 +97,7 @@ class PlaygroundRenderer extends React.Component {
     } catch (e) {}
   }
   _update = () => {
-    ReactDOM.render(React.Children.only(this.props.children), this._container);
+    ReactDOM.render(ReactChildren.only(this.props.children), this._container);
   }
   render() {
     return <div ref="mountPoint" />;
@@ -216,7 +217,7 @@ export default class RelayPlayground extends React.Component {
       }
     };
     try {
-      var {code} = babel.transform(appSource, {
+      var {code} = transform(appSource, {
         filename: 'RelayPlayground',
         plugins : [
           babelRelayPlaygroundPlugin,

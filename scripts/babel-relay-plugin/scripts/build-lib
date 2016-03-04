@@ -15,8 +15,7 @@ const src = path.join(root, 'src');
 // Blow away prior build artifacts.
 rimraf.sync(lib);
 
-// Accumulate a hash that can be used as a cache breaker.
-const hash = crypto.createHash('sha1');
+const sources = [];
 
 // Get the files to transform
 const files = glob.sync('**/*.js', {
@@ -32,10 +31,19 @@ files.forEach(file => {
   mkdirp.sync(path.dirname(libFile));
   const result = babel.transformFileSync(srcFile);
 
+  sources.push(fs.readFileSync(srcFile, 'utf8'));
+
   // Prepend @generated annotation
   const code = '// @generated\n' + result.code;
   fs.writeFile(libFile, code, 'utf8');
-  hash.update(code);
+});
+
+// Hash sources to be used as a cache breaker and to verify we've build the
+// latest sources.
+const hash = crypto.createHash('sha1');
+sources.sort();
+sources.forEach((source) => {
+  hash.update(source);
 });
 
 const hashFile = path.resolve(lib, 'HASH');

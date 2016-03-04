@@ -32,8 +32,8 @@ files.forEach(file => {
   mkdirp.sync(path.dirname(libFile));
   const result = babel.transformFileSync(srcFile);
 
-  // Prepend @generated annotation
-  const code = '// @generated\n' + result.code;
+  // Prepend generated annotation
+  const code = '// @' + 'generated\n' + result.code;
   fs.writeFile(libFile, code, 'utf8');
   hash.update(code);
 });

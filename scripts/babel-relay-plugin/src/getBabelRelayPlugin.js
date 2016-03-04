@@ -55,8 +55,8 @@ function getBabelRelayPlugin(
     validator: options.validator,
   });
 
-  return function({Plugin, types}) {
-    return babelAdapter(Plugin, types, 'relay-query', t => ({
+  return function({Plugin, types, version}) {
+    return babelAdapter(Plugin, types, version, 'relay-query', t => ({
       visitor: {
         /**
          * Extract the module name from `@providesModule`.

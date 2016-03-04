@@ -46,8 +46,9 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
   return function (_ref) {
     var Plugin = _ref.Plugin;
     var types = _ref.types;
+    var version = _ref.version;
 
-    return babelAdapter(Plugin, types, 'relay-query', function (t) {
+    return babelAdapter(Plugin, types, version, 'relay-query', function (t) {
       return {
         visitor: {
           /**

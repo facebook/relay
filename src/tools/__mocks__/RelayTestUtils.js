@@ -445,17 +445,6 @@ var RelayTestUtils = {
           const invariant = require('invariant');
           const printRelayQuery = require('printRelayQuery');
 
-          invariant(
-            expected && expected instanceof RelayQueryPath,
-            'expect(...).toMatchPath(): Argument must be a RelayQueryPath.'
-          );
-          if (!(actual instanceof RelayQueryPath)) {
-            var name = actual ? actual.constructor.name : actual;
-            return {
-              pass: false,
-              message: `expected instance of RelayQueryPath but got [${name}]`,
-            };
-          }
           var fragment = RelayQuery.Fragment.create(
             QueryBuilder.createFragment({
               children: [QueryBuilder.createField({
@@ -468,22 +457,25 @@ var RelayTestUtils = {
             {}
           );
           const mockStore = {
-            getDataID(fieldName: string, id: string): string {
+            getDataID(fieldName: string, identifyingArgValue: string): string {
               invariant(
                 fieldName === RelayNodeInterface.NODE,
                 'RelayTestUtils: Cannot `getDataID` for non-node root call ' +
-                '`%s`.',
-                fieldName
+                '`%s` with identifying argument `%s`.',
+                fieldName,
+                identifyingArgValue
               );
-              return id;
+              return identifyingArgValue;
             },
             getType() {
-              return 'RelayTestUtils';
+              return RelayNodeInterface.ANY_TYPE;
             },
           };
 
-          var actualQuery = actual.getQuery(mockStore, fragment);
-          var expectedQuery = expected.getQuery(mockStore, fragment);
+          var actualQuery =
+            RelayQueryPath.getQuery(mockStore, actual, fragment);
+          var expectedQuery =
+            RelayQueryPath.getQuery(mockStore, expected, fragment);
 
           if (!actualQuery.equals(expectedQuery)) {
             return {

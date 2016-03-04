@@ -88,7 +88,7 @@ describe('writePayload()', () => {
       });
 
       // viewer has a client id and must be refetched by the original root call
-      var path = new RelayQueryPath(query);
+      var path = RelayQueryPath.create(query);
       expect(store.getRecordState('client:1')).toBe('EXISTENT');
       expect(store.getPathToRecord('client:1')).toMatchPath(path);
 
@@ -164,8 +164,11 @@ describe('writePayload()', () => {
           }
         }
       `);
-      var path = new RelayQueryPath(pathQuery)
-        .getPath(getField(pathQuery, 'address'), addressID);
+      var path = RelayQueryPath.getPath(
+        RelayQueryPath.create(pathQuery),
+        getField(pathQuery, 'address'),
+        addressID
+      );
       expect(store.getPathToRecord(addressID)).toMatchPath(path);
     });
 
@@ -206,16 +209,25 @@ describe('writePayload()', () => {
       // get linked records to verify the client id
       var allPhoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
       expect(allPhoneIDs.length).toBe(1);
-      var path = new RelayQueryPath(query)
-        .getPath(getField(query, 'allPhones'), allPhoneIDs[0]);
+      var path = RelayQueryPath.getPath(
+        RelayQueryPath.create(query),
+        getField(query, 'allPhones'),
+        allPhoneIDs[0]
+      );
       expect(store.getPathToRecord(allPhoneIDs[0])).toMatchPath(path);
 
       // plural items must be refetched through the parent plural field
       // get field to verify the client id is correct
       var phoneNoID = store.getLinkedRecordID(allPhoneIDs[0], 'phoneNumber');
-      path = new RelayQueryPath(query)
-        .getPath(getField(query, 'allPhones'), allPhoneIDs[0])
-        .getPath(getField(query, 'allPhones', 'phoneNumber'), phoneNoID);
+      path = RelayQueryPath.getPath(
+        RelayQueryPath.getPath(
+          RelayQueryPath.create(query),
+          getField(query, 'allPhones'),
+          allPhoneIDs[0]
+        ),
+        getField(query, 'allPhones', 'phoneNumber'),
+        phoneNoID
+      );
       expect(store.getPathToRecord(phoneNoID)).toMatchPath(path);
     });
 
@@ -261,12 +273,21 @@ describe('writePayload()', () => {
       writePayload(store, writer, query, payload);
 
       // connections and edges must be refetched through the parent
-      var path = new RelayQueryPath(query)
-        .getPath(getField(query, 'friends'), 'client:1');
+      var path = RelayQueryPath.getPath(
+        RelayQueryPath.create(query),
+        getField(query, 'friends'),
+        'client:1'
+      );
       expect(store.getPathToRecord('client:1')).toMatchPath(path);
-      path = new RelayQueryPath(query)
-        .getPath(getField(query, 'friends'), 'client:1')
-        .getPath(getField(query, 'friends', 'edges'), 'client:client:1:node1');
+      path = RelayQueryPath.getPath(
+        RelayQueryPath.getPath(
+          RelayQueryPath.create(query),
+          getField(query, 'friends'),
+          'client:1'
+        ),
+        getField(query, 'friends', 'edges'),
+        'client:client:1:node1'
+      );
       expect(store.getPathToRecord('client:client:1:node1')).toMatchPath(path);
 
       // connection nodes with an ID are refetchable
@@ -274,8 +295,11 @@ describe('writePayload()', () => {
 
       // linked nodes use a minimal path from the nearest refetchable node
       var pathQuery = getNode(Relay.QL`query{node(id:"node1"){address{city}}}`);
-      path = new RelayQueryPath(pathQuery)
-        .getPath(getField(pathQuery, 'address'), 'client:2');
+      path = RelayQueryPath.getPath(
+        RelayQueryPath.create(pathQuery),
+        getField(pathQuery, 'address'),
+        'client:2'
+      );
       expect(store.getField('client:2', 'city')).toBe('San Francisco');
       expect(store.getPathToRecord('client:2')).toMatchPath(path);
     });
@@ -312,9 +336,15 @@ describe('writePayload()', () => {
       var viewerID = store.getDataID('viewer');
       var actorID = store.getLinkedRecordID(viewerID, 'actor');
 
-      var path = new RelayQueryPath(query)
-        .getPath(getNode(fragment), viewerID)
-        .getPath(getNode(fragment).getChildren()[0], actorID);
+      var path = RelayQueryPath.getPath(
+        RelayQueryPath.getPath(
+          RelayQueryPath.create(query),
+          getNode(fragment),
+          viewerID
+        ),
+        getNode(fragment).getChildren()[0],
+        actorID
+      );
       expect(store.getPathToRecord(actorID)).toMatchPath(path);
     });
   });

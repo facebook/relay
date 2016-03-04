@@ -63,7 +63,7 @@ describe('RelayQueryTracker', () => {
         }
       }
     `);
-    var path = new RelayQueryPath(query);
+    var path = RelayQueryPath.create(query);
     var tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(query, 'client:1', path);
@@ -84,7 +84,7 @@ describe('RelayQueryTracker', () => {
       }
     `);
     var nodeID = '123';
-    var path = new RelayQueryPath(query);
+    var path = RelayQueryPath.create(query);
     var tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(query, nodeID, path);
@@ -110,8 +110,11 @@ describe('RelayQueryTracker', () => {
     `);
     var actor = query.getFieldByStorageKey('actor');
     var actorID = '123';
-    var path = new RelayQueryPath(query)
-      .getPath(getField(query, 'actor'), actorID);
+    var path = RelayQueryPath.getPath(
+      RelayQueryPath.create(query),
+      getField(query, 'actor'),
+      actorID
+    );
     var tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(actor, actorID, path);
@@ -139,9 +142,15 @@ describe('RelayQueryTracker', () => {
       query.getFieldByStorageKey('actor').getFieldByStorageKey('address');
     var actorID = '123';
     var addressID = 'client:1';
-    var path = new RelayQueryPath(query)
-      .getPath(getField(query, 'actor'), actorID)
-      .getPath(getField(query, 'actor', 'address'), addressID);
+    var path = RelayQueryPath.getPath(
+      RelayQueryPath.getPath(
+        RelayQueryPath.create(query),
+        getField(query, 'actor'),
+        actorID
+      ),
+      getField(query, 'actor', 'address'),
+      addressID
+    );
     var tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(address, addressID, path);
@@ -163,8 +172,11 @@ describe('RelayQueryTracker', () => {
     `);
     var actor = query.getFieldByStorageKey('actor');
     var actorID = '123';
-    var path = new RelayQueryPath(query)
-      .getPath(getField(query, 'actor'), actorID);
+    var path = RelayQueryPath.getPath(
+      RelayQueryPath.create(query),
+      getField(query, 'actor'),
+      actorID
+    );
     var tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(actor, actorID, path);

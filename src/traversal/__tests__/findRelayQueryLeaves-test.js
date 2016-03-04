@@ -74,7 +74,7 @@ describe('findRelayQueryLeaves', () => {
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
 
-    dummyPath = new RelayQueryPath(getNode(Relay.QL`
+    dummyPath = RelayQueryPath.create(getNode(Relay.QL`
       query {
         node(id:"dummy") {
           id
@@ -308,7 +308,7 @@ describe('findRelayQueryLeaves', () => {
     var countField = friendsField.getFieldByStorageKey('count');
     expect(result.pendingNodes).toMatchPendingNodes({'friends_id': [{
       node: countField,
-      path: dummyPath.getPath(friendsField, 'friends_id'),
+      path: RelayQueryPath.getPath(dummyPath, friendsField, 'friends_id'),
       rangeCalls: [],
     }]});
     expect(result.missingData).toBe(false);
@@ -431,9 +431,14 @@ describe('findRelayQueryLeaves', () => {
 
     var screennamesField = queryNode.getFieldByStorageKey('screennames');
     var serviceField = screennamesField.getFieldByStorageKey('service');
+    const path = RelayQueryPath.getPath(
+      dummyPath,
+      screennamesField,
+      'client:screenname'
+    );
     var pendingItems = [{
       node: serviceField,
-      path: dummyPath.getPath(screennamesField, 'client:screenname'),
+      path,
       rangeCalls: undefined,
     }];
     expect(result.pendingNodes).toMatchPendingNodes({
@@ -584,7 +589,7 @@ describe('findRelayQueryLeaves', () => {
     var pendingItems = rangeField.getChildren().map(node => {
       return {
         node,
-        path: dummyPath.getPath(rangeField, 'friends_id'),
+        path: RelayQueryPath.getPath(dummyPath, rangeField, 'friends_id'),
         rangeCalls: calls,
       };
     });
@@ -658,7 +663,7 @@ describe('findRelayQueryLeaves', () => {
     var pendingItems = friendField.getChildren().map(node => {
       return {
         node,
-        path: dummyPath.getPath(friendField, 'friends_id'),
+        path: RelayQueryPath.getPath(dummyPath, friendField, 'friends_id'),
         rangeCalls: calls,
       };
     });
@@ -817,7 +822,7 @@ describe('findRelayQueryLeaves', () => {
     var pendingItems = edgeFields.map(node => {
       return {
         node,
-        path: dummyPath.getPath(edgeFields, 'edge_id'),
+        path: RelayQueryPath.getPath(dummyPath, edgeFields, 'edge_id'),
         rangeCalls: undefined,
       };
     });

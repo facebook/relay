@@ -20,10 +20,11 @@ const RelayRecord = require('RelayRecord');
 const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 
+const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {ID, NODE_TYPE, TYPENAME} = RelayNodeInterface;
+const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 
 const idField = RelayQuery.Field.build({
   fieldName: ID,
@@ -34,6 +35,23 @@ const typeField = RelayQuery.Field.build({
   type: 'String',
 });
 
+type ClientPath = {
+  node: RelayQuery.Field | RelayQuery.Fragment;
+  parent: QueryPath;
+  type: 'client';
+}
+type NodePath = {
+  dataID: DataID;
+  name: string;
+  type: 'node';
+};
+type RootPath = {
+  root: RelayQuery.Root;
+  type: 'root',
+};
+
+export type QueryPath = ClientPath | NodePath | RootPath;
+
 /**
  * @internal
  *
@@ -41,107 +59,97 @@ const typeField = RelayQuery.Field.build({
  * particular node. Each step of the path may represent a root query (for
  * refetchable nodes) or the field path from the nearest refetchable node.
  */
-class RelayQueryPath {
-  _name: string;
-  _node: RelayQuery.Root | RelayQuery.Field | RelayQuery.Fragment;
-  _parent: ?RelayQueryPath;
-
-  constructor(
-    node: RelayQuery.Root | RelayQuery.Field | RelayQuery.Fragment,
-    parent?: RelayQueryPath
-  ) {
-    if (node instanceof RelayQuery.Root) {
-      invariant(
-        !parent,
-        'RelayQueryPath: Root paths may not have a parent.'
-      );
-      this._name = node.getName();
-    } else {
-      invariant(
-        parent,
-        'RelayQueryPath: A parent is required for field paths.'
-      );
-      this._name = parent.getName();
-    }
-    this._node = node;
-    this._parent = parent;
-  }
-
-  /**
-   * Returns true if this is a root path (the node is a root node with an ID),
-   * false otherwise.
-   */
-  isRootPath(): boolean {
-    return !this._parent;
-  }
-
-  /**
-   * Gets the parent path, throwing if it does not exist. Use `!isRootPath()`
-   * to check if there is a parent.
-   */
-  getParent(): RelayQueryPath {
-    var parent = this._parent;
+const RelayQueryPath = {
+  createForID(dataID: DataID, name: string): QueryPath {
     invariant(
-      parent,
-      'RelayQueryPath.getParent(): Cannot get the parent of a root path.'
+      !RelayRecord.isClientID(dataID),
+      'RelayQueryPath.createForID: Expected dataID to be a server id, got ' +
+      '`%s`.',
+      dataID
     );
-    return parent;
-  }
+    return {
+      dataID,
+      name,
+      type: 'node',
+    };
+  },
 
-  /**
-   * Helper to get the name of the root query node.
-   */
-  getName(): string {
-    return this._name;
-  }
+  create(root: RelayQuery.Root): QueryPath {
+    if (root.getFieldName() === NODE) {
+      const identifyingArg = root.getIdentifyingArg();
+      if (identifyingArg && typeof identifyingArg.value === 'string') {
+        return {
+          dataID: identifyingArg.value,
+          name: root.getName(),
+          type: 'node',
+        };
+      }
+    }
+    return {
+      root,
+      type: 'root',
+    };
+  },
 
-  /**
-   * Gets a new path that describes how to access the given `node` via the
-   * current path. Returns a new, root path if `dataID` is provided and
-   * refetchable, otherwise returns an extension of the current path.
-   */
   getPath(
+    parent: QueryPath,
     node: RelayQuery.Field | RelayQuery.Fragment,
     dataID: DataID
-  ): RelayQueryPath {
+  ): QueryPath {
     if (RelayRecord.isClientID(dataID)) {
-      return new RelayQueryPath(node, this);
+      return {
+        node,
+        parent,
+        type: 'client',
+      };
+    } else if (parent.type === 'node' && parent.dataID === dataID) {
+      return parent;
     } else {
-      const root = RelayQuery.Root.build(
-        this.getName(),
-        RelayNodeInterface.NODE,
+      return {
         dataID,
-        [idField, typeField],
-        {
-          identifyingArgName: RelayNodeInterface.ID,
-          identifyingArgType: RelayNodeInterface.ID_TYPE,
-          isAbstract: true,
-          isDeferred: false,
-          isPlural: false,
-        },
-        NODE_TYPE
-      );
-      return new RelayQueryPath(root);
+        name: RelayQueryPath.getName(parent),
+        type: 'node',
+      };
     }
-  }
+  },
 
-  /**
-   * Returns a new root query that follows only the fields in this path and then
-   * appends the specified field/fragment at the node reached by the path.
-   *
-   * The query also includes any ID fields along the way.
-   */
+  isRootPath(path: QueryPath): boolean {
+    return path.type === 'node' || path.type === 'root';
+  },
+
+  getParent(path: QueryPath): QueryPath {
+    invariant(
+      path.type === 'client',
+      'RelayQueryPath: Cannot get the parent of a root path.'
+    );
+    return path.parent;
+  },
+
+  getName(path: QueryPath): string {
+    while (path.type === 'client') {
+      path = path.parent;
+    }
+    if (path.type === 'root') {
+      return path.root.getName();
+    } else if (path.type === 'node') {
+      return path.name;
+    } else {
+      invariant(
+        false,
+        'RelayQueryPath: Invalid path `%s`.',
+        path
+      );
+    }
+  },
+
   getQuery(
     store: RelayRecordStore,
+    path: QueryPath,
     appendNode: RelayQuery.Fragment | RelayQuery.Field
   ): RelayQuery.Root {
-    let node = this._node;
-    let path = this;
     let child = appendNode;
-    while (
-      node instanceof RelayQuery.Field ||
-      node instanceof RelayQuery.Fragment
-    ) {
+    while (path.type === 'client') {
+      const node = path.node;
       const idFieldName = node instanceof RelayQuery.Field ?
         node.getInferredPrimaryKey() :
         ID;
@@ -154,88 +162,93 @@ class RelayQueryPath {
       } else {
         child = node.clone([child]);
       }
-      path = path._parent;
-      invariant(
-        path,
-        'RelayQueryPath.getQuery(): Expected a parent path.'
-      );
-      node = path._node;
+      path = path.parent;
     }
-    invariant(child, 'RelayQueryPath: Expected a leaf node.');
-    invariant(
-      node instanceof RelayQuery.Root,
-      'RelayQueryPath: Expected a root node.'
-    );
-    let children = [
+    const root = path.type === 'root' ?
+      path.root :
+      createRootQueryFromNodePath(path);
+    const children = [
       child,
-      (node: $FlowIssue).getFieldByStorageKey(ID),
-      (node: $FlowIssue).getFieldByStorageKey(TYPENAME),
+      root.getFieldByStorageKey(ID),
+      root.getFieldByStorageKey(TYPENAME),
     ];
-    const metadata = {...node.getConcreteQueryNode().metadata};
-    const identifyingArg = node.getIdentifyingArg();
-    if (identifyingArg && identifyingArg.name != null) {
-      metadata.identifyingArgName = identifyingArg.name;
-    }
-    // At this point `children` will be a partial query such as:
-    //   id
-    //   __typename
-    //   fieldOnFoo { ${appendNode} }
-    //
-    // In which `fieldOnFoo` is a field of type `Foo`, and cannot be queried on
-    // `Node`. To make the query valid it must be wrapped in a conditioning
-    // fragment based on the concrete type of the root id:
-    //   node(id: $rootID) {
-    //     ... on TypeOFRootID {
-    //        # above Fragment
-    //     }
-    //   }
-    if (identifyingArg && identifyingArg.value != null) {
-      const identifyingArgValue = identifyingArg.value;
-      if (
-        typeof identifyingArgValue !== 'string' &&
-        typeof identifyingArgValue !== 'number'
-      ) {
-        // TODO #8054994: Supporting aribtrary identifying value types
-        invariant(
-          false,
-          'Relay: Expected argument to root field `%s` to be a string or ' +
-          'number, got `%s`.',
-          node.getFieldName(),
-          JSON.stringify(identifyingArgValue)
-        );
-      }
-      const rootID = store.getDataID(
-        node.getFieldName(),
-        '' + identifyingArgValue
-      );
-      const rootType = rootID && store.getType(rootID);
-      if (rootType != null) {
-        children = [RelayQuery.Fragment.build(
-          this.getName(),
-          rootType,
-          children
-        )];
-      } else {
-        const recordState = rootID != null ?
-          store.getRecordState(rootID) :
-          RelayRecordState.UNKNOWN;
-        warning(
-          false,
-          'RelayQueryPath: No typename found for %s record `%s`. ' +
-          'Generating a possibly invalid query.',
-          recordState.toLowerCase(),
-          identifyingArgValue
-        );
-      }
-    }
-    return RelayQuery.Root.build(
-      this.getName(),
-      node.getFieldName(),
-      (identifyingArg && identifyingArg.value) || null,
-      children,
-      metadata,
-      node.getType()
+    const rootChildren = getRootFragmentForQuery(store, root, children);
+    const pathQuery = root.clone(rootChildren);
+    // for flow
+    invariant(
+      pathQuery instanceof RelayQuery.Root,
+      'RelayQueryPath: Expected the root of path `%s` to be a query.',
+      RelayQueryPath.getName(path)
     );
+    return pathQuery;
+  },
+};
+
+function createRootQueryFromNodePath(
+  nodePath: NodePath
+): RelayQuery.Root {
+  return RelayQuery.Root.build(
+    nodePath.name,
+    NODE,
+    nodePath.dataID,
+    [idField, typeField],
+    {
+      identifyingArgName: ID,
+      identifyingArgType: ID_TYPE,
+      isAbstract: true,
+      isDeferred: false,
+      isPlural: false,
+    },
+    NODE_TYPE
+  );
+}
+
+function getRootFragmentForQuery(
+  store: RelayRecordStore,
+  root: RelayQuery.Root,
+  children: Array<?RelayQuery.Node>
+): Array<RelayQuery.Node> {
+  const nextChildren = [];
+  // $FlowIssue: Flow isn't recognizing that `filter(x => !!x)` returns a list
+  // of non-null values.
+  children.forEach(child => {
+    if (child) {
+      nextChildren.push(child);
+    }
+  });
+  if (!root.isAbstract()) {
+    // No need to wrap child nodes of a known concrete type.
+    return nextChildren;
+  }
+  const identifyingArgKeys = [];
+  forEachRootCallArg(root, ({identifyingArgKey}) => {
+    identifyingArgKeys.push(identifyingArgKey);
+  });
+  const identifyingArgKey = identifyingArgKeys[0];
+  const rootID = store.getDataID(
+    root.getStorageKey(),
+    identifyingArgKey
+  );
+  const rootType = rootID && store.getType(rootID);
+
+  if (rootType != null) {
+    return [RelayQuery.Fragment.build(
+      root.getName(),
+      rootType,
+      nextChildren
+    )];
+  } else {
+    const rootState = rootID != null ?
+      store.getRecordState(rootID) :
+      RelayRecordState.UNKNOWN;
+    warning(
+      false,
+      'RelayQueryPath: No typename found for %s record `%s`. Generating a ' +
+      'possibly invalid query.',
+      rootState.toLowerCase(),
+      rootID
+    );
+    return nextChildren;
   }
 }
 

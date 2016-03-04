@@ -731,8 +731,11 @@ describe('RelayDiskCacheReader', () => {
       expect(store.getRecordState('client:friends_id')).toBe('EXISTENT');
       var query = queries.q0;
       var friendsField = query.getFieldByStorageKey('friends');
-      var friendsPath = new RelayQueryPath(query)
-          .getPath(query.getFieldByStorageKey('friends'), 'client:friends_id');
+      var friendsPath = RelayQueryPath.getPath(
+        RelayQueryPath.create(query),
+        query.getFieldByStorageKey('friends'),
+        'client:friends_id'
+      );
       expect(store.getPathToRecord(`client:friends_id`))
         .toMatchPath(friendsPath);
       expect(store.getRangeMetadata(
@@ -747,8 +750,11 @@ describe('RelayDiskCacheReader', () => {
         }],
       });
       expect(store.getRecordState('client:edge_id')).toBe('EXISTENT');
-      var edgePath = friendsPath
-        .getPath(friendsField.getFieldByStorageKey('edges'), 'client:edge_id');
+      var edgePath = RelayQueryPath.getPath(
+        friendsPath,
+        friendsField.getFieldByStorageKey('edges'),
+        'client:edge_id'
+      );
       expect(store.getPathToRecord(`client:edge_id`)).toMatchPath(edgePath);
       expect(store.getField('client:edge_id', 'cursor')).toBe('1234');
       expect(store.getLinkedRecordID('client:edge_id', 'node'))
@@ -972,7 +978,7 @@ describe('RelayDiskCacheReader', () => {
           name,
         }
       `);
-      var path = new RelayQueryPath(getNode(Relay.QL`
+      var path = RelayQueryPath.create(getNode(Relay.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1004,7 +1010,7 @@ describe('RelayDiskCacheReader', () => {
           name,
         }
       `);
-      var path = new RelayQueryPath(getNode(Relay.QL`
+      var path = RelayQueryPath.create(getNode(Relay.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1047,7 +1053,7 @@ describe('RelayDiskCacheReader', () => {
           name,
         }
       `);
-      var path = new RelayQueryPath(getNode(Relay.QL`
+      var path = RelayQueryPath.create(getNode(Relay.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1091,7 +1097,7 @@ describe('RelayDiskCacheReader', () => {
           name,
         }
       `);
-      var path = new RelayQueryPath(getNode(Relay.QL`
+      var path = RelayQueryPath.create(getNode(Relay.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1132,7 +1138,7 @@ describe('RelayDiskCacheReader', () => {
           name,
         }
       `);
-      var path = new RelayQueryPath(getNode(Relay.QL`
+      var path = RelayQueryPath.create(getNode(Relay.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1175,7 +1181,7 @@ describe('RelayDiskCacheReader', () => {
           name,
         }
       `);
-      var path = new RelayQueryPath(getNode(Relay.QL`
+      var path = RelayQueryPath.create(getNode(Relay.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1209,7 +1215,7 @@ describe('RelayDiskCacheReader', () => {
           name,
         }
       `);
-      var path = new RelayQueryPath(getNode(Relay.QL`
+      var path = RelayQueryPath.create(getNode(Relay.QL`
         query {
           node(id: "1055790163") {id}
         }

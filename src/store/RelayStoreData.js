@@ -36,7 +36,8 @@ const RelayNodeInterface = require('RelayNodeInterface');
 const RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
-import type RelayQueryPath from 'RelayQueryPath';
+import type {QueryPath} from 'RelayQueryPath';
+const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayQueryWriter = require('RelayQueryWriter');
 const RelayRecord = require('RelayRecord');
@@ -266,7 +267,7 @@ class RelayStoreData {
   readFragmentFromDiskCache(
     dataID: DataID,
     fragment: RelayQuery.Fragment,
-    path: RelayQueryPath,
+    path: QueryPath,
     callbacks: CacheReadCallbacks
   ): void {
     const cacheManager = this._cacheManager;
@@ -398,7 +399,11 @@ class RelayStoreData {
         'record `%s` without a path.',
         dataID
       );
-      return path.getQuery(this._cachedStore, fragment);
+      return RelayQueryPath.getQuery(
+        this._cachedStore,
+        path,
+        fragment
+      );
     }
     // Fragment fields cannot be spread directly into the root because they
     // may not exist on the `Node` type.

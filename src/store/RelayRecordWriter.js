@@ -337,7 +337,8 @@ class RelayRecordWriter {
     invariant(
       typeof field === 'object' &&
         field !== null &&
-        !Array.isArray(field),
+        !Array.isArray(field) &&
+        (field.__dataID__ == null || typeof field.__dataID__ === 'string'),
       'RelayRecordWriter.getLinkedRecordID(): Expected field `%s` for record ' +
       '`%s` to have a linked record.',
       storageKey,

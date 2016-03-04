@@ -68,7 +68,7 @@ var RelayOSSNodeInterface = {
         }
         var dataID = result[RelayOSSNodeInterface.ID];
         invariant(
-          dataID != null,
+          typeof dataID === 'string',
           'RelayOSSNodeInterface.getResultsFromPayload(): Unable to write ' +
           'result with no `%s` field for query, `%s`.',
           RelayOSSNodeInterface.ID,
@@ -84,7 +84,9 @@ var RelayOSSNodeInterface = {
         var result = records[ii++];
         var dataID = store.getDataID(storageKey, identifyingArgKey);
         if (dataID == null) {
-          var payloadID = typeof result === 'object' && result ?
+          const payloadID =
+            typeof result === 'object' && result &&
+            typeof result[RelayOSSNodeInterface.ID] === 'string' ?
             result[RelayOSSNodeInterface.ID] :
             null;
           if (payloadID != null) {

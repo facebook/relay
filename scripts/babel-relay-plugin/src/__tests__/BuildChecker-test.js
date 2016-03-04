@@ -11,68 +11,41 @@
 
 'use strict';
 
-const babel = require('babel-core');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const util = require('util');
 
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
 
-const LIB_DIR = path.join(ROOT_DIR, 'lib');
+const HASH_PATH = path.join(ROOT_DIR, 'lib', 'HASH');
 const SRC_DIR = path.join(ROOT_DIR, 'src');
 
-function normalizeCode(code) {
-  // The definition of _get is slightly different in the FB internal transform.
-  return code
-    .replace(/^var _get = .*;$/m, 'var _get = ...;')
-    .replace(/^\/\/ @generated$/m, '')
-    .trim();
+function filesInDir(dir) {
+  return fs.readdirSync(dir).map((name) => path.join(dir, name));
 }
 
 /**
  * Checks that `lib/` is up-to-date with `src/`.
  */
 describe('babel-relay-plugin', () => {
-  beforeEach(() => {
-    jasmine.addMatchers({
-      toTransformInto() {
-        return {
-          compare(srcFile, libFile) {
-            if (!fs.existsSync(libFile)) {
-              return false;
-            }
-            const libCode = fs.readFileSync(libFile, 'utf8');
-            const srcCode = fs.readFileSync(srcFile, 'utf8');
-            const transformed = babel.transform(srcCode).code;
+  it('has been built with the latest source', () => {
+    const srcFiles = [].concat(
+      filesInDir(SRC_DIR),
+      filesInDir(path.join(SRC_DIR, 'tools'))
+    );
 
-            return {
-              pass: normalizeCode(libCode) === normalizeCode(transformed),
-              message: util.format(
-                'Expected `%s` to transform into `%s`. ' +
-                'Try running: npm run build',
-                path.relative(ROOT_DIR, srcFile),
-                path.relative(ROOT_DIR, libFile)
-              ),
-            };
-          },
-        };
-      },
+    const sources = srcFiles
+      .filter((path) => path.endsWith('.js'))
+      .map((path) => fs.readFileSync(path, 'utf8'))
+      .sort();
+
+    const hash = crypto.createHash('sha1');
+    sources.forEach((source) => {
+      hash.update(source);
     });
-  });
 
-  it('has been built properly', () => {
-    ['', 'tools'].forEach(dirname => {
-      const libPath = path.join(LIB_DIR, dirname);
-      const srcPath = path.join(SRC_DIR, dirname);
-
-      fs.readdirSync(srcPath).forEach(filename => {
-        if (!filename.endsWith('.js')) {
-          return;
-        }
-        const libFile = path.join(libPath, filename);
-        const srcFile = path.join(srcPath, filename);
-        expect(srcFile).toTransformInto(libFile);
-      });
-    });
+    const expectedHash = fs.readFileSync(HASH_PATH, 'utf8');
+    const actualHash = hash.digest('base64');
+    expect(expectedHash).toEqual(actualHash);
   });
 });

@@ -138,29 +138,25 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       if (rootFieldType.isAbstract()) {
         metadata.isAbstract = true;
       }
-      invariant(
-        rootFieldArgs.length <= 1,
-        'Invalid root field `%s`; Relay only supports root fields with zero ' +
-        'or one argument.',
-        rootField.getName()
-      );
-      let calls = NULL;
-      if (rootFieldArgs.length === 1) {
-        // Until such time as a root field's 'identifying argument' (one that has
-        // a 1-1 correspondence with a Relay record, or null) has a formal type,
-        // assume that the lone arg in a root field's call is the identifying one.
-        const identifyingArg = rootFieldArgs[0];
+      const calls = rootFieldArgs.length ?
+        t.arrayExpression(rootFieldArgs.map(arg => this.printArgument(arg))) :
+        NULL;
+      const identifyingArgs = rootFieldArgs.filter(arg => arg.getType().isID());
+      if (identifyingArgs.length) {
+        invariant(
+          identifyingArgs.length === 1,
+          'Queries may have at most one identifying argument - ' +
+          'type `ID!` or `[ID!]` - but field `%s` has %s. Use `ID` only for ' +
+          'arguments that correspond 1:1 with objects in the response ' +
+          '(ex: `node(id: 4)` (id: ID!) always returns the object with id ' +
+          '4). Use `Int` or `String` for all other arguments.',
+          rootField.getName(),
+          identifyingArgs.length
+        );
+        const identifyingArg = identifyingArgs[0];
         metadata.identifyingArgName = identifyingArg.getName();
         metadata.identifyingArgType =
-          this.printArgumentTypeForMetadata(identifyingArg.getType());
-        calls = t.arrayExpression([codify({
-          kind: t.valueToNode('Call'),
-          metadata: objectify({
-            type: this.printArgumentTypeForMetadata(identifyingArg.getType()),
-          }),
-          name: t.valueToNode(identifyingArg.getName()),
-          value: this.printArgumentValue(identifyingArg),
-        })]);
+          identifyingArg.getType().getName({modifiers: true});
       }
 
       return codify({
@@ -607,7 +603,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
      */
     printArgumentTypeForMetadata(argType: RelayQLArgumentType): ?string {
       // Currently, we always send Enum and Object types as variables.
-      if (argType.isEnum() || argType.isObject()) {
+      if (argType.isID() || argType.isEnum() || argType.isObject()) {
         return argType.getName({modifiers: true});
       }
       // Currently, we always inline scalar types.

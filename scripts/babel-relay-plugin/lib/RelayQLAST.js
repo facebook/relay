@@ -766,6 +766,11 @@ var RelayQLArgumentType = (function () {
       return this.schemaUnmodifiedArgType instanceof types.GraphQLEnumType;
     }
   }, {
+    key: 'isID',
+    value: function isID() {
+      return this.isScalar() && this.getName({ modifiers: false }) === 'ID';
+    }
+  }, {
     key: 'isList',
     value: function isList() {
       return this.isListType;

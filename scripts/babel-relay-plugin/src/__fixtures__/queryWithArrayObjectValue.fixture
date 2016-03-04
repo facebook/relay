@@ -34,9 +34,7 @@ var q = (function () {
     fieldName: 'searchAll',
     kind: 'Query',
     metadata: {
-      isPlural: true,
-      identifyingArgName: 'queries',
-      identifyingArgType: '[SearchInput!]!'
+      isPlural: true
     },
     name: 'QueryWithArrayObjectValue',
     type: 'SearchResult'

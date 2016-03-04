@@ -1,5 +1,10 @@
 ## master
 
+## 0.7.3 (March 4, 2016)
+
+* The instance of Babel that the babel-relay-plugin receives will now be used
+  when making assertions about version numbers.
+
 ## 0.7.2 (March 4, 2016)
 
 * Identifying arguments on root fields can now be of any type - boolean, number,

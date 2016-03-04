@@ -10,7 +10,7 @@
 import 'babel/polyfill';
 
 import React from 'react'; window.React = React;
-import ReactDOM from 'react/lib/ReactDOM';
+import ReactDOM from 'react-dom';
 import RelayPlayground from './RelayPlayground';
 
 import filterObject from 'fbjs/lib/filterObject';

@@ -12,7 +12,7 @@ import 'graphiql/graphiql.css';
 
 import GraphiQL from 'graphiql';
 import React from 'react'; window.React = React;
-import ReactDOM from 'react/lib/ReactDOM';
+import ReactDOM from 'react-dom';
 
 import evalSchema from './evalSchema';
 import queryString from 'querystring';

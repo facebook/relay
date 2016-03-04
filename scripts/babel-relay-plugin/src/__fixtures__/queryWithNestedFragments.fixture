@@ -30,7 +30,9 @@ var x = (function (RQL_0, RQL_1, RQL_2, RQL_3, RQL_4, RQL_5, RQL_6, RQL_7, RQL_8
   return {
     calls: [{
       kind: 'Call',
-      metadata: {},
+      metadata: {
+        type: 'ID'
+      },
       name: 'id',
       value: {
         kind: 'CallValue',
@@ -86,7 +88,8 @@ var x = (function (RQL_0, RQL_1, RQL_2, RQL_3, RQL_4, RQL_5, RQL_6, RQL_7, RQL_8
     kind: 'Query',
     metadata: {
       isAbstract: true,
-      identifyingArgName: 'id'
+      identifyingArgName: 'id',
+      identifyingArgType: 'ID'
     },
     name: 'QueryWithNestedFragments',
     type: 'Node'

@@ -1,0 +1,15 @@
+Input:
+var Relay = require('Relay');
+var q = Relay.QL`
+  query {
+    compare(this: 1 that: 2) {
+      summary
+    }
+  }
+`;
+
+Output:
+var Relay = require('Relay');
+var q = (function () {
+  throw new Error('GraphQL validation/transform error ``Queries may have at most one identifying argument - (type ID or [ID]), but field `compare` has 2. Use `Int` or `String` instead.`` in file `queryWithMultipleIdentifyingArgs.fixture`.');
+})();

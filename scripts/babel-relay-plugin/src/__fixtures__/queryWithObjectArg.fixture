@@ -32,9 +32,7 @@ var q = (function () {
     fieldName: 'search',
     kind: 'Query',
     metadata: {
-      isPlural: true,
-      identifyingArgName: 'query',
-      identifyingArgType: 'SearchInput!'
+      isPlural: true
     },
     name: 'QueryWithObjectArg',
     type: 'SearchResult'

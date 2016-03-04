@@ -27,9 +27,7 @@ var foo = (function () {
     }],
     fieldName: "__type",
     kind: "Query",
-    metadata: {
-      identifyingArgName: "name"
-    },
+    metadata: {},
     name: "IntrospectionQueryForType",
     type: "__Type"
   };

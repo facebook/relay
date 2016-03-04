@@ -722,6 +722,10 @@ class RelayQLArgumentType {
     return this.schemaUnmodifiedArgType instanceof types.GraphQLEnumType;
   }
 
+  isID(): boolean {
+    return this.isScalar() && this.getName({modifiers: false}) === 'ID';
+  }
+
   isList(): boolean {
     return this.isListType;
   }

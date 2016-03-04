@@ -1,16 +1,16 @@
 Input:
-var RelayQL = require('react-relay/RelayQL');
-var x = RelayQL`
+var Relay = require('Relay');
+var q = Relay.QL`
   query {
-    node(id: 123) {
-      id,
-    },
+    filteredNode(id: "4" filter: "Zuck") {
+      id
+    }
   }
 `;
 
 Output:
-var RelayQL = require('react-relay/RelayQL');
-var x = (function () {
+var Relay = require('Relay');
+var q = (function () {
   return {
     calls: [{
       kind: 'Call',
@@ -20,7 +20,15 @@ var x = (function () {
       name: 'id',
       value: {
         kind: 'CallValue',
-        callValue: 123
+        callValue: '4'
+      }
+    }, {
+      kind: 'Call',
+      metadata: {},
+      name: 'filter',
+      value: {
+        kind: 'CallValue',
+        callValue: 'Zuck'
       }
     }],
     children: [{
@@ -39,14 +47,14 @@ var x = (function () {
       },
       type: 'String'
     }],
-    fieldName: 'node',
+    fieldName: 'filteredNode',
     kind: 'Query',
     metadata: {
       isAbstract: true,
       identifyingArgName: 'id',
       identifyingArgType: 'ID'
     },
-    name: 'TagRelayQL',
+    name: 'QueryWithMixedArgsSingular',
     type: 'Node'
   };
 })();

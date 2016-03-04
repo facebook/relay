@@ -16,7 +16,9 @@ var x = (function () {
   return {
     calls: [{
       kind: 'Call',
-      metadata: {},
+      metadata: {
+        type: 'ID'
+      },
       name: 'id',
       value: {
         kind: 'CallValue',
@@ -64,7 +66,8 @@ var x = (function () {
     kind: 'Query',
     metadata: {
       isAbstract: true,
-      identifyingArgName: 'id'
+      identifyingArgName: 'id',
+      identifyingArgType: 'ID'
     },
     name: 'FieldForEnum',
     type: 'Node'

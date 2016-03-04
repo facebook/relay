@@ -77,6 +77,9 @@ module<span class="token punctuation">.</span>exports <span class="token operato
   fragments<span class="token punctuation">:</span> <span class="token punctuation">{</span>
     user<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
       # The variable defined above is available here as `</span></span>$size<span class="token template-string"><span class="token string">`.
+      # Any variable referenced here is required to have been defined in initialVariables above.
+      # An `</span></span>undefined<span class="token template-string"><span class="token string">` variable value will throw an `</span></span>Invariant Violation<span class="token template-string"><span class="token string">` exception.
+      # Use `</span></span><span class="token keyword">null</span><span class="token template-string"><span class="token string">` to initialize unknown values.
       fragment on User { profilePicture(size: $size) { ... } }
     `</span></span><span class="token punctuation">,</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>

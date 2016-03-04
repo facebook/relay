@@ -1,12 +1,21 @@
 type Root {
-  node(id: Int): Node
-  nodes(ids: [Int]): [Node]
-  media(id: Int): Media
+  compare(this: ID that: ID): Comparsion
+  filteredNode(id: ID filter: String): Node
+  filteredNodes(ids: [ID] filter: String): [Node]
+  node(id: ID): Node
+  nodes(ids: [ID]): [Node]
+  media(id: ID): Media
   viewer: Viewer
   search(query: SearchInput!): [SearchResult]
   searchAll(queries: [SearchInput!]!): [SearchResult]
   _invalid: InvalidType
   actor: Actor
+}
+
+type Comparsion {
+  this: ID
+  that: ID
+  summary: String
 }
 
 interface Actor {

@@ -14,7 +14,6 @@ import 'codemirror/mode/javascript/javascript';
 
 import Codemirror from 'react-codemirror';
 import React from 'react';
-import ReactChildren from 'react-children';
 import ReactDOM from 'react-dom';
 import Relay from 'react-relay'; window.Relay = Relay;
 import RelayLocalSchema from 'relay-local-schema';
@@ -97,7 +96,7 @@ class PlaygroundRenderer extends React.Component {
     } catch (e) {}
   }
   _update = () => {
-    ReactDOM.render(ReactChildren.only(this.props.children), this._container);
+    ReactDOM.render(React.Children.only(this.props.children), this._container);
   }
   render() {
     return <div ref="mountPoint" />;

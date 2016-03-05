@@ -17,7 +17,6 @@ const RelayFetchMode = require('RelayFetchMode');
 import type {FetchMode} from 'RelayFetchMode';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 import type {PendingFetch} from 'RelayPendingQueryTracker';
-const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 const RelayReadyState = require('RelayReadyState');
@@ -92,9 +91,10 @@ function hasItems(map: Object): boolean {
 }
 
 function splitAndFlattenQueries(
+  storeData: RelayStoreData,
   queries: Array<RelayQuery.Root>
 ): Array<RelayQuery.Root> {
-  if (!RelayNetworkLayer.supports('defer')) {
+  if (!storeData.getNetworkLayer().supports('defer')) {
     if (__DEV__) {
       queries.forEach(query => {
         warning(
@@ -202,7 +202,7 @@ function runQueries(
       });
     }
 
-    splitAndFlattenQueries(queries).forEach(query => {
+    splitAndFlattenQueries(storeData, queries).forEach(query => {
       var pendingFetch = storeData.getPendingQueryTracker().add(
         {query, fetchMode, forceIndex, storeData}
       );

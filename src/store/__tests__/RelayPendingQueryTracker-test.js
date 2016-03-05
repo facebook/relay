@@ -22,7 +22,6 @@ const RelayFetchMode = require('RelayFetchMode');
 const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const fetchRelayQuery = require('fetchRelayQuery');
 const subtractRelayQuery = require('subtractRelayQuery');
 const writeRelayQueryPayload = require('writeRelayQueryPayload');
 
@@ -30,6 +29,8 @@ describe('RelayPendingQueryTracker', () => {
   var pendingQueryTracker;
 
   var addPending;
+
+  var fetchRelayQuery;
 
   var {getNode} = RelayTestUtils;
 
@@ -49,6 +50,8 @@ describe('RelayPendingQueryTracker', () => {
         forceIndex: null,
       }).getResolvedPromise();
     };
+
+    fetchRelayQuery = storeData.getNetworkLayer().fetchRelayQuery;
 
     jasmine.addMatchers(RelayTestUtils.matchers);
     jasmine.addMatchers({

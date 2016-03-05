@@ -18,15 +18,16 @@ jest.dontMock('RelayRenderer');
 const React = require('React');
 const ReactDOMServer = require('ReactDOMServer');
 const Relay = require('Relay');
+const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
-const RelayStore = require('RelayStore');
 
 describe('RelayRenderer', function() {
   let MockComponent;
   let MockContainer;
 
   let queryConfig;
+  let relayContext;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -37,13 +38,18 @@ describe('RelayRenderer', function() {
     });
 
     queryConfig = RelayQueryConfig.genMockInstance();
+    relayContext = new RelayContext();
   });
 
   it('does not run queries on the server', () => {
     ReactDOMServer.renderToString(
-      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={queryConfig}
+        relayContext={relayContext}
+      />
     );
-    expect(RelayStore.forceFetch).not.toBeCalled();
-    expect(RelayStore.primeCache).not.toBeCalled();
+    expect(relayContext.forceFetch).not.toBeCalled();
+    expect(relayContext.primeCache).not.toBeCalled();
   });
 });

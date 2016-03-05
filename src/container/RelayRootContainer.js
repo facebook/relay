@@ -16,6 +16,7 @@
 const React = require('React');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
 const RelayPropTypes = require('RelayPropTypes');
+const RelayStore = require('RelayStore');
 import type {
   ComponentFetchState,
   ReadyState,
@@ -109,6 +110,7 @@ function RelayRootContainer({
       forceFetch={forceFetch}
       onReadyStateChange={onReadyStateChange}
       queryConfig={route}
+      relayContext={RelayStore}
       render={({done, error, props, retry, stale}) => {
         if (error) {
           if (renderFailure) {

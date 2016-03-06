@@ -214,14 +214,25 @@ class RelayQueryNode {
           if (concreteChild == null) {
             return;
           }
-          const node = createNode(
+
+          let nodes = createNode(
             concreteChild,
             this.__route__,
             this.__variables__
           );
-          if (node && node.isIncluded()) {
-            nextChildren.push(node);
+
+          // Route conditional functions can return an array
+          // of fragment references. Wrap single fragment references
+          // into an array.
+          if (!Array.isArray(nodes)) {
+            nodes = [nodes];
           }
+
+          nodes.forEach(node => {
+            if (node && node.isIncluded()) {
+              nextChildren.push(node);
+            }
+          });
         });
       }
       this.__children__ = nextChildren;
@@ -1302,7 +1313,7 @@ function createNode(
   concreteNode: mixed,
   route: RelayMetaRoute,
   variables: Variables
-): ?RelayQueryNode {
+): ?RelayQueryNode | Array<?RelayQueryNode> {
   invariant(
     typeof concreteNode === 'object' &&
     concreteNode !== null,
@@ -1341,11 +1352,15 @@ function createNode(
     const fragment = concreteNode.getFragmentForRoute(route);
     if (fragment) {
       // may be null if no value was defined for this route.
-      return createNode(
-        fragment,
-        route,
-        variables
-      );
+      if (Array.isArray(fragment)) {
+        // A route-conditional function may return a single fragment reference
+        // or an array of fragment references.
+        return fragment.map(frag => {
+          return createNode(frag, route, variables);
+        });
+      } else {
+        return createNode(fragment, route, variables);
+      }
     }
     return null;
   } else if (concreteNode instanceof RelayFragmentReference) {

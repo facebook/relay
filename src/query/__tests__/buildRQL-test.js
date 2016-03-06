@@ -143,6 +143,7 @@ describe('buildRQL', () => {
       expect(query instanceof RelayQuery.Root).toBe(true);
       expect(query.getIdentifyingArg()).toEqual({
         name: 'id',
+        type: 'ID',
         value: '123',
       });
       expect(query.getChildren()[2].equals(
@@ -203,6 +204,7 @@ describe('buildRQL', () => {
       expect(query instanceof RelayQuery.Root).toBe(true);
       expect(query.getIdentifyingArg()).toEqual({
         name: 'id',
+        type: 'ID',
         value: '123',
       });
       expect(query.getChildren()[2].equals(

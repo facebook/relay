@@ -12,7 +12,9 @@ var foo = (function () {
   return {
     calls: [{
       kind: "Call",
-      metadata: {},
+      metadata: {
+        type: "String!"
+      },
       name: "name",
       value: {
         kind: "CallValue",
@@ -28,7 +30,8 @@ var foo = (function () {
     fieldName: "__type",
     kind: "Query",
     metadata: {
-      identifyingArgName: "name"
+      identifyingArgName: "name",
+      identifyingArgType: "String!"
     },
     name: "IntrospectionQueryForType",
     type: "__Type"

@@ -71,7 +71,7 @@ const QueryBuilder = {
   createCall(
     name: string,
     value: ?ConcreteValue,
-    type?: string
+    type?: ?string
   ): ConcreteCall {
     return {
       kind: 'Call',
@@ -238,7 +238,8 @@ const QueryBuilder = {
       );
       calls = [QueryBuilder.createCall(
         identifyingArgName,
-        partialQuery.identifyingArgValue
+        partialQuery.identifyingArgValue,
+        metadata.identifyingArgType
       )];
     }
     return {

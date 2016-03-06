@@ -682,6 +682,11 @@ describe('diffRelayQuery', () => {
         }
       }
     `));
+    expect(diffQueries[0].getIdentifyingArg()).toEqual({
+      name: 'ids',
+      type: '[ID!]',
+      value: ['4'],
+    });
     expect(diffQueries[1].getName()).toBe(query.getName());
     expect(diffQueries[1]).toEqualQueryRoot(getNode(Relay.QL`
       query {
@@ -692,6 +697,11 @@ describe('diffRelayQuery', () => {
         }
       }
     `));
+    expect(diffQueries[1].getIdentifyingArg()).toEqual({
+      name: 'ids',
+      type: '[ID!]',
+      value: ['4808495'],
+    });
   });
 
   it('splits viewer-rooted queries', () => {

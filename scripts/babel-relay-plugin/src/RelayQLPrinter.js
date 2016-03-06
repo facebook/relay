@@ -150,15 +150,17 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         // a 1-1 correspondence with a Relay record, or null) has a formal type,
         // assume that the lone arg in a root field's call is the identifying one.
         const identifyingArg = rootFieldArgs[0];
-        metadata.identifyingArgName = identifyingArg.getName();
-        metadata.identifyingArgType =
-          this.printArgumentTypeForMetadata(identifyingArg.getType());
+        const identifyingArgName = identifyingArg.getName();
+        const identifyingArgType =
+          identifyingArg.getType().getName({modifiers: true});
+        metadata.identifyingArgName = identifyingArgName;
+        metadata.identifyingArgType = identifyingArgType;
         calls = t.arrayExpression([codify({
           kind: t.valueToNode('Call'),
           metadata: objectify({
-            type: this.printArgumentTypeForMetadata(identifyingArg.getType()),
+            type: identifyingArgType,
           }),
-          name: t.valueToNode(identifyingArg.getName()),
+          name: t.valueToNode(identifyingArgName),
           value: this.printArgumentValue(identifyingArg),
         })]);
       }

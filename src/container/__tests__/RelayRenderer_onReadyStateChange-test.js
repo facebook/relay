@@ -18,6 +18,7 @@ jest.dontMock('RelayRenderer');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
+const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 const RelayStore = require('RelayStore');
@@ -28,6 +29,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   let container;
   let queryConfig;
+  let relayContext;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -39,6 +41,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
     container = document.createElement('div');
     queryConfig = RelayQueryConfig.genMockInstance();
+    relayContext = new RelayContext();
   });
 
   let onReadyStateChange;
@@ -49,6 +52,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
+        relayContext={relayContext}
         onReadyStateChange={onReadyStateChange}
       />,
       container
@@ -65,7 +69,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
       toTriggerReadyStateChanges() {
         return {
           compare(requestCallback, expected) {
-            const request = RelayStore.primeCache.mock.requests[0];
+            const request = relayContext.primeCache.mock.requests[0];
             requestCallback(request);
             jest.runAllTimers();
 
@@ -168,6 +172,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
         <RelayRenderer
           Container={MockContainer}
           queryConfig={RelayQueryConfig.genMockInstance()}
+          relayContext={relayContext}
           onReadyStateChange={onReadyStateChange}
         />,
         container

@@ -18,9 +18,9 @@ jest.dontMock('RelayRenderer');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
+const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
-const RelayStore = require('RelayStore');
 
 describe('RelayRenderer.abort', () => {
   let MockComponent;
@@ -35,17 +35,22 @@ describe('RelayRenderer.abort', () => {
     });
 
     const container = document.createElement('div');
+    const relayContext = new RelayContext();
 
     function render() {
       const queryConfig = RelayQueryConfig.genMockInstance();
       ReactDOM.render(
-        <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />,
+        <RelayRenderer
+          Container={MockContainer}
+          queryConfig={queryConfig}
+          relayContext={relayContext}
+        />,
         container
       );
-      const index = RelayStore.primeCache.mock.calls.length - 1;
+      const index = relayContext.primeCache.mock.calls.length - 1;
       return {
-        abort: RelayStore.primeCache.mock.abort[index],
-        request: RelayStore.primeCache.mock.requests[index],
+        abort: relayContext.primeCache.mock.abort[index],
+        request: relayContext.primeCache.mock.requests[index],
       };
     }
     jasmine.addMatchers({

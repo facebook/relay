@@ -16,10 +16,10 @@
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const React = require('React');
 import type {RelayQueryConfigSpec} from 'RelayContainer';
+import type {RelayContextInterface} from 'RelayContext';
 import type {GarbageCollectionHold} from 'RelayGarbageCollector';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayPropTypes = require('RelayPropTypes');
-const RelayStore = require('RelayStore');
 import type {
   Abortable,
   ComponentReadyState,
@@ -45,6 +45,7 @@ type RelayRendererProps = {
   ) => Abortable;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
   queryConfig: RelayQueryConfigSpec;
+  relayContext: RelayContextInterface;
   render?: ?RelayRendererRenderCallback;
 };
 export type RelayRendererRenderCallback =
@@ -58,6 +59,7 @@ type RelayRendererRenderArgs = {
 };
 type RelayRendererState = {
   activeContainer: ?RelayContainer;
+  activeContext: ?RelayContextInterface;
   activeQueryConfig: ?RelayQueryConfigSpec;
   readyState: ?ComponentReadyState;
   renderArgs: RelayRendererRenderArgs;
@@ -134,11 +136,11 @@ class RelayRenderer extends React.Component {
   constructor(props: RelayRendererProps, context: any) {
     super(props, context);
     const garbageCollector =
-      RelayStore.getStoreData().getGarbageCollector();
+      this.props.relayContext.getStoreData().getGarbageCollector();
     this.gcHold = garbageCollector && garbageCollector.acquireHold();
     this.mounted = true;
     this.pendingRequest = null;
-    this.state = this._buildState(null, null, null, null);
+    this.state = this._buildState(null, null, null, null, null);
   }
 
   /**
@@ -146,12 +148,14 @@ class RelayRenderer extends React.Component {
    */
   _buildState(
     activeContainer: ?RelayContainer,
+    activeContext: ?RelayContextInterface,
     activeQueryConfig: ?RelayQueryConfigSpec,
     readyState: ?ReadyState,
     props: ?Object
   ): RelayRendererState {
     return {
       activeContainer,
+      activeContext,
       activeQueryConfig,
       readyState: readyState && {...readyState, mounted: true},
       renderArgs: {
@@ -166,7 +170,7 @@ class RelayRenderer extends React.Component {
 
   getChildContext(): Object {
     return {
-      relay: RelayStore,
+      relay: this.props.relayContext,
       route: this.props.queryConfig,
     };
   }
@@ -185,6 +189,7 @@ class RelayRenderer extends React.Component {
       onForceFetch,
       onPrimeCache,
       queryConfig,
+      relayContext,
     }: RelayRendererProps
   ): void {
     const querySet = getRelayQueries(Container, queryConfig);
@@ -204,12 +209,16 @@ class RelayRenderer extends React.Component {
       if (readyState.ready && !props) {
         props = {
           ...queryConfig.params,
-          ...mapObject(querySet, createFragmentPointerForRoot),
+          ...mapObject(
+            querySet,
+            query => createFragmentPointerForRoot(relayContext, query)
+          ),
         };
       }
       this.setState(
         this._buildState(
           Container,
+          relayContext,
           queryConfig,
           readyState,
           props
@@ -225,12 +234,12 @@ class RelayRenderer extends React.Component {
       (
         onForceFetch ?
           onForceFetch(querySet, onReadyStateChange) :
-          RelayStore.forceFetch(querySet, onReadyStateChange)
+          relayContext.forceFetch(querySet, onReadyStateChange)
       ) :
       (
         onPrimeCache ?
           onPrimeCache(querySet, onReadyStateChange) :
-          RelayStore.primeCache(querySet, onReadyStateChange)
+          relayContext.primeCache(querySet, onReadyStateChange)
       );
   }
 
@@ -238,16 +247,17 @@ class RelayRenderer extends React.Component {
    * Returns whether or not the view should be updated during the current render
    * pass. This is false between invoking `Relay.Store.{primeCache,forceFetch}`
    * and the first invocation of the `onReadyStateChange` callback if there is
-   * an actively rendered container and query configuration.
+   * an actively rendered Relay context, container and query configuration.
    *
    * @private
    */
   _shouldUpdate(): boolean {
-    const {activeContainer, activeQueryConfig} = this.state;
-    const {Container} = this.props;
+    const {activeContainer, activeContext, activeQueryConfig} = this.state;
+    const {Container, queryConfig, relayContext} = this.props;
     return (
       (!activeContainer || Container === activeContainer) &&
-      (!activeQueryConfig || this.props.queryConfig === activeQueryConfig)
+      (!activeContext || relayContext === activeContext) &&
+      (!activeQueryConfig || queryConfig === activeQueryConfig)
     );
   }
 
@@ -259,6 +269,7 @@ class RelayRenderer extends React.Component {
     this.setState(
       this._buildState(
         this.state.activeContainer,
+        this.state.activeContext,
         this.state.activeQueryConfig,
         null,
         null
@@ -281,8 +292,17 @@ class RelayRenderer extends React.Component {
 
   componentWillReceiveProps(nextProps: RelayRendererProps): void {
     if (nextProps.Container !== this.props.Container ||
+        nextProps.relayContext !== this.props.relayContext ||
         nextProps.queryConfig !== this.props.queryConfig ||
         (nextProps.forceFetch && !this.props.forceFetch)) {
+      if (nextProps.relayContext !== this.props.relayContext) {
+        if (this.gcHold) {
+          this.gcHold.release();
+        }
+        const garbageCollector =
+          nextProps.relayContext.getStoreData().getGarbageCollector();
+        this.gcHold = garbageCollector && garbageCollector.acquireHold();
+      }
       this._runQueriesAndSetState(nextProps);
     }
   }
@@ -345,10 +365,13 @@ class RelayRenderer extends React.Component {
   }
 }
 
-function createFragmentPointerForRoot(query) {
+function createFragmentPointerForRoot(
+  relayContext: RelayContextInterface,
+  query: RelayQuery.Root
+) {
   return query ?
     RelayFragmentPointer.createForRoot(
-      RelayStore.getStoreData().getQueuedStore(),
+      relayContext.getStoreData().getQueuedStore(),
       query
     ) :
     null;
@@ -359,6 +382,7 @@ RelayRenderer.propTypes = {
   forceFetch: PropTypes.bool,
   onReadyStateChange: PropTypes.func,
   queryConfig: RelayPropTypes.QueryConfig.isRequired,
+  relayContext: RelayPropTypes.Context,
   render: PropTypes.func,
 };
 

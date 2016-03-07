@@ -18,6 +18,7 @@ jest.dontMock('RelayRenderer');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
+const RelayContext = require('RelayContext');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 const RelayStore = require('RelayStore');
@@ -25,6 +26,9 @@ const RelayStore = require('RelayStore');
 describe('RelayRenderer.context', () => {
   let MockComponent;
   let MockContainer;
+
+  let queryConfig;
+  let relayContext;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -34,6 +38,9 @@ describe('RelayRenderer.context', () => {
       fragments: {},
     });
 
+    queryConfig = RelayQueryConfig.genMockInstance();
+    relayContext = new RelayContext();
+
     const container = document.createElement('div');
     const contextTypes = {
       relay: Relay.PropTypes.Context,
@@ -42,7 +49,7 @@ describe('RelayRenderer.context', () => {
     jasmine.addMatchers({
       toRenderQueryConfig() {
         return {
-          compare(actual, expected) {
+          compare(actual, {queryConfig, relayContext}) {
             let context;
             class MockChild extends React.Component {
               render() {
@@ -57,10 +64,12 @@ describe('RelayRenderer.context', () => {
               },
             });
             ReactDOM.render(element, container);
-            const mockRequests = RelayStore.primeCache.mock.requests;
+            const mockRequests = relayContext.primeCache.mock.requests;
             mockRequests[mockRequests.length - 1].block();
             return {
-              pass: context.relay === RelayStore && context.route === expected,
+              pass:
+                context.relay === relayContext &&
+                context.route === queryConfig,
             };
           },
         };
@@ -68,22 +77,51 @@ describe('RelayRenderer.context', () => {
     });
   });
 
-  it('sets query config on context', () => {
-    const queryConfig = RelayQueryConfig.genMockInstance();
+  it('sets query config and Relay context on React context', () => {
     expect(
-      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
-    ).toRenderQueryConfig(queryConfig);
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={queryConfig}
+        relayContext={relayContext}
+      />
+    ).toRenderQueryConfig({queryConfig, relayContext});
   });
 
-  it('updates query config on context', () => {
-    const queryConfigA = RelayQueryConfig.genMockInstance();
+  it('updates query config on React context', () => {
     expect(
-      <RelayRenderer Container={MockContainer} queryConfig={queryConfigA} />
-    ).toRenderQueryConfig(queryConfigA);
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={queryConfig}
+        relayContext={relayContext}
+      />
+    ).toRenderQueryConfig({queryConfig, relayContext});
 
-    const queryConfigB = RelayQueryConfig.genMockInstance();
+    const newQueryConfig = RelayQueryConfig.genMockInstance();
     expect(
-      <RelayRenderer Container={MockContainer} queryConfig={queryConfigB} />
-    ).toRenderQueryConfig(queryConfigB);
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={newQueryConfig}
+        relayContext={relayContext}
+      />
+    ).toRenderQueryConfig({queryConfig: newQueryConfig, relayContext});
+  });
+
+  it('updates Relay context on React context', () => {
+    expect(
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={queryConfig}
+        relayContext={relayContext}
+      />
+    ).toRenderQueryConfig({queryConfig, relayContext});
+
+    const newRelayContext = new RelayContext();
+    expect(
+      <RelayRenderer
+        Container={MockContainer}
+        queryConfig={queryConfig}
+        relayContext={newRelayContext}
+      />
+    ).toRenderQueryConfig({queryConfig, relayContext: newRelayContext});
   });
 });

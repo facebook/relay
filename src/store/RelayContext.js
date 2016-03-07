@@ -19,6 +19,7 @@ import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type RelayQuery from 'RelayQuery';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
+import type {NetworkLayer} from 'RelayTypes';
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const readRelayQueryData = require('readRelayQueryData');
@@ -113,6 +114,10 @@ class RelayContext {
    */
   getStoreData(): RelayStoreData {
     return this._storeData;
+  }
+
+  injectNetworkLayer(networkLayer: ?NetworkLayer) {
+    this._storeData.getNetworkLayer().injectNetworkLayer(networkLayer);
   }
 
   /**

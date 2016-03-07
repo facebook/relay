@@ -188,6 +188,11 @@ export type CacheWriter = {
 };
 
 // Network requests
+export type NetworkLayer = {
+  sendMutation: (mutationRequest: RelayMutationRequest) => ?Promise;
+  sendQueries: (queryRequests: Array<RelayQueryRequest>) => ?Promise;
+  supports: (...options: Array<string>) => boolean;
+};
 export type RequestOptions = {
   data?: ?{[key: string]: mixed};
   errorHandler?: ?(error: XHRErrorData) => void;

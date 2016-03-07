@@ -13,6 +13,8 @@
 
 require('configureForRelayOSS');
 
+jest.dontMock('RelayNetworkLayer');
+
 const Deferred = require('Deferred');
 const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayTestUtils = require('RelayTestUtils');
@@ -21,6 +23,7 @@ describe('RelayNetworkLayer', () => {
   var RelayQuery;
 
   var injectedNetworkLayer;
+  var networkLayer;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -33,16 +36,17 @@ describe('RelayNetworkLayer', () => {
       sendQueries: jest.genMockFunction(),
       supports: jest.genMockFunction().mockReturnValue(true),
     };
-    RelayNetworkLayer.injectNetworkLayer(injectedNetworkLayer);
+    networkLayer = new RelayNetworkLayer();
+    networkLayer.injectNetworkLayer(injectedNetworkLayer);
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('supports', () => {
     it('throws when no network layer is injected', () => {
-      RelayNetworkLayer.injectNetworkLayer(null);
+      networkLayer.injectNetworkLayer(null);
       expect(() => {
-        RelayNetworkLayer.sendQueries([]);
+        networkLayer.sendQueries([]);
       }).toFailInvariant(
         'RelayNetworkLayer: Use `injectNetworkLayer` to configure a network ' +
         'layer.'
@@ -51,16 +55,16 @@ describe('RelayNetworkLayer', () => {
 
     it('delegates to the injected network layer', () => {
       expect(injectedNetworkLayer.supports).not.toBeCalled();
-      RelayNetworkLayer.supports('foo', 'bar');
+      networkLayer.supports('foo', 'bar');
       expect(injectedNetworkLayer.supports).toBeCalledWith('foo', 'bar');
     });
   });
 
   describe('sendQueries', () => {
     it('throws when no network layer is injected', () => {
-      RelayNetworkLayer.injectNetworkLayer(null);
+      networkLayer.injectNetworkLayer(null);
       expect(() => {
-        RelayNetworkLayer.sendQueries([]);
+        networkLayer.sendQueries([]);
       }).toFailInvariant(
         'RelayNetworkLayer: Use `injectNetworkLayer` to configure a network ' +
         'layer.'
@@ -70,7 +74,7 @@ describe('RelayNetworkLayer', () => {
     it('delegates queries to the injected network layer', () => {
       var queries = [];
       expect(injectedNetworkLayer.sendQueries).not.toBeCalled();
-      RelayNetworkLayer.sendQueries(queries);
+      networkLayer.sendQueries(queries);
       expect(injectedNetworkLayer.sendQueries).toBeCalledWith(queries);
     });
   });
@@ -92,9 +96,9 @@ describe('RelayNetworkLayer', () => {
     });
 
     it('throws when no network layer is injected', () => {
-      RelayNetworkLayer.injectNetworkLayer(null);
+      networkLayer.injectNetworkLayer(null);
       expect(() => {
-        RelayNetworkLayer.sendMutation({mutation, variables, deferred});
+        networkLayer.sendMutation({mutation, variables, deferred});
       }).toFailInvariant(
         'RelayNetworkLayer: Use `injectNetworkLayer` to configure a network ' +
         'layer.'
@@ -103,7 +107,7 @@ describe('RelayNetworkLayer', () => {
 
     it('delegates mutation to the injected network layer', () => {
       expect(injectedNetworkLayer.sendQueries).not.toBeCalled();
-      RelayNetworkLayer.sendMutation({mutation, variables, deferred});
+      networkLayer.sendMutation({mutation, variables, deferred});
       expect(injectedNetworkLayer.sendMutation).toBeCalled();
 
       var pendingMutation = injectedNetworkLayer.sendMutation.mock.calls[0][0];
@@ -112,7 +116,7 @@ describe('RelayNetworkLayer', () => {
     });
 
     it('resolves the deferred if the mutation succeeds', () => {
-      RelayNetworkLayer.sendMutation({mutation, variables, deferred});
+      networkLayer.sendMutation({mutation, variables, deferred});
       expect(resolvedCallback).not.toBeCalled();
       expect(rejectedCallback).not.toBeCalled();
 
@@ -126,7 +130,7 @@ describe('RelayNetworkLayer', () => {
     });
 
     it('rejects the deferred if the mutation fails', () => {
-      RelayNetworkLayer.sendMutation({mutation, variables, deferred});
+      networkLayer.sendMutation({mutation, variables, deferred});
       expect(resolvedCallback).not.toBeCalled();
       expect(rejectedCallback).not.toBeCalled();
 

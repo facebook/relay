@@ -22,7 +22,6 @@ const RelayFetchMode = require('RelayFetchMode');
 const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const fetchRelayQuery = require('fetchRelayQuery');
 const subtractRelayQuery = require('subtractRelayQuery');
 const writeRelayQueryPayload = require('writeRelayQueryPayload');
 
@@ -31,12 +30,15 @@ describe('RelayPendingQueryTracker', () => {
 
   var addPending;
 
+  var fetchRelayQuery;
+
   var {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
     var storeData = new RelayStoreData();
+    fetchRelayQuery = storeData.getNetworkLayer().fetchRelayQuery;
     pendingQueryTracker = storeData.getPendingQueryTracker();
 
     subtractRelayQuery.mockImplementation(query => query);

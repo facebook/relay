@@ -32,6 +32,7 @@ import type {
   RootCallMap,
   UpdateOptions,
 } from 'RelayInternalTypes';
+const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayPendingQueryTracker = require('RelayPendingQueryTracker');
 const RelayProfiler = require('RelayProfiler');
@@ -79,6 +80,7 @@ class RelayStoreData {
   _changeEmitter: GraphQLStoreChangeEmitter;
   _garbageCollector: ?RelayGarbageCollector;
   _mutationQueue: RelayMutationQueue;
+  _networkLayer: RelayNetworkLayer;
   _nodeRangeMap: NodeRangeMap;
   _pendingQueryTracker: RelayPendingQueryTracker;
   _records: RecordMap;
@@ -118,6 +120,7 @@ class RelayStoreData {
     this._cachedStore = cachedStore;
     this._changeEmitter = new GraphQLStoreChangeEmitter(rangeData);
     this._mutationQueue = new RelayMutationQueue(this);
+    this._networkLayer = new RelayNetworkLayer();
     this._nodeRangeMap = nodeRangeMap;
     this._pendingQueryTracker = new RelayPendingQueryTracker(this);
     this._queryRunner = new GraphQLQueryRunner(this);
@@ -448,6 +451,10 @@ class RelayStoreData {
 
   getMutationQueue(): RelayMutationQueue {
     return this._mutationQueue;
+  }
+
+  getNetworkLayer(): RelayNetworkLayer {
+    return this._networkLayer;
   }
 
   /**

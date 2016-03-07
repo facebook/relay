@@ -9,4 +9,46 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayNetworkLayer');
+const RelayNetworkLayer = require.requireActual('RelayNetworkLayer');
+
+function RelayNetworkLayerMock() {
+  const networkLayer = new RelayNetworkLayer();
+
+  networkLayer.fetchRelayQuery = jest.genMockFunction().mockImplementation(
+    () => new Promise(genMockRequest)
+  );
+  const requests = networkLayer.fetchRelayQuery.mock.requests = [];
+
+  networkLayer.sendMutation = jest.genMockFunction();
+
+  return networkLayer;
+
+  /**
+   * Mock object to simulate the behavior of a request. Example usage:
+   *
+   *   // Successful fetch.
+   *   networkLayer.fetchRelayQuery(queryA);
+   *   networkLayer.fetchRelayQuery.mock.requests[0].resolve(response);
+   *
+   *   // Fetch with partial error.
+   *   networkLayer.fetchRelayQuery(queryB);
+   *   networkLayer.fetchRelayQuery.mock.requests[0].resolve(response, error);
+   *
+   *   // Failed fetch.
+   *   networkLayer.fetchRelayQuery(queryC);
+   *   networkLayer.fetchRelayQuery.mock.requests[0].reject(error);
+   *
+   */
+  function genMockRequest(resolve, reject) {
+    requests.push({
+      resolve(response, error) {
+        resolve({error: error || null, response});
+      },
+      reject,
+    });
+  }
+}
+
+RelayNetworkLayerMock.prototype = RelayNetworkLayer.prototype;
+
+module.exports = RelayNetworkLayerMock;

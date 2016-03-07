@@ -19,7 +19,6 @@ const RelayFetchMode = require('RelayFetchMode');
 import type {FetchMode} from 'RelayFetchMode';
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
-const RelayTaskScheduler = require('RelayTaskScheduler');
 import type {QueryResult} from 'RelayTypes';
 
 const containsRelayQueryRootCall = require('containsRelayQueryRootCall');
@@ -236,7 +235,7 @@ class PendingFetch {
   ): void {
     this._fetchedSubtractedQuery = true;
 
-    RelayTaskScheduler.enqueue(() => {
+    this._storeData.getTaskQueue().enqueue(() => {
       var response = result.response;
       invariant(
         response && typeof response === 'object',

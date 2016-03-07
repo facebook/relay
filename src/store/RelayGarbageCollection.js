@@ -15,7 +15,6 @@
 
 import type {DataID} from 'RelayInternalTypes';
 const RelayStore = require('RelayStore');
-const RelayTaskScheduler = require('RelayTaskScheduler');
 
 const invariant = require('invariant');
 const warning = require('warning');
@@ -34,7 +33,7 @@ var RelayGarbageCollection = {
    * fetched. When records are collected after calls to `scheduleCollection` or
    * `scheduleCollectionFromNode`, records are collected in steps, with a
    * maximum of `stepLength` records traversed in a step. Steps are scheduled
-   * via `RelayTaskScheduler`.
+   * via the `RelayStore` task queue (using the injected scheduler).
    */
   initialize(stepLength: number): void {
     invariant(
@@ -91,10 +90,14 @@ function scheduler(run: () => boolean): void {
     }
     // This is effectively a (possibly async) `while` loop
     if (hasNext) {
-      RelayTaskScheduler.enqueue(runIteration);
+      enqueue(runIteration);
     }
   };
-  RelayTaskScheduler.enqueue(runIteration);
+  enqueue(runIteration);
+}
+
+function enqueue(fn: () => void): void {
+  RelayStore.getStoreData().getTaskQueue().enqueue(fn);
 }
 
 module.exports = RelayGarbageCollection;

@@ -21,7 +21,6 @@ const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 const RelayReadyState = require('RelayReadyState');
 import type RelayStoreData from 'RelayStoreData';
-const RelayTaskScheduler = require('RelayTaskScheduler');
 
 const checkRelayQueryData = require('checkRelayQueryData');
 const diffRelayQuery = require('diffRelayQuery');
@@ -178,7 +177,7 @@ function runQueries(
     );
   }
 
-  RelayTaskScheduler.enqueue(() => {
+  storeData.getTaskQueue().enqueue(() => {
     const forceIndex = fetchMode === RelayFetchMode.REFETCH ?
       generateForceIndex() :
       null;

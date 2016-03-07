@@ -45,6 +45,8 @@ const RelayRecord = require('RelayRecord');
 import type {RecordMap} from 'RelayRecord';
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
+const RelayTaskQueue = require('RelayTaskQueue');
+import type {TaskScheduler} from 'RelayTaskQueue';
 import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
@@ -91,6 +93,7 @@ class RelayStoreData {
   _queryRunner: GraphQLQueryRunner;
   _rangeData: GraphQLStoreRangeUtils;
   _rootCallMap: RootCallMap;
+  _taskQueue: RelayTaskQueue;
 
   constructor() {
     const cachedRecords: RecordMap = {};
@@ -131,6 +134,7 @@ class RelayStoreData {
     this._recordStore = recordStore;
     this._rangeData = rangeData;
     this._rootCallMap = rootCallMap;
+    this._taskQueue = new RelayTaskQueue();
   }
 
   /**
@@ -152,6 +156,14 @@ class RelayStoreData {
     if (shouldInitialize) {
       this._garbageCollector = new RelayGarbageCollector(this, scheduler);
     }
+  }
+
+  /**
+   * Sets/clears the scheduling function used by the internal task queue to
+   * schedule units of work for execution.
+   */
+  injectTaskScheduler(scheduler: ?TaskScheduler): void {
+    this._taskQueue.injectScheduler(scheduler);
   }
 
   /**
@@ -511,6 +523,10 @@ class RelayStoreData {
 
   getPendingQueryTracker(): RelayPendingQueryTracker {
     return this._pendingQueryTracker;
+  }
+
+  getTaskQueue(): RelayTaskQueue {
+    return this._taskQueue;
   }
 
   /**

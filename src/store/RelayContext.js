@@ -19,6 +19,7 @@ import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type RelayQuery from 'RelayQuery';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
+import type {TaskScheduler} from 'RelayTaskQueue';
 import type {NetworkLayer} from 'RelayTypes';
 
 const forEachRootCallArg = require('forEachRootCallArg');
@@ -118,6 +119,10 @@ class RelayContext {
 
   injectNetworkLayer(networkLayer: ?NetworkLayer) {
     this._storeData.getNetworkLayer().injectNetworkLayer(networkLayer);
+  }
+
+  injectTaskScheduler(scheduler: ?TaskScheduler): void {
+    this._storeData.injectTaskScheduler(scheduler);
   }
 
   /**

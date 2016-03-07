@@ -607,16 +607,14 @@ describe('RelayQueryField', () => {
   });
 
   it('returns arguments with array values', () => {
-    var variables = {vanities: ['a', 'b', 'c']};
-    var usernamesQuery = getNode(Relay.QL`
-      query {
-        usernames(names:$vanities) {
-          id
-        }
+    var variables = {size: [32, 64]};
+    var profilePicture = getNode(Relay.QL`
+      fragment on User {
+        profilePicture(size: $size)
       }
-    `, variables);
-    expect(usernamesQuery.getIdentifyingArg()).toEqual(
-      {name: 'names', value: ['a', 'b', 'c']}
+    `, variables).getChildren()[0];
+    expect(profilePicture.getCallsWithValues()).toEqual(
+      [{name: 'size', value: [32, 64]}]
     );
   });
 

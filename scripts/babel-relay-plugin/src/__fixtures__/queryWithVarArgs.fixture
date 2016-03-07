@@ -14,7 +14,9 @@ var x = (function () {
   return {
     calls: [{
       kind: 'Call',
-      metadata: {},
+      metadata: {
+        type: '[ID!]'
+      },
       name: 'ids',
       value: [{
         kind: 'CallValue',
@@ -45,7 +47,8 @@ var x = (function () {
     metadata: {
       isPlural: true,
       isAbstract: true,
-      identifyingArgName: 'ids'
+      identifyingArgName: 'ids',
+      identifyingArgType: '[ID!]'
     },
     name: 'QueryWithVarArgs',
     type: 'Node'

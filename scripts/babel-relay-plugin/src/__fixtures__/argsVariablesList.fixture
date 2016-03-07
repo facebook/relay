@@ -12,7 +12,9 @@ var foo = (function () {
   return {
     calls: [{
       kind: "Call",
-      metadata: {},
+      metadata: {
+        type: "[ID!]"
+      },
       name: "ids",
       value: [{
         kind: "CallVariable",
@@ -46,7 +48,8 @@ var foo = (function () {
     metadata: {
       isPlural: true,
       isAbstract: true,
-      identifyingArgName: "ids"
+      identifyingArgName: "ids",
+      identifyingArgType: "[ID!]"
     },
     name: "Args",
     type: "Node"

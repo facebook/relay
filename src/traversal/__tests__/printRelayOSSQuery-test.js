@@ -96,15 +96,17 @@ describe('printRelayOSSQuery', () => {
       `);
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
-        query PrintRelayOSSQuery {
-          node(id:"123") {
+        query PrintRelayOSSQuery($id_0: ID!) {
+          node(id: $id_0) {
             name,
             id,
             __typename
           }
         }
       `);
-      expect(variables).toEqual({});
+      expect(variables).toEqual({
+        id_0: '123',
+      });
     });
 
     it('prints a query with one root numeric argument', () => {
@@ -118,15 +120,17 @@ describe('printRelayOSSQuery', () => {
       `);
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
-        query FooQuery {
-          node(id:123) {
+        query FooQuery($id_0: ID!) {
+          node(id: $id_0) {
             name,
             id,
             __typename
           }
         }
       `);
-      expect(variables).toEqual({});
+      expect(variables).toEqual({
+        id_0: 123,
+      });
     });
 
     it('prints a query with multiple root arguments', () => {
@@ -140,8 +144,8 @@ describe('printRelayOSSQuery', () => {
       `);
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
-        query PrintRelayOSSQuery {
-          usernames(names:["a","b","c"]) {
+        query PrintRelayOSSQuery($names_0: [String!]!) {
+          usernames(names: $names_0) {
             firstName,
             lastName,
             id,
@@ -149,7 +153,9 @@ describe('printRelayOSSQuery', () => {
           }
         }
       `);
-      expect(variables).toEqual({});
+      expect(variables).toEqual({
+        names_0: ['a', 'b', 'c'],
+      });
     });
 
     it('prints a query with multiple numeric arguments', () => {
@@ -163,15 +169,17 @@ describe('printRelayOSSQuery', () => {
       `);
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
-        query FooQuery {
-          nodes(ids:[123,456]) {
+        query FooQuery($ids_0: [ID!]!) {
+          nodes(ids: $ids_0) {
             name,
             id,
             __typename
           }
         }
       `);
-      expect(variables).toEqual({});
+      expect(variables).toEqual({
+        ids_0: [123,456],
+      });
     });
 
     it('prints enum call values', () => {
@@ -297,25 +305,26 @@ describe('printRelayOSSQuery', () => {
       const alias = generateRQLFieldAlias('storySearch.query({"query":"foo"})');
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
-        query FooQuery($query_0: StorySearchInput!) {
-          node(id: "123") {
+        query FooQuery($id_0: ID!, $query_1: StorySearchInput!) {
+          node(id: $id_0) {
             id,
             __typename,
             ...F0
           }
         }
         fragment F0 on User {
-          ${alias}: storySearch(query: $query_0) {
+          ${alias}: storySearch(query: $query_1) {
             id
           },
-          ${alias}: storySearch(query: $query_0) {
+          ${alias}: storySearch(query: $query_1) {
             id
           },
           id
         }
       `);
       expect(variables).toEqual({
-        query_0: query1,
+        id_0: '123',
+        query_1: query1,
       });
     });
 
@@ -834,8 +843,8 @@ describe('printRelayOSSQuery', () => {
     `, params);
     const {text, variables} = printRelayOSSQuery(query);
     expect(text).toEqualPrintedQuery(`
-      query PrintRelayOSSQuery {
-        node(id: 123) @skip(if: true) {
+      query PrintRelayOSSQuery($id_0: ID!) {
+        node(id: $id_0) @skip(if: true) {
           id,
           __typename,
           ...F0
@@ -845,7 +854,9 @@ describe('printRelayOSSQuery', () => {
         id
       }
     `);
-    expect(variables).toEqual({});
+    expect(variables).toEqual({
+      id_0: 123,
+    });
   });
 
   it('throws for directives with complex values', () => {

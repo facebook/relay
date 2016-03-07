@@ -169,7 +169,11 @@ describe('RelayQueryRoot', () => {
         }
       }
     `).getIdentifyingArg()).toEqual(
-      {name: 'names', value: ['a', 'b', 'c']}
+      {
+        name: 'names',
+        type: '[String!]!',
+        value: ['a', 'b', 'c'],
+      }
     );
   });
 
@@ -353,6 +357,7 @@ describe('RelayQueryRoot', () => {
    const nodeIdentifyingArg = query.getIdentifyingArg();
    expect(nodeIdentifyingArg).toEqual({
      name: 'number',
+     type: 'Int',
      value: 5,
    });
  });

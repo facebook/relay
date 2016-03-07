@@ -1,6 +1,6 @@
 type Root {
-  node(id: Int): Node
-  nodes(ids: [Int]): [Node]
+  node(id: ID!): Node
+  nodes(ids: [ID!]): [Node]
   media(id: Int): Media
   viewer: Viewer
   search(query: SearchInput!): [SearchResult]

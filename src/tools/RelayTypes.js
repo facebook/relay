@@ -23,7 +23,9 @@ import type {
 } from 'RelayInternalTypes';
 import type RelayFragmentReference from 'RelayFragmentReference';
 import type RelayMetaRoute from 'RelayMetaRoute';
+import type RelayMutationRequest from 'RelayMutationRequest';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
+import type RelayQueryRequest from 'RelayQueryRequest';
 import type {Record} from 'RelayRecord';
 import type {RelayConcreteNode} from 'RelayQL';
 
@@ -189,8 +191,8 @@ export type CacheWriter = {
 
 // Network requests
 export type NetworkLayer = {
-  sendMutation: (mutationRequest: RelayMutationRequest) => ?Promise;
-  sendQueries: (queryRequests: Array<RelayQueryRequest>) => ?Promise;
+  sendMutation: (request: RelayMutationRequest) => ?Promise;
+  sendQueries: (requests: Array<RelayQueryRequest>) => ?Promise;
   supports: (...options: Array<string>) => boolean;
 };
 export type RequestOptions = {

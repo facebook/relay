@@ -431,6 +431,69 @@ class RemoveTagMutation extends Relay.Mutation {
 }
 ```
 
+### `REQUIRED_CHILDREN`
+
+A `REQUIRED_CHILDREN` config is used to append additional children to the mutation query. You may need to use this, for example, to fetch fields on a new object created by the mutation (and which Relay would normally not attempt to fetch because it has not previously fetched anything for that object).
+
+Data fetched as a result of a `REQUIRED_CHILDREN` config is not written into the client store, but you can add code that processes it in the `onSuccess` callback that you pass into `commitUpdate()`:
+
+```
+Relay.Store.commitUpdate(
+  new CreateCouponMutation(),
+  {
+    onSuccess: response => this.setState({
+      couponCount: response.coupons.length,
+    }),
+  }
+);
+```
+
+#### Arguments
+
+- `children: Array<RelayQuery.Node>`
+
+#### Example
+
+```
+class CreateCouponMutation extends Relay.Mutation<Props> {
+  getMutation() {
+    return Relay.QL`mutation {
+      create_coupon(data: $input)
+    }`;
+  }
+
+  getFatQuery() {
+    return Relay.QL`
+      // Note the use of `pattern: true` here to show that this
+      // connection field is to be used for pattern-matching only
+      // (to determine what to fetch) and that Relay shouldn't
+      // require the usual connection arguments like (`first` etc)
+      // to be present.
+      fragment on CouponCreatePayload @relay(pattern: true) {
+        coupons
+      }
+    `;
+  }
+
+  getConfigs() {
+    return [{
+      // If we haven't shown the coupons in the UI at the time the
+      // mutation runs, they've never been fetched and the `coupons`
+      // field in the fat query would normally be ignored.
+      // `REQUIRED_CHILDREN` forces it to be retrieved anyway.
+      type: RelayMutationType.REQUIRED_CHILDREN,
+      children: [
+        Relay.QL`
+          fragment on CouponCreatePayload {
+            coupons
+          }
+        `,
+      ],
+    }];
+  }
+}
+```
+
 ## Optimistic updates
 
 All of the mutations we've performed so far have waited on a response from the server before updating the client-side store. Relay offers us a chance to craft an optimistic response of the same shape based on what we expect the server's response to be in the event of a successful mutation.

@@ -38,9 +38,9 @@ class RelayDefaultNetworkLayer {
     this._init = {...init};
 
     // Facilitate reuse when creating custom network layers.
-    this.sendMutation = this.sendMutation.bind(this);
-    this.sendQueries = this.sendQueries.bind(this);
-    this.supports = this.supports.bind(this);
+    (this: any).sendMutation = this.sendMutation.bind(this);
+    (this: any).sendQueries = this.sendQueries.bind(this);
+    (this: any).supports = this.supports.bind(this);
   }
 
   sendMutation(request: RelayMutationRequest): ?Promise {

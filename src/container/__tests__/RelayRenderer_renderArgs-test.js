@@ -18,7 +18,7 @@ jest.dontMock('RelayRenderer');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
-const RelayContext = require('RelayContext');
+const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 const RelayTestUtils = require('RelayTestUtils');
@@ -29,7 +29,7 @@ describe('RelayRenderer.renderArgs', () => {
 
   let container;
   let queryConfig;
-  let relayContext;
+  let environment;
   let render;
 
   beforeEach(() => {
@@ -42,14 +42,14 @@ describe('RelayRenderer.renderArgs', () => {
 
     container = document.createElement('div');
     queryConfig = RelayQueryConfig.genMockInstance();
-    relayContext = new RelayContext();
+    environment = new RelayEnvironment();
 
     render = jest.genMockFunction();
     ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
-        relayContext={relayContext}
+        environment={environment}
         render={render}
       />,
       container
@@ -60,9 +60,9 @@ describe('RelayRenderer.renderArgs', () => {
         return {
           compare(actual, expected) {
             // Assume that if `forceFetch` requests exist, they were last.
-            const requests = relayContext.forceFetch.mock.requests.length > 0 ?
-              relayContext.forceFetch.mock.requests :
-              relayContext.primeCache.mock.requests;
+            const requests = environment.forceFetch.mock.requests.length > 0 ?
+              environment.forceFetch.mock.requests :
+              environment.primeCache.mock.requests;
             actual(requests[requests.length - 1]);
             const renders = render.mock.calls;
             const renderArgs = renders[renders.length - 1][0];
@@ -167,7 +167,7 @@ describe('RelayRenderer.renderArgs', () => {
         Container={MockContainer}
         queryConfig={queryConfig}
         forceFetch={true}
-        relayContext={relayContext}
+        environment={environment}
         render={render}
       />,
       container
@@ -198,9 +198,9 @@ describe('RelayRenderer.renderArgs', () => {
 
     const {retry} = render.mock.calls[1][0];
     expect(typeof retry).toBe('function');
-    expect(relayContext.primeCache.mock.calls.length).toBe(1);
+    expect(environment.primeCache.mock.calls.length).toBe(1);
     retry();
-    expect(relayContext.primeCache.mock.calls.length).toBe(2);
+    expect(environment.primeCache.mock.calls.length).toBe(2);
   });
 
   it('has a `retry` function that throws if called without failure', () => {
@@ -222,7 +222,7 @@ describe('RelayRenderer.renderArgs', () => {
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
-        relayContext={relayContext}
+        environment={environment}
         render={render}
       />,
       container

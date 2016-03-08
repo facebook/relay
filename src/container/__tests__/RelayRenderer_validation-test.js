@@ -18,7 +18,7 @@ jest.dontMock('RelayRenderer');
 const React = require('React');
 const ReactTestUtils = require('ReactTestUtils');
 const Relay = require('Relay');
-const RelayContext = require('RelayContext');
+const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 const RelayTestUtils = require('RelayTestUtils');
@@ -29,7 +29,7 @@ describe('RelayRenderer.validation', () => {
   let ShallowRenderer;
 
   let queryConfig;
-  let relayContext;
+  let environment;
   const {error} = console;
 
   beforeEach(() => {
@@ -43,7 +43,7 @@ describe('RelayRenderer.validation', () => {
     ShallowRenderer = ReactTestUtils.createRenderer();
 
     queryConfig = RelayQueryConfig.genMockInstance();
-    relayContext = new RelayContext();
+    environment = new RelayEnvironment();
 
     console.error = jest.genMockFunction().mockImplementation(message => {
       throw new Error(message.replace(/Composite propType/, 'propType'));
@@ -56,7 +56,7 @@ describe('RelayRenderer.validation', () => {
 
   it('requires a valid `Container` prop', () => {
     expect(() => ShallowRenderer.render(
-      <RelayRenderer queryConfig={queryConfig} relayContext={relayContext} />
+      <RelayRenderer queryConfig={queryConfig} environment={environment} />
     )).toThrowError(
       'Warning: Failed propType: Required prop `Container` was not specified ' +
       'in `RelayRenderer`.'
@@ -66,7 +66,7 @@ describe('RelayRenderer.validation', () => {
       <RelayRenderer
         Container={MockComponent}
         queryConfig={queryConfig}
-        relayContext={relayContext}
+        environment={environment}
       />
     )).toThrowError(
       'Warning: Failed propType: Invalid prop `Container` supplied to ' +
@@ -76,7 +76,7 @@ describe('RelayRenderer.validation', () => {
 
   it('requires a valid `queryConfig` prop', () => {
     expect(() => ShallowRenderer.render(
-      <RelayRenderer Container={MockContainer} relayContext={relayContext} />
+      <RelayRenderer Container={MockContainer} environment={environment} />
     )).toThrowError(
       'Warning: Failed propType: Required prop `queryConfig` was not ' +
       'specified in `RelayRenderer`.'
@@ -86,7 +86,7 @@ describe('RelayRenderer.validation', () => {
       <RelayRenderer
         Container={MockContainer}
         queryConfig={{}}
-        relayContext={relayContext}
+        environment={environment}
       />
     )).toThrowError(
       'Warning: Failed propType: Required prop `queryConfig.name` was not ' +
@@ -94,25 +94,25 @@ describe('RelayRenderer.validation', () => {
     );
   });
 
-  it('requires a valid `relayContext` prop', () => {
+  it('requires a valid `environment` prop', () => {
     expect(() => ShallowRenderer.render(
       <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     )).toThrowError(
-      'Warning: Failed propType: Invalid prop/context `relayContext` ' +
+      'Warning: Failed propType: Invalid prop/context `environment` ' +
       'supplied to `RelayRenderer`, expected `undefined` to be an object ' +
-      'conforming to the `RelayContext` interface.'
+      'conforming to the `RelayEnvironment` interface.'
     );
 
     expect(() => ShallowRenderer.render(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
-        relayContext={{}}
+        environment={{}}
       />
     )).toThrowError(
-      'Warning: Failed propType: Invalid prop/context `relayContext` ' +
+      'Warning: Failed propType: Invalid prop/context `environment` ' +
       'supplied to `RelayRenderer`, expected `[object Object]` to be an ' +
-      'object conforming to the `RelayContext` interface.'
+      'object conforming to the `RelayEnvironment` interface.'
     );
   });
 

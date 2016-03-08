@@ -17,7 +17,7 @@ jest
   .dontMock('RelayMutation');
 
 const Relay = require('Relay');
-const RelayContext = require('RelayContext');
+const RelayEnvironment = require('RelayEnvironment');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -27,15 +27,15 @@ describe('RelayMutation', function() {
   let mockBarFragment;
   let mockFooFragment;
   let mockMutation;
-  let relayContext;
+  let environment;
 
   const {getNode, getPointer} = RelayTestUtils;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    relayContext = new RelayContext();
-    relayContext.read = jest.genMockFunction();
+    environment = new RelayEnvironment();
+    environment.read = jest.genMockFunction();
 
     const initialVariables = {isRelative: false};
 
@@ -88,9 +88,9 @@ describe('RelayMutation', function() {
   });
 
   it('throws if used in different Relay contexts', () => {
-    mockMutation.bindContext(relayContext);
+    mockMutation.bindContext(environment);
     expect(() => {
-      mockMutation.bindContext(new RelayContext());
+      mockMutation.bindContext(new RelayEnvironment());
     }).toFailInvariant(
       'MockMutationClass: Mutation instance cannot be used ' +
       'in different Relay contexts.'
@@ -98,9 +98,9 @@ describe('RelayMutation', function() {
   });
 
   it('can be reused in the same Relay context', () => {
-    mockMutation.bindContext(relayContext);
+    mockMutation.bindContext(environment);
     expect(() => {
-      mockMutation.bindContext(relayContext);
+      mockMutation.bindContext(environment);
     }).not.toThrow();
   });
 
@@ -109,9 +109,9 @@ describe('RelayMutation', function() {
   });
 
   it('resolves props only once', () => {
-    mockMutation.bindContext(relayContext);
-    mockMutation.bindContext(relayContext);
-    expect(relayContext.read.mock.calls).toEqual([
+    mockMutation.bindContext(environment);
+    mockMutation.bindContext(environment);
+    expect(environment.read.mock.calls).toEqual([
       [/* fragment */mockFooFragment, /* dataID */'foo'],
       [/* fragment */mockBarFragment, /* dataID */'bar'],
     ]);
@@ -122,9 +122,9 @@ describe('RelayMutation', function() {
       bar: {},
       foo: {},
     };
-    relayContext.read.mockImplementation((_, dataID) => resolvedProps[dataID]);
-    mockMutation.bindContext(relayContext);
-    expect(relayContext.read.mock.calls).toEqual([
+    environment.read.mockImplementation((_, dataID) => resolvedProps[dataID]);
+    mockMutation.bindContext(environment);
+    expect(environment.read.mock.calls).toEqual([
       [/* fragment */mockFooFragment, /* dataID */'foo'],
       [/* fragment */mockBarFragment, /* dataID */'bar'],
     ]);
@@ -138,7 +138,7 @@ describe('RelayMutation', function() {
       bar: {},
       foo: {},
     };
-    relayContext.read.mockImplementation((_, dataID) => resolvedProps[dataID]);
+    environment.read.mockImplementation((_, dataID) => resolvedProps[dataID]);
     mockMutation.didResolveProps = jest.genMockFn().mockImplementation(
       function () {
         expect(this.props).toEqual(resolvedProps);
@@ -147,14 +147,14 @@ describe('RelayMutation', function() {
       }
     );
     expect(mockMutation.didResolveProps).not.toBeCalled();
-    mockMutation.bindContext(relayContext);
+    mockMutation.bindContext(environment);
     expect(mockMutation.didResolveProps).toBeCalled();
   });
 
   it('calls `didResolveProps` only once', () => {
     mockMutation.didResolveProps = jest.genMockFn();
-    mockMutation.bindContext(relayContext);
-    mockMutation.bindContext(relayContext);
+    mockMutation.bindContext(environment);
+    mockMutation.bindContext(environment);
     expect(mockMutation.didResolveProps.mock.calls.length).toBe(1);
   });
 

@@ -16,7 +16,7 @@
 const {PropTypes} = require('React');
 
 const isRelayContainer = require('isRelayContainer');
-const isRelayContext = require('isRelayContext');
+const isRelayEnvironment = require('isRelayEnvironment');
 const sprintf = require('sprintf');
 
 const RelayPropTypes = {
@@ -38,12 +38,12 @@ const RelayPropTypes = {
     return null;
   },
 
-  Context(props: Object, propName: string, componentName: string): ?Error {
+  Environment(props: Object, propName: string, componentName: string): ?Error {
     const context = props[propName];
-    if (!isRelayContext(context)) {
+    if (!isRelayEnvironment(context)) {
       return new Error(sprintf(
         'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
-        'an object conforming to the `RelayContext` interface.',
+        'an object conforming to the `RelayEnvironment` interface.',
         propName,
         componentName,
         context

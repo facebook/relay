@@ -18,7 +18,7 @@ const QueryBuilder = require('QueryBuilder');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
 const Relay = require('Relay');
-const RelayContext = require('RelayContext');
+const RelayEnvironment = require('RelayEnvironment');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
@@ -31,7 +31,7 @@ describe('RelayContainer.setVariables', function() {
   var domContainer;
   var entityQuery;
   var mockInstance;
-  var relayContext;
+  var environment;
   var render;
 
   const {getNode} = RelayTestUtils;
@@ -55,7 +55,7 @@ describe('RelayContainer.setVariables', function() {
       initialVariables: {site: 'mobile'},
     });
 
-    relayContext = new RelayContext();
+    environment = new RelayEnvironment();
 
     GraphQLStoreQueryResolver.mockDefaultResolveImplementation((_, dataID) => {
       expect(dataID).toBe('42');
@@ -82,7 +82,7 @@ describe('RelayContainer.setVariables', function() {
     domContainer = document.createElement('div');
     mockInstance = RelayTestUtils.createRenderer(domContainer).render(
       genMockPointer => <MockContainer entity={genMockPointer('42')} />,
-      relayContext
+      environment
     );
 
     jasmine.addMatchers(RelayTestUtils.matchers);
@@ -150,7 +150,7 @@ describe('RelayContainer.setVariables', function() {
         genMockPointer => (
           <MockContainer entity={mockPointers} />
         ),
-        relayContext
+        environment
       );
     });
 
@@ -159,8 +159,8 @@ describe('RelayContainer.setVariables', function() {
 
       mockInstance.forceFetch();
 
-      expect(relayContext.forceFetch).toBeCalled();
-      var querySet = relayContext.forceFetch.mock.calls[0][0];
+      expect(environment.forceFetch).toBeCalled();
+      var querySet = environment.forceFetch.mock.calls[0][0];
       expect(Object.keys(querySet)).toEqual(['entity0', 'entity1']);
     });
 
@@ -176,9 +176,9 @@ describe('RelayContainer.setVariables', function() {
       // Change the query data that is stored by the container to
       // `updatedQueryData`
       mockInstance.forceFetch();
-      relayContext.forceFetch.mock.requests[0].succeed();
+      environment.forceFetch.mock.requests[0].succeed();
       mockInstance.forceFetch();
-      var querySet = relayContext.forceFetch.mock.calls[1][0];
+      var querySet = environment.forceFetch.mock.calls[1][0];
       expect(Object.keys(querySet)).toEqual(['entity0']);
     });
 
@@ -194,7 +194,7 @@ describe('RelayContainer.setVariables', function() {
         expect(fragment.getVariables()).toEqual({site: 'www'});
         return updatedQueryData;
       });
-      relayContext.primeCache.mock.requests[0].succeed();
+      environment.primeCache.mock.requests[0].succeed();
 
       expect(mockInstance.state.queryData.entity).toBe(updatedQueryData);
     });
@@ -208,7 +208,7 @@ describe('RelayContainer.setVariables', function() {
       // Change the query data that is stored by the container to
       // `updatedQueryData`
       mockInstance.forceFetch();
-      relayContext.forceFetch.mock.requests[0].succeed();
+      environment.forceFetch.mock.requests[0].succeed();
       expect(() => mockInstance.forceFetch()).toFailInvariant(
         'RelayContainer: Invalid queryData for `entity`, expected an array ' +
         'of records because the corresponding fragment is plural.',
@@ -243,7 +243,7 @@ describe('RelayContainer.setVariables', function() {
         genMockPointer => (
           <MockContainer entity={genMockPointer('42')} site="www" />
         ),
-        relayContext
+        environment
       );
       expect(anotherInstance.state.variables.site).toBe('www');
     });
@@ -267,7 +267,7 @@ describe('RelayContainer.setVariables', function() {
       mockCallback.mockImplementation(() => {
         expect(mockInstance.state.variables.site).toBe('mobile');
       });
-      relayContext.primeCache.mock.requests[0].succeed();
+      environment.primeCache.mock.requests[0].succeed();
       expect(mockCallback.mock.calls.length).toBe(1);
 
       expect(mockInstance.state.variables.site).toBe('www');
@@ -282,7 +282,7 @@ describe('RelayContainer.setVariables', function() {
         expect(fragment.getVariables()).toEqual({site: 'www'});
         return updatedQueryData;
       });
-      relayContext.primeCache.mock.requests[0].succeed();
+      environment.primeCache.mock.requests[0].succeed();
 
       expect(mockInstance.state.queryData.entity).toBe(updatedQueryData);
     });
@@ -290,24 +290,24 @@ describe('RelayContainer.setVariables', function() {
     it('aborts pending requests before creating a new request', () => {
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
-      expect(relayContext.primeCache.mock.abort[0]).not.toBeCalled();
+      expect(environment.primeCache.mock.abort[0]).not.toBeCalled();
 
       mockInstance.setVariables({site: 'mobile'});
       jest.runAllTimers();
-      expect(relayContext.primeCache.mock.abort[0]).toBeCalled();
+      expect(environment.primeCache.mock.abort[0]).toBeCalled();
     });
 
     it('invokes callback for a request that aborts a pending request', () => {
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
-      relayContext.primeCache.mock.requests[0].block();
+      environment.primeCache.mock.requests[0].block();
 
       var mockCallback = jest.genMockFunction();
       mockInstance.setVariables({site: 'mobile'}, mockCallback);
       jest.runAllTimers();
 
-      relayContext.primeCache.mock.requests[1].block();
+      environment.primeCache.mock.requests[1].block();
       expect(mockCallback).toBeCalled();
     });
 
@@ -315,7 +315,7 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.setVariables({site: 'mobile'});
       jest.runAllTimers();
 
-      var {mock} = relayContext.primeCache;
+      var {mock} = environment.primeCache;
       expect(mock.calls.length).toBe(1);
       expect(Object.keys(mock.calls[0][0]).length).toBe(0);
     });
@@ -324,18 +324,18 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
-      expect(relayContext.primeCache.mock.abort[0]).not.toBeCalled();
+      expect(environment.primeCache.mock.abort[0]).not.toBeCalled();
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
-      expect(relayContext.primeCache.mock.abort[0]).toBeCalled();
-      expect(relayContext.primeCache.mock.calls.length).toBe(2);
+      expect(environment.primeCache.mock.abort[0]).toBeCalled();
+      expect(environment.primeCache.mock.calls.length).toBe(2);
     });
 
     it('re-requests the last variables for `forceFetch`', () => {
       mockInstance.forceFetch({site: 'mobile'});
       jest.runAllTimers();
 
-      var {mock} = relayContext.forceFetch;
+      var {mock} = environment.forceFetch;
       expect(mock.calls.length).toBe(1);
       expect(Object.keys(mock.calls[0][0]).length).toBe(1);
     });
@@ -344,13 +344,13 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
-      expect(relayContext.primeCache.mock.abort[0]).not.toBeCalled();
+      expect(environment.primeCache.mock.abort[0]).not.toBeCalled();
       mockInstance.setVariables({site: 'mobile'});
       jest.runAllTimers();
-      expect(relayContext.primeCache.mock.abort[0]).toBeCalled();
+      expect(environment.primeCache.mock.abort[0]).toBeCalled();
 
-      expect(relayContext.primeCache.mock.calls.length).toBe(2);
-      expect(relayContext.primeCache.mock.calls[1][0]).toEqual({});
+      expect(environment.primeCache.mock.calls.length).toBe(2);
+      expect(environment.primeCache.mock.calls[1][0]).toEqual({});
     });
 
     it('invokes the callback as many times as ready state changes', () => {
@@ -360,7 +360,7 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.setVariables({site: 'www'}, mockFunction);
       jest.runAllTimers();
 
-      var request = relayContext.primeCache.mock.requests[0];
+      var request = environment.primeCache.mock.requests[0];
       request.block();
       request.succeed();
 
@@ -377,7 +377,7 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.setVariables({site: 'www'}, mockFunction);
       jest.runAllTimers();
 
-      relayContext.primeCache.mock.requests[0].block();
+      environment.primeCache.mock.requests[0].block();
 
       expect(mockFunction).toBeCalled();
     });
@@ -390,7 +390,7 @@ describe('RelayContainer.setVariables', function() {
       });
       jest.runAllTimers();
 
-      relayContext.primeCache.mock.requests[0].succeed();
+      environment.primeCache.mock.requests[0].succeed();
 
       expect(render.mock.calls.length - before).toBe(1);
     });
@@ -400,7 +400,7 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
-      relayContext.primeCache.mock.requests[0].succeed();
+      environment.primeCache.mock.requests[0].succeed();
 
       expect(prevVariables).toEqual({site: 'mobile'});
       expect(mockInstance.state.variables).not.toBe(prevVariables);
@@ -431,7 +431,7 @@ describe('RelayContainer.setVariables', function() {
       });
       mockInstance = RelayTestUtils.createRenderer(domContainer).render(
         genMockPointer => <MockContainer entity={genMockPointer('42')} />,
-        relayContext
+        environment
       );
     });
 
@@ -447,7 +447,7 @@ describe('RelayContainer.setVariables', function() {
       );
 
       // `prepareVariables` output is used to prime the cache...
-      var queries = relayContext.primeCache.mock.calls[0][0];
+      var queries = environment.primeCache.mock.calls[0][0];
       var query = queries[Object.keys(queries)[0]];
       var fragment = query.getChildren().find(
         child => child instanceof RelayQuery.Fragment
@@ -455,7 +455,7 @@ describe('RelayContainer.setVariables', function() {
       expect(fragment.getVariables()).toEqual(nextVariables);
 
       jest.runAllTimers();
-      relayContext.primeCache.mock.requests[0].succeed();
+      environment.primeCache.mock.requests[0].succeed();
       // ...but is invisible to the component
       expect(mockInstance.state.variables).toEqual({site: 'www'});
     });
@@ -466,9 +466,9 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
-      expect(relayContext.primeCache.mock.abort[0]).not.toBeCalled();
+      expect(environment.primeCache.mock.abort[0]).not.toBeCalled();
       ReactDOM.unmountComponentAtNode(domContainer);
-      expect(relayContext.primeCache.mock.abort[0]).toBeCalled();
+      expect(environment.primeCache.mock.abort[0]).toBeCalled();
     });
 
     it('ignores `setState` from callback when request aborts', () => {
@@ -531,14 +531,14 @@ describe('RelayContainer.setVariables', function() {
 
       mockInstance = RelayTestUtils.createRenderer(domContainer).render(
         genMockPointer => <MockContainer entity={genMockPointer('42')} />,
-        relayContext
+        environment
       );
       var innerComponent = mockInstance.refs.component.refs.inner;
       expect(innerComponent.state.variables.site).toBe('mobile');
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
-      relayContext.primeCache.mock.requests[0].succeed();
+      environment.primeCache.mock.requests[0].succeed();
       expect(mockInstance.state.variables.site).toBe('www');
 
       expect(innerComponent.state.variables.site).toBe('www');
@@ -589,14 +589,14 @@ describe('RelayContainer.setVariables', function() {
 
       mockInstance = RelayTestUtils.createRenderer(domContainer).render(
         genMockPointer => <MockContainer entity={genMockPointer('42')} />,
-        relayContext
+        environment
       );
       var innerComponent = mockInstance.refs.component.refs.inner;
       expect(innerComponent.state.variables.site).toBe('mobile');
 
       innerComponent.setVariables({size: 32});
       jest.runAllTimers();
-      relayContext.primeCache.mock.requests[0].succeed();
+      environment.primeCache.mock.requests[0].succeed();
       expect(innerComponent.state.variables).toEqual({
         site: 'mobile',
         size: 32,
@@ -605,7 +605,7 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
-      relayContext.primeCache.mock.requests[1].succeed();
+      environment.primeCache.mock.requests[1].succeed();
       expect(mockInstance.state.variables).toEqual({
         site: 'www',
       });

@@ -33,7 +33,7 @@ var RelayTestUtils = {
   createRenderer(container) {
     const React = require('React');
     const ReactDOM = require('ReactDOM');
-    const RelayContext = require('RelayContext');
+    const RelayEnvironment = require('RelayEnvironment');
     const RelayPropTypes = require('RelayPropTypes');
     const RelayRoute = require('RelayRoute');
     const invariant = require('invariant');
@@ -47,7 +47,7 @@ var RelayTestUtils = {
       }
     }
     ContextSetter.childContextTypes = {
-      relay: RelayPropTypes.Context,
+      relay: RelayPropTypes.Environment,
       route: RelayPropTypes.QueryConfig.isRequired,
     };
 
@@ -62,10 +62,10 @@ var RelayTestUtils = {
     return {
       render(render, relay, route) {
         invariant(
-          relay == null || relay instanceof RelayContext,
-          'render(): Expected an instance of `RelayContext`.'
+          relay == null || relay instanceof RelayEnvironment,
+          'render(): Expected an instance of `RelayEnvironment`.'
         );
-        relay = relay || new RelayContext();
+        relay = relay || new RelayEnvironment();
         route = route || RelayRoute.genMockInstance();
 
         var result;

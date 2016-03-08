@@ -21,8 +21,8 @@ const RelayContainerComparators = require('RelayContainerComparators');
 const RelayContainerProxy = require('RelayContainerProxy');
 import type {
   FragmentResolver,
-  RelayContextInterface,
-} from 'RelayContext';
+  RelayEnvironmentInterface,
+} from 'RelayEnvironment';
 const RelayFragmentReference = require('RelayFragmentReference');
 import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
@@ -44,7 +44,7 @@ const buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder, RelayQLQueryBuilder} from 'buildRQL';
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const isRelayContext = require('isRelayContext');
+const isRelayEnvironment = require('isRelayEnvironment');
 const nullthrows = require('nullthrows');
 const prepareRelayContainerProps = require('prepareRelayContainerProps');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
@@ -78,7 +78,7 @@ export type RootQueries = {
 };
 
 var containerContextTypes = {
-  relay: RelayPropTypes.Context,
+  relay: RelayPropTypes.Environment,
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 
@@ -128,10 +128,10 @@ function createContainerComponent(
 
       var {relay, route} = context;
       invariant(
-        isRelayContext(relay),
+        isRelayEnvironment(relay),
         'RelayContainer: `%s` was rendered with invalid Relay context `%s`. ' +
         'Make sure the `relay` property on the React context conforms to the ' +
-        '`RelayContext` interface.',
+        '`RelayEnvironment` interface.',
         containerName,
         relay
       );
@@ -458,7 +458,7 @@ function createContainerComponent(
 
     _initialize(
       props: Object,
-      relayContext: RelayContextInterface,
+      environment,
       route: RelayQueryConfigSpec,
       prevVariables: Variables
     ): { variables: Variables, queryData: {[propName: string]: mixed} } {
@@ -468,7 +468,7 @@ function createContainerComponent(
         prevVariables
       );
       this._updateFragmentPointers(props, route, variables);
-      this._updateFragmentResolvers(relayContext);
+      this._updateFragmentResolvers(environment);
       return {
         variables,
         queryData: this._getQueryData(props),
@@ -494,7 +494,7 @@ function createContainerComponent(
       }
     }
 
-    _updateFragmentResolvers(relayContext: RelayContextInterface): void {
+    _updateFragmentResolvers(environment): void {
       var fragmentPointers = this._fragmentPointers;
       var fragmentResolvers = this._fragmentResolvers;
       fragmentNames.forEach(fragmentName => {
@@ -506,7 +506,7 @@ function createContainerComponent(
             fragmentResolvers[fragmentName] = null;
           }
         } else if (!fragmentResolver) {
-          fragmentResolver = relayContext.getFragmentResolver(
+          fragmentResolver = environment.getFragmentResolver(
             fragmentPointer.fragment,
             this._handleFragmentDataUpdate.bind(this)
           );

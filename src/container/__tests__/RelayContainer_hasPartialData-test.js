@@ -18,13 +18,13 @@ jest.dontMock('RelayContainer');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');
 const Relay = require('Relay');
-const RelayContext = require('RelayContext');
+const RelayEnvironment = require('RelayEnvironment');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.hasPartialData', () => {
   var MockContainer;
-  var relayContext;
+  var environment;
   var RelayTestRenderer;
 
   beforeEach(() => {
@@ -38,7 +38,7 @@ describe('RelayContainer.hasPartialData', () => {
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {foo: () => Relay.QL`fragment on Node{id}`},
     });
-    relayContext = new RelayContext();
+    environment = new RelayEnvironment();
     RelayTestRenderer = RelayTestUtils.createRenderer();
 
     GraphQLStoreQueryResolver.mockDefaultResolveImplementation((_, dataID) => {
@@ -51,7 +51,7 @@ describe('RelayContainer.hasPartialData', () => {
   it('returns true for records with partial data bit set', () => {
     const instance = RelayTestRenderer.render(
       genMockPointer => <MockContainer foo={genMockPointer('123')} />,
-      relayContext
+      environment
     );
     const prop = {
       __dataID__: '123',
@@ -63,7 +63,7 @@ describe('RelayContainer.hasPartialData', () => {
   it('returns false for records without partial data bit set', () => {
     const instance = RelayTestRenderer.render(
       genMockPointer => <MockContainer foo={genMockPointer('123')} />,
-      relayContext
+      environment
     );
     expect(instance.hasPartialData({__dataID__: '123'})).toBe(false);
   });

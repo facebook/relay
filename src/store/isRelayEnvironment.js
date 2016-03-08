@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule isRelayContext
+ * @providesModule isRelayEnvironment
  * @typechecks
  * @flow
  */
@@ -14,10 +14,10 @@
 'use strict';
 
 /**
- * Determine if a given value is an object that implements the `RelayContext`
+ * Determine if a given value is an object that implements the `RelayEnvironment`
  * interface.
  */
-function isRelayContext(context: mixed): boolean {
+function isRelayEnvironment(context: mixed): boolean {
   return (
     typeof context === 'object' &&
     context !== null &&
@@ -28,4 +28,4 @@ function isRelayContext(context: mixed): boolean {
   );
 }
 
-module.exports = isRelayContext;
+module.exports = isRelayEnvironment;

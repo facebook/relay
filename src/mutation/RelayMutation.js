@@ -17,7 +17,7 @@ import type {ConcreteFragment} from 'ConcreteQuery';
 import type {RelayConcreteNode} from 'RelayQL';
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const RelayFragmentReference = require('RelayFragmentReference');
-import type {RelayContextInterface} from 'RelayContext';
+import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 import type {
@@ -52,7 +52,7 @@ class RelayMutation<Tp: Object> {
   ) => Variables;
 
   props: Tp;
-  _context: RelayContextInterface;
+  _context: RelayEnvironmentInterface;
   _didShowFakeDataWarning: boolean;
   _unresolvedProps: Tp;
 
@@ -64,7 +64,7 @@ class RelayMutation<Tp: Object> {
   /**
    * @internal
    */
-  bindContext(context: RelayContextInterface): void {
+  bindContext(context: RelayEnvironmentInterface): void {
     if (!this._context) {
       this._context = context;
       this._resolveProps();
@@ -80,8 +80,8 @@ class RelayMutation<Tp: Object> {
 
   /**
    * Callback that is invoked after the mutation has been applied/committed
-   * (via `relayContext.applyUpdate` or `relayContext.commitUpdate`) and when
-   * props have been resolved and can be safely referenced.
+   * (via `environment.applyUpdate` or `environment.commitUpdate`) and
+   * when props have been resolved and can be safely referenced.
    */
   didResolveProps() {}
 
@@ -191,7 +191,7 @@ class RelayMutation<Tp: Object> {
    * -  REQUIRED_CHILDREN is used to append additional children (fragments or
    *    fields) to the mutation query. Any data fetched for these children is
    *    not written to the client store, but you can add code to process it
-   *    in the `onSuccess` callback passed to the `RelayContext` `applyUpdate`
+   *    in the `onSuccess` callback passed to the `RelayEnvironment` `applyUpdate`
    *    method. You may need to use this, for example, to fetch fields on a new
    *    object created by the mutation (and which Relay would normally not
    *    attempt to fetch because it has not previously fetched anything for that

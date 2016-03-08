@@ -15,7 +15,7 @@ require('configureForRelayOSS');
 
 const React = require('React');
 const Relay = require('Relay');
-const RelayContext = require('RelayContext');
+const RelayEnvironment = require('RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer', () => {
@@ -34,15 +34,15 @@ describe('RelayContainer', () => {
           foo: () => Relay.QL`fragment on Node{id}`,
         },
       });
-      const relayContext = new RelayContext();
+      const environment = new RelayEnvironment();
       const RelayTestRenderer = RelayTestUtils.createRenderer();
       mockContainerInstance = RelayTestRenderer.render(
         genMockPointer => <MockContainer foo={genMockPointer('42')} />,
-        relayContext
+        environment
       );
       mockFragmentReference = MockContainer.getFragment('foo');
       mockPointer = {__dataID__: '42'};
-      const storeData = relayContext.getStoreData();
+      const storeData = environment.getStoreData();
       pendingQueryTracker = storeData.getPendingQueryTracker();
       store = storeData.getCachedStore();
     });

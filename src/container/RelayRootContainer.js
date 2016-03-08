@@ -110,7 +110,7 @@ function RelayRootContainer({
       forceFetch={forceFetch}
       onReadyStateChange={onReadyStateChange}
       queryConfig={route}
-      relayContext={RelayStore}
+      environment={RelayStore}
       render={({done, error, props, retry, stale}) => {
         if (error) {
           if (renderFailure) {

@@ -13,6 +13,6 @@
 
 'use strict';
 
-const RelayContext = require('RelayContext');
+const RelayEnvironment = require('RelayEnvironment');
 
-module.exports = new RelayContext();
+module.exports = new RelayEnvironment();

@@ -16,7 +16,7 @@ require('configureForRelayOSS');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');
 const Relay = require('Relay');
-const RelayContext = require('RelayContext');
+const RelayEnvironment = require('RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
 const reactComponentExpect = require('reactComponentExpect');
 
@@ -52,12 +52,12 @@ describe('RelayContainer', function() {
       return {__dataID__: '42', id: '42', url: null};
     });
 
-    const relayContext = new RelayContext();
+    const environment = new RelayEnvironment();
     var RelayTestRenderer = RelayTestUtils.createRenderer();
     mockRender = () => {
       return RelayTestRenderer.render(
         genMockPointer => <MockContainer foo={genMockPointer('42')} />,
-        relayContext
+        environment
       );
     };
   });

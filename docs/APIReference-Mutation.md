@@ -43,11 +43,6 @@ Relay makes use of GraphQL mutations; operations that enable us to mutate data o
     </a>
   </li>
   <li>
-    <a href="#didresolveprops">
-      <pre>didResolveProps()</pre>
-    </a>
-  </li>
-  <li>
     <a href="#getconfigs-abstract-method">
       <pre>abstract getConfigs()</pre>
     </a>
@@ -203,40 +198,13 @@ See also:
 
 ### constructor
 
-Create a mutation instance using the `new` keyword, optionally passing it some props. Note that `this.props` is *not* set inside the constructor function. Props depend on data from a `RelayEnvironment`, which isn't known until the mutation is applied with `applyUpdate` or `commitUpdate`. To update the instance once props are available, implement [`didResolveProps`](#didresolveprops).
+Create a mutation instance using the `new` keyword, optionally passing it some props. Note that `this.props` is *not* available inside the constructor function, but are set for all the methods mentioned below (`getCollisionKey`, `getOptimisticResponse`, etc). This restriction is due to the fact that mutation props may depend on data from the RelayEnvironment, which isn't known until the mutation is applied with `applyUpdate` or `commitUpdate`.
 
 #### Example
 
 ```
 var bookFlightMutation = new BuyPlaneTicketMutation({airport: 'yvr'});
 Relay.Store.commitUpdate(bookFlightMutation);
-```
-
-### didResolveProps
-
-Optional method. If implemented, it is called when a mutation has been applied to a Relay context and data for fragments is available on `this.props`.
-
-#### Example
-
-```
-class LikeStoryMutation extends Relay.Mutation {
-  static fragments = {
-    story: () => Relay.QL`
-      fragment on Story {
-        id
-      }
-    `,`
-  };
-
-  constructor(props) {
-    super(props);
-    this.props.story; // undefined, use `didResolveProps` instead
-  }
-
-  didResolveProps() {
-    this.props.story; // data is available
-  }
-}
 ```
 
 ### getConfigs (abstract method)

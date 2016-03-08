@@ -68,7 +68,6 @@ class RelayMutation<Tp: Object> {
     if (!this._context) {
       this._context = context;
       this._resolveProps();
-      this.didResolveProps();
     } else {
       invariant(
         context === this._context,
@@ -77,13 +76,6 @@ class RelayMutation<Tp: Object> {
       );
     }
   }
-
-  /**
-   * Callback that is invoked after the mutation has been applied/committed
-   * (via `environment.applyUpdate` or `environment.commitUpdate`) and
-   * when props have been resolved and can be safely referenced.
-   */
-  didResolveProps() {}
 
   /**
    * Each mutation corresponds to a field on the server which is used by clients

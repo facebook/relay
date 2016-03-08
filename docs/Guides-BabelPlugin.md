@@ -39,13 +39,13 @@ If you're not using the starter kit, you'll have to configure `babel` to use the
 
 ```javascript
 // `babel-relay-plugin` returns a function for creating plugin instances
-var getBabelRelayPlugin = require('babel-relay-plugin');
+const getBabelRelayPlugin = require('babel-relay-plugin');
 
 // load previously saved schema data (see "Schema JSON" below)
-var schemaData = require('schema.json');
+const schemaData = require('schema.json');
 
 // create a plugin instance
-var plugin = getBabelRelayPlugin(schemaData);
+const plugin = getBabelRelayPlugin(schemaData);
 
 // compile code with babel using the plugin
 return babel.transform(source, {
@@ -59,7 +59,34 @@ The plugin needs to understand your schema - `schemaData` in the above snippet. 
 
 ### Using `graphql`
 
-An example of how to load a `schema.js` file, run the introspection query to get schema information, and save it to a JSON file can be found in the [starter kit](https://github.com/relayjs/relay-starter-kit/blob/master/scripts/updateSchema.js).
+Use `introspectionQuery` to generate a Schema JSON for the Babel Relay Plugin, and use `printSchema` to generate a user readable type system shorthand:
+
+```javascript
+import fs from 'fs';
+import path from 'path';
+import {graphql}  from 'graphql';
+import {introspectionQuery, printSchema} from 'graphql/utilities';
+
+// Assume your schema is in ../data/schema
+import {schema} from '../data/schema';
+const yourSchemaPath = path.join(__dirname, '../data/schema');
+
+// Save JSON of full schema introspection for Babel Relay Plugin to use
+graphql(schema, introspectionQuery).then(result => {
+  fs.writeFileSync(
+    `${yourSchemaPath}.json`,
+    JSON.stringify(result, null, 2)
+  );
+});
+
+// Save user readable type system shorthand of schema
+fs.writeFileSync(
+  `${yourSchemaPath}.graphql`,
+  printSchema(schema)
+);
+```
+
+For a complete example of how to load a `schema.js` file, run the introspection query to get schema information, and save it to a JSON file, check out the [starter kit](https://github.com/relayjs/relay-starter-kit/blob/master/scripts/updateSchema.js).
 
 ### Using Other GraphQL Implementations
 

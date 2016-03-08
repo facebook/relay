@@ -17,9 +17,9 @@ import type {ConcreteFragment} from 'ConcreteQuery';
 import type {RelayConcreteNode} from 'RelayQL';
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const RelayFragmentReference = require('RelayFragmentReference');
+import type RelayContext from 'RelayContext';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
-const RelayStore = require('RelayStore');
 import type {
   RelayMutationConfig,
   Variables,
@@ -52,12 +52,36 @@ class RelayMutation<Tp: Object> {
   ) => Variables;
 
   props: Tp;
+  _context: RelayContext;
   _didShowFakeDataWarning: boolean;
+  _unresolvedProps: Tp;
 
   constructor(props: Tp) {
     this._didShowFakeDataWarning = false;
-    this._resolveProps(props);
+    this._unresolvedProps = props;
   }
+
+  /**
+   * @internal
+   */
+  bindContext(context: RelayContext): void {
+    if (!this._context) {
+      this._context = context;
+      this._resolveProps();
+      this.didResolveProps();
+    } else {
+      invariant(
+        context === this._context,
+        '%s: Mutation instance cannot be used in different Relay contexts.',
+        this.constructor.name
+      );
+    }
+  }
+
+  /**
+   * This hook is invoked when props have been resolved
+   */
+  didResolveProps() {}
 
   /**
    * Each mutation corresponds to a field on the server which is used by clients
@@ -237,10 +261,11 @@ class RelayMutation<Tp: Object> {
     return null;
   }
 
-  _resolveProps(props: Tp): void {
+  _resolveProps(): void {
     const fragments = this.constructor.fragments;
     const initialVariables = this.constructor.initialVariables || {};
 
+    const props = this._unresolvedProps;
     const resolvedProps = {...props};
     forEachObject(fragments, (fragmentBuilder, fragmentName) => {
       var propValue = props[fragmentName];
@@ -306,7 +331,7 @@ class RelayMutation<Tp: Object> {
           return dataID;
         });
 
-        resolvedProps[fragmentName] = RelayStore.readAll(fragment, dataIDs);
+        resolvedProps[fragmentName] = this._context.readAll(fragment, dataIDs);
       } else {
         invariant(
           !Array.isArray(propValue),
@@ -317,7 +342,7 @@ class RelayMutation<Tp: Object> {
         );
         var dataID = RelayFragmentPointer.getDataID(propValue, fragment);
         if (dataID) {
-          resolvedProps[fragmentName] = RelayStore.read(fragment, dataID);
+          resolvedProps[fragmentName] = this._context.read(fragment, dataID);
         } else {
           if (__DEV__) {
             if (!this._didShowFakeDataWarning) {

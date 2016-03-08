@@ -231,6 +231,7 @@ class RelayContext {
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
+    mutation.bindContext(this);
     return this._storeData.getMutationQueue().createTransaction(
       mutation,
       callbacks

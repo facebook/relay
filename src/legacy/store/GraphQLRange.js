@@ -136,6 +136,8 @@ function validateEdges(edges) {
 }
 
 /**
+ * @internal
+ *
  * A range represents an ordered set of edges. Methods are provided for adding
  * edges (`appendEdge`, `prependEdge`, `addItems`) and removing them
  * (`removeEdgeWithID`).
@@ -161,8 +163,7 @@ function validateEdges(edges) {
  *     }
  *
  * @see `GraphQLSegment`
- * @see "Connections" in https://fburl.com/graphql-connections
- * @internal
+ * @see http://facebook.github.io/relay/docs/graphql-connections.html
  */
 class GraphQLRange {
   constructor() {

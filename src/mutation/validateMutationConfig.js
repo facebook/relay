@@ -96,7 +96,7 @@ function validateMutationConfig(
       assertValid({
         connectionName: REQUIRED,
         deletedIDFieldName: REQUIRED,
-        parentID: REQUIRED,
+        parentID: OPTIONAL,
         parentName: REQUIRED,
       });
       break;
@@ -105,7 +105,7 @@ function validateMutationConfig(
       assertValid({
         connectionName: REQUIRED,
         deletedIDFieldName: REQUIRED,
-        parentID: REQUIRED,
+        parentID: OPTIONAL,
         parentName: REQUIRED,
         pathToConnection: REQUIRED,
       });

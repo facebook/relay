@@ -103,7 +103,7 @@ export type RelayMutationConfig = {
 } | {
   type: 'RANGE_ADD',
   parentName: string,
-  parentID: string,
+  parentID?: string,
   connectionName: string,
   edgeName: string,
   // from GraphQLMutatorConstants.RANGE_OPERATIONS
@@ -111,13 +111,13 @@ export type RelayMutationConfig = {
 } | {
   type: 'NODE_DELETE',
   parentName: string;
-  parentID: string;
+  parentID?: string;
   connectionName: string;
   deletedIDFieldName: string;
 } | {
   type: 'RANGE_DELETE';
   parentName: string;
-  parentID: string;
+  parentID?: string;
   connectionName: string;
   deletedIDFieldName: string;
   pathToConnection: Array<string>;

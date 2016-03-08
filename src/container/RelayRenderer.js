@@ -37,6 +37,7 @@ const mapObject = require('mapObject');
 type RelayRendererProps = {
   Container: RelayContainer;
   forceFetch?: ?boolean;
+  initialReadyState?: ?ReadyState;
   onForceFetch?: ?(
     querySet: RelayQuerySet,
     callback: (readyState: ReadyState) => void
@@ -143,7 +144,9 @@ class RelayRenderer extends React.Component {
     this.mounted = true;
     this.pendingRequest = null;
     this.querySet = null;
-    this.state = {active: false, readyState: null};
+    this.state = props.initialReadyState ?
+      {active: true, readyState: {...props.initialReadyState, mounted: true}} :
+      {active: false, readyState: null};
   }
 
   getChildContext(): Object {
@@ -154,7 +157,10 @@ class RelayRenderer extends React.Component {
   }
 
   componentDidMount(): void {
-    this._runQueries(this.props);
+    const {readyState} = this.state;
+    if (!readyState || !readyState.done || this.props.forceFetch) {
+      this._runQueries(this.props);
+    }
   }
 
   /**
@@ -287,7 +293,10 @@ class RelayRenderer extends React.Component {
    */
   _resolveContainerProps(): Object {
     if (!this.containerProps) {
-      const {environment, queryConfig} = this.props;
+      const {Container, environment, queryConfig} = this.props;
+      if (!this.querySet) {
+        this.querySet = getRelayQueries(Container, queryConfig);
+      }
       this.containerProps = {
         ...queryConfig.params,
         ...mapObject(
@@ -360,6 +369,7 @@ function createFragmentPointerForRoot(
 RelayRenderer.propTypes = {
   Container: RelayPropTypes.Container,
   forceFetch: PropTypes.bool,
+  initialReadyState: RelayPropTypes.ReadyState,
   onReadyStateChange: PropTypes.func,
   queryConfig: RelayPropTypes.QueryConfig.isRequired,
   environment: RelayPropTypes.Environment,

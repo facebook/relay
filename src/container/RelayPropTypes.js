@@ -57,6 +57,14 @@ const RelayPropTypes = {
     params: PropTypes.object.isRequired,
     queries: PropTypes.object.isRequired,
   }),
+
+  ReadyState: PropTypes.shape({
+    aborted: PropTypes.bool.isRequired,
+    done: PropTypes.bool.isRequired,
+    error: PropTypes.object,
+    ready: PropTypes.bool.isRequired,
+    stale: PropTypes.bool.isRequired,
+  }),
 };
 
 module.exports = RelayPropTypes;

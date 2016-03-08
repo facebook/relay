@@ -386,7 +386,19 @@ class PendingTransaction {
       this._fatQuery = nullthrows(flattenRelayQuery(
         fragment,
         {
-          preserveEmptyNodes: fragment.isPattern(),
+          // TODO #10341736
+          // This used to be `preserveEmptyNodes: fragment.isPattern()`. We
+          // discovered that products were not marking their fat queries as
+          // patterns (by adding `@relay(pattern: true)`) which was causing
+          // `preserveEmptyNodes` to be false. This meant that empty fields,
+          // would be stripped instead of being used to produce an intersection
+          // with the tracked query. Products were able to do this because the
+          // Babel Relay plugin doesn't produce validation errors for empty
+          // fields. It should, and we will make it do so, but for now we're
+          // going to set this to `true` always, and make the plugin warn when
+          // it encounters an empty field that supports subselections in a
+          // non-pattern fragment. Revert this when done.
+          preserveEmptyNodes: true,
           shouldRemoveFragments: true,
         }
       ));

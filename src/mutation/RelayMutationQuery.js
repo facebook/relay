@@ -30,6 +30,7 @@ const nullthrows = require('nullthrows');
 const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 const intersectRelayQuery = require('intersectRelayQuery');
 const invariant = require('invariant');
+const warning = require('warning');
 
 // This should probably use disjoint unions.
 type MutationConfig = {[key: string]: $FlowFixMe};
@@ -217,6 +218,17 @@ var RelayMutationQuery = {
           });
         } else {
           // If the connection is not in `rangeBehaviors`, re-fetch it.
+          warning(
+            false,
+            'Relay.Mutation: Since the connection %s of ' +
+            'the field %s with id %s matched none of the rangeBehaviors ' +
+            'specified in your RANGE_ADD config, the entire connection will be ' +
+            'refetched. Configure a range behavior for this connection to fetch ' +
+            'only the new edge and to enable optimistic mutations.',
+            trackedConnection.getStorageKey(),
+            parentName,
+            parentID
+          );
           keysWithoutRangeBehavior[trackedConnection.getShallowHash()] = true;
         }
       });

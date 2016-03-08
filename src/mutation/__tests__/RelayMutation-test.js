@@ -17,26 +17,29 @@ jest
   .dontMock('RelayMutation');
 
 const Relay = require('Relay');
+const RelayContext = require('RelayContext');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 const buildRQL = require('buildRQL');
 
 describe('RelayMutation', function() {
-  let MockMutation;
-  let initialVariables;
-  let mockBarPointer;
-  let mockFooPointer;
-  let mockRoute;
+  let mockBarFragment;
+  let mockFooFragment;
+  let mockMutation;
+  let relayContext;
 
   const {getNode, getPointer} = RelayTestUtils;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    initialVariables = {isRelative: false};
+    relayContext = new RelayContext();
+    relayContext.read = jest.genMockFunction();
 
-    var makeMockMutation = () => {
+    const initialVariables = {isRelative: false};
+
+    const makeMockMutation = () => {
       class MockMutationClass extends Relay.Mutation {}
       MockMutationClass.fragments = {
         foo: () => Relay.QL`
@@ -53,42 +56,106 @@ describe('RelayMutation', function() {
       MockMutationClass.initialVariables = initialVariables;
       return MockMutationClass;
     };
-    MockMutation = makeMockMutation();
+    const MockMutation = makeMockMutation();
 
-    var mockFooRequiredFragment =
+    const mockFooRequiredFragment =
       MockMutation.getFragment('foo').getFragment({});
-    var mockBarRequiredFragment =
+    const mockBarRequiredFragment =
       MockMutation.getFragment('bar').getFragment({});
-    mockFooPointer = getPointer('foo', getNode(mockFooRequiredFragment));
-    mockBarPointer = getPointer('bar', getNode(mockBarRequiredFragment));
+    const mockFooPointer = getPointer('foo', getNode(mockFooRequiredFragment));
+    const mockBarPointer = getPointer('bar', getNode(mockBarRequiredFragment));
 
     // RelayMetaRoute.get(...)
-    mockRoute = {name: '$RelayMutation_MockMutationClass'};
+    const mockRoute = {name: '$RelayMutation_MockMutationClass'};
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
-  });
-
-  it('resolves props', () => {
-    /* eslint-disable no-new */
-    new MockMutation({
+    mockMutation = new MockMutation({
       bar: mockBarPointer,
       foo: mockFooPointer,
     });
     /* eslint-enable no-new */
-    const fooFragment = RelayQuery.Fragment.create(
+    mockFooFragment = RelayQuery.Fragment.create(
       buildRQL.Fragment(MockMutation.fragments.foo, initialVariables),
       mockRoute,
       initialVariables
     );
-    const barFragment = RelayQuery.Fragment.create(
+    mockBarFragment = RelayQuery.Fragment.create(
       buildRQL.Fragment(MockMutation.fragments.bar, initialVariables),
       mockRoute,
       initialVariables
     );
-    expect(Relay.Store.read.mock.calls).toEqual([
-      [/* fragment */fooFragment, /* dataID */'foo'],
-      [/* fragment */barFragment, /* dataID */'bar'],
+
+    jasmine.addMatchers(RelayTestUtils.matchers);
+  });
+
+  it('throws if used in different Relay contexts', () => {
+    mockMutation.bindContext(relayContext);
+    expect(() => {
+      mockMutation.bindContext(new RelayContext());
+    }).toFailInvariant(
+      'MockMutationClass: Mutation instance cannot be used ' +
+      'in different Relay contexts.'
+    );
+  });
+
+  it('can be reused in the same Relay context', () => {
+    mockMutation.bindContext(relayContext);
+    expect(() => {
+      mockMutation.bindContext(relayContext);
+    }).not.toThrow();
+  });
+
+  it('does not resolve props before binding Relay context', () => {
+    expect(mockMutation.props).toBeUndefined();
+  });
+
+  it('resolves props only once', () => {
+    mockMutation.bindContext(relayContext);
+    mockMutation.bindContext(relayContext);
+    expect(relayContext.read.mock.calls).toEqual([
+      [/* fragment */mockFooFragment, /* dataID */'foo'],
+      [/* fragment */mockBarFragment, /* dataID */'bar'],
     ]);
+  });
+
+  it('resolves props after binding Relay context', () => {
+    const resolvedProps = {
+      bar: {},
+      foo: {},
+    };
+    relayContext.read.mockImplementation((_, dataID) => resolvedProps[dataID]);
+    mockMutation.bindContext(relayContext);
+    expect(relayContext.read.mock.calls).toEqual([
+      [/* fragment */mockFooFragment, /* dataID */'foo'],
+      [/* fragment */mockBarFragment, /* dataID */'bar'],
+    ]);
+    expect(mockMutation.props).toEqual(resolvedProps);
+    expect(mockMutation.props.bar).toBe(resolvedProps.bar);
+    expect(mockMutation.props.foo).toBe(resolvedProps.foo);
+  });
+
+  it('calls `didResolveProps` after resolving props', () => {
+    const resolvedProps = {
+      bar: {},
+      foo: {},
+    };
+    relayContext.read.mockImplementation((_, dataID) => resolvedProps[dataID]);
+    mockMutation.didResolveProps = jest.genMockFn().mockImplementation(
+      function () {
+        expect(this.props).toEqual(resolvedProps);
+        expect(this.props.bar).toBe(resolvedProps.bar);
+        expect(this.props.foo).toBe(resolvedProps.foo);
+      }
+    );
+    expect(mockMutation.didResolveProps).not.toBeCalled();
+    mockMutation.bindContext(relayContext);
+    expect(mockMutation.didResolveProps).toBeCalled();
+  });
+
+  it('calls `didResolveProps` only once', () => {
+    mockMutation.didResolveProps = jest.genMockFn();
+    mockMutation.bindContext(relayContext);
+    mockMutation.bindContext(relayContext);
+    expect(mockMutation.didResolveProps.mock.calls.length).toBe(1);
   });
 
   it('throws if mutation defines invalid `Relay.QL` fragment', () => {

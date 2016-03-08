@@ -63,6 +63,11 @@ export type RelayContextInterface = {
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback
   ) => Abortable;
+  read: (
+    node: RelayQuery.Node,
+    dataID: DataID,
+    options?: StoreReaderOptions
+  ) => ?StoreReaderData;
 };
 
 /**
@@ -231,6 +236,7 @@ class RelayContext {
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
+    mutation.bindContext(this);
     return this._storeData.getMutationQueue().createTransaction(
       mutation,
       callbacks

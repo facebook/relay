@@ -181,6 +181,15 @@ describe('RelayContext', () => {
     });
 
     describe('applyUpdate', () => {
+      it('binds context to mutation before creating transaction', () => {
+        mockMutation.bindContext.mockImplementation(() => {
+          expect(createTransactionMock).not.toBeCalled();
+        });
+        relayContext.applyUpdate(mockMutation);
+        expect(mockMutation.bindContext).toBeCalled();
+        expect(mockMutation.bindContext.mock.calls[0][0]).toBe(relayContext);
+      });
+
       it('creates a new RelayMutationTransaction without committing it', () => {
         const transaction =
           relayContext.applyUpdate(mockMutation, mockCallbacks);
@@ -194,6 +203,15 @@ describe('RelayContext', () => {
     });
 
     describe('commitUpdate', () => {
+      it('binds context to mutation before creating transaction', () => {
+        mockMutation.bindContext.mockImplementation(() => {
+          expect(createTransactionMock).not.toBeCalled();
+        });
+        relayContext.commitUpdate(mockMutation);
+        expect(mockMutation.bindContext).toBeCalled();
+        expect(mockMutation.bindContext.mock.calls[0][0]).toBe(relayContext);
+      });
+
       it('creates a new RelayMutationTransaction and commits it', () => {
         relayContext.commitUpdate(mockMutation, mockCallbacks);
         expect(createTransactionMock).toBeCalledWith(

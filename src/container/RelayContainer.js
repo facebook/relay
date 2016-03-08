@@ -904,7 +904,7 @@ function getDeferredFragment(
  * time a container is being constructed by React's rendering engine.
  */
 function create(
-  Component: ReactClass<any, any, any>,
+  Component: ReactClass<any>,
   spec: RelayContainerSpec,
 ): RelayLazyContainer {
   var componentName = Component.displayName || Component.name;

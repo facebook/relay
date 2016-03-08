@@ -59,7 +59,7 @@ export type ReadyState = {
 export type ReadyStateChangeCallback = (readyState: ReadyState) => void;
 
 // Containers
-export type RelayContainer = ReactClass<any, any, any>;
+export type RelayContainer = ReactClass<any>;
 
 export type RelayProp = {
   forceFetch: (

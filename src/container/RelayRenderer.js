@@ -28,6 +28,7 @@ import type {
   RelayContainer,
 } from 'RelayTypes';
 const StaticContainer = require('StaticContainer.react');
+import type {Root as RelayQueryRoot} from 'RelayQuery';
 
 const getRelayQueries = require('getRelayQueries');
 const invariant = require('invariant');
@@ -368,7 +369,7 @@ class RelayRenderer extends React.Component {
 
 function createFragmentPointerForRoot(
   environment,
-  query: RelayQuery.Root
+  query: RelayQueryRoot
 ) {
   return query ?
     RelayFragmentPointer.createForRoot(

@@ -59,9 +59,11 @@ class RelayMutationTransaction {
     invariant(
       status === RelayMutationTransactionStatus.UNCOMMITTED ||
       status === RelayMutationTransactionStatus.COMMIT_FAILED ||
-      status === RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED,
+      status === RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED ||
+      status === RelayMutationTransactionStatus.COMMIT_QUEUED,
       'RelayMutationTransaction: Only transactions with status `UNCOMMITTED` ' +
-      '`COMMIT_FAILED` or `COLLISION_COMMIT_FAILED` can be rolledback.'
+      '`COMMIT_FAILED`, `COLLISION_COMMIT_FAILED`, or `COMMIT_QUEUED` can be ' +
+      'rolled back.'
     );
 
     this._mutationQueue.rollback(this._id);

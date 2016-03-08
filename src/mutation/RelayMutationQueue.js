@@ -133,6 +133,19 @@ class RelayMutationQueue {
 
   rollback(id: ClientMutationID): void {
     const transaction = this._get(id);
+    const collisionKey = transaction.getCollisionKey();
+    if (collisionKey) {
+      const collisionQueue = this._collisionQueueMap[collisionKey];
+      if (collisionQueue) {
+        const index = collisionQueue.indexOf(transaction);
+        if (index !== -1) {
+          collisionQueue.splice(index, 1);
+        }
+        if (collisionQueue.length === 0) {
+          delete this._collisionQueueMap[collisionKey];
+        }
+      }
+    }
     this._handleRollback(transaction);
   }
 

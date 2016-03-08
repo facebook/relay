@@ -45,7 +45,7 @@ class RelayDefaultNetworkLayer {
     self.supports = this.supports.bind(this);
   }
 
-  sendMutation(request: RelayMutationRequest): Promise {
+  sendMutation(request: RelayMutationRequest): ?Promise {
     return this._sendMutation(request).then(
       result => result.json()
     ).then(payload => {
@@ -65,7 +65,7 @@ class RelayDefaultNetworkLayer {
     );
   }
 
-  sendQueries(requests: Array<RelayQueryRequest>): Promise {
+  sendQueries(requests: Array<RelayQueryRequest>): ?Promise {
     return Promise.all(requests.map(request => (
       this._sendQuery(request).then(
         result => result.json()

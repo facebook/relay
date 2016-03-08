@@ -313,21 +313,23 @@ class RelayRenderer extends React.Component {
    */
   _calculateRenderArgs(): RelayRendererRenderArgs {
     const {readyState} = this.state;
-    return readyState ?
-      {
+    if (readyState) {
+      return {
         done: readyState.done,
         error: readyState.error,
         props: readyState.ready ? this._resolveContainerProps() : null,
         retry: this._retry.bind(this),
         stale: readyState.stale,
-      } :
-      {
+      };
+    } else {
+      return {
         done: false,
         error: null,
         props: null,
         retry: this._retry.bind(this),
         stale: false,
       };
+    }
   }
 
   render(): ?React.Element {

@@ -25,7 +25,7 @@ export default class RenameTodoMutation extends Relay.Mutation {
   }
   getFatQuery() {
     return Relay.QL`
-      fragment on RenameTodoPayload {
+      fragment on RenameTodoPayload @relay(pattern: true) {
         todo {
           text,
         }

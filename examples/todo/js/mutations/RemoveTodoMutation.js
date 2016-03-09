@@ -35,7 +35,7 @@ export default class RemoveTodoMutation extends Relay.Mutation {
   }
   getFatQuery() {
     return Relay.QL`
-      fragment on RemoveTodoPayload {
+      fragment on RemoveTodoPayload @relay(pattern: true) {
         deletedTodoId,
         viewer {
           completedCount,

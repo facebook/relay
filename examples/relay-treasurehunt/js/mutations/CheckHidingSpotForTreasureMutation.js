@@ -34,7 +34,7 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
   }
   getFatQuery() {
     return Relay.QL`
-      fragment on CheckHidingSpotForTreasurePayload {
+      fragment on CheckHidingSpotForTreasurePayload @relay(pattern: true) {
         hidingSpot {
           hasBeenChecked,
           hasTreasure,

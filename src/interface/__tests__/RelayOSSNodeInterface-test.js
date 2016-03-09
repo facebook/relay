@@ -11,6 +11,7 @@
 
 'use strict';
 
+const Relay = require('Relay');
 const RelayFBNodeInterface = require('RelayOSSNodeInterface');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -248,7 +249,7 @@ describe('RelayOSSNodeInterface', () => {
       }`
     );
     const payload = {
-      me: null
+      me: null,
     };
     const result = RelayFBNodeInterface.getResultsFromPayload(
       store,

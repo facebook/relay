@@ -265,7 +265,7 @@ describe('writeRelayQueryPayload()', () => {
             phoneNumber: {
               displayNumber: '1-800-555-1212',
               countryCode: '1',
-            }
+            },
           }],
         },
       };

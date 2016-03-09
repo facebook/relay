@@ -338,6 +338,7 @@ describe('writeRelayQueryPayload()', () => {
     payload = {
       node: {
         id: '123',
+        __typename: 'User',
         friends: {
           edges: [
             {
@@ -516,6 +517,7 @@ describe('writeRelayQueryPayload()', () => {
               [HAS_PREV_PAGE]: true,
             },
           },
+          __typename: 'User',
         },
       };
       const results = writePayload(store, writer, query, payload);
@@ -581,6 +583,7 @@ describe('writeRelayQueryPayload()', () => {
               [HAS_PREV_PAGE]: true,
             },
           },
+          __typename: 'User',
         },
       };
       const results = writePayload(store, writer, query, payload);
@@ -646,6 +649,7 @@ describe('writeRelayQueryPayload()', () => {
               [HAS_PREV_PAGE]: true,
             },
           },
+          __typename: 'User',
         },
       };
       const results = writePayload(store, writer, query, payload);
@@ -708,6 +712,7 @@ describe('writeRelayQueryPayload()', () => {
               [HAS_PREV_PAGE]: false,
             },
           },
+          __typename: 'User',
         },
       };
       const results = writePayload(store, writer, query, payload);
@@ -768,6 +773,7 @@ describe('writeRelayQueryPayload()', () => {
               [HAS_PREV_PAGE]: false,
             },
           },
+          __typename: 'User',
         },
       };
       const results =

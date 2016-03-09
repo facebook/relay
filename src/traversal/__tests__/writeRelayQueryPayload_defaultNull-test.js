@@ -18,31 +18,28 @@ jest
   .dontMock('GraphQLSegment');
 
 const Relay = require('Relay');
+const RelayRecordStore = require('RelayRecordStore');
+const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
-describe('writeRelayQueryPayload()', () => {
-  let RelayRecordStore;
-  let RelayRecordWriter;
 
+describe('writeRelayQueryPayload()', () => {
   const {getNode, writePayload} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
-
-    RelayRecordStore = require('RelayRecordStore');
-    RelayRecordWriter = require('RelayRecordWriter');
-
-    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
-  describe('scalar fields', () => {
-    it('created with null when the response is null', () => {
+  describe('default null', () => {
+    it('writes missing scalar field as null', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
+
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
+            id,
             name
           }
         }
@@ -51,7 +48,6 @@ describe('writeRelayQueryPayload()', () => {
         node: {
           __typename: 'User',
           id: '123',
-          name: null,
         },
       };
       const results = writePayload(store, writer, query, payload);
@@ -64,53 +60,51 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getField('123', 'name')).toBe(null);
     });
 
-    it('adds null fields to an existing record when response is null', () => {
-      const records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-        },
-      };
+    it('writes missing linked field as null', () => {
+      const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(Relay.QL`
         query {
-          node(id:"123") {
-            name
+          viewer {
+            actor {
+              id
+            }
           }
         }
       `);
       const payload = {
-        node: {
-          __typename: 'User',
-          id: '123',
-          name: null,
-        },
+        viewer: {},
       };
       const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
-        created: {},
-        updated: {
-          '123': true,
+        created: {
+          'client:1': true,
         },
+        updated: {},
       });
-      expect(store.getField('123', 'name')).toBe(null);
+      expect(store.getRecordState('client:1')).toBe('EXISTENT');
+      expect(store.getLinkedRecordID('client:1', 'actor')).toBe(null);
     });
 
-    it('updates fields when the response is null', () => {
+    it('writes missing plural linked field as null', () => {
       const records = {
         '123': {
           __dataID__: '123',
           id: '123',
-          name: 'Joe',
         },
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
+
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            name
+            allPhones {
+              phoneNumber {
+                displayNumber
+              }
+            }
           }
         }
       `);
@@ -118,7 +112,6 @@ describe('writeRelayQueryPayload()', () => {
         node: {
           __typename: 'User',
           id: '123',
-          name: null,
         },
       };
       const results = writePayload(store, writer, query, payload);
@@ -128,41 +121,48 @@ describe('writeRelayQueryPayload()', () => {
           '123': true,
         },
       });
-      expect(store.getField('123', 'name')).toBe(null);
+      const phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
+      expect(phoneIDs).toEqual(null);
     });
 
-    it('updates fields wth new scalar values', () => {
-      const records = {
-        '123': {
-          __dataID__: '123',
-          id: '123',
-          name: 'Joe',
-        },
-      };
+    it('writes missing connection as null', () => {
+      const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            name
+            friends(first:"3") {
+              edges {
+                cursor,
+                node {
+                  id
+                },
+              },
+              pageInfo {
+                hasNextPage,
+                hasPreviousPage,
+              }
+            }
           }
         }
       `);
+
       const payload = {
         node: {
-          __typename: 'User',
           id: '123',
-          name: 'Joseph',
+          __typename: 'User',
         },
       };
+
       const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
-        created: {},
-        updated: {
+        created: {
           '123': true,
         },
+        updated: {},
       });
-      expect(store.getField('123', 'name')).toBe('Joseph');
+      expect(store.getField('123', 'friends')).toBe(null);
     });
   });
 });

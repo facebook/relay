@@ -320,13 +320,7 @@ describe('writePayload()', () => {
         mutation {
           unfriend(input: $input) {
             actor {
-              friends(first: "1") {
-                edges {
-                  node {
-                    id
-                  }
-                }
-              }
+              id
             }
             formerFriend {
               id
@@ -350,9 +344,6 @@ describe('writePayload()', () => {
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         actor: {
           id: '123',
-          friends: {
-            edges: [],
-          },
         },
         formerFriend: {
           id: '456',

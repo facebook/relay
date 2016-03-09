@@ -131,44 +131,6 @@ describe('diffRelayQuery - fragments', () => {
     expect(trackedQueries[1][0]).toEqualQueryRoot(secondQuery);
   });
 
-  it('refetches matching fragments with missing fields', () => {
-    const records = {};
-    const store = new RelayRecordStore({records});
-    const writer = new RelayRecordWriter(records, {}, false);
-    const tracker = new RelayQueryTracker();
-
-    const query = getNode(Relay.QL`
-      query {
-        node(id:"123") {
-          ... on User {
-            firstName
-            lastName
-          }
-        }
-      }
-    `);
-    const payload = {
-      node: {
-        id: '123',
-        __typename: 'User',
-        firstName: 'Joe', // missing `lastName`
-      },
-    };
-    writePayload(store, writer, query, payload, tracker);
-
-    const diffQueries = diffRelayQuery(query, store, tracker);
-    expect(diffQueries.length).toBe(1);
-    expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
-      query {
-        node(id:"123") {
-          ... on User {
-            lastName
-          }
-        }
-      }
-    `));
-  });
-
   it('removes non-matching fragments if other fields are fetched', () => {
     const records = {};
     const store = new RelayRecordStore({records});
@@ -206,12 +168,11 @@ describe('diffRelayQuery - fragments', () => {
     const writer = new RelayRecordWriter(records, {}, false);
     const tracker = new RelayQueryTracker();
 
-    const query = getNode(Relay.QL`
+    const writeQuery = getNode(Relay.QL`
       query {
         node(id:"123") {
           ... on User {
             firstName
-            lastName
           }
           ... on Page {
             name
@@ -226,8 +187,21 @@ describe('diffRelayQuery - fragments', () => {
         firstName: 'Joe', // missing `lastName`
       },
     };
-    writePayload(store, writer, query, payload, tracker);
+    writePayload(store, writer, writeQuery, payload, tracker);
 
+    const query = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ... on User {
+            firstName
+            lastName
+          }
+          ... on Page {
+            name
+          }
+        }
+      }
+    `);
     const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -328,6 +302,30 @@ describe('diffRelayQuery - fragments', () => {
           },
         },
       };
+      const writeQuery = getNode(Relay.QL`
+        query {
+          viewer {
+            newsFeed(first:"1") {
+              edges {
+                node {
+                  ... on Story {
+                    message {
+                      text
+                    }
+                  }
+                  ... on PhotoStory {
+                    photo {
+                      uri
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `);
+      writePayload(store, writer, writeQuery, payload, tracker);
+
       const query = getNode(Relay.QL`
         query {
           viewer {
@@ -351,30 +349,28 @@ describe('diffRelayQuery - fragments', () => {
           }
         }
       `);
-      writePayload(store, writer, query, payload, tracker);
-
       const diffQueries = diffRelayQuery(query, store, tracker);
       expect(diffQueries.length).toBe(1);
       expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
-      query {
-        node(id:"s1") {
-          ... on Story {
-            message {
-              ranges
+        query {
+          node(id:"s1") {
+            ... on Story {
+              message {
+                ranges
+              }
             }
-          }
-          ... on PhotoStory {
-            photo {
-              uri
+            ... on PhotoStory {
+              photo {
+                uri
+              }
             }
-          }
-          ... on FeedUnit {
-            id
-            __typename
+            ... on FeedUnit {
+              id
+              __typename
+            }
           }
         }
-      }
-    `));
+      `));
     }
   );
 });

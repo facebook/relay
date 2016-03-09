@@ -226,11 +226,19 @@ describe('writeRelayQueryPayload()', () => {
         },
         'client:1': {
           __dataID__: 'client:1',
+          phoneNumber: {__dataID__: 'phone1'},
+        },
+        'phone1': {
+          __dataID__:'phone1',
           displayNumber: '1-800-555-1212',
           countryCode: '1',
         },
         'client:2': {
           __dataID__: 'client:2',
+          phoneNumber: {__dataID__: 'phone2'},
+        },
+        'phone2': {
+          __dataID__:'phone2',
           displayNumber: '1-800-555-1313',
           countryCode: '2',
         },
@@ -254,8 +262,10 @@ describe('writeRelayQueryPayload()', () => {
           __typename: 'User',
           id: '123',
           allPhones: [{
-            displayNumber: '1-800-555-1212',
-            countryCode: '1',
+            phoneNumber: {
+              displayNumber: '1-800-555-1212',
+              countryCode: '1',
+            }
           }],
         },
       };

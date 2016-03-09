@@ -111,65 +111,6 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getLinkedRecordID('client:1', 'actor')).toBe(null);
     });
 
-    it('are not created when the response is undefined', () => {
-      const records = {};
-      const store = new RelayRecordStore({records});
-      const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
-        query {
-          viewer {
-            actor {
-              id
-            }
-          }
-        }
-      `);
-      const payload = {
-        viewer: {
-          actor: undefined,
-        },
-      };
-      writePayload(store, writer, query, payload);
-      expect(store.getRecordState('client:1')).toBe('EXISTENT');
-      expect(store.getLinkedRecordID('client:1', 'actor')).toBe(undefined);
-    });
-
-    it('are not deleted when the response is undefined', () => {
-      const records = {
-        'client:1': {
-          __dataID__: 'client:1',
-          actor: {
-            __dataID__: '123',
-          },
-        },
-        '123': {
-          __dataID__: '123',
-          id: '123',
-        },
-      };
-      const store = new RelayRecordStore({records});
-      const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
-        query {
-          viewer {
-            actor {
-              id
-            }
-          }
-        }
-      `);
-      const payload = {
-        viewer: {
-          actor: undefined,
-        },
-      };
-      writePayload(store, writer, query, payload);
-      expect(store.getRecordState('client:1')).toBe('EXISTENT');
-      expect(store.getLinkedRecordID('client:1', 'actor')).toBe('123');
-      expect(store.getRecordState('123')).toBe('EXISTENT');
-      expect(store.getField('123', 'id')).toBe('123');
-    });
-
     it('are created with the specified id', () => {
       const records = {};
       const store = new RelayRecordStore({records});
@@ -290,6 +231,7 @@ describe('writeRelayQueryPayload()', () => {
       const records = {
         '123': {
           __dataID__: '123',
+          __typename: 'User',
           id: '123',
           address: {
             __dataID__: addressID,
@@ -319,6 +261,7 @@ describe('writeRelayQueryPayload()', () => {
           address: {
             city: 'San Francisco',
           },
+          __typename: 'User',
         },
       };
       const results = writePayload(store, writer, query, payload);

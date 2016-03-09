@@ -550,7 +550,7 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getField('456', 'name')).toBe('Jing');
     });
 
-    it('is not created when the response is undefined', () => {
+    it('is created when the response is missing', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
@@ -561,19 +561,12 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      const payload = {
-        node: undefined,
-      };
-      expect(() => {
-        writePayload(store, writer, query, payload);
-      }).toFailInvariant(
-        'RelayQueryWriter: Unexpectedly encountered `undefined` in payload. ' +
-        'Cannot set root record `123` to undefined.'
-      );
-      expect(store.getRecordState('123')).toBe('UNKNOWN');
+      const payload = {};
+      writePayload(store, writer, query, payload);
+      expect(store.getRecordState('123')).toBe('NONEXISTENT');
     });
 
-    it('is not deleted when the response is undefined', () => {
+    it('is deleted when the response is ommited', () => {
       const records = {
         '123': {
           __dataID__: '123',
@@ -591,16 +584,9 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      const payload = {
-        node: undefined,
-      };
-      expect(() => {
-        writePayload(store, writer, query, payload);
-      }).toFailInvariant(
-        'RelayQueryWriter: Unexpectedly encountered `undefined` in payload. ' +
-        'Cannot set root record `123` to undefined.'
-      );
-      expect(store.getRecordState('123')).toBe('EXISTENT');
+      const payload = {};
+      writePayload(store, writer, query, payload);
+      expect(store.getRecordState('123')).toBe('NONEXISTENT');
     });
 
     it('is created when a new record returns a value', () => {
@@ -634,6 +620,7 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
+          __typename: null,
         },
       };
       const store = new RelayRecordStore({records});
@@ -698,6 +685,7 @@ describe('writeRelayQueryPayload()', () => {
         '123': {
           __dataID__: '123',
           id: '123',
+          __typename: null,
         },
       };
       const store = new RelayRecordStore({records});

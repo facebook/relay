@@ -142,7 +142,7 @@ function getPayloadRecords(
       );
     }
   }
-  return Array.isArray(records) ? records : [records];
+  return Array.isArray(records) ? records : [records || null];
 }
 
 module.exports = RelayOSSNodeInterface;

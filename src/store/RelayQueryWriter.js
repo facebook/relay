@@ -274,14 +274,16 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       recordID
     );
 
-    // handle missing data
     const fieldData = responseData[field.getSerializationKey()];
-    if (fieldData === undefined) {
-      return;
-    }
-    if (fieldData === null) {
-      this._writer.deleteField(recordID, field.getStorageKey());
-      this.recordUpdate(recordID);
+    // Queried fields that are `undefined` are stored as nulls.
+    if (fieldData == null) {
+      const storageKey = field.getStorageKey();
+      const prevValue = this._store.getField(recordID, storageKey);
+      // Always write to ensure data is stored in the correct recordStore.
+      this._writer.deleteField(recordID, storageKey);
+      if (prevValue !== null) {
+        this.recordUpdate(recordID);
+      }
       return;
     }
 

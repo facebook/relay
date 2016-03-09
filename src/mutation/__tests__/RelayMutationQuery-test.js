@@ -13,7 +13,9 @@
 
 require('configureForRelayOSS');
 
-jest.dontMock('RelayMutationQuery');
+jest
+  .dontMock('RelayMutationQuery')
+  .mock('warning');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const Relay = require('Relay');
@@ -456,6 +458,46 @@ describe('RelayMutationQuery', () => {
       `);
       expect(node)
         .toEqualQueryNode(expected);
+    });
+
+    it('warns when rangeBehaviors dont match with tracked connections', () => {
+      tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
+        fragment on Feedback {
+          comments(orderby:"ranked_threaded",first:"10") {
+            edges {
+              node {
+                body {
+                  text
+                }
+              }
+            }
+          }
+        }
+      `));
+      RelayMutationQuery.buildFragmentForEdgeInsertion({
+        fatQuery,
+        tracker,
+        connectionName: 'comments',
+        parentID: '123',
+        edgeName: 'feedbackCommentEdge',
+        parentName: 'feedback',
+        rangeBehaviors: {
+          '': 'append',
+          'orderby(recent)': 'append',
+        },
+      });
+
+      expect([
+        'RelayMutation: The connection `%s` on the mutation field `%s` ' +
+        'that corresponds to the ID `%s` did not match any of the ' +
+        '`rangeBehaviors` specified in your RANGE_ADD config. This means ' +
+        'that the entire connection will be refetched. Configure a range ' +
+        'behavior for this mutation in order to fetch only the new edge ' +
+        'and to enable optimistic mutations.',
+        'comments{orderby:"ranked_threaded"}',
+        'feedback',
+        '123'
+       ]).toBeWarnedNTimes(1);
     });
 
     it('refetches connections in the absence of a range config', () => {

@@ -65,7 +65,7 @@ Routes can declare a set of parameter names that it requires to be supplied to t
 class ProfileRoute extends Relay.Route {
   static paramDefinitions = {
     userID: {required: true},
-  },
+  };
   // ...
 }
 ```
@@ -75,7 +75,7 @@ class ProfileRoute extends Relay.Route {
 ```
 static queries: {
   [queryName: string]: () => Relay.QL`query { ... }`
-}
+};
 ```
 
 Routes must declare a set of query roots using `Relay.QL`. These queries will automatically compose a matching fragment named `queryName` on
@@ -87,7 +87,7 @@ the Relay container used with this route on a **Relay.RootContainer**.
 class ProfileRoute extends Relay.Route {
   static queries = {
     user: () => Relay.QL`query { user(id: $userID) }`,
-  },
+  };
   // ...
 }
 ```

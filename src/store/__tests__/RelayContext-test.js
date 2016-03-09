@@ -27,15 +27,15 @@ const RelayTestUtils = require('RelayTestUtils');
 const readRelayQueryData = require('readRelayQueryData');
 
 describe('RelayEnvironment', () => {
-  var environment;
-  var filter;
-  var dataIDs;
-  var queries;
-  var callback;
-  var recordWriter;
-  var queryRunner;
+  let environment;
+  let filter;
+  let dataIDs;
+  let queries;
+  let callback;
+  let recordWriter;
+  let queryRunner;
 
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -126,7 +126,7 @@ describe('RelayEnvironment', () => {
     });
 
     it('accepts a query with unrecognized arguments', () => {
-      var result = environment.readQuery(getNode(Relay.QL`
+      const result = environment.readQuery(getNode(Relay.QL`
         query {
           username(name:"foo") {
             id
@@ -140,7 +140,7 @@ describe('RelayEnvironment', () => {
 
   describe('observe', () => {
     it('instantiates RelayQueryResultObservable', () => {
-      var fragment = getNode(Relay.QL`
+      const fragment = getNode(Relay.QL`
         fragment on Node {
           id
         }
@@ -156,8 +156,8 @@ describe('RelayEnvironment', () => {
         }
       );
 
-      var observer = environment.observe(fragment, '123');
-      var onNext = jest.genMockFunction();
+      const observer = environment.observe(fragment, '123');
+      const onNext = jest.genMockFunction();
       expect(observer instanceof RelayQueryResultObservable).toBe(true);
       observer.subscribe({onNext});
       expect(onNext).toBeCalledWith({
@@ -168,7 +168,7 @@ describe('RelayEnvironment', () => {
   });
 
   describe('update functions', () => {
-    var mockMutation, createTransactionMock, mockTransaction, mockCallbacks;
+    let mockMutation, createTransactionMock, mockTransaction, mockCallbacks;
 
     beforeEach(() => {
       mockTransaction = new RelayMutationTransaction();

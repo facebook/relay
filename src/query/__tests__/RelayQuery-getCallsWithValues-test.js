@@ -17,7 +17,7 @@ const QueryBuilder = require('QueryBuilder');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   function getProfilePicture(callValue, variables) {
     return getNode(
@@ -32,7 +32,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
   describe('scalar-valued calls', () => {
     describe('with inline values', () => {
       it('are null when empty', () => {
-        var field = getProfilePicture(null);
+        const field = getProfilePicture(null);
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: null,
@@ -40,7 +40,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
       });
 
       it('return singular values', () => {
-        var field = getProfilePicture(QueryBuilder.createCallValue(32));
+        const field = getProfilePicture(QueryBuilder.createCallValue(32));
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: 32,
@@ -50,7 +50,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
 
     describe('with variables', () => {
       it('return `null` for empty values', () => {
-        var field = getProfilePicture(QueryBuilder.createCallVariable('size'), {
+        const field = getProfilePicture(QueryBuilder.createCallVariable('size'), {
           size: null,
         });
         expect(field.getCallsWithValues()).toEqual([{
@@ -60,7 +60,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
       });
 
       it('return empty arrays', () => {
-        var field = getProfilePicture(QueryBuilder.createCallVariable('size'), {
+        const field = getProfilePicture(QueryBuilder.createCallVariable('size'), {
           size: [],
         });
         expect(field.getCallsWithValues()).toEqual([{
@@ -70,7 +70,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
       });
 
       it('return singular values', () => {
-        var field = getProfilePicture(QueryBuilder.createCallVariable('size'), {
+        const field = getProfilePicture(QueryBuilder.createCallVariable('size'), {
           size: 32,
         });
         expect(field.getCallsWithValues()).toEqual([{
@@ -80,7 +80,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
       });
 
       it('return array values', () => {
-        var field = getProfilePicture(QueryBuilder.createCallVariable('size'), {
+        const field = getProfilePicture(QueryBuilder.createCallVariable('size'), {
           size: [32],
         });
         expect(field.getCallsWithValues()).toEqual([{
@@ -94,7 +94,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
   describe('array-valued calls', () => {
     describe('with inline values', () => {
       it('return empty arrays', () => {
-        var field = getProfilePicture([]);
+        const field = getProfilePicture([]);
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: [],
@@ -102,7 +102,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
       });
 
       it('return an array of values', () => {
-        var field = getProfilePicture([
+        const field = getProfilePicture([
           QueryBuilder.createCallValue(64),
         ]);
         expect(field.getCallsWithValues()).toEqual([{
@@ -114,7 +114,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
 
     describe('with variable', () => {
       it('return `[null]` for empty values', () => {
-        var field = getProfilePicture(
+        const field = getProfilePicture(
           [QueryBuilder.createCallVariable('size')],
           {size: null}
         );
@@ -125,7 +125,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
       });
 
       it('return empty arrays', () => {
-        var field = getProfilePicture(
+        const field = getProfilePicture(
           [QueryBuilder.createCallVariable('size')],
           {size: []}
         );
@@ -136,7 +136,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
       });
 
       it('return arrays for singular values', () => {
-        var field = getProfilePicture(
+        const field = getProfilePicture(
           [QueryBuilder.createCallVariable('size')],
           {size: 32}
         );
@@ -147,7 +147,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
       });
 
       it('return nested ararys for array values', () => {
-        var field = getProfilePicture(
+        const field = getProfilePicture(
           [QueryBuilder.createCallVariable('size')],
           {size: [32]}
         );
@@ -158,7 +158,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
       });
 
       it('returns flat arrays for scalar values', () => {
-        var field = getProfilePicture([
+        const field = getProfilePicture([
           QueryBuilder.createCallVariable('width'),
           QueryBuilder.createCallVariable('height'),
         ], {

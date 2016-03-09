@@ -13,7 +13,7 @@
 
 'use strict';
 
-var RelayMutationType = {
+const RelayMutationType = {
   FIELDS_CHANGE: 'FIELDS_CHANGE',
   NODE_DELETE: 'NODE_DELETE',
   RANGE_ADD: 'RANGE_ADD',

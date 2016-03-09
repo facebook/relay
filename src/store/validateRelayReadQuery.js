@@ -43,7 +43,7 @@ if (__DEV__) {
       queryNode: RelayQuery.Node,
       options?: StoreReaderOptions
     ): void {
-      var validator = new RelayStoreReadValidator(options);
+      const validator = new RelayStoreReadValidator(options);
       validator.visit(queryNode, {
         children: {},
         hash: null,

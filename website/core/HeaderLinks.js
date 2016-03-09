@@ -9,7 +9,7 @@
  * @providesModule HeaderLinks
 */
 
-var HeaderLinks = React.createClass({
+const HeaderLinks = React.createClass({
   links: [
     {section: 'playground', href: '/relay/prototyping/playground.html', text: 'Try it out'},
     {section: 'docs', href: '/relay/docs/getting-started.html#content', text: 'Docs'},

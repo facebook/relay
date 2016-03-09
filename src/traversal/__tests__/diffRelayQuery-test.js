@@ -23,11 +23,11 @@ const RelayTestUtils = require('RelayTestUtils');
 const diffRelayQuery = require('diffRelayQuery');
 
 describe('diffRelayQuery', () => {
-  var RelayRecordStore;
+  let RelayRecordStore;
 
-  var {defer, getNode, getVerbatimNode, writePayload} = RelayTestUtils;
+  const {defer, getNode, getVerbatimNode, writePayload} = RelayTestUtils;
 
-  var rootCallMap;
+  let rootCallMap;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -42,7 +42,7 @@ describe('diffRelayQuery', () => {
   });
 
   it('returns the same query with an empty store', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -50,36 +50,36 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
 
   it('removes requisite fields if fetched', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id
         }
       }
     `);
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
       },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const store = new RelayRecordStore({records});
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
   });
 
   it('removes fetched scalar fields', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -87,21 +87,21 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
         name: 'Mark',
       },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const store = new RelayRecordStore({records});
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
   });
 
   it('removes fetched fields with the same calls', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -109,7 +109,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       'client:1': {
         __dataID__: 'client:1',
         uri: 'https://facebook.com',
@@ -120,14 +120,14 @@ describe('diffRelayQuery', () => {
         'profilePicture{size:"32"}': {__dataID__: 'client:1'},
       },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const store = new RelayRecordStore({records});
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
   });
 
   it('keeps fetched fields with different calls', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -135,7 +135,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       'client:1': {
         __dataID__: 'client:1',
         uri: 'https://facebook.com',
@@ -146,21 +146,21 @@ describe('diffRelayQuery', () => {
         'profilePicture{size:"32"}': {__dataID__: 'client:1'},
       },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const store = new RelayRecordStore({records});
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
 
   it('removes fetched fragments', () => {
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on Actor {
         id,
         name
       }
     `;
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -169,7 +169,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       'client:1': {
         __dataID__: 'client:1',
         actor: {__dataID__: '4808495'},
@@ -180,16 +180,16 @@ describe('diffRelayQuery', () => {
         name: 'Joe',
       },
     };
-    var store = new RelayRecordStore({records}, {rootCallMap});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const store = new RelayRecordStore({records}, {rootCallMap});
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
   });
 
   it('does not fetch known connection metadata for unfetched ranges', () => {
     // `topLevelComments.count` is already fetched and should be diffed out,
     // `edges` is not fetched and should be retained
-    var query = getNode(Relay.QL`
+    let query = getNode(Relay.QL`
       query {
         node(id:"story") {
           feedback {
@@ -208,7 +208,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       story: {
         __dataID__: 'story',
         id: 'story',
@@ -227,9 +227,9 @@ describe('diffRelayQuery', () => {
         count: 5,
       },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    let store = new RelayRecordStore({records});
+    let tracker = new RelayQueryTracker();
+    let diffQueries = diffRelayQuery(query, store, tracker);
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
     expect(diffQueries.length).toBe(1);
@@ -253,14 +253,14 @@ describe('diffRelayQuery', () => {
       }
     `));
 
-    var body = Relay.QL`
+    const body = Relay.QL`
       fragment on Comment {
         body {
           text
         }
       }
     `;
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on TopLevelCommentsConnection {
         count,
         edges {
@@ -288,7 +288,7 @@ describe('diffRelayQuery', () => {
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
     expect(diffQueries.length).toBe(1);
-    var edgesFragment = Relay.QL`
+    const edgesFragment = Relay.QL`
       fragment on TopLevelCommentsConnection {
         edges {
           node {
@@ -297,7 +297,7 @@ describe('diffRelayQuery', () => {
         },
       }
     `;
-    var expectedQuery = getNode(Relay.QL`
+    const expectedQuery = getNode(Relay.QL`
       query {
         node(id:"story") {
           feedback {
@@ -313,7 +313,7 @@ describe('diffRelayQuery', () => {
   });
 
   it('diffs connection metadata when edges are unfetched', () => {
-    var records = {
+    const records = {
       story: {
         __dataID__: 'story',
         id: 'story',
@@ -332,9 +332,9 @@ describe('diffRelayQuery', () => {
         count: 5,
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"story") {
           feedback {
@@ -348,8 +348,8 @@ describe('diffRelayQuery', () => {
     `);
 
     // `topLevelComments.totalCount` is not fetched and should be retained
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -366,7 +366,7 @@ describe('diffRelayQuery', () => {
   });
 
   it('keeps connection `edges` when only metadata is fetched', () => {
-    var records = {
+    const records = {
       story: {
         __dataID__: 'story',
         id: 'story',
@@ -385,10 +385,10 @@ describe('diffRelayQuery', () => {
         count: 5,
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
 
     // `edges` have not been fetched, should be kept
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"story") {
           feedback {
@@ -404,19 +404,19 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
 
   it('fetches missing connection metadata without fetched edges', () => {
-    var mockRange = new GraphQLRange();
+    const mockRange = new GraphQLRange();
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       diffCalls: [],
       filteredEdges: [],
     });
-    var records = {
+    const records = {
       story: {
         __dataID__: 'story',
         id: 'story',
@@ -435,8 +435,8 @@ describe('diffRelayQuery', () => {
         __range__: mockRange,
       },
     };
-    var store = new RelayRecordStore({records});
-    var query = getNode(Relay.QL`
+    const store = new RelayRecordStore({records});
+    let query = getNode(Relay.QL`
       query {
         node(id:"story") {
           feedback {
@@ -455,8 +455,8 @@ describe('diffRelayQuery', () => {
 
     // `topLevelComments.count` is not fetched and should be retained,
     // `edges` is fetched and should be diffed out
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    let tracker = new RelayQueryTracker();
+    let diffQueries = diffRelayQuery(query, store, tracker);
     // does not refetch `feedback.topLevelComments.edges` but keeps `count`
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
@@ -472,7 +472,7 @@ describe('diffRelayQuery', () => {
       }
     `));
 
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on TopLevelCommentsConnection {
         count,
         edges {
@@ -497,7 +497,7 @@ describe('diffRelayQuery', () => {
     diffQueries = diffRelayQuery(query, store, tracker);
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
-    var edgesFragment = Relay.QL`
+    const edgesFragment = Relay.QL`
       fragment on TopLevelCommentsConnection {
         count
       }
@@ -518,16 +518,16 @@ describe('diffRelayQuery', () => {
   });
 
   it('returns an id-only query if the id is unfetched', () => {
-    var query = getNode(Relay.QL`
+    let query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id
         }
       }
     `);
-    var store = new RelayRecordStore({records: {}});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    let store = new RelayRecordStore({records: {}});
+    let tracker = new RelayQueryTracker();
+    let diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
 
@@ -560,7 +560,7 @@ describe('diffRelayQuery', () => {
   });
 
   it('fetches a known id if a sibling field is missing', () => {
-    var query = getNode(Relay.QL`
+    let query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -568,15 +568,15 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
+    let records = {
       '4': {
         __dataID__: '4',
         id: '4',
       },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    let store = new RelayRecordStore({records});
+    let tracker = new RelayQueryTracker();
+    let diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
 
@@ -610,16 +610,16 @@ describe('diffRelayQuery', () => {
   });
 
   it('returns nothing for an empty query', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           ${null}
         }
       }
     `);
-    var store = new RelayRecordStore({records: {}});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    let store = new RelayRecordStore({records: {}});
+    let tracker = new RelayQueryTracker();
+    let diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
 
     var records = {
@@ -637,7 +637,7 @@ describe('diffRelayQuery', () => {
   it('returns nothing if a range field is null', () => {
     // `friends` is null, should not refetch it. This broke when refactoring
     // `diffConnectionEdge` to work around flow; adding it as a regression test.
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           friends {
@@ -646,22 +646,22 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         friends: null,
       },
     };
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const store = new RelayRecordStore({records});
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
   });
 
   it('splits multiple IDs into separate queries', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var query = getNode(Relay.QL`
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const query = getNode(Relay.QL`
       query {
         nodes(ids:["4","4808495"]) {
           id,
@@ -669,8 +669,8 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -705,7 +705,7 @@ describe('diffRelayQuery', () => {
   });
 
   it('splits viewer-rooted queries', () => {
-    var records = {
+    const records = {
       'client:1': {
         __dataID__: 'client:1',
         actor: {__dataID__: '4808495'},
@@ -715,8 +715,8 @@ describe('diffRelayQuery', () => {
         id: '4808495',
       },
     };
-    var store = new RelayRecordStore({records}, {rootCallMap});
-    var query = getNode(Relay.QL`
+    const store = new RelayRecordStore({records}, {rootCallMap});
+    const query = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -727,8 +727,8 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(
@@ -737,7 +737,7 @@ describe('diffRelayQuery', () => {
   });
 
   it('does not split refetchable fields', () => {
-    var records = {
+    const records = {
       'client:1': {
         __dataID__: 'client:1',
         actor: {
@@ -750,8 +750,8 @@ describe('diffRelayQuery', () => {
         name: 'Name',
       },
     };
-    var store = new RelayRecordStore({records}, {rootCallMap});
-    var query = getNode(Relay.QL`
+    const store = new RelayRecordStore({records}, {rootCallMap});
+    const query = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -765,11 +765,11 @@ describe('diffRelayQuery', () => {
       }
     `);
     // TODO: split lone-refetchable fields into node queries #6917343
-    var field = query.getFieldByStorageKey('actor');
+    const field = query.getFieldByStorageKey('actor');
     expect(field.getInferredRootCallName()).toBe('node');
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -786,10 +786,10 @@ describe('diffRelayQuery', () => {
   });
 
   it('reuses fields and fragments if both unchanged', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var frag = Relay.QL`fragment on Node {name}`;
-    var query = getNode(Relay.QL`
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const frag = Relay.QL`fragment on Node {name}`;
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           firstName,
@@ -797,24 +797,24 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
 
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
 
   it('reuses fields if unchanged', () => {
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
         name: 'Mark Zuckerberg',
       },
     };
-    var store = new RelayRecordStore({records});
-    var frag = Relay.QL`fragment on Node {name}`;
-    var query = getNode(Relay.QL`
+    const store = new RelayRecordStore({records});
+    const frag = Relay.QL`fragment on Node {name}`;
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           firstName,
@@ -823,8 +823,8 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -837,8 +837,8 @@ describe('diffRelayQuery', () => {
   });
 
   it('reuses fragments if unchanged', () => {
-    var fragment = Relay.QL`fragment on Node {name}`;
-    var query = getNode(Relay.QL`
+    const fragment = Relay.QL`fragment on Node {name}`;
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           firstName,
@@ -846,17 +846,17 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
         firstName: 'Mark',
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -869,15 +869,15 @@ describe('diffRelayQuery', () => {
   });
 
   it('returns no queries if everything exists', () => {
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
         firstName: 'Mark',
       },
     };
-    var store = new RelayRecordStore({records});
-    var query = getNode(Relay.QL`
+    const store = new RelayRecordStore({records});
+    let query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -886,8 +886,8 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    let tracker = new RelayQueryTracker();
+    let diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
 
     query = getNode(Relay.QL`
@@ -903,16 +903,16 @@ describe('diffRelayQuery', () => {
   });
 
   it('removes fields that have data, except id', () => {
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
         firstName: 'Mark',
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -922,8 +922,8 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -937,7 +937,7 @@ describe('diffRelayQuery', () => {
   });
 
   it('recurses into subfields', () => {
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
@@ -951,8 +951,8 @@ describe('diffRelayQuery', () => {
         name: 'Palo Alto, California',
       },
     };
-    var store = new RelayRecordStore({records});
-    var query = getNode(Relay.QL`
+    const store = new RelayRecordStore({records});
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -965,8 +965,8 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
@@ -983,7 +983,7 @@ describe('diffRelayQuery', () => {
   });
 
   it('handles arrays containing Nodes', () => {
-    var records = {
+    const records = {
       '12345': {
         __dataID__: '12345',
         id: '12345',
@@ -1011,9 +1011,9 @@ describe('diffRelayQuery', () => {
         name: 'Laney Kuenzel',
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"12345") {
           id,
@@ -1027,8 +1027,8 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
@@ -1061,7 +1061,7 @@ describe('diffRelayQuery', () => {
       }
     `));
 
-    var trackedQuery = getNode(Relay.QL`
+    const trackedQuery = getNode(Relay.QL`
       query {
         node(id:"12345") {
           id,
@@ -1074,14 +1074,14 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    const trackedQueries = tracker.trackNodeForID.mock.calls;
     expect(trackedQueries.length).toBe(1);
     expect(trackedQueries[0][1]).toBe('12345');
     expect(trackedQueries[0][0]).toEqualQueryNode(trackedQuery);
   });
 
   it('handles arrays containing non-Nodes', () => {
-    var records = {
+    const records = {
       '12345': {
         __dataID__: '12345',
         id: '12345',
@@ -1099,8 +1099,8 @@ describe('diffRelayQuery', () => {
         service: 'TWITTER',
       },
     };
-    var store = new RelayRecordStore({records});
-    var expected = getNode(Relay.QL`
+    const store = new RelayRecordStore({records});
+    const expected = getNode(Relay.QL`
       query {
         node(id:"12345") {
           id,
@@ -1112,7 +1112,7 @@ describe('diffRelayQuery', () => {
     `);
 
     // Assume node(12345) is a Story
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"12345") {
           id,
@@ -1124,15 +1124,15 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
   });
 
   it('handles missing fields in fragments', () => {
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
@@ -1140,24 +1140,24 @@ describe('diffRelayQuery', () => {
         lastName: 'Zuckerberg',
       },
     };
-    var store = new RelayRecordStore({records});
-    var firstNameFrag = Relay.QL`
+    const store = new RelayRecordStore({records});
+    const firstNameFrag = Relay.QL`
       fragment on Node {
         firstName
       }
     `;
-    var lastNameFrag = Relay.QL`
+    const lastNameFrag = Relay.QL`
       fragment on Node {
         lastName
       }
     `;
-    var nestingFrag = Relay.QL`
+    const nestingFrag = Relay.QL`
       fragment on Node {
         ${firstNameFrag},
         ${lastNameFrag}
       }
     `;
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         nodes(ids:["4","4808495"]) {
           id,
@@ -1168,12 +1168,12 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var expectedFragment = Relay.QL`
+    const expectedFragment = Relay.QL`
       fragment on Node {
         ${firstNameFrag},
       }
     `;
-    var expected0 = getNode(Relay.QL`
+    const expected0 = getNode(Relay.QL`
       query {
         nodes(ids:["4"]) {
           id,
@@ -1182,7 +1182,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var expected1 = getNode(Relay.QL`
+    const expected1 = getNode(Relay.QL`
       query {
         nodes(ids:["4808495"]) {
           id,
@@ -1194,13 +1194,13 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
 
     expect(diffQueries.length).toBe(2);
 
-    var query0 = diffQueries[0];
-    var query0Fragments = query0.getChildren().filter(
+    const query0 = diffQueries[0];
+    const query0Fragments = query0.getChildren().filter(
       child => child instanceof RelayQuery.Fragment
     );
     expect(query0.getName()).toBe(query.getName());
@@ -1209,8 +1209,8 @@ describe('diffRelayQuery', () => {
     expect(query0Fragments[0].isDeferred()).toBeTruthy();
     expect(query0Fragments[0].isDeferred()).toBeTruthy();
 
-    var query1 = diffQueries[1];
-    var query1Fragments = query1.getChildren().filter(
+    const query1 = diffQueries[1];
+    const query1Fragments = query1.getChildren().filter(
       child => child instanceof RelayQuery.Fragment
     );
     expect(query1.getName()).toBe(query.getName());
@@ -1222,16 +1222,16 @@ describe('diffRelayQuery', () => {
   });
 
   it('fetches the whole range if it is missing', () => {
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
         name: 'Mark Zuckerberg',
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
 
-    var expected = getNode(Relay.QL`
+    const expected = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -1251,7 +1251,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -1267,16 +1267,16 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
   });
 
   it('fetches an extension of a range', () => {
-    var mockRange = new GraphQLRange();
-    var records = {
+    const mockRange = new GraphQLRange();
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
@@ -1296,7 +1296,7 @@ describe('diffRelayQuery', () => {
         id: '4808495',
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495'],
       diffCalls: [
@@ -1305,7 +1305,7 @@ describe('diffRelayQuery', () => {
       ],
     });
 
-    var expected = getNode(Relay.QL`
+    const expected = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -1325,7 +1325,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -1340,21 +1340,21 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
   });
 
   it('fetches missing parts of a range and diffs nodes it has', () => {
-    var mockRange = new GraphQLRange();
-    var mockEdge = {
+    const mockRange = new GraphQLRange();
+    const mockEdge = {
       __dataID__: 'client:4:4808495',
       node: {__dataID__: '4808495'},
       cursor: 'cursor1',
     };
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
@@ -1370,7 +1370,7 @@ describe('diffRelayQuery', () => {
         id: '4808495',
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495'],
       diffCalls: [
@@ -1379,7 +1379,7 @@ describe('diffRelayQuery', () => {
       ],
     });
 
-    var expected1 = getNode(Relay.QL`
+    const expected1 = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -1400,7 +1400,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var expected2 = getVerbatimNode(Relay.QL`
+    const expected2 = getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495") {
           id,
@@ -1413,7 +1413,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -1429,15 +1429,15 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected1);
     expect(diffQueries[1].getName()).toBe(query.getName());
     expect(diffQueries[1]).toEqualQueryRoot(expected2);
 
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    const trackedQueries = tracker.trackNodeForID.mock.calls;
     expect(trackedQueries.length).toBe(2);
     expect(trackedQueries[1][1]).toBe('4');
     expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
@@ -1458,8 +1458,8 @@ describe('diffRelayQuery', () => {
   });
 
   it('skips known-deleted nodes from ranges', () => {
-    var mockRange = new GraphQLRange();
-    var mockEdges = [
+    const mockRange = new GraphQLRange();
+    const mockEdges = [
       {
         __dataID__: 'client:4:4808495',
         node: {__dataID__: '4808495'},
@@ -1471,7 +1471,7 @@ describe('diffRelayQuery', () => {
         cursor: 'cursor1',
       },
     ];
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
@@ -1489,7 +1489,7 @@ describe('diffRelayQuery', () => {
         id: '660361306',
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495', 'client:4:660361306'],
       diffCalls: [
@@ -1498,7 +1498,7 @@ describe('diffRelayQuery', () => {
       ],
     });
 
-    var expected1 = getNode(Relay.QL`
+    const expected1 = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -1518,7 +1518,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var expected2 = getVerbatimNode(Relay.QL`
+    const expected2 = getVerbatimNode(Relay.QL`
       query {
         node(id:"660361306") {
           id,
@@ -1531,7 +1531,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -1547,8 +1547,8 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
 
     expect(diffQueries.length).toBe(2);
     expect(diffQueries[0].getName()).toBe(query.getName());
@@ -1556,7 +1556,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[1].getName()).toBe(query.getName());
     expect(diffQueries[1]).toEqualQueryRoot(expected2);
 
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    const trackedQueries = tracker.trackNodeForID.mock.calls;
     expect(trackedQueries.length).toBe(2);
     expect(trackedQueries[1][1]).toBe('4');
     expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
@@ -1577,19 +1577,19 @@ describe('diffRelayQuery', () => {
   });
 
   it('splits out node() queries inside viewer-rooted queries', () => {
-    var mockEdge = {
+    const mockEdge = {
       __dataID__: 'client:1:4808495',
       node: {__dataID__: '4808495'},
       cursor: 'cursor1',
     };
 
-    var mockRange = new GraphQLRange();
+    const mockRange = new GraphQLRange();
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:1:4808495'],
       diffCalls: null,
     });
 
-    var records = {
+    const records = {
       'client:1': {  // viewer
         __dataID__: 'client:1',
         actor: {__dataID__: '4'},
@@ -1610,9 +1610,9 @@ describe('diffRelayQuery', () => {
         firstName: 'Marshall',
       },
     };
-    var store = new RelayRecordStore({records}, {rootCallMap});
+    const store = new RelayRecordStore({records}, {rootCallMap});
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -1627,8 +1627,8 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
@@ -1644,7 +1644,7 @@ describe('diffRelayQuery', () => {
       }
     `));
 
-    var trackedQuery = getNode(Relay.QL`
+    const trackedQuery = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -1661,8 +1661,8 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var innerTrackedQuery = trackedQuery.getFieldByStorageKey('actor');
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    const innerTrackedQuery = trackedQuery.getFieldByStorageKey('actor');
+    const trackedQueries = tracker.trackNodeForID.mock.calls;
     expect(trackedQueries.length).toBe(3);
     expect(trackedQueries[1][1]).toBe('4');
     expect(trackedQueries[1][0]).toEqualQueryNode(innerTrackedQuery);
@@ -1671,8 +1671,8 @@ describe('diffRelayQuery', () => {
   });
 
   it('splits out node() queries inside fragments', () => {
-    var mockRange = new GraphQLRange();
-    var records = {
+    const mockRange = new GraphQLRange();
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
@@ -1693,13 +1693,13 @@ describe('diffRelayQuery', () => {
         firstName: 'Marshall',
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495'],
       diffCalls: null,
     });
 
-    var expected = getVerbatimNode(Relay.QL`
+    const expected = getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495") {
           id,
@@ -1712,7 +1712,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on User {
         friends(first:"1") {
           edges {
@@ -1724,7 +1724,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `;
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           ${fragment}
@@ -1732,13 +1732,13 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
 
-    var trackedQuery = getNode(Relay.QL`
+    const trackedQuery = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -1746,21 +1746,21 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    const trackedQueries = tracker.trackNodeForID.mock.calls;
     expect(trackedQueries.length).toBe(2);
     expect(trackedQueries[1][1]).toBe('4');
     expect(trackedQueries[1][0]).toEqualQueryNode(trackedQuery);
   });
 
   it('creates a find() query for edges', () => {
-    var mockRange = new GraphQLRange();
-    var mockEdge = {
+    const mockRange = new GraphQLRange();
+    const mockEdge = {
       __dataID__: 'client:4:4808495',
       node: {__dataID__: '4808495'},
       source: {__dataID__: '4'},
       cursor: 'cursor1',
     };
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         __typename: 'User',
@@ -1778,13 +1778,13 @@ describe('diffRelayQuery', () => {
         id: '4808495',
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495'],
       diffCalls: null,
     });
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         nodes(ids:"4") {
           id,
@@ -1803,8 +1803,8 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
 
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
@@ -1834,14 +1834,14 @@ describe('diffRelayQuery', () => {
   });
 
   it('supports diff queries inside find() queries', () => {
-    var mockRange = new GraphQLRange();
-    var mockEdge = {
+    const mockRange = new GraphQLRange();
+    const mockEdge = {
       __dataID__: 'client:4:4808495',
       node: {__dataID__: '4808495'},
       source: {__dataID__: '4'},
       cursor: 'cursor1',
     };
-    var records = {
+    const records = {
       '4': {
         __dataID__: '4',
         id: '4',
@@ -1858,13 +1858,13 @@ describe('diffRelayQuery', () => {
         name: 'Marshall Roch',
       },
     };
-    var store = new RelayRecordStore({records});
+    const store = new RelayRecordStore({records});
     mockRange.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['client:4:4808495'],
       diffCalls: null,
     });
 
-    var expected = getVerbatimNode(Relay.QL`
+    const expected = getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495") {
           id,
@@ -1877,7 +1877,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         nodes(ids:"4") {
           id,
@@ -1903,13 +1903,13 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var tracker = new RelayQueryTracker();
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
 
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    const trackedQueries = tracker.trackNodeForID.mock.calls;
     expect(trackedQueries.length).toBe(5);
     expect(trackedQueries[1][1]).toBe('4');
     expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
@@ -1956,13 +1956,13 @@ describe('diffRelayQuery', () => {
   });
 
   it('tracks fragments on null plural fields', () => {
-    var records = {};
-    var store = new RelayRecordStore({records}, {rootCallMap});
-    var writer = new RelayRecordWriter(records, rootCallMap, false);
-    var tracker = new RelayQueryTracker();
+    const records = {};
+    const store = new RelayRecordStore({records}, {rootCallMap});
+    const writer = new RelayRecordWriter(records, rootCallMap, false);
+    const tracker = new RelayQueryTracker();
 
     // Create the first query with a selection on a plural field.
-    var firstQuery = getNode(Relay.QL`
+    const firstQuery = getNode(Relay.QL`
       query {
         node(id: "123") {
           id
@@ -1974,7 +1974,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var firstPayload = {
+    const firstPayload = {
       node: {
         id: '123',
         __typename: 'User',
@@ -1982,14 +1982,14 @@ describe('diffRelayQuery', () => {
       },
     };
     writePayload(store, writer, firstQuery, firstPayload, tracker);
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    let trackedQueries = tracker.trackNodeForID.mock.calls;
     expect(trackedQueries.length).toBe(1);
     expect(trackedQueries[0][1]).toBe('123');
     expect(trackedQueries[0][0]).toEqualQueryRoot(firstQuery);
 
     // Create a second query that requests a different selection on the null
     // plural field.
-    var secondQuery = getNode(Relay.QL`
+    const secondQuery = getNode(Relay.QL`
       query {
         node(id: "123") {
           actors {
@@ -2000,7 +2000,7 @@ describe('diffRelayQuery', () => {
     `);
 
     // Everything can be diffed out, plural field is null
-    var diffQueries = diffRelayQuery(secondQuery, store, tracker);
+    const diffQueries = diffRelayQuery(secondQuery, store, tracker);
     expect(diffQueries.length).toBe(0);
 
     // Ensure the new `actors { name }` field is tracked.
@@ -2011,13 +2011,13 @@ describe('diffRelayQuery', () => {
   });
 
   it('tracks fragments on empty plural fields', () => {
-    var records = {};
-    var store = new RelayRecordStore({records}, {rootCallMap});
-    var writer = new RelayRecordWriter(records, rootCallMap, false);
-    var tracker = new RelayQueryTracker();
+    const records = {};
+    const store = new RelayRecordStore({records}, {rootCallMap});
+    const writer = new RelayRecordWriter(records, rootCallMap, false);
+    const tracker = new RelayQueryTracker();
 
     // Create the first query with a selection on a plural field
-    var firstQuery = getNode(Relay.QL`
+    const firstQuery = getNode(Relay.QL`
       query {
         node(id: "123") {
           id
@@ -2029,7 +2029,7 @@ describe('diffRelayQuery', () => {
       }
     `);
 
-    var firstPayload = {
+    const firstPayload = {
       node: {
         id: '123',
         __typename: 'User',
@@ -2037,14 +2037,14 @@ describe('diffRelayQuery', () => {
       },
     };
     writePayload(store, writer, firstQuery, firstPayload, tracker);
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    let trackedQueries = tracker.trackNodeForID.mock.calls;
     expect(trackedQueries.length).toBe(1);
     expect(trackedQueries[0][1]).toBe('123');
     expect(trackedQueries[0][0]).toEqualQueryRoot(firstQuery);
 
     // Create a second query that requests a different selection on the empty
     // plural field.
-    var secondQuery = getNode(Relay.QL`
+    const secondQuery = getNode(Relay.QL`
       query {
         node(id: "123") {
           actors {
@@ -2055,7 +2055,7 @@ describe('diffRelayQuery', () => {
     `);
 
     // Everything can be diffed out, plural field is empty.
-    var diffQueries = diffRelayQuery(secondQuery, store, tracker);
+    const diffQueries = diffRelayQuery(secondQuery, store, tracker);
     expect(diffQueries.length).toBe(0);
 
     // Ensure the new `actors { name }` field is tracked.

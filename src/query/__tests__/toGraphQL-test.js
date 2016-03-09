@@ -21,7 +21,7 @@ const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 const toGraphQL = require('toGraphQL');
 
 describe('toGraphQL', function() {
-  var {defer, getNode} = RelayTestUtils;
+  const {defer, getNode} = RelayTestUtils;
 
   const CONCRETE_KEYS = {
     alias: true,
@@ -84,7 +84,7 @@ describe('toGraphQL', function() {
             // compare only truthy values. Once the printer outputs plain values
             // the filter step can be removed or simplified (might want to still
             // filter metadata).
-            var expected = filterGraphQLNode(query);
+            const expected = filterGraphQLNode(query);
             expect(filterGraphQLNode(actual(getNode(query)))).toEqual(expected);
             return {
               pass: true,
@@ -162,12 +162,12 @@ describe('toGraphQL', function() {
   });
 
   it('preserves batch call information', () => {
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on User {
         name
       }
     `;
-    var query = Relay.QL`
+    const query = Relay.QL`
       query {
         viewer {
           actor {
@@ -176,9 +176,9 @@ describe('toGraphQL', function() {
         }
       }
     `;
-    var splitQueries = splitDeferredRelayQueries(getNode(query));
-    var deferredQuery = toGraphQL.Query(splitQueries.deferred[0].required);
-    var batchCall = deferredQuery.calls[0].value;
+    const splitQueries = splitDeferredRelayQueries(getNode(query));
+    const deferredQuery = toGraphQL.Query(splitQueries.deferred[0].required);
+    const batchCall = deferredQuery.calls[0].value;
 
     expect(deferredQuery.isDeferred).toBe(true);
     expect(batchCall.sourceQueryID).toBe('q1');
@@ -186,8 +186,8 @@ describe('toGraphQL', function() {
   });
 
   it('does not double-encode argument values', () => {
-    var value = {query: 'Menlo Park'};
-    var relayQuery = getNode(Relay.QL`
+    const value = {query: 'Menlo Park'};
+    const relayQuery = getNode(Relay.QL`
       query {
         checkinSearchQuery(query:$q) {
           query,
@@ -199,7 +199,7 @@ describe('toGraphQL', function() {
     const identifyingArg = relayQuery.getIdentifyingArg();
     expect(identifyingArg).toBeDefined();
     expect(identifyingArg.value).toEqual(value);
-    var convertedQuery = toGraphQL.Query(relayQuery);
+    const convertedQuery = toGraphQL.Query(relayQuery);
     expect(convertedQuery.calls[0].value.callValue).toBe(value);
   });
 });

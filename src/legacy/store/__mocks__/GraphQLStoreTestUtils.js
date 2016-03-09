@@ -9,9 +9,9 @@
 
 'use strict';
 
-var matchRecord = require('matchRecord');
+const matchRecord = require('matchRecord');
 
-var GraphQLStoreTestUtils = {
+const GraphQLStoreTestUtils = {
   matchers: {
     /**
      * Compare the returned result from the GraphQLStore with the expected
@@ -44,11 +44,11 @@ var GraphQLStoreTestUtils = {
    */
   genMockConsoleFunction: function(type) {
     /* globals expect: false */
-    var consoleFunction = console[type];
-    var whitelistedStrings = [];
-    var mockFunction = jest.genMockFunction().mockImplementation(
+    const consoleFunction = console[type];
+    const whitelistedStrings = [];
+    const mockFunction = jest.genMockFunction().mockImplementation(
       function(...args) {
-        var formatString = args[0];
+        const formatString = args[0];
         if (whitelistedStrings.indexOf(formatString) >= 0) {
           return;
         }

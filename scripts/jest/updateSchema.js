@@ -15,15 +15,15 @@ import { buildASTSchema, introspectionQuery } from 'graphql/utilities';
 import { graphql } from 'graphql';
 
 try {
-  var inFile = path.resolve(__dirname, 'testschema.graphql');
-  var outFile = path.resolve(__dirname, 'testschema.json');
+  const inFile = path.resolve(__dirname, 'testschema.graphql');
+  const outFile = path.resolve(__dirname, 'testschema.json');
 
-  var body = fs.readFileSync(inFile, 'utf8');
-  var ast = parse(body);
-  var astSchema = buildASTSchema(ast, 'Root', 'Mutation');
+  const body = fs.readFileSync(inFile, 'utf8');
+  const ast = parse(body);
+  const astSchema = buildASTSchema(ast, 'Root', 'Mutation');
   graphql(astSchema, introspectionQuery).then(
     function(result) {
-      var out = JSON.stringify(result, null, 2);
+      const out = JSON.stringify(result, null, 2);
       fs.writeFileSync(outFile, out);
     });
 } catch (error) {

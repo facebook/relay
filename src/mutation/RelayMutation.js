@@ -262,7 +262,7 @@ class RelayMutation<Tp: Object> {
     const props = this._unresolvedProps;
     const resolvedProps = {...props};
     forEachObject(fragments, (fragmentBuilder, fragmentName) => {
-      var propValue = props[fragmentName];
+      const propValue = props[fragmentName];
       warning(
         propValue !== undefined,
         'RelayMutation: Expected data for fragment `%s` to be supplied to ' +
@@ -304,7 +304,7 @@ class RelayMutation<Tp: Object> {
           fragmentName,
           this.constructor.name
         );
-        var dataIDs = propValue.map((item, ii) => {
+        const dataIDs = propValue.map((item, ii) => {
           invariant(
             typeof item === 'object' && item != null,
             'RelayMutation: Invalid prop `%s` supplied to `%s`, ' +
@@ -336,7 +336,7 @@ class RelayMutation<Tp: Object> {
           fragmentName,
           this.constructor.name
         );
-        var dataID = RelayFragmentPointer.getDataID(propValue, fragment);
+        const dataID = RelayFragmentPointer.getDataID(propValue, fragment);
         if (dataID) {
           resolvedProps[fragmentName] = this._context.read(fragment, dataID);
         } else {
@@ -365,8 +365,8 @@ class RelayMutation<Tp: Object> {
     variableMapping?: Variables
   ): RelayFragmentReference {
     // TODO: Unify fragment API for containers and mutations, #7860172.
-    var fragments = this.fragments;
-    var fragmentBuilder = fragments[fragmentName];
+    const fragments = this.fragments;
+    const fragmentBuilder = fragments[fragmentName];
     if (!fragmentBuilder) {
       invariant(
         false,
@@ -379,7 +379,7 @@ class RelayMutation<Tp: Object> {
     }
 
     const initialVariables = this.initialVariables || {};
-    var prepareVariables = this.prepareVariables;
+    const prepareVariables = this.prepareVariables;
 
     return RelayFragmentReference.createForContainer(
       () => buildMutationFragment(
@@ -404,7 +404,7 @@ function buildMutationFragment(
   fragmentBuilder: RelayQLFragmentBuilder,
   variables: Variables
 ): ConcreteFragment {
-  var fragment = buildRQL.Fragment(
+  const fragment = buildRQL.Fragment(
     fragmentBuilder,
     variables
   );

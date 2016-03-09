@@ -23,10 +23,10 @@ const RelayTestUtils = require('RelayTestUtils');
 const invariant = require('invariant');
 
 describe('RelayQueryTracker', () => {
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   function getField(node, ...fieldNames) {
-    for (var ii = 0; ii < fieldNames.length; ii++) {
+    for (let ii = 0; ii < fieldNames.length; ii++) {
       node = node.getFieldByStorageKey(fieldNames[ii]);
       invariant(
         !!node,
@@ -39,8 +39,8 @@ describe('RelayQueryTracker', () => {
 
   function sortChildren(children) {
     return children.sort((a, b) => {
-      var aKey = a.getSerializationKey();
-      var bKey = b.getSerializationKey();
+      const aKey = a.getSerializationKey();
+      const bKey = b.getSerializationKey();
       return aKey < bKey ?
         -1 :
         (aKey > bKey ? 1 : 0);
@@ -54,7 +54,7 @@ describe('RelayQueryTracker', () => {
   });
 
   it('tracks queries for ID-less root records', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -63,18 +63,18 @@ describe('RelayQueryTracker', () => {
         }
       }
     `);
-    var path = RelayQueryPath.create(query);
-    var tracker = new RelayQueryTracker();
+    const path = RelayQueryPath.create(query);
+    const tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(query, 'client:1', path);
-    var trackedChildren = tracker.getTrackedChildrenForID('client:1');
+    const trackedChildren = tracker.getTrackedChildrenForID('client:1');
     expect(trackedChildren.length).toBe(1);
     expect(trackedChildren[0])
       .toEqualQueryNode(query.getFieldByStorageKey('actor'));
   });
 
   it('tracks queries for refetchable root records', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           address {
@@ -83,13 +83,13 @@ describe('RelayQueryTracker', () => {
         }
       }
     `);
-    var nodeID = '123';
-    var path = RelayQueryPath.create(query);
-    var tracker = new RelayQueryTracker();
+    const nodeID = '123';
+    const path = RelayQueryPath.create(query);
+    const tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(query, nodeID, path);
-    var trackedChildren = sortChildren(tracker.getTrackedChildrenForID(nodeID));
-    var children = sortChildren(query.getChildren());
+    const trackedChildren = sortChildren(tracker.getTrackedChildrenForID(nodeID));
+    const children = sortChildren(query.getChildren());
     expect(trackedChildren.length).toBe(3);
     children.forEach((child, ii) => {
       expect(trackedChildren[ii]).toEqualQueryNode(child);
@@ -97,7 +97,7 @@ describe('RelayQueryTracker', () => {
   });
 
   it('tracks queries for refetchable records (with IDs)', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -108,18 +108,18 @@ describe('RelayQueryTracker', () => {
         }
       }
     `);
-    var actor = query.getFieldByStorageKey('actor');
-    var actorID = '123';
-    var path = RelayQueryPath.getPath(
+    const actor = query.getFieldByStorageKey('actor');
+    const actorID = '123';
+    const path = RelayQueryPath.getPath(
       RelayQueryPath.create(query),
       getField(query, 'actor'),
       actorID
     );
-    var tracker = new RelayQueryTracker();
+    const tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(actor, actorID, path);
-    var children = sortChildren(actor.getChildren());
-    var trackedChildren =
+    const children = sortChildren(actor.getChildren());
+    const trackedChildren =
       sortChildren(tracker.getTrackedChildrenForID(actorID));
     children.forEach((child, ii) => {
       expect(trackedChildren[ii]).toEqualQueryNode(child);
@@ -127,7 +127,7 @@ describe('RelayQueryTracker', () => {
   });
 
   it('does not track queries for non-refetchable records', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -138,11 +138,11 @@ describe('RelayQueryTracker', () => {
         }
       }
     `);
-    var address =
+    const address =
       query.getFieldByStorageKey('actor').getFieldByStorageKey('address');
-    var actorID = '123';
-    var addressID = 'client:1';
-    var path = RelayQueryPath.getPath(
+    const actorID = '123';
+    const addressID = 'client:1';
+    const path = RelayQueryPath.getPath(
       RelayQueryPath.getPath(
         RelayQueryPath.create(query),
         getField(query, 'actor'),
@@ -151,15 +151,15 @@ describe('RelayQueryTracker', () => {
       getField(query, 'actor', 'address'),
       addressID
     );
-    var tracker = new RelayQueryTracker();
+    const tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(address, addressID, path);
-    var trackedChildren = tracker.getTrackedChildrenForID(addressID);
+    const trackedChildren = tracker.getTrackedChildrenForID(addressID);
     expect(trackedChildren.length).toBe(0);
   });
 
   it('untracks all nodes for the given dataID', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -170,14 +170,14 @@ describe('RelayQueryTracker', () => {
         }
       }
     `);
-    var actor = query.getFieldByStorageKey('actor');
-    var actorID = '123';
-    var path = RelayQueryPath.getPath(
+    const actor = query.getFieldByStorageKey('actor');
+    const actorID = '123';
+    const path = RelayQueryPath.getPath(
       RelayQueryPath.create(query),
       getField(query, 'actor'),
       actorID
     );
-    var tracker = new RelayQueryTracker();
+    const tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(actor, actorID, path);
     expect(tracker.getTrackedChildrenForID(actorID)).not.toEqual([]);

@@ -21,10 +21,10 @@ const Relay = require('Relay');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
-  var RelayRecordStore;
-  var RelayRecordWriter;
+  let RelayRecordStore;
+  let RelayRecordWriter;
 
-  var {getNode, writePayload} = RelayTestUtils;
+  const {getNode, writePayload} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -35,8 +35,8 @@ describe('writeRelayQueryPayload()', () => {
 
   describe('plural scalar fields', () => {
     it('updates elements in a plural field', () => {
-      var email = 'user@example.com';
-      var records = {
+      const email = 'user@example.com';
+      const records = {
         '123': {
           __dataID__: '123',
           __typename: 'User',
@@ -44,24 +44,24 @@ describe('writeRelayQueryPayload()', () => {
           emailAddresses: [email],
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var newEmail = 'user2@example.com';
-      var query = getNode(Relay.QL`
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const newEmail = 'user2@example.com';
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           __typename: 'User',
           id: '123',
           emailAddresses: [newEmail],
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -72,8 +72,8 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('prepends elements to a plural field', () => {
-      var email = 'user@example.com';
-      var records = {
+      const email = 'user@example.com';
+      const records = {
         '123': {
           __dataID__: '123',
           __typename: 'User',
@@ -81,24 +81,24 @@ describe('writeRelayQueryPayload()', () => {
           emailAddresses: [email],
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var newEmail = 'user2@example.com';
-      var query = getNode(Relay.QL`
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const newEmail = 'user2@example.com';
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           __typename: 'User',
           id: '123',
           emailAddresses: [newEmail, email],
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -110,8 +110,8 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('appends elements to a plural field', () => {
-      var email = 'user@example.com';
-      var records = {
+      const email = 'user@example.com';
+      const records = {
         '123': {
           __dataID__: '123',
           __typename: 'User',
@@ -119,24 +119,24 @@ describe('writeRelayQueryPayload()', () => {
           emailAddresses: [email],
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var newEmail = 'user2@example.com';
-      var query = getNode(Relay.QL`
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const newEmail = 'user2@example.com';
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           __typename: 'User',
           id: '123',
           emailAddresses: [email, newEmail],
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -148,8 +148,8 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('does not update if a plural field is unchanged', () => {
-      var email = 'user@example.com';
-      var records = {
+      const email = 'user@example.com';
+      const records = {
         '123': {
           __dataID__: '123',
           __typename: 'User',
@@ -157,24 +157,24 @@ describe('writeRelayQueryPayload()', () => {
           emailAddresses: [email],
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
 
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           __typename: 'User',
           id: '123',
           emailAddresses: [email],
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {},

@@ -15,8 +15,8 @@ const React = require('React');
 const Relay = require('Relay');
 
 describe('isRelayContainer', function() {
-  var MockComponent;
-  var MockContainer;
+  let MockComponent;
+  let MockContainer;
 
   beforeEach(function() {
     jest.resetModuleRegistry();

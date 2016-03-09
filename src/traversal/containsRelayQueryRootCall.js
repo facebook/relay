@@ -45,7 +45,7 @@ function containsRelayQueryRootCall(
     return false;
   }
   if (Array.isArray(thisValue)) {
-    var thisArray = thisValue;
+    const thisArray = thisValue;
     if (Array.isArray(thatValue)) {
       return thatValue.every(eachValue => thisArray.indexOf(eachValue) >= 0);
     } else {

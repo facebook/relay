@@ -42,9 +42,9 @@ function isDeprecatedCallWithArgCountGreaterThan(
   nodeBuilder: Function,
   count: number
 ): boolean {
-  var argLength = nodeBuilder.length;
+  let argLength = nodeBuilder.length;
   if (__DEV__) {
-    var mockImpl = nodeBuilder;
+    let mockImpl = nodeBuilder;
     while (mockImpl && mockImpl._getMockImplementation) {
       mockImpl = mockImpl._getMockImplementation();
     }
@@ -65,7 +65,7 @@ function isDeprecatedCallWithArgCountGreaterThan(
  * node type), these will return `undefined`. This is not to be confused with
  * a return value of `null`, which may result from the lack of a node.
  */
-var buildRQL = {
+const buildRQL = {
   Fragment(
     fragmentBuilder: RelayQLFragmentBuilder,
     values: Variables
@@ -81,7 +81,7 @@ var buildRQL = {
       'fragment, use `variables => Relay.QL`.'
     );
     node = fragmentBuilder(variables);
-    let fragment = node != null ?
+    const fragment = node != null ?
       QueryBuilder.getFragment(node) :
       null;
     if (!fragment) {

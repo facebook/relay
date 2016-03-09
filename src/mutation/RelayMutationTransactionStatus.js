@@ -13,7 +13,7 @@
 
 'use strict';
 
-var RelayMutationTransactionStatus = {
+const RelayMutationTransactionStatus = {
   /**
    * Transaction hasn't yet been sent to the server. Client has an optimistic
    * update applied if the mutation defined one. Transaction can be committed or

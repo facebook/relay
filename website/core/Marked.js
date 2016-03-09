@@ -13,15 +13,15 @@
  * @providesModule Marked
 */
 
-var React = require('React');
-var Prism = require('Prism');
-var Header = require('Header');
+const React = require('React');
+const Prism = require('Prism');
+const Header = require('Header');
 
 /**
  * Block-Level Grammar
  */
 
-var block = {
+const block = {
   newline: /^\n+/,
   code: /^( {4}[^\n]+\n*)+/,
   fences: noop,
@@ -129,7 +129,7 @@ Lexer.rules = block;
  */
 
 Lexer.lex = function(src, options) {
-  var lexer = new Lexer(options);
+  const lexer = new Lexer(options);
   return lexer.lex(src);
 };
 
@@ -451,7 +451,7 @@ Lexer.prototype.token = function(src, top) {
  * Inline-Level Grammar
  */
 
-var inline = {
+const inline = {
   escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
   autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
   url: noop,
@@ -553,7 +553,7 @@ InlineLexer.rules = inline;
  */
 
 InlineLexer.output = function(src, links, options) {
-  var inline = new InlineLexer(links, options);
+  const inline = new InlineLexer(links, options);
   return inline.output(src);
 };
 
@@ -562,11 +562,7 @@ InlineLexer.output = function(src, links, options) {
  */
 
 InlineLexer.prototype.output = function(src) {
-  var out = []
-    , link
-    , text
-    , href
-    , cap;
+  let out = [], link, text, href, cap;
 
   while (src) {
     // escape
@@ -692,7 +688,7 @@ InlineLexer.prototype.output = function(src) {
 InlineLexer.prototype.sanitizeUrl = function(url) {
   if (this.options.sanitize) {
     try {
-      var prot = decodeURIComponent(url)
+      const prot = decodeURIComponent(url)
           .replace(/[^A-Za-z0-9:]/g, '')
           .toLowerCase();
       if (prot.indexOf('javascript:') === 0) {
@@ -711,7 +707,7 @@ InlineLexer.prototype.sanitizeUrl = function(url) {
 
 InlineLexer.prototype.outputLink = function(cap, link) {
   if (cap[0][0] !== '!') {
-    var shouldOpenInNewWindow =
+    const shouldOpenInNewWindow =
       link.href.charAt(0) !== '/'
       && link.href.charAt(0) !== '#';
 
@@ -758,7 +754,7 @@ function Parser(options) {
  */
 
 Parser.parse = function(src, options) {
-  var parser = new Parser(options);
+  const parser = new Parser(options);
   return parser.parse(src);
 };
 
@@ -770,7 +766,7 @@ Parser.prototype.parse = function(src) {
   this.inline = new InlineLexer(src.links, this.options);
   this.tokens = src.reverse();
 
-  var out = [];
+  const out = [];
   while (this.next()) {
     out.push(this.tok());
   }
@@ -799,7 +795,7 @@ Parser.prototype.peek = function() {
  */
 
 Parser.prototype.parseText = function() {
-  var body = this.token.text;
+  let body = this.token.text;
 
   while (this.peek().type === 'text') {
     body += '\n' + this.next().text;
@@ -823,7 +819,7 @@ Parser.prototype.tok = function() {
     case 'heading': {
       this.headings.splice(this.token.depth, this.headings.length);
       this.headings[this.token.depth - 1] = this.token.text;
-      var slug = this.token.depth > 3 ? this.headings.slice(2).join('-') :
+      const slug = this.token.depth > 3 ? this.headings.slice(2).join('-') :
         this.token.text;
       return (
         <Header level={this.token.depth} toSlug={slug}>
@@ -961,9 +957,7 @@ function noop() {}
 noop.exec = noop;
 
 function merge(obj) {
-  var i = 1
-    , target
-    , key;
+  let i = 1, target, key;
 
   for (; i < arguments.length; i++) {
     target = arguments[i];
@@ -990,10 +984,7 @@ function marked(src, opt, callback) {
 
     if (opt) opt = merge({}, marked.defaults, opt);
 
-    var highlight = opt.highlight
-      , tokens
-      , pending
-      , i = 0;
+    let highlight = opt.highlight, tokens, pending, i = 0;
 
     try {
       tokens = Lexer.lex(src, opt)
@@ -1003,8 +994,8 @@ function marked(src, opt, callback) {
 
     pending = tokens.length;
 
-    var done = function(hi) {
-      var out, err;
+    const done = function(hi) {
+      let out, err;
 
       if (hi !== true) {
         delete opt.highlight;
@@ -1099,7 +1090,7 @@ marked.inlineLexer = InlineLexer.output;
 
 marked.parse = marked;
 
-var Marked = React.createClass({
+const Marked = React.createClass({
   render: function() {
     return <div>{marked(this.props.children, this.props)}</div>;
   }

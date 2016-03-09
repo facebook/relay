@@ -71,9 +71,9 @@ function findRelayQueryLeaves(
   path: QueryPath,
   rangeCalls: ?Array<Call>
 ): FinderResult {
-  var finder = new RelayQueryLeavesFinder(store, cachedRecords);
+  const finder = new RelayQueryLeavesFinder(store, cachedRecords);
 
-  var state = {
+  const state = {
     dataID,
     missingData: false,
     path,
@@ -110,8 +110,8 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
     node: Tn,
     state: FinderState
   ): ?Tn {
-    var children = node.getChildren();
-    for (var ii = 0; ii < children.length; ii++) {
+    const children = node.getChildren();
+    for (let ii = 0; ii < children.length; ii++) {
       if (state.missingData) {
         return;
       }
@@ -123,8 +123,8 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
     fragment: RelayQuery.Fragment,
     state: FinderState
   ): void {
-    var dataID = state.dataID;
-    var recordState = this._store.getRecordState(dataID);
+    const dataID = state.dataID;
+    const recordState = this._store.getRecordState(dataID);
     if (recordState === RelayRecordState.UNKNOWN) {
       this._handleMissingData(fragment, state);
       return;
@@ -144,8 +144,8 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
     field: RelayQuery.Field,
     state: FinderState
   ): void {
-    var dataID = state.dataID;
-    var recordState = this._store.getRecordState(dataID);
+    const dataID = state.dataID;
+    const recordState = this._store.getRecordState(dataID);
     if (recordState === RelayRecordState.UNKNOWN) {
       this._handleMissingData(field, state);
       return;
@@ -154,7 +154,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
     }
 
     if (state.rangeCalls && !state.rangeInfo) {
-      var metadata = this._store.getRangeMetadata(dataID, state.rangeCalls);
+      const metadata = this._store.getRangeMetadata(dataID, state.rangeCalls);
       if (metadata) {
         state.rangeInfo = metadata;
       }
@@ -176,14 +176,14 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   }
 
   _visitScalar(field: RelayQuery.Field, state: FinderState): void {
-    var fieldData = this._store.getField(state.dataID, field.getStorageKey());
+    const fieldData = this._store.getField(state.dataID, field.getStorageKey());
     if (fieldData === undefined) {
       this._handleMissingData(field, state);
     }
   }
 
   _visitPlural(field: RelayQuery.Field, state: FinderState): void {
-    var dataIDs = this._store.getLinkedRecordIDs(
+    const dataIDs = this._store.getLinkedRecordIDs(
       state.dataID,
       field.getStorageKey()
     );
@@ -192,11 +192,11 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       return;
     }
     if (dataIDs) {
-      for (var ii = 0; ii < dataIDs.length; ii++) {
+      for (let ii = 0; ii < dataIDs.length; ii++) {
         if (state.missingData) {
           break;
         }
-        var nextState = {
+        const nextState = {
           dataID: dataIDs[ii],
           missingData: false,
           path: RelayQueryPath.getPath(state.path, field, dataIDs[ii]),
@@ -210,8 +210,8 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   }
 
   _visitConnection(field: RelayQuery.Field, state: FinderState): void {
-    var calls = field.getCallsWithValues();
-    var dataID = this._store.getLinkedRecordID(
+    const calls = field.getCallsWithValues();
+    const dataID = this._store.getLinkedRecordID(
       state.dataID,
       field.getStorageKey()
     );
@@ -220,14 +220,14 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       return;
     }
     if (dataID) {
-      var nextState: FinderState = {
+      const nextState: FinderState = {
         dataID,
         missingData: false,
         path: RelayQueryPath.getPath(state.path, field, dataID),
         rangeCalls: calls,
         rangeInfo: null,
       };
-      var metadata = this._store.getRangeMetadata(dataID, calls);
+      const metadata = this._store.getRangeMetadata(dataID, calls);
       if (metadata) {
         nextState.rangeInfo = metadata;
       }
@@ -237,7 +237,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   }
 
   _visitEdges(field: RelayQuery.Field, state: FinderState): void {
-    var rangeInfo = state.rangeInfo;
+    const rangeInfo = state.rangeInfo;
     // Doesn't have  `__range__` loaded
     if (!rangeInfo) {
       this._handleMissingData(field, state);
@@ -247,12 +247,12 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       state.missingData = true;
       return;
     }
-    var edgeIDs = rangeInfo.requestedEdgeIDs;
-    for (var ii = 0; ii < edgeIDs.length; ii++) {
+    const edgeIDs = rangeInfo.requestedEdgeIDs;
+    for (let ii = 0; ii < edgeIDs.length; ii++) {
       if (state.missingData) {
         break;
       }
-      var nextState = {
+      const nextState = {
         dataID: edgeIDs[ii],
         missingData: false,
         path: RelayQueryPath.getPath(state.path, field, edgeIDs[ii]),
@@ -273,14 +273,14 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   }
 
   _visitLinkedField(field: RelayQuery.Field, state: FinderState): void {
-    var dataID =
+    const dataID =
       this._store.getLinkedRecordID(state.dataID, field.getStorageKey());
     if (dataID === undefined) {
       this._handleMissingData(field, state);
       return;
     }
     if (dataID) {
-      var nextState = {
+      const nextState = {
         dataID,
         missingData: false,
         path: RelayQueryPath.getPath(state.path, field, dataID),
@@ -293,7 +293,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   }
 
   _handleMissingData(node: RelayQuery.Node, state: FinderState): void {
-    var dataID = state.dataID;
+    const dataID = state.dataID;
     if (this._cachedRecords.hasOwnProperty(dataID)) {
       // We have read data for this `dataID` from disk, but
       // we still don't have data for the relevant field.

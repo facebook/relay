@@ -15,7 +15,7 @@ const RelayRecordStatusMap = require('RelayRecordStatusMap');
 
 describe('RelayRecordStatusMap', () => {
   it('sets and checks optimistic status correctly', () => {
-    var result = 0;
+    let result = 0;
     expect(RelayRecordStatusMap.isOptimisticStatus(result)).toBe(false);
     result = RelayRecordStatusMap.setOptimisticStatus(
       result,
@@ -40,7 +40,7 @@ describe('RelayRecordStatusMap', () => {
   });
 
   it('sets and checks error status correctly', () => {
-    var result = 0;
+    let result = 0;
     expect(RelayRecordStatusMap.isErrorStatus(result)).toBe(false);
     result = RelayRecordStatusMap.setErrorStatus(
       result,

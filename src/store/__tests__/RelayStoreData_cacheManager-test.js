@@ -28,18 +28,18 @@ const RelayTestUtils = require('RelayTestUtils');
 const transformRelayQueryPayload = require('transformRelayQueryPayload');
 
 describe('RelayStoreData', function() {
-  var cacheManager;
-  var storeData;
+  let cacheManager;
+  let storeData;
 
-  var {getNode} = RelayTestUtils;
-  var CLIENT_MUTATION_ID, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
+  const {getNode} = RelayTestUtils;
+  let CLIENT_MUTATION_ID, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
 
   function getPathToRecord(dataID) {
     return storeData.getRecordStore().getPathToRecord(dataID);
   }
 
   function getRangeForRecord(dataID) {
-    var nodeData = storeData.getNodeData();
+    const nodeData = storeData.getNodeData();
     expect(Object.keys(nodeData)).toContain(dataID);
     return nodeData[dataID].__range__;
   }
@@ -109,15 +109,15 @@ describe('RelayStoreData', function() {
   });
 
   it('caches node metadata', () => {
-    var query = getNode(Relay.QL`query{node(id:"123"){id}}`);
-    var response = {
+    const query = getNode(Relay.QL`query{node(id:"123"){id}}`);
+    const response = {
       node: {
         __typename: 'User',
         id: '123',
       },
     };
     storeData.handleQueryPayload(query, response);
-    var {queryWriter} = cacheManager.mocks;
+    const {queryWriter} = cacheManager.mocks;
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
@@ -134,15 +134,15 @@ describe('RelayStoreData', function() {
   });
 
   it('caches custom root calls', () => {
-    var query = getNode(Relay.QL`query{username(name:"yuzhi"){id}}`);
-    var response = {
+    const query = getNode(Relay.QL`query{username(name:"yuzhi"){id}}`);
+    const response = {
       username: {
         __typename: 'User',
         id: '123',
       },
     };
     storeData.handleQueryPayload(query, response);
-    var {queryWriter} = cacheManager.mocks;
+    const {queryWriter} = cacheManager.mocks;
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
@@ -164,15 +164,15 @@ describe('RelayStoreData', function() {
   });
 
   it('caches nodes with client IDs', () => {
-    var query = getNode(Relay.QL`query{viewer{isFbEmployee}}`);
-    var response = {
+    const query = getNode(Relay.QL`query{viewer{isFbEmployee}}`);
+    const response = {
       viewer: {
         __typename: 'User',
         isFbEmployee: true,
       },
     };
     storeData.handleQueryPayload(query, response);
-    var {queryWriter} = cacheManager.mocks;
+    const {queryWriter} = cacheManager.mocks;
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
@@ -188,7 +188,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches linked records', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           id,
@@ -199,7 +199,7 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var response = {
+    const response = {
       node: {
         __typename: 'User',
         id: '123',
@@ -211,7 +211,7 @@ describe('RelayStoreData', function() {
       },
     };
     storeData.handleQueryPayload(query, response);
-    var {queryWriter} = cacheManager.mocks;
+    const {queryWriter} = cacheManager.mocks;
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
@@ -233,7 +233,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches plural fields', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           id,
@@ -243,7 +243,7 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var response = {
+    const response = {
       node: {
         __typename: 'User',
         id: '123',
@@ -254,7 +254,7 @@ describe('RelayStoreData', function() {
       },
     };
     storeData.handleQueryPayload(query, response);
-    var {queryWriter} = cacheManager.mocks;
+    const {queryWriter} = cacheManager.mocks;
 
     expect(getPathToRecord('client:1')).toEqual(getPathToRecord('client:2'));
     expect(queryWriter).toContainCalledMethods({
@@ -284,7 +284,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches connection fields', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           id,
@@ -303,7 +303,7 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var response = transformRelayQueryPayload(query, {
+    const response = transformRelayQueryPayload(query, {
       node: {
         __typename: 'User',
         id: '123',
@@ -332,7 +332,7 @@ describe('RelayStoreData', function() {
       },
     });
     storeData.handleQueryPayload(query, response);
-    var {queryWriter} = cacheManager.mocks;
+    const {queryWriter} = cacheManager.mocks;
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
@@ -373,7 +373,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches connection fields with no edges', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           id,
@@ -392,7 +392,7 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var response = transformRelayQueryPayload(query, {
+    const response = transformRelayQueryPayload(query, {
       node: {
         __typename: 'User',
         id: '123',
@@ -406,7 +406,7 @@ describe('RelayStoreData', function() {
       },
     });
     storeData.handleQueryPayload(query, response);
-    var {queryWriter} = cacheManager.mocks;
+    const {queryWriter} = cacheManager.mocks;
 
     expect(queryWriter).toContainCalledMethods({
       writeNode: 0,
@@ -429,8 +429,8 @@ describe('RelayStoreData', function() {
   });
 
   it('caches simple mutations', () => {
-    var query = getNode(Relay.QL`query{node(id:"123"){id,doesViewerLike}}`);
-    var response = {
+    const query = getNode(Relay.QL`query{node(id:"123"){id,doesViewerLike}}`);
+    const response = {
       node: {
         __typename: 'User',
         id: '123',
@@ -438,9 +438,9 @@ describe('RelayStoreData', function() {
       },
     };
     storeData.handleQueryPayload(query, response);
-    var {mutationWriter} = cacheManager.mocks;
+    const {mutationWriter} = cacheManager.mocks;
 
-    var mutationQuery = getNode(Relay.QL`
+    const mutationQuery = getNode(Relay.QL`
       mutation {
         feedbackLike(input:$input) {
           clientMutationId,
@@ -451,7 +451,7 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var payload = {
+    const payload = {
       [CLIENT_MUTATION_ID]: 'abc',
       feedback: {
         id: '123',
@@ -477,7 +477,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches mutation that inserts an edge', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           id,
@@ -497,7 +497,7 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var response = transformRelayQueryPayload(query, {
+    const response = transformRelayQueryPayload(query, {
       node: {
         __typename: 'Story',
         id: '123',
@@ -519,16 +519,16 @@ describe('RelayStoreData', function() {
       },
     });
     storeData.handleQueryPayload(query, response);
-    var {mutationWriter} = cacheManager.mocks;
+    const {mutationWriter} = cacheManager.mocks;
 
-    var configs = [{
+    const configs = [{
       type: RelayMutationType.RANGE_ADD,
       connectionName: 'comments',
       edgeName: 'feedbackCommentEdge',
       rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
     }];
 
-    var mutationQuery = getNode(Relay.QL`
+    const mutationQuery = getNode(Relay.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId,
@@ -550,7 +550,7 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var payload = {
+    const payload = {
       [CLIENT_MUTATION_ID]: 'abc',
       feedback: {
         comments: {
@@ -599,7 +599,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches mutation that deletes an edge', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           id,
@@ -619,7 +619,7 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var response = transformRelayQueryPayload(query, {
+    const response = transformRelayQueryPayload(query, {
       node: {
         __typename: 'Story',
         id: '123',
@@ -641,15 +641,15 @@ describe('RelayStoreData', function() {
       },
     });
     storeData.handleQueryPayload(query, response);
-    var {mutationWriter} = cacheManager.mocks;
+    const {mutationWriter} = cacheManager.mocks;
 
-    var configs = [{
+    const configs = [{
       type: RelayMutationType.RANGE_DELETE,
       pathToConnection: ['feedback', 'comments'],
       deletedIDFieldName: 'deletedCommentId',
     }];
 
-    var mutationQuery = getNode(Relay.QL`
+    const mutationQuery = getNode(Relay.QL`
       mutation {
         commentDelete(input:$input) {
           clientMutationId,
@@ -663,7 +663,7 @@ describe('RelayStoreData', function() {
         }
       }
     `);
-    var payload = {
+    const payload = {
       [CLIENT_MUTATION_ID]: 'abc',
       deletedCommentId: '1',
       feedback: {

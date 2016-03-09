@@ -60,11 +60,11 @@ class GraphQLStoreRangeUtils {
    * @return {string}
    */
   getClientIDForRangeWithID(calls, callValues, dataID) {
-    var callsAsString = callsFromGraphQL(calls, callValues)
+    const callsAsString = callsFromGraphQL(calls, callValues)
       .map(call => serializeRelayQueryCall(call).substring(1))
       .join(',');
-    var key = dataID + '_' + callsAsString;
-    var edge = this._rangeData[key];
+    const key = dataID + '_' + callsAsString;
+    const edge = this._rangeData[key];
     if (!edge) {
       this._rangeData[key] = {
         dataID: dataID,

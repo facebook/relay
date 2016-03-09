@@ -15,7 +15,7 @@ import Relay from 'react-relay';
 
 class StarWarsShip extends React.Component {
   render() {
-    var {ship} = this.props;
+    const {ship} = this.props;
     return <div>{ship.name}</div>;
   }
 }

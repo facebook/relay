@@ -20,41 +20,41 @@ const callsToGraphQL = require('callsToGraphQL');
 
 describe('callsToGraphQL', function() {
   it('converts array calls with null values', () => {
-    var relayCalls = [{
+    const relayCalls = [{
       name: 'size',
       value: null,
     }];
-    var graphqlCalls = [RelayTestUtils.createCall('size', null)];
+    const graphqlCalls = [RelayTestUtils.createCall('size', null)];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
     expect(callsToGraphQL(relayCalls)).toEqual(graphqlCalls);
   });
 
   it('converts array calls without values', () => {
-    var relayCalls = [{
+    const relayCalls = [{
       name: 'size',
       value: [],
     }];
-    var graphqlCalls = [RelayTestUtils.createCall('size', [])];
+    const graphqlCalls = [RelayTestUtils.createCall('size', [])];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
     expect(callsToGraphQL(relayCalls)).toEqual(graphqlCalls);
   });
 
   it('converts calls with array values', () => {
-    var relayCalls = [{
+    const relayCalls = [{
       name: 'size',
       value: [32, 64],
     }];
-    var graphqlCalls = [RelayTestUtils.createCall('size', [32, 64])];
+    const graphqlCalls = [RelayTestUtils.createCall('size', [32, 64])];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
     expect(callsToGraphQL(relayCalls)).toEqual(graphqlCalls);
   });
 
   it('converts singular calls with null values', () => {
-    var relayCalls = [{
+    const relayCalls = [{
       name: 'size',
       value: 32,
     }];
-    var graphqlCalls = [RelayTestUtils.createCall('size', 32)];
+    const graphqlCalls = [RelayTestUtils.createCall('size', 32)];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
     expect(callsToGraphQL(relayCalls)).toEqual(graphqlCalls);
   });

@@ -9,23 +9,23 @@
  * @providesModule DocsSidebar
 */
 
-var Metadata = require('Metadata');
+const Metadata = require('Metadata');
 
-var DocsSidebar = React.createClass({
+const DocsSidebar = React.createClass({
   getCategories: function() {
-    var metadatas = Metadata.files.filter(function(metadata) {
+    const metadatas = Metadata.files.filter(function(metadata) {
       return metadata.layout === 'docs';
     });
 
     // Build a hashmap of article_id -> metadata
-    var articles = {}
+    const articles = {};
     for (var i = 0; i < metadatas.length; ++i) {
       var metadata = metadatas[i];
       articles[metadata.id] = metadata;
     }
 
     // Build a hashmap of article_id -> previous_id
-    var previous = {};
+    const previous = {};
     for (var i = 0; i < metadatas.length; ++i) {
       var metadata = metadatas[i];
       if (metadata.next) {
@@ -37,7 +37,7 @@ var DocsSidebar = React.createClass({
     }
 
     // Find the first element which doesn't have any previous
-    var first = null;
+    let first = null;
     for (var i = 0; i < metadatas.length; ++i) {
       var metadata = metadatas[i];
       if (!previous[metadata.id]) {
@@ -46,8 +46,8 @@ var DocsSidebar = React.createClass({
       }
     }
 
-    var categories = [];
-    var currentCategory = null;
+    const categories = [];
+    let currentCategory = null;
 
     var metadata = first;
     var i = 0;

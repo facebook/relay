@@ -7,20 +7,20 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var buildGraphQLSpec = require('./buildGraphQLSpec');
-var request = require('request');
-var glob = require('glob');
-var fs = require('fs-extra');
-var mkdirp = require('mkdirp');
-var server = require('./server.js');
-var exec = require('child_process').execSync;
+const buildGraphQLSpec = require('./buildGraphQLSpec');
+const request = require('request');
+const glob = require('glob');
+const fs = require('fs-extra');
+const mkdirp = require('mkdirp');
+const server = require('./server.js');
+const exec = require('child_process').execSync;
 
 // Sadly, our setup fatals when doing multiple concurrent requests
 // I don't have the time to dig into why, it's easier to just serialize
 // requests.
-var queue = (function() {
-  var is_executing = false;
-  var queue = [];
+const queue = (function() {
+  let is_executing = false;
+  const queue = [];
   function push(fn) {
     queue.push(fn);
     execute();
@@ -32,7 +32,7 @@ var queue = (function() {
     if (queue.length === 0) {
       return;
     }
-    var fn = queue.shift();
+    const fn = queue.shift();
     is_executing = true;
     fn(function() {
       is_executing = false;
@@ -50,10 +50,10 @@ exec('npm run build', {
 buildGraphQLSpec('build');
 
 glob('src/**/*.*', function(er, files) {
-  var count = files.length;
+  const count = files.length;
 
   files.forEach(function(file) {
-    var targetFile = file.replace(/^src/, 'build');
+    let targetFile = file.replace(/^src/, 'build');
 
     if (file.match(/\.js$/)) {
       targetFile = targetFile.replace(/\.js$/, '.html');

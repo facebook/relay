@@ -9,9 +9,9 @@
 
 'use strict';
 
-var count = 1;
+let count = 1;
 
-var generateClientID = jest.genMockFunction().mockImplementation(
+const generateClientID = jest.genMockFunction().mockImplementation(
   () => { return 'client:' + count++; }
 );
 

@@ -13,7 +13,7 @@ import {
   GraphQLString,
 } from 'graphql';
 
-var GREETINGS = {
+const GREETINGS = {
   hello: 'Hello world',
 };
 
@@ -24,7 +24,7 @@ var GREETINGS = {
  * type of object that has a 'hello' field
  * that is of the string type.
  */
-var GreetingsType = new GraphQLObjectType({
+const GreetingsType = new GraphQLObjectType({
   name: 'Greetings',
   fields: () => ({
     hello: {type: GraphQLString},

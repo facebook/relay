@@ -22,7 +22,7 @@ const RelayMetaRoute = require('RelayMetaRoute');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayFragmentReference', () => {
-  var route;
+  let route;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -32,7 +32,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('creates fragments with default variables', () => {
-    var node = Relay.QL`
+    const node = Relay.QL`
       fragment on User {
         profilePicture(size:$size) {
           uri,
@@ -40,13 +40,13 @@ describe('RelayFragmentReference', () => {
       }
     `;
     // equivalent to `getQuery('foo')` without variables
-    var reference = new RelayFragmentReference(
+    const reference = new RelayFragmentReference(
       () => node,
       {
         size: 'default',
       }
     );
-    var variables = {size: 'ignored'};
+    const variables = {size: 'ignored'};
     expect(reference instanceof RelayFragmentReference).toBe(true);
     // size ignored because no variables are passed into the fragment
     expect(reference.getFragment(variables)).toBe(node);
@@ -56,7 +56,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('creates fragments with a variable mapping', () => {
-    var node = Relay.QL`
+    const node = Relay.QL`
       fragment on User {
         profilePicture(size:$size) {
           uri,
@@ -64,7 +64,7 @@ describe('RelayFragmentReference', () => {
       }
     `;
     // equivalent to `getQuery('foo', {size: variables.outerSize})`
-    var reference = new RelayFragmentReference(
+    const reference = new RelayFragmentReference(
       () => node,
       {
         size: 'default',
@@ -74,7 +74,7 @@ describe('RelayFragmentReference', () => {
       }
     );
     // no outer variable, default is used
-    var variables = {};
+    let variables = {};
     expect(reference.getFragment(variables)).toBe(node);
     expect(reference.getVariables(route, variables)).toEqual({
       size: 'default',
@@ -89,8 +89,8 @@ describe('RelayFragmentReference', () => {
   });
 
   it('creates deferred fragment references', () => {
-    var node = Relay.QL`fragment on Node{id}`;
-    var reference = new RelayFragmentReference(() => node, {});
+    const node = Relay.QL`fragment on Node{id}`;
+    const reference = new RelayFragmentReference(() => node, {});
     reference.defer();
 
     // fragment is the original node, unchanged and not deferred
@@ -100,12 +100,12 @@ describe('RelayFragmentReference', () => {
   });
 
   it('creates fragments with if/unless conditions', () => {
-    var node = Relay.QL`fragment on Node{id}`;
-    var reference = new RelayFragmentReference(() => node, {});
+    const node = Relay.QL`fragment on Node{id}`;
+    const reference = new RelayFragmentReference(() => node, {});
     reference.if(QueryBuilder.createCallVariable('if'));
     reference.unless(QueryBuilder.createCallVariable('unless'));
 
-    var fragment = reference.getFragment({if: true, unless: false});
+    let fragment = reference.getFragment({if: true, unless: false});
     expect(fragment).toBe(node);
 
     fragment = reference.getFragment({if: false, unless: false});
@@ -119,9 +119,9 @@ describe('RelayFragmentReference', () => {
   });
 
   it('processes variables using the route', () => {
-    var node = Relay.QL`fragment on Node{id}`;
-    var prepareVariables = jest.genMockFunction();
-    var reference = new RelayFragmentReference(
+    const node = Relay.QL`fragment on Node{id}`;
+    const prepareVariables = jest.genMockFunction();
+    const reference = new RelayFragmentReference(
       () => node,
       {
         size: 'default',
@@ -130,21 +130,21 @@ describe('RelayFragmentReference', () => {
       prepareVariables
     );
 
-    var customVariables = {
+    const customVariables = {
       size: 'override',
       other: 'custom',
     };
     prepareVariables.mockImplementation(() => customVariables);
 
-    var variables = {size: 'default'};
+    const variables = {size: 'default'};
     expect(reference.getFragment(variables)).toBe(node);
     expect(reference.getVariables(route, variables)).toEqual(customVariables);
     expect(prepareVariables).toBeCalledWith({size: 'default'}, route);
   });
 
   it('warns if a variable is undefined', () => {
-    var node = Relay.QL`fragment on Node{id}`;
-    var reference = new RelayFragmentReference(
+    const node = Relay.QL`fragment on Node{id}`;
+    const reference = new RelayFragmentReference(
       () => node,
       {},
       {
@@ -152,7 +152,7 @@ describe('RelayFragmentReference', () => {
         static: undefined,
       }
     );
-    var variables = {};
+    const variables = {};
     expect(reference.getFragment(variables)).toBe(node);
     expect(reference.getVariables(route, variables)).toEqual({});
     expect([

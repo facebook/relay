@@ -23,7 +23,7 @@ const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRecordStore', () => {
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -33,34 +33,34 @@ describe('RelayRecordStore', () => {
 
   describe('getRecordState()', () => {
     it('returns "UNKNOWN" if an ID is unfetched', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
+      const records = {};
+      const store = new RelayRecordStore({records});
       expect(store.getRecordState('4')).toBe('UNKNOWN');
     });
 
     it('returns "NONEXISTENT" if an ID is deleted', () => {
-      var records = {'4': null};
-      var store = new RelayRecordStore({records});
+      const records = {'4': null};
+      const store = new RelayRecordStore({records});
       expect(store.getRecordState('4')).toBe('NONEXISTENT');
     });
 
     it('returns "EXISTENT" if the record exists', () => {
-      var records = {
+      const records = {
         '4': {
           id: '4',
           __dataID__: '4',
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getRecordState('4')).toBe('EXISTENT');
     });
 
     it('prefers queued records over non-existent records', () => {
-      var queuedRecord = {
+      const queuedRecord = {
         id: '4',
         __dataID__: '4',
       };
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         records: {},
         queuedRecords: {'4': queuedRecord},
       });
@@ -68,11 +68,11 @@ describe('RelayRecordStore', () => {
     });
 
     it('prefers queued records over deleted records', () => {
-      var queuedRecord = {
+      const queuedRecord = {
         id: '4',
         __dataID__: '4',
       };
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         records: {'4': null},
         queuedRecords: {'4': queuedRecord},
       });
@@ -80,11 +80,11 @@ describe('RelayRecordStore', () => {
     });
 
     it('prefers queued records when they are deleted', () => {
-      var record = {
+      const record = {
         id: '4',
         __dataID__: '4',
       };
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         records: {'4': record},
         queuedRecords: {'4': null},
       });
@@ -92,11 +92,11 @@ describe('RelayRecordStore', () => {
     });
 
     it('prefers queued records over cached records', () => {
-      var record = {
+      const record = {
         id: '4',
         __dataID__: '4',
       };
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         queuedRecords: {'4': record},
         records: {},
         cachedRecords: {'4': null},
@@ -105,11 +105,11 @@ describe('RelayRecordStore', () => {
     });
 
     it('prefers existing records over cached records', () => {
-      var record = {
+      const record = {
         id: '4',
         __dataID__: '4',
       };
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         records: {'4': record},
         cachedRecords: {'4': null},
       });
@@ -117,11 +117,11 @@ describe('RelayRecordStore', () => {
     });
 
     it('falls back to cached records when necessary', () => {
-      var record = {
+      const record = {
         id: '4',
         __dataID__: '4',
       };
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         records: {},
         cachedRecords: {'4': record},
       });
@@ -131,7 +131,7 @@ describe('RelayRecordStore', () => {
 
   describe('hasOptimisticUpdate', () => {
     it('returns true if record is queued', () => {
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         records: {},
         queuedRecords: {'4': {__dataID__: '4'}},
       });
@@ -139,7 +139,7 @@ describe('RelayRecordStore', () => {
     });
 
     it('returns false if record is not queued', () => {
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         records: {'4': {__dataID__: '4'}},
         queuedRecords: {},
       });
@@ -147,7 +147,7 @@ describe('RelayRecordStore', () => {
     });
 
     it('throws if called on a non-queued record store', () => {
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         records: {'4': {__dataID__: '4'}},
       });
       expect(() => {
@@ -161,10 +161,10 @@ describe('RelayRecordStore', () => {
 
   describe('getPathToRecord', () => {
     it('returns undefined for refetchable records', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -173,8 +173,8 @@ describe('RelayRecordStore', () => {
           }
         }
       `);
-      var actorID = '123';
-      var path = RelayQueryPath.getPath(
+      const actorID = '123';
+      const path = RelayQueryPath.getPath(
         RelayQueryPath.create(query),
         query.getFieldByStorageKey('actor'),
         actorID
@@ -184,10 +184,10 @@ describe('RelayRecordStore', () => {
     });
 
     it('returns the path for non-refetchable records', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -198,9 +198,9 @@ describe('RelayRecordStore', () => {
           }
         }
       `);
-      var actorID = '123';
-      var addressID = 'client:1';
-      var path = RelayQueryPath.getPath(
+      const actorID = '123';
+      const addressID = 'client:1';
+      const path = RelayQueryPath.getPath(
         RelayQueryPath.getPath(
           RelayQueryPath.create(query),
           query.getFieldByStorageKey('actor'),
@@ -216,62 +216,62 @@ describe('RelayRecordStore', () => {
 
   describe('getField()', () => {
     it('returns undefined if the record is undefined', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
+      const records = {};
+      const store = new RelayRecordStore({records});
       expect(store.getField('4', 'name')).toBe(undefined);
     });
 
     it('returns null if the record is deleted', () => {
-      var records = {'4': null};
-      var store = new RelayRecordStore({records});
+      const records = {'4': null};
+      const store = new RelayRecordStore({records});
       expect(store.getField('4', 'name')).toBe(null);
     });
 
     it('returns undefined if the field is undefined', () => {
-      var records = {'4': {}};
-      var store = new RelayRecordStore({records});
+      const records = {'4': {}};
+      const store = new RelayRecordStore({records});
       expect(store.getField('4', 'name')).toBe(undefined);
     });
 
     it('returns null if the field is deleted', () => {
-      var records = {'4': {'name': null}};
-      var store = new RelayRecordStore({records});
+      const records = {'4': {'name': null}};
+      const store = new RelayRecordStore({records});
       expect(store.getField('4', 'name')).toBe(null);
     });
 
     it('returns field values for scalar fields', () => {
-      var records = {
+      const records = {
         '4': {
           id: '4',
           __dataID__: '4',
           name: 'Zuck',
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getField('4', 'name')).toBe('Zuck');
       expect(store.getField('4', 'id')).toBe('4');
 
-      var queuedStore = new RelayRecordStore({queuedRecords: records});
+      const queuedStore = new RelayRecordStore({queuedRecords: records});
       expect(queuedStore.getField('4', 'name')).toBe('Zuck');
       expect(queuedStore.getField('4', 'id')).toBe('4');
 
-      var cachedStore = new RelayRecordStore({cachedRecords: records});
+      const cachedStore = new RelayRecordStore({cachedRecords: records});
       expect(cachedStore.getField('4', 'name')).toBe('Zuck');
       expect(cachedStore.getField('4', 'id')).toBe('4');
     });
 
     it('prefers fields from queued records', () => {
-      var record = {
+      const record = {
         id: '4',
         name: 'Zuck',
         __dataID__: '4',
       };
-      var queuedRecord = {
+      const queuedRecord = {
         id: '4',
         name: 'Mark',
         __dataID__: '4',
       };
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         records: {'4': record},
         queuedRecords: {'4': queuedRecord},
       });
@@ -279,17 +279,17 @@ describe('RelayRecordStore', () => {
     });
 
     it('prefers fields from existing records over cached records', () => {
-      var record = {
+      const record = {
         id: '4',
         name: 'Zuck',
         __dataID__: '4',
       };
-      var cachedRecord = {
+      const cachedRecord = {
         id: '4',
         name: 'Mark',
         __dataID__: '4',
       };
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         records: {'4': record},
         cachedRecords: {'4': cachedRecord},
       });
@@ -297,16 +297,16 @@ describe('RelayRecordStore', () => {
     });
 
     it('falls through to existing records for fields not in the queued record', () => {
-      var record = {
+      const record = {
         id: '4',
         name: 'Zuck',
         __dataID__: '4',
       };
-      var queuedRecord = {
+      const queuedRecord = {
         id: '4',
         __dataID__: '4',
       };
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         records: {'4': record},
         queuedRecords: {'4': queuedRecord},
       });
@@ -314,16 +314,16 @@ describe('RelayRecordStore', () => {
     });
 
     it('falls through to cached records for fields not in the existing record', () => {
-      var record = {
+      const record = {
         id: '4',
         __dataID__: '4',
       };
-      var cachedRecord = {
+      const cachedRecord = {
         id: '4',
         name: 'Mark',
         __dataID__: '4',
       };
-      var store = new RelayRecordStore({
+      const store = new RelayRecordStore({
         cachedRecords: {'4': cachedRecord},
         records: {'4': record},
       });
@@ -333,42 +333,42 @@ describe('RelayRecordStore', () => {
 
   describe('getLinkedRecordID()', () => {
     it('throws if the data is an unexpected format', () => {
-      var records = {
+      const records = {
         story: {
           feedback: 'not an object',
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(() => {
         store.getLinkedRecordID('story', 'feedback');
       }).toThrow();
     });
 
     it('returns undefined for unfetched objects', () => {
-      var records = {
+      const records = {
         '4': {
           id: '4',
           __dataID__: '4',
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getLinkedRecordID('4', 'address')).toBe(undefined);
     });
 
     it('returns null for deleted linked fields', () => {
-      var records = {
+      const records = {
         '4': {
           id: '4',
           __dataID__: '4',
           address: null,
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getLinkedRecordID('4', 'address')).toBe(null);
     });
 
     it('returns the data ID for linked fields', () => {
-      var records = {
+      const records = {
         '4': {
           id: '4',
           __dataID__: '4',
@@ -380,49 +380,49 @@ describe('RelayRecordStore', () => {
           street: '1 Hacker Way',
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getLinkedRecordID('4', 'address')).toBe('client:1');
     });
   });
 
   describe('getLinkedRecordIDs()', () => {
     it('throws if the data is an unexpected format', () => {
-      var records = {
+      const records = {
         'story': {
           actors: ['not an object'],
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(() => {
         store.getLinkedRecordIDs('story', 'actors');
       }).toThrow();
     });
 
     it('returns undefined for unfetched fields', () => {
-      var records = {
+      const records = {
         '4': {
           id: '4',
           __dataID__: '4',
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getLinkedRecordIDs('4', 'actors')).toBe(undefined);
     });
 
     it('returns null for deleted linked fields', () => {
-      var records = {
+      const records = {
         '4': {
           id: '4',
           __dataID__: '4',
           actors: null,
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getLinkedRecordIDs('4', 'actors')).toBe(null);
     });
 
     it('returns an array of linked data IDs', () => {
-      var records = {
+      const records = {
         '4': {
           id: '4',
           __dataID__: '4',
@@ -432,7 +432,7 @@ describe('RelayRecordStore', () => {
           ],
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getLinkedRecordIDs('4', 'actors')).toEqual([
         'item:1',
         'item:2',
@@ -441,7 +441,7 @@ describe('RelayRecordStore', () => {
   });
 
   describe('getRangeMetadata()', () => {
-    var mockRange, records;
+    let mockRange, records;
 
     beforeEach(() => {
       mockRange = new GraphQLRange();
@@ -469,15 +469,15 @@ describe('RelayRecordStore', () => {
     });
 
     it('returns null/undefined if the connection ID is null-ish', () => {
-      var store = new RelayRecordStore({records: {}});
+      const store = new RelayRecordStore({records: {}});
       expect(store.getRangeMetadata(null, [])).toBe(null);
       expect(store.getRangeMetadata(undefined, [])).toBe(undefined);
     });
 
     it('returns undefined if the `edges` are unfetched', () => {
       delete records['client:1'].__range__;
-      var store = new RelayRecordStore({records});
-      var calls = [
+      const store = new RelayRecordStore({records});
+      const calls = [
         {name: 'first', value: '10'},
         {name: 'orderby', value: 'TOP_STORIES'},
       ];
@@ -486,7 +486,7 @@ describe('RelayRecordStore', () => {
 
     it('throws if the range is null', () => {
       records['client:1'].__range__ = null;
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       store.getRangeMetadata('client:1', []);
       expect([
         'RelayRecordStore.getRangeMetadata(): Expected range to exist if ' +
@@ -496,11 +496,11 @@ describe('RelayRecordStore', () => {
 
     it('filters out edges without nodes', () => {
       records['node:1'] = null;
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       mockRange.retrieveRangeInfoForQuery.mockReturnValue({
         requestedEdgeIDs: ['edge:1'],
       });
-      var metadata = store.getRangeMetadata(
+      const metadata = store.getRangeMetadata(
         'client:1',
         [{name: 'first', value: 1}]
       );
@@ -508,10 +508,10 @@ describe('RelayRecordStore', () => {
     });
 
     it('returns empty diff calls if range is already fetched', () => {
-      var diffCalls = [];
+      const diffCalls = [];
       mockRange.retrieveRangeInfoForQuery.mockReturnValue({diffCalls});
-      var store = new RelayRecordStore({records});
-      var rangeInfo = store.getRangeMetadata('client:1', []);
+      const store = new RelayRecordStore({records});
+      const rangeInfo = store.getRangeMetadata('client:1', []);
       expect(rangeInfo.diffCalls).toEqual([]);
       expect(rangeInfo.filterCalls).toEqual([]);
       expect(rangeInfo.filteredEdges).toEqual([]);
@@ -525,8 +525,8 @@ describe('RelayRecordStore', () => {
           {name: 'after', value: 'edge:1'},
         ],
       });
-      var store = new RelayRecordStore({records});
-      var rangeInfo = store.getRangeMetadata('client:1', [
+      const store = new RelayRecordStore({records});
+      const rangeInfo = store.getRangeMetadata('client:1', [
         {name: 'orderby', value: ['TOP_STORIES']},
         {name: 'first', value: 2},
       ]);
@@ -548,11 +548,11 @@ describe('RelayRecordStore', () => {
 
   describe('getRangeFilterCalls', () => {
     it('returns null/undefined for deleted/unfetched records', () => {
-      var records = {
+      const records = {
         deleted: null,
         notARange: {},
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
 
       expect(store.getRangeFilterCalls('unfetched')).toBe(undefined);
       expect(store.getRangeFilterCalls('deleted')).toBe(null);
@@ -560,19 +560,19 @@ describe('RelayRecordStore', () => {
     });
 
     it('returns filter calls for range records', () => {
-      var calls = [
+      const calls = [
         {
           name: 'orderby',
           value: 'TOP_STORIES',
         },
       ];
-      var records = {
+      const records = {
         'client:1': {
           __range__: new GraphQLRange(),
           __filterCalls__: calls,
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
 
       expect(store.getRangeFilterCalls('client:1')).toEqual(calls);
     });
@@ -580,26 +580,26 @@ describe('RelayRecordStore', () => {
 
   describe('getConnectionIDsForRecord', () => {
     it('returns null for non-existent records', () => {
-      var records = {
+      const records = {
         deleted: null,
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getConnectionIDsForRecord('unfetched')).toBe(null);
       expect(store.getConnectionIDsForRecord('deleted')).toBe(null);
     });
 
     it('returns null if the record is not in a connection', () => {
-      var records = {
+      const records = {
         '1': {
           __dataID__: '1',
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getConnectionIDsForRecord('1')).toBe(null);
     });
 
     it('returns the connection ids containing the node', () => {
-      var records = {
+      const records = {
         '1': {
           __dataID__: '1',
         },
@@ -610,14 +610,14 @@ describe('RelayRecordStore', () => {
           __dataID__: 'range:2',
         },
       };
-      var nodeRangeMap = {
+      const nodeRangeMap = {
         '1': {
           'range:1': true,
           'range:2': true,
         },
       };
-      var store = new RelayRecordStore({records}, null, nodeRangeMap);
-      var writer = new RelayRecordWriter(records, {}, false, nodeRangeMap);
+      const store = new RelayRecordStore({records}, null, nodeRangeMap);
+      const writer = new RelayRecordWriter(records, {}, false, nodeRangeMap);
       expect(store.getConnectionIDsForRecord('1')).toEqual([
         'range:1',
         'range:2',
@@ -631,10 +631,10 @@ describe('RelayRecordStore', () => {
 
   describe('getConnectionIDsForField()', () => {
     it('returns null/undefined for non-existent records', () => {
-      var records = {
+      const records = {
         'deleted': null,
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getConnectionIDsForField('unfetched', 'news_feed')).toBe(
         undefined
       );
@@ -642,15 +642,15 @@ describe('RelayRecordStore', () => {
     });
 
     it('returns undefined if the connection is unfetched', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
       writer.putRecord('1', 'Type');
       expect(store.getConnectionIDsForField('1', 'news_feed')).toBe(undefined);
     });
 
     it('returns all fetched connections', () => {
-      var records = {
+      const records = {
         '1': {
           __dataID__: '1',
           'photos': {
@@ -661,25 +661,25 @@ describe('RelayRecordStore', () => {
           },
         },
       };
-      var store = new RelayRecordStore({records});
+      const store = new RelayRecordStore({records});
       expect(store.getConnectionIDsForField('1', 'photos')).toEqual(['2', '3']);
     });
   });
 
   describe('getRootCallID', () => {
     it('returns undefined if unfetched and not cached', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
+      const records = {};
+      const store = new RelayRecordStore({records});
       expect(store.getDataID('viewer')).toBe(undefined);
     });
 
     it('returns cached id if unfetched', () => {
-      var id = 'client:1';
-      var cachedRootCallMap = {viewer: {'': id}};
-      var rootCallMap = {};
-      var records = {};
+      const id = 'client:1';
+      const cachedRootCallMap = {viewer: {'': id}};
+      const rootCallMap = {};
+      const records = {};
 
-      var store = new RelayRecordStore(
+      const store = new RelayRecordStore(
         {records},
         {rootCallMap, cachedRootCallMap}
       );
@@ -687,13 +687,13 @@ describe('RelayRecordStore', () => {
     });
 
     it('returns fetched id over cached id', () => {
-      var cachedID = 'client:cached';
-      var cachedRootCallMap = {viewer: {'': cachedID}};
-      var id = 'client:fetched';
-      var rootCallMap = {viewer: {'': id}};
-      var records = {};
+      const cachedID = 'client:cached';
+      const cachedRootCallMap = {viewer: {'': cachedID}};
+      const id = 'client:fetched';
+      const rootCallMap = {viewer: {'': id}};
+      const records = {};
 
-      var store = new RelayRecordStore(
+      const store = new RelayRecordStore(
         {records},
         {rootCallMap, cachedRootCallMap}
       );
@@ -703,13 +703,13 @@ describe('RelayRecordStore', () => {
 
   describe('removeRecord', () => {
     it('completely removes the data from the store', () => {
-      var cachedRecords = {'a': {__dataID__: 'a'}};
-      var queuedRecords = {'a': {__dataID__: 'a'}};
-      var records = {'a': {__dataID__: 'a'}};
-      var nodeConnectionMap = {
+      const cachedRecords = {'a': {__dataID__: 'a'}};
+      const queuedRecords = {'a': {__dataID__: 'a'}};
+      const records = {'a': {__dataID__: 'a'}};
+      const nodeConnectionMap = {
         a: {'client:1': true},
       };
-      var store = new RelayRecordStore(
+      const store = new RelayRecordStore(
         {cachedRecords, queuedRecords, records},
         null,
         nodeConnectionMap

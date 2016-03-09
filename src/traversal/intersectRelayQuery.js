@@ -41,7 +41,7 @@ function intersectRelayQuery<Tn: RelayQuery.Node>(
   filterUnterminatedRange?: UnterminatedRangeFilter,
 ): ?Tn {
   filterUnterminatedRange = filterUnterminatedRange || returnsFalse;
-  var visitor = new RelayQueryIntersector(filterUnterminatedRange);
+  const visitor = new RelayQueryIntersector(filterUnterminatedRange);
   return visitor.traverse(subjectNode, patternNode);
 }
 
@@ -76,11 +76,11 @@ class RelayQueryIntersector extends RelayQueryTransform<RelayQuery.Node> {
         return this.visit(subjectChild, patternNode);
       }
       if (subjectChild instanceof RelayQuery.Field) {
-        var schemaName = subjectChild.getSchemaName();
-        var patternChild;
-        var patternChildren = patternNode.getChildren();
-        for (var ii = 0; ii < patternChildren.length; ii++) {
-          var child = patternChildren[ii];
+        const schemaName = subjectChild.getSchemaName();
+        let patternChild;
+        const patternChildren = patternNode.getChildren();
+        for (let ii = 0; ii < patternChildren.length; ii++) {
+          const child = patternChildren[ii];
           invariant(
             child instanceof RelayQuery.Field,
             'intersectRelayQuery(): Nodes in `patternNode` must be fields.'
@@ -104,7 +104,7 @@ class RelayQueryIntersector extends RelayQueryTransform<RelayQuery.Node> {
  */
 class RelayQueryRangeFilter extends RelayQueryTransform<void> {
   visitField(node: RelayQuery.Field): ?RelayQuery.Node {
-    var schemaName = node.getSchemaName();
+    const schemaName = node.getSchemaName();
     if (schemaName === RelayConnectionInterface.EDGES ||
         schemaName === RelayConnectionInterface.PAGE_INFO) {
       return null;

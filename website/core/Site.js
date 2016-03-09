@@ -2,12 +2,12 @@
  * @providesModule Site
 */
 
-var React = require('React');
-var HeaderLinks = require('HeaderLinks');
+const React = require('React');
+const HeaderLinks = require('HeaderLinks');
 
-var Site = React.createClass({
+const Site = React.createClass({
   render: function() {
-    var title = this.props.title ? this.props.title : 'Relay | A JavaScript framework for building data-driven React applications';
+    const title = this.props.title ? this.props.title : 'Relay | A JavaScript framework for building data-driven React applications';
     return (
       <html>
         <head>

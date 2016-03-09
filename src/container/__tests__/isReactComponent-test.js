@@ -25,14 +25,14 @@ describe('isReactComponent', function() {
   });
 
   it('identifies components created by React.createClass()', function() {
-    var MockComponent = React.createClass({
+    const MockComponent = React.createClass({
       render: () => <div />,
     });
     expect(isReactComponent(MockComponent)).toBe(true);
   });
 
   it('does not identify function components', function() {
-    var MockComponent = () => <div />;
+    const MockComponent = () => <div />;
     expect(isReactComponent(MockComponent)).toBe(false);
   });
 });

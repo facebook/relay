@@ -29,21 +29,21 @@ const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 const warning = require('warning');
 
 describe('GraphQLQueryRunner', () => {
-  var networkLayer;
-  var queryRunner;
-  var pendingQueryTracker;
+  let networkLayer;
+  let queryRunner;
+  let pendingQueryTracker;
 
-  var mockCallback;
-  var mockQuerySet;
+  let mockCallback;
+  let mockQuerySet;
 
-  var {defer, getNode} = RelayTestUtils;
+  const {defer, getNode} = RelayTestUtils;
 
   /**
    * Helper method, returns a clone of `query` that has been marked as
    * deferred.
    */
   function deferQuery(relayQuery) {
-    var node = {
+    const node = {
       ...relayQuery.getConcreteQueryNode(),
       isDeferred: true,
     };
@@ -62,7 +62,7 @@ describe('GraphQLQueryRunner', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    var storeData = new RelayStoreData();
+    const storeData = new RelayStoreData();
     networkLayer = storeData.getNetworkLayer();
     queryRunner = storeData.getQueryRunner();
     pendingQueryTracker = storeData.getPendingQueryTracker();
@@ -97,7 +97,7 @@ describe('GraphQLQueryRunner', () => {
     queryRunner.run(mockQuerySet, mockCallback);
     jest.runAllTimers();
 
-    var diffQueryCalls = diffRelayQuery.mock.calls;
+    const diffQueryCalls = diffRelayQuery.mock.calls;
     expect(diffQueryCalls.length).toBe(2);
     expect(diffQueryCalls[0][0]).toEqualQueryNode(mockQuerySet.foo);
     expect(diffQueryCalls[1][0]).toEqualQueryNode(mockQuerySet.bar);
@@ -113,8 +113,8 @@ describe('GraphQLQueryRunner', () => {
       supports: () => false,
     });
 
-    var fragment = Relay.QL`fragment on Node{id}`;
-    var querySet = {
+    const fragment = Relay.QL`fragment on Node{id}`;
+    const querySet = {
       foo: getNode(Relay.QL`query{node(id:"123"){${defer(fragment)}}}`),
     };
 
@@ -186,7 +186,7 @@ describe('GraphQLQueryRunner', () => {
     diffRelayQuery.mockImplementation(query => [query]);
     mockSplitDeferredQueries();
 
-    var mockError = new Error('Expected callback error.');
+    const mockError = new Error('Expected callback error.');
     mockCallback.mockImplementation(() => {
       throw mockError;
     });
@@ -327,7 +327,7 @@ describe('GraphQLQueryRunner', () => {
     diffRelayQuery.mockImplementation(query => []);
     mockSplitDeferredQueries();
 
-    var singleMockQuery = {foo: mockQuerySet.foo};
+    const singleMockQuery = {foo: mockQuerySet.foo};
     queryRunner.forceFetch(singleMockQuery, mockCallback);
     jest.runAllTimers();
 
@@ -340,7 +340,7 @@ describe('GraphQLQueryRunner', () => {
     diffRelayQuery.mockImplementation(() => []);
     checkRelayQueryData.mockImplementation(() => true);
     mockSplitDeferredQueries();
-    var singleMockQuery = {foo: mockQuerySet.foo};
+    const singleMockQuery = {foo: mockQuerySet.foo};
     queryRunner.forceFetch(singleMockQuery, mockCallback);
     jest.runAllTimers();
 
@@ -359,18 +359,18 @@ describe('GraphQLQueryRunner', () => {
   });
 
   describe('Batch callback for multiple queries', () => {
-    var runTest;
-    var fetchMode;
+    let runTest;
+    let fetchMode;
     beforeEach(() => {
       diffRelayQuery.mockImplementation(query => [query]);
 
-      var mockQuery = getNode(Relay.QL`
+      const mockQuery = getNode(Relay.QL`
         query {
           viewer{actor{id,firstName,lastName,name,address{city},hometown{id}}}
         }
       `);
 
-      var mockSplitQueries = {
+      const mockSplitQueries = {
         required: getNode(Relay.QL`
           query {
             viewer{actor{id,name}}
@@ -408,7 +408,7 @@ describe('GraphQLQueryRunner', () => {
         return mockSplitQueries;
       });
 
-      var resolveSplitQueryByIndex = index => {
+      const resolveSplitQueryByIndex = index => {
         pendingQueryTracker.add.mock.fetches[index].resolve();
       };
       runTest = () => {
@@ -421,7 +421,7 @@ describe('GraphQLQueryRunner', () => {
         resolveSplitQueryByIndex(0);
         jest.runAllTimers();
 
-        var defaultState = {
+        const defaultState = {
           aborted: false,
           done: false,
           error: null,

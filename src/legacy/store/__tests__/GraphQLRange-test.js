@@ -27,13 +27,13 @@ function getFirstSegment(range) {
 }
 
 function getLastSegment(range) {
-  var orderedSegments = range.__debug().orderedSegments;
+  const orderedSegments = range.__debug().orderedSegments;
   return orderedSegments[orderedSegments.length - 1];
 }
 
 function mockEdge(id, hasNullCursor) {
-  var dataID = 'edge' + (hasNullCursor ? 'WithNullCursor' : '') + id;
-  var edge = {
+  const dataID = 'edge' + (hasNullCursor ? 'WithNullCursor' : '') + id;
+  const edge = {
     __dataID__: dataID,
     node: {__dataID__: 'id' + id},
     cursor: (hasNullCursor ? null : 'cursor' + id),
@@ -41,43 +41,43 @@ function mockEdge(id, hasNullCursor) {
   return edge;
 }
 
-var edgeNeg10 = mockEdge('-10');
-var edgeNeg9 = mockEdge('-9');
-var edgeNeg3 = mockEdge('-3');
-var edgeNeg2 = mockEdge('-2');
-var edgeNeg1 = mockEdge('-1');
-var edge0 = mockEdge('0');
-var edge1 = mockEdge('1');
-var edge2 = mockEdge('2');
-var edge3 = mockEdge('3');
-var edge4 = mockEdge('4');
-var edge5 = mockEdge('5');
-var edge96 = mockEdge('96');
-var edge97 = mockEdge('97');
-var edge98 = mockEdge('98');
-var edge99 = mockEdge('99');
-var edge100 = mockEdge('100');
-var edge101 = mockEdge('101');
-var edge102 = mockEdge('102');
-var edge103 = mockEdge('103');
-var edge104 = mockEdge('104');
-var edge110 = mockEdge('110');
-var edge111 = mockEdge('111');
-var edgeWithNullCursor1 = mockEdge('1', true);
-var edgeWithNullCursor2 = mockEdge('2', true);
-var edgeWithNullCursor3 = mockEdge('3', true);
+const edgeNeg10 = mockEdge('-10');
+const edgeNeg9 = mockEdge('-9');
+const edgeNeg3 = mockEdge('-3');
+const edgeNeg2 = mockEdge('-2');
+const edgeNeg1 = mockEdge('-1');
+const edge0 = mockEdge('0');
+const edge1 = mockEdge('1');
+const edge2 = mockEdge('2');
+const edge3 = mockEdge('3');
+const edge4 = mockEdge('4');
+const edge5 = mockEdge('5');
+const edge96 = mockEdge('96');
+const edge97 = mockEdge('97');
+const edge98 = mockEdge('98');
+const edge99 = mockEdge('99');
+const edge100 = mockEdge('100');
+const edge101 = mockEdge('101');
+const edge102 = mockEdge('102');
+const edge103 = mockEdge('103');
+const edge104 = mockEdge('104');
+const edge110 = mockEdge('110');
+const edge111 = mockEdge('111');
+const edgeWithNullCursor1 = mockEdge('1', true);
+const edgeWithNullCursor2 = mockEdge('2', true);
+const edgeWithNullCursor3 = mockEdge('3', true);
 
-var first3Edges = [edge1, edge2, edge3];
-var first5Edges = [edge1, edge2, edge3, edge4, edge5];
-var last3Edges = [edge98, edge99, edge100];
-var last5Edges = [edge96, edge97, edge98, edge99, edge100];
+const first3Edges = [edge1, edge2, edge3];
+const first5Edges = [edge1, edge2, edge3, edge4, edge5];
+const last3Edges = [edge98, edge99, edge100];
+const last5Edges = [edge96, edge97, edge98, edge99, edge100];
 
 describe('GraphQLRange', () => {
-  var consoleError;
-  var consoleWarn;
-  var range;
+  let consoleError;
+  let consoleWarn;
+  let range;
 
-  var HAS_NEXT_PAGE, HAS_PREV_PAGE;
+  let HAS_NEXT_PAGE, HAS_PREV_PAGE;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -100,10 +100,10 @@ describe('GraphQLRange', () => {
   });
 
   it('should add for first() query', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -111,7 +111,7 @@ describe('GraphQLRange', () => {
     range.addItems(queryCalls, first3Edges, pageInfo);
 
     // Request the full set
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual(
       [edge1.__dataID__, edge2.__dataID__, edge3.__dataID__]
@@ -120,11 +120,11 @@ describe('GraphQLRange', () => {
   });
 
   it('should add for after().first() query', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'after', value: null},
       {name: 'first', value: 3},
     ];
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -135,8 +135,8 @@ describe('GraphQLRange', () => {
       pageInfo
     );
 
-    var incrementalEdges = [edge4, edge5];
-    var incrementalPageInfo = {
+    const incrementalEdges = [edge4, edge5];
+    const incrementalPageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: true,
     };
@@ -156,7 +156,7 @@ describe('GraphQLRange', () => {
       {name: 'after', value: null},
       {name: 'first', value: 5},
     ];
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual([
       edge1.__dataID__,
@@ -170,22 +170,22 @@ describe('GraphQLRange', () => {
   });
 
   it('should add for after().first() query in last segment', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'last', value: 3},
     ];
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
 
     range.addItems(queryCalls, last3Edges, pageInfo);
 
-    var incrementalQueryCall = [
+    const incrementalQueryCall = [
       {name: 'after', value: 'cursor100'},
       {name: 'first', value: 2},
     ];
-    var incrementalEdges = [edge101, edge102];
-    var incrementalPageInfo = {
+    const incrementalEdges = [edge101, edge102];
+    const incrementalPageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
@@ -200,7 +200,7 @@ describe('GraphQLRange', () => {
     queryCalls = [
       {name: 'last', value: 5},
     ];
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual([
       edge98.__dataID__,
@@ -214,24 +214,24 @@ describe('GraphQLRange', () => {
   });
 
   it('should add for before().first() query', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'last', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, first3Edges, pageInfo);
 
-    var incrementalQueryCall = [
+    const incrementalQueryCall = [
       {name: 'before', value: 'cursor1'},
       {name: 'first', value: 2},
     ];
 
-    var incrementalEdges = [edgeNeg1, edge0];
-    var incrementalPageInfo = {
+    const incrementalEdges = [edgeNeg1, edge0];
+    const incrementalPageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
     };
@@ -244,7 +244,7 @@ describe('GraphQLRange', () => {
     queryCalls = [
       {name: 'last', value: 5},
     ];
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual([
       edgeNeg1.__dataID__,
@@ -258,24 +258,24 @@ describe('GraphQLRange', () => {
   });
 
   it('should add for before().first() query with gap', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, first3Edges, pageInfo);
 
-    var incrementalQueryCall = [
+    const incrementalQueryCall = [
       {name: 'before', value: 'cursor1'},
       {name: 'first', value: 2},
     ];
 
-    var incrementalEdges = [edgeNeg10, edgeNeg9];
-    var incrementalPageInfo = {
+    const incrementalEdges = [edgeNeg10, edgeNeg9];
+    const incrementalPageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -288,7 +288,7 @@ describe('GraphQLRange', () => {
     queryCalls = [
       {name: 'first', value: 5},
     ];
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual(
       [edgeNeg10.__dataID__, edgeNeg9.__dataID__]
@@ -302,11 +302,11 @@ describe('GraphQLRange', () => {
   });
 
   it('should add for last() query', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'last', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
@@ -314,7 +314,7 @@ describe('GraphQLRange', () => {
     range.addItems(queryCalls, last3Edges, pageInfo);
 
     // Request the full set
-    var result = range.retrieveRangeInfoForQuery(queryCalls, {count: 3});
+    const result = range.retrieveRangeInfoForQuery(queryCalls, {count: 3});
 
     expect(result.requestedEdgeIDs).toEqual(
       [edge98.__dataID__, edge99.__dataID__, edge100.__dataID__]
@@ -323,25 +323,25 @@ describe('GraphQLRange', () => {
   });
 
   it('should add for before().last() query', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'last', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
 
     range.addItems(queryCalls, last3Edges, pageInfo);
 
-    var incrementalQueryCall = [
+    const incrementalQueryCall = [
       {name: 'before', value: 'cursor98'},
       {name: 'last', value: 2},
     ];
 
-    var incrementalEdges = [edge96, edge97];
+    const incrementalEdges = [edge96, edge97];
 
-    var incrementalPageInfo = {
+    const incrementalPageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: true,
     };
@@ -356,7 +356,7 @@ describe('GraphQLRange', () => {
     queryCalls = [
       {name: 'last', value: 5},
     ];
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual([
       edge96.__dataID__,
@@ -369,24 +369,24 @@ describe('GraphQLRange', () => {
   });
 
   it('should add for before().last() query in first segment', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, first3Edges, pageInfo);
 
-    var incrementalQueryCall = [
+    const incrementalQueryCall = [
       {name: 'before', value: 'cursor1'},
       {name: 'last', value: 2},
     ];
 
-    var incrementalEdges = [edgeNeg1, edge0];
-    var incrementalPageInfo = {
+    const incrementalEdges = [edgeNeg1, edge0];
+    const incrementalPageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -401,7 +401,7 @@ describe('GraphQLRange', () => {
     queryCalls = [
       {name: 'first', value: 5},
     ];
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual([
       edgeNeg1.__dataID__,
@@ -414,23 +414,23 @@ describe('GraphQLRange', () => {
   });
 
   it('should add for after().last() query', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'last', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
 
     range.addItems(queryCalls, last3Edges, pageInfo);
-    var incrementalQueryCall = [
+    const incrementalQueryCall = [
       {name: 'after', value: 'cursor100'},
       {name: 'last', value: 2},
     ];
 
-    var incrementalEdges = [edge101, edge102];
-    var incrementalPageInfo = {
+    const incrementalEdges = [edge101, edge102];
+    const incrementalPageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
     };
@@ -445,7 +445,7 @@ describe('GraphQLRange', () => {
     queryCalls = [
       {name: 'last', value: 5},
     ];
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual([
       edge98.__dataID__,
@@ -459,12 +459,12 @@ describe('GraphQLRange', () => {
   });
 
   it('should add for after().last() with gap', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'after', value: null},
       {name: 'last', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
@@ -486,7 +486,7 @@ describe('GraphQLRange', () => {
       {name: 'after', value: null},
       {name: 'last', value: 5},
     ];
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual(
       [edge110.__dataID__, edge111.__dataID__]
@@ -500,11 +500,11 @@ describe('GraphQLRange', () => {
 
   it('should error for invalid call value', () => {
     console.error = jest.genMockFunction();
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 0},
     ];
 
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(console.error.mock.calls.length).toBe(1);
     expect(console.error.mock.calls[0]).toEqual([
@@ -516,12 +516,12 @@ describe('GraphQLRange', () => {
   });
 
   it('should retrieve for first() queries', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'first', value: 3},
     ];
 
     // Request from empty range
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual([]);
     expect(result.diffCalls).toEqual([{name: 'first', value: 3}]);
@@ -577,12 +577,12 @@ describe('GraphQLRange', () => {
   });
 
   it('should retrieve for after().first() queries', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'after', value: null},
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -598,7 +598,7 @@ describe('GraphQLRange', () => {
       {name: 'after', value: 'cursor1'},
       {name: 'first', value: 2},
     ];
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual(
       [edge2.__dataID__, edge3.__dataID__]
@@ -641,12 +641,12 @@ describe('GraphQLRange', () => {
   });
 
   it('should retrieve for last() queries', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'last', value: 3},
     ];
 
     // Request the from empty range
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual([]);
     expect(result.diffCalls).toEqual([{name: 'last', value: 3}]);
@@ -697,11 +697,11 @@ describe('GraphQLRange', () => {
   });
 
   it('should retrieve for before().last() queries', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'last', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
@@ -709,7 +709,7 @@ describe('GraphQLRange', () => {
     range.addItems(queryCalls, last3Edges, pageInfo);
 
     // Request a subset with before
-    var result = range.retrieveRangeInfoForQuery([
+    let result = range.retrieveRangeInfoForQuery([
       {name: 'before', value: 'cursor100'},
       {name: 'last', value: 2},
     ]);
@@ -754,18 +754,18 @@ describe('GraphQLRange', () => {
   });
 
   it('should retrieve for after().first() from last segment', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'last', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
     range.addItems(queryCalls, last3Edges, pageInfo);
 
     // Request a subset with after
-    var result = range.retrieveRangeInfoForQuery([
+    let result = range.retrieveRangeInfoForQuery([
       {name: 'after', value: 'cursor98'},
       {name: 'first', value: 1},
     ]);
@@ -802,11 +802,11 @@ describe('GraphQLRange', () => {
   });
 
   it('should retrieve for before().last() from first segment', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -814,7 +814,7 @@ describe('GraphQLRange', () => {
     range.addItems(queryCalls, first3Edges, pageInfo);
 
     // Request a subset with before
-    var result = range.retrieveRangeInfoForQuery([
+    let result = range.retrieveRangeInfoForQuery([
       {name: 'before', value: 'cursor3'},
       {name: 'last', value: 1},
     ]);
@@ -851,12 +851,12 @@ describe('GraphQLRange', () => {
   });
 
   it('should support calls with no arguments', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
       {name: 'dummy_call', value: null},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -864,7 +864,7 @@ describe('GraphQLRange', () => {
     range.addItems(queryCalls, first3Edges, pageInfo);
 
     // Request the full set
-    var result = range.retrieveRangeInfoForQuery([
+    const result = range.retrieveRangeInfoForQuery([
       {name: 'first', value: 3},
       {name: 'dummy_call', value: null},
     ]);
@@ -876,16 +876,16 @@ describe('GraphQLRange', () => {
   });
 
   it('should support nodes with null cursors', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
-    var first3EdgesWithNullCursors = [
+    const first3EdgesWithNullCursors = [
       edgeWithNullCursor1,
       edgeWithNullCursor2,
       edgeWithNullCursor3,
@@ -894,7 +894,7 @@ describe('GraphQLRange', () => {
     range.addItems(queryCalls, first3EdgesWithNullCursors, pageInfo);
 
     // Request the full set
-    var result = range.retrieveRangeInfoForQuery([
+    const result = range.retrieveRangeInfoForQuery([
       {name: 'first', value: 3},
     ]);
 
@@ -909,7 +909,7 @@ describe('GraphQLRange', () => {
   it('should support prepending edge to range', () => {
     // Prepend on new range
     range.prependEdge(edge2);
-    var result = range.retrieveRangeInfoForQuery([
+    let result = range.retrieveRangeInfoForQuery([
       {name: 'first', value: 1},
     ]);
     expect(result.requestedEdgeIDs).toEqual([edge2.__dataID__]);
@@ -929,7 +929,7 @@ describe('GraphQLRange', () => {
   it('should support appending edge to range', () => {
     // Append on new range
     range.appendEdge(edge1);
-    var result = range.retrieveRangeInfoForQuery([
+    let result = range.retrieveRangeInfoForQuery([
       {name: 'last', value: 1},
     ]);
     expect(result.requestedEdgeIDs).toEqual([edge1.__dataID__]);
@@ -947,25 +947,25 @@ describe('GraphQLRange', () => {
   });
 
   it('should support bumping', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    let pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, first3Edges, pageInfo);
 
-    var afterQueryCalls = [
+    const afterQueryCalls = [
       {name: 'after', value: 'cursor3'},
       {name: 'first', value: 1},
     ];
 
     // Testing add after: adding id2 to end of range
     range.addItems(afterQueryCalls, [first3Edges[1]], pageInfo);
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
     expect(result.requestedEdgeIDs).toEqual(
       [edge1.__dataID__, edge3.__dataID__, edge2.__dataID__]
     );
@@ -990,7 +990,7 @@ describe('GraphQLRange', () => {
 
     range.addItems(queryCalls, last3Edges, pageInfo);
 
-    var beforeQueryCalls = [
+    const beforeQueryCalls = [
       {name: 'before', value: 'cursor98'},
       {name: 'last', value: 1},
     ];
@@ -1013,15 +1013,15 @@ describe('GraphQLRange', () => {
   });
 
   it('should not generate diff query when range is empty', () => {
-    var queryFirstCalls = [
+    const queryFirstCalls = [
       {name: 'first', value: 3},
     ];
 
-    var queryLastCalls = [
+    const queryLastCalls = [
       {name: 'last', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
     };
@@ -1029,7 +1029,7 @@ describe('GraphQLRange', () => {
     // Add empty first edges
     range.addItems(queryFirstCalls, [], pageInfo);
 
-    var result = range.retrieveRangeInfoForQuery(queryFirstCalls);
+    let result = range.retrieveRangeInfoForQuery(queryFirstCalls);
     expect(result.diffCalls.length).toBe(0);
     result = range.retrieveRangeInfoForQuery(queryLastCalls);
     expect(result.diffCalls.length).toBe(0);
@@ -1045,15 +1045,15 @@ describe('GraphQLRange', () => {
   });
 
   it('should collesce segments when we reach end', () => {
-    var queryFirstCalls = [
+    const queryFirstCalls = [
       {name: 'first', value: 1},
     ];
 
-    var queryLastCalls = [
+    const queryLastCalls = [
       {name: 'last', value: 1},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
     };
@@ -1061,7 +1061,7 @@ describe('GraphQLRange', () => {
     range.addItems(queryFirstCalls, [edge1], pageInfo);
     range.addItems(queryLastCalls, [edge1], pageInfo);
 
-    var result = range.retrieveRangeInfoForQuery(queryFirstCalls);
+    let result = range.retrieveRangeInfoForQuery(queryFirstCalls);
     expect(result.requestedEdgeIDs).toEqual([edge1.__dataID__]);
     expect(result.diffCalls.length).toBe(0);
     result = range.retrieveRangeInfoForQuery(queryLastCalls);
@@ -1070,21 +1070,21 @@ describe('GraphQLRange', () => {
   });
 
   it('should not generate diff query when there is no more', () => {
-    var queryCalls = [
+    let queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    let pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
-    var beforeQueryCalls = [
+    const beforeQueryCalls = [
       {name: 'before', value: 'cursor1'},
       {name: 'last', value: 1},
     ];
 
     range.addItems(queryCalls, first3Edges, pageInfo);
-    var result = range.retrieveRangeInfoForQuery(beforeQueryCalls);
+    let result = range.retrieveRangeInfoForQuery(beforeQueryCalls);
     // We know there is no more before cursor1 since that is the first edge
     expect(result.diffCalls.length).toBe(0);
 
@@ -1096,7 +1096,7 @@ describe('GraphQLRange', () => {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
-    var afterQueryCalls = [
+    const afterQueryCalls = [
       {name: 'after', value: 'cursor100'},
       {name: 'first', value: 1},
     ];
@@ -1108,17 +1108,17 @@ describe('GraphQLRange', () => {
   });
 
   it('should add  and retrieve for surrounds() query', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'surrounds', value: ['id2', 1]},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, first3Edges, pageInfo);
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual(
       [edge1.__dataID__, edge2.__dataID__, edge3.__dataID__]
@@ -1127,22 +1127,22 @@ describe('GraphQLRange', () => {
   });
 
   it('should not return surrounds query data for first query', () => {
-    var surroundQueryCalls = [
+    const surroundQueryCalls = [
       {name: 'surrounds', value: ['id2', 1]},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(surroundQueryCalls, first3Edges, pageInfo);
 
-    var firstQueryCalls = [
+    const firstQueryCalls = [
       {name: 'first', value: 5},
     ];
 
-    var resultForFirstQuery = range.retrieveRangeInfoForQuery(
+    const resultForFirstQuery = range.retrieveRangeInfoForQuery(
       firstQueryCalls,
     );
 
@@ -1153,11 +1153,11 @@ describe('GraphQLRange', () => {
   it('should warn when reconciling conflicting first() ranges', () => {
     console.error = jest.genMockFunction();
 
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -1172,7 +1172,7 @@ describe('GraphQLRange', () => {
       'includes connection edges with nodes that lack an `id` field.',
     ]).toBeWarnedNTimes(1);
 
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
     expect(result.requestedEdgeIDs).toEqual(
       [edge1.__dataID__, edge2.__dataID__, edge3.__dataID__]
     );
@@ -1181,11 +1181,11 @@ describe('GraphQLRange', () => {
   it('should warn when reconciling conflicting last() ranges', () => {
     console.error = jest.genMockFunction();
 
-    var queryCalls = [
+    const queryCalls = [
       {name: 'last', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
@@ -1201,7 +1201,7 @@ describe('GraphQLRange', () => {
       'includes connection edges with nodes that lack an `id` field.',
     ]).toBeWarnedNTimes(1);
 
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
     expect(result.requestedEdgeIDs).toEqual(
       [edge98.__dataID__, edge99.__dataID__, edge100.__dataID__]
     );
@@ -1211,11 +1211,11 @@ describe('GraphQLRange', () => {
     console.error = jest.genMockFunction();
     console.warn = jest.genMockFunction();
 
-    var queryCalls = [
+    let queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    let pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -1227,7 +1227,7 @@ describe('GraphQLRange', () => {
     expect(console.error.mock.calls.length).toBe(0);
     expect(console.warn.mock.calls.length).toBe(0);
 
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
     expect(result.requestedEdgeIDs).toEqual(
       [edge1.__dataID__, edge2.__dataID__, edge3.__dataID__]
     );
@@ -1258,11 +1258,11 @@ describe('GraphQLRange', () => {
     console.error = jest.genMockFunction();
     console.warn = jest.genMockFunction();
 
-    var queryCalls = [
+    let queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    let pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -1270,7 +1270,7 @@ describe('GraphQLRange', () => {
     const e2 = mockEdge('2', true);
     const e3 = mockEdge('3', true);
 
-    var edges = [e1, e2, e3];
+    let edges = [e1, e2, e3];
 
     // Add items twice
     range.addItems(queryCalls, edges, pageInfo);
@@ -1279,7 +1279,7 @@ describe('GraphQLRange', () => {
     expect(console.error.mock.calls.length).toBe(0);
     expect(console.warn.mock.calls.length).toBe(0);
 
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
     expect(result.requestedEdgeIDs).toEqual(
       [e1.__dataID__, e2.__dataID__, e3.__dataID__]
     );
@@ -1315,11 +1315,11 @@ describe('GraphQLRange', () => {
     console.error = jest.genMockFunction();
     console.warn = jest.genMockFunction();
 
-    var queryCalls = [
+    let queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    let pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -1334,7 +1334,7 @@ describe('GraphQLRange', () => {
     expect(console.error.mock.calls.length).toBe(0);
     expect(console.warn.mock.calls.length).toBe(0);
 
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
     expect(result.requestedEdgeIDs).toEqual([
       edge1.__dataID__,
       edge2.__dataID__,
@@ -1373,20 +1373,20 @@ describe('GraphQLRange', () => {
   });
 
   it('should stitch first and last segment', () => {
-    var firstQueryCalls = [
+    const firstQueryCalls = [
       {name: 'first', value: 3},
     ];
-    var lastQueryCalls = [
+    const lastQueryCalls = [
       {name: 'last', value: 3},
     ];
 
-    var pageInfo = {
+    let pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(firstQueryCalls, first3Edges, pageInfo);
-    var result = range.retrieveRangeInfoForQuery(lastQueryCalls);
+    let result = range.retrieveRangeInfoForQuery(lastQueryCalls);
 
     expect(result.diffCalls).toEqual([
       {name: 'after', value: 'cursor3'},
@@ -1472,26 +1472,26 @@ describe('GraphQLRange', () => {
 
   it('should stitch up gap in first segment', () => {
     // Add initial edges
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    let pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, first3Edges, pageInfo);
 
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
 
     // Create gap
-    var incrementalQueryCall = [
+    const incrementalQueryCall = [
       {name: 'before', value: 'cursor1'},
       {name: 'first', value: 2},
     ];
-    var incrementalEdges = [edgeNeg3, edgeNeg2];
-    var incrementalPageInfo = {
+    const incrementalEdges = [edgeNeg3, edgeNeg2];
+    const incrementalPageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -1504,7 +1504,7 @@ describe('GraphQLRange', () => {
     result = range.retrieveRangeInfoForQuery([
       {name: 'first', value: 5},
     ]);
-    var diffCalls = result.diffCalls;
+    const diffCalls = result.diffCalls;
     expect(result.diffCalls).toEqual([
       {name: 'after', value: 'cursor-2'},
       {name: 'before', value: 'cursor1'},
@@ -1512,7 +1512,7 @@ describe('GraphQLRange', () => {
     ]);
 
     // Fill in gap
-    var gapEdges = [edgeNeg1, edge0];
+    const gapEdges = [edgeNeg1, edge0];
     pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
@@ -1534,25 +1534,25 @@ describe('GraphQLRange', () => {
 
   it('should stitch up gap in last segment', () => {
     // Add initial edges
-    var queryCalls = [
+    const queryCalls = [
       {name: 'last', value: 3},
     ];
-    var pageInfo = {
+    let pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
     range.addItems(queryCalls, last3Edges, pageInfo);
 
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
 
     // Create gap
-    var incrementalQueryCall = [
+    const incrementalQueryCall = [
       {name: 'after', value: 'cursor100'},
       {name: 'last', value: 2},
     ];
 
-    var incrementalEdges = [edge103, edge104];
-    var incrementalPageInfo = {
+    const incrementalEdges = [edge103, edge104];
+    const incrementalPageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
@@ -1565,7 +1565,7 @@ describe('GraphQLRange', () => {
     result = range.retrieveRangeInfoForQuery([
       {name: 'last', value: 5},
     ]);
-    var diffCalls = result.diffCalls;
+    const diffCalls = result.diffCalls;
     expect(result.diffCalls).toEqual([
       {name: 'before', value: 'cursor103'},
       {name: 'after', value: 'cursor100'},
@@ -1573,7 +1573,7 @@ describe('GraphQLRange', () => {
     ]);
 
     // Fill in gap
-    var gapEdges = [edge101, edge102];
+    const gapEdges = [edge101, edge102];
     pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
@@ -1594,24 +1594,24 @@ describe('GraphQLRange', () => {
   });
 
   it('should refetch for whole ranges for null cursor', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
-    var nullCursorEdges = [
+    const nullCursorEdges = [
       edgeWithNullCursor1,
       edgeWithNullCursor2,
       edgeWithNullCursor3,
     ];
 
     range.addItems(queryCalls, nullCursorEdges, pageInfo);
-    var five = [{name: 'first', value: 5}];
-    var result = range.retrieveRangeInfoForQuery(five);
+    const five = [{name: 'first', value: 5}];
+    const result = range.retrieveRangeInfoForQuery(five);
     expect(result.requestedEdgeIDs).toEqual([
       'edgeWithNullCursor1',
       'edgeWithNullCursor2',
@@ -1621,28 +1621,28 @@ describe('GraphQLRange', () => {
   });
 
   it('replaces whole first() ranges when working with null cursors', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 1},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
     };
 
-    var nullCursorEdges = [
+    const nullCursorEdges = [
       edgeWithNullCursor1,
       edgeWithNullCursor2,
       edgeWithNullCursor3,
     ];
 
     // we don't replace empty ranges
-    var segment = getFirstSegment(range);
+    let segment = getFirstSegment(range);
     range.addItems(queryCalls, nullCursorEdges.slice(0, 1), pageInfo);
     expect(segment).toBe(getFirstSegment(range));
 
     // if we request more results but get the same number, we replace
     // (in case there were deleted items, different items, or reordering)
-    var three = [{name: 'first', value: 3}];
+    const three = [{name: 'first', value: 3}];
     range.addItems(three, nullCursorEdges.slice(0, 1), pageInfo);
     expect(segment).not.toBe(getFirstSegment(range));
 
@@ -1652,7 +1652,7 @@ describe('GraphQLRange', () => {
     expect(segment).not.toBe(getFirstSegment(range));
 
     // if the range has gotten bigger but has cursor info, we don't replace it
-    var cursorEdges = [
+    const cursorEdges = [
       edge0,
       edge1,
       edge2,
@@ -1666,28 +1666,28 @@ describe('GraphQLRange', () => {
   });
 
   it('replaces whole last() ranges when working with null cursors', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'last', value: 1},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_PREV_PAGE]: true,
     };
 
-    var nullCursorEdges = [
+    const nullCursorEdges = [
       edgeWithNullCursor1,
       edgeWithNullCursor2,
       edgeWithNullCursor3,
     ];
 
     // we don't replace empty ranges
-    var segment = getLastSegment(range);
+    let segment = getLastSegment(range);
     range.addItems(queryCalls, nullCursorEdges.slice(2), pageInfo);
     expect(segment).toBe(getLastSegment(range));
 
     // if we request more results but get the same number, we replace
     // (in case there were deleted items, different items, or reordering)
-    var three = [{name: 'last', value: 3}];
+    const three = [{name: 'last', value: 3}];
     range.addItems(three, nullCursorEdges.slice(2), pageInfo);
     expect(segment).not.toBe(getLastSegment(range));
 
@@ -1697,7 +1697,7 @@ describe('GraphQLRange', () => {
     expect(segment).not.toBe(getLastSegment(range));
 
     // if the range has gotten bigger but has cursor info, we don't replace it
-    var cursorEdges = [
+    const cursorEdges = [
       edge0,
       edge1,
       edge2,
@@ -1711,22 +1711,22 @@ describe('GraphQLRange', () => {
   });
 
   it('should retrieve correct page_info for ranges with null cursors', () => {
-    var two = [{name: 'first', value: 2}];
-    var three = [{name: 'first', value: 3}];
+    const two = [{name: 'first', value: 2}];
+    const three = [{name: 'first', value: 3}];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
     };
 
-    var nullCursorEdges = [
+    const nullCursorEdges = [
       edgeWithNullCursor1,
       edgeWithNullCursor2,
       edgeWithNullCursor3,
     ];
 
     range.addItems(three, nullCursorEdges, pageInfo);
-    var result = range.retrieveRangeInfoForQuery(two);
+    let result = range.retrieveRangeInfoForQuery(two);
     expect(result.requestedEdgeIDs).toEqual([
       'edgeWithNullCursor1',
       'edgeWithNullCursor2',
@@ -1745,18 +1745,18 @@ describe('GraphQLRange', () => {
   });
 
   it('should delete', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, first3Edges, pageInfo);
     range.removeEdgeWithID(edge2.__dataID__);
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
     expect(result.requestedEdgeIDs).toEqual(
       [edge1.__dataID__, edge3.__dataID__]
     );
@@ -1767,20 +1767,20 @@ describe('GraphQLRange', () => {
   });
 
   it('should not retrieve deleted bumped edges', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, first3Edges, pageInfo);
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
 
     // bump the second edge
-    var afterQueryCalls = [
+    const afterQueryCalls = [
       {name: 'after', value: 'cursor3'},
       {name: 'first', value: 1},
     ];
@@ -1797,7 +1797,7 @@ describe('GraphQLRange', () => {
       {name: 'after', value: 'cursor3'},
       {name: 'first', value: 1},
     ]);
-    var queryCallsWithSession = [
+    const queryCallsWithSession = [
       {name: 'first', value: 3},
     ];
     result = range.retrieveRangeInfoForQuery(queryCallsWithSession);
@@ -1811,18 +1811,18 @@ describe('GraphQLRange', () => {
   });
 
   it('should retrieve info for first() query given optimistic data', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, first3Edges, pageInfo);
 
-    var result = range.retrieveRangeInfoForQuery(
+    let result = range.retrieveRangeInfoForQuery(
       [{name: 'first', value: 3}],
       {__rangeOperationPrepend__: [edge4.__dataID__]}
     );
@@ -1880,19 +1880,19 @@ describe('GraphQLRange', () => {
   });
 
   it('should retrieve optimistically appended edges when the last edge has been fetched', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
 
     // No next page means we have the very last edge.
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, first3Edges, pageInfo);
 
-    var result = range.retrieveRangeInfoForQuery(
+    let result = range.retrieveRangeInfoForQuery(
       [{name: 'first', value: 4}],
       {__rangeOperationAppend__: [edge4.__dataID__]}
     );
@@ -1915,18 +1915,18 @@ describe('GraphQLRange', () => {
   });
 
   it('should retrieve info for last() query given optimistic data', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'last', value: 3},
     ];
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
 
     range.addItems(queryCalls, last3Edges, pageInfo);
 
-    var result = range.retrieveRangeInfoForQuery(
+    let result = range.retrieveRangeInfoForQuery(
       [{name: 'last', value: 3}],
       {__rangeOperationAppend__: [edge97.__dataID__]}
     );
@@ -1982,19 +1982,19 @@ describe('GraphQLRange', () => {
   });
 
   it('should retrieve optimistically prepended edges when the first edge has been fetched', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'last', value: 3},
     ];
 
     // No previous page means we have the very first edge.
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, last3Edges, pageInfo);
 
-    var result = range.retrieveRangeInfoForQuery(
+    let result = range.retrieveRangeInfoForQuery(
       [{name: 'last', value: 4}],
       {__rangeOperationPrepend__: [edge97.__dataID__]}
     );
@@ -2022,16 +2022,16 @@ describe('GraphQLRange', () => {
   });
 
   it('should toJSON', () => {
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
 
     range.addItems(queryCalls, first3Edges, pageInfo);
-    var actual = JSON.stringify(range);
+    const actual = JSON.stringify(range);
 
     expect(actual).toEqual('[true,false,{},[[{' +
       '"0":{"edgeID":"edge1","cursor":"cursor1","deleted":false},' +
@@ -2045,7 +2045,7 @@ describe('GraphQLRange', () => {
     range = GraphQLRange.fromJSON(JSON.parse(actual));
 
     // Request the full set
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(result.requestedEdgeIDs).toEqual(
       [edge1.__dataID__, edge2.__dataID__, edge3.__dataID__]
@@ -2055,17 +2055,17 @@ describe('GraphQLRange', () => {
 
   it('returns the DataIDs of all edges', () => {
     // Add a static edges
-    var surroundQueryCalls = [
+    const surroundQueryCalls = [
       {name: 'surrounds', value: ['id2', 1]},
     ];
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: false,
     };
     range.addItems(surroundQueryCalls, first3Edges, pageInfo);
 
     // Non-static edges
-    var queryCalls = [
+    const queryCalls = [
       {name: 'last', value: 3},
     ];
     range.addItems(queryCalls, last3Edges, pageInfo);

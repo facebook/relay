@@ -22,16 +22,16 @@ import type {
 
 // Maintains a map from the client id to the server id of
 // optimistically added nodes
-var clientIDToServerIDMap = {};
+const clientIDToServerIDMap = {};
 
 // For node-create mutations, maintains an index of the mutation to the
 // client ID of an optimistically created node (if it exists).
-var mutationIDToClientNodeIDMap = {};
+const mutationIDToClientNodeIDMap = {};
 
 // For mutations that have errors, maintains a two-directional index of the
 // mutation and node with an error.
-var clientMutationIDToErrorNodeID = {};
-var clientNodeIDToErrorMutationID = {};
+const clientMutationIDToErrorNodeID = {};
+const clientNodeIDToErrorMutationID = {};
 
 /**
  * @internal
@@ -39,7 +39,7 @@ var clientNodeIDToErrorMutationID = {};
  * Records the client ID and error status of mutations as well as maintaining
  * a mapping of optimistic client IDs to server IDs.
  */
-var RelayMutationTracker = {
+const RelayMutationTracker = {
 
  /**
   * Checks if the given id represents an object only known on the client side
@@ -84,7 +84,7 @@ var RelayMutationTracker = {
 
     // if an error exists for this mutation ID, remove the error on the previous
     // client ID and 'move' the error on the new client ID
-    var errorNodeID =
+    const errorNodeID =
       RelayMutationTracker.getErrorNodeForMutation(clientMutationID);
     if (errorNodeID) {
       RelayMutationTracker.deleteMutationForErrorNode(errorNodeID);

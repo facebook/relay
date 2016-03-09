@@ -18,7 +18,7 @@ const RelayRoute = require('RelayRoute');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRoute', () => {
-  var makeRoute;
+  let makeRoute;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -60,19 +60,19 @@ describe('RelayRoute', () => {
   });
 
   it('can be created using inheritance', () => {
-    var MockRoute = makeRoute();
-    var route = new MockRoute({required: 'foo'});
+    const MockRoute = makeRoute();
+    const route = new MockRoute({required: 'foo'});
     expect(route.name).toEqual('MockRoute');
     expect(route.params.required).toEqual('foo');
     expect(route.queries.required).toBeTruthy();
   });
 
   it('has an immutable spec in __DEV__', () => {
-    var dev = __DEV__;
+    const dev = __DEV__;
     window.__DEV__ = true;
 
-    var MockRoute = makeRoute();
-    var route = new MockRoute({required: 'foo'});
+    const MockRoute = makeRoute();
+    const route = new MockRoute({required: 'foo'});
     expect(() => {
       route.name = 'yo';
     }).toThrow();
@@ -93,16 +93,16 @@ describe('RelayRoute', () => {
   });
 
   it('allows params to be processed if `prepareParams` is defined', () => {
-    var MockRoute = makeRoute();
+    const MockRoute = makeRoute();
     MockRoute.prepareParams =
       jest.genMockFunction().mockReturnValue({required: 'bar'});
-    var route = new MockRoute({required: 'foo'});
+    const route = new MockRoute({required: 'foo'});
     expect(MockRoute.prepareParams).toBeCalledWith({required: 'foo'});
     expect(route.params.required).toEqual('bar');
   });
 
   it('throws if a requires param is not supplied', () => {
-    var MockRoute = makeRoute();
+    const MockRoute = makeRoute();
     expect(() => {
       /* eslint-disable no-new */
       new MockRoute({});
@@ -114,14 +114,14 @@ describe('RelayRoute', () => {
   });
 
   it('defaults optional param definitions to undefined', () => {
-    var MockRoute = makeRoute();
-    var route = new MockRoute({required: 'foo'});
+    const MockRoute = makeRoute();
+    const route = new MockRoute({required: 'foo'});
     expect(Object.keys(route.params)).toContain('optional');
   });
 
   it('exposes queries in the queries property', () => {
-    var MockRoute = makeRoute();
-    var route = new MockRoute({required: 'foo'});
+    const MockRoute = makeRoute();
+    const route = new MockRoute({required: 'foo'});
     expect(route.queries.required).toBeTruthy();
     expect(route.queries.optional).toBeTruthy();
   });
@@ -130,19 +130,19 @@ describe('RelayRoute', () => {
     RelayRoute.injectURICreator(
       (_, params) => '/foo/' + params.required
     );
-    var MockRoute = makeRoute();
-    var route = new MockRoute({required: 'bar'});
+    const MockRoute = makeRoute();
+    const route = new MockRoute({required: 'bar'});
 
     expect(route.uri).not.toBe(null);
     expect(route.uri).toEqual('/foo/bar');
   });
 
   it('uses the injection only if the URI is not already passed in', () => {
-    var mockCallback = jest.genMockFunction();
+    const mockCallback = jest.genMockFunction();
     RelayRoute.injectURICreator(mockCallback);
-    var MockRoute = makeRoute();
-    var uri = '/foo/bar';
-    var route = new MockRoute({required: 'bar'}, uri);
+    const MockRoute = makeRoute();
+    const uri = '/foo/bar';
+    const route = new MockRoute({required: 'bar'}, uri);
 
     expect(mockCallback).not.toBeCalled();
     expect(route.uri).toEqual(uri);

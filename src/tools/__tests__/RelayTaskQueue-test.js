@@ -126,13 +126,12 @@ describe('RelayTaskQueue', () => {
   });
 
   describe('injected scheduler', () => {
-    let mockScheduler;
     let mockTasks;
     let taskQueue;
 
     beforeEach(() => {
       mockTasks = [];
-      mockScheduler = (executeTask) => {
+      const mockScheduler = (executeTask) => {
         resolveImmediate(() => mockTasks.push(executeTask));
       };
       taskQueue = new RelayTaskQueue(mockScheduler);

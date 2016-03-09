@@ -12,7 +12,7 @@
 const emptyFunction = require('emptyFunction');
 const forEachObject = require('forEachObject');
 
-var RelayProfiler = {
+const RelayProfiler = {
   instrumentMethods: jest.genMockFunction().mockImplementation(
     (object, names) => {
       forEachObject(names, (name, key) => {

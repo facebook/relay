@@ -9,10 +9,10 @@
 
 'use strict';
 
-var RelayMockCacheManager = {
+const RelayMockCacheManager = {
   genCacheManager: function() {
-    var mutationWriter = genMockWriter();
-    var queryWriter = genMockWriter();
+    const mutationWriter = genMockWriter();
+    const queryWriter = genMockWriter();
     return {
       mocks: {
         mutationWriter,

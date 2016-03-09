@@ -20,9 +20,9 @@ const RelayTestUtils = require('RelayTestUtils');
 const filterRelayQuery = require('filterRelayQuery');
 
 describe('filterRelayQuery()', () => {
-  var query;
+  let query;
 
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
@@ -55,7 +55,7 @@ describe('filterRelayQuery()', () => {
   });
 
   it('filters specific nodes', () => {
-    var filter = function(node) {
+    const filter = function(node) {
       return !(
         node instanceof RelayQuery.Field &&
         node.getSchemaName() === 'text'

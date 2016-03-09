@@ -9,13 +9,13 @@
  * @providesModule center
 */
 
-var React = require('React');
+const React = require('React');
 
-var assign = require('object-assign')
+const assign = require('object-assign');
 
-var center = React.createClass({
+const center = React.createClass({
   render: function() {
-    var {style, ...props} = this.props;
+    let {style, ...props} = this.props;
     style = assign({}, style, {textAlign: 'center'});
 
     return (

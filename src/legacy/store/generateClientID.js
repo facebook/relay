@@ -15,8 +15,8 @@
 const crc32 = require('crc32');
 const performanceNow = require('performanceNow');
 
-var _clientID = 1;
-var _prefix = 'client:' + crc32('' + performanceNow());
+let _clientID = 1;
+const _prefix = 'client:' + crc32('' + performanceNow());
 
 /**
  * Generate a unique clientID for GraphQL data objects that do not already have

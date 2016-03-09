@@ -13,7 +13,7 @@
 
 'use strict';
 
-var _index = 1;
+let _index = 1;
 
 /**
  * Generate a new force index used to write GraphQL data in the store. A new

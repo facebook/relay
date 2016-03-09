@@ -21,7 +21,7 @@ class HelloApp extends React.Component {
   render() {
     // Relay will materialize this prop based on the
     // result of the query in the next component.
-    var {hello} = this.props.greetings;
+    const {hello} = this.props.greetings;
     return <h1>{hello}</h1>;
   }
 }

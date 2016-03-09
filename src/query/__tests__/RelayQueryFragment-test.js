@@ -18,21 +18,21 @@ const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryFragment', () => {
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
-  var fragment;
+  let fragment;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
     jasmine.addMatchers(RelayTestUtils.matchers);
 
-    var subfrag = Relay.QL`
+    const subfrag = Relay.QL`
       fragment on StreetAddress {
         city
       }
     `;
-    var frag = Relay.QL`
+    const frag = Relay.QL`
       fragment on StreetAddress {
         country
         ${subfrag}
@@ -42,20 +42,20 @@ describe('RelayQueryFragment', () => {
   });
 
   it('does not equal non-fragments', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         me {
           firstName
         }
       }
     `);
-    var field = query.getChildren()[0];
+    const field = query.getChildren()[0];
     expect(fragment.equals(query)).toBe(false);
     expect(fragment.equals(field)).toBe(false);
   });
 
   it('does not equal different fragment', () => {
-    var fragment2 = getNode(Relay.QL`
+    const fragment2 = getNode(Relay.QL`
       fragment on StreetAddress {
         country
       }
@@ -67,12 +67,12 @@ describe('RelayQueryFragment', () => {
   it('does not equal equivalent fragments with a different structure', () => {
     expect(fragment.equals(fragment)).toBe(true);
     // invert the fields between outer/inner fragments
-    var subfrag = Relay.QL`
+    const subfrag = Relay.QL`
       fragment on StreetAddress {
         country
       }
     `;
-    var fragment2 = getNode(Relay.QL`
+    const fragment2 = getNode(Relay.QL`
       fragment on StreetAddress {
         city,
         ${subfrag}
@@ -84,12 +84,12 @@ describe('RelayQueryFragment', () => {
 
   it('equals fragments with the same structure', () => {
     expect(fragment.equals(fragment)).toBe(true);
-    var subfrag = Relay.QL`
+    const subfrag = Relay.QL`
       fragment on StreetAddress {
         city
       }
     `;
-    var fragment2 = getNode(Relay.QL`
+    const fragment2 = getNode(Relay.QL`
       fragment on StreetAddress {
         country,
         ${subfrag}
@@ -101,14 +101,14 @@ describe('RelayQueryFragment', () => {
 
   it('equals fragments with different names', () => {
     // NOTE: Two fragments in the same scope will have different names.
-    var fragment1 = getNode(Relay.QL`fragment on Node { id }`);
-    var fragment2 = getNode(Relay.QL`fragment on Node { id }`);
+    const fragment1 = getNode(Relay.QL`fragment on Node { id }`);
+    const fragment2 = getNode(Relay.QL`fragment on Node { id }`);
     expect(fragment1.equals(fragment2)).toBe(true);
     expect(fragment2.equals(fragment1)).toBe(true);
   });
 
   it('returns metadata', () => {
-    var node = Relay.QL`
+    const node = Relay.QL`
       fragment on StreetAddress {
         country
       }
@@ -119,14 +119,14 @@ describe('RelayQueryFragment', () => {
   });
 
   it('returns children', () => {
-    var children = fragment.getChildren();
+    const children = fragment.getChildren();
     expect(children.length).toBe(2);
     expect(children[0].getSchemaName()).toBe('country');
     expect(children[1].getDebugName()).toBe('RelayQueryFragmentRelayQL');
   });
 
   it('returns same object when cloning with same children', () => {
-    var children = fragment.getChildren();
+    const children = fragment.getChildren();
     expect(fragment.clone(children)).toBe(fragment);
     expect(fragment.clone(children.map(c => c))).toBe(fragment);
   });
@@ -137,13 +137,13 @@ describe('RelayQueryFragment', () => {
   });
 
   it('clones with updated children', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       fragment on StreetAddress {
         country,
         city,
       }
     `);
-    var clone = query.clone([query.getChildren()[0]]);
+    const clone = query.clone([query.getChildren()[0]]);
     expect(clone.getChildren().length).toBe(1);
     expect(clone.getChildren()[0].getSchemaName()).toBe('country');
     expect(clone.getFieldByStorageKey('city')).toBe(undefined);
@@ -158,13 +158,13 @@ describe('RelayQueryFragment', () => {
   });
 
   it('creates nodes', () => {
-    var fragmentRQL = Relay.QL`
+    const fragmentRQL = Relay.QL`
       fragment on StreetAddress {
         city
       }
     `;
     fragment = getNode(fragmentRQL);
-    var node = fragment.createNode(fragmentRQL);
+    const node = fragment.createNode(fragmentRQL);
     expect(node instanceof RelayQuery.Fragment).toBe(true);
     expect(node.getType()).toBe('StreetAddress');
     expect(node.getRoute()).toBe(fragment.getRoute());

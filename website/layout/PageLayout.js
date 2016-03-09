@@ -9,14 +9,14 @@
  * @providesModule PageLayout
 */
 
-var React = require('React');
-var Site = require('Site');
-var Marked = require('Marked');
+const React = require('React');
+const Site = require('Site');
+const Marked = require('Marked');
 
-var support = React.createClass({
+const support = React.createClass({
   render: function() {
-    var metadata = this.props.metadata;
-    var content = this.props.children;
+    const metadata = this.props.metadata;
+    const content = this.props.children;
     return (
       <Site section={metadata.section}>
         <section className="content wrap documentationContent nosidebar">

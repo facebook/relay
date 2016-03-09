@@ -21,7 +21,7 @@ const subtractRelayQuery = require('subtractRelayQuery');
 const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 
 describe('subtractRelayQuery', () => {
-  var {defer, getNode} = RelayTestUtils;
+  const {defer, getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jasmine.addMatchers(RelayTestUtils.matchers);
@@ -32,7 +32,7 @@ describe('subtractRelayQuery', () => {
   }
 
   it('persists query names', () => {
-    var minQuery = getNode(Relay.QL`
+    const minQuery = getNode(Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -44,19 +44,19 @@ describe('subtractRelayQuery', () => {
         }
       }
     `);
-    var subQuery = getNode(Relay.QL`
+    const subQuery = getNode(Relay.QL`
       query {
         node(id:"4"){name}
       }
     `);
-    var diffQuery = subtractQuery(minQuery, subQuery);
+    const diffQuery = subtractQuery(minQuery, subQuery);
     expect(diffQuery).not.toBe(minQuery);
     expect(diffQuery.getName()).toBe(minQuery.getName());
   });
 
   describe('fields', () => {
     it('subtracts top-level fields', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -68,17 +68,17 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){name}
         }
       `);
-      var expected = getNode(Relay.QL`query{node(id:"4"){id,hometown{id,name}}}`);
+      const expected = getNode(Relay.QL`query{node(id:"4"){id,hometown{id,name}}}`);
       expect(subtractQuery(minQuery, subQuery)).toEqualQueryRoot(expected);
     });
 
     it('returns null when the resulting query would be empty', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -89,19 +89,19 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){name}
         }
       `);
       // this would subtract to node(4){id,hometown{id}}, which is "empty"
       // because it contains no non-requisite, non-id scalar fields
-      var diffQuery = subtractQuery(minQuery, subQuery);
+      const diffQuery = subtractQuery(minQuery, subQuery);
       expect(diffQuery).toBe(null);
     });
 
     it('returns null when the minuend query is empty', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -111,19 +111,19 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){name}
         }
       `);
       // this would subtract to node(4){id,hometown{id}}, which is "empty"
       // because it contains no non-requisite, non-id scalar fields
-      var diffQuery = subtractQuery(minQuery, subQuery);
+      const diffQuery = subtractQuery(minQuery, subQuery);
       expect(diffQuery).toBe(null);
     });
 
     it('does not consider requisite fields with aliases to be empty', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
             friends(first:"10") {
@@ -134,7 +134,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
             friends(first:"1") {
@@ -143,7 +143,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         query {
           node(id:"123") {
             friends(first:"10") {
@@ -159,7 +159,7 @@ describe('subtractRelayQuery', () => {
 
     it('does not consider id fields with aliases to be empty', () => {
       // the `id` here is a non-requisite id field
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           viewer {
             newsFeed(first:"1") {
@@ -172,7 +172,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           viewer {
             newsFeed(first:"1") {
@@ -187,13 +187,13 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var diffQuery = subtractQuery(minQuery, subQuery);
+      const diffQuery = subtractQuery(minQuery, subQuery);
       expect(minQuery).toBe(diffQuery);
     });
 
     it('does not consider ref query dependencies to be empty', () => {
-      var fragment = Relay.QL`fragment on Feedback{canViewerLike}`;
-      var query = getNode(Relay.QL`
+      const fragment = Relay.QL`fragment on Feedback{canViewerLike}`;
+      const query = getNode(Relay.QL`
         query {
           node(id:"UzpfSTU0MTUzNTg0MzoxMDE1Mjk3MDY0NjAzNTg0NA==") {
             feedback {
@@ -203,7 +203,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var otherQuery = getNode(Relay.QL`
+      const otherQuery = getNode(Relay.QL`
         query {
           node(id:"UzpfSTU0MTUzNTg0MzoxMDE1Mjk3MDY0NjAzNTg0NA==") {
             feedback {
@@ -212,9 +212,9 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var splitQueries = splitDeferredRelayQueries(query);
-      var required = splitQueries.required;
-      var expected = getNode(Relay.QL`
+      const splitQueries = splitDeferredRelayQueries(query);
+      const required = splitQueries.required;
+      const expected = getNode(Relay.QL`
         query {
           node(id:"UzpfSTU0MTUzNTg0MzoxMDE1Mjk3MDY0NjAzNTg0NA==") {
             id,
@@ -229,7 +229,7 @@ describe('subtractRelayQuery', () => {
     });
 
     it('subtracts nested fields', () => {
-      var minQuery = getNode(Relay.QL`
+      let minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -240,12 +240,12 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      let subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){birthdate{day}}
         }
       `);
-      var expected = getNode(Relay.QL`query{node(id:"4"){id,name}}`);
+      let expected = getNode(Relay.QL`query{node(id:"4"){id,name}}`);
       expect(subtractQuery(minQuery, subQuery)).toEqualQueryRoot(expected);
 
       minQuery = getNode(Relay.QL`
@@ -280,7 +280,7 @@ describe('subtractRelayQuery', () => {
     });
 
     it('subtracts deeply nested fields', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -294,12 +294,12 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){hometown{address{country}}}
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -316,13 +316,13 @@ describe('subtractRelayQuery', () => {
     });
 
     it('returns null for no difference', () => {
-      var minQuery = getNode(Relay.QL`query{node(id:"4"){id,name}}`);
-      var subQuery = getNode(Relay.QL`query{node(id:"4"){id,name}}`);
+      const minQuery = getNode(Relay.QL`query{node(id:"4"){id,name}}`);
+      const subQuery = getNode(Relay.QL`query{node(id:"4"){id,name}}`);
       expect(subtractQuery(minQuery, subQuery)).toBeNull();
     });
 
     it('does not subtract when the root call arguments are different', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -330,7 +330,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"660361306") {
             id,
@@ -342,18 +342,18 @@ describe('subtractRelayQuery', () => {
     });
 
     it('ignores fields only in subtrahend query', () => {
-      var minQuery = getNode(Relay.QL`query{node(id:"4"){id,name}}`);
-      var subQuery = getNode(Relay.QL`query{node(id:"4"){firstName}}`);
+      const minQuery = getNode(Relay.QL`query{node(id:"4"){id,name}}`);
+      const subQuery = getNode(Relay.QL`query{node(id:"4"){firstName}}`);
       expect(subtractQuery(minQuery, subQuery)).toBe(minQuery);
     });
 
     it('preserves fields from fragments within a range', () => {
-      var fragment = Relay.QL`
+      const fragment = Relay.QL`
         fragment on User {
           name,
         }
       `;
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
             friends(first: "10") {
@@ -367,7 +367,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
             friends(first: "10") {
@@ -381,17 +381,17 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var diffQuery = subtractQuery(minQuery, subQuery);
+      const diffQuery = subtractQuery(minQuery, subQuery);
       expect(minQuery).toBe(diffQuery);
     });
 
     it('preserves fields from deferred fragments within a range', () => {
-      var fragment = Relay.QL`
+      const fragment = Relay.QL`
         fragment on User {
           name,
         }
       `;
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
             friends(first: "5") {
@@ -406,9 +406,9 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var queries = splitDeferredRelayQueries(minQuery);
+      const queries = splitDeferredRelayQueries(minQuery);
 
-      var {required, deferred} = queries;
+      const {required, deferred} = queries;
       expect(deferred.length).toBe(1); // sanity check
       expect(subtractQuery(deferred[0].required, required))
         .toBe(deferred[0].required);
@@ -417,7 +417,7 @@ describe('subtractRelayQuery', () => {
 
   describe('id', () => {
     it('preserves `id` field if difference is non-empty', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -430,12 +430,12 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){hometown{id,url}}
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -451,7 +451,7 @@ describe('subtractRelayQuery', () => {
     });
 
     it('removes `id` fields if no non-requisite fields', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
             hometown {
@@ -467,7 +467,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
             friends(first:"5") {
@@ -480,7 +480,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         query {
           node(id:"123") {
             hometown {
@@ -493,7 +493,7 @@ describe('subtractRelayQuery', () => {
     });
 
     it('preserves exported `id` fields', () => {
-      var minQuery = getNode(Relay.QL`
+      let minQuery = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -508,7 +508,7 @@ describe('subtractRelayQuery', () => {
             .cloneAsRefQueryDependency(),
         ]),
       ]);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -517,21 +517,21 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var diffQuery = subtractQuery(minQuery, subQuery);
+      const diffQuery = subtractQuery(minQuery, subQuery);
       expect(diffQuery).toBe(minQuery);
     });
   });
 
   describe('fragments', () => {
     it('returns null for no difference with fragments', () => {
-      var minFragment = Relay.QL`fragment on Node{name}`;
-      var minQuery = getNode(Relay.QL`
+      const minFragment = Relay.QL`fragment on Node{name}`;
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4"){id,${minFragment}}
         }
       `);
-      var subFragment = Relay.QL`fragment on Node{name}`;
-      var subQuery = getNode(Relay.QL`
+      const subFragment = Relay.QL`fragment on Node{name}`;
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){id,${subFragment}}
         }
@@ -540,22 +540,22 @@ describe('subtractRelayQuery', () => {
     });
 
     it('subtracts fields from minuend fragments', () => {
-      var minFragment = Relay.QL`fragment on Node{hometown{name},name}`;
-      var minQuery = getNode(Relay.QL`
+      const minFragment = Relay.QL`fragment on Node{hometown{name},name}`;
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             ${minFragment}
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){hometown{name}}
         }
       `);
-      var diffQuery = subtractQuery(minQuery, subQuery);
+      const diffQuery = subtractQuery(minQuery, subQuery);
 
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         query {
           node(id:"4") {
             ${Relay.QL`fragment on Node{name}`}
@@ -567,8 +567,8 @@ describe('subtractRelayQuery', () => {
     });
 
     it('subtracts entire minuend fragments when empty', () => {
-      var minFragment = Relay.QL`fragment on Actor{birthdate{day},hometown{id}}`;
-      var minQuery = getNode(Relay.QL`
+      const minFragment = Relay.QL`fragment on Actor{birthdate{day},hometown{id}}`;
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -577,14 +577,14 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){birthdate{day},hometown{id}}
         }
       `);
-      var diffQuery = subtractQuery(minQuery, subQuery);
+      const diffQuery = subtractQuery(minQuery, subQuery);
 
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         query {
           node(id:"4") {
             ${Relay.QL`fragment on Actor{id}`},
@@ -597,7 +597,7 @@ describe('subtractRelayQuery', () => {
     });
 
     it('subtracts fields in subtrahend fragments', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -610,8 +610,8 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subFragment = Relay.QL`fragment on Page{name}`;
-      var subQuery = getNode(Relay.QL`
+      const subFragment = Relay.QL`fragment on Page{name}`;
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             hometown {
@@ -622,7 +622,7 @@ describe('subtractRelayQuery', () => {
         }
       `);
 
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -635,13 +635,13 @@ describe('subtractRelayQuery', () => {
         }
       `);
 
-      var diffQuery = subtractQuery(minQuery, subQuery);
+      const diffQuery = subtractQuery(minQuery, subQuery);
       expect(diffQuery).toEqualQueryRoot(expected);
     });
 
     it('subtracts subtrahend fragments from minuend fragments', () => {
-      var minFragment = Relay.QL`fragment on Node{hometown{id,name,url},name}`;
-      var minQuery = getNode(Relay.QL`
+      const minFragment = Relay.QL`fragment on Node{hometown{id,name,url},name}`;
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -649,9 +649,9 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subFragmentNode = Relay.QL`fragment on Node{name}`;
-      var subFragmentPage = Relay.QL`fragment on Page{name}`;
-      var subQuery = getNode(Relay.QL`
+      const subFragmentNode = Relay.QL`fragment on Node{name}`;
+      const subFragmentPage = Relay.QL`fragment on Page{name}`;
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             hometown {
@@ -663,7 +663,7 @@ describe('subtractRelayQuery', () => {
         }
       `);
 
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         query {
           node(id:"4") {
             ${Relay.QL`
@@ -678,21 +678,21 @@ describe('subtractRelayQuery', () => {
         }
       `);
 
-      var diffQuery = subtractQuery(minQuery, subQuery);
+      const diffQuery = subtractQuery(minQuery, subQuery);
       expect(diffQuery).toEqualQueryRoot(expected);
     });
   });
 
   describe('calls', () => {
     it('subtracts fields with matching calls', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             url(site:"www")
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){url(site:"www")}
         }
@@ -701,14 +701,14 @@ describe('subtractRelayQuery', () => {
     });
 
     it('preserves fields with non-matching calls', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             url(site:"www")
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){url(site:"mobile")}
         }
@@ -717,7 +717,7 @@ describe('subtractRelayQuery', () => {
     });
 
     it('subtracts nested fields with matching calls', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             profilePicture(size:"32") {
@@ -726,7 +726,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){profilePicture(size:"32"){uri}}
         }
@@ -735,7 +735,7 @@ describe('subtractRelayQuery', () => {
     });
 
     it('preserves nested fields with non-matching calls', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             profilePicture(size:"32") {
@@ -744,7 +744,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4"){profilePicture(size:"64"){uri}}
         }
@@ -755,7 +755,7 @@ describe('subtractRelayQuery', () => {
 
   describe('ranges', () => {
     it('subtracts fields from range supersets', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             friends(first:"3") {
@@ -769,7 +769,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             friends(first:"5") {
@@ -782,7 +782,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         query {
           node(id:"4") {
             friends(first:"3") {
@@ -795,12 +795,12 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var diffQuery = subtractQuery(minQuery, subQuery);
+      const diffQuery = subtractQuery(minQuery, subQuery);
       expect(diffQuery).toEqualQueryRoot(expected);
     });
 
     it('removes empty ranges', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             id,
@@ -820,7 +820,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             friends(first:"5") {
@@ -843,7 +843,7 @@ describe('subtractRelayQuery', () => {
     });
 
     it('preserves all fields from range subsets', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             friends(first:"5") {
@@ -857,7 +857,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             friends(first:"3") {
@@ -874,7 +874,7 @@ describe('subtractRelayQuery', () => {
     });
 
     it('preserves ranges with non-matching calls', () => {
-      var minQuery = getNode(Relay.QL`
+      const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             friends(orderby:"importance",first:"3") {
@@ -888,7 +888,7 @@ describe('subtractRelayQuery', () => {
           }
         }
       `);
-      var subQuery = getNode(Relay.QL`
+      const subQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
             friends(first:"3") {

@@ -2,8 +2,8 @@
  * @providesModule Prism
 */
 
-var React = require('React');
-var unindent = require('unindent');
+const React = require('React');
+const unindent = require('unindent');
 
 /* http://prismjs.com/download.html?themes=prism&languages=markup+clike+javascript+jsx */
 /**
@@ -13,9 +13,9 @@ var unindent = require('unindent');
  */
 
 // Private helper vars
-var lang = /\blang(?:uage)?-(?!\*)(\w+)\b/i;
+const lang = /\blang(?:uage)?-(?!\*)(\w+)\b/i;
 
-var _ = Prism = {
+const _ = Prism = {
 	util: {
 		encode: function (tokens) {
 			if (tokens instanceof Token) {
@@ -33,13 +33,13 @@ var _ = Prism = {
 
 		// Deep clone a language definition (e.g. to extend it)
 		clone: function (o) {
-			var type = _.util.type(o);
+			const type = _.util.type(o);
 
 			switch (type) {
 				case 'Object':
 					var clone = {};
 
-					for (var key in o) {
+					for (let key in o) {
 						if (o.hasOwnProperty(key)) {
 							clone[key] = _.util.clone(o[key]);
 						}
@@ -58,9 +58,9 @@ var _ = Prism = {
 
 	languages: {
 		extend: function (id, redef) {
-			var lang = _.util.clone(_.languages[id]);
+			const lang = _.util.clone(_.languages[id]);
 
-			for (var key in redef) {
+			for (let key in redef) {
 				lang[key] = redef[key];
 			}
 
@@ -78,7 +78,7 @@ var _ = Prism = {
 		 */
 		insertBefore: function (inside, before, insert, root) {
 			root = root || _.languages;
-			var grammar = root[inside];
+			const grammar = root[inside];
 
 			if (arguments.length == 2) {
 				insert = arguments[1];
@@ -92,9 +92,9 @@ var _ = Prism = {
 				return grammar;
 			}
 
-			var ret = {};
+			const ret = {};
 
-			for (var token in grammar) {
+			for (let token in grammar) {
 
 				if (grammar.hasOwnProperty(token)) {
 
@@ -124,7 +124,7 @@ var _ = Prism = {
 
 		// Traverse a language definition with Depth First Search
 		DFS: function(o, callback, type) {
-			for (var i in o) {
+			for (let i in o) {
 				if (o.hasOwnProperty(i)) {
 					callback.call(o, i, o[i], type || i);
 
@@ -140,16 +140,16 @@ var _ = Prism = {
 	},
 
 	highlightAll: function(async, callback) {
-		var elements = document.querySelectorAll('code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code');
+		const elements = document.querySelectorAll('code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code');
 
-		for (var i=0, element; element = elements[i++];) {
+		for (let i=0, element; element = elements[i++];) {
 			_.highlightElement(element, async === true, callback);
 		}
 	},
 
 	highlightElement: function(element, async, callback) {
 		// Find language
-		var language, grammar, parent = element;
+		let language, grammar, parent = element;
 
 		while (parent && !lang.test(parent.className)) {
 			parent = parent.parentNode;
@@ -174,7 +174,7 @@ var _ = Prism = {
 			return;
 		}
 
-		var code = element.textContent;
+		let code = element.textContent;
 
 		if(!code) {
 			return;
@@ -182,7 +182,7 @@ var _ = Prism = {
 
 		code = code.replace(/^(?:\r?\n|\r)/,'');
 
-		var env = {
+		const env = {
 			element: element,
 			language: language,
 			grammar: grammar,
@@ -192,7 +192,7 @@ var _ = Prism = {
 		_.hooks.run('before-highlight', env);
 
 		if (async && _self.Worker) {
-			var worker = new Worker(_.filename);
+			const worker = new Worker(_.filename);
 
 			worker.onmessage = function(evt) {
 				env.highlightedCode = Token.stringify(JSON.parse(evt.data), language);
@@ -224,16 +224,16 @@ var _ = Prism = {
 	},
 
 	highlight: function (text, grammar, language) {
-		var tokens = _.tokenize(text, grammar);
+		const tokens = _.tokenize(text, grammar);
 		return Token.stringify(_.util.encode(tokens), language);
 	},
 
 	tokenize: function(text, grammar, language) {
-		var Token = _.Token;
+		const Token = _.Token;
 
-		var strarr = [text];
+		const strarr = [text];
 
-		var rest = grammar.rest;
+		const rest = grammar.rest;
 
 		if (rest) {
 			for (var token in rest) {
@@ -248,21 +248,17 @@ var _ = Prism = {
 				continue;
 			}
 
-			var patterns = grammar[token];
+			let patterns = grammar[token];
 			patterns = (_.util.type(patterns) === "Array") ? patterns : [patterns];
 
-			for (var j = 0; j < patterns.length; ++j) {
-				var pattern = patterns[j],
-					inside = pattern.inside,
-					lookbehind = !!pattern.lookbehind,
-					lookbehindLength = 0,
-					alias = pattern.alias;
+			for (let j = 0; j < patterns.length; ++j) {
+				let pattern = patterns[j], inside = pattern.inside, lookbehind = !!pattern.lookbehind, lookbehindLength = 0, alias = pattern.alias;
 
 				pattern = pattern.pattern || pattern;
 
-				for (var i=0; i<strarr.length; i++) { // Don’t cache length as it changes during the loop
+				for (let i=0; i<strarr.length; i++) { // Don’t cache length as it changes during the loop
 
-					var str = strarr[i];
+					const str = strarr[i];
 
 					if (strarr.length > text.length) {
 						// Something went terribly wrong, ABORT, ABORT!
@@ -289,13 +285,13 @@ var _ = Prism = {
 							before = str.slice(0, from + 1),
 							after = str.slice(to + 1);
 
-						var args = [i, 1];
+						const args = [i, 1];
 
 						if (before) {
 							args.push(before);
 						}
 
-						var wrapped = new Token(token, inside? _.tokenize(match, inside) : match, alias);
+						const wrapped = new Token(token, inside? _.tokenize(match, inside) : match, alias);
 
 						args.push(wrapped);
 
@@ -316,7 +312,7 @@ var _ = Prism = {
 		all: {},
 
 		add: function (name, callback) {
-			var hooks = _.hooks.all;
+			const hooks = _.hooks.all;
 
 			hooks[name] = hooks[name] || [];
 
@@ -324,13 +320,13 @@ var _ = Prism = {
 		},
 
 		run: function (name, env) {
-			var callbacks = _.hooks.all[name];
+			const callbacks = _.hooks.all[name];
 
 			if (!callbacks || !callbacks.length) {
 				return;
 			}
 
-			for (var i=0, callback; callback = callbacks[i++];) {
+			for (let i=0, callback; callback = callbacks[i++];) {
 				callback(env);
 			}
 		}
@@ -354,7 +350,7 @@ Token.reactify = function(o, language, parent, key) {
 		});
 	}
 
-	var env = {
+	const env = {
 		type: o.type,
 		content: Token.reactify(o.content, language, parent),
 		tag: 'span',
@@ -369,7 +365,7 @@ Token.reactify = function(o, language, parent, key) {
 	}
 
 	if (o.alias) {
-		var aliases = _.util.type(o.alias) === 'Array' ? o.alias : [o.alias];
+		const aliases = _.util.type(o.alias) === 'Array' ? o.alias : [o.alias];
 		Array.prototype.push.apply(env.classes, aliases);
 	}
 
@@ -499,7 +495,7 @@ if (Prism.languages.markup) {
 ;
 (function(Prism) {
 
-var javascript = Prism.util.clone(Prism.languages.javascript);
+const javascript = Prism.util.clone(Prism.languages.javascript);
 
 Prism.languages.jsx = Prism.languages.extend('markup', javascript);
 Prism.languages.jsx.tag.pattern= /<\/?[\w:-]+\s*(?:\s+[\w:-]+(?:=(?:("|')(\\?[\w\W])*?\1|[^\s'">=]+|(\{[\w\W]*?\})))?\s*)*\/?>/i;
@@ -520,7 +516,7 @@ Prism.languages.insertBefore('inside', 'attr-value',{
 
 }(Prism));
 
-var PrismComponent = React.createClass({
+const PrismComponent = React.createClass({
   statics: {
     _: _
   },
@@ -530,22 +526,22 @@ var PrismComponent = React.createClass({
     };
   },
   render: function() {
-    var lines = [];
+    const lines = [];
     if (this.props.line) {
       this.props.line.split(',').forEach(function(range) {
-        var parts = range.split('-');
+        const parts = range.split('-');
         if (parts.length === 1) {
           lines.push(parts[0].trim());
         } else {
-          var start = parseInt(parts[0].trim(), 10);
-          var end = parseInt(parts[1].trim(), 10);
-          for (var ii = start; ii <= end; ii++) {
+          const start = parseInt(parts[0].trim(), 10);
+          const end = parseInt(parts[1].trim(), 10);
+          for (let ii = start; ii <= end; ii++) {
             lines.push(ii);
           }
         }
       });
     }
-    var grammar = _.languages[this.props.language];
+    const grammar = _.languages[this.props.language];
     return (
       <pre className={'prism language-' + this.props.language}>
         {Token.reactify(_.tokenize(this.props.children, grammar))}
@@ -561,6 +557,6 @@ var PrismComponent = React.createClass({
       </pre>
     );
   }
-})
+});
 
 module.exports = PrismComponent;

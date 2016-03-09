@@ -27,7 +27,7 @@ describe('createRelayQuery', () => {
   });
 
   it('creates queries from GraphQL', () => {
-    var root = createRelayQuery(
+    const root = createRelayQuery(
       Relay.QL`
         query {
           viewer {

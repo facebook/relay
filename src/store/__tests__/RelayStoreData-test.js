@@ -23,9 +23,9 @@ const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayStoreData', () => {
-  var Relay;
+  let Relay;
 
-  var {getNode, getVerbatimNode} = RelayTestUtils;
+  const {getNode, getVerbatimNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -38,9 +38,9 @@ describe('RelayStoreData', () => {
 
   describe('handleQueryPayload', () => {
     it('writes responses to `records`', () => {
-      var storeData = new RelayStoreData();
+      const storeData = new RelayStoreData();
 
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             id,
@@ -51,7 +51,7 @@ describe('RelayStoreData', () => {
           }
         }
       `);
-      var response = {
+      const response = {
         node: {
           id: '123',
           doesViewerLike: false,
@@ -64,10 +64,10 @@ describe('RelayStoreData', () => {
       storeData.handleQueryPayload(query, response);
 
       // results are written to `records`
-      var recordStore = storeData.getRecordStore();
+      const recordStore = storeData.getRecordStore();
       expect(recordStore.getRecordState('123')).toBe('EXISTENT');
       expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
-      var commentsID =
+      const commentsID =
         recordStore.getLinkedRecordID('123', 'topLevelComments');
       expect(recordStore.getField(commentsID, 'count')).toBe(1);
 
@@ -76,9 +76,9 @@ describe('RelayStoreData', () => {
     });
 
     it('uses cached IDs for root fields without IDs', () => {
-      var storeData = new RelayStoreData();
+      const storeData = new RelayStoreData();
 
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             id,
@@ -89,7 +89,7 @@ describe('RelayStoreData', () => {
           }
         }
       `);
-      var response = {
+      const response = {
         node: {
           id: '123',
           doesViewerLike: false,
@@ -102,10 +102,10 @@ describe('RelayStoreData', () => {
       storeData.handleQueryPayload(query, response);
 
       // results are written to `records`
-      var recordStore = storeData.getRecordStore();
+      const recordStore = storeData.getRecordStore();
       expect(recordStore.getRecordState('123')).toBe('EXISTENT');
       expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
-      var commentsID =
+      const commentsID =
         recordStore.getLinkedRecordID('123', 'topLevelComments');
       expect(recordStore.getField(commentsID, 'count')).toBe(1);
 
@@ -116,11 +116,11 @@ describe('RelayStoreData', () => {
 
   describe('handleUpdatePayload', () => {
     it('writes server payloads to `records`', () => {
-      var storeData = new RelayStoreData();
+      const storeData = new RelayStoreData();
       // create the root node
       storeData.getRecordWriter().putRecord('123');
 
-      var mutationQuery = getNode(Relay.QL`
+      const mutationQuery = getNode(Relay.QL`
         mutation {
           feedbackLike(input:$input) {
             clientMutationId,
@@ -134,7 +134,7 @@ describe('RelayStoreData', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
         feedback: {
           id: '123',
@@ -150,10 +150,10 @@ describe('RelayStoreData', () => {
       });
 
       // results are written to `records`
-      var recordStore = storeData.getRecordStore();
+      const recordStore = storeData.getRecordStore();
       expect(recordStore.getRecordState('123')).toBe('EXISTENT');
       expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
-      var commentsID =
+      const commentsID =
         recordStore.getLinkedRecordID('123', 'topLevelComments');
       expect(recordStore.getField(commentsID, 'count')).toBe(1);
 
@@ -162,11 +162,11 @@ describe('RelayStoreData', () => {
     });
 
     it('writes optimistic payloads to `queuedRecords`', () => {
-      var storeData = new RelayStoreData();
+      const storeData = new RelayStoreData();
       // create the root node
       storeData.getRecordWriter().putRecord('123');
 
-      var mutationQuery = getNode(Relay.QL`
+      const mutationQuery = getNode(Relay.QL`
         mutation {
           feedbackLike(input:$input) {
             clientMutationId,
@@ -180,7 +180,7 @@ describe('RelayStoreData', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
         feedback: {
           id: '123',
@@ -197,10 +197,10 @@ describe('RelayStoreData', () => {
       });
 
       // results are written to `queuedRecords`
-      var queuedStore = storeData.getQueuedStore();
+      const queuedStore = storeData.getQueuedStore();
       expect(queuedStore.getRecordState('123')).toBe('EXISTENT');
       expect(queuedStore.getField('123', 'doesViewerLike')).toBe(false);
-      var commentsID =
+      const commentsID =
         queuedStore.getLinkedRecordID('123', 'topLevelComments');
       expect(queuedStore.getField(commentsID, 'count')).toBe(1);
 
@@ -222,10 +222,10 @@ describe('RelayStoreData', () => {
         // (`doesViewerLike === false`), but this must be recorded as an
         // optimistic value so that the first server payload (with the story
         // liked) is ignored.
-        var storeData = new RelayStoreData();
+        const storeData = new RelayStoreData();
 
         // write starting values for a query
-        var query = getNode(Relay.QL`
+        const query = getNode(Relay.QL`
           query {
             node(id:"123") {
               id,
@@ -236,7 +236,7 @@ describe('RelayStoreData', () => {
             }
           }
         `);
-        var response = {
+        let response = {
           node: {
             id: '123',
             doesViewerLike: false,
@@ -249,7 +249,7 @@ describe('RelayStoreData', () => {
         storeData.handleQueryPayload(query, response);
 
         // write an optimistic update with the same values as the store
-        var mutationQuery = getNode(Relay.QL`
+        const mutationQuery = getNode(Relay.QL`
           mutation {
             feedbackLike(input:$input) {
               clientMutationId,
@@ -263,7 +263,7 @@ describe('RelayStoreData', () => {
             }
           }
         `);
-        var payload = {
+        const payload = {
           [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
           feedback: {
             id: '123',
@@ -291,9 +291,9 @@ describe('RelayStoreData', () => {
 
         // verify that the optimistic update takes precedence over the
         // server update
-        var recordStore = storeData.getQueuedStore();
+        const recordStore = storeData.getQueuedStore();
         expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
-        var commentsID =
+        const commentsID =
           recordStore.getLinkedRecordID('123', 'topLevelComments');
         expect(commentsID).toBeTruthy();
         expect(recordStore.getField(commentsID, 'count')).toBe(1);
@@ -303,14 +303,14 @@ describe('RelayStoreData', () => {
 
   describe('buildFragmentQueryForDataID', () => {
     it('builds root queries for refetchable IDs', () => {
-      var data = new RelayStoreData();
-      var fragment = getNode(Relay.QL`
+      const data = new RelayStoreData();
+      const fragment = getNode(Relay.QL`
         fragment on User {
           id
           name
         }
       `);
-      var query = data.buildFragmentQueryForDataID(
+      const query = data.buildFragmentQueryForDataID(
         fragment,
         '123'
       );
@@ -331,9 +331,9 @@ describe('RelayStoreData', () => {
     });
 
     it('builds root queries using the path for non-refetchable IDs', () => {
-      var storeData = new RelayStoreData();
-      var addressFragment = Relay.QL`fragment on User{id,address{city}}`;
-      var node = getNode(Relay.QL`
+      const storeData = new RelayStoreData();
+      const addressFragment = Relay.QL`fragment on User{id,address{city}}`;
+      const node = getNode(Relay.QL`
         query {
           node(id: "123") {
             id,
@@ -341,7 +341,7 @@ describe('RelayStoreData', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           id: '123',
           __typename: 'User',
@@ -352,12 +352,12 @@ describe('RelayStoreData', () => {
       };
       storeData.handleQueryPayload(node, payload);
 
-      var fragment = getNode(Relay.QL`
+      const fragment = getNode(Relay.QL`
         fragment on StreetAddress {
           city,
         }
       `);
-      var query = storeData.buildFragmentQueryForDataID(fragment, 'client:1');
+      const query = storeData.buildFragmentQueryForDataID(fragment, 'client:1');
       expect(query).toEqualQueryRoot(getVerbatimNode(Relay.QL`
         query RelayStoreData($id_0: ID!) {
           node(id: $id_0) {
@@ -380,7 +380,7 @@ describe('RelayStoreData', () => {
 
   describe('garbage collection', () => {
     it('initializes the garbage collector if no data has been added', () => {
-      var data = new RelayStoreData();
+      const data = new RelayStoreData();
       expect(data.getGarbageCollector()).toBe(undefined);
       expect(() => data.initializeGarbageCollector()).not.toThrow();
       expect(
@@ -391,9 +391,9 @@ describe('RelayStoreData', () => {
     it('warns if initialized after data has been added', () => {
       jest.mock('warning');
 
-      var response = {node: {id: 0, __typename: 'User'}};
-      var data = new RelayStoreData();
-      var query = getNode(Relay.QL`query{node(id:"a") {id}}`);
+      const response = {node: {id: 0, __typename: 'User'}};
+      const data = new RelayStoreData();
+      const query = getNode(Relay.QL`query{node(id:"a") {id}}`);
       data.handleQueryPayload(query, response);
 
       const warningMsg =
@@ -409,11 +409,11 @@ describe('RelayStoreData', () => {
       'initialized',
       () => {
         RelayGarbageCollector.prototype.register = jest.genMockFunction();
-        var response = {node: {id: 0}};
-        var data = new RelayStoreData();
+        const response = {node: {id: 0}};
+        const data = new RelayStoreData();
         data.initializeGarbageCollector();
-        var query = getNode(Relay.QL`query{node(id:"a") {id}}`);
-        var garbageCollector = data.getGarbageCollector();
+        const query = getNode(Relay.QL`query{node(id:"a") {id}}`);
+        const garbageCollector = data.getGarbageCollector();
 
         expect(garbageCollector.register).not.toBeCalled();
         data.handleQueryPayload(query, response);

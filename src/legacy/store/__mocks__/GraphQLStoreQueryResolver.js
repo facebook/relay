@@ -12,7 +12,7 @@
 class GraphQLStoreQueryResolver {
 
   constructor(store, queryFragment, callback) {
-    var mockInstances = GraphQLStoreQueryResolver.mock.instances;
+    const mockInstances = GraphQLStoreQueryResolver.mock.instances;
     this.mock = {
       callback,
       index: mockInstances.length,
@@ -20,8 +20,8 @@ class GraphQLStoreQueryResolver {
       store,
     };
     this.resolve = jest.genMockFunction().mockImplementation((...args) => {
-      var mockConstructor = GraphQLStoreQueryResolver.mock;
-      var mockResolve =
+      const mockConstructor = GraphQLStoreQueryResolver.mock;
+      const mockResolve =
         mockConstructor.resolveImplementations[this.mock.index] ||
         mockConstructor.defaultResolveImplementation;
       return mockResolve.apply(this, args);

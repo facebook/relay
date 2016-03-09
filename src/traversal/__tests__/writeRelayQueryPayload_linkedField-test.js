@@ -22,10 +22,10 @@ const Relay = require('Relay');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
-  var RelayRecordStore;
-  var RelayRecordWriter;
+  let RelayRecordStore;
+  let RelayRecordWriter;
 
-  var {
+  const {
     getNode,
     getVerbatimNode,
     writePayload,
@@ -43,10 +43,10 @@ describe('writeRelayQueryPayload()', () => {
 
   describe('linked fields', () => {
     it('are created and set to null when the response is null', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -55,12 +55,12 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         viewer: {
           actor: null,
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           'client:1': true,
@@ -72,7 +72,7 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('are deleted when the response is null', () => {
-      var records = {
+      const records = {
         'client:1': {
           __dataID__: 'client:1',
           actor: {
@@ -83,9 +83,9 @@ describe('writeRelayQueryPayload()', () => {
           __dataID__: 'client:2',
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -94,12 +94,12 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         viewer: {
           actor: null,
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
         },
@@ -112,10 +112,10 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('are not created when the response is undefined', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -124,7 +124,7 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         viewer: {
           actor: undefined,
         },
@@ -135,7 +135,7 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('are not deleted when the response is undefined', () => {
-      var records = {
+      const records = {
         'client:1': {
           __dataID__: 'client:1',
           actor: {
@@ -147,9 +147,9 @@ describe('writeRelayQueryPayload()', () => {
           id: '123',
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -158,7 +158,7 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         viewer: {
           actor: undefined,
         },
@@ -171,11 +171,11 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('are created with the specified id', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var actorID = '123';
-      var query = getNode(Relay.QL`
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const actorID = '123';
+      const query = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -184,14 +184,14 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         viewer: {
           actor: {
             id: actorID,
           },
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           'client:1': true,
@@ -204,8 +204,8 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('updates the parent if the id changes', () => {
-      var actorID = '123';
-      var records = {
+      const actorID = '123';
+      const records = {
         'client:1': {
           __dataID__: 'client:1',
           actor: {
@@ -216,10 +216,10 @@ describe('writeRelayQueryPayload()', () => {
           __dataID__: actorID,
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var nextActorID = '456';
-      var query = getNode(Relay.QL`
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const nextActorID = '456';
+      const query = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -228,14 +228,14 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         viewer: {
           actor: {
             id: nextActorID,
           },
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           '456': true,
@@ -250,11 +250,11 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('are created with a generated id if none is present', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var addressID = 'client:1';
-      var query = getNode(Relay.QL`
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const addressID = 'client:1';
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             address {
@@ -263,7 +263,7 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           id: '123',
           // address has no id and receives a generated client id
@@ -272,7 +272,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           '123': true,
@@ -286,8 +286,8 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('reuses existing generated ids', () => {
-      var addressID = 'client:1';
-      var records = {
+      const addressID = 'client:1';
+      const records = {
         '123': {
           __dataID__: '123',
           id: '123',
@@ -300,9 +300,9 @@ describe('writeRelayQueryPayload()', () => {
           city: 'San Francisco',
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             address {
@@ -311,7 +311,7 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           id: '123',
           // the address record has no id but should reuse the previously
@@ -321,7 +321,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {},
@@ -331,7 +331,7 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('records an update on the parent if a linked field is created', () => {
-      var records = {
+      const records = {
         'user:1': {
           __dataID__: 'user:1',
           'hometown': {
@@ -341,10 +341,10 @@ describe('writeRelayQueryPayload()', () => {
         },
         'hometown:1': null,
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
       store.removeRecord('hometown:1');
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"user:1") {
             hometown {
@@ -353,7 +353,7 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           id: 'user:1',
           'hometown': {
@@ -362,7 +362,7 @@ describe('writeRelayQueryPayload()', () => {
           },
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           'hometown:1': true,
@@ -374,10 +374,10 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('records the concrete type if `__typename` is present', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -387,7 +387,7 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         viewer: {
           actor: {
             id: '123',
@@ -400,11 +400,11 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('warns if the typename cannot be determined for a node', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
       // No `id` or `__typename` fields or responses
-      var query = getVerbatimNode(Relay.QL`
+      const query = getVerbatimNode(Relay.QL`
         query {
           viewer {
             actor {
@@ -413,7 +413,7 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         viewer: {
           actor: {
             id: '123',
@@ -430,10 +430,10 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('stores types for client records', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           me {
             id
@@ -446,7 +446,7 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         me: {
           id: '123',
           __typename: 'User',
@@ -456,7 +456,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       writePayload(store, writer, query, payload);
-      var addressID = store.getLinkedRecordID('123', 'address');
+      const addressID = store.getLinkedRecordID('123', 'address');
       expect(store.getType('123')).toBe('User');
       expect(store.getType(addressID)).toBe('StreetAddress');
     });

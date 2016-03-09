@@ -19,18 +19,18 @@ const RelayTestUtils = require('RelayTestUtils');
 const containsRelayQueryRootCall = require('containsRelayQueryRootCall');
 
 describe('containsRelayQueryRootCall', function() {
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   beforeEach(function() {
     jasmine.addMatchers({
       toContainRootCall() {
         return {
           compare(thisQuery, thatQuery) {
-            var pass = containsRelayQueryRootCall(
+            const pass = containsRelayQueryRootCall(
               getNode(thisQuery),
               getNode(thatQuery)
             );
-            var notText = pass ? 'not ' : '';
+            const notText = pass ? 'not ' : '';
             return {
               pass,
               message: 'Expected `' + thisQuery + '` ' + notText +

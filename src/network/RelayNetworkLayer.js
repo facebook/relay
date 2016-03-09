@@ -41,23 +41,23 @@ class RelayNetworkLayer {
   }
 
   sendMutation(mutationRequest: RelayMutationRequest): void {
-    var networkLayer = this._getCurrentNetworkLayer();
-    var promise = networkLayer.sendMutation(mutationRequest);
+    const networkLayer = this._getCurrentNetworkLayer();
+    const promise = networkLayer.sendMutation(mutationRequest);
     if (promise) {
       Promise.resolve(promise).done();
     }
   }
 
   sendQueries(queryRequests: Array<RelayQueryRequest>): void {
-    var networkLayer = this._getCurrentNetworkLayer();
-    var promise = networkLayer.sendQueries(queryRequests);
+    const networkLayer = this._getCurrentNetworkLayer();
+    const promise = networkLayer.sendQueries(queryRequests);
     if (promise) {
       Promise.resolve(promise).done();
     }
   }
 
   supports(...options: Array<string>): boolean {
-    var networkLayer = this._getCurrentNetworkLayer();
+    const networkLayer = this._getCurrentNetworkLayer();
     return networkLayer.supports(...options);
   }
 

@@ -23,9 +23,9 @@ const RelayRecordStatusMap = require('RelayRecordStatusMap');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.hasPartialData', () => {
-  var MockContainer;
-  var environment;
-  var RelayTestRenderer;
+  let MockContainer;
+  let environment;
+  let RelayTestRenderer;
 
   beforeEach(() => {
     jest.resetModuleRegistry();

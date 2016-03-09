@@ -19,7 +19,7 @@ const RelayTestUtils = require('RelayTestUtils');
 const intersectRelayQuery = require('intersectRelayQuery');
 
 describe('intersectRelayQuery', () => {
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jasmine.addMatchers(RelayTestUtils.matchers);
@@ -27,13 +27,13 @@ describe('intersectRelayQuery', () => {
 
   describe('fields', () => {
     it('returns null for mutually exclusive nodes', () => {
-      var subjectNode = getNode(Relay.QL`
+      const subjectNode = getNode(Relay.QL`
         fragment on Date {
           day,
           month,
         }
       `);
-      var patternNode = getNode(Relay.QL`
+      const patternNode = getNode(Relay.QL`
         fragment on Date {
           year,
         }
@@ -42,19 +42,19 @@ describe('intersectRelayQuery', () => {
     });
 
     it('intersects shallow fields', () => {
-      var subjectNode = getNode(Relay.QL`
+      const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           name,
           firstName,
         }
       `);
-      var patternNode = getNode(Relay.QL`
+      const patternNode = getNode(Relay.QL`
         fragment on Actor {
           lastName,
           name,
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         fragment on Actor {
           name,
         }
@@ -65,7 +65,7 @@ describe('intersectRelayQuery', () => {
     });
 
     it('intersects nested fields', () => {
-      var subjectNode = getNode(Relay.QL`
+      const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           birthdate {
             day,
@@ -78,7 +78,7 @@ describe('intersectRelayQuery', () => {
           },
         }
       `);
-      var patternNode = getNode(Relay.QL`
+      const patternNode = getNode(Relay.QL`
         fragment on Actor {
           hometown {
             name,
@@ -88,7 +88,7 @@ describe('intersectRelayQuery', () => {
           },
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         fragment on Actor {
           hometown {
             name
@@ -101,19 +101,19 @@ describe('intersectRelayQuery', () => {
     });
 
     it('includes fields with different arguments', () => {
-      var subjectNode = getNode(Relay.QL`
+      const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           id,
           url(site:"www")
         }
       `);
-      var patternNode = getNode(Relay.QL`
+      const patternNode = getNode(Relay.QL`
         fragment on Actor {
           id,
           url
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         fragment on Actor {
           id,
           url(site:"www")
@@ -125,19 +125,19 @@ describe('intersectRelayQuery', () => {
     });
 
     it('intersects aliased fields by storage key', () => {
-      var subjectNode = getNode(Relay.QL`
+      const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           name,
           firstName,
         }
       `);
-      var patternNode = getNode(Relay.QL`
+      const patternNode = getNode(Relay.QL`
         fragment on Actor {
           name,
           name: firstName,
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         fragment on Actor {
           name,
           firstName,
@@ -149,7 +149,7 @@ describe('intersectRelayQuery', () => {
     });
 
     it('includes all fields of fields without sub-fields', () => {
-      var subjectNode = getNode(Relay.QL`
+      const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           hometown {
             name,
@@ -157,12 +157,12 @@ describe('intersectRelayQuery', () => {
           },
         }
       `);
-      var patternNode = getNode(Relay.QL`
+      const patternNode = getNode(Relay.QL`
         fragment on Actor {
           hometown,
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         fragment on Actor {
           hometown {
             name,
@@ -178,7 +178,7 @@ describe('intersectRelayQuery', () => {
 
   describe('ranges', () => {
     it('includes range fields for connections without sub-fields', () => {
-      var subjectNode = getNode(Relay.QL`
+      const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
             edges {
@@ -190,12 +190,12 @@ describe('intersectRelayQuery', () => {
           }
         }
       `);
-      var patternNode = getNode(Relay.QL`
+      const patternNode = getNode(Relay.QL`
         fragment on Actor {
           friends
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
             edges {
@@ -213,7 +213,7 @@ describe('intersectRelayQuery', () => {
     });
 
     it('includes non-range connection fields', () => {
-      var subjectNode = getNode(Relay.QL`
+      const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
             count,
@@ -227,14 +227,14 @@ describe('intersectRelayQuery', () => {
           }
         }
       `);
-      var patternNode = getNode(Relay.QL`
+      const patternNode = getNode(Relay.QL`
         fragment on Actor @relay(pattern: true) {
           friends {
             count
           }
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
             count
@@ -247,7 +247,7 @@ describe('intersectRelayQuery', () => {
     });
 
     it('excludes filtered unterminated ranges', () => {
-      var subjectNode = getNode(Relay.QL`
+      const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
             count,
@@ -260,19 +260,19 @@ describe('intersectRelayQuery', () => {
           }
         }
       `);
-      var patternNode = getNode(Relay.QL`
+      const patternNode = getNode(Relay.QL`
         fragment on Actor {
           friends
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
             count
           }
         }
       `);
-      var filterUnterminatedRange = function(node) {
+      const filterUnterminatedRange = function(node) {
         return node.getSchemaName() === 'friends';
       };
       expect(
@@ -281,7 +281,7 @@ describe('intersectRelayQuery', () => {
     });
 
     it('excludes filtered unterminated ranges with different arguments', () => {
-      var subjectNode = getNode(Relay.QL`
+      const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           friends(orderby:"name",first: "10") {
             count,
@@ -294,19 +294,19 @@ describe('intersectRelayQuery', () => {
           }
         }
       `);
-      var patternNode = getNode(Relay.QL`
+      const patternNode = getNode(Relay.QL`
         fragment on Actor {
           friends
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         fragment on Actor {
           friends(orderby:"name",first: "10") {
             count
           }
         }
       `);
-      var filterUnterminatedRange = function(node) {
+      const filterUnterminatedRange = function(node) {
         return node.getSchemaName() === 'friends';
       };
       expect(
@@ -315,7 +315,7 @@ describe('intersectRelayQuery', () => {
     });
 
     it('does not exclude ranges from connections with sub-fields', () => {
-      var subjectNode = getNode(Relay.QL`
+      const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
             count,
@@ -328,7 +328,7 @@ describe('intersectRelayQuery', () => {
           }
         }
       `);
-      var patternNode = getNode(Relay.QL`
+      const patternNode = getNode(Relay.QL`
         fragment on Actor @relay(pattern: true) {
           friends {
             count,
@@ -341,7 +341,7 @@ describe('intersectRelayQuery', () => {
           }
         }
       `);
-      var expected = getNode(Relay.QL`
+      const expected = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
             count,
@@ -354,7 +354,7 @@ describe('intersectRelayQuery', () => {
           }
         }
       `);
-      var filterUnterminatedRange = jest.genMockFunction();
+      const filterUnterminatedRange = jest.genMockFunction();
       expect(
         intersectRelayQuery(subjectNode, patternNode, filterUnterminatedRange)
       ).toEqualQueryNode(expected);

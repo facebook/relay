@@ -189,7 +189,7 @@ class RelayMutationQueue {
     let shouldRollback = true;
     const onFailure = transaction.onFailure;
     if (onFailure) {
-      var preventAutoRollback = function() { shouldRollback = false; };
+      const preventAutoRollback = function() { shouldRollback = false; };
       ErrorUtils.applyWithGuard(
         onFailure,
         null,
@@ -271,7 +271,7 @@ class RelayMutationQueue {
   _advanceCollisionQueue(transaction: PendingTransaction): void {
     const collisionKey = transaction.getCollisionKey();
     if (collisionKey) {
-      var collisionQueue = nullthrows(this._collisionQueueMap[collisionKey]);
+      const collisionQueue = nullthrows(this._collisionQueueMap[collisionKey]);
       // Remove the transaction that called this function.
       collisionQueue.shift();
 
@@ -415,7 +415,7 @@ class PendingTransaction {
 
   getInputVariable(): Variables  {
     if (!this._inputVariable) {
-      var inputVariable = {
+      const inputVariable = {
         ...this.mutation.getVariables(),
         [CLIENT_MUTATION_ID]: this.id,
       };
@@ -446,9 +446,9 @@ class PendingTransaction {
 
   getOptimisticQuery(storeData: RelayStoreData): ?RelayQuery.Mutation {
     if (this._optimisticQuery === undefined) {
-      var optimisticResponse = this.getOptimisticResponse();
+      const optimisticResponse = this.getOptimisticResponse();
       if (optimisticResponse) {
-        var optimisticConfigs = this.getOptimisticConfigs();
+        const optimisticConfigs = this.getOptimisticConfigs();
         if (optimisticConfigs) {
           this._optimisticQuery = RelayMutationQuery.buildQuery({
             configs: optimisticConfigs,
@@ -476,7 +476,7 @@ class PendingTransaction {
 
   getOptimisticResponse(): ?Object {
     if (this._optimisticResponse === undefined) {
-      var optimisticResponse = this.mutation.getOptimisticResponse() || null;
+      const optimisticResponse = this.mutation.getOptimisticResponse() || null;
       if (optimisticResponse) {
         optimisticResponse[CLIENT_MUTATION_ID] = this.id;
       }

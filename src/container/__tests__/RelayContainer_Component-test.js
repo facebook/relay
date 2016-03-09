@@ -21,10 +21,10 @@ const RelayTestUtils = require('RelayTestUtils');
 const reactComponentExpect = require('reactComponentExpect');
 
 describe('RelayContainer', function() {
-  var MockComponent;
-  var MockContainer;
-  var mockCreateContainer;
-  var mockRender;
+  let MockComponent;
+  let MockContainer;
+  let mockCreateContainer;
+  let mockRender;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
@@ -53,7 +53,7 @@ describe('RelayContainer', function() {
     });
 
     const environment = new RelayEnvironment();
-    var RelayTestRenderer = RelayTestUtils.createRenderer();
+    const RelayTestRenderer = RelayTestUtils.createRenderer();
     mockRender = () => {
       return RelayTestRenderer.render(
         genMockPointer => <MockContainer foo={genMockPointer('42')} />,
@@ -63,7 +63,7 @@ describe('RelayContainer', function() {
   });
 
   it('creates and instance and renders', () => {
-    var instance;
+    let instance;
     expect(() => {
       instance = mockRender();
     }).not.toThrow();
@@ -96,7 +96,7 @@ describe('RelayContainer', function() {
 
     mockCreateContainer(MyComponent);
 
-    var instance = mockRender();
+    const instance = mockRender();
 
     reactComponentExpect(instance)
       .toBeCompositeComponentWithType(MockContainer)

@@ -33,7 +33,7 @@ const generateClientEdgeID = require('generateClientEdgeID');
 const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 describe('writePayload()', () => {
-  var {getNode, writePayload} = RelayTestUtils;
+  const {getNode, writePayload} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -42,14 +42,14 @@ describe('writePayload()', () => {
   });
 
   describe('range delete mutations', () => {
-    var store, queueStore, writer, queueWriter, commentID, connectionID, edgeID;
+    let store, queueStore, writer, queueWriter, commentID, connectionID, edgeID;
 
     beforeEach(() => {
-      var records = {};
-      var queuedRecords = {};
-      var nodeConnectionMap = {};
-      var rootCallMap = {};
-      var rootCallMaps = {rootCallMap};
+      const records = {};
+      const queuedRecords = {};
+      const nodeConnectionMap = {};
+      const rootCallMap = {};
+      const rootCallMaps = {rootCallMap};
 
       commentID = '123';
 
@@ -78,7 +78,7 @@ describe('writePayload()', () => {
         'mutationID'
       );
 
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"feedback_id") {
             topLevelComments(first:"1") {
@@ -92,7 +92,7 @@ describe('writePayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           id: 'feedback_id',
           topLevelComments: {
@@ -118,11 +118,11 @@ describe('writePayload()', () => {
 
     it('optimistically removes range edges', () => {
       // create the mutation and payload
-      var input = {
+      const input = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
         deletedCommentId: commentID,
       };
-      var mutation = getNode(Relay.QL`
+      const mutation = getNode(Relay.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId,
@@ -136,13 +136,13 @@ describe('writePayload()', () => {
       `, {
         input: JSON.stringify(input),
       });
-      var configs = [{
+      const configs = [{
         type: RelayMutationType.RANGE_DELETE,
         deletedIDFieldName: 'deletedCommentId',
         pathToConnection: ['feedback', 'topLevelComments'],
       }];
 
-      var payload = {
+      const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: commentID,
@@ -155,9 +155,9 @@ describe('writePayload()', () => {
       };
 
       // write to the queued store
-      var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
-      var queryWriter = new RelayQueryWriter(
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
         queueStore,
         queueWriter,
         queryTracker,
@@ -202,11 +202,11 @@ describe('writePayload()', () => {
 
     it('non-optimistically removes range edges', () => {
       // create the mutation and payload
-      var input = {
+      const input = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
         deletedCommentId: commentID,
       };
-      var mutation = getNode(Relay.QL`
+      const mutation = getNode(Relay.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId,
@@ -220,13 +220,13 @@ describe('writePayload()', () => {
       `, {
         input: JSON.stringify(input),
       });
-      var configs = [{
+      const configs = [{
         type: RelayMutationType.RANGE_DELETE,
         deletedIDFieldName: 'deletedCommentId',
         pathToConnection: ['feedback', 'topLevelComments'],
       }];
 
-      var payload = {
+      const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: commentID,
@@ -239,9 +239,9 @@ describe('writePayload()', () => {
       };
 
       // write to the queued store
-      var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
-      var queryWriter = new RelayQueryWriter(
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
         store,
         writer,
         queryTracker,
@@ -394,15 +394,14 @@ describe('writePayload()', () => {
   });
 
   describe('node/range delete mutations', () => {
-    var store, queueStore, writer, queueWriter, feedbackID, connectionID,
-      firstCommentID,  secondCommentID, firstEdgeID, secondEdgeID;
+    let store, queueStore, writer, queueWriter, feedbackID, connectionID, firstCommentID, secondCommentID, firstEdgeID, secondEdgeID;
 
     beforeEach(() => {
-      var records = {};
-      var queuedRecords = {};
-      var nodeConnectionMap = {};
-      var rootCallMap = {};
-      var rootCallMaps = {rootCallMap};
+      const records = {};
+      const queuedRecords = {};
+      const nodeConnectionMap = {};
+      const rootCallMap = {};
+      const rootCallMaps = {rootCallMap};
 
       feedbackID = 'feedback123';
       firstCommentID = 'comment456';
@@ -432,7 +431,7 @@ describe('writePayload()', () => {
         'mutationID'
       );
 
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"feedback123") {
             topLevelComments(first:"1") {
@@ -446,7 +445,7 @@ describe('writePayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           id: feedbackID,
           topLevelComments: {
@@ -477,12 +476,12 @@ describe('writePayload()', () => {
 
     it('optimistically deletes comments', () => {
       // create the mutation and payload
-      var input = {
+      const input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
         deletedCommentId: firstCommentID,
       };
-      var mutation = getNode(Relay.QL`
+      const mutation = getNode(Relay.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId,
@@ -497,12 +496,12 @@ describe('writePayload()', () => {
       `, {
         input: JSON.stringify(input),
       });
-      var configs = [{
+      const configs = [{
         type: RelayMutationType.NODE_DELETE,
         deletedIDFieldName: 'deletedCommentId',
       }];
 
-      var payload = {
+      const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: firstCommentID,
@@ -515,9 +514,9 @@ describe('writePayload()', () => {
       };
 
       // write to the queued store
-      var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
-      var queryWriter = new RelayQueryWriter(
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
         queueStore,
         queueWriter,
         queryTracker,
@@ -574,12 +573,12 @@ describe('writePayload()', () => {
 
     it('non-optimistically deletes comments', () => {
       // create the mutation and payload
-      var input = {
+      const input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
         deletedCommentId: firstCommentID,
       };
-      var mutation = getNode(Relay.QL`
+      const mutation = getNode(Relay.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId,
@@ -594,12 +593,12 @@ describe('writePayload()', () => {
       `, {
         input: JSON.stringify(input),
       });
-      var configs = [{
+      const configs = [{
         type: RelayMutationType.NODE_DELETE,
         deletedIDFieldName: 'deletedCommentId',
       }];
 
-      var payload = {
+      const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: firstCommentID,
@@ -612,9 +611,9 @@ describe('writePayload()', () => {
       };
 
       // write to the base store
-      var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
-      var queryWriter = new RelayQueryWriter(
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
         store,
         writer,
         queryTracker,
@@ -656,14 +655,13 @@ describe('writePayload()', () => {
   });
 
   describe('plural node delete mutation', () => {
-    var store, queueStore, writer, queueWriter, firstRequestID, secondRequestID,
-      thirdRequestID;
+    let store, queueStore, writer, queueWriter, firstRequestID, secondRequestID, thirdRequestID;
 
     beforeEach(() => {
-      var records = {};
-      var queuedRecords = {};
-      var rootCallMap = {};
-      var rootCallMaps = {rootCallMap};
+      const records = {};
+      const queuedRecords = {};
+      const rootCallMap = {};
+      const rootCallMaps = {rootCallMap};
 
       firstRequestID = 'request1';
       secondRequestID = 'request2';
@@ -693,14 +691,14 @@ describe('writePayload()', () => {
         'mutationID'
       );
 
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           nodes(ids:["request1","request2","request3"]) {
             id
           }
         }
       `);
-      var payload = {
+      const payload = {
         nodes: [
           {id: firstRequestID},
           {id: secondRequestID},
@@ -713,12 +711,12 @@ describe('writePayload()', () => {
     });
     it('optimistically deletes requests', () => {
       // create the mutation and payload
-      var input = {
+      const input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
-      var mutation = getNode(Relay.QL`
+      const mutation = getNode(Relay.QL`
         mutation {
           applicationRequestDeleteAll(input:$input) {
             deletedRequestIds,
@@ -727,21 +725,21 @@ describe('writePayload()', () => {
       `, {
         input: JSON.stringify(input),
       });
-      var configs = [{
+      const configs = [{
         type: RelayMutationType.NODE_DELETE,
         deletedIDFieldName: 'deletedRequestIds',
       }];
 
-      var payload = {
+      const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
 
       // write to the queued store
-      var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
-      var queryWriter = new RelayQueryWriter(
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
         queueStore,
         queueWriter,
         queryTracker,
@@ -778,12 +776,12 @@ describe('writePayload()', () => {
 
     it('non-optimistically deletes requests', () => {
       // create the mutation and payload
-      var input = {
+      const input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
-      var mutation = getNode(Relay.QL`
+      const mutation = getNode(Relay.QL`
         mutation {
           applicationRequestDeleteAll(input:$input) {
             deletedRequestIds,
@@ -792,21 +790,21 @@ describe('writePayload()', () => {
       `, {
         input: JSON.stringify(input),
       });
-      var configs = [{
+      const configs = [{
         type: RelayMutationType.NODE_DELETE,
         deletedIDFieldName: 'deletedRequestIds',
       }];
 
-      var payload = {
+      const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
 
       // write to the base store
-      var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
-      var queryWriter = new RelayQueryWriter(
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
         store,
         writer,
         queryTracker,
@@ -837,18 +835,23 @@ describe('writePayload()', () => {
   });
 
   describe('range add mutations', () => {
-    var store, queueStore, writer, queueWriter, feedbackID, connectionID,
-      commentID, edgeID;
+    let connectionID;
+    let edgeID;
+    let feedbackID;
+    let queueStore;
+    let queueWriter;
+    let store;
+    let writer;
 
     beforeEach(() => {
-      var records = {};
-      var queuedRecords = {};
-      var nodeConnectionMap = {};
-      var rootCallMap = {};
-      var rootCallMaps = {rootCallMap};
+      const records = {};
+      const queuedRecords = {};
+      const nodeConnectionMap = {};
+      const rootCallMap = {};
+      const rootCallMaps = {rootCallMap};
 
       feedbackID = 'feedback123';
-      commentID = 'comment456';
+      const commentID = 'comment456';
       store = new RelayRecordStore(
         {records},
         rootCallMaps,
@@ -874,7 +877,7 @@ describe('writePayload()', () => {
         'mutationID'
       );
 
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"feedback123") {
             topLevelComments(first:"1") {
@@ -888,7 +891,7 @@ describe('writePayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           id: feedbackID,
           topLevelComments: {
@@ -911,12 +914,12 @@ describe('writePayload()', () => {
     });
 
     it('warns if the created `edge` field is missing in the payload', () => {
-      var input = {
+      const input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
         feedback_id: feedbackID,
       };
-      var mutation = getNode(Relay.QL`
+      const mutation = getNode(Relay.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -929,13 +932,13 @@ describe('writePayload()', () => {
         }
       `, {input: JSON.stringify(input)}
       );
-      var configs = [{
+      const configs = [{
         type: RelayMutationType.RANGE_ADD,
         connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
         rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
       }];
-      var payload = {
+      const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         feedback: {
@@ -947,9 +950,9 @@ describe('writePayload()', () => {
       };
 
       // write to queued store
-      var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
-      var queryWriter = new RelayQueryWriter(
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
         queueStore,
         queueWriter,
         queryTracker,
@@ -980,7 +983,7 @@ describe('writePayload()', () => {
 
     it('optimistically prepends comments', () => {
       // create the mutation and payload
-      var input = {
+      const input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
         feedback_id: feedbackID,
@@ -990,7 +993,7 @@ describe('writePayload()', () => {
         },
       };
 
-      var mutation = getNode(Relay.QL`
+      const mutation = getNode(Relay.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1016,18 +1019,18 @@ describe('writePayload()', () => {
       `, {
         input: JSON.stringify(input),
       });
-      var configs = [{
+      const configs = [{
         type: RelayMutationType.RANGE_ADD,
         connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
         rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
       }];
 
-      var nextCursor = 'comment789:cursor';
-      var nextNodeID = 'comment789';
-      var bodyID = 'client:2';
-      var nextEdgeID = generateClientEdgeID(connectionID, nextNodeID);
-      var payload = {
+      const nextCursor = 'comment789:cursor';
+      const nextNodeID = 'comment789';
+      const bodyID = 'client:2';
+      const nextEdgeID = generateClientEdgeID(connectionID, nextNodeID);
+      const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         feedback: {
@@ -1051,9 +1054,9 @@ describe('writePayload()', () => {
       };
 
       // write to queued store
-      var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
-      var queryWriter = new RelayQueryWriter(
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
         queueStore,
         queueWriter,
         queryTracker,
@@ -1111,7 +1114,7 @@ describe('writePayload()', () => {
 
     it('non-optimistically prepends comments', () => {
       // create the mutation and payload
-      var input = {
+      const input = {
         actor_id: 'actor:123',
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
         feedback_id: feedbackID,
@@ -1121,7 +1124,7 @@ describe('writePayload()', () => {
         },
       };
 
-      var mutation = getNode(Relay.QL`
+      const mutation = getNode(Relay.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1147,18 +1150,18 @@ describe('writePayload()', () => {
       `, {
         input: JSON.stringify(input),
       });
-      var configs = [{
+      const configs = [{
         type: RelayMutationType.RANGE_ADD,
         connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
         rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
       }];
 
-      var nextCursor = 'comment789:cursor';
-      var nextNodeID = 'comment789';
-      var bodyID = 'client:2';
-      var nextEdgeID = generateClientEdgeID(connectionID, nextNodeID);
-      var payload = {
+      const nextCursor = 'comment789:cursor';
+      const nextNodeID = 'comment789';
+      const bodyID = 'client:2';
+      const nextEdgeID = generateClientEdgeID(connectionID, nextNodeID);
+      const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         feedback: {
@@ -1182,9 +1185,9 @@ describe('writePayload()', () => {
       };
 
       // write to base store
-      var changeTracker = new RelayChangeTracker();
-      var queryTracker = new RelayQueryTracker();
-      var queryWriter = new RelayQueryWriter(
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
         store,
         writer,
         queryTracker,

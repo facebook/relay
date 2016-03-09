@@ -19,7 +19,7 @@ describe('RelayMetaRoute', () => {
   });
 
   it('is immutable', () => {
-    var route = new RelayMetaRoute('TestRoute');
+    const route = new RelayMetaRoute('TestRoute');
     expect(() => {
       route.name = 'foo';
     }).toThrow();

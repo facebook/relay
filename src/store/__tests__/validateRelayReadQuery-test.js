@@ -21,11 +21,11 @@ const validateRelayReadQuery = require('validateRelayReadQuery');
 
 describe('validateRelayReadQuery', () => {
   // Helper functions.
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   // Other variables.
-  var mockConsoleError;
-  var realConsoleError;
+  let mockConsoleError;
+  let realConsoleError;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -56,14 +56,14 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs an error if fragment and containing query have no aliases', () => {
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on Node {
         profilePicture(size:"100") {
           height,
         },
       }
     `;
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           profilePicture(size:"50") {
@@ -78,21 +78,21 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs an error for two local fragments without aliases', () => {
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on Node {
         profilePicture(size:"100") {
           height,
         },
       }
     `;
-    var otherFragment = Relay.QL`
+    const otherFragment = Relay.QL`
       fragment on Node {
         profilePicture(size:"50") {
           height,
         },
       }
     `;
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           ${fragment},
@@ -105,7 +105,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs an error for local fragments containing linked fields', () => {
-    var nestedFragment = Relay.QL`
+    const nestedFragment = Relay.QL`
       fragment on Viewer {
         actor {
           profilePicture(size:"100") {
@@ -114,7 +114,7 @@ describe('validateRelayReadQuery', () => {
         },
       }
     `;
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on Viewer {
         actor {
           profilePicture(size:"50") {
@@ -124,7 +124,7 @@ describe('validateRelayReadQuery', () => {
         ${nestedFragment},
       }
     `;
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         viewer {
           ${fragment},
@@ -136,7 +136,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs an error for colliding fields within the same query', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           profilePicture(size:"50") {
@@ -153,7 +153,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs an error if both fields have aliases but they collide', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           pic: profilePicture(size:"50") {
@@ -170,7 +170,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs an error for two different fields with colliding aliases', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           special: profilePicture(size:"50") {
@@ -187,7 +187,7 @@ describe('validateRelayReadQuery', () => {
   it('logs an error when a collision occurs within pageInfo', () => {
     // We test this separately because we traverse pageInfo as though it were a
     // linked field.
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           friends(first:"1") {
@@ -204,7 +204,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error when alias is the same as a connection subfield', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       fragment on User {
         count: friends {
           count,
@@ -216,14 +216,14 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error if containing query has a distinguishing alias ', () => {
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on Node {
         profilePicture(size:"100") {
           height,
         },
       }
     `;
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size:"50") {
@@ -238,14 +238,14 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error if fragment has a distinguishing alias', () => {
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on Node {
         large_profile: profilePicture(size:"100") {
           height,
         },
       }
     `;
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           profilePicture(size:"50") {
@@ -260,14 +260,14 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error when both fragment and query have aliases', () => {
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on Node {
         large_profile: profilePicture(size:"100") {
           height,
         },
       }
     `;
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size:"50") {
@@ -282,7 +282,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error when one of two fields in a query has an alias', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size:"50") {
@@ -299,7 +299,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error when two fields in a query both have aliases', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size:"50") {
@@ -316,11 +316,11 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error for a non-local fragment which would collide', () => {
-    var fragment = RelayFragmentReference.createForContainer(
+    const fragment = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on User {profilePicture(size:"100"){height}}`,
       {}
     );
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       fragment on User {
         profilePicture(size:"50") {
           height,
@@ -333,7 +333,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error for fields at different levels', () => {
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       fragment on User {
         profilePicture(size:"50") {
           height,

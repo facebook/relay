@@ -138,7 +138,7 @@ describe('RelayMutation', function() {
     BadMutation.fragments = {
       foo: () => Relay.QL`query{node(id:"123"){id}}`,
     };
-    var badFragmentReference = BadMutation.getFragment('foo');
+    const badFragmentReference = BadMutation.getFragment('foo');
     expect(() => {
       badFragmentReference.getFragment();
     }).toFailInvariant(

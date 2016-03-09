@@ -28,11 +28,11 @@ import type {SplitQueries} from 'splitDeferredRelayQueries';
 function flattenSplitRelayQueries(
   splitQueries: SplitQueries
 ): Array<RelayQuery.Root> {
-  var flattenedQueries = [];
-  var queue = [splitQueries];
+  const flattenedQueries = [];
+  const queue = [splitQueries];
   while (queue.length) {
     splitQueries = queue.shift();
-    var {required, deferred} = splitQueries;
+    const {required, deferred} = splitQueries;
     if (required) {
       flattenedQueries.push(required);
     }

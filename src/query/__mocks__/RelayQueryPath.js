@@ -9,7 +9,7 @@
 
 'use strict';
 
-var RelayQueryPath = require.requireActual('RelayQueryPath');
+const RelayQueryPath = require.requireActual('RelayQueryPath');
 
 RelayQueryPath.fromJSON = jest.genMockFunction().mockImplementation(
   RelayQueryPath.fromJSON

@@ -18,7 +18,7 @@ const RelayQueryConfig = require('RelayQueryConfig');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryConfig', () => {
-  var makeConfig;
+  let makeConfig;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -52,19 +52,19 @@ describe('RelayQueryConfig', () => {
   });
 
   it('can be created using inheritance', () => {
-    var MockConfig = makeConfig();
-    var config = new MockConfig({required: 'foo'});
+    const MockConfig = makeConfig();
+    const config = new MockConfig({required: 'foo'});
     expect(config.name).toEqual('MockConfig');
     expect(config.params.required).toEqual('foo');
     expect(config.queries.required).toBeTruthy();
   });
 
   it('has an immutable spec in __DEV__', () => {
-    var dev = __DEV__;
+    const dev = __DEV__;
     window.__DEV__ = true;
 
-    var MockConfig = makeConfig();
-    var config = new MockConfig({required: 'foo'});
+    const MockConfig = makeConfig();
+    const config = new MockConfig({required: 'foo'});
     expect(() => {
       config.name = 'yo';
     }).toThrow();
@@ -85,18 +85,18 @@ describe('RelayQueryConfig', () => {
   });
 
   it('allows params to be processed if `prepareParams` is defined', () => {
-    var MockConfig = makeConfig();
+    const MockConfig = makeConfig();
     MockConfig.prototype.prepareVariables =
       jest.genMockFunction().mockReturnValue({required: 'bar'});
-    var config = new MockConfig({required: 'foo'});
+    const config = new MockConfig({required: 'foo'});
     expect(MockConfig.prototype.prepareVariables)
       .toBeCalledWith({required: 'foo'});
     expect(config.params.required).toEqual('bar');
   });
 
   it('exposes queries in the queries property', () => {
-    var MockConfig = makeConfig();
-    var config = new MockConfig({required: 'foo'});
+    const MockConfig = makeConfig();
+    const config = new MockConfig({required: 'foo'});
     expect(config.queries.required).toBeTruthy();
     expect(config.queries.optional).toBeTruthy();
   });

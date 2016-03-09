@@ -29,13 +29,13 @@ import {transform} from 'babel-core';
 import {introspectionQuery} from 'graphql/utilities';
 import {graphql} from 'graphql';
 
-var {PropTypes} = React;
+const {PropTypes} = React;
 
 const CODE_EDITOR_OPTIONS = {
   extraKeys: {
     Tab(cm) {
       // Insert spaces when the tab key is pressed
-      var spaces = Array(cm.getOption('indentUnit') + 1).join(' ');
+      const spaces = Array(cm.getOption('indentUnit') + 1).join(' ');
       cm.replaceSelection(spaces);
     },
   },
@@ -62,9 +62,9 @@ const RENDER_STEP_EXAMPLE_CODE =
 );`;
 
 function errorFromGraphQLResultAndQuery(errors, request) {
-  var queryString = request.getQueryString();
-  var variables = request.getVariables();
-  var errorText = `
+  const queryString = request.getQueryString();
+  const variables = request.getVariables();
+  let errorText = `
 ${errors.map(e => e.message).join('\n')}
 
 Query: ${queryString}
@@ -126,7 +126,7 @@ export default class RelayPlayground extends React.Component {
   componentDidMount() {
     // Hijack console.warn to collect GraphQL validation warnings (we hope)
     this._originalConsoleWarn = console.warn;
-    var collectedWarnings = [];
+    let collectedWarnings = [];
     console.warn = (...args) => {
       collectedWarnings.push([Date.now(), args]);
       this._originalConsoleWarn.apply(console, args);
@@ -138,7 +138,7 @@ export default class RelayPlayground extends React.Component {
       // Console warnings that appear too far before this exception are probably
       // not related to GraphQL. Throw those out.
       if (/GraphQL validation error/.test(message)) {
-        var recentWarnings = collectedWarnings
+        const recentWarnings = collectedWarnings
           .filter(([createdAt, args]) => Date.now() - createdAt <= 500)
           .reduce((memo, [createdAt, args]) => memo.concat(args), []);
         this.setState({
@@ -156,10 +156,10 @@ export default class RelayPlayground extends React.Component {
     }
   }
   componentDidUpdate(prevProps, prevState) {
-    var recentlyEnabledCodeExecution =
+    const recentlyEnabledCodeExecution =
       !prevState.shouldExecuteCode && this.state.shouldExecuteCode;
-    var appChanged = this.state.appSource !== prevState.appSource;
-    var schemaChanged = this.state.schemaSource !== prevState.schemaSource;
+    const appChanged = this.state.appSource !== prevState.appSource;
+    const schemaChanged = this.state.schemaSource !== prevState.schemaSource;
     if (
       this.state.shouldExecuteCode &&
       (recentlyEnabledCodeExecution || appChanged || schemaChanged)
@@ -193,7 +193,7 @@ export default class RelayPlayground extends React.Component {
   _updateApp = (appSource) => {
     clearTimeout(this._errorReporterTimeout);
     // We're running in a browser. Create a require() shim to catch any imports.
-    var require = (path) => {
+    const require = (path) => {
       switch (path) {
         // The errorCatcherPlugin injects a series of import statements into the
         // program body. Return locally bound variables in these three cases:
@@ -216,7 +216,7 @@ export default class RelayPlayground extends React.Component {
       }
     };
     try {
-      var {code} = transform(appSource, {
+      const {code} = transform(appSource, {
         filename: 'RelayPlayground',
         plugins : [
           babelRelayPlaygroundPlugin,
@@ -227,7 +227,7 @@ export default class RelayPlayground extends React.Component {
         sourceMaps: 'inline',
         stage: 0,
       });
-      var result = eval(code);
+      const result = eval(code);
       if (
         React.isValidElement(result) &&
         result.type.name === 'RelayRootContainer'
@@ -258,7 +258,7 @@ export default class RelayPlayground extends React.Component {
     this.setState({busy: false});
   }
   _updateCode = (newSource) => {
-    var sourceStorageKey = `${this.state.editTarget}Source`;
+    const sourceStorageKey = `${this.state.editTarget}Source`;
     this.setState({[sourceStorageKey]: newSource});
     if (this.state.editTarget === 'app' && this.props.onAppSourceChange) {
       this.props.onAppSourceChange(newSource);
@@ -327,7 +327,7 @@ export default class RelayPlayground extends React.Component {
     return null;
   }
   render() {
-    var sourceCode = this.state.editTarget === 'schema'
+    const sourceCode = this.state.editTarget === 'schema'
       ? this.state.schemaSource
       : this.state.appSource;
     return (

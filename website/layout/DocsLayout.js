@@ -9,15 +9,15 @@
  * @providesModule DocsLayout
 */
 
-var React = require('React');
-var Site = require('Site');
-var Marked = require('Marked');
-var DocsSidebar = require('DocsSidebar');
-var DocsLayout = React.createClass({
+const React = require('React');
+const Site = require('Site');
+const Marked = require('Marked');
+const DocsSidebar = require('DocsSidebar');
+const DocsLayout = React.createClass({
   render: function() {
-    var metadata = this.props.metadata;
-    var content = this.props.children;
-    var title = metadata.title + ' | Relay Docs';
+    const metadata = this.props.metadata;
+    const content = this.props.children;
+    const title = metadata.title + ' | Relay Docs';
     return (
       <Site section="docs" title={title}>
         <section className="content wrap documentationContent">

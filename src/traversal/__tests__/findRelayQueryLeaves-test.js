@@ -25,10 +25,10 @@ const findRelayQueryLeaves = require('findRelayQueryLeaves');
 const mapObject = require('mapObject');
 
 describe('findRelayQueryLeaves', () => {
-  var {getNode} = RelayTestUtils;
-  var HAS_NEXT_PAGE, HAS_PREV_PAGE;
+  const {getNode} = RelayTestUtils;
+  let HAS_NEXT_PAGE, HAS_PREV_PAGE;
 
-  var dummyPath;
+  let dummyPath;
 
   function findLeaves(
     queryNode,
@@ -38,7 +38,7 @@ describe('findRelayQueryLeaves', () => {
     cachedRecords,
     calls,
   ) {
-    var store = new RelayRecordStore({
+    const store = new RelayRecordStore({
       records: records || {},
       cachedRecords: cachedRecords || {},
     });
@@ -97,18 +97,18 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns pendingNodes when node is not in the store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id
       }
     `);
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
     );
 
-    var pendingItems = [{
+    const pendingItems = [{
       node: queryNode,
       path: dummyPath,
       rangeCalls: undefined,
@@ -121,12 +121,12 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns missingData when node is not in the cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id
       }
     `);
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -138,12 +138,12 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data when node is in store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id
       }
     `);
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -156,12 +156,12 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data when node is in cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id
       }
     `);
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -174,20 +174,20 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns pendingNodes when field is not in the store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         firstName
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
         __typename: 'User',
       },
     };
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -205,20 +205,20 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns missingData when field is not in the cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         firstName
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
         __typename: 'User',
       },
     };
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -231,13 +231,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data when field is in store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         firstName
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         firstName: 'Yuzhi',
@@ -245,7 +245,7 @@ describe('findRelayQueryLeaves', () => {
         __typename: 'User',
       },
     };
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -257,13 +257,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data when field is in cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         firstName
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         firstName: 'Yuzhi',
@@ -271,7 +271,7 @@ describe('findRelayQueryLeaves', () => {
         __typename: 'User',
       },
     };
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -284,13 +284,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns pendingNodes when linked node is not in the store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         friends {count}
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         friends: { __dataID__: 'friends_id'},
@@ -298,14 +298,14 @@ describe('findRelayQueryLeaves', () => {
         __typename: 'User',
       },
     };
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
       records,
     );
-    var friendsField =  queryNode.getFieldByStorageKey('friends');
-    var countField = friendsField.getFieldByStorageKey('count');
+    const friendsField =  queryNode.getFieldByStorageKey('friends');
+    const countField = friendsField.getFieldByStorageKey('count');
     expect(result.pendingNodes).toMatchPendingNodes({'friends_id': [{
       node: countField,
       path: RelayQueryPath.getPath(dummyPath, friendsField, 'friends_id'),
@@ -315,13 +315,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns missingData when linked node is not in the cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         friends {count}
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         friends: { __dataID__: 'friends_id'},
@@ -330,7 +330,7 @@ describe('findRelayQueryLeaves', () => {
       },
       'friends_id': undefined,
     };
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -343,13 +343,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data when linked node is in store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         friends {count}
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -361,7 +361,7 @@ describe('findRelayQueryLeaves', () => {
         count: 500,
       },
     };
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -373,13 +373,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data when linked node is in cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         friends {count}
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -391,7 +391,7 @@ describe('findRelayQueryLeaves', () => {
         count: 500,
       },
     };
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -404,13 +404,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns pendingNodes when plural node is not in the store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         screennames {service}
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -422,21 +422,21 @@ describe('findRelayQueryLeaves', () => {
       },
     };
 
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
       records
     );
 
-    var screennamesField = queryNode.getFieldByStorageKey('screennames');
-    var serviceField = screennamesField.getFieldByStorageKey('service');
+    const screennamesField = queryNode.getFieldByStorageKey('screennames');
+    const serviceField = screennamesField.getFieldByStorageKey('service');
     const path = RelayQueryPath.getPath(
       dummyPath,
       screennamesField,
       'client:screenname'
     );
-    var pendingItems = [{
+    const pendingItems = [{
       node: serviceField,
       path,
       rangeCalls: undefined,
@@ -449,13 +449,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns missingData when plural node is not in the cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         screennames {service}
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -468,7 +468,7 @@ describe('findRelayQueryLeaves', () => {
       'client:screenname1': undefined,
     };
 
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -481,13 +481,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data when plural node is in store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         screennames {service}
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -507,7 +507,7 @@ describe('findRelayQueryLeaves', () => {
       },
     };
 
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -518,13 +518,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data when plural node is in cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         screennames {service}
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -544,7 +544,7 @@ describe('findRelayQueryLeaves', () => {
       },
     };
 
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -558,7 +558,7 @@ describe('findRelayQueryLeaves', () => {
 
 
   it('returns pendingNodes when range node is not in the store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         friends(first:"10") {
@@ -566,7 +566,7 @@ describe('findRelayQueryLeaves', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -575,18 +575,18 @@ describe('findRelayQueryLeaves', () => {
       },
     };
 
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
       records
     );
 
-    var rangeField = queryNode.getFieldByStorageKey('friends');
-    var calls = rangeField.getCallsWithValues();
+    const rangeField = queryNode.getFieldByStorageKey('friends');
+    const calls = rangeField.getCallsWithValues();
 
 
-    var pendingItems = rangeField.getChildren().map(node => {
+    const pendingItems = rangeField.getChildren().map(node => {
       return {
         node,
         path: RelayQueryPath.getPath(dummyPath, rangeField, 'friends_id'),
@@ -600,7 +600,7 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns missingData when range node is not in the cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         friends(first:"10") {
@@ -608,7 +608,7 @@ describe('findRelayQueryLeaves', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -618,7 +618,7 @@ describe('findRelayQueryLeaves', () => {
       'friends_id': undefined,
     };
 
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -631,7 +631,7 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns pendingNodes when range field is not in the store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         friends(first:"10") {
@@ -639,7 +639,7 @@ describe('findRelayQueryLeaves', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -651,16 +651,16 @@ describe('findRelayQueryLeaves', () => {
       },
     };
 
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
       records
     );
 
-    var friendField = queryNode.getFieldByStorageKey('friends');
-    var calls = friendField.getCallsWithValues();
-    var pendingItems = friendField.getChildren().map(node => {
+    const friendField = queryNode.getFieldByStorageKey('friends');
+    const calls = friendField.getCallsWithValues();
+    const pendingItems = friendField.getChildren().map(node => {
       return {
         node,
         path: RelayQueryPath.getPath(dummyPath, friendField, 'friends_id'),
@@ -674,7 +674,7 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns missingData when range field is not in the cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         friends(first:"10") {
@@ -682,7 +682,7 @@ describe('findRelayQueryLeaves', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -694,7 +694,7 @@ describe('findRelayQueryLeaves', () => {
       },
     };
 
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -707,7 +707,7 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns missingData when range has diffQuery in the store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         friends(first:"10") {
@@ -715,7 +715,7 @@ describe('findRelayQueryLeaves', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -732,7 +732,7 @@ describe('findRelayQueryLeaves', () => {
       diffCalls: [RelayTestUtils.createCall('first', 10)],
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -744,7 +744,7 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns missingData when range has diffQuery in the cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         friends(first:"10") {
@@ -752,7 +752,7 @@ describe('findRelayQueryLeaves', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -769,7 +769,7 @@ describe('findRelayQueryLeaves', () => {
       diffCalls: [RelayTestUtils.createCall('first', 10)],
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -782,13 +782,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns pendingNodes when edge node is not in the store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on FriendsConnection {
         edges { node {id}}
       }
     `);
 
-    var records = {
+    const records = {
       friends_id: {
         __dataID__:'friends_id',
         __range__: new GraphQLRange(),
@@ -801,8 +801,8 @@ describe('findRelayQueryLeaves', () => {
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
-    var rangeCalls = [RelayTestUtils.createCall('first', 10)];
-    var result = findLeaves(
+    const rangeCalls = [RelayTestUtils.createCall('first', 10)];
+    const result = findLeaves(
       queryNode,
       'friends_id',
       dummyPath,
@@ -811,15 +811,15 @@ describe('findRelayQueryLeaves', () => {
       rangeCalls
     );
 
-    var mockRetrieveRange =
+    const mockRetrieveRange =
       records.friends_id.__range__.retrieveRangeInfoForQuery.mock;
     expect(mockRetrieveRange.calls.length).toBe(1);
     expect(mockRetrieveRange.calls[0][0]).toBe(rangeCalls);
 
-    var edgeFields = queryNode
+    const edgeFields = queryNode
       .getFieldByStorageKey('edges')
       .getChildren();
-    var pendingItems = edgeFields.map(node => {
+    const pendingItems = edgeFields.map(node => {
       return {
         node,
         path: RelayQueryPath.getPath(dummyPath, edgeFields, 'edge_id'),
@@ -831,13 +831,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns missingData when edge node is not in the cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on FriendsConnection {
         edges { node {id}}
       }
     `);
 
-    var records = {
+    const records = {
       friends_id: {
         __dataID__:'friends_id',
         __range__: new GraphQLRange(),
@@ -851,8 +851,8 @@ describe('findRelayQueryLeaves', () => {
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
-    var rangeCalls = [RelayTestUtils.createCall('first', 10)];
-    var result = findLeaves(
+    const rangeCalls = [RelayTestUtils.createCall('first', 10)];
+    const result = findLeaves(
       queryNode,
       'friends_id',
       dummyPath,
@@ -861,7 +861,7 @@ describe('findRelayQueryLeaves', () => {
       rangeCalls
     );
 
-    var mockRetrieveRange =
+    const mockRetrieveRange =
       records.friends_id.__range__.retrieveRangeInfoForQuery.mock;
     expect(mockRetrieveRange.calls.length).toBe(1);
     expect(mockRetrieveRange.calls[0][0]).toBe(rangeCalls);
@@ -870,13 +870,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data when the range and edges are is in store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on FriendsConnection {
         edges { node {id}}
       }
     `);
 
-    var records = {
+    const records = {
       friends_id: {
         __dataID__:'friends_id',
         __range__: new GraphQLRange(),
@@ -898,8 +898,8 @@ describe('findRelayQueryLeaves', () => {
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
-    var rangeCalls = [RelayTestUtils.createCall('first', 10)];
-    var result = findLeaves(
+    const rangeCalls = [RelayTestUtils.createCall('first', 10)];
+    const result = findLeaves(
       queryNode,
       'friends_id',
       dummyPath,
@@ -908,7 +908,7 @@ describe('findRelayQueryLeaves', () => {
       rangeCalls
     );
 
-    var mockRetrieveRange =
+    const mockRetrieveRange =
       records.friends_id.__range__.retrieveRangeInfoForQuery.mock;
     expect(mockRetrieveRange.calls.length).toBe(1);
     expect(mockRetrieveRange.calls[0][0]).toBe(rangeCalls);
@@ -917,13 +917,13 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data when the range and edges are is in cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on FriendsConnection {
         edges { node {id}}
       }
     `);
 
-    var records = {
+    const records = {
       friends_id: {
         __dataID__:'friends_id',
         __range__: new GraphQLRange(),
@@ -945,8 +945,8 @@ describe('findRelayQueryLeaves', () => {
       pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
     });
 
-    var rangeCalls = [RelayTestUtils.createCall('first', 10)];
-    var result = findLeaves(
+    const rangeCalls = [RelayTestUtils.createCall('first', 10)];
+    const result = findLeaves(
       queryNode,
       'friends_id',
       dummyPath,
@@ -955,7 +955,7 @@ describe('findRelayQueryLeaves', () => {
       rangeCalls
     );
 
-    var mockRetrieveRange =
+    const mockRetrieveRange =
       records.friends_id.__range__.retrieveRangeInfoForQuery.mock;
     expect(mockRetrieveRange.calls.length).toBe(1);
     expect(mockRetrieveRange.calls[0][0]).toBe(rangeCalls);
@@ -964,20 +964,20 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns pendingNodes when root node is not in the store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       query {
         node(id:"1055790163") {
           id
         }
       }
     `);
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
     );
 
-    var pendingItems = queryNode.getChildren().map(node => {
+    const pendingItems = queryNode.getChildren().map(node => {
       return {
         node,
         path: dummyPath,
@@ -992,14 +992,14 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns missingData when root node is not in the cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       query {
         node(id:"1055790163") {
           id
         }
       }
     `);
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -1012,7 +1012,7 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns pendingNodes when matched fragment is not in the store', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         ... on User {
@@ -1020,7 +1020,7 @@ describe('findRelayQueryLeaves', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
@@ -1028,13 +1028,13 @@ describe('findRelayQueryLeaves', () => {
       },
     };
 
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
       records,
     );
-    var userFragment = queryNode.getChildren().filter(
+    const userFragment = queryNode.getChildren().filter(
       item => item instanceof RelayQuery.Fragment
     )[0];
     expect(result.pendingNodes).toMatchPendingNodes(
@@ -1048,7 +1048,7 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('returns missingData when matched fragment is not in the cache', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         ... on User {
@@ -1056,14 +1056,14 @@ describe('findRelayQueryLeaves', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
         __typename: 'User',
       },
     };
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -1076,7 +1076,7 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data in store when ignoring unmatched fragment', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         ... on Page {
@@ -1084,14 +1084,14 @@ describe('findRelayQueryLeaves', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
         __typename: 'User',
       },
     };
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,
@@ -1103,7 +1103,7 @@ describe('findRelayQueryLeaves', () => {
   });
 
   it('has all required data in cache when ignoring unmatched fragment', () => {
-    var queryNode = getNode(Relay.QL`
+    const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
         ... on Page {
@@ -1111,14 +1111,14 @@ describe('findRelayQueryLeaves', () => {
         }
       }
     `);
-    var records = {
+    const records = {
       '1055790163': {
         id: '1055790163',
         __dataID__: '1055790163',
         __typename: 'User',
       },
     };
-    var result = findLeaves(
+    const result = findLeaves(
       queryNode,
       '1055790163',
       dummyPath,

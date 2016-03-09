@@ -10,7 +10,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var getBabelRelayPlugin = require('babel-relay-plugin');
-var schema = require('../data/schema.json');
+const getBabelRelayPlugin = require('babel-relay-plugin');
+const schema = require('../data/schema.json');
 
 module.exports = getBabelRelayPlugin(schema.data);

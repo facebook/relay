@@ -121,9 +121,9 @@ import {
  * The first method defines the way we resolve an ID to its object.
  * The second defines the way we resolve a node object to its GraphQL type.
  */
-var {nodeInterface, nodeField} = nodeDefinitions(
+const {nodeInterface, nodeField} = nodeDefinitions(
   (globalId) => {
-    var {type, id} = fromGlobalId(globalId);
+    const {type, id} = fromGlobalId(globalId);
     if (type === 'Faction') {
       return getFaction(id);
     } else if (type === 'Ship') {
@@ -175,7 +175,7 @@ var shipType = new GraphQLObjectType({
  *     node: Ship
  *   }
  */
-var {
+const {
   connectionType: shipConnection,
   edgeType: ShipEdge,
 } = connectionDefinitions({name: 'Ship', nodeType: shipType});
@@ -227,7 +227,7 @@ var factionType = new GraphQLObjectType({
  *     node(id: ID!): Node
  *   }
  */
-var queryType = new GraphQLObjectType({
+const queryType = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
     factions: {
@@ -259,7 +259,7 @@ var queryType = new GraphQLObjectType({
  *     faction: Faction
  *   }
  */
-var shipMutation = mutationWithClientMutationId({
+const shipMutation = mutationWithClientMutationId({
   name: 'IntroduceShip',
   inputFields: {
     shipName: {
@@ -273,7 +273,7 @@ var shipMutation = mutationWithClientMutationId({
     newShipEdge: {
       type: ShipEdge,
       resolve: (payload) => {
-        var ship = getShip(payload.shipId);
+        const ship = getShip(payload.shipId);
         return {
           cursor: cursorForObjectInConnection(
             getShips(payload.factionId),
@@ -289,7 +289,7 @@ var shipMutation = mutationWithClientMutationId({
     },
   },
   mutateAndGetPayload: ({shipName, factionId}) => {
-    var newShip = createShip(shipName, factionId);
+    const newShip = createShip(shipName, factionId);
     return {
       shipId: newShip.id,
       factionId: factionId,
@@ -306,7 +306,7 @@ var shipMutation = mutationWithClientMutationId({
  *     introduceShip(input: IntroduceShipInput!): IntroduceShipPayload
  *   }
  */
-var mutationType = new GraphQLObjectType({
+const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
     introduceShip: shipMutation,
@@ -317,7 +317,7 @@ var mutationType = new GraphQLObjectType({
  * Finally, we construct our schema (whose starting query type is the query
  * type we defined above) and export it.
  */
-export var schema = new GraphQLSchema({
+export const schema = new GraphQLSchema({
   query: queryType,
   mutation: mutationType,
 });

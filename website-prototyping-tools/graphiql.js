@@ -30,14 +30,14 @@ const IS_TRUSTED = (
 
 if (IS_TRUSTED) {
   // Don't trust location.hash not to have been unencoded by the browser
-  var hash = window.location.href.split('#')[1];
+  const hash = window.location.href.split('#')[1];
   var {
     query,
     schema: schemaSource,
   } = queryString.parse(hash);
 }
 
-var Schema;
+let Schema;
 if (schemaSource) {
   Schema = evalSchema(schemaSource);
 } else {
@@ -48,7 +48,7 @@ function graphQLFetcher(graphQLParams) {
   return graphql(Schema, graphQLParams.query);
 }
 
-var mountPoint = document.createElement('div');
+const mountPoint = document.createElement('div');
 mountPoint.style.height = '100%';
 document.body.appendChild(mountPoint);
 

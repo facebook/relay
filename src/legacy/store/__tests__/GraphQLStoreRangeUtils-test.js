@@ -19,29 +19,29 @@ const QueryBuilder = require('QueryBuilder');
 const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 
 describe('GraphQLStoreRangeUtils', () => {
-  var rangeData;
+  let rangeData;
 
   beforeEach(() => {
     rangeData = new GraphQLStoreRangeUtils();
   });
 
   it('should encode and decode', () => {
-    var id = 'client:1';
-    var callValues = {count: '1', cursor: '123456'};
+    const id = 'client:1';
+    const callValues = {count: '1', cursor: '123456'};
 
-    var firstCall = QueryBuilder.createCall(
+    const firstCall = QueryBuilder.createCall(
       'first',
       QueryBuilder.createCallVariable('count')
     );
 
-    var afterCall = QueryBuilder.createCall(
+    const afterCall = QueryBuilder.createCall(
       'after',
       QueryBuilder.createCallVariable('cursor')
     );
 
-    var calls = [firstCall, afterCall];
+    const calls = [firstCall, afterCall];
 
-    var rangeID = rangeData.getClientIDForRangeWithID(
+    const rangeID = rangeData.getClientIDForRangeWithID(
       calls,
       callValues,
       id
@@ -53,20 +53,20 @@ describe('GraphQLStoreRangeUtils', () => {
     // a different ID or different calls.
     expect(rangeID).toEqual('client:1_first(1),after(123456)');
 
-    var parsed = rangeData.parseRangeClientID(rangeID);
+    const parsed = rangeData.parseRangeClientID(rangeID);
     expect(parsed.dataID).toBe(id);
     expect(parsed.calls).toBe(calls);
     expect(parsed.callValues).toBe(callValues);
   });
 
   it('removes range data for records', () => {
-    var id = 'client:1';
-    var calls = [QueryBuilder.createCall(
+    const id = 'client:1';
+    const calls = [QueryBuilder.createCall(
       'first',
       QueryBuilder.createCallValue(1)
     )];
-    var callValues = {};
-    var rangeID = rangeData.getClientIDForRangeWithID(
+    const callValues = {};
+    const rangeID = rangeData.getClientIDForRangeWithID(
       calls,
       callValues,
       id

@@ -18,7 +18,7 @@ import Relay from 'react-relay';
 
 class TodoList extends React.Component {
   _handleMarkAllChange = (e) => {
-    var complete = e.target.checked;
+    const complete = e.target.checked;
     Relay.Store.commitUpdate(
       new MarkAllTodosMutation({
         complete,
@@ -37,8 +37,8 @@ class TodoList extends React.Component {
     );
   }
   render() {
-    var numTodos = this.props.viewer.totalCount;
-    var numCompletedTodos = this.props.viewer.completedCount;
+    const numTodos = this.props.viewer.totalCount;
+    const numCompletedTodos = this.props.viewer.completedCount;
     return (
       <section className="main">
         <input
@@ -64,7 +64,7 @@ export default Relay.createContainer(TodoList, {
   },
 
   prepareVariables({status}) {
-    var nextStatus;
+    let nextStatus;
     if (status === 'active' || status === 'completed') {
       nextStatus = status;
     } else {

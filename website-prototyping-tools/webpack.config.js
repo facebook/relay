@@ -7,14 +7,14 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var DefinePlugin = require('webpack/lib/DefinePlugin');
-var HTMLWebpackPlugin = require('html-webpack-plugin');
-var UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin');
+const DefinePlugin = require('webpack/lib/DefinePlugin');
+const HTMLWebpackPlugin = require('html-webpack-plugin');
+const UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin');
 
-var argv = require('minimist')(process.argv.slice(2));
-var path = require('path');
+const argv = require('minimist')(process.argv.slice(2));
+const path = require('path');
 
-var BUILD_DIR = argv['target-dir'] || 'src';
+const BUILD_DIR = argv['target-dir'] || 'src';
 
 module.exports = {
   entry: {

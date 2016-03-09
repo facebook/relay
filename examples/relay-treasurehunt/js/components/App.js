@@ -16,7 +16,7 @@ import Relay from 'react-relay';
 
 class App extends React.Component {
   _getHidingSpotStyle(hidingSpot) {
-    var color;
+    let color;
     if (this.props.relay.hasOptimisticUpdate(hidingSpot)) {
       color = 'lightGrey';
     } else if (hidingSpot.hasBeenChecked) {
@@ -68,7 +68,7 @@ class App extends React.Component {
     });
   }
   render() {
-    var headerText;
+    let headerText;
     if (this.props.relay.getPendingTransactions(this.props.game)) {
       headerText = '\u2026';
     } else if (this._hasFoundTreasure()) {

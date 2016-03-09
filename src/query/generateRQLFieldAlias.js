@@ -18,7 +18,7 @@
 const base62 = require('base62');
 const crc32 = require('crc32');
 
-var PREFIX = '_';
+const PREFIX = '_';
 
 /**
  * @internal
@@ -34,7 +34,7 @@ var PREFIX = '_';
  */
 function generateRQLFieldAlias(input: string): string {
   // Field names with no calls can be used as aliases without encoding
-  var index = input.indexOf('.');
+  const index = input.indexOf('.');
   if (index === -1) {
     return input;
   }

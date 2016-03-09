@@ -21,7 +21,7 @@ const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQuery', () => {
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   function buildIdField() {
     return RelayQuery.Field.build({
@@ -39,8 +39,8 @@ describe('RelayQuery', () => {
   describe('Root', () => {
     describe('build()', () => {
       it('creates roots', () => {
-        var field = buildIdField();
-        var root = RelayQuery.Root.build(
+        const field = buildIdField();
+        const root = RelayQuery.Root.build(
           'RelayQueryTest',
           'node',
           '4',
@@ -52,8 +52,8 @@ describe('RelayQuery', () => {
       });
 
       it('creates deferred roots', () => {
-        var field = buildIdField();
-        var root = RelayQuery.Root.build(
+        const field = buildIdField();
+        const root = RelayQuery.Root.build(
           'RelayQueryTest',
           'node',
           '4',
@@ -66,7 +66,7 @@ describe('RelayQuery', () => {
       });
 
       it('creates roots with batch calls', () => {
-        var root = RelayQuery.Root.build(
+        const root = RelayQuery.Root.build(
           'RelayQueryTest',
           'node',
           QueryBuilder.createBatchCallVariable('q0', '$.*.id'),
@@ -166,7 +166,7 @@ describe('RelayQuery', () => {
   describe('Fragment', () => {
     describe('build()', () => {
       it('creates empty fragments', () => {
-        var fragment = RelayQuery.Fragment.build(
+        const fragment = RelayQuery.Fragment.build(
           'TestFragment',
           'Node',
           []
@@ -179,8 +179,8 @@ describe('RelayQuery', () => {
       });
 
       it('creates fragments', () => {
-        var field = buildIdField();
-        var fragment = RelayQuery.Fragment.build(
+        const field = buildIdField();
+        const fragment = RelayQuery.Fragment.build(
           'TestFragment',
           'Node',
           [field],
@@ -267,7 +267,7 @@ describe('RelayQuery', () => {
   describe('Field', () => {
     describe('build()', () => {
       it('builds scalar fields', () => {
-        var field = buildIdField();
+        const field = buildIdField();
         expect(field instanceof RelayQuery.Field).toBe(true);
         expect(field.getSchemaName()).toBe('id');
         expect(field.getApplicationName()).toBe('id');
@@ -277,9 +277,9 @@ describe('RelayQuery', () => {
       });
 
       it('builds fields with children', () => {
-        var child = buildIdField();
-        var fragment = getNode(Relay.QL`fragment on Node{id}`);
-        var field = RelayQuery.Field.build({
+        const child = buildIdField();
+        const fragment = getNode(Relay.QL`fragment on Node{id}`);
+        const field = RelayQuery.Field.build({
           fieldName: 'node',
           children: [child, fragment],
           metadata: {canHaveSubselections: true},
@@ -293,7 +293,7 @@ describe('RelayQuery', () => {
       });
 
       it('builds fields with calls', () => {
-        var field = RelayQuery.Field.build({
+        let field = RelayQuery.Field.build({
           fieldName: 'profilePicture',
           calls: [
             {name: 'size', value: 32},
@@ -340,11 +340,11 @@ describe('RelayQuery', () => {
   describe('Mutation', () => {
     describe('buildMutation()', () => {
       it('builds mutation with value', () => {
-        var field = RelayQuery.Field.build({
+        const field = RelayQuery.Field.build({
           fieldName: 'does_viewer_like',
           type: 'Boolean',
         });
-        var mutation = RelayQuery.Mutation.build(
+        const mutation = RelayQuery.Mutation.build(
           'FeedbackLikeMutation',
           'FeedbackLikeResponsePayload',
           'feedback_like',
@@ -363,11 +363,11 @@ describe('RelayQuery', () => {
       });
 
       it('builds mutation with variable', () => {
-        var field = RelayQuery.Field.build({
+        const field = RelayQuery.Field.build({
           fieldName: 'does_viewer_like',
           type: 'Boolean',
         });
-        var mutation = RelayQuery.Mutation.build(
+        const mutation = RelayQuery.Mutation.build(
           'FeedbackLikeMutation',
           'FeedbackLikeResponsePayload',
           'feedback_like',
@@ -389,44 +389,44 @@ describe('RelayQuery', () => {
 
   describe('isEquivalent()', () => {
     it('returns false for different concrete nodes', () => {
-      var node1 = getNode(Relay.QL`fragment on Node{id}`);
-      var ndoe2 = getNode(Relay.QL`fragment on Node{id}`);
+      const node1 = getNode(Relay.QL`fragment on Node{id}`);
+      const ndoe2 = getNode(Relay.QL`fragment on Node{id}`);
       expect(node1.isEquivalent(ndoe2)).toBe(false);
     });
 
     it('return false for different variables', () => {
-      var fragment = Relay.QL`fragment on Node{id}`;
+      const fragment = Relay.QL`fragment on Node{id}`;
 
-      var node1 = getNode(fragment, {a: true});
-      var ndoe2 = getNode(fragment, {a: false});
+      const node1 = getNode(fragment, {a: true});
+      const ndoe2 = getNode(fragment, {a: false});
       expect(node1.isEquivalent(ndoe2)).toBe(false);
     });
 
     it('returns false for different routes', () => {
-      var fragment = Relay.QL`fragment on Node{id}`;
-      var variables = {a: false};
-      var route1 = RelayMetaRoute.get('route1');
-      var route2 = RelayMetaRoute.get('route2');
+      const fragment = Relay.QL`fragment on Node{id}`;
+      const variables = {a: false};
+      const route1 = RelayMetaRoute.get('route1');
+      const route2 = RelayMetaRoute.get('route2');
 
-      var node1 = RelayQuery.Fragment.create(fragment, route1, variables);
-      var node2 = RelayQuery.Fragment.create(fragment, route2, variables);
+      const node1 = RelayQuery.Fragment.create(fragment, route1, variables);
+      const node2 = RelayQuery.Fragment.create(fragment, route2, variables);
       expect(node1.isEquivalent(node2)).toBe(false);
     });
 
     it('returns true for identical node, route, and variables', () => {
-      var fragment = Relay.QL`fragment on Node{id}`;
-      var variables = {a: false};
-      var route = RelayMetaRoute.get('route1');
+      const fragment = Relay.QL`fragment on Node{id}`;
+      const variables = {a: false};
+      const route = RelayMetaRoute.get('route1');
 
-      var node1 = RelayQuery.Fragment.create(fragment, route, variables);
-      var node2 = RelayQuery.Fragment.create(fragment, route, variables);
+      const node1 = RelayQuery.Fragment.create(fragment, route, variables);
+      const node2 = RelayQuery.Fragment.create(fragment, route, variables);
       expect(node1.isEquivalent(node2)).toBe(true);
     });
   });
 
   describe('getChildren()', () => {
     it('expands fragment references', () => {
-      var innerFragment = Relay.QL`
+      const innerFragment = Relay.QL`
         fragment on User {
           id,
           profilePicture(size:$size) {
@@ -434,7 +434,7 @@ describe('RelayQuery', () => {
           },
         }
       `;
-      var reference = new RelayFragmentReference(
+      const reference = new RelayFragmentReference(
         () => innerFragment,
         {
           size: 'default',
@@ -443,7 +443,7 @@ describe('RelayQuery', () => {
           size: QueryBuilder.createCallVariable('outerSize'),
         }
       );
-      var fragment = getNode(Relay.QL`
+      const fragment = getNode(Relay.QL`
         fragment on User {
           id,
           ${reference},
@@ -451,14 +451,14 @@ describe('RelayQuery', () => {
       `, {
         outerSize: 'override',
       });
-      var children = fragment.getChildren();
+      const children = fragment.getChildren();
       expect(children.length).toBe(2);
       expect(children[0].getSchemaName()).toBe('id');
 
       // the reference is expanded with overridden query variables
       expect(children[1] instanceof RelayQuery.Fragment);
       expect(children[1].getType()).toBe('User');
-      var grandchildren = children[1].getChildren();
+      const grandchildren = children[1].getChildren();
       expect(grandchildren.length).toBe(2);
       expect(grandchildren[0].getSchemaName()).toBe('id');
       expect(grandchildren[1].getSchemaName()).toBe('profilePicture');

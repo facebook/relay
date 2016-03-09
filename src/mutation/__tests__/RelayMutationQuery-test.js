@@ -29,19 +29,19 @@ const intersectRelayQuery = require('intersectRelayQuery');
 const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 
 describe('RelayMutationQuery', () => {
-  var {filterGeneratedFields, getNode} = RelayTestUtils;
+  const {filterGeneratedFields, getNode} = RelayTestUtils;
 
   function getNodeChildren(fragment) {
     return fromGraphQL.Fragment(fragment).getChildren();
   }
   function getNodeWithoutSource(...args) {
-    var filterCallback = RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD ?
+    const filterCallback = RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD ?
       () => true :
       node => !node.getSchemaName || node.getSchemaName() !== 'source';
     return filterRelayQuery(RelayTestUtils.getNode(...args), filterCallback);
   }
 
-  var tracker;
+  let tracker;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -53,7 +53,7 @@ describe('RelayMutationQuery', () => {
 
   describe('fields', () => {
     it('throws for invalid field names', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on ActorSubscribeResponsePayload {
           subscribee {
             subscribers,
@@ -75,7 +75,7 @@ describe('RelayMutationQuery', () => {
     });
 
     it('maps a field to a single ID', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike,
@@ -89,14 +89,14 @@ describe('RelayMutationQuery', () => {
           url
         }
       `));
-      var node = RelayMutationQuery.buildFragmentForFields({
+      const node = RelayMutationQuery.buildFragmentForFields({
         fatQuery,
         tracker,
         fieldIDs: {
           feedback: '123',
         },
       });
-      var expected = getNodeWithoutSource(Relay.QL`
+      const expected = getNodeWithoutSource(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             likers
@@ -111,7 +111,7 @@ describe('RelayMutationQuery', () => {
     });
 
     it('maps a plural field to an array of IDs', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on ViewerNotificationsUpdateAllSeenStateResponsePayload {
           stories {
             seenState
@@ -126,14 +126,14 @@ describe('RelayMutationQuery', () => {
           seenState
         }
       `));
-      var node = RelayMutationQuery.buildFragmentForFields({
+      const node = RelayMutationQuery.buildFragmentForFields({
         fatQuery,
         tracker,
         fieldIDs: {
           stories: ['123'],
         },
       });
-      var expected = getNodeWithoutSource(Relay.QL`
+      const expected = getNodeWithoutSource(Relay.QL`
         fragment on ViewerNotificationsUpdateAllSeenStateResponsePayload {
           stories {
             seenState
@@ -148,14 +148,14 @@ describe('RelayMutationQuery', () => {
     });
 
     it('merges tracked nodes for IDs of plural fields', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on ViewerNotificationsUpdateAllSeenStateResponsePayload {
           stories {
             seenState
           }
         }
       `);
-      var trackedNodes = {
+      const trackedNodes = {
         '123': fromGraphQL.Fragment(Relay.QL`
           fragment on Story {
             message {
@@ -182,8 +182,8 @@ describe('RelayMutationQuery', () => {
           stories: ['123', '456'],
         },
       });
-      var node = intersectRelayQuery.mock.calls[0][0];
-      var expected = RelayTestUtils.getVerbatimNode(Relay.QL`
+      const node = intersectRelayQuery.mock.calls[0][0];
+      const expected = RelayTestUtils.getVerbatimNode(Relay.QL`
         fragment on Story {
           ... on Story {
             id,
@@ -213,7 +213,7 @@ describe('RelayMutationQuery', () => {
   });
 
   describe('edge deletion', () => {
-    var fatQuery;
+    let fatQuery;
     beforeEach(() => {
       fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentDeleteResponsePayload {
@@ -255,14 +255,14 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var node = RelayMutationQuery.buildFragmentForEdgeDeletion({
+      const node = RelayMutationQuery.buildFragmentForEdgeDeletion({
         fatQuery,
         tracker,
         connectionName: 'comments',
         parentID: '123',
         parentName: 'feedback',
       });
-      var expected = getNodeWithoutSource(Relay.QL`
+      const expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
             comments(first:"10") {
@@ -280,7 +280,7 @@ describe('RelayMutationQuery', () => {
   });
 
   describe('edge insertion', () => {
-    var fatQuery, rangeBehaviors;
+    let fatQuery, rangeBehaviors;
 
     beforeEach(() => {
       fatQuery = fromGraphQL.Fragment(Relay.QL`
@@ -317,7 +317,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+      const node = RelayMutationQuery.buildFragmentForEdgeInsertion({
         fatQuery,
         tracker,
         connectionName: 'comments',
@@ -325,7 +325,7 @@ describe('RelayMutationQuery', () => {
         edgeName: 'feedbackCommentEdge',
         rangeBehaviors,
       });
-      var expected = getNodeWithoutSource(Relay.QL`
+      const expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
             __typename
@@ -373,7 +373,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+      const node = RelayMutationQuery.buildFragmentForEdgeInsertion({
         fatQuery,
         tracker,
         connectionName: 'comments',
@@ -381,7 +381,7 @@ describe('RelayMutationQuery', () => {
         edgeName: 'feedbackCommentEdge',
         rangeBehaviors,
       });
-      var expected = getNodeWithoutSource(Relay.QL`
+      const expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
             __typename
@@ -429,7 +429,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+      const node = RelayMutationQuery.buildFragmentForEdgeInsertion({
         fatQuery,
         tracker,
         connectionName: 'comments',
@@ -437,7 +437,7 @@ describe('RelayMutationQuery', () => {
         edgeName: 'feedbackCommentEdge',
         rangeBehaviors,
       });
-      var expected = getNodeWithoutSource(Relay.QL`
+      const expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
             __typename
@@ -472,7 +472,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+      const node = RelayMutationQuery.buildFragmentForEdgeInsertion({
         fatQuery,
         tracker,
         connectionName: 'comments',
@@ -481,7 +481,7 @@ describe('RelayMutationQuery', () => {
         parentName: 'feedback',
         rangeBehaviors,
       });
-      var expected = getNodeWithoutSource(Relay.QL`
+      const expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments(orderby:"ranked_threaded",first:"10") {
@@ -508,7 +508,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+      const node = RelayMutationQuery.buildFragmentForEdgeInsertion({
         fatQuery,
         tracker,
         connectionName: 'comments',
@@ -517,7 +517,7 @@ describe('RelayMutationQuery', () => {
         parentName: 'feedback',
         rangeBehaviors,
       });
-      var expected = getNodeWithoutSource(Relay.QL`
+      const expected = getNodeWithoutSource(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments {
@@ -556,7 +556,7 @@ describe('RelayMutationQuery', () => {
 
   describe('optimistic update', () => {
     it('infers fields', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike,
@@ -565,7 +565,7 @@ describe('RelayMutationQuery', () => {
         }
       `);
 
-      var mockData = {};
+      const mockData = {};
       RelayMutationQuery.buildFragmentForOptimisticUpdate({
         response: mockData,
         fatQuery,
@@ -576,7 +576,7 @@ describe('RelayMutationQuery', () => {
     });
 
     it('builds query', () => {
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike,
@@ -584,9 +584,9 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      var mutation = Relay.QL`mutation{feedbackLike(input:$input)}`;
+      const mutation = Relay.QL`mutation{feedbackLike(input:$input)}`;
 
-      var query = RelayMutationQuery.buildQueryForOptimisticUpdate({
+      const query = RelayMutationQuery.buildQueryForOptimisticUpdate({
         response: {
           [RelayConnectionInterface.CLIENT_MUTATION_ID]: '1',
           feedback: {
@@ -601,8 +601,8 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      var variables = {input: ''};
-      var expectedMutationQuery = filterGeneratedFields(
+      const variables = {input: ''};
+      const expectedMutationQuery = filterGeneratedFields(
           getNodeWithoutSource(Relay.QL`
           mutation {
             feedbackLike(input:$input) {
@@ -643,7 +643,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `)]);
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments,
@@ -656,14 +656,14 @@ describe('RelayMutationQuery', () => {
           },
         }
       `);
-      var parentName = 'feedback';
-      var parentID = '123';
-      var connectionName = 'comments';
-      var edgeName = 'feedbackCommentEdge';
-      var rangeBehaviors = {
+      const parentName = 'feedback';
+      const parentID = '123';
+      const connectionName = 'comments';
+      const edgeName = 'feedbackCommentEdge';
+      const rangeBehaviors = {
         '': GraphQLMutatorConstants.PREPEND,
       };
-      var configs = [
+      const configs = [
         {
           type: RelayMutationType.RANGE_ADD,
           parentName,
@@ -674,10 +674,10 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      var mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
-      var mutationName = 'CommentAddMutation';
-      var variables = {input: ''};
-      var query = RelayMutationQuery.buildQuery({
+      const mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
+      const mutationName = 'CommentAddMutation';
+      const variables = {input: ''};
+      const query = RelayMutationQuery.buildQuery({
         tracker,
         fatQuery,
         configs,
@@ -685,7 +685,7 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      var expectedMutationQuery = filterGeneratedFields(
+      const expectedMutationQuery = filterGeneratedFields(
         getNodeWithoutSource(Relay.QL`
           mutation {
             commentCreate(input:$input) {
@@ -733,7 +733,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
             comments,
@@ -741,11 +741,11 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      var parentName = 'feedback';
-      var parentID = '123';
-      var connectionName = 'comments';
-      var deletedIDFieldName = 'deletedCommentId';
-      var configs = [
+      const parentName = 'feedback';
+      const parentID = '123';
+      const connectionName = 'comments';
+      const deletedIDFieldName = 'deletedCommentId';
+      const configs = [
         {
           type: RelayMutationType.NODE_DELETE,
           parentName,
@@ -755,10 +755,10 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      var mutation = Relay.QL`mutation{commentDelete(input:$input)}`;
-      var mutationName = 'CommentDeleteMutation';
-      var variables = {input: ''};
-      var query = RelayMutationQuery.buildQuery({
+      const mutation = Relay.QL`mutation{commentDelete(input:$input)}`;
+      const mutationName = 'CommentDeleteMutation';
+      const variables = {input: ''};
+      const query = RelayMutationQuery.buildQuery({
         tracker,
         fatQuery,
         configs,
@@ -766,7 +766,7 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
+      const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
         mutation {
           commentDelete(input:$input) {
             clientMutationId,
@@ -800,7 +800,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `));
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
             comments,
@@ -808,11 +808,11 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      var parentName = 'feedback';
-      var parentID = '123';
-      var connectionName = 'comments';
-      var deletedIDFieldName = 'deletedCommentId';
-      var configs = [
+      const parentName = 'feedback';
+      const parentID = '123';
+      const connectionName = 'comments';
+      const deletedIDFieldName = 'deletedCommentId';
+      const configs = [
         {
           type: RelayMutationType.RANGE_DELETE,
           parentName,
@@ -822,10 +822,10 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      var mutation = Relay.QL`mutation{commentDelete(input:$input)}`;
-      var mutationName = 'CommentDeleteMutation';
-      var variables = {input: ''};
-      var query = RelayMutationQuery.buildQuery({
+      const mutation = Relay.QL`mutation{commentDelete(input:$input)}`;
+      const mutationName = 'CommentDeleteMutation';
+      const variables = {input: ''};
+      const query = RelayMutationQuery.buildQuery({
         tracker,
         fatQuery,
         configs,
@@ -833,7 +833,7 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
+      const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
         mutation {
           commentDelete(input:$input) {
             clientMutationId,
@@ -924,7 +924,7 @@ describe('RelayMutationQuery', () => {
           url
         }
       `));
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike,
@@ -932,20 +932,20 @@ describe('RelayMutationQuery', () => {
           }
         }
       `);
-      var fieldIDs = {
+      const fieldIDs = {
         feedback: '123',
       };
-      var configs = [
+      const configs = [
         {
           type: RelayMutationType.FIELDS_CHANGE,
           fieldIDs,
         },
       ];
 
-      var mutation = Relay.QL`mutation{feedbackLike(input:$input)}`;
-      var mutationName = 'FeedbackLikeMutation';
-      var variables = {input: ''};
-      var query = RelayMutationQuery.buildQuery({
+      const mutation = Relay.QL`mutation{feedbackLike(input:$input)}`;
+      const mutationName = 'FeedbackLikeMutation';
+      const variables = {input: ''};
+      const query = RelayMutationQuery.buildQuery({
         tracker,
         fatQuery,
         configs,
@@ -953,7 +953,7 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
+      const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
         mutation {
           feedbackLike(input:$input) {
             clientMutationId,
@@ -987,7 +987,7 @@ describe('RelayMutationQuery', () => {
           }
         }
       `)]);
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments,
@@ -1000,14 +1000,14 @@ describe('RelayMutationQuery', () => {
           },
         }
       `);
-      var parentName = 'feedback';
-      var parentID = '123';
-      var connectionName = 'comments';
-      var edgeName = 'feedbackCommentEdge';
-      var rangeBehaviors = {
+      const parentName = 'feedback';
+      const parentID = '123';
+      const connectionName = 'comments';
+      const edgeName = 'feedbackCommentEdge';
+      const rangeBehaviors = {
         '': GraphQLMutatorConstants.PREPEND,
       };
-      var configs = [
+      const configs = [
         {
           type: RelayMutationType.RANGE_ADD,
           parentName,
@@ -1028,10 +1028,10 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      var mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
-      var mutationName = 'CommentAddMutation';
-      var variables = {input: ''};
-      var query = RelayMutationQuery.buildQuery({
+      const mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
+      const mutationName = 'CommentAddMutation';
+      const variables = {input: ''};
+      const query = RelayMutationQuery.buildQuery({
         tracker,
         fatQuery,
         configs,
@@ -1039,7 +1039,7 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      var expectedMutationQuery = filterGeneratedFields(
+      const expectedMutationQuery = filterGeneratedFields(
         getNodeWithoutSource(Relay.QL`
           mutation {
             commentCreate(input:$input) {
@@ -1096,7 +1096,7 @@ describe('RelayMutationQuery', () => {
           url
         }
       `));
-      var fatQuery = fromGraphQL.Fragment(Relay.QL`
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments,
@@ -1111,17 +1111,17 @@ describe('RelayMutationQuery', () => {
           },
         }
       `);
-      var parentName = 'feedback';
-      var parentID = '123';
-      var connectionName = 'comments';
-      var edgeName = 'feedbackCommentEdge';
-      var rangeBehaviors = {
+      const parentName = 'feedback';
+      const parentID = '123';
+      const connectionName = 'comments';
+      const edgeName = 'feedbackCommentEdge';
+      const rangeBehaviors = {
         '': GraphQLMutatorConstants.PREPEND,
       };
-      var fieldIDs = {
+      const fieldIDs = {
         feedback: '123',
       };
-      var configs = [
+      const configs = [
         {
           type: RelayMutationType.RANGE_ADD,
           parentName,
@@ -1136,10 +1136,10 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      var mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
-      var mutationName = 'CommentAddAndLikeMutation';
-      var variables = {input: ''};
-      var query = RelayMutationQuery.buildQuery({
+      const mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
+      const mutationName = 'CommentAddAndLikeMutation';
+      const variables = {input: ''};
+      const query = RelayMutationQuery.buildQuery({
         tracker,
         fatQuery,
         configs,
@@ -1147,7 +1147,7 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      var expectedMutationQuery = getNodeWithoutSource(Relay.QL`
+      const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
         mutation {
           commentCreate(input:$input) {
             clientMutationId,

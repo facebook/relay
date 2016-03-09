@@ -23,13 +23,13 @@ const RelayTestUtils = require('RelayTestUtils');
 const performanceNow = require('performanceNow');
 
 describe('RelayMetricsRecorder', () => {
-  var query;
+  let query;
 
   beforeEach(() => {
     window.__DEV__ = true;
     jest.resetModuleRegistry();
 
-    var {getNode} = RelayTestUtils;
+    const {getNode} = RelayTestUtils;
     query = getNode(Relay.QL`
       query {
         node(id: "123") {
@@ -42,16 +42,16 @@ describe('RelayMetricsRecorder', () => {
   });
 
   function mockPerformanceNowSequence(times) {
-    var index = 0;
+    let index = 0;
     performanceNow.mockImplementation(() => {
-      var time = times[index++];
+      const time = times[index++];
       expect(time).not.toBe(undefined);
       return time;
     });
   }
 
   it('returns empty metrics until methods are called', () => {
-    var recorder = new RelayMetricsRecorder();
+    const recorder = new RelayMetricsRecorder();
     performanceNow.mockReturnValue(0);
     recorder.start();
     performanceNow.mockReturnValue(1000);
@@ -65,7 +65,7 @@ describe('RelayMetricsRecorder', () => {
   });
 
   it('returns timing for synchronous methods', () => {
-    var recorder = new RelayMetricsRecorder();
+    const recorder = new RelayMetricsRecorder();
     performanceNow.mockReturnValue(0);
     recorder.start();
     mockPerformanceNowSequence([1, 101]);
@@ -87,12 +87,12 @@ describe('RelayMetricsRecorder', () => {
   });
 
   it('returns timing for asynchronous events', () => {
-    var recorder = new RelayMetricsRecorder();
+    const recorder = new RelayMetricsRecorder();
     performanceNow.mockReturnValue(0);
     recorder.start();
 
     performanceNow.mockReturnValue(1);
-    var {stop} = RelayProfiler.profile('fetchRelayQuery');
+    const {stop} = RelayProfiler.profile('fetchRelayQuery');
     performanceNow.mockReturnValue(1001);
     stop();
     performanceNow.mockReturnValue(2000);
@@ -119,12 +119,12 @@ describe('RelayMetricsRecorder', () => {
     });
 
     it('records profiles only', () => {
-      var recorder = new RelayMetricsRecorder();
+      const recorder = new RelayMetricsRecorder();
       performanceNow.mockReturnValue(0);
       recorder.start();
       query.getChildren(); // not recorded
       performanceNow.mockReturnValue(1);
-      var {stop} = RelayProfiler.profile('fetchRelayQuery');
+      const {stop} = RelayProfiler.profile('fetchRelayQuery');
       performanceNow.mockReturnValue(11);
       stop();
       performanceNow.mockReturnValue(1000);

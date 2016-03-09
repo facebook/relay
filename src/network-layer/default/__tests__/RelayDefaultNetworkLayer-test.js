@@ -26,8 +26,8 @@ const fetch = require('fetch');
 const fetchWithRetries = require('fetchWithRetries');
 
 describe('RelayDefaultNetworkLayer', () => {
-  var networkConfig;
-  var networkLayer;
+  let networkConfig;
+  let networkLayer;
 
   function genResponse(data) {
     return {
@@ -66,10 +66,10 @@ describe('RelayDefaultNetworkLayer', () => {
   });
 
   describe('sendMutation', () => {
-    var request;
-    var variables;
-    var responseCallback;
-    var rejectCallback;
+    let request;
+    let variables;
+    let responseCallback;
+    let rejectCallback;
 
     beforeEach(() => {
       responseCallback = jest.genMockFunction();
@@ -81,7 +81,7 @@ describe('RelayDefaultNetworkLayer', () => {
           actor_id: 4,
         },
       };
-      var mutation = RelayQuery.Mutation.build(
+      const mutation = RelayQuery.Mutation.build(
         'FeedbackLikeMutation',
         'FeedbackLikeResponsePayload',
         'feedback_like',
@@ -101,9 +101,9 @@ describe('RelayDefaultNetworkLayer', () => {
       networkLayer.sendMutation(request);
       expect(fetch).toBeCalled();
 
-      var call = fetch.mock.calls[0];
+      const call = fetch.mock.calls[0];
       expect(call[0]).toBe(networkConfig.uri);
-      var {body, headers, method} = call[1];
+      const {body, headers, method} = call[1];
 
       expect(method).toBe('POST');
       expect(headers).toEqual({
@@ -120,7 +120,7 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('handles responses', () => {
-      var response = {
+      const response = {
         data: {
           test_call: {
             field: 1,
@@ -143,7 +143,7 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('handles errors', () => {
-      var response = {
+      const response = {
         errors: [{
           message: 'Something went wrong.',
           locations: [{
@@ -161,7 +161,7 @@ describe('RelayDefaultNetworkLayer', () => {
       jest.runAllTimers();
 
       expect(rejectCallback.mock.calls.length).toBe(1);
-      var error = rejectCallback.mock.calls[0][0];
+      const error = rejectCallback.mock.calls[0][0];
       expect(error instanceof Error).toBe(true);
       expect(error.message).toEqual([
         'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
@@ -175,7 +175,7 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('handles custom errors', () => {
-      var response = {
+      const response = {
         errors: [{
           message: 'Something went wrong.',
         }],
@@ -189,7 +189,7 @@ describe('RelayDefaultNetworkLayer', () => {
       jest.runAllTimers();
 
       expect(rejectCallback.mock.calls.length).toBe(1);
-      var error = rejectCallback.mock.calls[0][0];
+      const error = rejectCallback.mock.calls[0][0];
       expect(error instanceof Error).toBe(true);
       expect(error.message).toEqual([
         'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
@@ -203,18 +203,15 @@ describe('RelayDefaultNetworkLayer', () => {
   });
 
   describe('sendQueries', () => {
-    var queryA;
-    var queryB;
-    var requestA;
-    var requestB;
-    var route;
+    let requestA;
+    let requestB;
 
     beforeEach(() => {
-      route = RelayMetaRoute.get('$fetchRelayQuery');
-      queryA = RelayQuery.Root.create(
+      const route = RelayMetaRoute.get('$fetchRelayQuery');
+      const queryA = RelayQuery.Root.create(
         Relay.QL`query{node(id:"123"){id}}`, route, {}
       );
-      queryB = RelayQuery.Root.create(
+      const queryB = RelayQuery.Root.create(
         Relay.QL`query{node(id:"456"){id}}`, route, {}
       );
       requestA = new RelayQueryRequest(queryA);
@@ -225,9 +222,9 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(fetchWithRetries).not.toBeCalled();
       networkLayer.sendQueries([requestA]);
       expect(fetchWithRetries).toBeCalled();
-      var call = fetchWithRetries.mock.calls[0];
+      const call = fetchWithRetries.mock.calls[0];
       expect(call[0]).toBe(networkConfig.uri);
-      var {body, fetchTimeout, headers, method, retryDelays} = call[1];
+      const {body, fetchTimeout, headers, method, retryDelays} = call[1];
       expect(body).toBe(JSON.stringify({
         query: requestA.getQueryString(),
         variables: {
@@ -245,17 +242,17 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('resolves with fetched response payloads', () => {
-      var resolveACallback = jest.genMockFunction();
-      var resolveBCallback = jest.genMockFunction();
+      const resolveACallback = jest.genMockFunction();
+      const resolveBCallback = jest.genMockFunction();
       networkLayer.sendQueries([requestA, requestB]);
       requestA.getPromise().done(resolveACallback);
       requestB.getPromise().done(resolveBCallback);
       jest.runAllTimers();
 
-      var payloadA = {
+      const payloadA = {
         data: {'123': {id: '123'}},
       };
-      var payloadB = {
+      const payloadB = {
         data: {'456': {id: '456'}},
       };
       fetchWithRetries.mock.deferreds[0].resolve(genResponse(payloadA));
@@ -273,7 +270,7 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('rejects invalid JSON response payloads', () => {
-      var rejectCallback = jest.genMockFunction();
+      const rejectCallback = jest.genMockFunction();
       networkLayer.sendQueries([requestA]);
       requestA.getPromise().catch(rejectCallback);
       jest.runAllTimers();
@@ -291,12 +288,12 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('rejects errors in query responses', () => {
-      var rejectCallback = jest.genMockFunction();
+      const rejectCallback = jest.genMockFunction();
       networkLayer.sendQueries([requestA]);
       requestA.getPromise().catch(rejectCallback);
       jest.runAllTimers();
 
-      var payloadA = {
+      const payloadA = {
         data: {},
         errors: [{
           message: 'Something went wrong.',
@@ -310,7 +307,7 @@ describe('RelayDefaultNetworkLayer', () => {
       jest.runAllTimers();
 
       expect(rejectCallback).toBeCalled();
-      var error = rejectCallback.mock.calls[0][0];
+      const error = rejectCallback.mock.calls[0][0];
       expect(error.message).toEqual([
         'Server request for query `RelayDefaultNetworkLayer` failed for the ' +
           'following reasons:',
@@ -323,14 +320,14 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('rejects requests with missing responses', () => {
-      var rejectACallback = jest.genMockFunction();
-      var resolveBCallback = jest.genMockFunction();
+      const rejectACallback = jest.genMockFunction();
+      const resolveBCallback = jest.genMockFunction();
       networkLayer.sendQueries([requestA, requestB]);
       requestA.getPromise().catch(rejectACallback);
       requestB.getPromise().done(resolveBCallback);
       jest.runAllTimers();
 
-      var payload = {
+      const payload = {
         data: {'456': {id: '456'}},
       };
       fetchWithRetries.mock.deferreds[0].resolve(genResponse({}));

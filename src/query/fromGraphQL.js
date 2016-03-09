@@ -30,9 +30,9 @@ type QueryClass = (
  *
  * Converts GraphQL nodes to RelayQuery nodes.
  */
-var fromGraphQL = {
+const fromGraphQL = {
   Field(query: ConcreteQueryObject): RelayQuery.Field {
-    var node = createNode(query, RelayQuery.Field);
+    const node = createNode(query, RelayQuery.Field);
     invariant(
       node instanceof RelayQuery.Field,
       'fromGraphQL.Field(): Expected a GraphQL field node.'
@@ -40,7 +40,7 @@ var fromGraphQL = {
     return node;
   },
   Fragment(query: ConcreteQueryObject): RelayQuery.Fragment {
-    var node = createNode(query, RelayQuery.Fragment);
+    const node = createNode(query, RelayQuery.Fragment);
     invariant(
       node instanceof RelayQuery.Fragment,
       'fromGraphQL.Fragment(): Expected a GraphQL fragment node.'
@@ -48,7 +48,7 @@ var fromGraphQL = {
     return node;
   },
   Query(query: ConcreteQueryObject): RelayQuery.Root {
-    var node = createNode(query, RelayQuery.Root);
+    const node = createNode(query, RelayQuery.Root);
     invariant(
       node instanceof RelayQuery.Root,
       'fromGraphQL.Query(): Expected a root node.'
@@ -56,7 +56,7 @@ var fromGraphQL = {
     return node;
   },
   Operation(query: ConcreteQueryObject): RelayQuery.Operation {
-    var node = createNode(query, RelayQuery.Operation);
+    const node = createNode(query, RelayQuery.Operation);
     invariant(
       node instanceof RelayQuery.Operation,
       'fromGraphQL.Operation(): Expected a mutation/subscription node.'
@@ -69,8 +69,8 @@ function createNode(
   query: ConcreteQueryObject,
   desiredType: QueryClass
 ): RelayQuery.Node {
-  var variables = {};
-  var route = RelayMetaRoute.get('$fromGraphQL');
+  const variables = {};
+  const route = RelayMetaRoute.get('$fromGraphQL');
   return desiredType.create(query, route, variables);
 }
 

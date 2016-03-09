@@ -66,7 +66,7 @@ class RelayMutationRequest extends Deferred<MutationResult, Error> {
    * serialized and sent in the GraphQL request.
    */
   getVariables(): Variables {
-    var printedQuery = this._printedQuery;
+    let printedQuery = this._printedQuery;
     if (!printedQuery) {
       printedQuery = printRelayQuery(this._mutation);
       this._printedQuery = printedQuery;
@@ -80,7 +80,7 @@ class RelayMutationRequest extends Deferred<MutationResult, Error> {
    * Gets a string representation of the GraphQL mutation.
    */
   getQueryString(): string {
-    var printedQuery = this._printedQuery;
+    let printedQuery = this._printedQuery;
     if (!printedQuery) {
       printedQuery = printRelayQuery(this._mutation);
       this._printedQuery = printedQuery;

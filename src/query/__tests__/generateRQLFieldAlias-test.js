@@ -13,10 +13,10 @@
 
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 
-var ALIAS_HEURISTIC = /^[\w-]+$/;
+const ALIAS_HEURISTIC = /^[\w-]+$/;
 
 function expectEncode(input) {
-  var encoded = generateRQLFieldAlias(input);
+  const encoded = generateRQLFieldAlias(input);
   expect(ALIAS_HEURISTIC.test(encoded)).toBe(true);
   expect(encoded).not.toEqual(input);
 }
@@ -39,7 +39,7 @@ describe('GraphQLFieldEncoder', () => {
   });
 
   it('returns the same hash for the same input', () => {
-    var input = 'friends.orderby(importance).first(20)';
+    const input = 'friends.orderby(importance).first(20)';
     expectEncode(input);
     expect(generateRQLFieldAlias(input))
       .toEqual(generateRQLFieldAlias(input));

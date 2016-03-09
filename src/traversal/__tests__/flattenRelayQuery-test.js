@@ -19,14 +19,14 @@ const RelayTestUtils = require('RelayTestUtils');
 const flattenRelayQuery = require('flattenRelayQuery');
 
 describe('flattenRelayQuery', () => {
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('flattens roots', () => {
-    var node = getNode(Relay.QL`
+    const node = getNode(Relay.QL`
       query {
         viewer {
           ... on Viewer {
@@ -43,7 +43,7 @@ describe('flattenRelayQuery', () => {
         }
       }
     `);
-    var expected = getNode(Relay.QL`
+    const expected = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -58,7 +58,7 @@ describe('flattenRelayQuery', () => {
   });
 
   it('flattens fragments', () => {
-    var node = getNode(Relay.QL`
+    const node = getNode(Relay.QL`
       fragment on Viewer {
         actor {
           firstName,
@@ -74,7 +74,7 @@ describe('flattenRelayQuery', () => {
         }
       }
     `);
-    var expected = getNode(Relay.QL`
+    const expected = getNode(Relay.QL`
       fragment on Viewer {
         actor {
           firstName,
@@ -90,7 +90,7 @@ describe('flattenRelayQuery', () => {
   });
 
   it('flattens fields', () => {
-    var node = getNode(Relay.QL`
+    const node = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -104,7 +104,7 @@ describe('flattenRelayQuery', () => {
         }
       }
     `).getFieldByStorageKey('actor');
-    var expected = getNode(Relay.QL`
+    const expected = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -119,14 +119,14 @@ describe('flattenRelayQuery', () => {
   });
 
   it('flattens empty fragments', () => {
-    var emptyFragment = Relay.QL`
+    const emptyFragment = Relay.QL`
       fragment on TimezoneInfo {
         ${null}
       }
     `;
 
-    var fragmentNode = getNode(emptyFragment);
-    var rootNode = getNode(Relay.QL`
+    const fragmentNode = getNode(emptyFragment);
+    const rootNode = getNode(Relay.QL`
       query {
         viewer {
           timezoneEstimate {
@@ -135,7 +135,7 @@ describe('flattenRelayQuery', () => {
         }
       }
     `);
-    var fieldNode = rootNode.getFieldByStorageKey('timezoneEstimate');
+    const fieldNode = rootNode.getFieldByStorageKey('timezoneEstimate');
 
     expect(flattenRelayQuery(fragmentNode)).toBe(null);
     expect(flattenRelayQuery(rootNode)).toBe(null);
@@ -143,7 +143,7 @@ describe('flattenRelayQuery', () => {
   });
 
   it('optionally removes fragments', () => {
-    var node = getNode(Relay.QL`
+    const node = getNode(Relay.QL`
       query {
         viewer {
           ... on Viewer {
@@ -159,7 +159,7 @@ describe('flattenRelayQuery', () => {
         }
       }
     `);
-    var expected = getNode(Relay.QL`
+    const expected = getNode(Relay.QL`
       query {
         viewer {
           actor {
@@ -175,7 +175,7 @@ describe('flattenRelayQuery', () => {
   });
 
   it('optionally preserves empty non-leaf nodes', () => {
-    var node = getNode(Relay.QL`
+    const node = getNode(Relay.QL`
       fragment on Comment {
         likers # can have sub-selections, normally is removed
         doesViewerLike

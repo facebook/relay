@@ -11,7 +11,7 @@
 
 'use strict';
 
-var RelayQueryConfig = require.requireActual('RelayQueryConfig');
+const RelayQueryConfig = require.requireActual('RelayQueryConfig');
 
 RelayQueryConfig.genMock = jest.genMockFunction().mockImplementation(() => {
   class MockQueryConfig extends RelayQueryConfig {}

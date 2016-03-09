@@ -68,13 +68,13 @@ function toQuery<Tn: RelayQuery.Node>(
   const children = [];
   const aliases = Array.from(flattenedFieldMap.keys()).sort(sortTypeFirst);
   aliases.forEach(alias => {
-    var field = flattenedFieldMap.get(alias);
+    const field = flattenedFieldMap.get(alias);
     if (field) {
       children.push(toQuery(field.node, field, preserveEmptyNodes));
     }
   });
   Array.from(flattenedFragmentMap.keys()).forEach(type => {
-    var fragment = flattenedFragmentMap.get(type);
+    const fragment = flattenedFragmentMap.get(type);
     if (fragment) {
       children.push(toQuery(fragment.node, fragment, preserveEmptyNodes));
     }
@@ -121,8 +121,8 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
     node: RelayQuery.Field,
     state: FlattenedQuery
   ): void {
-    var hash = node.getShallowHash();
-    var flattenedField = state.flattenedFieldMap.get(hash);
+    const hash = node.getShallowHash();
+    let flattenedField = state.flattenedFieldMap.get(hash);
     if (!flattenedField) {
       flattenedField = {
         node,

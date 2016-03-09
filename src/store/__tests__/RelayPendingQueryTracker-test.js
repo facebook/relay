@@ -26,18 +26,18 @@ const subtractRelayQuery = require('subtractRelayQuery');
 const writeRelayQueryPayload = require('writeRelayQueryPayload');
 
 describe('RelayPendingQueryTracker', () => {
-  var pendingQueryTracker;
+  let pendingQueryTracker;
 
-  var addPending;
+  let addPending;
 
-  var fetchRelayQuery;
+  let fetchRelayQuery;
 
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    var storeData = new RelayStoreData();
+    const storeData = new RelayStoreData();
     fetchRelayQuery = storeData.getNetworkLayer().fetchRelayQuery;
     pendingQueryTracker = storeData.getPendingQueryTracker();
 
@@ -77,22 +77,22 @@ describe('RelayPendingQueryTracker', () => {
   });
 
   it('subtracts pending queries that share root call', () => {
-    var mockQueryA = getNode(Relay.QL`
+    const mockQueryA = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
     `);
-    var mockQueryB = getNode(Relay.QL`
+    const mockQueryB = getNode(Relay.QL`
       query {
         node(id:"4"){actor{id,name}}
       }
     `);
-    var mockQueryC = getNode(Relay.QL`
+    const mockQueryC = getNode(Relay.QL`
       query {
         viewer{actor{id,name,birthdate{day}}}
       }
     `);
-    var mockQueryD = getNode(Relay.QL`
+    const mockQueryD = getNode(Relay.QL`
       query {
         node(id:"4"){actor{id,name,birthdate{day}}}
       }
@@ -126,17 +126,17 @@ describe('RelayPendingQueryTracker', () => {
   });
 
   it('subtracts pending queries until completely subtracted', () => {
-    var mockQueryA = getNode(Relay.QL`
+    const mockQueryA = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
     `);
-    var mockQueryB = getNode(Relay.QL`
+    const mockQueryB = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
     `);
-    var mockQueryC = getNode(Relay.QL`
+    const mockQueryC = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -158,12 +158,12 @@ describe('RelayPendingQueryTracker', () => {
   });
 
   it('does not fetch completely subtracted queries', () => {
-    var mockQueryA = getNode(Relay.QL`
+    const mockQueryA = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
     `);
-    var mockQueryB = getNode(Relay.QL`
+    const mockQueryB = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -186,7 +186,7 @@ describe('RelayPendingQueryTracker', () => {
   });
 
   it('calls `writeRelayQueryPayload` when receiving data', () => {
-    var mockQueryA = getNode(Relay.QL`
+    const mockQueryA = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -198,31 +198,31 @@ describe('RelayPendingQueryTracker', () => {
     fetchRelayQuery.mock.requests[0].resolve({viewer:{}});
     jest.runAllTimers();
 
-    var writeCalls = writeRelayQueryPayload.mock.calls;
+    const writeCalls = writeRelayQueryPayload.mock.calls;
     expect(writeCalls.length).toBe(1);
     expect(writeCalls[0][1]).toEqualQueryRoot(mockQueryA);
     expect(writeCalls[0][2]).toEqual({viewer:{}});
   });
 
   it('resolves after dependencies are ready', () => {
-    var mockQueryA = getNode(Relay.QL`
+    const mockQueryA = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
     `);
-    var mockQueryB = getNode(Relay.QL`
+    const mockQueryB = getNode(Relay.QL`
       query {
         viewer{actor{id,name,birthdate{day}}}
       }
     `);
-    var mockQueryC = getNode(Relay.QL`
+    const mockQueryC = getNode(Relay.QL`
       query {
         viewer{actor{id,birthdate{day}}}
       }
     `);
 
-    var pendingA = addPending({query: mockQueryA});
-    var mockSuccessA = jest.genMockFunction();
+    const pendingA = addPending({query: mockQueryA});
+    const mockSuccessA = jest.genMockFunction();
     pendingA.done(mockSuccessA);
 
     // Simulates: B - A = C
@@ -232,8 +232,8 @@ describe('RelayPendingQueryTracker', () => {
       return mockQueryC;
     });
 
-    var pendingB = addPending({query: mockQueryB});
-    var mockSuccessB = jest.genMockFunction();
+    const pendingB = addPending({query: mockQueryB});
+    const mockSuccessB = jest.genMockFunction();
     pendingB.done(mockSuccessB);
 
     fetchRelayQuery.mock.requests[1].resolve({viewer:{}});
@@ -250,34 +250,34 @@ describe('RelayPendingQueryTracker', () => {
   });
 
   it('fails direct dependents and not indirect ones', () => {
-    var mockQueryA = getNode(Relay.QL`
+    const mockQueryA = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
     `);
-    var mockQueryB = getNode(Relay.QL`
+    const mockQueryB = getNode(Relay.QL`
       query {
         viewer{actor{id,name,birthdate{day}}}
       }
     `);
-    var mockQueryBPrime = getNode(Relay.QL`
+    const mockQueryBPrime = getNode(Relay.QL`
       query {
         viewer{actor{id,birthdate{day}}}
       }
     `);
-    var mockQueryC = getNode(Relay.QL`
+    const mockQueryC = getNode(Relay.QL`
       query {
         viewer{actor{id,firstName,birthdate{day}}}
       }
     `);
-    var mockQueryCPrime = getNode(Relay.QL`
+    const mockQueryCPrime = getNode(Relay.QL`
       query {
         viewer{actor{id,firstName,birthdate{day}}}
       }
     `);
 
-    var pendingA = addPending({query: mockQueryA});
-    var mockFailureA = jest.genMockFunction();
+    const pendingA = addPending({query: mockQueryA});
+    const mockFailureA = jest.genMockFunction();
     pendingA.catch(mockFailureA);
     jest.runAllTimers();
 
@@ -288,8 +288,8 @@ describe('RelayPendingQueryTracker', () => {
       return mockQueryBPrime;
     });
 
-    var pendingB = addPending({query: mockQueryB});
-    var mockFailureB = jest.genMockFunction();
+    const pendingB = addPending({query: mockQueryB});
+    const mockFailureB = jest.genMockFunction();
     pendingB.catch(mockFailureB);
     jest.runAllTimers();
 
@@ -300,12 +300,12 @@ describe('RelayPendingQueryTracker', () => {
       return subQuery === mockQueryA ? mockQueryC : mockQueryCPrime;
     });
 
-    var pendingC = addPending({query: mockQueryC});
-    var mockSuccessC = jest.genMockFunction();
+    const pendingC = addPending({query: mockQueryC});
+    const mockSuccessC = jest.genMockFunction();
     pendingC.done(mockSuccessC);
     jest.runAllTimers();
 
-    var mockFetchError = new Error('Expected `fetchRelayQuery` error.');
+    const mockFetchError = new Error('Expected `fetchRelayQuery` error.');
     fetchRelayQuery.mock.requests[1].resolve({viewer:{}});
     fetchRelayQuery.mock.requests[0].reject(mockFetchError);
     fetchRelayQuery.mock.requests[2].resolve({viewer:{}});
@@ -314,7 +314,7 @@ describe('RelayPendingQueryTracker', () => {
       jest.runAllTimers();
     }).toConsoleWarn([mockFetchError.message]);
 
-    var writeCalls = writeRelayQueryPayload.mock.calls;
+    const writeCalls = writeRelayQueryPayload.mock.calls;
     expect(writeCalls.length).toBe(2);
     expect(writeCalls[0][1]).toEqualQueryRoot(mockQueryBPrime);
     expect(writeCalls[0][2]).toEqual({viewer:{}});
@@ -327,16 +327,16 @@ describe('RelayPendingQueryTracker', () => {
   });
 
   it('fails if fetching throws an error', () => {
-    var mockQuery = getNode(Relay.QL`
+    const mockQuery = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
     `);
-    var pendingA = addPending({query: mockQuery});
-    var mockFailureA = jest.genMockFunction();
+    const pendingA = addPending({query: mockQuery});
+    const mockFailureA = jest.genMockFunction();
     pendingA.catch(mockFailureA);
 
-    var mockError = new Error('Expected error.');
+    const mockError = new Error('Expected error.');
     fetchRelayQuery.mock.requests[0].reject(mockError);
     expect(() => {
       jest.runAllTimers();
@@ -346,16 +346,16 @@ describe('RelayPendingQueryTracker', () => {
   });
 
   it('fails if `writeRelayQueryPayload` throws', () => {
-    var mockQuery = getNode(Relay.QL`
+    const mockQuery = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
     `);
-    var pendingA = addPending({query: mockQuery});
-    var mockFailureA = jest.genMockFunction();
+    const pendingA = addPending({query: mockQuery});
+    const mockFailureA = jest.genMockFunction();
     pendingA.catch(mockFailureA);
 
-    var mockError = new Error('Expected error.');
+    const mockError = new Error('Expected error.');
     fetchRelayQuery.mock.requests[0].resolve({viewer:{}});
     writeRelayQueryPayload.mockImplementation(() => {
       throw mockError;
@@ -368,7 +368,7 @@ describe('RelayPendingQueryTracker', () => {
   });
 
   it('can resolve preload queries *after* they are added', () => {
-    var mockQuery = getNode(Relay.QL`
+    const mockQuery = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -387,14 +387,14 @@ describe('RelayPendingQueryTracker', () => {
     jest.runAllTimers();
 
     expect(pendingQueryTracker.hasPendingQueries()).toBeFalsy();
-    var writeCalls = writeRelayQueryPayload.mock.calls;
+    const writeCalls = writeRelayQueryPayload.mock.calls;
     expect(writeCalls.length).toBe(1);
     expect(writeCalls[0][1]).toEqualQueryRoot(mockQuery);
     expect(writeCalls[0][2]).toEqual({viewer:{}});
   });
 
   it('can resolve preload queries *before* they are added', () => {
-    var mockQuery = getNode(Relay.QL`
+    const mockQuery = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -413,27 +413,27 @@ describe('RelayPendingQueryTracker', () => {
     jest.runAllTimers();
 
     expect(pendingQueryTracker.hasPendingQueries()).toBeFalsy();
-    var writeCalls = writeRelayQueryPayload.mock.calls;
+    const writeCalls = writeRelayQueryPayload.mock.calls;
     expect(writeCalls.length).toBe(1);
     expect(writeCalls[0][1]).toEqualQueryRoot(mockQuery);
     expect(writeCalls[0][2]).toEqual({viewer:{}});
   });
 
   it('can reject preloaded pending queries by id', () => {
-    var mockQuery = getNode(Relay.QL`
+    const mockQuery = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
     `);
 
-    var mockPending = addPending({
+    const mockPending = addPending({
       query: mockQuery,
       fetchMode: RelayFetchMode.PRELOAD,
     });
-    var mockCallback = jest.genMockFunction();
+    const mockCallback = jest.genMockFunction();
     mockPending.catch(mockCallback);
 
-    var mockError = new Error('Expected error.');
+    const mockError = new Error('Expected error.');
     pendingQueryTracker.rejectPreloadQuery(
       mockQuery.getID(),
       mockError
@@ -449,7 +449,7 @@ describe('RelayPendingQueryTracker', () => {
   });
 
   it('has pending queries when not queries are all resolved', () => {
-    var mockQueryA = getNode(Relay.QL`
+    const mockQueryA = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -461,7 +461,7 @@ describe('RelayPendingQueryTracker', () => {
   });
 
   it('has no pending queries when queries are all resolved', () => {
-    var mockQueryA = getNode(Relay.QL`
+    const mockQueryA = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -476,7 +476,7 @@ describe('RelayPendingQueryTracker', () => {
   });
 
   it('has no pending queries after being reset', () => {
-    var mockQueryA = getNode(Relay.QL`
+    const mockQueryA = getNode(Relay.QL`
       query {
         viewer{actor{id,name}}
       }

@@ -19,16 +19,16 @@ const RelayQueryTransform = require('RelayQueryTransform');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryTransform', () => {
-  var {getNode} = RelayTestUtils;
-  var query;
+  const {getNode} = RelayTestUtils;
+  let query;
 
   beforeEach(() => {
-    var variables = {
+    const variables = {
       first: 10,
       after: 'offset',
     };
 
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on User {
         friends(first:$first,after:$after) {
           edges {
@@ -67,8 +67,8 @@ describe('RelayQueryTransform', () => {
   it('returns original input', () => {
     class NoOp extends RelayQueryTransform<any> {}
 
-    var transform = new NoOp();
-    var output = transform.visit(query, null);
+    const transform = new NoOp();
+    const output = transform.visit(query, null);
     expect(output).toBe(query);
   });
 
@@ -82,8 +82,8 @@ describe('RelayQueryTransform', () => {
       }
     }
 
-    var transform = new Nullify();
-    var output = transform.visit(query, null);
+    const transform = new Nullify();
+    const output = transform.visit(query, null);
     expect(output).toBe(null);
   });
 
@@ -99,9 +99,9 @@ describe('RelayQueryTransform', () => {
       }
     }
 
-    var transform = new RemoveIDs();
-    var fields = [];
-    var output = transform.visit(query, fields);
+    const transform = new RemoveIDs();
+    let fields = [];
+    const output = transform.visit(query, fields);
 
     var expectedFields = [];
     function traverse(node: RelayQuery.Node): void {

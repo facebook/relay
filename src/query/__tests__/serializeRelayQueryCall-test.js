@@ -15,7 +15,7 @@ const serializeRelayQueryCall = require('serializeRelayQueryCall');
 
 describe('serializeRelayQueryCall', () => {
   it('serializes a call with a null argument', () => {
-    var call = {
+    const call = {
       name: 'me',
       value: null,
     };
@@ -23,7 +23,7 @@ describe('serializeRelayQueryCall', () => {
   });
 
   it('serializes a call with an undefined argument', () => {
-    var call = {
+    const call = {
       name: 'me',
       value: undefined,
     };
@@ -31,7 +31,7 @@ describe('serializeRelayQueryCall', () => {
   });
 
   it('serializes a call with a string argument', () => {
-    var call = {
+    const call = {
       name: 'first',
       value: '5',
     };
@@ -39,7 +39,7 @@ describe('serializeRelayQueryCall', () => {
   });
 
   it('serializes a call with a numeric argument', () => {
-    var call = {
+    const call = {
       name: 'first',
       value: 5,
     };
@@ -47,7 +47,7 @@ describe('serializeRelayQueryCall', () => {
   });
 
   it('serializes a call with `true` argument', () => {
-    var call = {
+    const call = {
       name: 'if',
       value: true,
     };
@@ -55,7 +55,7 @@ describe('serializeRelayQueryCall', () => {
   });
 
   it('serializes a call with `false` argument', () => {
-    var call = {
+    const call = {
       name: 'unless',
       value: false,
     };
@@ -63,7 +63,7 @@ describe('serializeRelayQueryCall', () => {
   });
 
   it('serializes a call with many arguments', () => {
-    var call = {
+    const call = {
       name: 'usernames',
       value: ['glh', 'joesavona'],
     };
@@ -71,7 +71,7 @@ describe('serializeRelayQueryCall', () => {
   });
 
   it('sanitizes argument values', () => {
-    var call = {
+    const call = {
       name: 'checkin_search_query',
       value: JSON.stringify({query: 'Menlo Park'}),
     };
@@ -81,7 +81,7 @@ describe('serializeRelayQueryCall', () => {
   });
 
   it('serializes empty string values', () => {
-    var call = {
+    const call = {
       name: 'query',
       value: '',
     };
@@ -91,7 +91,7 @@ describe('serializeRelayQueryCall', () => {
   });
 
   it('serializes string values with leading/trailing whitespace', () => {
-    var call = {
+    const call = {
       name: 'query',
       value: ' ',
     };

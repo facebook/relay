@@ -168,12 +168,12 @@ class GraphQLStorePluralQueryResolver {
     fragment: RelayQuery.Fragment,
     nextIDs: Array<DataID>
   ): Array<?StoreReaderData> {
-    var prevResults = this._results;
-    var nextResults;
+    const prevResults = this._results;
+    let nextResults;
 
-    var prevLength = prevResults.length;
-    var nextLength = nextIDs.length;
-    var resolvers = this._resolvers;
+    const prevLength = prevResults.length;
+    const nextLength = nextIDs.length;
+    const resolvers = this._resolvers;
 
     // Ensure that we have exactly `nextLength` resolvers.
     while (resolvers.length < nextLength) {
@@ -189,8 +189,8 @@ class GraphQLStorePluralQueryResolver {
     if (prevLength !== nextLength) {
       nextResults = [];
     }
-    for (var ii = 0; ii < nextLength; ii++) {
-      var nextResult = resolvers[ii].resolve(fragment, nextIDs[ii]);
+    for (let ii = 0; ii < nextLength; ii++) {
+      const nextResult = resolvers[ii].resolve(fragment, nextIDs[ii]);
       if (nextResults || ii >= prevLength || nextResult !== prevResults[ii]) {
         nextResults = nextResults || prevResults.slice(0, ii);
         nextResults.push(nextResult);
@@ -246,11 +246,11 @@ class GraphQLStoreSingleQueryResolver {
     nextFragment: RelayQuery.Fragment,
     nextID: DataID
   ): ?StoreReaderData {
-    var prevFragment = this._fragment;
-    var prevID = this._resultID;
-    var nextResult;
-    var prevResult = this._result;
-    var subscribedIDs;
+    const prevFragment = this._fragment;
+    const prevID = this._resultID;
+    let nextResult;
+    const prevResult = this._result;
+    let subscribedIDs;
 
     if (
       prevFragment != null &&
@@ -290,7 +290,7 @@ class GraphQLStoreSingleQueryResolver {
       if (subscribedIDs) {
         // always subscribe to the root ID
         subscribedIDs[nextID] = true;
-        var changeEmitter = this._storeData.getChangeEmitter();
+        const changeEmitter = this._storeData.getChangeEmitter();
         this._subscription = changeEmitter.addListenerForIDs(
           Object.keys(subscribedIDs),
           this._handleChange.bind(this)
@@ -328,7 +328,7 @@ class GraphQLStoreSingleQueryResolver {
     fragment: RelayQuery.Fragment,
     dataID: DataID
   ): [?StoreReaderData, DataIDSet] {
-    var {data, dataIDs} = readRelayQueryData(this._storeData, fragment, dataID);
+    const {data, dataIDs} = readRelayQueryData(this._storeData, fragment, dataID);
     return [data, dataIDs];
   }
 

@@ -33,32 +33,32 @@ describe('stableStringify', () => {
   });
 
   it('stringifies shallow objects', () => {
-    var object = {};
+    const object = {};
     object.a = 1;
     object.b = 2;
     expect(stableStringify(object)).toBe('{a:1,b:2}');
   });
 
   it('stringifies stably, despite opposite key insertion order', () => {
-    var object = {};
+    const object = {};
     object.b = 2;
     object.a = 1;
     expect(stableStringify(object)).toBe('{a:1,b:2}');
   });
 
   it('stringifies shallow arrays', () => {
-    var array = ['foo', 'bar', 'baz'];
+    const array = ['foo', 'bar', 'baz'];
     expect(stableStringify(array)).toBe('[0:"foo",1:"bar",2:"baz"]');
   });
 
   it('skips "holes" in sparse arrays', () => {
-    var array = [];
+    const array = [];
     array[5] = 'foo';
     expect(stableStringify(array)).toBe('[5:"foo"]');
   });
 
   it('stringifies nested structures', () => {
-    var object = {
+    const object = {
       top2: {
         middle: {
           inner: [1, 'foo', ['bar', 2]],
@@ -74,7 +74,7 @@ describe('stableStringify', () => {
       extra: null,
     };
 
-    var expected =
+    const expected =
       '{' +
       'extra:null,' +
       'misc:true,' +

@@ -16,12 +16,11 @@ jest.dontMock('RelayProfiler');
 const RelayProfiler = require('RelayProfiler');
 
 describe('RelayProfiler', function() {
-  var DEV = __DEV__;
+  const DEV = __DEV__;
 
-  var mockMethod;
-  var mockMethod2;
-  var mockObject;
-  var mockDisableDEV = () => {
+  let mockMethod;
+  let mockObject;
+  const mockDisableDEV = () => {
     window.__DEV__ = 0;
   };
 
@@ -29,7 +28,7 @@ describe('RelayProfiler', function() {
     jest.resetModuleRegistry();
 
     mockMethod = jest.genMockFunction();
-    mockMethod2 = jest.genMockFunction();
+    const mockMethod2 = jest.genMockFunction();
     mockObject = {
       mockMethod: RelayProfiler.instrument('mock', mockMethod),
       mockMethod2: RelayProfiler.instrument('mock2', mockMethod2),
@@ -42,9 +41,9 @@ describe('RelayProfiler', function() {
 
   describe('instance', () => {
     it('preserves context, arguments, and return value', () => {
-      var expectedArgument = {};
-      var expectedContext = mockObject;
-      var expectedReturnValue = {};
+      const expectedArgument = {};
+      const expectedContext = mockObject;
+      const expectedReturnValue = {};
 
       mockMethod.mockImplementation(function(actualArgument) {
         expect(actualArgument).toBe(expectedArgument);
@@ -52,13 +51,13 @@ describe('RelayProfiler', function() {
         return expectedReturnValue;
       });
 
-      var actualReturnValue = mockObject.mockMethod(expectedArgument);
+      const actualReturnValue = mockObject.mockMethod(expectedArgument);
 
       expect(actualReturnValue).toBe(expectedReturnValue);
     });
 
     it('invokes attached handlers', () => {
-      var actualOrdering = [];
+      const actualOrdering = [];
 
       mockMethod.mockImplementation(() => {
         actualOrdering.push('mockMethod');
@@ -81,7 +80,7 @@ describe('RelayProfiler', function() {
     });
 
     it('invokes nested attached handlers', () => {
-      var actualOrdering = [];
+      const actualOrdering = [];
 
       mockMethod.mockImplementation(() => {
         actualOrdering.push('0: mockMethod');
@@ -113,7 +112,7 @@ describe('RelayProfiler', function() {
     });
 
     it('does not invoke detached handlers', () => {
-      var mockHandler = jest.genMockFunction()
+      const mockHandler = jest.genMockFunction()
         .mockImplementation((name, callback) => {
           callback();
         });
@@ -160,7 +159,7 @@ describe('RelayProfiler', function() {
 
   describe('aggregate', () => {
     it('invokes aggregate handlers first', () => {
-      var actualOrdering = [];
+      const actualOrdering = [];
 
       mockMethod.mockImplementation(() => {
         actualOrdering.push('0: mockMethod');
@@ -219,13 +218,13 @@ describe('RelayProfiler', function() {
     });
 
     it('aggregates methods instrumented after being attached', () => {
-      var mockHandler = jest.genMockFunction()
+      const mockHandler = jest.genMockFunction()
         .mockImplementation((name, callback) => {
           callback();
         });
       RelayProfiler.attachAggregateHandler('mockFuture', mockHandler);
 
-      var mockFutureMethod = RelayProfiler.instrument('mockFuture', mockMethod);
+      const mockFutureMethod = RelayProfiler.instrument('mockFuture', mockMethod);
 
       expect(mockHandler).not.toBeCalled();
       mockFutureMethod();
@@ -233,7 +232,7 @@ describe('RelayProfiler', function() {
     });
 
     it('detaches aggregate handlers', () => {
-      var mockHandler = jest.genMockFunction()
+      const mockHandler = jest.genMockFunction()
         .mockImplementation((name, callback) => {
           callback();
         });
@@ -248,7 +247,7 @@ describe('RelayProfiler', function() {
 
   describe('profile', () => {
     it('invokes attached profile handlers', () => {
-      var actualOrdering = [];
+      const actualOrdering = [];
 
       RelayProfiler.attachProfileHandler('mockBehavior', (name) => {
         expect(name).toBe('mockBehavior');
@@ -266,7 +265,7 @@ describe('RelayProfiler', function() {
         };
       });
 
-      var profiler = RelayProfiler.profile('mockBehavior');
+      const profiler = RelayProfiler.profile('mockBehavior');
 
       expect(actualOrdering).toEqual([
         '2: beforeEnd',
@@ -284,8 +283,8 @@ describe('RelayProfiler', function() {
     });
 
     it('does not invoke detached profile handlers', () => {
-      var mockStop = jest.genMockFunction();
-      var mockStart = jest.genMockFunction().mockReturnValue(mockStop);
+      const mockStop = jest.genMockFunction();
+      const mockStart = jest.genMockFunction().mockReturnValue(mockStop);
 
       RelayProfiler.attachProfileHandler('mockBehavior', mockStart);
       RelayProfiler.detachProfileHandler('mockBehavior', mockStart);
@@ -296,12 +295,12 @@ describe('RelayProfiler', function() {
     });
 
     it('passes state to each profile handler', () => {
-      var mockStop = jest.genMockFunction();
-      var mockStart = jest.genMockFunction().mockReturnValue(mockStop);
-      var state = {};
+      const mockStop = jest.genMockFunction();
+      const mockStart = jest.genMockFunction().mockReturnValue(mockStop);
+      const state = {};
 
       RelayProfiler.attachProfileHandler('mockBehavior', mockStart);
-      var profiler = RelayProfiler.profile('mockBehavior', state);
+      const profiler = RelayProfiler.profile('mockBehavior', state);
       profiler.stop();
 
       expect(mockStart).toBeCalledWith('mockBehavior', state);

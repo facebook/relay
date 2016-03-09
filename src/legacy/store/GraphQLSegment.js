@@ -56,7 +56,7 @@ class GraphQLSegment {
    * @return {?number}
    */
   _getIndexForID(id) {
-    var indices = this._idToIndicesMap[id];
+    const indices = this._idToIndicesMap[id];
     return indices && indices[0];
   }
 
@@ -65,8 +65,8 @@ class GraphQLSegment {
    */
   getFirstCursor() {
     if (this.getLength()) {
-      for (var ii = this._minIndex; ii <= this._maxIndex; ii++) {
-        var metadata = this._indexToMetadataMap[ii];
+      for (let ii = this._minIndex; ii <= this._maxIndex; ii++) {
+        const metadata = this._indexToMetadataMap[ii];
         if (!metadata.deleted) {
           return metadata.cursor;
         }
@@ -79,8 +79,8 @@ class GraphQLSegment {
    */
   getLastCursor() {
     if (this.getLength()) {
-      for (var ii = this._maxIndex; ii >= this._minIndex; ii--) {
-        var metadata = this._indexToMetadataMap[ii];
+      for (let ii = this._maxIndex; ii >= this._minIndex; ii--) {
+        const metadata = this._indexToMetadataMap[ii];
         if (!metadata.deleted) {
           return metadata.cursor;
         }
@@ -93,8 +93,8 @@ class GraphQLSegment {
    */
   getFirstID() {
     if (this.getLength()) {
-      for (var ii = this._minIndex; ii <= this._maxIndex; ii++) {
-        var metadata = this._indexToMetadataMap[ii];
+      for (let ii = this._minIndex; ii <= this._maxIndex; ii++) {
+        const metadata = this._indexToMetadataMap[ii];
         if (!metadata.deleted) {
           return metadata.edgeID;
         }
@@ -107,8 +107,8 @@ class GraphQLSegment {
    */
   getLastID() {
     if (this.getLength()) {
-      for (var ii = this._maxIndex; ii >= this._minIndex; ii--) {
-        var metadata = this._indexToMetadataMap[ii];
+      for (let ii = this._maxIndex; ii >= this._minIndex; ii--) {
+        const metadata = this._indexToMetadataMap[ii];
         if (!metadata.deleted) {
           return metadata.edgeID;
         }
@@ -121,7 +121,7 @@ class GraphQLSegment {
    * @return {?object} Returns the not-deleted edge at index
    */
   _getEdgeAtIndex(index) {
-    var edge = this._indexToMetadataMap[index];
+    const edge = this._indexToMetadataMap[index];
     return edge && !edge.deleted ? edge : null;
   }
 
@@ -131,7 +131,7 @@ class GraphQLSegment {
    * @return {boolean}
    */
   containsEdgeWithID(id) {
-    var index = this._getIndexForID(id);
+    const index = this._getIndexForID(id);
     if (index === undefined) {
       return false;
     }
@@ -144,7 +144,7 @@ class GraphQLSegment {
    * @return {boolean}
    */
   containsEdgeWithCursor(cursor) {
-    var index = this._getIndexForCursor(cursor);
+    const index = this._getIndexForCursor(cursor);
     if (index === undefined) {
       return false;
     }
@@ -164,9 +164,9 @@ class GraphQLSegment {
         cursors: [],
       };
     }
-    var currentIndex = this._minIndex;
+    let currentIndex = this._minIndex;
     if (cursor) {
-      var index = this._getIndexForCursor(cursor);
+      const index = this._getIndexForCursor(cursor);
       if (index === undefined) {
         console.warn('This segment does not have a cursor %s', cursor);
         return {
@@ -176,12 +176,12 @@ class GraphQLSegment {
       }
       currentIndex = index + 1;
     }
-    var total = 0;
+    let total = 0;
     var edgeIDs = [];
     var cursors = [];
 
     while (currentIndex <= this._maxIndex && total < count) {
-      var metadata = this._indexToMetadataMap[currentIndex];
+      const metadata = this._indexToMetadataMap[currentIndex];
       if (!metadata.deleted) {
         edgeIDs.push(metadata.edgeID);
         cursors.push(metadata.cursor);
@@ -208,9 +208,9 @@ class GraphQLSegment {
         cursors: [],
       };
     }
-    var currentIndex = this._maxIndex;
+    let currentIndex = this._maxIndex;
     if (cursor) {
-      var index = this._getIndexForCursor(cursor);
+      const index = this._getIndexForCursor(cursor);
       if (index === undefined) {
         console.warn('This segment does not have a cursor %s', cursor);
         return {
@@ -220,11 +220,11 @@ class GraphQLSegment {
       }
       currentIndex = index - 1;
     }
-    var total = 0;
+    let total = 0;
     var edgeIDs = [];
     var cursors = [];
     while (currentIndex >= this._minIndex && total < count) {
-      var metadata = this._indexToMetadataMap[currentIndex];
+      const metadata = this._indexToMetadataMap[currentIndex];
       if (!metadata.deleted) {
         edgeIDs.push(metadata.edgeID);
         cursors.push(metadata.cursor);
@@ -245,10 +245,10 @@ class GraphQLSegment {
    * @param {number} index
    */
   _addEdgeAtIndex(edge, index) {
-    var edgeID = RelayRecord.getDataID(edge);
-    var cursor = edge.cursor;
+    const edgeID = RelayRecord.getDataID(edge);
+    const cursor = edge.cursor;
 
-    var idIndex = this._getIndexForID(edgeID);
+    const idIndex = this._getIndexForID(edgeID);
     // If the id is has an index and is not deleted
     if (idIndex !== undefined && this._getEdgeAtIndex(idIndex)) {
       console.warn(
@@ -314,7 +314,7 @@ class GraphQLSegment {
    * @param {string} id the id of the edge to be removed
    */
   removeEdge(id) {
-    var index = this._getIndexForID(id);
+    const index = this._getIndexForID(id);
     if (index === undefined) {
       console.warn(
         'Attempted to remove edge with ID that was never in GraphQLSegment: ' +
@@ -322,7 +322,7 @@ class GraphQLSegment {
       );
       return;
     }
-    var data = this._indexToMetadataMap[index];
+    const data = this._indexToMetadataMap[index];
     if (data.deleted) {
       console.warn(
         'Attempted to remove edge with ID that was already removed: ' +
@@ -342,12 +342,12 @@ class GraphQLSegment {
    * @param {string} id the id of the edge to be removed
    */
   removeAllEdges(id) {
-    var indices = this._idToIndicesMap[id];
+    const indices = this._idToIndicesMap[id];
     if (!indices) {
       return;
     }
-    for (var ii = 0; ii < indices.length; ii++) {
-      var data = this._indexToMetadataMap[indices[ii]];
+    for (let ii = 0; ii < indices.length; ii++) {
+      const data = this._indexToMetadataMap[indices[ii]];
       if (!data.deleted) {
         data.deleted = true;
         this._count--;
@@ -365,7 +365,7 @@ class GraphQLSegment {
     }
     // Default adding after with no cursor to -1
     // So the first element in the segment is stored at index 0
-    var index = -1;
+    let index = -1;
     if (cursor) {
       index = this._getIndexForCursor(cursor);
       if (index === undefined) {
@@ -375,7 +375,7 @@ class GraphQLSegment {
     }
 
     while (this._maxIndex !== null && index < this._maxIndex) {
-      var data = this._indexToMetadataMap[index + 1];
+      const data = this._indexToMetadataMap[index + 1];
       // Skip over elements that have been deleted
       // so we can add new edges on the end.
       if (data.deleted) {
@@ -390,9 +390,9 @@ class GraphQLSegment {
       }
     }
 
-    var startIndex = index + 1;
-    for (var ii = 0; ii < edges.length; ii++) {
-      var edge = edges[ii];
+    const startIndex = index + 1;
+    for (let ii = 0; ii < edges.length; ii++) {
+      const edge = edges[ii];
       this._addEdgeAtIndex(
         edge,
         startIndex + ii
@@ -410,7 +410,7 @@ class GraphQLSegment {
     }
     // Default adding before with no cursor to 1
     // So the first element in the segment is stored at index 0
-    var index = 1;
+    let index = 1;
     if (cursor) {
       index = this._getIndexForCursor(cursor);
       if (index === undefined) {
@@ -420,7 +420,7 @@ class GraphQLSegment {
     }
 
     while (this._minIndex !== null && index > this._minIndex) {
-      var data = this._indexToMetadataMap[index - 1];
+      const data = this._indexToMetadataMap[index - 1];
       // Skip over elements that have been deleted
       // so we can add new edges in the front.
       if (data.deleted) {
@@ -437,10 +437,10 @@ class GraphQLSegment {
 
     // Edges must be added in reverse order since the
     // segment must be continuous at all times.
-    var startIndex = index - 1;
-    for (var ii = 0; ii < edges.length; ii++) {
+    const startIndex = index - 1;
+    for (let ii = 0; ii < edges.length; ii++) {
       // Iterates from edges.length - 1 to 0
-      var edge = edges[edges.length - ii - 1];
+      const edge = edges[edges.length - ii - 1];
       this._addEdgeAtIndex(
         edge,
         startIndex - ii
@@ -511,12 +511,12 @@ class GraphQLSegment {
     if (!segment.getLength()) {
       return true;
     }
-    var idRollbackMap = {};
-    var cursorRollbackMap = {};
-    var counterState = this._getCounterState();
-    var newEdges = segment._indexToMetadataMap;
-    for (var ii = segment._minIndex; ii <= segment._maxIndex; ii++) {
-      var index;
+    const idRollbackMap = {};
+    const cursorRollbackMap = {};
+    const counterState = this._getCounterState();
+    const newEdges = segment._indexToMetadataMap;
+    for (let ii = segment._minIndex; ii <= segment._maxIndex; ii++) {
+      let index;
       if (this.getLength()) {
         index = this._maxIndex + 1;
       } else {
@@ -525,8 +525,8 @@ class GraphQLSegment {
       }
       this._maxIndex = index;
 
-      var newEdge = newEdges[ii];
-      var idIndex = this._getIndexForID(newEdge.edgeID);
+      const newEdge = newEdges[ii];
+      const idIndex = this._getIndexForID(newEdge.edgeID);
       if (!idRollbackMap.hasOwnProperty(newEdge.edgeID)) {
         if (this._idToIndicesMap[newEdge.edgeID]) {
           idRollbackMap[newEdge.edgeID] =
@@ -537,7 +537,7 @@ class GraphQLSegment {
       }
       // Check for id collision. Can't have same id twice
       if (idIndex !== undefined) {
-        var idEdge = this._indexToMetadataMap[idIndex];
+        const idEdge = this._indexToMetadataMap[idIndex];
         if (idEdge.deleted && !newEdge.deleted) {
           // We want to map to most recent edge. Only write to the front of map
           // if existing edge with id is deleted or have an older deletion
@@ -562,10 +562,10 @@ class GraphQLSegment {
           this._idToIndicesMap[newEdge.edgeID] || [];
         this._idToIndicesMap[newEdge.edgeID].unshift(index);
       }
-      var cursorIndex = this._getIndexForCursor(newEdge.cursor);
+      const cursorIndex = this._getIndexForCursor(newEdge.cursor);
       // Check for cursor collision. Can't have same cursor twice
       if (cursorIndex !== undefined) {
-        var cursorEdge = this._indexToMetadataMap[cursorIndex];
+        const cursorEdge = this._indexToMetadataMap[cursorIndex];
         if (cursorEdge.deleted && !newEdge.deleted) {
           // We want to map to most recent edge. Only write in the cursor map if
           // existing edge with cursor is deleted or have and older deletion
@@ -607,7 +607,7 @@ class GraphQLSegment {
   }
 
   static fromJSON(descriptor) {
-    var [
+    const [
       indexToMetadataMap,
       idToIndicesMap,
       cursorToIndexMap,
@@ -615,7 +615,7 @@ class GraphQLSegment {
       maxIndex,
       count,
     ] = descriptor;
-    var segment = new GraphQLSegment();
+    const segment = new GraphQLSegment();
     segment._indexToMetadataMap = indexToMetadataMap;
     segment._idToIndicesMap = idToIndicesMap;
     segment._cursorToIndexMap = cursorToIndexMap;

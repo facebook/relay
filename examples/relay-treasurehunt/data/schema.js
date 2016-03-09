@@ -39,9 +39,9 @@ import {
   getTurnsRemaining,
 } from './database';
 
-var {nodeInterface, nodeField} = nodeDefinitions(
+const {nodeInterface, nodeField} = nodeDefinitions(
   (globalId) => {
-    var {type, id} = fromGlobalId(globalId);
+    const {type, id} = fromGlobalId(globalId);
     if (type === 'Game') {
       return getGame(id);
     } else if (type === 'HidingSpot') {
@@ -109,7 +109,7 @@ var hidingSpotType = new GraphQLObjectType({
 var {connectionType: hidingSpotConnection} =
   connectionDefinitions({name: 'HidingSpot', nodeType: hidingSpotType});
 
-var queryType = new GraphQLObjectType({
+const queryType = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
     node: nodeField,
@@ -120,7 +120,7 @@ var queryType = new GraphQLObjectType({
   }),
 });
 
-var CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
+const CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
   name: 'CheckHidingSpotForTreasure',
   inputFields: {
     id: { type: new GraphQLNonNull(GraphQLID) },
@@ -136,13 +136,13 @@ var CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
     },
   },
   mutateAndGetPayload: ({id}) => {
-    var localHidingSpotId = fromGlobalId(id).id;
+    const localHidingSpotId = fromGlobalId(id).id;
     checkHidingSpotForTreasure(localHidingSpotId);
     return {localHidingSpotId};
   },
 });
 
-var mutationType = new GraphQLObjectType({
+const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
     checkHidingSpotForTreasure: CheckHidingSpotForTreasureMutation,
@@ -153,7 +153,7 @@ var mutationType = new GraphQLObjectType({
  * Finally, we construct our schema (whose starting query type is the query
  * type we defined above) and export it.
  */
-export var schema = new GraphQLSchema({
+export const schema = new GraphQLSchema({
   query: queryType,
   mutation: mutationType,
 });

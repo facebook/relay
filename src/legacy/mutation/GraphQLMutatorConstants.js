@@ -12,7 +12,7 @@
 
 'use strict';
 
-var GraphQLMutatorConstants = {
+const GraphQLMutatorConstants = {
   APPEND: 'append',
   PREPEND: 'prepend',
   REMOVE: 'remove',

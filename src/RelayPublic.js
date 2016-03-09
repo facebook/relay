@@ -34,7 +34,7 @@ if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
  * Relay contains the set of public methods used to initialize and orchestrate
  * a React application that uses GraphQL to declare data dependencies.
  */
-var RelayPublic = {
+const RelayPublic = {
   Mutation: RelayMutation,
   PropTypes: RelayPropTypes,
   QL: RelayQL,

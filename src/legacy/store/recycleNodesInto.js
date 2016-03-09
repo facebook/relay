@@ -35,13 +35,13 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
       prevArray.length === nextArray.length;
   } else if (!prevArray && !nextArray) {
     // Assign local variables to preserve Flow type refinement.
-    var prevObject = prevData;
-    var nextObject = nextData;
-    var prevKeys = Object.keys(prevObject);
-    var nextKeys = Object.keys(nextObject);
+    const prevObject = prevData;
+    const nextObject = nextData;
+    const prevKeys = Object.keys(prevObject);
+    const nextKeys = Object.keys(nextObject);
     canRecycle =
       nextKeys.reduce((wasEqual, key) => {
-        var nextValue = nextObject[key];
+        const nextValue = nextObject[key];
         nextObject[key] = recycleNodesInto(prevObject[key], nextValue);
         return wasEqual && nextObject[key] === prevObject[key];
       }, true) &&

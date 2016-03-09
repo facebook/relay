@@ -23,11 +23,11 @@ const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 
 describe('splitDeferredRelayQueries()', () => {
   // helper functions
-  var {defer, getNode, getRefNode} = RelayTestUtils;
+  const {defer, getNode, getRefNode} = RelayTestUtils;
 
   // remove the root `id` field
   function filterGeneratedRootFields(node) {
-    var children = node.getChildren().filter(child => !(
+    const children = node.getChildren().filter(child => !(
       child instanceof RelayQuery.Field &&
       child.isGenerated()
     ));
@@ -42,17 +42,17 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('returns the original query when there are no fragments', () => {
-    var node = Relay.QL`query{node(id:"4"){id,name}}`;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const node = Relay.QL`query{node(id:"4"){id,name}}`;
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     expect(required).toBe(queryNode);
     expect(deferred).toEqual([]);
   });
 
   it('returns the original query when there are no deferred fragments', () => {
-    var fragment = Relay.QL`fragment on User{hometown{name}}`;
-    var node = Relay.QL`
+    const fragment = Relay.QL`fragment on User{hometown{name}}`;
+    const node = Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -61,15 +61,15 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     expect(required).toBe(queryNode);
     expect(deferred).toEqual([]);
   });
 
   it('splits a deferred fragment on the viewer root', () => {
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on Viewer {
         newsFeed(first: "10") {
           edges {
@@ -81,7 +81,7 @@ describe('splitDeferredRelayQueries()', () => {
         },
       }
     `;
-    var node = Relay.QL`
+    const node = Relay.QL`
       query {
         viewer {
           actor {
@@ -91,8 +91,8 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -117,7 +117,7 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('splits a nested feed on the viewer root', () => {
-    var nestedFragment = Relay.QL`
+    const nestedFragment = Relay.QL`
       fragment on Viewer {
         newsFeed(first: "10") {
           edges {
@@ -129,7 +129,7 @@ describe('splitDeferredRelayQueries()', () => {
         },
       }
     `;
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on Viewer {
         actor {
           name,
@@ -137,7 +137,7 @@ describe('splitDeferredRelayQueries()', () => {
         ${defer(nestedFragment)},
       }
     `;
-    var node = Relay.QL`
+    const node = Relay.QL`
       query {
         viewer {
           actor {
@@ -147,8 +147,8 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -186,8 +186,8 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('splits nested deferred fragments', () => {
-    var nestedFragment = Relay.QL`fragment on NonNodeStory{message{text}}`;
-    var fragment = Relay.QL`
+    const nestedFragment = Relay.QL`fragment on NonNodeStory{message{text}}`;
+    const fragment = Relay.QL`
       fragment on Viewer {
         newsFeed(first: "10") {
           edges {
@@ -199,7 +199,7 @@ describe('splitDeferredRelayQueries()', () => {
         },
       }
     `;
-    var node = Relay.QL`
+    const node = Relay.QL`
       query {
         viewer {
           actor {
@@ -209,8 +209,8 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -288,8 +288,8 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('splits deferred fragments using ref queries', () => {
-    var fragment = Relay.QL`fragment on Page{profilePicture{uri}}`;
-    var node = Relay.QL`
+    const fragment = Relay.QL`fragment on Page{profilePicture{uri}}`;
+    const node = Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -300,8 +300,8 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -339,8 +339,8 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('splits a nested deferred fragments as a ref queries', () => {
-    var nestedFragment = Relay.QL`fragment on Page{profilePicture{uri}}`;
-    var fragment = Relay.QL`
+    const nestedFragment = Relay.QL`fragment on Page{profilePicture{uri}}`;
+    const fragment = Relay.QL`
       fragment on User {
         hometown {
           name,
@@ -348,7 +348,7 @@ describe('splitDeferredRelayQueries()', () => {
         },
       }
     `;
-    var node = Relay.QL`
+    const node = Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -357,8 +357,8 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -413,8 +413,8 @@ describe('splitDeferredRelayQueries()', () => {
 
   it('splits a deferred fragment nested inside a ref query', () => {
     // this time, going to defer something inside the ref
-    var nestedFragment = Relay.QL`fragment on Page{address{city}}`;
-    var fragment = Relay.QL`
+    const nestedFragment = Relay.QL`fragment on Page{address{city}}`;
+    const fragment = Relay.QL`
       fragment on Page {
         profilePicture {
           uri
@@ -422,7 +422,7 @@ describe('splitDeferredRelayQueries()', () => {
         ${defer(nestedFragment)}
       }
     `;
-    var node = Relay.QL`
+    const node = Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -433,8 +433,8 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -492,7 +492,7 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('drops the required portion if it is empty', () => {
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on Viewer {
         newsFeed(first: "10") {
           edges {
@@ -504,15 +504,15 @@ describe('splitDeferredRelayQueries()', () => {
         },
       }
     `;
-    var node = Relay.QL`
+    const node = Relay.QL`
       query {
         viewer {
           ${defer(fragment)},
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required).toBe(null);
@@ -534,13 +534,13 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('handles a nested defer with no required part', () => {
-    var nestedFragment = Relay.QL`fragment on Viewer{primaryEmail}`;
-    var fragment = Relay.QL`
+    const nestedFragment = Relay.QL`fragment on Viewer{primaryEmail}`;
+    const fragment = Relay.QL`
       fragment on Viewer {
         ${defer(nestedFragment)},
       }
     `;
-    var node = Relay.QL`
+    const node = Relay.QL`
       query {
         viewer {
           isFbEmployee,
@@ -548,8 +548,8 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -582,13 +582,13 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('handles a nested ref query defer with no required part', () => {
-    var nestedFragment = Relay.QL`fragment on Actor{hometown{name}}`;
-    var fragment = Relay.QL`
+    const nestedFragment = Relay.QL`fragment on Actor{hometown{name}}`;
+    const fragment = Relay.QL`
       fragment on Viewer {
         ${defer(nestedFragment)},
       }
     `;
-    var node = Relay.QL`
+    const node = Relay.QL`
       query {
         viewer {
           actor {
@@ -598,8 +598,8 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -645,8 +645,8 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('handles paths with plural fields', () => {
-    var fragment = Relay.QL`fragment on Actor{name}`;
-    var node = Relay.QL`
+    const fragment = Relay.QL`fragment on Actor{name}`;
+    const node = Relay.QL`
       query {
         node(id:"123") {
           actors {
@@ -656,8 +656,8 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -695,8 +695,8 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('works with nested node ancestors', () => {
-    var fragment = Relay.QL`fragment on Node{name}`;
-    var node = Relay.QL`
+    const fragment = Relay.QL`fragment on Node{name}`;
+    const node = Relay.QL`
       query {
         viewer {
           actor {
@@ -708,8 +708,8 @@ describe('splitDeferredRelayQueries()', () => {
       }
     `;
 
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -749,8 +749,8 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('uses the auto-generated alias in ref query paths', () => {
-    var fragment = Relay.QL`fragment on User{firstName}`;
-    var node = Relay.QL`
+    const fragment = Relay.QL`fragment on User{firstName}`;
+    const node = Relay.QL`
       query {
         node(id:"4") {
           friends(first:"5") {
@@ -765,8 +765,8 @@ describe('splitDeferredRelayQueries()', () => {
       }
     `;
 
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -787,7 +787,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(required.getID()).toBe('q1');
 
     // deferred part
-    var alias = generateRQLFieldAlias('friends.first(5)');
+    const alias = generateRQLFieldAlias('friends.first(5)');
     expect(deferred.length).toBe(1);
     expect(deferred[0].required.getName()).toBe(
       queryNode.getName()
@@ -812,8 +812,8 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('correctly produces multi-level JSONPaths in ref queries', () => {
-    var fragment = Relay.QL`fragment on Actor{name}`;
-    var node = Relay.QL`
+    const fragment = Relay.QL`fragment on Actor{name}`;
+    const node = Relay.QL`
       query {
         node(id:"4") {
           friends(first: "5") {
@@ -827,8 +827,8 @@ describe('splitDeferredRelayQueries()', () => {
       }
     `;
 
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -848,7 +848,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(required.getID()).toBe('q1');
 
     // deferred part
-    var alias = generateRQLFieldAlias('friends.first(5)');
+    const alias = generateRQLFieldAlias('friends.first(5)');
     expect(deferred.length).toBe(1);
     expect(deferred[0].required.getName()).toBe(
       queryNode.getName()
@@ -873,8 +873,8 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('handles fragments that are not nodes', () => {
-    var fragment = Relay.QL`fragment on Image{uri}`;
-    var node = Relay.QL`
+    const fragment = Relay.QL`fragment on Image{uri}`;
+    const node = Relay.QL`
       query {
         node(id:"4") {
           id,
@@ -884,8 +884,8 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required.getName()).toBe(queryNode.getName());
@@ -910,16 +910,16 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('omits required queries with only generated `id` fields', () => {
-    var fragment = Relay.QL`fragment on Node{name}`;
-    var node = Relay.QL`
+    const fragment = Relay.QL`fragment on Node{name}`;
+    const node = Relay.QL`
       query {
         node(id:"4") {
               ${defer(fragment)},
             }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(required).toBe(null);
@@ -944,18 +944,18 @@ describe('splitDeferredRelayQueries()', () => {
     // It isn't possible to produce an "empty" ref query dependency with
     // `Relay.QL`, but in order to be future-proof against this possible edge
     // case, we create such a query by hand.
-    var fragment = Relay.QL`fragment on Node{name}`;
-    var id = RelayQuery.Field.build({
+    const fragment = Relay.QL`fragment on Node{name}`;
+    const id = RelayQuery.Field.build({
       fieldName: 'id',
       metadata: {isRequisite: true},
       type: 'String',
     });
-    var typename = RelayQuery.Field.build({
+    const typename = RelayQuery.Field.build({
       fieldName: '__typename',
       metadata: {isRequisite: true},
       type: 'String',
     });
-    var queryNode = RelayQuery.Root.build(
+    let queryNode = RelayQuery.Root.build(
       'splitDeferredRelayQueries',
       'node',
       '4',
@@ -996,7 +996,7 @@ describe('splitDeferredRelayQueries()', () => {
       })
     );
 
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(deferred[0].required.getName()).toBe(queryNode.getName());
@@ -1030,8 +1030,8 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('preserves required queries with only a non-generated `id` field', () => {
-    var fragment = Relay.QL`fragment on Node{name}`;
-    var node = Relay.QL`
+    const fragment = Relay.QL`fragment on Node{name}`;
+    const node = Relay.QL`
       query {
         node(id:"4") {
               id,
@@ -1039,8 +1039,8 @@ describe('splitDeferredRelayQueries()', () => {
             }
       }
     `;
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     // required part
     expect(deferred[0].required.getName()).toBe(queryNode.getName());
@@ -1064,9 +1064,9 @@ describe('splitDeferredRelayQueries()', () => {
 
   it('does not split empty fragments', () => {
     // null fragment could be caused by an `if`/`unless` call + a GK
-    var nullFragment = Relay.QL`fragment on Viewer{${null}}`;
-    var fragment = Relay.QL`fragment on Viewer{${nullFragment}}`;
-    var node = Relay.QL`
+    const nullFragment = Relay.QL`fragment on Viewer{${null}}`;
+    const fragment = Relay.QL`fragment on Viewer{${nullFragment}}`;
+    const node = Relay.QL`
       query {
         viewer {
               primaryEmail,
@@ -1075,8 +1075,8 @@ describe('splitDeferredRelayQueries()', () => {
       }
     `;
 
-    var queryNode = getNode(node);
-    var {required, deferred} = splitDeferredRelayQueries(queryNode);
+    const queryNode = getNode(node);
+    const {required, deferred} = splitDeferredRelayQueries(queryNode);
 
     expect(required.getName()).toBe(queryNode.getName());
     expect(required).toEqualQueryRoot(getNode(Relay.QL`
@@ -1088,23 +1088,23 @@ describe('splitDeferredRelayQueries()', () => {
   });
 
   it('does not flatten fragments when splitting root queries', () => {
-    var fragment = Relay.QL`fragment on Node{name}`;
-    var query = getNode(Relay.QL`
+    const fragment = Relay.QL`fragment on Node{name}`;
+    const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           ${defer(fragment)},
         }
       }
     `);
-    var {deferred} = splitDeferredRelayQueries(query);
+    const {deferred} = splitDeferredRelayQueries(query);
 
     expect(deferred.length).toBe(1);
     expect(deferred[0].required).toContainQueryNode(getNode(fragment));
   });
 
   it('does not flatten fragments when splitting ref queries', () => {
-    var fragment = Relay.QL`fragment on Feedback{likers{count}}`;
-    var query = getNode(Relay.QL`
+    const fragment = Relay.QL`fragment on Feedback{likers{count}}`;
+    const query = getNode(Relay.QL`
       query {
         node(id:"STORY_ID") {
           feedback {
@@ -1113,7 +1113,7 @@ describe('splitDeferredRelayQueries()', () => {
         }
       }
     `);
-    var {deferred} = splitDeferredRelayQueries(query);
+    const {deferred} = splitDeferredRelayQueries(query);
 
     expect(deferred.length).toBe(1);
     expect(deferred[0].required).toContainQueryNode(getNode(fragment));

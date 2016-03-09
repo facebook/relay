@@ -66,8 +66,8 @@ type OptimisticUpdateQueryBuilderConfig =
     response: Object;
   };
 
-var {CLIENT_MUTATION_ID} = RelayConnectionInterface;
-var {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
+const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
+const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
 
 /**
  * @internal
@@ -79,7 +79,7 @@ var {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
  * (fields that a mutation declares may have changed) with the "tracked query"
  * (fields representing data previously queried and written into the store).
  */
-var RelayMutationQuery = {
+const RelayMutationQuery = {
   /**
    * Accepts a mapping from field names to data IDs. The field names must exist
    * as top-level fields in the fat query. These top-level fields are used to
@@ -95,17 +95,17 @@ var RelayMutationQuery = {
       tracker,
     }: FieldsMutationFragmentBuilderConfig
   ): ?RelayQuery.Node {
-    var mutatedFields = [];
+    const mutatedFields = [];
     forEachObject(fieldIDs, (dataIDOrIDs, fieldName) => {
-      var fatField = getFieldFromFatQuery(fatQuery, fieldName);
-      var dataIDs = [].concat(dataIDOrIDs);
-      var trackedChildren = [];
+      const fatField = getFieldFromFatQuery(fatQuery, fieldName);
+      const dataIDs = [].concat(dataIDOrIDs);
+      const trackedChildren = [];
       dataIDs.forEach(dataID => {
         trackedChildren.push(...tracker.getTrackedChildrenForID(dataID));
       });
-      var trackedField = fatField.clone(trackedChildren);
+      const trackedField = fatField.clone(trackedChildren);
       if (trackedField) {
-        var mutationField = intersectRelayQuery(trackedField, fatField);
+        const mutationField = intersectRelayQuery(trackedField, fatField);
         if (mutationField) {
           mutatedFields.push(mutationField);
         }
@@ -139,16 +139,16 @@ var RelayMutationQuery = {
       tracker,
     }: EdgeDeletionMutationFragmentBuilderConfig
   ): ?RelayQuery.Node {
-    var fatParent = getFieldFromFatQuery(fatQuery, parentName);
-    var mutatedFields = [];
-    var trackedParent = fatParent.clone(
+    const fatParent = getFieldFromFatQuery(fatQuery, parentName);
+    const mutatedFields = [];
+    const trackedParent = fatParent.clone(
       tracker.getTrackedChildrenForID(parentID)
     );
     if (trackedParent) {
-      var filterUnterminatedRange = node => (
+      const filterUnterminatedRange = node => (
         node.getSchemaName() === connectionName
       );
-      var mutatedField = intersectRelayQuery(
+      const mutatedField = intersectRelayQuery(
         trackedParent,
         fatParent,
         filterUnterminatedRange
@@ -191,10 +191,10 @@ var RelayMutationQuery = {
       tracker,
     }: EdgeInsertionMutationFragmentBuilderConfig
   ): ?RelayQuery.Node {
-    var trackedChildren = tracker.getTrackedChildrenForID(parentID);
+    const trackedChildren = tracker.getTrackedChildrenForID(parentID);
 
-    var mutatedFields = [];
-    var trackedConnections = [];
+    const mutatedFields = [];
+    const trackedConnections = [];
     trackedChildren.forEach(trackedChild => {
       trackedConnections.push(
         ...findDescendantFields(trackedChild, connectionName)
@@ -202,10 +202,10 @@ var RelayMutationQuery = {
     });
 
     if (trackedConnections.length) {
-      var keysWithoutRangeBehavior: {[hash: string]: boolean} = {};
-      var mutatedEdgeFields = [];
+      const keysWithoutRangeBehavior: {[hash: string]: boolean} = {};
+      const mutatedEdgeFields = [];
       trackedConnections.forEach(trackedConnection => {
-        var trackedEdges = findDescendantFields(trackedConnection, 'edges');
+        const trackedEdges = findDescendantFields(trackedConnection, 'edges');
         if (!trackedEdges.length) {
           return;
         }
@@ -228,13 +228,13 @@ var RelayMutationQuery = {
 
       // TODO: Do this even if there are no tracked connections.
       if (parentName != null) {
-        var fatParent = getFieldFromFatQuery(fatQuery, parentName);
-        var trackedParent = fatParent.clone(trackedChildren);
+        const fatParent = getFieldFromFatQuery(fatQuery, parentName);
+        const trackedParent = fatParent.clone(trackedChildren);
         if (trackedParent) {
-          var filterUnterminatedRange = node => (
+          const filterUnterminatedRange = node => (
             !keysWithoutRangeBehavior.hasOwnProperty(node.getShallowHash())
           );
-          var mutatedParent = intersectRelayQuery(
+          const mutatedParent = intersectRelayQuery(
             trackedParent,
             fatParent,
             filterUnterminatedRange
@@ -256,7 +256,7 @@ var RelayMutationQuery = {
   ): ?RelayQuery.Node {
     // Silences RelayQueryNode being incompatible with sub-class RelayQueryField
     // A detailed error description is available in #7635477
-    var mutatedFields = (inferRelayFieldsFromData(response): $FlowIssue);
+    const mutatedFields = (inferRelayFieldsFromData(response): $FlowIssue);
     return buildMutationFragment(fatQuery, mutatedFields);
   },
 
@@ -271,7 +271,7 @@ var RelayMutationQuery = {
       tracker,
     }: OptimisticUpdateQueryBuilderConfig
   ): RelayQuery.Mutation {
-    var children = [
+    const children = [
       nullthrows(RelayMutationQuery.buildFragmentForOptimisticUpdate({
         response,
         fatQuery,
@@ -311,7 +311,7 @@ var RelayMutationQuery = {
       tracker: RelayQueryTracker;
     }
   ): RelayQuery.Mutation {
-    var children: Array<?RelayQuery.Node> = [
+    let children: Array<?RelayQuery.Node> = [
       RelayQuery.Field.build({
         fieldName: CLIENT_MUTATION_ID,
         type: 'String',
@@ -395,7 +395,7 @@ function getFieldFromFatQuery(
   fatQuery: RelayQuery.Node,
   fieldName: string
 ): RelayQuery.Field {
-  var field = fatQuery.getFieldByStorageKey(fieldName);
+  const field = fatQuery.getFieldByStorageKey(fieldName);
   invariant(
     field,
     'RelayMutationQuery: Invalid field name on fat query, `%s`.',
@@ -408,7 +408,7 @@ function buildMutationFragment(
   fatQuery: RelayQuery.Fragment,
   fields: Array<RelayQuery.Node>
 ): ?RelayQuery.Fragment {
-  var fragment = RelayQuery.Fragment.build(
+  const fragment = RelayQuery.Fragment.build(
     'MutationQuery',
     fatQuery.getType(),
     fields
@@ -448,7 +448,7 @@ function buildEdgeField(
   edgeName: string,
   edgeFields: Array<RelayQuery.Node>
 ): RelayQuery.Field {
-  var fields = [
+  const fields = [
     RelayQuery.Field.build({
       fieldName: 'cursor',
       type: 'String',
@@ -479,7 +479,7 @@ function buildEdgeField(
     );
   }
   fields.push(...edgeFields);
-  var edgeField = flattenRelayQuery(RelayQuery.Field.build({
+  const edgeField = flattenRelayQuery(RelayQuery.Field.build({
     children: fields,
     fieldName: edgeName,
     metadata: {canHaveSubselections: true},
@@ -542,7 +542,7 @@ function findDescendantFields(
   rootNode: RelayQuery.Node,
   fieldName: string
 ): Array<RelayQuery.Field> {
-  var fields = [];
+  const fields = [];
   function traverse(node) {
     if (node instanceof RelayQuery.Field) {
       if (node.getSchemaName() === fieldName) {

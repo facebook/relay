@@ -18,7 +18,7 @@ const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryMutation', () => {
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   let input;
   let mutationQuery;
@@ -58,13 +58,13 @@ describe('RelayQueryMutation', () => {
       name: 'commentCreate',
       value: input,
     });
-    var children = mutationQuery.getChildren();
+    const children = mutationQuery.getChildren();
     expect(children.length).toBe(2);
     expect(children[0].getSchemaName()).toBe(
       RelayConnectionInterface.CLIENT_MUTATION_ID
     );
     expect(children[1].getSchemaName()).toBe('feedbackCommentEdge');
-    var edgeChildren = children[1].getChildren();
+    const edgeChildren = children[1].getChildren();
     expect(edgeChildren.length).toBe(3);
     expect(edgeChildren[0].getSchemaName()).toBe('node');
     expect(edgeChildren[1].getSchemaName()).toBe('source');
@@ -72,7 +72,7 @@ describe('RelayQueryMutation', () => {
   });
 
   it('clones mutations', () => {
-    var clone = mutationQuery.clone(mutationQuery.getChildren());
+    let clone = mutationQuery.clone(mutationQuery.getChildren());
     expect(clone).toBe(mutationQuery);
 
     clone = mutationQuery.clone(
@@ -89,7 +89,7 @@ describe('RelayQueryMutation', () => {
   });
 
   it('tests for equality', () => {
-    var equivalentQuery = getNode(Relay.QL`
+    const equivalentQuery = getNode(Relay.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId,
@@ -100,7 +100,7 @@ describe('RelayQueryMutation', () => {
         }
       }
     `, {input});
-    var differentQuery = getNode(Relay.QL`
+    const differentQuery = getNode(Relay.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId,

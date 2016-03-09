@@ -56,14 +56,14 @@ function stableStringify(input: any): string {
   const inputIsArray = Array.isArray(input);
   const inputIsObject = isObject(input);
   if (inputIsArray || inputIsObject) {
-    var keys = Object.keys(input);
+    const keys = Object.keys(input);
     if (keys.length) {
-      var result = [];
+      const result = [];
       keys.sort();
 
-      for (var i = 0; i < keys.length; i++) {
-        var key = keys[i];
-        var value = input[key];
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        let value = input[key];
         if (isObject(value) || Array.isArray(value)) {
           value = stableStringify(value);
         } else {

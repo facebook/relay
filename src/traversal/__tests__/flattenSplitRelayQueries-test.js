@@ -24,7 +24,7 @@ describe('flattenSplitRelayQueries', () => {
   }
 
   it('returns an empty array when there are no queries', () => {
-    var split = {
+    const split = {
       required: null,
       deferred: [],
     };
@@ -32,7 +32,7 @@ describe('flattenSplitRelayQueries', () => {
   });
 
   it('returns a single required query', () => {
-    var split = {
+    const split = {
       required: getQuery(),
       deferred: [],
     };
@@ -40,7 +40,7 @@ describe('flattenSplitRelayQueries', () => {
   });
 
   it('returns a single deferred query', () => {
-    var split = {
+    const split = {
       required: null,
       deferred: [{
         required: getQuery(),
@@ -52,7 +52,7 @@ describe('flattenSplitRelayQueries', () => {
   });
 
   it('returns required then deferred queries', () => {
-    var split = {
+    const split = {
       required: getQuery(),
       deferred: [
         {
@@ -74,7 +74,7 @@ describe('flattenSplitRelayQueries', () => {
   });
 
   it('handles nested deferreds', () => {
-    var split = {
+    const split = {
       required: getQuery(),
       deferred: [
         {

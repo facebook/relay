@@ -58,8 +58,8 @@ class GraphQLStoreChangeEmitter {
     ids: Array<string>,
     callback: SubscriptionCallback
   ): ChangeSubscription {
-    var subscribedIDs = ids.map(id => this._getBroadcastID(id));
-    var index = this._subscribers.length;
+    const subscribedIDs = ids.map(id => this._getBroadcastID(id));
+    const index = this._subscribers.length;
     this._subscribers.push({subscribedIDs, callback});
     return {
       remove: () => {
@@ -69,7 +69,7 @@ class GraphQLStoreChangeEmitter {
   }
 
   broadcastChangeForID(id: string): void {
-    var scheduledIDs = this._scheduledIDs;
+    let scheduledIDs = this._scheduledIDs;
     if (scheduledIDs == null) {
       resolveImmediate(() => this._processBroadcasts());
       scheduledIDs = this._scheduledIDs = {};
@@ -105,9 +105,9 @@ class GraphQLStoreChangeEmitter {
     {subscribedIDs, callback}: Subscriber,
     subscriberIndex: number
   ): void {
-    for (var broadcastID in this._executingIDs) {
+    for (const broadcastID in this._executingIDs) {
       if (this._executingIDs.hasOwnProperty(broadcastID)) {
-        var broadcastIndex = this._executingIDs[broadcastID];
+        const broadcastIndex = this._executingIDs[broadcastID];
         if (broadcastIndex < subscriberIndex) {
           // Callback was subscribed after this particular broadcast.
           break;

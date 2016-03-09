@@ -23,7 +23,7 @@ const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 const serializeRelayQueryCall = require('serializeRelayQueryCall');
 const warning = require('warning');
 
-var {
+const {
   END_CURSOR,
   HAS_NEXT_PAGE,
   HAS_PREV_PAGE,
@@ -35,10 +35,11 @@ var {
  * @return {object}
  */
 function callsArrayToObject(queryCalls) {
-  var calls = {};
-  for (var ii = 0; ii < queryCalls.length; ii++) {
+  const calls = {};
+  for (let ii = 0; ii < queryCalls.length; ii++) {
     if (RelayConnectionInterface.isConnectionCall(queryCalls[ii])) {
-      var {name, value} = queryCalls[ii];
+      const queryCall = queryCalls[ii];
+      let {value} = queryCall;
       // assuming that range calls will only have a single argument
       if (Array.isArray(value) && value.length) {
         value = value[0];
@@ -47,7 +48,7 @@ function callsArrayToObject(queryCalls) {
       if (value === null) {
         continue;
       }
-      calls[name] = value;
+      calls[queryCall.name] = value;
     }
   }
   // update first and last call values to be numbers
@@ -91,8 +92,8 @@ function isStaticCall(calls) {
  * @return {boolean}
  */
 function isValidRangeCall(calls) {
-  var hasFirst = calls.hasOwnProperty('first');
-  var hasLast = calls.hasOwnProperty('last');
+  const hasFirst = calls.hasOwnProperty('first');
+  const hasLast = calls.hasOwnProperty('last');
 
   // Currently only supports: first(), after().first(), last(), before().last()
   // before().first(), after().last(), after().before().first(), and
@@ -208,7 +209,7 @@ class GraphQLRange {
    */
   _getSegmentIndexByCursor(cursor) {
     // TODO: revisit if we end up having too many segments
-    for (var ii = 0; ii < this._orderedSegments.length; ii++) {
+    for (let ii = 0; ii < this._orderedSegments.length; ii++) {
       if (this._orderedSegments[ii].containsEdgeWithCursor(cursor)) {
         return ii;
       }
@@ -222,7 +223,7 @@ class GraphQLRange {
    */
   _getSegmentIndexByID(id) {
     // TODO: revisit if we end up having too many segments
-    for (var ii = 0; ii < this._orderedSegments.length; ii++) {
+    for (let ii = 0; ii < this._orderedSegments.length; ii++) {
       if (this._orderedSegments[ii].containsEdgeWithID(id)) {
         return ii;
       }
@@ -237,12 +238,12 @@ class GraphQLRange {
    * @param {array} edges
    */
   _addStaticEdges(queryCalls, edges) {
-    var calls = _callsToString(queryCalls);
-    var edgeIDsToStore = [];
-    var cursorsToStore = [];
+    const calls = _callsToString(queryCalls);
+    const edgeIDsToStore = [];
+    const cursorsToStore = [];
 
-    for (var ii = 0; ii < edges.length; ii++) {
-      var edge = edges[ii];
+    for (let ii = 0; ii < edges.length; ii++) {
+      const edge = edges[ii];
       edgeIDsToStore.push(RelayRecord.getDataID(edge));
       cursorsToStore.push(edge.cursor);
     }
@@ -262,8 +263,8 @@ class GraphQLRange {
    */
   addItems(queryCalls, edges, pageInfo) {
     validateEdges(edges);
-    var calls = callsArrayToObject(queryCalls);
-    var segmentCount, segmentIndex;
+    const calls = callsArrayToObject(queryCalls);
+    let segmentCount, segmentIndex;
 
     if (isStaticCall(calls)) {
       this._addStaticEdges(queryCalls, edges);
@@ -412,8 +413,8 @@ class GraphQLRange {
       'GraphQLRange cannot concat segments outside the range ' +
       'of orderedSegments'
     );
-    var firstSegment = this._orderedSegments[segmentIndex];
-    var secondSegment = this._orderedSegments[segmentIndex + 1];
+    const firstSegment = this._orderedSegments[segmentIndex];
+    const secondSegment = this._orderedSegments[segmentIndex + 1];
     if (firstSegment.concatSegment(secondSegment)) {
       this._orderedSegments.splice(segmentIndex + 1, 1);
     } else {
@@ -434,7 +435,7 @@ class GraphQLRange {
     validateEdge(edge);
     this._hasFirst = true;
     this._removeEdgeIfApplicable(edge);
-    var segment = this.getFirstSegment();
+    const segment = this.getFirstSegment();
     segment.prependEdge(edge);
   }
 
@@ -447,7 +448,7 @@ class GraphQLRange {
     validateEdge(edge);
     this._hasLast = true;
     this._removeEdgeIfApplicable(edge);
-    var segment = this.getLastSegment();
+    const segment = this.getLastSegment();
     segment.appendEdge(edge);
   }
 
@@ -456,8 +457,8 @@ class GraphQLRange {
    * @param {object} edge
    */
   _removeEdgeIfApplicable(edge) {
-    var id = RelayRecord.getDataID(edge);
-    var index = this._getSegmentIndexByID(id);
+    const id = RelayRecord.getDataID(edge);
+    const index = this._getSegmentIndexByID(id);
     if (index != null) {
       this._orderedSegments[index].removeEdge(id);
     }
@@ -471,7 +472,7 @@ class GraphQLRange {
    * @param {array} edges
    */
   _removeEdgesIfApplicable(edges) {
-    for (var ii = 0; ii < edges.length; ii++) {
+    for (let ii = 0; ii < edges.length; ii++) {
       this._removeEdgeIfApplicable(edges[ii]);
     }
   }
@@ -491,9 +492,9 @@ class GraphQLRange {
     afterCursor,
     beforeCursor
   ) {
-    var segment;
-    var segmentIndex;
-    var lastCursor;
+    let segment;
+    let segmentIndex;
+    let lastCursor;
     if (afterCursor !== undefined) {
       segmentIndex = this._getSegmentIndexByCursor(afterCursor);
       if (segmentIndex == null) {
@@ -578,14 +579,14 @@ class GraphQLRange {
    * @return {?array} trimmed edges
    */
   _reconcileAfterFirstEdges(segment, edges, cursor) {
-    var metadata = segment.getMetadataAfterCursor(edges.length + 1, cursor);
-    var edgeIDs = metadata.edgeIDs;
+    const metadata = segment.getMetadataAfterCursor(edges.length + 1, cursor);
+    const edgeIDs = metadata.edgeIDs;
     if (edgeIDs.length > edges.length) {
       // Already have more edges than the input.
       return undefined;
     }
 
-    for (var ii = 0; ii < edgeIDs.length; ii++) {
+    for (let ii = 0; ii < edgeIDs.length; ii++) {
       if (edgeIDs[ii] !== RelayRecord.getDataID(edges[ii])) {
         warning(
           false,
@@ -613,9 +614,9 @@ class GraphQLRange {
     beforeCursor,
     afterCursor
   ) {
-    var segment;
-    var segmentIndex;
-    var firstCursor;
+    let segment;
+    let segmentIndex;
+    let firstCursor;
     if (beforeCursor !== undefined) {
       segmentIndex = this._getSegmentIndexByCursor(beforeCursor);
       if (segmentIndex == null) {
@@ -698,14 +699,14 @@ class GraphQLRange {
    * @return {?array} trimmed edges
    */
   _reconcileBeforeLastEdges(segment, edges, cursor) {
-    var metadata = segment.getMetadataBeforeCursor(edges.length + 1, cursor);
-    var edgeIDs = metadata.edgeIDs;
+    const metadata = segment.getMetadataBeforeCursor(edges.length + 1, cursor);
+    const edgeIDs = metadata.edgeIDs;
     if (edgeIDs.length > edges.length) {
       // Already have more edges than the input.
       return undefined;
     }
 
-    for (var ii = 1; ii <= edgeIDs.length; ii++) {
+    for (let ii = 1; ii <= edgeIDs.length; ii++) {
       if (edgeIDs[edgeIDs.length - ii] !==
           RelayRecord.getDataID(edges[edges.length - ii])) {
         warning(
@@ -727,7 +728,7 @@ class GraphQLRange {
    * @param {string} id
    */
   removeEdgeWithID(id) {
-    for (var ii = 0; ii < this._orderedSegments.length; ii++) {
+    for (let ii = 0; ii < this._orderedSegments.length; ii++) {
       this._orderedSegments[ii].removeAllEdges(id);
     }
   }
@@ -738,7 +739,7 @@ class GraphQLRange {
    * @return {object} includes fields: requestedEdgeIDs, diffCalls
    */
   retrieveRangeInfoForQuery(queryCalls, queuedRecord) {
-    var calls = callsArrayToObject(queryCalls);
+    const calls = callsArrayToObject(queryCalls);
 
     if (isStaticCall(calls)) {
       return this._retrieveRangeInfoForStaticCalls(
@@ -798,8 +799,8 @@ class GraphQLRange {
    * @return {object} includes fields: requestedEdgeIDs, diffCalls
    */
   _retrieveRangeInfoForStaticCalls(queryCalls) {
-    var calls = _callsToString(queryCalls);
-    var storedInfo = this._staticQueriesMap[calls];
+    const calls = _callsToString(queryCalls);
+    const storedInfo = this._staticQueriesMap[calls];
 
     if (storedInfo) {
       return {
@@ -870,15 +871,15 @@ class GraphQLRange {
       prependEdgeIDs = this._getPrependedIDsForQueuedRecord(queuedRecord);
       removeIDs = this._getRemovedIDsForQueuedRecord(queuedRecord);
     }
-    var calls = callsArrayToObject(queryCalls);
+    const calls = callsArrayToObject(queryCalls);
     let countNeeded = calls.first + (removeIDs ? removeIDs.length : 0);
-    var segment;
-    var segmentIndex;
-    var pageInfo = {
+    let segment;
+    let segmentIndex;
+    const pageInfo = {
       ...RelayConnectionInterface.getDefaultPageInfo(),
     };
 
-    var afterCursor = calls.after;
+    const afterCursor = calls.after;
     if (afterCursor !== undefined) {
       segmentIndex = this._getSegmentIndexByCursor(afterCursor);
       if (segmentIndex == null) {
@@ -901,16 +902,16 @@ class GraphQLRange {
       segment = this._orderedSegments[segmentIndex];
     }
 
-    var requestedMetadata =
+    const requestedMetadata =
       segment.getMetadataAfterCursor(countNeeded, afterCursor);
     var requestedEdgeIDs = requestedMetadata.edgeIDs;
-    var requestedCursors = requestedMetadata.cursors;
+    const requestedCursors = requestedMetadata.cursors;
     var diffCalls = [];
     if (requestedCursors.length) {
       pageInfo[START_CURSOR] = requestedCursors[0];
       pageInfo[END_CURSOR] = requestedCursors[requestedCursors.length - 1];
     }
-    var lastID = requestedEdgeIDs[requestedEdgeIDs.length - 1];
+    const lastID = requestedEdgeIDs[requestedEdgeIDs.length - 1];
     // Only requested segment that does not include very last item from
     // the range can have next page and diff calls
     if (!this._hasLast ||
@@ -919,7 +920,7 @@ class GraphQLRange {
       pageInfo[HAS_NEXT_PAGE] = true;
       if (requestedEdgeIDs.length < countNeeded) {
         countNeeded -= requestedEdgeIDs.length;
-        var lastCursor = segment.getLastCursor();
+        const lastCursor = segment.getLastCursor();
         // If segment has null cursors, retrieve whole range.
         if (lastCursor === null) {
           diffCalls.push({name: 'first', value: calls.first});
@@ -930,8 +931,8 @@ class GraphQLRange {
           // If this is not the last segment, we should not request edges
           // that would overlap the first element of the next segment.
           if (segmentIndex !== this._orderedSegments.length - 1) {
-            var nextSegment = this._orderedSegments[segmentIndex + 1];
-            var firstCursor = nextSegment.getFirstCursor();
+            const nextSegment = this._orderedSegments[segmentIndex + 1];
+            const firstCursor = nextSegment.getFirstCursor();
             if (firstCursor !== undefined) {
               diffCalls.push({name: 'before', value: firstCursor});
             }
@@ -982,15 +983,15 @@ class GraphQLRange {
       prependEdgeIDs = this._getPrependedIDsForQueuedRecord(queuedRecord);
       removeIDs = this._getRemovedIDsForQueuedRecord(queuedRecord);
     }
-    var calls = callsArrayToObject(queryCalls);
+    const calls = callsArrayToObject(queryCalls);
     let countNeeded = calls.last + (removeIDs ? removeIDs.length : 0);
-    var segment;
-    var segmentIndex;
-    var pageInfo = {
+    let segment;
+    let segmentIndex;
+    const pageInfo = {
       ...RelayConnectionInterface.getDefaultPageInfo(),
     };
 
-    var beforeCursor = calls.before;
+    const beforeCursor = calls.before;
     if (beforeCursor !== undefined) {
       segmentIndex = this._getSegmentIndexByCursor(beforeCursor);
       if (segmentIndex == null) {
@@ -1013,16 +1014,16 @@ class GraphQLRange {
       segment = this._orderedSegments[segmentIndex];
     }
 
-    var requestedMetadata =
+    const requestedMetadata =
       segment.getMetadataBeforeCursor(countNeeded, beforeCursor);
     var requestedEdgeIDs = requestedMetadata.edgeIDs;
-    var requestedCursors = requestedMetadata.cursors;
+    const requestedCursors = requestedMetadata.cursors;
     var diffCalls = [];
     if (requestedCursors.length) {
       pageInfo[START_CURSOR] = requestedCursors[0];
       pageInfo[END_CURSOR] = requestedCursors[requestedCursors.length - 1];
     }
-    var firstID = requestedEdgeIDs[0];
+    const firstID = requestedEdgeIDs[0];
     // Only requested segment that does not include very first item from
     // the range can have next page and diff calls
     if (!this._hasFirst ||
@@ -1031,7 +1032,7 @@ class GraphQLRange {
       pageInfo[HAS_PREV_PAGE] = true;
       if (requestedEdgeIDs.length < countNeeded) {
         countNeeded -= requestedEdgeIDs.length;
-        var firstCursor = segment.getFirstCursor();
+        const firstCursor = segment.getFirstCursor();
         // If segment has null cursors, retrieve whole range.
         if (firstCursor === null) {
           diffCalls.push({name: 'last', value: calls.last});
@@ -1042,8 +1043,8 @@ class GraphQLRange {
           // If this is not the first segment, we should not request edges
           // that would overlap the last element of the previous segment.
           if (segmentIndex !== 0) {
-            var prevSegment = this._orderedSegments[segmentIndex - 1];
-            var lastCursor = prevSegment.getLastCursor();
+            const prevSegment = this._orderedSegments[segmentIndex - 1];
+            const lastCursor = prevSegment.getLastCursor();
             if (lastCursor !== undefined) {
               diffCalls.push({name: 'after', value: lastCursor});
             }
@@ -1079,13 +1080,13 @@ class GraphQLRange {
   }
 
   static fromJSON(descriptor) {
-    var [
+    const [
       hasFirst,
       hasLast,
       staticQueriesMap,
       orderedSegments,
     ] = descriptor;
-    var range = new GraphQLRange();
+    const range = new GraphQLRange();
     range._hasFirst = hasFirst;
     range._hasLast = hasLast;
     range._staticQueriesMap = staticQueriesMap;
@@ -1111,7 +1112,7 @@ class GraphQLRange {
   }
 
   getEdgeIDs() {
-    var edgeIDs = [];
+    const edgeIDs = [];
     this._orderedSegments.forEach(segment => {
       edgeIDs.push(...segment.getEdgeIDs());
     });

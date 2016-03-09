@@ -27,15 +27,15 @@ const readRelayQueryData = require('readRelayQueryData');
 const transformRelayQueryPayload = require('transformRelayQueryPayload');
 
 describe('GraphQLStoreQueryResolver', () => {
-  var changeEmitter;
-  var storeData;
+  let changeEmitter;
+  let storeData;
 
-  var dataID;
-  var mockCallback;
-  var mockQueryFragment;
-  var mockPluralQueryFragment;
+  let dataID;
+  let mockCallback;
+  let mockQueryFragment;
+  let mockPluralQueryFragment;
 
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   function mockReader(mockResult) {
     readRelayQueryData.mockImplementation((_, __, dataIDArg) => {
@@ -66,15 +66,15 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should resolve a pointer', () => {
-    var mockResult = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
+    const mockResult = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
     readRelayQueryData.mockReturnValue({data: mockResult});
 
-    var resolver = new GraphQLStoreQueryResolver(
+    const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
       mockCallback
     );
-    var resolved = resolver.resolve(mockQueryFragment, dataID);
+    const resolved = resolver.resolve(mockQueryFragment, dataID);
 
     expect(resolved).toBe(mockResult);
 
@@ -84,48 +84,48 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should subscribe to IDs in resolved pointer', () => {
-    var mockResult = {
+    const mockResult = {
       '1038750002': {__dataID__: '1038750002', id: '1038750002', name: 'Tim'},
     };
     mockReader(mockResult);
 
-    var resolver = new GraphQLStoreQueryResolver(
+    const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
       mockCallback
     );
     resolver.resolve(mockQueryFragment, dataID);
 
-    var addListenersForIDs = changeEmitter.addListenerForIDs;
+    const addListenersForIDs = changeEmitter.addListenerForIDs;
     expect(addListenersForIDs).toBeCalled();
     expect(addListenersForIDs.mock.calls[0][0]).toEqual(['1038750002']);
   });
 
   it('should not re-resolve pointers without change events', () => {
-    var mockResultA = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
-    var mockResultB = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
+    const mockResultA = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
+    const mockResultB = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
 
-    var resolver = new GraphQLStoreQueryResolver(
+    const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
       mockCallback
     );
 
     readRelayQueryData.mockReturnValue({data: mockResultA});
-    var resolvedA = resolver.resolve(mockQueryFragment, dataID);
+    const resolvedA = resolver.resolve(mockQueryFragment, dataID);
 
     readRelayQueryData.mockReturnValue({data: mockResultB});
-    var resolvedB = resolver.resolve(mockQueryFragment, dataID);
+    const resolvedB = resolver.resolve(mockQueryFragment, dataID);
 
     expect(readRelayQueryData.mock.calls.length).toBe(1);
     expect(resolvedA).toBe(resolvedB);
   });
 
   it('should re-resolve pointers with change events', () => {
-    var mockResultA = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
-    var mockResultB = {__dataID__: '1038750002', id: '1038750002', name: 'Tee'};
+    const mockResultA = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
+    const mockResultB = {__dataID__: '1038750002', id: '1038750002', name: 'Tee'};
 
-    var resolver = new GraphQLStoreQueryResolver(
+    const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
       mockCallback
@@ -134,15 +134,15 @@ describe('GraphQLStoreQueryResolver', () => {
     mockReader({
       [mockResultA.id]: mockResultA,
     });
-    var resolvedA = resolver.resolve(mockQueryFragment, dataID);
+    const resolvedA = resolver.resolve(mockQueryFragment, dataID);
 
-    var callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
+    const callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
     callback(['1038750002']);
 
     mockReader({
       [mockResultB.id]: mockResultB,
     });
-    var resolvedB = resolver.resolve(mockQueryFragment, dataID);
+    const resolvedB = resolver.resolve(mockQueryFragment, dataID);
 
     expect(readRelayQueryData.mock.calls.length).toBe(2);
     expect(resolvedA).toBe(mockResultA);
@@ -150,10 +150,10 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should re-resolve pointers whose calls differ', () => {
-    var dataIDA = 'client:123_first(10)';
-    var dataIDB = 'client:123_first(20)';
+    const dataIDA = 'client:123_first(10)';
+    const dataIDB = 'client:123_first(20)';
 
-    var resolver = new GraphQLStoreQueryResolver(
+    const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
       mockCallback
@@ -170,11 +170,11 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should invoke the callback when change events fire', () => {
-    var mockResult = {
+    const mockResult = {
       '1038750002': {__dataID__: '1038750002', id: '1038750002', name: 'Tim'},
     };
 
-    var resolver = new GraphQLStoreQueryResolver(
+    const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
       mockCallback
@@ -183,26 +183,26 @@ describe('GraphQLStoreQueryResolver', () => {
     mockReader(mockResult);
     resolver.resolve(mockQueryFragment, dataID);
 
-    var callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
+    const callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
     callback(['1038750002']);
 
     expect(mockCallback).toBeCalled();
   });
 
   it('should resolve an array of pointers', () => {
-    var mockResults = {
+    const mockResults = {
       '1': {__dataID__: '1', name: 'One'},
       '2': {__dataID__: '2', name: 'Two'},
     };
     mockReader(mockResults);
 
-    var resolver = new GraphQLStoreQueryResolver(
+    const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockPluralQueryFragment,
       mockCallback
     );
 
-    var resolved = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
+    const resolved = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
     expect(resolved.length).toBe(2);
     expect(resolved[0]).toBe(mockResults['1']);
     expect(resolved[1]).toBe(mockResults['2']);
@@ -212,44 +212,44 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should not re-resolve if the pointer array has no changes', () => {
-    var mockResults = {
+    const mockResults = {
       '1': {__dataID__: '1', name: 'One'},
       '2': {__dataID__: '2', name: 'Two'},
     };
     mockReader(mockResults);
 
-    var resolver = new GraphQLStoreQueryResolver(
+    const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockPluralQueryFragment,
       mockCallback
     );
 
-    var resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
-    var resolvedB = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
+    const resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
+    const resolvedB = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
 
     expect(resolvedA).toBe(resolvedB);
   });
 
   it('should only re-resolve pointers with changes in an array', () => {
-    var mockResults = {
+    const mockResults = {
       '1': {__dataID__: '1', name: 'One'},
       '2': {__dataID__: '2', name: 'Two'},
     };
     mockReader(mockResults);
 
-    var resolver = new GraphQLStoreQueryResolver(
+    const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockPluralQueryFragment,
       mockCallback
     );
 
-    var resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
+    const resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
 
     mockResults['1'] = {__dataID__: '1', name: 'Won'};
-    var callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
+    const callback = changeEmitter.addListenerForIDs.mock.calls[0][1];
     callback(['1']);
 
-    var resolvedB = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
+    const resolvedB = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
 
     expect(resolvedA).not.toBe(resolvedB);
 
@@ -262,20 +262,20 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should create a new array if the pointer array shortens', () => {
-    var mockResults = {
+    const mockResults = {
       '1': {__dataID__: '1', name: 'One'},
       '2': {__dataID__: '2', name: 'Two'},
     };
     mockReader(mockResults);
 
-    var resolver = new GraphQLStoreQueryResolver(
+    const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockPluralQueryFragment,
       mockCallback
     );
 
-    var resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
-    var resolvedB = resolver.resolve(mockPluralQueryFragment, ['1']);
+    const resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
+    const resolvedB = resolver.resolve(mockPluralQueryFragment, ['1']);
 
     expect(resolvedA).not.toBe(resolvedB);
 
@@ -299,7 +299,7 @@ describe('GraphQLStoreQueryResolver', () => {
           }
         }
       `);
-      let concreteFragment = Relay.QL`
+      const concreteFragment = Relay.QL`
         fragment on Viewer {
           actor {
             id

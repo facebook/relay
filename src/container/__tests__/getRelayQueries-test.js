@@ -22,12 +22,12 @@ const RelayTestUtils = require('RelayTestUtils');
 const getRelayQueries = require('getRelayQueries');
 
 describe('getRelayQueries', () => {
-  var MockPageContainer;
-  var MockPageComponent;
+  let MockPageContainer;
+  let MockPageComponent;
 
-  var makeRoute;
+  let makeRoute;
 
-  var {getNode} = RelayTestUtils;
+  const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -78,11 +78,11 @@ describe('getRelayQueries', () => {
   });
 
   it('creates a query for a component given a route', () => {
-    var MockRoute = makeRoute();
-    var route = new MockRoute({id: '123'});
-    var queries = getRelayQueries(MockPageContainer, route);
+    const MockRoute = makeRoute();
+    const route = new MockRoute({id: '123'});
+    const queries = getRelayQueries(MockPageContainer, route);
 
-    var expected = {
+    const expected = {
       first: getNode(Relay.QL`
         query {
           node(id: "123") {
@@ -107,9 +107,9 @@ describe('getRelayQueries', () => {
   });
 
   it('omits queries with undefined root call values', () => {
-    var MockRoute = makeRoute();
-    var route = new MockRoute({id: undefined});
-    var queries = getRelayQueries(MockPageContainer, route);
+    const MockRoute = makeRoute();
+    const route = new MockRoute({id: undefined});
+    const queries = getRelayQueries(MockPageContainer, route);
 
     expect(queries).toEqual({
       first: null,
@@ -123,7 +123,7 @@ describe('getRelayQueries', () => {
     FirstRoute.queries = {
       first: () => Relay.QL`query { node(id:"123") }`,
     };
-    var route = new FirstRoute({});
+    const route = new FirstRoute({});
     var queries = getRelayQueries(MockPageContainer, route);
 
     expect(queries.last).toBe(null);
@@ -135,7 +135,7 @@ describe('getRelayQueries', () => {
     BadRoute.queries = {
       first: () => Relay.QL`fragment on Node{id}`,
     };
-    var badRoute = new BadRoute({});
+    const badRoute = new BadRoute({});
 
     expect(() => {
       getRelayQueries(MockPageContainer, badRoute);
@@ -146,16 +146,16 @@ describe('getRelayQueries', () => {
   });
 
   it('warns if a container does not include a required fragment', () => {
-    var MockRoute = makeRoute();
-    var route = new MockRoute({id: '123'});
+    const MockRoute = makeRoute();
+    const route = new MockRoute({id: '123'});
 
-    var AnotherMockContainer = Relay.createContainer(MockPageComponent, {
+    const AnotherMockContainer = Relay.createContainer(MockPageComponent, {
       fragments: {
         first: () => Relay.QL`fragment on Node{id}`,
       },
     });
 
-    var queries = getRelayQueries(AnotherMockContainer, route);
+    const queries = getRelayQueries(AnotherMockContainer, route);
     expect(queries.last).toBe(undefined);
 
     expect([
@@ -181,12 +181,12 @@ describe('getRelayQueries', () => {
       `,
     };
 
-    var route = new MockRoute({
+    const route = new MockRoute({
       fragmentParam: 'foo',
       otherParam: 'bar',
     });
 
-    var AnotherMockContainer = Relay.createContainer(MockPageComponent, {
+    const AnotherMockContainer = Relay.createContainer(MockPageComponent, {
       initialVariables: {
         fragmentParam: null,
       },

@@ -25,13 +25,13 @@ const RelayTestUtils = require('RelayTestUtils');
 const diffRelayQuery = require('diffRelayQuery');
 
 describe('diffRelayQuery - fragments', () => {
-  var RelayRecordStore;
-  var RelayRecordWriter;
+  let RelayRecordStore;
+  let RelayRecordWriter;
 
-  var {getNode, writePayload} = RelayTestUtils;
-  var HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
+  const {getNode, writePayload} = RelayTestUtils;
+  let HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
 
-  var rootCallMap = {
+  const rootCallMap = {
     'viewer': {'': 'client:1'},
   };
 
@@ -46,12 +46,12 @@ describe('diffRelayQuery - fragments', () => {
   });
 
   it('removes matching fragments with fetched fields', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var writer = new RelayRecordWriter(records, {}, false);
-    var tracker = new RelayQueryTracker();
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const writer = new RelayRecordWriter(records, {}, false);
+    const tracker = new RelayQueryTracker();
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -60,7 +60,7 @@ describe('diffRelayQuery - fragments', () => {
         }
       }
     `);
-    var payload = {
+    const payload = {
       node: {
         id: '123',
         __typename: 'User',
@@ -69,18 +69,18 @@ describe('diffRelayQuery - fragments', () => {
     };
     writePayload(store, writer, query, payload, tracker);
 
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
   });
 
   it('tracks fragments for null linked fields', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var writer = new RelayRecordWriter(records, {}, false);
-    var tracker = new RelayQueryTracker();
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const writer = new RelayRecordWriter(records, {}, false);
+    const tracker = new RelayQueryTracker();
 
     // Create the first query with a selection on a linked field.
-    var firstQuery = getNode(Relay.QL`
+    const firstQuery = getNode(Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -92,7 +92,7 @@ describe('diffRelayQuery - fragments', () => {
       }
     `);
 
-    var firstPayload = {
+    const firstPayload = {
       node: {
         id: '123',
         __typename: 'User',
@@ -101,14 +101,14 @@ describe('diffRelayQuery - fragments', () => {
       },
     };
     writePayload(store, writer, firstQuery, firstPayload, tracker);
-    var trackedQueries = tracker.trackNodeForID.mock.calls;
+    let trackedQueries = tracker.trackNodeForID.mock.calls;
     expect(trackedQueries.length).toBe(1);
     expect(trackedQueries[0][1]).toBe('123');
     expect(trackedQueries[0][0]).toEqualQueryRoot(firstQuery);
 
     // Create a second query that requests a different selection on the null
     // linked field.
-    var secondQuery = getNode(Relay.QL`
+    const secondQuery = getNode(Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -121,7 +121,7 @@ describe('diffRelayQuery - fragments', () => {
     `);
 
     // Everything can be diffed out, linked field is null.
-    var diffQueries = diffRelayQuery(secondQuery, store, tracker);
+    const diffQueries = diffRelayQuery(secondQuery, store, tracker);
     expect(diffQueries.length).toBe(0);
 
     // Ensure the new `address { city }` field is tracked.
@@ -132,12 +132,12 @@ describe('diffRelayQuery - fragments', () => {
   });
 
   it('refetches matching fragments with missing fields', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var writer = new RelayRecordWriter(records, {}, false);
-    var tracker = new RelayQueryTracker();
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const writer = new RelayRecordWriter(records, {}, false);
+    const tracker = new RelayQueryTracker();
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -147,7 +147,7 @@ describe('diffRelayQuery - fragments', () => {
         }
       }
     `);
-    var payload = {
+    const payload = {
       node: {
         id: '123',
         __typename: 'User',
@@ -156,7 +156,7 @@ describe('diffRelayQuery - fragments', () => {
     };
     writePayload(store, writer, query, payload, tracker);
 
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
       query {
@@ -170,12 +170,12 @@ describe('diffRelayQuery - fragments', () => {
   });
 
   it('removes non-matching fragments if other fields are fetched', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var writer = new RelayRecordWriter(records, {}, false);
-    var tracker = new RelayQueryTracker();
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const writer = new RelayRecordWriter(records, {}, false);
+    const tracker = new RelayQueryTracker();
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -187,7 +187,7 @@ describe('diffRelayQuery - fragments', () => {
         }
       }
     `);
-    var payload = {
+    const payload = {
       node: {
         id: '123',
         __typename: 'User',
@@ -196,17 +196,17 @@ describe('diffRelayQuery - fragments', () => {
     };
     writePayload(store, writer, query, payload, tracker);
 
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
   });
 
   it('refetches non-matching fragments if other fields are missing', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var writer = new RelayRecordWriter(records, {}, false);
-    var tracker = new RelayQueryTracker();
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const writer = new RelayRecordWriter(records, {}, false);
+    const tracker = new RelayQueryTracker();
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -219,7 +219,7 @@ describe('diffRelayQuery - fragments', () => {
         }
       }
     `);
-    var payload = {
+    const payload = {
       node: {
         id: '123',
         __typename: 'User',
@@ -228,7 +228,7 @@ describe('diffRelayQuery - fragments', () => {
     };
     writePayload(store, writer, query, payload, tracker);
 
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
       query {
@@ -245,12 +245,12 @@ describe('diffRelayQuery - fragments', () => {
   });
 
   it('removes non-matching fragments if connection fields are fetched', () => {
-    var records = {};
-    var store = new RelayRecordStore({records}, {rootCallMap});
-    var writer = new RelayRecordWriter(records, rootCallMap, false);
-    var tracker = new RelayQueryTracker();
+    const records = {};
+    const store = new RelayRecordStore({records}, {rootCallMap});
+    const writer = new RelayRecordWriter(records, rootCallMap, false);
+    const tracker = new RelayQueryTracker();
 
-    var payload = {
+    const payload = {
       viewer: {
         newsFeed: {
           edges: [
@@ -270,7 +270,7 @@ describe('diffRelayQuery - fragments', () => {
         },
       },
     };
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         viewer {
           newsFeed(first:"1") {
@@ -294,19 +294,19 @@ describe('diffRelayQuery - fragments', () => {
     `);
     writePayload(store, writer, query, payload, tracker);
 
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
   });
 
   it(
     'refetches non-matching fragments if connection fields are missing',
     () => {
-      var records = {};
-      var store = new RelayRecordStore({records}, {rootCallMap});
-      var writer = new RelayRecordWriter(records, rootCallMap, false);
-      var tracker = new RelayQueryTracker();
+      const records = {};
+      const store = new RelayRecordStore({records}, {rootCallMap});
+      const writer = new RelayRecordWriter(records, rootCallMap, false);
+      const tracker = new RelayQueryTracker();
 
-      var payload = {
+      const payload = {
         viewer: {
           newsFeed: {
             edges: [
@@ -328,7 +328,7 @@ describe('diffRelayQuery - fragments', () => {
           },
         },
       };
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           viewer {
             newsFeed(first:"1") {
@@ -353,7 +353,7 @@ describe('diffRelayQuery - fragments', () => {
       `);
       writePayload(store, writer, query, payload, tracker);
 
-      var diffQueries = diffRelayQuery(query, store, tracker);
+      const diffQueries = diffRelayQuery(query, store, tracker);
       expect(diffQueries.length).toBe(1);
       expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
       query {

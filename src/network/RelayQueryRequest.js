@@ -62,7 +62,7 @@ class RelayQueryRequest extends Deferred<QueryResult, Error> {
    * and sent in the GraphQL request.
    */
   getVariables(): Variables {
-    var printedQuery = this._printedQuery;
+    let printedQuery = this._printedQuery;
     if (!printedQuery) {
       printedQuery = printRelayQuery(this._query);
       this._printedQuery = printedQuery;
@@ -76,7 +76,7 @@ class RelayQueryRequest extends Deferred<QueryResult, Error> {
    * Gets a string representation of the GraphQL query.
    */
   getQueryString(): string {
-    var printedQuery = this._printedQuery;
+    let printedQuery = this._printedQuery;
     if (!printedQuery) {
       printedQuery = printRelayQuery(this._query);
       this._printedQuery = printedQuery;

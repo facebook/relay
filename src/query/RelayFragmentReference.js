@@ -105,7 +105,7 @@ class RelayFragmentReference {
     variableMapping?: ?VariableMapping,
     prepareVariables?: ?PrepareVariablesCallback
   ): RelayFragmentReference {
-    var reference = new RelayFragmentReference(
+    const reference = new RelayFragmentReference(
       fragmentGetter,
       initialVariables,
       variableMapping,

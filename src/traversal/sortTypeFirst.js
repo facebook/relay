@@ -13,7 +13,7 @@
 
 'use strict';
 
-var TYPE = '__type__';
+const TYPE = '__type__';
 
 function sortTypeFirst(a: string, b: string): number {
   if (a === b) {

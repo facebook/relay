@@ -24,7 +24,7 @@ const {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
 
 describe('RelayRecordWriter', () => {
 
-  var HAS_NEXT_PAGE, HAS_PREV_PAGE;
+  let HAS_NEXT_PAGE, HAS_PREV_PAGE;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -153,8 +153,8 @@ describe('RelayRecordWriter', () => {
     });
 
     it('writes fields optimistically', () => {
-      var records = {};
-      var store =
+      const records = {};
+      const store =
         new RelayRecordWriter(records, {}, true, null, null, 'mutationID');
 
       store.putRecord('b', 'Type');
@@ -178,8 +178,8 @@ describe('RelayRecordWriter', () => {
     });
 
     it('deletes fields', () => {
-      var cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
-      var store = new RelayRecordWriter({}, {}, false, null, cache);
+      const cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
+      const store = new RelayRecordWriter({}, {}, false, null, cache);
       store.putRecord('1', 'Type');
       store.putRecord('2', 'Type');
 
@@ -200,8 +200,8 @@ describe('RelayRecordWriter', () => {
     });
 
     it('deletes fields optimistically', () => {
-      var records = {};
-      var store =
+      const records = {};
+      const store =
         new RelayRecordWriter(records, {}, true, null, null, 'mutationID');
 
       store.putRecord('b', 'Type');
@@ -215,7 +215,7 @@ describe('RelayRecordWriter', () => {
 
   describe('putLinkedRecordID()', () => {
     it('throws if either record does not exist', () => {
-      var store = new RelayRecordWriter({}, {}, false);
+      const store = new RelayRecordWriter({}, {}, false);
       store.putRecord('1', 'Type');
       expect(() => {
         store.putLinkedRecordID('2', 'link', '1');
@@ -232,8 +232,8 @@ describe('RelayRecordWriter', () => {
     });
 
     it('writes links between records', () => {
-      var cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
-      var store = new RelayRecordWriter({}, {}, false, null, cache);
+      const cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
+      const store = new RelayRecordWriter({}, {}, false, null, cache);
       store.putRecord('viewerID', 'Type');
       store.putRecord('actorID', 'Type');
       store.putLinkedRecordID('viewerID', 'actor', 'actorID');
@@ -244,8 +244,8 @@ describe('RelayRecordWriter', () => {
     });
 
     it('writes linked record optimistically', () => {
-      var records = {};
-      var store =
+      const records = {};
+      const store =
         new RelayRecordWriter(records, {}, true, null, null, 'mutationID');
 
       store.putRecord('a', 'Type');
@@ -261,7 +261,7 @@ describe('RelayRecordWriter', () => {
 
   describe('putLinkedRecordIDs()', () => {
     it('throws if either record does not exist', () => {
-      var store = new RelayRecordWriter({}, {}, false);
+      const store = new RelayRecordWriter({}, {}, false);
       store.putRecord('1', 'Type');
       expect(() => {
         store.putLinkedRecordIDs('2', 'link', ['1']);
@@ -278,8 +278,8 @@ describe('RelayRecordWriter', () => {
     });
 
     it('writes one-to-n links between records', () => {
-      var cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
-      var store = new RelayRecordWriter({}, {}, false, null, cache);
+      const cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
+      const store = new RelayRecordWriter({}, {}, false, null, cache);
       store.putRecord('storyID', 'Type');
       store.putRecord('actor1', 'Type');
       store.putRecord('actor2', 'Type');
@@ -293,8 +293,8 @@ describe('RelayRecordWriter', () => {
     });
 
     it('writes linked records optimistically', () => {
-      var records = {};
-      var store =
+      const records = {};
+      const store =
         new RelayRecordWriter(records, {}, true, null, null, 'mutationID');
 
       store.putRecord('a', 'Type');
@@ -310,7 +310,7 @@ describe('RelayRecordWriter', () => {
 
   describe('putRange()', () => {
     it('throws if the record does not exist', () => {
-      var store = new RelayRecordWriter({}, {}, false);
+      const store = new RelayRecordWriter({}, {}, false);
       expect(() => {
         store.putRange('1', []);
       }).toFailInvariant(
@@ -320,9 +320,9 @@ describe('RelayRecordWriter', () => {
     });
 
     it('creates ranges if not defined', () => {
-      var cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
-      var records = {};
-      var store = new RelayRecordWriter(records, {}, false, null, cache);
+      const cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
+      const records = {};
+      const store = new RelayRecordWriter(records, {}, false, null, cache);
       store.putRecord('1', 'Type');
       store.putRange('1', []);
       expect(records['1'].__range__ instanceof GraphQLRange).toBe(true);
@@ -334,14 +334,14 @@ describe('RelayRecordWriter', () => {
     });
 
     it('overwrites ranges if present',  () => {
-      var cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
-      var records = {};
-      var store = new RelayRecordWriter(records, {}, false, null, cache);
+      const cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
+      const records = {};
+      const store = new RelayRecordWriter(records, {}, false, null, cache);
       store.putRecord('1', 'Type');
       store.putRange('1', []);
-      var range1 = records['1'].__range__;
+      const range1 = records['1'].__range__;
       store.putRange('1', []);
-      var range2 = records['1'].__range__;
+      const range2 = records['1'].__range__;
       expect(range2 instanceof GraphQLRange).toBe(true);
       expect(range1).not.toBe(range2);
       expect(cache.writeField).toBeCalledWith(
@@ -362,9 +362,9 @@ describe('RelayRecordWriter', () => {
     });
 
     it('sets the force index for the new range', () => {
-      var cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
-      var records = {};
-      var store = new RelayRecordWriter(records, {}, false, null, cache);
+      const cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
+      const records = {};
+      const store = new RelayRecordWriter(records, {}, false, null, cache);
       expect(store.getRangeForceIndex('1')).toBe(0); // not in store yet
       store.putRecord('1', 'Type');
       store.putRange('1', []);
@@ -379,8 +379,8 @@ describe('RelayRecordWriter', () => {
     });
 
     it('returns a negative force index for deleted ranges', () => {
-      var records = {};
-      var store = new RelayRecordWriter(records, {}, false);
+      const records = {};
+      const store = new RelayRecordWriter(records, {}, false);
       store.putRecord('1', 'Type');
       store.putRange('1', []);
       store.deleteRecord('1');
@@ -389,10 +389,10 @@ describe('RelayRecordWriter', () => {
     });
 
     it('sets the filter calls for a range', () => {
-      var cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
-      var records = {};
-      var store = new RelayRecordWriter(records, {}, false, null, cache);
-      var calls = [
+      const cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
+      const records = {};
+      const store = new RelayRecordWriter(records, {}, false, null, cache);
+      const calls = [
         {
           name: 'orderby',
           value: 'TOP_STORIES',
@@ -415,7 +415,7 @@ describe('RelayRecordWriter', () => {
 
   describe('putRangeEdges()', () => {
     it('throws if the record or range does not exist', () => {
-      var store = new RelayRecordWriter({}, {}, false);
+      const store = new RelayRecordWriter({}, {}, false);
       expect(() => {
         store.putRangeEdges('1', [], {}, []);
       }).toFailInvariant(
@@ -432,12 +432,12 @@ describe('RelayRecordWriter', () => {
     });
 
     it('adds edges to the range', () => {
-      var connectionID = '1';
-      var cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
-      var records = {};
-      var nodeConnectionMap = {};
-      var store = new RelayRecordStore({records}, null, nodeConnectionMap);
-      var writer = new RelayRecordWriter(
+      const connectionID = '1';
+      const cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
+      const records = {};
+      const nodeConnectionMap = {};
+      const store = new RelayRecordStore({records}, null, nodeConnectionMap);
+      const writer = new RelayRecordWriter(
         records,
         {},
         false,
@@ -446,14 +446,14 @@ describe('RelayRecordWriter', () => {
       );
       writer.putRecord(connectionID, 'Type');
       writer.putRange(connectionID, []);
-      var pageInfo = {
+      const pageInfo = {
         [HAS_NEXT_PAGE]: true,
         [HAS_PREV_PAGE]: false,
       };
-      var calls = [{name: 'first', value: 3}];
-      var edges = [];
-      var nodes = [];
-      for (var ii = 0; ii < 3; ii++) {
+      const calls = [{name: 'first', value: 3}];
+      const edges = [];
+      const nodes = [];
+      for (let ii = 0; ii < 3; ii++) {
         var edgeID = 'edge' + ii;
         var nodeID = 'node' + ii;
         writer.putRecord(edgeID, 'Type');
@@ -476,7 +476,7 @@ describe('RelayRecordWriter', () => {
           .toEqual([connectionID]);
       });
 
-      var rangeInfo = store.getRangeMetadata(connectionID, calls);
+      const rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.diffCalls).toEqual([]);
       expect(rangeInfo.filterCalls).toEqual([]);
       expect(rangeInfo.filteredEdges).toEqual([
@@ -493,24 +493,23 @@ describe('RelayRecordWriter', () => {
   });
 
   describe('applyRangeUpdate()', () => {
-    var cache;
-    var connectionID;
-    var firstEdgeID;
-    var firstNodeID;
-    var lastEdgeID;
-    var nodeConnectionMap;
-    var optimisticWriter;
-    var queuedRecords;
-    var records;
-    var store;
-    var writer;
+    let cache;
+    let connectionID;
+    let firstEdgeID;
+    let firstNodeID;
+    let lastEdgeID;
+    let optimisticWriter;
+    let queuedRecords;
+    let records;
+    let store;
+    let writer;
 
-    var _inc = 0;
+    let _inc = 0;
     function addEdgeToStore(writerArg) {
-      var index = _inc++;
-      var edgeID = 'edge:' + index;
-      var nodeID = 'node:' + index;
-      var cursor = 'cursor:' + index;
+      const index = _inc++;
+      const edgeID = 'edge:' + index;
+      const nodeID = 'node:' + index;
+      const cursor = 'cursor:' + index;
 
       writerArg.putRecord(edgeID, 'Type');
       writerArg.putRecord(nodeID, 'Type');
@@ -524,7 +523,7 @@ describe('RelayRecordWriter', () => {
       records = {};
       queuedRecords = {};
       cache = RelayMockCacheManager.genCacheManager().getQueryWriter();
-      nodeConnectionMap = {};
+      const nodeConnectionMap = {};
       store = new RelayRecordStore(
         {records, queuedRecords},
         null,
@@ -553,7 +552,7 @@ describe('RelayRecordWriter', () => {
       optimisticWriter.putRecord(connectionID, 'Type');
 
       // ...with a first edge
-      var edge = addEdgeToStore(writer);
+      let edge = addEdgeToStore(writer);
       firstEdgeID = edge.edgeID;
       firstNodeID = edge.nodeID;
       writer.putRangeEdges(
@@ -585,7 +584,7 @@ describe('RelayRecordWriter', () => {
     });
 
     it('throws if the connection does not exist', () => {
-      var {edgeID} = addEdgeToStore(writer);
+      const {edgeID} = addEdgeToStore(writer);
       expect(() => {
         writer.applyRangeUpdate('client:does.not.exist', edgeID, PREPEND);
       }).toFailInvariant(
@@ -595,12 +594,12 @@ describe('RelayRecordWriter', () => {
     });
 
     it('prepends edges to base stores', () => {
-      var {edgeID, nodeID} = addEdgeToStore(writer);
+      const {edgeID, nodeID} = addEdgeToStore(writer);
       writer.applyRangeUpdate(connectionID, edgeID, PREPEND);
 
       // contains prepended edge
-      var calls = [{name: 'first', value: 2}];
-      var rangeInfo = store.getRangeMetadata(connectionID, calls);
+      const calls = [{name: 'first', value: 2}];
+      const rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         edgeID,
         firstEdgeID,
@@ -614,7 +613,7 @@ describe('RelayRecordWriter', () => {
     });
 
     it('optimistically prepends edges to queued stores', () => {
-      var {edgeID} = addEdgeToStore(optimisticWriter);
+      const {edgeID} = addEdgeToStore(optimisticWriter);
       optimisticWriter.applyRangeUpdate(
         connectionID,
         edgeID,
@@ -622,8 +621,8 @@ describe('RelayRecordWriter', () => {
       );
 
       // contains prepended edge
-      var calls = [{name: 'first', value: 2}];
-      var rangeInfo = store.getRangeMetadata(connectionID, calls);
+      const calls = [{name: 'first', value: 2}];
+      const rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         edgeID,
         firstEdgeID,
@@ -642,12 +641,12 @@ describe('RelayRecordWriter', () => {
     });
 
     it('appends edges to base stores', () => {
-      var {edgeID, nodeID} = addEdgeToStore(writer);
+      const {edgeID, nodeID} = addEdgeToStore(writer);
       writer.applyRangeUpdate(connectionID, edgeID, APPEND);
 
       // contains appended edge
-      var calls = [{name: 'last', value: 2}];
-      var rangeInfo = store.getRangeMetadata(connectionID, calls);
+      const calls = [{name: 'last', value: 2}];
+      const rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         lastEdgeID,
         edgeID,
@@ -661,7 +660,7 @@ describe('RelayRecordWriter', () => {
     });
 
     it('optimistically appends edges to queued stores', () => {
-      var {edgeID, nodeID} = addEdgeToStore(optimisticWriter);
+      const {edgeID, nodeID} = addEdgeToStore(optimisticWriter);
       optimisticWriter.applyRangeUpdate(
         connectionID,
         edgeID,
@@ -669,8 +668,8 @@ describe('RelayRecordWriter', () => {
       );
 
       // contains appended edge
-      var calls = [{name: 'last', value: 2}];
-      var rangeInfo = store.getRangeMetadata(connectionID, calls);
+      const calls = [{name: 'last', value: 2}];
+      const rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         lastEdgeID,
         edgeID,
@@ -696,8 +695,8 @@ describe('RelayRecordWriter', () => {
       writer.applyRangeUpdate(connectionID, firstEdgeID, REMOVE);
 
       // does not contain removed edge
-      var calls = [{name: 'first', value: 2}];
-      var rangeInfo = store.getRangeMetadata(connectionID, calls);
+      const calls = [{name: 'first', value: 2}];
+      const rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.filteredEdges).toEqual([]);
       expect(store.getConnectionIDsForRecord(firstNodeID)).toEqual(null);
       expect(cache.writeField).toBeCalledWith(
@@ -715,8 +714,8 @@ describe('RelayRecordWriter', () => {
       );
 
       // does not contain removed edge
-      var calls = [{name: 'first', value: 2}];
-      var rangeInfo = store.getRangeMetadata(connectionID, calls);
+      const calls = [{name: 'first', value: 2}];
+      const rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.filteredEdges).toEqual([]);
       // cache not updated on optimistic range update
       expect(cache.writeField).not.toBeCalledWith(
@@ -736,26 +735,26 @@ describe('RelayRecordWriter', () => {
     });
 
     it('deletes optimistically prepended edges from queued stores', () => {
-      var {edgeID} = addEdgeToStore(optimisticWriter);
+      const {edgeID} = addEdgeToStore(optimisticWriter);
       optimisticWriter.applyRangeUpdate(connectionID, edgeID, PREPEND);
       optimisticWriter.applyRangeUpdate(connectionID, edgeID, REMOVE);
 
       // does not contain prepended & removed edge
-      var calls = [{name: 'first', value: 1}];
-      var rangeInfo = store.getRangeMetadata(connectionID, calls);
+      const calls = [{name: 'first', value: 1}];
+      const rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         firstEdgeID,
       ]);
     });
 
     it('deletes optimistically appended edges from queued stores', () => {
-      var {edgeID} = addEdgeToStore(optimisticWriter);
+      const {edgeID} = addEdgeToStore(optimisticWriter);
       optimisticWriter.applyRangeUpdate(connectionID, edgeID, APPEND);
       optimisticWriter.applyRangeUpdate(connectionID, edgeID, REMOVE);
 
       // does not contain prepended & removed edge
-      var calls = [{name: 'last', value: 1}];
-      var rangeInfo = store.getRangeMetadata(connectionID, calls);
+      const calls = [{name: 'last', value: 1}];
+      const rangeInfo = store.getRangeMetadata(connectionID, calls);
       expect(rangeInfo.filteredEdges.map(edge => edge.edgeID)).toEqual([
         lastEdgeID,
       ]);

@@ -9,12 +9,12 @@
 
 'use strict';
 
-var GraphQLStoreChangeEmitter = jest.genMockFromModule('GraphQLStoreChangeEmitter');
+const GraphQLStoreChangeEmitter = jest.genMockFromModule('GraphQLStoreChangeEmitter');
 
 GraphQLStoreChangeEmitter.mockImplementation(function() {
   this.addListenerForIDs.mock.remove = [];
   this.addListenerForIDs.mockImplementation(() => {
-    var returnValue = {remove: jest.genMockFunction()};
+    const returnValue = {remove: jest.genMockFunction()};
     this.addListenerForIDs.mock.remove.push(
       returnValue.remove
     );

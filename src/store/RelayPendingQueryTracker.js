@@ -124,7 +124,7 @@ class PendingFetch {
       storeData: RelayStoreData;
     }
   ) {
-    var queryID = query.getID();
+    const queryID = query.getID();
     this._dependents = [];
     this._forceIndex = forceIndex;
     this._pendingDependencyMap = {};
@@ -135,7 +135,7 @@ class PendingFetch {
     this._resolvedSubtractedQuery = false;
     this._storeData = storeData;
 
-    var subtractedQuery;
+    let subtractedQuery;
     if (fetchMode === RelayFetchMode.PRELOAD) {
       subtractedQuery = query;
       this._fetchSubtractedQueryPromise = this._preloadQueryMap.get(queryID);
@@ -208,7 +208,7 @@ class PendingFetch {
         return false;
       }
       if (containsRelayQueryRootCall(pending.query, query)) {
-        var subtractedQuery = subtractRelayQuery(query, pending.query);
+        const subtractedQuery = subtractRelayQuery(query, pending.query);
         if (subtractedQuery !== query) {
           query = subtractedQuery;
           this._addPendingDependency(pending.fetch);
@@ -220,7 +220,7 @@ class PendingFetch {
   }
 
   _addPendingDependency(pendingFetch: PendingFetch): void {
-    var queryID = pendingFetch.getQuery().getID();
+    const queryID = pendingFetch.getQuery().getID();
     this._pendingDependencyMap[queryID] = pendingFetch;
     pendingFetch._addDependent(this);
   }
@@ -236,7 +236,7 @@ class PendingFetch {
     this._fetchedSubtractedQuery = true;
 
     this._storeData.getTaskQueue().enqueue(() => {
-      var response = result.response;
+      const response = result.response;
       invariant(
         response && typeof response === 'object',
         'RelayPendingQueryTracker: Expected response to be an object, got ' +
@@ -262,7 +262,7 @@ class PendingFetch {
   }
 
   _markSubtractedQueryAsResolved(): void {
-    var queryID = this.getQuery().getID();
+    const queryID = this.getQuery().getID();
     delete this._pendingFetchMap[queryID];
 
     this._resolvedSubtractedQuery = true;
@@ -274,7 +274,7 @@ class PendingFetch {
   }
 
   _markAsRejected(error: Error): void {
-    var queryID = this.getQuery().getID();
+    const queryID = this.getQuery().getID();
     delete this._pendingFetchMap[queryID];
 
     console.warn(error.message);

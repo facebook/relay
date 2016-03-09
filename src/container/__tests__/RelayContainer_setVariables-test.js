@@ -24,15 +24,15 @@ const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.setVariables', function() {
-  var MockComponent;
-  var MockContainer;
+  let MockComponent;
+  let MockContainer;
 
-  var defaultState;
-  var domContainer;
-  var entityQuery;
-  var mockInstance;
-  var environment;
-  var render;
+  let defaultState;
+  let domContainer;
+  let entityQuery;
+  let mockInstance;
+  let environment;
+  let render;
 
   const {getNode, getPointer} = RelayTestUtils;
 
@@ -47,7 +47,7 @@ describe('RelayContainer.setVariables', function() {
 
     // Make RQLTransform ignore this call.
     MockComponent = React.createClass({render});
-    var createContainer = Relay.createContainer;
+    const createContainer = Relay.createContainer;
     MockContainer = createContainer(MockComponent, {
       fragments: {
         entity: entityQuery,
@@ -100,7 +100,7 @@ describe('RelayContainer.setVariables', function() {
           },
         }];
       });
-      var pluralEntityQuery = jest.genMockFunction().mockImplementation(
+      const pluralEntityQuery = jest.genMockFunction().mockImplementation(
         () => Relay.QL`
           fragment on Node @relay(plural:true) {
             url(site: $site)
@@ -137,8 +137,8 @@ describe('RelayContainer.setVariables', function() {
         ];
       });
 
-      var fragment = getNode(MockContainer.getFragment('entity').getFragment());
-      var mockPointers = [
+      const fragment = getNode(MockContainer.getFragment('entity').getFragment());
+      const mockPointers = [
         getPointer('21', fragment),
         getPointer('42', fragment),
       ];
@@ -156,12 +156,12 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.forceFetch();
 
       expect(environment.forceFetch).toBeCalled();
-      var querySet = environment.forceFetch.mock.calls[0][0];
+      const querySet = environment.forceFetch.mock.calls[0][0];
       expect(Object.keys(querySet)).toEqual(['entity0', 'entity1']);
     });
 
     it('creates queries only for records with dataIDs', () => {
-      var updatedQueryData = [
+      const updatedQueryData = [
         {__dataID__: '21', id: '21', url: '//www'},
         {id:'1336', name: 'Fake data', url: '//www'},
       ];
@@ -174,7 +174,7 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.forceFetch();
       environment.forceFetch.mock.requests[0].succeed();
       mockInstance.forceFetch();
-      var querySet = environment.forceFetch.mock.calls[1][0];
+      const querySet = environment.forceFetch.mock.calls[1][0];
       expect(Object.keys(querySet)).toEqual(['entity0']);
     });
 
@@ -182,7 +182,7 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
-      var updatedQueryData = [
+      const updatedQueryData = [
         {__dataID__: '21', id: '21', url: '//www'},
         {__dataID__: '42', id: '42', url: '//www'},
       ];
@@ -196,7 +196,7 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('throws when the queryData is not an array', () => {
-      var updatedQueryData = {__dataID__: '21', id: '21', url: '//www'};
+      const updatedQueryData = {__dataID__: '21', id: '21', url: '//www'};
       GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
         return updatedQueryData;
       });
@@ -235,7 +235,7 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('lets props override default variables', () => {
-      var anotherInstance = RelayTestUtils.createRenderer().render(
+      const anotherInstance = RelayTestUtils.createRenderer().render(
         genMockPointer => (
           <MockContainer entity={genMockPointer('42')} site="www" />
         ),
@@ -256,7 +256,7 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('updates `variables` after callback when data is ready', () => {
-      var mockCallback = jest.genMockFunction();
+      const mockCallback = jest.genMockFunction();
       mockInstance.setVariables({site: 'www'}, mockCallback);
       jest.runAllTimers();
 
@@ -273,7 +273,7 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
-      var updatedQueryData = {__dataID__: '42', id: '42', url: '//www'};
+      const updatedQueryData = {__dataID__: '42', id: '42', url: '//www'};
       GraphQLStoreQueryResolver.mockDefaultResolveImplementation(fragment => {
         expect(fragment.getVariables()).toEqual({site: 'www'});
         return updatedQueryData;
@@ -299,7 +299,7 @@ describe('RelayContainer.setVariables', function() {
 
       environment.primeCache.mock.requests[0].block();
 
-      var mockCallback = jest.genMockFunction();
+      const mockCallback = jest.genMockFunction();
       mockInstance.setVariables({site: 'mobile'}, mockCallback);
       jest.runAllTimers();
 
@@ -311,7 +311,7 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.setVariables({site: 'mobile'});
       jest.runAllTimers();
 
-      var {mock} = environment.primeCache;
+      const {mock} = environment.primeCache;
       expect(mock.calls.length).toBe(1);
       expect(Object.keys(mock.calls[0][0]).length).toBe(0);
     });
@@ -331,7 +331,7 @@ describe('RelayContainer.setVariables', function() {
       mockInstance.forceFetch({site: 'mobile'});
       jest.runAllTimers();
 
-      var {mock} = environment.forceFetch;
+      const {mock} = environment.forceFetch;
       expect(mock.calls.length).toBe(1);
       expect(Object.keys(mock.calls[0][0]).length).toBe(1);
     });
@@ -350,13 +350,13 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('invokes the callback as many times as ready state changes', () => {
-      var mockFunction = jest.genMockFunction().mockImplementation(function() {
+      const mockFunction = jest.genMockFunction().mockImplementation(function() {
         expect(this.constructor).toBe(MockComponent);
       });
       mockInstance.setVariables({site: 'www'}, mockFunction);
       jest.runAllTimers();
 
-      var request = environment.primeCache.mock.requests[0];
+      const request = environment.primeCache.mock.requests[0];
       request.block();
       request.succeed();
 
@@ -367,7 +367,7 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('invokes the callback with the component as `this`', () => {
-      var mockFunction = jest.genMockFunction().mockImplementation(function() {
+      const mockFunction = jest.genMockFunction().mockImplementation(function() {
         expect(this.constructor).toBe(MockComponent);
       });
       mockInstance.setVariables({site: 'www'}, mockFunction);
@@ -379,7 +379,7 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('reconciles only once even if callback calls `setState`', () => {
-      var before = render.mock.calls.length;
+      const before = render.mock.calls.length;
 
       mockInstance.setVariables({site: 'www'}, function() {
         this.setState({isLoaded: true});
@@ -392,7 +392,7 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('does not mutate previous `variables`', () => {
-      var prevVariables = mockInstance.state.variables;
+      const prevVariables = mockInstance.state.variables;
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
@@ -404,7 +404,7 @@ describe('RelayContainer.setVariables', function() {
   });
 
   describe('prepareVariables()', () => {
-    var prepareVariables;
+    let prepareVariables;
 
     beforeEach(() => {
       entityQuery = jest.genMockFunction().mockImplementation(
@@ -417,7 +417,7 @@ describe('RelayContainer.setVariables', function() {
 
       // Make RQLTransform ignore this call.
       MockComponent = React.createClass({render});
-      var createContainer = Relay.createContainer;
+      const createContainer = Relay.createContainer;
       MockContainer = createContainer(MockComponent, {
         fragments: {
           entity: entityQuery,
@@ -432,20 +432,20 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('calls `prepareVariables` when `setVariables` is called', () => {
-      var nextVariables = {site: 'mobile'};
+      const nextVariables = {site: 'mobile'};
       prepareVariables.mockImplementation((variables, route) => nextVariables);
       mockInstance.setVariables({site: 'www'});
 
-      var calls = prepareVariables.mock.calls[1];
+      const calls = prepareVariables.mock.calls[1];
       expect(calls[0]).toEqual({site: 'www'});
       expect(calls[1]).toBe(
         RelayMetaRoute.get(mockInstance.context.route.name)
       );
 
       // `prepareVariables` output is used to prime the cache...
-      var queries = environment.primeCache.mock.calls[0][0];
-      var query = queries[Object.keys(queries)[0]];
-      var fragment = query.getChildren().find(
+      const queries = environment.primeCache.mock.calls[0][0];
+      const query = queries[Object.keys(queries)[0]];
+      const fragment = query.getChildren().find(
         child => child instanceof RelayQuery.Fragment
       );
       expect(fragment.getVariables()).toEqual(nextVariables);
@@ -468,7 +468,7 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('ignores `setState` from callback when request aborts', () => {
-      var mockCallback = jest.genMockFunction()
+      const mockCallback = jest.genMockFunction()
         .mockImplementation(readyState => {
           if (readyState.mounted) {
             this.setState({isAborted: true});
@@ -497,7 +497,7 @@ describe('RelayContainer.setVariables', function() {
         }
       }
 
-      var MockInnerContainer = Relay.createContainer(MockInnerComponent, {
+      const MockInnerContainer = Relay.createContainer(MockInnerComponent, {
         fragments: {
           entity: () => Relay.QL`fragment on Node{url(site:$site)}`,
         },
@@ -529,7 +529,7 @@ describe('RelayContainer.setVariables', function() {
         genMockPointer => <MockContainer entity={genMockPointer('42')} />,
         environment
       );
-      var innerComponent = mockInstance.refs.component.refs.inner;
+      const innerComponent = mockInstance.refs.component.refs.inner;
       expect(innerComponent.state.variables.site).toBe('mobile');
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
@@ -547,7 +547,7 @@ describe('RelayContainer.setVariables', function() {
         }
       }
 
-      var MockInnerContainer = Relay.createContainer(MockInnerComponent, {
+      const MockInnerContainer = Relay.createContainer(MockInnerComponent, {
         fragments: {
           entity: () => Relay.QL`  fragment on Actor {
                         url(site:$site),
@@ -587,7 +587,7 @@ describe('RelayContainer.setVariables', function() {
         genMockPointer => <MockContainer entity={genMockPointer('42')} />,
         environment
       );
-      var innerComponent = mockInstance.refs.component.refs.inner;
+      const innerComponent = mockInstance.refs.component.refs.inner;
       expect(innerComponent.state.variables.site).toBe('mobile');
 
       innerComponent.setVariables({size: 32});

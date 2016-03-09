@@ -7,16 +7,16 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var buildGraphQLSpec = require('./buildGraphQLSpec');
-var fs = require('fs-extra');
-var glob = require('glob');
-var mkdirp = require('mkdirp');
-var optimist = require('optimist');
-var path = require('path');
-var argv = optimist.argv;
+const buildGraphQLSpec = require('./buildGraphQLSpec');
+const fs = require('fs-extra');
+const glob = require('glob');
+const mkdirp = require('mkdirp');
+const optimist = require('optimist');
+const path = require('path');
+const argv = optimist.argv;
 
 function splitHeader(content) {
-  var lines = content.split('\n');
+  const lines = content.split('\n');
   for (var i = 1; i < lines.length - 1; ++i) {
     if (lines[i] === '---') {
       break;
@@ -29,7 +29,7 @@ function splitHeader(content) {
 }
 
 function backtickify(str) {
-  var escaped = str
+  const escaped = str
     .replace(/\\/g, '\\\\')
     .replace(/`/g, '\\`')
     // Don't treat literal ${...} as template substitutions in docs
@@ -41,30 +41,30 @@ function backtickify(str) {
 }
 
 function execute() {
-  var MD_DIR = '../docs/';
+  const MD_DIR = '../docs/';
 
   glob.sync('src/relay/{docs,graphql}').forEach(function(file) {
     fs.removeSync(file);
     fs.mkdirsSync(file);
   });
 
-  var metadatas = {
+  const metadatas = {
     files: [],
   };
 
   glob.sync(MD_DIR + '**/*.*').forEach(function(file) {
-    var extension = path.extname(file);
+    const extension = path.extname(file);
     if (extension === '.md' || extension === '.markdown') {
       var content = fs.readFileSync(file, {encoding: 'utf8'});
-      var metadata = {};
+      const metadata = {};
 
       // Extract markdown metadata header
-      var both = splitHeader(content);
-      var lines = both.header.split('\n');
-      for (var i = 0; i < lines.length - 1; ++i) {
-        var keyvalue = lines[i].split(':');
-        var key = keyvalue[0].trim();
-        var value = keyvalue.slice(1).join(':').trim();
+      const both = splitHeader(content);
+      const lines = both.header.split('\n');
+      for (let i = 0; i < lines.length - 1; ++i) {
+        const keyvalue = lines[i].split(':');
+        const key = keyvalue[0].trim();
+        let value = keyvalue.slice(1).join(':').trim();
         // Handle the case where you have "Community #10"
         try { value = JSON.parse(value); } catch(e) { }
         metadata[key] = value;
@@ -77,7 +77,7 @@ function execute() {
       }
 
       // Create a dummy .js version that just calls the associated layout
-      var layout = metadata.layout[0].toUpperCase() + metadata.layout.substr(1) + 'Layout';
+      const layout = metadata.layout[0].toUpperCase() + metadata.layout.substr(1) + 'Layout';
 
       var content = (
         '/**\n' +
@@ -99,7 +99,7 @@ function execute() {
         'module.exports = Post;\n'
       );
 
-      var targetFile = 'src/relay/' + metadata.permalink.replace(/\.html$/, '.js');
+      const targetFile = 'src/relay/' + metadata.permalink.replace(/\.html$/, '.js');
       mkdirp.sync(targetFile.replace(new RegExp('/[^/]*$'), ''));
       fs.writeFileSync(targetFile, content);
     }

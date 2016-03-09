@@ -13,7 +13,7 @@
 
 'use strict';
 
-var invariant = require('invariant');
+const invariant = require('invariant');
 
 type TaskCallback = () => void;
 export type TaskExecutor = () => void;
@@ -131,7 +131,7 @@ class RelayTaskQueue {
   }
 
   _createTaskExecutor(callback: TaskCallback): TaskExecutor {
-    var invoked = false;
+    let invoked = false;
     return () => {
       invariant(!invoked, 'RelayTaskQueue: Tasks can only be executed once.');
       invoked = true;
@@ -142,7 +142,7 @@ class RelayTaskQueue {
   }
 
   _invokeWithinScopedQueue(callback: TaskCallback): void {
-    var originalQueue = this._queue;
+    const originalQueue = this._queue;
     this._queue = [];
     try {
       callback();
@@ -158,7 +158,7 @@ class RelayTaskQueue {
     }
     if (this._queue.length) {
       this._running = true;
-      var executeTask = this._createTaskExecutor(this._queue.shift());
+      const executeTask = this._createTaskExecutor(this._queue.shift());
       if (this._schedule) {
         this._schedule(executeTask);
       } else {

@@ -21,10 +21,10 @@ const Relay = require('Relay');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
-  var RelayRecordStore;
-  var RelayRecordWriter;
+  let RelayRecordStore;
+  let RelayRecordWriter;
 
-  var {getNode, writePayload} = RelayTestUtils;
+  const {getNode, writePayload} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -35,16 +35,16 @@ describe('writeRelayQueryPayload()', () => {
 
   describe('plural linked fields', () => {
     it('creates empty linked records', () => {
-      var records = {
+      const records = {
         '123': {
           __dataID__: '123',
           id: '123',
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
 
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -55,41 +55,41 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           __typename: 'User',
           id: '123',
           allPhones: [],
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
           '123': true,
         },
       });
-      var phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
+      const phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
       expect(phoneIDs).toEqual([]);
     });
 
     it('creates linked records', () => {
-      var records = {
+      const records = {
         '123': {
           __dataID__: '123',
           id: '123',
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var phone = {
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const phone = {
         isVerified: true,
         phoneNumber: {
           displayNumber: '1-800-555-1212', // directory assistance
           countryCode: '1',
         },
       };
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -102,14 +102,14 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           __typename: 'User',
           id: '123',
           allPhones: [phone],
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {
           'client:1': true,
@@ -119,13 +119,13 @@ describe('writeRelayQueryPayload()', () => {
           '123': true,
         },
       });
-      var phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
+      const phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
       expect(phoneIDs).toEqual(['client:1']);
-      var phoneID = phoneIDs[0];
+      const phoneID = phoneIDs[0];
       expect(store.getRecordState(phoneID)).toBe('EXISTENT');
       expect(store.getField(phoneID, 'id')).toBe(undefined);
       expect(store.getField(phoneID, 'isVerified')).toBe(true);
-      var phoneNumberID = store.getLinkedRecordID(phoneID, 'phoneNumber');
+      const phoneNumberID = store.getLinkedRecordID(phoneID, 'phoneNumber');
       expect(phoneNumberID).toBe('client:2');
       expect(store.getField(phoneNumberID, 'displayNumber'))
         .toBe(phone.phoneNumber.displayNumber);
@@ -134,14 +134,14 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('updates if response changes', () => {
-      var phone = {
+      const phone = {
         isVerified: true,
         phoneNumber: {
           displayNumber: '1-800-555-1212',
           countryCode: '1',
         },
       };
-      var records = {
+      const records = {
         '123': {
           __dataID__: '123',
           __typename: 'User',
@@ -162,16 +162,16 @@ describe('writeRelayQueryPayload()', () => {
           countryCode: phone.phoneNumber.countryCode,
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var newPhone = {
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const newPhone = {
         isVerified: true,
         phoneNumber: {
           displayNumber: '1-800-555-1212',
           countryCode: '*',                 // *changed*
         },
       };
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -184,14 +184,14 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           __typename: 'User',
           id: '123',
           allPhones: [newPhone],
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
@@ -199,13 +199,13 @@ describe('writeRelayQueryPayload()', () => {
           'client:2': true,
         },
       });
-      var phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
+      const phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
       expect(phoneIDs).toEqual(['client:1']);
-      var phoneID = phoneIDs[0];
+      const phoneID = phoneIDs[0];
       expect(store.getRecordState(phoneID)).toBe('EXISTENT');
       expect(store.getField(phoneID, 'id')).toBe(undefined);
       expect(store.getField(phoneID, 'isVerified')).toBe(true);
-      var phoneNumberID = store.getLinkedRecordID(phoneID, 'phoneNumber');
+      const phoneNumberID = store.getLinkedRecordID(phoneID, 'phoneNumber');
       expect(phoneNumberID).toBe('client:2');
       expect(store.getField(phoneNumberID, 'displayNumber'))
         .toBe(phone.phoneNumber.displayNumber);
@@ -214,7 +214,7 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('updates if length changes', () => {
-      var records = {
+      const records = {
         '123': {
           __dataID__: '123',
           __typename: 'User',
@@ -235,9 +235,9 @@ describe('writeRelayQueryPayload()', () => {
           countryCode: '2',
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -249,7 +249,7 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           __typename: 'User',
           id: '123',
@@ -259,26 +259,26 @@ describe('writeRelayQueryPayload()', () => {
           }],
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {
           '123': true,
         },
       });
-      var phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
+      const phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
       expect(phoneIDs).toEqual(['client:1']);
     });
 
     it('does not update if response does not change', () => {
-      var phone = {
+      const phone = {
         isVerified: true,
         phoneNumber: {
           displayNumber: '1-800-555-1212',
           countryCode: '1',
         },
       };
-      var records = {
+      const records = {
         '123': {
           __dataID__: '123',
           __typename: 'User',
@@ -299,9 +299,9 @@ describe('writeRelayQueryPayload()', () => {
           countryCode: phone.phoneNumber.countryCode,
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -314,25 +314,25 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           __typename: 'User',
           id: '123',
           allPhones: [phone],
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {},
       });
-      var phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
+      const phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
       expect(phoneIDs).toEqual(['client:1']);
-      var phoneID = phoneIDs[0];
+      const phoneID = phoneIDs[0];
       expect(store.getRecordState(phoneID)).toBe('EXISTENT');
       expect(store.getField(phoneID, 'id')).toBe(undefined);
       expect(store.getField(phoneID, 'isVerified')).toBe(true);
-      var phoneNumberID = store.getLinkedRecordID(phoneID, 'phoneNumber');
+      const phoneNumberID = store.getLinkedRecordID(phoneID, 'phoneNumber');
       expect(phoneNumberID).toBe('client:2');
       expect(store.getField(phoneNumberID, 'displayNumber'))
         .toBe(phone.phoneNumber.displayNumber);
@@ -341,7 +341,7 @@ describe('writeRelayQueryPayload()', () => {
     });
 
     it('does not update if response remains empty', () => {
-      var records = {
+      const records = {
         '123': {
           __dataID__: '123',
           __typename: 'User',
@@ -349,10 +349,10 @@ describe('writeRelayQueryPayload()', () => {
           allPhones: [],
         },
       };
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
 
-      var query = getNode(Relay.QL`
+      const query = getNode(Relay.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -363,27 +363,27 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           __typename: 'User',
           id: '123',
           allPhones: [],
         },
       };
-      var results = writePayload(store, writer, query, payload);
+      const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
         created: {},
         updated: {},
       });
-      var phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
+      const phoneIDs = store.getLinkedRecordIDs('123', 'allPhones');
       expect(phoneIDs).toEqual([]);
     });
 
     it('records the concrete type if `__typename` is present', () => {
-      var records = {};
-      var store = new RelayRecordStore({records});
-      var writer = new RelayRecordWriter(records, {}, false);
-      var query = getNode(Relay.QL`
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
         query {
           node(id: "1") {
             actors {
@@ -393,7 +393,7 @@ describe('writeRelayQueryPayload()', () => {
           }
         }
       `);
-      var payload = {
+      const payload = {
         node: {
           id: '1',
           actors: [{

@@ -27,7 +27,7 @@ const IS_TRUSTED = (
   /^(127\.0\.0\.1|localhost)/.test(document.location.host)
 );
 
-var sourceWasInjected = false;
+let sourceWasInjected = false;
 
 function setHash(object) {
   // Caution: setting it to nothing causes the page to jump to the top, hence /.
@@ -36,9 +36,9 @@ function setHash(object) {
 
 // Don't trust location.hash not to have been unencoded by the browser
 var hash = window.location.href.split('#')[1];
-var queryParams = queryString.parse(hash);
+let queryParams = queryString.parse(hash);
 
-var {
+let {
   cacheKey,
   noCache,
 } = queryParams;
@@ -48,13 +48,13 @@ if (noCache) {
 } else if (!cacheKey) {
   cacheKey = DEFAULT_CACHE_KEY;
 }
-var appSourceCacheKey = `rp-${cacheKey}-source`;
-var schemaSourceCacheKey = `rp-${cacheKey}-schema`;
+const appSourceCacheKey = `rp-${cacheKey}-source`;
+const schemaSourceCacheKey = `rp-${cacheKey}-schema`;
 
-var initialAppSource;
-var initialSchemaSource;
-var storedAppSource = localStorage.getItem(appSourceCacheKey);
-var storedSchemaSource = localStorage.getItem(schemaSourceCacheKey);
+let initialAppSource;
+let initialSchemaSource;
+const storedAppSource = localStorage.getItem(appSourceCacheKey);
+const storedSchemaSource = localStorage.getItem(schemaSourceCacheKey);
 if (noCache) {
   // Use case #1
   // We use the noCache param to force a playground to have certain contents.
@@ -114,7 +114,7 @@ if (noCache) {
 }
 setHash(queryParams);
 
-var mountPoint = document.createElement('div');
+const mountPoint = document.createElement('div');
 document.body.appendChild(mountPoint);
 
 ReactDOM.render(

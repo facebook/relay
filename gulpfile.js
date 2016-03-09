@@ -9,26 +9,26 @@
 
 'use strict';
 
-var babel = require('gulp-babel');
-var babelPluginDEV = require('fbjs-scripts/babel/dev-expression');
-var babelPluginModules = require('fbjs-scripts/babel/rewrite-modules');
-var babelPluginAutoImporter = require('fbjs-scripts/babel/auto-importer');
-var del = require('del');
-var derequire = require('gulp-derequire');
-var flatten = require('gulp-flatten');
-var gulp = require('gulp');
-var gulpUtil = require('gulp-util');
-var header = require('gulp-header');
-var objectAssign = require('object-assign');
-var runSequence = require('run-sequence');
-var webpackStream = require('webpack-stream');
+const babel = require('gulp-babel');
+const babelPluginDEV = require('fbjs-scripts/babel/dev-expression');
+const babelPluginModules = require('fbjs-scripts/babel/rewrite-modules');
+const babelPluginAutoImporter = require('fbjs-scripts/babel/auto-importer');
+const del = require('del');
+const derequire = require('gulp-derequire');
+const flatten = require('gulp-flatten');
+const gulp = require('gulp');
+const gulpUtil = require('gulp-util');
+const header = require('gulp-header');
+const objectAssign = require('object-assign');
+const runSequence = require('run-sequence');
+const webpackStream = require('webpack-stream');
 
-var DEVELOPMENT_HEADER = [
+const DEVELOPMENT_HEADER = [
   '/**',
   ' * Relay v<%= version %>',
   ' */',
 ].join('\n') + '\n';
-var PRODUCTION_HEADER = [
+const PRODUCTION_HEADER = [
   '/**',
   ' * Relay v<%= version %>',
   ' *',
@@ -42,7 +42,7 @@ var PRODUCTION_HEADER = [
   ' */',
 ].join('\n') + '\n';
 
-var babelOpts = {
+const babelOpts = {
   nonStandard: true,
   loose: [
     'es6.classes',
@@ -69,8 +69,8 @@ var babelOpts = {
   }),
 };
 
-var buildDist = function(opts) {
-  var webpackOpts = {
+const buildDist = function(opts) {
+  const webpackOpts = {
     debug: opts.debug,
     externals: {
       'react': 'React',
@@ -112,7 +112,7 @@ var buildDist = function(opts) {
   });
 };
 
-var paths = {
+const paths = {
   dist: 'dist',
   entry: 'lib/Relay.js',
   lib: 'lib',
@@ -136,7 +136,7 @@ gulp.task('modules', function() {
 });
 
 gulp.task('dist', ['modules'], function() {
-  var distOpts = {
+  const distOpts = {
     debug: true,
     output: 'relay.js',
   };
@@ -150,7 +150,7 @@ gulp.task('dist', ['modules'], function() {
 });
 
 gulp.task('dist:min', ['modules'], function() {
-  var distOpts = {
+  const distOpts = {
     debug: false,
     output: 'relay.min.js',
   };
@@ -163,8 +163,8 @@ gulp.task('dist:min', ['modules'], function() {
 });
 
 gulp.task('website:check-version', function(cb) {
-  var version = require('./package').version;
-  var websiteVersion = require('./website/core/SiteData').version;
+  const version = require('./package').version;
+  const websiteVersion = require('./website/core/SiteData').version;
   if (websiteVersion !== version) {
     return cb(
       new Error('Website version does not match package.json. Saw ' + websiteVersion + ' but expected ' + version)

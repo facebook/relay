@@ -13,7 +13,7 @@
 
 'use strict';
 
-var hasOwnProperty = Object.prototype.hasOwnProperty;
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 /**
  * Returns two arrays of keys that contain each object's exclusive keys.
@@ -22,8 +22,8 @@ function filterExclusiveKeys(
   a: ?Object,
   b: ?Object
 ): [Array<string>, Array<string>] {
-  var keysA = a ? Object.keys(a) : [];
-  var keysB = b ? Object.keys(b) : [];
+  const keysA = a ? Object.keys(a) : [];
+  const keysB = b ? Object.keys(b) : [];
 
   if (keysA.length === 0 ||
       keysB.length === 0) {

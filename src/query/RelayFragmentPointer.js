@@ -62,7 +62,7 @@ const RelayFragmentPointer = {
     record: Record,
     fragment: RelayQuery.Fragment
   ): ?DataID {
-    let fragmentMap = record.__fragments__;
+    const fragmentMap = record.__fragments__;
     if (typeof fragmentMap === 'object' && fragmentMap != null) {
       return fragmentMap[fragment.getConcreteFragmentID()];
     }

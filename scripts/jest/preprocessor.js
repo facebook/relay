@@ -10,17 +10,17 @@
 // TODO: sync babel config with gulpfile. There are differences (eg, we don't
 // want to use the DEV plugin).
 
-var assign = require('object-assign');
-var babel = require('babel-core');
-var babelDefaultOptions = require('fbjs-scripts/babel/default-options');
-var createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
-var fs = require('fs');
-var getBabelRelayPlugin = require('../babel-relay-plugin');
-var path = require('path');
+const assign = require('object-assign');
+const babel = require('babel-core');
+const babelDefaultOptions = require('fbjs-scripts/babel/default-options');
+const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
+const fs = require('fs');
+const getBabelRelayPlugin = require('../babel-relay-plugin');
+const path = require('path');
 
-var SCHEMA_PATH = path.resolve(__dirname, 'testschema.json');
+const SCHEMA_PATH = path.resolve(__dirname, 'testschema.json');
 
-var graphQLPlugin = getBabelRelayPlugin(
+const graphQLPlugin = getBabelRelayPlugin(
   JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8')).data,
   {
     substituteVariables: true,
@@ -36,7 +36,7 @@ function fixModules(list) {
   return list;
 }
 
-var babelOptions = assign(
+const babelOptions = assign(
   {},
   babelDefaultOptions,
   {

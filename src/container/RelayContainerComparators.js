@@ -88,7 +88,7 @@ function isNonQueryPropEqual(
  * Relay-aware comparators for props and state provide a reasonable default
  * implementation of `shouldComponentUpdate`.
  */
-var RelayContainerComparators = {
+const RelayContainerComparators = {
   areQueryResultsEqual(
     fragmentPointers: Object,
     prevQueryData: Object,

@@ -7,11 +7,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var React = require('React');
-var Site = require('Site');
-var SiteData = require('SiteData');
+const React = require('React');
+const Site = require('Site');
+const SiteData = require('SiteData');
 
-var index = React.createClass({
+const index = React.createClass({
   render: function() {
     return (
       <Site>

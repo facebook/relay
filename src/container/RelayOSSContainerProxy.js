@@ -18,7 +18,7 @@ import type {RelayContainer} from 'RelayTypes';
 /**
  * This feature is deprecated and unavailable in open source.
  */
-var RelayOSSContainerProxy = {
+const RelayOSSContainerProxy = {
   proxyMethods(
     Container: RelayContainer,
     Component: ReactClass

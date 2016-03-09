@@ -167,7 +167,7 @@ class RelayEnvironment {
   ): Array<?StoreReaderData> {
     const queuedStore = this._storeData.getQueuedStore();
     const storageKey = root.getStorageKey();
-    var results = [];
+    const results = [];
     forEachRootCallArg(root, ({identifyingArgKey}) => {
       let data;
       const dataID = queuedStore.getDataID(storageKey, identifyingArgKey);

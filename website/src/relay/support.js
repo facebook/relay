@@ -13,12 +13,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-var React = require('React');
-var Site = require('Site');
-var center = require('center');
-var H2 = require('H2');
+const React = require('React');
+const Site = require('Site');
+const center = require('center');
+const H2 = require('H2');
 
-var support = React.createClass({
+const support = React.createClass({
   render: function() {
     return (
       <Site section="support" title="Relay Support">

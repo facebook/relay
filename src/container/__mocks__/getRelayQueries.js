@@ -9,6 +9,6 @@
 
 'use strict';
 
-var getRelayQueries = require.requireActual('getRelayQueries');
+const getRelayQueries = require.requireActual('getRelayQueries');
 
 module.exports = jest.genMockFunction().mockImplementation(getRelayQueries);

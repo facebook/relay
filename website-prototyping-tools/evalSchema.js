@@ -11,7 +11,7 @@
 
 import {transform} from 'babel-core';
 
-var GraphQL = require('graphql');
+const GraphQL = require('graphql');
 var GraphQLRelay = require('graphql-relay');
 
 export default function(source) {
@@ -24,6 +24,6 @@ export default function(source) {
       default: throw new Error(`Cannot find module "${path}"`);
     }
   }
-  var {code} = transform(source, {ast: false, code: true});
+  const {code} = transform(source, {ast: false, code: true});
   return eval(code);
 }

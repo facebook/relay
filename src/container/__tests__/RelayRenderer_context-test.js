@@ -23,7 +23,6 @@ const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 
 describe('RelayRenderer.context', () => {
-  let MockComponent;
   let MockContainer;
 
   let queryConfig;
@@ -32,7 +31,7 @@ describe('RelayRenderer.context', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    MockComponent = React.createClass({render: () => <div />});
+    const MockComponent = React.createClass({render: () => <div />});
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });

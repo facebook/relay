@@ -24,10 +24,10 @@ const RelayTestUtils = require('RelayTestUtils');
 const diffRelayQuery = require('diffRelayQuery');
 
 describe('diffRelayQuery', () => {
-  var RelayRecordStore;
-  var RelayRecordWriter;
+  let RelayRecordStore;
+  let RelayRecordWriter;
 
-  var {getNode, writePayload} = RelayTestUtils;
+  const {getNode, writePayload} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModuleRegistry();
@@ -39,11 +39,11 @@ describe('diffRelayQuery', () => {
   });
 
   it('keeps queries if the root dataID is unknown', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const tracker = new RelayQueryTracker();
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         username(name:"joe") {
           id,
@@ -52,17 +52,17 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
 
   it('returns original query if all fields unfetched', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var tracker = new RelayQueryTracker();
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const tracker = new RelayQueryTracker();
 
-    var query = getNode(Relay.QL`
+    const query = getNode(Relay.QL`
       query {
         node(id:"123") {
           id,
@@ -71,25 +71,25 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var diffQueries = diffRelayQuery(query, store, tracker);
+    const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
   });
 
   it('keeps unfetched scalar fields', () => {
-    var records = {};
-    var store = new RelayRecordStore({records});
-    var writer = new RelayRecordWriter(records, {}, false);
-    var tracker = new RelayQueryTracker();
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const writer = new RelayRecordWriter(records, {}, false);
+    const tracker = new RelayQueryTracker();
 
-    var writeQuery = getNode(Relay.QL`
+    const writeQuery = getNode(Relay.QL`
       query {
         node(id:"123") {
           firstName
         }
       }
     `);
-    var payload = {
+    const payload = {
       node: {
         id: '123',
         firstName: 'Joe',
@@ -98,7 +98,7 @@ describe('diffRelayQuery', () => {
     };
     writePayload(store, writer, writeQuery, payload, tracker);
 
-    var fetchQuery = getNode(Relay.QL`
+    const fetchQuery = getNode(Relay.QL`
       query {
         node(id:"123") {
           id,
@@ -107,7 +107,7 @@ describe('diffRelayQuery', () => {
         }
       }
     `);
-    var diffQueries = diffRelayQuery(fetchQuery, store, tracker);
+    const diffQueries = diffRelayQuery(fetchQuery, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
       query {

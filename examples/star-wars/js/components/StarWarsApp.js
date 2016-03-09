@@ -25,7 +25,7 @@ class StarWarsApp extends React.Component {
   }
 
   handleAddShip() {
-    var name = this.state.shipName;
+    const name = this.state.shipName;
     Relay.Store.update(
       new AddShipMutation({
         name,
@@ -48,7 +48,7 @@ class StarWarsApp extends React.Component {
   }
 
   render() {
-    var {factions} = this.props;
+    const {factions} = this.props;
     return (
       <div>
         <ol>

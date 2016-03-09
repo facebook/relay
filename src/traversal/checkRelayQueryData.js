@@ -44,9 +44,9 @@ function checkRelayQueryData(
   query: RelayQuery.Root
 ): boolean {
 
-  var checker = new RelayQueryChecker(store);
+  const checker = new RelayQueryChecker(store);
 
-  var state = {
+  const state = {
     dataID: undefined,
     rangeInfo: undefined,
     result: true,
@@ -71,8 +71,8 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     node: Tn,
     state: CheckerState
   ): ?Tn {
-    var children = node.getChildren();
-    for (var ii = 0; ii < children.length; ii++) {
+    const children = node.getChildren();
+    for (let ii = 0; ii < children.length; ii++) {
       if (!state.result) {
         return;
       }
@@ -84,14 +84,13 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     root: RelayQuery.Root,
     state: CheckerState
   ): void {
-    var nextState;
     const storageKey = root.getStorageKey();
     forEachRootCallArg(root, ({identifyingArgKey}) => {
-      var dataID = this._store.getDataID(storageKey, identifyingArgKey);
+      const dataID = this._store.getDataID(storageKey, identifyingArgKey);
       if (dataID == null) {
         state.result = false;
       } else {
-        nextState = {
+        const nextState = {
           dataID,
           rangeInfo: undefined,
           result: true,
@@ -120,15 +119,15 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     field: RelayQuery.Field,
     state: CheckerState
   ): void {
-    var dataID = state.dataID;
-    var recordState = dataID && this._store.getRecordState(dataID);
+    const dataID = state.dataID;
+    const recordState = dataID && this._store.getRecordState(dataID);
     if (recordState === RelayRecordState.UNKNOWN) {
       state.result = false;
       return;
     } else if (recordState === RelayRecordState.NONEXISTENT) {
       return;
     }
-    var rangeInfo = state.rangeInfo;
+    const rangeInfo = state.rangeInfo;
     if (rangeInfo && field.getSchemaName() === EDGES) {
       this._checkEdges(field, state);
     } else if (rangeInfo && field.getSchemaName() === PAGE_INFO) {
@@ -145,7 +144,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   }
 
   _checkScalar(field: RelayQuery.Field, state: CheckerState): void {
-    var fieldData = state.dataID &&
+    const fieldData = state.dataID &&
       this._store.getField(state.dataID, field.getStorageKey());
     if (fieldData === undefined) {
       state.result = false;
@@ -153,18 +152,18 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   }
 
   _checkPlural(field: RelayQuery.Field, state: CheckerState): void {
-    var dataIDs = state.dataID &&
+    const dataIDs = state.dataID &&
       this._store.getLinkedRecordIDs(state.dataID, field.getStorageKey());
     if (dataIDs === undefined) {
       state.result = false;
       return;
     }
     if (dataIDs) {
-      for (var ii = 0; ii < dataIDs.length; ii++) {
+      for (let ii = 0; ii < dataIDs.length; ii++) {
         if (!state.result) {
           break;
         }
-        var nextState = {
+        const nextState = {
           dataID: dataIDs[ii],
           rangeInfo: undefined,
           result: true,
@@ -176,19 +175,19 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   }
 
   _checkConnection(field: RelayQuery.Field, state: CheckerState): void {
-    var calls = field.getCallsWithValues();
-    var dataID = state.dataID &&
+    const calls = field.getCallsWithValues();
+    const dataID = state.dataID &&
       this._store.getLinkedRecordID(state.dataID, field.getStorageKey());
     if (dataID === undefined) {
       state.result = false;
       return;
     }
-    var nextState: CheckerState = {
+    const nextState: CheckerState = {
       dataID,
       rangeInfo: null, // Flow rejects `undefined` here
       result: true,
     };
-    var metadata = this._store.getRangeMetadata(dataID, calls);
+    const metadata = this._store.getRangeMetadata(dataID, calls);
     if (metadata) {
       nextState.rangeInfo = metadata;
     }
@@ -197,7 +196,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   }
 
   _checkEdges(field: RelayQuery.Field, state: CheckerState): void {
-    var rangeInfo = state.rangeInfo;
+    const rangeInfo = state.rangeInfo;
     if (!rangeInfo) {
       state.result = false;
       return;
@@ -206,12 +205,12 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
       state.result = false;
       return;
     }
-    var edges = rangeInfo.filteredEdges;
-    for (var ii = 0; ii < edges.length; ii++) {
+    const edges = rangeInfo.filteredEdges;
+    for (let ii = 0; ii < edges.length; ii++) {
       if (!state.result) {
         break;
       }
-      var nextState = {
+      const nextState = {
         dataID: edges[ii].edgeID,
         rangeInfo: undefined,
         result: true,
@@ -222,7 +221,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   }
 
   _checkPageInfo(field: RelayQuery.Field, state: CheckerState): void {
-    var rangeInfo = state.rangeInfo;
+    const rangeInfo = state.rangeInfo;
     if (!rangeInfo || !rangeInfo.pageInfo) {
       state.result = false;
       return;
@@ -230,14 +229,14 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   }
 
   _checkLinkedField(field: RelayQuery.Field, state: CheckerState): void {
-    var dataID = state.dataID &&
+    const dataID = state.dataID &&
         this._store.getLinkedRecordID(state.dataID, field.getStorageKey());
     if (dataID === undefined) {
       state.result = false;
       return;
     }
     if (dataID) {
-      var nextState = {
+      const nextState = {
         dataID,
         rangeInfo: undefined,
         result: true,

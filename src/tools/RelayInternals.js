@@ -23,7 +23,7 @@ const printRelayQuery = require('printRelayQuery');
  *
  * @internal
  */
-var RelayInternals = {
+const RelayInternals = {
   NetworkLayer: RelayStore.getStoreData().getNetworkLayer(),
   DefaultStoreData: RelayStore.getStoreData(),
   flattenRelayQuery: flattenRelayQuery,

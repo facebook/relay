@@ -9,7 +9,7 @@
 
 'use strict';
 
-var RelayFragmentPointer = require.requireActual('RelayFragmentPointer');
+const RelayFragmentPointer = require.requireActual('RelayFragmentPointer');
 
 RelayFragmentPointer.createForRoot =
   jest.genMockFunction().mockImplementation(

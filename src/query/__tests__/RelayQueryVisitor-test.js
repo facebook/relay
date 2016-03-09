@@ -19,16 +19,16 @@ const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryVisitor', () => {
-  var {getNode} = RelayTestUtils;
-  var query;
+  const {getNode} = RelayTestUtils;
+  let query;
 
   beforeEach(() => {
-    var variables = {
+    const variables = {
       first: 10,
       after: 'offset',
     };
 
-    var fragment = Relay.QL`
+    const fragment = Relay.QL`
       fragment on User {
         friends(first:$first,after:$after) {
           edges {
@@ -71,8 +71,8 @@ describe('RelayQueryVisitor', () => {
         this.traverse(field, state);
       }
     }
-    var transform = new InOrder();
-    var fields = [];
+    const transform = new InOrder();
+    const fields = [];
     transform.visit(query, fields);
 
     var expectedFields = [];
@@ -91,8 +91,8 @@ describe('RelayQueryVisitor', () => {
   it('returns original input', () => {
     class Visitor extends RelayQueryVisitor<any> {}
 
-    var transform = new Visitor();
-    var output = transform.visit(query, null);
+    const transform = new Visitor();
+    const output = transform.visit(query, null);
     expect(output === query).toBeTruthy();
   });
 
@@ -104,8 +104,8 @@ describe('RelayQueryVisitor', () => {
       }
     }
 
-    var transform = new NullReturningVisitor();
-    var output = transform.visit(query, null);
+    const transform = new NullReturningVisitor();
+    const output = transform.visit(query, null);
     expect(output).toBe(query);
   });
 
@@ -139,8 +139,8 @@ describe('RelayQueryVisitor', () => {
       }
     }
 
-    var transform = new NoTraversal();
-    var fields = [];
+    const transform = new NoTraversal();
+    const fields = [];
     transform.visit(query, fields);
     expect(fields).toEqual(['RelayQueryVisitor']);
   });

@@ -9,7 +9,7 @@
 
 'use strict';
 
-var RelayPendingQueryTracker =
+const RelayPendingQueryTracker =
   jest.genMockFromModule('RelayPendingQueryTracker');
 
 class MockPendingFetch {
@@ -41,7 +41,7 @@ class MockPendingFetch {
 RelayPendingQueryTracker.mockImplementation(function() {
   this.add.mock.fetches = [];
   this.add.mockImplementation(params => {
-    var mockFetch = new MockPendingFetch(params.query);
+    const mockFetch = new MockPendingFetch(params.query);
     this.add.mock.fetches.push(mockFetch);
     return mockFetch;
   });

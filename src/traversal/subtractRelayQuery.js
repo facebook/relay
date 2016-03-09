@@ -37,12 +37,12 @@ function subtractRelayQuery(
   minuend: RelayQuery.Root,
   subtrahend: RelayQuery.Root
 ): ?RelayQuery.Root {
-  var visitor = new RelayQuerySubtractor();
-  var state = {
+  const visitor = new RelayQuerySubtractor();
+  const state = {
     isEmpty: true,
     subtrahend,
   };
-  var diff = visitor.visit(minuend, state);
+  const diff = visitor.visit(minuend, state);
   if (!state.isEmpty) {
     invariant(
       diff instanceof RelayQuery.Root,
@@ -58,7 +58,7 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
     node: RelayQuery.Root,
     state: SubtractState
   ): ?RelayQuery.Node {
-    var {subtrahend} = state;
+    const {subtrahend} = state;
     invariant(
       subtrahend instanceof RelayQuery.Root,
       'subtractRelayQuery(): Cannot subtract a non-root node from a root.'
@@ -81,7 +81,7 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
     node: RelayQuery.Field,
     state: SubtractState
   ): ?RelayQuery.Node {
-    var diff;
+    let diff;
     if (!node.canHaveSubselections()) {
       diff = this._subtractScalar(node, state);
     } else if (node.isConnection()) {
@@ -99,7 +99,7 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
     node: RelayQuery.Field,
     state: SubtractState
   ): ?RelayQuery.Node {
-    var subField = state.subtrahend.getField(node);
+    const subField = state.subtrahend.getField(node);
 
     if (subField && !node.isRequisite()) {
       return null;
@@ -112,17 +112,16 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
     node: RelayQuery.Field,
     state: SubtractState
   ): ?RelayQuery.Node {
-    var subtrahendRanges = getMatchingRangeFields(node, state.subtrahend);
+    const subtrahendRanges = getMatchingRangeFields(node, state.subtrahend);
 
     if (!subtrahendRanges.length) {
       state.isEmpty = isEmptyField(node);
       return node;
     }
 
-    var diff = node;
-    var fieldState;
-    for (var ii = 0; ii < subtrahendRanges.length; ii++) {
-      fieldState = {
+    let diff = node;
+    for (let ii = 0; ii < subtrahendRanges.length; ii++) {
+      const fieldState = {
         isEmpty: true,
         subtrahend: subtrahendRanges[ii],
       };
@@ -142,18 +141,18 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
     node: RelayQuery.Field,
     state: SubtractState
   ): ?RelayQuery.Node {
-    var subField = state.subtrahend.getField(node);
+    const subField = state.subtrahend.getField(node);
 
     if (!subField) {
       state.isEmpty = isEmptyField(node);
       return node;
     }
 
-    var fieldState = {
+    const fieldState = {
       isEmpty: true,
       subtrahend: subField,
     };
-    var diff = this._subtractChildren(node, fieldState);
+    const diff = this._subtractChildren(node, fieldState);
     state.isEmpty = fieldState.isEmpty;
     return diff;
   }
@@ -166,11 +165,11 @@ class RelayQuerySubtractor extends RelayQueryTransform<SubtractState> {
     state: SubtractState
   ): ?RelayQuery.Node {
     return node.clone(node.getChildren().map(child => {
-      var childState = {
+      const childState = {
         isEmpty: true,
         subtrahend: state.subtrahend,
       };
-      var diff = this.visit(child, childState);
+      const diff = this.visit(child, childState);
       state.isEmpty = state.isEmpty && childState.isEmpty;
       return diff;
     }));
@@ -204,8 +203,8 @@ function canSubtractRoot(
   min: RelayQuery.Root,
   sub: RelayQuery.Root
 ): boolean {
-  var minIdentifyingCall = min.getIdentifyingArg();
-  var subIdentifyingCall = sub.getIdentifyingArg();
+  const minIdentifyingCall = min.getIdentifyingArg();
+  const subIdentifyingCall = sub.getIdentifyingArg();
   return (
     min.getFieldName() === sub.getFieldName() &&
     areEqual(minIdentifyingCall, subIdentifyingCall)
@@ -235,13 +234,13 @@ function canSubtractField(
   if (minField.getSchemaName() !== subField.getSchemaName()) {
     return false;
   }
-  var minArgs = minField.getCallsWithValues();
-  var subArgs = subField.getCallsWithValues();
+  const minArgs = minField.getCallsWithValues();
+  const subArgs = subField.getCallsWithValues();
   if (minArgs.length !== subArgs.length) {
     return false;
   }
   return minArgs.every((minArg, ii) => {
-    var subArg = subArgs[ii];
+    const subArg = subArgs[ii];
     if (subArg == null) {
       return false;
     }

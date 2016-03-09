@@ -19,8 +19,8 @@ describe('filterExclusiveKeys', () => {
   });
 
   it('computes exclusive keys between two objects with overlap', () => {
-    var a = {v: true, w: true, x: true};
-    var b = {x: true, y: true, z: true};
+    const a = {v: true, w: true, x: true};
+    const b = {x: true, y: true, z: true};
     expect(filterExclusiveKeys(a, b)).toEqual([
       ['v', 'w'],
       ['y', 'z'],
@@ -28,8 +28,8 @@ describe('filterExclusiveKeys', () => {
   });
 
   it('computes exclusive keys with no first argument', () => {
-    var a = null;
-    var b = {x: true, y: true, z: true};
+    const a = null;
+    const b = {x: true, y: true, z: true};
     expect(filterExclusiveKeys(a, b)).toEqual([
       [],
       ['x', 'y', 'z'],
@@ -37,8 +37,8 @@ describe('filterExclusiveKeys', () => {
   });
 
   it('computes exclusive keys with an empty first argument', () => {
-    var a = {};
-    var b = {x: true, y: true, z: true};
+    const a = {};
+    const b = {x: true, y: true, z: true};
     expect(filterExclusiveKeys(a, b)).toEqual([
       [],
       ['x', 'y', 'z'],
@@ -46,8 +46,8 @@ describe('filterExclusiveKeys', () => {
   });
 
   it('computes exclusive keys with no second argument', () => {
-    var a = {x: true, y: true, z: true};
-    var b = null;
+    const a = {x: true, y: true, z: true};
+    const b = null;
     expect(filterExclusiveKeys(a, b)).toEqual([
       ['x', 'y', 'z'],
       [],
@@ -55,8 +55,8 @@ describe('filterExclusiveKeys', () => {
   });
 
   it('computes exclusive keys with an empty second argument', () => {
-    var a = {x: true, y: true, z: true};
-    var b = {};
+    const a = {x: true, y: true, z: true};
+    const b = {};
     expect(filterExclusiveKeys(a, b)).toEqual([
       ['x', 'y', 'z'],
       [],

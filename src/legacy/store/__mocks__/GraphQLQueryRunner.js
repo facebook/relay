@@ -9,7 +9,7 @@
 
 'use strict';
 
-var GraphQLQueryRunner = jest.genMockFromModule('GraphQLQueryRunner');
+const GraphQLQueryRunner = jest.genMockFromModule('GraphQLQueryRunner');
 
 const resolveImmediate = require('resolveImmediate');
 
@@ -27,7 +27,7 @@ const resolveImmediate = require('resolveImmediate');
  *
  */
 function genMockRequest(args) {
-  var ready = false;
+  let ready = false;
   return {
     abort() {
       args[1]({aborted: true, done: false, error: null, ready, stale: false});
@@ -53,8 +53,8 @@ GraphQLQueryRunner.mockImplementation(function() {
   this.run.mock.abort = [];
   this.run.mock.requests = [];
   this.run.mockImplementation((...args) => {
-    var request = genMockRequest(args);
-    var returnValue = {
+    const request = genMockRequest(args);
+    const returnValue = {
       abort: jest.genMockFunction().mockImplementation(() => {
         resolveImmediate(request.abort);
       }),
@@ -67,8 +67,8 @@ GraphQLQueryRunner.mockImplementation(function() {
   this.forceFetch.mock.abort = [];
   this.forceFetch.mock.requests = [];
   this.forceFetch.mockImplementation((...args) => {
-    var request = genMockRequest(args);
-    var returnValue = {
+    const request = genMockRequest(args);
+    const returnValue = {
       abort: jest.genMockFunction().mockImplementation(() => {
         resolveImmediate(request.abort);
       }),

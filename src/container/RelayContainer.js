@@ -140,12 +140,12 @@ function createContainerComponent(
         containerName
       );
 
-      this.forceFetch = this.forceFetch.bind(this);
-      this.getPendingTransactions = this.getPendingTransactions.bind(this);
-      this.hasFragmentData = this.hasFragmentData.bind(this);
-      this.hasOptimisticUpdate = this.hasOptimisticUpdate.bind(this);
-      this.hasPartialData = this.hasPartialData.bind(this);
-      this.setVariables = this.setVariables.bind(this);
+      (this: any).forceFetch = this.forceFetch.bind(this);
+      (this: any).getPendingTransactions = this.getPendingTransactions.bind(this);
+      (this: any).hasFragmentData = this.hasFragmentData.bind(this);
+      (this: any).hasOptimisticUpdate = this.hasOptimisticUpdate.bind(this);
+      (this: any).hasPartialData = this.hasPartialData.bind(this);
+      (this: any).setVariables = this.setVariables.bind(this);
 
       this._didShowFakeDataWarning = false;
       this._fragmentPointers = {};
@@ -724,7 +724,7 @@ function createContainerComponent(
       );
     }
 
-    render(): ReactElement {
+    render(): React.Element {
       const relayProps: RelayProp = {
         forceFetch: this.forceFetch,
         getPendingTransactions: this.getPendingTransactions,

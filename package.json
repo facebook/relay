@@ -44,7 +44,7 @@
     "eslint": "^1.3.1",
     "eslint-plugin-react": "^3.3.1",
     "fbjs-scripts": "^0.5.0",
-    "flow-bin": "0.21.0",
+    "flow-bin": "0.22.0",
     "graphql": "0.4.13",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.1.0",

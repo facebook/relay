@@ -50,7 +50,7 @@ type RelayRendererProps = {
   render?: ?RelayRendererRenderCallback;
 };
 export type RelayRendererRenderCallback =
-  (renderArgs: RelayRendererRenderArgs) => ?ReactElement;
+  (renderArgs: RelayRendererRenderArgs) => ?React.Element;
 type RelayRendererRenderArgs = {
   done: boolean;
   error: ?Error;
@@ -342,7 +342,7 @@ class RelayRenderer extends React.Component {
     this.mounted = false;
   }
 
-  render(): ?ReactElement {
+  render(): ?React.Element {
     let children;
     let shouldUpdate = this._shouldUpdate();
     if (shouldUpdate) {

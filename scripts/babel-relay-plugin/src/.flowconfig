@@ -1,6 +1,7 @@
 [ignore]
 .*/__fixtures__/.*
 .*/__tests__/.*
+.*\.json
 
 [include]
 ../node_modules/
@@ -13,4 +14,4 @@
 [options]
 
 [version]
-0.21.0
+0.22.0

@@ -32,7 +32,7 @@ export default class ChangeTodoStatusMutation extends Relay.Mutation {
   }
   getFatQuery() {
     return Relay.QL`
-      fragment on ChangeTodoStatusPayload {
+      fragment on ChangeTodoStatusPayload @relay(pattern: true) {
         todo {
           complete,
         },

@@ -13,6 +13,8 @@
 
 'use strict';
 
+/* eslint-disable consistent-this */
+
 import type {
   ConcreteField,
   ConcreteFieldMetadata,

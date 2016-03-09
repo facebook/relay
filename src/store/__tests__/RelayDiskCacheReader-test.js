@@ -736,7 +736,7 @@ describe('RelayDiskCacheReader', () => {
         query.getFieldByStorageKey('friends'),
         'client:friends_id'
       );
-      expect(store.getPathToRecord(`client:friends_id`))
+      expect(store.getPathToRecord('client:friends_id'))
         .toMatchPath(friendsPath);
       expect(store.getRangeMetadata(
         'client:friends_id',
@@ -755,7 +755,7 @@ describe('RelayDiskCacheReader', () => {
         friendsField.getFieldByStorageKey('edges'),
         'client:edge_id'
       );
-      expect(store.getPathToRecord(`client:edge_id`)).toMatchPath(edgePath);
+      expect(store.getPathToRecord('client:edge_id')).toMatchPath(edgePath);
       expect(store.getField('client:edge_id', 'cursor')).toBe('1234');
       expect(store.getLinkedRecordID('client:edge_id', 'node'))
         .toBe('friend_id');

@@ -341,7 +341,7 @@ describe('RelayQueryRoot', () => {
     expect(nodeIdentifyingArg).toBeDefined();
     expect(nodeIdentifyingArg.type).toBe('scalar');
 
-    var me = getNode(Relay.QL`query{me{id}}`);
+    me = getNode(Relay.QL`query{me{id}}`);
     const meIdentifyingArg = me.getIdentifyingArg();
     expect(meIdentifyingArg).toBeUndefined();
   });

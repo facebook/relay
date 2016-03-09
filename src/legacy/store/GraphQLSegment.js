@@ -261,9 +261,9 @@ class GraphQLSegment {
     if (this.getLength() === 0) {
       this._minIndex = index;
       this._maxIndex = index;
-    } else if (this._minIndex == index + 1) {
+    } else if (this._minIndex === index + 1) {
       this._minIndex = index;
-    } else if (this._maxIndex == index - 1) {
+    } else if (this._maxIndex === index - 1) {
       this._maxIndex = index;
     } else {
       console.warn(

@@ -27,9 +27,9 @@ describe('splitDeferredRelayQueries()', () => {
 
   // remove the root `id` field
   function filterGeneratedRootFields(node) {
-    var children = node.getChildren().filter(node => !(
-      node instanceof RelayQuery.Field &&
-      node.isGenerated()
+    var children = node.getChildren().filter(child => !(
+      child instanceof RelayQuery.Field &&
+      child.isGenerated()
     ));
     return node.clone(children);
   }

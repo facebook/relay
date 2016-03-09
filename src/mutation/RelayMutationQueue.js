@@ -290,7 +290,7 @@ class RelayMutationQueue {
       // Remove the transaction that called this function.
       collisionQueue.shift();
       collisionQueue.forEach(
-        transaction => this._handleCommitFailure(transaction, null)
+        queuedTransaction => this._handleCommitFailure(queuedTransaction, null)
       );
       delete this._collisionQueueMap[collisionKey];
     }

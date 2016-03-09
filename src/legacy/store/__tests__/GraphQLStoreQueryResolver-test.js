@@ -38,10 +38,10 @@ describe('GraphQLStoreQueryResolver', () => {
   var {getNode} = RelayTestUtils;
 
   function mockReader(mockResult) {
-    readRelayQueryData.mockImplementation((_, __, dataID) => {
+    readRelayQueryData.mockImplementation((_, __, dataIDArg) => {
       return {
-        dataIDs: {[dataID]: true},
-        data: mockResult[dataID],
+        dataIDs: {[dataIDArg]: true},
+        data: mockResult[dataIDArg],
       };
     });
   }
@@ -284,7 +284,6 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   describe('garbage collection', () => {
-    let dataID;
     let fragment;
 
     beforeEach(() => {

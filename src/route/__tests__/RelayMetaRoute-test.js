@@ -20,7 +20,9 @@ describe('RelayMetaRoute', () => {
 
   it('is immutable', () => {
     var route = new RelayMetaRoute('TestRoute');
-    expect(() => route.name = 'foo').toThrow();
+    expect(() => {
+      route.name = 'foo';
+    }).toThrow();
   });
 
   it('returns caches objects when using `get`', () => {

@@ -950,7 +950,7 @@ class GraphQLRange {
       }
       if (removeIDs && removeIDs.length) {
         requestedEdgeIDs = requestedEdgeIDs.filter(function(edgeID) {
-          return (removeIDs.indexOf(edgeID) == -1);
+          return (removeIDs.indexOf(edgeID) === -1);
         });
       }
       if (requestedEdgeIDs.length > calls.first) {
@@ -1062,7 +1062,7 @@ class GraphQLRange {
       }
       if (removeIDs && removeIDs.length) {
         requestedEdgeIDs = requestedEdgeIDs.filter(function(edgeID) {
-          return (removeIDs.indexOf(edgeID) == -1);
+          return (removeIDs.indexOf(edgeID) === -1);
         });
       }
       if (requestedEdgeIDs.length > calls.last) {
@@ -1089,8 +1089,9 @@ class GraphQLRange {
     range._hasFirst = hasFirst;
     range._hasLast = hasLast;
     range._staticQueriesMap = staticQueriesMap;
-    range._orderedSegments =
-      orderedSegments.map(descriptor => GraphQLSegment.fromJSON(descriptor));
+    range._orderedSegments = orderedSegments.map(
+      segmentDescriptor => GraphQLSegment.fromJSON(segmentDescriptor)
+    );
     return range;
   }
 

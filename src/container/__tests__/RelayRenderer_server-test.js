@@ -21,7 +21,6 @@ const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
-const RelayStore = require('RelayStore');
 
 describe('RelayRenderer', function() {
   let MockComponent;

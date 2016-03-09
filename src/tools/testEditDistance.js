@@ -12,6 +12,8 @@
  *
  */
 
+/* eslint-disable no-shadow */
+
 /**
  * @internal
  *

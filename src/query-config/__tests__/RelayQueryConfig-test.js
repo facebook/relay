@@ -65,11 +65,21 @@ describe('RelayQueryConfig', () => {
 
     var MockConfig = makeConfig();
     var config = new MockConfig({required: 'foo'});
-    expect(() => config.name = 'yo').toThrow();
-    expect(() => config.params = 'I am').toThrow();
-    expect(() => config.queries = 'immutable').toThrow();
-    expect(() => config.params.foo = 'bar').toThrow();
-    expect(() => config.queries.myCustomQuery = () => {}).toThrow();
+    expect(() => {
+      config.name = 'yo';
+    }).toThrow();
+    expect(() => {
+      config.params = 'I am';
+    }).toThrow();
+    expect(() => {
+      config.queries = 'immutable';
+    }).toThrow();
+    expect(() => {
+      config.params.foo = 'bar';
+    }).toThrow();
+    expect(() => {
+      config.queries.myCustomQuery = () => {};
+    }).toThrow();
 
     window.__DEV__ = dev;
   });

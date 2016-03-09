@@ -567,7 +567,7 @@ describe('RelayContainer', function() {
   });
 
   it('warns if fragment pointer exists on a different prop', () => {
-    var mockFooPointer = getPointer('42', mockFooFragment);
+    mockFooPointer = getPointer('42', mockFooFragment);
 
     RelayTestRenderer.render(
       () => <MockContainer baz={mockFooPointer} />,

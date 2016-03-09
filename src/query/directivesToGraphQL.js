@@ -26,17 +26,17 @@ const QueryBuilder = require('QueryBuilder');
 function directivesToGraphQL(
   directives: Array<Directive>
 ): Array<ConcreteDirective> {
-  return directives.map(({name, args}) => {
-    const concreteArguments = args.map(({name, value}) => {
+  return directives.map(({name: directiveName, args}) => {
+    const concreteArguments = args.map(({name: argName, value}) => {
       let concreteArgument = null;
       if (Array.isArray(value)) {
         concreteArgument = value.map(QueryBuilder.createCallValue);
       } else if (value != null)  {
         concreteArgument = QueryBuilder.createCallValue(value);
       }
-      return QueryBuilder.createDirectiveArgument(name, concreteArgument);
+      return QueryBuilder.createDirectiveArgument(argName, concreteArgument);
     });
-    return QueryBuilder.createDirective(name, concreteArguments);
+    return QueryBuilder.createDirective(directiveName, concreteArguments);
   });
 }
 

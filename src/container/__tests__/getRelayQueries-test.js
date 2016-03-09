@@ -32,7 +32,7 @@ describe('getRelayQueries', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    MockPageComponent = class MockPageComponent extends React.Component {
+    MockPageComponent = class _MockPageComponent extends React.Component {
       render() {
         return <div/>;
       }
@@ -163,7 +163,7 @@ describe('getRelayQueries', () => {
       '`%s.fragments.%s` to be defined.',
       'MockRoute',
       'last',
-      'Relay(MockPageComponent)',
+      'Relay(_MockPageComponent)',
       'last',
     ]).toBeWarnedNTimes(1);
   });

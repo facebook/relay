@@ -676,7 +676,7 @@ class RelayDiffQueryBuilder {
               // current path has `parent`, `connection`, `edges`; pop to parent
               var connectionParent = RelayQueryPath.getParent(
                 RelayQueryPath.getParent(path)
-              )
+              );
               var connectionQuery = RelayQueryPath.getQuery(
                 this._store,
                 connectionParent,

@@ -18,7 +18,6 @@ jest
   .dontMock('GraphQLStoreChangeEmitter')
   .dontMock('GraphQLStoreQueryResolver');
 
-const RelayFragmentPointer = require('RelayFragmentPointer');
 const Relay = require('Relay');
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayRecordStore = require('RelayRecordStore');

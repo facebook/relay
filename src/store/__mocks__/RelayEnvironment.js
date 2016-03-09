@@ -11,7 +11,6 @@
 
 const RelayEnvironment = require.requireActual('RelayEnvironment');
 const RelayRecordStore = require('RelayRecordStore');
-const RelayStoreData = require('RelayStoreData');
 
 const resolveImmediate = require('resolveImmediate');
 

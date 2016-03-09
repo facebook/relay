@@ -49,7 +49,7 @@ type PayloadArray = Array<Payload>;
 type PayloadObject = {[key: string]: Payload};
 
 const {CLIENT_MUTATION_ID, EDGES} = RelayConnectionInterface;
-const {ANY_TYPE, ID, ID_TYPE, NODE, NODE_TYPE} = RelayNodeInterface;
+const {ANY_TYPE, ID, NODE} = RelayNodeInterface;
 const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
 
 const EDGES_FIELD = RelayQuery.Field.build({
@@ -590,8 +590,8 @@ function getIDFromPath(
       return rootCallID;
     }
   }
-  const payloadItem = path.reduce((payloadItem, step) => {
-    return payloadItem ? getObject(payloadItem, step) : null;
+  const payloadItem = path.reduce((item, step) => {
+    return item ? getObject(item, step) : null;
   }, payload);
   if (payloadItem) {
     const id = getString(payloadItem, ID);

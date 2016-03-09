@@ -65,14 +65,14 @@ describe('RelayStoreData', function() {
           const pass = Object.keys(calls).every(methodName => {
             const expected = calls[methodName];
             const value = actual[methodName].mock.calls.length;
-            const pass = expected === value;
+            const eachPass = expected === value;
 
             const expTimes = expected + ' time' + (expected === 1 ? '' : 's');
             const actTimes = value + ' time' + (value === 1 ? '' : 's');
-            const not = pass ? 'not ' : '';
+            const not = eachPass ? 'not ' : '';
             message = 'Expected `' + methodName + '` ' + not + 'to be called ' +
               expTimes + ', was called ' + actTimes + '.';
-            return pass;
+            return eachPass;
           });
           return {pass, message};
         },

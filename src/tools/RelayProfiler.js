@@ -142,7 +142,7 @@ const RelayProfiler = {
       if (
         aggregateHandlers.length === 0 &&
         handlers.length === 0 &&
-        catchallHandlers.length == 0
+        catchallHandlers.length === 0
       ) {
         returnValue = originalFunction.apply(this, arguments);
       } else {

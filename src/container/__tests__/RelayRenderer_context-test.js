@@ -21,7 +21,6 @@ const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
-const RelayStore = require('RelayStore');
 
 describe('RelayRenderer.context', () => {
   let MockComponent;
@@ -49,7 +48,7 @@ describe('RelayRenderer.context', () => {
     jasmine.addMatchers({
       toRenderQueryConfig() {
         return {
-          compare(actual, {queryConfig, environment}) {
+          compare(actual, expected) {
             let context;
             class MockChild extends React.Component {
               render() {
@@ -64,12 +63,12 @@ describe('RelayRenderer.context', () => {
               },
             });
             ReactDOM.render(element, container);
-            const mockRequests = environment.primeCache.mock.requests;
+            const mockRequests = expected.environment.primeCache.mock.requests;
             mockRequests[mockRequests.length - 1].block();
             return {
               pass:
-                context.relay === environment &&
-                context.route === queryConfig,
+                context.relay === expected.environment &&
+                context.route === expected.queryConfig,
             };
           },
         };

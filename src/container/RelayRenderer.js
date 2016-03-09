@@ -20,7 +20,6 @@ import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {GarbageCollectionHold} from 'RelayGarbageCollector';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayPropTypes = require('RelayPropTypes');
-import type RelayQuery from 'RelayQuery';
 import type {
   Abortable,
   ComponentReadyState,

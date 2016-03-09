@@ -646,10 +646,10 @@ function createFragmentSortKey(node) {
 function sortRelayQuery(node) {
   const RelayQuery = require('RelayQuery');
 
-  function getSortableKey(node) {
-    return node instanceof RelayQuery.Fragment ?
-      createFragmentSortKey(node) :
-      node.getShallowHash();
+  function getSortableKey(maybeFragment) {
+    return maybeFragment instanceof RelayQuery.Fragment ?
+      createFragmentSortKey(maybeFragment) :
+      maybeFragment.getShallowHash();
   }
   function compare(a, b) {
     if (a === b) {

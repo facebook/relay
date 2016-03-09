@@ -65,7 +65,9 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
     'printRelayOSSQuery(): Unsupported node type.'
   );
   const variables = {};
-  variableMap.forEach(({value, variableID}) => variables[variableID] = value);
+  variableMap.forEach(({value, variableID}) => {
+    variables[variableID] = value;
+  });
 
   return {
     text: [queryText, ...fragmentTexts].join(' '),

@@ -35,7 +35,7 @@ function set(status: ?number, value: boolean, mask: number): number {
 }
 
 function check(status: ?number, mask: number): boolean {
-  return ((status || 0) & mask) != 0; // eslint-disable-line no-bitwise
+  return ((status || 0) & mask) !== 0; // eslint-disable-line no-bitwise
 }
 /**
  * A set of functions for modifying `__status__` on records inside of

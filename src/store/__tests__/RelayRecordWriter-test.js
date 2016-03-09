@@ -471,8 +471,9 @@ describe('RelayRecordWriter', () => {
       );
 
       // node are automatically associated with the range
-      nodes.forEach(nodeID => {
-        expect(Object.keys(nodeConnectionMap[nodeID])).toEqual([connectionID]);
+      nodes.forEach(eachNodeID => {
+        expect(Object.keys(nodeConnectionMap[eachNodeID]))
+          .toEqual([connectionID]);
       });
 
       var rangeInfo = store.getRangeMetadata(connectionID, calls);
@@ -505,16 +506,16 @@ describe('RelayRecordWriter', () => {
     var writer;
 
     var _inc = 0;
-    function addEdgeToStore(store) {
+    function addEdgeToStore(writerArg) {
       var index = _inc++;
       var edgeID = 'edge:' + index;
       var nodeID = 'node:' + index;
       var cursor = 'cursor:' + index;
 
-      store.putRecord(edgeID, 'Type');
-      store.putRecord(nodeID, 'Type');
-      store.putLinkedRecordID(edgeID, 'node', nodeID);
-      store.putField(edgeID, 'cursor', cursor);
+      writerArg.putRecord(edgeID, 'Type');
+      writerArg.putRecord(nodeID, 'Type');
+      writerArg.putLinkedRecordID(edgeID, 'node', nodeID);
+      writerArg.putField(edgeID, 'cursor', cursor);
 
       return {cursor, edgeID, nodeID};
     }

@@ -33,7 +33,7 @@ function serializeRelayQueryCall(call: Call): string {
   } else {
     valueString = serializeCallValue(value);
   }
-  return '.' + call.name + '(' + valueString +')';
+  return '.' + call.name + '(' + valueString + ')';
 }
 
 function serializeCallValue(value: ?CallValue): string {

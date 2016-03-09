@@ -34,8 +34,8 @@ describe('RelayQueryFragment', () => {
     `;
     var frag = Relay.QL`
       fragment on StreetAddress {
-        country,
-        ${subfrag},
+        country
+        ${subfrag}
       }
     `;
     fragment = getNode(frag);
@@ -110,10 +110,10 @@ describe('RelayQueryFragment', () => {
   it('returns metadata', () => {
     var node = Relay.QL`
       fragment on StreetAddress {
-        country,
+        country
       }
     `;
-    var fragment = getNode(node);
+    fragment = getNode(node);
     expect(fragment.getDebugName()).toBe('RelayQueryFragmentRelayQL');
     expect(fragment.getType()).toBe('StreetAddress');
   });
@@ -163,7 +163,7 @@ describe('RelayQueryFragment', () => {
         city
       }
     `;
-    var fragment = getNode(fragmentRQL);
+    fragment = getNode(fragmentRQL);
     var node = fragment.createNode(fragmentRQL);
     expect(node instanceof RelayQuery.Fragment).toBe(true);
     expect(node.getType()).toBe('StreetAddress');
@@ -172,10 +172,8 @@ describe('RelayQueryFragment', () => {
   });
 
   it('returns directives', () => {
-    var fragment = getNode(Relay.QL`
-      fragment on Story
-        @include(if: $cond)
-      {
+    fragment = getNode(Relay.QL`
+      fragment on Story @include(if: $cond) {
         feedback
       }
     `, {cond: true});

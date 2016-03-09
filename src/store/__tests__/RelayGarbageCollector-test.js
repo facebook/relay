@@ -259,9 +259,9 @@ describe('RelayGarbageCollector', () => {
         a: {__dataID__: 'a'},
       };
       let run = null;
-      const {garbageCollector, storeData} = createGC(
-        records,
-        _run => run = _run
+      const {garbageCollector, storeData} = createGC(records, _run => {
+          run = _run;
+        }
       );
       garbageCollector.register('a');
       garbageCollector.collect();
@@ -324,10 +324,9 @@ describe('RelayGarbageCollector', () => {
         },
       };
       let run = null;
-      const {garbageCollector, storeData} = createGC(
-        records,
-        _run => run = _run
-      );
+      const {garbageCollector, storeData} = createGC(records, _run => {
+        run = _run;
+      });
       garbageCollector.register('a');
       garbageCollector.register('b');
       garbageCollector.register('c');
@@ -361,9 +360,9 @@ describe('RelayGarbageCollector', () => {
         b: {__dataID__: 'b'},
       };
       let run = null;
-      const scheduler = jest.genMockFunction().mockImplementation(
-        _run => run = _run
-      );
+      const scheduler = jest.genMockFunction().mockImplementation(_run => {
+        run = _run;
+      });
       const {garbageCollector} = createGC(records, scheduler);
       garbageCollector.register('a');
       garbageCollector.register('b');

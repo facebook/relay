@@ -73,11 +73,21 @@ describe('RelayRoute', () => {
 
     var MockRoute = makeRoute();
     var route = new MockRoute({required: 'foo'});
-    expect(() => route.name = 'yo').toThrow();
-    expect(() => route.params = 'I am').toThrow();
-    expect(() => route.queries = 'immutable').toThrow();
-    expect(() => route.params.foo = 'bar').toThrow();
-    expect(() => route.queries.myCustomQuery = () => {}).toThrow();
+    expect(() => {
+      route.name = 'yo';
+    }).toThrow();
+    expect(() => {
+      route.params = 'I am';
+    }).toThrow();
+    expect(() => {
+      route.queries = 'immutable';
+    }).toThrow();
+    expect(() => {
+      route.params.foo = 'bar';
+    }).toThrow();
+    expect(() => {
+      route.queries.myCustomQuery = () => {};
+    }).toThrow();
 
     window.__DEV__ = dev;
   });

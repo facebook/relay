@@ -310,10 +310,10 @@ class RelayRecordStore {
     var connectionIDs;
     forEachObject(record, (datum, key) => {
       if (datum && getFieldNameFromKey(key) === schemaName) {
-        var dataID = datum.__dataID__;
-        if (dataID) {
+        var connectionID = datum.__dataID__;
+        if (connectionID) {
           connectionIDs = connectionIDs || [];
-          connectionIDs.push(dataID);
+          connectionIDs.push(connectionID);
         }
       }
     });

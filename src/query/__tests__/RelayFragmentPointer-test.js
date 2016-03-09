@@ -17,7 +17,6 @@ jest.dontMock('RelayFragmentPointer');
 
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const Relay = require('Relay');
-const RelayRecord = require('RelayRecord');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 

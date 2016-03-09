@@ -108,7 +108,7 @@ describe('findRelayQueryLeaves', () => {
       dummyPath,
     );
 
-    var pendingItems =[{
+    var pendingItems = [{
       node: queryNode,
       path: dummyPath,
       rangeCalls: undefined,

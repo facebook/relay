@@ -301,8 +301,8 @@ class RelayCacheReader {
       this._handleFailed();
       return;
     }
-    forEachObject(pendingNodes, (pendingItems, dataID) => {
-      this.queueNode(dataID, pendingItems);
+    forEachObject(pendingNodes, (pendingItems, pendingDataID) => {
+      this.queueNode(pendingDataID, pendingItems);
     });
   }
 

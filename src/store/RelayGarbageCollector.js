@@ -15,7 +15,6 @@
 
 const GraphQLRange = require('GraphQLRange');
 import type {DataID} from 'RelayInternalTypes';
-const RelayQueryPath = require('RelayQueryPath');
 const RelayRecord = require('RelayRecord');
 import type RelayStoreData from 'RelayStoreData';
 

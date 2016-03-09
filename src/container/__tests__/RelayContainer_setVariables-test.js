@@ -34,7 +34,7 @@ describe('RelayContainer.setVariables', function() {
   var environment;
   var render;
 
-  const {getNode} = RelayTestUtils;
+  const {getNode, getPointer} = RelayTestUtils;
 
   beforeEach(function() {
     jest.resetModuleRegistry();
@@ -89,11 +89,7 @@ describe('RelayContainer.setVariables', function() {
   });
 
   describe('plural fragments', () => {
-    var getNode;
-    var getPointer;
-
     beforeEach(() => {
-      ({getNode, getPointer} = RelayTestUtils);
       GraphQLStoreQueryResolver.mockDefaultResolveImplementation(pointer => {
         return [{
           __dataID__: '42',

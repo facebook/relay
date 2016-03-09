@@ -22,7 +22,6 @@ const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
-const RelayStore = require('RelayStore');
 const StaticContainer = require('StaticContainer.react');
 
 describe('RelayRenderer.render', () => {

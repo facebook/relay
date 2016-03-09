@@ -496,7 +496,7 @@ describe('RelayMutationQuery', () => {
         'and to enable optimistic mutations.',
         'comments{orderby:"ranked_threaded"}',
         'feedback',
-        '123'
+        '123',
        ]).toBeWarnedNTimes(1);
     });
 

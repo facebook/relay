@@ -399,7 +399,7 @@ describe('RelayQueryRoot', () => {
        name: 'waypoints',
        value: [
          {lat: '0.0', lon: '0.0'},
-         {lat: '1.1', lon: '1.1'}
+         {lat: '1.1', lon: '1.1'},
        ],
        type: '[WayPoint!]!',
      }

@@ -87,7 +87,7 @@ Object.assign(RelayQL, {
   },
   __id(): string {
     return generateConcreteFragmentID();
-  }
+  },
 });
 
 module.exports = RelayQL;

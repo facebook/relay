@@ -249,7 +249,7 @@ describe('RelayQueryPath', () => {
       'RelayQueryPath: No typename found for %s record `%s`. Generating a ' +
       'possibly invalid query.',
       'unknown',
-      '123'
+      '123',
     ]).toBeWarnedNTimes(1);
   });
 });

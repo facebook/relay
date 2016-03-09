@@ -28,14 +28,19 @@ class TodoListFooter extends Component {
     status: PropTypes.oneOf(['active', 'any', 'completed']).isRequired,
     style: View.propTypes.style,
   };
-  _handleRemoveCompletedTodosPress = () => {
+  constructor(props, context) {
+    super(props, context);
+    this._handleRemoveCompletedTodosPress =
+      this._handleRemoveCompletedTodosPress.bind(this);
+  }
+  _handleRemoveCompletedTodosPress() {
     Relay.Store.commitUpdate(
       new RemoveCompletedTodosMutation({
         todos: this.props.viewer.todos,
         viewer: this.props.viewer,
       })
     );
-  };
+  }
   render() {
     var numCompletedTodos = this.props.viewer.completedCount;
     var numRemainingTodos = this.props.viewer.totalCount - numCompletedTodos;

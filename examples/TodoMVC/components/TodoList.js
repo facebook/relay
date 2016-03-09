@@ -47,8 +47,13 @@ class TodoList extends Component {
       listScrollEnabled: true,
       todosDataSource: _todosDataSource.cloneWithRows(edges),
     };
+    this._handleMarkAllPress = this._handleMarkAllPress.bind(this);
+    this._handleSwipeInactive = this._handleSwipeInactive.bind(this);
+    this._handleTextInputSave = this._handleTextInputSave.bind(this);
+    this._handleTodoDestroy = this._handleTodoDestroy.bind(this);
+    this.renderTodoEdge = this.renderTodoEdge.bind(this);
   }
-  _handleMarkAllPress = () => {
+  _handleMarkAllPress() {
     const numTodos = this.props.viewer.totalCount;
     const numCompletedTodos = this.props.viewer.completedCount;
     const complete = numTodos !== numCompletedTodos;
@@ -59,23 +64,23 @@ class TodoList extends Component {
         viewer: this.props.viewer,
       })
     );
-  };
-  _handleSwipeInactive = swipeInactive => {
+  }
+  _handleSwipeInactive(swipeInactive) {
     this.setState({listScrollEnabled: swipeInactive});
-  };
-  _handleTextInputSave = text => {
+  }
+  _handleTextInputSave(text) {
     Relay.Store.commitUpdate(
       new AddTodoMutation({text, viewer: this.props.viewer})
     );
-  };
-  _handleTodoDestroy = todo => {
+  }
+  _handleTodoDestroy(todo) {
     Relay.Store.commitUpdate(
       new RemoveTodoMutation({
         todo,
         viewer: this.props.viewer,
       })
     );
-  };
+  }
   componentWillReceiveProps(nextProps) {
     if (this.props.viewer.todos.edges !== nextProps.viewer.todos.edges) {
       const {
@@ -87,7 +92,7 @@ class TodoList extends Component {
       });
     }
   }
-  renderTodoEdge = todoEdge => {
+  renderTodoEdge(todoEdge) {
     const destroyHandler = this._handleTodoDestroy.bind(null, todoEdge.node);
     return (
       <Swipeout
@@ -138,7 +143,7 @@ class TodoList extends Component {
         <ListView
           dataSource={this.state.todosDataSource}
           initialListSize={this.state.initialListSize}
-          renderRow={this.renderTodoEdge}mac
+          renderRow={this.renderTodoEdge}
           renderSeparator={this.renderSeparator}
         />
       </View>

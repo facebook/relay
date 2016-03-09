@@ -11,16 +11,16 @@
     "babel-preset-es2015": "^6.5.0",
     "babel-preset-react-native": "^1.5.1",
     "babel-preset-stage-0": "^6.5.0",
-    "babel-relay-plugin": "0.7.3",
+    "babel-relay-plugin": "file:../../scripts/babel-relay-plugin",
     "express": "4.13.4",
     "express-graphql": "0.4.9",
     "graphql": "0.4.17",
     "graphql-relay": "0.3.6",
     "react": "^0.14.5",
-    "react-native": "facebook/react-native",
+    "react-native": "0.22.0-rc",
     "react-native-listitem": "1.0.5",
     "react-native-swipeout": "2.0.12",
-    "react-relay": "0.7.3"
+    "react-relay": "file:../../"
   },
   "devDependencies": {
     "babel-cli": "^6.6.4"

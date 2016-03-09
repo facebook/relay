@@ -35,7 +35,16 @@ class Todo extends Component {
   state = {
     isEditing: false,
   };
-  _handleCompletePress = () => {
+  constructor(props, context) {
+    super(props, context);
+    this._handleCompletePress = this._handleCompletePress.bind(this);
+    this._handleLabelPress = this._handleLabelPress.bind(this);
+    this._handleTextInputCancel = this._handleTextInputCancel.bind(this);
+    this._handleTextInputDelete = this._handleTextInputDelete.bind(this);
+    this._handleTextInputSave = this._handleTextInputSave.bind(this);
+    this._setEditMode = this._setEditMode.bind(this);
+  }
+  _handleCompletePress() {
     var complete = !this.props.todo.complete;
     Relay.Store.commitUpdate(
       new ChangeTodoStatusMutation({
@@ -44,26 +53,26 @@ class Todo extends Component {
         viewer: this.props.viewer,
       })
     );
-  };
-  _handleLabelPress = () => {
+  }
+  _handleLabelPress() {
     this._setEditMode(true);
-  };
-  _handleTextInputCancel = () => {
+  }
+  _handleTextInputCancel() {
     this._setEditMode(false);
-  };
-  _handleTextInputDelete = () => {
+  }
+  _handleTextInputDelete() {
     this._setEditMode(false);
     this.props.onDestroy();
-  };
-  _handleTextInputSave = text => {
+  }
+  _handleTextInputSave(text) {
     this._setEditMode(false);
     Relay.Store.commitUpdate(
       new RenameTodoMutation({todo: this.props.todo, text})
     );
-  };
-  _setEditMode = shouldEdit => {
+  }
+  _setEditMode(shouldEdit) {
     this.setState({isEditing: shouldEdit});
-  };
+  }
   renderCompleteCheckbox() {
     const imageModule = this.props.todo.complete ?
       require('../images/todo_checkbox-active.png') :

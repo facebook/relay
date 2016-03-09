@@ -25,9 +25,13 @@ import React, {
 } from 'react-native';
 
 class TodoApp extends Component {
-  _handleStatusChange = status => {
+  constructor(props, context) {
+    super(props, context);
+    this._handleStatusChange = this._handleStatusChange.bind(this);
+  }
+  _handleStatusChange(status) {
     this.props.relay.setVariables({status});
-  };
+  }
   render() {
     return (
       <View style={styles.container}>

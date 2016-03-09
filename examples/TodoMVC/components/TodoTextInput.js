@@ -34,10 +34,16 @@ export default class TodoTextInput extends Component {
     value: TextInput.propTypes.value,
   };
   state = {
-    isEditing: false,
     text: this.props.initialValue || '',
   };
-  _commitChanges = () => {
+  constructor(props, context) {
+    super(props, context);
+    this._commitChanges = this._commitChanges.bind(this);
+    this._handleBlur = this._handleBlur.bind(this);
+    this._handleChangeText = this._handleChangeText.bind(this);
+    this._handleSubmitEditing = this._handleSubmitEditing.bind(this);
+  }
+  _commitChanges() {
     var newText = this.state.text.trim();
     if (this.props.onDelete && newText === '') {
       this.props.onDelete();
@@ -49,20 +55,20 @@ export default class TodoTextInput extends Component {
         this.setState({text: ''});
       }
     }
-  };
-  _handleBlur = () => {
+  }
+  _handleBlur() {
     if (this.props.commitOnBlur) {
       this._commitChanges();
     }
-  };
-  _handleChangeText = text => {
+  }
+  _handleChangeText(text) {
     if (this._mounted !== false) {
       this.setState({text: text});
     }
-  };
-  _handleSubmitEditing = () => {
+  }
+  _handleSubmitEditing() {
     this._commitChanges();
-  };
+  }
   componentWillUnmount() {
     this._mounted = false;
   }

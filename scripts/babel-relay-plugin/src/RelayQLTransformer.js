@@ -229,6 +229,7 @@ class RelayQLTransformer {
       document.definitions.length === 1,
       'You supplied a GraphQL document named `%s` with %d definitions, but ' +
       'it must have exactly one definition.',
+      documentName,
       document.definitions.length
     );
     const definition = document.definitions[0];

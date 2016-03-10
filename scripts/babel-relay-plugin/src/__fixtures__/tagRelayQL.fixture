@@ -9,44 +9,5 @@ var x = RelayQL`
 `;
 
 Output:
-var RelayQL = require('react-relay/RelayQL');
-var x = (function () {
-  return {
-    calls: [{
-      kind: 'Call',
-      metadata: {
-        type: 'ID!'
-      },
-      name: 'id',
-      value: {
-        kind: 'CallValue',
-        callValue: 123
-      }
-    }],
-    children: [{
-      fieldName: 'id',
-      kind: 'Field',
-      metadata: {
-        isRequisite: true
-      },
-      type: 'String'
-    }, {
-      fieldName: '__typename',
-      kind: 'Field',
-      metadata: {
-        isGenerated: true,
-        isRequisite: true
-      },
-      type: 'String'
-    }],
-    fieldName: 'node',
-    kind: 'Query',
-    metadata: {
-      isAbstract: true,
-      identifyingArgName: 'id',
-      identifyingArgType: 'ID!'
-    },
-    name: 'TagRelayQL',
-    type: 'Node'
-  };
-})();
+'use strict';var RelayQL = require('react-relay/RelayQL');
+var x = function () {return { calls: [{ kind: 'Call', metadata: { type: 'ID!' }, name: 'id', value: { kind: 'CallValue', callValue: 123 } }], children: [{ fieldName: 'id', kind: 'Field', metadata: { isRequisite: true }, type: 'String' }, { fieldName: '__typename', kind: 'Field', metadata: { isGenerated: true, isRequisite: true }, type: 'String' }], fieldName: 'node', kind: 'Query', metadata: { isAbstract: true, identifyingArgName: 'id', identifyingArgType: 'ID!' }, name: 'TagRelayQL', type: 'Node' };}();

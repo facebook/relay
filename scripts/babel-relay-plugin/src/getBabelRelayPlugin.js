@@ -16,11 +16,9 @@ const {utilities_buildClientSchema: {buildClientSchema}} = require('./GraphQL');
 import type {Validator} from './RelayQLTransformer';
 const RelayQLTransformer = require('./RelayQLTransformer');
 const babelAdapter = require('./babelAdapter');
-const generateHash = require('./generateHash');
 const invariant = require('./invariant');
 const util = require('util');
 
-const HASH_LENGTH = 12;
 const PROVIDES_MODULE = 'providesModule';
 
 type GraphQLSchema = Object;
@@ -107,14 +105,6 @@ function getBabelRelayPlugin(
           const {documentName} = state.file.opts;
           invariant(documentName, 'Expected `documentName` to have been set.');
 
-          const {line, column} = path.node.loc.start;
-          const fragmentLocationID = generateHash(JSON.stringify({
-            filename: state.file.filename,
-            code: state.file.code,
-            line,
-            column,
-          })).substring(0, HASH_LENGTH);
-
           let p = path;
           let propName = null;
           while (!propName && (p = p.parentPath)) {
@@ -131,7 +121,6 @@ function getBabelRelayPlugin(
                 node.quasi,
                 {
                   documentName,
-                  fragmentLocationID,
                   tagName,
                   propName
                 }

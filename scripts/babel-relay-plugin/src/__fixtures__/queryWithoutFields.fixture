@@ -3,13 +3,5 @@ var Relay = require('react-relay');
 var x = Relay.QL`query { viewer }`;
 
 Output:
-var Relay = require('react-relay');
-var x = (function () {
-  return {
-    fieldName: 'viewer',
-    kind: 'Query',
-    metadata: {},
-    name: 'QueryWithoutFields',
-    type: 'Viewer'
-  };
-})();
+'use strict';var Relay = require('react-relay');
+var x = function () {return { fieldName: 'viewer', kind: 'Query', metadata: {}, name: 'QueryWithoutFields', type: 'Viewer' };}();

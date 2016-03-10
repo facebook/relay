@@ -47,6 +47,7 @@ function transformGraphQL(schemaPath, source, filename) {
   const babelOptions = getBabelOptions({
     moduleOpts: {prefix: ''},
   });
+  babelOptions.compact = false;
   babelOptions.plugins.unshift(plugin);
   babelOptions.filename = filename;
   babelOptions.retainLines = true;

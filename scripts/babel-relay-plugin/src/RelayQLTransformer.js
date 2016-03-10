@@ -74,7 +74,6 @@ type TransformerOptions = {
 };
 type TextTransformOptions = {
   documentName: string;
-  fragmentLocationID: string;
   propName: ?string;
   tagName: string;
 };
@@ -185,7 +184,7 @@ class RelayQLTransformer {
    */
   processDocumentText(
     documentText: string,
-    {documentName, fragmentLocationID}: TextTransformOptions
+    {documentName}: TextTransformOptions
   ): RelayQLDefinition {
     const document = parser.parse(new Source(documentText, documentName));
     const validationErrors = this.validateDocument(document, documentName);
@@ -205,7 +204,6 @@ class RelayQLTransformer {
       isPattern: false,
       generateID: createIDGenerator(),
       schema: this.schema,
-      fragmentLocationID,
     };
     if (definition.kind === 'FragmentDefinition') {
       return new RelayQLFragment(context, definition);

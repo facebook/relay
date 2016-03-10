@@ -44,7 +44,6 @@ type GraphQLSchemaType = Object;
 
 type RelayQLContext = {
   definitionName: string;
-  fragmentLocationID: string;
   generateID: () => string;
   isPattern: boolean;
   schema: GraphQLSchema;
@@ -166,11 +165,14 @@ class RelayQLFragment extends RelayQLDefinition<
 
   getStaticFragmentID(): ?string {
     if (this.hasStaticFragmentID && this.staticFragmentID == null) {
-      let suffix = this.context.generateID();
-      // The fragmentLocationID is the same for all inline/nested fragments
-      // within each Relay.QL tagged template expression; the auto-incrementing
-      // suffix distinguishes these fragments from each other.
-      this.staticFragmentID = `${this.context.fragmentLocationID}:${suffix}`;
+      const suffix = this.context.generateID();
+      const name = this.getName();
+      invariant(
+        name != null,
+        'Static fragments require a name. Use `fragment NAME on %s { ... }`.',
+        this.getType().getName({modifiers: true})
+      );
+      this.staticFragmentID = name + ':' + suffix;
     }
     return this.staticFragmentID;
   }

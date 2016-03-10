@@ -484,10 +484,12 @@ function createContainerComponent(
       this._updateFragmentResolvers(environment);
       return {
         queryData: this._getQueryData(props),
-        relayProp: shallowEqual(this.state.relayProp.variables, nextVariables) ?
+        relayProp: (this.state.relayProp.route === route)
+          && shallowEqual(this.state.relayProp.variables, nextVariables) ?
           this.state.relayProp :
           {
             ...this.state.relayProp,
+            route,
             variables: nextVariables,
           },
       };

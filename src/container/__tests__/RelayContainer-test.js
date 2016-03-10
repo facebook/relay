@@ -496,6 +496,31 @@ describe('RelayContainer', function() {
     expect(mockResolvers[0].resolve.mock.calls.length).toBe(2);
   });
 
+  it('updates relay.route when route changes', () => {
+    const MockRouteA = RelayRoute.genMock();
+    const MockRouteB = RelayRoute.genMock();
+
+    const mockRouteA = new MockRouteA();
+    const mockRouteB = new MockRouteB();
+
+    RelayTestRenderer.render(
+      () => <MockContainer foo={mockFooPointer} />,
+      environment,
+      mockRouteA
+    );
+
+    RelayTestRenderer.render(
+      () => <MockContainer foo={mockFooPointer} />,
+      environment,
+      mockRouteB
+    );
+
+    const routeAProps = MockContainer.mock.render.mock.calls[0].props;
+    const routeBProps = MockContainer.mock.render.mock.calls[1].props;
+    expect(routeAProps.relay.route).toBe(mockRouteA);
+    expect(routeBProps.relay.route).toBe(mockRouteB);
+  });
+
   it('resolves with most recent props', () => {
     const fooFragment = getNode(MockContainer.getFragment('foo'));
     const mockPointerA = getPointer('42', mockFooFragment);

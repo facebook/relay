@@ -3,7 +3,7 @@
 ## Installation
 
 ```
-npm install && npm install -g react-native-cli
+npm install -g react-native-cli && npm install
 ```
 
 ## Running

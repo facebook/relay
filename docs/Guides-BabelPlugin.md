@@ -33,6 +33,23 @@ This gets converted into an immediately-invoked function:
 
 The easiest way to get started for now is with the [Relay Starter Kit](https://github.com/relayjs/relay-starter-kit) - this includes an example schema file and configures the [`babel-relay-plugin`](https://www.npmjs.com/package/babel-relay-plugin) npm module to transpile queries.
 
+### React Native Configuration
+
+The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, in `.babelrc`  `"react-native"` must come after `babelRelayPlugin`.
+
+```javascript
+{
+  "passPerPreset": true,
+  "presets": [
+    {"plugins": ["./plugins/babelRelayPlugin"]},
+    "react-native"
+  ]
+}
+```
+
+The reasoning is that if `babel-relay-plugin` does not run before the `es2015-template-literals` transform, it will not transform the Relay.QL template literals correctly. Also in Babel 6, you can’t control plugin order. So in React Native, where plugins in `.babelrc` are loaded before the projects `.babelrc`, it’s impossible to use the Babel Relay Plugin without overriding the entire transform list.
+
+
 ## Advanced Usage
 
 If you're not using the starter kit, you'll have to configure `babel` to use the `babel-relay-plugin`. The steps are as follows:

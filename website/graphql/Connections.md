@@ -244,7 +244,7 @@ allow the client to slice the set of edges before it is returned.
 
 To enable forward pagination, two arguments are required.
 
- - `first` takes an integer.
+ - `first` takes a non-negative integer.
  - `after` takes the *cursor type* as described in the `cursor` field section.
 
 The server should use those two arguments to modify the edges returned by
@@ -255,7 +255,7 @@ most `first` edges.
 
 To enable backward pagination, two arguments are required.
 
- - `last` takes an integer.
+ - `last` takes a non-negative integer.
  - `before` takes the *cursor type* as described in the `cursor` field section.
 
 The server should use those two arguments to modify the edges returned by
@@ -277,9 +277,13 @@ More formally:
 EdgesToReturn(allEdges, before, after, first, last):
   * Let {edges} be the result of calling {ApplyCursorsToEdges(allEdges, before, after)}.
   * If {first} is set:
+    * If {first} is less than 0:
+      * Throw an error.
     * If {edges} has length greater than than {first}:
       * Slice {edges} to be of length {first} by removing edges from the end of {edges}.
   * If {last} is set:
+    * If {last} is less than 0:
+      * Throw an error.
     * If {edges} has length greater than than {last}:
       * Slice {edges} to be of length {last} by removing edges from the start of {edges}.
   * Return {edges}.

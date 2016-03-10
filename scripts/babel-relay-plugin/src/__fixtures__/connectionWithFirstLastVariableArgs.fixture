@@ -18,140 +18,147 @@ var x = Relay.QL`
 
 Output:
 var Relay = require('react-relay');
-var x = (function() {
-  return {
-    calls: [{
-      kind: 'Call',
-      metadata: {},
-      name: 'id',
-      value: {
-        kind: 'CallValue',
-        callValue: 123
-      }
-    }],
-    children: [{
-      fieldName: 'id',
-      kind: 'Field',
-      metadata: {
-        isGenerated: true,
-        isRequisite: true
-      },
-      type: 'String'
-    }, {
-      fieldName: '__typename',
-      kind: 'Field',
-      metadata: {
-        isGenerated: true,
-        isRequisite: true
-      },
-      type: 'String'
-    }, {
-      children: [{
+var x = function() {
+    return {
         calls: [{
-          kind: 'Call',
-          metadata: {},
-          name: 'first',
-          value: {
-            kind: 'CallVariable',
-            callVariableName: 'first'
-          }
-        }, {
-          kind: 'Call',
-          metadata: {},
-          name: 'last',
-          value: {
-            kind: 'CallVariable',
-            callVariableName: 'last'
-          }
+            kind: 'Call',
+            metadata: {
+                type: 'ID!'
+            },
+            name: 'id',
+            value: {
+                kind: 'CallValue',
+                callValue: 123
+            }
         }],
         children: [{
-          children: [{
-            children: [{
-              fieldName: 'id',
-              kind: 'Field',
-              metadata: {
+            fieldName: 'id',
+            kind: 'Field',
+            metadata: {
+                isGenerated: true,
                 isRequisite: true
-              },
-              type: 'String'
-            }],
-            fieldName: 'node',
-            kind: 'Field',
-            metadata: {
-              inferredRootCallName: 'node',
-              inferredPrimaryKey: 'id',
-              isRequisite: true
-            },
-            type: 'User'
-          }, {
-            fieldName: 'cursor',
-            kind: 'Field',
-            metadata: {
-              isGenerated: true,
-              isRequisite: true
             },
             type: 'String'
-          }],
-          fieldName: 'edges',
-          kind: 'Field',
-          metadata: {
-            isPlural: true
-          },
-          type: 'UserConnectionEdge'
         }, {
-          children: [{
-            fieldName: 'hasNextPage',
+            fieldName: '__typename',
             kind: 'Field',
             metadata: {
-              isGenerated: true,
-              isRequisite: true
+                isGenerated: true,
+                isRequisite: true
             },
-            type: 'Boolean'
-          }, {
-            fieldName: 'hasPreviousPage',
-            kind: 'Field',
-            metadata: {
-              isGenerated: true,
-              isRequisite: true
-            },
-            type: 'Boolean'
-          }],
-          fieldName: 'pageInfo',
-          kind: 'Field',
-          metadata: {
-            isGenerated: true,
-            isRequisite: true
-          },
-          type: 'PageInfo'
+            type: 'String'
+        }, {
+            children: [{
+                calls: [{
+                    kind: 'Call',
+                    metadata: {},
+                    name: 'first',
+                    value: {
+                        kind: 'CallVariable',
+                        callVariableName: 'first'
+                    }
+                }, {
+                    kind: 'Call',
+                    metadata: {},
+                    name: 'last',
+                    value: {
+                        kind: 'CallVariable',
+                        callVariableName: 'last'
+                    }
+                }],
+                children: [{
+                    children: [{
+                        children: [{
+                            fieldName: 'id',
+                            kind: 'Field',
+                            metadata: {
+                                isRequisite: true
+                            },
+                            type: 'String'
+                        }],
+                        fieldName: 'node',
+                        kind: 'Field',
+                        metadata: {
+                            canHaveSubselections: true,
+                            inferredRootCallName: 'node',
+                            inferredPrimaryKey: 'id',
+                            isRequisite: true
+                        },
+                        type: 'User'
+                    }, {
+                        fieldName: 'cursor',
+                        kind: 'Field',
+                        metadata: {
+                            isGenerated: true,
+                            isRequisite: true
+                        },
+                        type: 'String'
+                    }],
+                    fieldName: 'edges',
+                    kind: 'Field',
+                    metadata: {
+                        canHaveSubselections: true,
+                        isPlural: true
+                    },
+                    type: 'UserConnectionEdge'
+                }, {
+                    children: [{
+                        fieldName: 'hasNextPage',
+                        kind: 'Field',
+                        metadata: {
+                            isGenerated: true,
+                            isRequisite: true
+                        },
+                        type: 'Boolean'
+                    }, {
+                        fieldName: 'hasPreviousPage',
+                        kind: 'Field',
+                        metadata: {
+                            isGenerated: true,
+                            isRequisite: true
+                        },
+                        type: 'Boolean'
+                    }],
+                    fieldName: 'pageInfo',
+                    kind: 'Field',
+                    metadata: {
+                        canHaveSubselections: true,
+                        isGenerated: true,
+                        isRequisite: true
+                    },
+                    type: 'PageInfo'
+                }],
+                fieldName: 'friends',
+                kind: 'Field',
+                metadata: {
+                    canHaveSubselections: true,
+                    isConnection: true,
+                    isFindable: true
+                },
+                type: 'UserConnection'
+            }, {
+                fieldName: 'id',
+                kind: 'Field',
+                metadata: {
+                    isGenerated: true,
+                    isRequisite: true
+                },
+                type: 'String'
+            }],
+            id: require('react-relay').QL.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'User',
+            type: 'User'
         }],
-        fieldName: 'friends',
-        kind: 'Field',
+        fieldName: 'node',
+        kind: 'Query',
         metadata: {
-          isConnection: true,
-          isFindable: true
+            isAbstract: true,
+            identifyingArgName: 'id',
+            identifyingArgType: 'ID!'
         },
-        type: 'UserConnection'
-      }, {
-        fieldName: 'id',
-        kind: 'Field',
-        metadata: {
-          isGenerated: true,
-          isRequisite: true
-        },
-        type: 'String'
-      }],
-      hash: 'hC68BRpp',
-      kind: 'Fragment',
-      metadata: {},
-      name: 'User',
-      type: 'User'
-    }],
-    fieldName: 'node',
-    kind: 'Query',
-    metadata: {
-      isAbstract: true,
-      identifyingArgName: 'id'
-    },
-    name: 'ConnectionWithFirstLastVariableArgs',
-    type: 'Node'
-  };
-})();
+        name: 'ConnectionWithFirstLastVariableArgs',
+        type: 'Node'
+    };
+}();

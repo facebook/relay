@@ -724,7 +724,7 @@ function createContainerComponent(
       );
     }
 
-    render(): React.Element {
+    render(): React$Element {
       const relayProps: RelayProp = {
         forceFetch: this.forceFetch,
         getPendingTransactions: this.getPendingTransactions,

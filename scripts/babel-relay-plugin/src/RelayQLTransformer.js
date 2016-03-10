@@ -188,7 +188,7 @@ class RelayQLTransformer {
     {documentName, fragmentLocationID}: TextTransformOptions
   ): RelayQLDefinition {
     const document = parser.parse(new Source(documentText, documentName));
-    const validationErrors = this.validateDocument(document);
+    const validationErrors = this.validateDocument(document, documentName);
     if (validationErrors) {
       const error = new Error(util.format(
         'You supplied a GraphQL document named `%s` with validation errors.',
@@ -224,7 +224,10 @@ class RelayQLTransformer {
     }
   }
 
-  validateDocument(document: GraphQLDocument): ?Array<GraphQLValidationError> {
+  validateDocument(
+    document: GraphQLDocument,
+    documentName: string,
+  ): ?Array<GraphQLValidationError> {
     invariant(
       document.definitions.length === 1,
       'You supplied a GraphQL document named `%s` with %d definitions, but ' +

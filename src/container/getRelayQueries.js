@@ -38,14 +38,12 @@ function getRelayQueries(
   Component: RelayLazyContainer,
   route: RelayQueryConfigSpec
 ): RelayQuerySet {
-  if (!queryCache.has(Component)) {
-    queryCache.set(Component, {});
+  let cache = queryCache.get(Component);
+  if (!cache) {
+    cache = {};
+    queryCache.set(Component, cache);
   }
   const cacheKey = route.name + ':' + stableStringify(route.params);
-  /* $FlowFixMe: Error discovered while adding Flow types
-   * to Map and Set. This is often because .get() can return null.
-   */
-  const cache = queryCache.get(Component);
   if (cache.hasOwnProperty(cacheKey)) {
     return cache[cacheKey];
   }

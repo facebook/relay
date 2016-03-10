@@ -146,16 +146,11 @@ describe('RelayRecordStore', () => {
       expect(store.hasOptimisticUpdate('4')).toBe(false);
     });
 
-    it('throws if called on a non-queued record store', () => {
+    it('returns false if called on a non-queued record store', () => {
       const store = new RelayRecordStore({
         records: {'4': {__dataID__: '4'}},
       });
-      expect(() => {
-        store.hasOptimisticUpdate('4');
-      }).toFailInvariant(
-        'RelayRecordStore.hasOptimisticUpdate(): Optimistic updates require ' +
-        'queued records.'
-      );
+      expect(store.hasOptimisticUpdate('4')).toBe(false);
     });
   });
 

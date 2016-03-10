@@ -76,6 +76,10 @@ class RelayMutationTransaction {
   getStatus(): $Keys<typeof RelayMutationTransactionStatus> {
     return this._mutationQueue.getStatus(this._id);
   }
+
+  getHash(): string {
+    return `${this._id}:${this.getStatus()}`;
+  }
 }
 
 module.exports = RelayMutationTransaction;

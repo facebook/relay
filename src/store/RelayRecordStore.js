@@ -168,12 +168,10 @@ class RelayRecordStore {
    * Returns whether a given record is affected by an optimistic update.
    */
   hasOptimisticUpdate(dataID: DataID): boolean {
-    invariant(
-      this._queuedRecords,
-      'RelayRecordStore.hasOptimisticUpdate(): Optimistic updates require ' +
-      'queued records.'
-    );
-    return this._queuedRecords.hasOwnProperty(dataID);
+    const queuedRecords = this._queuedRecords;
+    return queuedRecords ?
+      queuedRecords.hasOwnProperty(dataID) :
+      false;
   }
 
   /**
@@ -182,13 +180,14 @@ class RelayRecordStore {
    * null if the record isn't affected by any optimistic updates.
    */
   getClientMutationIDs(dataID: DataID): ?Array<ClientMutationID> {
-    invariant(
-      this._queuedRecords,
-      'RelayRecordStore.getClientMutationIDs(): Optimistic updates require ' +
-      'queued records.'
-    );
-    const record = this._queuedRecords[dataID];
-    return record ? record.__mutationIDs__ : null;
+    const queuedRecords = this._queuedRecords;
+    if (queuedRecords) {
+      const record = queuedRecords[dataID];
+      if (record) {
+        return record.__mutationIDs__;
+      }
+    }
+    return null;
   }
 
   /**

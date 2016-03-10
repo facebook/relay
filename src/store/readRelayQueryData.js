@@ -94,6 +94,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     super();
     this._rangeData = storeData.getRangeData();
     this._recordStore = storeData.getQueuedStore();
+    this._storeData = storeData;
     this._traverseFragmentReferences =
       (options && options.traverseFragmentReferences) || false;
     this._traverseGeneratedFields =
@@ -402,12 +403,10 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     if (!(data instanceof Object)) {
       return;
     }
-    // Copy metadata like `__resolvedFragmentMapGeneration__` and `__status__`.
+    const dataID = state.storeDataID;
+    // Copy metadata that is necessary to dirty records when recycling objects.
     METADATA_KEYS.forEach(metadataKey => {
-      const metadataValue = this._recordStore.getField(
-        state.storeDataID,
-        metadataKey
-      );
+      const metadataValue = this._recordStore.getField(dataID, metadataKey);
       if (metadataValue != null) {
         data[metadataKey] = metadataValue;
       }
@@ -416,6 +415,14 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     if (state.isPartial) {
       data.__status__ =
         RelayRecordStatusMap.setPartialStatus(data.__status__, true);
+    }
+    // Hash any pending mutation transactions.
+    const mutationIDs = this._storeData.getClientMutationIDs(dataID);
+    if (mutationIDs) {
+      const mutationQueue = this._storeData.getMutationQueue();
+      data.__mutationStatus__ = mutationIDs.map(
+        mutationID => mutationQueue.getTransaction(mutationID).getHash()
+      ).join(',');
     }
   }
 

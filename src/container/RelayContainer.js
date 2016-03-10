@@ -116,8 +116,8 @@ function createContainerComponent(
       request: Abortable;
     };
     state: {
-      variables: Variables;
       queryData: {[propName: string]: mixed};
+      relayProp: RelayProp;
     };
 
     constructor(props, context) {
@@ -140,13 +140,6 @@ function createContainerComponent(
         containerName
       );
 
-      (this: any).forceFetch = this.forceFetch.bind(this);
-      (this: any).getPendingTransactions = this.getPendingTransactions.bind(this);
-      (this: any).hasFragmentData = this.hasFragmentData.bind(this);
-      (this: any).hasOptimisticUpdate = this.hasOptimisticUpdate.bind(this);
-      (this: any).hasPartialData = this.hasPartialData.bind(this);
-      (this: any).setVariables = this.setVariables.bind(this);
-
       this._didShowFakeDataWarning = false;
       this._fragmentPointers = {};
       this._hasStaleQueryData = false;
@@ -155,8 +148,17 @@ function createContainerComponent(
       this.mounted = true;
       this.pending = null;
       this.state = {
-        variables: {},
         queryData: {},
+        relayProp: {
+          forceFetch: this.forceFetch.bind(this),
+          getPendingTransactions: this.getPendingTransactions.bind(this),
+          hasFragmentData: this.hasFragmentData.bind(this),
+          hasOptimisticUpdate: this.hasOptimisticUpdate.bind(this),
+          hasPartialData: this.hasPartialData.bind(this),
+          route,
+          setVariables: this.setVariables.bind(this),
+          variables: {},
+        },
       };
     }
 
@@ -249,7 +251,7 @@ function createContainerComponent(
       callback: ?ComponentReadyStateChangeCallback,
       forceFetch: boolean
     ): void {
-      const lastVariables = this.state.variables;
+      const lastVariables = this.state.relayProp.variables;
       const prevVariables =
         this.pending ? this.pending.variables : lastVariables;
       const nextVariables = mergeVariables(prevVariables, partialVariables);
@@ -287,7 +289,13 @@ function createContainerComponent(
           this._fragmentPointers = fragmentPointers;
           this._updateFragmentResolvers(this.context.relay);
           const queryData = this._getQueryData(this.props);
-          partialState = {variables: nextVariables, queryData};
+          partialState = {
+            queryData,
+            relayProp: {
+              ...this.state.relayProp,
+              variables: nextVariables,
+            },
+          };
         } else {
           partialState = {};
         }
@@ -388,7 +396,7 @@ function createContainerComponent(
       const fragment = getDeferredFragment(
         fragmentReference,
         this.context,
-        this.state.variables
+        this.state.relayProp.variables
       );
       invariant(
         fragment instanceof RelayQuery.Fragment,
@@ -444,7 +452,11 @@ function createContainerComponent(
           nextProps,
           relay,
           route,
-          resetPropOverridesForVariables(spec, nextProps, state.variables)
+          resetPropOverridesForVariables(
+            spec,
+            nextProps,
+            state.relayProp.variables
+          )
         );
       });
     }
@@ -459,17 +471,25 @@ function createContainerComponent(
       environment,
       route: RelayQueryConfigSpec,
       prevVariables: Variables
-    ): { variables: Variables, queryData: {[propName: string]: mixed} } {
-      const variables = getVariablesWithPropOverrides(
+    ): {
+      queryData: {[propName: string]: mixed};
+      relayProp: RelayProp;
+    } {
+      const nextVariables = getVariablesWithPropOverrides(
         spec,
         props,
         prevVariables
       );
-      this._updateFragmentPointers(props, route, variables);
+      this._updateFragmentPointers(props, route, nextVariables);
       this._updateFragmentResolvers(environment);
       return {
-        variables,
         queryData: this._getQueryData(props),
+        relayProp: shallowEqual(this.state.relayProp.variables, nextVariables) ?
+          this.state.relayProp :
+          {
+            ...this.state.relayProp,
+            variables: nextVariables,
+          },
       };
     }
 
@@ -718,28 +738,18 @@ function createContainerComponent(
           )
         ) ||
         !RelayContainerComparators.areQueryVariablesEqual(
-          this.state.variables,
-          nextState.variables
+          this.state.relayProp.variables,
+          nextState.relayProp.variables
         )
       );
     }
 
     render(): React$Element {
-      const relayProps: RelayProp = {
-        forceFetch: this.forceFetch,
-        getPendingTransactions: this.getPendingTransactions,
-        hasFragmentData: this.hasFragmentData,
-        hasOptimisticUpdate: this.hasOptimisticUpdate,
-        hasPartialData: this.hasPartialData,
-        route: this.context.route,
-        setVariables: this.setVariables,
-        variables: this.state.variables,
-      };
       return (
         <Component
           {...this.props}
           {...this.state.queryData}
-          {...prepareRelayContainerProps(relayProps, this)}
+          {...prepareRelayContainerProps(this.state.relayProp)}
           ref={isReactComponent(Component) ? 'component' : null}
         />
       );

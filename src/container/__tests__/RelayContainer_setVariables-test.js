@@ -40,9 +40,7 @@ describe('RelayContainer.setVariables', function() {
     jest.resetModuleRegistry();
 
     const fragment = Relay.QL`fragment on Node{url(site:$site)}`;
-    entityQuery = jest.genMockFunction().mockImplementation(
-      () => fragment
-    );
+    entityQuery = jest.genMockFunction().mockImplementation(() => fragment);
     render = jest.genMockFunction().mockImplementation(() => <div />);
 
     // Make RQLTransform ignore this call.
@@ -231,7 +229,7 @@ describe('RelayContainer.setVariables', function() {
 
   describe('mount', () => {
     it('renders with default variables', () => {
-      expect(mockInstance.state.variables.site).toBe('mobile');
+      expect(mockInstance.state.relayProp.variables.site).toBe('mobile');
     });
 
     it('lets props override default variables', () => {
@@ -241,7 +239,7 @@ describe('RelayContainer.setVariables', function() {
         ),
         environment
       );
-      expect(anotherInstance.state.variables.site).toBe('www');
+      expect(anotherInstance.state.relayProp.variables.site).toBe('www');
     });
   });
 
@@ -252,7 +250,7 @@ describe('RelayContainer.setVariables', function() {
 
       mockInstance.forceUpdate();
 
-      expect(mockInstance.state.variables.site).toBe('mobile');
+      expect(mockInstance.state.relayProp.variables.site).toBe('mobile');
     });
 
     it('updates `variables` after callback when data is ready', () => {
@@ -261,12 +259,12 @@ describe('RelayContainer.setVariables', function() {
       jest.runAllTimers();
 
       mockCallback.mockImplementation(() => {
-        expect(mockInstance.state.variables.site).toBe('mobile');
+        expect(mockInstance.state.relayProp.variables.site).toBe('mobile');
       });
       environment.primeCache.mock.requests[0].succeed();
       expect(mockCallback.mock.calls.length).toBe(1);
 
-      expect(mockInstance.state.variables.site).toBe('www');
+      expect(mockInstance.state.relayProp.variables.site).toBe('www');
     });
 
     it('resolves data using updated `variables`', () => {
@@ -392,14 +390,14 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('does not mutate previous `variables`', () => {
-      const prevVariables = mockInstance.state.variables;
+      const prevVariables = mockInstance.state.relayProp.variables;
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
       environment.primeCache.mock.requests[0].succeed();
 
       expect(prevVariables).toEqual({site: 'mobile'});
-      expect(mockInstance.state.variables).not.toBe(prevVariables);
+      expect(mockInstance.state.relayProp.variables).not.toBe(prevVariables);
     });
   });
 
@@ -453,7 +451,7 @@ describe('RelayContainer.setVariables', function() {
       jest.runAllTimers();
       environment.primeCache.mock.requests[0].succeed();
       // ...but is invisible to the component
-      expect(mockInstance.state.variables).toEqual({site: 'www'});
+      expect(mockInstance.state.relayProp.variables).toEqual({site: 'www'});
     });
   });
 
@@ -530,14 +528,14 @@ describe('RelayContainer.setVariables', function() {
         environment
       );
       const innerComponent = mockInstance.refs.component.refs.inner;
-      expect(innerComponent.state.variables.site).toBe('mobile');
+      expect(innerComponent.state.relayProp.variables.site).toBe('mobile');
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
       environment.primeCache.mock.requests[0].succeed();
-      expect(mockInstance.state.variables.site).toBe('www');
+      expect(mockInstance.state.relayProp.variables.site).toBe('www');
 
-      expect(innerComponent.state.variables.site).toBe('www');
+      expect(innerComponent.state.relayProp.variables.site).toBe('www');
     });
 
     it('resets variables if outside variable props are updated', () => {
@@ -588,12 +586,12 @@ describe('RelayContainer.setVariables', function() {
         environment
       );
       const innerComponent = mockInstance.refs.component.refs.inner;
-      expect(innerComponent.state.variables.site).toBe('mobile');
+      expect(innerComponent.state.relayProp.variables.site).toBe('mobile');
 
       innerComponent.setVariables({size: 32});
       jest.runAllTimers();
       environment.primeCache.mock.requests[0].succeed();
-      expect(innerComponent.state.variables).toEqual({
+      expect(innerComponent.state.relayProp.variables).toEqual({
         site: 'mobile',
         size: 32,
       });
@@ -602,11 +600,11 @@ describe('RelayContainer.setVariables', function() {
       jest.runAllTimers();
 
       environment.primeCache.mock.requests[1].succeed();
-      expect(mockInstance.state.variables).toEqual({
+      expect(mockInstance.state.relayProp.variables).toEqual({
         site: 'www',
       });
 
-      expect(innerComponent.state.variables).toEqual({
+      expect(innerComponent.state.relayProp.variables).toEqual({
         site: 'www',
         size: 48,
       });

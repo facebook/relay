@@ -785,6 +785,34 @@ describe('RelayContainer', function() {
     );
   });
 
+  it('renders with identical props if no data has changed', () => {
+    // Non-scalars deoptimize `RelayContainer.shouldComponentUpdate`.
+    const nonScalar = {};
+
+    RelayTestRenderer.render(
+      () => <MockContainer foo={mockFooPointer} deopt={nonScalar} />,
+      environment,
+      mockRoute
+    );
+    RelayTestRenderer.render(
+      () => <MockContainer foo={mockFooPointer} deopt={nonScalar} />,
+      environment,
+      mockRoute
+    );
+    expect(MockContainer.mock.render.mock.calls.length).toBe(2);
+
+    const propsA = MockContainer.mock.render.mock.calls[0].props;
+    const propsB = MockContainer.mock.render.mock.calls[1].props;
+
+    const propNamesA = Object.keys(propsA);
+    const propNamesB = Object.keys(propsB);
+    expect(propNamesA).toEqual(propNamesB);
+
+    propNamesA.forEach(propName => {
+      expect(propsA[propName]).toBe(propsB[propName]);
+    });
+  });
+
   it('applies `shouldComponentUpdate` properly', () => {
     const mockDataSet = {
       '42': {__dataID__: '42', name: 'Tim'},

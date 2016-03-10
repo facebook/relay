@@ -128,7 +128,7 @@ var RelayQLTransformer = function () {
     var fragmentLocationID = _ref2.fragmentLocationID;
 
     var document = parser.parse(new Source(documentText, documentName));
-    var validationErrors = this.validateDocument(document);
+    var validationErrors = this.validateDocument(document, documentName);
     if (validationErrors) {
       var error = new Error(util.format('You supplied a GraphQL document named `%s` with validation errors.', documentName));
       error.validationErrors = validationErrors;
@@ -161,8 +161,8 @@ var RelayQLTransformer = function () {
     }
   };
 
-  RelayQLTransformer.prototype.validateDocument = function validateDocument(document) {
-    invariant(document.definitions.length === 1, 'You supplied a GraphQL document named `%s` with %d definitions, but ' + 'it must have exactly one definition.', document.definitions.length);
+  RelayQLTransformer.prototype.validateDocument = function validateDocument(document, documentName) {
+    invariant(document.definitions.length === 1, 'You supplied a GraphQL document named `%s` with %d definitions, but ' + 'it must have exactly one definition.', documentName, document.definitions.length);
     var definition = document.definitions[0];
     var isMutation = definition.kind === 'OperationDefinition' && definition.operation === 'mutation';
 

@@ -19,7 +19,9 @@ var x = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
-var x = (function () {
+var x = function () {
   throw new Error('GraphQL validation/transform error ``You supplied the `edges` field on a connection named `friends`, but you did not supply an argument necessary to do so. Use either the `find`, `first`, or `last` argument.`` in file `connectionWithoutArgsWithInlineFragment.fixture`.');
-})();
+}();

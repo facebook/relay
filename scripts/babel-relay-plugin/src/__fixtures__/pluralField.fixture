@@ -14,8 +14,10 @@ var x = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
-var x = (function () {
+var x = function () {
   return {
     calls: [{
       kind: 'Call',
@@ -93,4 +95,4 @@ var x = (function () {
     name: 'PluralField',
     type: 'Node'
   };
-})();
+}();

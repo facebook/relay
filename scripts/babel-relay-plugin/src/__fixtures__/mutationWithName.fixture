@@ -9,8 +9,10 @@ var x = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
-var x = (function (RQL_0) {
+var x = function (RQL_0) {
   return {
     calls: [{
       kind: 'Call',
@@ -37,4 +39,4 @@ var x = (function (RQL_0) {
     name: 'MutationNameHere',
     responseType: 'ActorSubscribeResponsePayload'
   };
-})(reference);
+}(reference);

@@ -11,8 +11,10 @@ var x = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
-var x = (function () {
+var x = function () {
   return {
     children: [{
       children: [{
@@ -35,4 +37,4 @@ var x = (function () {
     name: 'MetadataNonFindable',
     type: 'Viewer'
   };
-})();
+}();

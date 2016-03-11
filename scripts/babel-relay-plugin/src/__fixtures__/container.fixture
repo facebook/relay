@@ -7,11 +7,13 @@ Relay.createContainer(Component, {
 });
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
 Relay.createContainer(Component, {
   queries: {
     viewer: function () {
-      return (function () {
+      return function () {
         return {
           children: [{
             children: [{
@@ -37,7 +39,7 @@ Relay.createContainer(Component, {
           name: 'Container_ViewerRelayQL',
           type: 'Viewer'
         };
-      })();
+      }();
     }
   }
 });

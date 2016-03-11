@@ -671,8 +671,12 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   }
 
   function validateConnectionField(field: RelayQLField): void {
-    let [first, last, before, after] = [field.findArgument('first'), field.findArgument('last'),
-      field.findArgument('before'), field.findArgument('after')]
+    let [first, last, before, after] = [
+      field.findArgument('first'),
+      field.findArgument('last'),
+      field.findArgument('before'),
+      field.findArgument('after'),
+    ]
     invariant(
       (!first || !last) || (first.isVariable() && last.isVariable()),
       'Connection arguments `%s(first: <count>, last: <count>)` are ' +

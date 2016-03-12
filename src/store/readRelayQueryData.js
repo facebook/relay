@@ -420,9 +420,14 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     const mutationIDs = this._storeData.getClientMutationIDs(dataID);
     if (mutationIDs) {
       const mutationQueue = this._storeData.getMutationQueue();
-      data.__mutationStatus__ = mutationIDs.map(
-        mutationID => mutationQueue.getTransaction(mutationID).getHash()
-      ).join(',');
+      data.__mutationStatus__ = mutationIDs.map(mutationID => {
+        const transaction = mutationQueue.getTransaction(mutationID);
+        if (transaction) {
+          return transaction.getHash();
+        } else {
+          return mutationID;
+        }
+      }).join(',');
     }
   }
 

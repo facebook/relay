@@ -100,7 +100,11 @@ class RelayMutationQueue {
     return mutationTransaction;
   }
 
-  getTransaction(id: ClientMutationID): RelayMutationTransaction {
+  // TODO #10393040: Make this non-nullable once legacy mutations are upgraded.
+  getTransaction(id: ClientMutationID): ?RelayMutationTransaction {
+    if (!this._pendingTransactionMap.hasOwnProperty(id)) {
+      return null;
+    }
     return this._get(id).mutationTransaction;
   }
 

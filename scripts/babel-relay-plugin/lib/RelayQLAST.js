@@ -263,6 +263,12 @@ var RelayQLField = function (_RelayQLNode2) {
     });
   };
 
+  RelayQLField.prototype.findArgument = function findArgument(argName) {
+    return find(this.getArguments(), function (arg) {
+      return arg.getName() === argName;
+    });
+  };
+
   RelayQLField.prototype.getArguments = function getArguments() {
     var _this9 = this;
 

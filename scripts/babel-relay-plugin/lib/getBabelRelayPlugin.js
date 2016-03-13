@@ -19,11 +19,9 @@ var buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema;
 
 var RelayQLTransformer = require('./RelayQLTransformer');
 var babelAdapter = require('./babelAdapter');
-var generateHash = require('./generateHash');
 var invariant = require('./invariant');
 var util = require('util');
 
-var HASH_LENGTH = 12;
 var PROVIDES_MODULE = 'providesModule';
 
 /**
@@ -103,17 +101,6 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
 
             invariant(documentName, 'Expected `documentName` to have been set.');
 
-            var _path$node$loc$start = path.node.loc.start;
-            var line = _path$node$loc$start.line;
-            var column = _path$node$loc$start.column;
-
-            var fragmentLocationID = generateHash(JSON.stringify({
-              filename: state.file.filename,
-              code: state.file.code,
-              line: line,
-              column: column
-            })).substring(0, HASH_LENGTH);
-
             var p = path;
             var propName = null;
             while (!propName && (p = p.parentPath)) {
@@ -126,7 +113,6 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
             try {
               result = transformer.transform(t, node.quasi, {
                 documentName: documentName,
-                fragmentLocationID: fragmentLocationID,
                 tagName: tagName,
                 propName: propName
               });

@@ -125,7 +125,6 @@ var RelayQLTransformer = function () {
 
   RelayQLTransformer.prototype.processDocumentText = function processDocumentText(documentText, _ref2) {
     var documentName = _ref2.documentName;
-    var fragmentLocationID = _ref2.fragmentLocationID;
 
     var document = parser.parse(new Source(documentText, documentName));
     var validationErrors = this.validateDocument(document, documentName);
@@ -141,8 +140,7 @@ var RelayQLTransformer = function () {
       definitionName: capitalize(documentName),
       isPattern: false,
       generateID: createIDGenerator(),
-      schema: this.schema,
-      fragmentLocationID: fragmentLocationID
+      schema: this.schema
     };
     if (definition.kind === 'FragmentDefinition') {
       return new RelayQLFragment(context, definition);

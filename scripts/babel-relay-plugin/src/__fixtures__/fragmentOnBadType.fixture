@@ -3,7 +3,9 @@ var Relay = require('react-relay');
 var x = Relay.QL`fragment on NotAType { id }`;
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
-var x = (function () {
+var x = function () {
   throw new Error('GraphQL validation/transform error ``Unknown type "NotAType".`` in file `fragmentOnBadType.fixture`.');
-})();
+}();

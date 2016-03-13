@@ -8,22 +8,24 @@
  */
 
 const babel = require('babel-core');
-const getBabelOptions = require('fbjs-scripts/babel-6/default-options');
+const fbjsPreset = require('babel-preset-fbjs');
 const jestPreset = require('babel-preset-jest');
 const path = require('path');
 
 const NODE_MODULES = path.sep + 'node_modules' + path.sep;
 
 module.exports = {
-  process(src, filename) {
+  process: function(src, filename) {
     if (!filename.includes(NODE_MODULES) && babel.util.canCompile(filename)) {
-      const babelOptions = getBabelOptions({
-        moduleOpts: {prefix: ''},
-      });
-      babelOptions.presets = [jestPreset];
-      babelOptions.filename = filename;
-      babelOptions.retainLines = true;
-      return babel.transform(src, babelOptions).code;
+      const options = {
+        presets: [
+          fbjsPreset,
+          jestPreset,
+        ],
+        filename: filename,
+        retainLines: true,
+      };
+      return babel.transform(src, options).code;
     }
     return src;
   },

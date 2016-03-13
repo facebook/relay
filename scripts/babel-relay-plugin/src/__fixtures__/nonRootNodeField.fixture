@@ -11,7 +11,9 @@ var fragment = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('Relay');
-var fragment = (function () {
+var fragment = function () {
   throw new Error('GraphQL validation/transform error ``You defined a `node(id: Int)` field on type `InvalidType`, but Relay requires the `node` field to be defined on the root type. See the Object Identification Guide: \nhttp://facebook.github.io/relay/docs/graphql-object-identification.html`` in file `nonRootNodeField.fixture`.');
-})();
+}();

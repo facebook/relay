@@ -13,8 +13,10 @@ var foo = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('Relay');
-var foo = (function () {
+var foo = function () {
   return {
     children: [{
       children: [{
@@ -74,4 +76,4 @@ var foo = (function () {
     name: 'FieldWithFakeConnectionRelayQL',
     type: 'User'
   };
-})();
+}();

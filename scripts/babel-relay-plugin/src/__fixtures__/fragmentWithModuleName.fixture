@@ -5,9 +5,11 @@ var x = Relay.QL`fragment Foo on Node { id }`;
 var y = Relay.QL`fragment Bar on Node { id }`;
 
 Output:
+'use strict';
+
 /** @providesModule Foo.react */
 var Relay = require('react-relay');
-var x = (function () {
+var x = function () {
   return {
     children: [{
       fieldName: 'id',
@@ -33,8 +35,8 @@ var x = (function () {
     name: 'Foo',
     type: 'Node'
   };
-})();
-var y = (function () {
+}();
+var y = function () {
   return {
     children: [{
       fieldName: 'id',
@@ -60,4 +62,4 @@ var y = (function () {
     name: 'Bar',
     type: 'Node'
   };
-})();
+}();

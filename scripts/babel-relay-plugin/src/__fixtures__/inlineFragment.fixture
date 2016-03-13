@@ -9,8 +9,10 @@ var x = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
-var x = (function () {
+var x = function () {
   return {
     children: [{
       fieldName: 'id',
@@ -57,4 +59,4 @@ var x = (function () {
     name: 'InlineFragmentRelayQL',
     type: 'Node'
   };
-})();
+}();

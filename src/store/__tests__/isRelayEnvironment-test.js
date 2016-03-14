@@ -23,23 +23,23 @@ describe('isRelayEnvironment()', () => {
   });
 
   it('returns true for objects that conform to the interface', () => {
-    const context = {
+    const environment = {
       forceFetch: () => null,
       getFragmentResolver: () => null,
       getStoreData: () => null,
       primeCache: () => null,
     };
-    expect(isRelayEnvironment(context)).toBe(true);
+    expect(isRelayEnvironment(environment)).toBe(true);
   });
 
   it('returns false for objects that do not conform to the interface', () => {
-    const fakeContext = {
+    const fakeEnvironment = {
       forceFetch: true,
       getFragmentResolver: true,
       getStoreData: true,
       primeCache: true,
     };
-    expect(isRelayEnvironment(fakeContext)).toBe(false);
+    expect(isRelayEnvironment(fakeEnvironment)).toBe(false);
   });
 
   it('returns false for non-objects', () => {

@@ -33,6 +33,9 @@ const getRelayQueries = require('getRelayQueries');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
+type RelayContainerProps = {
+  [propName: string]: mixed;
+};
 type RelayRendererProps = {
   Container: RelayContainer;
   forceFetch?: ?boolean;
@@ -54,7 +57,7 @@ export type RelayRendererRenderCallback =
 type RelayRendererRenderArgs = {
   done: boolean;
   error: ?Error;
-  props: ?{[propName: string]: mixed};
+  props: ?RelayContainerProps;
   retry: ?Function;
   stale: boolean;
 };
@@ -80,7 +83,7 @@ const {PropTypes} = React;
  *
  * The `render` callback is called with an object with the following properties:
  *
- *   props: ?{[propName: string]: mixed}
+ *   props: ?RelayContainerProps
  *     If present, sufficient data is ready to render the container. This object
  *     must be spread into the container using the spread attribute operator. If
  *     absent, there is insufficient data to render the container.
@@ -125,7 +128,7 @@ const {PropTypes} = React;
  *
  */
 class RelayRenderer extends React.Component {
-  containerProps: ?{[propName: string]: mixed};
+  containerProps: ?RelayContainerProps;
   gcHold: ?GarbageCollectionHold;
   mounted: boolean;
   pendingRequest: ?Abortable;
@@ -284,7 +287,7 @@ class RelayRenderer extends React.Component {
   /**
    * @private
    */
-  _resolveContainerProps(): {[propName: string]: mixed} {
+  _resolveContainerProps(): RelayContainerProps {
     if (!this.containerProps) {
       const {environment, queryConfig} = this.props;
       this.containerProps = {

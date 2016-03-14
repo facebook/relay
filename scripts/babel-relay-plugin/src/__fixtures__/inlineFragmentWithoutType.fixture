@@ -13,6 +13,8 @@ var x = Relay.QL`
 */
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
 /*
 TODO: Upgrade to graphql@0.4.7 and uncomment this.

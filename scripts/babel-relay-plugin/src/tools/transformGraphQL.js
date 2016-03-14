@@ -48,8 +48,8 @@ function transformGraphQL(schemaPath, source, filename) {
     moduleOpts: {prefix: ''},
   });
   babelOptions.plugins.unshift(plugin);
+  babelOptions.compact = false;
   babelOptions.filename = filename;
-  babelOptions.retainLines = true;
   return babel.transform(source, babelOptions).code;
 }
 

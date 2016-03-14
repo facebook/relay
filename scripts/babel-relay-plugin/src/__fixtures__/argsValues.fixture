@@ -23,7 +23,9 @@ var foo = Relay.QL`
 `;
 
 Output:
-var foo = (function () {
+"use strict";
+
+var foo = function () {
   return {
     calls: [{
       kind: "Call",
@@ -214,4 +216,4 @@ var foo = (function () {
     name: "Args",
     type: "Node"
   };
-})();
+}();

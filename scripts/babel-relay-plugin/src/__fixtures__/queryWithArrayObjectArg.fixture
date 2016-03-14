@@ -9,8 +9,10 @@ var q = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('Relay');
-var q = (function () {
+var q = function () {
   return {
     calls: [{
       kind: 'Call',
@@ -39,4 +41,4 @@ var q = (function () {
     name: 'QueryWithArrayObjectArg',
     type: 'SearchResult'
   };
-})();
+}();

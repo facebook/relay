@@ -9,7 +9,9 @@ var x = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
-var x = (function () {
+var x = function () {
   throw new Error('GraphQL validation/transform error ``You supplied a directive named `if`, but no such directive exists.`` in file `queryWithBadDirectiveArgs.fixture`.');
-})();
+}();

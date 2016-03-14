@@ -54,7 +54,7 @@ export type RelayRendererRenderCallback =
 type RelayRendererRenderArgs = {
   done: boolean;
   error: ?Error;
-  props: ?Object;
+  props: ?{[propName: string]: mixed};
   retry: ?Function;
   stale: boolean;
 };
@@ -80,7 +80,7 @@ const {PropTypes} = React;
  *
  * The `render` callback is called with an object with the following properties:
  *
- *   props: ?Object
+ *   props: ?{[propName: string]: mixed}
  *     If present, sufficient data is ready to render the container. This object
  *     must be spread into the container using the spread attribute operator. If
  *     absent, there is insufficient data to render the container.
@@ -125,7 +125,7 @@ const {PropTypes} = React;
  *
  */
 class RelayRenderer extends React.Component {
-  containerProps: ?Object;
+  containerProps: ?{[propName: string]: mixed};
   gcHold: ?GarbageCollectionHold;
   mounted: boolean;
   pendingRequest: ?Abortable;
@@ -284,7 +284,7 @@ class RelayRenderer extends React.Component {
   /**
    * @private
    */
-  _resolveContainerProps(): Object {
+  _resolveContainerProps(): {[propName: string]: mixed} {
     if (!this.containerProps) {
       const {environment, queryConfig} = this.props;
       this.containerProps = {

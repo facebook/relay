@@ -10,7 +10,9 @@ var foo = Relay.QL`
 `;
 
 Output:
-var foo = (function () {
+"use strict";
+
+var foo = function () {
   return {
     children: [{
       children: [{
@@ -33,4 +35,4 @@ var foo = (function () {
     name: "IntrospectionQueryForSchema",
     type: "__Schema"
   };
-})();
+}();

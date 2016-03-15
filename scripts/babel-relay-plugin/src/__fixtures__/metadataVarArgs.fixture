@@ -9,8 +9,10 @@ var x = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
-var x = (function () {
+var x = function () {
   return {
     children: [{
       calls: [{
@@ -51,4 +53,4 @@ var x = (function () {
     name: 'MetadataVarArgsRelayQL',
     type: 'User'
   };
-})();
+}();

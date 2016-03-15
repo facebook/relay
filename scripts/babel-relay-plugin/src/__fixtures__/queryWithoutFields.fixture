@@ -3,8 +3,10 @@ var Relay = require('react-relay');
 var x = Relay.QL`query { viewer }`;
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
-var x = (function () {
+var x = function () {
   return {
     fieldName: 'viewer',
     kind: 'Query',
@@ -12,4 +14,4 @@ var x = (function () {
     name: 'QueryWithoutFields',
     type: 'Viewer'
   };
-})();
+}();

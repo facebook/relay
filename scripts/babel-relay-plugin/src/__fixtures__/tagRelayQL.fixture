@@ -9,8 +9,10 @@ var x = RelayQL`
 `;
 
 Output:
+'use strict';
+
 var RelayQL = require('react-relay/RelayQL');
-var x = (function () {
+var x = function () {
   return {
     calls: [{
       kind: 'Call',
@@ -49,4 +51,4 @@ var x = (function () {
     name: 'TagRelayQL',
     type: 'Node'
   };
-})();
+}();

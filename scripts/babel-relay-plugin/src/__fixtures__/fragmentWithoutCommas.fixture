@@ -8,8 +8,10 @@ var x = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
-var x = (function (RQL_0) {
+var x = function (RQL_0) {
   return {
     children: [].concat.apply([], [{
       fieldName: 'id',
@@ -35,4 +37,4 @@ var x = (function (RQL_0) {
     name: 'FragmentWithoutCommasRelayQL',
     type: 'Node'
   };
-})(reference);
+}(reference);

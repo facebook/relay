@@ -52,7 +52,7 @@ class RelayMutation<Tp: Object> {
   ) => Variables;
 
   props: Tp;
-  _context: RelayEnvironmentInterface;
+  _environment: RelayEnvironmentInterface;
   _didShowFakeDataWarning: boolean;
   _unresolvedProps: Tp;
 
@@ -64,14 +64,14 @@ class RelayMutation<Tp: Object> {
   /**
    * @internal
    */
-  bindContext(context: RelayEnvironmentInterface): void {
-    if (!this._context) {
-      this._context = context;
+  bindEnvironment(environment: RelayEnvironmentInterface): void {
+    if (!this._environment) {
+      this._environment = environment;
       this._resolveProps();
     } else {
       invariant(
-        context === this._context,
-        '%s: Mutation instance cannot be used in different Relay contexts.',
+        environment === this._environment,
+        '%s: Mutation instance cannot be used in different Relay environments.',
         this.constructor.name
       );
     }
@@ -326,7 +326,7 @@ class RelayMutation<Tp: Object> {
         });
 
         resolvedProps[fragmentName] = dataIDs.map(
-          dataID => this._context.read(fragment, dataID)
+          dataID => this._environment.read(fragment, dataID)
         );
       } else {
         invariant(
@@ -338,7 +338,10 @@ class RelayMutation<Tp: Object> {
         );
         const dataID = RelayFragmentPointer.getDataID(propValue, fragment);
         if (dataID) {
-          resolvedProps[fragmentName] = this._context.read(fragment, dataID);
+          resolvedProps[fragmentName] = this._environment.read(
+            fragment,
+            dataID
+          );
         } else {
           if (__DEV__) {
             if (!this._didShowFakeDataWarning) {

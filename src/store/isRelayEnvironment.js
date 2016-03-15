@@ -17,14 +17,14 @@
  * Determine if a given value is an object that implements the `RelayEnvironment`
  * interface.
  */
-function isRelayEnvironment(context: mixed): boolean {
+function isRelayEnvironment(environment: mixed): boolean {
   return (
-    typeof context === 'object' &&
-    context !== null &&
-    typeof context.forceFetch === 'function' &&
-    typeof context.getFragmentResolver === 'function' &&
-    typeof context.getStoreData === 'function' &&
-    typeof context.primeCache === 'function'
+    typeof environment === 'object' &&
+    environment !== null &&
+    typeof environment.forceFetch === 'function' &&
+    typeof environment.getFragmentResolver === 'function' &&
+    typeof environment.getStoreData === 'function' &&
+    typeof environment.primeCache === 'function'
   );
 }
 

@@ -181,13 +181,13 @@ describe('RelayEnvironment', () => {
     });
 
     describe('applyUpdate', () => {
-      it('binds context to mutation before creating transaction', () => {
-        mockMutation.bindContext.mockImplementation(() => {
+      it('binds environment to mutation before creating transaction', () => {
+        mockMutation.bindEnvironment.mockImplementation(() => {
           expect(createTransactionMock).not.toBeCalled();
         });
         environment.applyUpdate(mockMutation);
-        expect(mockMutation.bindContext).toBeCalled();
-        expect(mockMutation.bindContext.mock.calls[0][0]).toBe(environment);
+        expect(mockMutation.bindEnvironment).toBeCalled();
+        expect(mockMutation.bindEnvironment.mock.calls[0][0]).toBe(environment);
       });
 
       it('creates a new RelayMutationTransaction without committing it', () => {
@@ -203,13 +203,13 @@ describe('RelayEnvironment', () => {
     });
 
     describe('commitUpdate', () => {
-      it('binds context to mutation before creating transaction', () => {
-        mockMutation.bindContext.mockImplementation(() => {
+      it('binds environment to mutation before creating transaction', () => {
+        mockMutation.bindEnvironment.mockImplementation(() => {
           expect(createTransactionMock).not.toBeCalled();
         });
         environment.commitUpdate(mockMutation);
-        expect(mockMutation.bindContext).toBeCalled();
-        expect(mockMutation.bindContext.mock.calls[0][0]).toBe(environment);
+        expect(mockMutation.bindEnvironment).toBeCalled();
+        expect(mockMutation.bindEnvironment.mock.calls[0][0]).toBe(environment);
       });
 
       it('creates a new RelayMutationTransaction and commits it', () => {

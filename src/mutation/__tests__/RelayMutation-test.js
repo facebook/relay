@@ -87,43 +87,43 @@ describe('RelayMutation', function() {
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
-  it('throws if used in different Relay contexts', () => {
-    mockMutation.bindContext(environment);
+  it('throws if used in different Relay environments', () => {
+    mockMutation.bindEnvironment(environment);
     expect(() => {
-      mockMutation.bindContext(new RelayEnvironment());
+      mockMutation.bindEnvironment(new RelayEnvironment());
     }).toFailInvariant(
       'MockMutationClass: Mutation instance cannot be used ' +
-      'in different Relay contexts.'
+      'in different Relay environments.'
     );
   });
 
-  it('can be reused in the same Relay context', () => {
-    mockMutation.bindContext(environment);
+  it('can be reused in the same Relay environment', () => {
+    mockMutation.bindEnvironment(environment);
     expect(() => {
-      mockMutation.bindContext(environment);
+      mockMutation.bindEnvironment(environment);
     }).not.toThrow();
   });
 
-  it('does not resolve props before binding Relay context', () => {
+  it('does not resolve props before binding Relay environment', () => {
     expect(mockMutation.props).toBeUndefined();
   });
 
   it('resolves props only once', () => {
-    mockMutation.bindContext(environment);
-    mockMutation.bindContext(environment);
+    mockMutation.bindEnvironment(environment);
+    mockMutation.bindEnvironment(environment);
     expect(environment.read.mock.calls).toEqual([
       [/* fragment */mockFooFragment, /* dataID */'foo'],
       [/* fragment */mockBarFragment, /* dataID */'bar'],
     ]);
   });
 
-  it('resolves props after binding Relay context', () => {
+  it('resolves props after binding Relay environment', () => {
     const resolvedProps = {
       bar: {},
       foo: {},
     };
     environment.read.mockImplementation((_, dataID) => resolvedProps[dataID]);
-    mockMutation.bindContext(environment);
+    mockMutation.bindEnvironment(environment);
     expect(environment.read.mock.calls).toEqual([
       [/* fragment */mockFooFragment, /* dataID */'foo'],
       [/* fragment */mockBarFragment, /* dataID */'bar'],

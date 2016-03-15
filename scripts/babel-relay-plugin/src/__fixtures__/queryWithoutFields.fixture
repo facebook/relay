@@ -3,8 +3,6 @@ var Relay = require('react-relay');
 var x = Relay.QL`query { viewer }`;
 
 Output:
-'use strict';
-
 var Relay = require('react-relay');
 var x = function () {
   return {

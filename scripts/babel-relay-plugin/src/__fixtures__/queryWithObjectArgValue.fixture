@@ -9,8 +9,6 @@ var q = Relay.QL`
 `;
 
 Output:
-'use strict';
-
 var Relay = require('Relay');
 var q = function () {
   return {

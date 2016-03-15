@@ -11,20 +11,19 @@
 
 'use strict';
 
-var babel = require('babel-core');
-var fs = require('fs');
-var getBabelOptions = require('fbjs-scripts/babel-6/default-options');
-var util = require('util');
+const babel = require('babel-core');
+const fs = require('fs');
+const util = require('util');
 
-var getBabelRelayPlugin = require('../getBabelRelayPlugin');
+const getBabelRelayPlugin = require('../getBabelRelayPlugin');
 
-var _schemas = {};
+const schemaCache = {};
 function getSchema(schemaPath) {
   try {
-    var schema = _schemas[schemaPath];
+    let schema = schemaCache[schemaPath];
     if (!schema) {
       schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8')).data;
-      _schemas[schemaPath] = schema;
+      schemaCache[schemaPath] = schema;
     }
     return schema;
   } catch (e) {
@@ -38,19 +37,16 @@ function getSchema(schemaPath) {
 }
 
 function transformGraphQL(schemaPath, source, filename) {
-  var plugin = getBabelRelayPlugin(getSchema(schemaPath), {
+  const relayPlugin = getBabelRelayPlugin(getSchema(schemaPath), {
     debug: true,
     substituteVariables: true,
     suppressWarnings: true,
   });
-
-  const babelOptions = getBabelOptions({
-    moduleOpts: {prefix: ''},
-  });
-  babelOptions.plugins.unshift(plugin);
-  babelOptions.compact = false;
-  babelOptions.filename = filename;
-  return babel.transform(source, babelOptions).code;
+  return babel.transform(source, {
+    plugins: [relayPlugin],
+    compact: false,
+    filename,
+  }).code;
 }
 
 module.exports = transformGraphQL;

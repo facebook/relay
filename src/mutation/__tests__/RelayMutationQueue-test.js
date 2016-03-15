@@ -166,8 +166,8 @@ describe('RelayMutationQueue', () => {
       const transaction = mutationQueue.createTransaction(mockMutation1);
       transaction.commit();
       expect(() => transaction.commit()).toFailInvariant(
-        'RelayMutationTransaction: Only transactions with status ' +
-        '`UNCOMMITTED` can be comitted.'
+        'RelayMutationTransaction: Only transactions with status `CREATED` ' +
+        'or `UNCOMMITTED` can be committed.'
       );
     });
 

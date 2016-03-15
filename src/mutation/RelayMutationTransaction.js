@@ -31,12 +31,24 @@ class RelayMutationTransaction {
     this._mutationQueue = mutationQueue;
   }
 
+  applyOptimistic(): void {
+    const status = this.getStatus();
+    invariant(
+      status === RelayMutationTransactionStatus.CREATED,
+      'RelayMutationTransaction: Only transactions with status `CREATED` ' +
+      'can be applied.'
+    );
+
+    this._mutationQueue.applyOptimistic(this._id);
+  }
+
   commit(): void {
     const status = this.getStatus();
     invariant(
+      status === RelayMutationTransactionStatus.CREATED ||
       status === RelayMutationTransactionStatus.UNCOMMITTED,
-      'RelayMutationTransaction: Only transactions with status `UNCOMMITTED` ' +
-      'can be comitted.'
+      'RelayMutationTransaction: Only transactions with status `CREATED` or ' +
+      '`UNCOMMITTED` can be committed.'
     );
 
     this._mutationQueue.commit(this._id);
@@ -45,10 +57,12 @@ class RelayMutationTransaction {
   recommit(): void {
     const status = this.getStatus();
     invariant(
+      status === RelayMutationTransactionStatus.CREATED ||
       status === RelayMutationTransactionStatus.COMMIT_FAILED ||
       status === RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED,
       'RelayMutationTransaction: Only transaction with status ' +
-      '`COMMIT_FAILED` or `COLLISION_COMMIT_FAILED` can be comitted.'
+      '`CREATED`, `COMMIT_FAILED`, or `COLLISION_COMMIT_FAILED` can be ' +
+      'recomitted.'
     );
 
     this._mutationQueue.commit(this._id);
@@ -57,13 +71,14 @@ class RelayMutationTransaction {
   rollback(): void {
     const status = this.getStatus();
     invariant(
+      status === RelayMutationTransactionStatus.CREATED ||
       status === RelayMutationTransactionStatus.UNCOMMITTED ||
       status === RelayMutationTransactionStatus.COMMIT_FAILED ||
       status === RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED ||
       status === RelayMutationTransactionStatus.COMMIT_QUEUED,
-      'RelayMutationTransaction: Only transactions with status `UNCOMMITTED` ' +
-      '`COMMIT_FAILED`, `COLLISION_COMMIT_FAILED`, or `COMMIT_QUEUED` can be ' +
-      'rolled back.'
+      'RelayMutationTransaction: Only transactions with status `CREATED`, ' +
+      '`UNCOMMITTED`, `COMMIT_FAILED`, `COLLISION_COMMIT_FAILED`, or ' +
+      '`COMMIT_QUEUED` can be rolled back.'
     );
 
     this._mutationQueue.rollback(this._id);

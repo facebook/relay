@@ -15,6 +15,12 @@
 
 const RelayMutationTransactionStatus = {
   /**
+   * Transaction has been created but an optimistic update has not been applied.
+   * Transaction can be applied (optimistic) or committed (sent to server).
+   */
+  CREATED: 'CREATED',
+
+  /**
    * Transaction hasn't yet been sent to the server. Client has an optimistic
    * update applied if the mutation defined one. Transaction can be committed or
    * rolledback.

@@ -17,6 +17,7 @@ import type {ConcreteMutation} from 'ConcreteQuery';
 const ErrorUtils = require('ErrorUtils');
 const QueryBuilder = require('QueryBuilder');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+import type {ClientMutationID} from 'RelayInternalTypes';
 const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationRequest = require('RelayMutationRequest');
 const RelayMutationTransaction = require('RelayMutationTransaction');
@@ -25,7 +26,6 @@ import type RelayStoreData from 'RelayStoreData';
 import type {FileMap} from 'RelayMutation';
 import type RelayMutation from 'RelayMutation';
 const RelayQuery = require('RelayQuery');
-import type {ClientMutationID} from 'RelayInternalTypes';
 import type {
   RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
@@ -42,6 +42,22 @@ const nullthrows = require('nullthrows');
 const resolveImmediate = require('resolveImmediate');
 
 type CollisionQueueMap = {[key: string]: Array<PendingTransaction>};
+type PendingTransaction = {
+  error: ?Error;
+  getCallName: () => string;
+  getCollisionKey: () => ?string;
+  getConfigs: () => Array<RelayMutationConfig>;
+  getFiles: () => ?FileMap;
+  getOptimisticConfigs: () => ?Array<{[key: string]: mixed}>;
+  getOptimisticQuery: (storeData: RelayStoreData) => ?RelayQuery.Mutation;
+  getOptimisticResponse: () => ?Object;
+  getQuery: (storeData: RelayStoreData) => RelayQuery.Mutation;
+  id: ClientMutationID;
+  mutationTransaction: RelayMutationTransaction;
+  onFailure: ?RelayMutationTransactionCommitFailureCallback;
+  onSuccess: ?RelayMutationTransactionCommitSuccessCallback;
+  status: $Keys<typeof RelayMutationTransactionStatus>;
+};
 type PendingTransactionMap = {
   [key: ClientMutationID]: PendingTransaction;
 };
@@ -86,7 +102,7 @@ class RelayMutationQueue {
   ): RelayMutationTransaction {
     const id = base62(transactionIDCounter++);
     const mutationTransaction = new RelayMutationTransaction(this, id);
-    const transaction = new PendingTransaction({
+    const transaction = new RelayPendingTransaction({
       id,
       mutation,
       mutationTransaction,
@@ -100,11 +116,7 @@ class RelayMutationQueue {
     return mutationTransaction;
   }
 
-  // TODO #10393040: Make this non-nullable once legacy mutations are upgraded.
-  getTransaction(id: ClientMutationID): ?RelayMutationTransaction {
-    if (!this._pendingTransactionMap.hasOwnProperty(id)) {
-      return null;
-    }
+  getTransaction(id: ClientMutationID): RelayMutationTransaction {
     return this._get(id).mutationTransaction;
   }
 
@@ -116,6 +128,13 @@ class RelayMutationQueue {
     id: ClientMutationID
   ): $Keys<typeof RelayMutationTransactionStatus> {
     return this._get(id).status;
+  }
+
+  applyOptimistic(id: ClientMutationID): void {
+    const transaction = this._get(id);
+    transaction.status = RelayMutationTransactionStatus.UNCOMMITTED;
+    transaction.error = null;
+    this._handleOptimisticUpdate(transaction);
   }
 
   commit(id: ClientMutationID): void {
@@ -151,6 +170,22 @@ class RelayMutationQueue {
       }
     }
     this._handleRollback(transaction);
+  }
+
+  /**
+   * @internal
+   *
+   * Supports running legacy mutations.
+   */
+  createLegacyMutationTransaction(
+    transaction: PendingTransaction
+  ): RelayMutationTransaction {
+    const {id} = transaction;
+    const mutationTransaction = new RelayMutationTransaction(this, id);
+    this._pendingTransactionMap[id] = transaction;
+    this._queue.push(transaction);
+
+    return mutationTransaction;
   }
 
   _get(id: ClientMutationID): PendingTransaction {
@@ -287,15 +322,16 @@ class RelayMutationQueue {
     }
   }
 
-  _failCollisionQueue(transaction: PendingTransaction): void {
-    const collisionKey = transaction.getCollisionKey();
+  _failCollisionQueue(failedTransaction: PendingTransaction): void {
+    const collisionKey = failedTransaction.getCollisionKey();
     if (collisionKey) {
       const collisionQueue = nullthrows(this._collisionQueueMap[collisionKey]);
       // Remove the transaction that called this function.
-      collisionQueue.shift();
-      collisionQueue.forEach(
-        queuedTransaction => this._handleCommitFailure(queuedTransaction, null)
-      );
+      collisionQueue.forEach(queuedTransaction => {
+        if (queuedTransaction !== failedTransaction) {
+          this._handleCommitFailure(queuedTransaction, null);
+        }
+      });
       delete this._collisionQueueMap[collisionKey];
     }
   }
@@ -321,7 +357,7 @@ class RelayMutationQueue {
 /**
  * @private
  */
-class PendingTransaction {
+class RelayPendingTransaction {
   error: ?Error;
   id: ClientMutationID;
   mutation: RelayMutation;

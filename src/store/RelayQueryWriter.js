@@ -375,7 +375,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // Only create a range if `edges` field is present
     // Overwrite an existing range only if the new force index is greater
     if (hasEdges &&
-        (!this._store.hasRange(connectionID) ||
+        (!this._writer.hasRange(connectionID) ||
          (this._forceIndex &&
           this._forceIndex > this._store.getRangeForceIndex(connectionID)))) {
       this._writer.putRange(

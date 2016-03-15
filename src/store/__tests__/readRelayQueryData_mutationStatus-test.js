@@ -51,17 +51,8 @@ describe('readRelayQueryData (mutationStatus)', () => {
 
   function writeQueryPayload({query, payload}) {
     writePayload(
-      storeData.getRecordStore(),
+      storeData.getQueuedStore(),
       storeData.getRecordWriter(),
-      query,
-      payload
-    );
-  }
-
-  function writeOptimisticPayload({clientMutationID, query, payload}) {
-    writePayload(
-      storeData.getRecordStoreForOptimisticMutation(clientMutationID),
-      storeData.getRecordWriterForOptimisticMutation(clientMutationID),
       query,
       payload
     );
@@ -120,7 +111,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
   });
 
   it('sets `__mutationStatus__` for records with pending mutations', () => {
-    const mockTransaction = createMockTransaction({
+    createMockTransaction({
       dataID: '123',
       mutationID: '0',
       mutationStatus: RelayMutationTransactionStatus.UNCOMMITTED,

@@ -295,7 +295,7 @@ class RelayStoreData {
     const profiler = RelayProfiler.profile('RelayStoreData.handleQueryPayload');
     const changeTracker = new RelayChangeTracker();
     const writer = new RelayQueryWriter(
-      this._recordStore,
+      this._queuedStore,
       this.getRecordWriter(),
       this._queryTracker,
       changeTracker,
@@ -323,7 +323,6 @@ class RelayStoreData {
   ): void {
     const profiler = RelayProfiler.profile('RelayStoreData.handleUpdatePayload');
     const changeTracker = new RelayChangeTracker();
-    let store;
     let recordWriter;
     if (isOptimisticUpdate) {
       const clientMutationID = payload[CLIENT_MUTATION_ID];
@@ -333,15 +332,13 @@ class RelayStoreData {
         'to have a valid `%s`.',
         CLIENT_MUTATION_ID
       );
-      store = this.getRecordStoreForOptimisticMutation(clientMutationID);
       recordWriter =
         this.getRecordWriterForOptimisticMutation(clientMutationID);
     } else {
-      store = this._getRecordStoreForMutation();
       recordWriter = this._getRecordWriterForMutation();
     }
     const writer = new RelayQueryWriter(
-      store,
+      this._queuedStore,
       recordWriter,
       this._queryTracker,
       changeTracker,
@@ -526,17 +523,6 @@ class RelayStoreData {
     }
   }
 
-  _getRecordStoreForMutation(): RelayRecordStore {
-    const records = this._records;
-    const rootCallMap = this._rootCallMap;
-
-    return new RelayRecordStore(
-      {records},
-      {rootCallMap},
-      this._nodeRangeMap
-    );
-  }
-
   _getRecordWriterForMutation(): RelayRecordWriter {
     return new RelayRecordWriter(
       this._records,
@@ -546,22 +532,6 @@ class RelayStoreData {
       this._cacheManager ?
         this._cacheManager.getMutationWriter() :
         null
-    );
-  }
-
-  getRecordStoreForOptimisticMutation(
-    clientMutationID: ClientMutationID
-  ): RelayRecordStore {
-    const cachedRecords = this._cachedRecords;
-    const cachedRootCallMap = this._cachedRootCallMap;
-    const rootCallMap = this._rootCallMap;
-    const queuedRecords = this._queuedRecords;
-    const records = this._records;
-
-    return new RelayRecordStore(
-      {cachedRecords, queuedRecords, records},
-      {cachedRootCallMap, rootCallMap},
-      this._nodeRangeMap
     );
   }
 

@@ -17,6 +17,7 @@ jest
   .dontMock('GraphQLRange')
   .dontMock('GraphQLSegment');
 
+const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMetaRoute = require('RelayMetaRoute');
@@ -214,6 +215,125 @@ describe('writeRelayQueryPayload()', () => {
         {edgeID: 'client:client:1:friend1ID', nodeID: 'friend1ID'},
         {edgeID: 'client:client:1:friend2ID', nodeID: 'friend2ID'},
         {edgeID: 'client:client:1:friend3ID', nodeID: 'friend3ID'},
+      ],
+    });
+  });
+
+
+  it('creates first() connection records when connection node is cached', () => {
+    const cachedRecords = {
+      123: {
+        friends: {__dataID__: 'client:customid'},
+      },
+      'client:customid': {
+        __dataID__: 'client:customid',
+        __range__: new GraphQLRange(),
+      },
+    };
+    const records = {};
+    const store = new RelayRecordStore({records, cachedRecords});
+    const writer = new RelayRecordWriter(records, {}, false);
+    const query = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          friends(first:"3") {
+            edges {
+              cursor,
+              node {
+                id
+              },
+              source {
+                id
+              }
+            },
+            pageInfo {
+              hasNextPage,
+              hasPreviousPage,
+            }
+          }
+        }
+      }
+    `);
+    const payload = {
+      node: {
+        id: '123',
+        friends: {
+          edges: [
+            {
+              cursor: 'friend1',
+              node: {
+                id: 'friend1ID',
+              },
+              source: {
+                id: '123',
+              },
+            },
+            {
+              cursor: 'friend2',
+              node: {
+                id: 'friend2ID',
+              },
+              source: {
+                id: '123',
+              },
+            },
+            {
+              cursor: 'friend3',
+              node: {
+                id: 'friend3ID',
+              },
+              source: {
+                id: '123',
+              },
+            },
+          ],
+          [PAGE_INFO]: {
+            [HAS_NEXT_PAGE]: true,
+            [HAS_PREV_PAGE]: false,
+          },
+        },
+        __typename: 'User',
+      },
+    };
+    const results = writePayload(store, writer, query, payload);
+    expect(results).toEqual({
+      created: {
+        'client:client:customid:friend1ID': true,  // edges
+        'client:client:customid:friend2ID': true,
+        'client:client:customid:friend3ID': true,
+        'friend1ID': true, // nodes
+        'friend2ID': true,
+        'friend3ID': true,
+      },
+      updated: {
+        '123': true,
+        'client:customid': true,  // `friends` connection, reusing client id.
+
+      },
+    });
+    expect(store.getField('friend1ID', 'id')).toBe('friend1ID');
+    expect(store.getField('friend2ID', 'id')).toBe('friend2ID');
+    expect(store.getField('friend3ID', 'id')).toBe('friend3ID');
+    expect(store.getRangeMetadata('client:customid', [
+      {name: 'first', value: 3},
+    ])).toEqual({
+      diffCalls: [],
+      filterCalls: [],
+      pageInfo: {
+        [END_CURSOR]: 'friend3',
+        [HAS_NEXT_PAGE]: true,
+        [HAS_PREV_PAGE]: false,
+        [START_CURSOR]: 'friend1',
+      },
+      requestedEdgeIDs: [
+        'client:client:customid:friend1ID',
+        'client:client:customid:friend2ID',
+        'client:client:customid:friend3ID',
+      ],
+      filteredEdges: [
+        {edgeID: 'client:client:customid:friend1ID', nodeID: 'friend1ID'},
+        {edgeID: 'client:client:customid:friend2ID', nodeID: 'friend2ID'},
+        {edgeID: 'client:client:customid:friend3ID', nodeID: 'friend3ID'},
       ],
     });
   });

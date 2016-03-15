@@ -3,8 +3,6 @@ var Relay = require('react-relay');
 var x = Relay.QL`fragment FragmentNameHere on Node { id }`;
 
 Output:
-'use strict';
-
 var Relay = require('react-relay');
 var x = function () {
   return {

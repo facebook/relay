@@ -8,8 +8,6 @@ var x = Relay.QL`
 `;
 
 Output:
-'use strict';
-
 var Relay = require('react-relay');
 var x = function () {
   return {

@@ -671,20 +671,33 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   }
 
   function validateConnectionField(field: RelayQLField): void {
+    let [first, last, before, after] = [
+      field.findArgument('first'),
+      field.findArgument('last'),
+      field.findArgument('before'),
+      field.findArgument('after'),
+    ]
     invariant(
-      !field.hasArgument('first') || !field.hasArgument('before'),
-      'Connection arguments `%s(before: <cursor>, first: <count>)` are ' +
-      'not supported. Use `(first: <count>)`, ' +
-      '`(after: <cursor>, first: <count>)`, or ' +
-      '`(before: <cursor>, last: <count>)`.',
+      (!first || !last) || (first.isVariable() && last.isVariable()),
+      'Connection arguments `%s(first: <count>, last: <count>)` are ' +
+      'not supported unless both are variables. Use `(first: <count>)`, ' +
+      '`(last: <count>)`, or `(first: $<var>, last: $<var>)`.',
       field.getName()
     );
     invariant(
-      !field.hasArgument('last') || !field.hasArgument('after'),
+      (!first || !before) || (first.isVariable() && before.isVariable()),
+      'Connection arguments `%s(before: <cursor>, first: <count>)` are ' +
+      'not supported unless both are variables. Use `(first: <count>)`, ' +
+      '`(after: <cursor>, first: <count>)`, `(before: <cursor>, last: <count>)`, ' +
+      'or `(before: $<var>, first: $<var>)`.',
+      field.getName()
+    );
+    invariant(
+      (!last || !after) || (last.isVariable() && after.isVariable()),
       'Connection arguments `%s(after: <cursor>, last: <count>)` are ' +
-      'not supported. Use `(last: <count>)`, ' +
-      '`(before: <cursor>, last: <count>)`, or ' +
-      '`(after: <cursor>, first: <count>)`.',
+      'not supported unless both are variables. Use `(last: <count>)`, ' +
+      '`(before: <cursor>, last: <count>)`, `(after: <cursor>, first: <count>)`, ' +
+      'or `(after: $<var>, last: $<var>)`.',
       field.getName()
     );
 

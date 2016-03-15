@@ -515,6 +515,26 @@ describe('GraphQLRange', () => {
     expect(result.diffCalls.length).toBe(0);
   });
 
+  it('should error for first().last() query', () => {
+    console.error = jest.genMockFunction();
+    var queryCalls = [
+      {name: 'first', value: 3},
+      {name: 'last', value: 3},
+    ];
+
+    var result = range.retrieveRangeInfoForQuery(queryCalls);
+
+    expect(console.error.mock.calls.length).toBe(1);
+    expect(console.error.mock.calls[0]).toEqual([
+      'GraphQLRange currently only handles first(<count>), ' +
+      'after(<cursor>).first(<count>), last(<count>), ' +
+      'before(<cursor>).last(<count>), before(<cursor>).first(<count>), ' +
+      'and after(<cursor>).last(<count>)',
+    ]);
+    expect(result.requestedEdgeIDs).toEqual([]);
+    expect(result.diffCalls.length).toBe(0);
+  });
+
   it('should retrieve for first() queries', () => {
     let queryCalls = [
       {name: 'first', value: 3},

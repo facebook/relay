@@ -253,6 +253,10 @@ class RelayQLField extends RelayQLNode<GraphQLField> {
     return this.getArguments().some(arg => arg.getName() === argName);
   }
 
+  findArgument(argName: string): ?RelayQLArgument {
+    return find(this.getArguments(), arg => arg.getName() === argName);
+  }
+
   getArguments(): Array<RelayQLArgument> {
     const argTypes = this.fieldDef.getDeclaredArguments();
     return (this.ast.arguments || []).map(arg => {

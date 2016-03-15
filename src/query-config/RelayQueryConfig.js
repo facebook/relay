@@ -13,12 +13,18 @@
 
 'use strict';
 
-import type {RootQueries} from 'RelayContainer';
+import type {Variables} from 'RelayTypes';
 
 import type {RelayQLQueryBuilder} from 'buildRQL';
 const invariant = require('invariant');
 
 export type ConfigQueries = {[queryName: string]: RelayQLQueryBuilder};
+export type RelayQueryConfigInterface = {
+  name: string;
+  params: Variables;
+  queries: ConfigQueries;
+  useMockData?: boolean;
+};
 
 /**
  * Configures the root queries and initial variables that define the context in
@@ -27,7 +33,7 @@ export type ConfigQueries = {[queryName: string]: RelayQLQueryBuilder};
  */
 class RelayQueryConfig<Tv: Object> {
   name: string;
-  queries: RootQueries;
+  queries: ConfigQueries;
   params: Object;
 
   // TODO: Deprecate `routeName`, #8478719.

@@ -14,8 +14,8 @@
 'use strict';
 
 const React = require('React');
-import type {RelayQueryConfigSpec} from 'RelayContainer';
 const RelayPropTypes = require('RelayPropTypes');
+import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 const RelayStore = require('RelayStore');
 import type {
   ComponentFetchState,
@@ -34,7 +34,7 @@ type RootContainerProps = {
     fetchState: ComponentFetchState
   ) => React$Element;
   renderLoading?: ?() => React$Element;
-  route: RelayQueryConfigSpec;
+  route: RelayQueryConfigInterface;
 };
 
 const {PropTypes} = React;

@@ -27,6 +27,7 @@ const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayProfiler = require('RelayProfiler');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayQuery = require('RelayQuery');
+import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 const RelayRecord = require('RelayRecord');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {
@@ -38,7 +39,7 @@ import type {
 } from 'RelayTypes';
 
 const buildRQL = require('buildRQL');
-import type {RelayQLFragmentBuilder, RelayQLQueryBuilder} from 'buildRQL';
+import type {RelayQLFragmentBuilder} from 'buildRQL';
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const isReactComponent = require('isReactComponent');
@@ -64,15 +65,6 @@ export type RelayContainerSpec = {
   };
 };
 export type RelayLazyContainer = Function;
-export type RelayQueryConfigSpec = {
-  name: string;
-  params: Variables;
-  queries: RootQueries;
-  useMockData?: boolean;
-};
-export type RootQueries = {
-  [queryName: string]: RelayQLQueryBuilder;
-};
 
 const containerContextTypes = {
   relay: RelayPropTypes.Environment,
@@ -469,7 +461,7 @@ function createContainerComponent(
     _initialize(
       props: Object,
       environment,
-      route: RelayQueryConfigSpec,
+      route: RelayQueryConfigInterface,
       prevVariables: Variables
     ): {
       queryData: {[propName: string]: mixed};
@@ -548,7 +540,7 @@ function createContainerComponent(
 
     _updateFragmentPointers(
       props: Object,
-      route: RelayQueryConfigSpec,
+      route: RelayQueryConfigInterface,
       variables: Variables
     ): void {
       const fragmentPointers = this._fragmentPointers;
@@ -760,7 +752,7 @@ function createContainerComponent(
 
   function getFragment(
     fragmentName: string,
-    route: RelayQueryConfigSpec,
+    route: RelayQueryConfigInterface,
     variables: Variables
   ): RelayQuery.Fragment {
     const fragmentBuilder = fragments[fragmentName];

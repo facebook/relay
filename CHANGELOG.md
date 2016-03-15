@@ -1,5 +1,9 @@
 ## master
 
+## Unreleased
+
+* Renamed the Flow type `RelayQueryConfigSpec` to `RelayQueryConfigInterface`.
+
 ## 0.7.3 (March 4, 2016)
 
 * The instance of Babel that the babel-relay-plugin receives will now be used

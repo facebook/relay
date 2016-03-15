@@ -13,14 +13,12 @@
 'use strict';
 
 const Map = require('Map');
-import type {
-  RelayLazyContainer,
-  RelayQueryConfigSpec,
-} from 'RelayContainer';
+import type {RelayLazyContainer} from 'RelayContainer';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
+import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 
 const buildRQL = require('buildRQL');
 const invariant = require('invariant');
@@ -36,7 +34,7 @@ const queryCache = new Map();
  */
 function getRelayQueries(
   Component: RelayLazyContainer,
-  route: RelayQueryConfigSpec
+  route: RelayQueryConfigInterface
 ): RelayQuerySet {
   let cache = queryCache.get(Component);
   if (!cache) {

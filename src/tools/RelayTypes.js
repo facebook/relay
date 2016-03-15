@@ -22,17 +22,17 @@ import type {
   FieldValue,
 } from 'RelayInternalTypes';
 import type RelayFragmentReference from 'RelayFragmentReference';
-import type RelayMetaRoute from 'RelayMetaRoute';
 import type RelayMutationRequest from 'RelayMutationRequest';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
+import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 import type RelayQueryRequest from 'RelayQueryRequest';
 import type {Record} from 'RelayRecord';
 import type {RelayConcreteNode} from 'RelayQL';
 
-// Routes and variables
+// Variables
 export type Variables = {[name: string]: mixed};
 
-// Ready state
+// Ready State
 export type ComponentReadyState = {
   aborted: boolean;
   done: boolean;
@@ -65,24 +65,24 @@ export type RelayProp = {
   forceFetch: (
     partialVariables?: ?Variables,
     callback?: ?ComponentReadyStateChangeCallback
-  ) => void,
-  getPendingTransactions: (record: Object) => ?Array<RelayMutationTransaction>,
+  ) => void;
+  getPendingTransactions: (record: Object) => ?Array<RelayMutationTransaction>;
   hasFragmentData: (
     fragmentReference: RelayFragmentReference,
     record: Object
-  ) => boolean,
+  ) => boolean;
   hasOptimisticUpdate: (
     record: Object
-  ) => boolean,
+  ) => boolean;
   hasPartialData: (
     record: Object
-  ) => boolean,
-  route: RelayMetaRoute,
+  ) => boolean;
+  route: RelayQueryConfigInterface,
   setVariables: (
     partialVariables?: ?Variables,
     callback?: ?ComponentReadyStateChangeCallback
-  ) => void,
-  variables: Variables,
+  ) => void;
+  variables: Variables;
 };
 
 // Mutations

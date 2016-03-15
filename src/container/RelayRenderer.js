@@ -15,11 +15,11 @@
 
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const React = require('React');
-import type {RelayQueryConfigSpec} from 'RelayContainer';
 import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {GarbageCollectionHold} from 'RelayGarbageCollector';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayPropTypes = require('RelayPropTypes');
+import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 import type {
   Abortable,
   ComponentReadyState,
@@ -45,7 +45,7 @@ type RelayRendererProps = {
     callback: (readyState: ReadyState) => void
   ) => Abortable;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
-  queryConfig: RelayQueryConfigSpec;
+  queryConfig: RelayQueryConfigInterface;
   environment: RelayEnvironmentInterface;
   render?: ?RelayRendererRenderCallback;
 };
@@ -61,7 +61,7 @@ type RelayRendererRenderArgs = {
 type RelayRendererState = {
   activeContainer: ?RelayContainer;
   activeEnvironment: ?RelayEnvironmentInterface;
-  activeQueryConfig: ?RelayQueryConfigSpec;
+  activeQueryConfig: ?RelayQueryConfigInterface;
   readyState: ?ComponentReadyState;
   renderArgs: RelayRendererRenderArgs;
 };
@@ -150,7 +150,7 @@ class RelayRenderer extends React.Component {
   _buildState(
     activeContainer: ?RelayContainer,
     activeEnvironment: ?RelayEnvironmentInterface,
-    activeQueryConfig: ?RelayQueryConfigSpec,
+    activeQueryConfig: ?RelayQueryConfigInterface,
     readyState: ?ReadyState,
     props: ?Object
   ): RelayRendererState {

@@ -223,10 +223,7 @@ describe('readRelayQueryData', () => {
   });
 
   it('retrieves status information for nodes with queued changes', () => {
-    const STATUS = RelayRecordStatusMap.setOptimisticStatus(
-      RelayRecordStatusMap.setErrorStatus(0, true),
-      0
-    );
+    const STATUS = RelayRecordStatusMap.setOptimisticStatus(0, true);
     const records = {
       660361306: {
         __dataID__: '660361306',

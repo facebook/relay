@@ -17,10 +17,6 @@
  */
 const OPTIMISTIC_MASK = 0x01;
 /**
- * Record was part of a mutation that resulted in an error.
- */
-const ERROR_MASK = 0x02;
-/**
  * The subtree of data from this record contains partial data.
  */
 const PARTIAL_MASK = 0x04;
@@ -48,14 +44,6 @@ const RelayRecordStatusMap = {
 
   isOptimisticStatus: function(status: ?number): boolean {
     return check(status, OPTIMISTIC_MASK);
-  },
-
-  setErrorStatus: function(status: ?number, value: boolean): number {
-    return set(status, value, ERROR_MASK);
-  },
-
-  isErrorStatus: function(status: ?number): boolean {
-    return check(status, ERROR_MASK);
   },
 
   // Should only be used on records read out from RelayRecordStore

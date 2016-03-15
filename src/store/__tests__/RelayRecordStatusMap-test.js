@@ -38,30 +38,4 @@ describe('RelayRecordStatusMap', () => {
     );
     expect(RelayRecordStatusMap.isOptimisticStatus(result)).toBe(false);
   });
-
-  it('sets and checks error status correctly', () => {
-    let result = 0;
-    expect(RelayRecordStatusMap.isErrorStatus(result)).toBe(false);
-    result = RelayRecordStatusMap.setErrorStatus(
-      result,
-      false
-    );
-    expect(RelayRecordStatusMap.isErrorStatus(result)).toBe(false);
-    result = RelayRecordStatusMap.setErrorStatus(
-      result,
-      true
-    );
-    expect(RelayRecordStatusMap.isErrorStatus(result)).toBe(true);
-    result = RelayRecordStatusMap.setErrorStatus(
-      result,
-      true
-    );
-    expect(RelayRecordStatusMap.isErrorStatus(result)).toBe(true);
-    result = RelayRecordStatusMap.setErrorStatus(
-      result,
-      false
-    );
-    expect(RelayRecordStatusMap.isErrorStatus(result)).toBe(false);
-  });
-
 });

@@ -13,6 +13,8 @@
 
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _require = require('./GraphQL');
 
 var buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema;
@@ -55,7 +57,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
            * Extract the module name from `@providesModule`.
            */
 
-          Program: function (_ref2, state) {
+          Program: function Program(_ref2, state) {
             var parent = _ref2.parent;
 
             if (state.file.opts.documentName) {
@@ -89,7 +91,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
           /**
            * Transform Relay.QL`...`.
            */
-          TaggedTemplateExpression: function (path, state) {
+          TaggedTemplateExpression: function TaggedTemplateExpression(path, state) {
             var node = path.node;
 
 
@@ -185,7 +187,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
 
 function getSchema(schemaProvider) {
   var introspection = typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
-  invariant(typeof introspection === 'object' && introspection && typeof introspection.__schema === 'object' && introspection.__schema, 'Invalid introspection data supplied to `getBabelRelayPlugin()`. The ' + 'resulting schema is not an object with a `__schema` property.');
+  invariant((typeof introspection === 'undefined' ? 'undefined' : _typeof(introspection)) === 'object' && introspection && _typeof(introspection.__schema) === 'object' && introspection.__schema, 'Invalid introspection data supplied to `getBabelRelayPlugin()`. The ' + 'resulting schema is not an object with a `__schema` property.');
   return buildClientSchema(introspection);
 }
 

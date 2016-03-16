@@ -24,13 +24,13 @@ function babelAdapter(Plugin, t, babelVersion, name, visitorsBuilder) {
   }
   // Babel 5.
   var legacyT = _extends({}, t, {
-    nullLiteral: function () {
+    nullLiteral: function nullLiteral() {
       return t.literal(null);
     },
-    valueToNode: function (value) {
+    valueToNode: function valueToNode(value) {
       return t.literal(value);
     },
-    objectProperty: function (ident, value) {
+    objectProperty: function objectProperty(ident, value) {
       return t.property('init', ident, value);
     }
   });
@@ -42,7 +42,7 @@ function babelAdapter(Plugin, t, babelVersion, name, visitorsBuilder) {
       var _this = this;
 
       var compatPath = {
-        get: function () {
+        get: function get() {
           return _this.get.apply(_this, arguments);
         },
         node: node,

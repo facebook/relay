@@ -12,8 +12,6 @@ const root = path.resolve(__dirname, '..');
 const lib = path.join(root, 'lib');
 const src = path.join(root, 'src');
 
-const getBabelOptions = require('fbjs-scripts/babel-6/default-options');
-
 // Blow away prior build artifacts.
 rimraf.sync(lib);
 
@@ -31,9 +29,7 @@ files.forEach(file => {
 
   // Make sure the full path the destination file exists so we can write to it
   mkdirp.sync(path.dirname(libFile));
-  const result = babel.transformFileSync(srcFile, getBabelOptions({
-    moduleOpts: {prefix: ''},
-  }));
+  const result = babel.transformFileSync(srcFile);
 
   sources.push(fs.readFileSync(srcFile, 'utf8'));
 

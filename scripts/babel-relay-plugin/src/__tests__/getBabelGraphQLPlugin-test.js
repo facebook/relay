@@ -11,6 +11,8 @@
 
 'use strict';
 
+jest.autoMockOff();
+
 const path = require('path');
 const readFixtures = require('../tools/readFixtures');
 const transformGraphQL = require('../tools/transformGraphQL');

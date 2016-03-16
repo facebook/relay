@@ -93,6 +93,7 @@ describe('writePayload()', () => {
       `);
       const payload = {
         node: {
+          __typename: 'Feedback',
           id: 'feedback_id',
           topLevelComments: {
             count: 1,
@@ -295,6 +296,7 @@ describe('writePayload()', () => {
         {
           viewer: {
             actor: {
+              __typename: 'User',
               id: '123',
               friends: {
                 edges: [
@@ -344,6 +346,7 @@ describe('writePayload()', () => {
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         actor: {
           id: '123',
+          __typename: 'User',
         },
         formerFriend: {
           id: '456',
@@ -437,6 +440,7 @@ describe('writePayload()', () => {
       `);
       const payload = {
         node: {
+          __typename: 'Feedback',
           id: feedbackID,
           topLevelComments: {
             count: 1,
@@ -690,9 +694,9 @@ describe('writePayload()', () => {
       `);
       const payload = {
         nodes: [
-          {id: firstRequestID},
-          {id: secondRequestID},
-          {id: thirdRequestID},
+          {__typename: 'User', id: firstRequestID},
+          {__typename: 'User', id: secondRequestID},
+          {__typename: 'User', id: thirdRequestID},
         ],
       };
 
@@ -884,6 +888,7 @@ describe('writePayload()', () => {
       const payload = {
         node: {
           id: feedbackID,
+          __typename: 'Feedback',
           topLevelComments: {
             count: 1,
             edges: [
@@ -1023,6 +1028,7 @@ describe('writePayload()', () => {
           },
         },
         feedbackCommentEdge: {
+          __typename: 'CommentsEdge',
           cursor: nextCursor,
           node: {
             id: nextNodeID,
@@ -1154,6 +1160,7 @@ describe('writePayload()', () => {
           },
         },
         feedbackCommentEdge: {
+          __typename: 'CommentsEdge',
           cursor: nextCursor,
           node: {
             id: nextNodeID,

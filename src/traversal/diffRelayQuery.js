@@ -538,24 +538,21 @@ class RelayDiffQueryBuilder {
     // check existing edges for missing fields
     let hasSplitQueries = false;
     filteredEdges.forEach(edge => {
-      // Flow loses type information in closures
-      if (rangeInfo && connectionID) {
-        const scope = {
-          connectionField: field,
-          dataID: connectionID,
-          edgeID: edge.edgeID,
-          rangeInfo,
-        };
-        const diffOutput = this.traverse(
-          field,
-          RelayQueryPath.getPath(path, field, edge.edgeID),
-          scope
-        );
-        // If any edges were missing data (resulting in a split query),
-        // then the entire original connection field must be tracked.
-        if (diffOutput) {
-          hasSplitQueries = hasSplitQueries || !!diffOutput.trackedNode;
-        }
+      const scope = {
+        connectionField: field,
+        dataID: connectionID,
+        edgeID: edge.edgeID,
+        rangeInfo,
+      };
+      const diffOutput = this.traverse(
+        field,
+        RelayQueryPath.getPath(path, field, edge.edgeID),
+        scope
+      );
+      // If any edges were missing data (resulting in a split query),
+      // then the entire original connection field must be tracked.
+      if (diffOutput) {
+        hasSplitQueries = hasSplitQueries || !!diffOutput.trackedNode;
       }
     });
 
@@ -784,16 +781,16 @@ function splitNodeAndEdgesFields(
         const subFields = child.getChildren();
         nodeChildren = nodeChildren.concat(subFields);
         // can skip if `node` only has an `id` field
-        hasNodeChild = (
-          hasNodeChild ||
-          subFields.length !== 1 ||
-          !(subFields[0] instanceof RelayQuery.Field) ||
-          /* $FlowFixMe(>=0.13.0) - subFields[0] needs to be in a local for Flow to
-           * narrow its type, otherwise Flow thinks its a RelayQueryNode without
-           * method `getSchemaName`
-           */
-          subFields[0].getSchemaName() !== 'id'
-        );
+        if (!hasNodeChild) {
+          if (subFields.length === 1) {
+            const subField = subFields[0];
+            hasNodeChild =
+              !(subField instanceof RelayQuery.Field) ||
+              subField.getSchemaName() !== 'id';
+          } else {
+            hasNodeChild = true;
+          }
+        }
       } else {
         edgeChildren.push(child);
         hasEdgeChild = hasEdgeChild || !child.isRequisite();

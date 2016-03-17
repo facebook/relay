@@ -7,7 +7,9 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule Site
-*/
+ */
+
+'use strict';
 
 const React = require('React');
 const HeaderLinks = require('HeaderLinks');

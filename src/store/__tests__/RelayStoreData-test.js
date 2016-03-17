@@ -282,6 +282,7 @@ describe('RelayStoreData', () => {
         // simulate a server response with different data
         response = {
           node: {
+            __typename: 'Feedback',
             id: '123',
             doesViewerLike: true, // inverted
             topLevelComments: null, // delete

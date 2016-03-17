@@ -8,6 +8,8 @@ var foo = Relay.QL`
 `;
 
 Output:
+"use strict";
+
 var foo = function (RQL_0) {
   return {
     calls: [{

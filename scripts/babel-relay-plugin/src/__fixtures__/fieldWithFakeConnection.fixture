@@ -13,6 +13,8 @@ var foo = Relay.QL`
 `;
 
 Output:
+'use strict';
+
 var Relay = require('Relay');
 var foo = function () {
   return {

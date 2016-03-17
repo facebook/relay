@@ -7,35 +7,39 @@ Relay.createContainer(Component, {
 });
 
 Output:
+'use strict';
+
 var Relay = require('react-relay');
 Relay.createContainer(Component, {
   queries: {
-    viewer: () => function () {
-      return {
-        children: [{
+    viewer: function viewer() {
+      return function () {
+        return {
           children: [{
-            fieldName: 'id',
+            children: [{
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isRequisite: true
+              },
+              type: 'String'
+            }],
+            fieldName: 'actor',
             kind: 'Field',
             metadata: {
-              isRequisite: true
+              canHaveSubselections: true,
+              inferredRootCallName: 'node',
+              inferredPrimaryKey: 'id'
             },
-            type: 'String'
+            type: 'User'
           }],
-          fieldName: 'actor',
-          kind: 'Field',
-          metadata: {
-            canHaveSubselections: true,
-            inferredRootCallName: 'node',
-            inferredPrimaryKey: 'id'
-          },
-          type: 'User'
-        }],
-        id: Relay.QL.__id(),
-        kind: 'Fragment',
-        metadata: {},
-        name: 'Container_ViewerRelayQL',
-        type: 'Viewer'
-      };
-    }()
+          id: Relay.QL.__id(),
+          kind: 'Fragment',
+          metadata: {},
+          name: 'Container_ViewerRelayQL',
+          type: 'Viewer'
+        };
+      }();
+    }
   }
 });

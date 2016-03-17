@@ -170,10 +170,9 @@ var RelayQLFragment = function (_RelayQLDefinition) {
     value: function getStaticFragmentID() {
       if (this.hasStaticFragmentID && this.staticFragmentID == null) {
         var suffix = this.context.generateID();
-        // The fragmentLocationID is the same for all inline/nested fragments
-        // within each Relay.QL tagged template expression; the auto-incrementing
-        // suffix distinguishes these fragments from each other.
-        this.staticFragmentID = this.context.fragmentLocationID + ':' + suffix;
+        var _name = this.getName();
+        invariant(_name, 'Static fragments require a name. Use `fragment NAME on %s { ... }`.', this.getType().getName({ modifiers: true }));
+        this.staticFragmentID = _name + ':' + suffix;
       }
       return this.staticFragmentID;
     }

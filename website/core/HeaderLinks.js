@@ -7,7 +7,9 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule HeaderLinks
-*/
+ */
+
+'use strict';
 
 const HeaderLinks = React.createClass({
   links: [

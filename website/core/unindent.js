@@ -9,6 +9,8 @@
  * @providesModule unindent
  */
 
+'use strict';
+
 // Remove the indentation introduced by JSX
 function unindent(code) {
   const lines = code.split('\n');

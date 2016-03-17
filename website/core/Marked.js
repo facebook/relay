@@ -11,7 +11,9 @@
  * https://github.com/chjj/marked
  *
  * @providesModule Marked
-*/
+ */
+
+'use strict';
 
 const React = require('React');
 const Prism = require('Prism');

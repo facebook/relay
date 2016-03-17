@@ -26,7 +26,7 @@ class StarWarsApp extends React.Component {
 
   handleAddShip() {
     const name = this.state.shipName;
-    Relay.Store.update(
+    Relay.Store.commitUpdate(
       new AddShipMutation({
         name,
         faction: this.props.factions[this.state.factionId],
@@ -53,11 +53,11 @@ class StarWarsApp extends React.Component {
       <div>
         <ol>
           {factions.map(faction => (
-            <li>
+            <li key={faction.id}>
               <h1>{faction.name}</h1>
               <ol>
-                {faction.ships.edges.map(edge => (
-                  <li><StarWarsShip ship={edge.node} /></li>
+                {faction.ships.edges.map(({node}) => (
+                  <li key={node.id}><StarWarsShip ship={node} /></li>
                 ))}
               </ol>
             </li>
@@ -97,6 +97,7 @@ export default Relay.createContainer(StarWarsApp, {
         ships(first: 10) {
           edges {
             node {
+              id
               ${StarWarsShip.getFragment('ship')}
             }
           }

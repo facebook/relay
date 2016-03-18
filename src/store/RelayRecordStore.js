@@ -15,6 +15,7 @@
 
 const GraphQLRange = require('GraphQLRange');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+import type {PageInfo} from 'RelayConnectionInterface';
 import type {
   Call,
   ClientMutationID,
@@ -25,6 +26,7 @@ import type {
 } from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 import type {QueryPath} from 'RelayQueryPath';
+const RelayRecord = require('RelayRecord');
 import type {
   Record,
   RecordMap,
@@ -34,18 +36,6 @@ import type {RecordState} from 'RelayRecordState';
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
-
-const {NODE} = RelayConnectionInterface;
-const EMPTY = '';
-const FILTER_CALLS = '__filterCalls__';
-const FORCE_INDEX = '__forceIndex__';
-const RANGE = '__range__';
-const RESOLVED_FRAGMENT_MAP = '__resolvedFragmentMap__';
-const PATH = '__path__';
-
-import type {
-  PageInfo,
-} from 'RelayConnectionInterface';
 
 type RangeEdge = {
   edgeID: string;
@@ -71,21 +61,30 @@ type RootCallMapCollection = {
   rootCallMap: RootCallMap;
 };
 
+const EMPTY = '';
+const {NODE} = RelayConnectionInterface;
+const {
+  FILTER_CALLS,
+  FORCE_INDEX,
+  MUTATION_IDS,
+  PATH,
+  RANGE,
+  RESOLVED_FRAGMENT_MAP,
+} = RelayRecord.MetadataKey;
+
 /**
  * @internal
  *
  * `RelayRecordStore` is the central repository for all data fetched by the
- * client. Data is stored as a map of IDs to Records. Records are maps of
- * field names to values.
- *
- * TODO: #6584253 Mediate access to node/cached/queued data via RelayRecordStore
+ * client. Data is stored as a map from IDs to Records. Records are shapes of
+ * data with globally unique "data IDs".
  */
 class RelayRecordStore {
   _cachedRecords: ?RecordMap;
   _cachedRootCallMap: RootCallMap;
   _queuedRecords: ?RecordMap;
-  _records: RecordMap;
   _nodeConnectionMap: NodeRangeMap;
+  _records: RecordMap;
   _rootCallMap: RootCallMap;
   _storage: Array<RecordMap>;
 
@@ -184,7 +183,7 @@ class RelayRecordStore {
     if (queuedRecords) {
       const record = queuedRecords[dataID];
       if (record) {
-        return record.__mutationIDs__;
+        return record[MUTATION_IDS];
       }
     }
     return null;
@@ -233,17 +232,15 @@ class RelayRecordStore {
     if (field == null) {
       return field;
     }
+    const record = RelayRecord.getRecord(field);
     invariant(
-      typeof field === 'object' &&
-        field !== null &&
-        !Array.isArray(field) &&
-        (field.__dataID__ == null || typeof field.__dataID__ === 'string'),
+      record,
       'RelayRecordStore.getLinkedRecordID(): Expected field `%s` for record ' +
       '`%s` to have a linked record.',
       storageKey,
       dataID
     );
-    return field.__dataID__;
+    return RelayRecord.getDataID(record);
   }
 
   /**
@@ -265,16 +262,17 @@ class RelayRecordStore {
       storageKey,
       dataID
     );
-    return field.map((item, ii) => {
+    return field.map((element, ii) => {
+      const record = RelayRecord.getRecord(element);
       invariant(
-        typeof item === 'object' && item.__dataID__,
+        record,
         'RelayRecordStore.getLinkedRecordIDs(): Expected element at index %s ' +
         'in field `%s` for record `%s` to be a linked record.',
         ii,
         storageKey,
         dataID
       );
-      return item.__dataID__;
+      return RelayRecord.getDataID(record);
     });
   }
 
@@ -309,7 +307,7 @@ class RelayRecordStore {
     let connectionIDs;
     forEachObject(record, (datum, key) => {
       if (datum && getFieldNameFromKey(key) === schemaName) {
-        const connectionID = datum.__dataID__;
+        const connectionID = RelayRecord.getDataIDForObject(datum);
         if (connectionID) {
           connectionIDs = connectionIDs || [];
           connectionIDs.push(connectionID);
@@ -329,7 +327,6 @@ class RelayRecordStore {
     if (forceIndex === null) {
       return -1;
     }
-    // __forceIndex__ can only be a number
     return forceIndex || 0;
   }
 

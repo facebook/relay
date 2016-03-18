@@ -14,7 +14,12 @@
 'use strict';
 
 import type {Call} from 'RelayInternalTypes';
+import type {Record} from 'RelayRecord';
 
+export type EdgeRecord = Record & {
+  cursor: mixed;
+  node: Record;
+};
 export type PageInfo = {
   endCursor: ?string;
   hasNextPage: boolean;

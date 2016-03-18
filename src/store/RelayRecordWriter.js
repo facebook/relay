@@ -17,6 +17,10 @@ const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const GraphQLRange = require('GraphQLRange');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {
+  EdgeRecord,
+  PageInfo,
+} from 'RelayConnectionInterface';
+import type {
   Call,
   ClientMutationID,
   DataID,
@@ -38,27 +42,19 @@ import type {CacheWriter} from 'RelayTypes';
 const invariant = require('invariant');
 const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 
-const {CURSOR, NODE} = RelayConnectionInterface;
 const EMPTY = '';
-const FILTER_CALLS = '__filterCalls__';
-const FORCE_INDEX = '__forceIndex__';
-const RANGE = '__range__';
-const RESOLVED_FRAGMENT_MAP = '__resolvedFragmentMap__';
-const RESOLVED_FRAGMENT_MAP_GENERATION = '__resolvedFragmentMapGeneration__';
-const PATH = '__path__';
 const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
-
-import type {
-  PageInfo,
-} from 'RelayConnectionInterface';
-
-type EdgeData = {
-  __dataID__: DataID;
-  cursor: mixed;
-  node: {
-    __dataID__: DataID;
-  };
-};
+const {CURSOR, NODE} = RelayConnectionInterface;
+const {
+  FILTER_CALLS,
+  FORCE_INDEX,
+  MUTATION_IDS,
+  PATH,
+  RANGE,
+  RESOLVED_FRAGMENT_MAP,
+  RESOLVED_FRAGMENT_MAP_GENERATION,
+  STATUS,
+} = RelayRecord.MetadataKey;
 
 type RangeOperation = $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 
@@ -334,17 +330,15 @@ class RelayRecordWriter {
     if (field == null) {
       return field;
     }
+    const record = RelayRecord.getRecord(field);
     invariant(
-      typeof field === 'object' &&
-        field !== null &&
-        !Array.isArray(field) &&
-        (field.__dataID__ == null || typeof field.__dataID__ === 'string'),
+      record,
       'RelayRecordWriter.getLinkedRecordID(): Expected field `%s` for record ' +
       '`%s` to have a linked record.',
       storageKey,
       dataID
     );
-    return field.__dataID__;
+    return RelayRecord.getDataID(record);
   }
 
   /**
@@ -397,16 +391,17 @@ class RelayRecordWriter {
       storageKey,
       dataID
     );
-    return field.map((item, ii) => {
+    return field.map((element, ii) => {
+      const record = RelayRecord.getRecord(element);
       invariant(
-        typeof item === 'object' && item.__dataID__,
+        record,
         'RelayRecordWriter.getLinkedRecordIDs(): Expected element at index ' +
         '%s in field `%s` for record `%s` to be a linked record.',
         ii,
         storageKey,
         dataID
       );
-      return item.__dataID__;
+      return RelayRecord.getDataID(record);
     });
   }
 
@@ -453,7 +448,6 @@ class RelayRecordWriter {
     if (forceIndex === null) {
       return -1;
     }
-    // __forceIndex__ can only be a number
     return forceIndex || 0;
   }
 
@@ -490,9 +484,9 @@ class RelayRecordWriter {
     const range = new GraphQLRange();
     const filterCalls = getFilterCalls(calls);
     forceIndex = forceIndex || 0;
-    record.__filterCalls__ = filterCalls;
-    record.__forceIndex__ = forceIndex;
-    record.__range__ = range;
+    record[FILTER_CALLS] = filterCalls;
+    record[FORCE_INDEX] = forceIndex;
+    record[RANGE] = range;
 
     const cacheWriter = this._cacheWriter;
     if (!this._isOptimisticWrite && cacheWriter) {
@@ -525,15 +519,16 @@ class RelayRecordWriter {
       'have a range.',
       connectionID
     );
-    const edgesData = [];
+    const edgeRecords = [];
     edges.forEach(edgeID => {
-      const edgeData = this._getRangeEdgeData(edgeID);
-      edgesData.push(edgeData);
-      this._addConnectionForNode(connectionID, edgeData.node.__dataID__);
+      const edgeRecord = this._getRangeEdgeRecord(edgeID);
+      edgeRecords.push(edgeRecord);
+      const nodeID = RelayRecord.getDataID(edgeRecord.node);
+      this._addConnectionForNode(connectionID, nodeID);
     });
     range.addItems(
       calls,
-      edgesData,
+      edgeRecords,
       pageInfo
     );
     if (!this._isOptimisticWrite && this._cacheWriter) {
@@ -560,7 +555,7 @@ class RelayRecordWriter {
    * Get edge data in a format compatibile with `GraphQLRange`.
    * TODO: change `GraphQLRange` to accept `(edgeID, cursor, nodeID)` tuple
    */
-  _getRangeEdgeData(edgeID: DataID): EdgeData {
+  _getRangeEdgeRecord(edgeID: DataID): EdgeRecord {
     const nodeID = this.getLinkedRecordID(edgeID, NODE);
     invariant(
       nodeID,
@@ -617,13 +612,13 @@ class RelayRecordWriter {
         this._removeConnectionForNode(connectionID, nodeID);
       }
     } else {
-      const edgeData = this._getRangeEdgeData(edgeID);
-      this._addConnectionForNode(connectionID, edgeData.node.__dataID__);
+      const edgeRecord = this._getRangeEdgeRecord(edgeID);
+      const nodeID = RelayRecord.getDataID(edgeRecord.node);
+      this._addConnectionForNode(connectionID, nodeID);
       if (operation === APPEND) {
-        range.appendEdge(this._getRangeEdgeData(edgeID));
+        range.appendEdge(this._getRangeEdgeRecord(edgeID));
       } else {
-        // prepend
-        range.prependEdge(this._getRangeEdgeData(edgeID));
+        range.prependEdge(this._getRangeEdgeRecord(edgeID));
       }
     }
     if (this._cacheWriter) {
@@ -703,12 +698,12 @@ class RelayRecordWriter {
       clientMutationID,
       'RelayRecordWriter: _clientMutationID cannot be null/undefined.'
     );
-    const mutationIDs: Array<ClientMutationID> = record.__mutationIDs__ || [];
+    const mutationIDs: Array<ClientMutationID> = record[MUTATION_IDS] || [];
     if (mutationIDs.indexOf(clientMutationID) === -1) {
       mutationIDs.push(clientMutationID);
-      record.__mutationIDs__ = mutationIDs;
+      record[MUTATION_IDS] = mutationIDs;
     }
-    record.__status__ = RelayRecordStatusMap.setOptimisticStatus(
+    record[STATUS] = RelayRecordStatusMap.setOptimisticStatus(
       0,
       true
     );

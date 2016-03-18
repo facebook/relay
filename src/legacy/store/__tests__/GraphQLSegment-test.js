@@ -16,7 +16,7 @@ jest.dontMock('GraphQLSegment');
 const GraphQLSegment = require('GraphQLSegment');
 const RelayRecord = require('RelayRecord');
 
-RelayRecord.getDataID.mockImplementation(function(data) {
+RelayRecord.getDataIDForObject.mockImplementation(function(data) {
   return data.__dataID__;
 });
 

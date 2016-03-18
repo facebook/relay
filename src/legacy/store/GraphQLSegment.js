@@ -245,7 +245,7 @@ class GraphQLSegment {
    * @param {number} index
    */
   _addEdgeAtIndex(edge, index) {
-    const edgeID = RelayRecord.getDataID(edge);
+    const edgeID = RelayRecord.getDataIDForObject(edge);
     const cursor = edge.cursor;
 
     const idIndex = this._getIndexForID(edgeID);

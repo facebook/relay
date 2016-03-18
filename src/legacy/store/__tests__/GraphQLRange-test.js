@@ -84,7 +84,7 @@ describe('GraphQLRange', () => {
     consoleError = console.error;
     consoleWarn = console.warn;
 
-    RelayRecord.getDataID.mockImplementation(function(data) {
+    RelayRecord.getDataIDForObject.mockImplementation(function(data) {
       return data.__dataID__;
     });
     range = new GraphQLRange();

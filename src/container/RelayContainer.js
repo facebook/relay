@@ -208,7 +208,7 @@ function createContainerComponent(
           );
           const dataIDs = [];
           queryData.forEach((data, ii) => {
-            const dataID = RelayRecord.getDataID(data);
+            const dataID = RelayRecord.getDataIDForObject(data);
             if (dataID) {
               querySet[fragmentName + ii] =
                 storeData.buildFragmentQueryForDataID(fragment, dataID);
@@ -221,7 +221,7 @@ function createContainerComponent(
         } else {
           /* $FlowFixMe(>=0.19.0) - queryData is mixed but getID expects Object
            */
-          const dataID = RelayRecord.getDataID(queryData);
+          const dataID = RelayRecord.getDataIDForObject(queryData);
           if (dataID) {
             fragmentPointer = {
               fragment,
@@ -332,7 +332,7 @@ function createContainerComponent(
     hasOptimisticUpdate(
       record: Object
     ): boolean {
-      const dataID = RelayRecord.getDataID(record);
+      const dataID = RelayRecord.getDataIDForObject(record);
       invariant(
         dataID != null,
         'RelayContainer.hasOptimisticUpdate(): Expected a record in `%s`.',
@@ -345,7 +345,7 @@ function createContainerComponent(
      * Returns the pending mutation transactions affecting the given record.
      */
     getPendingTransactions(record: Object): ?Array<RelayMutationTransaction> {
-      const dataID = RelayRecord.getDataID(record);
+      const dataID = RelayRecord.getDataIDForObject(record);
       invariant(
         dataID != null,
         'RelayContainer.getPendingTransactions(): Expected a record in `%s`.',
@@ -375,7 +375,7 @@ function createContainerComponent(
         return true;
       }
       // convert builder -> fragment in order to get the fragment's name
-      const dataID = RelayRecord.getDataID(record);
+      const dataID = RelayRecord.getDataIDForObject(record);
       invariant(
         dataID != null,
         'RelayContainer.hasFragmentData(): Second argument is not a valid ' +

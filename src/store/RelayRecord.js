@@ -78,17 +78,17 @@ const RelayRecord = {
     };
   },
 
-  isRecord(value: mixed): boolean {
+  isRecord(maybeRecord: mixed): boolean {
     return (
-      typeof value === 'object' &&
-      value != null &&
-      !Array.isArray(value) &&
-      typeof value.__dataID__ === 'string'
+      typeof maybeRecord === 'object' &&
+      maybeRecord != null &&
+      !Array.isArray(maybeRecord) &&
+      typeof maybeRecord.__dataID__ === 'string'
     );
   },
 
-  getDataID(record: Object): ?string {
-    return record.__dataID__;
+  getDataIDForObject(maybeRecord: Object): ?string {
+    return maybeRecord.__dataID__;
   },
 
  /**

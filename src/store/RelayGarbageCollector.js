@@ -218,14 +218,14 @@ class RelayGarbageCollector {
       } else if (Array.isArray(value)) {
         value.forEach(item => {
           if (typeof item === 'object' && item !== null) {
-            const linkedID = RelayRecord.getDataID(item);
+            const linkedID = RelayRecord.getDataIDForObject(item);
             if (linkedID != null) {
               this._collectionQueue.push(linkedID);
             }
           }
         });
       } else if (typeof value === 'object' && value !== null) {
-        const linkedID = RelayRecord.getDataID(value);
+        const linkedID = RelayRecord.getDataIDForObject(value);
         if (linkedID != null) {
           this._collectionQueue.push(linkedID);
         }

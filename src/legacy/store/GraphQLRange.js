@@ -120,7 +120,7 @@ function isValidRangeCallValues(calls) {
  */
 function validateEdge(edge) {
   invariant(
-    RelayRecord.getDataID(edge) !== undefined,
+    RelayRecord.getDataIDForObject(edge) !== undefined,
     'GraphQLStore: `edge` must have a data id'
   );
   invariant(
@@ -244,7 +244,7 @@ class GraphQLRange {
 
     for (let ii = 0; ii < edges.length; ii++) {
       const edge = edges[ii];
-      edgeIDsToStore.push(RelayRecord.getDataID(edge));
+      edgeIDsToStore.push(RelayRecord.getDataIDForObject(edge));
       cursorsToStore.push(edge.cursor);
     }
 
@@ -457,7 +457,7 @@ class GraphQLRange {
    * @param {object} edge
    */
   _removeEdgeIfApplicable(edge) {
-    const id = RelayRecord.getDataID(edge);
+    const id = RelayRecord.getDataIDForObject(edge);
     const index = this._getSegmentIndexByID(id);
     if (index != null) {
       this._orderedSegments[index].removeEdge(id);
@@ -587,7 +587,7 @@ class GraphQLRange {
     }
 
     for (let ii = 0; ii < edgeIDs.length; ii++) {
-      if (edgeIDs[ii] !== RelayRecord.getDataID(edges[ii])) {
+      if (edgeIDs[ii] !== RelayRecord.getDataIDForObject(edges[ii])) {
         warning(
           false,
           'Relay was unable to reconcile edges on a connection. This most ' +
@@ -708,7 +708,7 @@ class GraphQLRange {
 
     for (let ii = 1; ii <= edgeIDs.length; ii++) {
       if (edgeIDs[edgeIDs.length - ii] !==
-          RelayRecord.getDataID(edges[edges.length - ii])) {
+          RelayRecord.getDataIDForObject(edges[edges.length - ii])) {
         warning(
           false,
           'Relay was unable to reconcile edges on a connection. This most ' +

@@ -13,13 +13,14 @@
 
 const RelayQueryConfig = require.requireActual('RelayQueryConfig');
 
-RelayQueryConfig.genMock = jest.genMockFunction().mockImplementation(() => {
+RelayQueryConfig.genMock = jest.fn(staticProperties => {
   class MockQueryConfig extends RelayQueryConfig {}
   MockQueryConfig.routeName = 'MockQueryConfig';
+  Object.assign(MockQueryConfig, staticProperties);
   return MockQueryConfig;
 });
 
-RelayQueryConfig.genMockInstance = jest.genMockFunction().mockImplementation(
+RelayQueryConfig.genMockInstance = jest.fn(
   () => new (RelayQueryConfig.genMock())()
 );
 

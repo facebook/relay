@@ -81,7 +81,7 @@ describe('RelayRenderer', function() {
       />,
       container
     );
-    expect(getRelayQueries.mock.calls).toEqual([[MockContainer, queryConfig]]);
+    expect(getRelayQueries.mock.calls[0]).toEqual([MockContainer, queryConfig]);
     expect(environment.primeCache.mock.calls.length).toBe(1);
   });
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Renamed the Flow type `RelayRendererRenderCallback` to `RelayRenderCallback`.
 * Renamed the Flow type `RelayQueryConfigSpec` to `RelayQueryConfigInterface`.
 
 ## 0.7.3 (March 4, 2016)

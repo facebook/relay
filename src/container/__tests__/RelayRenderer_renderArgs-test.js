@@ -26,7 +26,6 @@ const RelayTestUtils = require('RelayTestUtils');
 describe('RelayRenderer.renderArgs', () => {
   let MockContainer;
 
-  let container;
   let queryConfig;
   let environment;
   let render;
@@ -39,7 +38,7 @@ describe('RelayRenderer.renderArgs', () => {
       fragments: {},
     });
 
-    container = document.createElement('div');
+    const container = document.createElement('div');
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
 
@@ -88,21 +87,6 @@ describe('RelayRenderer.renderArgs', () => {
     });
   });
 
-  it('has no `props` until request is resolved', () => {
-    expect(request => request.block()).toRenderWithArgs({
-      done: false,
-      error: null,
-      props: null,
-      stale: false,
-    });
-    expect(request => request.resolve()).toRenderWithArgs({
-      done: false,
-      error: null,
-      props: {},
-      stale: false,
-    });
-  });
-
   it('is not `done` until request succeeds', () => {
     expect(request => request.block()).toRenderWithArgs({
       done: false,
@@ -128,69 +112,6 @@ describe('RelayRenderer.renderArgs', () => {
     });
   });
 
-  it('has `error` when request fails after request is sent', () => {
-    const error = new Error('Expected error.');
-    expect(request => request.block()).toRenderWithArgs({
-      done: false,
-      error: null,
-      props: null,
-      stale: false,
-    });
-    expect(request => request.fail(error)).toRenderWithArgs({
-      done: false,
-      error,
-      props: null,
-      stale: false,
-    });
-  });
-
-  it('has `error` and `props` when request is resolved and fails', () => {
-    const error = new Error('Expected error.');
-    expect(request => request.resolve()).toRenderWithArgs({
-      done: false,
-      error: null,
-      props: {},
-      stale: false,
-    });
-    expect(request => request.fail(error)).toRenderWithArgs({
-      done: false,
-      error,
-      props: {},
-      stale: false,
-    });
-  });
-
-  it('is `stale` if force fetching when data is fulfillable', () => {
-    ReactDOM.render(
-      <RelayRenderer
-        Container={MockContainer}
-        queryConfig={queryConfig}
-        forceFetch={true}
-        environment={environment}
-        render={render}
-      />,
-      container
-    );
-    expect(request => request.resolve({stale: true})).toRenderWithArgs({
-      done: false,
-      error: null,
-      props: {},
-      stale: true,
-    });
-    expect(request => request.resolve({stale: false})).toRenderWithArgs({
-      done: false,
-      error: null,
-      props: {},
-      stale: false,
-    });
-    expect(request => request.succeed()).toRenderWithArgs({
-      done: true,
-      error: null,
-      props: {},
-      stale: false,
-    });
-  });
-
   it('has a `retry` function that retries the request', () => {
     const error = new Error('Expected error.');
     expect(request => request.fail(error)).toRenderWithArgs({error});
@@ -211,26 +132,5 @@ describe('RelayRenderer.renderArgs', () => {
       'RelayRenderer: You tried to call `retry`, but the last request did ' +
       'not fail. You can only call this when the last request has failed.'
     );
-  });
-
-  it('passes query config variables as props', () => {
-    const MockQueryConfig = RelayQueryConfig.genMock();
-    queryConfig = new MockQueryConfig({foo: 123, bar: 456});
-
-    ReactDOM.render(
-      <RelayRenderer
-        Container={MockContainer}
-        queryConfig={queryConfig}
-        environment={environment}
-        render={render}
-      />,
-      container
-    );
-    expect(request => request.resolve()).toRenderWithArgs({
-      done: false,
-      error: null,
-      props: {foo: 123, bar: 456},
-      stale: false,
-    });
   });
 });

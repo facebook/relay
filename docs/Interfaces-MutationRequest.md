@@ -75,7 +75,7 @@ Gets an optional map from name to File objects.
 getID(): string
 ```
 
-Gets a unique identifier for this query. These identifiers are useful for assigning response payloads to their corresponding queries when sent in a single GraphQL request.
+Gets a unique identifier for this mutation. These identifiers are useful for assigning response payloads to their corresponding mutations when sent in a single GraphQL request.
 
 ### getDebugName
 

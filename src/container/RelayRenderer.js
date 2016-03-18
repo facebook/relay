@@ -130,7 +130,6 @@ class RelayRenderer extends React.Component<void, Props, State> {
   mounted: boolean;
   pendingRequest: ?Abortable;
   props: Props;
-  querySet: ?RelayQuerySet;
   state: State;
 
   constructor(props: Props, context: any) {
@@ -140,7 +139,6 @@ class RelayRenderer extends React.Component<void, Props, State> {
     this.gcHold = garbageCollector && garbageCollector.acquireHold();
     this.mounted = true;
     this.pendingRequest = null;
-    this.querySet = null;
     this.state = {
       active: false,
       readyState: null,
@@ -190,18 +188,17 @@ class RelayRenderer extends React.Component<void, Props, State> {
       this.pendingRequest.abort();
     }
 
-    this.containerProps = null;
-    this.querySet = getRelayQueries(Container, queryConfig);
+    const querySet = getRelayQueries(Container, queryConfig);
     const request = this.pendingRequest = forceFetch ?
       (
         onForceFetch ?
-          onForceFetch(this.querySet, onReadyStateChange) :
-          environment.forceFetch(this.querySet, onReadyStateChange)
+          onForceFetch(querySet, onReadyStateChange) :
+          environment.forceFetch(querySet, onReadyStateChange)
       ) :
       (
         onPrimeCache ?
-          onPrimeCache(this.querySet, onReadyStateChange) :
-          environment.primeCache(this.querySet, onReadyStateChange)
+          onPrimeCache(querySet, onReadyStateChange) :
+          environment.primeCache(querySet, onReadyStateChange)
       );
   }
 

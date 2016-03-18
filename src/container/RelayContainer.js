@@ -45,7 +45,6 @@ const invariant = require('invariant');
 const isReactComponent = require('isReactComponent');
 const isRelayEnvironment = require('isRelayEnvironment');
 const nullthrows = require('nullthrows');
-const prepareRelayContainerProps = require('prepareRelayContainerProps');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
@@ -743,8 +742,8 @@ function createContainerComponent(
         <Component
           {...this.props}
           {...this.state.queryData}
-          {...prepareRelayContainerProps(this.state.relayProp)}
           ref={isReactComponent(Component) ? 'component' : null}
+          relay={this.state.relayProp}
         />
       );
     }

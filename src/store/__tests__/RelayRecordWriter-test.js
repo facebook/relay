@@ -14,13 +14,17 @@
 jest.autoMockOff();
 
 const GraphQLRange = require('GraphQLRange');
+const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMockCacheManager = require('RelayMockCacheManager');
+const RelayQueryPath = require('RelayQueryPath');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 const {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
+
+const generateClientID = require('generateClientID');
 
 describe('RelayRecordWriter', () => {
 
@@ -95,6 +99,32 @@ describe('RelayRecordWriter', () => {
       expect(store.getRecordState('1')).toBe('EXISTENT');
       expect(store.getType('1')).toBe('Type');
       expect(cache.writeField).toBeCalledWith('1', '__dataID__', '1', 'Type');
+    });
+
+    it('ignores paths for server records', () => {
+      const {getNode} = RelayTestUtils;
+
+      const writer = new RelayRecordWriter({}, {}, false);
+      const path = RelayQueryPath.create(getNode(Relay.QL`query { viewer }`));
+      writer.putRecord('1', 'Type', path);
+      expect(writer.getPathToRecord('1')).toBe(undefined);
+    });
+
+    it('creates client records with paths', () => {
+      const {getNode} = RelayTestUtils;
+
+      const writer = new RelayRecordWriter({}, {}, false);
+      const path = RelayQueryPath.create(getNode(Relay.QL`query { viewer }`));
+      const id = generateClientID();
+      writer.putRecord(id, 'Type', path);
+      expect(writer.getPathToRecord(id)).toBe(path);
+    });
+
+    it('creates client records without paths', () => {
+      const writer = new RelayRecordWriter({}, {}, false);
+      const id = generateClientID();
+      writer.putRecord(id, 'Type');
+      expect(writer.getPathToRecord(id)).toBe(undefined);
     });
 
     it('creates records for optimistic write', () => {
@@ -214,7 +244,7 @@ describe('RelayRecordWriter', () => {
   });
 
   describe('putLinkedRecordID()', () => {
-    it('throws if either record does not exist', () => {
+    it('throws if the parent record does not exist', () => {
       const store = new RelayRecordWriter({}, {}, false);
       store.putRecord('1', 'Type');
       expect(() => {
@@ -223,12 +253,13 @@ describe('RelayRecordWriter', () => {
         'RelayRecordWriter.putLinkedRecordID(): Expected record `2` to exist ' +
         'before linking to record `1`.'
       );
-      expect(() => {
-        store.putLinkedRecordID('1', 'link', '2');
-      }).toFailInvariant(
-        'RelayRecordWriter.putLinkedRecordID(): Expected record `2` to exist ' +
-        'before linking from record `1`.'
-      );
+    });
+
+    it('writes links to non-existent records', () => {
+      const writer = new RelayRecordWriter({}, {}, false);
+      writer.putRecord('1', 'Type');
+      writer.putLinkedRecordID('1', 'link', '2');
+      expect(writer.getLinkedRecordID('1', 'link')).toBe('2');
     });
 
     it('writes links between records', () => {
@@ -260,7 +291,7 @@ describe('RelayRecordWriter', () => {
   });
 
   describe('putLinkedRecordIDs()', () => {
-    it('throws if either record does not exist', () => {
+    it('throws if the parent record does not exist', () => {
       const store = new RelayRecordWriter({}, {}, false);
       store.putRecord('1', 'Type');
       expect(() => {
@@ -269,12 +300,13 @@ describe('RelayRecordWriter', () => {
         'RelayRecordWriter.putLinkedRecordIDs(): Expected record `2` to ' +
         'exist before linking records.'
       );
-      expect(() => {
-        store.putLinkedRecordIDs('1', 'link', ['2']);
-      }).toFailInvariant(
-        'RelayRecordWriter.putLinkedRecordIDs(): Expected record `2` to ' +
-        'exist before linking from `1`.'
-      );
+    });
+
+    it('writes links to non-existent records', () => {
+      const writer = new RelayRecordWriter({}, {}, false);
+      writer.putRecord('1', 'Type');
+      writer.putLinkedRecordIDs('1', 'link', ['2']);
+      expect(writer.getLinkedRecordIDs('1', 'link')).toEqual(['2']);
     });
 
     it('writes one-to-n links between records', () => {

@@ -172,13 +172,7 @@ class RelayRecordWriter {
     if (this._isOptimisticWrite) {
       this._setClientMutationID(nextRecord);
     }
-    if (RelayRecord.isClientID(dataID)) {
-      invariant(
-        path,
-        'RelayRecordWriter.putRecord(): Expected a path for non-refetchable ' +
-        'record `%s`.',
-        dataID
-      );
+    if (RelayRecord.isClientID(dataID) && path) {
       nextRecord[PATH] = path;
     }
     this._records[dataID] = nextRecord;
@@ -357,14 +351,6 @@ class RelayRecordWriter {
       parentID,
       recordID
     );
-    const record = this._records[recordID];
-    invariant(
-      record,
-      'RelayRecordWriter.putLinkedRecordID(): Expected record `%s` to exist ' +
-      'before linking from record `%s`.',
-      recordID,
-      parentID
-    );
     const fieldValue = RelayRecord.create(recordID);
     parent[storageKey] = fieldValue;
     if (!this._isOptimisticWrite && this._cacheWriter) {
@@ -421,14 +407,6 @@ class RelayRecordWriter {
       parentID
     );
     const records = recordIDs.map(recordID => {
-      const record = this._records[recordID];
-      invariant(
-        record,
-        'RelayRecordWriter.putLinkedRecordIDs(): Expected record `%s` to ' +
-        'exist before linking from `%s`.',
-        recordID,
-        parentID
-      );
       return RelayRecord.create(recordID);
     });
     parent[storageKey] = records;

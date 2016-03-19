@@ -32,7 +32,6 @@ import type {
 } from 'RelayTypes';
 
 const getRelayQueries = require('getRelayQueries');
-const invariant = require('invariant');
 
 type Props = {
   Container: RelayContainer;
@@ -207,13 +206,10 @@ class RelayRenderer extends React.Component<void, Props, State> {
    */
   _retry(): void {
     const {readyState} = this.state;
-    invariant(
-      readyState && readyState.error,
-      'RelayRenderer: You tried to call `retry`, but the last request did ' +
-      'not fail. You can only call this when the last request has failed.'
-    );
-    this._runQueries(this.props);
-    this.setState({readyState: null});
+    if (readyState && readyState.error) {
+      this._runQueries(this.props);
+      this.setState({readyState: null});
+    }
   }
 
   componentWillReceiveProps(nextProps: Props): void {

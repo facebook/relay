@@ -123,14 +123,13 @@ describe('RelayRenderer.renderArgs', () => {
     expect(environment.primeCache.mock.calls.length).toBe(2);
   });
 
-  it('has a `retry` function that throws if called without failure', () => {
+  it('has a `retry` function that does nothing without a failure', () => {
     expect(request => request.block()).toRenderWithArgs({error: null});
 
     const {retry} = render.mock.calls[1][0];
     expect(typeof retry).toBe('function');
-    expect(() => retry()).toFailInvariant(
-      'RelayRenderer: You tried to call `retry`, but the last request did ' +
-      'not fail. You can only call this when the last request has failed.'
-    );
+    expect(environment.primeCache.mock.calls.length).toBe(1);
+    retry();
+    expect(environment.primeCache.mock.calls.length).toBe(1);
   });
 });

@@ -86,7 +86,7 @@ function validateMutationConfig(
       assertValid({
         connectionName: REQUIRED,
         edgeName: REQUIRED,
-        parentID: REQUIRED,
+        parentID: OPTIONAL,
         parentName: OPTIONAL,
         rangeBehaviors: REQUIRED,
       });

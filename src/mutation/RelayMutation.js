@@ -29,6 +29,7 @@ const buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder} from 'buildRQL';
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
+const validateMutationConfig = require('validateMutationConfig');
 const warning = require('warning');
 
 export type FileMap = {[key: string]: File};
@@ -54,10 +55,12 @@ class RelayMutation<Tp: Object> {
   props: Tp;
   _environment: RelayEnvironmentInterface;
   _didShowFakeDataWarning: boolean;
+  _didValidateConfig: boolean;
   _unresolvedProps: Tp;
 
   constructor(props: Tp) {
     this._didShowFakeDataWarning = false;
+    this._didValidateConfig = false;
     this._unresolvedProps = props;
   }
 
@@ -361,6 +364,13 @@ class RelayMutation<Tp: Object> {
       }
     });
     this.props = resolvedProps;
+
+    if (!this._didValidateConfig) {
+      this.getConfigs().forEach(
+        config => validateMutationConfig(config, this.constructor.name)
+      );
+      this._didValidateConfig = true;
+    }
   }
 
   static getFragment(

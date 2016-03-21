@@ -31,6 +31,14 @@ describe('RelayMutation', function() {
 
   const {getNode, getPointer} = RelayTestUtils;
 
+  function applyUpdate(mutation) {
+    /* eslint-disable no-shadow */
+    const RelayEnvironment = require.requireActual('RelayEnvironment');
+    const environment = new RelayEnvironment();
+    environment.applyUpdate(mutation);
+    /* eslint-enable no-shadow */
+  }
+
   beforeEach(function() {
     jest.resetModuleRegistry();
 
@@ -38,22 +46,26 @@ describe('RelayMutation', function() {
     environment.read = jest.genMockFunction();
 
     const initialVariables = {isRelative: false};
+    var makeMockMutation = () => {
+      class MockMutationClass extends Relay.Mutation {
+        static initialVariables = initialVariables;
+        static fragments = {
+          foo: () => Relay.QL`
+            fragment on Comment {
+              url(relative: $isRelative)
+            }
+          `,
+          bar: () => Relay.QL`
+            fragment on Node {
+              id,
+            }
+          `,
+        };
 
-    const makeMockMutation = () => {
-      class MockMutationClass extends Relay.Mutation {}
-      MockMutationClass.fragments = {
-        foo: () => Relay.QL`
-          fragment on Comment {
-            url(relative: $isRelative)
-          }
-        `,
-        bar: () => Relay.QL`
-          fragment on Node {
-            id,
-          }
-        `,
-      };
-      MockMutationClass.initialVariables = initialVariables;
+        getConfigs() {
+          return [];
+        }
+      }
       return MockMutationClass;
     };
     const MockMutation = makeMockMutation();
@@ -146,5 +158,41 @@ describe('RelayMutation', function() {
       'fragment. A typical fragment is defined using: ' +
       'Relay.QL`fragment on Type {...}`'
     );
+  });
+
+  it('validates mutation configs when applied', () => {
+    class MisconfiguredMutation extends Relay.Mutation {
+      getConfigs() {
+        return [{
+          type: 'FIELDS_CHANGE',
+          fieldIDS: ['4'],
+        }];
+      }
+    }
+
+    // Can't validate at construction time because we haven't resolved props
+    // yet, and the config may depend on those.
+    expect(() => new MisconfiguredMutation({})).not.toThrow();
+
+    expect(() => applyUpdate(new MisconfiguredMutation({})))
+      .toFailInvariant(
+        'validateMutationConfig: Unexpected key `fieldIDS` in ' +
+        '`FIELDS_CHANGE` config for `MisconfiguredMutation`; did you mean ' +
+        '`fieldIDs`?'
+      );
+  });
+
+  it('complains if mutation configs are not provided', () => {
+    class UnconfiguredMutation extends Relay.Mutation {}
+
+    // Can't validate at construction time because we haven't resolved props
+    // yet, and the config may depend on those.
+    expect(() => new UnconfiguredMutation({})).not.toThrow();
+
+    expect(() => applyUpdate(new UnconfiguredMutation({})))
+      .toThrowError(
+        'UnconfiguredMutation: Expected abstract method `getConfigs` to be ' +
+        'implemented.'
+      );
   });
 });

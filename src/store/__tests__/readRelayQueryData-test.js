@@ -104,6 +104,147 @@ describe('readRelayQueryData', () => {
     });
   });
 
+  describe('references to null records', () => {
+    it('returns the id of null scalar links', () => {
+      const records = {
+        address: null,
+        node: {
+          name: 'Chris',
+          address: {__dataID__: 'address'},
+        },
+      };
+      const fragment = getNode(Relay.QL`
+        fragment on User {
+          name
+          address {
+            city
+          }
+        }
+      `);
+      const {dataIDs} = readRelayQueryData(
+        getStoreData({records}),
+        fragment,
+        'node'
+      );
+      expect(dataIDs).toEqual({
+        address: true,
+        node: true,
+      });
+    });
+
+    it('returns the id of null plural links', () => {
+      const records = {
+        actor: null,
+        node: {
+          id: 'node',
+          actors: [{__dataID__: 'actor'}],
+        },
+      };
+      const fragment = getNode(Relay.QL`
+        fragment on Story {
+          id
+          actors {
+            name
+          }
+        }
+      `);
+      const {dataIDs} = readRelayQueryData(
+        getStoreData({records}),
+        fragment,
+        'node'
+      );
+      expect(dataIDs).toEqual({
+        actor: true,
+        node: true,
+      });
+    });
+
+    it('returns the id of null connections', () => {
+      const records = {
+        friends: null,
+        node: {
+          id: 'node',
+          friends: {__dataID__: 'friends'},
+        },
+      };
+      const fragment = getNode(Relay.QL`
+        fragment on User {
+          id
+          friends(first: "2") {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      `);
+      const {dataIDs} = readRelayQueryData(
+        getStoreData({records}),
+        fragment,
+        'node'
+      );
+      expect(dataIDs).toEqual({
+        friends: true,
+        node: true,
+      });
+    });
+
+    it('returns the id of null connection edges', () => {
+      const range = new GraphQLRange();
+      range.retrieveRangeInfoForQuery.mockReturnValue({
+        requestedEdgeIDs: ['edge'],
+        diffCalls: [],
+        pageInfo: {
+          [START_CURSOR]: 'cursor',
+          [END_CURSOR]: 'cursor',
+          [HAS_NEXT_PAGE]: false,
+          [HAS_PREV_PAGE]: false,
+        },
+      });
+      const records = {
+        friends: {
+          __range__: range,
+        },
+        edge: null,
+        node: {
+          id: 'node',
+          friends: {__dataID__: 'friends'},
+        },
+      };
+      const fragment = getNode(Relay.QL`
+        fragment on User {
+          id
+          friends(first: "2") {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      `);
+      const {data, dataIDs} = readRelayQueryData(
+        getStoreData({records}),
+        fragment,
+        'node'
+      );
+      expect(data).toEqual({
+        __dataID__: 'node',
+        id: 'node',
+        friends: {
+          __dataID__: 'friends_first(2)',
+          edges: [],
+        },
+      });
+      expect(dataIDs).toEqual({
+        edge: true,
+        friends: true,
+        node: true,
+      });
+    });
+  });
+
   it('returns the ids for all read data', () => {
     const records = {
       address: null,

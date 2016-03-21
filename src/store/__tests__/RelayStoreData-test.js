@@ -75,6 +75,57 @@ describe('RelayStoreData', () => {
       expect(storeData.getQueuedData()).toEqual({});
     });
 
+    it('broadcasts changes for created and updated records', () => {
+      const storeData = new RelayStoreData();
+
+      const query = getNode(Relay.QL`
+        query {
+          node(id:"123") {
+            id,
+            doesViewerLike,
+            topLevelComments {
+              count,
+            },
+          }
+        }
+      `);
+      const response = {
+        node: {
+          id: '123',
+          doesViewerLike: false,
+          topLevelComments: {
+            count: 1,
+          },
+          __typename: 'Story',
+        },
+      };
+      storeData.handleQueryPayload(query, response);
+      const commentsID =
+        storeData.getRecordStore().getLinkedRecordID('123', 'topLevelComments');
+
+      const changeEmitter = storeData.getChangeEmitter();
+      // broadcasts for created ids
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith('123');
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith(commentsID);
+
+      const updatedResponse = {
+        node: {
+          id: '123',
+          doesViewerLike: true, // false -> true
+          topLevelComments: {
+            count: 2, // 1 -> 2
+          },
+          __typename: 'Story',
+        },
+      };
+      changeEmitter.broadcastChangeForID.mockClear();
+      storeData.handleQueryPayload(query, updatedResponse);
+
+      // broadcasts for updated ids
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith('123');
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith(commentsID);
+    });
+
     it('uses cached IDs for root fields without IDs', () => {
       const storeData = new RelayStoreData();
 

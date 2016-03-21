@@ -515,12 +515,16 @@ class RelayStoreData {
    */
   _handleChangedAndNewDataIDs(changeSet: ChangeSet): void {
     const updatedDataIDs = Object.keys(changeSet.updated);
+    const createdDataIDs = Object.keys(changeSet.created);
+    const gc = this._garbageCollector;
     updatedDataIDs.forEach(id => this._changeEmitter.broadcastChangeForID(id));
-    if (this._garbageCollector) {
-      const createdDataIDs = Object.keys(changeSet.created);
-      const garbageCollector = this._garbageCollector;
-      createdDataIDs.forEach(dataID => garbageCollector.register(dataID));
-    }
+    // Containers may be subscribed to "new" records in the case where they
+    // were previously garbage collected or where the link was incrementally
+    // loaded from cache prior to the linked record.
+    createdDataIDs.forEach(id => {
+      gc && gc.register(id);
+      this._changeEmitter.broadcastChangeForID(id);
+    });
   }
 
   _getRecordWriterForMutation(): RelayRecordWriter {

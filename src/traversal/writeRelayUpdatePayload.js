@@ -464,9 +464,7 @@ function addRangeNode(
   // append/prepend the item to the range.
   if (rangeBehavior in GraphQLMutatorConstants.RANGE_OPERATIONS) {
     recordWriter.applyRangeUpdate(connectionID, edgeID, (rangeBehavior: any));
-    if (writer.hasChangeToRecord(edgeID)) {
-      writer.recordUpdate(connectionID);
-    }
+    writer.recordUpdate(connectionID);
   } else {
     console.error(
       'writeRelayUpdatePayload(): invalid range operation `%s`, valid ' +
@@ -535,9 +533,7 @@ function deleteRangeEdge(
   recordWriter.applyRangeUpdate(connectionID, edgeID, REMOVE);
 
   deleteRecord(writer, edgeID);
-  if (writer.hasChangeToRecord(edgeID)) {
-    writer.recordUpdate(connectionID);
-  }
+  writer.recordUpdate(connectionID);
 }
 
 /**

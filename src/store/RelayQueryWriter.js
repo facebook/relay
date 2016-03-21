@@ -163,13 +163,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   }
 
   /**
-   * Determine if the record was created or updated by this write operation.
-   */
-  hasChangeToRecord(recordID: DataID): boolean {
-    return this._changeTracker.hasChange(recordID);
-  }
-
-  /**
    * Determine if the record was created by this write operation.
    */
   isNewRecord(recordID: DataID): boolean {
@@ -536,7 +529,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         recordID: edgeID,
         responseData: edgeData,
       });
-      isUpdate = isUpdate || this.hasChangeToRecord(edgeID);
+      isUpdate = isUpdate || !prevEdge || edgeID !== prevEdge.edgeID;
     });
 
     const pageInfo = connectionData[PAGE_INFO] ||
@@ -576,7 +569,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
 
     const prevLinkedIDs = this._store.getLinkedRecordIDs(recordID, storageKey);
     const nextLinkedIDs = [];
-    let isUpdate = !prevLinkedIDs;
+    let isUpdate = false;
     let nextIndex = 0;
     fieldData.forEach(nextRecord => {
       // validate response data
@@ -601,11 +594,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
 
       const path = RelayQueryPath.getPath(state.path, field, nextLinkedID);
       this.createRecordIfMissing(field, nextLinkedID, path, nextRecord);
-      isUpdate = (
-        isUpdate ||
-        nextLinkedID !== prevLinkedID ||
-        this.isNewRecord(nextLinkedID)
-      );
+      isUpdate = isUpdate || nextLinkedID !== prevLinkedID;
 
       this.traverse(field, {
         nodeID: null, // never propagate `nodeID` past the first linked field
@@ -613,21 +602,17 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         recordID: nextLinkedID,
         responseData: nextRecord,
       });
-      isUpdate = isUpdate || this.hasChangeToRecord(nextLinkedID);
       nextIndex++;
     });
 
     this._writer.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
 
-    // Check if length has changed
-    isUpdate = (
+    // Only broadcast a list-level change if a record was changed/added/removed
+    if (
       isUpdate ||
       !prevLinkedIDs ||
       prevLinkedIDs.length !== nextLinkedIDs.length
-    );
-
-    // Only broadcast a list-level change if a record was changed/added
-    if (isUpdate) {
+    ) {
       this.recordUpdate(recordID);
     }
   }
@@ -671,7 +656,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // data sink (record/queuedRecords), but only record an update if the value
     // changed.
     this._writer.putLinkedRecordID(recordID, storageKey, nextLinkedID);
-    if (prevLinkedID !== nextLinkedID || this.isNewRecord(nextLinkedID)) {
+    if (prevLinkedID !== nextLinkedID) {
       this.recordUpdate(recordID);
     }
 

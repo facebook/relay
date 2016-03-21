@@ -676,7 +676,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(find:"node1") {
+            friends(first: "1") {
               edges {
                 node {
                   id,

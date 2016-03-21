@@ -282,6 +282,10 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       state.isPartial = true;
     }
     const previousData = getDataValue(state, EDGES);
+    // Include null-filtered edges as "seen" so that they will be subscribed.
+    rangeInfo.requestedEdgeIDs.forEach(edgeID => {
+      state.seenDataIDs[edgeID] = true;
+    });
     const edges = rangeInfo.filteredEdges.map((edgeData, ii) => {
       let data;
       if (previousData instanceof Object) {

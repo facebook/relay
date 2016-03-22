@@ -6,11 +6,11 @@ var x = Relay.QL`
       __configs__ {
         edges {
           node {
-            name,
-          },
-        },
-      },
-    },
+            name
+          }
+        }
+      }
+    }
   }
 `;
 

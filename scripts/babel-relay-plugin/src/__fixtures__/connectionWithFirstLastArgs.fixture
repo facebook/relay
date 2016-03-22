@@ -7,12 +7,12 @@ var x = Relay.QL`
         friends(first: 3, last: 3) {
           edges {
             node {
-              id,
-            },
-          },
-        },
-      },
-    },
+              id
+            }
+          }
+        }
+      }
+    }
   }
 `;
 

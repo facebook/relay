@@ -7,12 +7,12 @@ var x = Relay.QL`
         friends(first: 5, gender: $gender_0) {
           edges {
             node {
-              id,
-            },
-          },
-        },
-      },
-    },
+              id
+            }
+          }
+        }
+      }
+    }
   }
 `;
 

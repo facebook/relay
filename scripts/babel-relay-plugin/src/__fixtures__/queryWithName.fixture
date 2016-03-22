@@ -5,10 +5,10 @@ var x = Relay.QL`
     node(id: 123) {
       ... on User {
         profilePicture {
-          uri,
-        },
-      },
-    },
+          uri
+        }
+      }
+    }
   }
 `;
 

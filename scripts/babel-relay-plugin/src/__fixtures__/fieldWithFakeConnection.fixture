@@ -5,10 +5,10 @@ var foo = Relay.QL`
     fakeConnection {
       edges {
         node {
-          id,
-        },
-      },
-    },
+          id
+        }
+      }
+    }
   }
 `;
 

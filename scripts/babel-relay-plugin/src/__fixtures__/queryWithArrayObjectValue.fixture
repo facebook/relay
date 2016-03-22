@@ -3,8 +3,8 @@ var Relay = require('Relay');
 var q = Relay.QL`
   query {
     searchAll(queries: [{queryText: "Relay"}]) {
-      title,
-    },
+      title
+    }
   }
 `;
 

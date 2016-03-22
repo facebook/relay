@@ -187,7 +187,7 @@ function handleMerge(
   //
   // TODO #7167718: more efficient mutation/subscription writes
   for (const fieldName in payload) {
-    if (!payload.hasOwnProperty(fieldName)) {
+    if (!Object.prototype.hasOwnProperty.call(payload, fieldName)) {
       continue;
     }
     const payloadData = (payload[fieldName]: $FlowIssue); // #9357395

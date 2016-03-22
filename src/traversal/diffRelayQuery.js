@@ -14,6 +14,7 @@
 'use strict';
 
 const RelayConnectionInterface = require('RelayConnectionInterface');
+import type RelayFragmentTracker from 'RelayFragmentTracker';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
@@ -77,12 +78,13 @@ type DiffOutput = {
 function diffRelayQuery(
   root: RelayQuery.Root,
   store: RelayRecordStore,
-  tracker: RelayQueryTracker
+  tracker: RelayQueryTracker,
+  fragmentTracker: RelayFragmentTracker,
 ): Array<RelayQuery.Root> {
   const path = RelayQueryPath.create(root);
   const queries = [];
 
-  const visitor = new RelayDiffQueryBuilder(store, tracker);
+  const visitor = new RelayDiffQueryBuilder(store, tracker, fragmentTracker);
   const rootIdentifyingArg = root.getIdentifyingArg();
   const rootIdentifyingArgValue =
     (rootIdentifyingArg && rootIdentifyingArg.value) || null;
@@ -168,11 +170,17 @@ class RelayDiffQueryBuilder {
   _store: RelayRecordStore;
   _splitQueries: Array<RelayQuery.Root>;
   _tracker: RelayQueryTracker;
+  _fragmentTracker: RelayFragmentTracker;
 
-  constructor(store: RelayRecordStore, tracker: RelayQueryTracker) {
+  constructor(
+    store: RelayRecordStore,
+    tracker: RelayQueryTracker,
+    fragmentTracker: RelayFragmentTracker,
+  ) {
     this._store = store;
     this._splitQueries = [];
     this._tracker = tracker;
+    this._fragmentTracker = fragmentTracker;
   }
 
   splitQuery(
@@ -328,6 +336,16 @@ class RelayDiffQueryBuilder {
           this._store.getType(scope.dataID)
         );
         if (isCompatibleType) {
+          if (child.isTrackingEnabled()) {
+            const hash = child.getCompositeHash();
+            if (this._fragmentTracker.isTracked(scope.dataID, hash)) {
+              return {
+                diffNode: null,
+                trackedNode: null,
+              };
+            }
+          }
+
           const diffOutput = this.traverse(child, path, scope);
           const diffChild = diffOutput ? diffOutput.diffNode : null;
           const trackedChild = diffOutput ? diffOutput.trackedNode : null;

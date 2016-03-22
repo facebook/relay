@@ -118,6 +118,7 @@ export type ConcreteFragment = {
   metadata: {
     isAbstract?: boolean;
     isPlural?: boolean; // FB Printer
+    isTrackingEnabled?: boolean;
     pattern?: boolean;  // from @relay directive
     plural?: boolean;   // OSS Printer from `@relay`
   };

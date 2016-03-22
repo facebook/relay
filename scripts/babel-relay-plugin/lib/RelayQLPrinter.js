@@ -13,9 +13,9 @@
 
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -160,6 +160,8 @@ module.exports = function (t, options) {
     }, {
       key: 'printFragment',
       value: function printFragment(fragment) {
+        var _this = this;
+
         var fragmentType = fragment.getType();
 
         var requisiteFields = {};
@@ -173,11 +175,18 @@ module.exports = function (t, options) {
           requisiteFields[FIELDS.__typename] = true;
         }
         var selections = this.printSelections(fragment, requisiteFields, idFragment ? [idFragment] : null, fragment.hasDirective('generated'));
-        var metadata = this.printRelayDirectiveMetadata(fragment, {
-          isAbstract: fragmentType.isAbstract()
+
+        var relayDirective = findRelayDirective(fragment);
+        var selectVariables = relayDirective && find(relayDirective.getArguments(), function (arg) {
+          return arg.getName() === 'variables';
         });
 
-        return codify({
+        var metadata = this.printRelayDirectiveMetadata(fragment, {
+          isAbstract: fragmentType.isAbstract(),
+          isTrackingEnabled: !!selectVariables
+        });
+
+        var fragmentCode = codify({
           children: selections,
           directives: this.printDirectives(fragment.getDirectives()),
           id: this.printFragmentID(fragment),
@@ -186,6 +195,22 @@ module.exports = function (t, options) {
           name: t.valueToNode(fragment.getName()),
           type: t.valueToNode(fragmentType.getName({ modifiers: false }))
         });
+
+        if (selectVariables) {
+          var _ret = function () {
+            var variableMapping = selectVariables.getVariableMapping();
+
+            return {
+              v: t.callExpression(t.memberExpression(identify(_this.tagName), t.identifier('__createFragment')), [fragmentCode, t.objectExpression(Object.keys(variableMapping).map(function (key) {
+                return property(key, t.valueToNode(variableMapping[key]));
+              }))])
+            };
+          }();
+
+          if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+        }
+
+        return fragmentCode;
       }
     }, {
       key: 'printFragmentID',
@@ -264,7 +289,7 @@ module.exports = function (t, options) {
     }, {
       key: 'printSelections',
       value: function printSelections(parent, requisiteFields, extraFragments) {
-        var _this = this;
+        var _this2 = this;
 
         var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
@@ -275,10 +300,10 @@ module.exports = function (t, options) {
           if (selection instanceof RelayQLFragmentSpread) {
             // Assume that all spreads exist via template substitution.
             invariant(selection.getDirectives().length === 0, 'Directives are not yet supported for `${fragment}`-style fragment ' + 'references.');
-            printedFragments.push(_this.printFragmentReference(selection));
+            printedFragments.push(_this2.printFragmentReference(selection));
             didPrintFragmentReference = true;
           } else if (selection instanceof RelayQLInlineFragment) {
-            printedFragments.push(_this.printFragment(selection.getFragment()));
+            printedFragments.push(_this2.printFragment(selection.getFragment()));
           } else if (selection instanceof RelayQLField) {
             fields.push(selection);
           } else {
@@ -287,7 +312,7 @@ module.exports = function (t, options) {
         });
         if (extraFragments) {
           extraFragments.forEach(function (fragment) {
-            printedFragments.push(_this.printFragment(fragment));
+            printedFragments.push(_this2.printFragment(fragment));
           });
         }
         var printedFields = this.printFields(fields, parent, requisiteFields, isGeneratedQuery);
@@ -302,7 +327,7 @@ module.exports = function (t, options) {
     }, {
       key: 'printFields',
       value: function printFields(fields, parent, requisiteFields) {
-        var _this2 = this;
+        var _this3 = this;
 
         var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
@@ -318,19 +343,19 @@ module.exports = function (t, options) {
         var printedFields = [];
         fields.forEach(function (field) {
           delete generatedFields[field.getName()];
-          printedFields.push(_this2.printField(field, parent, requisiteFields, generatedFields, isGeneratedQuery));
+          printedFields.push(_this3.printField(field, parent, requisiteFields, generatedFields, isGeneratedQuery));
         });
 
         Object.keys(generatedFields).forEach(function (fieldName) {
           var generatedField = parentType.generateField(fieldName);
-          printedFields.push(_this2.printField(generatedField, parent, requisiteFields, generatedFields, isGeneratedQuery));
+          printedFields.push(_this3.printField(generatedField, parent, requisiteFields, generatedFields, isGeneratedQuery));
         });
         return printedFields;
       }
     }, {
       key: 'printField',
       value: function printField(field, parent, requisiteSiblings, generatedSiblings) {
-        var _this3 = this;
+        var _this4 = this;
 
         var isGeneratedQuery = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
 
@@ -392,7 +417,7 @@ module.exports = function (t, options) {
         var fieldAlias = field.getAlias();
         var args = field.getArguments();
         var calls = args.length ? t.arrayExpression(args.map(function (arg) {
-          return _this3.printArgument(arg);
+          return _this4.printArgument(arg);
         })) : NULL;
 
         return codify({
@@ -450,11 +475,11 @@ module.exports = function (t, options) {
     }, {
       key: 'printValue',
       value: function printValue(value) {
-        var _this4 = this;
+        var _this5 = this;
 
         if (Array.isArray(value)) {
           return t.arrayExpression(value.map(function (element) {
-            return _this4.printArgumentValue(element);
+            return _this5.printArgumentValue(element);
           }));
         }
         return codify({
@@ -465,7 +490,7 @@ module.exports = function (t, options) {
     }, {
       key: 'printDirectives',
       value: function printDirectives(directives) {
-        var _this5 = this;
+        var _this6 = this;
 
         var printedDirectives = [];
         directives.forEach(function (directive) {
@@ -473,7 +498,7 @@ module.exports = function (t, options) {
             return;
           }
           printedDirectives.push(t.objectExpression([property('kind', t.valueToNode('Directive')), property('name', t.valueToNode(directive.getName())), property('args', t.arrayExpression(directive.getArguments().map(function (arg) {
-            return t.objectExpression([property('name', t.valueToNode(arg.getName())), property('value', _this5.printArgumentValue(arg))]);
+            return t.objectExpression([property('name', t.valueToNode(arg.getName())), property('value', _this6.printArgumentValue(arg))]);
           })))]));
         });
         if (printedDirectives.length) {
@@ -485,15 +510,15 @@ module.exports = function (t, options) {
       key: 'printRelayDirectiveMetadata',
       value: function printRelayDirectiveMetadata(node, maybeMetadata) {
         var properties = [];
-        var relayDirective = find(node.getDirectives(), function (directive) {
-          return directive.getName() === 'relay';
-        });
+        var relayDirective = findRelayDirective(node);
         if (relayDirective) {
           relayDirective.getArguments().forEach(function (arg) {
             if (arg.isVariable()) {
               invariant(!arg.isVariable(), 'You supplied `$%s` as the `%s` argument to the `@relay` ' + 'directive, but `@relay` require scalar argument values.', arg.getVariableName(), arg.getName());
             }
-            properties.push(property(arg.getName(), t.valueToNode(arg.getValue())));
+            if (arg.getName() !== 'variables') {
+              properties.push(property(arg.getName(), t.valueToNode(arg.getValue())));
+            }
           });
         }
         if (maybeMetadata) {
@@ -642,7 +667,7 @@ module.exports = function (t, options) {
     } else if (Array.isArray(value)) {
       return t.arrayExpression(value.map(printLiteralValue));
     } else if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && value != null) {
-      var _ret2 = function () {
+      var _ret3 = function () {
         var objectValue = value;
         return {
           v: t.objectExpression(Object.keys(objectValue).map(function (key) {
@@ -651,7 +676,7 @@ module.exports = function (t, options) {
         };
       }();
 
-      if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+      if ((typeof _ret3 === 'undefined' ? 'undefined' : _typeof(_ret3)) === "object") return _ret3.v;
     } else {
       return t.valueToNode(value);
     }
@@ -659,6 +684,12 @@ module.exports = function (t, options) {
 
   function shallowFlatten(arr) {
     return t.callExpression(t.memberExpression(t.memberExpression(EMPTY_ARRAY, t.identifier('concat')), t.identifier('apply')), [EMPTY_ARRAY, arr]);
+  }
+
+  function findRelayDirective(node) {
+    return find(node.getDirectives(), function (directive) {
+      return directive.getName() === 'relay';
+    });
   }
 
   return RelayQLPrinter;

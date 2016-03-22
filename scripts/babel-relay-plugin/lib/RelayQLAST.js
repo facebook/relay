@@ -464,6 +464,20 @@ var RelayQLArgument = function () {
         return getLiteralValue(value);
       }
     }
+  }, {
+    key: 'getVariableMapping',
+    value: function getVariableMapping() {
+      invariant(!this.isVariable(), 'Cannot get value of an argument variable.');
+      var value = this.ast.value;
+      invariant(value.kind === 'ObjectValue', 'This should be an object, got a %s.', value.kind);
+      var mapping = {};
+      value.fields.forEach(function (field) {
+        var key = field.name.value;
+        invariant(field.value.kind === 'Variable', 'Expected an object containing only variables, found a %s at key %s', field.value.kind, key);
+        mapping[key] = field.value.name.value;
+      });
+      return mapping;
+    }
   }]);
 
   return RelayQLArgument;

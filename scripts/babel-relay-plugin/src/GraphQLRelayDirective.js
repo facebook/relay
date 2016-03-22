@@ -48,6 +48,12 @@ module.exports = {
       type: types.GraphQLBoolean,
       defaultValue: (null: ?boolean),
     },
+    {
+      name: 'variables',
+      description: 'Selectivly pass variables down into a fragment.',
+      type: new types.GraphQLList(types.GraphQLString),
+      defaultValue: (null: ?Array<string>)
+    },
   ],
   onOperation: false,
   onFragment: true,

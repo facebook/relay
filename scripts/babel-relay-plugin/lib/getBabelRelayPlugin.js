@@ -148,7 +148,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
                 warning('\n-- Relay Transform Error -- %s --\n', basename);
                 warning(['File:  ' + filename, 'Error: ' + error.stack].join('\n'));
               }
-              var runtimeMessage = util.format('GraphQL validation/transform error ``%s`` in file `%s`.', errorMessages.join(' '), filename);
+              var runtimeMessage = util.format('GraphQL validation/transform error ``%s`` in file `%s`. Try ' + 'updating your GraphQL schema if this argument/field/type is ' + 'newly added.', errorMessages.join(' '), filename);
               result = t.callExpression(t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.valueToNode(runtimeMessage)]))])), []);
 
               if (options.debug) {

@@ -168,7 +168,9 @@ function getBabelRelayPlugin(
               ].join('\n'));
             }
             var runtimeMessage = util.format(
-              'GraphQL validation/transform error ``%s`` in file `%s`.',
+              'GraphQL validation/transform error ``%s`` in file `%s`. Try ' +
+              'updating your GraphQL schema if this argument/field/type is ' +
+              'newly added.',
               errorMessages.join(' '),
               filename
             );

@@ -7,13 +7,13 @@ var x = Relay.QL`
         friends(first: 3) {
           edges {
             node {
-              name,
-            },
-          },
-          pageInfo,
-        },
-      },
-    },
+              name
+            }
+          }
+          pageInfo
+        }
+      }
+    }
   }
 `;
 

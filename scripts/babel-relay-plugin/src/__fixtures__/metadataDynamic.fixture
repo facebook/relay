@@ -4,12 +4,12 @@ var x = Relay.QL`
   fragment on NewsFeedConnection {
     edges {
       node {
-        id,
+        id
         ... on Story {
-          attachments,
+          attachments
         }
-      },
-    },
+      }
+    }
   }
 `;
 

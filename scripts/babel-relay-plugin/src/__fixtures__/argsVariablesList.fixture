@@ -2,8 +2,8 @@ Input:
 var foo = Relay.QL`
   query Args {
     nodes(ids: [$one, $two, 3]) {
-      id,
-    },
+      id
+    }
   }
 `;
 

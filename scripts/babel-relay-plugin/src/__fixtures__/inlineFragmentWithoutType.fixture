@@ -6,8 +6,8 @@ TODO: Upgrade to graphql@0.4.7 and uncomment this.
 var x = Relay.QL`
   fragment on Node {
     ... {
-      id,
-    },
+      id
+    }
   }
 `;
 */
@@ -22,8 +22,8 @@ TODO: Upgrade to graphql@0.4.7 and uncomment this.
 var x = Relay.QL`
   fragment on Node {
     ... {
-      id,
-    },
+      id
+    }
   }
 `;
 */

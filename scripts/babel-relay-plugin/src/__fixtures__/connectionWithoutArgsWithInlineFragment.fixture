@@ -8,13 +8,13 @@ var x = Relay.QL`
           ... on UserConnection {
             edges {
               node {
-                id,
-              },
-            },
-          },
-        },
-      },
-    },
+                id
+              }
+            }
+          }
+        }
+      }
+    }
   }
 `;
 

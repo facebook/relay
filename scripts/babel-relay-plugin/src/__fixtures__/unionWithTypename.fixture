@@ -2,8 +2,8 @@ Input:
 var foo = Relay.QL`
   query UnionWithTypename {
     media(id: 123) {
-      __typename,
-    },
+      __typename
+    }
   }
 `;
 

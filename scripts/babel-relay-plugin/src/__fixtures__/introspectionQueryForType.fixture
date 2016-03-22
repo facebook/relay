@@ -2,8 +2,8 @@ Input:
 var foo = Relay.QL`
   query IntrospectionQueryForType {
     __type(name: "Root") {
-      name,
-    },
+      name
+    }
   }
 `;
 

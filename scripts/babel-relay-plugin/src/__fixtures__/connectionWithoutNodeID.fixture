@@ -6,11 +6,11 @@ var x = Relay.QL`
       ... on User {
         friends(first: 3) @relay(isConnectionWithoutNodeID: true) {
           edges {
-            cursor,
-          },
-        },
-      },
-    },
+            cursor
+          }
+        }
+      }
+    }
   }
 `;
 

@@ -5,11 +5,11 @@ var x = Relay.QL`
     node(id: 456) {
       ... on Story {
         actors {
-          id,
-          __typename,
-        },
-      },
-    },
+          id
+          __typename
+        }
+      }
+    }
   }
 `;
 

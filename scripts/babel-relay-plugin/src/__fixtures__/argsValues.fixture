@@ -4,21 +4,21 @@ var foo = Relay.QL`
     node(id: 123) {
       ... on User {
         friends(
-          first: 10,
-          orderby: "Name",
-          find: "cursor1",
-          isViewerFriend: true,
-          gender: MALE,
+          first: 10
+          orderby: "Name"
+          find: "cursor1"
+          isViewerFriend: true
+          gender: MALE
         ) {
           edges {
             node {
-              id,
-              firstName(if: true, unless: false),
-            },
-          },
-        },
-      },
-    },
+              id
+              firstName(if: true, unless: false)
+            }
+          }
+        }
+      }
+    }
   }
 `;
 

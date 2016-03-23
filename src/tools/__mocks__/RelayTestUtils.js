@@ -528,12 +528,15 @@ const RelayTestUtils = {
       );
     }
 
-    const string = JSON.stringify(
-      printRelayQuery(flattenRelayQuery(node)),
-      null,
-      2
+    const indentSize = 2;
+    const indent = indentBy.bind(null, indentSize);
+    const printedQuery = printRelayQuery(flattenRelayQuery(node));
+    console.log(
+      'Node:\n' +
+      indent(prettifyQueryString(printedQuery.text, indentSize)) + '\n\n' +
+      'Variables:\n' +
+      indent(prettyStringify(printedQuery.variables, indentSize)) + '\n'
     );
-    console.log(string);
   },
 
   /**
@@ -667,6 +670,54 @@ function createFragmentSortKey(node) {
     node.getRoute().name,
     stableStringify(node.getVariables()),
   ].join('.');
+}
+
+/**
+  * @private
+  *
+  * Crudely transforms a query string into a "pretty" version (with
+  * whitespace) for human readability.
+  */
+function prettifyQueryString(queryText, indentSize) {
+  const regexp = /[^{},]+|[{},]/g;
+  let indent = '';
+  let output = '';
+  let match;
+  let padding;
+  while (match = regexp.exec(queryText)) {
+    if (match[0] === '{') {
+      indent += '  ';
+      padding = match.index && queryText[match.index - 1] !== ' ' ? ' ' : '';
+      output += padding + '{\n' + indent;
+    } else if (match[0] === '}') {
+      indent = indent.substr(0, indent.length - 2);
+      output += '\n' + indent + '}';
+    } else if (match[0] === ',') {
+      output += ',' + '\n' + indent;
+    } else {
+      output += match[0]
+    }
+  }
+  return output;
+}
+
+/**
+  * @private
+  *
+  * Indents and prettifies a JSON-stringifiable input.
+  */
+function prettyStringify(stringifiable, indentSize) {
+  return JSON.stringify(stringifiable, null, indentSize);
+}
+
+/**
+  * @private
+  *
+  * Indents (potentially multiline) `string` by `indentSize` spaces.
+  */
+function indentBy(indentSize, string) {
+  const indent = (new Array(indentSize + 1)).join(" ");
+  return indent + string.replace(/\n/g, '\n' + indent);
 }
 
 /**

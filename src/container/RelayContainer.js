@@ -369,11 +369,6 @@ function createContainerComponent(
       fragmentReference: RelayFragmentReference,
       record: Object
     ): boolean {
-      const storeData = this.context.relay.getStoreData();
-      if (!storeData.getPendingQueryTracker().hasPendingQueries()) {
-        // nothing can be missing => must have data
-        return true;
-      }
       // convert builder -> fragment in order to get the fragment's name
       const dataID = RelayRecord.getDataIDForObject(record);
       invariant(
@@ -395,6 +390,7 @@ function createContainerComponent(
         'fragment. Ensure that there are no failing `if` or `unless` ' +
         'conditions.'
       );
+      const storeData = this.context.relay.getStoreData();
       return storeData.getCachedStore().hasDeferredFragmentData(
         dataID,
         fragment.getCompositeHash()

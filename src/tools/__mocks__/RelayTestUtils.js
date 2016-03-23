@@ -673,11 +673,11 @@ function createFragmentSortKey(node) {
 }
 
 /**
-  * @private
-  *
-  * Crudely transforms a query string into a "pretty" version (with
-  * whitespace) for human readability.
-  */
+ * @private
+ *
+ * Crudely transforms a query string into a "pretty" version (with
+ * whitespace) for human readability.
+ */
 function prettifyQueryString(queryText, indentSize) {
   const regexp = /[^{},]+|[{},]/g;
   let indent = '';
@@ -702,19 +702,19 @@ function prettifyQueryString(queryText, indentSize) {
 }
 
 /**
-  * @private
-  *
-  * Indents and prettifies a JSON-stringifiable input.
-  */
+ * @private
+ *
+ * Indents and prettifies a JSON-stringifiable input.
+ */
 function prettyStringify(stringifiable, indentSize) {
   return JSON.stringify(stringifiable, null, indentSize);
 }
 
 /**
-  * @private
-  *
-  * Indents (potentially multiline) `string` by `indentSize` spaces.
-  */
+ * @private
+ *
+ * Indents (potentially multiline) `string` by `indentSize` spaces.
+ */
 function indentBy(indentSize, string) {
   const indent = (new Array(indentSize + 1)).join(" ");
   return indent + string.replace(/\n/g, '\n' + indent);

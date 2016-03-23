@@ -72,7 +72,7 @@ const RelayNetworkDebug = {
     });
 
     const _fetch = global.fetch;
-    global.fetch = function(url, options, ...args){
+    global.fetch = function(url, options, ...args) {
       const id = queryID++;
       const name = url.split('/')[2];
       console.timeStamp(`START: fetch ${id} ${name} →`);

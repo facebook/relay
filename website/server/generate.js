@@ -7,6 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+'use strict';
+
 const buildGraphQLSpec = require('./buildGraphQLSpec');
 const request = require('request');
 const glob = require('glob');

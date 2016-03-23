@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-"use strict";
+'use strict';
 
 const compression = require('compression');
 const connect = require('connect');

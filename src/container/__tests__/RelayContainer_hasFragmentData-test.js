@@ -47,16 +47,6 @@ describe('RelayContainer', () => {
       store = storeData.getCachedStore();
     });
 
-    it('returns true when there are no pending queries', () => {
-      pendingQueryTracker.hasPendingQueries =
-        jest.genMockFn().mockImplementation(() => false);
-      const hasData = mockContainerInstance.hasFragmentData(
-        mockFragmentReference,
-        mockPointer
-      );
-      expect(hasData).toBe(true);
-    });
-
     it('returns true when there are pending queries, but the fragment we are ' +
        'interested in has resolved', () => {
       pendingQueryTracker.hasPendingQueries =

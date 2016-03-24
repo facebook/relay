@@ -237,7 +237,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             t.objectExpression(
               selectVariablesValue.map((item) => {
                 const value = item.getValue();
-                return property(value, t.valueToNode(value))
+                return property(value, this.printVariable(value))
               })
             ),
           ]

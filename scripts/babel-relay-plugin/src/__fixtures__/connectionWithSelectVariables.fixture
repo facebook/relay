@@ -266,7 +266,10 @@ var x = function () {
             name: 'UserConnectionEdge',
             type: 'UserConnectionEdge'
           }, {
-            size: 'size'
+            size: {
+              kind: 'CallVariable',
+              callVariableName: 'size'
+            }
           })],
           fieldName: 'edges',
           kind: 'Field',

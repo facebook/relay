@@ -160,6 +160,8 @@ module.exports = function (t, options) {
     }, {
       key: 'printFragment',
       value: function printFragment(fragment) {
+        var _this = this;
+
         var fragmentType = fragment.getType();
 
         var requisiteFields = {};
@@ -200,7 +202,7 @@ module.exports = function (t, options) {
 
           return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__createFragment')), [fragmentCode, t.objectExpression(selectVariablesValue.map(function (item) {
             var value = item.getValue();
-            return property(value, t.valueToNode(value));
+            return property(value, _this.printVariable(value));
           }))]);
         }
 
@@ -283,7 +285,7 @@ module.exports = function (t, options) {
     }, {
       key: 'printSelections',
       value: function printSelections(parent, requisiteFields, extraFragments) {
-        var _this = this;
+        var _this2 = this;
 
         var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
@@ -294,10 +296,10 @@ module.exports = function (t, options) {
           if (selection instanceof RelayQLFragmentSpread) {
             // Assume that all spreads exist via template substitution.
             invariant(selection.getDirectives().length === 0, 'Directives are not yet supported for `${fragment}`-style fragment ' + 'references.');
-            printedFragments.push(_this.printFragmentReference(selection));
+            printedFragments.push(_this2.printFragmentReference(selection));
             didPrintFragmentReference = true;
           } else if (selection instanceof RelayQLInlineFragment) {
-            printedFragments.push(_this.printFragment(selection.getFragment()));
+            printedFragments.push(_this2.printFragment(selection.getFragment()));
           } else if (selection instanceof RelayQLField) {
             fields.push(selection);
           } else {
@@ -306,7 +308,7 @@ module.exports = function (t, options) {
         });
         if (extraFragments) {
           extraFragments.forEach(function (fragment) {
-            printedFragments.push(_this.printFragment(fragment));
+            printedFragments.push(_this2.printFragment(fragment));
           });
         }
         var printedFields = this.printFields(fields, parent, requisiteFields, isGeneratedQuery);
@@ -321,7 +323,7 @@ module.exports = function (t, options) {
     }, {
       key: 'printFields',
       value: function printFields(fields, parent, requisiteFields) {
-        var _this2 = this;
+        var _this3 = this;
 
         var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
@@ -337,19 +339,19 @@ module.exports = function (t, options) {
         var printedFields = [];
         fields.forEach(function (field) {
           delete generatedFields[field.getName()];
-          printedFields.push(_this2.printField(field, parent, requisiteFields, generatedFields, isGeneratedQuery));
+          printedFields.push(_this3.printField(field, parent, requisiteFields, generatedFields, isGeneratedQuery));
         });
 
         Object.keys(generatedFields).forEach(function (fieldName) {
           var generatedField = parentType.generateField(fieldName);
-          printedFields.push(_this2.printField(generatedField, parent, requisiteFields, generatedFields, isGeneratedQuery));
+          printedFields.push(_this3.printField(generatedField, parent, requisiteFields, generatedFields, isGeneratedQuery));
         });
         return printedFields;
       }
     }, {
       key: 'printField',
       value: function printField(field, parent, requisiteSiblings, generatedSiblings) {
-        var _this3 = this;
+        var _this4 = this;
 
         var isGeneratedQuery = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
 
@@ -411,7 +413,7 @@ module.exports = function (t, options) {
         var fieldAlias = field.getAlias();
         var args = field.getArguments();
         var calls = args.length ? t.arrayExpression(args.map(function (arg) {
-          return _this3.printArgument(arg);
+          return _this4.printArgument(arg);
         })) : NULL;
 
         return codify({
@@ -469,11 +471,11 @@ module.exports = function (t, options) {
     }, {
       key: 'printValue',
       value: function printValue(value) {
-        var _this4 = this;
+        var _this5 = this;
 
         if (Array.isArray(value)) {
           return t.arrayExpression(value.map(function (element) {
-            return _this4.printArgumentValue(element);
+            return _this5.printArgumentValue(element);
           }));
         }
         return codify({
@@ -484,7 +486,7 @@ module.exports = function (t, options) {
     }, {
       key: 'printDirectives',
       value: function printDirectives(directives) {
-        var _this5 = this;
+        var _this6 = this;
 
         var printedDirectives = [];
         directives.forEach(function (directive) {
@@ -492,7 +494,7 @@ module.exports = function (t, options) {
             return;
           }
           printedDirectives.push(t.objectExpression([property('kind', t.valueToNode('Directive')), property('name', t.valueToNode(directive.getName())), property('args', t.arrayExpression(directive.getArguments().map(function (arg) {
-            return t.objectExpression([property('name', t.valueToNode(arg.getName())), property('value', _this5.printArgumentValue(arg))]);
+            return t.objectExpression([property('name', t.valueToNode(arg.getName())), property('value', _this6.printArgumentValue(arg))]);
           })))]));
         });
         if (printedDirectives.length) {

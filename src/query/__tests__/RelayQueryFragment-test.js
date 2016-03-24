@@ -198,4 +198,43 @@ describe('RelayQueryFragment', () => {
       ).toBe(true);
     });
   });
+
+  describe('variables argument of @relay directive', () => {
+    const printRelayOSSQuery = require('printRelayOSSQuery');
+
+    it('maps listed variables', () => {
+      const query = getNode(Relay.QL`
+        fragment on User {
+          ... on User @relay(variables: ["inner"]) {
+            profilePicture(size: $inner)
+          }
+        }
+      `, {inner: 100});
+      expect(printRelayOSSQuery(query).text).toEqualPrintedQuery(`
+        fragment RelayQueryFragmentRelayQL on User{
+          id,
+          ...F0
+        }
+        fragment F0 on User{
+          _profilePicture3szc8q:profilePicture(size:100),
+          id
+        }
+      `);
+    });
+
+    it('filters non-listed variables', () => {
+      const query = getNode(Relay.QL`
+        fragment on User {
+          ... on User @relay(variables: []) {
+            profilePicture(size: $inner)
+          }
+        }
+      `, {inner: 100});
+      expect(() => {
+        printRelayOSSQuery(query);
+      }).toFailInvariant(
+        'callsFromGraphQL(): Expected a declared value for variable, `$inner`.'
+      );
+    });
+  });
 });

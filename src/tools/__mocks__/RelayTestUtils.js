@@ -508,6 +508,35 @@ const RelayTestUtils = {
   },
 
   /**
+   * Prints a textual representation of the query node to the console for
+   * debugging purposes.
+   *
+   * You don't want to commit any code that uses this helper, but it is
+   * useful when developing tests.
+   */
+  logNode(node) {
+    const RelayQuery = require('RelayQuery');
+    const flattenRelayQuery = require('flattenRelayQuery');
+    const printRelayQuery = require('printRelayQuery');
+
+    if (node instanceof RelayQuery.Field) {
+      // Normally can't print fields directly, so wrap it in a fake fragment.
+      node = RelayQuery.Fragment.build(
+        '__PrintableFieldWrapper',
+        '__Phony',
+        [node]
+      );
+    }
+
+    const string = JSON.stringify(
+      printRelayQuery(flattenRelayQuery(node)),
+      null,
+      2
+    );
+    console.log(string);
+  },
+
+  /**
    * Helper to write the result payload of a (root) query into a store,
    * returning created/updated ID sets. The payload is transformed before
    * writing; property keys are rewritten from application names into

@@ -460,7 +460,7 @@ describe('RelayMutationQuery', () => {
         .toEqualQueryNode(expected);
     });
 
-    it('warns when rangeBehaviors dont match with tracked connections', () => {
+    it('warns when rangeBehaviors don\'t match tracked connections', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
           comments(orderby:"ranked_threaded",first:"10") {

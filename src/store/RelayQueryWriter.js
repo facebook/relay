@@ -243,7 +243,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       this._isOptimisticUpdate ||
       isCompatibleRelayFragmentType(fragment, this._store.getType(recordID))
     ) {
-      if (fragment.isTrackingEnabled()) {
+      if (!this._isOptimisticUpdate && fragment.isTrackingEnabled()) {
         this._fragmentTracker.track(recordID, fragment.getCompositeHash());
       }
       const path = RelayQueryPath.getPath(state.path, fragment, recordID);

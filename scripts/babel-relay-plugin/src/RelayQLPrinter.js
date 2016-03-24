@@ -220,7 +220,12 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
 
       if (selectVariables) {
-        const variableMapping = selectVariables.getVariableMapping();
+        const selectVariablesValue = selectVariables.getValue();
+        invariant(
+          Array.isArray(selectVariablesValue),
+          'The variables argument to the @relay directive should be an array ' +
+          'of strings.'
+        );
 
         return t.callExpression(
           t.memberExpression(
@@ -230,9 +235,10 @@ module.exports = function(t: any, options: PrinterOptions): Function {
           [
             fragmentCode,
             t.objectExpression(
-              Object.keys(variableMapping).map(
-                (key) => property(key, t.valueToNode(variableMapping[key]))
-              )
+              selectVariablesValue.map((item) => {
+                const value = item.getValue();
+                return property(value, t.valueToNode(value))
+              })
             ),
           ]
         )

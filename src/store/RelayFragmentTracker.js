@@ -34,6 +34,10 @@ class RelayFragmentTracker {
     const set = this._storage.get(dataID);
     return !!set && set.has(fragmentHash);
   }
+
+  untrack(dataID: DataID): void {
+    this._storage.delete(dataID);
+  }
 };
 
 module.exports = RelayFragmentTracker;

@@ -55,4 +55,13 @@ describe('RelayFragmentTracker', () => {
     expect(tracker.isTracked(ID1, HASH1)).toBe(false);
     expect(tracker2.isTracked(ID1, HASH1)).toBe(true);
   });
+
+  it('untracks records by dataID', () => {
+    tracker.track(ID1, HASH1);
+    tracker.track(ID2, HASH1);
+    expect(tracker.isTracked(ID1, HASH1)).toBe(true);
+    tracker.untrack(ID1);
+    expect(tracker.isTracked(ID1, HASH1)).toBe(false);
+    expect(tracker.isTracked(ID2, HASH1)).toBe(true);
+  });
 });

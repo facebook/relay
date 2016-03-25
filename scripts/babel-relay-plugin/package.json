@@ -7,12 +7,13 @@
   "main": "lib/getBabelRelayPlugin.js",
   "scripts": {
     "build": "node scripts/build-lib",
+    "jest": "NODE_ENV=test jest $@",
     "lint": "eslint .",
     "prepublish": "npm run build",
-    "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; NODE_ENV=test jest $@ || EXIT=$?; exit $EXIT; }; f",
+    "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; npm run jest || EXIT=$?; exit $EXIT; }; f",
     "typecheck": "flow check src/",
-    "update-schema": "babel-node ./src/tools/generateSchemaJson.js",
-    "update-fixtures": "babel-node ./src/tools/regenerateFixtures.js"
+    "update-fixtures": "babel-node ./src/tools/regenerateFixtures.js",
+    "update-schema": "babel-node ./src/tools/generateSchemaJson.js"
   },
   "files": [
     "LICENSE",

@@ -11,72 +11,100 @@
 
 'use strict';
 
+jest.mock('warning');
+
 require('configureForRelayOSS');
 
 const React = require('React');
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
+const RelayQueryConfig = require('RelayQueryConfig');
+const RelayRecord = require('RelayRecord');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer', () => {
+  const {getNode} = RelayTestUtils;
+
+  const getFragmentCompositeHash = (fragmentReference, queryConfig) => {
+    const variables = {};
+    const concreteFragmentID = fragmentReference.getFragment(variables);
+    const fragment = getNode(concreteFragmentID, variables, queryConfig);
+    return fragment.getCompositeHash();
+  };
+
   describe('hasFragmentData()', () => {
-    let mockContainerInstance;
-    let mockFragmentReference;
-    let mockPointer;
-    let pendingQueryTracker;
+    let MockContainer;
+    let container;
+    let queryConfig;
     let store;
 
     beforeEach(() => {
       jest.resetModuleRegistry();
-      const MockComponent = React.createClass({render: () => <div />});
-      const MockContainer = Relay.createContainer(MockComponent, {
+
+      class MockComponent extends React.Component {
+        render() {
+          return <div />;
+        }
+      }
+      MockContainer = Relay.createContainer(MockComponent, {
         fragments: {
           foo: () => Relay.QL`fragment on Node{id}`,
         },
       });
-      const environment = new RelayEnvironment();
       const RelayTestRenderer = RelayTestUtils.createRenderer();
-      mockContainerInstance = RelayTestRenderer.render(
+
+      const environment = new RelayEnvironment();
+      queryConfig = RelayQueryConfig.genMockInstance();
+      container = RelayTestRenderer.render(
         genMockPointer => <MockContainer foo={genMockPointer('42')} />,
-        environment
+        environment,
+        queryConfig
       );
-      mockFragmentReference = MockContainer.getFragment('foo');
-      mockPointer = {__dataID__: '42'};
-      const storeData = environment.getStoreData();
-      pendingQueryTracker = storeData.getPendingQueryTracker();
-      store = storeData.getCachedStore();
+      store = environment.getStoreData().getCachedStore();
+
+      jasmine.addMatchers(RelayTestUtils.matchers);
     });
 
-    it('returns true when there are pending queries, but the fragment we are ' +
-       'interested in has resolved', () => {
-      pendingQueryTracker.hasPendingQueries =
-        jest.genMockFn().mockImplementation(() => true);
-      store.hasDeferredFragmentData =
-        jest.genMockFn().mockReturnValue(true);
-      const hasData = mockContainerInstance.hasFragmentData(
-        mockFragmentReference,
-        mockPointer
+    it('returns true for non-deferred fragments', () => {
+      store.hasDeferredFragmentData = jest.fn(() => false);
+      const hasData = container.hasFragmentData(
+        MockContainer.getFragment('foo'),
+        RelayRecord.create('42')
       );
       expect(hasData).toBe(true);
-      expect(store.hasDeferredFragmentData.mock.calls[0][0]).toBe('42');
-      // FIXME: If you can get the fragment ID, implement this expectation!
-      // expect(store.hasDeferredFragmentData.mock.calls[0][1]).toBe('???');
+      expect(store.hasDeferredFragmentData).not.toBeCalled();
+      expect([
+        'RelayContainer.hasFragmentData(): Method should only be called ' +
+        'with deferred fragments. However, `%s` is calling it with a ' +
+        'fragment that is not deferred.',
+        'MockComponent',
+      ]).toBeWarnedNTimes(1);
     });
 
-    it('returns false when there are pending queries, but the fragment we ' +
-       'are interested in has not resolved', () => {
-      pendingQueryTracker.hasPendingQueries =
-        jest.genMockFn().mockImplementation(() => true);
-      store.hasDeferredFragmentData =
-        jest.genMockFn().mockReturnValue(false);
-      const hasData = mockContainerInstance.hasFragmentData(
-       mockFragmentReference,
-       mockPointer
+    it('returns true for deferred fragments with resolved data', () => {
+      store.hasDeferredFragmentData = jest.fn(() => true);
+      const hasData = container.hasFragmentData(
+        MockContainer.getFragment('foo').defer(),
+        RelayRecord.create('42')
+      );
+      expect(hasData).toBe(true);
+      expect(store.hasDeferredFragmentData).toBeCalledWith(
+        '42',
+        getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig)
+      );
+    });
+
+    it('returns false for deferred fragments without resolved data', () => {
+      store.hasDeferredFragmentData = jest.fn(() => false);
+      const hasData = container.hasFragmentData(
+       MockContainer.getFragment('foo').defer(),
+       RelayRecord.create('42')
       );
       expect(hasData).toBe(false);
-      expect(store.hasDeferredFragmentData.mock.calls[0][0]).toBe('42');
-      // FIXME: If you can get the fragment ID, implement this expectation!
-      // expect(store.hasDeferredFragmentData.mock.calls[0][1]).toBe('???');
+      expect(store.hasDeferredFragmentData).toBeCalledWith(
+        '42',
+        getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig)
+      );
     });
   });
 });

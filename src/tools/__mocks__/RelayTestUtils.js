@@ -157,12 +157,15 @@ const RelayTestUtils = {
     return reference;
   },
 
-  getNode(node, variables) {
+  getNode(node, variables, queryConfig) {
     const RelayMetaRoute = require('RelayMetaRoute');
     const RelayQuery = require('RelayQuery');
 
-    const route = RelayMetaRoute.get('$RelayTestUtils');
-    return RelayQuery.Node.create(node, route, variables || {});
+    return RelayQuery.Node.create(
+      node,
+      queryConfig || RelayMetaRoute.get('$RelayTestUtils'),
+      variables || {}
+    );
   },
 
   getPointer(dataID, fragment) {
@@ -683,11 +686,11 @@ function prettifyQueryString(queryText, indentSize) {
   let indent = '';
   let output = '';
   let match;
-  let padding;
-  while (match = regexp.exec(queryText)) {
+  while ((match = regexp.exec(queryText))) {
     if (match[0] === '{') {
       indent += '  ';
-      padding = match.index && queryText[match.index - 1] !== ' ' ? ' ' : '';
+      const padding =
+        match.index && queryText[match.index - 1] !== ' ' ? ' ' : '';
       output += padding + '{\n' + indent;
     } else if (match[0] === '}') {
       indent = indent.substr(0, indent.length - 2);
@@ -695,7 +698,7 @@ function prettifyQueryString(queryText, indentSize) {
     } else if (match[0] === ',') {
       output += ',' + '\n' + indent;
     } else {
-      output += match[0]
+      output += match[0];
     }
   }
   return output;
@@ -716,7 +719,7 @@ function prettyStringify(stringifiable, indentSize) {
  * Indents (potentially multiline) `string` by `indentSize` spaces.
  */
 function indentBy(indentSize, string) {
-  const indent = (new Array(indentSize + 1)).join(" ");
+  const indent = (new Array(indentSize + 1)).join(' ');
   return indent + string.replace(/\n/g, '\n' + indent);
 }
 

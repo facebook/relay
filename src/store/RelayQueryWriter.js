@@ -24,6 +24,7 @@ const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type RelayRecordWriter from 'RelayRecordWriter';
+const RelayFragmentTracker = require('RelayFragmentTracker');
 
 const generateClientEdgeID = require('generateClientEdgeID');
 const generateClientID = require('generateClientID');
@@ -58,6 +59,7 @@ const {EXISTENT} = RelayRecordState;
 class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   _changeTracker: RelayChangeTracker;
   _forceIndex: number;
+  _fragmentTracker: RelayFragmentTracker;
   _isOptimisticUpdate: boolean;
   _store: RelayRecordStore;
   _queryTracker: RelayQueryTracker;
@@ -69,6 +71,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     writer: RelayRecordWriter,
     queryTracker: RelayQueryTracker,
     changeTracker: RelayChangeTracker,
+    fragmentTracker: RelayFragmentTracker,
     options?: WriterOptions
   ) {
     super();
@@ -78,6 +81,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this._store = store;
     this._queryTracker = queryTracker;
     this._updateTrackedQueries = !!(options && options.updateTrackedQueries);
+    this._fragmentTracker = fragmentTracker;
     this._writer = writer;
   }
 
@@ -239,6 +243,9 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       this._isOptimisticUpdate ||
       isCompatibleRelayFragmentType(fragment, this._store.getType(recordID))
     ) {
+      if (!this._isOptimisticUpdate && fragment.isTrackingEnabled()) {
+        this._fragmentTracker.track(recordID, fragment.getCompositeHash());
+      }
       const path = RelayQueryPath.getPath(state.path, fragment, recordID);
       this.traverse(fragment, {
         ...state,

@@ -38,6 +38,11 @@ module.exports = {
     description: 'Marks a fragment as being backed by a GraphQLList',
     type: types.GraphQLBoolean,
     defaultValue: null
+  }, {
+    name: 'variables',
+    description: 'Selectivly pass variables down into a fragment.',
+    type: new types.GraphQLList(types.GraphQLString),
+    defaultValue: null
   }],
   onOperation: false,
   onFragment: true,

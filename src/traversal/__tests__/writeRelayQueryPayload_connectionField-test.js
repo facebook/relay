@@ -897,7 +897,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       const results =
-        writePayload(store, writer, query, payload, null, {forceIndex: 1});
+        writePayload(store, writer, query, payload, null, null, {forceIndex: 1});
       expect(results).toEqual({
         created: {
           'node1b': true,

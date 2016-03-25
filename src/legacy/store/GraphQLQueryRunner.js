@@ -189,7 +189,8 @@ function runQueries(
           queries.push(...diffRelayQuery(
             query,
             storeData.getRecordStore(),
-            storeData.getQueryTracker()
+            storeData.getQueryTracker(),
+            storeData.getFragmentTracker(),
           ));
         }
       });

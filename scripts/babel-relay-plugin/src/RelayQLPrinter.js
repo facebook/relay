@@ -196,11 +196,19 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         idFragment ? [idFragment] : null,
         fragment.hasDirective('generated')
       );
+
+      const relayDirective = findRelayDirective(fragment);
+      const selectVariables = relayDirective && find(
+        relayDirective.getArguments(),
+        (arg) => arg.getName() === 'variables'
+      );
+
       const metadata = this.printRelayDirectiveMetadata(fragment, {
         isAbstract: fragmentType.isAbstract(),
+        isTrackingEnabled: !!selectVariables,
       });
 
-      return codify({
+      const fragmentCode = codify({
         children: selections,
         directives: this.printDirectives(fragment.getDirectives()),
         id: this.printFragmentID(fragment),
@@ -209,6 +217,34 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         name: t.valueToNode(fragment.getName()),
         type: t.valueToNode(fragmentType.getName({modifiers: false})),
       });
+
+
+      if (selectVariables) {
+        const selectVariablesValue = selectVariables.getValue();
+        invariant(
+          Array.isArray(selectVariablesValue),
+          'The variables argument to the @relay directive should be an array ' +
+          'of strings.'
+        );
+
+        return t.callExpression(
+          t.memberExpression(
+            identify(this.tagName),
+            t.identifier('__createFragment')
+          ),
+          [
+            fragmentCode,
+            t.objectExpression(
+              selectVariablesValue.map((item) => {
+                const value = item.getValue();
+                return property(value, this.printVariable(value))
+              })
+            ),
+          ]
+        )
+      }
+
+      return fragmentCode;
     }
 
     printFragmentID(fragment: RelayQLFragment): Printable {
@@ -590,10 +626,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       maybeMetadata?: {[key: string]: mixed}
     ): Printable {
       const properties = [];
-      const relayDirective = find(
-        node.getDirectives(),
-        directive => directive.getName() === 'relay'
-      );
+      const relayDirective = findRelayDirective(node);
       if (relayDirective) {
         relayDirective.getArguments().forEach(arg => {
           if (arg.isVariable()) {
@@ -605,7 +638,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
               arg.getName()
             );
           }
-          properties.push(property(arg.getName(), t.valueToNode(arg.getValue())));
+          if (arg.getName() !== 'variables') {
+            properties.push(property(arg.getName(), t.valueToNode(arg.getValue())));
+          }
         });
       }
       if (maybeMetadata) {
@@ -847,6 +882,15 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         t.identifier('apply')
       ),
       [EMPTY_ARRAY, arr]
+    );
+  }
+
+  function findRelayDirective(
+    node: RelayQLField | RelayQLFragment,
+  ): ?RelayQLDirective {
+    return find(
+      node.getDirectives(),
+      (directive) => directive.getName() === 'relay'
     );
   }
 

@@ -369,6 +369,16 @@ function createContainerComponent(
       fragmentReference: RelayFragmentReference,
       record: Object
     ): boolean {
+      if (!fragmentReference.isDeferred()) {
+        warning(
+          false,
+          'RelayContainer.hasFragmentData(): Method should only be called ' +
+          'with deferred fragments. However, `%s` is calling it with a ' +
+          'fragment that is not deferred.',
+          componentName
+        );
+        return true;
+      }
       // convert builder -> fragment in order to get the fragment's name
       const dataID = RelayRecord.getDataIDForObject(record);
       invariant(

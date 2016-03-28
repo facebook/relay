@@ -140,7 +140,11 @@ const RelayMutationQuery = {
       tracker,
     }: EdgeDeletionMutationFragmentBuilderConfig
   ): ?RelayQuery.Node {
-    const fatParent = getFieldFromFatQuery(fatQuery, parentName);
+    const fatParent = getParentAndValidateConnection(
+      parentName,
+      connectionName,
+      fatQuery
+    );
     const mutatedFields = [];
     const trackedParent = fatParent.clone(
       tracker.getTrackedChildrenForID(parentID)
@@ -192,6 +196,14 @@ const RelayMutationQuery = {
       tracker,
     }: EdgeInsertionMutationFragmentBuilderConfig
   ): ?RelayQuery.Node {
+    let fatParent;
+    if (parentName) {
+      fatParent = getParentAndValidateConnection(
+        parentName,
+        connectionName,
+        fatQuery
+      );
+    }
     const trackedChildren = tracker.getTrackedChildrenForID(parentID);
 
     const mutatedFields = [];
@@ -240,8 +252,7 @@ const RelayMutationQuery = {
       }
 
       // TODO: Do this even if there are no tracked connections.
-      if (parentName != null) {
-        const fatParent = getFieldFromFatQuery(fatQuery, parentName);
+      if (fatParent) {
         const trackedParent = fatParent.clone(trackedChildren);
         if (trackedParent) {
           const filterUnterminatedRange = node => (
@@ -545,6 +556,29 @@ function sanitizeRangeBehaviors(
     );
   }
   return rangeBehaviors;
+}
+
+/**
+ * Extracts the parent field identified by `parentName` from the fat query, then
+ * the connection field identified by `connectionName`, and confirms that the
+ * obtained field actually is a connection.
+ *
+ * Returns the parent field on success.
+ */
+function getParentAndValidateConnection(
+  parentName: string,
+  connectionName: string,
+  fatQuery: RelayQuery.Fragment
+): RelayQuery.Field {
+  const parent = getFieldFromFatQuery(fatQuery, parentName);
+  const connection = getFieldFromFatQuery(parent, connectionName);
+  invariant(
+    connection.isConnection(),
+    'RelayMutationQuery: Expected field `%s` on `%s` to be a connection.',
+    connectionName,
+    parentName
+  );
+  return parent;
 }
 
 /**

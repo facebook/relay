@@ -65,22 +65,6 @@ describe('RelayContainer', () => {
       jasmine.addMatchers(RelayTestUtils.matchers);
     });
 
-    it('returns true for non-deferred fragments', () => {
-      store.hasDeferredFragmentData = jest.fn(() => false);
-      const hasData = container.hasFragmentData(
-        MockContainer.getFragment('foo'),
-        RelayRecord.create('42')
-      );
-      expect(hasData).toBe(true);
-      expect(store.hasDeferredFragmentData).not.toBeCalled();
-      expect([
-        'RelayContainer.hasFragmentData(): Method should only be called ' +
-        'with deferred fragments. However, `%s` is calling it with a ' +
-        'fragment that is not deferred.',
-        'MockComponent',
-      ]).toBeWarnedNTimes(1);
-    });
-
     it('returns true for deferred fragments with resolved data', () => {
       store.hasDeferredFragmentData = jest.fn(() => true);
       const hasData = container.hasFragmentData(

@@ -241,6 +241,42 @@ describe('RelayMutationQuery', () => {
       );
     });
 
+    it('throws for invalid (missing) connection name', () => {
+      expect(() => {
+        RelayMutationQuery.buildFragmentForEdgeDeletion({
+          fatQuery,
+          tracker,
+          connectionName: 'doesViewerLike',
+          parentID: '123',
+          parentName: 'feedback',
+        });
+      }).toFailInvariant(
+        'RelayMutationQuery: Invalid field name on fat query, `doesViewerLike`.'
+      );
+    });
+
+    it('throws for invalid (non-connection) connection name', () => {
+      fatQuery = fromGraphQL.Fragment(Relay.QL`
+        fragment on CommentDeleteResponsePayload {
+          feedback {
+            doesViewerLike
+          }
+        }
+      `);
+      expect(() => {
+        RelayMutationQuery.buildFragmentForEdgeDeletion({
+          fatQuery,
+          tracker,
+          connectionName: 'doesViewerLike',
+          parentID: '123',
+          parentName: 'feedback',
+        });
+      }).toFailInvariant(
+        'RelayMutationQuery: Expected field `doesViewerLike` on ' +
+        '`feedback` to be a connection.'
+      );
+    });
+
     it('creates a fragment for connection metadata', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
@@ -592,6 +628,46 @@ describe('RelayMutationQuery', () => {
         });
       }).toFailInvariant(
         'RelayMutationQuery: Invalid field name on fat query, `story`.'
+      );
+    });
+
+    it('throws for invalid (missing) connection name', () => {
+      expect(() => {
+        RelayMutationQuery.buildFragmentForEdgeInsertion({
+          fatQuery,
+          tracker,
+          connectionName: 'doesViewerLike',
+          parentID: '123',
+          edgeName: 'feedbackCommentEdge',
+          parentName: 'feedback',
+          rangeBehaviors,
+        });
+      }).toFailInvariant(
+        'RelayMutationQuery: Invalid field name on fat query, `doesViewerLike`.'
+      );
+    });
+
+    it('throws for invalid (non-connection) connection name', () => {
+      fatQuery = fromGraphQL.Fragment(Relay.QL`
+        fragment on CommentDeleteResponsePayload {
+          feedback {
+            doesViewerLike
+          }
+        }
+      `);
+      expect(() => {
+        RelayMutationQuery.buildFragmentForEdgeInsertion({
+          fatQuery,
+          tracker,
+          connectionName: 'doesViewerLike',
+          parentID: '123',
+          edgeName: 'feedbackCommentEdge',
+          parentName: 'feedback',
+          rangeBehaviors,
+        });
+      }).toFailInvariant(
+        'RelayMutationQuery: Expected field `doesViewerLike` on ' +
+        '`feedback` to be a connection.'
       );
     });
   });

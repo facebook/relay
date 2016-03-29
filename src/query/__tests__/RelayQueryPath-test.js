@@ -252,4 +252,25 @@ describe('RelayQueryPath', () => {
       '123',
     ]).toBeWarnedNTimes(1);
   });
+
+  describe('getPath()', () => {
+    it('returns a client path given no `dataID`', () => {
+      const query = getNode(Relay.QL`
+        query {
+          viewer {
+            actor {
+              id
+            }
+          }
+        }
+      `);
+      const actor = query.getFieldByStorageKey('actor');
+      const path = RelayQueryPath.getPath(query, actor);  // No `dataID`
+      expect(path).toEqual({
+        node: actor,
+        parent: query,
+        type: 'client',
+      });
+    });
+  });
 });

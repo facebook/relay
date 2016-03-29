@@ -13,9 +13,6 @@
 
 require('configureForRelayOSS');
 
-jest
-  .dontMock('RelayVariable');
-
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQuery = require('RelayQuery');

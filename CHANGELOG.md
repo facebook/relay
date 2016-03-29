@@ -4,6 +4,9 @@
 
 * Renamed the Flow type `RelayRendererRenderCallback` to `RelayRenderCallback`.
 * Renamed the Flow type `RelayQueryConfigSpec` to `RelayQueryConfigInterface`.
+* `RelayContainer.setVariables` will no longer check if the variables are
+  changed before rerunning the variables. To prevent extra work, check the
+  current variables before calling `setVariables`.
 
 ## 0.7.3 (March 4, 2016)
 

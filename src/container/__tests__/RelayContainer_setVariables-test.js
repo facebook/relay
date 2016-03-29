@@ -305,13 +305,13 @@ describe('RelayContainer.setVariables', function() {
       expect(mockCallback).toBeCalled();
     });
 
-    it('does not re-request the last variables', () => {
+    it('re-requests the last variables', () => {
       mockInstance.setVariables({site: 'mobile'});
       jest.runAllTimers();
 
       const {mock} = environment.primeCache;
       expect(mock.calls.length).toBe(1);
-      expect(Object.keys(mock.calls[0][0]).length).toBe(0);
+      expect(Object.keys(mock.calls[0][0]).length).toBe(1);
     });
 
     it('re-requests currently pending variables', () => {
@@ -334,17 +334,18 @@ describe('RelayContainer.setVariables', function() {
       expect(Object.keys(mock.calls[0][0]).length).toBe(1);
     });
 
-    it('does not re-request the last variables with a pending request', () => {
+    it('re-requests the last variables with a pending request', () => {
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
 
-      expect(environment.primeCache.mock.abort[0]).not.toBeCalled();
+      const {mock} = environment.primeCache;
+      expect(mock.abort[0]).not.toBeCalled();
       mockInstance.setVariables({site: 'mobile'});
       jest.runAllTimers();
-      expect(environment.primeCache.mock.abort[0]).toBeCalled();
+      expect(mock.abort[0]).toBeCalled();
 
-      expect(environment.primeCache.mock.calls.length).toBe(2);
-      expect(environment.primeCache.mock.calls[1][0]).toEqual({});
+      expect(mock.calls.length).toBe(2);
+      expect(Object.keys(mock.calls[1][0]).length).toBe(1);
     });
 
     it('invokes the callback as many times as ready state changes', () => {

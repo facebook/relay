@@ -256,15 +256,11 @@ function createContainerComponent(
         }
       );
 
-      // If variables changed or we are force-fetching, we need to build a new
-      // set of queries that includes the updated variables. Because the pending
-      // fetch is always canceled, always initiate a new fetch.
-      let querySet = {};
-      let fragmentPointers = null;
-      if (forceFetch || !shallowEqual(nextVariables, lastVariables)) {
-        ({querySet, fragmentPointers} =
-          this._createQuerySetAndFragmentPointers(nextVariables));
-      }
+      // Because the pending fetch is always canceled, we need to build a new
+      // set of queries that includes the updated variables and initiate a new
+      // fetch.
+      const {querySet, fragmentPointers} =
+        this._createQuerySetAndFragmentPointers(nextVariables);
 
       const onReadyStateChange = ErrorUtils.guard(readyState => {
         const {aborted, done, error, ready} = readyState;
@@ -273,7 +269,7 @@ function createContainerComponent(
           this.pending = null;
         }
         let partialState;
-        if (ready && fragmentPointers) {
+        if (ready) {
           // Only update query data if variables changed. Otherwise, `querySet`
           // and `fragmentPointers` will be empty, and `nextVariables` will be
           // equal to `lastVariables`.

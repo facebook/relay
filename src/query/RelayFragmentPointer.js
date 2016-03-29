@@ -26,7 +26,7 @@ import type {Record} from 'RelayRecord';
 type FragmentDataIDMap = {
   [fragmentID: string]: DataID;
 };
-type FragmentProp = {
+export type FragmentProp = {
   __dataID__: DataID,
   __fragments__: FragmentDataIDMap;
 };

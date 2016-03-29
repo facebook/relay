@@ -160,7 +160,7 @@ class RelayRecordWriter {
   putRecord(
     dataID: DataID,
     typeName: ?string,
-    path?: QueryPath
+    path?: ?QueryPath
   ): void {
     const prevRecord = this._getRecordForWrite(dataID);
     if (prevRecord) {

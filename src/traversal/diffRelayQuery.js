@@ -771,7 +771,7 @@ function splitNodeAndEdgesFields(
 } {
   const children = edgeOrFragment.getChildren();
   const edgeChildren = [];
-  let hasNodeChild = false;
+  let nodeChild = null;
   let nodeChildren = [];
   let hasEdgeChild = false;
   for (let ii = 0; ii < children.length; ii++) {
@@ -781,14 +781,17 @@ function splitNodeAndEdgesFields(
         const subFields = child.getChildren();
         nodeChildren = nodeChildren.concat(subFields);
         // can skip if `node` only has an `id` field
-        if (!hasNodeChild) {
+        if (!nodeChild) {
           if (subFields.length === 1) {
             const subField = subFields[0];
-            hasNodeChild =
+            if (
               !(subField instanceof RelayQuery.Field) ||
-              subField.getSchemaName() !== 'id';
+              subField.getSchemaName() !== 'id'
+            ) {
+              nodeChild = child;
+            }
           } else {
-            hasNodeChild = true;
+            nodeChild = child;
           }
         }
       } else {
@@ -803,13 +806,21 @@ function splitNodeAndEdgesFields(
       }
       if (node) {
         nodeChildren.push(node);
-        hasNodeChild = true;
+        nodeChild = node;
       }
     }
   }
+
   return {
     edges: hasEdgeChild ? edgeOrFragment.clone(edgeChildren) : null,
-    node: hasNodeChild ? edgeOrFragment.clone(nodeChildren) : null,
+    node: nodeChild && RelayQuery.Fragment.build(
+      'diffRelayQuery',
+      nodeChild.getType(),
+      nodeChildren,
+      {
+        isAbstract: nodeChild.isAbstract(),
+      }
+    ),
   };
 }
 

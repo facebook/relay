@@ -373,4 +373,119 @@ describe('diffRelayQuery - fragments', () => {
       `));
     }
   );
+
+  describe('fragments inside connections', () => {
+    let store;
+    let writer;
+    let tracker;
+
+    function writeEdgesForQuery(edges, query) {
+      const payload = {
+        viewer: {
+          newsFeed: {
+            edges: edges,
+            [PAGE_INFO]: {
+              [HAS_NEXT_PAGE]: true,
+              [HAS_PREV_PAGE]: false,
+            },
+          },
+        },
+      };
+      writePayload(store, writer, query, payload, tracker);
+    }
+
+    beforeEach(() => {
+      const records = {};
+      store = new RelayRecordStore({records}, {rootCallMap});
+      writer = new RelayRecordWriter(records, rootCallMap, false);
+      tracker = new RelayQueryTracker();
+
+      // Load 2 stories without message
+      writeEdgesForQuery(
+        [
+          {cursor: 'c1', node: {id: 's1', __typename: 'Story'}},
+          {cursor: 'c2', node: {id: 's2', __typename: 'Story'}},
+        ],
+        getNode(Relay.QL`
+          query {
+            viewer {
+              newsFeed(first: "2") {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        `)
+      );
+    });
+
+    it('generates a valid diff query', () => {
+      const feedQuery = Relay.QL`
+        query {
+          viewer {
+            newsFeed(after: $after, first: $count) {
+              edges {
+                ... on NewsFeedEdge {
+                  node {
+                    ... on Story {
+                      message {
+                        text
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      // Load 1 story with message
+      writeEdgesForQuery(
+        [
+          {
+            cursor: 'c1',
+            node: {
+              id: 's1',
+              __typename: 'Story',
+              message: {
+                text: 's1',
+              },
+            },
+          },
+        ],
+        getNode(feedQuery, {count: 1, after: null})
+      );
+
+      // Query for 3 stories with text
+      const diffQueries = diffRelayQuery(
+        getNode(feedQuery, {count: 3, after: null}),
+        store,
+        tracker,
+      );
+      expect(diffQueries.length).toBe(2);
+      expect(diffQueries[0]).toEqualQueryRoot(
+        getNode(feedQuery, {count: 1, after: 'c2'})
+      );
+      expect(diffQueries[1]).toEqualQueryRoot(getNode(Relay.QL`
+        query {
+          node(id: "s2") {
+            ... on FeedUnit {
+              id
+              ... on Story {
+                id
+                message { text }
+              }
+            }
+            ... on FeedUnit {
+              id
+            }
+          }
+        }
+      `));
+    });
+  });
 });

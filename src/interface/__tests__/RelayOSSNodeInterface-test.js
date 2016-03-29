@@ -49,7 +49,11 @@ describe('RelayOSSNodeInterface', () => {
     expect(result).toEqual([{
       dataID: '1055790163',
       result: payload.me,
-      rootCallInfo: {storageKey: 'me', identifyingArgKey: null},
+      rootCallInfo: {
+        storageKey: 'me',
+        identifyingArgKey: null,
+        identifyingArgValue: null,
+      },
     }]);
   });
 
@@ -80,7 +84,11 @@ describe('RelayOSSNodeInterface', () => {
     expect(result).toEqual([{
       dataID: 'client:1',
       result: payload.viewer,
-      rootCallInfo: {storageKey: 'viewer', identifyingArgKey: null},
+      rootCallInfo: {
+        storageKey: 'viewer',
+        identifyingArgKey: null,
+        identifyingArgValue: null,
+      },
     }]);
   });
 
@@ -108,7 +116,11 @@ describe('RelayOSSNodeInterface', () => {
     expect(result).toEqual([{
       dataID: '1055790163',
       result: payload.username,
-      rootCallInfo: {storageKey: 'username', identifyingArgKey: 'yuzhi'},
+      rootCallInfo: {
+        storageKey: 'username',
+        identifyingArgKey: 'yuzhi',
+        identifyingArgValue: 'yuzhi',
+      },
     }]);
   });
 
@@ -136,7 +148,11 @@ describe('RelayOSSNodeInterface', () => {
     expect(result).toEqual([{
       dataID: 'client:1',
       result: payload.username,
-      rootCallInfo: {storageKey: 'username', identifyingArgKey: 'yuzhi'},
+      rootCallInfo: {
+        storageKey: 'username',
+        identifyingArgKey: 'yuzhi',
+        identifyingArgValue: 'yuzhi',
+      },
     }]);
   });
 
@@ -169,7 +185,11 @@ describe('RelayOSSNodeInterface', () => {
     expect(result).toEqual([{
       dataID: 'client:12345',
       result: payload.viewer,
-      rootCallInfo: {storageKey: 'viewer', identifyingArgKey: null},
+      rootCallInfo: {
+        storageKey: 'viewer',
+        identifyingArgKey: null,
+        identifyingArgValue: null,
+      },
     }]);
   });
 
@@ -196,7 +216,11 @@ describe('RelayOSSNodeInterface', () => {
     expect(result).toEqual([{
       dataID: '123',
       result: payload.node,
-      rootCallInfo: {storageKey: 'node', identifyingArgKey: '123'},
+      rootCallInfo: {
+        storageKey: 'node',
+        identifyingArgKey: '123',
+        identifyingArgValue: '123',
+      },
     }]);
   });
 
@@ -229,14 +253,53 @@ describe('RelayOSSNodeInterface', () => {
       {
         dataID: '123',
         result: payload.nodes[0],
-        rootCallInfo: {storageKey: 'nodes', identifyingArgKey: '123'},
+        rootCallInfo: {
+          storageKey: 'nodes',
+          identifyingArgKey: '123',
+          identifyingArgValue: '123',
+        },
      },
       {
         dataID: '456',
         result: payload.nodes[1],
-        rootCallInfo: {storageKey: 'nodes', identifyingArgKey: '456'},
+        rootCallInfo: {
+          storageKey: 'nodes',
+          identifyingArgKey: '456',
+          identifyingArgValue: '456',
+        },
      },
     ]);
+  });
+
+  it('creates results for id-less identifying arguments', () => {
+    const store = new RelayRecordStore({});
+    const query = getNode(Relay.QL`
+      query {
+        task(number: 123) {
+          title
+        }
+      }
+    `);
+    const payload = {
+      task: {
+        title: 'Give Relay',
+      },
+    };
+    const result = RelayFBNodeInterface.getResultsFromPayload(
+      store,
+      query,
+      payload
+    );
+
+    expect(result).toEqual([{
+      dataID: 'client:1',
+      result: payload.task,
+      rootCallInfo: {
+        storageKey: 'task',
+        identifyingArgKey: '123',
+        identifyingArgValue: 123,
+      },
+    }]);
   });
 
   it('creates results for null response', () => {
@@ -260,7 +323,11 @@ describe('RelayOSSNodeInterface', () => {
     expect(result).toEqual([{
       dataID: 'client:1',
       result: null,
-      rootCallInfo: {storageKey: 'me', identifyingArgKey: null},
+      rootCallInfo: {
+        storageKey: 'me',
+        identifyingArgKey: null,
+        identifyingArgValue: null,
+      },
     }]);
   });
 
@@ -283,7 +350,11 @@ describe('RelayOSSNodeInterface', () => {
     expect(result).toEqual([{
       dataID: 'client:1',
       result: null,
-      rootCallInfo: {storageKey: 'me', identifyingArgKey: null},
+      rootCallInfo: {
+        storageKey: 'me',
+        identifyingArgKey: null,
+        identifyingArgValue: null,
+      },
     }]);
   });
 });

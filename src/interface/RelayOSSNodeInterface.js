@@ -30,7 +30,8 @@ type PayloadResult = {
 type RootCallInfo = {
   storageKey: string;
   identifyingArgKey: ?string;
-}
+  identifyingArgValue: mixed;
+};
 
 /**
  * @internal
@@ -80,7 +81,7 @@ const RelayOSSNodeInterface = {
       const records = getPayloadRecords(query, payload);
       let ii = 0;
       const storageKey = query.getStorageKey();
-      forEachRootCallArg(query, ({identifyingArgKey}) => {
+      forEachRootCallArg(query, ({identifyingArgKey, identifyingArgValue}) => {
         const result = records[ii++];
         let dataID = store.getDataID(storageKey, identifyingArgKey);
         if (dataID == null) {
@@ -98,7 +99,7 @@ const RelayOSSNodeInterface = {
         results.push({
           dataID,
           result,
-          rootCallInfo: {storageKey, identifyingArgKey},
+          rootCallInfo: {storageKey, identifyingArgKey, identifyingArgValue},
         });
       });
     }

@@ -20,6 +20,11 @@ var BOOLEAN = {
   name: 'Boolean'
 };
 
+var STRING = {
+  kind: TypeKind.SCALAR,
+  name: 'String'
+};
+
 module.exports = {
   name: 'relay',
   description: 'The @relay directive.',
@@ -42,6 +47,14 @@ module.exports = {
     name: 'plural',
     description: 'Marks a fragment as being backed by a GraphQLList',
     type: BOOLEAN,
+    defaultValue: null
+  }, {
+    name: 'variables',
+    description: 'Selectivly pass variables down into a fragment.',
+    type: {
+      kind: TypeKind.LIST,
+      ofType: STRING
+    },
     defaultValue: null
   }],
   onOperation: false,

@@ -19,6 +19,7 @@ jest
 
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayFragmentTracker = require('RelayFragmentTracker');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -378,6 +379,7 @@ describe('diffRelayQuery - fragments', () => {
     let store;
     let writer;
     let tracker;
+    let fragmentTracker;
 
     function writeEdgesForQuery(edges, query) {
       const payload = {
@@ -391,7 +393,7 @@ describe('diffRelayQuery - fragments', () => {
           },
         },
       };
-      writePayload(store, writer, query, payload, tracker);
+      writePayload(store, writer, query, payload, tracker, fragmentTracker);
     }
 
     beforeEach(() => {
@@ -399,6 +401,7 @@ describe('diffRelayQuery - fragments', () => {
       store = new RelayRecordStore({records}, {rootCallMap});
       writer = new RelayRecordWriter(records, rootCallMap, false);
       tracker = new RelayQueryTracker();
+      fragmentTracker = new RelayFragmentTracker();
 
       // Load 2 stories without message
       writeEdgesForQuery(
@@ -465,6 +468,7 @@ describe('diffRelayQuery - fragments', () => {
         getNode(feedQuery, {count: 3, after: null}),
         store,
         tracker,
+        fragmentTracker,
       );
       expect(diffQueries.length).toBe(2);
       expect(diffQueries[0]).toEqualQueryRoot(
@@ -486,6 +490,50 @@ describe('diffRelayQuery - fragments', () => {
           }
         }
       `));
+    });
+
+    it('skips tracked fragments', () => {
+      const feedQuery = Relay.QL`
+        query {
+          viewer {
+            newsFeed(after: $after, first: $count) {
+              edges {
+                ... on NewsFeedEdge @relay(variables: []) {
+                  node {
+                    ... on Story {
+                      message {
+                        text
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      // Pretend we loaded the first 2 stories with message by setting them to
+      // tracked in the fragment tracker.
+      const fragmentHash = getNode(feedQuery, {after: '$', first: 1})
+        .getChildren()[0]
+        .getChildren()[0]
+        .getChildren()[2]
+        .getCompositeHash();
+      fragmentTracker.track('client:client:1:s1', fragmentHash);
+      fragmentTracker.track('client:client:1:s2', fragmentHash);
+
+      // Query for 3 stories with text
+      const diffQueries = diffRelayQuery(
+        getNode(feedQuery, {count: 3, after: null}),
+        store,
+        tracker,
+        fragmentTracker,
+      );
+      expect(diffQueries.length).toBe(1);
+      expect(diffQueries[0]).toEqualQueryRoot(
+        getNode(feedQuery, {count: 1, after: 'c2'})
+      );
     });
   });
 });

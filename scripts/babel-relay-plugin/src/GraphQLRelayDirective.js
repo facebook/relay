@@ -19,6 +19,11 @@ const BOOLEAN = {
   name: 'Boolean',
 };
 
+const STRING = {
+  kind: TypeKind.SCALAR,
+  name: 'String',
+};
+
 module.exports = {
   name: 'relay',
   description: 'The @relay directive.',
@@ -52,6 +57,15 @@ module.exports = {
       description: 'Marks a fragment as being backed by a GraphQLList',
       type: BOOLEAN,
       defaultValue: (null: ?boolean),
+    },
+    {
+      name: 'variables',
+      description: 'Selectivly pass variables down into a fragment.',
+      type: {
+        kind: TypeKind.LIST,
+        ofType: STRING,
+      },
+      defaultValue: (null: ?Array<string>)
     },
   ],
   onOperation: false,

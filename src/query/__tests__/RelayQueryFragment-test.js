@@ -198,4 +198,32 @@ describe('RelayQueryFragment', () => {
       ).toBe(true);
     });
   });
+
+  describe('variables argument of @relay directive', () => {
+    it('maps listed variables', () => {
+      const query = getNode(Relay.QL`
+        fragment on User {
+          ... on User @relay(variables: ["inner"]) {
+            profilePicture(size: $inner)
+          }
+        }
+      `, {inner: 100});
+      const frag = query.getChildren()[1];
+      expect(frag instanceof RelayQuery.Fragment).toBe(true);
+      expect(frag.getVariables()).toEqual({inner: 100});
+    });
+
+    it('filters non-listed variables', () => {
+      const query = getNode(Relay.QL`
+        fragment on User {
+          ... on User @relay(variables: []) {
+            profilePicture(size: $inner)
+          }
+        }
+      `, {inner: 100});
+      const frag = query.getChildren()[1];
+      expect(frag instanceof RelayQuery.Fragment).toBe(true);
+      expect(frag.getVariables()).toEqual({});
+    });
+  });
 });

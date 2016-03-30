@@ -28,7 +28,7 @@ type PrepareVariablesCallback = (
   prevVariables: Variables,
   route: RelayMetaRoute
 ) => Variables;
-type VariableMapping = {[key: string]: mixed};
+export type VariableMapping = {[key: string]: mixed};
 
 /**
  * @internal

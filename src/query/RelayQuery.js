@@ -891,6 +891,11 @@ class RelayQueryFragment extends RelayQueryNode {
     );
   }
 
+  isTrackingEnabled(): boolean {
+    const metadata = (this.__concreteNode__: ConcreteFragment).metadata;
+    return !!metadata.isTrackingEnabled;
+  }
+
   cloneAsPlainFragment(): RelayQueryFragment {
     return createMemoizedFragment(
       this.__concreteNode__,

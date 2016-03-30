@@ -20,6 +20,9 @@ const RelayRouteFragment = require('RelayRouteFragment');
 const generateConcreteFragmentID = require('generateConcreteFragmentID');
 const invariant = require('invariant');
 
+import type {VariableMapping} from 'RelayFragmentReference';
+import type {ConcreteFragment} from 'ConcreteQuery';
+
 export type RelayConcreteNode = mixed;
 
 /**
@@ -87,6 +90,16 @@ Object.assign(RelayQL, {
   },
   __id(): string {
     return generateConcreteFragmentID();
+  },
+  __createFragment(
+    fragment: ConcreteFragment,
+    variableMapping: VariableMapping
+  ): RelayFragmentReference {
+    return new RelayFragmentReference(
+      () => fragment,
+      null,
+      variableMapping
+    );
   },
 });
 

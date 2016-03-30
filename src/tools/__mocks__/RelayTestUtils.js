@@ -548,7 +548,7 @@ const RelayTestUtils = {
    * writing; property keys are rewritten from application names into
    * serialization keys matching the fields in the query.
    */
-  writePayload(store, writer, query, payload, tracker, options) {
+  writePayload(store, writer, query, payload, tracker, fragmentTracker, options) {
     const transformRelayQueryPayload = require('transformRelayQueryPayload');
 
     return RelayTestUtils.writeVerbatimPayload(
@@ -557,6 +557,7 @@ const RelayTestUtils = {
       query,
       transformRelayQueryPayload(query, payload),
       tracker,
+      fragmentTracker,
       options
     );
   },
@@ -565,13 +566,23 @@ const RelayTestUtils = {
    * Helper to write the result payload into a store. Unlike `writePayload`,
    * the payload is not transformed first.
    */
-  writeVerbatimPayload(store, writer, query, payload, tracker, options) {
+  writeVerbatimPayload(
+    store,
+    writer,
+    query,
+    payload,
+    tracker,
+    fragmentTracker,
+    options,
+  ) {
     const RelayChangeTracker = require('RelayChangeTracker');
+    const RelayFragmentTracker = require('RelayFragmentTracker');
     const RelayQueryTracker = require('RelayQueryTracker');
     const RelayQueryWriter = require('RelayQueryWriter');
     const writeRelayQueryPayload = require('writeRelayQueryPayload');
 
     tracker = tracker || new RelayQueryTracker();
+    fragmentTracker = fragmentTracker || new RelayFragmentTracker();
     options = options || {};
     const changeTracker = new RelayChangeTracker();
     const queryWriter = new RelayQueryWriter(
@@ -579,6 +590,7 @@ const RelayTestUtils = {
       writer,
       tracker,
       changeTracker,
+      fragmentTracker,
       options
     );
     writeRelayQueryPayload(

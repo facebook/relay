@@ -33,8 +33,11 @@ var TypeNameMetaFieldDef = _require$type_introsp.TypeNameMetaFieldDef;
 
 var GraphQLRelayDirective = require('./GraphQLRelayDirective');
 
+var buildDirective = require('./buildDirective');
 var find = require('./find');
 var invariant = require('./invariant');
+
+var GraphQLRelayDirectiveInstance = buildDirective(GraphQLRelayDirective);
 
 // TODO: Import types from `graphql`.
 
@@ -390,7 +393,7 @@ var RelayQLDirective = function () {
     this.argTypes = {};
 
     var directiveName = ast.name.value;
-    var schemaDirective = directiveName === GraphQLRelayDirective.name ? GraphQLRelayDirective : context.schema.getDirective(directiveName);
+    var schemaDirective = directiveName === GraphQLRelayDirective.name ? GraphQLRelayDirectiveInstance : context.schema.getDirective(directiveName);
     invariant(schemaDirective, 'You supplied a directive named `%s`, but no such directive exists.', directiveName);
     schemaDirective.args.forEach(function (schemaArg) {
       _this12.argTypes[schemaArg.name] = new RelayQLArgumentType(schemaArg.type);

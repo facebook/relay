@@ -48,6 +48,9 @@ type PendingTransaction = {
   getCollisionKey: () => ?string;
   getConfigs: () => Array<RelayMutationConfig>;
   getFiles: () => ?FileMap;
+  /* $FlowIssue(>=0.23.0) #10620219 - After fixing some unsoundness in
+   * dictionary types, we've come to realize we need a safer object supertype
+   * than Object. */
   getOptimisticConfigs: () => ?Array<{[key: string]: mixed}>;
   getOptimisticQuery: (storeData: RelayStoreData) => ?RelayQuery.Mutation;
   getOptimisticResponse: () => ?Object;
@@ -410,6 +413,9 @@ class RelayPendingTransaction {
 
   getConfigs(): Array<RelayMutationConfig> {
     if (!this._configs) {
+      /* $FlowIssue(>=0.23.0) #10620219 - After fixing some unsoundness in
+       * dictionary types, we've come to realize we need a safer object
+       * supertype than Object. */
       this._configs = this.mutation.getConfigs();
     }
     return this._configs;

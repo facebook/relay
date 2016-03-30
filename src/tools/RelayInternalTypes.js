@@ -72,6 +72,9 @@ export type RelayQuerySet = {[queryName: string]: ?RelayQuery.Root};
 export type QueryPayload = {[key: string]: mixed};
 
 export type UpdateOptions = {
+  /* $FlowIssue(>=0.23.0) #10620219 - After fixing some unsoundness in
+   * dictionary types, we've come to realize we need a safer object supertype
+   * than Object. */
   configs: Array<{[key: string]: mixed}>;
   isOptimisticUpdate: boolean;
 };

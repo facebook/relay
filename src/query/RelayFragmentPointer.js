@@ -64,7 +64,10 @@ const RelayFragmentPointer = {
   ): ?DataID {
     const fragmentMap = record.__fragments__;
     if (typeof fragmentMap === 'object' && fragmentMap != null) {
-      return fragmentMap[fragment.getConcreteFragmentID()];
+      const ret = fragmentMap[fragment.getConcreteFragmentID()];
+      if (typeof ret === 'string') {
+        return ret;
+      }
     }
     return null;
   },
@@ -73,6 +76,9 @@ const RelayFragmentPointer = {
     dataID: DataID,
     fragment: RelayQuery.Fragment
   ): FragmentProp {
+    /* $FlowIssue(>=0.23.0) #10620219 - After fixing some unsoundness in
+     * dictionary types, we've come to realize we need a safer object supertype
+     * than Object. */
     const record = RelayRecord.create(dataID);
     RelayFragmentPointer.addFragment(record, fragment, dataID);
     return record;

@@ -68,7 +68,7 @@ describe('RelayContainer', function() {
     mockFooPointer = getPointer('42', mockFooFragment);
     const mockBarFragment =
       getNode(MockContainer.getFragment('bar').getFragment());
-    mockBarPointer = getPointer(['42'], mockBarFragment);
+    mockBarPointer = getPointer('42', mockBarFragment);
 
     RelayTestRenderer = RelayTestUtils.createRenderer();
 

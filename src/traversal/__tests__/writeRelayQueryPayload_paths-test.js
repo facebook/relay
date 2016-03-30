@@ -701,25 +701,45 @@ describe('writePayload()', () => {
         },
       };
       // populate the store and record the original tracked queries
-      let tracker = new RelayQueryTracker();
+      let queryTracker = new RelayQueryTracker();
 
-      writePayload(store, writer, query, payload, tracker, fragmentTracker);
-      const prevTracked = tracker.trackNodeForID.mock.calls.slice();
+      writePayload(
+        store,
+        writer,
+        query,
+        payload,
+        queryTracker,
+        fragmentTracker
+      );
+      const prevTracked = queryTracker.trackNodeForID.mock.calls.slice();
       expect(prevTracked.length).toBe(6);
 
       // rewriting the same payload by default does not track anything
-      tracker = new RelayQueryTracker();
-      tracker.trackNodeForID.mockClear();
-      writePayload(store, writer, query, payload, tracker, fragmentTracker);
-      expect(tracker.trackNodeForID.mock.calls.length).toBe(0);
+      queryTracker = new RelayQueryTracker();
+      queryTracker.trackNodeForID.mockClear();
+      writePayload(
+        store,
+        writer,
+        query,
+        payload,
+        queryTracker,
+        fragmentTracker
+      );
+      expect(queryTracker.trackNodeForID.mock.calls.length).toBe(0);
 
       // force-tracking should track the original nodes again
-      tracker = new RelayQueryTracker();
-      tracker.trackNodeForID.mockClear();
-      writePayload(store, writer, query, payload, tracker, fragmentTracker, {
-        updateTrackedQueries: true,
-      });
-      const nextTracked = tracker.trackNodeForID.mock.calls;
+      queryTracker = new RelayQueryTracker();
+      queryTracker.trackNodeForID.mockClear();
+      writePayload(
+        store,
+        writer,
+        query,
+        payload,
+        queryTracker,
+        fragmentTracker,
+        {updateTrackedQueries: true}
+      );
+      const nextTracked = queryTracker.trackNodeForID.mock.calls;
       expect(nextTracked.length).toBe(prevTracked.length);
       nextTracked.forEach((tracked, ii) => {
         expect(tracked[1]).toBe(prevTracked[ii][1]); // dataID

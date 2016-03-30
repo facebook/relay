@@ -50,7 +50,7 @@ module.exports = {
     defaultValue: null
   }, {
     name: 'variables',
-    description: 'Selectivly pass variables down into a fragment.',
+    description: 'Selectively pass variables down into a fragment.',
     type: {
       kind: TypeKind.LIST,
       ofType: STRING

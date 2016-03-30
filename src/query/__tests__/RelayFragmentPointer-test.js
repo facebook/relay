@@ -76,7 +76,7 @@ describe('RelayFragmentPointer', () => {
       recordStore = new RelayRecordStore({records});
     });
 
-    it('creates a wrapped fragment pointer', () => {
+    it('creates singular fragment pointer props', () => {
       const rootFragment = Relay.QL`fragment on Node{id}`;
       const root = getNode(Relay.QL`query{node(id:"123"){${rootFragment}}}`);
 
@@ -87,6 +87,19 @@ describe('RelayFragmentPointer', () => {
           [getNode(rootFragment).getConcreteFragmentID()]: '123',
         },
       });
+    });
+
+    it('creates plural fragment pointer props', () => {
+      const fragment = Relay.QL`fragment on Node{id}`;
+      const root = getNode(Relay.QL`query{nodes(ids:["123"]){${fragment}}}`);
+
+      const result = RelayFragmentPointer.createForRoot(recordStore, root);
+      expect(result).toEqual([{
+        __dataID__: '123',
+        __fragments__: {
+          [getNode(fragment).getConcreteFragmentID()]: '123',
+        },
+      }]);
     });
 
     it('throws if multiple root fragments are present', () => {

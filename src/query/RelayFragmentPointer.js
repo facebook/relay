@@ -102,11 +102,7 @@ const RelayFragmentPointer = {
         pointers.push(RelayFragmentPointer.create(dataID, fragment));
       }
     });
-    // Distinguish between singular/plural queries.
-    const identifyingArg = query.getIdentifyingArg();
-    const identifyingArgValue =
-      (identifyingArg && identifyingArg.value) || null;
-    if (Array.isArray(identifyingArgValue)) {
+    if (query.isPlural()) {
       return pointers;
     }
     return pointers[0];

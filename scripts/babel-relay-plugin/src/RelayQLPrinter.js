@@ -132,7 +132,10 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       }
       const selections = this.printSelections(rootField, requisiteFields);
       const metadata = {};
-      if (rootFieldType.isList()) {
+      if (
+        rootFieldType.isList() ||
+        (identifyingFieldDef && identifyingFieldDef.getType().isList())
+      ) {
         metadata.isPlural = true;
       }
       if (rootFieldType.isAbstract()) {

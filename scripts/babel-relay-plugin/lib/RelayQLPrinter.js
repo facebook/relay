@@ -119,7 +119,7 @@ module.exports = function (t, options) {
         }
         var selections = this.printSelections(rootField, requisiteFields);
         var metadata = {};
-        if (rootFieldType.isList()) {
+        if (rootFieldType.isList() || identifyingFieldDef && identifyingFieldDef.getType().isList()) {
           metadata.isPlural = true;
         }
         if (rootFieldType.isAbstract()) {

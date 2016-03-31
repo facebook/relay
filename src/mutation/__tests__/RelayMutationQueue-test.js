@@ -274,6 +274,36 @@ describe('RelayMutationQueue', () => {
       expect(networkLayer.sendMutation.mock.calls.length).toBe(2);
     });
 
+    it('rolls back transactions in onFailure', () => {
+      const failureCallback1 = jest.genMockFunction().mockImplementation(
+        (transaction, preventAutoRollback) => {
+          expect(transaction.getStatus()).toBe(
+            RelayMutationTransactionStatus.COMMIT_FAILED
+          );
+          expect(transaction.getError()).toBe(error);
+          preventAutoRollback();
+          transaction.rollback();
+        }
+      );
+      const transaction1 = mutationQueue.createTransaction(
+        mockMutation1,
+        {onFailure: failureCallback1}
+      );
+      transaction1.commit();
+
+      expect(transaction1.getStatus()).toBe(
+        RelayMutationTransactionStatus.COMMITTING
+      );
+      expect(networkLayer.sendMutation.mock.calls.length).toBe(1);
+
+      const request = networkLayer.sendMutation.mock.calls[0][0];
+      const error = new Error('error');
+      request.reject(error);
+      jest.runAllTimers();
+
+      expect(failureCallback1).toBeCalled();
+    });
+
     it('empties collision queue after a failure', () => {
       const failureCallback1 = jest.genMockFunction().mockImplementation(
         (transaction, preventAutoRollback) => {

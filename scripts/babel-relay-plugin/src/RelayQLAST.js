@@ -139,7 +139,7 @@ class RelayQLFragment extends RelayQLDefinition<
     parentType?: RelayQLType
   ) {
     const relayDirectiveArgs = {};
-    const relayDirective = (ast.directives || []).find(
+    const relayDirective = find((ast.directives || []),
       directive => directive.name.value === 'relay'
     );
     if (relayDirective) {

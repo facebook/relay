@@ -78,13 +78,17 @@ type DiffOutput = {
 function diffRelayQuery(
   root: RelayQuery.Root,
   store: RelayRecordStore,
-  tracker: RelayQueryTracker,
+  queryTracker: RelayQueryTracker,
   fragmentTracker: RelayFragmentTracker,
 ): Array<RelayQuery.Root> {
   const path = RelayQueryPath.create(root);
   const queries = [];
 
-  const visitor = new RelayDiffQueryBuilder(store, tracker, fragmentTracker);
+  const visitor = new RelayDiffQueryBuilder(
+    store,
+    queryTracker,
+    fragmentTracker
+  );
   const rootIdentifyingArg = root.getIdentifyingArg();
   const rootIdentifyingArgValue =
     (rootIdentifyingArg && rootIdentifyingArg.value) || null;
@@ -162,24 +166,24 @@ function diffRelayQuery(
  *   - `diffNode`: subset of the input that could not diffed out
  *   - `trackedNode`: subset of the input that must be tracked
  *
- * The provided `tracker` is updated whenever the traversal of a node results
- * in a `trackedNode` being created. New top-level queries are not returned
- * up the tree, and instead are available via `getSplitQueries()`.
+ * The provided `queryTracker` is updated whenever the traversal of a node
+ * results in a `trackedNode` being created. New top-level queries are not
+ * returned up the tree, and instead are available via `getSplitQueries()`.
  */
 class RelayDiffQueryBuilder {
   _store: RelayRecordStore;
   _splitQueries: Array<RelayQuery.Root>;
-  _tracker: RelayQueryTracker;
+  _queryTracker: RelayQueryTracker;
   _fragmentTracker: RelayFragmentTracker;
 
   constructor(
     store: RelayRecordStore,
-    tracker: RelayQueryTracker,
+    queryTracker: RelayQueryTracker,
     fragmentTracker: RelayFragmentTracker,
   ) {
     this._store = store;
     this._splitQueries = [];
-    this._tracker = tracker;
+    this._queryTracker = queryTracker;
     this._fragmentTracker = fragmentTracker;
   }
 
@@ -381,7 +385,7 @@ class RelayDiffQueryBuilder {
     // always be composed into, and therefore tracked by, their nearest
     // non-fragment parent.
     if (trackedNode && !(trackedNode instanceof RelayQuery.Fragment)) {
-      this._tracker.trackNodeForID(trackedNode, scope.dataID, path);
+      this._queryTracker.trackNodeForID(trackedNode, scope.dataID, path);
     }
 
     return {

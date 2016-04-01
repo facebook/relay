@@ -378,7 +378,7 @@ describe('diffRelayQuery - fragments', () => {
   describe('fragments inside connections', () => {
     let store;
     let writer;
-    let tracker;
+    let queryTracker;
     let fragmentTracker;
 
     function writeEdgesForQuery(edges, query) {
@@ -393,14 +393,21 @@ describe('diffRelayQuery - fragments', () => {
           },
         },
       };
-      writePayload(store, writer, query, payload, tracker, fragmentTracker);
+      writePayload(
+        store,
+        writer,
+        query,
+        payload,
+        queryTracker,
+        fragmentTracker
+      );
     }
 
     beforeEach(() => {
       const records = {};
       store = new RelayRecordStore({records}, {rootCallMap});
       writer = new RelayRecordWriter(records, rootCallMap, false);
-      tracker = new RelayQueryTracker();
+      queryTracker = new RelayQueryTracker();
       fragmentTracker = new RelayFragmentTracker();
 
       // Load 2 stories without message
@@ -467,7 +474,7 @@ describe('diffRelayQuery - fragments', () => {
       const diffQueries = diffRelayQuery(
         getNode(feedQuery, {count: 3, after: null}),
         store,
-        tracker,
+        queryTracker,
         fragmentTracker,
       );
       expect(diffQueries.length).toBe(2);
@@ -527,7 +534,7 @@ describe('diffRelayQuery - fragments', () => {
       const diffQueries = diffRelayQuery(
         getNode(feedQuery, {count: 3, after: null}),
         store,
-        tracker,
+        queryTracker,
         fragmentTracker,
       );
       expect(diffQueries.length).toBe(1);

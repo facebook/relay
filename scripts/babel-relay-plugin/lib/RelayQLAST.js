@@ -145,7 +145,7 @@ var RelayQLFragment = function (_RelayQLDefinition) {
     _classCallCheck(this, RelayQLFragment);
 
     var relayDirectiveArgs = {};
-    var relayDirective = (ast.directives || []).find(function (directive) {
+    var relayDirective = find(ast.directives || [], function (directive) {
       return directive.name.value === 'relay';
     });
     if (relayDirective) {

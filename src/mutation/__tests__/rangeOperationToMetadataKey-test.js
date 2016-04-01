@@ -17,7 +17,9 @@ describe('rangeOperationToMetadataKey', () => {
   it('maps from developer-friendly name to internal metadata key name', () => {
     expect(rangeOperationToMetadataKey).toEqual({
       append: '__rangeOperationAppend__',
+      ignore: '__rangeOperationIgnore__',
       prepend: '__rangeOperationPrepend__',
+      refetch: '__rangeOperationRefetch__',
       remove: '__rangeOperationRemove__',
     });
   });

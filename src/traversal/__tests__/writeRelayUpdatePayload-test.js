@@ -15,7 +15,8 @@ require('configureForRelayOSS');
 
 jest
   .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment');
+  .dontMock('GraphQLSegment')
+  .mock('warning');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const Relay = require('Relay');
@@ -967,6 +968,190 @@ describe('writePayload()', () => {
         connectionID,
         [{name: 'first', value: '2'}]
       ).filteredEdges.map(edge => edge.edgeID)).toEqual([edgeID]);
+    });
+
+    it('warns when using null as a rangeBehavior value instead of IGNORE', () => {
+      const input = {
+        actor_id: 'actor:123',
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        feedback_id: feedbackID,
+        message: {
+          text: 'Hello!',
+          ranges: [],
+        },
+      };
+
+      const mutation = getNode(Relay.QL`
+        mutation {
+          commentCreate(input:$input) {
+            feedback {
+              id,
+              topLevelComments {
+                count,
+              },
+            },
+            feedbackCommentEdge {
+              cursor,
+              node {
+                id,
+                body {
+                  text,
+                },
+              },
+              source {
+                id,
+              },
+            },
+          }
+        }
+      `, {
+        input: JSON.stringify(input),
+      });
+      const configs = [{
+        type: RelayMutationType.RANGE_ADD,
+        connectionName: 'topLevelComments',
+        edgeName: 'feedbackCommentEdge',
+        rangeBehaviors: {'': null},
+      }];
+
+      const nextCursor = 'comment789:cursor';
+      const nextNodeID = 'comment789';
+      const payload = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        feedback: {
+          id: feedbackID,
+          topLevelComments: {
+            count: 2,
+          },
+        },
+        feedbackCommentEdge: {
+          cursor: nextCursor,
+          node: {
+            id: nextNodeID,
+            body: {
+              text: input.message.text,
+            },
+          },
+          source: {
+            id: feedbackID,
+          },
+        },
+      };
+
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
+        queueStore,
+        queueWriter,
+        queryTracker,
+        changeTracker
+      );
+
+      writeRelayUpdatePayload(
+        queryWriter,
+        mutation,
+        payload,
+        {configs, isOptimisticUpdate: true}
+      );
+
+      expect([
+        'Using `null` as a rangeBehavior value is deprecated. Use `ignore` to avoid ' +
+        'refetching a range.',
+      ]).toBeWarnedNTimes(1);
+    });
+
+    it('ignores node when rangeBehavior value is IGNORE', () => {
+      const input = {
+        actor_id: 'actor:123',
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        feedback_id: feedbackID,
+        message: {
+          text: 'Hello!',
+          ranges: [],
+        },
+      };
+
+      const mutation = getNode(Relay.QL`
+        mutation {
+          commentCreate(input:$input) {
+            feedback {
+              id,
+              topLevelComments {
+                count,
+              },
+            },
+            feedbackCommentEdge {
+              cursor,
+              node {
+                id,
+                body {
+                  text,
+                },
+              },
+              source {
+                id,
+              },
+            },
+          }
+        }
+      `, {
+        input: JSON.stringify(input),
+      });
+      const configs = [{
+        type: RelayMutationType.RANGE_ADD,
+        connectionName: 'topLevelComments',
+        edgeName: 'feedbackCommentEdge',
+        rangeBehaviors: {'': GraphQLMutatorConstants.IGNORE},
+      }];
+
+      const nextCursor = 'comment789:cursor';
+      const nextNodeID = 'comment789';
+      const payload = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        feedback: {
+          id: feedbackID,
+          topLevelComments: {
+            count: 2,
+          },
+        },
+        feedbackCommentEdge: {
+          cursor: nextCursor,
+          node: {
+            id: nextNodeID,
+            body: {
+              text: input.message.text,
+            },
+          },
+          source: {
+            id: feedbackID,
+          },
+        },
+      };
+
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
+        queueStore,
+        queueWriter,
+        queryTracker,
+        changeTracker
+      );
+
+      writeRelayUpdatePayload(
+        queryWriter,
+        mutation,
+        payload,
+        {configs, isOptimisticUpdate: true}
+      );
+
+      expect(changeTracker.getChangeSet()).toEqual({
+        created: {}, // No node added
+        updated: {
+          [connectionID]: true,
+        },
+      });
     });
 
     it('optimistically prepends comments', () => {

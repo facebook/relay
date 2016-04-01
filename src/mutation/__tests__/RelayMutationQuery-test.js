@@ -341,6 +341,96 @@ describe('RelayMutationQuery', () => {
       };
     });
 
+    it('refetches the whole range when the rangeBehavior is REFETCH', () => {
+      tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
+        fragment on Feedback {
+          comments(orderby: "ranked_threaded", first: "10") {
+            edges {
+              node {
+                body {
+                  text
+                }
+              }
+            }
+          }
+        }
+      `));
+      const node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+        fatQuery,
+        tracker,
+        connectionName: 'comments',
+        parentID: '123',
+        edgeName: 'feedbackCommentEdge',
+        parentName: 'feedback',
+        rangeBehaviors: {
+          'orderby(ranked_threaded)': GraphQLMutatorConstants.REFETCH,
+        },
+      });
+      const expected = getNodeWithoutSource(Relay.QL`
+        fragment on CommentCreateResponsePayload {
+          feedback {
+            comments(orderby: "ranked_threaded", first: "10") {
+              edges {
+                node {
+                  body {
+                    text
+                  }
+                }
+              }
+            }
+          }
+        }
+      `);
+      expect(node)
+        .toEqualQueryNode(expected);
+    });
+
+    it('range is not refetched at all when rangeBehavior is IGNORE', () => {
+      tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
+        fragment on Feedback {
+          comments(orderby: "ranked_threaded", first: "10") {
+            edges {
+              node {
+                body {
+                  text
+                }
+              }
+            }
+          }
+        }
+      `));
+      const node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+        fatQuery,
+        tracker,
+        connectionName: 'comments',
+        parentID: '123',
+        edgeName: 'feedbackCommentEdge',
+        parentName: 'feedback',
+        rangeBehaviors: {
+          'orderby(ranked_threaded)': GraphQLMutatorConstants.IGNORE,
+        },
+      });
+      const expected = getNodeWithoutSource(Relay.QL`
+        fragment MutationQuery on CommentCreateResponsePayload {
+          feedback {
+            id
+          },
+          feedbackCommentEdge {
+            __typename,
+            cursor,
+            node{
+              body {
+                text
+              },
+              id
+            }
+          }
+        }
+      `);
+      expect(node)
+        .toEqualQueryNode(expected);
+    });
+
     it('includes edge fields for connections with range config', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
@@ -529,7 +619,8 @@ describe('RelayMutationQuery', () => {
         '`rangeBehaviors` specified in your RANGE_ADD config. This means ' +
         'that the entire connection will be refetched. Configure a range ' +
         'behavior for this mutation in order to fetch only the new edge ' +
-        'and to enable optimistic mutations.',
+        'and to enable optimistic mutations or use `refetch` to squelch ' +
+        'this warning.',
         'comments{orderby:"ranked_threaded"}',
         'feedback',
         '123',

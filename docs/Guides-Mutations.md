@@ -331,7 +331,7 @@ Given a parent, a connection, and the name of the newly created edge in the resp
 
 - `rangeBehaviors: {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS}`
 
-  A map between printed, dot-separated GraphQL calls *in alphabetical order*, and the behavior we want Relay to exhibit when adding the new edge to connections under the influence of those calls. Behaviors can be one of `'append'`, `'prepend'`, or `'remove'`.
+  A map between printed, dot-separated GraphQL calls *in alphabetical order*, and the behavior we want Relay to exhibit when adding the new edge to connections under the influence of those calls. Behaviors can be one of `'append'`, `'ignore'`, `'prepend'`, `'refetch'`, or `'remove'`.
 
 #### Example
 

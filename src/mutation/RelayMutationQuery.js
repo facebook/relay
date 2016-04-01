@@ -23,6 +23,7 @@ const RelayQuery = require('RelayQuery');
 import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayRecord = require('RelayRecord');
 import type {Variables} from 'RelayTypes';
+const {REFETCH} = require('GraphQLMutatorConstants');
 
 const flattenRelayQuery = require('flattenRelayQuery');
 const forEachObject = require('forEachObject');
@@ -222,22 +223,27 @@ const RelayMutationQuery = {
         if (!trackedEdges.length) {
           return;
         }
-        if (trackedConnection.getRangeBehaviorKey() in rangeBehaviors) {
+
+        const rangeBehaviorKey = trackedConnection.getRangeBehaviorKey();
+        const rangeBehaviorValue = rangeBehaviors[rangeBehaviorKey];
+        if (rangeBehaviorKey in rangeBehaviors && rangeBehaviorValue !== REFETCH) {
           // Include edges from all connections that exist in `rangeBehaviors`.
           // This may add duplicates, but they will eventually be flattened.
           trackedEdges.forEach(trackedEdge => {
             mutatedEdgeFields.push(...trackedEdge.getChildren());
           });
         } else {
-          // If the connection is not in `rangeBehaviors`, re-fetch it.
+          // If the connection is not in `rangeBehaviors` or we have explicitly
+          // set the behavior to `refetch`, re-fetch it.
           warning(
-            false,
+            rangeBehaviorValue === REFETCH,
             'RelayMutation: The connection `%s` on the mutation field `%s` ' +
             'that corresponds to the ID `%s` did not match any of the ' +
             '`rangeBehaviors` specified in your RANGE_ADD config. This means ' +
             'that the entire connection will be refetched. Configure a range ' +
             'behavior for this mutation in order to fetch only the new edge ' +
-            'and to enable optimistic mutations.',
+            'and to enable optimistic mutations or use `refetch` to squelch ' +
+            'this warning.',
             trackedConnection.getStorageKey(),
             parentName,
             parentID

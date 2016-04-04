@@ -141,11 +141,12 @@ const RelayMutationQuery = {
       tracker,
     }: EdgeDeletionMutationFragmentBuilderConfig
   ): ?RelayQuery.Node {
-    const fatParent = getParentAndValidateConnection(
-      parentName,
-      connectionName,
-      fatQuery
-    );
+    const fatParent = getFieldFromFatQuery(fatQuery, parentName);
+
+    // The connection may not be explicit in the fat query, but if it is, we
+    // try to validate it.
+    getConnectionAndValidate(fatParent, parentName, connectionName);
+
     const mutatedFields = [];
     const trackedParent = fatParent.clone(
       tracker.getTrackedChildrenForID(parentID)
@@ -160,6 +161,9 @@ const RelayMutationQuery = {
         filterUnterminatedRange
       );
       if (mutatedField) {
+        // If we skipped validation above, we get a second chance here.
+        getConnectionAndValidate(mutatedField, parentName, connectionName);
+
         mutatedFields.push(mutatedField);
       }
     }
@@ -197,17 +201,9 @@ const RelayMutationQuery = {
       tracker,
     }: EdgeInsertionMutationFragmentBuilderConfig
   ): ?RelayQuery.Node {
-    let fatParent;
-    if (parentName) {
-      fatParent = getParentAndValidateConnection(
-        parentName,
-        connectionName,
-        fatQuery
-      );
-    }
-    const trackedChildren = tracker.getTrackedChildrenForID(parentID);
-
     const mutatedFields = [];
+    const keysWithoutRangeBehavior: {[hash: string]: boolean} = {};
+    const trackedChildren = tracker.getTrackedChildrenForID(parentID);
     const trackedConnections = [];
     trackedChildren.forEach(trackedChild => {
       trackedConnections.push(
@@ -216,7 +212,9 @@ const RelayMutationQuery = {
     });
 
     if (trackedConnections.length) {
-      const keysWithoutRangeBehavior: {[hash: string]: boolean} = {};
+      // If the first instance of the connection passes validation, all will.
+      validateConnection(parentName, connectionName, trackedConnections[0]);
+
       const mutatedEdgeFields = [];
       trackedConnections.forEach(trackedConnection => {
         const trackedEdges = findDescendantFields(trackedConnection, 'edges');
@@ -256,25 +254,32 @@ const RelayMutationQuery = {
           buildEdgeField(parentID, edgeName, mutatedEdgeFields)
         );
       }
+    }
 
-      // TODO: Do this even if there are no tracked connections.
-      if (fatParent) {
-        const trackedParent = fatParent.clone(trackedChildren);
-        if (trackedParent) {
-          const filterUnterminatedRange = node => (
-            !keysWithoutRangeBehavior.hasOwnProperty(node.getShallowHash())
-          );
-          const mutatedParent = intersectRelayQuery(
-            trackedParent,
-            fatParent,
-            filterUnterminatedRange
-          );
-          if (mutatedParent) {
-            mutatedFields.push(mutatedParent);
-          }
+    if (parentName != null) {
+      const fatParent = getFieldFromFatQuery(fatQuery, parentName);
+
+      // The connection may not be explicit in the fat query, but if it is, we
+      // try to validate it.
+      getConnectionAndValidate(fatParent, parentName, connectionName);
+
+      const trackedParent = fatParent.clone(trackedChildren);
+      if (trackedParent) {
+        const filterUnterminatedRange = node => (
+          node.getSchemaName() === connectionName &&
+          !keysWithoutRangeBehavior.hasOwnProperty(node.getShallowHash())
+        );
+        const mutatedParent = intersectRelayQuery(
+          trackedParent,
+          fatParent,
+          filterUnterminatedRange
+        );
+        if (mutatedParent) {
+          mutatedFields.push(mutatedParent);
         }
       }
     }
+
     return buildMutationFragment(fatQuery, mutatedFields);
   },
 
@@ -565,26 +570,40 @@ function sanitizeRangeBehaviors(
 }
 
 /**
- * Extracts the parent field identified by `parentName` from the fat query, then
- * the connection field identified by `connectionName`, and confirms that the
- * obtained field actually is a connection.
- *
- * Returns the parent field on success.
+ * Confirms that the `connection` field extracted from the fat query at
+ * `parentName` -> `connectionName` is actually a connection.
  */
-function getParentAndValidateConnection(
-  parentName: string,
+function validateConnection(
+  parentName: ?string,
   connectionName: string,
-  fatQuery: RelayQuery.Fragment
-): RelayQuery.Field {
-  const parent = getFieldFromFatQuery(fatQuery, parentName);
-  const connection = getFieldFromFatQuery(parent, connectionName);
+  connection: RelayQuery.Field,
+): void {
   invariant(
     connection.isConnection(),
-    'RelayMutationQuery: Expected field `%s` on `%s` to be a connection.',
+    'RelayMutationQuery: Expected field `%s`%s to be a connection.',
     connectionName,
-    parentName
+    parentName ? ' on `' + parentName + '`' : ''
   );
-  return parent;
+}
+
+/**
+ * Convenience wrapper around validateConnection that gracefully attempts to
+ * extract the connection identified by `connectionName` from the `parentField`.
+ * If the connection isn't present (because it wasn't in the fat query or
+ * because it didn't survive query intersection), validation is skipped.
+ */
+function getConnectionAndValidate(
+  parentField: RelayQuery.Node,
+  parentName: string,
+  connectionName: string,
+): void {
+  if (parentField) {
+    const connections = findDescendantFields(parentField, connectionName);
+    if (connections.length) {
+      // If the first instance of the connection passes validation, all will.
+      validateConnection(parentName, connectionName, connections[0]);
+    }
+  }
 }
 
 /**

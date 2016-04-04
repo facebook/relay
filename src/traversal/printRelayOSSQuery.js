@@ -27,10 +27,9 @@ type PrinterState = {
   fragmentNameByText: {[fragmentText: string]: string};
   fragmentTexts: Array<string>;
   variableCount: number;
-  variableMap: Map<mixed, Variable>;
+  variableMap: Map<string, Map<mixed, Variable>>;
 };
 type Variable = {
-  type: string;
   value: mixed;
   variableID: string;
 };
@@ -65,8 +64,10 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
     'printRelayOSSQuery(): Unsupported node type.'
   );
   const variables = {};
-  variableMap.forEach(({value, variableID}) => {
-    variables[variableID] = value;
+  variableMap.forEach(variablesForType => {
+    variablesForType.forEach(({value, variableID}) => {
+      variables[variableID] = value;
+    });
   });
 
   return {
@@ -140,13 +141,11 @@ function printMutation(
 
 function printVariableDefinitions({variableMap}: PrinterState): string {
   let argStrings = null;
-  variableMap.forEach(({type, variableID}) => {
-    // To ensure that the value can flow into a nullable or non-nullable
-    // argument, print it as non-nullable. Note that variables are not created
-    // for null values (the argument is omitted instead).
-    const nonNullType = printNonNullType(type);
-    argStrings = argStrings || [];
-    argStrings.push('$' + variableID + ':' + nonNullType);
+  variableMap.forEach((variablesForType, type) => {
+    variablesForType.forEach(({variableID}) => {
+      argStrings = argStrings || [];
+      argStrings.push('$' + variableID + ':' + type);
+    });
   });
   if (argStrings) {
     return '(' + argStrings.join(',') + ')';
@@ -318,13 +317,18 @@ function createVariable(
     name
   );
   const valueKey = JSON.stringify(value);
-  const existingVariable = printerState.variableMap.get(valueKey);
+  const nonNullType = printNonNullType(type);
+  let variablesForType = printerState.variableMap.get(nonNullType);
+  if (!variablesForType) {
+    variablesForType = new Map();
+    printerState.variableMap.set(nonNullType, variablesForType);
+  }
+  const existingVariable = variablesForType.get(valueKey);
   if (existingVariable) {
     return existingVariable.variableID;
   } else {
     const variableID = name + '_' + base62(printerState.variableCount++);
-    printerState.variableMap.set(valueKey, {
-      type,
+    variablesForType.set(valueKey, {
       value,
       variableID,
     });

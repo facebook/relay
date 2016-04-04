@@ -596,6 +596,7 @@ type User implements Node Actor {
   message: Text
   name: String
   storySearch(query: StorySearchInput): [Story]
+  storyCommentSearch(query: StoryCommentSearchInput): [Comment]
   profilePicture(size: [String], preset: PhotoSize): Image
   segments(first: String): Segments
   screennames: [Screenname]
@@ -610,6 +611,12 @@ type User implements Node Actor {
 }
 
 input StorySearchInput {
+  text: String
+  limit: Int
+  offset: Int
+}
+
+input StoryCommentSearchInput {
   text: String
   limit: Int
   offset: Int

@@ -20,13 +20,6 @@ class RelayVariable {
     this.name = name;
   }
 
-  equals(other: mixed): boolean {
-    return (
-      other instanceof RelayVariable &&
-      other.getName() === this.name
-    );
-  }
-
   getName(): string {
     return this.name;
   }

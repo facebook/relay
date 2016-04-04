@@ -328,6 +328,56 @@ describe('printRelayOSSQuery', () => {
       });
     });
 
+    it('creates distinct variables for values of different types', () => {
+      // Relay allows the same variable at both locations, regardless of type:
+      const query = getNode(Relay.QL`
+        query DistinctVars {
+          node(id: "123") {
+            ... on User {
+              storySearch(query: $query) {id}
+              storyCommentSearch(query: $query) {id}
+            }
+          }
+        }
+      `, {
+        query: {text: 'foo'}
+      });
+      const storySearchAlias =
+        generateRQLFieldAlias('storySearch.query({"text":"foo"})');
+      const storyCommentSearchAlias =
+        generateRQLFieldAlias('storyCommentSearch.query({"text":"foo"})');
+      const {text, variables} = printRelayOSSQuery(query);
+      // GraphQL requires that a different variable be used for values of
+      // different types:
+      expect(text).toEqualPrintedQuery(`
+        query DistinctVars(
+          $id_0: ID!,
+          $query_1: StorySearchInput!,
+          $query_2: StoryCommentSearchInput!
+        ) {
+          node(id: $id_0) {
+            id,
+            __typename,
+            ...F0
+          }
+        }
+        fragment F0 on User {
+          ${storySearchAlias}: storySearch(query: $query_1) {
+            id
+          },
+          ${storyCommentSearchAlias}: storyCommentSearch(query: $query_2) {
+            id
+          },
+          id
+        }
+      `);
+      expect(variables).toEqual({
+        id_0: '123',
+        query_1: {text: 'foo'},
+        query_2: {text: 'foo'},
+      });
+    });
+
     it('throws for ref queries', () => {
       const query = RelayQuery.Root.build(
         'RefQueryName',

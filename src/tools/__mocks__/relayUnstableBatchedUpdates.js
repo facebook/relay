@@ -9,4 +9,9 @@
 
 'use strict';
 
-module.exports = require.requireActual('relayUnstableBatchedUpdates');
+const relayUnstableBatchedUpdates =
+  require.requireActual('relayUnstableBatchedUpdates');
+
+module.exports = jest.genMockFunction().mockImplementation(
+  relayUnstableBatchedUpdates
+);

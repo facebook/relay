@@ -634,11 +634,19 @@ class GraphQLSegment {
   }
 
   /**
-   * Returns a list of all IDs that were registered for this segment. Including
-   * edges that were deleted.
+   * Returns a list of all IDs that were registered for this segment.
    */
-  getEdgeIDs() {
-    return Object.keys(this._idToIndicesMap);
+  getEdgeIDs({includeDeleted} = {includeDeleted: false}) {
+    const edgeIds = [];
+    if (this.getLength() > 0) {
+      for (let ii = this._minIndex; ii <= this._maxIndex; ii++) {
+        const {deleted, edgeID} = this._indexToMetadataMap[ii];
+        if (includeDeleted || !deleted) {
+          edgeIds.push(edgeID);
+        }
+      }
+    }
+    return edgeIds;
   }
 }
 

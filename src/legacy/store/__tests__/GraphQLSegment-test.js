@@ -502,4 +502,33 @@ describe('GraphQLSegment', () => {
     expect(metadata.edgeIDs).toEqual(['edge1', 'edge2', 'edge3']);
     expect(metadata.cursors).toEqual(['cursor1', 'cursor2', 'cursor3']);
   });
+
+  describe('getEdgeIDs', () => {
+    it('returns edges in order (forward)', () => {
+      segment.addEdgesAfterCursor(edges, null);
+      expect(segment.getEdgeIDs()).toEqual(['edge1', 'edge2', 'edge3']);
+    });
+    it('returns edges in order (reverse)', () => {
+      segment.addEdgesBeforeCursor(lastEdges, null);
+      expect(segment.getEdgeIDs()).toEqual(['edge98', 'edge99', 'edge100']);
+    });
+    it('excludes deleted edges by default', () => {
+      segment.addEdgesAfterCursor(edges, null);
+      segment.removeEdge('edge2');
+      expect(segment.getEdgeIDs())
+        .toEqual(['edge1', 'edge3']);
+    });
+    it('excludes deleted edges when asked', () => {
+      segment.addEdgesAfterCursor(edges, null);
+      segment.removeEdge('edge2');
+      expect(segment.getEdgeIDs({includeDeleted: false}))
+        .toEqual(['edge1', 'edge3']);
+    });
+    it('includes deleted edges when asked', () => {
+      segment.addEdgesAfterCursor(edges, null);
+      segment.removeEdge('edge2');
+      expect(segment.getEdgeIDs({includeDeleted: true}))
+        .toEqual(['edge1', 'edge2', 'edge3']);
+    });
+  });
 });

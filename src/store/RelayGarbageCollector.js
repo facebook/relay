@@ -216,7 +216,7 @@ class RelayGarbageCollector {
       if (storageKey === RelayRecord.MetadataKey.PATH) {
         return;
       } else if (value instanceof GraphQLRange) {
-        value.getEdgeIDs().forEach(id => {
+        value.getEdgeIDs({includeDeleted: true}).forEach(id => {
           if (id != null) {
             this._collectionQueue.push(id);
           }

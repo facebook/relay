@@ -121,7 +121,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     root: RelayQuery.Root,
     payload: QueryPayload
   ) {
-    RelayNodeInterface.getResultsFromPayload(this._store, root, payload)
+    RelayNodeInterface.getResultsFromPayload(root, payload)
       .forEach(({result, rootCallInfo}) => {
         if (!rootCallInfo) {
           return;

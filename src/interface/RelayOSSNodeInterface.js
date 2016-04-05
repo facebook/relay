@@ -13,18 +13,14 @@
 
 'use strict';
 
-import type {DataID} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
-import type RelayRecordStore from 'RelayRecordStore';
 
 const forEachRootCallArg = require('forEachRootCallArg');
-const generateClientID = require('generateClientID');
 const invariant = require('invariant');
 
 type PayloadResult = {
-  dataID: DataID;
   result: mixed;
-  rootCallInfo?: RootCallInfo;
+  rootCallInfo: RootCallInfo;
 };
 
 type RootCallInfo = {
@@ -55,7 +51,6 @@ const RelayOSSNodeInterface = {
   },
 
   getResultsFromPayload(
-    store: RelayRecordStore,
     query: RelayQuery.Root,
     payload: {[key: string]: mixed}
   ): Array<PayloadResult> {
@@ -75,7 +70,14 @@ const RelayOSSNodeInterface = {
           RelayOSSNodeInterface.ID,
           query.getName()
         );
-        results.push({dataID, result});
+        results.push({
+          result,
+          rootCallInfo: {
+            storageKey: RelayOSSNodeInterface.NODE,
+            identifyingArgKey: dataID,
+            identifyingArgValue: dataID,
+          },
+        });
       });
     } else {
       const records = getPayloadRecords(query, payload);
@@ -83,21 +85,7 @@ const RelayOSSNodeInterface = {
       const storageKey = query.getStorageKey();
       forEachRootCallArg(query, ({identifyingArgKey, identifyingArgValue}) => {
         const result = records[ii++];
-        let dataID = store.getDataID(storageKey, identifyingArgKey);
-        if (dataID == null) {
-          const payloadID =
-            typeof result === 'object' && result &&
-            typeof result[RelayOSSNodeInterface.ID] === 'string' ?
-            result[RelayOSSNodeInterface.ID] :
-            null;
-          if (payloadID != null) {
-            dataID = payloadID;
-          } else {
-            dataID = generateClientID();
-          }
-        }
         results.push({
-          dataID,
           result,
           rootCallInfo: {storageKey, identifyingArgKey, identifyingArgValue},
         });

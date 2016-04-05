@@ -20,6 +20,10 @@ const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryWriter from 'RelayQueryWriter';
 import type {QueryPayload} from 'RelayInternalTypes';
 
+const generateClientID = require('generateClientID');
+
+const {ID} = RelayNodeInterface;
+
 /**
  * @internal
  *
@@ -35,15 +39,27 @@ function writeRelayQueryPayload(
   const recordWriter = writer.getRecordWriter();
   const path = RelayQueryPath.create(query);
 
-  RelayNodeInterface.getResultsFromPayload(store, query, payload)
-    .forEach(({dataID, result, rootCallInfo}) => {
-      if (rootCallInfo) {
-        recordWriter.putDataID(
-          rootCallInfo.storageKey,
-          rootCallInfo.identifyingArgKey,
-          dataID
-        );
+  RelayNodeInterface.getResultsFromPayload(query, payload)
+    .forEach(({result, rootCallInfo}) => {
+      const {storageKey, identifyingArgKey} = rootCallInfo;
+      let dataID = store.getDataID(storageKey, identifyingArgKey);
+      if (dataID == null) {
+        if (
+          typeof result === 'object' &&
+          result &&
+          typeof result[ID] === 'string'
+        ) {
+          dataID = result[ID];
+        }
+        if (dataID == null) {
+          dataID = generateClientID();
+        }
       }
+      recordWriter.putDataID(
+        storageKey,
+        identifyingArgKey,
+        dataID
+      );
       writer.writePayload(query, dataID, result, path);
     });
 }

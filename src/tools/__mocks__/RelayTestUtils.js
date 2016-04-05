@@ -157,6 +157,18 @@ const RelayTestUtils = {
     return reference;
   },
 
+  findQueryNode(node, predicate) {
+    const queue = [node];
+    while (queue.length) {
+      const test = queue.shift();
+      if (predicate(test)) {
+        return test;
+      }
+      queue.push(...test.getChildren());
+    }
+    return null;
+  },
+
   getNode(node, variables, queryConfig) {
     const RelayMetaRoute = require('RelayMetaRoute');
     const RelayQuery = require('RelayQuery');

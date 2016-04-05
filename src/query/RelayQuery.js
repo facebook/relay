@@ -33,6 +33,7 @@ const RelayMetaRoute = require('RelayMetaRoute');
 const RelayProfiler = require('RelayProfiler');
 const RelayRouteFragment = require('RelayRouteFragment');
 import type {Variables} from 'RelayTypes';
+const RelayVariable = require('RelayVariable');
 
 const areEqual = require('areEqual');
 const callsFromGraphQL = require('callsFromGraphQL');
@@ -1457,9 +1458,16 @@ function areCallValuesEqual(
   if (thisCalls.length !== thatCalls.length) {
     return false;
   }
-  return thisCalls.every(({name, value}, ii) =>
-    thatCalls[ii].name === name && areEqual(thatCalls[ii].value, value)
-  );
+  return thisCalls.every(({name: thisName, value: thisValue}, ii) => {
+    const {name: thatName, value: thatValue} = thatCalls[ii];
+    if (thisName !== thatName) {
+      return false;
+    }
+    if (thisValue instanceof RelayVariable) {
+      return thisValue.equals(thatValue);
+    }
+    return areEqual(thisValue, thatValue);
+  });
 }
 
 RelayProfiler.instrumentMethods(RelayQueryNode.prototype, {

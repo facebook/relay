@@ -273,10 +273,22 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       'an object.',
       recordID
     );
+    const serializationKey = field.getSerializationKey();
 
-    const fieldData = responseData[field.getSerializationKey()];
+    const fieldData = responseData[serializationKey];
     // Queried fields that are `undefined` are stored as nulls.
     if (fieldData == null) {
+      if (fieldData === undefined &&
+          responseData.hasOwnProperty(serializationKey)) {
+        warning(
+          false,
+          'RelayQueryWriter: Encountered an explicit `undefined` field `%s` ' +
+          'on record `%s`, expected response to not contain `undefined`.',
+          field.getDebugName(),
+          recordID
+        );
+        return;
+      }
       const storageKey = field.getStorageKey();
       const prevValue = this._store.getField(recordID, storageKey);
       // Always write to ensure data is stored in the correct recordStore.

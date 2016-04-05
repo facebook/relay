@@ -132,7 +132,9 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     const clientData = client[applicationName];
     let serverData = server[serializationKey];
 
-    if (!node.canHaveSubselections() || clientData == null) {
+    if (!client.hasOwnProperty(applicationName)) {
+      return;
+    } else if (!node.canHaveSubselections() || clientData == null) {
       server[serializationKey] = clientData;
     } else if (Array.isArray(clientData)) {
       if (serverData == null) {

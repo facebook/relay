@@ -15,7 +15,8 @@ require('configureForRelayOSS');
 
 jest
   .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment');
+  .dontMock('GraphQLSegment')
+  .mock('warning');
 
 const Relay = require('Relay');
 const RelayRecordStore = require('RelayRecordStore');
@@ -28,6 +29,7 @@ describe('writeRelayQueryPayload()', () => {
 
   beforeEach(() => {
     jest.resetModuleRegistry();
+    jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   describe('default null', () => {
@@ -58,6 +60,42 @@ describe('writeRelayQueryPayload()', () => {
         updated: {},
       });
       expect(store.getField('123', 'name')).toBe(null);
+    });
+
+    it('warns and skips explicitly `undefined` fields', () => {
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+
+      const query = getNode(Relay.QL`
+        query {
+          node(id:"123") {
+            id,
+            name
+          }
+        }
+      `);
+      const payload = {
+        node: {
+          __typename: 'User',
+          id: '123',
+          name: undefined,
+        },
+      };
+      const results = writePayload(store, writer, query, payload);
+      expect(results).toEqual({
+        created: {
+          '123': true,
+        },
+        updated: {},
+      });
+      expect(store.getField('123', 'name')).toBe(undefined);
+      expect([
+        'RelayQueryWriter: Encountered an explicit `undefined` field `%s` on ' +
+        'record `%s`, expected response to not contain `undefined`.',
+        'name',
+        '123',
+      ]).toBeWarnedNTimes(1);
     });
 
     it('writes missing linked field as null', () => {

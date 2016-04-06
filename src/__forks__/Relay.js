@@ -16,6 +16,15 @@
 const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
 const RelayPublic = require('RelayPublic');
 const RelayStore = require('RelayStore');
+const warning = require('warning');
+
+if (__DEV__) {
+  warning(
+    typeof Promise === 'function' && Array.prototype.find,
+    'Relay relies on polyfills for ES6 features in older browsers. ' +
+    'Babel provides a good one: https://babeljs.io/docs/usage/polyfill/'
+  );
+}
 
 // By default, assume that GraphQL is served at `/graphql` on the same domain.
 RelayStore.injectNetworkLayer(new RelayDefaultNetworkLayer('/graphql'));

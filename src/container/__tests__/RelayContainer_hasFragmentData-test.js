@@ -66,26 +66,26 @@ describe('RelayContainer', () => {
     });
 
     it('returns true for deferred fragments with resolved data', () => {
-      store.hasDeferredFragmentData = jest.fn(() => true);
+      store.hasFragmentData = jest.fn(() => true);
       const hasData = container.hasFragmentData(
         MockContainer.getFragment('foo').defer(),
         RelayRecord.create('42')
       );
       expect(hasData).toBe(true);
-      expect(store.hasDeferredFragmentData).toBeCalledWith(
+      expect(store.hasFragmentData).toBeCalledWith(
         '42',
         getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig)
       );
     });
 
     it('returns false for deferred fragments without resolved data', () => {
-      store.hasDeferredFragmentData = jest.fn(() => false);
+      store.hasFragmentData = jest.fn(() => false);
       const hasData = container.hasFragmentData(
        MockContainer.getFragment('foo').defer(),
        RelayRecord.create('42')
       );
       expect(hasData).toBe(false);
-      expect(store.hasDeferredFragmentData).toBeCalledWith(
+      expect(store.hasFragmentData).toBeCalledWith(
         '42',
         getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig)
       );

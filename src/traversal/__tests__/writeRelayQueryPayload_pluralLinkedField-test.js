@@ -38,6 +38,7 @@ describe('writeRelayQueryPayload()', () => {
       const records = {
         '123': {
           __dataID__: '123',
+          __typename: 'User',
           id: '123',
         },
       };
@@ -47,9 +48,11 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            allPhones {
-              phoneNumber {
-                displayNumber
+            ... on User {
+              allPhones {
+                phoneNumber {
+                  displayNumber
+                }
               }
             }
           }
@@ -152,12 +155,14 @@ describe('writeRelayQueryPayload()', () => {
         },
         'client:1': {
           isVerified: true,
+          __typename: 'Phone',
           phoneNumber: {
             __dataID__: 'client:2',
           },
         },
         'client:2': {
           __dataID__: 'client:2',
+          __typename: 'PhoneNumber',
           displayNumber: phone.phoneNumber.displayNumber,
           countryCode: phone.phoneNumber.countryCode,
         },
@@ -226,19 +231,23 @@ describe('writeRelayQueryPayload()', () => {
         },
         'client:1': {
           __dataID__: 'client:1',
+          __typename: 'Phone',
           phoneNumber: {__dataID__: 'phone1'},
         },
         'phone1': {
           __dataID__:'phone1',
+          __typename: 'PhoneNumber',
           displayNumber: '1-800-555-1212',
           countryCode: '1',
         },
         'client:2': {
           __dataID__: 'client:2',
+          __typename: 'Phone',
           phoneNumber: {__dataID__: 'phone2'},
         },
         'phone2': {
           __dataID__:'phone2',
+          __typename: 'PhoneNumber',
           displayNumber: '1-800-555-1313',
           countryCode: '2',
         },
@@ -298,6 +307,8 @@ describe('writeRelayQueryPayload()', () => {
           ],
         },
         'client:1': {
+          __dataID__: 'client:1',
+          __typename: 'Phone',
           isVerified: true,
           phoneNumber: {
             __dataID__: 'client:2',
@@ -305,6 +316,7 @@ describe('writeRelayQueryPayload()', () => {
         },
         'client:2': {
           __dataID__: 'client:2',
+          __typename: 'PhoneNumber',
           displayNumber: phone.phoneNumber.displayNumber,
           countryCode: phone.phoneNumber.countryCode,
         },

@@ -197,11 +197,11 @@ class RelayRecordWriter {
   /**
    * Check whether a given record has received data for a deferred fragment.
    */
-  hasDeferredFragmentData(dataID: DataID, fragmentID: string): boolean {
+  hasFragmentData(dataID: DataID, fragmentID: string): boolean {
     const resolvedFragmentMap = this._getField(dataID, RESOLVED_FRAGMENT_MAP);
     invariant(
       typeof resolvedFragmentMap === 'object' || resolvedFragmentMap == null,
-      'RelayRecordWriter.hasDeferredFragmentData(): Expected the map of ' +
+      'RelayRecordWriter.hasFragmentData(): Expected the map of ' +
       'resolved deferred fragments associated with record `%s` to be null or ' +
       'an object. Found a(n) `%s`.',
       dataID,
@@ -213,14 +213,14 @@ class RelayRecordWriter {
   /**
    * Mark a given record as having received data for a deferred fragment.
    */
-  setHasDeferredFragmentData(
+  setHasFragmentData(
     dataID: DataID,
     fragmentID: string
   ): void {
     const record = this._getRecordForWrite(dataID);
     invariant(
       record,
-      'RelayRecordWriter.setHasDeferredFragmentData(): Expected record `%s` ' +
+      'RelayRecordWriter.setHasFragmentData(): Expected record `%s` ' +
       'to exist before marking it as having received data for the deferred ' +
       'fragment with id `%s`.',
       dataID,

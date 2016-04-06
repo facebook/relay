@@ -387,7 +387,7 @@ function createContainerComponent(
         'conditions.'
       );
       const storeData = this.context.relay.getStoreData();
-      return storeData.getCachedStore().hasDeferredFragmentData(
+      return storeData.getCachedStore().hasFragmentData(
         dataID,
         fragment.getCompositeHash()
       );

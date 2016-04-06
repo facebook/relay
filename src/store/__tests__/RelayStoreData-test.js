@@ -443,9 +443,9 @@ describe('RelayStoreData', () => {
     it('warns if initialized after data has been added', () => {
       jest.mock('warning');
 
-      const response = {node: {id: 0, __typename: 'User'}};
+      const response = {node: {id: '123', __typename: 'User'}};
       const data = new RelayStoreData();
-      const query = getNode(Relay.QL`query{node(id:"a") {id}}`);
+      const query = getNode(Relay.QL`query{node(id:"123") {id}}`);
       data.handleQueryPayload(query, response);
 
       const warningMsg =
@@ -461,16 +461,16 @@ describe('RelayStoreData', () => {
       'initialized',
       () => {
         RelayGarbageCollector.prototype.register = jest.genMockFunction();
-        const response = {node: {id: 0}};
+        const response = {node: {id: '123'}};
         const data = new RelayStoreData();
         data.initializeGarbageCollector();
-        const query = getNode(Relay.QL`query{node(id:"a") {id}}`);
+        const query = getNode(Relay.QL`query{node(id:"123") {id}}`);
         const garbageCollector = data.getGarbageCollector();
 
         expect(garbageCollector.register).not.toBeCalled();
         data.handleQueryPayload(query, response);
         expect(garbageCollector.register).toBeCalled();
-        expect(garbageCollector.register.mock.calls[0][0]).toBe('a');
+        expect(garbageCollector.register.mock.calls[0][0]).toBe('123');
       }
     );
   });

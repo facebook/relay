@@ -562,8 +562,7 @@ describe('writeRelayQueryPayload()', () => {
     };
     expect(() => writePayload(store, writer, query, payload)).toFailInvariant(
       'RelayQueryWriter: Cannot write edges for connection ' +
-      '`friends.isViewerFriend(true)` on record `client:1` without ' +
-      '`first`, `last`, or `find` argument.'
+      'on record `client:1` without `first`, `last`, or `find` argument.'
     );
   });
 
@@ -836,15 +835,18 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       const results = writePayload(store, writer, query, payload);
+      const edgeID = 'client:client:1:node1b';
       expect(results).toEqual({
         created: {
           'node1b': true,
-          'client:client:1:node1b': true,   // edge added but never referenced
+          [edgeID]: true,   // edge added but never referenced
         },
         updated: {
           'client:1': true,     // range updated
         },
       });
+      expect(store.getRecordState(edgeID)).toBe('EXISTENT');
+      expect(store.getLinkedRecordID(edgeID, 'node')).toBe('node1b');
       expect(store.getField('node1b', 'id')).toBe('node1b');
       expect(store.getRangeMetadata('client:1', [
         {name: 'first', value: 1},
@@ -897,7 +899,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       const results =
-        writePayload(store, writer, query, payload, null, null, {forceIndex: 1});
+        writePayload(store, writer, query, payload, null, {forceIndex: 1});
       expect(results).toEqual({
         created: {
           'node1b': true,

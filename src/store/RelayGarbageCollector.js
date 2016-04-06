@@ -240,7 +240,6 @@ class RelayGarbageCollector {
   }
 
   _collectRecord(dataID: DataID): void {
-    this._storeData.getFragmentTracker().untrack(dataID);
     this._storeData.getQueryTracker().untrackNodesForID(dataID);
     this._storeData.getQueuedStore().removeRecord(dataID);
     this._storeData.getRangeData().removeRecord(dataID);

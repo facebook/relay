@@ -566,7 +566,6 @@ const RelayTestUtils = {
     query,
     payload,
     queryTracker,
-    fragmentTracker,
     options
   ) {
     const transformRelayQueryPayload = require('transformRelayQueryPayload');
@@ -577,7 +576,6 @@ const RelayTestUtils = {
       query,
       transformRelayQueryPayload(query, payload),
       queryTracker,
-      fragmentTracker,
       options
     );
   },
@@ -592,17 +590,14 @@ const RelayTestUtils = {
     query,
     payload,
     queryTracker,
-    fragmentTracker,
     options,
   ) {
     const RelayChangeTracker = require('RelayChangeTracker');
-    const RelayFragmentTracker = require('RelayFragmentTracker');
     const RelayQueryTracker = require('RelayQueryTracker');
     const RelayQueryWriter = require('RelayQueryWriter');
     const writeRelayQueryPayload = require('writeRelayQueryPayload');
 
     queryTracker = queryTracker || new RelayQueryTracker();
-    fragmentTracker = fragmentTracker || new RelayFragmentTracker();
     options = options || {};
     const changeTracker = new RelayChangeTracker();
     const queryWriter = new RelayQueryWriter(
@@ -610,7 +605,6 @@ const RelayTestUtils = {
       writer,
       queryTracker,
       changeTracker,
-      fragmentTracker,
       options
     );
     writeRelayQueryPayload(

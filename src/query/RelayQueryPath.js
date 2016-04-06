@@ -94,9 +94,9 @@ const RelayQueryPath = {
   getPath(
     parent: QueryPath,
     node: RelayQuery.Field | RelayQuery.Fragment,
-    dataID?: DataID
+    dataID: ?DataID
   ): QueryPath {
-    if (typeof dataID === 'undefined' || RelayRecord.isClientID(dataID)) {
+    if (dataID == null || RelayRecord.isClientID(dataID)) {
       return {
         node,
         parent,

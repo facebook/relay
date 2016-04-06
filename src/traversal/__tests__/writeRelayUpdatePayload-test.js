@@ -51,7 +51,7 @@ describe('writePayload()', () => {
       const rootCallMap = {};
       const rootCallMaps = {rootCallMap};
 
-      commentID = '123';
+      commentID = 'comment123';
 
       store = new RelayRecordStore(
         {records},

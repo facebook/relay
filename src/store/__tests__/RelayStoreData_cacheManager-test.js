@@ -182,6 +182,7 @@ describe('RelayStoreData', function() {
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
       'client:1': {
         __dataID__: 'client:1',
+        // __typename: 'User',
         isFbEmployee: true,
       },
     });
@@ -221,11 +222,13 @@ describe('RelayStoreData', function() {
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
+        __typename: 'User',
         id: '123',
         hometown: {__dataID__: '456'},
       },
       '456': {
         __dataID__: '456',
+        // __typename: 'Page',
         id: '456',
         url: 'http://...',
       },
@@ -274,10 +277,12 @@ describe('RelayStoreData', function() {
       },
       'client:1': {
         __dataID__: 'client:1',
+        // __typename: 'Screenname',
         service: 'GTALK',
       },
       'client:2': {
         __dataID__: 'client:2',
+        // __typename: 'Screenname',
         service: 'TWITTER',
       },
     });
@@ -342,6 +347,7 @@ describe('RelayStoreData', function() {
     expect(queryWriter.writeField).toBeCalledWithNodeFields({
       '123': {
         __dataID__: '123',
+        __typename: 'User',
         id: '123',
         friends: {__dataID__: 'client:1'},
       },
@@ -350,23 +356,28 @@ describe('RelayStoreData', function() {
         __filterCalls__: [],
         __forceIndex__: 0,
         __range__: getRangeForRecord('client:1'),
+        // __typename: 'FriendsConnection',
       },
       'client:client:1:1': {
         __dataID__: 'client:client:1:1',
+        // __typename: 'FriendsEdge',
         node: {__dataID__: '1'},
         cursor: '1',
       },
       '1': {
         __dataID__: '1',
+        // __typename: 'User',
         id: '1',
       },
       'client:client:1:2': {
         __dataID__: 'client:client:1:2',
+        // __typename: 'FriendsEdge',
         node: {__dataID__: '2'},
         cursor: '2',
       },
       '2': {
         __dataID__: '2',
+        // __typename: 'User',
         id: '2',
       },
     });
@@ -424,6 +435,7 @@ describe('RelayStoreData', function() {
         __filterCalls__: [],
         __forceIndex__: 0,
         __range__: getRangeForRecord('client:1'),
+        // __typename: 'FriendsConnection',
       },
     });
   });

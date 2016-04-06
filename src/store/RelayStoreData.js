@@ -20,7 +20,6 @@ const RelayChangeTracker = require('RelayChangeTracker');
 import type {ChangeSet} from 'RelayChangeTracker';
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayDiskCacheReader = require('RelayDiskCacheReader');
-const RelayFragmentTracker = require('RelayFragmentTracker');
 import type {GarbageCollectionScheduler} from 'RelayGarbageCollector';
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayMutationQueue = require('RelayMutationQueue');
@@ -95,7 +94,6 @@ class RelayStoreData {
   _rangeData: GraphQLStoreRangeUtils;
   _rootCallMap: RootCallMap;
   _taskQueue: RelayTaskQueue;
-  _fragmentTracker: RelayFragmentTracker;
 
   constructor() {
     const cachedRecords: RecordMap = {};
@@ -136,7 +134,6 @@ class RelayStoreData {
     this._rangeData = rangeData;
     this._rootCallMap = rootCallMap;
     this._taskQueue = new RelayTaskQueue();
-    this._fragmentTracker = new RelayFragmentTracker();
   }
 
   /**
@@ -292,7 +289,7 @@ class RelayStoreData {
    */
   handleQueryPayload(
     query: RelayQuery.Root,
-    response: QueryPayload,
+    payload: QueryPayload,
     forceIndex: ?number
   ): void {
     const profiler = RelayProfiler.profile('RelayStoreData.handleQueryPayload');
@@ -302,7 +299,6 @@ class RelayStoreData {
       this.getRecordWriter(),
       this._queryTracker,
       changeTracker,
-      this._fragmentTracker,
       {
         forceIndex,
         updateTrackedQueries: true,
@@ -311,7 +307,7 @@ class RelayStoreData {
     writeRelayQueryPayload(
       writer,
       query,
-      response
+      payload
     );
     this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
     profiler.stop();
@@ -346,7 +342,6 @@ class RelayStoreData {
       recordWriter,
       this._queryTracker,
       changeTracker,
-      this._fragmentTracker,
       {
         forceIndex: generateForceIndex(),
         isOptimisticUpdate,
@@ -422,10 +417,6 @@ class RelayStoreData {
 
   getCachedData(): RecordMap {
     return this._cachedRecords;
-  }
-
-  getFragmentTracker(): RelayFragmentTracker {
-    return this._fragmentTracker;
   }
 
   getGarbageCollector(): ?RelayGarbageCollector {

@@ -122,7 +122,7 @@ function getBabelRelayPlugin(
                 {
                   documentName,
                   tagName,
-                  propName
+                  propName,
                 }
               );
           } catch (error) {
@@ -132,7 +132,8 @@ function getBabelRelayPlugin(
             var basename = state.file.opts.basename || 'UnknownFile';
             var filename = state.file.opts.filename || 'UnknownFile';
             var errorMessages = [];
-            if (validationErrors && sourceText) {
+            var isValidationError = !!(validationErrors && sourceText);
+            if (isValidationError) {
               var sourceLines = sourceText.split('\n');
               validationErrors.forEach(({message, locations}) => {
                 errorMessages.push(message);
@@ -168,9 +169,9 @@ function getBabelRelayPlugin(
               ].join('\n'));
             }
             var runtimeMessage = util.format(
-              'GraphQL validation/transform error ``%s`` in file `%s`. Try ' +
-              'updating your GraphQL schema if this argument/field/type is ' +
-              'newly added.',
+              '%s error ``%s`` in file `%s`. Try updating your GraphQL ' +
+              'schema if an argument/field/type was recently added.',
+              isValidationError ? 'GraphQL validation' : 'Relay transform',
               errorMessages.join(' '),
               filename
             );
@@ -190,13 +191,18 @@ function getBabelRelayPlugin(
               []
             );
 
-            if (options.debug) {
-              console.error(error.stack);
-            }
             if (state.opts && state.opts.enforceSchema) {
-              throw new Error(
-                'Aborting due to GraphQL validation/transform error(s).'
-              );
+              throw new Error(util.format(
+                errorMessages.length ?
+                  'Aborting due to a %s error:\n\n%s\n' :
+                  'Aborting due to %s errors:\n\n%s\n',
+                isValidationError ? 'GraphQL validation' : 'Relay transform',
+                errorMessages
+                  .map(errorMessage => '  - ' + errorMessage)
+                  .join('\n'),
+              ));
+            } else if (options.debug) {
+              console.error(error.stack);
             }
           }
           // For babel 5 compatibility

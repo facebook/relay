@@ -127,7 +127,8 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
               var basename = state.file.opts.basename || 'UnknownFile';
               var filename = state.file.opts.filename || 'UnknownFile';
               var errorMessages = [];
-              if (validationErrors && sourceText) {
+              var isValidationError = !!(validationErrors && sourceText);
+              if (isValidationError) {
                 var sourceLines = sourceText.split('\n');
                 validationErrors.forEach(function (_ref3) {
                   var message = _ref3.message;
@@ -148,14 +149,15 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
                 warning('\n-- Relay Transform Error -- %s --\n', basename);
                 warning(['File:  ' + filename, 'Error: ' + error.stack].join('\n'));
               }
-              var runtimeMessage = util.format('GraphQL validation/transform error ``%s`` in file `%s`. Try ' + 'updating your GraphQL schema if this argument/field/type is ' + 'newly added.', errorMessages.join(' '), filename);
+              var runtimeMessage = util.format('%s error ``%s`` in file `%s`. Try updating your GraphQL ' + 'schema if an argument/field/type was recently added.', isValidationError ? 'GraphQL validation' : 'Relay transform', errorMessages.join(' '), filename);
               result = t.callExpression(t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.valueToNode(runtimeMessage)]))])), []);
 
-              if (options.debug) {
-                console.error(error.stack);
-              }
               if (state.opts && state.opts.enforceSchema) {
-                throw new Error('Aborting due to GraphQL validation/transform error(s).');
+                throw new Error(util.format(errorMessages.length ? 'Aborting due to a %s error:\n\n%s\n' : 'Aborting due to %s errors:\n\n%s\n', isValidationError ? 'GraphQL validation' : 'Relay transform', errorMessages.map(function (errorMessage) {
+                  return '  - ' + errorMessage;
+                }).join('\n')));
+              } else if (options.debug) {
+                console.error(error.stack);
               }
             }
             // For babel 5 compatibility

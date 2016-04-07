@@ -21,6 +21,7 @@ const RelayRootContainer = require('RelayRootContainer');
 const RelayRoute = require('RelayRoute');
 const RelayStore = require('RelayStore');
 const RelayInternals = require('RelayInternals');
+const RelayEnvironment = require('RelayEnvironment');
 
 const createRelayQuery = require('createRelayQuery');
 const getRelayQueries = require('getRelayQueries');
@@ -41,6 +42,7 @@ const RelayPublic = {
   RootContainer: RelayRootContainer,
   Route: RelayRoute,
   Store: RelayStore,
+  Environment: RelayEnvironment,
 
   createContainer: RelayContainer.create,
   createQuery: createRelayQuery,

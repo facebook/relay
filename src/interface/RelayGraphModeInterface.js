@@ -27,7 +27,7 @@ export type PutRootOperation = {
   op: 'putRoot',
   field: string;
   identifier: mixed;
-  root: GraphRecord | GraphReference;
+  root: ?(GraphRecord | GraphReference);
 };
 export type PutNodesOperation = {
   op: 'putNodes';
@@ -43,24 +43,25 @@ export type PutEdgesOperation = {
   };
 };
 
-export type GraphRecord = {[storageKey: string]: GraphValue};
+export type GraphRecord = {[storageKey: string]: ?GraphValue};
 export type GraphReference = {
   __ref: DataID;
 };
-export type GraphScalar = ?(
+export type GraphScalar = (
   boolean |
   number |
   string |
   GraphRecord |
   GraphReference
 );
-export type GraphValue = ?(
+export type GraphValue = (
   GraphScalar |
-  Array<GraphScalar>
+  Array<?GraphScalar>
 );
 
 const RelayGraphModeInterface = {
   CACHE_KEY: '__key',
+  FRAGMENTS: '__fragments__',
   REF_KEY: '__ref',
 
   // Operation types

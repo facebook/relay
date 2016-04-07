@@ -43,15 +43,17 @@ const invariant = require('invariant');
 const stableStringify = require('stableStringify');
 
 const {ID, NODE} = RelayConnectionInterface;
-const {TYPENAME} = RelayNodeInterface;
-const {EXISTENT, NONEXISTENT} = RelayRecordState;
 const {
   CACHE_KEY,
+  FRAGMENTS,
   REF_KEY,
   PUT_EDGES,
   PUT_NODES,
   PUT_ROOT,
 } = RelayGraphModeInterface;
+const {TYPENAME} = RelayNodeInterface;
+const {EXISTENT} = RelayRecordState;
+const {PATH} = RelayRecord.MetadataKey;
 
 /**
  * Writes a GraphMode payload into a Relay store.
@@ -60,7 +62,7 @@ function writeRelayGraphModeResponse(
   store: RelayRecordStore,
   writer: RelayRecordWriter,
   payload: GraphModePayload,
-  options?: {forceIndex?: number}
+  options?: {forceIndex?: ?number}
 ): RelayChangeTracker {
   var graphWriter = new RelayGraphModeWriter(
     store,
@@ -81,7 +83,7 @@ class RelayGraphModeWriter {
   constructor(
     store: RelayRecordStore,
     writer: RelayRecordWriter,
-    options?: {forceIndex?: number}
+    options?: {forceIndex?: ?number}
   ) {
     this._cacheKeyMap = new Map();
     this._changeTracker = new RelayChangeTracker();
@@ -117,9 +119,19 @@ class RelayGraphModeWriter {
     const {field, identifier, root} = operation;
     const identifyingArgKey = getIdentifyingArgKey(identifier);
     const prevID = this._store.getDataID(field, identifyingArgKey);
-    const nextID = getID(root, prevID);
-    if (RelayRecord.isClientID(nextID)) {
+    let nextID;
+    if (root != null) {
+      nextID = getID(root, prevID);
+    } else {
+      nextID = prevID || generateClientID();
+    }
+    if (root == null) {
       this._writeRecord(nextID, root);
+    } else {
+      const clientRecord = getGraphRecord(root);
+      if (clientRecord) {
+        this._writeRecord(nextID, clientRecord);
+      }
     }
     this._writer.putDataID(field, identifyingArgKey, nextID);
   }
@@ -138,9 +150,17 @@ class RelayGraphModeWriter {
       rangeID,
       'writeRelayGraphModeResponse(): Cannot find a record for cache key ' +
       '`%s`.',
-      range
+      range[CACHE_KEY]
     );
-    if (!this._writer.hasRange(rangeID)) {
+    invariant(
+      RelayConnectionInterface.hasRangeCalls(args),
+      'writeRelayGraphModeResponse(): Cannot write edges for connection on ' +
+      'record `%s` without `first`, `last`, or `find` argument.',
+      rangeID
+    );
+    if (!this._writer.hasRange(rangeID) ||
+      (this._forceIndex != null &&
+        this._forceIndex > this._store.getRangeForceIndex(rangeID))) {
       this._changeTracker.updateID(rangeID);
       this._writer.putRange(rangeID, args, this._forceIndex);
     }
@@ -177,8 +197,9 @@ class RelayGraphModeWriter {
         ...edgeData,
         [NODE]: {[REF_KEY]: nextNodeID},
       });
-      if (RelayRecord.isClientID(nextNodeID)) {
-        this._writeRecord(nextNodeID, nodeData);
+      const clientRecord = getGraphRecord(nodeData);
+      if (clientRecord) {
+        this._writeRecord(nextNodeID, clientRecord);
       }
       if (nextNodeID !== prevNodeID) {
         this._changeTracker.updateID(edgeID);
@@ -203,7 +224,7 @@ class RelayGraphModeWriter {
     if (record === undefined) {
       return;
     } else if (record === null) {
-      if (recordState === NONEXISTENT) {
+      if (recordState === EXISTENT) {
         this._changeTracker.updateID(dataID);
       }
       this._writer.deleteRecord(dataID);
@@ -216,12 +237,20 @@ class RelayGraphModeWriter {
     if (recordState !== EXISTENT) {
       this._changeTracker.createID(dataID);
     }
-    const typeName = record[TYPENAME];
-    this._writer.putRecord(dataID, typeName);
+    const path = record[PATH] || null;
+    const typeName = record[TYPENAME] || null;
+    // TODO #10481948: Construct paths lazily
+    this._writer.putRecord(dataID, typeName, (path: any));
 
     forEachObject(record, (nextValue, storageKey) => {
-      if (storageKey === REF_KEY || storageKey === CACHE_KEY) {
+      if (
+        storageKey === CACHE_KEY ||
+        storageKey === PATH ||
+        storageKey === REF_KEY
+      ) {
         return;
+      } else if (storageKey === FRAGMENTS) {
+        this._writeFragments(dataID, nextValue);
       } else if (nextValue === undefined) {
         return;
       } else if (nextValue === null) {
@@ -234,6 +263,19 @@ class RelayGraphModeWriter {
         this._writeScalar(dataID, storageKey, nextValue);
       }
     });
+  }
+
+  _writeFragments(
+    dataID: DataID,
+    fragments: {[fragmentHash: string]: boolean}
+  ): void {
+    forEachObject(fragments, (_, fragmentHash) => {
+      this._writer.setHasFragmentData(
+        dataID,
+        fragmentHash
+      );
+    });
+    this._changeTracker.updateID(dataID);
   }
 
   _writeScalar(
@@ -251,15 +293,15 @@ class RelayGraphModeWriter {
   _writePlural(
     dataID: DataID,
     storageKey: string,
-    nextValue: Array<GraphScalar>
+    nextValue: Array<?GraphScalar>
   ): void {
     const prevValue = this._store.getField(dataID, storageKey);
-    const prevArray = Array.isArray(prevValue) ? prevValue : [];
+    const prevArray = Array.isArray(prevValue) ? prevValue : null;
     let nextIDs = null;
     let nextScalars = null;
     let isUpdate = false;
     let nextIndex = 0;
-    nextValue.forEach(nextItem => {
+    nextValue.forEach((nextItem: ?GraphScalar) => {
       if (nextItem == null) {
         return;
       } else if (typeof nextItem === 'object') {
@@ -269,14 +311,14 @@ class RelayGraphModeWriter {
           'all be objects or all be scalars, got both.',
           storageKey
         );
-        const prevItem = prevArray[nextIndex++];
+        const prevItem = prevArray && prevArray[nextIndex++];
         const prevID = typeof prevItem === 'object' && prevItem != null ?
           RelayRecord.getDataIDForObject(prevItem) :
           null;
         const nextID = getID(nextItem, prevID);
-
-        if (RelayRecord.isClientID(nextID)) {
-          this._writeRecord(nextID, nextItem);
+        const clientRecord = getGraphRecord(nextItem);
+        if (clientRecord) {
+          this._writeRecord(nextID, clientRecord);
         }
         isUpdate = isUpdate || nextID !== prevID;
         nextIDs = nextIDs || [];
@@ -289,17 +331,17 @@ class RelayGraphModeWriter {
           'all be objects or all be scalars, got both.',
           storageKey
         );
-        const prevItem = prevArray[nextIndex++];
+        const prevItem = prevArray && prevArray[nextIndex++];
         isUpdate = isUpdate || nextItem !== prevItem;
         nextScalars = nextScalars || [];
         nextScalars.push(nextItem);
       }
     });
+    nextScalars = nextScalars || [];
     const nextArray = nextIDs || nextScalars;
     if (
       isUpdate ||
       !prevArray ||
-      !nextArray || // for flow
       nextArray.length !== prevArray.length
     ) {
       this._changeTracker.updateID(dataID);
@@ -319,8 +361,9 @@ class RelayGraphModeWriter {
     const prevID = this._store.getLinkedRecordID(dataID, storageKey);
     const nextID = getID(nextValue, prevID);
 
-    if (RelayRecord.isClientID(nextID)) {
-      this._writeRecord(nextID, nextValue);
+    const clientRecord = getGraphRecord(nextValue);
+    if (clientRecord) {
+      this._writeRecord(nextID, clientRecord);
     }
     if (nextID !== prevID) {
       this._changeTracker.updateID(dataID);
@@ -343,15 +386,15 @@ function getID(
   record: GraphRecord | GraphReference,
   prevID: ?DataID
 ): DataID {
-  if (prevID != null) {
-    return prevID;
-  } else if (
+  if (
     record.hasOwnProperty(REF_KEY) &&
     typeof record[REF_KEY] === 'string'
   ) {
     return record[REF_KEY];
   } else if (record.hasOwnProperty(ID) && typeof record[ID] === 'string') {
     return record[ID];
+  } else if (prevID != null) {
+    return prevID;
   } else {
     return generateClientID();
   }
@@ -363,6 +406,13 @@ function getIdentifyingArgKey(value: mixed): ?string {
   } else {
     return typeof value === 'string' ? value : stableStringify(value);
   }
+}
+
+function getGraphRecord(record: GraphRecord | GraphReference): ?GraphRecord {
+  if (!record.hasOwnProperty(REF_KEY)) {
+    return (record: any);
+  }
+  return null;
 }
 
 module.exports = writeRelayGraphModeResponse;

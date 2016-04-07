@@ -14,13 +14,14 @@
 require('configureForRelayOSS');
 
 const Relay = require('Relay');
+const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
+const forEachObject = require('forEachObject');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const transformPayloadToRelayGraphMode =
-  require('transformPayloadToRelayGraphMode');
+const transformPayloadToRelayGraphMode = require('transformPayloadToRelayGraphMode');
 
 describe('transformPayloadToRelayGraphMode()', () => {
   const {getNode} = RelayTestUtils;
@@ -32,6 +33,35 @@ describe('transformPayloadToRelayGraphMode()', () => {
 
     queryTracker = new RelayQueryTracker();
     store = new RelayRecordStore({records: {}});
+
+    function mapWithoutPaths(value) {
+      if (Array.isArray(value)) {
+        return value.map(mapWithoutPaths);
+      } else if (typeof value === 'object' && value) {
+        const result = {};
+        forEachObject(value, (keyValue, key) => {
+          if (key !== '__path__') {
+            result[key] = mapWithoutPaths(keyValue);
+          }
+        });
+        return result;
+      } else {
+        return value;
+      }
+    }
+
+    jasmine.addMatchers({
+      toEqualWithoutPaths() {
+        return {
+          compare(actual, expected) {
+            expect(mapWithoutPaths(actual)).toEqual(expected);
+            return {
+              pass: true,
+            };
+          },
+        };
+      },
+    });
   });
 
   describe('roots', () => {
@@ -75,6 +105,7 @@ describe('transformPayloadToRelayGraphMode()', () => {
           identifier: null,
           root: {
             __typename: 'Viewer',
+            __path__: RelayQueryPath.create(query),
             actor: {
               __ref: '123',
             },
@@ -149,6 +180,7 @@ describe('transformPayloadToRelayGraphMode()', () => {
           identifier: 123,
           root: {
             __typename: 'Task',
+            __path__: RelayQueryPath.create(query),
             title: 'Implement GraphMode',
           },
         },
@@ -234,6 +266,7 @@ describe('transformPayloadToRelayGraphMode()', () => {
             },
             'comments{orderby:"date"}': {
               __key: '0',
+              __typename: 'CommentsConnection',
               count: 1,
             },
           },
@@ -280,6 +313,6 @@ describe('transformPayloadToRelayGraphMode()', () => {
         range: {__key: '0'},
       },
     ];
-    expect(graphPayload).toEqual(expectedPayload);
+    expect(graphPayload).toEqualWithoutPaths(expectedPayload);
   });
 });

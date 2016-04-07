@@ -20,6 +20,7 @@ jest
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayEnvironment = require('RelayEnvironment');
+const RelayQueryPath = require('RelayQueryPath');
 const RelayTestUtils = require('RelayTestUtils');
 
 const readRelayQueryData = require('readRelayQueryData');
@@ -53,7 +54,7 @@ describe('writeRelayGraphModeResponse()', () => {
   });
 
   describe('roots', () => {
-    it('writes argument-less root args without an id', () => {
+    it('writes argument-less root fields without an id', () => {
       const payload = [
         {
           op: 'putRoot',
@@ -97,7 +98,25 @@ describe('writeRelayGraphModeResponse()', () => {
       });
     });
 
-    it('writes argument-less root args with an id', () => {
+    it('writes paths to id-less root fields', () => {
+      const query = getNode(Relay.QL`query{viewer{actor{id}}}`);
+      const path = RelayQueryPath.create(query);
+      const payload = [
+        {
+          op: 'putRoot',
+          args: null,
+          field: 'viewer',
+          root: {
+            __path__: path,
+          },
+        },
+      ];
+      writeGraph(payload);
+      expect(store.getDataID('viewer', null)).toBe('client:1');
+      expect(store.getPathToRecord('client:1')).toBe(path);
+    });
+
+    it('writes argument-less root fields with an id', () => {
       const payload = [
         {
           op: 'putRoot',
@@ -133,7 +152,7 @@ describe('writeRelayGraphModeResponse()', () => {
       });
     });
 
-    it('writes root args with arguments', () => {
+    it('writes root fields with arguments', () => {
       const payload = [
         {
           op: 'putRoot',
@@ -299,6 +318,31 @@ describe('writeRelayGraphModeResponse()', () => {
         },
         name: 'Alice',
       });
+    });
+
+    it('writes paths to id-less records', () => {
+      const query = getNode(Relay.QL`query{me{hometown}}`);
+      const path = RelayQueryPath.getPath(
+        RelayQueryPath.create(query),
+        query.getFieldByStorageKey('hometown'),
+        null
+      );
+      const payload = [
+        {
+          op: 'putNodes',
+          nodes: {
+            123: {
+              id: '123',
+              hometown: {
+                __path__: path,
+              },
+            },
+          },
+        },
+      ];
+      writeGraph(payload);
+      expect(store.getLinkedRecordID('123', 'hometown')).toBe('client:1');
+      expect(store.getPathToRecord('client:1')).toBe(path);
     });
 
     it('writes nodes with plural linked records', () => {

@@ -26,18 +26,22 @@ import type {
 import type {DataID, QueryPayload} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
+import type {QueryPath} from 'RelayQueryPath';
 const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayRecord = require('RelayRecord');
 import type RelayRecordStore from 'RelayRecordStore';
 
 const base62 = require('base62');
 const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const warning = require('warning');
 
 const {EDGES, PAGE_INFO} = RelayConnectionInterface;
 const {CACHE_KEY, REF_KEY} = RelayGraphModeInterface;
-const {ID, TYPENAME} = RelayNodeInterface;
+const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
+const {PATH} = RelayRecord.MetadataKey;
 
 // $FlowIssue: disjoint unions don't seem to be working to import this type.
 // Should be:
@@ -49,7 +53,7 @@ type GraphOperation =
 
 type PayloadState = {
   currentRecord: GraphRecord;
-  key: ?string;
+  path: QueryPath;
   payloadRecord: PayloadRecord;
 };
 type PayloadRecord = {[storageKey: string]: ?PayloadValue};
@@ -127,47 +131,57 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
           return;
         }
         const {storageKey, identifyingArgValue} = rootCallInfo;
-        const record = this._writeRecord(root, result);
-        // TODO #10481948: Make `putRoot` take a nullable record.
-        if (record) {
-          this._operations.unshift({
-            op: 'putRoot',
-            field: storageKey,
-            identifier: identifyingArgValue,
-            root: record,
-          });
-        }
+        const record = this._writeRecord(
+          RelayQueryPath.create(root),
+          root,
+          result
+        );
+        this._operations.unshift({
+          op: 'putRoot',
+          field: storageKey,
+          identifier: identifyingArgValue,
+          root: record,
+        });
       });
   }
 
   _writeRecord(
+    parentPath: QueryPath,
     node: RelayQuery.Field | RelayQuery.Fragment | RelayQuery.Root,
     payloadRecord: ?PayloadRecord,
-    clientRecord?: ?PayloadRecord
+    clientRecord?: ?PayloadRecord // TODO: should be `?GraphRecord`
   ): ?(GraphRecord | GraphReference) {
     if (payloadRecord == null) {
       return payloadRecord;
     }
     const id = payloadRecord[ID];
+    const path = node instanceof RelayQuery.Root ?
+      RelayQueryPath.create(node) :
+      RelayQueryPath.getPath(parentPath, node, id);
     if (id != null) {
-      const typeName = getRecordTypeName(node, payloadRecord);
-      const currentRecord = this._getOrCreateRecord(id, typeName);
+      const currentRecord = this._getOrCreateRecord(id);
+      const typeName = this._getRecordTypeName(node, id, payloadRecord);
+      if (typeName != null) {
+        currentRecord[TYPENAME] = typeName;
+      }
       this._recordTrackedQueries(id, node);
       this.traverse(node, {
         currentRecord,
-        key: null,
+        path,
         payloadRecord,
       });
       return {[REF_KEY]: id};
     } else {
       const currentRecord: GraphRecord = ((clientRecord || {}): any);
-      const typeName = getRecordTypeName(node, payloadRecord);
+      // TODO #10481948: Construct paths lazily
+      (currentRecord: any)[PATH] = path;
+      const typeName = this._getRecordTypeName(node, null, payloadRecord);
       if (typeName != null) {
         currentRecord[TYPENAME] = typeName;
       }
       this.traverse(node, {
         currentRecord,
-        key: null,
+        path,
         payloadRecord,
       });
       return currentRecord;
@@ -175,8 +189,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
   }
 
   _getOrCreateRecord(
-    dataID: DataID,
-    typeName: ?string
+    dataID: DataID
   ): GraphRecord {
     let record: ?GraphRecord = this._nodes[dataID];
     if (!record) {
@@ -184,10 +197,31 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       // a `GraphReference` for some reason.
       record = this._nodes[dataID] = ({
         [ID]: dataID,
-        [TYPENAME]: typeName,
       }: $FlowIssue);
     }
     return record;
+  }
+
+  _getRecordTypeName(
+    node: RelayQuery.Node,
+    dataID: ?DataID,
+    payload: PayloadRecord
+  ): ?string {
+    let typeName = payload[TYPENAME];
+    if (typeName == null) {
+      if (!node.isAbstract()) {
+        typeName = node.getType();
+      } else if (dataID != null) {
+        typeName = this._store.getType(dataID);
+      }
+    }
+    warning(
+      typeName && typeName !== ANY_TYPE,
+      'transformPayloadToRelayGraphMode(): Could not find a type name for ' +
+      'record `%s`.',
+      dataID
+    );
+    return typeName;
   }
 
   _recordTrackedQueries(
@@ -206,7 +240,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
   }
 
 
-  _getNextKey(): string {
+  _generateCacheKey(): string {
     return base62(this._nextKey++);
   }
 
@@ -214,9 +248,22 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     fragment: RelayQuery.Fragment,
     state: PayloadState
   ): void {
-    const typeName = state.currentRecord[TYPENAME];
+    const {currentRecord} = state;
+    const typeName = currentRecord[TYPENAME];
+    if (fragment.isDeferred() || fragment.isTrackingEnabled()) {
+      const fragments = (currentRecord: any).__fragments__ =
+        (currentRecord: any).__fragments__ || {};
+      fragments[fragment.getCompositeHash()] = true;
+    }
     if (isCompatibleRelayFragmentType(fragment, typeName)) {
-      this.traverse(fragment, state);
+      this.traverse(fragment, {
+        ...state,
+        path: RelayQueryPath.getPath(
+          state.path,
+          fragment,
+          currentRecord[ID]
+        ),
+      });
     }
   }
 
@@ -275,9 +322,16 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     fieldData: PayloadRecord
   ): void {
     const {currentRecord} = state;
+    const path = RelayQueryPath.getPath(
+      state.path,
+      field
+    );
     const storageKey = field.getStorageKey();
     const clientRecord: GraphRecord = currentRecord[storageKey] =
       ((currentRecord[storageKey] || {}): any);
+    (clientRecord: any)[PATH] = path;
+    clientRecord[TYPENAME] =
+      this._getRecordTypeName(field, null, fieldData);
     invariant(
       clientRecord == null ||
       (typeof clientRecord === 'object' && !Array.isArray(clientRecord)),
@@ -286,11 +340,9 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       field.getSchemaName(),
       clientRecord
     );
-    const key = this._getNextKey();
-    clientRecord[CACHE_KEY] = key;
     this._traverseConnection(field, field, {
       currentRecord: clientRecord,
-      key,
+      path,
       payloadRecord: fieldData,
     });
   }
@@ -321,16 +373,19 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     edgesField: RelayQuery.Field,
     state: PayloadState
   ): void {
-    const {key, payloadRecord} = state;
-
+    const {currentRecord, payloadRecord} = state;
+    const cacheKey = currentRecord[CACHE_KEY] =
+      currentRecord[CACHE_KEY] || this._generateCacheKey();
     const edgesData = payloadRecord[EDGES];
     const pageInfo = payloadRecord[PAGE_INFO];
 
     invariant(
-      key != null,
-      'transformPayloadToRelayGraphMode(): Expected a key for connection ' +
-      'field `%s`.',
-      connectionField.getSchemaName()
+      typeof cacheKey === 'string',
+      'transformPayloadToRelayGraphMode(): Expected cache key for connection ' +
+      'field `%s` to be a string provided by GraphQL/Relay. Note that `%s` ' +
+      'is a reserved word.',
+      connectionField.getSchemaName(),
+      CACHE_KEY
     );
     invariant(
       edgesData == null || Array.isArray(edgesData),
@@ -349,6 +404,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       pageInfo
     );
     const edgeRecords = edgesData.map(edgeItem => this._writeRecord(
+      state.path,
       edgesField,
       edgeItem
     ));
@@ -360,7 +416,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       edges: edgeRecords,
       pageInfo,
       range: {
-        [CACHE_KEY]: key,
+        [CACHE_KEY]: cacheKey,
       },
     });
   }
@@ -401,6 +457,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
         ii
       );
       return this._writeRecord(
+        state.path,
         field,
         fieldItem,
         clientRecord
@@ -426,23 +483,13 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       clientRecord
     );
     const record = this._writeRecord(
+      state.path,
       field,
       fieldData,
       clientRecord
     );
     currentRecord[storageKey] = record;
   }
-}
-
-function getRecordTypeName(
-  node: RelayQuery.Node,
-  payload: PayloadRecord
-): ?string {
-  const typeName = payload[TYPENAME];
-  if (typeName == null && !node.isAbstract()) {
-    return node.getType();
-  }
-  return typeName;
 }
 
 module.exports = transformPayloadToRelayGraphMode;

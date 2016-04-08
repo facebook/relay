@@ -15,5 +15,5 @@ Output:
 
 var Relay = require('react-relay');
 var x = function () {
-  throw new Error('GraphQL validation/transform error ``Cannot query field "fakeMutation" on type "Mutation".`` in file `nonExistentMutation.fixture`. Try updating your GraphQL schema if this argument/field/type is newly added.');
+  throw new Error('GraphQL validation error ``Cannot query field "fakeMutation" on type "Mutation".`` in file `nonExistentMutation.fixture`. Try updating your GraphQL schema if an argument/field/type was recently added.');
 }();

@@ -21,5 +21,5 @@ Output:
 
 var Relay = require('react-relay');
 var x = function () {
-  throw new Error('GraphQL validation/transform error ``Connection arguments `friends(before: <cursor>, first: <count>)` are not supported unless both are variables. Use `(first: <count>)`, `(after: <cursor>, first: <count>)`, `(before: <cursor>, last: <count>)`, or `(before: $<var>, first: $<var>)`.`` in file `connectionWithBeforeFirstArgs.fixture`. Try updating your GraphQL schema if this argument/field/type is newly added.');
+  throw new Error('Relay transform error ``Connection arguments `friends(before: <cursor>, first: <count>)` are not supported unless both are variables. Use `(first: <count>)`, `(after: <cursor>, first: <count>)`, `(before: <cursor>, last: <count>)`, or `(before: $<var>, first: $<var>)`.`` in file `connectionWithBeforeFirstArgs.fixture`. Try updating your GraphQL schema if an argument/field/type was recently added.');
 }();

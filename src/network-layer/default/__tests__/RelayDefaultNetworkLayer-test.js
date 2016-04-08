@@ -313,7 +313,7 @@ describe('RelayDefaultNetworkLayer', () => {
           'following reasons:',
         '',
         '1. Something went wrong.',
-        '   ' + requestA.getQueryString().substr(0, 60),
+        '   ' + requestA.getQueryString().substr(0, 43),
         '         ^^^',
       ].join('\n'));
       expect(error.source).toEqual(payloadA);

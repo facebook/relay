@@ -18,14 +18,38 @@ import type {RelayMutationConfig} from 'RelayTypes';
 const invariant = require('invariant');
 const sprintf = require('sprintf');
 const testEditDistance = require('testEditDistance');
+const warning = require('warning');
 
 type PropertyDescription = {
-  [name: string]: boolean;
+  [name: string]: Validator;
+};
+type Validator = {
+  assert: Function;
+  message: string;
+  type: 'DEPRECATED' | 'OPTIONAL' | 'REQUIRED';
 };
 
 const FUZZY_THRESHOLD = 3;
-const OPTIONAL = false;
-const REQUIRED = true;
+
+const DEPRECATED = Object.freeze({
+  assert: warning,
+  message: 'has deprecated property',
+  type: 'DEPRECATED',
+});
+
+const OPTIONAL = Object.freeze({
+  // These first two properties are not needed, but including them is easier
+  // than getting Flow to accept a disjoint union.
+  assert: () => {},
+  message: '',
+  type: 'OPTIONAL',
+});
+
+const REQUIRED = {
+  assert: invariant,
+  message: 'must have property',
+  type: 'REQUIRED',
+};
 
 function validateMutationConfig(
   config: RelayMutationConfig,
@@ -59,16 +83,22 @@ function validateMutationConfig(
       }
     });
 
-    // Check for missing properties.
+    // Check for deprecated and missing properties.
     Object.keys(properties).forEach(property => {
-      const isRequired = properties[property];
-      if (isRequired && !config[property]) {
-        invariant(
+      const validator = properties[property];
+      const isRequired = validator.type === 'REQUIRED';
+      const isDeprecated = validator.type === 'DEPRECATED';
+      const present = config.hasOwnProperty(property);
+      if (
+        isRequired && !present ||
+        isDeprecated && present
+      ) {
+        validator.assert(
           false,
-          'validateMutationConfig: `%s` config on `%s` must have property ' +
-          '`%s`.',
+          'validateMutationConfig: `%s` config on `%s` %s `%s`.',
           config.type,
           name,
+          validator.message,
           property
         );
       }

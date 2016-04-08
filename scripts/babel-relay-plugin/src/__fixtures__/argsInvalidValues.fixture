@@ -25,5 +25,5 @@ Output:
 "use strict";
 
 var foo = function () {
-  throw new Error("GraphQL validation/transform error ``Argument \"first\" has invalid value \"10\".\nExpected type \"Int\", found \"10\". Argument \"orderby\" has invalid value Name.\nExpected type \"String\", found Name. Argument \"find\" has invalid value cursor1.\nExpected type \"String\", found cursor1. Argument \"isViewerFriend\" has invalid value \"true\".\nExpected type \"Boolean\", found \"true\". Argument \"gender\" has invalid value \"MALE\".\nExpected type \"Gender\", found \"MALE\".`` in file `argsInvalidValues.fixture`. Try updating your GraphQL schema if this argument/field/type is newly added.");
+  throw new Error("GraphQL validation error ``Argument \"first\" has invalid value \"10\".\nExpected type \"Int\", found \"10\". Argument \"orderby\" has invalid value Name.\nExpected type \"String\", found Name. Argument \"find\" has invalid value cursor1.\nExpected type \"String\", found cursor1. Argument \"isViewerFriend\" has invalid value \"true\".\nExpected type \"Boolean\", found \"true\". Argument \"gender\" has invalid value \"MALE\".\nExpected type \"Gender\", found \"MALE\".`` in file `argsInvalidValues.fixture`. Try updating your GraphQL schema if an argument/field/type was recently added.");
 }();

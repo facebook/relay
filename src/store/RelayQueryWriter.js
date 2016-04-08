@@ -16,12 +16,12 @@
 const RelayQuery = require('RelayQuery');
 import type RelayChangeTracker from 'RelayChangeTracker';
 const RelayConnectionInterface = require('RelayConnectionInterface');
+import type RelayFragmentTracker from 'RelayFragmentTracker';
 const RelayNodeInterface = require('RelayNodeInterface');
 import type {QueryPath} from 'RelayQueryPath';
 const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryVisitor = require('RelayQueryVisitor');
-const RelayRecord = require('RelayRecord');
 const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type RelayRecordWriter from 'RelayRecordWriter';
@@ -59,6 +59,7 @@ const {EXISTENT} = RelayRecordState;
 class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   _changeTracker: RelayChangeTracker;
   _forceIndex: number;
+  _fragmentTracker: RelayFragmentTracker;
   _isOptimisticUpdate: boolean;
   _store: RelayRecordStore;
   _queryTracker: RelayQueryTracker;
@@ -70,6 +71,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     writer: RelayRecordWriter,
     queryTracker: RelayQueryTracker,
     changeTracker: RelayChangeTracker,
+    fragmentTracker: RelayFragmentTracker,
     options?: WriterOptions
   ) {
     super();
@@ -79,6 +81,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this._store = store;
     this._queryTracker = queryTracker;
     this._updateTrackedQueries = !!(options && options.updateTrackedQueries);
+    this._fragmentTracker = fragmentTracker;
     this._writer = writer;
   }
 
@@ -185,10 +188,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     if (recordState !== EXISTENT) {
       this.recordCreate(recordID);
     }
-    if (
-      (this.isNewRecord(recordID) || this._updateTrackedQueries) &&
-      (!RelayRecord.isClientID(recordID) || RelayQueryPath.isRootPath(path))
-    ) {
+    if (this.isNewRecord(recordID) || this._updateTrackedQueries) {
       this._queryTracker.trackNodeForID(node, recordID, path);
     }
   }
@@ -230,7 +230,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   ): void {
     const {recordID} = state;
     if (fragment.isDeferred()) {
-      this._writer.setHasFragmentData(
+      this._writer.setHasDeferredFragmentData(
         recordID,
         fragment.getCompositeHash()
       );
@@ -244,10 +244,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       isCompatibleRelayFragmentType(fragment, this._store.getType(recordID))
     ) {
       if (!this._isOptimisticUpdate && fragment.isTrackingEnabled()) {
-        this._writer.setHasFragmentData(
-          recordID,
-          fragment.getCompositeHash()
-        );
+        this._fragmentTracker.track(recordID, fragment.getCompositeHash());
       }
       const path = RelayQueryPath.getPath(state.path, fragment, recordID);
       this.traverse(fragment, {
@@ -383,6 +380,9 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       this.recordUpdate(recordID);
       this.recordCreate(connectionID);
     }
+    if (this.isNewRecord(connectionID) || this._updateTrackedQueries) {
+      this._queryTracker.trackNodeForID(field, connectionID, path);
+    }
 
     // Only create a range if `edges` field is present
     // Overwrite an existing range only if the new force index is greater
@@ -476,8 +476,9 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     const rangeCalls = connection.getCallsWithValues();
     invariant(
       RelayConnectionInterface.hasRangeCalls(rangeCalls),
-      'RelayQueryWriter: Cannot write edges for connection on record ' +
+      'RelayQueryWriter: Cannot write edges for connection `%s` on record ' +
       '`%s` without `first`, `last`, or `find` argument.',
+      connection.getDebugName(),
       connectionID
     );
     const rangeInfo = this._store.getRangeMetadata(

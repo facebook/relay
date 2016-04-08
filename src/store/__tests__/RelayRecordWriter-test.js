@@ -793,11 +793,11 @@ describe('RelayRecordWriter', () => {
     });
   });
 
-  describe('setHasFragmentData()', () => {
+  describe('setHasDeferredFragmentData()', () => {
     it('creates a cache in honor of the first entry', () => {
       const records = {'a': {}};
       const store = new RelayRecordWriter(records, {}, false);
-      store.setHasFragmentData('a', 'fragID');
+      store.setHasDeferredFragmentData('a', 'fragID');
       expect(records.a.hasOwnProperty('__resolvedFragmentMap__')).toBe(true);
     });
 
@@ -807,7 +807,7 @@ describe('RelayRecordWriter', () => {
         'a': {'__resolvedFragmentMap__': resolvedFragmentMap},
       };
       const store = new RelayRecordWriter(records, {}, false);
-      store.setHasFragmentData('a', 'otherFragID');
+      store.setHasDeferredFragmentData('a', 'otherFragID');
       expect(resolvedFragmentMap.hasOwnProperty('otherFragID')).toBe(true);
     });
 
@@ -823,9 +823,9 @@ describe('RelayRecordWriter', () => {
         },
       };
       const store = new RelayRecordWriter(records, {}, false);
-      store.setHasFragmentData('a', 'fragID');
+      store.setHasDeferredFragmentData('a', 'fragID');
       expect(records.a.__resolvedFragmentMapGeneration__).toBe(0);
-      store.setHasFragmentData('b', 'fragID');
+      store.setHasDeferredFragmentData('b', 'fragID');
       expect(records.b.__resolvedFragmentMapGeneration__).toBe(1);
     });
 
@@ -841,9 +841,9 @@ describe('RelayRecordWriter', () => {
         },
       };
       const store = new RelayRecordWriter(records, {}, false);
-      store.setHasFragmentData('a', 'fragID');
+      store.setHasDeferredFragmentData('a', 'fragID');
       expect(records.a.__resolvedFragmentMapGeneration__).toBe(0);
-      store.setHasFragmentData('b', 'fragID');
+      store.setHasDeferredFragmentData('b', 'fragID');
       expect(records.b.__resolvedFragmentMapGeneration__).toBe(1);
     });
   });

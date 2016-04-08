@@ -192,11 +192,11 @@ class RelayRecordStore {
   /**
    * Check whether a given record has received data for a deferred fragment.
    */
-  hasFragmentData(dataID: DataID, fragmentID: string): boolean {
+  hasDeferredFragmentData(dataID: DataID, fragmentID: string): boolean {
     const resolvedFragmentMap = this._getField(dataID, RESOLVED_FRAGMENT_MAP);
     invariant(
       typeof resolvedFragmentMap === 'object' || resolvedFragmentMap == null,
-      'RelayRecordStore.hasFragmentData(): Expected the map of ' +
+      'RelayRecordStore.hasDeferredFragmentData(): Expected the map of ' +
       'resolved deferred fragments associated with record `%s` to be null or ' +
       'an object. Found a(n) `%s`.',
       dataID,

@@ -237,9 +237,8 @@ describe('writeRelayQueryPayload()', () => {
             __dataID__: addressID,
           },
         },
-        [addressID]: {
+        'client:1': {
           __dataID__: addressID,
-          __typename: 'StreetAddress',
           city: 'San Francisco',
         },
       };
@@ -272,6 +271,49 @@ describe('writeRelayQueryPayload()', () => {
       });
       expect(store.getLinkedRecordID('123', 'address')).toBe(addressID);
       expect(store.getField(addressID, 'city')).toBe('San Francisco');
+    });
+
+    it('records an update on the parent if a linked field is created', () => {
+      const records = {
+        'user:1': {
+          __dataID__: 'user:1',
+          'hometown': {
+            __dataID__: 'hometown:1',
+          },
+          id: 'user:1',
+        },
+        'hometown:1': null,
+      };
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      store.removeRecord('hometown:1');
+      const query = getNode(Relay.QL`
+        query {
+          node(id:"user:1") {
+            hometown {
+              name
+            }
+          }
+        }
+      `);
+      const payload = {
+        node: {
+          id: 'user:1',
+          'hometown': {
+            id: 'hometown:1',
+            name: 'World',
+          },
+        },
+      };
+      const results = writePayload(store, writer, query, payload);
+      expect(results).toEqual({
+        created: {
+          'hometown:1': true,
+        },
+        updated: {
+          'user:1': true,
+        },
+      });
     });
 
     it('records the concrete type if `__typename` is present', () => {

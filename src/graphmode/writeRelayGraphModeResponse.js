@@ -270,7 +270,7 @@ class RelayGraphModeWriter {
     fragments: {[fragmentHash: string]: boolean}
   ): void {
     forEachObject(fragments, (_, fragmentHash) => {
-      this._writer.setHasFragmentData(
+      this._writer.setHasDeferredFragmentData(
         dataID,
         fragmentHash
       );

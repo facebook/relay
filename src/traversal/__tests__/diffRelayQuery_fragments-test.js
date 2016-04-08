@@ -19,16 +19,19 @@ jest
 
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayFragmentTracker = require('RelayFragmentTracker');
+const RelayQuery = require('RelayQuery');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
 const diffRelayQuery = require('diffRelayQuery');
+const generateClientEdgeID = require('generateClientEdgeID');
 
 describe('diffRelayQuery - fragments', () => {
   let RelayRecordStore;
   let RelayRecordWriter;
 
-  const {getNode, writePayload} = RelayTestUtils;
+  const {findQueryNode, getNode, writePayload} = RelayTestUtils;
   let HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
 
   const rootCallMap = {
@@ -379,6 +382,7 @@ describe('diffRelayQuery - fragments', () => {
     let store;
     let writer;
     let queryTracker;
+    let fragmentTracker;
 
     function writeEdgesForQuery(edges, query) {
       const payload = {
@@ -397,7 +401,8 @@ describe('diffRelayQuery - fragments', () => {
         writer,
         query,
         payload,
-        queryTracker
+        queryTracker,
+        fragmentTracker
       );
     }
 
@@ -406,6 +411,7 @@ describe('diffRelayQuery - fragments', () => {
       store = new RelayRecordStore({records}, {rootCallMap});
       writer = new RelayRecordWriter(records, rootCallMap, false);
       queryTracker = new RelayQueryTracker();
+      fragmentTracker = new RelayFragmentTracker();
 
       // Load 2 stories without message
       writeEdgesForQuery(
@@ -471,7 +477,8 @@ describe('diffRelayQuery - fragments', () => {
       const diffQueries = diffRelayQuery(
         getNode(feedQuery, {count: 3, after: null}),
         store,
-        queryTracker
+        queryTracker,
+        fragmentTracker,
       );
       expect(diffQueries.length).toBe(2);
       expect(diffQueries[0]).toEqualQueryRoot(
@@ -513,6 +520,10 @@ describe('diffRelayQuery - fragments', () => {
           }
         }
       `);
+      const fragment = findQueryNode(query, node =>
+        node instanceof RelayQuery.Fragment &&
+        node.getType() === 'FriendsEdge'
+      );
       const payload = {
         node: {
           id: '123',
@@ -539,14 +550,21 @@ describe('diffRelayQuery - fragments', () => {
         writer,
         query,
         payload,
-        queryTracker
+        queryTracker,
+        fragmentTracker
       );
+      const connectionID = store.getLinkedRecordID('123', 'friends');
+      const edgeID = generateClientEdgeID(connectionID, 'node1');
+      const fragmentHash = fragment.getCompositeHash();
+      expect(fragment.isTrackingEnabled()).toBe(true);
+      expect(fragmentTracker.isTracked(edgeID, fragmentHash)).toBe(true);
 
       // All fields present, nothing to diff.
       expect(diffRelayQuery(
         query,
         store,
-        queryTracker
+        queryTracker,
+        fragmentTracker,
       ).length).toBe(0);
 
       // Removing a field should not result in a diff query since the edge is
@@ -555,8 +573,19 @@ describe('diffRelayQuery - fragments', () => {
       expect(diffRelayQuery(
         query,
         store,
-        queryTracker
+        queryTracker,
+        fragmentTracker,
       ).length).toBe(0);
+
+      // Untracking the fragment should result in a diff query.
+      fragmentTracker.untrack(edgeID);
+      expect(fragmentTracker.isTracked(edgeID, fragmentHash)).toBe(false);
+      expect(diffRelayQuery(
+        query,
+        store,
+        queryTracker,
+        fragmentTracker,
+      ).length).toBe(1);
     });
   });
 });

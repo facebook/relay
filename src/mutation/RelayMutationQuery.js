@@ -597,12 +597,10 @@ function getConnectionAndValidate(
   parentName: string,
   connectionName: string,
 ): void {
-  if (parentField) {
-    const connections = findDescendantFields(parentField, connectionName);
-    if (connections.length) {
-      // If the first instance of the connection passes validation, all will.
-      validateConnection(parentName, connectionName, connections[0]);
-    }
+  const connections = findDescendantFields(parentField, connectionName);
+  if (connections.length) {
+    // If the first instance of the connection passes validation, all will.
+    validateConnection(parentName, connectionName, connections[0]);
   }
 }
 

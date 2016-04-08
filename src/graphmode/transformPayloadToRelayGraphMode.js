@@ -56,6 +56,9 @@ type PayloadState = {
   path: QueryPath;
   payloadRecord: PayloadRecord;
 };
+/* $FlowIssue(>=0.23.0) #10620219 - After fixing some unsoundness in dictionary
+ * types, we've come to realize we need a safer object supertype than Object.
+ */
 type PayloadRecord = {[storageKey: string]: ?PayloadValue};
 type PayloadScalar = (
   boolean |

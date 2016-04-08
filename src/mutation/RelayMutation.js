@@ -207,9 +207,9 @@ class RelayMutation<Tp: Object> {
   /**
    * These variables form the "input" to the mutation query sent to the server.
    */
-  /* $FlowIssue(>=0.23.0) #10620219 - After fixing some unsoundness in
-   * dictionary types, we've come to realize we need a safer object supertype
-   * than Object. */
+  /* $FlowIssue(>=0.23.0 site=react_native_fb,www) #10620219 - After fixing
+   * some unsoundness in dictionary types, we've come to realize we need a
+   * safer object supertype than Object. */
   getVariables(): {[name: string]: mixed} {
     invariant(
       false,
@@ -237,9 +237,9 @@ class RelayMutation<Tp: Object> {
    * can be a superset of the actual response payload if certain fields that are
    * affected have not been queried by the client, yet.
    */
-  /* $FlowIssue(>=0.23.0) #10620219 - After fixing some unsoundness in
-   * dictionary types, we've come to realize we need a safer object supertype
-   * than Object. */
+  /* $FlowIssue(>=0.23.0 site=react_native_fb,www) #10620219 - After fixing
+   * some unsoundness in dictionary types, we've come to realize we need a
+   * safer object supertype than Object. */
   getOptimisticResponse(): ?{[key: string]: mixed} {
     return null;
   }

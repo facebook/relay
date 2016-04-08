@@ -14,16 +14,16 @@
 'use strict';
 
 const RelayContainer = require('RelayContainer');
+const RelayEnvironment = require('RelayEnvironment');
+const RelayInternals = require('RelayInternals');
 const RelayMutation = require('RelayMutation');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayQL = require('RelayQL');
+const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
+const RelayRenderer = require('RelayRenderer');
 const RelayRootContainer = require('RelayRootContainer');
 const RelayRoute = require('RelayRoute');
 const RelayStore = require('RelayStore');
-const RelayInternals = require('RelayInternals');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayRenderer = require('RelayRenderer');
-const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
 
 const createRelayQuery = require('createRelayQuery');
 const getRelayQueries = require('getRelayQueries');
@@ -38,15 +38,15 @@ if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
  * a React application that uses GraphQL to declare data dependencies.
  */
 const RelayPublic = {
+  Environment: RelayEnvironment,
   Mutation: RelayMutation,
   PropTypes: RelayPropTypes,
   QL: RelayQL,
+  ReadyStateRenderer: RelayReadyStateRenderer,
+  Renderer: RelayRenderer,
   RootContainer: RelayRootContainer,
   Route: RelayRoute,
   Store: RelayStore,
-  Environment: RelayEnvironment,
-  Renderer: RelayRenderer,
-  ReadyStateRenderer: RelayReadyStateRenderer,
 
   createContainer: RelayContainer.create,
   createQuery: createRelayQuery,

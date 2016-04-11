@@ -23,7 +23,7 @@ cell data plan, your phone can't access your computer's local IP address.
 
 #### Android
 
-You need to run `adb reverse tcp:8081 tcp:8081` to forward requests from the
+You need to run `adb reverse tcp:8080 tcp:8080` to forward requests from the
 device to your computer. This works only on Android 5.0 and newer.
 
 #### If all else fails

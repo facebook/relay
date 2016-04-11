@@ -238,7 +238,7 @@
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Forward-pagination-arguments">4.1</a></span>Forward pagination arguments</h3>
       <p>To enable forward pagination, two arguments are required.</p>
       <ul>
-        <li><code>first</code> takes an integer.</li>
+        <li><code>first</code> takes a non&#8208;negative integer.</li>
         <li><code>after</code> takes the <em>cursor type</em> as described in the <code>cursor</code> field section.</li>
       </ul>
       <p>The server should use those two arguments to modify the edges returned by the connection, returning edges after the <code>after</code> cursor, and returning at most <code>first</code> edges.</p>
@@ -247,7 +247,7 @@
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Backward-pagination-arguments">4.2</a></span>Backward pagination arguments</h3>
       <p>To enable backward pagination, two arguments are required.</p>
       <ul>
-        <li><code>last</code> takes an integer.</li>
+        <li><code>last</code> takes a non&#8208;negative integer.</li>
         <li><code>before</code> takes the <em>cursor type</em> as described in the <code>cursor</code> field section.</li>
       </ul>
       <p>The server should use those two arguments to modify the edges returned by the connection, returning edges before the <code>before</code> cursor, and returning at most <code>last</code> edges.</p>
@@ -262,6 +262,11 @@
           <li>Let <var>edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()">ApplyCursorsToEdges</a>(<var>allEdges</var>, <var>before</var>, <var>after</var>)</span>.</li>
           <li>If <var>first</var> is set:
             <ol>
+              <li>If <var>first</var> is less than 0:
+                <ol>
+                  <li>Throw an error.</li>
+                </ol>
+              </li>
               <li>If <var>edges</var> has length greater than than <var>first</var>:
                 <ol>
                   <li>Slice <var>edges</var> to be of length <var>first</var> by removing edges from the end of <var>edges</var>.</li>
@@ -271,6 +276,11 @@
           </li>
           <li>If <var>last</var> is set:
             <ol>
+              <li>If <var>last</var> is less than 0:
+                <ol>
+                  <li>Throw an error.</li>
+                </ol>
+              </li>
               <li>If <var>edges</var> has length greater than than <var>last</var>:
                 <ol>
                   <li>Slice <var>edges</var> to be of length <var>last</var> by removing edges from the start of <var>edges</var>.</li>

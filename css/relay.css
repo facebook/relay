@@ -989,10 +989,14 @@ p + .apiIndex {
     float: none;
   }
   .marketing-col {
-    margin-left: 0;
     float: none;
     margin-bottom: 30px;
     text-align: center;
+  }
+  .marketing-col,
+  .marketing-col:first-child {
+    margin-left: auto;
+    margin-right: auto;
   }
   .home-section, .marketing-row {
     margin: 0;
@@ -1033,6 +1037,29 @@ p + .apiIndex {
   }
   ol {
     margin: 0;
+  }
+}
+
+@media only screen and (max-device-width: 460px) {
+  .nav-main {
+    position: static;
+    height: auto;
+    text-align: center;
+  }
+
+  .nav-main .nav-site {
+    float: none;
+    display: table;
+  }
+
+  .nav-main .nav-site li {
+    display: table-cell;
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  .buttons-unit .button {
+    margin-bottom: 10px;
   }
 }
 

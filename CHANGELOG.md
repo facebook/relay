@@ -1,12 +1,59 @@
 ## master
 
-## Unreleased
+## 0.8.0 (April 11, 2016)
 
+* Added a React Native / Relay TodoMVC example app.
+* You can now render multiple Relay apps at once, each with their own store.
+  The following APIs are early versions and are as of yet undocumented so please
+  use them with caution.
+  * Added `Relay.Environment`. `Relay.Store` is now simply a global instance of
+    `RelayEnvironment`. To create your own isolated store and network subsystem,
+    create a `new RelayEnvironment()` and make use of it wherever `environment`
+    is required.
+  * Use `Relay.Environment#injectNetworkLayer` to inject a custom network layer
+    for use within the context of a particular `Relay.Environment` instance.
+  * Added `Relay.ReadyStateRenderer`. This component takes in an instance of
+    `Relay.Environment`, a `queryConfig` that conforms to the
+    `RelayQueryConfigInterface`, and a Relay `container`. It renders
+    synchronously based on the supplied `readyState`. This primitive enables you
+    to create alternatives to `Relay.Renderer` that fetch and handle data in a
+    custom way (eg. for server rendered applications).
+  * Added `Relay.Renderer` &ndash; a replacement for `Relay.RootContainer` that
+    composes a `Relay.ReadyStateRenderer` and performs data fetching.
+    `Relay.RootContainer` is now a wrapper around `Relay.Renderer` that
+    substitutes `Relay.Store` for `environment`.
 * Renamed the Flow type `RelayRendererRenderCallback` to `RelayRenderCallback`.
 * Renamed the Flow type `RelayQueryConfigSpec` to `RelayQueryConfigInterface`.
 * `RelayContainer.setVariables` will no longer check if the variables are
-  changed before rerunning the variables. To prevent extra work, check the
+  changed before re-running the variables. To prevent extra work, check the
   current variables before calling `setVariables`.
+* You can now roll back mutations in the `COMMIT_QUEUED` state using
+  `RelayMutationTransaction#rollback`.
+* When specifying a `NODE_DELETE` or `RANGE_DELETE` mutation config, you can
+  omit `parentID` if your parent, in fact, does not have an ID.
+* In cases where you query for a field, but that field is unset in the response,
+  Relay will now write `null` into the store for that field. This allows you to
+  return smaller payloads over the wire by simply omitting a key in the JSON
+  response, rather than to write an explicit `fieldName: null`.
+* If the `relay` prop does not change between renders, we now recycle the same
+  object. This should enable you to make an efficient `this.props.relay ===
+  nextProps.relay` comparison in `shouldComponentUpdate`.
+* You can now craft a connection query having invalid combinations of connection
+  arguments (first/last/after/before) so long as the values of those arguments
+  are variables and not concrete values (eg. `friends(first: $first, last:
+  $last)` will no longer cause the Relay Babel plugin to throw).
+* Added runtime validation to mutation configs to help developers to debug their
+  `Relay.Mutation`.
+* Added `RelayNetworkDebug`. Invoke
+  `require('RelayNetworkDebug').init(Relay.DefaultNetworkLayer)` to enjoy simple
+  to read logs of your network requests and responses on the console. Substitute
+  your own network layer if you use one.
+* Added two new `rangeBehaviors`:
+  * `IGNORE` means the range should not be refetched at all.
+  * `REFETCH` will refetch the entire connection.
+* Connection diff optimization: Enables a mode where Relay skips diffing
+  information about edges that have already been fetched. This can be enabled by
+  adding `@relay(variables: ['variableNames'])` to a connection fragment.
 
 ## 0.7.3 (March 4, 2016)
 

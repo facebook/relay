@@ -150,7 +150,6 @@ class RelayMutationQueue {
       (transactionBuilder: any)(id, mutationTransaction);
     this._pendingTransactionMap[id] = transaction;
     this._queue.push(transaction);
-    this._handleOptimisticUpdate(transaction);
     return mutationTransaction;
   }
 
@@ -417,7 +416,7 @@ class RelayPendingTransaction {
     this.mutationTransaction = transactionData.mutationTransaction;
     this.onFailure = transactionData.onFailure;
     this.onSuccess = transactionData.onSuccess;
-    this.status = RelayMutationTransactionStatus.UNCOMMITTED;
+    this.status = RelayMutationTransactionStatus.CREATED;
   }
 
   getCallName(): string {

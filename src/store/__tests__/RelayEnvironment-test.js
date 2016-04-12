@@ -21,10 +21,13 @@ const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayMutation = require('RelayMutation');
 const RelayMutationTransaction = require('RelayMutationTransaction');
+const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 const RelayMutationQueue = require('RelayMutationQueue');
 const RelayTestUtils = require('RelayTestUtils');
 
 const readRelayQueryData = require('readRelayQueryData');
+
+const {CREATED} = RelayMutationTransactionStatus;
 
 describe('RelayEnvironment', () => {
   let environment;
@@ -168,10 +171,18 @@ describe('RelayEnvironment', () => {
   });
 
   describe('update functions', () => {
-    let mockMutation, createTransactionMock, mockTransaction, mockCallbacks;
+    let createTransactionMock;
+    let mockCallbacks;
+    let mockMutation;
+    let mockQueue;
+    let mockTransaction;
 
     beforeEach(() => {
-      mockTransaction = new RelayMutationTransaction();
+      mockQueue = {
+        applyOptimistic: () => {},
+        getStatus: jest.fn(() => CREATED),
+      };
+      mockTransaction = new RelayMutationTransaction(mockQueue);
       mockTransaction.commit = jest.genMockFunction();
       createTransactionMock = jest.genMockFunction();
       createTransactionMock.mockReturnValue(mockTransaction);
@@ -180,7 +191,7 @@ describe('RelayEnvironment', () => {
       mockCallbacks = jest.genMockFunction();
     });
 
-    describe('applyUpdate', () => {
+    describe('applyUpdate()', () => {
       it('binds environment to mutation before creating transaction', () => {
         mockMutation.bindEnvironment.mockImplementation(() => {
           expect(createTransactionMock).not.toBeCalled();
@@ -202,7 +213,7 @@ describe('RelayEnvironment', () => {
       });
     });
 
-    describe('commitUpdate', () => {
+    describe('commitUpdate()', () => {
       it('binds environment to mutation before creating transaction', () => {
         mockMutation.bindEnvironment.mockImplementation(() => {
           expect(createTransactionMock).not.toBeCalled();

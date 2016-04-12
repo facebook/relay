@@ -19,6 +19,14 @@ const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus')
 
 const invariant = require('invariant');
 
+const {
+  COLLISION_COMMIT_FAILED,
+  COMMIT_FAILED,
+  COMMIT_QUEUED,
+  CREATED,
+  UNCOMMITTED,
+} = RelayMutationTransactionStatus;
+
 /**
  * @internal
  */
@@ -31,35 +39,46 @@ class RelayMutationTransaction {
     this._mutationQueue = mutationQueue;
   }
 
-  applyOptimistic(): void {
+  /**
+   * Applies the transaction to the local store (ie. as an optimistic update).
+   *
+   * Returns itself so as to provide a "fluent interface".
+   */
+  applyOptimistic(): RelayMutationTransaction {
     const status = this.getStatus();
     invariant(
-      status === RelayMutationTransactionStatus.CREATED,
+      status === CREATED,
       'RelayMutationTransaction: Only transactions with status `CREATED` ' +
       'can be applied.'
     );
 
     this._mutationQueue.applyOptimistic(this._id);
+    return this;
   }
 
-  commit(): void {
+  /**
+   * Commits the transaction (ie. performs a server update).
+   *
+   * Returns itself so as to provide a "fluent interface".
+   */
+  commit(): RelayMutationTransaction {
     const status = this.getStatus();
     invariant(
-      status === RelayMutationTransactionStatus.CREATED ||
-      status === RelayMutationTransactionStatus.UNCOMMITTED,
+      status === CREATED || status === UNCOMMITTED,
       'RelayMutationTransaction: Only transactions with status `CREATED` or ' +
       '`UNCOMMITTED` can be committed.'
     );
 
     this._mutationQueue.commit(this._id);
+    return this;
   }
 
   recommit(): void {
     const status = this.getStatus();
     invariant(
-      status === RelayMutationTransactionStatus.CREATED ||
-      status === RelayMutationTransactionStatus.COMMIT_FAILED ||
-      status === RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED,
+      status === COLLISION_COMMIT_FAILED ||
+      status === COMMIT_FAILED ||
+      status === CREATED,
       'RelayMutationTransaction: Only transaction with status ' +
       '`CREATED`, `COMMIT_FAILED`, or `COLLISION_COMMIT_FAILED` can be ' +
       'recomitted.'
@@ -71,11 +90,11 @@ class RelayMutationTransaction {
   rollback(): void {
     const status = this.getStatus();
     invariant(
-      status === RelayMutationTransactionStatus.CREATED ||
-      status === RelayMutationTransactionStatus.UNCOMMITTED ||
-      status === RelayMutationTransactionStatus.COMMIT_FAILED ||
-      status === RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED ||
-      status === RelayMutationTransactionStatus.COMMIT_QUEUED,
+      status === COLLISION_COMMIT_FAILED ||
+      status === COMMIT_FAILED ||
+      status === COMMIT_QUEUED ||
+      status === CREATED ||
+      status === UNCOMMITTED,
       'RelayMutationTransaction: Only transactions with status `CREATED`, ' +
       '`UNCOMMITTED`, `COMMIT_FAILED`, `COLLISION_COMMIT_FAILED`, or ' +
       '`COMMIT_QUEUED` can be rolled back.'

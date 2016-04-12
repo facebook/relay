@@ -217,10 +217,9 @@ class RelayEnvironment {
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
     mutation.bindEnvironment(this);
-    return this._storeData.getMutationQueue().createTransaction(
-      mutation,
-      callbacks
-    );
+    return this._storeData.getMutationQueue()
+      .createTransaction(mutation, callbacks)
+      .applyOptimistic();
   }
 
   /**
@@ -231,9 +230,9 @@ class RelayEnvironment {
     mutation: RelayMutation,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
-    const transaction = this.applyUpdate(mutation, callbacks);
-    transaction.commit();
-    return transaction;
+    return this
+      .applyUpdate(mutation, callbacks)
+      .commit();
   }
 
   /**

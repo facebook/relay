@@ -103,7 +103,7 @@ class RelayMutationQueue {
     mutation: RelayMutation,
     callbacks: ?RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
-    const id = base62(transactionIDCounter++);
+    const id = getNextID();
     const mutationTransaction = new RelayMutationTransaction(this, id);
     const transaction = new RelayPendingTransaction({
       id,
@@ -183,7 +183,7 @@ class RelayMutationQueue {
   createLegacyMutationTransaction(
     transaction: PendingTransaction
   ): RelayMutationTransaction {
-    const {id} = transaction;
+    const id = getNextID();
     const mutationTransaction = new RelayMutationTransaction(this, id);
     this._pendingTransactionMap[id] = transaction;
     this._queue.push(transaction);
@@ -548,6 +548,10 @@ class RelayPendingTransaction {
     }
     return this._query;
   }
+}
+
+function getNextID(): string {
+  return base62(transactionIDCounter++);
 }
 
 module.exports = RelayMutationQueue;

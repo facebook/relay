@@ -95,6 +95,10 @@ class RelayMutationTransaction {
   getHash(): string {
     return `${this._id}:${this.getStatus()}`;
   }
+
+  getID(): ClientMutationID {
+    return this._id;
+  }
 }
 
 module.exports = RelayMutationTransaction;

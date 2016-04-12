@@ -45,7 +45,7 @@ describe('RelayMutationQueue', () => {
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
-  describe('constructor', () => {
+  describe('createTransaction()', () => {
     let mockMutation, mutationNode, fatQuery;
 
     beforeEach(() => {
@@ -133,6 +133,16 @@ describe('RelayMutationQueue', () => {
         {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
         {configs: 'configs', isOptimisticUpdate: true},
       ]]);
+    });
+  });
+
+  describe('createTransactionWithPendingTransaction()', () => {
+    it('complains if not passed a pending transaction or builder', () => {
+      expect(() => mutationQueue.createTransactionWithPendingTransaction())
+        .toFailInvariant(
+          'RelayMutationQueue: `createTransactionWithPendingTransaction()` ' +
+          'expects a PendingTransaction or TransactionBuilder.'
+        );
     });
   });
 

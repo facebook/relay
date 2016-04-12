@@ -721,13 +721,13 @@ describe('RelayRecordStore', () => {
     });
   });
 
-  describe('hasDeferredFragmentData()', () => {
+  describe('hasFragmentData()', () => {
     it('returns true when a fragment has been marked as resolved', () => {
       const records = {
         'a': {'__resolvedFragmentMap__': {'fragID': true}},
       };
       const store = new RelayRecordStore({records});
-      expect(store.hasDeferredFragmentData('a', 'fragID')).toBe(true);
+      expect(store.hasFragmentData('a', 'fragID')).toBe(true);
     });
 
     it('returns false when a fragment has not been marked as resolved', () => {
@@ -738,8 +738,8 @@ describe('RelayRecordStore', () => {
         'b': {'__resolvedFragmentMap__': {'otherFragID': true}},
       };
       const store = new RelayRecordStore({records});
-      expect(store.hasDeferredFragmentData('a', 'fragID')).toBe(false);
-      expect(store.hasDeferredFragmentData('b', 'fragID')).toBe(false);
+      expect(store.hasFragmentData('a', 'fragID')).toBe(false);
+      expect(store.hasFragmentData('b', 'fragID')).toBe(false);
     });
   });
 });

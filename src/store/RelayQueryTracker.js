@@ -17,10 +17,6 @@ import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 import type {QueryPath} from 'RelayQueryPath';
-const RelayQueryPath = require('RelayQueryPath');
-const RelayRecord = require('RelayRecord');
-
-const invariant = require('invariant');
 
 const TYPE = '__type__';
 
@@ -39,19 +35,6 @@ class RelayQueryTracker {
     dataID: DataID,
     path: ?QueryPath
   ): void {
-    // Non-refetchable nodes are tracked via their nearest-refetchable parent
-    // (except for root call nodes)
-    if (RelayRecord.isClientID(dataID)) {
-      invariant(
-        path,
-        'RelayQueryTracker.trackNodeForID(): Expected `path` for client ID, ' +
-        '`%s`.',
-        dataID
-      );
-      if (!RelayQueryPath.isRootPath(path)) {
-        return;
-      }
-    }
     // Don't track `__type__` fields
     if (node instanceof RelayQuery.Field && node.getSchemaName() === TYPE) {
       return;

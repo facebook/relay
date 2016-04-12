@@ -14,7 +14,6 @@
 'use strict';
 
 const RelayConnectionInterface = require('RelayConnectionInterface');
-import type RelayFragmentTracker from 'RelayFragmentTracker';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
@@ -78,16 +77,14 @@ type DiffOutput = {
 function diffRelayQuery(
   root: RelayQuery.Root,
   store: RelayRecordStore,
-  queryTracker: RelayQueryTracker,
-  fragmentTracker: RelayFragmentTracker,
+  queryTracker: RelayQueryTracker
 ): Array<RelayQuery.Root> {
   const path = RelayQueryPath.create(root);
   const queries = [];
 
   const visitor = new RelayDiffQueryBuilder(
     store,
-    queryTracker,
-    fragmentTracker
+    queryTracker
   );
   const rootIdentifyingArg = root.getIdentifyingArg();
   const rootIdentifyingArgValue =
@@ -174,17 +171,14 @@ class RelayDiffQueryBuilder {
   _store: RelayRecordStore;
   _splitQueries: Array<RelayQuery.Root>;
   _queryTracker: RelayQueryTracker;
-  _fragmentTracker: RelayFragmentTracker;
 
   constructor(
     store: RelayRecordStore,
-    queryTracker: RelayQueryTracker,
-    fragmentTracker: RelayFragmentTracker,
+    queryTracker: RelayQueryTracker
   ) {
     this._store = store;
     this._splitQueries = [];
     this._queryTracker = queryTracker;
-    this._fragmentTracker = fragmentTracker;
   }
 
   splitQuery(
@@ -342,7 +336,7 @@ class RelayDiffQueryBuilder {
         if (isCompatibleType) {
           if (child.isTrackingEnabled()) {
             const hash = child.getCompositeHash();
-            if (this._fragmentTracker.isTracked(scope.dataID, hash)) {
+            if (this._store.hasFragmentData(scope.dataID, hash)) {
               return {
                 diffNode: null,
                 trackedNode: null,

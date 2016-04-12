@@ -197,11 +197,11 @@ class RelayRecordWriter {
   /**
    * Check whether a given record has received data for a deferred fragment.
    */
-  hasDeferredFragmentData(dataID: DataID, fragmentID: string): boolean {
+  hasFragmentData(dataID: DataID, fragmentID: string): boolean {
     const resolvedFragmentMap = this._getField(dataID, RESOLVED_FRAGMENT_MAP);
     invariant(
       typeof resolvedFragmentMap === 'object' || resolvedFragmentMap == null,
-      'RelayRecordWriter.hasDeferredFragmentData(): Expected the map of ' +
+      'RelayRecordWriter.hasFragmentData(): Expected the map of ' +
       'resolved deferred fragments associated with record `%s` to be null or ' +
       'an object. Found a(n) `%s`.',
       dataID,
@@ -217,10 +217,28 @@ class RelayRecordWriter {
     dataID: DataID,
     fragmentID: string
   ): void {
+    this._setHasFragmentData(dataID, fragmentID, true);
+  }
+
+  /**
+   * Mark a given record as having received data for a fragment.
+   */
+  setHasFragmentData(
+    dataID: DataID,
+    fragmentID: string
+  ): void {
+    this._setHasFragmentData(dataID, fragmentID, false);
+  }
+
+  _setHasFragmentData(
+    dataID: DataID,
+    fragmentID: string,
+    updateFragmentGeneration: boolean
+  ): void {
     const record = this._getRecordForWrite(dataID);
     invariant(
       record,
-      'RelayRecordWriter.setHasDeferredFragmentData(): Expected record `%s` ' +
+      'RelayRecordWriter.setHasFragmentData(): Expected record `%s` ' +
       'to exist before marking it as having received data for the deferred ' +
       'fragment with id `%s`.',
       dataID,
@@ -232,10 +250,12 @@ class RelayRecordWriter {
     }
     resolvedFragmentMap[fragmentID] = true;
     record[RESOLVED_FRAGMENT_MAP] = resolvedFragmentMap;
-    if (typeof record[RESOLVED_FRAGMENT_MAP_GENERATION] === 'number') {
-      record[RESOLVED_FRAGMENT_MAP_GENERATION]++;
-    } else {
-      record[RESOLVED_FRAGMENT_MAP_GENERATION] = 0;
+    if (updateFragmentGeneration) {
+      if (typeof record[RESOLVED_FRAGMENT_MAP_GENERATION] === 'number') {
+        record[RESOLVED_FRAGMENT_MAP_GENERATION]++;
+      } else {
+        record[RESOLVED_FRAGMENT_MAP_GENERATION] = 0;
+      }
     }
   }
 

@@ -18,7 +18,6 @@ jest
   .dontMock('GraphQLSegment');
 
 const Relay = require('Relay');
-const RelayFragmentTracker = require('RelayFragmentTracker');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
@@ -155,7 +154,7 @@ describe('writePayload()', () => {
       writePayload(store, writer, query, payload);
 
       // linked nodes use a minimal path from the nearest refetchable node
-      const addressID = 'client:2';  // The generated id *after* viewer
+      const addressID = store.getLinkedRecordID('123', 'address');
       const pathQuery = getNode(Relay.QL`
         query {
           node(id:"123") {
@@ -403,15 +402,11 @@ describe('writePayload()', () => {
           __typename: 'User',
         },
       };
-      const addressID = 'client:1';
-      const addressFragment = getNode(fragment).getChildren()[0];
       writePayload(store, writer, query, payload, tracker);
       const trackedQueries = tracker.trackNodeForID.mock.calls;
-      expect(trackedQueries.length).toBe(3);
-      expect(trackedQueries[1][1]).toBe(addressID);
-      expect(trackedQueries[1][0]).toEqualQueryNode(addressFragment);
-      expect(trackedQueries[2][1]).toBe(addressID);
-      expect(trackedQueries[2][0]).toEqualQueryNode(addressFragment);
+      expect(trackedQueries.length).toBe(1);
+      expect(trackedQueries[0][1]).toBe('123');
+      expect(trackedQueries[0][0]).toEqualQueryNode(query);
     });
 
     it('tracks new linked records', () => {
@@ -460,42 +455,39 @@ describe('writePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            allPhones {
-              isVerified,
-              phoneNumber {
-                displayNumber,
-                countryCode,
-              },
-            },
+            actors {
+              name
+            }
           }
         }
       `);
-      const phone = {
-        isVerified: true,
-        phoneNumber: {
-          displayNumber: '1-800-555-1212', // directory assistance
-          countryCode: '1',
-        },
-      };
       const payload = {
         node: {
           __typename: 'User',
           id: '123',
-          allPhones: [phone],
+          actors: [
+            {
+              id: '456',
+              name: 'Alice',
+            },
+            {
+              id: '789',
+              name: 'Bob',
+            },
+          ],
         },
       };
       const tracker = new RelayQueryTracker();
       writePayload(store, writer, query, payload, tracker);
       const trackedQueries = tracker.trackNodeForID.mock.calls;
-      // creates `allPhones` record and linked `phoneNumber` field
       expect(trackedQueries.length).toBe(2);
-      expect(trackedQueries[0][1]).toBe('client:1');
+      expect(trackedQueries[0][1]).toBe('456');
       expect(trackedQueries[0][0]).toEqualQueryNode(
-        getField(query, 'allPhones')
+        getField(query, 'actors')
       );
-      expect(trackedQueries[1][1]).toBe('client:2');
+      expect(trackedQueries[1][1]).toBe('789');
       expect(trackedQueries[1][0]).toEqualQueryNode(
-        getField(query, 'allPhones', 'phoneNumber')
+        getField(query, 'actors')
       );
     });
 
@@ -541,20 +533,10 @@ describe('writePayload()', () => {
       const tracker = new RelayQueryTracker();
       writePayload(store, writer, query, payload, tracker);
       const trackedQueries = tracker.trackNodeForID.mock.calls;
-      expect(trackedQueries.length).toBe(3);
-      // track range node
-      expect(trackedQueries[0][1]).toBe('client:1');
+      expect(trackedQueries.length).toBe(1);
+      // track edges.node
+      expect(trackedQueries[0][1]).toBe('456');
       expect(trackedQueries[0][0]).toEqualQueryNode(
-        getField(query, 'friends')
-      );
-      // track first edge
-      expect(trackedQueries[1][1]).toBe('client:client:1:456');
-      expect(trackedQueries[1][0]).toEqualQueryNode(
-        getField(query, 'friends', 'edges')
-      );
-      // track node
-      expect(trackedQueries[2][1]).toBe('456');
-      expect(trackedQueries[2][0]).toEqualQueryNode(
         getField(query, 'friends', 'edges', 'node')
       );
     });
@@ -601,7 +583,7 @@ describe('writePayload()', () => {
       };
       let tracker = new RelayQueryTracker();
       writePayload(store, writer, query, payload, tracker);
-      expect(tracker.trackNodeForID.mock.calls.length).toBe(3);
+      expect(tracker.trackNodeForID.mock.calls.length).toBe(1);
 
       // write an additional node and verify only the new edge and node are
       // tracked
@@ -638,15 +620,10 @@ describe('writePayload()', () => {
       tracker.trackNodeForID.mockClear();
       writePayload(store, writer, query, payload, tracker);
       const trackedQueries = tracker.trackNodeForID.mock.calls;
-      expect(trackedQueries.length).toBe(2);
-      // track new edge
-      expect(trackedQueries[0][1]).toBe('client:client:1:789');
+      expect(trackedQueries.length).toBe(1);
+      // track new node
+      expect(trackedQueries[0][1]).toBe('789');
       expect(trackedQueries[0][0]).toEqualQueryNode(
-        getField(query, 'friends', 'edges')
-      );
-      // track node
-      expect(trackedQueries[1][1]).toBe('789');
-      expect(trackedQueries[1][0]).toEqualQueryNode(
         getField(query, 'friends', 'edges', 'node')
       );
     });
@@ -654,7 +631,6 @@ describe('writePayload()', () => {
     it('re-tracks all nodes if `updateTrackedQueries` is enabled', () => {
       const records = {};
       const store = new RelayRecordStore({records});
-      const fragmentTracker = new RelayFragmentTracker();
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(Relay.QL`
         query {
@@ -708,11 +684,12 @@ describe('writePayload()', () => {
         writer,
         query,
         payload,
-        queryTracker,
-        fragmentTracker
+        queryTracker
       );
       const prevTracked = queryTracker.trackNodeForID.mock.calls.slice();
-      expect(prevTracked.length).toBe(6);
+      expect(prevTracked.length).toBe(2);
+      expect(prevTracked[0][1]).toBe('123'); // root
+      expect(prevTracked[1][1]).toBe('456'); // friends.edges.node
 
       // rewriting the same payload by default does not track anything
       queryTracker = new RelayQueryTracker();
@@ -722,8 +699,7 @@ describe('writePayload()', () => {
         writer,
         query,
         payload,
-        queryTracker,
-        fragmentTracker
+        queryTracker
       );
       expect(queryTracker.trackNodeForID.mock.calls.length).toBe(0);
 
@@ -736,7 +712,6 @@ describe('writePayload()', () => {
         query,
         payload,
         queryTracker,
-        fragmentTracker,
         {updateTrackedQueries: true}
       );
       const nextTracked = queryTracker.trackNodeForID.mock.calls;

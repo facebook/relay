@@ -126,38 +126,6 @@ describe('RelayQueryTracker', () => {
     });
   });
 
-  it('does not track queries for non-refetchable records', () => {
-    const query = getNode(Relay.QL`
-      query {
-        viewer {
-          actor {
-            address {
-              city
-            }
-          }
-        }
-      }
-    `);
-    const address =
-      query.getFieldByStorageKey('actor').getFieldByStorageKey('address');
-    const actorID = '123';
-    const addressID = 'client:1';
-    const path = RelayQueryPath.getPath(
-      RelayQueryPath.getPath(
-        RelayQueryPath.create(query),
-        getField(query, 'actor'),
-        actorID
-      ),
-      getField(query, 'actor', 'address'),
-      addressID
-    );
-    const tracker = new RelayQueryTracker();
-
-    tracker.trackNodeForID(address, addressID, path);
-    const trackedChildren = tracker.getTrackedChildrenForID(addressID);
-    expect(trackedChildren.length).toBe(0);
-  });
-
   it('untracks all nodes for the given dataID', () => {
     const query = getNode(Relay.QL`
       query {

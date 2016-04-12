@@ -61,13 +61,13 @@ class MockRelayEnvironment extends RelayEnvironment {
       );
     }
 
-    this.primeCache = jest.genMockFunction();
+    this.primeCache = jest.fn();
     this.primeCache.mock.abort = [];
     this.primeCache.mock.requests = [];
     this.primeCache.mockImplementation((...args) => {
       const request = genMockRequest(args);
       const returnValue = {
-        abort: jest.genMockFunction().mockImplementation(() => {
+        abort: jest.fn(() => {
           resolveImmediate(request.abort);
         }),
       };
@@ -76,13 +76,13 @@ class MockRelayEnvironment extends RelayEnvironment {
       return returnValue;
     });
 
-    this.forceFetch = jest.genMockFunction();
+    this.forceFetch = jest.fn();
     this.forceFetch.mock.abort = [];
     this.forceFetch.mock.requests = [];
     this.forceFetch.mockImplementation((...args) => {
       const request = genMockRequest(args);
       const returnValue = {
-        abort: jest.genMockFunction().mockImplementation(() => {
+        abort: jest.fn(() => {
           resolveImmediate(request.abort);
         }),
       };

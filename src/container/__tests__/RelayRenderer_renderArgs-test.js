@@ -42,7 +42,7 @@ describe('RelayRenderer.renderArgs', () => {
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
 
-    render = jest.genMockFunction();
+    render = jest.fn();
     ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}

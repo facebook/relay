@@ -48,7 +48,7 @@ describe('RelayEnvironment', () => {
     filter = () => true;
     dataIDs = ['feedback_id', 'likers_id'];
     queries = {};
-    callback = jest.genMockFunction();
+    callback = jest.fn();
     queryRunner = environment.getStoreData().getQueryRunner();
     recordWriter = environment.getStoreData().getRecordWriter();
   });
@@ -160,7 +160,7 @@ describe('RelayEnvironment', () => {
       );
 
       const observer = environment.observe(fragment, '123');
-      const onNext = jest.genMockFunction();
+      const onNext = jest.fn();
       expect(observer instanceof RelayQueryResultObservable).toBe(true);
       observer.subscribe({onNext});
       expect(onNext).toBeCalledWith({
@@ -183,12 +183,12 @@ describe('RelayEnvironment', () => {
         getStatus: jest.fn(() => CREATED),
       };
       mockTransaction = new RelayMutationTransaction(mockQueue);
-      mockTransaction.commit = jest.genMockFunction();
-      createTransactionMock = jest.genMockFunction();
+      mockTransaction.commit = jest.fn();
+      createTransactionMock = jest.fn();
       createTransactionMock.mockReturnValue(mockTransaction);
       RelayMutationQueue.prototype.createTransaction = createTransactionMock;
       mockMutation = new RelayMutation();
-      mockCallbacks = jest.genMockFunction();
+      mockCallbacks = jest.fn();
     });
 
     describe('applyUpdate()', () => {

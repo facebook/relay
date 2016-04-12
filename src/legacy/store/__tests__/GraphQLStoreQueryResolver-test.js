@@ -53,7 +53,7 @@ describe('GraphQLStoreQueryResolver', () => {
     changeEmitter = storeData.getChangeEmitter();
 
     dataID = '1038750002';
-    mockCallback = jest.genMockFunction();
+    mockCallback = jest.fn();
     mockQueryFragment = getNode(Relay.QL`fragment on Node{id,name}`);
     mockPluralQueryFragment = getNode(Relay.QL`
       fragment on Node @relay(plural:true) {
@@ -161,7 +161,7 @@ describe('GraphQLStoreQueryResolver', () => {
 
     require('GraphQLStoreRangeUtils').getCanonicalClientID =
       // The canonical ID of a range customarily excludes the calls
-      jest.genMockFunction().mockReturnValue('client:123');
+      jest.fn(() => 'client:123');
 
     resolver.resolve(mockQueryFragment, dataIDA);
     resolver.resolve(mockQueryFragment, dataIDB);
@@ -347,7 +347,7 @@ describe('GraphQLStoreQueryResolver', () => {
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
         fragment,
-        jest.genMockFunction()
+        jest.fn()
       );
       // read data and set up subscriptions
       queryResolver.resolve(fragment, dataID);
@@ -366,7 +366,7 @@ describe('GraphQLStoreQueryResolver', () => {
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
         fragment,
-        jest.genMockFunction()
+        jest.fn()
       );
       // read data and increment GC ref counts
       queryResolver.resolve(fragment, dataID);
@@ -396,7 +396,7 @@ describe('GraphQLStoreQueryResolver', () => {
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
         fragment,
-        jest.genMockFunction()
+        jest.fn()
       );
       // read data and increment GC ref counts
       queryResolver.resolve(fragment, dataID);

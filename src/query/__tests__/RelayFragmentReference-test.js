@@ -120,7 +120,7 @@ describe('RelayFragmentReference', () => {
 
   it('processes variables using the route', () => {
     const node = Relay.QL`fragment on Node{id}`;
-    const prepareVariables = jest.genMockFunction();
+    const prepareVariables = jest.fn();
     const reference = new RelayFragmentReference(
       () => node,
       {

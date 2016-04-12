@@ -55,7 +55,7 @@ GraphQLQueryRunner.mockImplementation(function() {
   this.run.mockImplementation((...args) => {
     const request = genMockRequest(args);
     const returnValue = {
-      abort: jest.genMockFunction().mockImplementation(() => {
+      abort: jest.fn(() => {
         resolveImmediate(request.abort);
       }),
     };
@@ -69,7 +69,7 @@ GraphQLQueryRunner.mockImplementation(function() {
   this.forceFetch.mockImplementation((...args) => {
     const request = genMockRequest(args);
     const returnValue = {
-      abort: jest.genMockFunction().mockImplementation(() => {
+      abort: jest.fn(() => {
         resolveImmediate(request.abort);
       }),
     };

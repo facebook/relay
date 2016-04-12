@@ -95,7 +95,7 @@ describe('RelayRoute', () => {
   it('allows params to be processed if `prepareParams` is defined', () => {
     const MockRoute = makeRoute();
     MockRoute.prepareParams =
-      jest.genMockFunction().mockReturnValue({required: 'bar'});
+      jest.fn(() => ({required: 'bar'}));
     const route = new MockRoute({required: 'foo'});
     expect(MockRoute.prepareParams).toBeCalledWith({required: 'foo'});
     expect(route.params.required).toEqual('bar');
@@ -138,7 +138,7 @@ describe('RelayRoute', () => {
   });
 
   it('uses the injection only if the URI is not already passed in', () => {
-    const mockCallback = jest.genMockFunction();
+    const mockCallback = jest.fn();
     RelayRoute.injectURICreator(mockCallback);
     const MockRoute = makeRoute();
     const uri = '/foo/bar';

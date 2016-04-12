@@ -16,7 +16,7 @@ Object.getOwnPropertyNames(GraphQLStoreRangeUtils.prototype).forEach(name => {
   const property = GraphQLStoreRangeUtils.prototype[name];
   if (typeof property === 'function') {
     GraphQLStoreRangeUtils.prototype[name] =
-      jest.genMockFunction().mockImplementation(property);
+      jest.fn(property);
   }
 });
 

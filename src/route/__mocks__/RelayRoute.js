@@ -13,14 +13,14 @@
 
 const RelayRoute = require.requireActual('RelayRoute');
 
-RelayRoute.genMock = jest.genMockFunction().mockImplementation(() => {
+RelayRoute.genMock = jest.fn(() => {
   class MockRoute extends RelayRoute {}
   MockRoute.routeName = 'MockRoute';
   MockRoute.path = '/jest';
   return MockRoute;
 });
 
-RelayRoute.genMockInstance = jest.genMockFunction().mockImplementation(
+RelayRoute.genMockInstance = jest.fn(
   () => new (RelayRoute.genMock())()
 );
 

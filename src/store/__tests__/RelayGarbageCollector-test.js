@@ -284,7 +284,7 @@ describe('RelayGarbageCollector', () => {
       const records = {
         a: {__dataID__: 'a'},
       };
-      const scheduler = jest.genMockFunction();
+      const scheduler = jest.fn();
       const {garbageCollector} = createGC(records, scheduler);
       garbageCollector.register('a');
       garbageCollector.incrementReferenceCount('a');
@@ -296,7 +296,7 @@ describe('RelayGarbageCollector', () => {
       const records = {
         a: {__dataID__: 'a'},
       };
-      const scheduler = jest.genMockFunction();
+      const scheduler = jest.fn();
       const {garbageCollector} = createGC(records, scheduler);
       garbageCollector.register('a');
 
@@ -360,7 +360,7 @@ describe('RelayGarbageCollector', () => {
         b: {__dataID__: 'b'},
       };
       let run = null;
-      const scheduler = jest.genMockFunction().mockImplementation(_run => {
+      const scheduler = jest.fn(_run => {
         run = _run;
       });
       const {garbageCollector} = createGC(records, scheduler);

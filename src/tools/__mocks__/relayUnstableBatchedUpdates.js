@@ -12,6 +12,6 @@
 const relayUnstableBatchedUpdates =
   require.requireActual('relayUnstableBatchedUpdates');
 
-module.exports = jest.genMockFunction().mockImplementation(
+module.exports = jest.fn(
   relayUnstableBatchedUpdates
 );

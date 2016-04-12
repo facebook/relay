@@ -155,8 +155,8 @@ describe('RelayRenderer', function() {
   });
 
   it('calls `onForceFetch` hook if supplied', () => {
-    const onForceFetch = jest.genMockFunction();
-    const onPrimeCache = jest.genMockFunction();
+    const onForceFetch = jest.fn();
+    const onPrimeCache = jest.fn();
 
     ReactDOM.render(
       <RelayRenderer
@@ -175,8 +175,8 @@ describe('RelayRenderer', function() {
 
   it('calls `onPrimeCache` hook if supplied', () => {
     const anotherQueryConfig = RelayQueryConfig.genMockInstance();
-    const onForceFetch = jest.genMockFunction();
-    const onPrimeCache = jest.genMockFunction();
+    const onForceFetch = jest.fn();
+    const onPrimeCache = jest.fn();
 
     ReactDOM.render(
       <RelayRenderer

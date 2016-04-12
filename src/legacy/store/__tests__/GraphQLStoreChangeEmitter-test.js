@@ -35,7 +35,7 @@ describe('GraphQLStoreChangeEmitter', () => {
         callback();
       } catch (guarded) {}
     });
-    mockCallback = jest.genMockFunction();
+    mockCallback = jest.fn();
   });
 
   it('should broadcast changes asynchronously', () => {
@@ -105,7 +105,7 @@ describe('GraphQLStoreChangeEmitter', () => {
   });
 
   it('should guard against callback errors', () => {
-    const mockThrowingCallback = jest.genMockFunction().mockImplementation(() => {
+    const mockThrowingCallback = jest.fn(() => {
       throw new Error();
     });
 
@@ -123,7 +123,7 @@ describe('GraphQLStoreChangeEmitter', () => {
 
   it('should use the injected strategy to batch updates', () => {
     let mockBatching = false;
-    const mockBatchingStrategy = jest.genMockFunction().mockImplementation(
+    const mockBatchingStrategy = jest.fn(
       callback => {
         mockBatching = true;
         callback();
@@ -145,7 +145,7 @@ describe('GraphQLStoreChangeEmitter', () => {
   });
 
   it('schedules changes during broadcasts in the next execution loop', () => {
-    const mockBatchingStrategy = jest.genMockFunction().mockImplementation(
+    const mockBatchingStrategy = jest.fn(
       callback => callback()
     );
     changeEmitter.injectBatchingStrategy(mockBatchingStrategy);

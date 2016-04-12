@@ -499,7 +499,7 @@ describe('GraphQLRange', () => {
   });
 
   it('should error for invalid call value', () => {
-    console.error = jest.genMockFunction();
+    console.error = jest.fn();
     const queryCalls = [
       {name: 'first', value: 0},
     ];
@@ -516,7 +516,7 @@ describe('GraphQLRange', () => {
   });
 
   it('should error for first().last() query', () => {
-    console.error = jest.genMockFunction();
+    console.error = jest.fn();
     var queryCalls = [
       {name: 'first', value: 3},
       {name: 'last', value: 3},
@@ -1171,7 +1171,7 @@ describe('GraphQLRange', () => {
   });
 
   it('should warn when reconciling conflicting first() ranges', () => {
-    console.error = jest.genMockFunction();
+    console.error = jest.fn();
 
     const queryCalls = [
       {name: 'first', value: 3},
@@ -1199,7 +1199,7 @@ describe('GraphQLRange', () => {
   });
 
   it('should warn when reconciling conflicting last() ranges', () => {
-    console.error = jest.genMockFunction();
+    console.error = jest.fn();
 
     const queryCalls = [
       {name: 'last', value: 3},
@@ -1228,8 +1228,8 @@ describe('GraphQLRange', () => {
   });
 
   it('should reconcile duplicated queries', () => {
-    console.error = jest.genMockFunction();
-    console.warn = jest.genMockFunction();
+    console.error = jest.fn();
+    console.warn = jest.fn();
 
     let queryCalls = [
       {name: 'first', value: 3},
@@ -1275,8 +1275,8 @@ describe('GraphQLRange', () => {
   });
 
   it('should reconcile duplicated queries with no cursor', () => {
-    console.error = jest.genMockFunction();
-    console.warn = jest.genMockFunction();
+    console.error = jest.fn();
+    console.warn = jest.fn();
 
     let queryCalls = [
       {name: 'first', value: 3},
@@ -1332,8 +1332,8 @@ describe('GraphQLRange', () => {
   });
 
   it('should reconcile extending queries', () => {
-    console.error = jest.genMockFunction();
-    console.warn = jest.genMockFunction();
+    console.error = jest.fn();
+    console.warn = jest.fn();
 
     let queryCalls = [
       {name: 'first', value: 3},

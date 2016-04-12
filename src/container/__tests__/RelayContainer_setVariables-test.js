@@ -40,8 +40,8 @@ describe('RelayContainer.setVariables', function() {
     jest.resetModuleRegistry();
 
     const fragment = Relay.QL`fragment on Node{url(site:$site)}`;
-    entityQuery = jest.genMockFunction().mockImplementation(() => fragment);
-    render = jest.genMockFunction().mockImplementation(() => <div />);
+    entityQuery = jest.fn(() => fragment);
+    render = jest.fn(() => <div />);
 
     // Make RQLTransform ignore this call.
     MockComponent = React.createClass({render});
@@ -98,7 +98,7 @@ describe('RelayContainer.setVariables', function() {
           },
         }];
       });
-      const pluralEntityQuery = jest.genMockFunction().mockImplementation(
+      const pluralEntityQuery = jest.fn(
         () => Relay.QL`
           fragment on Node @relay(plural:true) {
             url(site: $site)
@@ -254,7 +254,7 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('updates `variables` after callback when data is ready', () => {
-      const mockCallback = jest.genMockFunction();
+      const mockCallback = jest.fn();
       mockInstance.setVariables({site: 'www'}, mockCallback);
       jest.runAllTimers();
 
@@ -297,7 +297,7 @@ describe('RelayContainer.setVariables', function() {
 
       environment.primeCache.mock.requests[0].block();
 
-      const mockCallback = jest.genMockFunction();
+      const mockCallback = jest.fn();
       mockInstance.setVariables({site: 'mobile'}, mockCallback);
       jest.runAllTimers();
 
@@ -349,7 +349,7 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('invokes the callback as many times as ready state changes', () => {
-      const mockFunction = jest.genMockFunction().mockImplementation(function() {
+      const mockFunction = jest.fn(function() {
         expect(this.constructor).toBe(MockComponent);
       });
       mockInstance.setVariables({site: 'www'}, mockFunction);
@@ -366,7 +366,7 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('invokes the callback with the component as `this`', () => {
-      const mockFunction = jest.genMockFunction().mockImplementation(function() {
+      const mockFunction = jest.fn(function() {
         expect(this.constructor).toBe(MockComponent);
       });
       mockInstance.setVariables({site: 'www'}, mockFunction);
@@ -406,11 +406,11 @@ describe('RelayContainer.setVariables', function() {
     let prepareVariables;
 
     beforeEach(() => {
-      entityQuery = jest.genMockFunction().mockImplementation(
+      entityQuery = jest.fn(
         () => Relay.QL`fragment on Node{url(site:$site)}`
       );
-      render = jest.genMockFunction().mockImplementation(() => <div />);
-      prepareVariables = jest.genMockFunction().mockImplementation(
+      render = jest.fn(() => <div />);
+      prepareVariables = jest.fn(
         (variables, route) => variables
       );
 
@@ -467,7 +467,7 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('ignores `setState` from callback when request aborts', () => {
-      const mockCallback = jest.genMockFunction()
+      const mockCallback = jest.fn()
         .mockImplementation(readyState => {
           if (readyState.mounted) {
             this.setState({isAborted: true});

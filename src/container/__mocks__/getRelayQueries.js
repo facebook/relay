@@ -11,4 +11,4 @@
 
 const getRelayQueries = require.requireActual('getRelayQueries');
 
-module.exports = jest.genMockFunction().mockImplementation(getRelayQueries);
+module.exports = jest.fn(getRelayQueries);

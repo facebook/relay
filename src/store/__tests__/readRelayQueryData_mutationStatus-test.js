@@ -67,11 +67,11 @@ describe('readRelayQueryData (mutationStatus)', () => {
     storeData = new RelayStoreData();
 
     storeData.getClientMutationIDs =
-      jest.genMockFunction().mockImplementation(dataID => mutationIDs[dataID]);
+      jest.fn(dataID => mutationIDs[dataID]);
     storeData.getMutationQueue().getStatus =
-      jest.genMockFunction().mockImplementation(id => mutationStatuses[id]);
+      jest.fn(id => mutationStatuses[id]);
     storeData.getMutationQueue().getTransaction =
-      jest.genMockFunction().mockImplementation(id => mutationTransactions[id]);
+      jest.fn(id => mutationTransactions[id]);
 
     writeQueryPayload({
       query: getNode(Relay.QL`

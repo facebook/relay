@@ -14,7 +14,7 @@ const GraphQLStoreChangeEmitter = jest.genMockFromModule('GraphQLStoreChangeEmit
 GraphQLStoreChangeEmitter.mockImplementation(function() {
   this.addListenerForIDs.mock.remove = [];
   this.addListenerForIDs.mockImplementation(() => {
-    const returnValue = {remove: jest.genMockFunction()};
+    const returnValue = {remove: jest.fn()};
     this.addListenerForIDs.mock.remove.push(
       returnValue.remove
     );

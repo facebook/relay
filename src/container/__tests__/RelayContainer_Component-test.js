@@ -30,14 +30,14 @@ describe('RelayContainer', function() {
     jest.resetModuleRegistry();
 
     MockComponent = React.createClass({
-      render: jest.genMockFunction().mockImplementation(() => <div />),
+      render: jest.fn(() => <div />),
     });
 
     mockCreateContainer = component => {
       MockContainer = Relay.createContainer(component, {
         initialVariables: {site: 'mobile'},
         fragments: {
-          foo: jest.genMockFunction().mockImplementation(
+          foo: jest.fn(
             () => Relay.QL`fragment on Node{id,url(site:$site)}`
           ),
         },

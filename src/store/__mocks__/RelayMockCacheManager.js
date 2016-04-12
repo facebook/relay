@@ -19,18 +19,18 @@ const RelayMockCacheManager = {
         queryWriter,
       },
       getMutationWriter:
-        jest.genMockFunction().mockReturnValue(mutationWriter),
+        jest.fn(() => mutationWriter),
       getQueryWriter:
-        jest.genMockFunction().mockReturnValue(queryWriter),
+        jest.fn(() => queryWriter),
     };
   },
 };
 
 function genMockWriter() {
   return {
-    writeField: jest.genMockFunction(),
-    writeNode: jest.genMockFunction(),
-    writeRootCall: jest.genMockFunction(),
+    writeField: jest.fn(),
+    writeNode: jest.fn(),
+    writeRootCall: jest.fn(),
   };
 }
 

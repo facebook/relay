@@ -11,7 +11,7 @@
 
 const RelayQueryPath = require.requireActual('RelayQueryPath');
 
-RelayQueryPath.fromJSON = jest.genMockFunction().mockImplementation(
+RelayQueryPath.fromJSON = jest.fn(
   RelayQueryPath.fromJSON
 );
 

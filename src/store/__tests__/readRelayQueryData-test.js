@@ -34,7 +34,7 @@ describe('readRelayQueryData', () => {
     const recordStore = new RelayRecordStore(records);
     const storeData = new RelayStoreData();
 
-    storeData.getQueuedStore = jest.genMockFunction().mockImplementation(() => {
+    storeData.getQueuedStore = jest.fn(() => {
       return recordStore;
     });
 

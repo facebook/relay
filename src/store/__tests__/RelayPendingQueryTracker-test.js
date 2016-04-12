@@ -222,7 +222,7 @@ describe('RelayPendingQueryTracker', () => {
     `);
 
     const pendingA = addPending({query: mockQueryA});
-    const mockSuccessA = jest.genMockFunction();
+    const mockSuccessA = jest.fn();
     pendingA.done(mockSuccessA);
 
     // Simulates: B - A = C
@@ -233,7 +233,7 @@ describe('RelayPendingQueryTracker', () => {
     });
 
     const pendingB = addPending({query: mockQueryB});
-    const mockSuccessB = jest.genMockFunction();
+    const mockSuccessB = jest.fn();
     pendingB.done(mockSuccessB);
 
     fetchRelayQuery.mock.requests[1].resolve({viewer:{}});
@@ -277,7 +277,7 @@ describe('RelayPendingQueryTracker', () => {
     `);
 
     const pendingA = addPending({query: mockQueryA});
-    const mockFailureA = jest.genMockFunction();
+    const mockFailureA = jest.fn();
     pendingA.catch(mockFailureA);
     jest.runAllTimers();
 
@@ -289,7 +289,7 @@ describe('RelayPendingQueryTracker', () => {
     });
 
     const pendingB = addPending({query: mockQueryB});
-    const mockFailureB = jest.genMockFunction();
+    const mockFailureB = jest.fn();
     pendingB.catch(mockFailureB);
     jest.runAllTimers();
 
@@ -301,7 +301,7 @@ describe('RelayPendingQueryTracker', () => {
     });
 
     const pendingC = addPending({query: mockQueryC});
-    const mockSuccessC = jest.genMockFunction();
+    const mockSuccessC = jest.fn();
     pendingC.done(mockSuccessC);
     jest.runAllTimers();
 
@@ -333,7 +333,7 @@ describe('RelayPendingQueryTracker', () => {
       }
     `);
     const pendingA = addPending({query: mockQuery});
-    const mockFailureA = jest.genMockFunction();
+    const mockFailureA = jest.fn();
     pendingA.catch(mockFailureA);
 
     const mockError = new Error('Expected error.');
@@ -352,7 +352,7 @@ describe('RelayPendingQueryTracker', () => {
       }
     `);
     const pendingA = addPending({query: mockQuery});
-    const mockFailureA = jest.genMockFunction();
+    const mockFailureA = jest.fn();
     pendingA.catch(mockFailureA);
 
     const mockError = new Error('Expected error.');
@@ -430,7 +430,7 @@ describe('RelayPendingQueryTracker', () => {
       query: mockQuery,
       fetchMode: RelayFetchMode.PRELOAD,
     });
-    const mockCallback = jest.genMockFunction();
+    const mockCallback = jest.fn();
     mockPending.catch(mockCallback);
 
     const mockError = new Error('Expected error.');

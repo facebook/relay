@@ -44,7 +44,7 @@ describe('RelayContainer', function() {
   beforeEach(function() {
     jest.resetModuleRegistry();
 
-    const render = jest.genMockFunction().mockImplementation(function() {
+    const render = jest.fn(function() {
       // Make it easier to expect prop values.
       render.mock.calls[render.mock.calls.length - 1].props = this.props;
       return <div />;
@@ -52,10 +52,10 @@ describe('RelayContainer', function() {
     MockComponent = React.createClass({render});
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {
-        foo: jest.genMockFunction().mockImplementation(
+        foo: jest.fn(
           () => Relay.QL`fragment on Node{id,name}`
         ),
-        bar: jest.genMockFunction().mockImplementation(
+        bar: jest.fn(
           () => Relay.QL`fragment on Node @relay(plural:true){id,name}`
         ),
       },
@@ -844,14 +844,14 @@ describe('RelayContainer', function() {
       '43': {__dataID__: '43', name: 'Tee'},
       '44': {__dataID__: '44', name: 'Toe'},
     };
-    const render = jest.genMockFunction().mockImplementation(() => <div />);
-    const shouldComponentUpdate = jest.genMockFunction();
+    const render = jest.fn(() => <div />);
+    const shouldComponentUpdate = jest.fn();
 
     const MockFastComponent = React.createClass({render, shouldComponentUpdate});
 
     const MockFastContainer = Relay.createContainer(MockFastComponent, {
       fragments: {
-        foo: jest.genMockFunction().mockImplementation(
+        foo: jest.fn(
           () => Relay.QL`fragment on Node{id,name}`
         ),
       },

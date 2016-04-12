@@ -72,8 +72,8 @@ describe('RelayDefaultNetworkLayer', () => {
     let rejectCallback;
 
     beforeEach(() => {
-      responseCallback = jest.genMockFunction();
-      rejectCallback = jest.genMockFunction();
+      responseCallback = jest.fn();
+      rejectCallback = jest.fn();
 
       variables = {
         input: {
@@ -242,8 +242,8 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('resolves with fetched response payloads', () => {
-      const resolveACallback = jest.genMockFunction();
-      const resolveBCallback = jest.genMockFunction();
+      const resolveACallback = jest.fn();
+      const resolveBCallback = jest.fn();
       networkLayer.sendQueries([requestA, requestB]);
       requestA.getPromise().done(resolveACallback);
       requestB.getPromise().done(resolveBCallback);
@@ -270,7 +270,7 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('rejects invalid JSON response payloads', () => {
-      const rejectCallback = jest.genMockFunction();
+      const rejectCallback = jest.fn();
       networkLayer.sendQueries([requestA]);
       requestA.getPromise().catch(rejectCallback);
       jest.runAllTimers();
@@ -288,7 +288,7 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('rejects errors in query responses', () => {
-      const rejectCallback = jest.genMockFunction();
+      const rejectCallback = jest.fn();
       networkLayer.sendQueries([requestA]);
       requestA.getPromise().catch(rejectCallback);
       jest.runAllTimers();
@@ -320,8 +320,8 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('rejects requests with missing responses', () => {
-      const rejectACallback = jest.genMockFunction();
-      const resolveBCallback = jest.genMockFunction();
+      const rejectACallback = jest.fn();
+      const resolveBCallback = jest.fn();
       networkLayer.sendQueries([requestA, requestB]);
       requestA.getPromise().catch(rejectACallback);
       requestB.getPromise().done(resolveBCallback);

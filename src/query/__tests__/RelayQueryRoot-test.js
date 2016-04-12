@@ -479,7 +479,7 @@ describe('RelayQueryRoot', () => {
       const query = getNode(Relay.QL`query { settings(environment: MOBILE) }`);
       // Inherit all of the other RelayQueryField::getStorageKey() behavior,
       // like stripping out spurious if/unless and connection args.
-      const mockField = {getStorageKey: jest.genMockFunction()};
+      const mockField = {getStorageKey: jest.fn()};
       RelayQuery.Field.build = jest.genMockFn().mockReturnValue(mockField);
       query.getStorageKey();
       expect(RelayQuery.Field.build).toBeCalled();

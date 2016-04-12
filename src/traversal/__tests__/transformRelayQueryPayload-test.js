@@ -219,10 +219,10 @@ describe('transformClientPayload()', () => {
 
   it('uses the query interface to construct keys', () => {
     const queryInterface = {
-      getKeyForClientData: jest.genMockFunction().mockImplementation(
+      getKeyForClientData: jest.fn(
         field => Array.from(field.getApplicationName()).reverse().join('')
       ),
-      traverseChildren: jest.genMockFunction().mockImplementation(
+      traverseChildren: jest.fn(
         (node, callback, context) => node.getChildren().reverse().forEach(
           (...args) => callback.apply(context, args)
         )

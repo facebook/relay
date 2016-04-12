@@ -25,7 +25,7 @@ describe('RelayReadyState', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
 
-    onReadyStateChange = jest.genMockFunction();
+    onReadyStateChange = jest.fn();
     readyState = new RelayReadyState(onReadyStateChange);
 
     jasmine.addMatchers(RelayTestUtils.matchers);

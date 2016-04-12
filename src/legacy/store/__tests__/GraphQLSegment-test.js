@@ -155,7 +155,7 @@ describe('GraphQLSegment', () => {
   });
 
   it('should handle repeated edges', () => {
-    console.warn = jest.genMockFunction();
+    console.warn = jest.fn();
     const repeatedEdges = edges.concat(edges.slice(0, 1));
 
     // Attempting to add edges 1 2 3 1.
@@ -267,7 +267,7 @@ describe('GraphQLSegment', () => {
   });
 
   it('rolls back failed concatSegment operations', () => {
-    console.warn = jest.genMockFunction();
+    console.warn = jest.fn();
     segment.addEdgesAfterCursor(edges.slice(0, 2), null);
     expect(segment.getCount()).toBe(2);
     expect(segment.getLength()).toBe(2);
@@ -286,7 +286,7 @@ describe('GraphQLSegment', () => {
   });
 
   it('rolls back bumped edges from failed concatSegment operations', () => {
-    console.warn = jest.genMockFunction();
+    console.warn = jest.fn();
     segment.addEdgesAfterCursor(edges.slice(0, 2), null);
     expect(segment.__debug().idToIndices.edge2.length).toBe(1);
 

@@ -55,12 +55,12 @@ describe('RelayDiskCacheReader', () => {
     );
 
     const cacheManager = {
-      readNode: jest.genMockFunction().mockImplementation((id, callback) => {
+      readNode: jest.fn((id, callback) => {
         setTimeout(() => {
           callback(undefined, diskCacheData[id]);
         });
       }),
-      readRootCall: jest.genMockFunction().mockImplementation(
+      readRootCall: jest.fn(
         (callName, callArg, callback) => {
           const rootKey = callName + '*' + callArg;
           setTimeout(() => {
@@ -73,8 +73,8 @@ describe('RelayDiskCacheReader', () => {
     const changeTracker = new RelayChangeTracker();
 
     const callbacks = {
-      onSuccess: jest.genMockFunction(),
-      onFailure: jest.genMockFunction(),
+      onSuccess: jest.fn(),
+      onFailure: jest.fn(),
     };
 
     let abort;
@@ -939,7 +939,7 @@ describe('RelayDiskCacheReader', () => {
 
     it('registers new records with the garbage collector', () => {
       const garbageCollector = new RelayGarbageCollector();
-      RelayGarbageCollector.prototype.register = jest.genMockFunction();
+      RelayGarbageCollector.prototype.register = jest.fn();
       const queries = {
         q0: getNode(Relay.QL`
           query {

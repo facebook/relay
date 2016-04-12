@@ -40,9 +40,9 @@ describe('RelayQueryResultObservable', () => {
   const {getNode} = RelayTestUtils;
 
   function genMockSubscriber() {
-    const onCompleted = jest.genMockFunction();
-    const onError = jest.genMockFunction();
-    const onNext = jest.genMockFunction();
+    const onCompleted = jest.fn();
+    const onError = jest.fn();
+    const onNext = jest.fn();
     const mockClear = () => {
       [onCompleted, onError, onNext].forEach(fn => fn.mockClear());
     };
@@ -79,7 +79,7 @@ describe('RelayQueryResultObservable', () => {
     writer = new RelayRecordWriter(records, {}, false);
     storeData = new RelayStoreData();
 
-    storeData.getQueuedStore = jest.genMockFunction().mockImplementation(() => {
+    storeData.getQueuedStore = jest.fn(() => {
       return store;
     });
 

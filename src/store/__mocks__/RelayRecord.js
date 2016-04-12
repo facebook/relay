@@ -14,7 +14,7 @@ const RelayRecord = require.requireActual('RelayRecord');
 Object.keys(RelayRecord).forEach(name => {
   const method = RelayRecord[name];
   if (typeof method === 'function') {
-    RelayRecord[name] = jest.genMockFunction().mockImplementation(method);
+    RelayRecord[name] = jest.fn(method);
   }
 });
 

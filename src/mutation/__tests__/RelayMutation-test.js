@@ -43,7 +43,7 @@ describe('RelayMutation', function() {
     jest.resetModuleRegistry();
 
     environment = new RelayEnvironment();
-    environment.read = jest.genMockFunction();
+    environment.read = jest.fn();
 
     const initialVariables = {isRelative: false};
     var makeMockMutation = () => {

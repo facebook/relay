@@ -460,7 +460,7 @@ describe('RelayStoreData', () => {
       'registers created dataIDs in the garbage collector if it has been ' +
       'initialized',
       () => {
-        RelayGarbageCollector.prototype.register = jest.genMockFunction();
+        RelayGarbageCollector.prototype.register = jest.fn();
         const response = {node: {id: 0}};
         const data = new RelayStoreData();
         data.initializeGarbageCollector();

@@ -354,7 +354,7 @@ describe('intersectRelayQuery', () => {
           }
         }
       `);
-      const filterUnterminatedRange = jest.genMockFunction();
+      const filterUnterminatedRange = jest.fn();
       expect(
         intersectRelayQuery(subjectNode, patternNode, filterUnterminatedRange)
       ).toEqualQueryNode(expected);

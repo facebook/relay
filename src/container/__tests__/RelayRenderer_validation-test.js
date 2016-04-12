@@ -45,7 +45,7 @@ describe('RelayRenderer.validation', () => {
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
 
-    console.error = jest.genMockFunction().mockImplementation(message => {
+    console.error = jest.fn(message => {
       throw new Error(message.replace(/Composite propType/, 'propType'));
     });
   });

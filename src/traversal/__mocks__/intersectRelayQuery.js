@@ -9,6 +9,6 @@
 
 'use strict';
 
-module.exports = jest.genMockFunction().mockImplementation(
+module.exports = jest.fn(
   require.requireActual('intersectRelayQuery')
 );

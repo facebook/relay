@@ -14,12 +14,12 @@ const RelayNetworkLayer = require.requireActual('RelayNetworkLayer');
 function RelayNetworkLayerMock() {
   const networkLayer = new RelayNetworkLayer();
 
-  networkLayer.fetchRelayQuery = jest.genMockFunction().mockImplementation(
+  networkLayer.fetchRelayQuery = jest.fn(
     () => new Promise(genMockRequest)
   );
   const requests = networkLayer.fetchRelayQuery.mock.requests = [];
 
-  networkLayer.sendMutation = jest.genMockFunction();
+  networkLayer.sendMutation = jest.fn();
 
   return networkLayer;
 

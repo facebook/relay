@@ -45,7 +45,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
   let onReadyStateChange;
 
   beforeEach(() => {
-    onReadyStateChange = jest.genMockFunction();
+    onReadyStateChange = jest.fn();
     ReactDOM.render(
       <RelayRenderer
         Container={MockContainer}

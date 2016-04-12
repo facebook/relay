@@ -87,7 +87,7 @@ describe('RelayQueryConfig', () => {
   it('allows params to be processed if `prepareParams` is defined', () => {
     const MockConfig = makeConfig();
     MockConfig.prototype.prepareVariables =
-      jest.genMockFunction().mockReturnValue({required: 'bar'});
+      jest.fn(() => ({required: 'bar'}));
     const config = new MockConfig({required: 'foo'});
     expect(MockConfig.prototype.prepareVariables)
       .toBeCalledWith({required: 'foo'});

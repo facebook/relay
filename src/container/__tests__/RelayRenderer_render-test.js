@@ -79,7 +79,7 @@ describe('RelayRenderer.render', () => {
 
   it('renders when mounted before a request is sent', () => {
     const initialView = <div />;
-    const render = jest.genMockFunction().mockReturnValue(initialView);
+    const render = jest.fn(() => initialView);
     renderElement(
       <RelayRenderer
         Container={MockContainer}
@@ -140,7 +140,7 @@ describe('RelayRenderer.render', () => {
   });
 
   it('renders whenever updated after request is sent', () => {
-    const render = jest.genMockFunction();
+    const render = jest.fn();
     function update() {
       renderElement(
         <RelayRenderer
@@ -164,7 +164,7 @@ describe('RelayRenderer.render', () => {
   });
 
   it('renders once after each ready state change', () => {
-    const render = jest.genMockFunction();
+    const render = jest.fn();
 
     renderElement(
       <RelayRenderer
@@ -194,12 +194,12 @@ describe('RelayRenderer.render', () => {
 
     beforeEach(() => {
       const storeData = environment.getStoreData();
-      storeData.initializeGarbageCollector(jest.genMockFunction());
+      storeData.initializeGarbageCollector(jest.fn());
       garbageCollector = storeData.getGarbageCollector();
     });
 
     it('acquires a GC hold when mounted', () => {
-      garbageCollector.acquireHold = jest.genMockFunction();
+      garbageCollector.acquireHold = jest.fn();
       renderElement(
         <RelayRenderer
           Container={MockContainer}
@@ -211,9 +211,9 @@ describe('RelayRenderer.render', () => {
     });
 
     it('releases its GC hold when unmounted', () => {
-      const release = jest.genMockFunction();
+      const release = jest.fn();
       garbageCollector.acquireHold =
-        jest.genMockFunction().mockReturnValue({release});
+        jest.fn(() => ({release}));
       renderElement(
         <RelayRenderer
           Container={MockContainer}

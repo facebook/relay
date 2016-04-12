@@ -31,7 +31,7 @@ describe('validateRelayReadQuery', () => {
     jest.resetModuleRegistry();
 
     realConsoleError = console.error;
-    mockConsoleError = console.error = jest.genMockFunction();
+    mockConsoleError = console.error = jest.fn();
 
     jasmine.addMatchers({
       toLogErrorFor() {

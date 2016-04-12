@@ -30,9 +30,9 @@ describe('RelayNetworkLayer', () => {
     jest.setMock('RelayQuery', RelayQuery);
 
     injectedNetworkLayer = {
-      sendMutation: jest.genMockFunction(),
-      sendQueries: jest.genMockFunction(),
-      supports: jest.genMockFunction().mockReturnValue(true),
+      sendMutation: jest.fn(),
+      sendQueries: jest.fn(),
+      supports: jest.fn(() => true),
     };
     networkLayer = new RelayNetworkLayer();
     networkLayer.injectNetworkLayer(injectedNetworkLayer);
@@ -87,8 +87,8 @@ describe('RelayNetworkLayer', () => {
     beforeEach(() => {
       mutation = {};
       variables = {};
-      resolvedCallback = jest.genMockFunction();
-      rejectedCallback = jest.genMockFunction();
+      resolvedCallback = jest.fn();
+      rejectedCallback = jest.fn();
       deferred = new Deferred();
       deferred.getPromise().done(resolvedCallback, rejectedCallback);
     });

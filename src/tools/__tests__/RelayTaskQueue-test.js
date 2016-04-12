@@ -32,14 +32,14 @@ describe('RelayTaskQueue', () => {
     });
 
     it('resolves to undefined when no callbacks are supplied', () => {
-      const mockFunction = jest.genMockFunction();
+      const mockFunction = jest.fn();
       taskQueue.enqueue().done(mockFunction);
       jest.runAllTimers();
       expect(mockFunction).toBeCalledWith(undefined);
     });
 
     it('immediately invokes tasks', () => {
-      const mockFunction = jest.genMockFunction();
+      const mockFunction = jest.fn();
       taskQueue.enqueue(mockFunction);
       jest.runAllTimers();
       expect(mockFunction).toBeCalled();
@@ -67,7 +67,7 @@ describe('RelayTaskQueue', () => {
     });
 
     it('resolves to the task\'s return value', () => {
-      const mockFunction = jest.genMockFunction();
+      const mockFunction = jest.fn();
       taskQueue.enqueue(() => 42).done(mockFunction);
       jest.runAllTimers();
       expect(mockFunction).toBeCalledWith(42);
@@ -95,8 +95,8 @@ describe('RelayTaskQueue', () => {
 
     it('aborts and rejects if a callback throws', () => {
       const mockError = new Error('Expected error.');
-      const mockCallback = jest.genMockFunction();
-      const mockFailureCallback = jest.genMockFunction();
+      const mockCallback = jest.fn();
+      const mockFailureCallback = jest.fn();
       taskQueue.enqueue(
         () => 'foo',
         () => { throw mockError; },
@@ -109,9 +109,9 @@ describe('RelayTaskQueue', () => {
 
     it('does not affect next chain of callbacks after rejection', () => {
       const mockError = new Error('Expected error.');
-      const mockCallback = jest.genMockFunction();
-      const mockFailureCallback = jest.genMockFunction();
-      const mockSuccessCallback = jest.genMockFunction();
+      const mockCallback = jest.fn();
+      const mockFailureCallback = jest.fn();
+      const mockSuccessCallback = jest.fn();
       taskQueue.enqueue(
         () => { throw mockError; },
       ).catch(mockFailureCallback);
@@ -138,7 +138,7 @@ describe('RelayTaskQueue', () => {
     });
 
     it('allows injection of a scheduler to defer task execution', () => {
-      const mockFunction = jest.genMockFunction();
+      const mockFunction = jest.fn();
       taskQueue.enqueue(mockFunction);
       jest.runAllTimers();
       expect(mockFunction).not.toBeCalled();
@@ -173,7 +173,7 @@ describe('RelayTaskQueue', () => {
     });
 
     it('throws if the same task is executed more than once', () => {
-      const mockFunction = jest.genMockFunction();
+      const mockFunction = jest.fn();
       taskQueue.enqueue(mockFunction);
       jest.runAllTimers();
       mockTasks[0]();

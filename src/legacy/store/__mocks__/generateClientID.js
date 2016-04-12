@@ -11,7 +11,7 @@
 
 let count = 1;
 
-const generateClientID = jest.genMockFunction().mockImplementation(
+const generateClientID = jest.fn(
   () => { return 'client:' + count++; }
 );
 

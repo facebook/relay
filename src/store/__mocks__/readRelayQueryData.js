@@ -10,4 +10,4 @@
 'use strict';
 
 const readRelayQueryData = require.requireActual('readRelayQueryData');
-module.exports = jest.genMockFunction().mockImplementation(readRelayQueryData);
+module.exports = jest.fn(readRelayQueryData);

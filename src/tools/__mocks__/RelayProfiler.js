@@ -13,29 +13,29 @@ const emptyFunction = require('emptyFunction');
 const forEachObject = require('forEachObject');
 
 const RelayProfiler = {
-  instrumentMethods: jest.genMockFunction().mockImplementation(
+  instrumentMethods: jest.fn(
     (object, names) => {
       forEachObject(names, (name, key) => {
         object[key] = RelayProfiler.instrument(name, object[key]);
       });
     }
   ),
-  instrument: jest.genMockFunction().mockImplementation(
+  instrument: jest.fn(
     (name, handler) => {
       handler.attachHandler = emptyFunction;
       handler.detachHandler = emptyFunction;
       return handler;
     }
   ),
-  attachAggregateHandler: jest.genMockFunction(),
-  detachAggregateHandler: jest.genMockFunction(),
-  profile: jest.genMockFunction().mockImplementation(() => {
+  attachAggregateHandler: jest.fn(),
+  detachAggregateHandler: jest.fn(),
+  profile: jest.fn(() => {
     return {
-      stop: jest.genMockFunction(),
+      stop: jest.fn(),
     };
   }),
-  attachProfileHandler: jest.genMockFunction(),
-  detachProfileHandler: jest.genMockFunction(),
+  attachProfileHandler: jest.fn(),
+  detachProfileHandler: jest.fn(),
 };
 
 module.exports = RelayProfiler;

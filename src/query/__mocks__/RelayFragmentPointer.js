@@ -12,7 +12,7 @@
 const RelayFragmentPointer = require.requireActual('RelayFragmentPointer');
 
 RelayFragmentPointer.createForRoot =
-  jest.genMockFunction().mockImplementation(
+  jest.fn(
     RelayFragmentPointer.createForRoot
   );
 

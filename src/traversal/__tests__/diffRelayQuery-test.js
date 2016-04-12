@@ -2065,4 +2065,24 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[1][0]).toEqualQueryRoot(secondQuery);
   });
 
+  it('produces non-abstract diffs from non-abstract plural roots', () => {
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const query = getNode(Relay.QL`
+      query {
+        route(waypoints:[
+          {lat: "49.246292", lon: "-123.116226"},
+          {lat: "49.246292", lon: "-123.116226"}
+        ]) {
+          steps { note }
+        }
+      }
+    `);
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
+    expect(diffQueries.length).toBe(2);
+    expect(diffQueries[0].isAbstract()).toBe(false);
+    expect(diffQueries[1].isAbstract()).toBe(false);
+  });
+
 });

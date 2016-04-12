@@ -100,7 +100,7 @@ function diffRelayQuery(
       identifyingArgType: rootIdentifyingArg.type != null ?
         rootIdentifyingArg.type :
         ID_TYPE,
-      isAbstract: true,
+      isAbstract: root.isAbstract(),
       isDeferred: false,
       isPlural: false,
     };

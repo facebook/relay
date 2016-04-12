@@ -46,7 +46,7 @@ export default class AddTodoMutation extends Relay.Mutation {
         '': 'append',
         'status(any)': 'append',
         'status(active)': 'append',
-        'status(completed)': null,
+        'status(completed)': 'ignore',
       },
     }];
   }

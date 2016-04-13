@@ -45,6 +45,7 @@ const stableStringify = require('stableStringify');
 const {ID, NODE} = RelayConnectionInterface;
 const {
   CACHE_KEY,
+  DEFERRED_FRAGMENTS,
   FRAGMENTS,
   REF_KEY,
   PUT_EDGES,
@@ -250,7 +251,9 @@ class RelayGraphModeWriter {
       ) {
         return;
       } else if (storageKey === FRAGMENTS) {
-        this._writeFragments(dataID, nextValue);
+        this._writeFragments(dataID, nextValue, false);
+      } else if (storageKey === DEFERRED_FRAGMENTS) {
+        this._writeFragments(dataID, nextValue, true);
       } else if (nextValue === undefined) {
         return;
       } else if (nextValue === null) {
@@ -267,15 +270,29 @@ class RelayGraphModeWriter {
 
   _writeFragments(
     dataID: DataID,
-    fragments: {[fragmentHash: string]: boolean}
+    fragments: {[fragmentHash: string]: boolean},
+    isDeferred: boolean
   ): void {
-    forEachObject(fragments, (_, fragmentHash) => {
-      this._writer.setHasFragmentData(
-        dataID,
-        fragmentHash
-      );
-    });
-    this._changeTracker.updateID(dataID);
+    if (isDeferred) {
+      // Changes are recorded for deferred fragments to ensure that parent
+      // components re-render with the new data.
+      this._changeTracker.updateID(dataID);
+      forEachObject(fragments, (_, fragmentHash) => {
+        this._writer.setHasDeferredFragmentData(
+          dataID,
+          fragmentHash
+        );
+      });
+    } else {
+      // Other fragments are for diff optimization only and do not require a
+      // re-render.
+      forEachObject(fragments, (_, fragmentHash) => {
+        this._writer.setHasFragmentData(
+          dataID,
+          fragmentHash
+        );
+      });
+    }
   }
 
   _writeScalar(

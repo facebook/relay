@@ -61,6 +61,7 @@ export type GraphValue = (
 
 const RelayGraphModeInterface = {
   CACHE_KEY: '__key',
+  DEFERRED_FRAGMENTS: '__deferred__',
   FRAGMENTS: '__fragments__',
   REF_KEY: '__ref',
 

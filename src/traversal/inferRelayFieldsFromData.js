@@ -89,9 +89,6 @@ function inferField(value: mixed, key: string): RelayQuery.Field {
 function buildField(
   key: string,
   children: Array<RelayQuery.Field>,
-  /* $FlowIssue(>=0.23.0) #10620219 - After fixing some unsoundness in
-   * dictionary types, we've come to realize we need a safer object supertype
-   * than Object. */
   metadata: ?{[key: string]: mixed}
 ): RelayQuery.Field {
   let fieldName = key;

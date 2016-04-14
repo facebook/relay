@@ -779,9 +779,6 @@ class RelayQueryFragment extends RelayQueryNode {
     metadata?: ?{[key: string]: mixed}
   ): RelayQueryFragment {
     const nextChildren = children ? children.filter(child => !!child) : [];
-    /* $FlowIssue(>=0.23.0) #10620219 - After fixing some unsoundness in
-     * dictionary types, we've come to realize we need a safer object supertype
-     * than Object. */
     const concreteFragment = QueryBuilder.createFragment({
       name,
       type,

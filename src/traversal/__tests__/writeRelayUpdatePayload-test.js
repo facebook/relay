@@ -41,6 +41,141 @@ describe('writePayload()', () => {
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
+  describe('fields changed mutations', () => {
+    let store, queueStore, writer, queueWriter, commentID, connectionID;
+
+    beforeEach(() => {
+      const records = {};
+      const queuedRecords = {};
+      const nodeConnectionMap = {};
+      const rootCallMap = {};
+      const rootCallMaps = {rootCallMap};
+
+      commentID = 'comment123';
+
+      store = new RelayRecordStore(
+        {records},
+        rootCallMaps,
+        nodeConnectionMap
+      );
+      queueStore = new RelayRecordStore(
+        {records, queuedRecords},
+        rootCallMaps,
+        nodeConnectionMap
+      );
+      writer = new RelayRecordWriter(
+        records,
+        rootCallMap,
+        false,
+        nodeConnectionMap
+      );
+      queueWriter = new RelayRecordWriter(
+        queuedRecords,
+        rootCallMap,
+        true,
+        nodeConnectionMap,
+        null,
+        'mutationID'
+      );
+
+      const query = getNode(Relay.QL`
+        query {
+          node(id:"feedback_id") {
+            topLevelComments(first:"1") {
+              count,
+              edges {
+                node {
+                  id,
+                },
+              },
+            },
+          }
+        }
+      `);
+      const payload = {
+        node: {
+          __typename: 'Feedback',
+          id: 'feedback_id',
+          topLevelComments: {
+            count: 1,
+            edges: [
+              {
+                cursor: commentID + ':cursor',
+                node: {
+                  id: commentID,
+                },
+              },
+            ],
+          },
+        },
+      };
+      writePayload(store, writer, query, payload);
+      connectionID = store.getLinkedRecordID(
+        'feedback_id',
+        'topLevelComments'
+      );
+    });
+
+    it('unspecified optimistic fields does not overwrite existing store data', () => {
+      // create the mutation and payload
+      const input = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        deletedCommentId: commentID,
+      };
+      const mutation = getNode(Relay.QL`
+        mutation {
+          commentDelete(input:$input) {
+            feedback {
+              topLevelComments {
+                count,
+              },
+            },
+          }
+        }
+      `, {
+        input: JSON.stringify(input),
+      });
+      const configs = [{
+        type: RelayMutationType.FIELDS_CHANGE,
+        fieldIDs: {feedback: 'feedback_id'},
+      }];
+
+      const payload = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        feedback: {
+          id: 'feedback_id',
+          topLevelComments: {},
+        },
+      };
+
+      // write to the queued store
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
+        queueStore,
+        queueWriter,
+        queryTracker,
+        changeTracker,
+        {isOptimisticUpdate: true}
+      );
+
+      writeRelayUpdatePayload(
+        queryWriter,
+        mutation,
+        payload,
+        {configs, isOptimisticUpdate: true}
+      );
+
+      expect(changeTracker.getChangeSet()).toEqual({
+        created: {},
+        updated: {},
+      });
+
+      expect(queueStore.getField(connectionID, 'count')).toBe(1);
+    });
+  });
+
   describe('range delete mutations', () => {
     let store, queueStore, writer, queueWriter, commentID, connectionID, edgeID;
 
@@ -162,7 +297,8 @@ describe('writePayload()', () => {
         queueStore,
         queueWriter,
         queryTracker,
-        changeTracker
+        changeTracker,
+        {isOptimisticUpdate: true}
       );
 
       writeRelayUpdatePayload(
@@ -515,7 +651,8 @@ describe('writePayload()', () => {
         queueStore,
         queueWriter,
         queryTracker,
-        changeTracker
+        changeTracker,
+        {isOptimisticUpdate: true}
       );
 
       writeRelayUpdatePayload(
@@ -738,7 +875,8 @@ describe('writePayload()', () => {
         queueStore,
         queueWriter,
         queryTracker,
-        changeTracker
+        changeTracker,
+        {isOptimisticUpdate: true}
       );
 
       writeRelayUpdatePayload(
@@ -952,7 +1090,8 @@ describe('writePayload()', () => {
         queueStore,
         queueWriter,
         queryTracker,
-        changeTracker
+        changeTracker,
+        {isOptimisticUpdate: true}
       );
 
       writeRelayUpdatePayload(
@@ -1045,7 +1184,8 @@ describe('writePayload()', () => {
         queueStore,
         queueWriter,
         queryTracker,
-        changeTracker
+        changeTracker,
+        {isOptimisticUpdate: true}
       );
 
       writeRelayUpdatePayload(
@@ -1136,7 +1276,8 @@ describe('writePayload()', () => {
         queueStore,
         queueWriter,
         queryTracker,
-        changeTracker
+        changeTracker,
+        {isOptimisticUpdate: true}
       );
 
       writeRelayUpdatePayload(
@@ -1234,7 +1375,8 @@ describe('writePayload()', () => {
         queueStore,
         queueWriter,
         queryTracker,
-        changeTracker
+        changeTracker,
+        {isOptimisticUpdate: true}
       );
 
       writeRelayUpdatePayload(

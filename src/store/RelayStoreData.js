@@ -47,7 +47,7 @@ const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTaskQueue = require('RelayTaskQueue');
 import type {TaskScheduler} from 'RelayTaskQueue';
-import type {CacheManager, CacheReadCallbacks} from 'RelayTypes';
+import type {Abortable, CacheManager, CacheReadCallbacks} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
@@ -207,7 +207,7 @@ class RelayStoreData {
   readFromDiskCache(
     queries: RelayQuerySet,
     callbacks: CacheReadCallbacks
-  ): void {
+  ): Abortable {
     const cacheManager = this._cacheManager;
     invariant(
       cacheManager,
@@ -216,7 +216,7 @@ class RelayStoreData {
     );
     const changeTracker = new RelayChangeTracker();
     const profile = RelayProfiler.profile('RelayStoreData.readFromDiskCache');
-    RelayDiskCacheReader.readQueries(
+    return RelayDiskCacheReader.readQueries(
       queries,
       this._queuedStore,
       this._cachedRecords,

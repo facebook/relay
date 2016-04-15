@@ -80,9 +80,13 @@ export type UpdateOptions = {
   isOptimisticUpdate: boolean;
 };
 
-export type RangeBehaviors = {
+type RangeBehaviorsFunction = (connectionArgs: {[argName: string]: string}) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
+
+type RangeBehaviorsObject = {
   [key: string]: $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 };
+
+export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 
 type AfterConnectionArgumentMap = {
   after: string;
@@ -114,3 +118,4 @@ export type ConnectionArgumentsMap = (
   InitialTailConnectionArgumentMap |
   TailConnectionArgumentMap
 );
+

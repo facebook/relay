@@ -20,6 +20,7 @@ import type URI from 'URI';
 import type {
   DataID,
   FieldValue,
+  RangeBehaviors,
 } from 'RelayInternalTypes';
 import type RelayFragmentReference from 'RelayFragmentReference';
 import type RelayMutationRequest from 'RelayMutationRequest';
@@ -106,8 +107,7 @@ export type RelayMutationConfig = {
   parentID?: string,
   connectionName: string,
   edgeName: string,
-  // from GraphQLMutatorConstants.RANGE_OPERATIONS
-  rangeBehaviors: {[call: string]: 'append' | 'prepend' | 'remove'},
+  rangeBehaviors: RangeBehaviors,
 } | {
   type: 'NODE_DELETE',
   parentName: string;

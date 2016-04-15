@@ -1085,33 +1085,21 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   /**
-   * A string representing the range behavior eligible arguments associated with
-   * this field. Arguments will be sorted.
-   *
-   * Non-core arguments (like connection and identifying arguments) are dropped.
-   *   `field(first: 10, foo: "bar", baz: "bat")` => `'baz(bat).foo(bar)'`
-   *   `username(name: "steve")`                  => `''`
-   */
-  getRangeBehaviorKey(): string {
+   * An array of calls excluding Core args to use with rangeBehavior
+   * functions. 
+  */ 
+  getRangeBehaviorCalls(): Array<Call> {
     invariant(
       this.isConnection(),
       'RelayQueryField: Range behavior keys are associated exclusively with ' +
-      'connection fields. `getRangeBehaviorKey()` was called on the ' +
+      'connection fields. `getRangeBehaviorCalls()` was called on the ' +
       'non-connection field `%s`.',
       this.getSchemaName()
     );
-    let rangeBehaviorKey = this.__rangeBehaviorKey__;
-    if (rangeBehaviorKey == null) {
-      const printedCoreArgs = [];
-      this.getCallsWithValues().forEach(arg => {
-        if (this._isCoreArg(arg)) {
-          printedCoreArgs.push(serializeRelayQueryCall(arg));
-        }
-      });
-      rangeBehaviorKey = printedCoreArgs.sort().join('').slice(1);
-      this.__rangeBehaviorKey__ = rangeBehaviorKey;
-    }
-    return rangeBehaviorKey;
+
+    return this.getCallsWithValues().filter(arg => {
+      return this._isCoreArg(arg);
+    }); 
   }
 
   /**

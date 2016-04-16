@@ -12,6 +12,7 @@
 
 [libs]
 ../node_modules/fbjs/flow/lib
+flow/
 
 [options]
 module.system=haste
@@ -30,4 +31,4 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(>=0\\.\\(2[0-1]\\|1[0-9]\\|[0-9
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
 
 [version]
-0.22.0
+0.23.0

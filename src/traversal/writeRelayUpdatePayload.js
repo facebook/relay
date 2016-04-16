@@ -50,7 +50,7 @@ type PayloadObject = {[key: string]: Payload};
 
 const {CLIENT_MUTATION_ID, EDGES} = RelayConnectionInterface;
 const {ANY_TYPE, ID, NODE} = RelayNodeInterface;
-const {APPEND, IGNORE, PREPEND, REMOVE} = GraphQLMutatorConstants;
+const {APPEND, IGNORE, PREPEND, REFETCH, REMOVE} = GraphQLMutatorConstants;
 
 const EDGES_FIELD = RelayQuery.Field.build({
   fieldName: EDGES,
@@ -473,10 +473,12 @@ function addRangeNode(
   } else {
     console.error(
       'writeRelayUpdatePayload(): invalid range operation `%s`, valid ' +
-      'options are `%s` or `%s`.',
+      'options are `%s`, `%s`, `%s`, or `%s`.',
       rangeBehavior,
       APPEND,
-      PREPEND
+      PREPEND,
+      IGNORE,
+      REFETCH,
     );
   }
 }

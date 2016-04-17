@@ -83,6 +83,7 @@ export type RelayProp = {
     callback?: ?ComponentReadyStateChangeCallback
   ) => void;
   variables: Variables;
+  pendingVariables: ?Variables;
 };
 
 // Mutations

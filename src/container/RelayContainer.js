@@ -102,10 +102,11 @@ function createContainerComponent(
     _hasStaleQueryData: boolean;
     _fragmentResolvers: {[key: string]: ?FragmentResolver};
 
-    pending: ?{
-      variables: Variables;
-      request: Abortable;
-    };
+    pendingRequest: ?Abortable;
+    // pending: ?{
+    //   variables: Variables;
+    //   request: Abortable;
+    // };
     state: {
       queryData: {[propName: string]: mixed};
       relayProp: RelayProp;
@@ -137,7 +138,7 @@ function createContainerComponent(
       this._fragmentResolvers = {};
 
       this.mounted = true;
-      this.pending = null;
+      this.pendingRequest = null;
       this.state = {
         queryData: {},
         relayProp: {
@@ -149,6 +150,7 @@ function createContainerComponent(
           route,
           setVariables: this.setVariables.bind(this),
           variables: {},
+          pendingVariables: null
         },
       };
     }
@@ -244,10 +246,10 @@ function createContainerComponent(
     ): void {
       const lastVariables = this.state.relayProp.variables;
       const prevVariables =
-        this.pending ? this.pending.variables : lastVariables;
+        this.pendingRequest ? this.state.relayProp.pendingVariables : lastVariables;
       const nextVariables = mergeVariables(prevVariables, partialVariables);
 
-      this.pending && this.pending.request.abort();
+      this.pendingRequest && this.pendingRequest.abort();
 
       const completeProfiler = RelayProfiler.profile(
         'RelayContainer.setVariables', {
@@ -265,8 +267,14 @@ function createContainerComponent(
       const onReadyStateChange = ErrorUtils.guard(readyState => {
         const {aborted, done, error, ready} = readyState;
         const isComplete = aborted || done || error;
-        if (isComplete && this.pending === current) {
-          this.pending = null;
+        if (isComplete && this.pendingRequest === current.request) {
+          this.pendingRequest = null;
+          // this.setState({
+          //   relayProp: {
+          //     ...this.state.relayProp,
+          //     pendingVariables: null,
+          //   }
+          // });
         }
         let partialState;
         if (ready) {
@@ -319,7 +327,13 @@ function createContainerComponent(
           this.context.relay.forceFetch(querySet, onReadyStateChange) :
           this.context.relay.primeCache(querySet, onReadyStateChange),
       };
-      this.pending = current;
+      this.pendingRequest = current.request;
+      this.setState({
+        relayProp: {
+          ...this.state.relayProp,
+          pendingVariables: current.variables
+        }
+      });
     }
 
     /**
@@ -490,10 +504,16 @@ function createContainerComponent(
       this._fragmentPointers = {};
       this._fragmentResolvers = {};
 
-      const pending = this.pending;
-      if (pending) {
-        pending.request.abort();
-        this.pending = null;
+      const pendingRequest = this.pendingRequest;
+      if (pendingRequest) {
+        pendingRequest.abort();
+        this.pendingRequest = null;
+        this.setState({
+          relayProp: {
+            ...this.state.relayProp,
+            pendingVariables: null,
+          }
+        });
       }
     }
 

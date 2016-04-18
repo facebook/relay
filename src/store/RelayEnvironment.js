@@ -102,8 +102,12 @@ class RelayEnvironment {
     return this._storeData;
   }
 
+  injectDefaultNetworkLayer(networkLayer: ?NetworkLayer) {
+    this._storeData.getNetworkLayer().injectDefaultImplementation(networkLayer);
+  }
+
   injectNetworkLayer(networkLayer: ?NetworkLayer) {
-    this._storeData.getNetworkLayer().injectNetworkLayer(networkLayer);
+    this._storeData.getNetworkLayer().injectImplementation(networkLayer);
   }
 
   injectTaskScheduler(scheduler: ?TaskScheduler): void {

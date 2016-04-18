@@ -21,6 +21,7 @@ import type {NetworkLayer} from 'RelayTypes';
 
 const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
+const warning = require('warning');
 
 /**
  * @internal
@@ -28,46 +29,66 @@ const resolveImmediate = require('resolveImmediate');
  * `RelayNetworkLayer` provides a method to inject custom network behavior.
  */
 class RelayNetworkLayer {
-  _injectedNetworkLayer: ?NetworkLayer;
+  _defaultImplementation: ?NetworkLayer;
+  _implementation: ?NetworkLayer;
   _queue: ?Array<RelayQueryRequest>;
 
   constructor() {
-    this._injectedNetworkLayer = null;
+    this._implementation = null;
     this._queue = null;
   }
 
-  injectNetworkLayer(networkLayer: ?NetworkLayer): void {
-    this._injectedNetworkLayer = networkLayer;
+  injectDefaultImplementation(implementation: ?NetworkLayer): void {
+    if (this._defaultImplementation) {
+      warning(
+        false,
+        'RelayNetworkLayer: Call received to injectDefaultImplementation(), ' +
+        'but a default layer was already injected.'
+      );
+    }
+    this._defaultImplementation = implementation;
+  }
+
+  injectImplementation(implementation: ?NetworkLayer): void {
+    if (this._implementation) {
+      warning(
+        false,
+        'RelayNetworkLayer: Call received to injectImplementation(), but ' +
+        'a layer was already injected.'
+      );
+    }
+    this._implementation = implementation;
   }
 
   sendMutation(mutationRequest: RelayMutationRequest): void {
-    const networkLayer = this._getCurrentNetworkLayer();
-    const promise = networkLayer.sendMutation(mutationRequest);
+    const implementation = this._getImplementation();
+    const promise = implementation.sendMutation(mutationRequest);
     if (promise) {
       Promise.resolve(promise).done();
     }
   }
 
   sendQueries(queryRequests: Array<RelayQueryRequest>): void {
-    const networkLayer = this._getCurrentNetworkLayer();
-    const promise = networkLayer.sendQueries(queryRequests);
+    const implementation = this._getImplementation();
+    const promise = implementation.sendQueries(queryRequests);
     if (promise) {
       Promise.resolve(promise).done();
     }
   }
 
   supports(...options: Array<string>): boolean {
-    const networkLayer = this._getCurrentNetworkLayer();
-    return networkLayer.supports(...options);
+    const implementation = this._getImplementation();
+    return implementation.supports(...options);
   }
 
-  _getCurrentNetworkLayer(): NetworkLayer {
+  _getImplementation(): NetworkLayer {
+    const implementation = this._implementation || this._defaultImplementation;
     invariant(
-      this._injectedNetworkLayer,
-      'RelayNetworkLayer: Use `injectNetworkLayer` to configure a network ' +
-      'layer.'
+      implementation,
+      'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
+      'configure a network layer.'
     );
-    return this._injectedNetworkLayer;
+    return implementation;
   }
 
   /**
@@ -108,7 +129,7 @@ function profileQueue(currentQueue: Array<RelayQueryRequest>): void {
         firstResultProfiler = null;
       }
     };
-    query.getPromise().done(onSettle, onSettle);
+    query.done(onSettle, onSettle);
   });
 }
 

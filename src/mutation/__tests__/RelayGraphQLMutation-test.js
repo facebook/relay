@@ -78,7 +78,7 @@ describe('RelayGraphQLMutation', function() {
       requests.push(request);
       return request.getPromise();
     });
-    storeData.getNetworkLayer().injectNetworkLayer({sendMutation});
+    storeData.getNetworkLayer().injectImplementation({sendMutation});
 
     feedbackLikeQuery =
       Relay.QL`mutation FeedbackLikeMutation {

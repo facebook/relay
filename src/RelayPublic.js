@@ -51,6 +51,8 @@ const RelayPublic = {
   createContainer: RelayContainer.create,
   createQuery: createRelayQuery,
   getQueries: getRelayQueries,
+  injectDefaultNetworkLayer:
+    RelayStore.injectDefaultNetworkLayer.bind(RelayStore),
   injectNetworkLayer: RelayStore.injectNetworkLayer.bind(RelayStore),
   injectTaskScheduler: RelayStore.injectTaskScheduler.bind(RelayStore),
   isContainer: isRelayContainer,

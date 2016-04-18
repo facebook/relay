@@ -28,6 +28,7 @@ describe('RelayNetworkLayer', () => {
 
     const RelayQuery = jest.genMockFromModule('RelayQuery');
     jest.setMock('RelayQuery', RelayQuery);
+    jest.mock('warning');
 
     injectedNetworkLayer = {
       sendMutation: jest.fn(),
@@ -35,19 +36,77 @@ describe('RelayNetworkLayer', () => {
       supports: jest.fn(() => true),
     };
     networkLayer = new RelayNetworkLayer();
-    networkLayer.injectNetworkLayer(injectedNetworkLayer);
+    networkLayer.injectImplementation(injectedNetworkLayer);
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
+  describe('layer injection', () => {
+    beforeEach(() => {
+      networkLayer = new RelayNetworkLayer();
+    });
+
+    it('complains if no implementation is injected', () => {
+      expect(() => networkLayer.supports([])).toFailInvariant(
+        'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
+        'configure a network layer.'
+      );
+    });
+
+    it('accepts a default implementation', () => {
+      const supports = jest.fn();
+      networkLayer.injectDefaultImplementation({supports});
+      expect(() => networkLayer.supports([])).not.toThrow();
+      expect(supports.mock.calls.length).toBe(1);
+    });
+
+    it('allows the default implementation to be overridden', () => {
+      const defaultSupports = jest.fn();
+      const supports = jest.fn();
+      networkLayer.injectDefaultImplementation({supports: defaultSupports});
+      networkLayer.injectImplementation({supports});
+      expect(() => networkLayer.supports([])).not.toThrow();
+      expect(defaultSupports.mock.calls.length).toBe(0);
+      expect(supports.mock.calls.length).toBe(1);
+    });
+
+    it('complains if the default is set more than once', () => {
+      const first = jest.fn();
+      const second = jest.fn();
+      networkLayer.injectDefaultImplementation({supports: first});
+      networkLayer.injectDefaultImplementation({supports: second});
+      expect(() => networkLayer.supports([])).not.toThrow();
+      expect(first.mock.calls.length).toBe(0);
+      expect(second.mock.calls.length).toBe(1);
+      expect([
+        'RelayNetworkLayer: Call received to injectDefaultImplementation(), ' +
+        'but a default layer was already injected.',
+      ]).toBeWarnedNTimes(1);
+    });
+
+    it('complains if the (non-default) implementation is overridden', () => {
+      const first = jest.fn();
+      const second = jest.fn();
+      networkLayer.injectImplementation({supports: first});
+      networkLayer.injectImplementation({supports: second});
+      expect(() => networkLayer.supports([])).not.toThrow();
+      expect(first.mock.calls.length).toBe(0);
+      expect(second.mock.calls.length).toBe(1);
+      expect([
+        'RelayNetworkLayer: Call received to injectImplementation(), but ' +
+        'a layer was already injected.',
+      ]).toBeWarnedNTimes(1);
+    });
+  });
+
   describe('supports', () => {
     it('throws when no network layer is injected', () => {
-      networkLayer.injectNetworkLayer(null);
+      networkLayer = new RelayNetworkLayer();
       expect(() => {
         networkLayer.sendQueries([]);
       }).toFailInvariant(
-        'RelayNetworkLayer: Use `injectNetworkLayer` to configure a network ' +
-        'layer.'
+        'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
+        'configure a network layer.'
       );
     });
 
@@ -60,12 +119,12 @@ describe('RelayNetworkLayer', () => {
 
   describe('sendQueries', () => {
     it('throws when no network layer is injected', () => {
-      networkLayer.injectNetworkLayer(null);
+      networkLayer = new RelayNetworkLayer();
       expect(() => {
         networkLayer.sendQueries([]);
       }).toFailInvariant(
-        'RelayNetworkLayer: Use `injectNetworkLayer` to configure a network ' +
-        'layer.'
+        'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
+        'configure a network layer.'
       );
     });
 
@@ -90,16 +149,16 @@ describe('RelayNetworkLayer', () => {
       resolvedCallback = jest.fn();
       rejectedCallback = jest.fn();
       deferred = new Deferred();
-      deferred.getPromise().done(resolvedCallback, rejectedCallback);
+      deferred.done(resolvedCallback, rejectedCallback);
     });
 
     it('throws when no network layer is injected', () => {
-      networkLayer.injectNetworkLayer(null);
+      networkLayer = new RelayNetworkLayer();
       expect(() => {
         networkLayer.sendMutation({mutation, variables, deferred});
       }).toFailInvariant(
-        'RelayNetworkLayer: Use `injectNetworkLayer` to configure a network ' +
-        'layer.'
+        'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
+        'configure a network layer.'
       );
     });
 

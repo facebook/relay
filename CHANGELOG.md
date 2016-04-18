@@ -1,5 +1,9 @@
 ## master
 
+* `Relay.Environment#injectNetworkLayer` (and, by extension
+  `Relay#injectNetworkLayer`) will now warn if injecting would overwrite a
+  previously injected layer.
+
 ## 0.8.0 (April 11, 2016)
 
 * Added a React Native / Relay TodoMVC example app.

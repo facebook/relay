@@ -142,6 +142,7 @@ RelayRootContainer.propTypes = {
   renderFetched: PropTypes.func,
   renderLoading: PropTypes.func,
   route: RelayPropTypes.QueryConfig.isRequired,
+  environment: PropTypes.object,
 };
 
 RelayRootContainer.childContextTypes = {

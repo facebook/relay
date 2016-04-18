@@ -93,7 +93,7 @@ describe('RelayDefaultNetworkLayer', () => {
         {inputType: 'FeedbackLikeInput'}
       );
       request = new RelayMutationRequest(mutation);
-      request.getPromise().then(responseCallback).catch(rejectCallback);
+      request.then(responseCallback).catch(rejectCallback);
     });
 
     it('sends correct data to server', () => {
@@ -245,8 +245,8 @@ describe('RelayDefaultNetworkLayer', () => {
       const resolveACallback = jest.fn();
       const resolveBCallback = jest.fn();
       networkLayer.sendQueries([requestA, requestB]);
-      requestA.getPromise().done(resolveACallback);
-      requestB.getPromise().done(resolveBCallback);
+      requestA.done(resolveACallback);
+      requestB.done(resolveBCallback);
       jest.runAllTimers();
 
       const payloadA = {
@@ -324,7 +324,7 @@ describe('RelayDefaultNetworkLayer', () => {
       const resolveBCallback = jest.fn();
       networkLayer.sendQueries([requestA, requestB]);
       requestA.getPromise().catch(rejectACallback);
-      requestB.getPromise().done(resolveBCallback);
+      requestB.done(resolveBCallback);
       jest.runAllTimers();
 
       const payload = {

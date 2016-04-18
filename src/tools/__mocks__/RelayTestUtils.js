@@ -10,7 +10,6 @@
 'use strict';
 
 const Map = require('Map');
-const forEachObject = require('forEachObject');
 
 /**
  * Utility methods (eg. for unmocking Relay internals) and custom Jasmine
@@ -386,59 +385,8 @@ const RelayTestUtils = {
      * Handles basic objects, arrays and primitive types, but doesn't support
      * "exotic" types like Date etc.
      */
-    toEqualIgnoringMetadata() {
-      function compareObjectish(a, b) {
-        if (a === b) {
-          return true;
-        } else if (typeof a !== typeof b) {
-          return false;
-        } else if (Array.isArray(a)) {
-          if (Array.isArray(b) && a.length === b.length) {
-            return a.every((item, i) => compareObjectish(item, b[i]));
-          } else {
-            return false;
-          }
-        } else if (
-          typeof a === 'object' && a &&
-          typeof b === 'object' && b
-        ) {
-          let equal = true;
-
-          const comparator = (other, value, name, object) => {
-            if (name.match(/^__.+__$/)) {
-              return;
-            } else if (!other.hasOwnProperty(name)) {
-              equal = false;
-            } else if (!compareObjectish(value, other[name])) {
-              equal = false;
-            }
-          };
-
-          forEachObject(a, comparator.bind(null, b));
-          forEachObject(b, comparator.bind(null, a));
-          return equal;
-        }
-        return false;
-      }
-
-      return {
-        compare(actual, expected) {
-          if (compareObjectish(actual, expected)) {
-            return {pass: true};
-          } else {
-            const indent = 2;
-            return {
-              pass: false,
-              message: [
-                'Expected:',
-                indentBy(indent, prettyStringify(actual, indent)),
-                'to equal (ignoring metadata properties):',
-                indentBy(indent, prettyStringify(expected, indent)),
-              ].join('\n'),
-            };
-          }
-        },
-      };
+    toMatchRecord() {
+      return {compare: require('matchRecord')};
     },
 
     toEqualPrintedQuery() {

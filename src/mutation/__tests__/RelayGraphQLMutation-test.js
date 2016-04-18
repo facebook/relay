@@ -284,7 +284,7 @@ describe('RelayGraphQLMutation', function() {
             `),
             'aFeedbackId'
           );
-          expect(data).toEqualIgnoringMetadata({
+          expect(data).toMatchRecord({
             doesViewerLike: true,
             id: 'aFeedbackId',
             likers: {

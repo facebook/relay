@@ -18,7 +18,7 @@ describe('RelayTestUtils', () => {
     let comparator;
 
     beforeEach(() => {
-      comparator = RelayTestUtils.matchers.toEqualIgnoringMetadata().compare;
+      comparator = RelayTestUtils.matchers.toMatchRecord().compare;
 
       // Define custom matchers to test our custom matchers...
       jest.addMatchers({
@@ -89,14 +89,11 @@ describe('RelayTestUtils', () => {
       });
     });
 
-    describe('toEqualIgnoringMetadata', () => {
+    describe('toMatchRecord()', () => {
       it('compares equal primitive objects', () => {
         expect(comparator('foo', 'foo')).toPass();
         expect(comparator('foo', 'bar')).toFail(
-          'Expected:\n' +
-          '  "foo"\n' +
-          'to equal (ignoring metadata properties):\n' +
-          '  "bar"'
+          'Expected value to be "bar", but got "foo"'
         );
 
         expect(comparator(7337, 7337)).toPass();
@@ -105,13 +102,15 @@ describe('RelayTestUtils', () => {
 
       it('compares null', () => {
         expect(comparator(null, null)).toPass();
-        expect(comparator(null, 1)).toFail();
+        expect(comparator(null, 1)).toFail(
+          'Expected value to be "1", but got null'
+        );
       });
 
       it('compares shallow arrays', () => {
         expect(comparator([1, 2, 'foo'], [1, 2, 'foo'])).toPass();
         expect(comparator([1, 2, 'bar'], [1, 2, 'baz'])).toFail(
-          /bar[\s\S]+baz/
+          'Expected property at path `2` to be "baz", but got "bar"'
         );
         expect(comparator([1, 2, 3], [1, 2])).toFail();
         expect(comparator([1, 2], [1, 2, 3])).toFail();
@@ -173,6 +172,16 @@ describe('RelayTestUtils', () => {
           {__dataID__: 'client:0', foo: 1, bar: {other: 'thing'}},
           {foo: 1, bar: {other: 'thing'}},
         )).toPass();
+      });
+
+      it('does not handle "exotic" objects', () => {
+        // Dates have no keys, so we consider these equal.
+        expect(comparator(new Date('2015-08-11'), new Date())).toPass();
+
+        // But note that we at least distinguish different object types.
+        expect(comparator([], new Date())).toFail(
+          /^Expected value to be ".+", but got \[\]$/
+        );
       });
     });
   });

@@ -108,6 +108,7 @@ function createDebuggableFromRequest(
         'monospaced;',
         request.getQueryString()
       );
+      console.log('Query variables\n', request.getVariables());
       error && console.error(error);
       response && console.log(response);
     },

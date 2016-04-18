@@ -35,7 +35,6 @@ type RootContainerProps = {
   ) => React$Element;
   renderLoading?: ?() => React$Element;
   route: RelayQueryConfigInterface;
-  environment: RelayStore;
 };
 
 const {PropTypes} = React;
@@ -143,7 +142,6 @@ RelayRootContainer.propTypes = {
   renderFetched: PropTypes.func,
   renderLoading: PropTypes.func,
   route: RelayPropTypes.QueryConfig.isRequired,
-  environment: PropTypes.Environment,
 };
 
 RelayRootContainer.childContextTypes = {

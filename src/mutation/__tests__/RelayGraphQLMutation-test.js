@@ -28,7 +28,10 @@ const RelayTestUtils = require('RelayTestUtils');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const readRelayQueryData = require('readRelayQueryData');
 
-const {COMMITTING} = RelayMutationTransactionStatus;
+const {
+  COMMITTING,
+  COMMIT_QUEUED,
+} = RelayMutationTransactionStatus;
 const {HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface;
 
 const {getNode} = RelayTestUtils;
@@ -108,10 +111,9 @@ describe('RelayGraphQLMutation', function() {
 
   describe('applyUpdate()', () => {
     it('complains if called twice', () => {
-      const mutation = new RelayGraphQLMutation(
+      const mutation = RelayGraphQLMutation.create(
         feedbackLikeQuery,
         feedbackLikeVariables,
-        null,
         environment
       );
       expect(() => mutation.applyUpdate()).not.toThrow();
@@ -131,10 +133,9 @@ describe('RelayGraphQLMutation', function() {
           },
           likersCount: '10',
         };
-        const mutation = new RelayGraphQLMutation(
+        const mutation = RelayGraphQLMutation.create(
           feedbackLikeQuery,
           variables,
-          null,
           environment
         );
         expect(() => mutation.commitUpdate())
@@ -150,10 +151,9 @@ describe('RelayGraphQLMutation', function() {
             feedbackId: 'aFeedbackId',
           },
         };
-        const mutation = new RelayGraphQLMutation(
+        const mutation = RelayGraphQLMutation.create(
           feedbackLikeQuery,
           variables,
-          null,
           environment
         );
 
@@ -342,11 +342,75 @@ describe('RelayGraphQLMutation', function() {
         });
       });
 
+      describe('collision keys', () => {
+        it('enqueues colliding keys', () => {
+          // Colliding keys: only first transaction runs.
+          const mutation1 = new RelayGraphQLMutation(
+            feedbackLikeQuery,
+            feedbackLikeVariables,
+            null,
+            environment,
+            null,
+            'aKey'
+          );
+          const mutation2 = new RelayGraphQLMutation(
+            feedbackLikeQuery,
+            feedbackLikeVariables,
+            null,
+            environment,
+            null,
+            'aKey'
+          );
+          const transaction1 = mutation1.commitUpdate();
+          const transaction2 = mutation2.commitUpdate();
+          expect(queue.getStatus(transaction1.getID())).toBe(COMMITTING);
+          expect(queue.getStatus(transaction2.getID())).toBe(COMMIT_QUEUED);
+        });
+
+        it('allows non-collding keys to send concurrently', () => {
+          // Non-colliding keys: both transactions run.
+          const mutation1 = new RelayGraphQLMutation(
+            feedbackLikeQuery,
+            feedbackLikeVariables,
+            null,
+            environment,
+            'oneKey'
+          );
+          const mutation2 = new RelayGraphQLMutation(
+            feedbackLikeQuery,
+            feedbackLikeVariables,
+            null,
+            environment,
+            'anotherKey'
+          );
+          const transaction1 = mutation1.commitUpdate();
+          const transaction2 = mutation2.commitUpdate();
+          expect(queue.getStatus(transaction1.getID())).toBe(COMMITTING);
+          expect(queue.getStatus(transaction2.getID())).toBe(COMMITTING);
+        });
+
+        it('auto-generates non-colliding keys if none provided', () =>{
+          const mutation1 = RelayGraphQLMutation.create(
+            feedbackLikeQuery,
+            feedbackLikeVariables,
+            environment
+          );
+          const mutation2 = RelayGraphQLMutation.create(
+            feedbackLikeQuery,
+            feedbackLikeVariables,
+            environment
+          );
+          const transaction1 = mutation1.commitUpdate();
+          const transaction2 = mutation2.commitUpdate();
+          expect(queue.getStatus(transaction1.getID())).toBe(COMMITTING);
+          expect(queue.getStatus(transaction2.getID())).toBe(COMMITTING);
+        });
+      });
+
       it('complains if committed twice', () => {
-        const mutation = new RelayGraphQLMutation(
+        const mutation = RelayGraphQLMutation.create(
           feedbackLikeQuery,
           feedbackLikeVariables,
-          null,
           environment
         );
         mutation.commitUpdate();

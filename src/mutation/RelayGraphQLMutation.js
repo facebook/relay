@@ -95,7 +95,7 @@ class RelayGraphQLMutation {
 
   /**
    * General constructor for creating RelayGraphQLMutation instances with
-   * optional `files` and `collisionKey` arguments.
+   * optional `files`, `callbacks` and `collisionKey` arguments.
    *
    * Callers must provide an appropriate `mutation`:
    *

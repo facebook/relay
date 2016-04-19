@@ -219,7 +219,7 @@ class PendingGraphQLTransaction {
     invariant(
       this._mutation,
       'RelayGraphQLMutation: `getCallName()` called but no mutation exists ' +
-      '(`getQuery()` must be called first to construct the mutation.'
+      '(`getQuery()` must be called first to construct the mutation).'
     );
     return this._mutation.getCall().name;
   }

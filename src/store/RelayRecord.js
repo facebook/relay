@@ -27,6 +27,7 @@ export type Record = {
   __filterCalls__?: Array<Call>;
   __forceIndex__?: number;
   __mutationIDs__?: Array<ClientMutationID>;
+  __mutationStatus__?: string;
   __path__?: QueryPath;
   __range__?: GraphQLRange;
   __resolvedDeferredFragments__?: {[fragmentID: string]: boolean};
@@ -43,6 +44,7 @@ const MetadataKey = {
   FILTER_CALLS: '__filterCalls__',
   FORCE_INDEX: '__forceIndex__',
   MUTATION_IDS: '__mutationIDs__',
+  MUTATION_STATUS: '__mutationStatus__',
   PATH: '__path__',
   RANGE: '__range__',
   RESOLVED_DEFERRED_FRAGMENTS: '__resolvedDeferredFragments__',

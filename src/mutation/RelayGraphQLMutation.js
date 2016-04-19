@@ -59,33 +59,38 @@ let collisionIDCounter = 0;
  *
  */
 class RelayGraphQLMutation {
+  _callbacks: ?RelayMutationTransactionCommitCallbacks;
   _collisionKey: string;
+  _environment: RelayEnvironmentInterface;
   _files: ?FileMap;
   _query: RelayConcreteNode;
+  _transaction: ?PendingGraphQLTransaction;
   _variables: Object;
 
   /**
    * Simplest method for creating a RelayGraphQLMutation instance from a static
-   * `mutation` and some `variables`.
+   * `mutation`, some `variables` and an `environment`.
    */
   static create(
     mutation: RelayConcreteNode,
-    variables: Object
+    variables: Object,
+    environment: RelayEnvironmentInterface
   ): RelayGraphQLMutation {
-    return new RelayGraphQLMutation(mutation, variables, null, null);
+    return new RelayGraphQLMutation(mutation, variables, null, environment);
   }
 
   /**
    * Specialized method for creating RelayGraphQLMutation instances that takes a
-   * `files` object in addition to the base `mutation` and `variables`
-   * parameters.
+   * `files` object in addition to the base `mutation`, `variables` and
+   * `environment` parameters.
    */
   static createWithFiles(
     mutation: RelayConcreteNode,
     variables: Object,
     files: FileMap,
+    environment: RelayEnvironmentInterface
   ): RelayGraphQLMutation {
-    return new RelayGraphQLMutation(mutation, variables, files, null);
+    return new RelayGraphQLMutation(mutation, variables, files, environment);
   }
 
   /**
@@ -136,29 +141,63 @@ class RelayGraphQLMutation {
     query: RelayConcreteNode,
     variables: Object,
     files: ?FileMap,
+    environment: RelayEnvironmentInterface,
+    callbacks: ?RelayMutationTransactionCommitCallbacks,
     collisionKey: ?string
   ) {
     this._query = query;
     this._variables = variables;
     this._files = files || null;
+    this._environment = environment;
+    this._callbacks = callbacks || null;
     this._collisionKey =
       collisionKey ||
       `${COUNTER_PREFIX}:collisionKey:${getNextCollisionID()}`;
+    this._transaction = null;
   }
 
-  commitUpdate(
-    environment: RelayEnvironmentInterface,
-    callbacks: ?RelayMutationTransactionCommitCallbacks,
-  ): RelayMutationTransaction {
-    const transaction = new PendingGraphQLTransaction(
-      environment,
+  /**
+   * Call this to optimistically apply an update to the store.
+   *
+   * Optionally, follow up with a call to `commitUpdate()` to send the mutation
+   * to the server.
+   *
+   * Note: An optimistic update may only be applied once.
+   */
+  applyUpdate(): RelayMutationTransaction {
+    invariant(
+      !this._transaction,
+      'RelayGraphQLMutation: `applyUpdate()` was called on an instance that ' +
+      'already has a transaction in progress.'
+    );
+    this._transaction = this._createTransaction();
+    return this._transaction.applyOptimistic();
+  }
+
+  /**
+   * Call this to send the mutation to the server.
+   *
+   * Optionally, precede with a call to `applyUpdate()` to apply an update
+   * optimistically to the store.
+   *
+   * Note: This method may only be called once per instance.
+   */
+  commitUpdate(): RelayMutationTransaction {
+    if (!this._transaction) {
+      this._transaction = this._createTransaction();
+    }
+    return this._transaction.commit();
+  }
+
+  _createTransaction(): PendingGraphQLTransaction {
+    return new PendingGraphQLTransaction(
+      this._environment,
       this._query,
       this._variables,
       this._files,
       this._collisionKey,
-      callbacks
+      this._callbacks
     );
-    return transaction.commit();
   }
 }
 
@@ -265,6 +304,10 @@ class PendingGraphQLTransaction {
 
   commit(): RelayMutationTransaction {
     return this.mutationTransaction.commit();
+  }
+
+  applyOptimistic(): RelayMutationTransaction {
+    return this.mutationTransaction.applyOptimistic();
   }
 
   _getVariables(): Variables {

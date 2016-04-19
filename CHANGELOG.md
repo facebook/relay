@@ -3,6 +3,8 @@
 * `Relay.Environment#injectNetworkLayer` (and, by extension
   `Relay#injectNetworkLayer`) will now warn if injecting would overwrite a
   previously injected layer.
+* Added experimental low-level `RelayGraphQLMutation` API (still being
+  finalized and not yet documented, so use at your own risk).
 
 ## 0.8.0 (April 11, 2016)
 

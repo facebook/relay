@@ -72,7 +72,7 @@ describe('RelayGraphQLMutation', function() {
   }
 
   beforeEach(() => {
-    jest.addMatchers(RelayTestUtils.matchers);
+    jasmine.addMatchers(RelayTestUtils.matchers);
 
     requests = [];
     environment = new RelayEnvironment();

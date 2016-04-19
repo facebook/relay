@@ -31,6 +31,7 @@ const readRelayQueryData = require('readRelayQueryData');
 const {
   COMMITTING,
   COMMIT_QUEUED,
+  UNCOMMITTED,
 } = RelayMutationTransactionStatus;
 const {HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface;
 
@@ -38,9 +39,10 @@ const {getNode} = RelayTestUtils;
 
 describe('RelayGraphQLMutation', function() {
   let environment;
-  let callbacks;
   let feedbackLikeQuery;
   let feedbackLikeVariables;
+  let optimisticQuery;
+  let optimisticResponse;
   let queue;
   let requests;
   let sendMutation;
@@ -107,6 +109,31 @@ describe('RelayGraphQLMutation', function() {
       },
       likersCount: 10,
     };
+
+    optimisticQuery =
+      Relay.QL`mutation FeedbackLikeOptimisticUpdate {
+        feedbackLike(input: $input) {
+          clientMutationId
+          feedback {
+            doesViewerLike
+            id
+            likers(first: $likersCount) {
+              count
+            }
+          }
+        }
+      }`;
+    const likers = generateRQLFieldAlias('likers.first(10)');
+    optimisticResponse = {
+      feedback: {
+        doesViewerLike: true,
+        id: 'aFeedbackId',
+        [likers]: {
+          count: 2,
+        },
+        __typename: 'Feedback',
+      },
+    };
   });
 
   describe('applyUpdate()', () => {
@@ -116,11 +143,108 @@ describe('RelayGraphQLMutation', function() {
         feedbackLikeVariables,
         environment
       );
-      expect(() => mutation.applyUpdate()).not.toThrow();
-      expect(() => mutation.applyUpdate()).toFailInvariant(
+      const mutate = () => mutation.applyUpdate(
+        optimisticQuery,
+        optimisticResponse
+      );
+      expect(mutate).not.toThrow();
+      expect(mutate).toFailInvariant(
         'RelayGraphQLMutation: `applyUpdate()` was called on an instance ' +
         'that already has a transaction in progress.'
       );
+    });
+
+    it('optimistically updates the store', () => {
+      writePayload(
+        getNode(Relay.QL`
+          query {
+            node(id: "aFeedbackId") {
+              ... on Feedback {
+                doesViewerLike
+                id
+                likers(first: "10") {
+                  count
+                  edges {
+                    node {
+                      id
+                      name
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `),
+        {
+          node: {
+            __typename: 'Feedback',
+            doesViewerLike: false,
+            id: 'aFeedbackId',
+            likers: {
+              count: 1,
+              edges: [
+                {
+                  cursor: 'cursor1',
+                  node: {
+                    __typename: 'User',
+                    id: '1055790163',
+                    name: 'Yuzhi',
+                  },
+                },
+              ],
+              [PAGE_INFO]: {
+                [HAS_NEXT_PAGE]: false,
+                [HAS_PREV_PAGE]: false,
+              },
+            },
+          },
+        }
+      );
+
+      const callbacks = {
+        onFailure: jest.fn(),
+        onSuccess: jest.fn(),
+      };
+      const mutation = new RelayGraphQLMutation(
+        feedbackLikeQuery,
+        feedbackLikeVariables,
+        null,
+        environment,
+        callbacks
+      );
+      const transaction = mutation.applyUpdate(
+        optimisticQuery,
+        optimisticResponse,
+      );
+      const id = transaction.getID();
+      expect(queue.getStatus(id)).toBe(UNCOMMITTED);
+      expect(sendMutation.mock.calls.length).toBe(0);
+
+      const data = readData(
+        getNode(Relay.QL`
+          fragment on Feedback {
+            doesViewerLike
+            id
+            likers(first: "10") {
+              count
+            }
+          }
+        `),
+        'aFeedbackId'
+      );
+      expect(data).toMatchRecord({
+        __mutationStatus__: '0:UNCOMMITTED',
+        doesViewerLike: true,
+        id: 'aFeedbackId',
+        likers: {
+          __mutationStatus__: '0:UNCOMMITTED',
+          count: 2,
+        },
+      });
+
+      // Callbacks don't fire for optimistic updates.
+      expect(callbacks.onFailure).not.toBeCalled();
+      expect(callbacks.onSuccess).not.toBeCalled();
     });
   });
 
@@ -217,7 +341,7 @@ describe('RelayGraphQLMutation', function() {
         );
 
         // Creating the mutation does not send it.
-        callbacks = {
+        const callbacks = {
           onFailure: jest.fn(),
           onSuccess: jest.fn(),
         };

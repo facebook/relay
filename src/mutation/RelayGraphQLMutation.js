@@ -164,13 +164,19 @@ class RelayGraphQLMutation {
    *
    * Note: An optimistic update may only be applied once.
    */
-  applyUpdate(): RelayMutationTransaction {
+  applyUpdate(
+    optimisticQuery: RelayConcreteNode,
+    optimisticResponse: Object,
+  ): RelayMutationTransaction {
     invariant(
       !this._transaction,
       'RelayGraphQLMutation: `applyUpdate()` was called on an instance that ' +
       'already has a transaction in progress.'
     );
-    this._transaction = this._createTransaction();
+    this._transaction = this._createTransaction(
+      optimisticQuery,
+      optimisticResponse,
+    );
     return this._transaction.applyOptimistic();
   }
 
@@ -189,12 +195,17 @@ class RelayGraphQLMutation {
     return this._transaction.commit();
   }
 
-  _createTransaction(): PendingGraphQLTransaction {
+  _createTransaction(
+    optimisticQuery: ?RelayConcreteNode,
+    optimisticResponse: ?Object,
+  ): PendingGraphQLTransaction {
     return new PendingGraphQLTransaction(
       this._environment,
       this._query,
       this._variables,
       this._files,
+      optimisticQuery,
+      optimisticResponse,
       this._collisionKey,
       this._callbacks
     );
@@ -222,27 +233,35 @@ class PendingGraphQLTransaction {
 
   // Other properties:
   _collisionKey: string;
-  _variables: Variables;
   _files: ?FileMap;
-  _query: RelayConcreteNode;
   _mutation: ?RelayQuery.Mutation;
+  _optimisticResponse: ?Object;
+  _optimisticQuery: ?RelayConcreteNode;
+  _optimisticMutation: ?RelayQuery.Mutation;
+  _query: RelayConcreteNode;
+  _variables: Variables;
 
   constructor(
     environment: RelayEnvironmentInterface,
     query: RelayConcreteNode,
     variables: Variables,
     files: ?FileMap,
+    optimisticQuery: ?RelayConcreteNode,
+    optimisticResponse: ?Object,
     collisionKey: string,
     callbacks: ?RelayMutationTransactionCommitCallbacks
   ) {
     this._query = query;
     this._variables = variables;
+    this._optimisticQuery = optimisticQuery || null;
+    this._optimisticResponse = optimisticResponse || null;
     this._collisionKey = collisionKey;
     this.onFailure = callbacks && callbacks.onFailure;
     this.onSuccess = callbacks && callbacks.onSuccess;
     this.status = RelayMutationTransactionStatus.CREATED;
     this.error = null;
     this._mutation = null;
+    this._optimisticMutation = null;
 
     this.mutationTransaction = environment
       .getStoreData()
@@ -280,11 +299,24 @@ class PendingGraphQLTransaction {
   }
 
   getOptimisticQuery(storeData: RelayStoreData): ?RelayQuery.Mutation {
-    return null;
+    if (!this._optimisticMutation && this._optimisticQuery) {
+      const concreteMutation = QueryBuilder.getMutation(this._optimisticQuery);
+      const mutation = RelayQuery.Mutation.create(
+        concreteMutation,
+        RelayMetaRoute.get('$RelayGraphQLMutation'),
+        this._getVariables()
+      );
+      this._optimisticMutation =
+        (mutation: any); // Cast RelayQuery.{Node -> Mutation}.
+    }
+    return this._optimisticMutation;
   }
 
   getOptimisticResponse(): ?Object {
-    return null;
+    return {
+      ...this._optimisticResponse,
+      [CLIENT_MUTATION_ID]: this.id,
+    };
   }
 
   getQuery(storeData: RelayStoreData): RelayQuery.Mutation {

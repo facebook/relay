@@ -37,7 +37,7 @@ const {HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface;
 
 const {getNode} = RelayTestUtils;
 
-describe('RelayGraphQLMutation', function() {
+describe('RelayGraphQLMutation', () => {
   let environment;
   let feedbackLikeQuery;
   let feedbackLikeVariables;

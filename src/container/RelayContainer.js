@@ -892,6 +892,42 @@ function getDeferredFragment(
   );
 }
 
+
+function validateSpec(
+  componentName: string,
+  spec: RelayContainerSpec,
+): void {
+
+  const fragments = spec.fragments;
+  invariant(
+    typeof fragments === 'object' && fragments,
+    'Relay.createContainer(%s, ...): Missing `fragments`, which is expected ' +
+    'to be an object mapping from `propName` to: () => Relay.QL`...`',
+    componentName
+  );
+
+  if (!spec.initialVariables) {
+    return;
+  }
+  const initialVariables = spec.initialVariables || {};
+  invariant(
+    typeof initialVariables === 'object' && initialVariables,
+    'Relay.createContainer(%s, ...): Expected `initialVariables` to be an ' +
+    'object.',
+    componentName
+  );
+
+  forEachObject(fragments, (_, name) => {
+    warning(
+      !initialVariables.hasOwnProperty(name),
+      'Relay.createContainer(%s, ...): `%s` is used both as a fragment name ' +
+      'and variable name. Please give them unique names.',
+      componentName,
+      name
+    );
+  });
+}
+
 /**
  * Creates a lazy Relay container. The actual container is created the first
  * time a container is being constructed by React's rendering engine.
@@ -903,13 +939,9 @@ function create(
   const componentName = Component.displayName || Component.name;
   const containerName = 'Relay(' + componentName + ')';
 
+  validateSpec(componentName, spec);
+
   const fragments = spec.fragments;
-  invariant(
-    typeof fragments === 'object' && fragments,
-    'Relay.createContainer(%s, ...): Missing `fragments`, which is expected ' +
-    'to be an object mapping from `propName` to: () => Relay.QL`...`',
-    componentName
-  );
   const fragmentNames = Object.keys(fragments);
   const initialVariables = spec.initialVariables || {};
   const prepareVariables = spec.prepareVariables;

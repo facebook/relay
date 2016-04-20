@@ -119,25 +119,26 @@ When compiling code for production deployment, the plugin can be configured to i
 ```javascript
 babel.transform(source, {
   plugins: [
-    [getBabelRelayPlugin(schemaData), {
+    [getBabelRelayPlugin(schemaData, {
+      // Only if enforceSchema: false and debug: true it will still log validation errors at build time
+      debug: false, 
+      //Customizes the name of the input variable when queries/muations are being sent off to the server.
+      inputArgumentName: 'custom_input_name',
+      // Transforms any field names to snake_case when the queries/mutations are sent to the server
+      snakeCase: true,
+      //Supresses all warnings that would be printed
+      suppressWarnings: false, 
+      // enables the usage of variables in your relay queries via ES6 template strings
+      substituteVariables: true,
+      // Can add custom schema validation rules? Is there a simple example for this?
+      validator: (GraphQL) => {
+        return (schema, ast) => {
+          return []
+        }
+      }
+    }), {
     // will throw an error when it validates the queries at build time
     enforceSchema: true, 
-    // Only if enforceSchema: false and debug: true it will still log validation errors at build time
-    debug: false, 
-    //Customizes the name of the input variable when queries/muations are being sent off to the server.
-    inputArgumentName: 'custom_input_name',
-    // Transforms any field names to snake_case when the queries/mutations are sent to the server
-    snakeCase: true,
-    //Supresses all warnings that would be printed
-    suppressWarnings: false, 
-    // enables the usage of variables in your relay queries via ES6 template strings
-    substituteVariables: true,
-    // Can add custom schema validation rules? Is there a simple example for this?
-    validator: (GraphQL) => {
-      return (schema, ast) => {
-        return []
-      }
-    }
     }],
   ],
 });

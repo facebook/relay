@@ -21,7 +21,7 @@ describe('RelayTestUtils', () => {
       comparator = RelayTestUtils.matchers.toMatchRecord().compare;
 
       // Define custom matchers to test our custom matchers...
-      jest.addMatchers({
+      jasmine.addMatchers({
         toFail() {
           return {
             compare(actual, expected) {

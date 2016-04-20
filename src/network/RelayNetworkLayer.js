@@ -13,6 +13,7 @@
 
 'use strict';
 
+import type {ChangeSubscription} from 'RelayInternalTypes';
 import type RelayMutationRequest from 'RelayMutationRequest';
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
@@ -23,6 +24,16 @@ const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
 const warning = require('warning');
 
+type NetworkCallback = (error: ?Error, response: ?Object) => void;
+export type MutationCallback =
+  (request: RelayMutationRequest) => ?NetworkCallback;
+export type QueryCallback = (request: RelayQueryRequest) => ?NetworkCallback;
+
+type Subscriber = {
+  queryCallback: ?QueryCallback,
+  mutationCallback: ?MutationCallback,
+};
+
 /**
  * @internal
  *
@@ -32,10 +43,12 @@ class RelayNetworkLayer {
   _defaultImplementation: ?NetworkLayer;
   _implementation: ?NetworkLayer;
   _queue: ?Array<RelayQueryRequest>;
+  _subscribers: Array<Subscriber>;
 
   constructor() {
     this._implementation = null;
     this._queue = null;
+    this._subscribers = [];
   }
 
   injectDefaultImplementation(implementation: ?NetworkLayer): void {
@@ -60,8 +73,32 @@ class RelayNetworkLayer {
     this._implementation = implementation;
   }
 
+  addNetworkSubscriber(
+    queryCallback?: ?QueryCallback,
+    mutationCallback?: ?MutationCallback
+  ) : ChangeSubscription {
+    const index = this._subscribers.length;
+    this._subscribers.push({queryCallback, mutationCallback});
+    return {
+      remove: () => {
+        delete this._subscribers[index];
+      },
+    };
+  }
+
   sendMutation(mutationRequest: RelayMutationRequest): void {
     const implementation = this._getImplementation();
+    this._subscribers.forEach(({mutationCallback}) => {
+      if (mutationCallback) {
+        const onSettle = mutationCallback(mutationRequest);
+        if (onSettle) {
+          mutationRequest.done(
+            response => onSettle(null, response),
+            error => onSettle(error, null)
+          );
+        }
+      }
+    });
     const promise = implementation.sendMutation(mutationRequest);
     if (promise) {
       Promise.resolve(promise).done();
@@ -70,6 +107,20 @@ class RelayNetworkLayer {
 
   sendQueries(queryRequests: Array<RelayQueryRequest>): void {
     const implementation = this._getImplementation();
+    this._subscribers.forEach(({queryCallback}) => {
+      if (queryCallback) {
+        queryRequests.forEach(request => {
+          // $FlowIssue #10907496 queryCallback was checked above
+          const onSettle = queryCallback(request);
+          if (onSettle) {
+            request.done(
+              response => onSettle(null, response),
+              error => onSettle(error, null)
+            );
+          }
+        });
+      }
+    });
     const promise = implementation.sendQueries(queryRequests);
     if (promise) {
       Promise.resolve(promise).done();

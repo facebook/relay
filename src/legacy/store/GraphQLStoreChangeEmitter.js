@@ -15,15 +15,12 @@
 
 const ErrorUtils = require('ErrorUtils');
 import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
+import type {ChangeSubscription} from 'RelayInternalTypes';
 
 const resolveImmediate = require('resolveImmediate');
 
 type BatchStrategy = (callback: Function) => void;
 type SubscriptionCallback = () => void;
-
-export type ChangeSubscription = {
-  remove: SubscriptionCallback;
-};
 
 type Subscriber = {
   callback: SubscriptionCallback,

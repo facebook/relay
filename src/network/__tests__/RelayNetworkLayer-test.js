@@ -13,7 +13,8 @@
 
 require('configureForRelayOSS');
 
-jest.dontMock('RelayNetworkLayer');
+jest.dontMock('RelayNetworkLayer')
+    .dontMock('Deferred');
 
 const Deferred = require('Deferred');
 const RelayNetworkLayer = require('RelayNetworkLayer');
@@ -167,7 +168,8 @@ describe('RelayNetworkLayer', () => {
       networkLayer.sendMutation({mutation, variables, deferred});
       expect(injectedNetworkLayer.sendMutation).toBeCalled();
 
-      const pendingMutation = injectedNetworkLayer.sendMutation.mock.calls[0][0];
+      const pendingMutation =
+        injectedNetworkLayer.sendMutation.mock.calls[0][0];
       expect(pendingMutation.mutation).toBe(mutation);
       expect(pendingMutation.variables).toBe(variables);
     });
@@ -177,7 +179,8 @@ describe('RelayNetworkLayer', () => {
       expect(resolvedCallback).not.toBeCalled();
       expect(rejectedCallback).not.toBeCalled();
 
-      const pendingMutation = injectedNetworkLayer.sendMutation.mock.calls[0][0];
+      const pendingMutation =
+        injectedNetworkLayer.sendMutation.mock.calls[0][0];
       const response = {};
       pendingMutation.deferred.resolve(response);
       jest.runAllTimers();
@@ -191,13 +194,89 @@ describe('RelayNetworkLayer', () => {
       expect(resolvedCallback).not.toBeCalled();
       expect(rejectedCallback).not.toBeCalled();
 
-      const pendingMutation = injectedNetworkLayer.sendMutation.mock.calls[0][0];
+      const pendingMutation =
+        injectedNetworkLayer.sendMutation.mock.calls[0][0];
       const error = new Error('Mutation Error');
       pendingMutation.deferred.reject(error);
       jest.runAllTimers();
 
       expect(resolvedCallback).not.toBeCalled();
       expect(rejectedCallback).toBeCalledWith(error);
+    });
+  });
+
+  describe('addNetworkSubscriber', () => {
+    let mutationCallback;
+    let mutationResponseCallback;
+    let queryCallback;
+    let queryResponseCallback;
+    let changeSubscriber;
+
+    beforeEach(() => {
+      mutationResponseCallback = jest.fn();
+      queryResponseCallback = jest.fn();
+      mutationCallback = jest.fn(() => mutationResponseCallback);
+      queryCallback = jest.fn(() => queryResponseCallback);
+
+      changeSubscriber =
+        networkLayer.addNetworkSubscriber(queryCallback, mutationCallback);
+    });
+
+    it('calls subscriber with query', () => {
+      expect(queryCallback).not.toBeCalled();
+      expect(queryResponseCallback).not.toBeCalled();
+
+      const deferred1 = new Deferred();
+      const deferred2 = new Deferred();
+      networkLayer.sendQueries([deferred1, deferred2]);
+      const pendingQueries = injectedNetworkLayer.sendQueries.mock.calls[0][0];
+      const response = 'response';
+      pendingQueries[0].resolve(response);
+      const error = new Error('Network Error');
+      pendingQueries[1].reject(error);
+      jest.runAllTimers();
+
+      expect(queryCallback).toBeCalled(2);
+      expect(queryResponseCallback).toBeCalled(2);
+      expect(queryResponseCallback).toBeCalledWith(null, response);
+      expect(queryResponseCallback).toBeCalledWith(error, null);
+    });
+
+    it('calls subscriber with mutation', () => {
+      expect(mutationCallback).not.toBeCalled();
+      expect(mutationResponseCallback).not.toBeCalled();
+
+      const deferred = new Deferred();
+      networkLayer.sendMutation(deferred);
+      const pendingMutation =
+        injectedNetworkLayer.sendMutation.mock.calls[0][0];
+      const response = 'response';
+      pendingMutation.resolve(response);
+      jest.runAllTimers();
+
+      expect(mutationCallback).toBeCalled(1);
+      expect(mutationResponseCallback).toBeCalled(1);
+      expect(mutationResponseCallback).toBeCalledWith(null, response);
+    });
+
+    it('does not call subscriber once it is removed', () => {
+      changeSubscriber.remove();
+
+      const deferred1 = new Deferred();
+      const deferred2 = new Deferred();
+      networkLayer.sendQueries([deferred1]);
+      networkLayer.sendMutation(deferred2);
+      const pendingQuery = injectedNetworkLayer.sendQueries.mock.calls[0][0][0];
+      pendingQuery.resolve('response');
+      const pendingMutation =
+        injectedNetworkLayer.sendMutation.mock.calls[0][0];
+      pendingMutation.resolve('response');
+      jest.runAllTimers();
+
+      expect(queryCallback).not.toBeCalled();
+      expect(queryResponseCallback).not.toBeCalled();
+      expect(mutationCallback).not.toBeCalled();
+      expect(mutationResponseCallback).not.toBeCalled();
     });
   });
 });

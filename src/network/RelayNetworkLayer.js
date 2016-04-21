@@ -51,6 +51,9 @@ class RelayNetworkLayer {
     this._subscribers = [];
   }
 
+  /**
+   * @internal
+   */
   injectDefaultImplementation(implementation: ?NetworkLayer): void {
     if (this._defaultImplementation) {
       warning(

@@ -102,6 +102,9 @@ class RelayEnvironment {
     return this._storeData;
   }
 
+  /**
+   * @internal
+   */
   injectDefaultNetworkLayer(networkLayer: ?NetworkLayer) {
     this._storeData.getNetworkLayer().injectDefaultImplementation(networkLayer);
   }

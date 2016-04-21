@@ -376,7 +376,6 @@ class RelayMutation<Tp: Object> {
     fragmentName: $Keys<Tp>,
     variableMapping?: Variables
   ): RelayFragmentReference {
-    // TODO: Unify fragment API for containers and mutations, #7860172.
     const fragments = this.fragments;
     const fragmentBuilder = fragments[fragmentName];
     if (!fragmentBuilder) {

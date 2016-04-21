@@ -107,7 +107,7 @@ export function getShip(id) {
 }
 
 export function getShips(id) {
-  return data.Faction[id].ships.map(id => data.Ship[id]);
+  return data.Faction[id].ships.map(shipId => data.Ship[shipId]);
 }
 
 export function getFaction(id) {

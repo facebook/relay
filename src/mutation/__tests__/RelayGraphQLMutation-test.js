@@ -137,20 +137,20 @@ describe('RelayGraphQLMutation', () => {
     };
   });
 
-  describe('applyUpdate()', () => {
+  describe('applyOptimistic()', () => {
     it('complains if called twice', () => {
       const mutation = RelayGraphQLMutation.create(
         feedbackLikeQuery,
         feedbackLikeVariables,
         environment
       );
-      const mutate = () => mutation.applyUpdate(
+      const mutate = () => mutation.applyOptimistic(
         optimisticQuery,
         optimisticResponse
       );
       expect(mutate).not.toThrow();
       expect(mutate).toFailInvariant(
-        'RelayGraphQLMutation: `applyUpdate()` was called on an instance ' +
+        'RelayGraphQLMutation: `applyOptimistic()` was called on an instance ' +
         'that already has a transaction in progress.'
       );
     });
@@ -213,7 +213,7 @@ describe('RelayGraphQLMutation', () => {
         environment,
         callbacks
       );
-      const transaction = mutation.applyUpdate(
+      const transaction = mutation.applyOptimistic(
         optimisticQuery,
         optimisticResponse,
       );
@@ -249,7 +249,7 @@ describe('RelayGraphQLMutation', () => {
     });
   });
 
-  describe('commitUpdate()', () => {
+  describe('commit()', () => {
     describe('variable validation', () => {
       it('complains about missing `input` variable', () => {
         const variables = {
@@ -263,7 +263,7 @@ describe('RelayGraphQLMutation', () => {
           variables,
           environment
         );
-        expect(() => mutation.commitUpdate())
+        expect(() => mutation.commit())
           .toFailInvariant(
             'RelayGraphQLMutation: Required `input` variable is missing ' +
             '(supplied variables were: [inptu, likersCount]).'
@@ -285,7 +285,7 @@ describe('RelayGraphQLMutation', () => {
         // Need to actually print the query to see this invariant.
         sendMutation.mockImplementation(request => request.getQueryString());
 
-        expect(() => mutation.commitUpdate())
+        expect(() => mutation.commit())
           .toFailInvariant(
             'callsFromGraphQL(): Expected a declared value for variable, ' +
             '`$likersCount`.'
@@ -355,7 +355,7 @@ describe('RelayGraphQLMutation', () => {
         );
         expect(sendMutation.mock.calls.length).toBe(0);
 
-        const transaction = mutation.commitUpdate();
+        const transaction = mutation.commit();
         const id = transaction.getID();
         expect(queue.getStatus(id)).toBe(COMMITTING);
         expect(sendMutation.mock.calls.length).toBe(1);
@@ -486,8 +486,8 @@ describe('RelayGraphQLMutation', () => {
             null,
             'aKey'
           );
-          const transaction1 = mutation1.commitUpdate();
-          const transaction2 = mutation2.commitUpdate();
+          const transaction1 = mutation1.commit();
+          const transaction2 = mutation2.commit();
           expect(queue.getStatus(transaction1.getID())).toBe(COMMITTING);
           expect(queue.getStatus(transaction2.getID())).toBe(COMMIT_QUEUED);
         });
@@ -508,8 +508,8 @@ describe('RelayGraphQLMutation', () => {
             environment,
             'anotherKey'
           );
-          const transaction1 = mutation1.commitUpdate();
-          const transaction2 = mutation2.commitUpdate();
+          const transaction1 = mutation1.commit();
+          const transaction2 = mutation2.commit();
           expect(queue.getStatus(transaction1.getID())).toBe(COMMITTING);
           expect(queue.getStatus(transaction2.getID())).toBe(COMMITTING);
         });
@@ -525,8 +525,8 @@ describe('RelayGraphQLMutation', () => {
             feedbackLikeVariables,
             environment
           );
-          const transaction1 = mutation1.commitUpdate();
-          const transaction2 = mutation2.commitUpdate();
+          const transaction1 = mutation1.commit();
+          const transaction2 = mutation2.commit();
           expect(queue.getStatus(transaction1.getID())).toBe(COMMITTING);
           expect(queue.getStatus(transaction2.getID())).toBe(COMMITTING);
         });
@@ -538,10 +538,10 @@ describe('RelayGraphQLMutation', () => {
           feedbackLikeVariables,
           environment
         );
-        mutation.commitUpdate();
+        mutation.commit();
 
         // Note: we're actually relying on RelayMutationTransaction invariant.
-        expect(() => mutation.commitUpdate()).toFailInvariant(
+        expect(() => mutation.commit()).toFailInvariant(
           'RelayMutationTransaction: Only transactions with status `CREATED` ' +
           'or `UNCOMMITTED` can be committed.'
         );

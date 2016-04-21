@@ -159,19 +159,19 @@ class RelayGraphQLMutation {
   /**
    * Call this to optimistically apply an update to the store.
    *
-   * Optionally, follow up with a call to `commitUpdate()` to send the mutation
+   * Optionally, follow up with a call to `commit()` to send the mutation
    * to the server.
    *
    * Note: An optimistic update may only be applied once.
    */
-  applyUpdate(
+  applyOptimistic(
     optimisticQuery: RelayConcreteNode,
     optimisticResponse: Object,
   ): RelayMutationTransaction {
     invariant(
       !this._transaction,
-      'RelayGraphQLMutation: `applyUpdate()` was called on an instance that ' +
-      'already has a transaction in progress.'
+      'RelayGraphQLMutation: `applyOptimistic()` was called on an instance ' +
+      'that already has a transaction in progress.'
     );
     this._transaction = this._createTransaction(
       optimisticQuery,
@@ -183,12 +183,12 @@ class RelayGraphQLMutation {
   /**
    * Call this to send the mutation to the server.
    *
-   * Optionally, precede with a call to `applyUpdate()` to apply an update
+   * Optionally, precede with a call to `applyOptimistic()` to apply an update
    * optimistically to the store.
    *
    * Note: This method may only be called once per instance.
    */
-  commitUpdate(): RelayMutationTransaction {
+  commit(): RelayMutationTransaction {
     if (!this._transaction) {
       this._transaction = this._createTransaction();
     }

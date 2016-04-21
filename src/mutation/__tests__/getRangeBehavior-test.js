@@ -43,6 +43,12 @@ describe('getRangeBehavior()', () => {
       const rangeBehavior = getRangeBehavior(rangeBehaviors, calls);
       expect(rangeBehavior).toBe('append');
     });
+
+    it('returns null when no rangeBehavior is associated with the rangeBehaviorKey', () => {
+      const calls = [{name: 'status', value: 'recent'}];
+      const rangeBehavior = getRangeBehavior(rangeBehaviors, calls);
+      expect(rangeBehavior).toBe(null);
+    });
   });
 });
  

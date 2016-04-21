@@ -324,7 +324,7 @@ function createContainerComponent(
 
       const currentRequest = forceFetch ?
         this.context.relay.forceFetch(querySet, onReadyStateChange) :
-        this.context.relay.primeCache(querySet, onReadyStateChange),
+        this.context.relay.primeCache(querySet, onReadyStateChange);
       this.pendingRequest = currentRequest;
     }
 

@@ -103,10 +103,6 @@ function createContainerComponent(
     _fragmentResolvers: {[key: string]: ?FragmentResolver};
 
     pendingRequest: ?Abortable;
-    // pending: ?{
-    //   variables: Variables;
-    //   request: Abortable;
-    // };
     state: {
       queryData: {[propName: string]: mixed};
       relayProp: RelayProp;
@@ -267,14 +263,14 @@ function createContainerComponent(
       const onReadyStateChange = ErrorUtils.guard(readyState => {
         const {aborted, done, error, ready} = readyState;
         const isComplete = aborted || done || error;
-        if (isComplete && this.pendingRequest === current.request) {
+        if (isComplete && this.pendingRequest === currentRequest) {
           this.pendingRequest = null;
-          // this.setState({
-          //   relayProp: {
-          //     ...this.state.relayProp,
-          //     pendingVariables: null,
-          //   }
-          // });
+          this.setState({
+            relayProp: {
+              ...this.state.relayProp,
+              pendingVariables: null,
+            }
+          });
         }
         let partialState;
         if (ready) {
@@ -292,7 +288,12 @@ function createContainerComponent(
             },
           };
         } else {
-          partialState = {};
+          partialState = {
+            relayProp: {
+              ...this.state.relayProp,
+              pendingVariables: nextVariables,
+            }
+          };
         }
         const mounted = this.mounted;
         if (mounted) {
@@ -321,19 +322,10 @@ function createContainerComponent(
         }
       }, 'RelayContainer.onReadyStateChange');
 
-      const current = {
-        variables: nextVariables,
-        request: forceFetch ?
-          this.context.relay.forceFetch(querySet, onReadyStateChange) :
-          this.context.relay.primeCache(querySet, onReadyStateChange),
-      };
-      this.pendingRequest = current.request;
-      this.setState({
-        relayProp: {
-          ...this.state.relayProp,
-          pendingVariables: current.variables
-        }
-      });
+      const currentRequest = forceFetch ?
+        this.context.relay.forceFetch(querySet, onReadyStateChange) :
+        this.context.relay.primeCache(querySet, onReadyStateChange),
+      this.pendingRequest = currentRequest;
     }
 
     /**

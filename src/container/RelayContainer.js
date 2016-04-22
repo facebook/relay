@@ -103,6 +103,7 @@ function createContainerComponent(
     _fragmentResolvers: {[key: string]: ?FragmentResolver};
 
     pendingRequest: ?Abortable;
+    pendingVariables: Variables;
     state: {
       queryData: {[propName: string]: mixed};
       relayProp: RelayProp;
@@ -135,6 +136,7 @@ function createContainerComponent(
 
       this.mounted = true;
       this.pendingRequest = null;
+      this.pendingVariables = {};
       this.state = {
         queryData: {},
         relayProp: {

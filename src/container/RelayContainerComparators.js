@@ -21,8 +21,8 @@
  */
 function compareObjects(
   isEqual: (propA: any, propB: any, key: string) => boolean,
-  objectA: Object,
-  objectB: Object,
+  objectA: ?Object,
+  objectB: ?Object,
   filter?: Object
 ): boolean {
   var key;
@@ -114,8 +114,8 @@ const RelayContainerComparators = {
   },
 
   areQueryVariablesEqual(
-    variables: Object,
-    nextVariables: Object
+    variables: ?Object,
+    nextVariables: ?Object
   ): boolean {
     return compareObjects(isScalarAndEqual, variables, nextVariables);
   },

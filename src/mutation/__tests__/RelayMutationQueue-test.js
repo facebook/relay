@@ -139,7 +139,6 @@ describe('RelayMutationQueue', () => {
       expect(buildQueryCalls[0][0].response).toEqual({
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
       });
-      expect(buildQueryCalls[0][0].tracker).toBe(storeData.getQueryTracker());
       expect(buildQueryCalls[0][0].fatQuery).toEqualQueryNode(
         flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
           preserveEmptyNodes: true,

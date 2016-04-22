@@ -207,16 +207,13 @@ describe('RelayNetworkLayer', () => {
 
   describe('addNetworkSubscriber', () => {
     let mutationCallback;
-    let mutationResponseCallback;
     let queryCallback;
-    let queryResponseCallback;
     let changeSubscriber;
 
     beforeEach(() => {
-      mutationResponseCallback = jest.fn();
-      queryResponseCallback = jest.fn();
-      mutationCallback = jest.fn(() => mutationResponseCallback);
-      queryCallback = jest.fn(() => queryResponseCallback);
+
+      mutationCallback = jest.fn();
+      queryCallback = jest.fn();
 
       changeSubscriber =
         networkLayer.addNetworkSubscriber(queryCallback, mutationCallback);
@@ -224,10 +221,10 @@ describe('RelayNetworkLayer', () => {
 
     it('calls subscriber with query', () => {
       expect(queryCallback).not.toBeCalled();
-      expect(queryResponseCallback).not.toBeCalled();
 
       const deferred1 = new Deferred();
       const deferred2 = new Deferred();
+      deferred2.done(jest.fn(), jest.fn());
       networkLayer.sendQueries([deferred1, deferred2]);
       const pendingQueries = injectedNetworkLayer.sendQueries.mock.calls[0][0];
       const response = 'response';
@@ -237,14 +234,10 @@ describe('RelayNetworkLayer', () => {
       jest.runAllTimers();
 
       expect(queryCallback).toBeCalled(2);
-      expect(queryResponseCallback).toBeCalled(2);
-      expect(queryResponseCallback).toBeCalledWith(null, response);
-      expect(queryResponseCallback).toBeCalledWith(error, null);
     });
 
     it('calls subscriber with mutation', () => {
       expect(mutationCallback).not.toBeCalled();
-      expect(mutationResponseCallback).not.toBeCalled();
 
       const deferred = new Deferred();
       networkLayer.sendMutation(deferred);
@@ -255,8 +248,6 @@ describe('RelayNetworkLayer', () => {
       jest.runAllTimers();
 
       expect(mutationCallback).toBeCalled(1);
-      expect(mutationResponseCallback).toBeCalled(1);
-      expect(mutationResponseCallback).toBeCalledWith(null, response);
     });
 
     it('does not call subscriber once it is removed', () => {
@@ -274,9 +265,7 @@ describe('RelayNetworkLayer', () => {
       jest.runAllTimers();
 
       expect(queryCallback).not.toBeCalled();
-      expect(queryResponseCallback).not.toBeCalled();
       expect(mutationCallback).not.toBeCalled();
-      expect(mutationResponseCallback).not.toBeCalled();
     });
   });
 });

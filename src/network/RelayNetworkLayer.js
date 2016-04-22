@@ -24,10 +24,8 @@ const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
 const warning = require('warning');
 
-type NetworkCallback = (error: ?Error, response: ?Object) => void;
-export type MutationCallback =
-  (request: RelayMutationRequest) => ?NetworkCallback;
-export type QueryCallback = (request: RelayQueryRequest) => ?NetworkCallback;
+export type MutationCallback = (request: RelayMutationRequest) => void;
+export type QueryCallback = (request: RelayQueryRequest) => void;
 
 type Subscriber = {
   queryCallback: ?QueryCallback,
@@ -93,13 +91,7 @@ class RelayNetworkLayer {
     const implementation = this._getImplementation();
     this._subscribers.forEach(({mutationCallback}) => {
       if (mutationCallback) {
-        const onSettle = mutationCallback(mutationRequest);
-        if (onSettle) {
-          mutationRequest.done(
-            response => onSettle(null, response),
-            error => onSettle(error, null)
-          );
-        }
+        mutationCallback(mutationRequest);
       }
     });
     const promise = implementation.sendMutation(mutationRequest);
@@ -114,13 +106,7 @@ class RelayNetworkLayer {
       if (queryCallback) {
         queryRequests.forEach(request => {
           // $FlowIssue #10907496 queryCallback was checked above
-          const onSettle = queryCallback(request);
-          if (onSettle) {
-            request.done(
-              response => onSettle(null, response),
-              error => onSettle(error, null)
-            );
-          }
+          queryCallback(request);
         });
       }
     });

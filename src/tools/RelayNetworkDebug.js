@@ -13,10 +13,10 @@
 
 'use strict';
 
+import type {ChangeSubscription} from 'RelayInternalTypes';
 import type RelayMutationRequest from 'RelayMutationRequest';
 const Relay = require('RelayPublic');
 import type RelayQueryRequest from 'RelayQueryRequest';
-import type {NetworkLayer} from 'RelayTypes';
 
 const performanceNow = require('performanceNow');
 
@@ -28,43 +28,23 @@ export type RelayNetworkDebuggable = {
 };
 
 class RelayNetworkDebugger {
-  _fetch: Function;
   _initTime: number;
   _queryID: number;
+  _subscription: ChangeSubscription;
 
-  constructor(networkLayer: NetworkLayer) {
+  constructor() {
     this._initTime = performanceNow();
     this._queryID = 0;
-
-    Relay.injectNetworkLayer({
-      sendQueries: requests => {
-        requests.forEach(request => {
-          this.logRequest(createDebuggableFromRequest('Relay Query', request));
-        });
-        return networkLayer.sendQueries(requests);
-      },
-      sendMutation: request => {
-        this.logRequest(createDebuggableFromRequest('Relay Mutation', request));
-        return networkLayer.sendMutation(request);
-      },
-      supports(...options: Array<string>): boolean {
-        return networkLayer.supports(...options);
-      },
-    });
-
-    this._fetch = global.fetch;
-    global.fetch = (url, options, ...args) => {
-      const name = url.split('/')[2];
-      this.logRequest(createDebuggableFromFetch(
-        name,
-        {url, options, args},
-        this._fetch(url, options, ...args)
-      ));
-    };
+    this._subscription = Relay.Store.addNetworkSubscriber(
+      request =>
+        this.logRequest(createDebuggableFromRequest('Relay Query', request)),
+      request =>
+        this.logRequest(createDebuggableFromRequest('Relay Mutation', request))
+    );
   }
 
   uninstall(): void {
-    global.fetch = this._fetch;
+    this._subscription.remove();
   }
 
   logRequest({name, type, promise, logResult}: RelayNetworkDebuggable): void {
@@ -99,7 +79,7 @@ function createDebuggableFromRequest(
 ): RelayNetworkDebuggable {
   return {
     name: request.getDebugName(),
-    type: 'Relay Query',
+    type,
     promise: request.getPromise(),
     logResult(error, response) {
       console.debug(
@@ -108,30 +88,9 @@ function createDebuggableFromRequest(
         'monospaced;',
         request.getQueryString()
       );
-      console.log('Query variables\n', request.getVariables());
+      console.log('Request variables\n', request.getVariables());
       error && console.error(error);
       response && console.log(response);
-    },
-  };
-}
-
-function createDebuggableFromFetch(
-  name: string,
-  config: Object,
-  promise: Promise
-): RelayNetworkDebuggable {
-  return {
-    name,
-    type: 'Relay Mutation',
-    promise,
-    logResult(error, response) {
-      console.debug(config);
-      error && console.error(error);
-      response && console.warn(response);
-      try {
-        response && console.debug(JSON.parse(response._bodyText));
-      } catch (_) {
-      }
     },
   };
 }
@@ -139,10 +98,11 @@ function createDebuggableFromFetch(
 let networkDebugger: ?RelayNetworkDebugger;
 
 const RelayNetworkDebug = {
-  init(networkLayer: NetworkLayer): void {
+  init(): void {
     networkDebugger && networkDebugger.uninstall();
-    networkDebugger = new RelayNetworkDebugger(networkLayer);
+    networkDebugger = new RelayNetworkDebugger();
   },
+
   logRequest(request: RelayNetworkDebuggable): void {
     networkDebugger && networkDebugger.logRequest(request);
   },

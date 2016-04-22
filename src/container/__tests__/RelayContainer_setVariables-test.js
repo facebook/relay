@@ -232,6 +232,10 @@ describe('RelayContainer.setVariables', function() {
       expect(mockInstance.state.relayProp.variables.site).toBe('mobile');
     });
 
+    it('renders with default pendingVariables', () => {
+      expect(mockInstance.state.relayProp.pendingVariables).toEqual({});
+    });
+
     it('lets props override default variables', () => {
       const anotherInstance = RelayTestUtils.createRenderer().render(
         genMockPointer => (
@@ -282,12 +286,15 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('aborts pending requests before creating a new request', () => {
+      const requests = environment.primeCache.mock.requests;
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
+      requests[0].block();
       expect(environment.primeCache.mock.abort[0]).not.toBeCalled();
 
       mockInstance.setVariables({site: 'mobile'});
       jest.runAllTimers();
+      requests[0].block();
       expect(environment.primeCache.mock.abort[0]).toBeCalled();
     });
 
@@ -315,12 +322,15 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('re-requests currently pending variables', () => {
+      const requests = environment.primeCache.mock.requests;
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
+      requests[0].block();
 
       expect(environment.primeCache.mock.abort[0]).not.toBeCalled();
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
+      requests[0].block();
       expect(environment.primeCache.mock.abort[0]).toBeCalled();
       expect(environment.primeCache.mock.calls.length).toBe(2);
     });
@@ -335,13 +345,16 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('re-requests the last variables with a pending request', () => {
+      const requests = environment.primeCache.mock.requests;
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
+      requests[0].block();
 
       const {mock} = environment.primeCache;
       expect(mock.abort[0]).not.toBeCalled();
       mockInstance.setVariables({site: 'mobile'});
       jest.runAllTimers();
+      requests[0].block();
       expect(mock.abort[0]).toBeCalled();
 
       expect(mock.calls.length).toBe(2);

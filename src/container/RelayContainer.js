@@ -103,7 +103,6 @@ function createContainerComponent(
     _fragmentResolvers: {[key: string]: ?FragmentResolver};
 
     pendingRequest: ?Abortable;
-    pendingVariables: Variables;
     state: {
       queryData: {[propName: string]: mixed};
       relayProp: RelayProp;
@@ -136,7 +135,6 @@ function createContainerComponent(
 
       this.mounted = true;
       this.pendingRequest = null;
-      this.pendingVariables = {};
       this.state = {
         queryData: {},
         relayProp: {
@@ -148,7 +146,7 @@ function createContainerComponent(
           route,
           setVariables: this.setVariables.bind(this),
           variables: {},
-          pendingVariables: null,
+          pendingVariables: {},
         },
       };
     }
@@ -244,7 +242,7 @@ function createContainerComponent(
     ): void {
       const lastVariables = this.state.relayProp.variables;
       const prevVariables =
-        this.pendingRequest ? this.pendingVariables : lastVariables;
+        this.pendingRequest ? this.state.relayProp.pendingVariables : lastVariables;
       const nextVariables = mergeVariables(prevVariables, partialVariables);
 
       this.pendingRequest && this.pendingRequest.abort();
@@ -267,7 +265,6 @@ function createContainerComponent(
         const isComplete = aborted || done || error;
         if (isComplete && this.pendingRequest === currentRequest) {
           this.pendingRequest = null;
-          this.pendingVariables = null;
         }
         let partialState;
         if (ready) {
@@ -282,7 +279,7 @@ function createContainerComponent(
             relayProp: {
               ...this.state.relayProp,
               variables: nextVariables,
-              pendingVariables: this.pendingVariables
+              pendingVariables: {}
             },
           };
         } else {
@@ -324,7 +321,6 @@ function createContainerComponent(
         this.context.relay.forceFetch(querySet, onReadyStateChange) :
         this.context.relay.primeCache(querySet, onReadyStateChange);
       this.pendingRequest = currentRequest;
-      this.pendingVariables = nextVariables;
     }
 
     /**
@@ -433,8 +429,10 @@ function createContainerComponent(
         return;
       }
       this.setState(state => {
+        let pendingVariables = null;
         if (this.context.relay !== relay) {
           this._cleanup();
+          pendingVariables = {};
         }
         return this._initialize(
           nextProps,
@@ -444,7 +442,8 @@ function createContainerComponent(
             spec,
             nextProps,
             state.relayProp.variables
-          )
+          ),
+          pendingVariables
         );
       });
     }
@@ -458,7 +457,8 @@ function createContainerComponent(
       props: Object,
       environment,
       route: RelayQueryConfigInterface,
-      prevVariables: Variables
+      prevVariables: Variables,
+      pendingVariables: ?Variables
     ): {
       queryData: {[propName: string]: mixed};
       relayProp: RelayProp;
@@ -479,6 +479,7 @@ function createContainerComponent(
             ...this.state.relayProp,
             route,
             variables: nextVariables,
+            pendingVariables: pendingVariables ? pendingVariables : this.state.relayProp.pendingVariables,
           },
       };
     }
@@ -499,12 +500,6 @@ function createContainerComponent(
       if (pendingRequest) {
         pendingRequest.abort();
         this.pendingRequest = null;
-        this.setState({
-          relayProp: {
-            ...this.state.relayProp,
-            pendingVariables: null,
-          },
-        });
       }
     }
 

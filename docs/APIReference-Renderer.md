@@ -29,13 +29,13 @@ next: api-reference-relay-root-container
   <li>
     <a href="#onforcefetch">
       <pre>onForceFetch</pre>
-      Called whenever forceFetch is being called
+      Called whenever forceFetch is being called.
     </a>
   </li>
   <li>
     <a href="#onprimecache">
       <pre>onPrimeCache</pre>
-      Called whenever primeCache is being called
+      Called whenever primeCache is being called.
     </a>
   </li>
   <li>
@@ -80,7 +80,7 @@ Must be a valid `RelayContainer`. Relay will attempt to fulfill its data require
 forceFetch: boolean
 ```
 
-If supplied and set to true, a request for data will always be made to the server regardless of whether data on the client is available to immediately fulfill the data requirements.
+If supplied and set to true, a request for data will always be made to the server regardless of whether data on the client is available already.
 
 
 ### onForceFetch
@@ -92,7 +92,7 @@ onForceFetch(
 ): Abortable
 ```
 
-This callback prop is called whenever a forceFetch occurs.
+This callback prop is called whenever a `forceFetch` occurs.
 
 
 ### onPrimeCache
@@ -104,7 +104,7 @@ onPrimeCache(
 ): Abortable
 ```
 
-This callback prop is called whenever a primeCache call occurs.
+This callback prop is called whenever a `primeCache` call occurs.
 
 ### QueryConfig
 
@@ -121,7 +121,7 @@ Either an instance of `Relay.Route` or an object with the `name`, `queries`, and
 environment: RelayEnvironment
 ```
 
-Either `Relay.Store`, an instance of `Relay.Evironment` or an object with the `forceFetch`, `getFragmentResolver`, `getStoreData`, `primeCache`, and `read` function defined.
+An object that conforms to the `Relay.Environment` interface, such as `Relay.Store`.
 
 
 ### render
@@ -136,32 +136,24 @@ render(
 ): ?RelayRenderCallback
 ```
 
-Whenever anything is rendered `render` is called to render the view. If the callback is not supplied, the default behavior is to render the container if data is available, the existing view if one exists, or nothing.
+If the render callback is not supplied, the default behavior is to render the container if data is available, the existing view if one exists, or nothing.
 
 If the callback returns `undefined`, the previously rendered view (or nothing if there is no previous view) is rendered (e.g. when transitioning from one `queryConfig` to another).
 
 #### Example
 
 ```{4-6}
-// This is the render function that `RelayRootContainer` defines with `renderFailure, renderFetched, Component, renderLoading` being passed in as props.
+// In this example, `ErrorComponent` and `LoadingComponent` simply display a static error message / loading indicator.
 <RelayRenderer
   Container={ProfilePicture}
   route={profileRoute}
   render={({done, error, props, retry, stale}) => {
         if (error) {
-          if (renderFailure) {
-            return renderFailure(error, retry);
-          }
+            return <ErrorComponent />;
         } else if (props) {
-          if (renderFetched) {
-            return renderFetched(props, {done, stale});
-          } else {
-            return <Component {...props} />;
-          }
+          return <ProfilePicture {...props} />;
         } else {
-          if (renderLoading) {
-            return renderLoading();
-          }
+          return <LoadingComponent />;
         }
         return undefined;
       }}
@@ -182,6 +174,6 @@ onReadyStateChange(
 ): void
 ```
 
-This callback prop is called as the various events of data resolution occurs.
+This callback prop is called as the various events of data resolution occur.
 
 See also: [Ready State](guides-ready-state.html)

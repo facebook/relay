@@ -53,7 +53,7 @@
     "gulp-flatten": "^0.1.0",
     "gulp-header": "^1.2.2",
     "gulp-util": "^3.0.6",
-    "jest-cli": "^0.10.0",
+    "jest-cli": "^11.0.2",
     "object-assign": "^3.0.0",
     "react": "^0.14.0",
     "react-dom": "^0.14.0",

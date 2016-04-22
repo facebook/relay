@@ -233,7 +233,7 @@ describe('RelayNetworkLayer', () => {
       pendingQueries[1].reject(error);
       jest.runAllTimers();
 
-      expect(queryCallback).toBeCalled(2);
+      expect(queryCallback.mock.calls.length).toBe(2);
     });
 
     it('calls subscriber with mutation', () => {
@@ -247,7 +247,7 @@ describe('RelayNetworkLayer', () => {
       pendingMutation.resolve(response);
       jest.runAllTimers();
 
-      expect(mutationCallback).toBeCalled(1);
+      expect(mutationCallback.mock.calls.length).toBe(1);
     });
 
     it('does not call subscriber once it is removed', () => {

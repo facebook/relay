@@ -933,6 +933,8 @@ function validateSpec(
  * time a container is being constructed by React's rendering engine.
  */
 function create(
+  /* $FlowFixMe - Commit hook broke and this Flow error snuck in. Remove this
+   * comment to see and fix the error. */
   Component: ReactClass<any>,
   spec: RelayContainerSpec,
 ): RelayLazyContainer {

@@ -263,8 +263,10 @@ function createContainerComponent(
       const onReadyStateChange = ErrorUtils.guard(readyState => {
         const {aborted, done, error, ready} = readyState;
         const isComplete = aborted || done || error;
+        let pendingVariables = nextVariables;
         if (isComplete && this.pendingRequest === currentRequest) {
           this.pendingRequest = null;
+          pendingVariables = {};
         }
         let partialState;
         if (ready) {
@@ -286,7 +288,7 @@ function createContainerComponent(
           partialState = {
             relayProp: {
               ...this.state.relayProp,
-              pendingVariables: nextVariables,
+              pendingVariables: pendingVariables,
             },
           };
         }

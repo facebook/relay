@@ -55,10 +55,10 @@ class RelayNetworkDebugger {
     this._fetch = global.fetch;
     global.fetch = (url, options, ...args) => {
       const name = url.split('/')[2];
-      this.logRequest(createDebuggableFromFetch(
+      return this.logRequest(createDebuggableFromFetch(
         name,
         {url, options, args},
-        this._fetch(url, options, ...args)
+        this._fetch.call(global, url, options, ...args)
       ));
     };
   }
@@ -67,7 +67,7 @@ class RelayNetworkDebugger {
     global.fetch = this._fetch;
   }
 
-  logRequest({name, type, promise, logResult}: RelayNetworkDebuggable): void {
+  logRequest({name, type, promise, logResult}: RelayNetworkDebuggable): Promise {
     const id = this._queryID++;
     const timerName = `[${id}] Request Duration`;
 
@@ -84,9 +84,15 @@ class RelayNetworkDebugger {
       console.timeEnd(timerName);
       logResult(error, response);
       console.groupEnd();
+
+      if (error) {
+        throw error;
+      } else {
+        return response;
+      }
     };
 
-    promise.then(
+    return promise.then(
       response => onSettled(null, response),
       error => onSettled(error, null),
     );

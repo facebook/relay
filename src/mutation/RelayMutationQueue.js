@@ -526,7 +526,6 @@ class RelayPendingTransaction {
               response: optimisticResponse,
               fatQuery: this.getFatQuery(),
               mutation: this.getMutationNode(),
-              tracker: storeData.getQueryTracker(),
             });
         }
       } else {

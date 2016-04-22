@@ -9,3 +9,4 @@ website/
 website-prototyping-tools/HelloApp.js
 website-prototyping-tools/node_modules
 *.md
+src/flow/

@@ -9,20 +9,7 @@
 
 'use strict';
 
-const matchRecord = require('matchRecord');
-
 const GraphQLStoreTestUtils = {
-  matchers: {
-    /**
-     * Compare the returned result from the GraphQLStore with the expected
-     * result object. Result can have extra clientIDs appended to nodes, without
-     * ones. This function compares if they are equal, while ignoring the
-     * clientIDs.
-     */
-    toMatchResult() {
-      return {compare: matchRecord};
-    },
-  },
   /**
    * @param {object} node
    * @param {function} callback

@@ -23,7 +23,7 @@ const RelayMutationTransactionStatus = {
   /**
    * Transaction hasn't yet been sent to the server. Client has an optimistic
    * update applied if the mutation defined one. Transaction can be committed or
-   * rolledback.
+   * rolled back.
    */
   UNCOMMITTED: 'UNCOMMITTED',
 
@@ -37,7 +37,7 @@ const RelayMutationTransactionStatus = {
    * Transaction was queued for commit but another transaction with the same
    * collision queue failed to commit. All transactions in the collision
    * queue, including this one, have been failed as well. Transaction can be
-   * recommitted or rolledback.
+   * recommitted or rolled back.
    */
   COLLISION_COMMIT_FAILED: 'COLLISION_COMMIT_FAILED',
 

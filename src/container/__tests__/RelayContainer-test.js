@@ -123,6 +123,29 @@ describe('RelayContainer', function() {
       );
     });
 
+    it('throws if fragment and variable names are not unique', () => {
+      Relay.createContainer(MockComponent, {
+        initialVariables: {
+          badName: '100',
+        },
+        fragments: {
+          badName: () => Relay.QL`
+            fragment on Actor {
+              profilePicture(size:$badName) {
+                uri
+              }
+            }
+          `,
+        },
+      });
+      expect([
+        'Relay.createContainer(%s, ...): `%s` is used both ' +
+        'as a fragment name and variable name. Please give them unique names.',
+        'MockComponent',
+        'badName',
+      ]).toBeWarnedNTimes(1);
+    });
+
     it('creates query for a container without fragments', () => {
       // Test that scalar constants are substituted, not only query fragments.
       const MockProfilePhoto = Relay.createContainer(MockComponent, {

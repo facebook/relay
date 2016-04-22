@@ -58,12 +58,17 @@ type EdgeInsertionMutationFragmentBuilderConfig =
     parentName?: string;
     rangeBehaviors: RangeBehaviors;
   };
+
+type BasicOptimisticMutationFragmentBuilderConfig = {
+  fatQuery: RelayQuery.Fragment;
+};
+
 type OptimisticUpdateFragmentBuilderConfig =
-  BasicMutationFragmentBuilderConfig & {
+  BasicOptimisticMutationFragmentBuilderConfig & {
     response: Object;
   };
 type OptimisticUpdateQueryBuilderConfig =
-  BasicMutationFragmentBuilderConfig & {
+  BasicOptimisticMutationFragmentBuilderConfig & {
     mutation: ConcreteMutation;
     response: Object;
   };
@@ -303,14 +308,12 @@ const RelayMutationQuery = {
       fatQuery,
       mutation,
       response,
-      tracker,
     }: OptimisticUpdateQueryBuilderConfig
   ): RelayQuery.Mutation {
     const children = [
       nullthrows(RelayMutationQuery.buildFragmentForOptimisticUpdate({
         response,
         fatQuery,
-        tracker,
       })),
     ];
     return RelayQuery.Mutation.build(

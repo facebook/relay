@@ -37,6 +37,8 @@ const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 const validateRelayReadQuery = require('validateRelayReadQuery');
 
+const {MUTATION_STATUS} = RelayRecord.MetadataKey;
+
 export type DataIDSet = {[key: string]: boolean};
 export type StoreReaderResult = {
   data: ?StoreReaderData;
@@ -424,7 +426,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     const mutationIDs = this._storeData.getClientMutationIDs(dataID);
     if (mutationIDs) {
       const mutationQueue = this._storeData.getMutationQueue();
-      data.__mutationStatus__ = mutationIDs.map(
+      data[MUTATION_STATUS] = mutationIDs.map(
         mutationID => mutationQueue.getTransaction(mutationID).getHash()
       ).join(',');
     }

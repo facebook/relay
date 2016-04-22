@@ -13,9 +13,8 @@
 
 'use strict';
 
-import type {ChangeSubscription} from 'GraphQLStoreChangeEmitter';
 import type RelayGarbageCollector from 'RelayGarbageCollector';
-import type {DataID} from 'RelayInternalTypes';
+import type {ChangeSubscription, DataID} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';

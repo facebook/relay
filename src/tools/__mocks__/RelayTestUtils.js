@@ -378,6 +378,17 @@ const RelayTestUtils = {
       };
     },
 
+    /**
+     * Recursively compares two objects, ignoring missing metadata keys (such as
+     * `__dataID__`).
+     *
+     * Handles basic objects, arrays and primitive types, but doesn't support
+     * "exotic" types like Date etc.
+     */
+    toMatchRecord() {
+      return {compare: require('matchRecord')};
+    },
+
     toEqualPrintedQuery() {
       return {
         compare(actual, expected) {

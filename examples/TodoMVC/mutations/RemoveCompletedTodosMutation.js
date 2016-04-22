@@ -60,14 +60,14 @@ export default class RemoveCompletedTodosMutation extends Relay.Mutation {
     return {};
   }
   getOptimisticResponse() {
-    var deletedTodoIds;
-    var newTotalCount;
+    let deletedTodoIds;
+    let newTotalCount;
     if (this.props.todos && this.props.todos.edges) {
       deletedTodoIds = this.props.todos.edges
         .filter(edge => edge.node.complete)
         .map(edge => edge.node.id);
     }
-    var {completedCount, totalCount} = this.props.viewer;
+    const {completedCount, totalCount} = this.props.viewer;
     if (completedCount != null && totalCount != null) {
       newTotalCount = totalCount - completedCount;
     }

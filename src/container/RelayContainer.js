@@ -84,7 +84,7 @@ const containerContextTypes = {
  *
  */
 function createContainerComponent(
-  Component: ReactClass | ReactComponent,
+  Component: ReactClass ,
   spec: RelayContainerSpec
 ): RelayContainerClass {
   const ComponentClass = getReactComponent(Component);
@@ -939,7 +939,7 @@ function validateSpec(
 }
 
 function getReactComponent(
-  Component: ReactClass<any> | ReactComponent
+  Component: ReactClass<any>
 ): ?ReactClass<any> {
   if (isReactComponent(Component)) {
     return (Component: any);
@@ -948,7 +948,7 @@ function getReactComponent(
   }
 }
 
-function getComponentName(Component: ReactClass<any> | ReactComponent): string {
+function getComponentName(Component: ReactClass<any>): string {
   let name;
   const ComponentClass = getReactComponent(Component);
   if (ComponentClass) {
@@ -960,7 +960,7 @@ function getComponentName(Component: ReactClass<any> | ReactComponent): string {
   return name;
 }
 
-function getContainerName(Component: ReactClass<any> | ReactComponent): string {
+function getContainerName(Component: ReactClass<any>): string {
   return 'Relay(' + getComponentName(Component) + ')';
 }
 
@@ -969,7 +969,7 @@ function getContainerName(Component: ReactClass<any> | ReactComponent): string {
  * time a container is being constructed by React's rendering engine.
  */
 function create(
-  Component: ReactClass<any> | ReactComponent,
+  Component: ReactClass<any>,
   spec: RelayContainerSpec,
 ): RelayLazyContainer {
   const componentName = getComponentName(Component);

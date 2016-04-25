@@ -15,6 +15,7 @@
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {
+  ClientMutationID,
   DataID,
   UpdateOptions,
 } from 'RelayInternalTypes';
@@ -71,6 +72,7 @@ const STUB_CURSOR_ID = 'client:cursor';
  */
 function writeRelayUpdatePayload(
   writer: RelayQueryWriter,
+  clientMutationID: ClientMutationID,
   operation: RelayQuery.Operation,
   payload: PayloadObject,
   {configs, isOptimisticUpdate}: UpdateOptions
@@ -83,6 +85,7 @@ function writeRelayUpdatePayload(
       case RelayMutationType.RANGE_ADD:
         handleRangeAdd(
           writer,
+          clientMutationID,
           payload,
           operation,
           config,
@@ -312,18 +315,12 @@ function mergeField(
  */
 function handleRangeAdd(
   writer: RelayQueryWriter,
+  clientMutationID: ClientMutationID,
   payload: PayloadObject,
   operation: RelayQuery.Operation,
   config: OperationConfig,
   isOptimisticUpdate: boolean
 ): void {
-  const clientMutationID = getString(payload, CLIENT_MUTATION_ID);
-  invariant(
-    clientMutationID,
-    'writeRelayUpdatePayload(): Expected operation `%s` to have a `%s`.',
-    operation.getName(),
-    CLIENT_MUTATION_ID
-  );
   const store = writer.getRecordStore();
 
   // Extracts the new edge from the payload

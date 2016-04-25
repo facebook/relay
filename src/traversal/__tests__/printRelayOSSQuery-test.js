@@ -839,7 +839,6 @@ describe('printRelayOSSQuery', () => {
     const mutation = getNode(Relay.QL`
       mutation {
         feedbackLike(input: $input) {
-          clientMutationId
           feedback {
             id
             actor {
@@ -862,7 +861,6 @@ describe('printRelayOSSQuery', () => {
         $preset_1: PhotoSize!
       ) {
         feedbackLike(input: $input_0) {
-          clientMutationId,
           feedback {
             id,
             actor {
@@ -874,7 +872,8 @@ describe('printRelayOSSQuery', () => {
             },
             likeSentence,
             likers
-          }
+          },
+          clientMutationId
         }
       }
     `);

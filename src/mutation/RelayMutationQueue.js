@@ -228,6 +228,7 @@ class RelayMutationQueue {
       const configs =
         transaction.getOptimisticConfigs() || transaction.getConfigs();
       this._storeData.handleUpdatePayload(
+        transaction.id,
         optimisticQuery,
         optimisticResponse,
         {
@@ -284,6 +285,7 @@ class RelayMutationQueue {
 
     this._refreshQueuedData();
     this._storeData.handleUpdatePayload(
+      transaction.id,
       transaction.getQuery(this._storeData),
       response[transaction.getCallName()],
       {
@@ -561,11 +563,7 @@ class RelayPendingTransaction {
 
   _getRawOptimisticResponse(): ?Object {
     if (this._rawOptimisticResponse === undefined) {
-      const optimisticResponse = this.mutation.getOptimisticResponse() || null;
-      if (optimisticResponse) {
-        optimisticResponse[CLIENT_MUTATION_ID] = this.id;
-      }
-      this._rawOptimisticResponse = optimisticResponse;
+      this._rawOptimisticResponse = this.mutation.getOptimisticResponse() || null;
     }
     return this._rawOptimisticResponse;
   }

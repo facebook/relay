@@ -18,13 +18,13 @@ So for our `introduceShip` mutation, we create two types: `IntroduceShipInput` a
 input IntroduceShipInput {
   factionId: ID!
   shipName: String!
-  clientMutationId: String!
+  clientMutationId: String
 }
 
 type IntroduceShipPayload {
   faction: Faction
   ship: Ship
-  clientMutationId: String!
+  clientMutationId: String
 }
 ```
 

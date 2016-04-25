@@ -59,7 +59,6 @@ const warning = require('warning');
 const writeRelayQueryPayload = require('writeRelayQueryPayload');
 const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
-const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 
 const idField = RelayQuery.Field.build({
@@ -361,6 +360,7 @@ class RelayStoreData {
    * Write the results of an update into the base record store.
    */
   handleUpdatePayload(
+    clientMutationID: ClientMutationID,
     operation: RelayQuery.Operation,
     payload: {[key: string]: mixed},
     {configs, isOptimisticUpdate}: UpdateOptions
@@ -369,13 +369,6 @@ class RelayStoreData {
     const changeTracker = new RelayChangeTracker();
     let recordWriter;
     if (isOptimisticUpdate) {
-      const clientMutationID = payload[CLIENT_MUTATION_ID];
-      invariant(
-        typeof clientMutationID === 'string',
-        'RelayStoreData.handleUpdatePayload(): Expected optimistic payload ' +
-        'to have a valid `%s`.',
-        CLIENT_MUTATION_ID
-      );
       recordWriter =
         this.getRecordWriterForOptimisticMutation(clientMutationID);
     } else {
@@ -394,6 +387,7 @@ class RelayStoreData {
     );
     writeRelayUpdatePayload(
       writer,
+      clientMutationID,
       operation,
       payload,
       {configs, isOptimisticUpdate}

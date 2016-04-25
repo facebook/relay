@@ -32,7 +32,7 @@ describe('RelayStoreData', function() {
   let storeData;
 
   const {getNode} = RelayTestUtils;
-  let CLIENT_MUTATION_ID, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
+  let HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
 
   function getPathToRecord(dataID) {
     return storeData.getRecordStore().getPathToRecord(dataID);
@@ -48,7 +48,6 @@ describe('RelayStoreData', function() {
     jest.resetModuleRegistry();
 
     ({
-      CLIENT_MUTATION_ID,
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
       PAGE_INFO,
@@ -455,7 +454,6 @@ describe('RelayStoreData', function() {
     const mutationQuery = getNode(Relay.QL`
       mutation {
         feedbackLike(input:$input) {
-          clientMutationId
           feedback {
             id
             doesViewerLike
@@ -464,13 +462,13 @@ describe('RelayStoreData', function() {
       }
     `);
     const payload = {
-      [CLIENT_MUTATION_ID]: 'abc',
       feedback: {
         id: '123',
         doesViewerLike: true,
       },
     };
     storeData.handleUpdatePayload(
+      'abc',
       mutationQuery,
       payload,
       {configs: [], isOptimisticUpdate: false}
@@ -543,7 +541,6 @@ describe('RelayStoreData', function() {
     const mutationQuery = getNode(Relay.QL`
       mutation {
         commentCreate(input:$input) {
-          clientMutationId
           feedback {
             id
             comments {
@@ -563,7 +560,6 @@ describe('RelayStoreData', function() {
       }
     `);
     const payload = {
-      [CLIENT_MUTATION_ID]: 'abc',
       feedback: {
         comments: {
           count: 3,
@@ -582,6 +578,7 @@ describe('RelayStoreData', function() {
       },
     };
     storeData.handleUpdatePayload(
+      'abc',
       mutationQuery,
       payload,
       {configs, isOptimisticUpdate: false}
@@ -664,7 +661,6 @@ describe('RelayStoreData', function() {
     const mutationQuery = getNode(Relay.QL`
       mutation {
         commentDelete(input:$input) {
-          clientMutationId
           deletedCommentId
           feedback {
             id
@@ -676,7 +672,6 @@ describe('RelayStoreData', function() {
       }
     `);
     const payload = {
-      [CLIENT_MUTATION_ID]: 'abc',
       deletedCommentId: '1',
       feedback: {
         id: '123',
@@ -686,6 +681,7 @@ describe('RelayStoreData', function() {
       },
     };
     storeData.handleUpdatePayload(
+      'abc',
       mutationQuery,
       payload,
       {configs, isOptimisticUpdate: false}

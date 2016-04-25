@@ -17,7 +17,7 @@ import {schema} from './data/schema';
 const GRAPHQL_PORT = 8080;
 
 // Expose a GraphQL endpoint
-var graphQLServer = express();
+const graphQLServer = express();
 graphQLServer.use('/', graphQLHTTP({schema, pretty: true}));
 graphQLServer.listen(GRAPHQL_PORT, () => console.log(
   `GraphQL Server is now running on http://localhost:${GRAPHQL_PORT}`

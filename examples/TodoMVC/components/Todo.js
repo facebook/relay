@@ -45,7 +45,7 @@ class Todo extends Component {
     this._setEditMode = this._setEditMode.bind(this);
   }
   _handleCompletePress() {
-    var complete = !this.props.todo.complete;
+    const complete = !this.props.todo.complete;
     Relay.Store.commitUpdate(
       new ChangeTodoStatusMutation({
         complete,

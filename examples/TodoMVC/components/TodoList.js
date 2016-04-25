@@ -83,9 +83,6 @@ class TodoList extends Component {
   }
   componentWillReceiveProps(nextProps) {
     if (this.props.viewer.todos.edges !== nextProps.viewer.todos.edges) {
-      const {
-        todosDataSource,
-      } = this.state;
       this.setState({
         todosDataSource:
           _todosDataSource.cloneWithRows(nextProps.viewer.todos.edges),
@@ -156,7 +153,7 @@ export default Relay.createContainer(TodoList, {
     status: 'any',
   },
   prepareVariables({status}) {
-    var nextStatus;
+    let nextStatus;
     if (status === 'active' || status === 'completed') {
       nextStatus = status;
     } else {

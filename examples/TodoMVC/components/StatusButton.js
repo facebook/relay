@@ -12,7 +12,6 @@
 
 'use strict';
 
-import Relay from 'react-relay';
 import React, {
   Component,
   PropTypes,
@@ -44,7 +43,7 @@ export default class StatusButton extends Component {
           {this.props.children}
         </Text>
       </TouchableHighlight>
-    )
+    );
   }
 }
 

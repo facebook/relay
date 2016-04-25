@@ -4,7 +4,7 @@ title: Relay.Route
 layout: docs
 category: API Reference
 permalink: docs/api-reference-relay-route.html
-next: api-reference-relay-root-container
+next: api-reference-relay-renderer
 ---
 
 Relay uses routes to define entry points into a Relay application.

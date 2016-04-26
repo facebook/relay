@@ -13,7 +13,7 @@
 
 require('configureForRelayOSS');
 
-jest.dontMock('RelayRenderer');
+jest.unmock('RelayRenderer');
 
 const React = require('React');
 const ReactDOMServer = require('ReactDOMServer');

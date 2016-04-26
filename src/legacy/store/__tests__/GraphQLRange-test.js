@@ -14,8 +14,8 @@
 const RelayTestUtils = require('RelayTestUtils');
 
 jest
-  .dontMock('GraphQLSegment')
-  .dontMock('GraphQLRange')
+  .unmock('GraphQLSegment')
+  .unmock('GraphQLRange')
   .mock('warning');
 
 const GraphQLRange = require('GraphQLRange');

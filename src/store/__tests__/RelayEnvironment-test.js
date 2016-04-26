@@ -11,7 +11,7 @@
 
 'use strict';
 
-jest.dontMock('RelayEnvironment');
+jest.unmock('RelayEnvironment');
 
 require('configureForRelayOSS');
 

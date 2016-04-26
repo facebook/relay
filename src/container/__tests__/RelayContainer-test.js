@@ -14,7 +14,7 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('RelayContainerComparators')
+  .unmock('RelayContainerComparators')
   .mock('warning');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');

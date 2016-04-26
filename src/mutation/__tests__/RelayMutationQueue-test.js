@@ -14,8 +14,8 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('RelayMutationTransaction')
-  .dontMock('RelayMutationTransactionStatus');
+  .unmock('RelayMutationTransaction')
+  .unmock('RelayMutationTransactionStatus');
 
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');

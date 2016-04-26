@@ -11,7 +11,7 @@
 
 'use strict';
 
-jest.dontMock('GraphQLSegment');
+jest.unmock('GraphQLSegment');
 
 const GraphQLSegment = require('GraphQLSegment');
 const RelayRecord = require('RelayRecord');

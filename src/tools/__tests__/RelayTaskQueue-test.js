@@ -11,7 +11,7 @@
 
 'use strict';
 
-jest.dontMock('RelayTaskQueue');
+jest.unmock('RelayTaskQueue');
 
 const RelayTaskQueue = require('RelayTaskQueue');
 const RelayTestUtils = require('RelayTestUtils');

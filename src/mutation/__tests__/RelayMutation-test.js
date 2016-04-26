@@ -14,7 +14,7 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('RelayMutation');
+  .unmock('RelayMutation');
 
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');

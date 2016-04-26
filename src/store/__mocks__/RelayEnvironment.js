@@ -56,9 +56,7 @@ class MockRelayEnvironment extends RelayEnvironment {
     super();
 
     for (const method of ['getFragmentResolver', 'read']) {
-      this[method] = jest.genMockFn().mockImplementation(
-        RelayEnvironment.prototype[method]
-      );
+      this[method] = jest.fn(RelayEnvironment.prototype[method]);
     }
 
     this.primeCache = jest.fn();

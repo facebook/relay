@@ -15,6 +15,7 @@ require('configureForRelayOSS');
 
 jest
   .dontMock('RelayMutationQuery')
+  .dontMock('getRangeBehavior')
   .mock('warning');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
@@ -515,6 +516,59 @@ describe('RelayMutationQuery', () => {
       ]);
     });
 
+    it('includes edge fields for connections with rangeBehaviors function', () => {
+      tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
+        fragment on Feedback {
+          comments(orderby:"toplevel",first:"10") {
+            edges {
+              node {
+                body {
+                  text
+                }
+              }
+            }
+          }
+        }
+      `));
+      const node = RelayMutationQuery.buildFragmentForEdgeInsertion({
+        fatQuery,
+        tracker,
+        connectionName: 'comments',
+        parentID: '123',
+        edgeName: 'feedbackCommentEdge',
+        rangeBehaviors: ({orderby}) => {
+          if (orderby === 'toplevel') {
+            return 'append';
+          } else {
+            return 'refetch';
+          }
+        },
+      });
+      const expected = getNodeWithoutSource(Relay.QL`
+        fragment on CommentCreateResponsePayload {
+          feedbackCommentEdge {
+            __typename
+            cursor,
+            node {
+              body {
+                text
+              },
+              id
+            },
+            source {
+              id
+            }
+          }
+        }
+      `);
+      expect(node)
+        .toEqualQueryNode(expected);
+      expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([
+        ['123'],
+      ]);
+    });
+
+ 
     it('includes fields from multiple tracked edges', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {

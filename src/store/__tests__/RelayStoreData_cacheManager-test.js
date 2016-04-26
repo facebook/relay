@@ -15,6 +15,7 @@ require('configureForRelayOSS');
 
 jest
   .dontMock('GraphQLRange')
+  .dontMock('getRangeBehavior')
   .dontMock('GraphQLSegment');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');

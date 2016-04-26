@@ -16,11 +16,10 @@ import ChangeTodoStatusMutation from '../mutations/ChangeTodoStatusMutation';
 import RenameTodoMutation from '../mutations/RenameTodoMutation';
 import Relay from 'react-relay';
 import TodoTextInput from './TodoTextInput';
-import React, {
-  Component,
+import React, { Component, PropTypes } from 'react';
+import {
   Image,
   Platform,
-  PropTypes,
   StyleSheet,
   Text,
   TouchableHighlight,

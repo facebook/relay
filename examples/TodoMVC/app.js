@@ -14,9 +14,7 @@
 
 import TodoApp from './components/TodoApp';
 import TodoAppRoute from './routes/TodoAppRoute';
-import React, {
-  Component,
-} from 'react-native';
+import React, { Component } from 'react';
 import Relay, {
   DefaultNetworkLayer,
   RootContainer,

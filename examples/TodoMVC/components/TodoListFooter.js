@@ -14,9 +14,8 @@
 
 import Relay from 'react-relay';
 import RemoveCompletedTodosMutation from '../mutations/RemoveCompletedTodosMutation';
-import React, {
-  Component,
-  PropTypes,
+import React, { Component, PropTypes } from 'react';
+import {
   StyleSheet,
   Text,
   TouchableHighlight,

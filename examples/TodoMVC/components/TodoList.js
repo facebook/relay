@@ -19,11 +19,10 @@ import RemoveTodoMutation from '../mutations/RemoveTodoMutation';
 import Swipeout from 'react-native-swipeout';
 import Todo from './Todo';
 import TodoTextInput from './TodoTextInput';
-import React, {
-  Component,
+import React, { Component, PropTypes } from 'react';
+import {
   ListView,
   Platform,
-  PropTypes,
   StyleSheet,
   Text,
   TouchableHighlight,

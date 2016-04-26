@@ -12,9 +12,8 @@
 
 'use strict';
 
-import React, {
-  Component,
-  PropTypes,
+import React, { Component, PropTypes } from 'react';
+import {
   TextInput,
 } from 'react-native';
 

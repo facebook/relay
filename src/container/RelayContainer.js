@@ -84,7 +84,7 @@ const containerContextTypes = {
  *
  */
 function createContainerComponent(
-  Component: ReactClass ,
+  Component: ReactClass,
   spec: RelayContainerSpec
 ): RelayContainerClass {
   const ComponentClass = getReactComponent(Component);

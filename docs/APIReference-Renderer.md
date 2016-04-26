@@ -88,13 +88,13 @@ An object that conforms to the `Relay.Environment` interface, such as `Relay.Sto
 ### render
 
 ```
-render(
+render({
   props: ?{[propName: string]: mixed},
   done: boolean,
   error: ?Error,
   retry: ?Function,
   stale: boolean
-): ?RelayRenderCallback
+}): ?React$Element
 ```
 
 If the render callback is not supplied, the default behavior is to render the container if data is available, the existing view if one exists, or nothing.

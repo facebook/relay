@@ -480,7 +480,7 @@ describe('RelayQueryRoot', () => {
       // Inherit all of the other RelayQueryField::getStorageKey() behavior,
       // like stripping out spurious if/unless and connection args.
       const mockField = {getStorageKey: jest.fn()};
-      RelayQuery.Field.build = jest.genMockFn().mockReturnValue(mockField);
+      RelayQuery.Field.build = jest.fn().mockReturnValue(mockField);
       query.getStorageKey();
       expect(RelayQuery.Field.build).toBeCalled();
       expect(mockField.getStorageKey).toBeCalled();

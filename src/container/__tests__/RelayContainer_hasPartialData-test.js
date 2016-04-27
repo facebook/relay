@@ -13,7 +13,7 @@
 
 require('configureForRelayOSS');
 
-jest.dontMock('RelayContainer');
+jest.unmock('RelayContainer');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');

@@ -14,7 +14,7 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('RelayMutationQuery')
+  .unmock('RelayMutationQuery')
   .mock('warning');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');

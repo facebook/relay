@@ -13,8 +13,7 @@
 
 require('configureForRelayOSS');
 
-jest.dontMock('RelayNetworkLayer')
-    .dontMock('Deferred');
+jest.unmock('RelayNetworkLayer');
 
 const Deferred = require('Deferred');
 const RelayNetworkLayer = require('RelayNetworkLayer');

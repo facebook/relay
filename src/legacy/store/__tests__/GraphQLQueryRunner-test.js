@@ -15,8 +15,8 @@ require('configureForRelayOSS');
 
 jest
   .mock('warning')
-  .dontMock('GraphQLQueryRunner')
-  .dontMock('RelayTaskQueue');
+  .unmock('GraphQLQueryRunner')
+  .unmock('RelayTaskQueue');
 
 const Relay = require('Relay');
 const RelayFetchMode = require('RelayFetchMode');

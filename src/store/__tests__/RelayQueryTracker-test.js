@@ -13,7 +13,7 @@
 
 require('configureForRelayOSS');
 
-jest.dontMock('RelayQueryTracker');
+jest.unmock('RelayQueryTracker');
 
 const Relay = require('Relay');
 const RelayQueryPath = require('RelayQueryPath');

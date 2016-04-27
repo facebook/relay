@@ -9,6 +9,6 @@
 
 'use strict';
 
-jest.dontMock('recycleNodesInto');
+jest.unmock('recycleNodesInto');
 
 module.exports = require('recycleNodesInto');

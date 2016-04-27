@@ -14,8 +14,8 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment');
+  .unmock('GraphQLRange')
+  .unmock('GraphQLSegment');
 
 const Relay = require('Relay');
 const RelayQueryTracker = require('RelayQueryTracker');

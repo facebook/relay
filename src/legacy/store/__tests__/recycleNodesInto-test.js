@@ -13,7 +13,7 @@
 
 require('configureForRelayOSS');
 
-jest.dontMock('recycleNodesInto');
+jest.unmock('recycleNodesInto');
 
 const Relay = require('Relay');
 const RelayTestUtils = require('RelayTestUtils');

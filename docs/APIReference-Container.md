@@ -37,6 +37,12 @@ Relay containers are created using `Relay.createContainer`.
       A method to modify the variables based on the runtime environment or previous variable values.
     </a>
   </li>
+  <li>
+    <a href="#shouldcomponentupdate">
+      <pre>shouldComponentUpdate</pre>
+      Optionally override RelayContainer's default implementation of `shouldComponentUpdate`.
+    </a>
+  </li>
 </ul>
 
 *Properties and Methods*
@@ -169,6 +175,23 @@ module.exports = Relay.createContainer(ProfilePicture, {
       size: prevVariables.size * window.devicePixelRatio,
     };
   },
+  // ...
+});
+```
+
+### shouldComponentUpdate
+
+```
+shouldComponentUpdate: () => boolean;
+```
+
+RelayContainer implements a conservative default `shouldComponentUpdate` that returns `false` if no fragment props have changed and all other props are equal scalar values. This may block updates to components that receive data via context. To ensure an update in this case override the default behavior by specifying a `shouldComponentUpdate` function.
+
+#### Example
+
+```{2}
+module.exports = Relay.createContainer(ProfilePicture, {
+  shouldComponentUpdate: () => true,
   // ...
 });
 ```

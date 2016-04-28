@@ -2,6 +2,7 @@
 
 ## 0.8.1 (April 27, 2016)
 
+* Added API to subscribe to `RelayNetworkLayer` query and mutation requests via `Relay.Store.addNetworkSubscriber((request: RelayQueryRequest) => void, (request: RelayMutationRequest) => void)`
 * `RelayNetworkDebug` now logs query variables.
 * `RelayNetworkDebug` is now added as a subscriber instead of replacing any
   existing network layers. It also no longer replaces the global `fetch`.

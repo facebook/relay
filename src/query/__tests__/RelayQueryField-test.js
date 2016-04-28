@@ -357,55 +357,63 @@ describe('RelayQueryField', () => {
     });
   });
 
-  describe('getRangeBehaviorKey()', () => {
+  describe('getRangeBehaviorCalls()', () => {
     it('strips range calls on connections', () => {
       const connectionField = getNode(
         Relay.QL`fragment on User { friends(first:"10",isViewerFriend:true) }`
       ).getChildren()[0];
-      expect(connectionField.getRangeBehaviorKey())
-        .toBe('isViewerFriend(true)');
+      expect(connectionField.getRangeBehaviorCalls())
+        .toEqual([{name: 'isViewerFriend', value: true}]);
     });
 
     it('throws for non-connection fields', () => {
       const nonConnectionField = getNode(
         Relay.QL`query { node(id:"4") }`
       ).getChildren()[0];
-      expect(nonConnectionField.getRangeBehaviorKey).toThrow();
+      expect(nonConnectionField.getRangeBehaviorCalls).toThrow();
     });
 
     it('strips passing `if` calls', () => {
       const ifTrue = getNode(
         Relay.QL`fragment on User { friends(if:true) }`
       ).getChildren()[0];
-      expect(ifTrue.getRangeBehaviorKey()).toBe('');
+      expect(ifTrue.getRangeBehaviorCalls()).toEqual([]);
 
       const ifFalse = getNode(
         Relay.QL`fragment on User { friends(if:false) }`
       ).getChildren()[0];
-      expect(ifFalse.getRangeBehaviorKey()).toBe('if(false)');
+      expect(ifFalse.getRangeBehaviorCalls()).toEqual([{
+        name: 'if',
+        value: false,
+      }]);
     });
 
     it('strips failing `unless` calls', () => {
       const unlessTrue = getNode(
         Relay.QL`fragment on User { friends(unless:true) }`
       ).getChildren()[0];
-      expect(unlessTrue.getRangeBehaviorKey()).toBe('unless(true)');
+      expect(unlessTrue.getRangeBehaviorCalls()).toEqual([{
+        name: 'unless',
+        value: true,
+      }]);
 
       const unlessFalse = getNode(Relay.QL`
         fragment on User {
           friends(unless:false)
         }
       `).getChildren()[0];
-      expect(unlessFalse.getRangeBehaviorKey()).toBe('');
+      expect(unlessFalse.getRangeBehaviorCalls()).toEqual([]);
     });
 
     it('substitutes variable values', () => {
-      const key = 'isViewerFriend(false)';
       const friendsScalarRQL = Relay.QL`
         fragment on User { friends(isViewerFriend:false) }
       `;
       const friendsScalar = getNode(friendsScalarRQL).getChildren()[0];
-      expect(friendsScalar.getRangeBehaviorKey()).toBe(key);
+      expect(friendsScalar.getRangeBehaviorCalls()).toEqual([{
+        name: 'isViewerFriend',
+        value: false,
+      }]);
 
       const friendsVariableRQL = Relay.QL`
         fragment on User { friends(isViewerFriend:$isViewerFriend) }
@@ -413,19 +421,10 @@ describe('RelayQueryField', () => {
       const variables = {isViewerFriend: false};
       const friendsVariable =
         getNode(friendsVariableRQL, variables).getChildren()[0];
-      expect(friendsVariable.getRangeBehaviorKey()).toBe(key);
-    });
-
-    it('produces stable keys regardless of argument order', () => {
-      const friendFieldA = getNode(Relay.QL`fragment on User {
-        friends(orderby: "name", isViewerFriend: true)
-      }`).getChildren()[0];
-      const friendFieldB = getNode(Relay.QL`fragment on User {
-        friends(isViewerFriend: true, orderby: "name")
-      }`).getChildren()[0];
-      const expectedKey = 'isViewerFriend(true).orderby(name)';
-      expect(friendFieldA.getRangeBehaviorKey()).toBe(expectedKey);
-      expect(friendFieldB.getRangeBehaviorKey()).toBe(expectedKey);
+      expect(friendsVariable.getRangeBehaviorCalls()).toEqual([{
+         name: 'isViewerFriend',
+         value: false,
+      }]);
     });
   });
 

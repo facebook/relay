@@ -54,6 +54,7 @@ type FragmentPointer = {
   dataIDs: DataID | Array<DataID>
 };
 export type RelayContainerSpec = {
+  pure?: boolean;
   initialVariables?: Variables;
   prepareVariables?: (
     prevVariables: Variables,
@@ -94,6 +95,7 @@ function createContainerComponent(
   const fragmentNames = Object.keys(fragments);
   const initialVariables = spec.initialVariables || {};
   const prepareVariables = spec.prepareVariables;
+  const pure = spec.pure !== false;
 
   class RelayContainer extends React.Component {
     mounted: boolean;
@@ -696,6 +698,10 @@ function createContainerComponent(
       nextState: any,
       nextContext: any
     ): boolean {
+      if (!pure) {
+        return true;
+      }
+
       // Flag indicating that query data changed since previous render.
       if (this._hasStaleQueryData) {
         this._hasStaleQueryData = false;

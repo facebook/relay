@@ -940,4 +940,45 @@ describe('RelayContainer', function() {
     );
     expect(render.mock.calls.length).toBe(3);
   });
+
+  it('applies `pure` properly', () => {
+    var mockDataSet = {
+      '42': {__dataID__: '42', name: 'Tim'},
+    };
+    var render = jest.genMockFunction().mockImplementation(() => <div />);
+    var shouldComponentUpdate = jest.genMockFunction();
+    shouldComponentUpdate.mockReturnValue(true);
+
+    var MockComponent = React.createClass({render, shouldComponentUpdate});
+
+    var MockImpureContainer = Relay.createContainer(MockComponent, {
+      pure: false,
+      fragments: {
+        foo: jest.genMockFunction().mockImplementation(
+          () => Relay.QL`fragment on Node{id,name}`
+        ),
+      },
+    });
+
+    GraphQLStoreQueryResolver.mockResolveImplementation(0, (_, dataID) => {
+      return mockDataSet[dataID];
+    });
+    mockFooFragment =
+      getNode(MockImpureContainer.getFragment('foo').getFragment({}));
+    var mockPointerA = getPointer('42', mockFooFragment);
+
+    RelayTestRenderer.render(
+      () => <MockImpureContainer foo={mockPointerA} />,
+      environment,
+      mockRoute
+    );
+    expect(render.mock.calls.length).toBe(1);
+
+    RelayTestRenderer.render(
+      () => <MockImpureContainer foo={mockPointerA} />,
+      environment,
+      mockRoute
+    );
+    expect(render.mock.calls.length).toBe(2);
+  });
 });

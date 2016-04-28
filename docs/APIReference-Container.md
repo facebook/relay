@@ -37,6 +37,12 @@ Relay containers are created using `Relay.createContainer`.
       A method to modify the variables based on the runtime environment or previous variable values.
     </a>
   </li>
+  <li>
+    <a href="#pure">
+      <pre>pure</pre>
+      A boolean for disabling shouldComponentUpdate.
+    </a>
+  </li>
 </ul>
 
 *Properties and Methods*
@@ -169,6 +175,23 @@ module.exports = Relay.createContainer(ProfilePicture, {
       size: prevVariables.size * window.devicePixelRatio,
     };
   },
+  // ...
+});
+```
+
+### pure
+
+```
+pure: ?boolean
+```
+
+Relay containers may block updates to components that receive data via context. Setting pure to `false` will override the container's `shouldComponentUpdate` to always return true.
+
+#### Example
+
+```{2}
+module.exports = Relay.createContainer(ProfilePicture, {
+  pure: false,
   // ...
 });
 ```

@@ -42,19 +42,21 @@ function writeRelayQueryPayload(
   RelayNodeInterface.getResultsFromPayload(query, payload)
     .forEach(({result, rootCallInfo}) => {
       const {storageKey, identifyingArgKey} = rootCallInfo;
-      let dataID = store.getDataID(storageKey, identifyingArgKey);
-      if (dataID == null) {
-        if (
-          typeof result === 'object' &&
-          result &&
-          typeof result[ID] === 'string'
-        ) {
-          dataID = result[ID];
-        }
-        if (dataID == null) {
-          dataID = generateClientID();
-        }
+
+      let dataID;
+      if (
+        typeof result === 'object' &&
+        result &&
+        typeof result[ID] === 'string'
+      ) {
+        dataID = result[ID];
       }
+
+      if (dataID == null) {
+        dataID =
+          store.getDataID(storageKey, identifyingArgKey) || generateClientID();
+      }
+
       recordWriter.putDataID(
         storageKey,
         identifyingArgKey,

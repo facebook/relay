@@ -122,10 +122,6 @@ babel.transform(source, {
     [getBabelRelayPlugin(schemaData, {
       // Only if enforceSchema: false and debug: true it will still log validation errors at build time
       debug: false, 
-      // Customizes the name of the input variable when queries/muations are being sent off to the server.
-      inputArgumentName: 'custom_input_name',
-      // Transforms any field names to snake_case when the queries/mutations are sent to the server
-      snakeCase: true,
       // Supresses all warnings that would be printed
       suppressWarnings: false, 
       // Can add custom schema validation rules? Is there a simple example for this?

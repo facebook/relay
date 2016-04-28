@@ -58,7 +58,7 @@ const shouldInstrument = name => {
  * Handlers for profiles are callbacks that return a stop method:
  *
  *   RelayProfiler.attachProfileHandler('profileName', (name, state) => {
- *     let start = performance.now();
+ *     const start = performance.now();
  *     return function stop(name, state) {
  *       console.log(`Duration (${name})`, performance.now() - start);
  *     }

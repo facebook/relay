@@ -77,7 +77,7 @@ export interface RelayEnvironmentInterface {
  *
  * `RelayEnvironment` is the public API for Relay core. Each instance provides
  * an isolated environment with:
- * - Methods for fetchng and updating data.
+ * - Methods for fetching and updating data.
  * - An in-memory cache of fetched data.
  * - A configurable network layer for resolving queries/mutations.
  * - A configurable task scheduler to control when internal tasks are executed.

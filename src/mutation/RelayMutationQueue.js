@@ -42,22 +42,22 @@ const nullthrows = require('nullthrows');
 const resolveImmediate = require('resolveImmediate');
 
 type CollisionQueueMap = {[key: string]: Array<PendingTransaction>};
-type PendingTransaction = {
+interface PendingTransaction {
   error: ?Error;
-  getCallName: () => string;
-  getCollisionKey: () => ?string;
-  getConfigs: () => Array<RelayMutationConfig>;
-  getFiles: () => ?FileMap;
-  getOptimisticConfigs: () => ?Array<{[key: string]: mixed}>;
-  getOptimisticQuery: (storeData: RelayStoreData) => ?RelayQuery.Mutation;
-  getOptimisticResponse: () => ?Object;
-  getQuery: (storeData: RelayStoreData) => RelayQuery.Mutation;
+  getCallName(): string;
+  getCollisionKey(): ?string;
+  getConfigs(): Array<RelayMutationConfig>;
+  getFiles(): ?FileMap;
+  getOptimisticConfigs(): ?Array<{[key: string]: mixed}>;
+  getOptimisticQuery(storeData: RelayStoreData): ?RelayQuery.Mutation;
+  getOptimisticResponse(): ?Object;
+  getQuery(storeData: RelayStoreData): RelayQuery.Mutation;
   id: ClientMutationID;
   mutationTransaction: RelayMutationTransaction;
   onFailure: ?RelayMutationTransactionCommitFailureCallback;
   onSuccess: ?RelayMutationTransactionCommitSuccessCallback;
   status: $Keys<typeof RelayMutationTransactionStatus>;
-};
+}
 type PendingTransactionMap = {
   [key: ClientMutationID]: PendingTransaction;
 };

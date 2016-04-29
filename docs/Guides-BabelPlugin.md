@@ -124,7 +124,8 @@ babel.transform(source, {
       debug: false, 
       // Supresses all warnings that would be printed
       suppressWarnings: false, 
-      // Can add custom schema validation rules? Is there a simple example for this?
+      // Can add custom validation rules. 
+      // If none specified some of the default rules are skipped (e.g. for fat queries)
       validator: (GraphQL) => {
         return (schema, ast) => {
           return []

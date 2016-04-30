@@ -26,6 +26,12 @@ Relay uses routes to define entry points into a Relay application.
     </a>
   </li>
   <li>
+    <a href="#prepareparams-static-property">
+      <pre>static prepareParams</pre>
+      Declare additional parameters or conversion for parameters.
+    </a>
+  </li>
+  <li>
     <a href="#queries-static-property">
       <pre>static queries</pre>
       Declare the set of query roots.
@@ -69,6 +75,66 @@ class ProfileRoute extends Relay.Route {
   // ...
 }
 ```
+
+### prepareParams (static property)
+
+```
+static prepareParams: ?(prevParams: {[prevParam: string]: mixed}) => {[param: string]: mixed};
+```
+
+Routes can declare additional parameters, or conversion for parameters on initialisation. These can also be used as query parameters in your nested containers.
+
+#### Example
+
+```
+class ProfileRoute extends Relay.Route {
+  static queries = {
+    viewer: () => Relay.QL`query { viewer }`
+  };
+  static prepareParams = (prevParams) => {
+    // Make sure any params that ProfileRoute gets initialised with will still be passed down.
+    return {
+      ...prevParams,
+      limit: 10
+    }
+  }
+  // ...
+}
+
+const Child = Relay.createContainer((props) => ..., {
+  initialVariables: {
+    limit: null
+  },
+  fragments: {
+    viewer: ({limit}) => Relay.QL`
+      fragment on User {
+        friends(first: $limit) {
+          edges {
+            node {
+              name
+            }
+          }
+        }
+      }
+    `
+  }
+});
+
+const Container = Relay.createContainer((props) => <Child viewer={viewer} limit={this.props.relay.variables.limit}, {
+  initialVariables: {
+    limit: null
+  },
+  fragments: {
+    viewer: ({limit}) => Relay.QL`
+      fragment on User {
+        name
+        ${Child.getFragment('viewer', {limit})}
+      }
+    `
+  }
+});
+```
+In this example query parameters are being passed down to a child component. `prepareParams` is being used to create the params and given that the `ProfileRoute` and the `Container` are both being passed into `Relay.Renderer` the `Container` will set the `limit` variable in `Child`.
 
 ### queries (static property)
 

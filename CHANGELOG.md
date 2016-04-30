@@ -1,4 +1,5 @@
 ## master
+
 * Added `this.props.relay.pendingVariables` to the wrapped component.
 
 ## 0.8.1 (April 27, 2016)

@@ -14,8 +14,8 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment')
+  .unmock('GraphQLRange')
+  .unmock('GraphQLSegment')
   .mock('warning');
 
 const Relay = require('Relay');
@@ -181,6 +181,41 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getRecordState('1055790163')).toBe('EXISTENT');
       expect(store.getField('1055790163', 'id')).toBe('1055790163');
       expect(store.getDataID('username', 'yuzhi')).toBe('1055790163');
+    });
+
+    it('is updated for custom root calls with an id', () => {
+      const records = {};
+      const rootCallMap = {};
+      const store = new RelayRecordStore({records}, {rootCallMap});
+      const writer = new RelayRecordWriter(records, rootCallMap, false);
+      const query = getNode(Relay.QL`
+        query {
+          username(name:"yuzhi") {
+            id,
+          }
+        }
+      `);
+      const payload = {
+        username: {
+          id: '1055790163',
+        },
+      };
+      writePayload(store, writer, query, payload);
+      const newPayload = {
+        username: {
+          id: '123',
+        },
+      };
+      const results = writePayload(store, writer, query, newPayload);
+      expect(results).toEqual({
+        created: {
+          '123': true,
+        },
+        updated: {},
+      });
+      expect(store.getRecordState('123')).toBe('EXISTENT');
+      expect(store.getField('123', 'id')).toBe('123');
+      expect(store.getDataID('username', 'yuzhi')).toBe('123');
     });
 
     it('is created for custom root calls without an id', () => {

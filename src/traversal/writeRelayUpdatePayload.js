@@ -16,9 +16,7 @@
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 import type {
-  Call,
   DataID,
-  RangeBehaviors,
   UpdateOptions,
 } from 'RelayInternalTypes';
 const RelayMutationTracker = require('RelayMutationTracker');
@@ -33,8 +31,8 @@ import type RelayRecordStore from 'RelayRecordStore';
 
 const generateClientEdgeID = require('generateClientEdgeID');
 const generateClientID = require('generateClientID');
+const getRangeBehavior = require('getRangeBehavior');
 const invariant = require('invariant');
-const serializeRelayQueryCall = require('serializeRelayQueryCall');
 const warning = require('warning');
 
 // TODO: Replace with enumeration for possible config types.
@@ -541,24 +539,6 @@ function deleteRangeEdge(
 
   deleteRecord(writer, edgeID);
   writer.recordUpdate(connectionID);
-}
-
-/**
- * Return the action (prepend/append) to use when adding an item to
- * the range with the specified calls.
- *
- * Ex:
- * rangeBehaviors: `{'orderby(recent)': 'append'}`
- * calls: `[{name: 'orderby', value: 'recent'}]`
- *
- * Returns `'append'`
- */
-function getRangeBehavior(
-  rangeBehaviors: RangeBehaviors,
-  calls: Array<Call>
-): ?string {
-  const call = calls.map(serializeRelayQueryCall).sort().join('').slice(1);
-  return rangeBehaviors[call] || null;
 }
 
 /**

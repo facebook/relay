@@ -14,9 +14,8 @@
 
 import Relay from 'react-relay';
 import RemoveCompletedTodosMutation from '../mutations/RemoveCompletedTodosMutation';
-import React, {
-  Component,
-  PropTypes,
+import React, { Component, PropTypes } from 'react';
+import {
   StyleSheet,
   Text,
   TouchableHighlight,
@@ -42,8 +41,8 @@ class TodoListFooter extends Component {
     );
   }
   render() {
-    var numCompletedTodos = this.props.viewer.completedCount;
-    var numRemainingTodos = this.props.viewer.totalCount - numCompletedTodos;
+    const numCompletedTodos = this.props.viewer.completedCount;
+    const numRemainingTodos = this.props.viewer.totalCount - numCompletedTodos;
     return (
       <View style={[this.props.style, styles.container]}>
         <Text>

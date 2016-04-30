@@ -61,7 +61,7 @@ const {nodeInterface, nodeField} = nodeDefinitions(
   }
 );
 
-var gameType = new GraphQLObjectType({
+const gameType = new GraphQLObjectType({
   name: 'Game',
   description: 'A treasure search game',
   fields: () => ({
@@ -81,7 +81,7 @@ var gameType = new GraphQLObjectType({
   interfaces: [nodeInterface],
 });
 
-var hidingSpotType = new GraphQLObjectType({
+const hidingSpotType = new GraphQLObjectType({
   name: 'HidingSpot',
   description: 'A place where you might find treasure',
   fields: () => ({
@@ -106,7 +106,7 @@ var hidingSpotType = new GraphQLObjectType({
   interfaces: [nodeInterface],
 });
 
-var {connectionType: hidingSpotConnection} =
+const {connectionType: hidingSpotConnection} =
   connectionDefinitions({name: 'HidingSpot', nodeType: hidingSpotType});
 
 const queryType = new GraphQLObjectType({

@@ -42,6 +42,7 @@ const forEachObject = require('forEachObject');
 const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
 const isEmpty = require('isEmpty');
+const warning = require('warning');
 
 type PendingRoots = {[key: string]: Array<RelayQuery.Root>};
 
@@ -145,7 +146,7 @@ class RelayCacheReader {
   }
 
   abort(): void {
-    invariant(
+    warning(
       this._state === 'LOADING',
       'RelayCacheReader: Can only abort an in-progress read operation.'
     );

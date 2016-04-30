@@ -13,7 +13,7 @@
 
 require('configureForRelayOSS');
 
-jest.dontMock('RelayFragmentPointer');
+jest.unmock('RelayFragmentPointer');
 
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const Relay = require('Relay');

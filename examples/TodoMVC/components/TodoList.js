@@ -19,11 +19,10 @@ import RemoveTodoMutation from '../mutations/RemoveTodoMutation';
 import Swipeout from 'react-native-swipeout';
 import Todo from './Todo';
 import TodoTextInput from './TodoTextInput';
-import React, {
-  Component,
+import React, { Component, PropTypes } from 'react';
+import {
   ListView,
   Platform,
-  PropTypes,
   StyleSheet,
   Text,
   TouchableHighlight,
@@ -83,9 +82,6 @@ class TodoList extends Component {
   }
   componentWillReceiveProps(nextProps) {
     if (this.props.viewer.todos.edges !== nextProps.viewer.todos.edges) {
-      const {
-        todosDataSource,
-      } = this.state;
       this.setState({
         todosDataSource:
           _todosDataSource.cloneWithRows(nextProps.viewer.todos.edges),
@@ -156,7 +152,7 @@ export default Relay.createContainer(TodoList, {
     status: 'any',
   },
   prepareVariables({status}) {
-    var nextStatus;
+    let nextStatus;
     if (status === 'active' || status === 'completed') {
       nextStatus = status;
     } else {

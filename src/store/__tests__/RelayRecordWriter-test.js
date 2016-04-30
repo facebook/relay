@@ -11,7 +11,7 @@
 
 'use strict';
 
-jest.autoMockOff();
+jest.disableAutomock();
 
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');

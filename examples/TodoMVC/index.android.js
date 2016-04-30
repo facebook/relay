@@ -12,7 +12,7 @@
 
 'use strict';
 
-import React, {
+import {
   AppRegistry,
 } from 'react-native';
 import TodoMVC from './app';

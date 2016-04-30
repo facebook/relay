@@ -1,6 +1,11 @@
 ## master
 * Added `this.props.relay.pendingVariables` to the wrapped component.
 
+## 0.8.1 (April 27, 2016)
+
+* `RelayNetworkDebug` now logs query variables.
+* `RelayNetworkDebug` is now added as a subscriber instead of replacing any
+  existing network layers. It also no longer replaces the global `fetch`.
 * `Relay.Environment#injectNetworkLayer` (and, by extension
   `Relay#injectNetworkLayer`) will now warn if injecting would overwrite a
   previously injected layer.

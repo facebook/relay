@@ -51,19 +51,22 @@ class RelayNetworkDebugger {
     const id = this._queryID++;
     const timerName = `[${id}] Request Duration`;
 
-    console.timeStamp(`START: [${id}] ${type}: ${name} →`);
-    console.time(timerName);
+    console.timeStamp && console.timeStamp(`START: [${id}] ${type}: ${name} →`);
+    console.time && console.time(timerName);
 
     const onSettled = (error, response) => {
       const time = (performanceNow() - this._initTime) / 1000;
-      console.timeStamp(`← END: [${id}] ${type}: ${name}`);
-      console.groupCollapsed(
-        `%c[${id}] ${type}: ${name} @ ${time}s`,
-        `color:${error ? 'red' : 'black'};`
-      );
-      console.timeEnd(timerName);
+      console.timeStamp && console.timeStamp(`← END: [${id}] ${type}: ${name}`);
+      const groupName = `%c[${id}] ${type}: ${name} @ ${time}s`;
+      console.groupCollapsed ?
+        console.groupCollapsed(
+          groupName,
+          `color:${error ? 'red' : 'black'};`
+        ) :
+        console.log(groupName);
+      console.timeEnd && console.timeEnd(timerName);
       logResult(error, response);
-      console.groupEnd();
+      console.groupEnd && console.groupEnd();
     };
 
     promise.then(
@@ -82,7 +85,7 @@ function createDebuggableFromRequest(
     type,
     promise: request.getPromise(),
     logResult(error, response) {
-      console.debug(
+      console.debug && console.debug(
         '%c%s\n',
         'font-size:10px; color:#333; font-family:mplus-2m-regular,menlo,' +
         'monospaced;',

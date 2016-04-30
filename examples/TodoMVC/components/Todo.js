@@ -16,11 +16,10 @@ import ChangeTodoStatusMutation from '../mutations/ChangeTodoStatusMutation';
 import RenameTodoMutation from '../mutations/RenameTodoMutation';
 import Relay from 'react-relay';
 import TodoTextInput from './TodoTextInput';
-import React, {
-  Component,
+import React, { Component, PropTypes } from 'react';
+import {
   Image,
   Platform,
-  PropTypes,
   StyleSheet,
   Text,
   TouchableHighlight,
@@ -45,7 +44,7 @@ class Todo extends Component {
     this._setEditMode = this._setEditMode.bind(this);
   }
   _handleCompletePress() {
-    var complete = !this.props.todo.complete;
+    const complete = !this.props.todo.complete;
     Relay.Store.commitUpdate(
       new ChangeTodoStatusMutation({
         complete,

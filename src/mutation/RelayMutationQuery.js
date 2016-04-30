@@ -27,6 +27,7 @@ const {REFETCH} = require('GraphQLMutatorConstants');
 
 const flattenRelayQuery = require('flattenRelayQuery');
 const forEachObject = require('forEachObject');
+const getRangeBehavior = require('getRangeBehavior');
 const nullthrows = require('nullthrows');
 const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 const intersectRelayQuery = require('intersectRelayQuery');
@@ -227,9 +228,11 @@ const RelayMutationQuery = {
           return;
         }
 
-        const rangeBehaviorKey = trackedConnection.getRangeBehaviorKey();
-        const rangeBehaviorValue = rangeBehaviors[rangeBehaviorKey];
-        if (rangeBehaviorKey in rangeBehaviors && rangeBehaviorValue !== REFETCH) {
+        const callsWithValues = trackedConnection.getRangeBehaviorCalls();
+        const rangeBehavior =
+          getRangeBehavior(rangeBehaviors, callsWithValues);
+
+        if (rangeBehavior && rangeBehavior !== REFETCH) {
           // Include edges from all connections that exist in `rangeBehaviors`.
           // This may add duplicates, but they will eventually be flattened.
           trackedEdges.forEach(trackedEdge => {
@@ -239,7 +242,7 @@ const RelayMutationQuery = {
           // If the connection is not in `rangeBehaviors` or we have explicitly
           // set the behavior to `refetch`, re-fetch it.
           warning(
-            rangeBehaviorValue === REFETCH,
+            rangeBehavior === REFETCH,
             'RelayMutation: The connection `%s` on the mutation field `%s` ' +
             'that corresponds to the ID `%s` did not match any of the ' +
             '`rangeBehaviors` specified in your RANGE_ADD config. This means ' +
@@ -536,6 +539,12 @@ function sanitizeRangeBehaviors(
   // Prior to 0.4.1 you would have to specify the args in your range behaviors
   // in the same order they appeared in your query. From 0.4.1 onward, args in a
   // range behavior key must be in alphabetical order.
+
+  // No need to sanitize if defined as a function
+  if (typeof rangeBehaviors === 'function') {
+    return rangeBehaviors;
+  }
+
   let unsortedKeys;
   forEachObject(rangeBehaviors, (value, key) => {
     if (key !== '') {

@@ -27,7 +27,8 @@ if (__DEV__) {
 }
 
 // By default, assume that GraphQL is served at `/graphql` on the same domain.
-RelayStore.injectNetworkLayer(new RelayDefaultNetworkLayer('/graphql'));
+// To override, use `Relay.injectNetworkLayer`.
+RelayStore.injectDefaultNetworkLayer(new RelayDefaultNetworkLayer('/graphql'));
 
 module.exports = {
   ...RelayPublic,

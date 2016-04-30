@@ -51,33 +51,33 @@ export type FragmentResolver = {
   ) => ?(StoreReaderData | Array<?StoreReaderData>);
 };
 
-export type RelayEnvironmentInterface = {
-  forceFetch: (
+export interface RelayEnvironmentInterface {
+  forceFetch(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback
-  ) => Abortable;
-  getFragmentResolver: (
+  ): Abortable;
+  getFragmentResolver(
     fragment: RelayQuery.Fragment,
     onNext: () => void
-  ) => FragmentResolver;
-  getStoreData: () => RelayStoreData;
-  primeCache: (
+  ): FragmentResolver;
+  getStoreData(): RelayStoreData;
+  primeCache(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback
-  ) => Abortable;
-  read: (
+  ): Abortable;
+  read(
     node: RelayQuery.Node,
     dataID: DataID,
     options?: StoreReaderOptions
-  ) => ?StoreReaderData;
-};
+  ): ?StoreReaderData;
+}
 
 /**
  * @public
  *
  * `RelayEnvironment` is the public API for Relay core. Each instance provides
  * an isolated environment with:
- * - Methods for fetchng and updating data.
+ * - Methods for fetching and updating data.
  * - An in-memory cache of fetched data.
  * - A configurable network layer for resolving queries/mutations.
  * - A configurable task scheduler to control when internal tasks are executed.

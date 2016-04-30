@@ -14,7 +14,7 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('RelayContainerComparators')
+  .unmock('RelayContainerComparators')
   .mock('warning');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
@@ -939,5 +939,48 @@ describe('RelayContainer', function() {
       mockRoute
     );
     expect(render.mock.calls.length).toBe(3);
+  });
+
+  it('applies `shouldComponentUpdate` properly', () => {
+    var mockDataSet = {
+      '42': {__dataID__: '42', name: 'Tim'},
+    };
+    var render = jest.genMockFunction().mockImplementation(() => <div />);
+    var shouldComponentUpdate = jest.fn(() => true);
+
+    var MockAlwaysUpdateComponent = Relay.createContainer(
+      React.createClass({render, shouldComponentUpdate}),
+      {
+        shouldComponentUpdate,
+        fragments: {
+          foo: jest.genMockFunction().mockImplementation(
+            () => Relay.QL`fragment on Node{id,name}`
+          ),
+        },
+      }
+    );
+
+    GraphQLStoreQueryResolver.mockResolveImplementation(0, (_, dataID) => {
+      return mockDataSet[dataID];
+    });
+    mockFooFragment =
+      getNode(MockAlwaysUpdateComponent.getFragment('foo').getFragment({}));
+    var mockPointerA = getPointer('42', mockFooFragment);
+
+    RelayTestRenderer.render(
+      () => <MockAlwaysUpdateComponent foo={mockPointerA} />,
+      environment,
+      mockRoute
+    );
+    expect(render.mock.calls.length).toBe(1);
+
+    RelayTestRenderer.render(
+      () => <MockAlwaysUpdateComponent foo={mockPointerA} />,
+      environment,
+      mockRoute
+    );
+    expect(shouldComponentUpdate.mock.calls.length).toBe(2);
+    expect(shouldComponentUpdate.mock.calls[0].length).toBe(0);
+    expect(render.mock.calls.length).toBe(2);
   });
 });

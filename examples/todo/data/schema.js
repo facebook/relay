@@ -68,7 +68,7 @@ const {nodeInterface, nodeField} = nodeDefinitions(
   }
 );
 
-var GraphQLTodo = new GraphQLObjectType({
+const GraphQLTodo = new GraphQLObjectType({
   name: 'Todo',
   fields: {
     id: globalIdField('Todo'),
@@ -92,7 +92,7 @@ const {
   nodeType: GraphQLTodo,
 });
 
-var GraphQLUser = new GraphQLObjectType({
+const GraphQLUser = new GraphQLObjectType({
   name: 'User',
   fields: {
     id: globalIdField('User'),

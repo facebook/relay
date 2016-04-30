@@ -54,14 +54,15 @@ type FragmentPointer = {
   dataIDs: DataID | Array<DataID>
 };
 export type RelayContainerSpec = {
+  fragments: {
+    [propName: string]: RelayQLFragmentBuilder
+  };
   initialVariables?: Variables;
   prepareVariables?: (
     prevVariables: Variables,
     route: RelayMetaRoute
   ) => Variables;
-  fragments: {
-    [propName: string]: RelayQLFragmentBuilder
-  };
+  shouldComponentUpdate?: () => boolean;
 };
 export type RelayLazyContainer = Function;
 
@@ -87,13 +88,14 @@ function createContainerComponent(
   Component: ReactClass,
   spec: RelayContainerSpec
 ): RelayContainerClass {
-  const componentName = Component.displayName || Component.name;
-  const containerName = 'Relay(' + componentName + ')';
-
+  const ComponentClass = getReactComponent(Component);
+  const componentName = getComponentName(Component);
+  const containerName = getContainerName(Component);
   const fragments = spec.fragments;
   const fragmentNames = Object.keys(fragments);
   const initialVariables = spec.initialVariables || {};
   const prepareVariables = spec.prepareVariables;
+  const specShouldComponentUpdate = spec.shouldComponentUpdate;
 
   class RelayContainer extends React.Component {
     mounted: boolean;
@@ -704,6 +706,10 @@ function createContainerComponent(
       nextState: any,
       nextContext: any
     ): boolean {
+      if (specShouldComponentUpdate) {
+        return specShouldComponentUpdate();
+      }
+
       // Flag indicating that query data changed since previous render.
       if (this._hasStaleQueryData) {
         this._hasStaleQueryData = false;
@@ -742,14 +748,24 @@ function createContainerComponent(
     }
 
     render(): React$Element {
-      return (
-        <Component
-          {...this.props}
-          {...this.state.queryData}
-          ref={isReactComponent(Component) ? 'component' : null}
-          relay={this.state.relayProp}
-        />
-      );
+      if (ComponentClass) {
+        return (
+          <ComponentClass
+            {...this.props}
+            {...this.state.queryData}
+            ref={'component'}
+            relay={this.state.relayProp}
+          />
+        );
+      } else {
+        // Stateless functional.
+        const Fn = (Component: any);
+        return React.createElement(Fn, {
+          ...this.props,
+          ...this.state.queryData,
+          relay: this.state.relayProp,
+        });
+      }
     }
   }
 
@@ -940,18 +956,42 @@ function validateSpec(
   });
 }
 
+function getReactComponent(
+  Component: ReactClass<any>
+): ?ReactClass<any> {
+  if (isReactComponent(Component)) {
+    return (Component: any);
+  } else {
+    return null;
+  }
+}
+
+function getComponentName(Component: ReactClass<any>): string {
+  let name;
+  const ComponentClass = getReactComponent(Component);
+  if (ComponentClass) {
+    name = ComponentClass.displayName || ComponentClass.name;
+  } else {
+    // This is a stateless functional component.
+    name = 'props => ReactElement';
+  }
+  return name;
+}
+
+function getContainerName(Component: ReactClass<any>): string {
+  return 'Relay(' + getComponentName(Component) + ')';
+}
+
 /**
  * Creates a lazy Relay container. The actual container is created the first
  * time a container is being constructed by React's rendering engine.
  */
 function create(
-  /* $FlowFixMe - Commit hook broke and this Flow error snuck in. Remove this
-   * comment to see and fix the error. */
   Component: ReactClass<any>,
   spec: RelayContainerSpec,
 ): RelayLazyContainer {
-  const componentName = Component.displayName || Component.name;
-  const containerName = 'Relay(' + componentName + ')';
+  const componentName = getComponentName(Component);
+  const containerName = getContainerName(Component);
 
   validateSpec(componentName, spec);
 

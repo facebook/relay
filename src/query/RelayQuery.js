@@ -947,7 +947,7 @@ class RelayQueryFragment extends RelayQueryNode {
 class RelayQueryField extends RelayQueryNode {
   __debugName__: ?string;
   __isRefQueryDependency__: boolean;
-  __rangeBehaviorKey__: ?string;
+  __rangeBehaviorCalls__: ?Array<Call>;
   __shallowHash__: ?string;
 
   static create(
@@ -1015,7 +1015,7 @@ class RelayQueryField extends RelayQueryNode {
     super(concreteNode, route, variables);
     this.__debugName__ = undefined;
     this.__isRefQueryDependency__ = false;
-    this.__rangeBehaviorKey__ = undefined;
+    this.__rangeBehaviorCalls__ = undefined;
     this.__shallowHash__ = undefined;
   }
 
@@ -1085,34 +1085,30 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   /**
-   * A string representing the range behavior eligible arguments associated with
-   * this field. Arguments will be sorted.
-   *
-   * Non-core arguments (like connection and identifying arguments) are dropped.
-   *   `field(first: 10, foo: "bar", baz: "bat")` => `'baz(bat).foo(bar)'`
-   *   `username(name: "steve")`                  => `''`
-   */
-  getRangeBehaviorKey(): string {
+  * An Array of Calls to be used with rangeBehavior config functions.
+  *
+  * Non-core arguments (like connection and identifying arguments) are dropped.
+  *   `field(first: 10, foo: "bar", baz: "bat")` => `'baz(bat).foo(bar)'`
+  *   `username(name: "steve")`                  => `''`
+  */
+  getRangeBehaviorCalls(): Array<Call> {
     invariant(
       this.isConnection(),
       'RelayQueryField: Range behavior keys are associated exclusively with ' +
-      'connection fields. `getRangeBehaviorKey()` was called on the ' +
+      'connection fields. `getRangeBehaviorCalls()` was called on the ' +
       'non-connection field `%s`.',
       this.getSchemaName()
     );
-    let rangeBehaviorKey = this.__rangeBehaviorKey__;
-    if (rangeBehaviorKey == null) {
-      const printedCoreArgs = [];
-      this.getCallsWithValues().forEach(arg => {
-        if (this._isCoreArg(arg)) {
-          printedCoreArgs.push(serializeRelayQueryCall(arg));
-        }
+
+    let rangeBehaviorCalls = this.__rangeBehaviorCalls__;
+    if (!rangeBehaviorCalls) {
+      rangeBehaviorCalls = this.getCallsWithValues().filter(arg => {
+        return this._isCoreArg(arg);
       });
-      rangeBehaviorKey = printedCoreArgs.sort().join('').slice(1);
-      this.__rangeBehaviorKey__ = rangeBehaviorKey;
+      this.__rangeBehaviorCalls__ = rangeBehaviorCalls;
     }
-    return rangeBehaviorKey;
-  }
+    return rangeBehaviorCalls;
+ }
 
   /**
    * The name for the field when serializing the query or interpreting query

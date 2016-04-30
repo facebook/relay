@@ -14,8 +14,8 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('RelayMutationTransaction')
-  .dontMock('RelayMutationTransactionStatus');
+  .unmock('RelayMutationTransaction')
+  .unmock('RelayMutationTransactionStatus');
 
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
@@ -139,7 +139,6 @@ describe('RelayMutationQueue', () => {
       expect(buildQueryCalls[0][0].response).toEqual({
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
       });
-      expect(buildQueryCalls[0][0].tracker).toBe(storeData.getQueryTracker());
       expect(buildQueryCalls[0][0].fatQuery).toEqualQueryNode(
         flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
           preserveEmptyNodes: true,

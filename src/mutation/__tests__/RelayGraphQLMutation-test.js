@@ -14,10 +14,10 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment')
-  .dontMock('RelayMutation')
-  .dontMock('RelayNetworkLayer');
+  .unmock('GraphQLRange')
+  .unmock('GraphQLSegment')
+  .unmock('RelayMutation')
+  .unmock('RelayNetworkLayer');
 
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');

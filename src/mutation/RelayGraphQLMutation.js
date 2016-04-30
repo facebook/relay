@@ -86,7 +86,7 @@ class RelayGraphQLMutation {
    */
   static createWithFiles(
     mutation: RelayConcreteNode,
-    variables: Object,
+    variables: Variables,
     files: FileMap,
     environment: RelayEnvironmentInterface
   ): RelayGraphQLMutation {
@@ -139,7 +139,7 @@ class RelayGraphQLMutation {
    */
   constructor(
     query: RelayConcreteNode,
-    variables: Object,
+    variables: Variables,
     files: ?FileMap,
     environment: RelayEnvironmentInterface,
     callbacks: ?RelayMutationTransactionCommitCallbacks,

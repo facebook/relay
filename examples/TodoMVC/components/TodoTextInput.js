@@ -12,9 +12,8 @@
 
 'use strict';
 
-import React, {
-  Component,
-  PropTypes,
+import React, { Component, PropTypes } from 'react';
+import {
   TextInput,
 } from 'react-native';
 
@@ -44,7 +43,7 @@ export default class TodoTextInput extends Component {
     this._handleSubmitEditing = this._handleSubmitEditing.bind(this);
   }
   _commitChanges() {
-    var newText = this.state.text.trim();
+    const newText = this.state.text.trim();
     if (this.props.onDelete && newText === '') {
       this.props.onDelete();
     } else if (this.props.onCancel && newText === this.props.initialValue) {

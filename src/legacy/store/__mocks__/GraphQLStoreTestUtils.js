@@ -53,7 +53,7 @@ const GraphQLStoreTestUtils = {
   },
   deepUnmockRQL: function() {
     jest
-      .dontMock('RelayFragmentPointer');
+      .unmock('RelayFragmentPointer');
   },
 };
 

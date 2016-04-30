@@ -16,8 +16,8 @@ import Relay from 'react-relay';
 import StatusButton from './StatusButton';
 import TodoList from './TodoList';
 import TodoListFooter from './TodoListFooter';
-import React, {
-  Component,
+import React, { Component } from 'react';
+import {
   Platform,
   StyleSheet,
   Text,

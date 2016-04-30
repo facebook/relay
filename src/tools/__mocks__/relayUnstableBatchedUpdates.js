@@ -9,9 +9,6 @@
 
 'use strict';
 
-const relayUnstableBatchedUpdates =
-  require.requireActual('relayUnstableBatchedUpdates');
+const relayUnstableBatchedUpdates = require('ReactDOM').unstable_batchedUpdates;
 
-module.exports = jest.fn(
-  relayUnstableBatchedUpdates
-);
+module.exports = jest.fn(relayUnstableBatchedUpdates);

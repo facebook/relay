@@ -309,7 +309,7 @@ class RelayMutationQueue {
     );
     this._storeData.getNetworkLayer().sendMutation(request);
 
-    request.getPromise().done(
+    request.done(
       result => this._handleCommitSuccess(transaction, result.response),
       error => this._handleCommitFailure(transaction, error)
     );
@@ -526,7 +526,6 @@ class RelayPendingTransaction {
               response: optimisticResponse,
               fatQuery: this.getFatQuery(),
               mutation: this.getMutationNode(),
-              tracker: storeData.getQueryTracker(),
             });
         }
       } else {

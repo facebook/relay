@@ -21,8 +21,8 @@
  */
 function compareObjects(
   isEqual: (propA: any, propB: any, key: string) => boolean,
-  objectA: Object,
-  objectB: Object,
+  objectA: ?Object,
+  objectB: ?Object,
   filter?: Object
 ): boolean {
   var key;
@@ -33,9 +33,9 @@ function compareObjects(
       continue;
     }
 
-    if (objectA.hasOwnProperty(key) && (
+    if (!objectB || (objectA.hasOwnProperty(key) && (
           !objectB.hasOwnProperty(key) ||
-          !isEqual(objectA[key], objectB[key], key))) {
+          !isEqual(objectA[key], objectB[key], key)))) {
       return false;
     }
   }
@@ -45,7 +45,7 @@ function compareObjects(
       continue;
     }
 
-    if (objectB.hasOwnProperty(key) && !objectA.hasOwnProperty(key)) {
+    if (!objectA || (objectB.hasOwnProperty(key) && !objectA.hasOwnProperty(key))) {
       return false;
     }
   }
@@ -114,8 +114,8 @@ const RelayContainerComparators = {
   },
 
   areQueryVariablesEqual(
-    variables: Object,
-    nextVariables: Object
+    variables: ?Object,
+    nextVariables: ?Object
   ): boolean {
     return compareObjects(isScalarAndEqual, variables, nextVariables);
   },

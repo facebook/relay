@@ -14,8 +14,10 @@
 'use strict';
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+import type {ChangeSubscription} from 'RelayInternalTypes';
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
+import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
 import type RelayQuery from 'RelayQuery';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
@@ -102,8 +104,25 @@ class RelayEnvironment {
     return this._storeData;
   }
 
+  /**
+   * @internal
+   */
+  injectDefaultNetworkLayer(networkLayer: ?NetworkLayer) {
+    this._storeData.getNetworkLayer().injectDefaultImplementation(networkLayer);
+  }
+
   injectNetworkLayer(networkLayer: ?NetworkLayer) {
-    this._storeData.getNetworkLayer().injectNetworkLayer(networkLayer);
+    this._storeData.getNetworkLayer().injectImplementation(networkLayer);
+  }
+
+  addNetworkSubscriber(
+    queryCallback?: ?QueryCallback,
+    mutationCallback?: ?MutationCallback
+  ): ChangeSubscription {
+    return this._storeData.getNetworkLayer().addNetworkSubscriber(
+      queryCallback,
+      mutationCallback
+    );
   }
 
   injectTaskScheduler(scheduler: ?TaskScheduler): void {

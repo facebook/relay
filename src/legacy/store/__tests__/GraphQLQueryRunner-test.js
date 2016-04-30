@@ -67,7 +67,7 @@ describe('GraphQLQueryRunner', () => {
     queryRunner = storeData.getQueryRunner();
     pendingQueryTracker = storeData.getPendingQueryTracker();
 
-    networkLayer.injectNetworkLayer({
+    networkLayer.injectImplementation({
       supports: () => true,
     });
 
@@ -109,7 +109,7 @@ describe('GraphQLQueryRunner', () => {
   it('warns and uses fallback when defer is unsupported', () => {
     diffRelayQuery.mockImplementation(query => [query]);
     checkRelayQueryData.mockImplementation(() => false);
-    networkLayer.injectNetworkLayer({
+    networkLayer.injectImplementation({
       supports: () => false,
     });
 

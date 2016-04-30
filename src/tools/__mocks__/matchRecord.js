@@ -23,20 +23,39 @@ const METADATA_KEYS = {
   '__status__': true,
 };
 
+function toString(maybeNull) {
+  if (maybeNull === null || Array.isArray(maybeNull)) {
+    return JSON.stringify(maybeNull);
+  } else {
+    return JSON.stringify(maybeNull.toString());
+  }
+}
+function getType(a) {
+  return Object.prototype.toString.call(a);
+}
+
 function match(
   actual: any,
   expected: any,
   path: Array<string>
 ): Result {
-  if (typeof actual !== 'object') {
+  if (
+    typeof actual !== 'object' ||
+    getType(actual) !== getType(expected)
+  ) {
     return {
       isMatched: actual === expected,
-      message: 'be ' + expected + ', but got ' + actual,
+      message: (
+        'be ' +
+        toString(expected) +
+        ', but got ' +
+        toString(actual)
+      ),
       path,
     };
   }
 
-  // all properties (lest __dataID__s) of `actual` should be in `expected`
+  // All properties (except metadata keys) of `actual` should be in `expected`.
   for (const key in actual) {
     if (expected.hasOwnProperty(key) !== actual.hasOwnProperty(key) &&
         !(key in METADATA_KEYS)) {
@@ -47,7 +66,8 @@ function match(
       };
     }
   }
-  // all properties in `expected` should be in `actual`
+
+  // All properties in `expected` should be in `actual`.
   for (const k in expected) {
     if (expected.hasOwnProperty(k) !== actual.hasOwnProperty(k)) {
       return {
@@ -89,11 +109,17 @@ function match(
 
 function matchRecord(actual: any, expected: any): Result {
   const {isMatched, path, message} = match(actual, expected, []);
+  let location;
+  if (path && path.length) {
+    location = 'property at path `' + path.join('.') + '`';
+  } else {
+    location = 'value';
+  }
   return {
     pass: isMatched,
     message: isMatched ?
       null :
-      'Expected ' + path.join('.') + ' to '  + message,
+      'Expected ' + location + ' to ' + message,
   };
 }
 

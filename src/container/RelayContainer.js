@@ -103,10 +103,6 @@ function createContainerComponent(
     _fragmentResolvers: {[key: string]: ?FragmentResolver};
 
     pendingRequest: ?Abortable;
-    // pending: ?{
-    //   variables: Variables;
-    //   request: Abortable;
-    // };
     state: {
       queryData: {[propName: string]: mixed};
       relayProp: RelayProp;
@@ -150,7 +146,7 @@ function createContainerComponent(
           route,
           setVariables: this.setVariables.bind(this),
           variables: {},
-          pendingVariables: null
+          pendingVariables: {},
         },
       };
     }
@@ -267,14 +263,10 @@ function createContainerComponent(
       const onReadyStateChange = ErrorUtils.guard(readyState => {
         const {aborted, done, error, ready} = readyState;
         const isComplete = aborted || done || error;
-        if (isComplete && this.pendingRequest === current.request) {
+        let pendingVariables = nextVariables;
+        if (isComplete && this.pendingRequest === currentRequest) {
           this.pendingRequest = null;
-          // this.setState({
-          //   relayProp: {
-          //     ...this.state.relayProp,
-          //     pendingVariables: null,
-          //   }
-          // });
+          pendingVariables = {};
         }
         let partialState;
         if (ready) {
@@ -289,10 +281,16 @@ function createContainerComponent(
             relayProp: {
               ...this.state.relayProp,
               variables: nextVariables,
+              pendingVariables: {}
             },
           };
         } else {
-          partialState = {};
+          partialState = {
+            relayProp: {
+              ...this.state.relayProp,
+              pendingVariables: pendingVariables,
+            },
+          };
         }
         const mounted = this.mounted;
         if (mounted) {
@@ -321,19 +319,10 @@ function createContainerComponent(
         }
       }, 'RelayContainer.onReadyStateChange');
 
-      const current = {
-        variables: nextVariables,
-        request: forceFetch ?
-          this.context.relay.forceFetch(querySet, onReadyStateChange) :
-          this.context.relay.primeCache(querySet, onReadyStateChange),
-      };
-      this.pendingRequest = current.request;
-      this.setState({
-        relayProp: {
-          ...this.state.relayProp,
-          pendingVariables: current.variables
-        }
-      });
+      const currentRequest = forceFetch ?
+        this.context.relay.forceFetch(querySet, onReadyStateChange) :
+        this.context.relay.primeCache(querySet, onReadyStateChange);
+      this.pendingRequest = currentRequest;
     }
 
     /**
@@ -442,8 +431,10 @@ function createContainerComponent(
         return;
       }
       this.setState(state => {
+        let pendingVariables = null;
         if (this.context.relay !== relay) {
           this._cleanup();
+          pendingVariables = {};
         }
         return this._initialize(
           nextProps,
@@ -453,7 +444,8 @@ function createContainerComponent(
             spec,
             nextProps,
             state.relayProp.variables
-          )
+          ),
+          pendingVariables
         );
       });
     }
@@ -467,7 +459,8 @@ function createContainerComponent(
       props: Object,
       environment,
       route: RelayQueryConfigInterface,
-      prevVariables: Variables
+      prevVariables: Variables,
+      pendingVariables: ?Variables
     ): {
       queryData: {[propName: string]: mixed};
       relayProp: RelayProp;
@@ -488,6 +481,7 @@ function createContainerComponent(
             ...this.state.relayProp,
             route,
             variables: nextVariables,
+            pendingVariables: pendingVariables ? pendingVariables : this.state.relayProp.pendingVariables,
           },
       };
     }
@@ -508,12 +502,6 @@ function createContainerComponent(
       if (pendingRequest) {
         pendingRequest.abort();
         this.pendingRequest = null;
-        this.setState({
-          relayProp: {
-            ...this.state.relayProp,
-            pendingVariables: null,
-          }
-        });
       }
     }
 
@@ -745,6 +733,10 @@ function createContainerComponent(
         !RelayContainerComparators.areQueryVariablesEqual(
           this.state.relayProp.variables,
           nextState.relayProp.variables
+        ) ||
+        !RelayContainerComparators.areQueryVariablesEqual(
+          this.state.relayProp.pendingVariables,
+          nextState.relayProp.pendingVariables
         )
       );
     }
@@ -912,16 +904,11 @@ function getDeferredFragment(
   );
 }
 
-/**
- * Creates a lazy Relay container. The actual container is created the first
- * time a container is being constructed by React's rendering engine.
- */
-function create(
-  Component: ReactClass<any>,
+
+function validateSpec(
+  componentName: string,
   spec: RelayContainerSpec,
-): RelayLazyContainer {
-  const componentName = Component.displayName || Component.name;
-  const containerName = 'Relay(' + componentName + ')';
+): void {
 
   const fragments = spec.fragments;
   invariant(
@@ -930,6 +917,45 @@ function create(
     'to be an object mapping from `propName` to: () => Relay.QL`...`',
     componentName
   );
+
+  if (!spec.initialVariables) {
+    return;
+  }
+  const initialVariables = spec.initialVariables || {};
+  invariant(
+    typeof initialVariables === 'object' && initialVariables,
+    'Relay.createContainer(%s, ...): Expected `initialVariables` to be an ' +
+    'object.',
+    componentName
+  );
+
+  forEachObject(fragments, (_, name) => {
+    warning(
+      !initialVariables.hasOwnProperty(name),
+      'Relay.createContainer(%s, ...): `%s` is used both as a fragment name ' +
+      'and variable name. Please give them unique names.',
+      componentName,
+      name
+    );
+  });
+}
+
+/**
+ * Creates a lazy Relay container. The actual container is created the first
+ * time a container is being constructed by React's rendering engine.
+ */
+function create(
+  /* $FlowFixMe - Commit hook broke and this Flow error snuck in. Remove this
+   * comment to see and fix the error. */
+  Component: ReactClass<any>,
+  spec: RelayContainerSpec,
+): RelayLazyContainer {
+  const componentName = Component.displayName || Component.name;
+  const containerName = 'Relay(' + componentName + ')';
+
+  validateSpec(componentName, spec);
+
+  const fragments = spec.fragments;
   const fragmentNames = Object.keys(fragments);
   const initialVariables = spec.initialVariables || {};
   const prepareVariables = spec.prepareVariables;

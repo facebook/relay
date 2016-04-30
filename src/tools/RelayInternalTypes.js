@@ -55,6 +55,10 @@ export type PrintedQuery = {
   variables: {[key: string]: mixed};
 };
 
+export type ChangeSubscription = {
+  remove: () => void;
+};
+
 // Maps root calls to a single data ID through an indentifying arg (or EMPTY)
 // eg. username(name: "joe")   => '123'
 //     username(name: "steve") => '456'

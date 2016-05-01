@@ -1,6 +1,6 @@
 ## master
 
-* Added `this.props.relay.pendingVariables` to the wrapped component.
+* Added `this.props.relay.pendingVariables` to the wrapped component which can be used to access variables from in-flight queries and e.g. display component specific loading spinners.
 
 ## 0.8.1 (April 27, 2016)
 

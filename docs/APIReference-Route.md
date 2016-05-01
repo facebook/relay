@@ -140,7 +140,7 @@ const Container = Relay.createContainer((props) => (
   }
 });
 ```
-In this example query parameters are being passed down to the `Child` component: One comes from the `ProfileRoute` at the top via `prepareParams`, which automatically passes them down, given `ProfileRoute` and `Container` are both being passed into `Relay.Renderer`. The `Container` then passes two different `limit` variables down to the `Child` one from the `Route` and one from within.
+In this example query parameters are being passed down to the `Child` component: One comes from the `ProfileRoute` via `prepareParams` and given `ProfileRoute` and `Container` are both being passed into `Relay.Renderer`, it automatically passed it down. The `Container` then passes two different `limit` variables down to the `Child` one from the `Route` and one from within.
 
 ### queries (static property)
 

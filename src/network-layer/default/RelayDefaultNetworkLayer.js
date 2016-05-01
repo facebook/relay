@@ -190,7 +190,7 @@ function formatRequestErrors(
         const offset = Math.min(column - 1, CONTEXT_BEFORE);
         return [
           queryLine.substr(column - 1 - offset, CONTEXT_LENGTH),
-          ' '.repeat(offset) + '^^^',
+          ' '.repeat(Math.max(0, offset)) + '^^^',
         ].map(messageLine => indent + messageLine).join('\n');
       }).join('\n')) :
       '';

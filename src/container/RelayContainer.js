@@ -290,7 +290,7 @@ function createContainerComponent(
           partialState = {
             relayProp: {
               ...this.state.relayProp,
-              pendingVariables: pendingVariables,
+              pendingVariables,
             },
           };
         }

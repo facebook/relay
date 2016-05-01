@@ -120,7 +120,12 @@ const Child = Relay.createContainer((props) => ..., {
   }
 });
 
-const Container = Relay.createContainer((props) => <Child viewer={viewer} limit={this.props.relay.variables.limit}, {
+const Container = Relay.createContainer((props) => (
+  <View>
+    <Child viewer={viewer} limit={this.props.relay.variables.limit} />
+    <Child viewer={viewer} limit={20} />
+  </View>
+  ), {
   initialVariables: {
     limit: null
   },
@@ -129,12 +134,13 @@ const Container = Relay.createContainer((props) => <Child viewer={viewer} limit=
       fragment on User {
         name
         ${Child.getFragment('viewer', {limit})}
+        ${Child.getFragment('viewer', {limit: 20})}
       }
     `
   }
 });
 ```
-In this example query parameters are being passed down to a child component. `prepareParams` is being used to create the params and given that the `ProfileRoute` and the `Container` are both being passed into `Relay.Renderer` the `Container` will set the `limit` variable in `Child`.
+In this example query parameters are being passed down to the `Child` component: One comes from the `ProfileRoute` at the top via `prepareParams`, which automatically passes them down, given `ProfileRoute` and `Container` are both being passed into `Relay.Renderer`. The `Container` then passes two different `limit` variables down to the `Child` one from the `Route` and one from within.
 
 ### queries (static property)
 

@@ -223,7 +223,9 @@ describe('RelayPendingQueryTracker', () => {
 
     const pendingA = addPending({query: mockQueryA});
     const mockSuccessA = jest.fn();
-    pendingA.done(mockSuccessA);
+    pendingA
+      .then(mockSuccessA)
+      .catch(function(e) { setTimeout(function() { throw e; }, 0); });
 
     // Simulates: B - A = C
     subtractRelayQuery.mockImplementation((query, subQuery) => {
@@ -234,7 +236,9 @@ describe('RelayPendingQueryTracker', () => {
 
     const pendingB = addPending({query: mockQueryB});
     const mockSuccessB = jest.fn();
-    pendingB.done(mockSuccessB);
+    pendingB
+      .then(mockSuccessB)
+      .catch(function(e) { setTimeout(function() { throw e; }, 0); });
 
     fetchRelayQuery.mock.requests[1].resolve({viewer:{}});
     jest.runAllTimers();
@@ -302,7 +306,9 @@ describe('RelayPendingQueryTracker', () => {
 
     const pendingC = addPending({query: mockQueryC});
     const mockSuccessC = jest.fn();
-    pendingC.done(mockSuccessC);
+    pendingC
+      .then(mockSuccessC)
+      .catch(function(e) { setTimeout(function() { throw e; }, 0); });
     jest.runAllTimers();
 
     const mockFetchError = new Error('Expected `fetchRelayQuery` error.');

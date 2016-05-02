@@ -248,7 +248,7 @@ function runQueries(
     }
     // Stop profiling when queries have been sent to the network layer.
     profiler.stop();
-  }).done();
+  }).catch(function(e) { setTimeout(function() { throw e; }, 0); });
 
   return {
     abort(): void {

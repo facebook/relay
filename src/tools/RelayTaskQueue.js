@@ -67,7 +67,7 @@ class RelayTaskQueue {
    *     function(foo) {
    *       return 'bar';
    *     }
-   *   ).done(
+   *   ).then(
    *     function(bar) {
    *       // ...
    *     }

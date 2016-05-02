@@ -2085,4 +2085,51 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[1].isAbstract()).toBe(false);
   });
 
+  it('uses the supplied query tracker', () => {
+    const query = getNode(Relay.QL`
+      query {
+        node(id: "4") {
+          friends {
+            count
+          }
+        }
+      }
+    `);
+    const records = {
+      '4': {
+        __dataID__: '4',
+        friends: null,
+      },
+    };
+    const store = new RelayRecordStore({records});
+    const tracker = new RelayQueryTracker();
+    tracker.trackNodeForID = jest.fn();
+    const diffQueries = diffRelayQuery(query, store, tracker);
+    expect(diffQueries.length).toBe(0);
+    expect(tracker.trackNodeForID).toBeCalled();
+  });
+
+  it('degrades gracefully in the absence of a query tracker', () => {
+    const query = getNode(Relay.QL`
+      query {
+        node(id: "4") {
+          friends {
+            count
+          }
+        }
+      }
+    `);
+    const records = {
+      '4': {
+        __dataID__: '4',
+        friends: null,
+      },
+    };
+    const store = new RelayRecordStore({records});
+    let diffQueries;
+    expect(() => {
+      diffQueries = diffRelayQuery(query, store, null);
+    }).not.toThrow();
+    expect(diffQueries.length).toBe(0);
+  });
 });

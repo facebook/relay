@@ -24,6 +24,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayStoreData', () => {
   let Relay;
+  let RelayQueryTracker;
 
   const {getNode, getVerbatimNode} = RelayTestUtils;
 
@@ -33,10 +34,12 @@ describe('RelayStoreData', () => {
     // @side-effect related to garbage collection
     Relay = require('Relay');
 
+    RelayQueryTracker = require('RelayQueryTracker');
+
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
-  describe('handleQueryPayload', () => {
+  describe('handleQueryPayload()', () => {
     it('writes responses to `records`', () => {
       const storeData = new RelayStoreData();
 
@@ -165,7 +168,7 @@ describe('RelayStoreData', () => {
     });
   });
 
-  describe('handleUpdatePayload', () => {
+  describe('handleUpdatePayload()', () => {
     it('writes server payloads to `records`', () => {
       const storeData = new RelayStoreData();
       // create the root node
@@ -353,7 +356,7 @@ describe('RelayStoreData', () => {
     );
   });
 
-  describe('buildFragmentQueryForDataID', () => {
+  describe('buildFragmentQueryForDataID()', () => {
     it('builds root queries for refetchable IDs', () => {
       const data = new RelayStoreData();
       const fragment = getNode(Relay.QL`
@@ -473,5 +476,29 @@ describe('RelayStoreData', () => {
         expect(garbageCollector.register.mock.calls[0][0]).toBe('123');
       }
     );
+  });
+
+  describe('injectQueryTracker()', () => {
+    let storeData;
+
+    beforeEach(() => {
+      storeData = new RelayStoreData();
+    });
+
+    it('starts off configured with a default tracker', () => {
+      const tracker = storeData.getQueryTracker();
+      expect(tracker instanceof RelayQueryTracker).toBe(true);
+    });
+
+    it('clears the pre-set tracker', () => {
+      storeData.injectQueryTracker(null);
+      expect(storeData.getQueryTracker()).toBe(null);
+    });
+
+    it('can overwrite the pre-set tracker', () => {
+      const tracker = new RelayQueryTracker();
+      storeData.injectQueryTracker(tracker);
+      expect(storeData.getQueryTracker()).toBe(tracker);
+    });
   });
 });

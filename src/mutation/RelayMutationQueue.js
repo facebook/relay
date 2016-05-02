@@ -26,6 +26,7 @@ import type RelayStoreData from 'RelayStoreData';
 import type {FileMap} from 'RelayMutation';
 import type RelayMutation from 'RelayMutation';
 const RelayQuery = require('RelayQuery');
+import type RelayQueryTracker from 'RelayQueryTracker';
 import type {
   RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
@@ -511,6 +512,7 @@ class RelayPendingTransaction {
       const optimisticResponse = this.getOptimisticResponse();
       if (optimisticResponse) {
         const optimisticConfigs = this.getOptimisticConfigs();
+        const tracker = getTracker(storeData);
         if (optimisticConfigs) {
           this._optimisticQuery = RelayMutationQuery.buildQuery({
             configs: optimisticConfigs,
@@ -518,7 +520,7 @@ class RelayPendingTransaction {
             input: this.getInputVariable(),
             mutationName: this.mutation.constructor.name,
             mutation: this.getMutationNode(),
-            tracker: storeData.getQueryTracker(),
+            tracker,
           });
         } else {
           this._optimisticQuery =
@@ -548,17 +550,29 @@ class RelayPendingTransaction {
 
   getQuery(storeData: RelayStoreData): RelayQuery.Mutation {
     if (!this._query) {
+      const tracker = getTracker(storeData);
       this._query = RelayMutationQuery.buildQuery({
         configs: this.getConfigs(),
         fatQuery: this.getFatQuery(),
         input: this.getInputVariable(),
         mutationName: this.getMutationNode().name,
         mutation: this.getMutationNode(),
-        tracker: storeData.getQueryTracker(),
+        tracker,
       });
     }
     return this._query;
   }
+}
+
+function getTracker(storeData: RelayStoreData): RelayQueryTracker {
+  const tracker = storeData.getQueryTracker();
+  invariant(
+    tracker,
+    'RelayMutationQueue: a RelayQueryTracker instance must be configured. ' +
+    'Use `RelayStoreData.injectQueryTracker()` in order to process ' +
+    'RelayMutation instances.',
+  );
+  return tracker;
 }
 
 function getNextID(): string {

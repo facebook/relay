@@ -89,7 +89,7 @@ class RelayStoreData {
   _queuedRecords: RecordMap;
   _queuedStore: RelayRecordStore;
   _recordStore: RelayRecordStore;
-  _queryTracker: RelayQueryTracker;
+  _queryTracker: ?RelayQueryTracker;
   _queryRunner: GraphQLQueryRunner;
   _rangeData: GraphQLStoreRangeUtils;
   _rootCallMap: RootCallMap;
@@ -155,6 +155,18 @@ class RelayStoreData {
     if (shouldInitialize) {
       this._garbageCollector = new RelayGarbageCollector(this, scheduler);
     }
+  }
+
+  /**
+   * @internal
+   *
+   * Sets/clears the query tracker.
+   *
+   * @warning Do not use this unless your application uses only
+   * `RelayGraphQLMutation` for mutations.
+   */
+  injectQueryTracker(queryTracker: ?RelayQueryTracker): void {
+    this._queryTracker = queryTracker;
   }
 
   /**
@@ -467,7 +479,7 @@ class RelayStoreData {
     );
   }
 
-  getQueryTracker(): RelayQueryTracker {
+  getQueryTracker(): ?RelayQueryTracker {
     return this._queryTracker;
   }
 

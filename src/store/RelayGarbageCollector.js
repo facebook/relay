@@ -234,7 +234,10 @@ class RelayGarbageCollector {
   }
 
   _collectRecord(dataID: DataID): void {
-    this._storeData.getQueryTracker().untrackNodesForID(dataID);
+    const queryTracker = this._storeData.getQueryTracker();
+    if (queryTracker) {
+      queryTracker.untrackNodesForID(dataID);
+    }
     this._storeData.getQueuedStore().removeRecord(dataID);
     this._storeData.getRangeData().removeRecord(dataID);
     delete this._refCounts[dataID];

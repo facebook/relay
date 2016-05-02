@@ -608,7 +608,9 @@ const RelayTestUtils = {
     const RelayQueryWriter = require('RelayQueryWriter');
     const writeRelayQueryPayload = require('writeRelayQueryPayload');
 
-    queryTracker = queryTracker || new RelayQueryTracker();
+    queryTracker = queryTracker === null ?
+      null :
+      queryTracker || new RelayQueryTracker();
     options = options || {};
     const changeTracker = new RelayChangeTracker();
     const queryWriter = new RelayQueryWriter(

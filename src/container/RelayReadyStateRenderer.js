@@ -15,6 +15,7 @@
 const React = require('React');
 import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 const RelayFragmentPointer = require('RelayFragmentPointer');
+import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayPropTypes = require('RelayPropTypes');
 import type RelayQuery from 'RelayQuery';
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
@@ -119,31 +120,28 @@ class RelayReadyStateRenderer extends React.Component {
 }
 
 function createContainerPropsFactory(): RelayContainerPropsFactory {
-  let containerProps: ?RelayContainerProps;
   let prevProps: ?Props;
-
-  function shouldUpdate(nextProps: Props): boolean {
-    return !prevProps || !(
-      prevProps.Container === nextProps.Container &&
-      prevProps.environment === nextProps.environment &&
-      prevProps.queryConfig === nextProps.queryConfig
-    );
-  }
+  let querySet: ?RelayQuerySet;
 
   return function(nextProps: Props): RelayContainerProps {
-    if (!containerProps || shouldUpdate(nextProps)) {
-      const querySet = getRelayQueries(
+    if (
+      !querySet ||
+      !prevProps ||
+      prevProps.Container !== nextProps.Container ||
+      prevProps.queryConfig !== nextProps.queryConfig
+    ) {
+      querySet = getRelayQueries(
         nextProps.Container,
         nextProps.queryConfig
       );
-      containerProps = {
-        ...nextProps.queryConfig.params,
-        ...mapObject(
-          querySet,
-          query => createFragmentPointerForRoot(nextProps.environment, query)
-        ),
-      };
     }
+    const containerProps = {
+      ...nextProps.queryConfig.params,
+      ...mapObject(
+        querySet,
+        query => createFragmentPointerForRoot(nextProps.environment, query)
+      ),
+    };
     prevProps = nextProps;
     return containerProps;
   };

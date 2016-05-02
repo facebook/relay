@@ -242,6 +242,90 @@ describe('RelayReadyStateRenderer', () => {
       });
     });
 
+    it('updates `props` when the query results change', () => {
+      const AnotherQueryConfig = RelayQueryConfig.genMock({
+        routeName: 'AnotherQueryConfig',
+        queries: {
+          me: () => Relay.QL`query { me }`,
+        },
+      });
+      const anotherQueryConfig = new AnotherQueryConfig();
+      const environment = new RelayEnvironment();
+      defaultProps = {
+        Container: Relay.createContainer(() => <div />, {
+          fragments: {
+            me: () => Relay.QL`fragment on User { id }`,
+          },
+        }),
+        environment,
+        queryConfig: anotherQueryConfig,
+        retry: jest.fn(),
+      };
+      environment.getStoreData().getRecordWriter().putDataID('me', null, '123');
+      expect(
+        <RelayReadyStateRenderer
+          {...defaultProps}
+          queryConfig={anotherQueryConfig}
+          readyState={{...defaultReadyState, ready: true}}
+        />
+      ).toRenderWithArgs({
+        props: {me: anyRecord({dataID: '123'})},
+      });
+
+      environment.getStoreData().getRecordWriter().putDataID('me', null, '456');
+      expect(
+        <RelayReadyStateRenderer
+          {...defaultProps}
+          queryConfig={anotherQueryConfig}
+          readyState={{...defaultReadyState, ready: true}}
+        />
+      ).toRenderWithArgs({
+        props: {me: anyRecord({dataID: '456'})},
+      });
+    });
+
+    it('updates `props` when the query results become non-null', () => {
+      const AnotherQueryConfig = RelayQueryConfig.genMock({
+        routeName: 'AnotherQueryConfig',
+        queries: {
+          me: () => Relay.QL`query { me }`,
+        },
+      });
+      const anotherQueryConfig = new AnotherQueryConfig();
+      const environment = new RelayEnvironment();
+      defaultProps = {
+        Container: Relay.createContainer(() => <div />, {
+          fragments: {
+            me: () => Relay.QL`fragment on User { id }`,
+          },
+        }),
+        environment,
+        queryConfig: anotherQueryConfig,
+        retry: jest.fn(),
+      };
+      environment.getStoreData().getRecordWriter().putDataID('me', null, null);
+      expect(
+        <RelayReadyStateRenderer
+          {...defaultProps}
+          queryConfig={anotherQueryConfig}
+          readyState={{...defaultReadyState, ready: true}}
+        />
+      ).toRenderWithArgs({
+        props: {me: null},
+      });
+
+      environment.getStoreData().getRecordWriter().putDataID('me', null, '123');
+      expect(
+        <RelayReadyStateRenderer
+          {...defaultProps}
+          queryConfig={anotherQueryConfig}
+          readyState={{...defaultReadyState, ready: true}}
+        />
+      ).toRenderWithArgs({
+        props: {me: anyRecord({dataID: '123'})},
+      });
+    });
+
     it('updates `props` when the container changes', () => {
       expect(
         <RelayReadyStateRenderer

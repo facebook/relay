@@ -33,7 +33,9 @@ describe('RelayTaskQueue', () => {
 
     it('resolves to undefined when no callbacks are supplied', () => {
       const mockFunction = jest.fn();
-      taskQueue.enqueue().done(mockFunction);
+      taskQueue.enqueue()
+        .then(mockFunction)
+        .catch(function(e) { setTimeout(function() { throw e; }, 0); });
       jest.runAllTimers();
       expect(mockFunction).toBeCalledWith(undefined);
     });
@@ -68,7 +70,9 @@ describe('RelayTaskQueue', () => {
 
     it('resolves to the task\'s return value', () => {
       const mockFunction = jest.fn();
-      taskQueue.enqueue(() => 42).done(mockFunction);
+      taskQueue.enqueue(() => 42)
+        .then(mockFunction)
+        .catch(function(e) { setTimeout(function() { throw e; }, 0); });
       jest.runAllTimers();
       expect(mockFunction).toBeCalledWith(42);
     });
@@ -84,11 +88,9 @@ describe('RelayTaskQueue', () => {
           mockOrdering.push(prevValue);
           return 'baz';
         }
-      ).done(
-        returnValue => {
-          mockOrdering.push(returnValue);
-        }
-      );
+      ).then(
+        returnValue => mockOrdering.push(returnValue)
+      ).catch(function(e) { setTimeout(function() { throw e; }, 0); });
       jest.runAllTimers();
       expect(mockOrdering).toEqual(['foo', 'bar', 'baz']);
     });
@@ -112,12 +114,11 @@ describe('RelayTaskQueue', () => {
       const mockCallback = jest.fn();
       const mockFailureCallback = jest.fn();
       const mockSuccessCallback = jest.fn();
-      taskQueue.enqueue(
-        () => { throw mockError; },
-      ).catch(mockFailureCallback);
-      taskQueue.enqueue(
-        mockCallback,
-      ).done(mockSuccessCallback);
+      taskQueue.enqueue(() => { throw mockError; })
+        .catch(mockFailureCallback);
+      taskQueue.enqueue(mockCallback)
+        .then(mockSuccessCallback)
+        .catch(function(e) { setTimeout(function() { throw e; }, 0); });
       jest.runAllTimers();
       expect(mockFailureCallback).toBeCalledWith(mockError);
       expect(mockCallback).toBeCalled();

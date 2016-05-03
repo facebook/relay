@@ -154,10 +154,10 @@ class PendingFetch {
         fetch: this,
         query: subtractedQuery,
       };
-      this._fetchSubtractedQueryPromise.done(
+      this._fetchSubtractedQueryPromise.then(
         this._handleSubtractedQuerySuccess.bind(this, subtractedQuery),
         this._handleSubtractedQueryFailure.bind(this, subtractedQuery)
-      );
+      ).catch(function(e) { setTimeout(function() { throw e; }, 0); });
     } else {
       this._markSubtractedQueryAsResolved();
     }
@@ -248,10 +248,10 @@ class PendingFetch {
         response,
         this._forceIndex
       );
-    }).done(
+    }).then(
       this._markSubtractedQueryAsResolved.bind(this),
       this._markAsRejected.bind(this)
-    );
+    ).catch(function(e) { setTimeout(function() { throw e; }, 0); });
   }
 
   _handleSubtractedQueryFailure(

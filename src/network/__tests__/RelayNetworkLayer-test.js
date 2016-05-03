@@ -149,7 +149,9 @@ describe('RelayNetworkLayer', () => {
       resolvedCallback = jest.fn();
       rejectedCallback = jest.fn();
       deferred = new Deferred();
-      deferred.done(resolvedCallback, rejectedCallback);
+      deferred
+        .then(resolvedCallback, rejectedCallback)
+        .catch(function(e) { setTimeout(function() { throw e; }, 0); });
     });
 
     it('throws when no network layer is injected', () => {
@@ -223,7 +225,9 @@ describe('RelayNetworkLayer', () => {
 
       const deferred1 = new Deferred();
       const deferred2 = new Deferred();
-      deferred2.done(jest.fn(), jest.fn());
+      deferred2
+        .then(jest.fn(), jest.fn())
+        .catch(function(e) { setTimeout(function() { throw e; }, 0); });
       networkLayer.sendQueries([deferred1, deferred2]);
       const pendingQueries = injectedNetworkLayer.sendQueries.mock.calls[0][0];
       const response = 'response';

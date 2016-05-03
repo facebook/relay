@@ -245,8 +245,12 @@ describe('RelayDefaultNetworkLayer', () => {
       const resolveACallback = jest.fn();
       const resolveBCallback = jest.fn();
       networkLayer.sendQueries([requestA, requestB]);
-      requestA.done(resolveACallback);
-      requestB.done(resolveBCallback);
+      requestA
+        .then(resolveACallback)
+        .catch(function(e) { setTimeout(function() { throw e; }, 0); });
+      requestB
+        .then(resolveBCallback)
+        .catch(function(e) { setTimeout(function() { throw e; }, 0); });
       jest.runAllTimers();
 
       const payloadA = {
@@ -324,7 +328,9 @@ describe('RelayDefaultNetworkLayer', () => {
       const resolveBCallback = jest.fn();
       networkLayer.sendQueries([requestA, requestB]);
       requestA.getPromise().catch(rejectACallback);
-      requestB.done(resolveBCallback);
+      requestB
+        .then(resolveBCallback)
+        .catch(function(e) { setTimeout(function() { throw e; }, 0); });
       jest.runAllTimers();
 
       const payload = {

@@ -96,7 +96,8 @@ class RelayNetworkLayer {
     });
     const promise = implementation.sendMutation(mutationRequest);
     if (promise) {
-      Promise.resolve(promise).done();
+      Promise.resolve(promise)
+        .catch(function(e) { setTimeout(function() { throw e; }, 0); });
     }
   }
 
@@ -112,7 +113,8 @@ class RelayNetworkLayer {
     });
     const promise = implementation.sendQueries(queryRequests);
     if (promise) {
-      Promise.resolve(promise).done();
+      Promise.resolve(promise)
+        .catch(function(e) { setTimeout(function() { throw e; }, 0); });
     }
   }
 
@@ -169,7 +171,9 @@ function profileQueue(currentQueue: Array<RelayQueryRequest>): void {
         firstResultProfiler = null;
       }
     };
-    query.done(onSettle, onSettle);
+    query
+      .then(onSettle, onSettle)
+      .catch(function(e) { setTimeout(function() { throw e; }, 0); });
   });
 }
 

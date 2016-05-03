@@ -5,10 +5,11 @@
 .*/react-static-container/node_modules/.*
 
 [include]
+../node_modules/base62
 ../node_modules/fbjs/lib
+../node_modules/invariant
 ../node_modules/react
 ../node_modules/react-static-container/lib
-../node_modules/base62
 
 [libs]
 ../node_modules/fbjs/flow/lib

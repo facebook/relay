@@ -169,7 +169,7 @@ export type CacheManager = {
   ) => void;
 };
 
-export type CacheReadCallbacks = {
+export type CacheProcessorCallbacks = {
   onSuccess?: () => void;
   onFailure?: () => void;
 };

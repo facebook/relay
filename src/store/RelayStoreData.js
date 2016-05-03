@@ -19,7 +19,6 @@ const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 const RelayChangeTracker = require('RelayChangeTracker');
 import type {ChangeSet} from 'RelayChangeTracker';
 const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayDiskCacheReader = require('RelayDiskCacheReader');
 import type {GarbageCollectionScheduler} from 'RelayGarbageCollector';
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayMutationQueue = require('RelayMutationQueue');
@@ -47,11 +46,15 @@ const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTaskQueue = require('RelayTaskQueue');
 import type {TaskScheduler} from 'RelayTaskQueue';
-import type {Abortable, CacheManager, CacheReadCallbacks} from 'RelayTypes';
+import type {Abortable, CacheManager, CacheProcessorCallbacks} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const generateForceIndex = require('generateForceIndex');
+const {
+  restoreFragmentDataFromCache,
+  restoreQueriesDataFromCache,
+} = require('restoreRelayCacheData');
 const warning = require('warning');
 const writeRelayQueryPayload = require('writeRelayQueryPayload');
 const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
@@ -212,23 +215,23 @@ class RelayStoreData {
   }
 
   /**
-   * Reads data for queries incrementally from disk cache.
+   * Restores data for queries incrementally from cache.
    * It calls onSuccess when all the data has been loaded into memory.
-   * It calls onFailure when some data is unabled to be satisfied from disk.
+   * It calls onFailure when some data is unabled to be satisfied from cache.
    */
-  readFromDiskCache(
+  restoreQueriesFromCache(
     queries: RelayQuerySet,
-    callbacks: CacheReadCallbacks
+    callbacks: CacheProcessorCallbacks
   ): Abortable {
     const cacheManager = this._cacheManager;
     invariant(
       cacheManager,
-      'RelayStoreData: `readFromDiskCache` should only be called when cache ' +
-      'manager is available.'
+      'RelayStoreData: `restoreQueriesFromCache` should only be called ' +
+      'when cache manager is available.'
     );
     const changeTracker = new RelayChangeTracker();
     const profile = RelayProfiler.profile('RelayStoreData.readFromDiskCache');
-    return RelayDiskCacheReader.readQueries(
+    return restoreQueriesDataFromCache(
       queries,
       this._queuedStore,
       this._cachedRecords,
@@ -252,26 +255,26 @@ class RelayStoreData {
   }
 
   /**
-   * Reads data for a fragment incrementally from disk cache.
+   * Restores data for a fragment incrementally from cache.
    * It calls onSuccess when all the data has been loaded into memory.
-   * It calls onFailure when some data is unabled to be satisfied from disk.
+   * It calls onFailure when some data is unabled to be satisfied from cache.
    */
-  readFragmentFromDiskCache(
+  restoreFragmentFromCache(
     dataID: DataID,
     fragment: RelayQuery.Fragment,
     path: QueryPath,
-    callbacks: CacheReadCallbacks
+    callbacks: CacheProcessorCallbacks
   ): void {
     const cacheManager = this._cacheManager;
     invariant(
       cacheManager,
-      'RelayStoreData: `readFragmentFromDiskCache` should only be called ' +
-      'when cache manager is available.'
+      'RelayStoreData: `restoreFragmentFromCache` should only be called when ' +
+      'cache manager is available.'
     );
     const changeTracker = new RelayChangeTracker();
     const profile =
       RelayProfiler.profile('RelayStoreData.readFragmentFromDiskCache');
-    RelayDiskCacheReader.readFragment(
+    restoreFragmentDataFromCache(
       dataID,
       fragment,
       path,

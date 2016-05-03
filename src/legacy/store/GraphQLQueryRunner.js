@@ -229,7 +229,7 @@ function runQueries(
               remainingRequiredFetchMap,
               value => value.getQuery()
             );
-            storeData.readFromDiskCache(requiredQueryMap, {
+            storeData.restoreQueriesFromCache(requiredQueryMap, {
               onSuccess: () => {
                 if (hasItems(remainingRequiredFetchMap)) {
                   readyState.update({ready: true, stale: true});

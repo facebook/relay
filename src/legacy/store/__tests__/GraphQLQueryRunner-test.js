@@ -308,7 +308,7 @@ describe('GraphQLQueryRunner', () => {
     diffRelayQuery.mockImplementation(query => [query]);
     RelayStoreData.prototype.hasCacheManager =
       jest.fn(() => true);
-    RelayStoreData.prototype.readFromDiskCache =
+    RelayStoreData.prototype.restoreQueriesFromCache =
       jest.fn((queries, callback) => {
         callback.onSuccess();
       });

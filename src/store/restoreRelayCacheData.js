@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayDiskCacheReader
+ * @providesModule restoreRelayCacheData
  * @flow
  * @typechecks
  */
@@ -14,35 +14,36 @@
 'use strict';
 
 const RelayChangeTracker = require('RelayChangeTracker');
+const RelayProfiler = require('RelayProfiler');
+const RelayQuery = require('RelayQuery');
+const RelayQueryPath = require('RelayQueryPath');
+const RelayRecord = require('RelayRecord');
+
+const findRelayQueryLeaves = require('findRelayQueryLeaves');
+const forEachObject = require('forEachObject');
+const forEachRootCallArg = require('forEachRootCallArg');
+const invariant = require('invariant');
+const isEmpty = require('isEmpty');
+const warning = require('warning');
+
 import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {
   DataID,
   RelayQuerySet,
   RootCallMap,
 } from 'RelayInternalTypes';
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
 import type {QueryPath} from 'RelayQueryPath';
-const RelayQueryPath = require('RelayQueryPath');
-const RelayRecord = require('RelayRecord');
 import type {RecordMap} from 'RelayRecord';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {
   Abortable,
   CacheManager,
-  CacheReadCallbacks,
+  CacheProcessorCallbacks,
 } from 'RelayTypes';
-
-const findRelayQueryLeaves = require('findRelayQueryLeaves');
 import type {
   PendingItem,
   PendingNodes,
 } from 'findRelayQueryLeaves';
-const forEachObject = require('forEachObject');
-const forEachRootCallArg = require('forEachRootCallArg');
-const invariant = require('invariant');
-const isEmpty = require('isEmpty');
-const warning = require('warning');
 
 type PendingRoots = {[key: string]: Array<RelayQuery.Root>};
 
@@ -51,72 +52,70 @@ type PendingRoots = {[key: string]: Array<RelayQuery.Root>};
  *
  * Retrieves data for queries or fragments from disk into `cachedRecords`.
  */
-const RelayDiskCacheReader = {
-  readFragment(
-    dataID: DataID,
-    fragment: RelayQuery.Fragment,
-    path: QueryPath,
-    store: RelayRecordStore,
-    cachedRecords: RecordMap,
-    cachedRootCallMap: RootCallMap,
-    garbageCollector: ?RelayGarbageCollector,
-    cacheManager: CacheManager,
-    changeTracker: RelayChangeTracker,
-    callbacks: CacheReadCallbacks,
-  ): Abortable {
-    const reader = new RelayCacheReader(
-      store,
-      cachedRecords,
-      cachedRootCallMap,
-      garbageCollector,
-      cacheManager,
-      changeTracker,
-      callbacks
-    );
-    reader.readFragment(dataID, fragment, path);
+function restoreFragmentDataFromCache(
+  dataID: DataID,
+  fragment: RelayQuery.Fragment,
+  path: QueryPath,
+  store: RelayRecordStore,
+  cachedRecords: RecordMap,
+  cachedRootCallMap: RootCallMap,
+  garbageCollector: ?RelayGarbageCollector,
+  cacheManager: CacheManager,
+  changeTracker: RelayChangeTracker,
+  callbacks: CacheProcessorCallbacks,
+): Abortable {
+  const restorator = new RelayCachedDataRestorator(
+    store,
+    cachedRecords,
+    cachedRootCallMap,
+    garbageCollector,
+    cacheManager,
+    changeTracker,
+    callbacks
+  );
+  restorator.restoreFragmentData(dataID, fragment, path);
 
-    return {
-      abort() {
-        reader.abort();
-      },
-    };
-  },
+  return {
+    abort() {
+      restorator.abort();
+    },
+  };
+}
 
-  readQueries(
-    queries: RelayQuerySet,
-    store: RelayRecordStore,
-    cachedRecords: RecordMap,
-    cachedRootCallMap: RootCallMap,
-    garbageCollector: ?RelayGarbageCollector,
-    cacheManager: CacheManager,
-    changeTracker: RelayChangeTracker,
-    callbacks: CacheReadCallbacks,
-  ): Abortable {
-    const reader = new RelayCacheReader(
-      store,
-      cachedRecords,
-      cachedRootCallMap,
-      garbageCollector,
-      cacheManager,
-      changeTracker,
-      callbacks
-    );
-    reader.read(queries);
+function restoreQueriesDataFromCache(
+  queries: RelayQuerySet,
+  store: RelayRecordStore,
+  cachedRecords: RecordMap,
+  cachedRootCallMap: RootCallMap,
+  garbageCollector: ?RelayGarbageCollector,
+  cacheManager: CacheManager,
+  changeTracker: RelayChangeTracker,
+  callbacks: CacheProcessorCallbacks,
+): Abortable {
+  const restorator = new RelayCachedDataRestorator(
+    store,
+    cachedRecords,
+    cachedRootCallMap,
+    garbageCollector,
+    cacheManager,
+    changeTracker,
+    callbacks
+  );
+  restorator.restoreQueriesData(queries);
 
-    return {
-      abort() {
-        reader.abort();
-      },
-    };
-  },
-};
+  return {
+    abort() {
+      restorator.abort();
+    },
+  };
+}
 
-class RelayCacheReader {
+class RelayCachedDataRestorator {
   _store: RelayRecordStore;
   _cachedRecords: RecordMap;
   _cachedRootCallMap: RootCallMap;
   _cacheManager: CacheManager;
-  _callbacks: CacheReadCallbacks;
+  _callbacks: CacheProcessorCallbacks;
   _changeTracker: RelayChangeTracker;
   _garbageCollector: ?RelayGarbageCollector;
   _pendingNodes: PendingNodes;
@@ -130,7 +129,7 @@ class RelayCacheReader {
     garbageCollector: ?RelayGarbageCollector,
     cacheManager: CacheManager,
     changeTracker: RelayChangeTracker,
-    callbacks: CacheReadCallbacks,
+    callbacks: CacheProcessorCallbacks,
   ) {
     this._store = store;
     this._cachedRecords = cachedRecords;
@@ -148,15 +147,15 @@ class RelayCacheReader {
   abort(): void {
     warning(
       this._state === 'LOADING',
-      'RelayCacheReader: Can only abort an in-progress read operation.'
+      'RelayCachedDataRestorator: Can only abort an in-progress read operation.'
     );
     this._state = 'COMPLETED';
   }
 
-  read(queries: RelayQuerySet): void {
+  restoreQueriesData(queries: RelayQuerySet): void {
     invariant(
       this._state === 'PENDING',
-      'RelayCacheReader: A `read` is in progress.'
+      'RelayCachedDataRestorator: A `read` is in progress.'
     );
     this._state = 'LOADING';
     forEachObject(queries, query => {
@@ -180,14 +179,14 @@ class RelayCacheReader {
     }
   }
 
-  readFragment(
+  restoreFragmentData(
     dataID: DataID,
     fragment: RelayQuery.Fragment,
     path: QueryPath
   ): void {
     invariant(
       this._state === 'PENDING',
-      'RelayCacheReader: A `read` is in progress.'
+      'RelayCachedDataRestorator: A `read` is in progress.'
     );
     this._state = 'LOADING';
     this.visitNode(
@@ -396,13 +395,16 @@ class RelayCacheReader {
 
 }
 
-RelayProfiler.instrumentMethods(RelayCacheReader.prototype, {
-  read: 'RelayCacheReader.read',
-  readFragment: 'RelayCacheReader.readFragment',
-  visitRoot: 'RelayCacheReader.visitRoot',
-  queueRoot: 'RelayCacheReader.queueRoot',
-  visitNode: 'RelayCacheReader.visitNode',
-  queueNode: 'RelayCacheReader.queueNode',
+RelayProfiler.instrumentMethods(RelayCachedDataRestorator.prototype, {
+  queueNode: 'RelayCachedDataRestorator.queueNode',
+  queueRoot: 'RelayCachedDataRestorator.queueRoot',
+  restoreFragmentData: 'RelayCachedDataRestorator.readFragment',
+  restoreQueriesData: 'RelayCachedDataRestorator.read',
+  visitNode: 'RelayCachedDataRestorator.visitNode',
+  visitRoot: 'RelayCachedDataRestorator.visitRoot',
 });
 
-module.exports = RelayDiskCacheReader;
+module.exports = {
+  restoreFragmentDataFromCache,
+  restoreQueriesDataFromCache,
+};

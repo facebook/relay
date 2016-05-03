@@ -10,16 +10,34 @@
 'use strict';
 
 const babel = require('gulp-babel');
-const babelPluginDEV = require('fbjs-scripts/babel/dev-expression');
-const babelPluginModules = require('fbjs-scripts/babel/rewrite-modules');
-const babelPluginAutoImporter = require('fbjs-scripts/babel/auto-importer');
+const babelOptions = require('./scripts/getBabelOptions')({
+  moduleMap: {
+    'babel-runtime/helpers/extends': 'babel-runtime/helpers/extends',
+    'babel-runtime/core-js/promise': 'fbjs/lib/Promise',
+    'babel-runtime/core-js/json/stringify': 'babel-runtime/core-js/json/stringify',
+    'babel-runtime/helpers/classCallCheck': 'babel-runtime/helpers/classCallCheck',
+    'babel-runtime/helpers/possibleConstructorReturn': 'babel-runtime/helpers/possibleConstructorReturn',
+    'babel-runtime/helpers/inherits': 'babel-runtime/helpers/inherits',
+    'babel-runtime/core-js/object/assign': 'babel-runtime/core-js/object/assign',
+    'babel-runtime/core-js/object/keys': 'babel-runtime/core-js/object/keys',
+    'babel-runtime/core-js/array/from': 'babel-runtime/core-js/array/from',
+    'babel-runtime/core-js/object/freeze': 'babel-runtime/core-js/object/freeze',
+    'babel-runtime/helpers/defineProperty': 'babel-runtime/helpers/defineProperty',
+    'React': 'react',
+    'ReactDOM': 'react-dom',
+    'ReactNative': 'react-native',
+    'StaticContainer.react': 'react-static-container',
+  },
+  plugins: [
+    'transform-runtime',
+  ],
+});
 const del = require('del');
 const derequire = require('gulp-derequire');
 const flatten = require('gulp-flatten');
 const gulp = require('gulp');
 const gulpUtil = require('gulp-util');
 const header = require('gulp-header');
-const objectAssign = require('object-assign');
 const runSequence = require('run-sequence');
 const webpackStream = require('webpack-stream');
 
@@ -41,33 +59,6 @@ const PRODUCTION_HEADER = [
   ' *',
   ' */',
 ].join('\n') + '\n';
-
-const babelOpts = {
-  nonStandard: true,
-  loose: [
-    'es6.classes',
-  ],
-  stage: 1,
-  optional: ['runtime'],
-  blacklist: ['validation.react'],
-  plugins: [
-    babelPluginDEV,
-    {
-      position: 'before',
-      transformer: babelPluginAutoImporter,
-    },
-    {
-      position: 'before',
-      transformer: babelPluginModules,
-    },
-  ],
-  _moduleMap: objectAssign({}, require('fbjs/module-map'), {
-    'React': 'react',
-    'ReactDOM': 'react-dom',
-    'ReactNative': 'react-native',
-    'StaticContainer.react': 'react-static-container',
-  }),
-};
 
 const buildDist = function(opts) {
   const webpackOpts = {
@@ -130,7 +121,7 @@ gulp.task('clean', function(cb) {
 gulp.task('modules', function() {
   return gulp
     .src(paths.src)
-    .pipe(babel(babelOpts))
+    .pipe(babel(babelOptions))
     .pipe(flatten())
     .pipe(gulp.dest(paths.lib));
 });

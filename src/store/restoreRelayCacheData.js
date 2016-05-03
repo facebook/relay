@@ -13,6 +13,7 @@
 
 'use strict';
 
+const RelayCacheProcessor = require('RelayCacheProcessor');
 const RelayChangeTracker = require('RelayChangeTracker');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
@@ -21,10 +22,7 @@ const RelayRecord = require('RelayRecord');
 
 const findRelayQueryLeaves = require('findRelayQueryLeaves');
 const forEachObject = require('forEachObject');
-const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
-const isEmpty = require('isEmpty');
-const warning = require('warning');
 
 import type RelayGarbageCollector from 'RelayGarbageCollector';
 import type {
@@ -33,7 +31,10 @@ import type {
   RootCallMap,
 } from 'RelayInternalTypes';
 import type {QueryPath} from 'RelayQueryPath';
-import type {RecordMap} from 'RelayRecord';
+import type {
+  Record,
+  RecordMap,
+} from 'RelayRecord';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {
   Abortable,
@@ -41,11 +42,8 @@ import type {
   CacheProcessorCallbacks,
 } from 'RelayTypes';
 import type {
-  PendingItem,
-  PendingNodes,
+  NodeState,
 } from 'findRelayQueryLeaves';
-
-type PendingRoots = {[key: string]: Array<RelayQuery.Root>};
 
 /**
  * @internal
@@ -65,13 +63,13 @@ function restoreFragmentDataFromCache(
   callbacks: CacheProcessorCallbacks,
 ): Abortable {
   const restorator = new RelayCachedDataRestorator(
+    cacheManager,
     store,
     cachedRecords,
     cachedRootCallMap,
-    garbageCollector,
-    cacheManager,
     changeTracker,
-    callbacks
+    callbacks,
+    garbageCollector
   );
   restorator.restoreFragmentData(dataID, fragment, path);
 
@@ -93,13 +91,13 @@ function restoreQueriesDataFromCache(
   callbacks: CacheProcessorCallbacks,
 ): Abortable {
   const restorator = new RelayCachedDataRestorator(
+    cacheManager,
     store,
     cachedRecords,
     cachedRootCallMap,
-    garbageCollector,
-    cacheManager,
     changeTracker,
-    callbacks
+    callbacks,
+    garbageCollector
   );
   restorator.restoreQueriesData(queries);
 
@@ -110,73 +108,82 @@ function restoreQueriesDataFromCache(
   };
 }
 
-class RelayCachedDataRestorator {
-  _store: RelayRecordStore;
+class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
   _cachedRecords: RecordMap;
   _cachedRootCallMap: RootCallMap;
-  _cacheManager: CacheManager;
-  _callbacks: CacheProcessorCallbacks;
   _changeTracker: RelayChangeTracker;
   _garbageCollector: ?RelayGarbageCollector;
-  _pendingNodes: PendingNodes;
-  _pendingRoots: PendingRoots;
-  _state: 'PENDING' | 'LOADING' | 'COMPLETED';
+  _store: RelayRecordStore;
 
   constructor(
+    cacheManager: CacheManager,
     store: RelayRecordStore,
     cachedRecords: RecordMap,
     cachedRootCallMap: RootCallMap,
-    garbageCollector: ?RelayGarbageCollector,
-    cacheManager: CacheManager,
     changeTracker: RelayChangeTracker,
     callbacks: CacheProcessorCallbacks,
+    garbageCollector: ?RelayGarbageCollector,
   ) {
-    this._store = store;
+    super(cacheManager, callbacks);
     this._cachedRecords = cachedRecords;
     this._cachedRootCallMap = cachedRootCallMap;
-    this._cacheManager = cacheManager;
-    this._callbacks = callbacks;
     this._changeTracker = changeTracker;
     this._garbageCollector = garbageCollector;
-
-    this._pendingNodes = {};
-    this._pendingRoots = {};
-    this._state = 'PENDING';
+    this._store = store;
   }
 
-  abort(): void {
-    warning(
-      this._state === 'LOADING',
-      'RelayCachedDataRestorator: Can only abort an in-progress read operation.'
-    );
-    this._state = 'COMPLETED';
-  }
-
-  restoreQueriesData(queries: RelayQuerySet): void {
-    invariant(
-      this._state === 'PENDING',
-      'RelayCachedDataRestorator: A `read` is in progress.'
-    );
-    this._state = 'LOADING';
-    forEachObject(queries, query => {
-      if (this._state === 'COMPLETED') {
-        return;
+  handleNodeVisited(
+    node: RelayQuery.Node,
+    dataID: DataID,
+    record: ?Record,
+    nextState: NodeState
+  ): void {
+    const recordState = this._store.getRecordState(dataID);
+    this._cachedRecords[dataID] = record;
+    // Mark records as created/updated as necessary. Note that if the
+    // record is known to be deleted in the store then it will have been
+    // been marked as created already. Further, it does not need to be
+    // updated since no additional data can be read about a deleted node.
+    if (recordState === 'UNKNOWN' && record !== undefined) {
+      // Register immediately in case anything tries to read and subscribe
+      // to this record (which means incrementing reference counts).
+      if (this._garbageCollector) {
+        this._garbageCollector.register(dataID);
       }
-      if (query) {
-        const storageKey = query.getStorageKey();
-        forEachRootCallArg(query, ({identifyingArgKey}) => {
-          if (this._state === 'COMPLETED') {
-            return;
-          }
-          identifyingArgKey = identifyingArgKey || '';
-          this.visitRoot(storageKey, identifyingArgKey, query);
-        });
-      }
-    });
-
-    if (this._isDone()) {
-      this._handleSuccess();
+      // Mark as created if the store did not have a record but disk cache
+      // did (either a known record or known deletion).
+      this._changeTracker.createID(dataID);
+    } else if (recordState === 'EXISTENT' && record != null) {
+      // Mark as updated only if a record exists in both the store and
+      // disk cache.
+      this._changeTracker.updateID(dataID);
     }
+    if (!record) {
+      // We are out of luck if disk doesn't have the node either.
+      this.handleFailure();
+      return;
+    }
+    if (RelayRecord.isClientID(dataID)) {
+      record.__path__ = nextState.path;
+    }
+  }
+
+  handleIdentifiedRootVisited(
+    query: RelayQuery.Root,
+    dataID: ?DataID,
+    identifyingArgKey: ?string,
+    nextState: NodeState
+  ): void {
+    if (dataID == null) {
+      // Read from cache and we still don't have a valid `dataID`.
+      this.handleFailure();
+      return;
+    }
+    const storageKey = query.getStorageKey();
+    this._cachedRootCallMap[storageKey] =
+      this._cachedRootCallMap[storageKey] || {};
+    this._cachedRootCallMap[storageKey][identifyingArgKey || ''] = dataID;
+    nextState.dataID = dataID;
   }
 
   restoreFragmentData(
@@ -184,222 +191,101 @@ class RelayCachedDataRestorator {
     fragment: RelayQuery.Fragment,
     path: QueryPath
   ): void {
-    invariant(
-      this._state === 'PENDING',
-      'RelayCachedDataRestorator: A `read` is in progress.'
-    );
-    this._state = 'LOADING';
-    this.visitNode(
-      dataID,
-      {
+    this.process(() => {
+      this.visitFragment(fragment, {
+        dataID,
         node: fragment,
         path,
         rangeCalls: undefined,
-      }
-    );
-
-    if (this._isDone()) {
-      this._handleSuccess();
-    }
-  }
-
-  visitRoot(
-    storageKey: string,
-    identifyingArgKey: string,
-    query: RelayQuery.Root
-  ): void {
-    const dataID = this._store.getDataID(storageKey, identifyingArgKey);
-    if (dataID == null) {
-      if (this._cachedRootCallMap.hasOwnProperty(storageKey) &&
-          this._cachedRootCallMap[storageKey].hasOwnProperty(
-            identifyingArgKey
-          )
-      ) {
-        // Already attempted to read this root from cache.
-        this._handleFailed();
-      } else {
-        this.queueRoot(storageKey, identifyingArgKey, query);
-      }
-    } else {
-      this.visitNode(
-        dataID,
-        {
-          node: query,
-          path: RelayQueryPath.create(query),
-          rangeCalls: undefined,
-        }
-      );
-    }
-  }
-
-  queueRoot(
-    storageKey: string,
-    identifyingArgKey: string,
-    query: RelayQuery.Root
-  ) {
-    const rootKey = storageKey + '*' + identifyingArgKey;
-    if (this._pendingRoots.hasOwnProperty(rootKey)) {
-      this._pendingRoots[rootKey].push(query);
-    } else {
-      this._pendingRoots[rootKey] = [query];
-      this._cacheManager.readRootCall(
-        storageKey,
-        identifyingArgKey,
-        (error, value) => {
-          if (this._state === 'COMPLETED') {
-            return;
-          }
-          if (error) {
-            this._handleFailed();
-            return;
-          }
-          const roots = this._pendingRoots[rootKey];
-          delete this._pendingRoots[rootKey];
-
-          this._cachedRootCallMap[storageKey] =
-            this._cachedRootCallMap[storageKey] || {};
-          this._cachedRootCallMap[storageKey][identifyingArgKey] = value;
-          if (this._cachedRootCallMap[storageKey][identifyingArgKey] ==
-              null) {
-            // Read from cache and we still don't have valid `dataID`.
-            this._handleFailed();
-          } else {
-            const dataID = value;
-            roots.forEach(root => {
-              if (this._state === 'COMPLETED') {
-                return;
-              }
-              this.visitNode(
-                dataID,
-                {
-                  node: root,
-                  path: RelayQueryPath.create(root),
-                  rangeCalls: undefined,
-                }
-              );
-            });
-          }
-          if (this._isDone()) {
-            this._handleSuccess();
-          }
-        }
-      );
-    }
-  }
-
-  visitNode(dataID: DataID, pendingItem: PendingItem): void {
-    const {missingData, pendingNodes} = findRelayQueryLeaves(
-      this._store,
-      this._cachedRecords,
-      pendingItem.node,
-      dataID,
-      pendingItem.path,
-      pendingItem.rangeCalls
-    );
-
-    if (missingData) {
-      this._handleFailed();
-      return;
-    }
-    forEachObject(pendingNodes, (pendingItems, pendingDataID) => {
-      this.queueNode(pendingDataID, pendingItems);
+      });
     });
   }
 
-  queueNode(dataID: DataID, pendingItems: Array<PendingItem>): void {
-    if (this._pendingNodes.hasOwnProperty(dataID)) {
-      this._pendingNodes[dataID].push(...pendingItems);
-    } else {
-      this._pendingNodes[dataID] = pendingItems;
-      this._cacheManager.readNode(
-        dataID,
-        (error, value) => {
-          if (this._state === 'COMPLETED') {
-            return;
-          }
-          if (error) {
-            this._handleFailed();
-            return;
-          }
-          if (value && RelayRecord.isClientID(dataID)) {
-            value.__path__ = pendingItems[0].path;
-          }
-          // Mark records as created/updated as necessary. Note that if the
-          // record is known to be deleted in the store then it will have been
-          // been marked as created already. Further, it does not need to be
-          // updated since no additional data can be read about a deleted node.
-          const recordState = this._store.getRecordState(dataID);
-          if (recordState === 'UNKNOWN' && value !== undefined) {
-            // Register immediately in case anything tries to read and subscribe
-            // to this record (which means incrementing reference counts).
-            if (this._garbageCollector) {
-              this._garbageCollector.register(dataID);
-            }
-            // Mark as created if the store did not have a value but disk cache
-            // did (either a known value or known deletion).
-            this._changeTracker.createID(dataID);
-          } else if (recordState === 'EXISTENT' && value != null) {
-            // Mark as updated only if a record exists in both the store and
-            // disk cache.
-            this._changeTracker.updateID(dataID);
-          }
-          this._cachedRecords[dataID] = value;
-          const items = this._pendingNodes[dataID];
-          delete this._pendingNodes[dataID];
-          if (this._cachedRecords[dataID] === undefined) {
-            // We are out of luck if disk doesn't have the node either.
-            this._handleFailed();
-          } else {
-            items.forEach(item => {
-              if (this._state === 'COMPLETED') {
-                return;
-              }
-              this.visitNode(dataID, item);
-            });
-          }
-          if (this._isDone()) {
-            this._handleSuccess();
-          }
+  restoreQueriesData(queries: RelayQuerySet): void {
+    this.process(() => {
+      forEachObject(queries, query => {
+        if (this._state === 'COMPLETED') {
+          return;
         }
+        if (query) {
+          this.visitRoot(query, {
+            dataID: undefined,
+            node: query,
+            path: RelayQueryPath.create(query),
+            rangeCalls: undefined,
+          });
+        }
+      });
+    });
+  }
+
+  traverse(
+    node: RelayQuery.Node,
+    nextState: NodeState
+  ): void {
+    invariant(
+      nextState.dataID != null,
+      'RelayCachedDataRestorator: Attempted to traverse without a ' +
+      '`dataID`.'
+    );
+    const {missingData, pendingNodeStates} = findRelayQueryLeaves(
+      this._store,
+      this._cachedRecords,
+      nextState.node,
+      nextState.dataID,
+      nextState.path,
+      nextState.rangeCalls
+    );
+    if (missingData) {
+      this.handleFailure();
+      return;
+    }
+    for (let ii = 0; ii < pendingNodeStates.length; ii++) {
+      if (this._state === 'COMPLETED') {
+        return;
+      }
+      invariant(
+        pendingNodeStates[ii].dataID != null,
+        'RelayCachedDataRestorator: Attempted to visit a node without ' +
+        'a `dataID`.'
+      );
+      this.visitNode(
+        pendingNodeStates[ii].node,
+        pendingNodeStates[ii].dataID,
+        pendingNodeStates[ii]
       );
     }
   }
 
-  _isDone(): boolean {
-    return (
-      isEmpty(this._pendingRoots) &&
-      isEmpty(this._pendingNodes) &&
-      this._state === 'LOADING'
-    );
+  visitIdentifiedRoot(
+    query: RelayQuery.Root,
+    identifyingArgKey: ?string,
+    nextState: NodeState
+  ): void {
+    const dataID =
+      this._store.getDataID(query.getStorageKey(), identifyingArgKey);
+    if (dataID == null) {
+      super.visitIdentifiedRoot(query, identifyingArgKey, nextState);
+    } else {
+      this.traverse(query, {
+        dataID,
+        node: query,
+        path: RelayQueryPath.create(query),
+        rangeCalls: undefined,
+      });
+    }
   }
-
-  _handleFailed(): void {
-    invariant(
-      this._state !== 'COMPLETED',
-      'RelayStoreReader: Query set already failed/completed.'
-    );
-
-    this._state = 'COMPLETED';
-    this._callbacks.onFailure && this._callbacks.onFailure();
-  }
-
-  _handleSuccess(): void {
-    invariant(
-      this._state !== 'COMPLETED',
-      'RelayStoreReader: Query set already failed/completed.'
-    );
-
-    this._state = 'COMPLETED';
-    this._callbacks.onSuccess && this._callbacks.onSuccess();
-  }
-
 }
 
 RelayProfiler.instrumentMethods(RelayCachedDataRestorator.prototype, {
+  handleIdentifiedRootVisited:
+    'RelayCachedDataRestorator.handleIdentifiedRootVisited',
+  handleNodeVisited: 'RelayCachedDataRestorator.handleNodeVisited',
+  queueIdentifiedRoot: 'RelayCachedDataRestorator.queueRoot',
   queueNode: 'RelayCachedDataRestorator.queueNode',
-  queueRoot: 'RelayCachedDataRestorator.queueRoot',
   restoreFragmentData: 'RelayCachedDataRestorator.readFragment',
   restoreQueriesData: 'RelayCachedDataRestorator.read',
+  traverse: 'RelayCachedDataRestorator.traverse',
   visitNode: 'RelayCachedDataRestorator.visitNode',
   visitRoot: 'RelayCachedDataRestorator.visitRoot',
 });

@@ -54,10 +54,10 @@ describe('findRelayQueryLeaves', () => {
 
   function encode(node) {
     // Eliminates unnessary unique query ids in RelayQueryPath
-    function filter(obj) {
+    function stripDoubleUnderscoreID(obj) {
       return mapObject(obj, (value, key) => {
         if (typeof value === 'object' && value !== null) {
-          return filter(value);
+          return stripDoubleUnderscoreID(value);
         } else if (key === '__id__') {
           // ignore query ids
           return null;
@@ -66,7 +66,7 @@ describe('findRelayQueryLeaves', () => {
         }
       });
     }
-    return filter(JSON.parse(JSON.stringify(node)));
+    return JSON.parse(JSON.stringify(node)).map(stripDoubleUnderscoreID);
   }
 
   beforeEach(() => {
@@ -83,10 +83,10 @@ describe('findRelayQueryLeaves', () => {
     `));
 
     jasmine.addMatchers({
-      toMatchPendingNodes() {
+      toMatchPendingNodeStates() {
         return {
-          compare(actual, pendingNodes) {
-            expect(encode(actual)).toEqual(encode(pendingNodes));
+          compare(actual, pendingNodeStates) {
+            expect(encode(actual)).toEqual(encode(pendingNodeStates));
             return {
               pass: true,
             };
@@ -96,7 +96,7 @@ describe('findRelayQueryLeaves', () => {
     });
   });
 
-  it('returns pendingNodes when node is not in the store', () => {
+  it('returns pendingNodeStates when node is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id
@@ -108,15 +108,14 @@ describe('findRelayQueryLeaves', () => {
       dummyPath,
     );
 
-    const pendingItems = [{
+    const pendingState = {
+      dataID: '1055790163',
       node: queryNode,
       path: dummyPath,
       rangeCalls: undefined,
-    }];
+    };
 
-    expect(result.pendingNodes).toMatchPendingNodes(
-      {'1055790163': pendingItems}
-    );
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([pendingState]);
     expect(result.missingData).toBe(false);
   });
 
@@ -133,7 +132,7 @@ describe('findRelayQueryLeaves', () => {
       {},
       {'1055790163': undefined}
     );
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(true);
   });
 
@@ -151,7 +150,7 @@ describe('findRelayQueryLeaves', () => {
       {}
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 
@@ -169,11 +168,11 @@ describe('findRelayQueryLeaves', () => {
       {'1055790163': null}
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 
-  it('returns pendingNodes when field is not in the store', () => {
+  it('returns pendingNodeStates when field is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
@@ -194,13 +193,12 @@ describe('findRelayQueryLeaves', () => {
       records,
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes(
-      {'1055790163': [{
-        node: queryNode.getFieldByStorageKey('firstName'),
-        path: dummyPath,
-        rangeCalls: undefined,
-      }]}
-    );
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([{
+      dataID: '1055790163',
+      node: queryNode.getFieldByStorageKey('firstName'),
+      path: dummyPath,
+      rangeCalls: undefined,
+    }]);
     expect(result.missingData).toBe(false);
   });
 
@@ -226,7 +224,7 @@ describe('findRelayQueryLeaves', () => {
       records
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(true);
   });
 
@@ -252,7 +250,7 @@ describe('findRelayQueryLeaves', () => {
       records,
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 
@@ -279,11 +277,11 @@ describe('findRelayQueryLeaves', () => {
       records
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 
-  it('returns pendingNodes when linked node is not in the store', () => {
+  it('returns pendingNodeStates when linked node is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
@@ -306,11 +304,12 @@ describe('findRelayQueryLeaves', () => {
     );
     const friendsField =  queryNode.getFieldByStorageKey('friends');
     const countField = friendsField.getFieldByStorageKey('count');
-    expect(result.pendingNodes).toMatchPendingNodes({'friends_id': [{
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([{
+      dataID: 'friends_id',
       node: countField,
       path: RelayQueryPath.getPath(dummyPath, friendsField, 'friends_id'),
       rangeCalls: [],
-    }]});
+    }]);
     expect(result.missingData).toBe(false);
   });
 
@@ -338,7 +337,7 @@ describe('findRelayQueryLeaves', () => {
       records,
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(true);
   });
 
@@ -368,7 +367,7 @@ describe('findRelayQueryLeaves', () => {
       records,
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 
@@ -399,11 +398,11 @@ describe('findRelayQueryLeaves', () => {
       records
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 
-  it('returns pendingNodes when plural node is not in the store', () => {
+  it('returns pendingNodeStates when plural node is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
@@ -436,15 +435,15 @@ describe('findRelayQueryLeaves', () => {
       screennamesField,
       'client:screenname'
     );
-    const pendingItems = [{
+    const partialPendingState = {
       node: serviceField,
       path,
       rangeCalls: undefined,
-    }];
-    expect(result.pendingNodes).toMatchPendingNodes({
-      'client:screenname1': pendingItems,
-      'client:screenname2': pendingItems,
-    });
+    };
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([
+      {dataID: 'client:screenname1', ...partialPendingState},
+      {dataID: 'client:screenname2', ...partialPendingState},
+    ]);
     expect(result.missingData).toBe(false);
   });
 
@@ -476,7 +475,7 @@ describe('findRelayQueryLeaves', () => {
       records
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(true);
   });
 
@@ -513,7 +512,7 @@ describe('findRelayQueryLeaves', () => {
       dummyPath,
       records
     );
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 
@@ -552,12 +551,12 @@ describe('findRelayQueryLeaves', () => {
       records
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 
 
-  it('returns pendingNodes when range node is not in the store', () => {
+  it('returns pendingNodeStates when range node is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
@@ -586,16 +585,14 @@ describe('findRelayQueryLeaves', () => {
     const calls = rangeField.getCallsWithValues();
 
 
-    const pendingItems = rangeField.getChildren().map(node => {
-      return {
-        node,
-        path: RelayQueryPath.getPath(dummyPath, rangeField, 'friends_id'),
-        rangeCalls: calls,
-      };
-    });
+    const pendingStates = rangeField.getChildren().map(node => ({
+      dataID: 'friends_id',
+      node,
+      path: RelayQueryPath.getPath(dummyPath, rangeField, 'friends_id'),
+      rangeCalls: calls,
+    }));
 
-    expect(result.pendingNodes)
-      .toMatchPendingNodes({'friends_id': pendingItems});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates(pendingStates);
     expect(result.missingData).toBe(false);
   });
 
@@ -626,11 +623,11 @@ describe('findRelayQueryLeaves', () => {
       records
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(true);
   });
 
-  it('returns pendingNodes when range field is not in the store', () => {
+  it('returns pendingNodeStates when range field is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
@@ -660,16 +657,13 @@ describe('findRelayQueryLeaves', () => {
 
     const friendField = queryNode.getFieldByStorageKey('friends');
     const calls = friendField.getCallsWithValues();
-    const pendingItems = friendField.getChildren().map(node => {
-      return {
-        node,
-        path: RelayQueryPath.getPath(dummyPath, friendField, 'friends_id'),
-        rangeCalls: calls,
-      };
-    });
-    expect(result.pendingNodes).toMatchPendingNodes({
-      'friends_id': pendingItems,
-    });
+    const pendingStates = friendField.getChildren().map(node => ({
+      dataID: 'friends_id',
+      node,
+      path: RelayQueryPath.getPath(dummyPath, friendField, 'friends_id'),
+      rangeCalls: calls,
+    }));
+    expect(result.pendingNodeStates).toMatchPendingNodeStates(pendingStates);
     expect(result.missingData).toBe(false);
   });
 
@@ -702,7 +696,7 @@ describe('findRelayQueryLeaves', () => {
       records
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(true);
   });
 
@@ -739,7 +733,7 @@ describe('findRelayQueryLeaves', () => {
       records
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(true);
   });
 
@@ -777,11 +771,11 @@ describe('findRelayQueryLeaves', () => {
       records
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(true);
   });
 
-  it('returns pendingNodes when edge node is not in the store', () => {
+  it('returns pendingNodeStates when edge node is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on FriendsConnection {
         edges { node {id}}
@@ -819,14 +813,13 @@ describe('findRelayQueryLeaves', () => {
     const edgeFields = queryNode
       .getFieldByStorageKey('edges')
       .getChildren();
-    const pendingItems = edgeFields.map(node => {
-      return {
-        node,
-        path: RelayQueryPath.getPath(dummyPath, edgeFields, 'edge_id'),
-        rangeCalls: undefined,
-      };
-    });
-    expect(result.pendingNodes).toMatchPendingNodes({'edge_id': pendingItems});
+    const pendingStates = edgeFields.map(node => ({
+      dataID: 'edge_id',
+      node,
+      path: RelayQueryPath.getPath(dummyPath, edgeFields, 'edge_id'),
+      rangeCalls: undefined,
+    }));
+    expect(result.pendingNodeStates).toMatchPendingNodeStates(pendingStates);
     expect(result.missingData).toBe(false);
   });
 
@@ -865,7 +858,7 @@ describe('findRelayQueryLeaves', () => {
       records.friends_id.__range__.retrieveRangeInfoForQuery.mock;
     expect(mockRetrieveRange.calls.length).toBe(1);
     expect(mockRetrieveRange.calls[0][0]).toBe(rangeCalls);
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(true);
   });
 
@@ -912,7 +905,7 @@ describe('findRelayQueryLeaves', () => {
       records.friends_id.__range__.retrieveRangeInfoForQuery.mock;
     expect(mockRetrieveRange.calls.length).toBe(1);
     expect(mockRetrieveRange.calls[0][0]).toBe(rangeCalls);
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 
@@ -959,11 +952,11 @@ describe('findRelayQueryLeaves', () => {
       records.friends_id.__range__.retrieveRangeInfoForQuery.mock;
     expect(mockRetrieveRange.calls.length).toBe(1);
     expect(mockRetrieveRange.calls[0][0]).toBe(rangeCalls);
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 
-  it('returns pendingNodes when root node is not in the store', () => {
+  it('returns pendingNodeStates when root node is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       query {
         node(id:"1055790163") {
@@ -977,17 +970,14 @@ describe('findRelayQueryLeaves', () => {
       dummyPath,
     );
 
-    const pendingItems = queryNode.getChildren().map(node => {
-      return {
-        node,
-        path: dummyPath,
-        rangeCalls: undefined,
-      };
-    });
+    const pendingStates = queryNode.getChildren().map(node => ({
+      dataID: '1055790163',
+      node,
+      path: dummyPath,
+      rangeCalls: undefined,
+    }));
 
-    expect(result.pendingNodes).toMatchPendingNodes(
-      {'1055790163': pendingItems}
-    );
+    expect(result.pendingNodeStates).toMatchPendingNodeStates(pendingStates);
     expect(result.missingData).toBe(false);
   });
 
@@ -1007,11 +997,11 @@ describe('findRelayQueryLeaves', () => {
       {'1055790163': undefined}
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(true);
   });
 
-  it('returns pendingNodes when matched fragment is not in the store', () => {
+  it('returns pendingNodeStates when matched fragment is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id,
@@ -1037,13 +1027,12 @@ describe('findRelayQueryLeaves', () => {
     const userFragment = queryNode.getChildren().filter(
       item => item instanceof RelayQuery.Fragment
     )[0];
-    expect(result.pendingNodes).toMatchPendingNodes(
-      {'1055790163': [{
-        node: userFragment.getFieldByStorageKey('firstName'),
-        path: dummyPath,
-        rangeCalls: undefined,
-      }]}
-    );
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([{
+      dataID: '1055790163',
+      node: userFragment.getFieldByStorageKey('firstName'),
+      path: dummyPath,
+      rangeCalls: undefined,
+    }]);
     expect(result.missingData).toBe(false);
   });
 
@@ -1071,7 +1060,7 @@ describe('findRelayQueryLeaves', () => {
       records,
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(true);
   });
 
@@ -1098,7 +1087,7 @@ describe('findRelayQueryLeaves', () => {
       records,
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 
@@ -1126,7 +1115,7 @@ describe('findRelayQueryLeaves', () => {
       records
     );
 
-    expect(result.pendingNodes).toMatchPendingNodes({});
+    expect(result.pendingNodeStates).toMatchPendingNodeStates([]);
     expect(result.missingData).toBe(false);
   });
 });

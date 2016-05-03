@@ -1111,12 +1111,16 @@ describe('RelayMutationQuery', () => {
         mutation {
           commentDelete(input:$input) {
             clientMutationId,
-            deletedCommentId,
             ${Relay.QL`
               fragment on CommentDeleteResponsePayload {
                 feedback {
                   id
                 }
+              }
+            `},
+            ${Relay.QL`
+              fragment on CommentDeleteResponsePayload {
+                deletedCommentId
               }
             `},
           }
@@ -1178,12 +1182,16 @@ describe('RelayMutationQuery', () => {
         mutation {
           commentDelete(input:$input) {
             clientMutationId,
-            deletedCommentId,
             ${Relay.QL`
               fragment on CommentDeleteResponsePayload {
                 feedback {
                   id
                 }
+              }
+            `},
+            ${Relay.QL`
+              fragment on CommentDeleteResponsePayload {
+                deletedCommentId
               }
             `},
           }
@@ -1240,12 +1248,16 @@ describe('RelayMutationQuery', () => {
         mutation {
           unfriend(input: $input) {
             clientMutationId,
-            formerFriend {
-              id
-            }
             ${Relay.QL`
               fragment on UnfriendResponsePayload {
                 actor {
+                  id
+                }
+              }
+            `},
+            ${Relay.QL`
+              fragment on UnfriendResponsePayload {
+                formerFriend {
                   id
                 }
               }

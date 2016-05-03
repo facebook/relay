@@ -102,7 +102,7 @@ const RelayMutationQuery = {
       fieldIDs,
       tracker,
     }: FieldsMutationFragmentBuilderConfig
-  ): ?RelayQuery.Node {
+  ): RelayQuery.Fragment {
     const mutatedFields = [];
     forEachObject(fieldIDs, (dataIDOrIDs, fieldName) => {
       const fatField = getFieldFromFatQuery(fatQuery, fieldName);
@@ -112,11 +112,31 @@ const RelayMutationQuery = {
         trackedChildren.push(...tracker.getTrackedChildrenForID(dataID));
       });
       const trackedField = fatField.clone(trackedChildren);
+      let mutationField = null;
       if (trackedField) {
-        const mutationField = intersectRelayQuery(trackedField, fatField);
+        mutationField = intersectRelayQuery(trackedField, fatField);
         if (mutationField) {
           mutatedFields.push(mutationField);
         }
+      }
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        console.groupCollapsed('Building fragment for `' + fieldName + '`');
+        console.log('id: ', dataIDOrIDs);
+
+        const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
+        RelayMutationDebugPrinter.printMutation(
+          trackedField && buildMutationFragment(fatQuery, [trackedField]),
+          'Tracked Fragment',
+        );
+        RelayMutationDebugPrinter.printMutation(
+          buildMutationFragment(fatQuery, [fatField]),
+          'Fat Fragment',
+        );
+        RelayMutationDebugPrinter.printMutation(
+          mutationField && buildMutationFragment(fatQuery, [mutationField]),
+          'Intersected Fragment',
+        );
+        console.groupEnd();
       }
     });
     return buildMutationFragment(fatQuery, mutatedFields);
@@ -146,7 +166,7 @@ const RelayMutationQuery = {
       parentName,
       tracker,
     }: EdgeDeletionMutationFragmentBuilderConfig
-  ): ?RelayQuery.Node {
+  ): RelayQuery.Fragment {
     const fatParent = getFieldFromFatQuery(fatQuery, parentName);
 
     // The connection may not be explicit in the fat query, but if it is, we
@@ -206,7 +226,7 @@ const RelayMutationQuery = {
       rangeBehaviors,
       tracker,
     }: EdgeInsertionMutationFragmentBuilderConfig
-  ): ?RelayQuery.Node {
+  ): RelayQuery.Fragment {
     const mutatedFields = [];
     const keysWithoutRangeBehavior: {[hash: string]: boolean} = {};
     const trackedChildren = tracker.getTrackedChildrenForID(parentID);
@@ -296,7 +316,7 @@ const RelayMutationQuery = {
    */
   buildFragmentForOptimisticUpdate(
     {response, fatQuery}: OptimisticUpdateFragmentBuilderConfig
-  ): ?RelayQuery.Node {
+  ): RelayQuery.Fragment {
     // Silences RelayQueryNode being incompatible with sub-class RelayQueryField
     // A detailed error description is available in #7635477
     const mutatedFields = (inferRelayFieldsFromData(response): $FlowIssue);
@@ -359,20 +379,37 @@ const RelayMutationQuery = {
         metadata: {isRequisite:true},
       }),
     ];
-
+    if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+      console.groupCollapsed('Mutation Configs');
+    }
     configs.forEach(config => {
       switch (config.type) {
         case RelayMutationType.REQUIRED_CHILDREN:
-          children = children.concat(config.children.map(child =>
+          const newChildren = config.children.map(child =>
              RelayQuery.Fragment.create(
               child,
               RelayMetaRoute.get('$buildQuery'),
               {}
             )
-          ));
+          );
+          children = children.concat(newChildren);
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            const RelayMutationDebugPrinter =
+              require('RelayMutationDebugPrinter');
+            console.groupCollapsed('REQUIRED_CHILDREN');
+            newChildren.forEach((child, index) => {
+              console.groupCollapsed(index);
+              RelayMutationDebugPrinter.printMutation(child);
+              console.groupEnd();
+            });
+            console.groupEnd();
+          }
           break;
 
         case RelayMutationType.RANGE_ADD:
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            console.groupCollapsed('RANGE_ADD');
+          }
           children.push(RelayMutationQuery.buildFragmentForEdgeInsertion({
             connectionName: config.connectionName,
             edgeName: config.edgeName,
@@ -382,33 +419,61 @@ const RelayMutationQuery = {
             rangeBehaviors: sanitizeRangeBehaviors(config.rangeBehaviors),
             tracker,
           }));
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            console.groupEnd();
+          }
           break;
 
         case RelayMutationType.RANGE_DELETE:
         case RelayMutationType.NODE_DELETE:
-          children.push(RelayMutationQuery.buildFragmentForEdgeDeletion({
+          const edgeDeletion = RelayMutationQuery.buildFragmentForEdgeDeletion({
             connectionName: config.connectionName,
             fatQuery,
             parentID: config.parentID,
             parentName: config.parentName,
             tracker,
-          }));
-          children.push(
-            Array.isArray(config.deletedIDFieldName) ?
-              buildDeletedConnectionNodeIDField(config.deletedIDFieldName) :
-              RelayQuery.Field.build({
-                fieldName: config.deletedIDFieldName,
-                type: 'String',
-              })
+          });
+          children.push(edgeDeletion);
+          const deletedIDFieldName = Array.isArray(config.deletedIDFieldName) ?
+            config.deletedIDFieldName.concat(ID) :
+            [config.deletedIDFieldName];
+          const nodeDeletion = buildFragmentForDeletedConnectionNodeID(
+            deletedIDFieldName,
+            fatQuery
           );
+          children.push(nodeDeletion);
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            const configType = config === RelayMutationType.RANGE_DELETE ?
+              'RANGE_DELETE' : 'NODE_DELETE';
+            console.groupCollapsed(configType);
+
+            const RelayMutationDebugPrinter =
+              require('RelayMutationDebugPrinter');
+            RelayMutationDebugPrinter.printMutation(
+              edgeDeletion,
+              'Edge Fragment'
+            );
+            RelayMutationDebugPrinter.printMutation(
+              nodeDeletion,
+              'Node Fragment'
+            );
+
+            console.groupEnd();
+          }
           break;
 
         case RelayMutationType.FIELDS_CHANGE:
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            console.groupCollapsed('FIELDS_CHANGE');
+          }
           children.push(RelayMutationQuery.buildFragmentForFields({
             fatQuery,
             fieldIDs: config.fieldIDs,
             tracker,
           }));
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            console.groupEnd();
+          }
           break;
 
         default:
@@ -420,7 +485,9 @@ const RelayMutationQuery = {
           );
       }
     });
-
+    if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+      console.groupEnd();
+    }
     return RelayQuery.Mutation.build(
       mutationName,
       fatQuery.getType(),
@@ -448,30 +515,33 @@ function getFieldFromFatQuery(
 function buildMutationFragment(
   fatQuery: RelayQuery.Fragment,
   fields: Array<RelayQuery.Node>
-): ?RelayQuery.Fragment {
+): RelayQuery.Fragment {
   const fragment = RelayQuery.Fragment.build(
     'MutationQuery',
     fatQuery.getType(),
     fields
   );
-  if (fragment) {
-    invariant(
-      fragment instanceof RelayQuery.Fragment,
-      'RelayMutationQuery: Expected a fragment.'
-    );
-    return fragment;
-  }
-  return null;
+
+  invariant(
+    fragment instanceof RelayQuery.Fragment,
+    'RelayMutationQuery: Expected a fragment.'
+  );
+  return fragment;
 }
 
-function buildDeletedConnectionNodeIDField(
-  fieldNames: Array<string>
-): RelayQuery.Field {
+function buildFragmentForDeletedConnectionNodeID(
+  fieldNames: Array<string>,
+  fatQuery: RelayQuery.Fragment
+): RelayQuery.Fragment {
+  invariant(
+    fieldNames.length > 0,
+    'RelayMutationQuery: Invalid deleted node id name.'
+  );
   let field = RelayQuery.Field.build({
-    fieldName: ID,
+    fieldName: fieldNames[fieldNames.length - 1],
     type: 'String',
   });
-  for (let ii = fieldNames.length - 1; ii >= 0; ii--) {
+  for (let ii = fieldNames.length - 2; ii >= 0; ii--) {
     field = RelayQuery.Field.build({
       fieldName: fieldNames[ii],
       type: ANY_TYPE,
@@ -481,7 +551,7 @@ function buildDeletedConnectionNodeIDField(
       },
     });
   }
-  return field;
+  return buildMutationFragment(fatQuery, [field]);
 }
 
 function buildEdgeField(

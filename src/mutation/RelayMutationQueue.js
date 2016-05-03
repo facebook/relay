@@ -509,6 +509,11 @@ class RelayPendingTransaction {
 
   getOptimisticQuery(storeData: RelayStoreData): ?RelayQuery.Mutation {
     if (this._optimisticQuery === undefined) {
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        console.groupCollapsed(
+          'Optimistic query for `' + this.getCallName() + '`'
+        );
+      }
       const optimisticResponse = this.getOptimisticResponse();
       if (optimisticResponse) {
         const optimisticConfigs = this.getOptimisticConfigs();
@@ -533,6 +538,14 @@ class RelayPendingTransaction {
       } else {
         this._optimisticQuery = null;
       }
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        require('RelayMutationDebugPrinter').printOptimisticMutation(
+          this._optimisticQuery,
+          optimisticResponse
+        );
+
+        console.groupEnd();
+      }
     }
     return this._optimisticQuery;
   }
@@ -550,6 +563,11 @@ class RelayPendingTransaction {
 
   getQuery(storeData: RelayStoreData): RelayQuery.Mutation {
     if (!this._query) {
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        console.groupCollapsed(
+          'Mutation query for `' + this.getCallName() + '`'
+        );
+      }
       const tracker = getTracker(storeData);
       this._query = RelayMutationQuery.buildQuery({
         configs: this.getConfigs(),
@@ -559,6 +577,10 @@ class RelayPendingTransaction {
         mutation: this.getMutationNode(),
         tracker,
       });
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        require('RelayMutationDebugPrinter').printMutation(this._query);
+        console.groupEnd();
+      }
     }
     return this._query;
   }

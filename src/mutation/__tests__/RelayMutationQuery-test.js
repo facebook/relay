@@ -42,6 +42,11 @@ describe('RelayMutationQuery', () => {
       node => !node.getSchemaName || node.getSchemaName() !== 'source';
     return filterRelayQuery(RelayTestUtils.getNode(...args), filterCallback);
   }
+  function getMutationWithoutClientId(mutation) {
+    return mutation.clone(mutation.getChildren().filter(child =>
+      !child.getSchemaName || child.getSchemaName() !== RelayConnectionInterface.CLIENT_MUTATION_ID
+    ));
+  }
 
   let tracker;
 
@@ -1108,24 +1113,26 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
-        mutation {
-          commentDelete(input:$input) {
-            ${Relay.QL`
-              fragment on CommentDeleteResponsePayload {
-                feedback {
-                  id
+      const expectedMutationQuery = getMutationWithoutClientId(
+        getNodeWithoutSource(Relay.QL`
+          mutation {
+            commentDelete(input:$input) {
+              ${Relay.QL`
+                fragment on CommentDeleteResponsePayload {
+                  feedback {
+                    id
+                  }
                 }
-              }
-            `},
-            ${Relay.QL`
-              fragment on CommentDeleteResponsePayload {
-                deletedCommentId
-              }
-            `},
-          }
-        }
-      `, variables);
+              `},
+              ${Relay.QL`
+                fragment on CommentDeleteResponsePayload {
+                  deletedCommentId
+                }
+              `},
+            }
+          `, variables
+        )
+      );
 
       expect(query)
         .toEqualQueryNode(expectedMutationQuery);
@@ -1178,24 +1185,26 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
-        mutation {
-          commentDelete(input:$input) {
-            ${Relay.QL`
-              fragment on CommentDeleteResponsePayload {
-                feedback {
-                  id
+      const expectedMutationQuery = getMutationWithoutClientId(
+        getNodeWithoutSource(Relay.QL`
+          mutation {
+            commentDelete(input:$input) {
+              ${Relay.QL`
+                fragment on CommentDeleteResponsePayload {
+                  feedback {
+                    id
+                  }
                 }
-              }
-            `},
-            ${Relay.QL`
-              fragment on CommentDeleteResponsePayload {
-                deletedCommentId
-              }
-            `},
-          }
-        }
-      `, variables);
+              `},
+              ${Relay.QL`
+                fragment on CommentDeleteResponsePayload {
+                  deletedCommentId
+                }
+              `},
+            }
+          `, variables
+        )
+      );
 
       expect(query)
         .toEqualQueryNode(expectedMutationQuery);
@@ -1263,7 +1272,7 @@ describe('RelayMutationQuery', () => {
         }
       `;
       expect(query).toEqualQueryNode(
-        getNodeWithoutSource(expectedConcreteNode, variables)
+        getMutationWithoutClientId(getNodeWithoutSource(expectedConcreteNode, variables))
       );
     });
 
@@ -1303,20 +1312,22 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
-        mutation {
-          feedbackLike(input:$input) {
-            ${Relay.QL`
-              fragment on FeedbackLikeResponsePayload {
-                feedback {
-                  id,
-                  likers
+      const expectedMutationQuery = getMutationWithoutClientId(
+        getNodeWithoutSource(Relay.QL`
+          mutation {
+            feedbackLike(input:$input) {
+              ${Relay.QL`
+                fragment on FeedbackLikeResponsePayload {
+                  feedback {
+                    id,
+                    likers
+                  }
                 }
-              }
-            `},
+              `},
+            }
           }
-        }
-      `, variables);
+        `, variables)
+      );
 
       expect(query)
         .toEqualQueryNode(expectedMutationQuery);
@@ -1495,56 +1506,58 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
-        mutation {
-          commentCreate(input:$input) {
-            ${Relay.QL`
-              fragment on CommentCreateResponsePayload {
-                feedback {
-                  id,
-                  likers,
-                },
-                feedbackCommentEdge {
-                  __typename
-                  cursor,
-                  node {
-                    body {
-                      text
-                    },
-                    id
+      const expectedMutationQuery = getMutationWithoutClientId(
+        getNodeWithoutSource(Relay.QL`
+          mutation {
+            commentCreate(input:$input) {
+              ${Relay.QL`
+                fragment on CommentCreateResponsePayload {
+                  feedback {
+                    id,
+                    likers,
                   },
-                  source {
-                    id
+                  feedbackCommentEdge {
+                    __typename
+                    cursor,
+                    node {
+                      body {
+                        text
+                      },
+                      id
+                    },
+                    source {
+                      id
+                    }
                   }
                 }
-              }
-            `},
-            ${Relay.QL`
-              fragment on CommentCreateResponsePayload {
-                feedback {
-                  comments(first:"10") {
-                    edges {
-                      cursor
-                      node {
-                        body {
-                          text
+              `},
+              ${Relay.QL`
+                fragment on CommentCreateResponsePayload {
+                  feedback {
+                    comments(first:"10") {
+                      edges {
+                        cursor
+                        node {
+                          body {
+                            text
+                          }
+                          id
                         }
-                        id
+                      }
+                      pageInfo {
+                        hasNextPage
+                        hasPreviousPage
                       }
                     }
-                    pageInfo {
-                      hasNextPage
-                      hasPreviousPage
-                    }
+                    id
+                    likers
                   }
-                  id
-                  likers
                 }
-              }
-            `},
+              `},
+            }
           }
-        }
-      `, variables);
+        `, variables)
+      );
 
       expect(query)
         .toEqualQueryNode(expectedMutationQuery);

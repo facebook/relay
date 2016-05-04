@@ -8,6 +8,7 @@ env:
 script:
 - pushd $TEST_DIR
 - npm install
+- ./node_modules/flow-bin/vendor/flow version
 - ./node_modules/flow-bin/vendor/flow check src/ --profile --debug --max-workers=2
 - npm test
 - popd

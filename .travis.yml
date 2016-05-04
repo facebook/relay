@@ -7,6 +7,7 @@ env:
 - TEST_DIR=scripts/babel-relay-plugin
 script:
 - pushd $TEST_DIR
+- npm install
 - ./node_modules/flow-bin/vendor/flow check src/ --profile --debug --max-workers=2
-- npm install && npm test
+- npm test
 - popd

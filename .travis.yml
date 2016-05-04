@@ -5,6 +5,11 @@ node_js:
 - '5'
 install: true
 env:
-- TEST_DIR=.
 - TEST_DIR=scripts/babel-relay-plugin
-script: cd $TEST_DIR && npm install && npm test
+script:
+- pushd $TEST_DIR
+- npm install
+- ./node_modules/flow-bin/vendor/flow version
+- ./node_modules/flow-bin/vendor/flow check src/ --profile --debug --max-workers=2
+- npm test
+- popd

@@ -294,7 +294,7 @@ class PendingGraphQLTransaction {
     return this._files;
   }
 
-  getOptimisticConfigs(): ?Array<{[key: string]: mixed}> {
+  getOptimisticConfigs(): ?Array<RelayMutationConfig> {
     return [];
   }
 

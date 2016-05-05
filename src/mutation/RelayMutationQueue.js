@@ -49,7 +49,7 @@ interface PendingTransaction {
   getCollisionKey(): ?string;
   getConfigs(): Array<RelayMutationConfig>;
   getFiles(): ?FileMap;
-  getOptimisticConfigs(): ?Array<{[key: string]: mixed}>;
+  getOptimisticConfigs(): ?Array<RelayMutationConfig>;
   getOptimisticQuery(storeData: RelayStoreData): ?RelayQuery.Mutation;
   getOptimisticResponse(): ?Object;
   getQuery(storeData: RelayStoreData): RelayQuery.Mutation;
@@ -500,7 +500,7 @@ class RelayPendingTransaction {
     return this._mutationNode;
   }
 
-  getOptimisticConfigs(): ?Array<{[key: string]: mixed}> {
+  getOptimisticConfigs(): ?Array<RelayMutationConfig> {
     if (this._optimisticConfigs === undefined) {
       this._optimisticConfigs = this.mutation.getOptimisticConfigs() || null;
     }

@@ -243,7 +243,7 @@ class RelayMutation<Tp: Object> {
    * will be inferred from the optimistic response. Most subclasses shouldn't
    * need to extend this method.
    */
-  getOptimisticConfigs(): ?Array<{[key: string]: mixed}> {
+  getOptimisticConfigs(): ?Array<RelayMutationConfig> {
     return null;
   }
 

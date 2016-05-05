@@ -26,6 +26,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var _require = require('./GraphQL');
 
 var types = _require.type;
+var GraphQLDirectiveClass = _require.type_directives.GraphQLDirective;
 var _require$type_introsp = _require.type_introspection;
 var SchemaMetaFieldDef = _require$type_introsp.SchemaMetaFieldDef;
 var TypeMetaFieldDef = _require$type_introsp.TypeMetaFieldDef;
@@ -33,11 +34,10 @@ var TypeNameMetaFieldDef = _require$type_introsp.TypeNameMetaFieldDef;
 
 var GraphQLRelayDirective = require('./GraphQLRelayDirective');
 
-var buildDirective = require('./buildDirective');
 var find = require('./find');
 var invariant = require('./invariant');
 
-var GraphQLRelayDirectiveInstance = buildDirective(GraphQLRelayDirective);
+var GraphQLRelayDirectiveInstance = new GraphQLDirectiveClass(GraphQLRelayDirective);
 
 // TODO: Import types from `graphql`.
 
@@ -539,7 +539,7 @@ var RelayQLType = function () {
         } else if (types.isAbstractType(type) && fieldAST && fieldAST.directives && fieldAST.directives.some(function (directive) {
           return directive.name.value === 'fixme_fat_interface';
         })) {
-          var possibleTypes = type.getPossibleTypes();
+          var possibleTypes = this.context.schema.getPossibleTypes(type);
 
           var _loop = function _loop(ii) {
             var possibleField = possibleTypes[ii].getFields()[fieldName];
@@ -589,7 +589,7 @@ var RelayQLType = function () {
       var _this16 = this;
 
       invariant(this.isAbstract(), 'Cannot get concrete types of a concrete type.');
-      return this.schemaUnmodifiedType.getPossibleTypes().map(function (concreteType) {
+      return this.context.schema.getPossibleTypes(this.schemaUnmodifiedType).map(function (concreteType) {
         return new RelayQLType(_this16.context, concreteType);
       });
     }

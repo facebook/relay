@@ -7,5 +7,5 @@ Output:
 
 var Relay = require('react-relay');
 var x = function () {
-  throw new Error('GraphQL validation error ``Unknown type "NotAType".`` in file `fragmentOnBadType.fixture`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+  throw new Error('GraphQL validation error ``Unknown type "NotAType". Did you mean "__Type"?`` in file `fragmentOnBadType.fixture`. Try updating your GraphQL schema if an argument/field/type was recently added.');
 }();

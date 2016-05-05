@@ -106,9 +106,10 @@ If the callback returns `undefined`, the previously rendered view (or nothing if
 ```{4-6}
 // In this example, `ErrorComponent` and `LoadingComponent`
 // simply display a static error message / loading indicator.
-<RelayRenderer
+<Relay.Renderer
   Container={ProfilePicture}
-  route={profileRoute}
+  queryConfig={profileRoute}
+  environment={Relay.Store}
   render={({done, error, props, retry, stale}) => {
         if (error) {
             return <ErrorComponent />;

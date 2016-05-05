@@ -46,7 +46,7 @@ describe('RelayMutation', function() {
     environment.read = jest.fn();
 
     const initialVariables = {isRelative: false};
-    var makeMockMutation = () => {
+    const makeMockMutation = () => {
       class MockMutationClass extends Relay.Mutation {
         static initialVariables = initialVariables;
         static fragments = {

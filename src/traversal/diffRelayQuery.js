@@ -597,8 +597,8 @@ class RelayDiffQueryBuilder {
       RelayQueryPath.getPath(path, field, connectionID),
       scope
     );
-    var diffNode = diffOutput ? diffOutput.diffNode : null;
-    var trackedNode = diffOutput ? diffOutput.trackedNode : null;
+    let diffNode = diffOutput ? diffOutput.diffNode : null;
+    let trackedNode = diffOutput ? diffOutput.trackedNode : null;
     if (diffCalls.length && diffNode instanceof RelayQuery.Field) {
       diffNode = diffNode.cloneFieldWithCalls(
         diffNode.getChildren(),
@@ -827,7 +827,7 @@ function splitNodeAndEdgesFields(
         hasEdgeChild = hasEdgeChild || !child.isRequisite();
       }
     } else if (child instanceof RelayQuery.Fragment) {
-      var {edges, node} = splitNodeAndEdgesFields(child);
+      const {edges, node} = splitNodeAndEdgesFields(child);
       if (edges) {
         edgeChildren.push(edges);
         hasEdgeChild = true;

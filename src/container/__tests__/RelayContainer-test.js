@@ -942,13 +942,13 @@ describe('RelayContainer', function() {
   });
 
   it('applies `shouldComponentUpdate` properly', () => {
-    var mockDataSet = {
+    const mockDataSet = {
       '42': {__dataID__: '42', name: 'Tim'},
     };
-    var render = jest.genMockFunction().mockImplementation(() => <div />);
-    var shouldComponentUpdate = jest.fn(() => true);
+    const render = jest.genMockFunction().mockImplementation(() => <div />);
+    const shouldComponentUpdate = jest.fn(() => true);
 
-    var MockAlwaysUpdateComponent = Relay.createContainer(
+    const MockAlwaysUpdateComponent = Relay.createContainer(
       React.createClass({render, shouldComponentUpdate}),
       {
         shouldComponentUpdate,
@@ -965,7 +965,7 @@ describe('RelayContainer', function() {
     });
     mockFooFragment =
       getNode(MockAlwaysUpdateComponent.getFragment('foo').getFragment({}));
-    var mockPointerA = getPointer('42', mockFooFragment);
+    const mockPointerA = getPointer('42', mockFooFragment);
 
     RelayTestRenderer.render(
       () => <MockAlwaysUpdateComponent foo={mockPointerA} />,

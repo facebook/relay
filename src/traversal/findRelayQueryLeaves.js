@@ -157,7 +157,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
         state.rangeInfo = metadata;
       }
     }
-    var rangeInfo = state.rangeInfo;
+    const rangeInfo = state.rangeInfo;
     if (rangeInfo && field.getSchemaName() === EDGES) {
       this._visitEdges(field, state);
     } else if (rangeInfo && field.getSchemaName() === PAGE_INFO) {

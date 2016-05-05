@@ -503,7 +503,7 @@ class RelayRangeCallEnforcer extends RelayQueryVisitor<RelayQuery.Field> {
     );
   }
 }
-var rangeCallEnforcer = new RelayRangeCallEnforcer();
+const rangeCallEnforcer = new RelayRangeCallEnforcer();
 
 /**
  * Returns the component-specific DataID stored in `state`, falling back to the

@@ -65,7 +65,7 @@ function writeRelayGraphModeResponse(
   payload: GraphModePayload,
   options?: {forceIndex?: ?number}
 ): RelayChangeTracker {
-  var graphWriter = new RelayGraphModeWriter(
+  const graphWriter = new RelayGraphModeWriter(
     store,
     writer,
     options

@@ -25,7 +25,7 @@ function compareObjects(
   objectB: Object,
   filter?: Object
 ): boolean {
-  var key;
+  let key;
 
   // Test for A's keys different from B.
   for (key in objectA) {

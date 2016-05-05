@@ -51,6 +51,7 @@ class RelayNetworkDebugger {
     const id = this._queryID++;
     const timerName = `[${id}] Request Duration`;
 
+    /* eslint-disable no-console */
     console.timeStamp && console.timeStamp(`START: [${id}] ${type}: ${name} →`);
     console.time && console.time(timerName);
 
@@ -68,6 +69,7 @@ class RelayNetworkDebugger {
       logResult(error, response);
       console.groupEnd && console.groupEnd();
     };
+    /* eslint-enable no-console */
 
     promise.then(
       response => onSettled(null, response),
@@ -85,6 +87,7 @@ function createDebuggableFromRequest(
     type,
     promise: request.getPromise(),
     logResult(error, response) {
+      /* eslint-disable no-console */
       console.debug && console.debug(
         '%c%s\n',
         'font-size:10px; color:#333; font-family:mplus-2m-regular,menlo,' +
@@ -94,6 +97,7 @@ function createDebuggableFromRequest(
       console.log('Request variables\n', request.getVariables());
       error && console.error(error);
       response && console.log(response);
+      /* eslint-enable no-console */
     },
   };
 }

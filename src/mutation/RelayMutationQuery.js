@@ -119,6 +119,7 @@ const RelayMutationQuery = {
           mutatedFields.push(mutationField);
         }
       }
+      /* eslint-disable no-console */
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
         console.groupCollapsed('Building fragment for `' + fieldName + '`');
         console.log('id: ', dataIDOrIDs);
@@ -138,6 +139,7 @@ const RelayMutationQuery = {
         );
         console.groupEnd();
       }
+      /* eslint-enable no-console */
     });
     return buildMutationFragment(fatQuery, mutatedFields);
   },
@@ -379,9 +381,11 @@ const RelayMutationQuery = {
         metadata: {isRequisite:true},
       }),
     ];
+    /* eslint-disable no-console */
     if (__DEV__ && console.groupCollapsed && console.groupEnd) {
       console.groupCollapsed('Mutation Configs');
     }
+    /* eslint-enable no-console */
     configs.forEach(config => {
       switch (config.type) {
         case RelayMutationType.REQUIRED_CHILDREN:
@@ -393,6 +397,7 @@ const RelayMutationQuery = {
             )
           );
           children = children.concat(newChildren);
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             const RelayMutationDebugPrinter =
               require('RelayMutationDebugPrinter');
@@ -404,12 +409,15 @@ const RelayMutationQuery = {
             });
             console.groupEnd();
           }
+          /* eslint-enable no-console */
           break;
 
         case RelayMutationType.RANGE_ADD:
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupCollapsed('RANGE_ADD');
           }
+          /* eslint-enable no-console */
           children.push(RelayMutationQuery.buildFragmentForEdgeInsertion({
             connectionName: config.connectionName,
             edgeName: config.edgeName,
@@ -419,9 +427,11 @@ const RelayMutationQuery = {
             rangeBehaviors: sanitizeRangeBehaviors(config.rangeBehaviors),
             tracker,
           }));
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupEnd();
           }
+          /* eslint-enable no-console */
           break;
 
         case RelayMutationType.RANGE_DELETE:
@@ -442,6 +452,7 @@ const RelayMutationQuery = {
             fatQuery
           );
           children.push(nodeDeletion);
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             const configType = config === RelayMutationType.RANGE_DELETE ?
               'RANGE_DELETE' : 'NODE_DELETE';
@@ -460,20 +471,25 @@ const RelayMutationQuery = {
 
             console.groupEnd();
           }
+          /* eslint-enable no-console */
           break;
 
         case RelayMutationType.FIELDS_CHANGE:
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupCollapsed('FIELDS_CHANGE');
           }
+          /* eslint-enable no-console */
           children.push(RelayMutationQuery.buildFragmentForFields({
             fatQuery,
             fieldIDs: config.fieldIDs,
             tracker,
           }));
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupEnd();
           }
+          /* eslint-enable no-console */
           break;
 
         default:
@@ -485,9 +501,11 @@ const RelayMutationQuery = {
           );
       }
     });
+    /* eslint-disable no-console */
     if (__DEV__ && console.groupCollapsed && console.groupEnd) {
       console.groupEnd();
     }
+    /* eslint-enable no-console */
     return RelayQuery.Mutation.build(
       mutationName,
       fatQuery.getType(),

@@ -34,6 +34,6 @@ class RelayMetaRoute {
 
 }
 
-var cache: {[key: string]: RelayMetaRoute} = {};
+const cache: {[key: string]: RelayMetaRoute} = {};
 
 module.exports = RelayMetaRoute;

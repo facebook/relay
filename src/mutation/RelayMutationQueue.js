@@ -22,6 +22,7 @@ const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationRequest = require('RelayMutationRequest');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
+const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
 import type RelayStoreData from 'RelayStoreData';
 import type {FileMap} from 'RelayMutation';
 import type RelayMutation from 'RelayMutation';
@@ -404,6 +405,7 @@ class RelayPendingTransaction {
   _optimisticQuery: ?RelayQuery.Mutation;
   _optimisticResponse: ?Object;
   _query: RelayQuery.Mutation;
+  _rawOptimisticResponse: ?Object;
 
   constructor(
     transactionData: TransactionData
@@ -516,7 +518,7 @@ class RelayPendingTransaction {
         );
       }
       /* eslint-enable no-console */
-      const optimisticResponse = this.getOptimisticResponse();
+      const optimisticResponse = this._getRawOptimisticResponse();
       if (optimisticResponse) {
         const optimisticConfigs = this.getOptimisticConfigs();
         const tracker = getTracker(storeData);
@@ -554,13 +556,28 @@ class RelayPendingTransaction {
     return this._optimisticQuery;
   }
 
-  getOptimisticResponse(): ?Object {
-    if (this._optimisticResponse === undefined) {
+  _getRawOptimisticResponse(): ?Object {
+    if (this._rawOptimisticResponse === undefined) {
       const optimisticResponse = this.mutation.getOptimisticResponse() || null;
       if (optimisticResponse) {
         optimisticResponse[CLIENT_MUTATION_ID] = this.id;
       }
-      this._optimisticResponse = optimisticResponse;
+      this._rawOptimisticResponse = optimisticResponse;
+    }
+    return this._rawOptimisticResponse;
+  }
+
+  getOptimisticResponse(): ?Object {
+    if (this._optimisticResponse === undefined) {
+      const optimisticResponse = this._getRawOptimisticResponse();
+      if (optimisticResponse) {
+        this._optimisticResponse =
+          RelayOptimisticMutationUtils.inferRelayPayloadFromData(
+            optimisticResponse
+          );
+      } else {
+        this._optimisticResponse = optimisticResponse;
+      }
     }
     return this._optimisticResponse;
   }

@@ -19,6 +19,7 @@ import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationType = require('RelayMutationType');
 const RelayNodeInterface = require('RelayNodeInterface');
+const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
 const RelayQuery = require('RelayQuery');
 import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayRecord = require('RelayRecord');
@@ -29,7 +30,6 @@ const flattenRelayQuery = require('flattenRelayQuery');
 const forEachObject = require('forEachObject');
 const getRangeBehavior = require('getRangeBehavior');
 const nullthrows = require('nullthrows');
-const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 const intersectRelayQuery = require('intersectRelayQuery');
 const invariant = require('invariant');
 const warning = require('warning');
@@ -321,7 +321,10 @@ const RelayMutationQuery = {
   ): RelayQuery.Fragment {
     // Silences RelayQueryNode being incompatible with sub-class RelayQueryField
     // A detailed error description is available in #7635477
-    const mutatedFields = (inferRelayFieldsFromData(response): $FlowIssue);
+    const mutatedFields = (
+      RelayOptimisticMutationUtils.inferRelayFieldsFromData(response)
+      : $FlowIssue
+    );
     return buildMutationFragment(fatQuery, mutatedFields);
   },
 

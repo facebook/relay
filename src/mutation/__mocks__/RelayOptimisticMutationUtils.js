@@ -9,6 +9,4 @@
 
 'use strict';
 
-module.exports = jest.fn(
-  require.requireActual('inferRelayFieldsFromData')
-);
+module.exports = require.requireActual('RelayOptimisticMutationUtils');

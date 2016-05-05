@@ -23,13 +23,13 @@ const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationType = require('RelayMutationType');
+const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
 const filterRelayQuery = require('filterRelayQuery');
 const fromGraphQL = require('fromGraphQL');
 const intersectRelayQuery = require('intersectRelayQuery');
-const inferRelayFieldsFromData = require('inferRelayFieldsFromData');
 
 describe('RelayMutationQuery', () => {
   const {filterGeneratedFields, getNode} = RelayTestUtils;
@@ -897,6 +897,7 @@ describe('RelayMutationQuery', () => {
 
   describe('optimistic update', () => {
     it('infers fields', () => {
+      RelayOptimisticMutationUtils.inferRelayFieldsFromData = jest.fn();
       const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
@@ -912,8 +913,12 @@ describe('RelayMutationQuery', () => {
         fatQuery,
       });
 
-      expect(inferRelayFieldsFromData.mock.calls.length).toBe(1);
-      expect(inferRelayFieldsFromData.mock.calls[0][0]).toBe(mockData);
+      expect(
+        RelayOptimisticMutationUtils.inferRelayFieldsFromData.mock.calls.length
+      ).toBe(1);
+      expect(
+        RelayOptimisticMutationUtils.inferRelayFieldsFromData.mock.calls[0][0]
+      ).toBe(mockData);
     });
 
     it('builds query', () => {

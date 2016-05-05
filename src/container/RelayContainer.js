@@ -247,6 +247,7 @@ function createContainerComponent(
       const lastVariables = this.state.relayProp.variables;
       const prevVariables =
         this.pending ? this.pending.variables : lastVariables;
+      validateVariables(initialVariables, partialVariables);
       const nextVariables = mergeVariables(prevVariables, partialVariables);
 
       this.pending && this.pending.request.abort();
@@ -778,7 +779,9 @@ function createContainerComponent(
     // TODO: Allow routes without names, #7856965.
     const metaRoute = RelayMetaRoute.get(route.name);
     if (prepareVariables) {
-      variables = prepareVariables(variables, metaRoute);
+      const newVariables = prepareVariables(variables, metaRoute);
+      validateVariables(initialVariables, newVariables);
+      variables = mergeVariables(variables, newVariables);
     }
     return RelayQuery.Fragment.create(
       fragment,
@@ -908,6 +911,21 @@ function getDeferredFragment(
   );
 }
 
+function validateVariables(
+  initialVariables: Variables,
+  partialVariables: ?Variables,
+): void {
+  if (partialVariables) {
+    for (const key in partialVariables) {
+      warning(
+        initialVariables.hasOwnProperty(key),
+        'RelayContainer: Expected query variable `%s` to be initialized in ' +
+        '`initialVariables`.',
+        key
+      );
+    }
+  }
+}
 
 function validateSpec(
   componentName: string,

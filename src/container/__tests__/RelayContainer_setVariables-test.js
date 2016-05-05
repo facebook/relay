@@ -11,6 +11,8 @@
 
 'use strict';
 
+jest.mock('warning');
+
 require('configureForRelayOSS');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
@@ -400,6 +402,15 @@ describe('RelayContainer.setVariables', function() {
       expect(prevVariables).toEqual({site: 'mobile'});
       expect(mockInstance.state.relayProp.variables).not.toBe(prevVariables);
     });
+
+    it('warns when unknown variable is set', () => {
+      mockInstance.setVariables({unknown: 'www'});
+      expect([
+        'RelayContainer: Expected query variable `%s` to be initialized in ' +
+        '`initialVariables`.',
+        'unknown',
+      ]).toBeWarnedNTimes(1);
+    });
   });
 
   describe('prepareVariables()', () => {
@@ -453,6 +464,18 @@ describe('RelayContainer.setVariables', function() {
       environment.primeCache.mock.requests[0].succeed();
       // ...but is invisible to the component
       expect(mockInstance.state.relayProp.variables).toEqual({site: 'www'});
+    });
+
+    it('warns when `prepareVariables` introduces unknown variables', () => {
+      prepareVariables.mockImplementation(
+        (variables, route) => ({unknown: 0})
+      );
+      mockInstance.setVariables({site: 'www'});
+      expect([
+        'RelayContainer: Expected query variable `%s` to be initialized in ' +
+        '`initialVariables`.',
+        'unknown',
+      ]).toBeWarnedNTimes(1);
     });
   });
 

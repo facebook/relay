@@ -282,8 +282,9 @@ describe('RelayDefaultNetworkLayer', () => {
       jest.runAllTimers();
 
       expect(rejectCallback).toBeCalled();
+
       expect(rejectCallback.mock.calls[0][0].message).toEqual(
-        'Unexpected token /'
+        RelayTestUtils.getJSONTokenError('/', 2)
       );
     });
 

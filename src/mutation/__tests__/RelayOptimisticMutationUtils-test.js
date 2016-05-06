@@ -222,7 +222,7 @@ describe('RelayOptimisticMutationUtils', () => {
         'RelayOptimisticMutationUtils: Malformed or unsupported data key, ' +
         '`url(site)`. Only booleans, strings, and numbers are currently ' +
         'supported, and commas are required. Parse failure reason was ' +
-        '`Unexpected token s`.'
+        '`' + RelayTestUtils.getJSONTokenError('s', 1) + '`.'
       );
     });
 
@@ -383,7 +383,7 @@ describe('RelayOptimisticMutationUtils', () => {
         'RelayOptimisticMutationUtils: Malformed or unsupported data key, ' +
         '`url(site)`. Only booleans, strings, and numbers are currently ' +
         'supported, and commas are required. Parse failure reason was ' +
-        '`Unexpected token s`.'
+        '`' + RelayTestUtils.getJSONTokenError('s', 1) + '`.'
       );
     });
   });

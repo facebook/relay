@@ -151,8 +151,12 @@ class RelayMutationQueue {
     return mutationTransaction;
   }
 
-  getTransaction(id: ClientMutationID): RelayMutationTransaction {
-    return this._get(id).mutationTransaction;
+  getTransaction(id: ClientMutationID): ?RelayMutationTransaction {
+    const transaction = this._pendingTransactionMap[id];
+    if (transaction) {
+      return transaction.mutationTransaction;
+    }
+    return null;
   }
 
   getError(id: ClientMutationID): ?Error {

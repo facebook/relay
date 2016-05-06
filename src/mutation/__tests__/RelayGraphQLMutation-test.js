@@ -294,7 +294,7 @@ describe('RelayGraphQLMutation', () => {
     });
 
     describe('updating an existing node', () => {
-      pit('can toggle a boolean', () => {
+      it('can toggle a boolean', () => {
         writePayload(
           getNode(Relay.QL`
             query {
@@ -401,69 +401,69 @@ describe('RelayGraphQLMutation', () => {
           },
         };
         request.resolve(result);
-        return request.then(() => {
-          // Item is removed from queue.
-          expect(() => queue.getStatus(id))
-            .toFailInvariant(
-              'RelayMutationQueue: `' + id + '` is not a valid pending ' +
-              'transaction ID.'
-            );
+        jest.runAllTimers();
 
-          // Success callback is notified.
-          expect(callbacks.onSuccess.mock.calls.length).toBe(1);
-          expect(callbacks.onSuccess.mock.calls[0]).toEqual([result.response]);
+        // Item is removed from queue.
+        expect(() => queue.getStatus(id))
+          .toFailInvariant(
+            'RelayMutationQueue: `' + id + '` is not a valid pending ' +
+            'transaction ID.'
+          );
 
-          //  Store is updated
-          const data = readData(
-            getNode(Relay.QL`
-              fragment on Feedback {
-                doesViewerLike
-                id
-                likers(first: "10") {
-                  count
-                  edges {
-                    cursor
-                    node {
-                      id
-                      name
-                    }
-                  }
-                  pageInfo {
-                    hasNextPage
-                    hasPreviousPage
+        // Success callback is notified.
+        expect(callbacks.onSuccess.mock.calls.length).toBe(1);
+        expect(callbacks.onSuccess.mock.calls[0]).toEqual([result.response]);
+
+        //  Store is updated
+        const data = readData(
+          getNode(Relay.QL`
+            fragment on Feedback {
+              doesViewerLike
+              id
+              likers(first: "10") {
+                count
+                edges {
+                  cursor
+                  node {
+                    id
+                    name
                   }
                 }
+                pageInfo {
+                  hasNextPage
+                  hasPreviousPage
+                }
               }
-            `),
-            'aFeedbackId'
-          );
-          expect(data).toMatchRecord({
-            doesViewerLike: true,
-            id: 'aFeedbackId',
-            likers: {
-              count: 2,
-              edges: [
-                {
-                  cursor: 'cursor1',
-                  node: {
-                    id: '1055790163',
-                    name: 'Yuzhi',
-                  },
+            }
+          `),
+          'aFeedbackId'
+        );
+        expect(data).toMatchRecord({
+          doesViewerLike: true,
+          id: 'aFeedbackId',
+          likers: {
+            count: 2,
+            edges: [
+              {
+                cursor: 'cursor1',
+                node: {
+                  id: '1055790163',
+                  name: 'Yuzhi',
                 },
-                {
-                  cursor: 'cursor2',
-                  node: {
-                    id: '660361306',
-                    name: 'Greg',
-                  },
-                },
-              ],
-              pageInfo: {
-                hasNextPage: false,
-                hasPreviousPage: false,
               },
+              {
+                cursor: 'cursor2',
+                node: {
+                  id: '660361306',
+                  name: 'Greg',
+                },
+              },
+            ],
+            pageInfo: {
+              hasNextPage: false,
+              hasPreviousPage: false,
             },
-          });
+          },
         });
       });
 

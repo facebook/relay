@@ -294,7 +294,7 @@ describe('RelayGraphQLMutation', () => {
     });
 
     describe('updating an existing node', () => {
-      it('can toggle a boolean', () => {
+      pit('can toggle a boolean', async () => {
         writePayload(
           getNode(Relay.QL`
             query {
@@ -400,8 +400,7 @@ describe('RelayGraphQLMutation', () => {
             },
           },
         };
-        request.resolve(result);
-        jest.runAllTimers();
+        await request.resolve(result);
 
         // Item is removed from queue.
         expect(() => queue.getStatus(id))

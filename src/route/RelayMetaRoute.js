@@ -8,7 +8,6 @@
  *
  * @providesModule RelayMetaRoute
  * @flow
- * @typechecks
  */
 
 'use strict';

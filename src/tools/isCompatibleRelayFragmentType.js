@@ -8,7 +8,6 @@
  *
  * @providesModule isCompatibleRelayFragmentType
  * @flow
- * @typechecks
  */
 
 'use strict';

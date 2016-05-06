@@ -8,7 +8,6 @@
  *
  * @providesModule RelayContainerComparators
  * @flow
- * @typechecks
  */
 
 'use strict';

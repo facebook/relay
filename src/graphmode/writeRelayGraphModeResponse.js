@@ -8,7 +8,6 @@
  *
  * @providesModule writeRelayGraphModeResponse
  * @flow
- * @typechecks
  */
 
 'use strict';

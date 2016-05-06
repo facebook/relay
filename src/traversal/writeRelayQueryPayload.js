@@ -8,7 +8,6 @@
  *
  * @providesModule writeRelayQueryPayload
  * @flow
- * @typechecks
  */
 
 'use strict';

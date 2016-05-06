@@ -8,7 +8,6 @@
  *
  * @providesModule directivesToGraphQL
  * @flow
- * @typechecks
  */
 
 'use strict';

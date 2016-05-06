@@ -8,7 +8,6 @@
  *
  * @providesModule RelayQueryConfig
  * @flow
- * @typechecks
  */
 
 'use strict';

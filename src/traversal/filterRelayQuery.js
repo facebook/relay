@@ -8,7 +8,6 @@
  *
  * @providesModule filterRelayQuery
  * @flow
- * @typechecks
  */
 
 'use strict';

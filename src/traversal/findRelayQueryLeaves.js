@@ -8,7 +8,6 @@
  *
  * @providesModule findRelayQueryLeaves
  * @flow
- * @typechecks
  */
 
 'use strict';

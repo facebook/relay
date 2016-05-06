@@ -8,7 +8,6 @@
  *
  * @providesModule generateClientEdgeID
  * @flow
- * @typechecks
  */
 
 'use strict';

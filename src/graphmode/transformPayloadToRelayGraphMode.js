@@ -8,7 +8,6 @@
  *
  * @providesModule transformPayloadToRelayGraphMode
  * @flow
- * @typechecks
  */
 
 'use strict';

@@ -8,7 +8,6 @@
  *
  * @providesModule restoreRelayCacheData
  * @flow
- * @typechecks
  */
 
 'use strict';

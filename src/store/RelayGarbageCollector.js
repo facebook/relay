@@ -8,7 +8,6 @@
  *
  * @providesModule RelayGarbageCollector
  * @flow
- * @typechecks
  */
 
 'use strict';

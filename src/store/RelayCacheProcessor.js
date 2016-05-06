@@ -8,7 +8,6 @@
  *
  * @providesModule RelayCacheProcessor
  * @flow
- * @typechecks
  */
 
 'use strict';

@@ -8,7 +8,6 @@
  *
  * @providesModule RelayRecordStore
  * @flow
- * @typechecks
  */
 
 'use strict';

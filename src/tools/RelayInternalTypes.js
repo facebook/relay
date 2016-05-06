@@ -8,7 +8,6 @@
  *
  * @providesModule RelayInternalTypes
  * @flow
- * @typechecks
  */
 
 'use strict';

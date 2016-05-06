@@ -8,7 +8,6 @@
  *
  * @providesModule testEditDistance
  * @flow
- * @typechecks
  *
  */
 

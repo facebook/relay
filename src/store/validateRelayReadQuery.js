@@ -8,7 +8,6 @@
  *
  * @providesModule validateRelayReadQuery
  * @flow
- * @typechecks
  */
 
 'use strict';

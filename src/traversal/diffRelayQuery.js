@@ -8,7 +8,6 @@
  *
  * @providesModule diffRelayQuery
  * @flow
- * @typechecks
  */
 
 'use strict';

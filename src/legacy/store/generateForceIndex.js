@@ -8,7 +8,6 @@
  *
  * @providesModule generateForceIndex
  * @flow
- * @typechecks
  */
 
 'use strict';

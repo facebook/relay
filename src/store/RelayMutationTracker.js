@@ -8,7 +8,6 @@
  *
  * @providesModule RelayMutationTracker
  * @flow
- * @typechecks
  */
 
 'use strict';

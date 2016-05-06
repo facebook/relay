@@ -8,7 +8,6 @@
  *
  * @providesModule RelayFragmentPointer
  * @flow
- * @typechecks
  */
 
 'use strict';

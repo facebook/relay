@@ -8,7 +8,6 @@
  *
  * @providesModule splitDeferredRelayQueries
  * @flow
- * @typechecks
  */
 
 'use strict';

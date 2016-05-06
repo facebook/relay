@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "prepublish": "npm run build",
     "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; npm run jest || EXIT=$?; exit $EXIT; }; f",
-    "typecheck": "flow check src/",
+    "typecheck": "flow check ${TRAVIS:+--max-workers=1} src/",
     "update-fixtures": "babel-node ./src/tools/regenerateFixtures.js",
     "update-schema": "babel-node ./src/tools/generateSchemaJson.js"
   },

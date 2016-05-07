@@ -15,7 +15,6 @@ require('configureForRelayOSS');
 
 jest
   .unmock('GraphQLRange')
-  .unmock('getRangeBehavior')
   .unmock('GraphQLSegment');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');

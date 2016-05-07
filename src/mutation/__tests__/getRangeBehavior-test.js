@@ -11,9 +11,6 @@
 
 'use strict';
 
-jest
-  .unmock('getRangeBehavior');
-
 const getRangeBehavior = require('getRangeBehavior');
 
 describe('getRangeBehavior()', () => {

@@ -23,13 +23,14 @@ const METADATA_KEYS = {
   '__status__': true,
 };
 
-function toString(maybeNull) {
-  if (maybeNull === null || Array.isArray(maybeNull)) {
-    return JSON.stringify(maybeNull);
+function toString(x) {
+  if (!x) {
+    return '' + x;
   } else {
-    return JSON.stringify(maybeNull.toString());
+    return JSON.stringify(x);
   }
 }
+
 function getType(a) {
   return Object.prototype.toString.call(a);
 }

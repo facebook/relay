@@ -103,7 +103,7 @@ describe('RelayTestUtils', () => {
       it('compares null', () => {
         expect(comparator(null, null)).toPass();
         expect(comparator(null, 1)).toFail(
-          'Expected value to be "1", but got null'
+          'Expected value to be 1, but got null'
         );
       });
 
@@ -172,6 +172,15 @@ describe('RelayTestUtils', () => {
           {__dataID__: 'client:0', foo: 1, bar: {other: 'thing'}},
           {foo: 1, bar: {other: 'thing'}},
         )).toPass();
+      });
+
+      it('deals with undefined values', () => {
+        expect(comparator(
+          undefined,
+          {thing: 1}
+        )).toFail(
+          /^Expected value to be {\"thing\":1}, but got undefined$/
+        );
       });
 
       it('does not handle "exotic" objects', () => {

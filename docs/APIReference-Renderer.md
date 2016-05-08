@@ -112,13 +112,12 @@ If the callback returns `undefined`, the previously rendered view (or nothing if
   environment={Relay.Store}
   render={({done, error, props, retry, stale}) => {
         if (error) {
-            return <ErrorComponent />;
+          return <ErrorComponent />;
         } else if (props) {
           return <ProfilePicture {...props} />;
         } else {
           return <LoadingComponent />;
         }
-        return undefined;
       }}
 />
 ```

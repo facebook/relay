@@ -58,7 +58,7 @@ export function checkHidingSpotForTreasure(id) {
   turnsRemaining--;
   var hidingSpot = getHidingSpot(id);
   hidingSpot.hasBeenChecked = true;
-};
+}
 export function getHidingSpot(id) {
   return hidingSpots.find(hs => hs.id === id)
 }

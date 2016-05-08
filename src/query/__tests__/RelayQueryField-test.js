@@ -22,7 +22,7 @@ const RelayVariable = require('RelayVariable');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 
 describe('RelayQueryField', () => {
-  const {getNode} = RelayTestUtils;
+  const {getNode, getVerbatimNode} = RelayTestUtils;
 
   let aliasedIdField;
   let cursorField;
@@ -81,7 +81,7 @@ describe('RelayQueryField', () => {
 
     const friendsScalarFieldRQL = Relay.QL`
       fragment on User {
-        friend_scalar: friends
+        friends_scalar: friends
           (first:"10",after:"offset",orderby:"name") {
           edges {
             node {
@@ -287,7 +287,7 @@ describe('RelayQueryField', () => {
 
   it('returns the schema/application names', () => {
     expect(friendsScalarField.getSchemaName()).toBe('friends');
-    expect(friendsScalarField.getApplicationName()).toBe('friend_scalar');
+    expect(friendsScalarField.getApplicationName()).toBe('friends_scalar');
 
     expect(friendsVariableField.getSchemaName()).toBe('friends');
     expect(friendsVariableField.getApplicationName()).toBe('friends_variable');
@@ -431,7 +431,9 @@ describe('RelayQueryField', () => {
   describe('getSerializationKey()', () => {
     it('serializes all calls', () => {
       expect(friendsScalarField.getSerializationKey()).toBe(
-        generateRQLFieldAlias('friends.after(offset).first(10).orderby(name)')
+        generateRQLFieldAlias(
+          'friends.friends_scalar.after(offset).first(10).orderby(name)'
+        )
       );
     });
 
@@ -457,6 +459,26 @@ describe('RelayQueryField', () => {
       const pictureVariable =
         getNode(pictureVariableRQL, variables).getChildren()[0];
       expect(pictureVariable.getSerializationKey()).toBe(key);
+    });
+
+    it('generates unique names for possibly conflicting values', () => {
+      const fragment = getVerbatimNode(Relay.QL`
+        fragment on User {
+          varSize: profilePicture(size: $size) { uri }
+          constSize: profilePicture(size: "100") { uri }
+        }
+      `, {
+        size: 100,
+      });
+      // if the serialization key used the schema name it would collide
+      // when $size equals the constant.
+      const varSize100 =
+        generateRQLFieldAlias('profilePicture.varSize.size(100)');
+      const constSize100 =
+        generateRQLFieldAlias('profilePicture.constSize.size(100)');
+      const children = fragment.getChildren();
+      expect(children[0].getSerializationKey()).toBe(varSize100);
+      expect(children[1].getSerializationKey()).toBe(constSize100);
     });
   });
 
@@ -648,7 +670,7 @@ describe('RelayQueryField', () => {
       {name: 'first', value: 25},
     ]);
     expect(clonedFeed.getSerializationKey()).toEqual(
-      generateRQLFieldAlias('friends.first(25)')
+      generateRQLFieldAlias('friends.friends_variable.first(25)')
     );
     expect(clonedFeed.getStorageKey()).toEqual('friends');
 

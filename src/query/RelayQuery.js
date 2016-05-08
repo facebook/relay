@@ -1124,13 +1124,16 @@ class RelayQueryField extends RelayQueryNode {
   getSerializationKey(): string {
     let serializationKey = this.__serializationKey__;
     if (!serializationKey) {
-      serializationKey = generateRQLFieldAlias(
-        this.getSchemaName() +
-        this.getCallsWithValues()
-          .map(serializeRelayQueryCall)
-          .sort()
-          .join('')
-      );
+      let key = this.getSchemaName();
+      const alias = (this.__concreteNode__: ConcreteField).alias;
+      if (alias != null) {
+        key += '.' + alias;
+      }
+      key += this.getCallsWithValues()
+        .map(serializeRelayQueryCall)
+        .sort()
+        .join('');
+      serializationKey = generateRQLFieldAlias(key);
       this.__serializationKey__ = serializationKey;
     }
     return serializationKey;

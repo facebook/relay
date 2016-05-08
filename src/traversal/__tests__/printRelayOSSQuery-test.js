@@ -260,20 +260,23 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(Relay.QL`
         query FooQuery {
           defaultSettings {
+            env: notifications(environment: $env)
             web: notifications(environment: WEB)
-            foo: notifications(environment: $env)
           }
         }
       `, {
         env: enumValue,
       });
-      const alias = generateRQLFieldAlias('notifications.environment(WEB)');
+      const envAlias =
+        generateRQLFieldAlias('notifications.env.environment(WEB)');
+      const webAlias =
+        generateRQLFieldAlias('notifications.web.environment(WEB)');
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query FooQuery($environment_0: Environment!) {
           defaultSettings {
-            ${alias}: notifications(environment: $environment_0),
-            ${alias}: notifications(environment: $environment_0)
+            ${envAlias}: notifications(environment: $environment_0),
+            ${webAlias}: notifications(environment: $environment_0)
           }
         }
       `);
@@ -302,7 +305,10 @@ describe('printRelayOSSQuery', () => {
         query1,
         query2,
       });
-      const alias = generateRQLFieldAlias('storySearch.query({"query":"foo"})');
+      const fooAlias =
+        generateRQLFieldAlias('storySearch.foo.query({"query":"foo"})');
+      const barAlias =
+        generateRQLFieldAlias('storySearch.bar.query({"query":"foo"})');
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(`
         query FooQuery($id_0: ID!, $query_1: StorySearchInput!) {
@@ -313,10 +319,10 @@ describe('printRelayOSSQuery', () => {
           }
         }
         fragment F0 on User {
-          ${alias}: storySearch(query: $query_1) {
+          ${fooAlias}: storySearch(query: $query_1) {
             id
           },
-          ${alias}: storySearch(query: $query_1) {
+          ${barAlias}: storySearch(query: $query_1) {
             id
           },
           id

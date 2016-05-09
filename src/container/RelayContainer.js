@@ -460,11 +460,17 @@ function createContainerComponent(
       queryData: {[propName: string]: mixed};
       relayProp: RelayProp;
     } {
-      const nextVariables = getVariablesWithPropOverrides(
+      let nextVariables = getVariablesWithPropOverrides(
         spec,
         props,
         prevVariables
       );
+      if (prepareVariables) {
+        // TODO: Allow routes without names, #7856965.
+        const metaRoute = RelayMetaRoute.get(route.name);
+        nextVariables = prepareVariables(nextVariables, metaRoute);
+        validateVariables(initialVariables, nextVariables);
+      }
       this._updateFragmentPointers(props, route, nextVariables);
       this._updateFragmentResolvers(environment);
       return {
@@ -778,9 +784,8 @@ function createContainerComponent(
     // TODO: Allow routes without names, #7856965.
     const metaRoute = RelayMetaRoute.get(route.name);
     if (prepareVariables) {
-      const newVariables = prepareVariables(variables, metaRoute);
-      validateVariables(initialVariables, newVariables);
-      variables = mergeVariables(variables, newVariables);
+      variables = prepareVariables(variables, metaRoute);
+      validateVariables(initialVariables, variables);
     }
     return RelayQuery.Fragment.create(
       fragment,

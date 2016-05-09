@@ -446,7 +446,8 @@ describe('RelayContainer.setVariables', function() {
       prepareVariables.mockImplementation((variables, route) => nextVariables);
       mockInstance.setVariables({site: 'www'});
 
-      const calls = prepareVariables.mock.calls[1];
+      const prepareVariablesCalls = prepareVariables.mock.calls;
+      const calls = prepareVariablesCalls[prepareVariablesCalls.length - 1];
       expect(calls[0]).toEqual({site: 'www'});
       expect(calls[1]).toBe(
         RelayMetaRoute.get(mockInstance.context.route.name)

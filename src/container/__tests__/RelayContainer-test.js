@@ -854,7 +854,9 @@ describe('RelayContainer', function() {
 
     const propNamesA = Object.keys(propsA);
     const propNamesB = Object.keys(propsB);
-    expect(propNamesA).toEqual(propNamesB);
+
+    // Fix for V8 bug where insertion order isn't preserved (see #10804655)
+    expect(propNamesA.sort()).toEqual(propNamesB.sort());
 
     propNamesA.forEach(propName => {
       expect(propsA[propName]).toBe(propsB[propName]);

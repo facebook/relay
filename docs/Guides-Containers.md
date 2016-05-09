@@ -25,7 +25,6 @@ class ProfilePicture extends React.Component {
     // {
     //   profilePhoto: {
     //     uri,
-    //     size
     //   }
     // }
     var user = this.props.user;

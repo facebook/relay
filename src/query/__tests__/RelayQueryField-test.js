@@ -461,24 +461,32 @@ describe('RelayQueryField', () => {
       expect(pictureVariable.getSerializationKey()).toBe(key);
     });
 
-    it('generates unique names for possibly conflicting values', () => {
+    it('includes the alias on fields with calls', () => {
       const fragment = getVerbatimNode(Relay.QL`
         fragment on User {
-          varSize: profilePicture(size: $size) { uri }
-          constSize: profilePicture(size: "100") { uri }
+          const: profilePicture(size: "100") { uri }
+          var: profilePicture(size: $size) { uri }
         }
       `, {
         size: 100,
       });
-      // if the serialization key used the schema name it would collide
-      // when $size equals the constant.
-      const varSize100 =
-        generateRQLFieldAlias('profilePicture.varSize.size(100)');
-      const constSize100 =
-        generateRQLFieldAlias('profilePicture.constSize.size(100)');
       const children = fragment.getChildren();
-      expect(children[0].getSerializationKey()).toBe(varSize100);
-      expect(children[1].getSerializationKey()).toBe(constSize100);
+      expect(children[0].getSerializationKey()).toBe(
+        generateRQLFieldAlias('profilePicture.const.size(100)')
+      );
+      expect(children[1].getSerializationKey()).toBe(
+        generateRQLFieldAlias('profilePicture.var.size(100)')
+      );
+    });
+
+    it('excludes the alias on fields without calls', () => {
+      const fragment = getVerbatimNode(Relay.QL`
+        fragment on User {
+          alias: username
+        }
+      `);
+      const children = fragment.getChildren();
+      expect(children[0].getSerializationKey()).toBe('username');
     });
   });
 

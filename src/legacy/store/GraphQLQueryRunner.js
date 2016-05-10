@@ -230,9 +230,7 @@ function runQueries(
             );
             storeData.restoreQueriesFromCache(requiredQueryMap, {
               onSuccess: () => {
-                if (hasItems(remainingRequiredFetchMap)) {
-                  readyState.update({ready: true, stale: true});
-                }
+                readyState.update({ready: true, stale: true});
               },
             });
           } else {

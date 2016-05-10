@@ -25,6 +25,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 const checkRelayQueryData = require('checkRelayQueryData');
 const diffRelayQuery = require('diffRelayQuery');
+const resolveImmediate = require('resolveImmediate');
 const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 const warning = require('warning');
 
@@ -310,7 +311,7 @@ describe('GraphQLQueryRunner', () => {
       jest.fn(() => true);
     RelayStoreData.prototype.restoreQueriesFromCache =
       jest.fn((queries, callback) => {
-        callback.onSuccess();
+        resolveImmediate(() => callback.onSuccess());
       });
     mockSplitDeferredQueries();
 
@@ -320,6 +321,52 @@ describe('GraphQLQueryRunner', () => {
     expect(mockCallback.mock.calls).toEqual([
       [{aborted: false, done: false, error: null, ready: false, stale: false}],
       [{aborted: false, done: false, error: null, ready: true, stale: true}],
+    ]);
+  });
+
+  it('calls the callback if disk cache read completes after a network error', () => {
+    diffRelayQuery.mockImplementation(query => [query]);
+    RelayStoreData.prototype.hasCacheManager =
+      jest.fn(() => true);
+    let cacheCallback;
+    RelayStoreData.prototype.restoreQueriesFromCache =
+      jest.fn((queries, callback) => {cacheCallback = callback.onSuccess;});
+    mockSplitDeferredQueries();
+    const error = {};
+    queryRunner.run(mockQuerySet, mockCallback);
+    pendingQueryTracker.add.mock.fetches[0].reject(error);
+    jest.runAllTimers();
+    cacheCallback();
+    jest.runAllTimers();
+
+    expect(mockCallback.mock.calls).toEqual([
+      [{aborted: false, done: false, error: null, ready: false, stale: false}],
+      [{aborted: false, done: false, error: error, ready: false, stale: false}],
+      [{aborted: false, done: false, error: error, ready: true, stale: true}],
+    ]);
+    jest.runAllTimers();
+
+  });
+
+  it('calls the callback if disk cache ready complete after queries are resolved', () => {
+    diffRelayQuery.mockImplementation(query => [query]);
+    RelayStoreData.prototype.hasCacheManager =
+      jest.fn(() => true);
+    let cacheCallback;
+    RelayStoreData.prototype.restoreQueriesFromCache =
+      jest.fn((queries, callback) => {cacheCallback = callback.onSuccess;});
+    mockSplitDeferredQueries();
+
+    queryRunner.run(mockQuerySet, mockCallback);
+    pendingQueryTracker.add.mock.fetches[0].resolve();
+    pendingQueryTracker.add.mock.fetches[1].resolve();
+    jest.runAllTimers();
+    cacheCallback();
+    jest.runAllTimers();
+
+    expect(mockCallback.mock.calls).toEqual([
+      [{aborted: false, done: false, error: null, ready: false, stale: false}],
+      [{aborted: false, done: true, error: null, ready: true, stale: false}],
     ]);
   });
 

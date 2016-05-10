@@ -134,4 +134,28 @@ describe('RelayReadyState', () => {
     expect(warning).not.toBeCalled();
     expect(onReadyStateChange.mock.calls.length).toBe(1);
   });
+
+  it('ignores stale ready state change after being done', () => {
+    readyState.update({done: true, ready: true});
+    jest.runAllTimers();
+    readyState.update({ready: true, stale: true});
+    jest.runAllTimers();
+
+    expect(warning).not.toBeCalled();
+    expect(onReadyStateChange.mock.calls.length).toBe(1);
+  });
+
+  it('invokes stale ready state change after an error occurred', () => {
+    const error =  new Error('Expected error.');
+    readyState.update({error});
+    jest.runAllTimers();
+    readyState.update({ready: true, stale: true});
+    jest.runAllTimers();
+
+    expect(warning).not.toBeCalled();
+    expect(onReadyStateChange.mock.calls.length).toBe(2);
+    expect(onReadyStateChange.mock.calls[1]).toEqual(
+      [{aborted: false, done: false, error, ready: true, stale: true}]
+    );
+  });
 });

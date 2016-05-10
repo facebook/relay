@@ -18,6 +18,7 @@ import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
 import type RelayQuery from 'RelayQuery';
+import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
 import type {TaskScheduler} from 'RelayTaskQueue';
@@ -112,6 +113,13 @@ class RelayEnvironment {
 
   injectNetworkLayer(networkLayer: ?NetworkLayer) {
     this._storeData.getNetworkLayer().injectImplementation(networkLayer);
+  }
+
+  /**
+   * @internal
+   */
+  injectQueryTracker(queryTracker: ?RelayQueryTracker) {
+    this._storeData.injectQueryTracker(queryTracker);
   }
 
   addNetworkSubscriber(

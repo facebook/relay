@@ -19,6 +19,7 @@ jest
   .unmock('RelayMutation')
   .unmock('RelayNetworkLayer');
 
+const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayEnvironment = require('RelayEnvironment');
@@ -456,6 +457,221 @@ describe('RelayGraphQLMutation', () => {
                 node: {
                   id: '660361306',
                   name: 'Greg',
+                },
+              },
+            ],
+            pageInfo: {
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+          },
+        });
+      });
+
+      it('can prepend to a range', () => {
+        writePayload(
+          getNode(Relay.QL`
+            query {
+              node(id: "aFeedbackId") {
+                ... on Feedback {
+                  id
+                  topLevelComments(first: "10") {
+                    edges {
+                      node {
+                        body {
+                          text
+                        }
+                        feedback {
+                          doesViewerLike
+                          id
+                        }
+                        id
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          `),
+          {
+            node: {
+              __typename: 'Feedback',
+              id: 'aFeedbackId',
+              topLevelComments: {
+                edges: [
+                  {
+                    cursor: 'cursor1',
+                    node: {
+                      __typename: 'Comment',
+                      body: {
+                        text: 'First post!',
+                      },
+                      feedback: {
+                        doesViewerLike: false,
+                        id: 'aCommentFeedbackId',
+                      },
+                      id: 'aCommentId',
+                    },
+                  },
+                ],
+                [PAGE_INFO]: {
+                  [HAS_NEXT_PAGE]: false,
+                  [HAS_PREV_PAGE]: false,
+                },
+              },
+            },
+          }
+        );
+
+        const callbacks = {
+          onFailure: jest.fn(),
+          onSuccess: jest.fn(),
+        };
+        const query = Relay.QL`mutation CommentAddMutation {
+          commentCreate(input: $input) {
+            clientMutationId
+            feedbackCommentEdge {
+              cursor
+              node {
+                body {
+                  text
+                }
+                feedback {
+                  doesViewerLike
+                }
+              }
+              source {
+                id
+              }
+            }
+          }
+        }`;
+        const variables = {
+          input: {
+            feedbackId: 'aFeedbackId',
+            message: {
+              text: 'Hello, world!',
+            },
+          },
+        };
+        const mutation = new RelayGraphQLMutation(
+          query,
+          variables,
+          null,
+          environment,
+          callbacks
+        );
+        expect(sendMutation.mock.calls.length).toBe(0);
+
+        const configs = [{
+          type: 'RANGE_ADD',
+          connectionName: 'topLevelComments',
+          edgeName: 'feedbackCommentEdge',
+          parentID: 'aFeedbackId',
+          parentName: 'feedback',
+          rangeBehaviors: {
+            '': GraphQLMutatorConstants.PREPEND,
+            'if(true)': GraphQLMutatorConstants.PREPEND,
+          },
+        }];
+        const transaction = mutation.commit(configs);
+        const id = transaction.getID();
+
+        const request = requests[0];
+        const result = {
+          response: {
+            commentCreate: {
+              clientMutationId: id,
+              feedbackCommentEdge: {
+                __typename: 'CommentsEdge',
+                cursor: 'cursor2',
+                node: {
+                  body: {
+                    text: 'Hello, world!',
+                  },
+                  feedback: {
+                    doesViewerLike: false,
+                    id: 'otherCommentFeedbackId',
+                  },
+                  id: 'otherCommentId',
+                },
+                source: {
+                  id: 'aFeedbackId',
+                },
+              },
+            },
+          },
+        };
+        request.resolve(result);
+        jest.runAllTimers();
+
+        // Item is removed from queue.
+        expect(() => queue.getStatus(id))
+          .toFailInvariant(
+            'RelayMutationQueue: `' + id + '` is not a valid pending ' +
+            'transaction ID.'
+          );
+
+        // Success callback is notified.
+        expect(callbacks.onSuccess.mock.calls.length).toBe(1);
+        expect(callbacks.onSuccess.mock.calls[0]).toEqual([result.response]);
+
+        //  Store is updated
+        const data = readData(
+          getNode(Relay.QL`
+            fragment on Feedback {
+              id
+              topLevelComments(first: "10") {
+                edges {
+                  cursor
+                  node {
+                    body {
+                      text
+                    }
+                    feedback {
+                      doesViewerLike
+                      id
+                    }
+                    id
+                  }
+                }
+                pageInfo {
+                  hasNextPage
+                  hasPreviousPage
+                }
+              }
+            }
+          `),
+          'aFeedbackId'
+        );
+        expect(data).toMatchRecord({
+          id: 'aFeedbackId',
+          topLevelComments: {
+            edges: [
+              {
+                cursor: 'cursor2',
+                node: {
+                  body: {
+                    text: 'Hello, world!',
+                  },
+                  feedback: {
+                    doesViewerLike: false,
+                    id: 'otherCommentFeedbackId',
+                  },
+                  id: 'otherCommentId',
+                },
+              },
+              {
+                cursor: 'cursor1',
+                node: {
+                  body: {
+                    text: 'First post!',
+                  },
+                  feedback: {
+                    doesViewerLike: false,
+                    id: 'aCommentFeedbackId',
+                  },
+                  id: 'aCommentId',
                 },
               },
             ],

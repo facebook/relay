@@ -366,8 +366,8 @@ describe('RelayGraphQLMutation', () => {
         const likers = generateRQLFieldAlias('likers.first(10)');
         const result = {
           response: {
-            clientMutationId: id,
             feedbackLike: {
+              clientMutationId: id,
               feedback: {
                 id: 'aFeedbackId',
                 doesViewerLike: true,

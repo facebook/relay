@@ -2099,4 +2099,23 @@ describe('GraphQLRange', () => {
       edge99.__dataID__,
     ]);
   });
+
+  it('returns correct segmented edge ids', () => {
+    // Starts off with two empty segments.
+    expect(range.getSegmentedEdgeIDs()).toEqual([[],[]]);
+
+    const queryCalls = [
+      {name: 'first', value: 3},
+    ];
+    const pageInfo = {
+      [HAS_NEXT_PAGE]: true,
+      [HAS_PREV_PAGE]: false,
+    };
+
+    range.addItems(queryCalls, first3Edges, pageInfo);
+    expect(range.getSegmentedEdgeIDs()).toEqual([
+      [edge1.__dataID__, edge2.__dataID__, edge3.__dataID__],
+      [],
+    ]);
+  });
 });

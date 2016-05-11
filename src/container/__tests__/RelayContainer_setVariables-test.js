@@ -415,10 +415,11 @@ describe('RelayContainer.setVariables', function() {
 
   describe('prepareVariables()', () => {
     let prepareVariables;
+    let renderer;
 
     beforeEach(() => {
       entityQuery = jest.fn(
-        () => Relay.QL`fragment on Node{url(site:$site)}`
+        () => Relay.QL`fragment on Node{profilePicture(size:$size)}`
       );
       render = jest.fn(() => <div />);
       prepareVariables = jest.fn(
@@ -432,23 +433,102 @@ describe('RelayContainer.setVariables', function() {
         fragments: {
           entity: entityQuery,
         },
-        initialVariables: {site: 'mobile'},
+        initialVariables: {
+          size: 'thumbnail',
+          prepared: false,
+        },
         prepareVariables,
       });
-      mockInstance = RelayTestUtils.createRenderer(domContainer).render(
-        genMockPointer => <MockContainer entity={genMockPointer('42')} />,
+      renderer = RelayTestUtils.createRenderer(domContainer);
+    });
+
+    it('calls `prepareVariables` on mount', () => {
+      prepareVariables.mockImplementation((variables, route) => {
+        // prepared variables should never be passed back to `prepareVariables`
+        expect(variables.prepared).toBe(false);
+        return {
+          size: 32, // string -> int
+          prepared: true, // false -> true
+        };
+      });
+      let resolvedVariables = null;
+      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(resolved => {
+        resolvedVariables = resolved.getVariables();
+      });
+      mockInstance = renderer.render(
+        genMockPointer =>
+          <MockContainer entity={genMockPointer('42')} size="medium" />,
         environment
       );
+      // prepareVariables output used as props.relay.variables
+      expect(mockInstance.state.relayProp.variables).toEqual({
+        size: 32,
+        prepared: true,
+      });
+      // ...and used read fragment data
+      expect(resolvedVariables).toEqual({
+        size: 32,
+        prepared: true,
+      });
+    });
+
+    it('calls `prepareVariables` in componentWillReceiveProps', () => {
+      prepareVariables.mockImplementation((variables, route) => {
+        // prepared variables should never be passed back to `prepareVariables`
+        expect(variables.prepared).toBe(false);
+        return {
+          size: variables.size === 'medium' ? 32 : 64, // string -> int
+          prepared: true, // false -> true
+        };
+      });
+      mockInstance = renderer.render(
+        genMockPointer =>
+          <MockContainer entity={genMockPointer('42')} size="medium" />,
+        environment
+      );
+      // update with new size
+      let resolvedVariables = null;
+      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(resolved => {
+        resolvedVariables = resolved.getVariables();
+      });
+      mockInstance = renderer.render(
+        genMockPointer =>
+          <MockContainer entity={genMockPointer('42')} size="thumbnail" />,
+        environment
+      );
+      // prepareVariables output used as props.relay.variables
+      expect(mockInstance.state.relayProp.variables).toEqual({
+        size: 64,
+        prepared: true,
+      });
+      // ...and used read fragment data
+      expect(resolvedVariables).toEqual({
+        size: 64,
+        prepared: true,
+      });
     });
 
     it('calls `prepareVariables` when `setVariables` is called', () => {
-      const nextVariables = {site: 'mobile'};
-      prepareVariables.mockImplementation((variables, route) => nextVariables);
-      mockInstance.setVariables({site: 'www'});
+      prepareVariables.mockImplementation((variables, route) => {
+        // prepared variables should never be passed back to `prepareVariables`
+        expect(variables.prepared).toBe(false);
+        return {
+          size: 64, // string -> int
+          prepared: true, // false -> true
+        };
+      });
+      mockInstance = renderer.render(
+        genMockPointer => <MockContainer entity={genMockPointer('42')} />,
+        environment
+      );
+      mockInstance.setVariables({size: 'medium'});
 
       const prepareVariablesCalls = prepareVariables.mock.calls;
       const calls = prepareVariablesCalls[prepareVariablesCalls.length - 1];
-      expect(calls[0]).toEqual({site: 'www'});
+      expect(calls[0]).toEqual({
+        size: 'medium',
+        prepared: false,
+      });
       expect(calls[1]).toBe(
         RelayMetaRoute.get(mockInstance.context.route.name)
       );
@@ -459,19 +539,38 @@ describe('RelayContainer.setVariables', function() {
       const fragment = query.getChildren().find(
         child => child instanceof RelayQuery.Fragment
       );
-      expect(fragment.getVariables()).toEqual(nextVariables);
+      expect(fragment.getVariables()).toEqual({
+        size: 64,
+        prepared: true,
+      });
 
+      let resolvedVariables = null;
+      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(resolved => {
+        resolvedVariables = resolved.getVariables();
+      });
       jest.runAllTimers();
       environment.primeCache.mock.requests[0].succeed();
-      // ...but is invisible to the component
-      expect(mockInstance.state.relayProp.variables).toEqual({site: 'www'});
+      // ...and is visible to the component
+      expect(mockInstance.state.relayProp.variables).toEqual({
+        size: 64,
+        prepared: true,
+      });
+      // ...and to read fragment data
+      expect(resolvedVariables).toEqual({
+        size: 64,
+        prepared: true,
+      });
     });
 
     it('warns when `prepareVariables` introduces unknown variables', () => {
+      mockInstance = renderer.render(
+        genMockPointer => <MockContainer entity={genMockPointer('42')} />,
+        environment
+      );
       prepareVariables.mockImplementation(
         (variables, route) => ({unknown: 0})
       );
-      mockInstance.setVariables({site: 'www'});
+      mockInstance.setVariables({size: 2});
       expect([
         'RelayContainer: Expected query variable `%s` to be initialized in ' +
         '`initialVariables`.',

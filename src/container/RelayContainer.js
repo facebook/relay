@@ -104,11 +104,12 @@ function createContainerComponent(
     _fragmentResolvers: {[key: string]: ?FragmentResolver};
 
     pending: ?{
-      variables: Variables;
+      rawVariables: Variables;
       request: Abortable;
     };
     state: {
       queryData: {[propName: string]: mixed};
+      rawVariables: Variables;
       relayProp: RelayProp;
     };
 
@@ -141,6 +142,7 @@ function createContainerComponent(
       this.pending = null;
       this.state = {
         queryData: {},
+        rawVariables: {},
         relayProp: {
           forceFetch: this.forceFetch.bind(this),
           getPendingTransactions: this.getPendingTransactions.bind(this),
@@ -243,11 +245,17 @@ function createContainerComponent(
       callback: ?ComponentReadyStateChangeCallback,
       forceFetch: boolean
     ): void {
-      const lastVariables = this.state.relayProp.variables;
-      const prevVariables =
-        this.pending ? this.pending.variables : lastVariables;
       validateVariables(initialVariables, partialVariables);
-      const nextVariables = mergeVariables(prevVariables, partialVariables);
+      const lastVariables = this.state.rawVariables;
+      const prevVariables =
+        this.pending ? this.pending.rawVariables : lastVariables;
+      const rawVariables = mergeVariables(prevVariables, partialVariables);
+      let nextVariables = rawVariables;
+      if (prepareVariables) {
+        const metaRoute = RelayMetaRoute.get(this.context.route.name);
+        nextVariables = prepareVariables(rawVariables, metaRoute);
+        validateVariables(initialVariables, nextVariables);
+      }
 
       this.pending && this.pending.request.abort();
 
@@ -280,6 +288,7 @@ function createContainerComponent(
           const queryData = this._getQueryData(this.props);
           partialState = {
             queryData,
+            rawVariables,
             relayProp: {
               ...this.state.relayProp,
               variables: nextVariables,
@@ -316,7 +325,7 @@ function createContainerComponent(
       }, 'RelayContainer.onReadyStateChange');
 
       const current = {
-        variables: nextVariables,
+        rawVariables,
         request: forceFetch ?
           this.context.relay.forceFetch(querySet, onReadyStateChange) :
           this.context.relay.primeCache(querySet, onReadyStateChange),
@@ -440,7 +449,7 @@ function createContainerComponent(
           resetPropOverridesForVariables(
             spec,
             nextProps,
-            state.relayProp.variables
+            state.rawVariables
           )
         );
       });
@@ -458,23 +467,26 @@ function createContainerComponent(
       prevVariables: Variables
     ): {
       queryData: {[propName: string]: mixed};
+      rawVariables: Variables,
       relayProp: RelayProp;
     } {
-      let nextVariables = getVariablesWithPropOverrides(
+      const rawVariables = getVariablesWithPropOverrides(
         spec,
         props,
         prevVariables
       );
+      let nextVariables = rawVariables;
       if (prepareVariables) {
         // TODO: Allow routes without names, #7856965.
         const metaRoute = RelayMetaRoute.get(route.name);
-        nextVariables = prepareVariables(nextVariables, metaRoute);
+        nextVariables = prepareVariables(rawVariables, metaRoute);
         validateVariables(initialVariables, nextVariables);
       }
       this._updateFragmentPointers(props, route, nextVariables);
       this._updateFragmentResolvers(environment);
       return {
         queryData: this._getQueryData(props),
+        rawVariables,
         relayProp: (this.state.relayProp.route === route)
           && shallowEqual(this.state.relayProp.variables, nextVariables) ?
           this.state.relayProp :
@@ -783,10 +795,6 @@ function createContainerComponent(
     );
     // TODO: Allow routes without names, #7856965.
     const metaRoute = RelayMetaRoute.get(route.name);
-    if (prepareVariables) {
-      variables = prepareVariables(variables, metaRoute);
-      validateVariables(initialVariables, variables);
-    }
     return RelayQuery.Fragment.create(
       fragment,
       metaRoute,

@@ -282,7 +282,7 @@ describe('writeRelayQueryPayload()', () => {
         query {
           viewer {
             actor {
-              id,
+              id
               __typename
             }
           }

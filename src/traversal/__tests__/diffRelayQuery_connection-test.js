@@ -387,7 +387,7 @@ describe('diffRelayQuery', () => {
             edges {
               node {
                 feedback {
-                  id,
+                  id
                   comments(first:"1") {
                     edges {
                       node {
@@ -450,11 +450,11 @@ describe('diffRelayQuery', () => {
             edges {
               node {
                 feedback {
-                  id,
+                  id
                   comments(first:"1") {
                     edges {
                       node {
-                        id,
+                        id
                         body {text}
                       }
                     }
@@ -471,7 +471,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"commentid"){
-          __typename,
+          __typename
           ... on Comment {id, body {text}}
         }
       }
@@ -567,45 +567,45 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"s1") {
-          id,
-          __typename,
+          id
+          __typename
           ... on FeedUnit {
             feedback {
-              id,
-            },
-            id,
-            __typename,
-          },
+              id
+            }
+            id
+            __typename
+          }
         }
       }
     `));
     expect(diffQueries[1]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"s2") {
-          id,
-          __typename,
+          id
+          __typename
           ... on FeedUnit {
             feedback {
-              id,
-            },
-            id,
-            __typename,
-          },
+              id
+            }
+            id
+            __typename
+          }
         }
       }
     `));
     expect(diffQueries[2]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"s3") {
-          id,
-          __typename,
+          id
+          __typename
           ... on FeedUnit {
             feedback {
-              id,
-            },
-            id,
-            __typename,
-          },
+              id
+            }
+            id
+            __typename
+          }
         }
       }
     `));
@@ -678,10 +678,10 @@ describe('diffRelayQuery', () => {
         viewer {
           newsFeed(first:"3") {
             edges {
-              sortKey,
+              sortKey
               node {
-                id,
-                __typename,
+                id
+                __typename
                 feedback {
                   id
                 }
@@ -696,15 +696,15 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"s1") {
-          id,
-          __typename,
+          id
+          __typename
           ... on FeedUnit {
             feedback {
-              id,
-            },
-            id,
-            __typename,
-          },
+              id
+            }
+            id
+            __typename
+          }
         }
       }
     `));
@@ -713,12 +713,12 @@ describe('diffRelayQuery', () => {
         viewer {
           newsFeed(find:"s1") {
             edges {
-              cursor,
+              cursor
               node {
                 id
-                __typename,
-              },
-              sortKey,
+                __typename
+              }
+              sortKey
             }
           }
         }
@@ -727,15 +727,15 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[2]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"s2") {
-          id,
-          __typename,
+          id
+          __typename
           ... on FeedUnit {
             feedback {
-              id,
-            },
-            id,
-            __typename,
-          },
+              id
+            }
+            id
+            __typename
+          }
         }
       }
     `));
@@ -744,12 +744,12 @@ describe('diffRelayQuery', () => {
         viewer {
           newsFeed(find:"s2") {
             edges {
-              cursor,
+              cursor
               node {
                 id
-                __typename,
-              },
-              sortKey,
+                __typename
+              }
+              sortKey
             }
           }
         }
@@ -758,15 +758,15 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[4]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"s3") {
-          id,
-          __typename,
+          id
+          __typename
           ... on FeedUnit {
             feedback {
-              id,
-            },
-            id,
-            __typename,
-          },
+              id
+            }
+            id
+            __typename
+          }
         }
       }
     `));
@@ -775,12 +775,12 @@ describe('diffRelayQuery', () => {
         viewer {
           newsFeed(find:"s3") {
             edges {
-              cursor,
+              cursor
               node {
-                id,
-                __typename,
-              },
-              sortKey,
+                id
+                __typename
+              }
+              sortKey
             }
           }
         }
@@ -864,7 +864,7 @@ describe('diffRelayQuery', () => {
         viewer {
           notificationStories(first:"3") {
             edges {
-              showBeeper,
+              showBeeper
               node {
                 feedback {
                   id
@@ -880,45 +880,45 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"s1") {
-          id,
-          __typename,
+          id
+          __typename
           ... on FeedUnit {
             feedback {
-              id,
-            },
-            id,
-            __typename,
-          },
+              id
+            }
+            id
+            __typename
+          }
         }
       }
     `));
     expect(diffQueries[1]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"s2") {
-          id,
-          __typename,
+          id
+          __typename
           ... on FeedUnit {
             feedback {
-              id,
-            },
-            id,
-            __typename,
-          },
+              id
+            }
+            id
+            __typename
+          }
         }
       }
     `));
     expect(diffQueries[2]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"s3") {
-          id,
-          __typename,
+          id
+          __typename
           ... on FeedUnit {
             feedback {
-              id,
-            },
-            id,
-            __typename,
-          },
+              id
+            }
+            id
+            __typename
+          }
         }
       }
     `));
@@ -975,10 +975,10 @@ describe('diffRelayQuery', () => {
         viewer {
           newsFeed(first:"1") {
             edges {
-              ${edgeFragment},
+              ${edgeFragment}
               node {
-                ${nodeFragment},
-              },
+                ${nodeFragment}
+              }
             }
           }
         }

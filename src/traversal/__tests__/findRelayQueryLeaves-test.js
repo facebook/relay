@@ -175,7 +175,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns pendingNodeStates when field is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         firstName
       }
     `);
@@ -205,7 +205,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns missingData when field is not in the cache', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         firstName
       }
     `);
@@ -231,7 +231,7 @@ describe('findRelayQueryLeaves', () => {
   it('has all required data when field is in store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         firstName
       }
     `);
@@ -257,7 +257,7 @@ describe('findRelayQueryLeaves', () => {
   it('has all required data when field is in cache', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         firstName
       }
     `);
@@ -284,7 +284,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns pendingNodeStates when linked node is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         friends {count}
       }
     `);
@@ -316,7 +316,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns missingData when linked node is not in the cache', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         friends {count}
       }
     `);
@@ -344,7 +344,7 @@ describe('findRelayQueryLeaves', () => {
   it('has all required data when linked node is in store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         friends {count}
       }
     `);
@@ -374,7 +374,7 @@ describe('findRelayQueryLeaves', () => {
   it('has all required data when linked node is in cache', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         friends {count}
       }
     `);
@@ -405,7 +405,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns pendingNodeStates when plural node is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         screennames {service}
       }
     `);
@@ -450,7 +450,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns missingData when plural node is not in the cache', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         screennames {service}
       }
     `);
@@ -482,7 +482,7 @@ describe('findRelayQueryLeaves', () => {
   it('has all required data when plural node is in store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         screennames {service}
       }
     `);
@@ -519,7 +519,7 @@ describe('findRelayQueryLeaves', () => {
   it('has all required data when plural node is in cache', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         screennames {service}
       }
     `);
@@ -559,7 +559,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns pendingNodeStates when range node is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         friends(first:"10") {
           edges { node {id}}
         }
@@ -599,7 +599,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns missingData when range node is not in the cache', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         friends(first:"10") {
           edges { node {id}}
         }
@@ -630,7 +630,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns pendingNodeStates when range field is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         friends(first:"10") {
           edges { node {id}}
         }
@@ -670,7 +670,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns missingData when range field is not in the cache', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         friends(first:"10") {
           edges { node {id}}
         }
@@ -703,7 +703,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns missingData when range has diffQuery in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         friends(first:"10") {
           edges { node {id}}
         }
@@ -740,7 +740,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns missingData when range has diffQuery in the cache', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         friends(first:"10") {
           edges { node {id}}
         }
@@ -1004,7 +1004,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns pendingNodeStates when matched fragment is not in the store', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         ... on User {
           firstName
         }
@@ -1039,7 +1039,7 @@ describe('findRelayQueryLeaves', () => {
   it('returns missingData when matched fragment is not in the cache', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         ... on User {
           firstName
         }
@@ -1067,7 +1067,7 @@ describe('findRelayQueryLeaves', () => {
   it('has all required data in store when ignoring unmatched fragment', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         ... on Page {
           name
         }
@@ -1094,7 +1094,7 @@ describe('findRelayQueryLeaves', () => {
   it('has all required data in cache when ignoring unmatched fragment', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
-        id,
+        id
         ... on Page {
           name
         }

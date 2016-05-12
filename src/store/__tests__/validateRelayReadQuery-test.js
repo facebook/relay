@@ -59,17 +59,17 @@ describe('validateRelayReadQuery', () => {
     const fragment = Relay.QL`
       fragment on Node {
         profilePicture(size:"100") {
-          height,
-        },
+          height
+        }
       }
     `;
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           profilePicture(size:"50") {
-            height,
-          },
-          ${fragment},
+            height
+          }
+          ${fragment}
         }
       }
     `);
@@ -81,22 +81,22 @@ describe('validateRelayReadQuery', () => {
     const fragment = Relay.QL`
       fragment on Node {
         profilePicture(size:"100") {
-          height,
-        },
+          height
+        }
       }
     `;
     const otherFragment = Relay.QL`
       fragment on Node {
         profilePicture(size:"50") {
-          height,
-        },
+          height
+        }
       }
     `;
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          ${fragment},
-          ${otherFragment},
+          ${fragment}
+          ${otherFragment}
         }
       }
     `);
@@ -109,25 +109,25 @@ describe('validateRelayReadQuery', () => {
       fragment on Viewer {
         actor {
           profilePicture(size:"100") {
-            height,
-          },
-        },
+            height
+          }
+        }
       }
     `;
     const fragment = Relay.QL`
       fragment on Viewer {
         actor {
           profilePicture(size:"50") {
-            height,
-          },
-        },
-        ${nestedFragment},
+            height
+          }
+        }
+        ${nestedFragment}
       }
     `;
     const query = getNode(Relay.QL`
       query {
         viewer {
-          ${fragment},
+          ${fragment}
         }
       }
     `);
@@ -140,11 +140,11 @@ describe('validateRelayReadQuery', () => {
       query {
         node(id:"4") {
           profilePicture(size:"50") {
-            height,
-          },
+            height
+          }
           profilePicture(size:"100") {
-            height,
-          },
+            height
+          }
         }
       }
     `);
@@ -157,11 +157,11 @@ describe('validateRelayReadQuery', () => {
       query {
         node(id:"4") {
           pic: profilePicture(size:"50") {
-            height,
-          },
+            height
+          }
           pic: profilePicture(size:"100") {
-            height,
-          },
+            height
+          }
         }
       }
     `);
@@ -174,9 +174,9 @@ describe('validateRelayReadQuery', () => {
       query {
         node(id:"4") {
           special: profilePicture(size:"50") {
-            height,
-          },
-          special: name,
+            height
+          }
+          special: name
         }
       }
     `);
@@ -192,10 +192,10 @@ describe('validateRelayReadQuery', () => {
         node(id:"4") {
           friends(first:"1") {
             pageInfo {
-              my_cursor: startCursor,
-              my_cursor: endCursor,
-            },
-          },
+              my_cursor: startCursor
+              my_cursor: endCursor
+            }
+          }
         }
       }
     `);
@@ -207,8 +207,8 @@ describe('validateRelayReadQuery', () => {
     const query = getNode(Relay.QL`
       fragment on User {
         count: friends {
-          count,
-        },
+          count
+        }
       }
     `);
     validateRelayReadQuery(query);
@@ -219,17 +219,17 @@ describe('validateRelayReadQuery', () => {
     const fragment = Relay.QL`
       fragment on Node {
         profilePicture(size:"100") {
-          height,
-        },
+          height
+        }
       }
     `;
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size:"50") {
-            height,
-          },
-          ${fragment},
+            height
+          }
+          ${fragment}
         }
       }
     `);
@@ -241,17 +241,17 @@ describe('validateRelayReadQuery', () => {
     const fragment = Relay.QL`
       fragment on Node {
         large_profile: profilePicture(size:"100") {
-          height,
-        },
+          height
+        }
       }
     `;
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           profilePicture(size:"50") {
-            height,
-          },
-          ${fragment},
+            height
+          }
+          ${fragment}
         }
       }
     `);
@@ -263,17 +263,17 @@ describe('validateRelayReadQuery', () => {
     const fragment = Relay.QL`
       fragment on Node {
         large_profile: profilePicture(size:"100") {
-          height,
-        },
+          height
+        }
       }
     `;
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size:"50") {
-            height,
-          },
-          ${fragment},
+            height
+          }
+          ${fragment}
         }
       }
     `);
@@ -286,11 +286,11 @@ describe('validateRelayReadQuery', () => {
       query {
         node(id:"4") {
           medium_profile: profilePicture(size:"50") {
-            height,
-          },
+            height
+          }
           profilePicture(size:"100") {
-            height,
-          },
+            height
+          }
         }
       }
     `);
@@ -303,11 +303,11 @@ describe('validateRelayReadQuery', () => {
       query {
         node(id:"4") {
           medium_profile: profilePicture(size:"50") {
-            height,
-          },
+            height
+          }
           large_profile: profilePicture(size:"100") {
-            height,
-          },
+            height
+          }
         }
       }
     `);
@@ -323,9 +323,9 @@ describe('validateRelayReadQuery', () => {
     const query = getNode(Relay.QL`
       fragment on User {
         profilePicture(size:"50") {
-          height,
-        },
-        ${fragment},
+          height
+        }
+        ${fragment}
       }
     `);
     validateRelayReadQuery(query);
@@ -336,17 +336,17 @@ describe('validateRelayReadQuery', () => {
     const query = getNode(Relay.QL`
       fragment on User {
         profilePicture(size:"50") {
-          height,
-        },
+          height
+        }
         friends(first:"1") {
           edges {
             node {
               profilePicture(size:"100") {
-                height,
-              },
-            },
-          },
-        },
+                height
+              }
+            }
+          }
+        }
       }
     `);
     validateRelayReadQuery(query);

@@ -54,7 +54,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           me {
-            id,
+            id
           }
         }
       `);
@@ -84,8 +84,8 @@ describe('writeRelayQueryPayload()', () => {
         query {
           viewer {
             actor {
-              id,
-            },
+              id
+            }
           }
         }
       `);
@@ -128,8 +128,8 @@ describe('writeRelayQueryPayload()', () => {
         query {
           viewer {
             actor {
-              id,
-            },
+              id
+            }
           }
         }
       `);
@@ -162,7 +162,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           username(name:"yuzhi") {
-            id,
+            id
           }
         }
       `);
@@ -191,7 +191,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           username(name:"yuzhi") {
-            id,
+            id
           }
         }
       `);
@@ -227,7 +227,7 @@ describe('writeRelayQueryPayload()', () => {
       let query = getNode(Relay.QL`
         query {
           username(name:"yuzhi") {
-            name,
+            name
           }
         }
       `);
@@ -353,7 +353,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           checkinSearchQuery(query: {query: "Facebook"}) {
-            query,
+            query
           }
         }
       `);
@@ -559,7 +559,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getRefNode(Relay.QL`
         query {
           nodes(ids:$ref_q0) {
-            id,
+            id
             name
           }
         }
@@ -693,7 +693,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
+            id
             name
           }
         }
@@ -728,7 +728,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
+            id
           }
         }
       `);
@@ -754,7 +754,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id: "123") {
-            id,
+            id
             __typename
           }
         }

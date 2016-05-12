@@ -58,7 +58,7 @@ describe('RelayMutationQuery', () => {
       const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on ActorSubscribeResponsePayload {
           subscribee {
-            subscribers,
+            subscribers
             subscribeStatus
           }
         }
@@ -80,14 +80,14 @@ describe('RelayMutationQuery', () => {
       const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
-            doesViewerLike,
-            likers,
+            doesViewerLike
+            likers
           }
         }
       `);
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          likers,
+          likers
           url
         }
       `));
@@ -124,7 +124,7 @@ describe('RelayMutationQuery', () => {
         fragment on Story {
           message {
             text
-          },
+          }
           seenState
         }
       `));
@@ -169,7 +169,7 @@ describe('RelayMutationQuery', () => {
           fragment on Story {
             actors {
               name
-            },
+            }
             seenState
           }
         `),
@@ -188,18 +188,18 @@ describe('RelayMutationQuery', () => {
       const expected = RelayTestUtils.getVerbatimNode(Relay.QL`
         fragment on Story {
           ... on Story {
-            id,
+            id
             message {
               text
-            },
-          },
+            }
+          }
           ... on Story {
-            id,
+            id
             actors {
-              __typename,
-              id,
+              __typename
+              id
               name
-            },
+            }
             seenState
           }
         }
@@ -220,7 +220,7 @@ describe('RelayMutationQuery', () => {
       fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
-            comments,
+            comments
             topLevelComments
           }
         }
@@ -244,9 +244,9 @@ describe('RelayMutationQuery', () => {
     it('creates a fragment for connection metadata', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          doesViewerLike,
+          doesViewerLike
           comments(first:"10") {
-            count,
+            count
             edges {
               node {
                 body {
@@ -362,13 +362,13 @@ describe('RelayMutationQuery', () => {
       fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
-            comments,
+            comments
             topLevelComments
-          },
-          comment,
+          }
+          comment
           feedbackCommentEdge {
-            cursor,
-            node,
+            cursor
+            node
             source
           }
         }
@@ -452,14 +452,14 @@ describe('RelayMutationQuery', () => {
         fragment MutationQuery on CommentCreateResponsePayload {
           feedback {
             id
-          },
+          }
           feedbackCommentEdge {
-            __typename,
-            cursor,
+            __typename
+            cursor
             node{
               body {
                 text
-              },
+              }
               id
             }
           }
@@ -495,13 +495,13 @@ describe('RelayMutationQuery', () => {
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
             __typename
-            cursor,
+            cursor
             node {
               body {
                 text
-              },
+              }
               id
-            },
+            }
             source {
               id
             }
@@ -547,13 +547,13 @@ describe('RelayMutationQuery', () => {
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
             __typename
-            cursor,
+            cursor
             node {
               body {
                 text
-              },
+              }
               id
-            },
+            }
             source {
               id
             }
@@ -572,7 +572,7 @@ describe('RelayMutationQuery', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
           comments(first:"10") {
-            count,
+            count
             edges {
               node {
                 body {
@@ -580,7 +580,7 @@ describe('RelayMutationQuery', () => {
                 }
               }
             }
-          },
+          }
           comments(last:10) {
             edges {
               node {
@@ -604,16 +604,16 @@ describe('RelayMutationQuery', () => {
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
             __typename
-            cursor,
+            cursor
             node {
               author {
                 name
-              },
+              }
               body {
                 text
-              },
+              }
               id
-            },
+            }
             source {
               id
             }
@@ -628,7 +628,7 @@ describe('RelayMutationQuery', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
           comments(first:"10") {
-            count,
+            count
             edges {
               node {
                 body {
@@ -636,7 +636,7 @@ describe('RelayMutationQuery', () => {
                 }
               }
             }
-          },
+          }
           comments(orderby:"ranked_threaded",first:"10") {
             edges {
               node {
@@ -660,13 +660,13 @@ describe('RelayMutationQuery', () => {
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
             __typename
-            cursor,
+            cursor
             node {
               body {
                 text
-              },
+              }
               id
-            },
+            }
             source {
               id
             }
@@ -900,7 +900,7 @@ describe('RelayMutationQuery', () => {
       const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
-            doesViewerLike,
+            doesViewerLike
             likers
           }
         }
@@ -924,8 +924,8 @@ describe('RelayMutationQuery', () => {
       const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
-            doesViewerLike,
-            likers,
+            doesViewerLike
+            likers
           }
         }
       `);
@@ -991,14 +991,14 @@ describe('RelayMutationQuery', () => {
       const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
-            comments,
-          },
-          comment,
+            comments
+          }
+          comment
           feedbackCommentEdge {
-            cursor,
-            node,
-            source,
-          },
+            cursor
+            node
+            source
+          }
         }
       `);
       const parentName = 'feedback';
@@ -1034,7 +1034,7 @@ describe('RelayMutationQuery', () => {
         getNodeWithoutSource(Relay.QL`
           mutation {
             commentCreate(input:$input) {
-              clientMutationId,
+              clientMutationId
               ... on CommentCreateResponsePayload {
                 feedback {
                   ... on Feedback {
@@ -1043,13 +1043,13 @@ describe('RelayMutationQuery', () => {
                 }
                 feedbackCommentEdge {
                   __typename
-                  cursor,
+                  cursor
                   node {
                     body {
                       text
-                    },
+                    }
                     id
-                  },
+                  }
                   source{
                     id
                   }
@@ -1081,7 +1081,7 @@ describe('RelayMutationQuery', () => {
       const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
-            comments,
+            comments
             topLevelComments
           }
         }
@@ -1114,7 +1114,7 @@ describe('RelayMutationQuery', () => {
       const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
         mutation {
           commentDelete(input:$input) {
-            clientMutationId,
+            clientMutationId
             ${Relay.QL`
               fragment on CommentDeleteResponsePayload {
                 feedback {
@@ -1152,7 +1152,7 @@ describe('RelayMutationQuery', () => {
       const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
-            comments,
+            comments
             topLevelComments
           }
         }
@@ -1185,7 +1185,7 @@ describe('RelayMutationQuery', () => {
       const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
         mutation {
           commentDelete(input:$input) {
-            clientMutationId,
+            clientMutationId
             ${Relay.QL`
               fragment on CommentDeleteResponsePayload {
                 feedback {
@@ -1251,7 +1251,7 @@ describe('RelayMutationQuery', () => {
       const expectedConcreteNode = Relay.QL`
         mutation {
           unfriend(input: $input) {
-            clientMutationId,
+            clientMutationId
             ${Relay.QL`
               fragment on UnfriendResponsePayload {
                 actor {
@@ -1277,14 +1277,14 @@ describe('RelayMutationQuery', () => {
     it('creates a query for FIELDS_CHANGE', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {
-          likers,
+          likers
           url
         }
       `));
       const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
-            doesViewerLike,
+            doesViewerLike
             likers
           }
         }
@@ -1313,7 +1313,7 @@ describe('RelayMutationQuery', () => {
       const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
         mutation {
           feedbackLike(input:$input) {
-            clientMutationId,
+            clientMutationId
             ${Relay.QL`
               fragment on FeedbackLikeResponsePayload {
                 feedback {
@@ -1347,14 +1347,14 @@ describe('RelayMutationQuery', () => {
       const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
-            comments,
-          },
-          comment,
+            comments
+          }
+          comment
           feedbackCommentEdge {
-            cursor,
-            node,
-            source,
-          },
+            cursor
+            node
+            source
+          }
         }
       `);
       const parentName = 'feedback';
@@ -1378,8 +1378,8 @@ describe('RelayMutationQuery', () => {
           children: [Relay.QL`
             fragment on CommentCreateResponsePayload {
               feedback {
-                doesViewerLike,
-              },
+                doesViewerLike
+              }
             }
           `],
         },
@@ -1400,7 +1400,7 @@ describe('RelayMutationQuery', () => {
         getNodeWithoutSource(Relay.QL`
           mutation {
             commentCreate(input:$input) {
-              clientMutationId,
+              clientMutationId
               ... on CommentCreateResponsePayload {
                 feedback {
                   ... on Feedback {
@@ -1409,13 +1409,13 @@ describe('RelayMutationQuery', () => {
                 }
                 feedbackCommentEdge {
                   __typename
-                  cursor,
+                  cursor
                   node {
                     body {
                       text
-                    },
+                    }
                     id
-                  },
+                  }
                   source {
                     id
                   }
@@ -1425,7 +1425,7 @@ describe('RelayMutationQuery', () => {
                 feedback {
                   doesViewerLike
                   id
-                },
+                }
               }
             }
           }
@@ -1448,24 +1448,24 @@ describe('RelayMutationQuery', () => {
                 }
               }
             }
-          },
-          likers,
+          }
+          likers
           url
         }
       `));
       const fatQuery = fromGraphQL.Fragment(Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
-            comments,
-            doesViewerLike,
+            comments
+            doesViewerLike
             likers
-          },
-          comment,
+          }
+          comment
           feedbackCommentEdge {
-            cursor,
-            node,
-            source,
-          },
+            cursor
+            node
+            source
+          }
         }
       `);
       const parentName = 'feedback';
@@ -1507,7 +1507,7 @@ describe('RelayMutationQuery', () => {
       const expectedMutationQuery = getNodeWithoutSource(Relay.QL`
         mutation {
           commentCreate(input:$input) {
-            clientMutationId,
+            clientMutationId
             ${Relay.QL`
               fragment on CommentCreateResponsePayload {
                 feedback {
@@ -1534,21 +1534,21 @@ describe('RelayMutationQuery', () => {
                 feedback {
                   comments(first:"10") {
                     edges {
-                      cursor,
+                      cursor
                       node {
                         body {
                           text
-                        },
+                        }
                         id
                       }
-                    },
+                    }
                     pageInfo {
-                      hasNextPage,
+                      hasNextPage
                       hasPreviousPage
                     }
-                  },
-                  id,
-                  likers,
+                  }
+                  id
+                  likers
                 }
               }
             `},

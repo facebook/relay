@@ -46,11 +46,11 @@ describe('RelayStoreData', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
-            doesViewerLike,
+            id
+            doesViewerLike
             topLevelComments {
-              count,
-            },
+              count
+            }
           }
         }
       `);
@@ -84,11 +84,11 @@ describe('RelayStoreData', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
-            doesViewerLike,
+            id
+            doesViewerLike
             topLevelComments {
-              count,
-            },
+              count
+            }
           }
         }
       `);
@@ -135,11 +135,11 @@ describe('RelayStoreData', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
-            doesViewerLike,
+            id
+            doesViewerLike
             topLevelComments {
-              count,
-            },
+              count
+            }
           }
         }
       `);
@@ -177,14 +177,14 @@ describe('RelayStoreData', () => {
       const mutationQuery = getNode(Relay.QL`
         mutation {
           feedbackLike(input:$input) {
-            clientMutationId,
+            clientMutationId
             feedback {
-              id,
-              doesViewerLike,
+              id
+              doesViewerLike
               topLevelComments {
-                count,
+                count
               }
-            },
+            }
           }
         }
       `);
@@ -223,14 +223,14 @@ describe('RelayStoreData', () => {
       const mutationQuery = getNode(Relay.QL`
         mutation {
           feedbackLike(input:$input) {
-            clientMutationId,
+            clientMutationId
             feedback {
-              id,
-              doesViewerLike,
+              id
+              doesViewerLike
               topLevelComments {
-                count,
+                count
               }
-            },
+            }
           }
         }
       `);
@@ -282,11 +282,11 @@ describe('RelayStoreData', () => {
         const query = getNode(Relay.QL`
           query {
             node(id:"123") {
-              id,
-              doesViewerLike,
+              id
+              doesViewerLike
               topLevelComments {
-                count,
-              },
+                count
+              }
             }
           }
         `);
@@ -306,14 +306,14 @@ describe('RelayStoreData', () => {
         const mutationQuery = getNode(Relay.QL`
           mutation {
             feedbackLike(input:$input) {
-              clientMutationId,
+              clientMutationId
               feedback {
-                id,
-                doesViewerLike,
+                id
+                doesViewerLike
                 topLevelComments {
-                  count,
+                  count
                 }
-              },
+              }
             }
           }
         `);
@@ -391,7 +391,7 @@ describe('RelayStoreData', () => {
       const node = getNode(Relay.QL`
         query {
           node(id: "123") {
-            id,
+            id
             ${addressFragment}
           }
         }
@@ -409,7 +409,7 @@ describe('RelayStoreData', () => {
 
       const fragment = getNode(Relay.QL`
         fragment on StreetAddress {
-          city,
+          city
         }
       `);
       const query = storeData.buildFragmentQueryForDataID(fragment, 'client:1');
@@ -417,15 +417,15 @@ describe('RelayStoreData', () => {
         query RelayStoreData($id_0: ID!) {
           node(id: $id_0) {
             ... on User {
-              id,
-              __typename,
+              id
+              __typename
               address {
                 ... on StreetAddress {
-                  city,
-                },
-              },
+                  city
+                }
+              }
             }
-          },
+          }
         }
       `, {id_0: '123'}));
       expect(query.getName()).toBe(node.getName());

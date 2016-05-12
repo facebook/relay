@@ -96,10 +96,10 @@ describe('writeRelayQueryPayload()', () => {
         query {
           node(id:"123") {
             allPhones {
-              isVerified,
+              isVerified
               phoneNumber {
-                displayNumber,
-                countryCode,
+                displayNumber
+                countryCode
               }
             }
           }
@@ -180,10 +180,10 @@ describe('writeRelayQueryPayload()', () => {
         query {
           node(id:"123") {
             allPhones {
-              isVerified,
+              isVerified
               phoneNumber {
-                displayNumber,
-                countryCode,
+                displayNumber
+                countryCode
               }
             }
           }
@@ -259,8 +259,8 @@ describe('writeRelayQueryPayload()', () => {
           node(id:"123") {
             allPhones {
               phoneNumber {
-                displayNumber,
-                countryCode,
+                displayNumber
+                countryCode
               }
             }
           }
@@ -327,10 +327,10 @@ describe('writeRelayQueryPayload()', () => {
         query {
           node(id:"123") {
             allPhones {
-              isVerified,
+              isVerified
               phoneNumber {
-                displayNumber,
-                countryCode,
+                displayNumber
+                countryCode
               }
             }
           }

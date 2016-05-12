@@ -57,17 +57,17 @@ describe('writeRelayQueryPayload()', () => {
         node(id:"123") {
           friends(first:"3") {
             edges {
-              cursor,
+              cursor
               node {
                 id
-              },
+              }
               source {
                 id
               }
-            },
+            }
             pageInfo {
-              hasNextPage,
-              hasPreviousPage,
+              hasNextPage
+              hasPreviousPage
             }
           }
         }
@@ -121,17 +121,17 @@ describe('writeRelayQueryPayload()', () => {
         node(id:"123") {
           friends(first:"3") {
             edges {
-              cursor,
+              cursor
               node {
                 id
-              },
+              }
               source {
                 id
               }
-            },
+            }
             pageInfo {
-              hasNextPage,
-              hasPreviousPage,
+              hasNextPage
+              hasPreviousPage
             }
           }
         }
@@ -238,17 +238,17 @@ describe('writeRelayQueryPayload()', () => {
         node(id:"123") {
           friends(first:"3") {
             edges {
-              cursor,
+              cursor
               node {
                 id
-              },
+              }
               source {
                 id
               }
-            },
+            }
             pageInfo {
-              hasNextPage,
-              hasPreviousPage,
+              hasNextPage
+              hasPreviousPage
             }
           }
         }
@@ -347,14 +347,14 @@ describe('writeRelayQueryPayload()', () => {
         node(id:"123") {
           friends(first:"3") {
             edges {
-              cursor,
+              cursor
               node {
                 id
-              },
-            },
+              }
+            }
             pageInfo {
-              hasNextPage,
-              hasPreviousPage,
+              hasNextPage
+              hasPreviousPage
             }
           }
         }
@@ -439,17 +439,17 @@ describe('writeRelayQueryPayload()', () => {
         node(id:"123") {
           friends(first:"1") {
             edges {
-              cursor,
+              cursor
               node {
                 id
-              },
+              }
               source {
                 id
               }
-            },
+            }
             pageInfo {
-              hasNextPage,
-              hasPreviousPage,
+              hasNextPage
+              hasPreviousPage
             }
           }
         }
@@ -514,17 +514,17 @@ describe('writeRelayQueryPayload()', () => {
     const edgesFragment = Relay.QL`
       fragment on FriendsConnection {
         edges {
-          cursor,
+          cursor
           node {
             id
-          },
+          }
           source {
             id
           }
-        },
+        }
         pageInfo {
-          hasNextPage,
-          hasPreviousPage,
+          hasNextPage
+          hasPreviousPage
         }
       }
     `;
@@ -678,7 +678,7 @@ describe('writeRelayQueryPayload()', () => {
             friends(first: "1") {
               edges {
                 node {
-                  id,
+                  id
                   name
                 }
               }
@@ -740,8 +740,8 @@ describe('writeRelayQueryPayload()', () => {
             friends(find:"node1") {
               edges {
                 node {
-                  id,
-                },
+                  id
+                }
                 source {
                   id
                 }

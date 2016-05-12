@@ -74,7 +74,7 @@ describe('RelayQueryFragment', () => {
     `;
     const fragment2 = getNode(Relay.QL`
       fragment on StreetAddress {
-        city,
+        city
         ${subfrag}
       }
     `);
@@ -91,7 +91,7 @@ describe('RelayQueryFragment', () => {
     `;
     const fragment2 = getNode(Relay.QL`
       fragment on StreetAddress {
-        country,
+        country
         ${subfrag}
       }
     `);
@@ -139,8 +139,8 @@ describe('RelayQueryFragment', () => {
   it('clones with updated children', () => {
     const query = getNode(Relay.QL`
       fragment on StreetAddress {
-        country,
-        city,
+        country
+        city
       }
     `);
     const clone = query.clone([query.getChildren()[0]]);

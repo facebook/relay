@@ -28,18 +28,18 @@ describe('transformClientPayload()', () => {
       query {
         node(id: "123") {
           friends(first:"1") {
-            count,
+            count
             edges {
               node {
-                id,
+                id
                 ... on User {
                   profilePicture(size: "32") {
-                    uri,
-                  },
-                },
-              },
-            },
-          },
+                    uri
+                  }
+                }
+              }
+            }
+          }
         }
       }
     `);
@@ -89,10 +89,10 @@ describe('transformClientPayload()', () => {
         nodes(ids: ["123", "456"]) {
           ... on User {
             profilePicture(size: "32") {
-              uri,
-            },
-          },
-        },
+              uri
+            }
+          }
+        }
       }
     `);
     const payload = {
@@ -131,10 +131,10 @@ describe('transformClientPayload()', () => {
         nodes(ids: ["123", "456"]) {
           ... on User {
             profilePicture(size: "32") {
-              uri,
-            },
-          },
-        },
+              uri
+            }
+          }
+        }
       }
     `);
     const payload = {
@@ -177,10 +177,10 @@ describe('transformClientPayload()', () => {
         nodes(ids: ["123", "456"]) {
           ... on User {
             profilePicture(size: "32") {
-              uri,
-            },
-          },
-        },
+              uri
+            }
+          }
+        }
       }
     `);
     const payload = {

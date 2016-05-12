@@ -454,8 +454,8 @@ describe('restoreRelayCacheData', () => {
               friends(first:"5") {
                 edges {
                   node {
-                    name,
-                  },
+                    name
+                  }
                   cursor
                 }
               }
@@ -521,8 +521,8 @@ describe('restoreRelayCacheData', () => {
               friends(first:"5") {
                 edges {
                   node {
-                    name,
-                  },
+                    name
+                  }
                   cursor
                 }
               }
@@ -593,8 +593,8 @@ describe('restoreRelayCacheData', () => {
               friends(first:"5") {
                 edges {
                   node {
-                    name,
-                  },
+                    name
+                  }
                   cursor
                 }
               }
@@ -672,8 +672,8 @@ describe('restoreRelayCacheData', () => {
               friends(first:"5") {
                 edges {
                   node {
-                    name,
-                  },
+                    name
+                  }
                   cursor
                 }
               }
@@ -995,8 +995,8 @@ describe('restoreRelayCacheData', () => {
     it('calls `onFailure` when node is not in disk', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1027,8 +1027,8 @@ describe('restoreRelayCacheData', () => {
     it('calls `onFailure` when a field is not on disk', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1070,8 +1070,8 @@ describe('restoreRelayCacheData', () => {
     it('calls `onSuccess` when node is in disk', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1114,8 +1114,8 @@ describe('restoreRelayCacheData', () => {
     it('calls `onSuccess` when node is in cached store', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1155,8 +1155,8 @@ describe('restoreRelayCacheData', () => {
     it('calls `onSuccess` when node is in store', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1198,8 +1198,8 @@ describe('restoreRelayCacheData', () => {
     it('does not call `onSuccess` if aborted', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1232,8 +1232,8 @@ describe('restoreRelayCacheData', () => {
     it('does not `onFailure` if aborted', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`

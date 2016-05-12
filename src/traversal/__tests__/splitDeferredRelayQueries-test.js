@@ -55,9 +55,9 @@ describe('splitDeferredRelayQueries()', () => {
     const node = Relay.QL`
       query {
         node(id:"4") {
-          id,
-          name,
-          ${fragment},
+          id
+          name
+          ${fragment}
         }
       }
     `;
@@ -74,20 +74,20 @@ describe('splitDeferredRelayQueries()', () => {
         newsFeed(first: "10") {
           edges {
             node {
-              id,
-              actorCount,
-            },
-          },
-        },
+              id
+              actorCount
+            }
+          }
+        }
       }
     `;
     const node = Relay.QL`
       query {
         viewer {
           actor {
-            id,
-          },
-          ${defer(fragment)},
+            id
+          }
+          ${defer(fragment)}
         }
       }
     `;
@@ -105,7 +105,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred[0].required).toEqualQueryRoot(getNode(Relay.QL`
       query {
         viewer {
-          ${fragment},
+          ${fragment}
         }
       }
     `));
@@ -122,28 +122,28 @@ describe('splitDeferredRelayQueries()', () => {
         newsFeed(first: "10") {
           edges {
             node {
-              id,
-              actorCount,
-            },
-          },
-        },
+              id
+              actorCount
+            }
+          }
+        }
       }
     `;
     const fragment = Relay.QL`
       fragment on Viewer {
         actor {
-          name,
-        },
-        ${defer(nestedFragment)},
+          name
+        }
+        ${defer(nestedFragment)}
       }
     `;
     const node = Relay.QL`
       query {
         viewer {
           actor {
-            id,
-          },
-          ${fragment},
+            id
+          }
+          ${fragment}
         }
       }
     `;
@@ -156,8 +156,8 @@ describe('splitDeferredRelayQueries()', () => {
       query {
         viewer {
           actor {
-            id,
-          },
+            id
+          }
           ${Relay.QL`
       fragment on Viewer {
         actor {
@@ -175,7 +175,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred[0].required).toEqualQueryRoot(getNode(Relay.QL`
       query {
         viewer {
-          ${nestedFragment},
+          ${nestedFragment}
         }
       }
     `));
@@ -192,20 +192,20 @@ describe('splitDeferredRelayQueries()', () => {
         newsFeed(first: "10") {
           edges {
             node {
-              tracking,
-              ${defer(nestedFragment)},
-            },
-          },
-        },
+              tracking
+              ${defer(nestedFragment)}
+            }
+          }
+        }
       }
     `;
     const node = Relay.QL`
       query {
         viewer {
           actor {
-            name,
-          },
-          ${defer(fragment)},
+            name
+          }
+          ${defer(fragment)}
         }
       }
     `;
@@ -266,14 +266,14 @@ describe('splitDeferredRelayQueries()', () => {
         viewer {
           newsFeed(first: "10") {
             edges {
-              cursor,
+              cursor
               node {
-                ${nestedFragment},
+                ${nestedFragment}
                 id
               }
-            },
+            }
             pageInfo {
-              hasNextPage,
+              hasNextPage
               hasPreviousPage
             }
           }
@@ -292,11 +292,11 @@ describe('splitDeferredRelayQueries()', () => {
     const node = Relay.QL`
       query {
         node(id:"4") {
-          id,
-          name,
+          id
+          name
           hometown {
-            ${defer(fragment)},
-          },
+            ${defer(fragment)}
+          }
         }
       }
     `;
@@ -324,7 +324,7 @@ describe('splitDeferredRelayQueries()', () => {
         Relay.QL`
           query {
             nodes(ids:$ref_q1) {
-              ${fragment},
+              ${fragment}
             }
           }
         `,
@@ -343,17 +343,17 @@ describe('splitDeferredRelayQueries()', () => {
     const fragment = Relay.QL`
       fragment on User {
         hometown {
-          name,
-          ${defer(nestedFragment)},
-        },
+          name
+          ${defer(nestedFragment)}
+        }
       }
     `;
     const node = Relay.QL`
       query {
         node(id:"4") {
-          id,
-          name,
-          ${defer(fragment)},
+          id
+          name
+          ${defer(fragment)}
         }
       }
     `;
@@ -397,7 +397,7 @@ describe('splitDeferredRelayQueries()', () => {
         Relay.QL`
           query {
             nodes(ids:$ref_q2) {
-              ${nestedFragment},
+              ${nestedFragment}
             }
           }
         `,
@@ -418,18 +418,18 @@ describe('splitDeferredRelayQueries()', () => {
       fragment on Page {
         profilePicture {
           uri
-        },
+        }
         ${defer(nestedFragment)}
       }
     `;
     const node = Relay.QL`
       query {
         node(id:"4") {
-          id,
-          name,
+          id
+          name
           hometown {
-            ${defer(fragment)},
-          },
+            ${defer(fragment)}
+          }
         }
       }
     `;
@@ -477,7 +477,7 @@ describe('splitDeferredRelayQueries()', () => {
         Relay.QL`
           query {
             nodes(ids:$ref_q2) {
-              ${nestedFragment},
+              ${nestedFragment}
             }
           }
         `,
@@ -497,17 +497,17 @@ describe('splitDeferredRelayQueries()', () => {
         newsFeed(first: "10") {
           edges {
             node {
-              id,
-              actorCount,
-            },
-          },
-        },
+              id
+              actorCount
+            }
+          }
+        }
       }
     `;
     const node = Relay.QL`
       query {
         viewer {
-          ${defer(fragment)},
+          ${defer(fragment)}
         }
       }
     `;
@@ -523,7 +523,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred[0].required).toEqualQueryRoot(getNode(Relay.QL`
       query {
         viewer {
-          ${fragment},
+          ${fragment}
         }
       }
     `));
@@ -537,13 +537,13 @@ describe('splitDeferredRelayQueries()', () => {
     const nestedFragment = Relay.QL`fragment on Viewer{primaryEmail}`;
     const fragment = Relay.QL`
       fragment on Viewer {
-        ${defer(nestedFragment)},
+        ${defer(nestedFragment)}
       }
     `;
     const node = Relay.QL`
       query {
         viewer {
-          isFbEmployee,
+          isFbEmployee
           ${defer(fragment)}
         }
       }
@@ -571,7 +571,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred[0].deferred[0].required).toEqualQueryRoot(getNode(Relay.QL`
       query {
         viewer {
-          ${nestedFragment},
+          ${nestedFragment}
         }
       }
     `));
@@ -585,16 +585,16 @@ describe('splitDeferredRelayQueries()', () => {
     const nestedFragment = Relay.QL`fragment on Actor{hometown{name}}`;
     const fragment = Relay.QL`
       fragment on Viewer {
-        ${defer(nestedFragment)},
+        ${defer(nestedFragment)}
       }
     `;
     const node = Relay.QL`
       query {
         viewer {
           actor {
-            name,
-            ${defer(fragment)},
-          },
+            name
+            ${defer(fragment)}
+          }
         }
       }
     `;
@@ -630,7 +630,7 @@ describe('splitDeferredRelayQueries()', () => {
         Relay.QL`
           query {
             nodes(ids:$ref_q1) {
-              ${nestedFragment},
+              ${nestedFragment}
             }
           }
         `,
@@ -650,8 +650,8 @@ describe('splitDeferredRelayQueries()', () => {
       query {
         node(id:"123") {
           actors {
-            id,
-            ${defer(fragment)},
+            id
+            ${defer(fragment)}
           }
         }
       }
@@ -665,7 +665,7 @@ describe('splitDeferredRelayQueries()', () => {
       query {
         node(id:"123") {
           actors {
-            id,
+            id
           }
         }
       }
@@ -680,7 +680,7 @@ describe('splitDeferredRelayQueries()', () => {
         Relay.QL`
           query {
             nodes(ids:$ref_q1) {
-              ${fragment},
+              ${fragment}
             }
           }
         `,
@@ -701,9 +701,9 @@ describe('splitDeferredRelayQueries()', () => {
         viewer {
           actor {
             hometown {
-              ${defer(fragment)},
-            },
-          },
+              ${defer(fragment)}
+            }
+          }
         }
       }
     `;
@@ -718,9 +718,9 @@ describe('splitDeferredRelayQueries()', () => {
         viewer {
           actor {
             hometown {
-              id,
-            },
-          },
+              id
+            }
+          }
         }
       }
     `));
@@ -734,7 +734,7 @@ describe('splitDeferredRelayQueries()', () => {
         Relay.QL`
           query {
             nodes(ids:$ref_q1) {
-              ${fragment},
+              ${fragment}
             }
           }
         `,
@@ -756,11 +756,11 @@ describe('splitDeferredRelayQueries()', () => {
           friends(first:"5") {
             edges {
               node {
-                name,
-                ${defer(fragment)},
-              },
-            },
-          },
+                name
+                ${defer(fragment)}
+              }
+            }
+          }
         }
       }
     `;
@@ -776,11 +776,11 @@ describe('splitDeferredRelayQueries()', () => {
           friends(first:"5") {
             edges {
               node {
-                id,
-                name,
-              },
-            },
-          },
+                id
+                name
+              }
+            }
+          }
         }
       }
     `));
@@ -797,7 +797,7 @@ describe('splitDeferredRelayQueries()', () => {
         Relay.QL`
           query {
             nodes(ids:$ref_q1) {
-              ${fragment},
+              ${fragment}
             }
           }
         `,
@@ -819,10 +819,10 @@ describe('splitDeferredRelayQueries()', () => {
           friends(first: "5") {
             edges {
               node {
-                ${defer(fragment)},
-              },
-            },
-          },
+                ${defer(fragment)}
+              }
+            }
+          }
         }
       }
     `;
@@ -838,10 +838,10 @@ describe('splitDeferredRelayQueries()', () => {
           friends(first: "5") {
             edges {
               node {
-                id,
-              },
-            },
-          },
+                id
+              }
+            }
+          }
         }
       }
     `));
@@ -858,7 +858,7 @@ describe('splitDeferredRelayQueries()', () => {
         Relay.QL`
           query {
             nodes(ids:$ref_q1) {
-              ${fragment},
+              ${fragment}
             }
           }
         `,
@@ -877,10 +877,10 @@ describe('splitDeferredRelayQueries()', () => {
     const node = Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           profilePicture(size:"100") {
-            ${defer(fragment)},
-          },
+            ${defer(fragment)}
+          }
         }
       }
     `;
@@ -898,8 +898,8 @@ describe('splitDeferredRelayQueries()', () => {
       query {
         node(id:"4") {
           profilePicture(size:"100") {
-            ${fragment},
-          },
+            ${fragment}
+          }
         }
       }
     `));
@@ -914,7 +914,7 @@ describe('splitDeferredRelayQueries()', () => {
     const node = Relay.QL`
       query {
         node(id:"4") {
-              ${defer(fragment)},
+              ${defer(fragment)}
             }
       }
     `;
@@ -930,7 +930,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred[0].required).toEqualQueryRoot(getNode(Relay.QL`
       query {
           node(id:"4") {
-            ${fragment},
+            ${fragment}
         }
       }
     `));
@@ -1015,7 +1015,7 @@ describe('splitDeferredRelayQueries()', () => {
         Relay.QL`
           query {
             nodes(ids:$ref_q1) {
-              ${fragment},
+              ${fragment}
             }
           }
         `,
@@ -1034,8 +1034,8 @@ describe('splitDeferredRelayQueries()', () => {
     const node = Relay.QL`
       query {
         node(id:"4") {
-              id,
-              ${defer(fragment)},
+              id
+              ${defer(fragment)}
             }
       }
     `;
@@ -1052,7 +1052,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred[0].required).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"4") {
-          ${fragment},
+          ${fragment}
         }
       }
     `));
@@ -1069,8 +1069,8 @@ describe('splitDeferredRelayQueries()', () => {
     const node = Relay.QL`
       query {
         viewer {
-              primaryEmail,
-              ${defer(fragment)},
+              primaryEmail
+              ${defer(fragment)}
             }
       }
     `;
@@ -1092,7 +1092,7 @@ describe('splitDeferredRelayQueries()', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          ${defer(fragment)},
+          ${defer(fragment)}
         }
       }
     `);
@@ -1108,8 +1108,8 @@ describe('splitDeferredRelayQueries()', () => {
       query {
         node(id:"STORY_ID") {
           feedback {
-            ${defer(fragment)},
-          },
+            ${defer(fragment)}
+          }
         }
       }
     `);

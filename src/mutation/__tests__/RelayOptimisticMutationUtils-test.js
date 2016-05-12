@@ -56,7 +56,7 @@ describe('RelayOptimisticMutationUtils', () => {
       });
       expect(query).toEqualFields(Relay.QL`
         fragment on Actor {
-          id,
+          id
         }
       `);
       expect(query[0].isPlural()).toBe(false);
@@ -68,8 +68,8 @@ describe('RelayOptimisticMutationUtils', () => {
         name: 'Alice',
       })).toEqualFields(Relay.QL`
         fragment on Actor {
-          id,
-          name,
+          id
+          name
         }
       `);
     });
@@ -83,10 +83,10 @@ describe('RelayOptimisticMutationUtils', () => {
       });
       expect(fields).toEqualFields(Relay.QL`
         fragment on Actor {
-          id,
+          id
           address {
-            city,
-          },
+            city
+          }
         }
       `);
       expect(fields[1].canHaveSubselections()).toBe(true);
@@ -119,8 +119,8 @@ describe('RelayOptimisticMutationUtils', () => {
       });
       expect(fields).toEqualFields(Relay.QL`
         fragment on Actor {
-          id,
-          websites,
+          id
+          websites
         }
       `);
       expect(fields[1].isPlural()).toBe(true);
@@ -136,10 +136,10 @@ describe('RelayOptimisticMutationUtils', () => {
       });
       expect(fields).toEqualFields(Relay.QL`
         fragment on Actor {
-          id,
+          id
           screennames {
-            service,
-          },
+            service
+          }
         }
       `);
       expect(fields[1].isPlural()).toBe(true);
@@ -151,8 +151,8 @@ describe('RelayOptimisticMutationUtils', () => {
         websites: [],
       })).toEqualFields(Relay.QL`
         fragment on Actor {
-          id,
-          websites,
+          id
+          websites
         }
       `);
     });
@@ -163,8 +163,8 @@ describe('RelayOptimisticMutationUtils', () => {
         websites: [null],
       })).toEqualFields(Relay.QL`
         fragment on Actor {
-          id,
-          websites,
+          id
+          websites
         }
       `);
     });
@@ -175,8 +175,8 @@ describe('RelayOptimisticMutationUtils', () => {
         'url(site: "www")': 'https://...',
       })).toEqualFields(Relay.QL`
         fragment on Actor {
-          id,
-          url(site: "www"),
+          id
+          url(site: "www")
         }
       `);
     });
@@ -186,7 +186,7 @@ describe('RelayOptimisticMutationUtils', () => {
         'url(relative: true)': '//...',
       })).toEqualFields(Relay.QL`
         fragment on Actor {
-          url(relative: true),
+          url(relative: true)
         }
       `);
     });
@@ -199,7 +199,7 @@ describe('RelayOptimisticMutationUtils', () => {
       })).toEqualFields(Relay.QL`
         fragment on Comment {
           comments(last: 10) {
-            count,
+            count
           }
         }
       `);
@@ -241,20 +241,20 @@ describe('RelayOptimisticMutationUtils', () => {
         },
       })).toEqualFields(Relay.QL`
         fragment on Actor {
-          id,
+          id
           friends(first: "2") {
             edges {
               node {
-                id,
-                name,
-              },
-              cursor,
-            },
+                id
+                name
+              }
+              cursor
+            }
             pageInfo {
-              hasNextPage,
-              hasPreviousPage,
-            },
-          },
+              hasNextPage
+              hasPreviousPage
+            }
+          }
         }
       `);
     });
@@ -268,7 +268,7 @@ describe('RelayOptimisticMutationUtils', () => {
       })).toEqualFields(Relay.QL`
         fragment on NodeSavedStateResponsePayload {
           node {
-            id,
+            id
             name
           }
         }
@@ -284,8 +284,8 @@ describe('RelayOptimisticMutationUtils', () => {
         name: 'Alice',
       })).toEqualFields(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
     });

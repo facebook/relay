@@ -41,7 +41,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
+            id
             name
           }
         }
@@ -70,7 +70,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
+            id
             name
           }
         }
@@ -172,14 +172,14 @@ describe('writeRelayQueryPayload()', () => {
           node(id:"123") {
             friends(first:"3") {
               edges {
-                cursor,
+                cursor
                 node {
                   id
-                },
-              },
+                }
+              }
               pageInfo {
-                hasNextPage,
-                hasPreviousPage,
+                hasNextPage
+                hasPreviousPage
               }
             }
           }

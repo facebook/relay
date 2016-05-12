@@ -46,9 +46,9 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         username(name:"joe") {
-          id,
-          firstName,
-          lastName,
+          id
+          firstName
+          lastName
         }
       }
     `);
@@ -65,9 +65,9 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"123") {
-          id,
-          firstName,
-          lastName,
+          id
+          firstName
+          lastName
         }
       }
     `);
@@ -101,9 +101,9 @@ describe('diffRelayQuery', () => {
     const fetchQuery = getNode(Relay.QL`
       query {
         node(id:"123") {
-          id,
-          firstName,
-          lastName,
+          id
+          firstName
+          lastName
         }
       }
     `);

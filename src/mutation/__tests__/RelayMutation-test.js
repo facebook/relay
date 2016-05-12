@@ -57,7 +57,7 @@ describe('RelayMutation', function() {
           `,
           bar: () => Relay.QL`
             fragment on Node {
-              id,
+              id
             }
           `,
         };

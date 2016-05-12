@@ -110,7 +110,7 @@ describe('RelayContainer', function() {
         fragments: {
           viewer: Relay.QL`
             fragment on Viewer {
-              newsFeed,
+              newsFeed
             }
           `,
         },
@@ -182,8 +182,8 @@ describe('RelayContainer', function() {
         fragments: {
           user: () => Relay.QL`
             fragment on Actor {
-              id,
-              name,
+              id
+              name
               ${MockProfileLink.getFragment('user')}
             }
           `,
@@ -193,7 +193,7 @@ describe('RelayContainer', function() {
         fragments: {
           user: () => Relay.QL`
             fragment on Actor {
-              id,
+              id
               url
             }
           `,
@@ -205,9 +205,9 @@ describe('RelayContainer', function() {
       );
       expect(fragment).toEqualQueryNode(getNode(Relay.QL`
         fragment on Actor {
-          id,
-          __typename,
-          name,
+          id
+          __typename
+          name
           ${Relay.QL`
             fragment on Actor {
               id,
@@ -255,7 +255,7 @@ describe('RelayContainer', function() {
         fragments: {
           viewer: variables => Relay.QL`
             fragment on Viewer {
-              ${MockProfile.getFragment('viewer').if(variables.hasSideshow)},
+              ${MockProfile.getFragment('viewer').if(variables.hasSideshow)}
             }
           `,
         },
@@ -295,7 +295,7 @@ describe('RelayContainer', function() {
             fragment on Viewer {
               ${MockProfile
                 .getFragment('viewer')
-                .unless(variables.hasSideshow)},
+                .unless(variables.hasSideshow)}
             }
           `,
         },

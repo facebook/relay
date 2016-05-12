@@ -292,9 +292,9 @@ describe('readRelayQueryData', () => {
     const query = getNode(Relay.QL`
       fragment on Actor {
         address {
-          city,
-        },
-        firstName,
+          city
+        }
+        firstName
       }
     `);
     const data = readData(getStoreData({records}), query, '1055790163');
@@ -315,8 +315,8 @@ describe('readRelayQueryData', () => {
     };
     const query = getNode(Relay.QL`
       fragment on Feedback {
-        id,
-        doesViewerLike,
+        id
+        doesViewerLike
       }
     `);
     let data = readData(getStoreData({records}), query, 'feedbackID');
@@ -515,8 +515,8 @@ describe('readRelayQueryData', () => {
     const fragment1 = Relay.QL`fragment on Actor{address{city}}`;
     const fragment2 = Relay.QL`fragment on Actor{address{country}}`;
     const query = getNode(Relay.QL`  fragment on Actor {
-            ${fragment1},
-            ${fragment2},
+            ${fragment1}
+            ${fragment2}
           }`);
     const data = readData(getStoreData({records}), query, '1055790163');
     expect(data).toEqual({
@@ -601,8 +601,8 @@ describe('readRelayQueryData', () => {
     const query = getNode(Relay.QL`
       fragment on Feedback {
         topLevelComments(first:"1") {
-          count,
-        },
+          count
+        }
       }
     `);
 
@@ -645,11 +645,11 @@ describe('readRelayQueryData', () => {
     const query = getNode(Relay.QL`
       fragment on Feedback {
         topLevelComments(first:"1") {
-          count,
+          count
           pageInfo {
-            hasNextPage,
-          },
-        },
+            hasNextPage
+          }
+        }
       }`
     );
 
@@ -721,9 +721,9 @@ describe('readRelayQueryData', () => {
       fragment on LikersOfContentConnection {
         edges {
           node {
-            name,
-          },
-        },
+            name
+          }
+        }
       }
     `;
     let query = getNode(Relay.QL`
@@ -731,8 +731,8 @@ describe('readRelayQueryData', () => {
         feedback {
           likers {
             ${edgesFragment}
-          },
-        },
+          }
+        }
       }
     `);
     expect(
@@ -743,8 +743,8 @@ describe('readRelayQueryData', () => {
     const pageInfoFragment = Relay.QL`
       fragment on LikersOfContentConnection {
         pageInfo {
-          hasNextPage,
-        },
+          hasNextPage
+        }
       }
     `;
     query = getNode(Relay.QL`
@@ -752,9 +752,9 @@ describe('readRelayQueryData', () => {
         feedback {
           likers {
             ${pageInfoFragment}
-          },
-        },
-      },
+          }
+        }
+      }
     `);
     expect(
       () => readData(getStoreData({records}), query, 'story_id')
@@ -904,9 +904,9 @@ describe('readRelayQueryData', () => {
     const query = getNode(Relay.QL`  fragment on Feedback{
             comments(first:"1") {
               pageInfo {
-                startCursor,
-                ${fragmentReference},
-              },
+                startCursor
+                ${fragmentReference}
+              }
             }
           }`);
 
@@ -976,11 +976,11 @@ describe('readRelayQueryData', () => {
               edges {
                 node {
                   id
-                },
-              },
+                }
+              }
               pageInfo {
                 startCursor
-              },
+              }
               ${fragmentReference}
             }
           }`);
@@ -1059,13 +1059,13 @@ describe('readRelayQueryData', () => {
     );
     const query = getNode(Relay.QL`
       fragment on User {
-        id,
+        id
         hometown {
-          name,
-        },
+          name
+        }
         screennames {
-          ${fragmentReference},
-        },
+          ${fragmentReference}
+        }
       }
     `);
 
@@ -1094,7 +1094,7 @@ describe('readRelayQueryData', () => {
         viewer {
           actor {
             name
-          },
+          }
         }
       }
     `);
@@ -1119,10 +1119,10 @@ describe('readRelayQueryData', () => {
   it('does not clobber previously-read sibling fields when a linked dataID is `null` or `undefined`', () => {
     const query = getNode(Relay.QL`
       fragment on User {
-        id,
+        id
         address {
-          city,
-        },
+          city
+        }
       }
     `);
     let records = {
@@ -1152,8 +1152,8 @@ describe('readRelayQueryData', () => {
       query {
         viewer {
           actor {
-            name,
-          },
+            name
+          }
         }
       }
     `);
@@ -1313,8 +1313,8 @@ describe('readRelayQueryData', () => {
     const query = getNode(Relay.QL`
       fragment on User {
         friends {
-          count,
-        },
+          count
+        }
       }
     `);
     let records = {
@@ -1368,7 +1368,7 @@ describe('readRelayQueryData', () => {
     // The `feedback` field here only has a generated `id`, so is "empty".
     let query = getNode(Relay.QL`
       fragment on Story {
-        id,
+        id
         feedback
       }
     `);
@@ -1422,11 +1422,11 @@ describe('readRelayQueryData', () => {
           edges {
             node {
               address {
-                city,
+                city
                 country
               }
-            },
-          },
+            }
+          }
         }
       `,
       {}
@@ -1434,8 +1434,8 @@ describe('readRelayQueryData', () => {
     const query = getNode(Relay.QL`
       fragment on User {
         friends(first:"25") {
-          ${fragmentReference},
-        },
+          ${fragmentReference}
+        }
       }
     `);
 
@@ -1560,9 +1560,9 @@ describe('readRelayQueryData', () => {
       fragment on Feedback {
         topLevelComments(first:"1") {
           pageInfo {
-            hasNextPage,
-          },
-        },
+            hasNextPage
+          }
+        }
       }`
     );
 
@@ -1862,7 +1862,7 @@ describe('readRelayQueryData', () => {
               startCursor
             }
           }
-        },
+        }
       `);
       // Missing edges due to non-empty `diffCalls`.
       GraphQLRange.prototype.retrieveRangeInfoForQuery.mockReturnValue({
@@ -1911,7 +1911,7 @@ describe('readRelayQueryData', () => {
           comments(first: "1") {
             edges {
               node {
-                id,
+                id
                 body {
                   text
                 }

@@ -100,7 +100,7 @@ describe('toGraphQL', function() {
       query {
         viewer {
           actor {
-            id,
+            id
             name
           }
         }
@@ -112,7 +112,7 @@ describe('toGraphQL', function() {
     expect(toGraphQL.Query).toConvert(Relay.QL`
       query {
         nodes(ids:["1","2","3"]) {
-          id,
+          id
           name
         }
       }
@@ -123,7 +123,7 @@ describe('toGraphQL', function() {
     expect(toGraphQL.Fragment).toConvert(Relay.QL`
       fragment on Viewer {
         actor {
-          id,
+          id
           name
         }
       }
@@ -135,7 +135,7 @@ describe('toGraphQL', function() {
       query {
         viewer {
           actor {
-            id,
+            id
             url(site:"www")
           }
         }
@@ -171,7 +171,7 @@ describe('toGraphQL', function() {
       query {
         viewer {
           actor {
-            ${defer(fragment)},
+            ${defer(fragment)}
           }
         }
       }
@@ -190,7 +190,7 @@ describe('toGraphQL', function() {
     const relayQuery = getNode(Relay.QL`
       query {
         checkinSearchQuery(query:$q) {
-          query,
+          query
         }
       }
     `, {

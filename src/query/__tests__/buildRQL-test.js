@@ -50,7 +50,7 @@ describe('buildRQL', () => {
       const builder = () => Relay.QL`
         query {
           node(id:"123") {
-            id,
+            id
           }
         }
       `;
@@ -61,7 +61,7 @@ describe('buildRQL', () => {
       const invalid = {};
       const builder = () => Relay.QL`
         fragment on Node {
-          ${invalid},
+          ${invalid}
         }
       `;
       expect(() => buildRQL.Fragment(builder, {})).toFailInvariant(
@@ -73,10 +73,10 @@ describe('buildRQL', () => {
     it('creates fragments with variables', () => {
       const builder = () => Relay.QL`
         fragment on Node {
-          id,
+          id
           profilePicture(size:$sizeVariable) {
-            uri,
-          },
+            uri
+          }
         }
       `;
       const node = buildRQL.Fragment(builder, {sizeVariable: null});
@@ -100,10 +100,10 @@ describe('buildRQL', () => {
     it('returns === fragments', () => {
       const builder = () => Relay.QL`
         fragment on Node {
-          id,
+          id
           profilePicture(size:$sizeVariable) {
-            uri,
-          },
+            uri
+          }
         }
       `;
       const node1 = buildRQL.Fragment(builder, {sizeVariable: null});
@@ -116,7 +116,7 @@ describe('buildRQL', () => {
     it('returns undefined if the node is not a query', () => {
       const builder = () => Relay.QL`
         fragment on Node {
-          id,
+          id
         }
       `;
       expect(
@@ -128,7 +128,7 @@ describe('buildRQL', () => {
       const builder = Component => Relay.QL`
         query {
           node(id:$id) {
-            id,
+            id
             ${Component.getFragment('foo')}
           }
         }

@@ -35,11 +35,11 @@ describe('subtractRelayQuery', () => {
     const minQuery = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           hometown {
-            id,
-            name,
-          },
+            id
+            name
+          }
           name
         }
       }
@@ -59,11 +59,11 @@ describe('subtractRelayQuery', () => {
       const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             hometown {
-              id,
-              name,
-            },
+              id
+              name
+            }
             name
           }
         }
@@ -81,10 +81,10 @@ describe('subtractRelayQuery', () => {
       const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             hometown {
-              id,
-            },
+              id
+            }
             name
           }
         }
@@ -104,9 +104,9 @@ describe('subtractRelayQuery', () => {
       const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             hometown {
-              id,
+              id
             }
           }
         }
@@ -128,9 +128,9 @@ describe('subtractRelayQuery', () => {
           node(id:"123") {
             friends(first:"10") {
               edges {
-                live_cursor: cursor,
-              },
-            },
+                live_cursor: cursor
+              }
+            }
           }
         }
       `);
@@ -138,8 +138,8 @@ describe('subtractRelayQuery', () => {
         query {
           node(id:"123") {
             friends(first:"1") {
-              count,
-            },
+              count
+            }
           }
         }
       `);
@@ -148,9 +148,9 @@ describe('subtractRelayQuery', () => {
           node(id:"123") {
             friends(first:"10") {
               edges {
-                live_cursor: cursor,
-              },
-            },
+                live_cursor: cursor
+              }
+            }
           }
         }
       `);
@@ -165,10 +165,10 @@ describe('subtractRelayQuery', () => {
             newsFeed(first:"1") {
               edges {
                 node {
-                  special_id: id,
-                },
-              },
-            },
+                  special_id: id
+                }
+              }
+            }
           }
         }
       `);
@@ -179,11 +179,11 @@ describe('subtractRelayQuery', () => {
               edges {
                 node {
                   actor {
-                    name,
-                  },
-                },
-              },
-            },
+                    name
+                  }
+                }
+              }
+            }
           }
         }
       `);
@@ -197,8 +197,8 @@ describe('subtractRelayQuery', () => {
         query {
           node(id:"UzpfSTU0MTUzNTg0MzoxMDE1Mjk3MDY0NjAzNTg0NA==") {
             feedback {
-              doesViewerLike,
-              ${defer(fragment)},
+              doesViewerLike
+              ${defer(fragment)}
             }
           }
         }
@@ -217,10 +217,10 @@ describe('subtractRelayQuery', () => {
       const expected = getNode(Relay.QL`
         query {
           node(id:"UzpfSTU0MTUzNTg0MzoxMDE1Mjk3MDY0NjAzNTg0NA==") {
-            id,
+            id
             feedback {
-              id,
-            },
+              id
+            }
           }
         }
       `);
@@ -232,11 +232,11 @@ describe('subtractRelayQuery', () => {
       let minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
-            name,
+            id
+            name
             birthdate {
               day
-            },
+            }
           }
         }
       `);
@@ -251,10 +251,10 @@ describe('subtractRelayQuery', () => {
       minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             hometown {
-              id,
-              name,
+              id
+              name
               url
             }
           }
@@ -268,9 +268,9 @@ describe('subtractRelayQuery', () => {
       expected = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             hometown {
-              id,
+              id
               url
             }
           }
@@ -283,11 +283,11 @@ describe('subtractRelayQuery', () => {
       const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             hometown {
-              id,
+              id
               address {
-                country,
+                country
                 city
               }
             }
@@ -302,9 +302,9 @@ describe('subtractRelayQuery', () => {
       const expected = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             hometown {
-              id,
+              id
               address {
                 city
               }
@@ -325,16 +325,16 @@ describe('subtractRelayQuery', () => {
       const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
-            name,
+            id
+            name
           }
         }
       `);
       const subQuery = getNode(Relay.QL`
         query {
           node(id:"660361306") {
-            id,
-            name,
+            id
+            name
           }
         }
       `);
@@ -350,7 +350,7 @@ describe('subtractRelayQuery', () => {
     it('preserves fields from fragments within a range', () => {
       const fragment = Relay.QL`
         fragment on User {
-          name,
+          name
         }
       `;
       const minQuery = getNode(Relay.QL`
@@ -359,11 +359,11 @@ describe('subtractRelayQuery', () => {
             friends(first: "10") {
               edges {
                 node {
-                  id,
-                  ${fragment},
-                },
-              },
-            },
+                  id
+                  ${fragment}
+                }
+              }
+            }
           }
         }
       `);
@@ -373,11 +373,11 @@ describe('subtractRelayQuery', () => {
             friends(first: "10") {
               edges {
                 node {
-                  id,
+                  id
                   firstName
-                },
-              },
-            },
+                }
+              }
+            }
           }
         }
       `);
@@ -388,7 +388,7 @@ describe('subtractRelayQuery', () => {
     it('preserves fields from deferred fragments within a range', () => {
       const fragment = Relay.QL`
         fragment on User {
-          name,
+          name
         }
       `;
       const minQuery = getNode(Relay.QL`
@@ -397,12 +397,12 @@ describe('subtractRelayQuery', () => {
             friends(first: "5") {
               edges {
                 node {
-                  id,
-                  firstName,
-                  ${defer(fragment)},
-                },
-              },
-            },
+                  id
+                  firstName
+                  ${defer(fragment)}
+                }
+              }
+            }
           }
         }
       `);
@@ -420,12 +420,12 @@ describe('subtractRelayQuery', () => {
       const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             hometown {
-              id,
-              name,
+              id
+              name
               url
-            },
+            }
             name
           }
         }
@@ -438,11 +438,11 @@ describe('subtractRelayQuery', () => {
       const expected = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             hometown {
-              id,
+              id
               name
-            },
+            }
             name
           }
         }
@@ -456,7 +456,7 @@ describe('subtractRelayQuery', () => {
           node(id:"123") {
             hometown {
               name
-            },
+            }
             friends(first:"5") {
               edges {
                 node {
@@ -498,7 +498,7 @@ describe('subtractRelayQuery', () => {
           viewer {
             actor {
               id
-            },
+            }
           }
         }
       `);
@@ -571,8 +571,8 @@ describe('subtractRelayQuery', () => {
       const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
-            name,
+            id
+            name
             ${minFragment}
           }
         }
@@ -600,12 +600,12 @@ describe('subtractRelayQuery', () => {
       const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             hometown {
-              id,
-              name,
+              id
+              name
               url
-            },
+            }
             name
           }
         }
@@ -615,7 +615,7 @@ describe('subtractRelayQuery', () => {
         query {
           node(id:"4") {
             hometown {
-              id,
+              id
               ${subFragment}
             }
           }
@@ -625,11 +625,11 @@ describe('subtractRelayQuery', () => {
       const expected = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             hometown {
-              id,
+              id
               url
-            },
+            }
             name
           }
         }
@@ -644,7 +644,7 @@ describe('subtractRelayQuery', () => {
       const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             ${minFragment}
           }
         }
@@ -655,9 +655,9 @@ describe('subtractRelayQuery', () => {
         query {
           node(id:"4") {
             hometown {
-              id,
+              id
               ${subFragmentPage}
-            },
+            }
             ${subFragmentNode}
           }
         }
@@ -761,7 +761,7 @@ describe('subtractRelayQuery', () => {
             friends(first:"3") {
               edges {
                 node {
-                  name,
+                  name
                   firstName
                 }
               }
@@ -803,17 +803,17 @@ describe('subtractRelayQuery', () => {
       const minQuery = getNode(Relay.QL`
         query {
           node(id:"4") {
-            id,
+            id
             friends(first:"5") {
               edges {
-                cursor,
+                cursor
                 node {
-                  id,
+                  id
                   name
                 }
-              },
+              }
               pageInfo {
-                hasNextPage,
+                hasNextPage
                 hasPreviousPage
               }
             }
@@ -825,14 +825,14 @@ describe('subtractRelayQuery', () => {
           node(id:"4") {
             friends(first:"5") {
               edges {
-                cursor,
+                cursor
                 node {
-                  id,
+                  id
                   name
                 }
-              },
+              }
               pageInfo {
-                hasNextPage,
+                hasNextPage
                 hasPreviousPage
               }
             }
@@ -849,7 +849,7 @@ describe('subtractRelayQuery', () => {
             friends(first:"5") {
               edges {
                 node {
-                  name,
+                  name
                   firstName
                 }
               }
@@ -880,7 +880,7 @@ describe('subtractRelayQuery', () => {
             friends(orderby:"importance",first:"3") {
               edges {
                 node {
-                  name,
+                  name
                   firstName
                 }
               }

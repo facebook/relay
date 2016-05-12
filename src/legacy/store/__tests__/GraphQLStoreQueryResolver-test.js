@@ -57,8 +57,8 @@ describe('GraphQLStoreQueryResolver', () => {
     mockQueryFragment = getNode(Relay.QL`fragment on Node{id,name}`);
     mockPluralQueryFragment = getNode(Relay.QL`
       fragment on Node @relay(plural:true) {
-        id,
-        name,
+        id
+        name
       }
     `);
 

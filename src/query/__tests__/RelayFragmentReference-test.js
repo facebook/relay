@@ -35,8 +35,8 @@ describe('RelayFragmentReference', () => {
     const node = Relay.QL`
       fragment on User {
         profilePicture(size:$size) {
-          uri,
-        },
+          uri
+        }
       }
     `;
     // equivalent to `getQuery('foo')` without variables
@@ -59,8 +59,8 @@ describe('RelayFragmentReference', () => {
     const node = Relay.QL`
       fragment on User {
         profilePicture(size:$size) {
-          uri,
-        },
+          uri
+        }
       }
     `;
     // equivalent to `getQuery('foo', {size: variables.outerSize})`

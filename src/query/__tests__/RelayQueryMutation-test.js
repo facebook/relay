@@ -39,9 +39,9 @@ describe('RelayQueryMutation', () => {
     mutationQuery = getNode(Relay.QL`
       mutation {
         commentCreate(input:$input) {
-          clientMutationId,
+          clientMutationId
           feedbackCommentEdge {
-            node {id},
+            node {id}
             source {id}
           }
         }
@@ -92,9 +92,9 @@ describe('RelayQueryMutation', () => {
     const equivalentQuery = getNode(Relay.QL`
       mutation {
         commentCreate(input:$input) {
-          clientMutationId,
+          clientMutationId
           feedbackCommentEdge {
-            node {id},
+            node {id}
             source {id}
           }
         }
@@ -103,10 +103,10 @@ describe('RelayQueryMutation', () => {
     const differentQuery = getNode(Relay.QL`
       mutation {
         commentCreate(input:$input) {
-          clientMutationId,
+          clientMutationId
           feedbackCommentEdge {
-            cursor,
-            node {id},
+            cursor
+            node {id}
             source {id}
           }
         }

@@ -65,8 +65,8 @@ describe('writePayload()', () => {
         query {
           viewer {
             actor {
-              id,
-            },
+              id
+            }
           }
         }
       `);
@@ -103,7 +103,7 @@ describe('writePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
+            id
           }
         }
       `);
@@ -134,9 +134,9 @@ describe('writePayload()', () => {
           viewer {
             actor {
               address {
-                city,
-              },
-            },
+                city
+              }
+            }
           }
         }
       `);
@@ -159,8 +159,8 @@ describe('writePayload()', () => {
         query {
           node(id:"123") {
             address {
-              city,
-            },
+              city
+            }
           }
         }
       `);
@@ -187,12 +187,12 @@ describe('writePayload()', () => {
         query {
           node(id:"123") {
             allPhones {
-              isVerified,
+              isVerified
               phoneNumber {
-                displayNumber,
-                countryCode,
-              },
-            },
+                displayNumber
+                countryCode
+              }
+            }
           }
         }
       `);
@@ -241,13 +241,13 @@ describe('writePayload()', () => {
             friends(first:"1") {
               edges {
                 node {
-                  id,
+                  id
                   address {
-                    city,
-                  },
-                },
-              },
-            },
+                    city
+                  }
+                }
+              }
+            }
           }
         }
       `);
@@ -358,8 +358,8 @@ describe('writePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
-            name,
+            id
+            name
           }
         }
       `);
@@ -388,8 +388,8 @@ describe('writePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            ${fragment},
-            ${fragment},
+            ${fragment}
+            ${fragment}
           }
         }
       `);
@@ -421,8 +421,8 @@ describe('writePayload()', () => {
         query {
           viewer {
             actor {
-              name,
-            },
+              name
+            }
           }
         }
       `);
@@ -506,10 +506,10 @@ describe('writePayload()', () => {
             friends(first:"1") {
               edges {
                 node {
-                  name,
-                },
-              },
-            },
+                  name
+                }
+              }
+            }
           }
         }
       `);
@@ -557,10 +557,10 @@ describe('writePayload()', () => {
             friends(first:"1") {
               edges {
                 node {
-                  name,
-                },
-              },
-            },
+                  name
+                }
+              }
+            }
           }
         }
       `);
@@ -593,10 +593,10 @@ describe('writePayload()', () => {
             friends(after:"c1",first:"1") {
               edges {
                 node {
-                  name,
-                },
-              },
-            },
+                  name
+                }
+              }
+            }
           }
         }
       `);
@@ -635,19 +635,19 @@ describe('writePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            name,
+            name
             allPhones {
               phoneNumber {
-                displayNumber,
-              },
-            },
+                displayNumber
+              }
+            }
             friends(first:"1") {
               edges {
                 node {
-                  name,
-                },
-              },
-            },
+                  name
+                }
+              }
+            }
           }
         }
       `);

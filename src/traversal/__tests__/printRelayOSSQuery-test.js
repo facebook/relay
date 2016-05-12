@@ -35,8 +35,8 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(Relay.QL`
         query {
           me {
-            firstName,
-            lastName,
+            firstName
+            lastName
           }
         }
       `);
@@ -90,7 +90,7 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            name,
+            name
           }
         }
       `);
@@ -113,9 +113,9 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(Relay.QL`
         query FooQuery {
           node(id: 123) {
-            name,
-            id,
-          },
+            name
+            id
+          }
         }
       `);
       const {text, variables} = printRelayOSSQuery(query);
@@ -137,8 +137,8 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(Relay.QL`
         query {
           usernames(names:["a","b","c"]) {
-            firstName,
-            lastName,
+            firstName
+            lastName
           }
         }
       `);
@@ -162,8 +162,8 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(Relay.QL`
         query FooQuery {
           nodes(ids: [123, 456]) {
-            name,
-            id,
+            name
+            id
           }
         }
       `);
@@ -187,8 +187,8 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(Relay.QL`
         query FooQuery {
           settings(environment: $env) {
-            notificationSounds,
-          },
+            notificationSounds
+          }
         }
       `, {
         env: enumValue,
@@ -211,7 +211,7 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(Relay.QL`
         query {
           checkinSearchQuery(query: $q) {
-            query,
+            query
           }
         }
       `, {
@@ -235,7 +235,7 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(Relay.QL`
         query {
           checkinSearchQuery(query: {query: "Menlo Park"}) {
-            query,
+            query
           }
         }
       `);
@@ -410,8 +410,8 @@ describe('printRelayOSSQuery', () => {
       const fragment = getNode(Relay.QL`
         fragment on Viewer {
           actor {
-            id,
-          },
+            id
+          }
         }
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
@@ -471,8 +471,8 @@ describe('printRelayOSSQuery', () => {
       const fragmentB = Relay.QL`fragment on User { lastName }`;
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          ${fragmentA},
-          ${fragmentB},
+          ${fragmentA}
+          ${fragmentB}
         }
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
@@ -500,8 +500,8 @@ describe('printRelayOSSQuery', () => {
       const fragmentB = Relay.QL`fragment on User { name }`;
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          ${fragmentA},
-          ${fragmentB},
+          ${fragmentA}
+          ${fragmentB}
         }
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
@@ -564,8 +564,8 @@ describe('printRelayOSSQuery', () => {
 
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          ${fragmentA},
-          ${fragmentB},
+          ${fragmentA}
+          ${fragmentB}
         }
       `);
       const {text, variables} = printRelayOSSQuery(fragment);
@@ -728,9 +728,9 @@ describe('printRelayOSSQuery', () => {
       const fragment = getNode(Relay.QL`
         fragment on Actor {
           friends(
-            first: $first,
-            orderby: $orderby,
-            isViewerFriend: $isViewerFriend,
+            first: $first
+            orderby: $orderby
+            isViewerFriend: $isViewerFriend
           ) {
             edges {
               node {
@@ -777,7 +777,7 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(Relay.QL`
         query {
           defaultSettings {
-            ${fragment},
+            ${fragment}
           }
         }
       `, {
@@ -806,9 +806,9 @@ describe('printRelayOSSQuery', () => {
       const fragment = getNode(Relay.QL`
         fragment on Viewer {
           actor {
-            id,
-            ${nestedFragment},
-            ${nestedFragment},
+            id
+            ${nestedFragment}
+            ${nestedFragment}
           }
         }
       `);
@@ -838,18 +838,18 @@ describe('printRelayOSSQuery', () => {
     const mutation = getNode(Relay.QL`
       mutation {
         feedbackLike(input: $input) {
-          clientMutationId,
+          clientMutationId
           feedback {
-            id,
+            id
             actor {
               profilePicture(preset: SMALL) {
-                uri,
-              },
-            },
-            likeSentence,
-            likers,
-          },
-        },
+                uri
+              }
+            }
+            likeSentence
+            likers
+          }
+        }
       }
     `, {input: inputValue});
 

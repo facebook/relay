@@ -672,10 +672,10 @@ describe('RelayContainer.setVariables', function() {
       const MockInnerContainer = Relay.createContainer(MockInnerComponent, {
         fragments: {
           entity: () => Relay.QL`  fragment on Actor {
-                        url(site:$site),
+                        url(site:$site)
                         profilePicture(size:$size) {
-                          uri,
-                        },
+                          uri
+                        }
                       }`,
         },
         initialVariables: {

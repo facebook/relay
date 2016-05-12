@@ -56,10 +56,10 @@ describe('RelayQueryField', () => {
           friends(first:"1") {
             edges {
               node {
-                special_id: id,
-              },
-            },
-          },
+                special_id: id
+              }
+            }
+          }
         }
       }
     `);
@@ -235,8 +235,8 @@ describe('RelayQueryField', () => {
     const query = getNode(Relay.QL`
       fragment on Story {
         feedback {
-          id,
-          canViewerComment,
+          id
+          canViewerComment
         }
       }
     `).getChildren()[0];

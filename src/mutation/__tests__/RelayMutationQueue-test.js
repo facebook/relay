@@ -544,9 +544,13 @@ describe('RelayMutationQueue', () => {
       const transaction = mutationQueue.createTransaction(mockMutation);
       storeData.injectQueryTracker(null);
       expect(() => transaction.commit()).toFailInvariant(
-        'RelayMutationQueue: a RelayQueryTracker instance must be ' +
-        'configured. Use `RelayStoreData.injectQueryTracker()` in order to ' +
-        'process RelayMutation instances.',
+        'RelayMutationQueue: a RelayQueryTracker was not configured but an ' +
+        'attempt to process a RelayMutation instance was made. Either use ' +
+        'RelayGraphQLMutation (which does not require a tracker), or use ' +
+        '`RelayStoreData.injectQueryTracker()` to configure a tracker. Be ' +
+        'aware that trackers are provided by default, so if you are seeing ' +
+        'this error it means that somebody has explicitly intended to opt ' +
+        'out of query tracking.'
       );
     });
   });

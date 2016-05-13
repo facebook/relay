@@ -14,6 +14,7 @@
 
 import type {ChangeSubscription} from 'RelayInternalTypes';
 import type RelayMutationRequest from 'RelayMutationRequest';
+import type RelayEnvironment from 'RelayEnvironment';
 const Relay = require('RelayPublic');
 import type RelayQueryRequest from 'RelayQueryRequest';
 
@@ -31,10 +32,10 @@ class RelayNetworkDebugger {
   _queryID: number;
   _subscription: ChangeSubscription;
 
-  constructor() {
+  constructor(environment: RelayEnvironment) {
     this._initTime = performanceNow();
     this._queryID = 0;
-    this._subscription = Relay.Store.addNetworkSubscriber(
+    this._subscription = environment.addNetworkSubscriber(
       request =>
         this.logRequest(createDebuggableFromRequest('Relay Query', request)),
       request =>
@@ -104,9 +105,9 @@ function createDebuggableFromRequest(
 let networkDebugger: ?RelayNetworkDebugger;
 
 const RelayNetworkDebug = {
-  init(): void {
+  init(environment: RelayEnvironment = Relay.Store): void {
     networkDebugger && networkDebugger.uninstall();
-    networkDebugger = new RelayNetworkDebugger();
+    networkDebugger = new RelayNetworkDebugger(environment);
   },
 
   logRequest(request: RelayNetworkDebuggable): void {

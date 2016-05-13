@@ -252,7 +252,14 @@ const RelayMutationQuery = {
         const callsWithValues = trackedConnection.getRangeBehaviorCalls();
         const rangeBehavior =
           getRangeBehavior(rangeBehaviors, callsWithValues);
-
+        /* eslint-disable no-console */
+        if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+          const serializeRelayQueryCall = require('serializeRelayQueryCall');
+          const serializedCalls =
+            callsWithValues.map(serializeRelayQueryCall).sort().join('');
+          console.log(serializedCalls + ': ' + (rangeBehavior || ''));
+        }
+        /* eslint-enable no-console */
         if (rangeBehavior && rangeBehavior !== REFETCH) {
           // Include edges from all connections that exist in `rangeBehaviors`.
           // This may add duplicates, but they will eventually be flattened.

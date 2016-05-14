@@ -28,6 +28,8 @@ const RelayQuery = require('RelayQuery');
 const RelayRoute = require('RelayRoute');
 const RelayTestUtils = require('RelayTestUtils');
 
+const warning = require('warning');
+
 describe('RelayContainer', function() {
   let MockContainer;
   let MockComponent;
@@ -771,14 +773,13 @@ describe('RelayContainer', function() {
     expect(props.bar).toBe(null);
     expect(props.foo).toBe(mockData);
 
-    expect([
-      'RelayContainer: Expected prop `%s` supplied to `%s` to ' +
-      'be data fetched by Relay. This is likely an error unless ' +
-      'you are purposely passing in mock data that conforms to ' +
-      'the shape of this component\'s fragment.',
-      'foo',
-      'MockComponent',
-    ]).toBeWarnedNTimes(1);
+    expect(warning.mock.calls.filter(call =>
+      call[0] === false && call[1].indexOf(
+        'RelayContainer: component `%s` was rendered with variables ' +
+        'that differ from the variables used to fetch fragment ' +
+        '`%s`.'
+      ) === 0
+    ).length).toBe(1);
   });
 
   it('warns if fragment pointer exists on a different prop', () => {
@@ -901,14 +902,13 @@ describe('RelayContainer', function() {
       mockRoute
     );
 
-    expect([
-      'RelayContainer: Expected prop `%s` supplied to `%s` to ' +
-      'be data fetched by Relay. This is likely an error unless ' +
-      'you are purposely passing in mock data that conforms to ' +
-      'the shape of this component\'s fragment.',
-      'bar',
-      'MockComponent',
-    ]).toBeWarnedNTimes(1);
+    expect(warning.mock.calls.filter(call =>
+      call[0] === false && call[1].indexOf(
+        'RelayContainer: component `%s` was rendered with variables ' +
+        'that differ from the variables used to fetch fragment ' +
+        '`%s`.'
+      ) === 0
+    ).length).toBe(1);
   });
 
   it('throws if some plural fragment items are null', () => {

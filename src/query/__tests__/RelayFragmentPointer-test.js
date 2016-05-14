@@ -49,7 +49,7 @@ describe('RelayFragmentPointer', () => {
       expect(fragmentProp).toEqual({
         __dataID__: dataID,
         __fragments__: {
-          [fragment.getConcreteFragmentID()]: dataID,
+          [fragment.getConcreteFragmentID()]: [{}],
         },
       });
     });
@@ -62,7 +62,24 @@ describe('RelayFragmentPointer', () => {
       expect(fragmentProp).toEqual({
         __dataID__: dataID,
         __fragments__: {
-          [pluralFragment.getConcreteFragmentID()]: dataID,
+          [pluralFragment.getConcreteFragmentID()]: [{}],
+        },
+      });
+    });
+
+    it('distinguishes fragments with different variables', () => {
+      const fragment = Relay.QL`fragment on Node { id }`;
+      const fragment1 = getNode(fragment, {foo: 'bar'});
+      const fragment2 = getNode(fragment, {sizes: [42]});
+      const fragmentProp = RelayFragmentPointer.create(dataID, fragment1);
+      RelayFragmentPointer.addFragment(fragmentProp, fragment2, dataID);
+      expect(fragmentProp).toEqual({
+        __dataID__: dataID,
+        __fragments__: {
+          [fragment1.getConcreteFragmentID()]: [
+            {foo: 'bar'},
+            {sizes: [42]},
+          ],
         },
       });
     });
@@ -84,7 +101,7 @@ describe('RelayFragmentPointer', () => {
       expect(result).toEqual({
         __dataID__: '123',
         __fragments__: {
-          [getNode(rootFragment).getConcreteFragmentID()]: '123',
+          [getNode(rootFragment).getConcreteFragmentID()]: [{}],
         },
       });
     });
@@ -162,7 +179,7 @@ describe('RelayFragmentPointer', () => {
       expect(obj).toEqual({
         foo: 'bar',
         __fragments__: {
-          [fragment.getConcreteFragmentID()]: dataID,
+          [fragment.getConcreteFragmentID()]: [{}],
         },
       });
     });
@@ -176,7 +193,7 @@ describe('RelayFragmentPointer', () => {
       expect(obj).toEqual({
         foo: 'bar',
         __fragments__: {
-          [pluralFragment.getConcreteFragmentID()]: dataID,
+          [pluralFragment.getConcreteFragmentID()]: [{}],
         },
       });
     });

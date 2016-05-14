@@ -437,7 +437,7 @@ describe('readRelayQueryData', () => {
       address: {
         __dataID__: 'address',
         __fragments__: {
-          [fragment.id]: 'address',
+          [fragment.id]: [{}],
         },
         __resolvedFragmentMapGeneration__: 42,
       },
@@ -460,13 +460,15 @@ describe('readRelayQueryData', () => {
     const fragment = Relay.QL`fragment on Viewer{actor{firstName}}`;
     const fragmentReference = RelayFragmentReference.createForContainer(
       () => fragment,
-      {}
+      {
+        foo: 'bar',
+      }
     );
     const query = getNode(Relay.QL`query{viewer{${fragmentReference}}}`);
     const data = readData(getStoreData({records}), query, 'client:1');
     expect(data.__dataID__).toBe('client:1');
     expect(data.__fragments__).toEqual({
-      [getNode(fragment).getConcreteFragmentID()]: 'client:1',
+      [getNode(fragment).getConcreteFragmentID()]: [{foo: 'bar'}],
     });
   });
 
@@ -941,7 +943,7 @@ describe('readRelayQueryData', () => {
     const fragmentSourceID =
       getNode(fragmentReference.getFragment()).getConcreteFragmentID();
     expect(data.comments.pageInfo.__fragments__).toEqual({
-      [fragmentSourceID]: 'comments_id_first(1)',
+      [fragmentSourceID]: [{}],
     });
   });
 
@@ -1022,7 +1024,7 @@ describe('readRelayQueryData', () => {
     const fragmentSourceID =
       getNode(fragmentReference.getFragment()).getConcreteFragmentID();
     expect(data.comments.__fragments__).toEqual({
-      [fragmentSourceID]: 'comments_id_first(1)',
+      [fragmentSourceID]: [{}],
     });
   });
 
@@ -1079,12 +1081,12 @@ describe('readRelayQueryData', () => {
     const fragmentSourceID0 =
       getNode(fragmentReference.getFragment()).getConcreteFragmentID();
     expect(screennames[0].__fragments__).toEqual({
-      [fragmentSourceID0]: 'client1',
+      [fragmentSourceID0]: [{}],
     });
     const fragmentSourceID1 =
       getNode(fragmentReference.getFragment()).getConcreteFragmentID();
     expect(screennames[1].__fragments__).toEqual({
-      [fragmentSourceID1]: 'client2',
+      [fragmentSourceID1]: [{}],
     });
   });
 
@@ -1493,7 +1495,7 @@ describe('readRelayQueryData', () => {
       friends: {
         __dataID__: 'friendsID_first(25)',
         __fragments__: {
-          [fragmentSourceID]: 'friendsID_first(25)',
+          [fragmentSourceID]: [{}],
         },
       },
     });

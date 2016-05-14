@@ -604,10 +604,23 @@ function createContainerComponent(
           let dataIDs = null;
           propValue.forEach((item, ii) => {
             if (typeof item === 'object' && item != null) {
-              const dataID = RelayFragmentPointer.getDataID(item, fragment);
-              if (dataID) {
-                dataIDs = dataIDs || [];
-                dataIDs.push(dataID);
+              if (RelayFragmentPointer.hasConcreteFragment(item, fragment)) {
+                const dataID = RelayRecord.getDataIDForObject(item);
+                if (dataID) {
+                  dataIDs = dataIDs || [];
+                  dataIDs.push(dataID);
+                }
+              }
+              if (__DEV__) {
+                if (!route.useMockData && !this._didShowFakeDataWarning) {
+                  const isValid = validateFragmentProp(
+                    componentName,
+                    fragmentName,
+                    fragment,
+                    item
+                  );
+                  this._didShowFakeDataWarning = !isValid;
+                }
               }
             }
           });
@@ -631,22 +644,18 @@ function createContainerComponent(
             fragmentName,
             componentName
           );
-          dataIDOrIDs = RelayFragmentPointer.getDataID(propValue, fragment);
-        }
-        if (dataIDOrIDs == null) {
-          // TODO: Throw when we have mock data validation, #6332949.
+          if (RelayFragmentPointer.hasConcreteFragment(propValue, fragment)) {
+            dataIDOrIDs = RelayRecord.getDataIDForObject(propValue);
+          }
           if (__DEV__) {
             if (!route.useMockData && !this._didShowFakeDataWarning) {
-              this._didShowFakeDataWarning = true;
-              warning(
-                false,
-                'RelayContainer: Expected prop `%s` supplied to `%s` to ' +
-                'be data fetched by Relay. This is likely an error unless ' +
-                'you are purposely passing in mock data that conforms to ' +
-                'the shape of this component\'s fragment.',
+              const isValid = validateFragmentProp(
+                componentName,
                 fragmentName,
-                componentName
+                fragment,
+                propValue
               );
+              this._didShowFakeDataWarning = !isValid;
             }
           }
         }
@@ -667,7 +676,7 @@ function createContainerComponent(
               !RelayRecord.isRecord(props[propName]) ||
               typeof props[propName] !== 'object' ||
               props[propName] == null ||
-              !RelayFragmentPointer.getDataID(
+              !RelayFragmentPointer.hasFragment(
                 props[propName],
                 fragment
               ),
@@ -1076,6 +1085,56 @@ function create(
   ContainerConstructor.moduleName = (null: ?string);
 
   return ContainerConstructor;
+}
+
+/**
+ * Returns whether the fragment `prop` contains a fragment pointer for the given
+ * fragment's data, warning if it does not.
+ */
+function validateFragmentProp(
+  componentName: string,
+  fragmentName: string,
+  fragment: RelayQuery.Fragment,
+  prop: Object
+): boolean {
+  const hasFragmentData = RelayFragmentPointer.hasFragment(
+    prop,
+    fragment
+  );
+  if (!hasFragmentData) {
+    const variables = fragment.getVariables();
+    const fetchedVariables = RelayFragmentPointer.getFragmentVariables(
+      prop,
+      fragment
+    );
+    warning(
+      false,
+      'RelayContainer: component `%s` was rendered with variables ' +
+      'that differ from the variables used to fetch fragment ' +
+      '`%s`. The fragment was fetched with variables `%s`, but rendered ' +
+      'with variables `%s`. This can indicate one of two possibilities: \n' +
+      ' - The parent set the correct variables in the query - ' +
+      '`%s.getFragment(\'%s\', {...})` - but did not pass the same ' +
+      'variables when rendering the component. Be sure to tell the ' +
+      'component what variables to use by passing them as props: ' +
+      '`<%s ... %s />`.\n' +
+      ' - You are intentionally passing fake data to this ' +
+      'component, in which case ignore this warning.',
+      componentName,
+      fragmentName,
+      fetchedVariables ?
+        fetchedVariables.map(vars => JSON.stringify(vars)).join(', ') :
+        '(not fetched)',
+      JSON.stringify(variables),
+      componentName,
+      fragmentName,
+      componentName,
+      Object.keys(variables).map(key => {
+        return `${key}={...}`;
+      }).join(' ')
+    );
+  }
+  return hasFragmentData;
 }
 
 module.exports = {create};

@@ -423,7 +423,7 @@ Given a parent, a connection, one or more DataIDs in the response payload, and a
 
 - `pathToConnection: Array<string>`
 
-  Any array containing the field names between the parent and the connection, including the parent and the connection
+  An array containing the field names between the parent and the connection, including the parent and the connection
 
 
 #### Example

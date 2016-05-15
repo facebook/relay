@@ -92,38 +92,19 @@ class ProfileRoute extends Relay.Route {
     viewer: () => Relay.QL`query { viewer }`
   };
   static prepareParams = (prevParams) => {
-    // Make sure any params that ProfileRoute gets initialised with will still be passed down.
     return {
+      // Ensure any params that ProfileRoute gets initialised with will still be passed down.
       ...prevParams,
+      //  Override the `limit` variable in the top level container.
       limit: 10
     }
   }
   // ...
 }
 
-const Child = Relay.createContainer((props) => ..., {
-  initialVariables: {
-    limit: null
-  },
-  fragments: {
-    viewer: ({limit}) => Relay.QL`
-      fragment on User {
-        friends(first: $limit) {
-          edges {
-            node {
-              name
-            }
-          }
-        }
-      }
-    `
-  }
-});
-
-const Container = Relay.createContainer((props) => (
+const Container = Relay.createContainer(({viewer}) => (
   <View>
-    <Child viewer={viewer} limit={this.props.relay.variables.limit} />
-    <Child viewer={viewer} limit={20} />
+    {viewer.edges.map((node) => <div>node.name</div>)}
   </View>
   ), {
   initialVariables: {
@@ -131,10 +112,14 @@ const Container = Relay.createContainer((props) => (
   },
   fragments: {
     viewer: ({limit}) => Relay.QL`
-      fragment on User {
-        name
-        ${Child.getFragment('viewer', {limit})}
-        ${Child.getFragment('viewer', {limit: 20})}
+      fragment on Viewer {
+        friends(first: $limit) {
+          edges {
+            node {
+              name
+            }
+          }
+        }
       }
     `
   }
@@ -163,6 +148,7 @@ class ProfileRoute extends Relay.Route {
   // ...
 }
 ```
+In this example the Route should be initialised with an `userID` which gets passed on to the query. That `userID` variable will automatically be passed down to the top-level container and can be used there if needed. Further the top-level RelayContainer is expected to have a `user` fragment with the fields to be queried.
 
 ### routeName (static property)
 

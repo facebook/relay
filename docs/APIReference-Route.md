@@ -104,7 +104,7 @@ class ProfileRoute extends Relay.Route {
 
 const Container = Relay.createContainer(({viewer}) => (
   <View>
-    {viewer.edges.map((node) => <div>node.name</div>)}
+    {viewer.edges.map((edge) => <div>edge.node.name</div>)}
   </View>
   ), {
   initialVariables: {

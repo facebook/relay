@@ -39,6 +39,7 @@ import type {
 
 const buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder} from 'buildRQL';
+const filterObject = require('filterObject');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const isReactComponent = require('isReactComponent');
@@ -1067,6 +1068,11 @@ function create(
       fragmentName,
       fragmentName
     );
+    if (variableMapping) {
+      variableMapping = filterObject(variableMapping, (_, name) =>
+        Object.prototype.hasOwnProperty.call(initialVariables, name)
+      );
+    }
     return RelayFragmentReference.createForContainer(
       () => buildContainerFragment(
         containerName,

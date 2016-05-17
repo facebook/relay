@@ -37,8 +37,15 @@ describe('buildRQL', () => {
     });
     MockComponent = React.createClass({render});
     MockContainer = Relay.createContainer(MockComponent, {
+      initialVariables: {
+        size: null,
+      },
       fragments: {
-        foo: () => Relay.QL`fragment on Node { name }`,
+        foo: () => Relay.QL`fragment on User {
+          profilePicture(size: $size) {
+            uri
+          }
+        }`,
       },
     });
 
@@ -181,6 +188,31 @@ describe('buildRQL', () => {
       const node1 = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
       const node2 = buildRQL.Query(builder, MockContainer2, 'foo', {id: null});
       expect(node1 === node2).toBe(false);
+    });
+
+    it('filters the variables passed to components', () => {
+      const builder = (Component, variables) => Relay.QL`
+        query {
+          node(id: $id) {
+            ${Component.getFragment('foo', variables)}
+          }
+        }
+      `;
+      const variables = {
+        id: 123,
+        size: 32,
+      };
+      const node = buildRQL.Query(
+        builder,
+        MockContainer,
+        'foo',
+        variables
+      );
+      const query = getNode(node, variables);
+      expect(query.getVariables()).toEqual(variables);
+      expect(query.getChildren()[2].getVariables()).toEqual({
+        size: 32,
+      });
     });
 
     it('implicitly adds component fragments if not provided', () => {

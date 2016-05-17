@@ -88,6 +88,14 @@ export interface RelayEnvironmentInterface {
  * instance, server apps may create one instance per HTTP request.
  */
 class RelayEnvironment {
+  applyUpdate: (
+    mutation: RelayMutation,
+    callbacks?: RelayMutationTransactionCommitCallbacks
+  ) => RelayMutationTransaction;
+  commitUpdate: (
+    mutation: RelayMutation,
+    callbacks?: RelayMutationTransactionCommitCallbacks
+  ) => RelayMutationTransaction;
   _storeData: RelayStoreData;
 
   constructor() {
@@ -95,6 +103,8 @@ class RelayEnvironment {
     this._storeData.getChangeEmitter().injectBatchingStrategy(
       relayUnstableBatchedUpdates
     );
+    this.applyUpdate = this.applyUpdate.bind(this);
+    this.commitUpdate = this.commitUpdate.bind(this);
   }
 
   /**

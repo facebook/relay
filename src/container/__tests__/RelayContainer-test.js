@@ -534,9 +534,7 @@ describe('RelayContainer', function() {
   describe('props.relay.applyUpdate', () => {
     it('forwards to the underlying RelayEnvironment', () => {
       const mockMutation = new RelayMutation();
-      environment.applyUpdate = jest.fn(function() {
-        expect(this).toBe(environment);
-      });
+      environment.applyUpdate = jest.fn();
       render.mockImplementation(function() {
         this.props.relay.applyUpdate(mockMutation);
       });
@@ -552,9 +550,7 @@ describe('RelayContainer', function() {
   describe('props.relay.commitUpdate', () => {
     it('forwards to the underlying RelayEnvironment', () => {
       const mockMutation = new RelayMutation();
-      environment.commitUpdate = jest.fn(function() {
-        expect(this).toBe(environment);
-      });
+      environment.commitUpdate = jest.fn();
       render.mockImplementation(function() {
         this.props.relay.commitUpdate(mockMutation);
       });

@@ -201,6 +201,13 @@ describe('RelayEnvironment', () => {
         expect(mockMutation.bindEnvironment.mock.calls[0][0]).toBe(environment);
       });
 
+      it('always uses the pre-bound version of `this`', () => {
+        mockMutation.bindEnvironment = jest.fn();
+        const applyUpdate = environment.applyUpdate;
+        applyUpdate(mockMutation); // Without binding, `this` would be `global`.
+        expect(mockMutation.bindEnvironment.mock.calls[0][0]).toBe(environment);
+      });
+
       it('creates a new RelayMutationTransaction without committing it', () => {
         const transaction =
           environment.applyUpdate(mockMutation, mockCallbacks);
@@ -223,6 +230,13 @@ describe('RelayEnvironment', () => {
         expect(mockMutation.bindEnvironment.mock.calls[0][0]).toBe(environment);
       });
 
+      it('always uses the pre-bound version of `this`', () => {
+        mockMutation.bindEnvironment = jest.fn();
+        const commitUpdate = environment.commitUpdate;
+        commitUpdate(mockMutation); // Without binding, `this` would be `global`.
+        expect(mockMutation.bindEnvironment.mock.calls[0][0]).toBe(environment);
+      });
+
       it('creates a new RelayMutationTransaction and commits it', () => {
         environment.commitUpdate(mockMutation, mockCallbacks);
         expect(createTransactionMock).toBeCalledWith(
@@ -232,6 +246,5 @@ describe('RelayEnvironment', () => {
         expect(mockTransaction.commit).toBeCalled();
       });
     });
-
   });
 });

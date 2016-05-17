@@ -82,6 +82,17 @@ These are the methods and properties that the container will provide as `this.pr
   </li>
 </ul>
 
+*Static Methods*
+
+<ul class="apiIndex">
+  <li>
+    <a href="#getfragment">
+      <pre>getFragment(name, [vars])</pre>
+      Get a reference to a container fragment for inclusion in a parent fragment.
+    </a>
+  </li>
+</ul>
+
 ## Container Specification
 
 ### fragments
@@ -448,3 +459,82 @@ module.exports = Relay.createContainer(ProfilePicture, {
 - `COLLISION_COMMIT_FAILED` — Transaction was queued for commit but another transaction with the same collision key failed. All transactions in the collision queue, including this one, have been failed. Transaction can be recommitted or rolled back.
 - `COMMITTING` — Transaction is waiting for the server to respond.
 - `COMMIT_FAILED` — Transaction was sent to the server for comitting but failed.
+
+## Static Methods
+
+### getFragment
+
+```
+getFragment(
+  fragmentName: string, 
+  variables?: {[name: string]: mixed}
+): RelayFragmentReference
+```
+
+Gets a reference to a child container's fragment for inclusion in a parent fragment.
+
+#### Example
+
+Fragment composition is achieved via ES6 template string interpolation and `getFragment`: 
+
+```{6}
+// Parent.js
+Relay.createContainer(Parent, {
+  fragments: {
+    parentFragment: () => Relay.QL`
+      fragment on Foo {
+        id
+        ${Child.getFragment('childFragment')}
+      }
+    `,
+  }
+});
+// Child.js
+Relay.createContainer(Child, {
+  initialVariables: {
+    count: 5,
+  },
+  fragments: {
+    childFragment: () => Relay.QL`
+      fragment on Foo {
+        friends(first: $count) { ... }
+      }
+    `,
+  }
+});
+```
+
+In this example, whenever `Parent` is fetched, `Child`'s fragment will also be fetched. When rendering, `<Parent>` will only have access to the `props.foo.id` field;  data from the child fragment will be masked [*masked*](http://facebook.github.io/relay/docs/thinking-in-relay.html#data-masking). By default, `childFragment` will use its corresponding initial variables. Relay will fetch `friends(first: 5)`. When `<Child>` is rendered it will also make the initial variables available as `props.relay.variables = {count: 5}`.
+
+#### Overriding Fragment Variables
+
+Sometimes a parent needs to override the default variables of a child component. Imagine that we want to render `Child` above with a count of 10 instead of the default 5. To do this, we have to ensure that both the fragment *and* the container know about the custom variable. To set a custom variable in the *query*, use the second argument to `getFragment`:
+
+```{6}
+// Parent.js
+Relay.createContainer(Parent, {
+  fragments: {
+    parentFragment: () => Relay.QL`
+      fragment on Foo {
+        id
+        ${Child.getFragment('childFragment', {count: 10)}
+      }
+    `,
+  }
+});
+```
+
+Now Relay will fetch 10 friends - but the `Child` container won't magically know about this variable. We have to tell it by passing the variable value as a prop:
+
+```{4}
+const Parent = (props) => {
+  return (
+    <Child 
+      childFragment={props.parentFragment} 
+      count={10} 
+    />;
+  );
+}
+```
+
+Now Relay will both fetch 10 friends *and* `Parent` will know to render them all.

@@ -33,7 +33,7 @@ class TodoListFooter extends Component {
       this._handleRemoveCompletedTodosPress.bind(this);
   }
   _handleRemoveCompletedTodosPress() {
-    Relay.Store.commitUpdate(
+    this.props.relay.commitUpdate(
       new RemoveCompletedTodosMutation({
         todos: this.props.viewer.todos,
         viewer: this.props.viewer,

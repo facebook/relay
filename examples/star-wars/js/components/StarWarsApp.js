@@ -26,7 +26,7 @@ class StarWarsApp extends React.Component {
 
   handleAddShip() {
     const name = this.state.shipName;
-    Relay.Store.commitUpdate(
+    this.props.relay.commitUpdate(
       new AddShipMutation({
         name,
         faction: this.props.factions[this.state.factionId],

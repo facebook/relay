@@ -1,5 +1,9 @@
 ## master
 
+* The `this.props.relay` prop passed into components by `Relay.Container` now
+  exposes `applyUpdate` and `commitUpdate` methods for dispatching mutations
+  in the context of the current `Relay.Environment`.
+
 ## 0.8.1 (April 27, 2016)
 
 * `RelayNetworkDebug` now logs query variables.

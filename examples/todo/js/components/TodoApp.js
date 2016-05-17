@@ -19,7 +19,7 @@ import Relay from 'react-relay';
 
 class TodoApp extends React.Component {
   _handleTextInputSave = (text) => {
-    Relay.Store.commitUpdate(
+    this.props.relay.commitUpdate(
       new AddTodoMutation({text, viewer: this.props.viewer})
     );
   };

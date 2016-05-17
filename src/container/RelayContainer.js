@@ -145,6 +145,8 @@ function createContainerComponent(
         queryData: {},
         rawVariables: {},
         relayProp: {
+          applyUpdate: this.context.relay.applyUpdate.bind(this.context.relay),
+          commitUpdate: this.context.relay.commitUpdate.bind(this.context.relay),
           forceFetch: this.forceFetch.bind(this),
           getPendingTransactions: this.getPendingTransactions.bind(this),
           hasFragmentData: this.hasFragmentData.bind(this),

@@ -56,7 +56,7 @@ class TodoList extends Component {
     const numTodos = this.props.viewer.totalCount;
     const numCompletedTodos = this.props.viewer.completedCount;
     const complete = numTodos !== numCompletedTodos;
-    Relay.Store.commitUpdate(
+    this.props.relay.commitUpdate(
       new MarkAllTodosMutation({
         complete,
         todos: this.props.viewer.todos,
@@ -68,12 +68,12 @@ class TodoList extends Component {
     this.setState({listScrollEnabled: swipeInactive});
   }
   _handleTextInputSave(text) {
-    Relay.Store.commitUpdate(
+    this.props.relay.commitUpdate(
       new AddTodoMutation({text, viewer: this.props.viewer})
     );
   }
   _handleTodoDestroy(todo) {
-    Relay.Store.commitUpdate(
+    this.props.relay.commitUpdate(
       new RemoveTodoMutation({
         todo,
         viewer: this.props.viewer,

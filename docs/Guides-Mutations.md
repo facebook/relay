@@ -79,8 +79,11 @@ Here's an example of this mutation in use by a `LikeButton` component:
 ```
 class LikeButton extends React.Component {
   _handleLike = () => {
-    // To perform a mutation, pass an instance of one to `Relay.Store.commitUpdate`
-    Relay.Store.commitUpdate(new LikeStoryMutation({story: this.props.story}));
+    // To perform a mutation, pass an instance of one to
+    // `this.props.relay.commitUpdate`
+    this.props.relay.commitUpdate(
+      new LikeStoryMutation({story: this.props.story})
+    );
   }
   render() {
     return (
@@ -465,7 +468,7 @@ A `REQUIRED_CHILDREN` config is used to append additional children to the mutati
 Data fetched as a result of a `REQUIRED_CHILDREN` config is not written into the client store, but you can add code that processes it in the `onSuccess` callback that you pass into `commitUpdate()`:
 
 ```
-Relay.Store.commitUpdate(
+this.props.relay.commitUpdate(
   new CreateCouponMutation(),
   {
     onSuccess: response => this.setState({

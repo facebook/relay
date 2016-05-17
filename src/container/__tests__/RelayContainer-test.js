@@ -24,6 +24,7 @@ const React = require('React');
 const ReactTestUtils = require('ReactTestUtils');
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
+const RelayMutation = require('RelayMutation');
 const RelayQuery = require('RelayQuery');
 const RelayRoute = require('RelayRoute');
 const RelayTestUtils = require('RelayTestUtils');
@@ -527,6 +528,42 @@ describe('RelayContainer', function() {
         public: 'parent2',
         private: 'prepared2',
       });
+    });
+  });
+
+  describe('props.relay.applyUpdate', () => {
+    it('forwards to the underlying RelayEnvironment', () => {
+      const mockMutation = new RelayMutation();
+      environment.applyUpdate = jest.fn(function() {
+        expect(this).toBe(environment);
+      });
+      render.mockImplementation(function() {
+        this.props.relay.applyUpdate(mockMutation);
+      });
+      RelayTestRenderer.render(
+        () => <MockContainer />,
+        environment,
+        mockRoute
+      );
+      expect(environment.applyUpdate.mock.calls[0][0]).toBe(mockMutation);
+    });
+  });
+
+  describe('props.relay.commitUpdate', () => {
+    it('forwards to the underlying RelayEnvironment', () => {
+      const mockMutation = new RelayMutation();
+      environment.commitUpdate = jest.fn(function() {
+        expect(this).toBe(environment);
+      });
+      render.mockImplementation(function() {
+        this.props.relay.commitUpdate(mockMutation);
+      });
+      RelayTestRenderer.render(
+        () => <MockContainer />,
+        environment,
+        mockRoute
+      );
+      expect(environment.commitUpdate.mock.calls[0][0]).toBe(mockMutation);
     });
   });
 

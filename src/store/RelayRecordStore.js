@@ -304,10 +304,15 @@ class RelayRecordStore {
     if (record == null) {
       return record;
     }
+    console.log(record)
     let connectionIDs;
     forEachObject(record, (datum, key) => {
+      console.log('datum', datum, 'key', key);
+      console.log('getFieldNameFromKey', getFieldNameFromKey(key))
       if (datum && getFieldNameFromKey(key) === schemaName) {
+        console.log('one step further')
         const connectionID = RelayRecord.getDataIDForObject(datum);
+        console.log(connectionID)
         if (connectionID) {
           connectionIDs = connectionIDs || [];
           connectionIDs.push(connectionID);

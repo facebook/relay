@@ -1069,7 +1069,7 @@ describe('writePayload()', () => {
         type: RelayMutationType.RANGE_ADD,
         parentName: 'feedback',
         elementName: 'feedbackCommentElement',
-        rangeBehaviors: () => GraphQLMutatorConstants.PREPEND,
+        // rangeBehaviors: () => GraphQLMutatorConstants.PREPEND,
       }];
 
       const nextNodeID = 'comment789';

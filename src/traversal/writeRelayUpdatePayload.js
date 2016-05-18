@@ -57,6 +57,15 @@ const EDGES_FIELD = RelayQuery.Field.build({
     isPlural: true,
   },
 });
+
+const NODE_FIELD = RelayQuery.Field.build({
+  type: ANY_TYPE,
+  metadata: {
+    canHaveSubselections: true,
+    isPlural: false,
+  },
+});
+
 const IGNORED_KEYS = {
   error: true,
   [CLIENT_MUTATION_ID]: true,
@@ -359,8 +368,12 @@ function handleRangeAdd(
   let connectionParentID;
   let nodeID;
   let rangeData;
+  let addRange = addRangeNode;
+  console.log('hhheeerrr bayby!')
   if (config.elementName) {
-    [connectionParentID, nodeID, rangeData] = _prepareSimpleRangeAdd(writer, payload, operation, config, isOptimisticUpdate)
+    [connectionParentID, nodeID, rangeData] = _prepareSimpleRangeAdd(writer, payload, operation, config, isOptimisticUpdate);
+    console.log(connectionParentID)
+    addRange = addRangeElement;
   } else {
     // Extracts the new edge from the payload
     const edge = getObject(payload, config.edgeName);
@@ -399,17 +412,26 @@ function handleRangeAdd(
 
   // add the node to every connection for this field
   const connectionIDs =
-    store.getConnectionIDsForField(connectionParentID, config.connectionName);
-  if (connectionIDs) {
-    connectionIDs.forEach(connectionID => addRangeNode(
-      writer,
-      operation,
-      config,
-      connectionID,
-      nodeID,
-      rangeData
-    ));
-  }
+    store.getConnectionIDsForField(connectionParentID, 'simpleTopLevelComments');
+  console.log(connectionIDs)
+  addRange(
+    writer,
+    operation,
+    config,
+    connectionParentID,
+    nodeID,
+    rangeData
+  )
+  // if (connectionIDs) {
+  //   connectionIDs.forEach(connectionID => addRange(
+  //     writer,
+  //     operation,
+  //     config,
+  //     connectionID,
+  //     nodeID,
+  //     rangeData
+  //   ));
+  // }
 
   if (isOptimisticUpdate) {
     // optimistic updates need to record the generated client ID for
@@ -431,6 +453,106 @@ function handleRangeAdd(
       );
       RelayMutationTracker.deleteClientIDForMutation(clientMutationID);
     }
+  }
+}
+
+/**
+ * Writes the node data for the given field to the store and prepends/appends
+ * the node to the given connection.
+ */
+function addRangeElement(
+  writer: RelayQueryWriter,
+  operation: RelayQuery.Operation,
+  config: OperationConfig,
+  connectionID: DataID,
+  nodeID: DataID,
+  edgeData: any
+) {
+  console.log('iiiiiinnnnnn addRangeElement--------')
+  const store = writer.getRecordStore();
+  const recordWriter = writer.getRecordWriter();
+  const filterCalls = store.getRangeFilterCalls(connectionID);
+  let rangeBehavior = APPEND;
+  console.log(rangeBehavior)
+  if (config.rangeBehaviors) {
+    rangeBehavior = filterCalls ?
+      getRangeBehavior(config.rangeBehaviors, filterCalls) :
+      null;
+  }
+  console.log(rangeBehavior);
+  // no range behavior specified for this combination of filter calls
+  if (!rangeBehavior || rangeBehavior === IGNORE) {
+    warning(
+      rangeBehavior,
+      'Using `null` as a rangeBehavior value is deprecated. Use `ignore` to avoid ' +
+      'refetching a range.'
+    );
+    return;
+  }
+  console.log('whaaaaaa')
+
+  // const edgeID = generateClientEdgeID(connectionID, nodeID);
+  let path = store.getPathToRecord(connectionID);
+  invariant(
+    path,
+    'writeRelayUpdatePayload(): Expected a path for connection record, `%s`.',
+    connectionID
+  );
+  // path = RelayQueryPath.getPath(path, EDGES_FIELD, edgeID);
+  console.log('coools')
+  // create the edge record
+  NODE_FIELD.fieldName = 'simpleTopLevelComments'
+  writer.createRecordIfMissing(NODE_FIELD, nodeID, path, edgeData);
+
+  console.log('Got operation!');
+  console.log(operation);
+
+  // write data for all `edges` fields
+  // TODO #7167718: more efficient mutation/subscription writes
+  let hasEdgeField = false;
+  const handleNode = node => {
+    node.getChildren().forEach(child => {
+      if (child instanceof RelayQuery.Fragment) {
+        handleNode(child);
+      } else if (
+        child instanceof RelayQuery.Field &&
+        child.getSchemaName() === config.edgeName
+      ) {
+        hasEdgeField = true;
+        if (path) {
+          writer.writePayload(
+            child,
+            nodeID,
+            edgeData,
+            path
+          );
+        }
+      }
+    });
+  };
+  handleNode(operation);
+
+  invariant(
+    hasEdgeField,
+    'writeRelayUpdatePayload(): Expected mutation query to include the ' +
+    'relevant edge field, `%s`.',
+    config.edgeName
+  );
+
+  // append/prepend the item to the range.
+  if (rangeBehavior in GraphQLMutatorConstants.RANGE_OPERATIONS) {
+    recordWriter.applyRangeUpdate(connectionID, edgeID, (rangeBehavior: any));
+    writer.recordUpdate(connectionID);
+  } else {
+    console.error(
+      'writeRelayUpdatePayload(): invalid range operation `%s`, valid ' +
+      'options are `%s`, `%s`, `%s`, or `%s`.',
+      rangeBehavior,
+      APPEND,
+      PREPEND,
+      IGNORE,
+      REFETCH,
+    );
   }
 }
 

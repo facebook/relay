@@ -42,7 +42,7 @@ class RelayDefaultNetworkLayer {
     (this: any).supports = this.supports.bind(this);
   }
 
-  sendMutation(request: RelayMutationRequest): ?Promise {
+  sendMutation(request: RelayMutationRequest): ?Promise<any> {
     return this._sendMutation(request).then(
       result => result.json()
     ).then(payload => {
@@ -62,7 +62,7 @@ class RelayDefaultNetworkLayer {
     );
   }
 
-  sendQueries(requests: Array<RelayQueryRequest>): ?Promise {
+  sendQueries(requests: Array<RelayQueryRequest>): ?Promise<any> {
     return Promise.all(requests.map(request => (
       this._sendQuery(request).then(
         result => result.json()
@@ -97,7 +97,7 @@ class RelayDefaultNetworkLayer {
   /**
    * Sends a POST request with optional files.
    */
-  _sendMutation(request: RelayMutationRequest): Promise {
+  _sendMutation(request: RelayMutationRequest): Promise<any> {
     let init;
     const files = request.getFiles();
     if (files) {
@@ -138,7 +138,7 @@ class RelayDefaultNetworkLayer {
   /**
    * Sends a POST request and retries if the request fails or times out.
    */
-  _sendQuery(request: RelayQueryRequest): Promise {
+  _sendQuery(request: RelayQueryRequest): Promise<any> {
     return fetchWithRetries(this._uri, {
       ...this._init,
       body: JSON.stringify({

@@ -23,7 +23,7 @@ const performanceNow = require('performanceNow');
 export type RelayNetworkDebuggable = {
   name: string;
   type: string;
-  promise: Promise;
+  promise: Promise<any>;
   logResult: (error: ?Object, response: ?Object) => void;
 };
 

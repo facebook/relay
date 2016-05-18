@@ -190,8 +190,8 @@ export type CacheWriter = {
 
 // Network requests
 export type NetworkLayer = {
-  sendMutation: (request: RelayMutationRequest) => ?Promise;
-  sendQueries: (requests: Array<RelayQueryRequest>) => ?Promise;
+  sendMutation: (request: RelayMutationRequest) => ?Promise<any>;
+  sendQueries: (requests: Array<RelayQueryRequest>) => ?Promise<any>;
   supports: (...options: Array<string>) => boolean;
 };
 export type RequestOptions = {

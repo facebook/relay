@@ -68,7 +68,7 @@ type TransactionBuilder = (
 ) => PendingTransaction;
 type TransactionData = {
   id: ClientMutationID;
-  mutation: RelayMutation;
+  mutation: RelayMutation<any>;
   mutationTransaction: RelayMutationTransaction;
   onFailure: ?RelayMutationTransactionCommitFailureCallback;
   onSuccess: ?RelayMutationTransactionCommitSuccessCallback;
@@ -106,7 +106,7 @@ class RelayMutationQueue {
    * RelayMutation.
    */
   createTransaction(
-    mutation: RelayMutation,
+    mutation: RelayMutation<any>,
     callbacks: ?RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
     return this.createTransactionWithPendingTransaction(
@@ -387,7 +387,7 @@ class RelayMutationQueue {
 class RelayPendingTransaction {
   error: ?Error;
   id: ClientMutationID;
-  mutation: RelayMutation;
+  mutation: RelayMutation<any>;
   mutationTransaction: RelayMutationTransaction;
   onFailure: ?RelayMutationTransactionCommitFailureCallback;
   onSuccess: ?RelayMutationTransactionCommitSuccessCallback;

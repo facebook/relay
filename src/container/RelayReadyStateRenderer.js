@@ -39,7 +39,7 @@ type RelayContainerProps = {
 };
 type RelayContainerPropsFactory = RelayContainerPropsFactory;
 export type RelayRenderCallback =
-  (renderArgs: RelayRenderArgs) => ?React$Element;
+  (renderArgs: RelayRenderArgs) => ?React$Element<any>;
 type RelayRenderArgs = {
   done: boolean;
   error: ?Error;
@@ -85,7 +85,7 @@ class RelayReadyStateRenderer extends React.Component {
     };
   }
 
-  render(): ?React$Element {
+  render(): ?React$Element<any> {
     let children;
     let shouldUpdate = false;
 

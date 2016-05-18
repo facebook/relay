@@ -27,12 +27,12 @@ type RootContainerProps = {
   Component: RelayContainer;
   forceFetch?: ?boolean;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
-  renderFailure?: ?(error: Error, retry: ?() => void) => React$Element;
+  renderFailure?: ?(error: Error, retry: ?() => void) => React$Element<any>;
   renderFetched?: ?(
     data: Object,
     fetchState: ComponentFetchState
-  ) => React$Element;
-  renderLoading?: ?() => React$Element;
+  ) => React$Element<any>;
+  renderLoading?: ?() => React$Element<any>;
   route: RelayQueryConfigInterface;
 };
 
@@ -102,7 +102,7 @@ function RelayRootContainer({
   renderFetched,
   renderLoading,
   route,
-}: RootContainerProps): React$Element {
+}: RootContainerProps): React$Element<any> {
   return (
     <RelayRenderer
       Container={Component}

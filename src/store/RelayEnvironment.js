@@ -89,11 +89,11 @@ export interface RelayEnvironmentInterface {
  */
 class RelayEnvironment {
   applyUpdate: (
-    mutation: RelayMutation,
+    mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ) => RelayMutationTransaction;
   commitUpdate: (
-    mutation: RelayMutation,
+    mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ) => RelayMutationTransaction;
   _storeData: RelayStoreData;
@@ -249,7 +249,7 @@ class RelayEnvironment {
    * RelayMutationTransaction can be committed or rolled back at a later time.
    */
   applyUpdate(
-    mutation: RelayMutation,
+    mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
     mutation.bindEnvironment(this);
@@ -263,7 +263,7 @@ class RelayEnvironment {
    * the RelayMutationTransaction.
    */
   commitUpdate(
-    mutation: RelayMutation,
+    mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
     return this
@@ -277,7 +277,7 @@ class RelayEnvironment {
    * Method renamed to commitUpdate
    */
   update(
-    mutation: RelayMutation,
+    mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): void {
     warning(

@@ -20,7 +20,7 @@ import type {RelayContainer} from 'RelayTypes';
 const RelayOSSContainerProxy = {
   proxyMethods(
     Container: RelayContainer,
-    Component: ReactClass
+    Component: ReactClass<any>
   ): void {},
 };
 

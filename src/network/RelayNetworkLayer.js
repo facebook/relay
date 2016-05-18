@@ -137,7 +137,7 @@ class RelayNetworkLayer {
    * interfaces exposed by RelayContainer for retrieving data transparently via
    * queries defined on components.
    */
-  fetchRelayQuery(query: RelayQuery.Root): Promise {
+  fetchRelayQuery(query: RelayQuery.Root): Promise<any> {
     const currentQueue = this._queue || [];
     if (!this._queue) {
       this._queue = currentQueue;

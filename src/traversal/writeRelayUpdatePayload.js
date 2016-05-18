@@ -298,6 +298,42 @@ function mergeField(
   handleNode(operation);
 }
 
+function _prepareSimpleRangeAdd(
+  writer: RelayQueryWriter,
+  payload: PayloadObject,
+  operation: RelayQuery.Operation,
+  config: OperationConfig,
+  isOptimisticUpdate: boolean
+) : void {
+  // Extracts the new element from the payload
+  const newElement = getObject(payload, (config.elementName || 'newElement'));
+
+  // Extract the id of the node with that contains the list that we are adding
+  // the element to
+  let parentID = config.parentID;
+  if (!parentID) {
+    const edgeSource = getObject(payload, (config.parentName || 'source'));
+    if (edgeSource) {
+      parentID = getString(edgeSource, ID);
+    }
+  }
+
+  invariant(
+    parentID,
+    'writeRelayUpdatePayload(): Cannot handle new list element without a configured ' +
+    '`parentID` or a `%.id` field.',
+    config.parentName
+  );
+
+  const nodeID = getString(newElement, ID) || generateClientID();
+  const elementData = {
+    ...newElement,
+    id: nodeID,
+  };
+
+  return [parentID, nodeID, elementData];
+}
+
 /**
  * Handles the payload for a range addition. The configuration specifies:
  * - which field in the payload contains data for the new edge
@@ -320,38 +356,46 @@ function handleRangeAdd(
   );
   const store = writer.getRecordStore();
 
-  // Extracts the new edge from the payload
-  const edge = getObject(payload, config.edgeName);
-  const edgeNode = edge && getObject(edge, NODE);
-  if (!edge || !edgeNode) {
-    return;
-  }
-
-  // Extract the id of the node with the connection that we are adding to.
-  let connectionParentID = config.parentID;
-  if (!connectionParentID) {
-    const edgeSource = getObject(edge, 'source');
-    if (edgeSource) {
-      connectionParentID = getString(edgeSource, ID);
+  let connectionParentID;
+  let nodeID;
+  let rangeData;
+  if (config.elementName) {
+    [connectionParentID, nodeID, rangeData] = _prepareSimpleRangeAdd(writer, payload, operation, config, isOptimisticUpdate)
+  } else {
+    // Extracts the new edge from the payload
+    const edge = getObject(payload, config.edgeName);
+    const edgeNode = edge && getObject(edge, NODE);
+    if (!edge || !edgeNode) {
+      return;
     }
-  }
-  invariant(
-    connectionParentID,
-    'writeRelayUpdatePayload(): Cannot insert edge without a configured ' +
-    '`parentID` or a `%s.source.id` field.',
-    config.edgeName
-  );
 
-  const nodeID = getString(edgeNode, ID) || generateClientID();
-  const cursor = edge.cursor || STUB_CURSOR_ID;
-  const edgeData = {
-    ...edge,
-    cursor: cursor,
-    node: {
-      ...edgeNode,
-      id: nodeID,
-    },
-  };
+
+    // Extract the id of the node with the connection that we are adding to.
+    let connectionParentID = config.parentID;
+    if (!connectionParentID) {
+      const edgeSource = getObject(edge, 'source');
+      if (edgeSource) {
+        connectionParentID = getString(edgeSource, ID);
+      }
+    }
+    invariant(
+      connectionParentID,
+      'writeRelayUpdatePayload(): Cannot insert edge without a configured ' +
+      '`parentID` or a `%s.source.id` field.',
+      config.edgeName
+    );
+
+    const nodeID = getString(edgeNode, ID) || generateClientID();
+    const cursor = edge.cursor || STUB_CURSOR_ID;
+    const edgeData = {
+      ...edge,
+      cursor: cursor,
+      node: {
+        ...edgeNode,
+        id: nodeID,
+      },
+    };
+  }
 
   // add the node to every connection for this field
   const connectionIDs =
@@ -363,7 +407,7 @@ function handleRangeAdd(
       config,
       connectionID,
       nodeID,
-      edgeData
+      rangeData
     ));
   }
 
@@ -405,9 +449,12 @@ function addRangeNode(
   const store = writer.getRecordStore();
   const recordWriter = writer.getRecordWriter();
   const filterCalls = store.getRangeFilterCalls(connectionID);
-  const rangeBehavior = filterCalls ?
-    getRangeBehavior(config.rangeBehaviors, filterCalls) :
-    null;
+  let rangeBehavior = APPEND;
+  if (config.rangeBehaviors) {
+    rangeBehavior = filterCalls ?
+      getRangeBehavior(config.rangeBehaviors, filterCalls) :
+      null;
+  }
 
   // no range behavior specified for this combination of filter calls
   if (!rangeBehavior || rangeBehavior === IGNORE) {
@@ -419,17 +466,17 @@ function addRangeNode(
     return;
   }
 
-  const edgeID = generateClientEdgeID(connectionID, nodeID);
+  // const edgeID = generateClientEdgeID(connectionID, nodeID);
   let path = store.getPathToRecord(connectionID);
   invariant(
     path,
     'writeRelayUpdatePayload(): Expected a path for connection record, `%s`.',
     connectionID
   );
-  path = RelayQueryPath.getPath(path, EDGES_FIELD, edgeID);
+  // path = RelayQueryPath.getPath(path, EDGES_FIELD, edgeID);
 
   // create the edge record
-  writer.createRecordIfMissing(EDGES_FIELD, edgeID, path, edgeData);
+  writer.createRecordIfMissing(EDGES_FIELD, nodeID, path, edgeData);
 
   // write data for all `edges` fields
   // TODO #7167718: more efficient mutation/subscription writes
@@ -446,7 +493,7 @@ function addRangeNode(
         if (path) {
           writer.writePayload(
             child,
-            edgeID,
+            nodeID,
             edgeData,
             path
           );

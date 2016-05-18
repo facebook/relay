@@ -231,6 +231,7 @@ class RelayRecordStore {
     if (field == null) {
       return field;
     }
+    console.log(field)
     const record = RelayRecord.getRecord(field);
     invariant(
       record,

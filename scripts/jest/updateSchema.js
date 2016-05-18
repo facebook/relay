@@ -7,7 +7,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'graphql/language';

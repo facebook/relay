@@ -141,6 +141,7 @@ type CommentCreateResponsePayload {
   comment: Comment
   feedback: Feedback
   feedbackCommentEdge: CommentsEdge
+  feedbackCommentElement: Comment
 }
 
 type CommentDeleteResponsePayload {
@@ -212,6 +213,7 @@ type Feedback implements Node {
   subscribeStatus: String
   subscribers(first: String): SubscribersConnection
   topLevelComments(first: String): TopLevelCommentsConnection
+  simpleTopLevelComments: [Comment]
   tracking: String
   url(relative: Boolean, site: String): String
   websites: [String]

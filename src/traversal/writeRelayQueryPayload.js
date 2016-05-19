@@ -37,6 +37,7 @@ function writeRelayQueryPayload(
   const store = writer.getRecordStore();
   const recordWriter = writer.getRecordWriter();
   const path = RelayQueryPath.create(query);
+  console.log('in writeRelayQueryPayload, path:', path)
 
   RelayNodeInterface.getResultsFromPayload(query, payload)
     .forEach(({result, rootCallInfo}) => {

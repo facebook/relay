@@ -95,15 +95,19 @@ const RelayQueryPath = {
     node: RelayQuery.Field | RelayQuery.Fragment,
     dataID: ?DataID
   ): QueryPath {
+    console.log('---in RelayQueryPath getPath----')
     if (dataID == null || RelayRecord.isClientID(dataID)) {
+      console.log('in 1')
       return {
         node,
         parent,
         type: 'client',
       };
     } else if (parent.type === 'node' && parent.dataID === dataID) {
+      console.log('in 2')
       return parent;
     } else {
+      console.log('in 3')
       return {
         dataID,
         name: RelayQueryPath.getName(parent),

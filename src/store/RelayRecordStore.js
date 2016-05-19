@@ -262,6 +262,7 @@ class RelayRecordStore {
       storageKey,
       dataID
     );
+    console.log(field)
     return field.map((element, ii) => {
       const record = RelayRecord.getRecord(element);
       invariant(
@@ -304,6 +305,8 @@ class RelayRecordStore {
     if (record == null) {
       return record;
     }
+    console.log('in getConnectionIDsForField')
+    console.log(this._records)
     console.log(record)
     let connectionIDs;
     forEachObject(record, (datum, key) => {
@@ -460,7 +463,11 @@ class RelayRecordStore {
    * `undefined` if the record has not been fetched.
    */
   _getField(dataID: DataID, storageKey: string): ?FieldValue {
+    console.log('+++++++++in _getField+++++++')
     const storage = this._storage;
+    console.log(storage)
+    console.log(dataID, storageKey)
+    console.log('+++++++++end _getField+++++++')
     for (let ii = 0; ii < storage.length; ii++) {
       const record = storage[ii][dataID];
       if (record === null) {

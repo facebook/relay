@@ -1031,8 +1031,10 @@ describe('writePayload()', () => {
           ],
         },
       };
-      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-      writePayload(store, writer, query, payload);
+      // console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+      const results = writePayload(store, writer, query, payload);
+      console.log('Got results frim writePayload')
+      console.log(results)
       connectionIDs = store.getLinkedRecordIDs(feedbackID, 'simpleTopLevelComments');
     });
 
@@ -1112,7 +1114,9 @@ describe('writePayload()', () => {
           [nextNodeID]: true, // node added
           [bodyID]: true, // `body` subfield
         },
-        updated: {}
+        updated: {
+          [feedbackID]: true
+        }
       });
 
       // base records are updated: element added
@@ -1126,7 +1130,10 @@ describe('writePayload()', () => {
       expect(store.getType(nextNodeID)).toBe('Comment');
       // expect(store.getLinkedRecordID(nextNodeID, 'body')).toBe(bodyID);
       expect(store.getField(bodyID, 'text')).toBe(input.message.text);
-      expect(store.getLinkedRecordIDs(feedbackID, 'simpleTopLevelComments')).toBe(connectionIDs);
+      console.log('store getLinkedRecordIDs!')
+      console.log(store.getLinkedRecordIDs(feedbackID, 'simpleTopLevelComments'))
+      connectionIDs[1] = nextNodeID
+      expect(store.getLinkedRecordIDs(feedbackID, 'simpleTopLevelComments')).toEqual(connectionIDs);
       // expect(store.getRangeMetadata(
       //   connectionIDs[0],
       //   [{name: '', value: ''}]

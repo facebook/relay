@@ -548,6 +548,22 @@ class RelayRecordWriter {
     }
   }
 
+
+    /**
+     * Prepend, append, or delete edges to/from a range.
+     */
+  applyRangeElementUpdate(
+    connectionID: DataID,
+    edgeID: DataID,
+    operation: RangeOperation
+  ): void {
+    if (this._isOptimisticWrite) {
+      this._applyOptimisticRangeElementUpdate(connectionID, edgeID, operation);
+    } else {
+      this._applyServerRangeElementUpdate(connectionID, edgeID, operation);
+    }
+  }
+
   /**
    * Get edge data in a format compatibile with `GraphQLRange`.
    * TODO: change `GraphQLRange` to accept `(edgeID, cursor, nodeID)` tuple
@@ -594,6 +610,7 @@ class RelayRecordWriter {
     edgeID: DataID,
     operation: RangeOperation
   ): void {
+    console.log('----in applyServerRangeUpdate-----')
     const range: ?GraphQLRange = (this._getField(connectionID, RANGE): any);
     invariant(
       range,
@@ -618,10 +635,53 @@ class RelayRecordWriter {
         range.prependEdge(this._getRangeEdgeRecord(edgeID));
       }
     }
+    console.log('I do not have a chachewriter?????', this._cacheWriter)
     if (this._cacheWriter) {
       this._cacheWriter.writeField(connectionID, RANGE, range);
     }
   }
+
+
+    _applyServerRangeElementUpdate(
+      parentID: DataID,
+      nodeID: DataID,
+      operation: RangeOperation
+    ): void {
+      console.log('----in applyServerRangeUpdate-----')
+      // const range: ?GraphQLRange = (this._getField(connectionID, RANGE): any);
+      // invariant(
+      //   range,
+      //   'RelayRecordWriter: Cannot apply `%s` update to non-existent record ' +
+      //   '`%s`.',
+      //   operation,
+      //   connectionID
+      // );
+      const list = this._getField(parentID, 'simpleTopLevelComments');
+      // list.push()
+      console.log('|||||||||||||>>>>>>>>>>>>>>>>>>>||', parentID, list);
+      list.push({__dataID__: nodeID})
+      // if (operation === REMOVE) {
+      //   range.removeEdgeWithID(edgeID);
+      //   const nodeID = this.getLinkedRecordID(edgeID, 'node');
+      //   if (nodeID) {
+      //     this._removeConnectionForNode(connectionID, nodeID);
+      //   }
+      // } else {
+      //   const edgeRecord = this._getRangeEdgeRecord(edgeID);
+      //   const nodeID = RelayRecord.getDataID(edgeRecord.node);
+      //   this._addConnectionForNode(connectionID, nodeID);
+      //   if (operation === APPEND) {
+      //     range.appendEdge(this._getRangeEdgeRecord(edgeID));
+      //   } else {
+      //     range.prependEdge(this._getRangeEdgeRecord(edgeID));
+      //   }
+      // }
+      console.log('I do not have a chachewriter?????', this._cacheWriter)
+      if (this._cacheWriter) {
+        console.log('Writing field here with cacheWriter')
+        this._cacheWriter.writeField(parentID, 'simpleTopLevelComments', list);
+      }
+    }
 
   /**
    * Record that the node is contained in the connection.
@@ -676,6 +736,8 @@ class RelayRecordWriter {
    */
   _getField(dataID: DataID, storageKey: string): ?FieldValue {
     const record = this._records[dataID];
+    console.log('in _getField')
+    console.log(record)
     if (record === null) {
       return null;
     } else if (record && record.hasOwnProperty(storageKey)) {

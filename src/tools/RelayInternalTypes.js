@@ -117,4 +117,3 @@ export type ConnectionArgumentsMap = (
   InitialTailConnectionArgumentMap |
   TailConnectionArgumentMap
 );
-

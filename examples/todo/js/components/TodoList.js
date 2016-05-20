@@ -61,6 +61,7 @@ class TodoList extends React.Component {
 export default Relay.createContainer(TodoList, {
   initialVariables: {
     status: null,
+    limit: 2147483647
   },
 
   prepareVariables({status}) {

@@ -112,6 +112,31 @@ describe('RelayRenderer.renderArgs', () => {
     });
   });
 
+  it('is `stale` and has `props` when request resolves from cache', () => {
+    expect(request => request.resolve({stale:true})).toRenderWithArgs({
+      done: false,
+      error: null,
+      props: {},
+      stale: true,
+    });
+  });
+
+  it('has `props` when request resolves from cache after request fails', () => {
+    const error = new Error('Expected error.');
+    expect(request => request.fail(error)).toRenderWithArgs({
+      done: false,
+      error,
+      props: null,
+      stale: false,
+    });
+    expect(request => request.resolve({stale: true})).toRenderWithArgs({
+      done: false,
+      error,
+      props: {},
+      stale: true,
+    });
+  });
+
   it('has a `retry` function that retries the request', () => {
     const error = new Error('Expected error.');
     expect(request => request.fail(error)).toRenderWithArgs({error});

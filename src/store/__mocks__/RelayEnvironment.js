@@ -29,23 +29,25 @@ const resolveImmediate = require('resolveImmediate');
  */
 function genMockRequest(args) {
   let ready = false;
+  let error = null;
   return {
     abort() {
-      args[1]({aborted: true, done: false, error: null, ready, stale: false});
+      args[1]({aborted: true, done: false, error, ready, stale: false});
     },
     block() {
-      args[1]({aborted: false, done: false, error: null, ready, stale: false});
+      args[1]({aborted: false, done: false, error, ready, stale: false});
     },
     resolve(config) {
       const stale = config ? !!config.stale : false;
       ready = true;
-      args[1]({aborted: false, done: false, error: null, ready, stale});
+      args[1]({aborted: false, done: false, error, ready, stale});
     },
     succeed() {
       ready = true;
-      args[1]({aborted: false, done: true, error: null, ready, stale: false});
+      args[1]({aborted: false, done: true, error, ready, stale: false});
     },
-    fail(error) {
+    fail(e) {
+      error = e;
       args[1]({aborted: false, done: false, error, ready, stale: false});
     },
   };

@@ -125,6 +125,7 @@ const INACTIVE_READY_STATE = {
  */
 class RelayRenderer extends React.Component<void, Props, State> {
   gcHold: ?GarbageCollectionHold;
+  lastRequest: ?Abortable;
   mounted: boolean;
   pendingRequest: ?Abortable;
   props: Props;
@@ -166,7 +167,7 @@ class RelayRenderer extends React.Component<void, Props, State> {
         this._handleReadyStateChange({...readyState, mounted: false});
         return;
       }
-      if (request !== this.pendingRequest) {
+      if (request !== this.lastRequest) {
         // Ignore (abort) ready state if we have a new pending request.
         return;
       }
@@ -198,6 +199,7 @@ class RelayRenderer extends React.Component<void, Props, State> {
           onPrimeCache(querySet, onReadyStateChange) :
           environment.primeCache(querySet, onReadyStateChange)
       );
+    this.lastRequest = request;
   }
 
   /**

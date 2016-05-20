@@ -84,10 +84,10 @@ const containerContextTypes = {
  *  - Propagate the `route` via context (available on `this.props.relay`).
  *
  */
-function createContainerComponent(
-  Component: ReactClass<any>,
+function createContainerComponent<DefaultProps, Props, State, C: React$Component<DefaultProps, Props, State>>(
+  Component: Class<C>,
   spec: RelayContainerSpec
-): RelayContainerClass {
+): React$Component<DefaultProps, Props, State> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = getContainerName(Component);

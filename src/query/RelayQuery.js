@@ -774,6 +774,8 @@ class RelayQueryFragment extends RelayQueryNode {
   static build(
     name: string,
     type: string,
+    /* $FlowIssue: #11220887
+       `Array<Subclass-of-RelayQueryNode>` should be compatible here. */
     children?: ?Array<RelayQueryNode>,
     metadata?: ?{[key: string]: mixed}
   ): RelayQueryFragment {

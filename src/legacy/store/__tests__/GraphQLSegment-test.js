@@ -291,7 +291,7 @@ describe('GraphQLSegment', () => {
     expect(segment.__debug().idToIndices.edge2.length).toBe(1);
 
     const otherSegment = new GraphQLSegment();
-    var edge2 = edges.slice(1, 2);
+    const edge2 = edges.slice(1, 2);
     otherSegment.addEdgesAfterCursor(edge2, null);
     // bumping the edge
     otherSegment.removeEdge('edge2', 1001);
@@ -331,6 +331,7 @@ describe('GraphQLSegment', () => {
     expect(segment.containsEdgeWithCursor('cursor1')).toBeTruthy();
     // Deleted
     expect(segment.containsEdgeWithCursor('cursor2')).toBeFalsy();
+    expect(segment.containsEdgeWithCursor('cursor2', true)).toBeTruthy();
   });
 
   it('should get first and last cursor in segment', () => {

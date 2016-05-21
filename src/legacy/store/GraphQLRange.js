@@ -208,13 +208,19 @@ class GraphQLRange {
    * @return {?number}
    */
   _getSegmentIndexByCursor(cursor) {
+    let deletedIndex = null;
     // TODO: revisit if we end up having too many segments
     for (let ii = 0; ii < this._orderedSegments.length; ii++) {
       if (this._orderedSegments[ii].containsEdgeWithCursor(cursor)) {
         return ii;
+      } else if (this._orderedSegments[ii].containsEdgeWithCursor(
+        cursor,
+        true
+      )) {
+        deletedIndex = ii;
       }
     }
-    return null;
+    return deletedIndex;
   }
 
   /**

@@ -1817,15 +1817,39 @@ describe('GraphQLRange', () => {
       {name: 'after', value: 'cursor3'},
       {name: 'first', value: 1},
     ]);
-    const queryCallsWithSession = [
+  });
+
+  it('should retrieve with deleted bumped edges cursor', () => {
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
-    result = range.retrieveRangeInfoForQuery(queryCallsWithSession);
+
+    const pageInfo = {
+      [HAS_NEXT_PAGE]: true,
+      [HAS_PREV_PAGE]: false,
+    };
+    range.addItems(queryCalls, first3Edges, pageInfo);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
+
+    // bump the second edge
+    const afterQueryCalls = [
+      {name: 'after', value: 'cursor3'},
+      {name: 'first', value: 1},
+    ];
+    const bumpedEdge = {...edge2};
+    bumpedEdge.cursor = 'differentCursor';
+    range.addItems(afterQueryCalls, [bumpedEdge], pageInfo);
+
+    const queryCallsWithCursor = [
+      {name: 'after', value: 'cursor2'},
+      {name: 'first', value: 3},
+    ];
+    result = range.retrieveRangeInfoForQuery(queryCallsWithCursor);
     expect(result.requestedEdgeIDs).toEqual(
-      [edge1.__dataID__, edge3.__dataID__]
+      [edge3.__dataID__, bumpedEdge.__dataID__]
     );
     expect(result.diffCalls).toEqual([
-      {name: 'after', value: 'cursor3'},
+      {name: 'after', value: 'differentCursor'},
       {name: 'first', value: 1},
     ]);
   });

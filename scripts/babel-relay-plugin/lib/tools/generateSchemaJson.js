@@ -31,7 +31,7 @@ try {
 
     var body = fs.readFileSync(inFile, 'utf8');
     var ast = language.parse(body);
-    var astSchema = utilities.buildASTSchema(ast, 'Root', 'Mutation', 'Subscription');
+    var astSchema = utilities.buildASTSchema(ast);
     graphql.graphql(astSchema, utilities.introspectionQuery).then(function (result) {
       var out = JSON.stringify(result, null, 2);
       fs.writeFileSync(outFile, out);

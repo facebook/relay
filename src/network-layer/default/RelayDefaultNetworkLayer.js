@@ -163,7 +163,11 @@ function throwOnServerError(response: any): any  {
   if (response.status >= 200 && response.status < 300) {
     return response;
   } else {
-    throw response;
+    return response.text().then(text => {
+      const error = new Error(text);
+      (error: any).status = response.status;
+      throw error;
+    });
   }
 }
 

@@ -36,6 +36,14 @@ describe('RelayDefaultNetworkLayer', () => {
     };
   }
 
+  function genFailureResponse(data) {
+    return {
+      json: () => Promise.resolve(data),
+      text: () => Promise.resolve(JSON.stringify(data)),
+      status: 500,
+    };
+  }
+
   beforeEach(() => {
     jest.resetModuleRegistry();
 
@@ -227,6 +235,33 @@ describe('RelayDefaultNetworkLayer', () => {
         '1. Something went wrong.',
       ].join('\n'));
       expect(error.source).toEqual(response);
+    });
+
+    it('handles server-side non-200 errors', () => {
+      const response = {
+        errors: [{
+          message: 'Something went completely wrong.',
+          locations: [{
+            column: 10,
+            line: 1,
+          }],
+        }],
+      };
+
+      expect(fetch).not.toBeCalled();
+      networkLayer.sendMutation(request);
+      expect(fetch).toBeCalled();
+      const failureResponse = genFailureResponse(response);
+      fetch.mock.deferreds[0].resolve(failureResponse);
+      jest.runAllTimers();
+
+      expect(rejectCallback.mock.calls.length).toBe(1);
+      const error = rejectCallback.mock.calls[0][0];
+      expect(error instanceof Error).toBe(true);
+      expect(error.message).toEqual('{"errors":[{"message":"Something went ' +
+        'completely wrong.","locations":[{"column":10,"line":1}]}]}');
+      expect(error.status).toEqual(failureResponse.status);
+      expect(error.source).toBe(undefined);
     });
 
   });

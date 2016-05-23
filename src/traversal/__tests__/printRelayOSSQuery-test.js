@@ -178,7 +178,7 @@ describe('printRelayOSSQuery', () => {
         }
       `);
       expect(variables).toEqual({
-        ids_0: [123,456],
+        ids_0: [123, 456],
       });
     });
 

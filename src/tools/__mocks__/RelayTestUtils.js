@@ -185,12 +185,18 @@ const RelayTestUtils = {
    * node 6. This utility generates the right string to expect in test cases.
    */
   getJSONTokenError(token, position) {
-    let errorTemplate = null;
     try {
       JSON.parse('@');
     } catch (error) {
       return error.message.replace('@', token).replace('0', position);
     }
+
+    const invariant = require('invariant');
+
+    invariant(
+      false,
+      'RelayTestUtils.getJSONTokenError(): JSON.parse should have thrown.'
+    );
   },
 
   getPointer(dataID, fragment) {

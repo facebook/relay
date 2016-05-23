@@ -715,7 +715,7 @@ describe('RelayMutationQuery', () => {
         'comments{orderby:"ranked_threaded"}',
         'feedback',
         '123',
-       ]).toBeWarnedNTimes(1);
+      ]).toBeWarnedNTimes(1);
     });
 
     it('refetches connections in the absence of a range config', () => {

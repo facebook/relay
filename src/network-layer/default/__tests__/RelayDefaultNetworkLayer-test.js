@@ -255,7 +255,7 @@ describe('RelayDefaultNetworkLayer', () => {
       const error = rejectCallback.mock.calls[0][0];
       expect(error instanceof Error).toBe(true);
       expect(error.message).toEqual('{"errors":[{"message":"Something went ' +
-        'completely wrong.","locations":[{"column":10,"line":1}]}]}');
+        'completely wrong."}]}');
       expect(error.status).toEqual(failureResponse.status);
       expect(error.source).toBe(undefined);
     });

@@ -240,11 +240,7 @@ describe('RelayDefaultNetworkLayer', () => {
     it('handles server-side non-200 errors', () => {
       const response = {
         errors: [{
-          message: 'Something went completely wrong.',
-          locations: [{
-            column: 10,
-            line: 1,
-          }],
+          message: 'Something went completely wrong.'
         }],
       };
 

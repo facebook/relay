@@ -79,7 +79,9 @@ export type UpdateOptions = {
   isOptimisticUpdate: boolean;
 };
 
-type RangeBehaviorsFunction = (connectionArgs: {[argName: string]: string}) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
+type RangeBehaviorsFunction = (
+  connectionArgs: {[argName: string]: string},
+) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 
 type RangeBehaviorsObject = {
   [key: string]: $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;

@@ -135,7 +135,7 @@ class RelayMutationQueue {
   createTransactionWithPendingTransaction(
     pendingTransaction: ?PendingTransaction,
     transactionBuilder: ?TransactionBuilder
-  ): RelayMutationTransaction{
+  ): RelayMutationTransaction {
     invariant(
       pendingTransaction || transactionBuilder,
       'RelayMutationQueue: `createTransactionWithPendingTransaction()` ' +

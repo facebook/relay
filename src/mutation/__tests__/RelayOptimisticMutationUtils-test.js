@@ -339,7 +339,7 @@ describe('RelayOptimisticMutationUtils', () => {
     });
 
     it('generates payload Boolean field arguments from keys', () => {
-        const field = RelayQuery.Field.build({
+      const field = RelayQuery.Field.build({
         calls: [{name: 'relative', value: true}],
         fieldName: 'url',
       });

@@ -2126,7 +2126,7 @@ describe('GraphQLRange', () => {
 
   it('returns correct segmented edge ids', () => {
     // Starts off with two empty segments.
-    expect(range.getSegmentedEdgeIDs()).toEqual([[],[]]);
+    expect(range.getSegmentedEdgeIDs()).toEqual([[], []]);
 
     const queryCalls = [
       {name: 'first', value: 3},

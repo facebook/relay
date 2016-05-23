@@ -1109,7 +1109,7 @@ class RelayQueryField extends RelayQueryNode {
       this.__rangeBehaviorCalls__ = rangeBehaviorCalls;
     }
     return rangeBehaviorCalls;
- }
+  }
 
   /**
    * The name for the field when serializing the query or interpreting query

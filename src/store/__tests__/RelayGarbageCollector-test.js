@@ -259,9 +259,8 @@ describe('RelayGarbageCollector', () => {
       };
       let run = null;
       const {garbageCollector, storeData} = createGC(records, _run => {
-          run = _run;
-        }
-      );
+        run = _run;
+      });
       garbageCollector.register('a');
       garbageCollector.collect();
       jest.runAllTimers();

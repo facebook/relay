@@ -422,8 +422,8 @@ describe('RelayQueryField', () => {
       const friendsVariable =
         getNode(friendsVariableRQL, variables).getChildren()[0];
       expect(friendsVariable.getRangeBehaviorCalls()).toEqual([{
-         name: 'isViewerFriend',
-         value: false,
+        name: 'isViewerFriend',
+        value: false,
       }]);
     });
   });

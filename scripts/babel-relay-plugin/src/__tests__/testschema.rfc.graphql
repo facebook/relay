@@ -182,3 +182,9 @@ enum Gender {
 }
 
 union Media = Story | ProfilePicture
+
+schema {
+  query: Root
+  mutation: Mutation
+  subscription: Subscription
+}

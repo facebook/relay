@@ -730,7 +730,7 @@ describe('RelayGraphQLMutation', () => {
           expect(queue.getStatus(transaction2.getID())).toBe(COMMITTING);
         });
 
-        it('auto-generates non-colliding keys if none provided', () =>{
+        it('auto-generates non-colliding keys if none provided', () => {
           const mutation1 = RelayGraphQLMutation.create(
             feedbackLikeQuery,
             feedbackLikeVariables,

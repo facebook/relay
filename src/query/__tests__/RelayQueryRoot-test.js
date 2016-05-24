@@ -347,64 +347,64 @@ describe('RelayQueryRoot', () => {
   });
 
   it('returns numeric identifying arguments', () => {
-   const query = getNode(Relay.QL`
-     query {
-       task(number: 5) {
-         title
-       }
-     }
-   `);
-   const nodeIdentifyingArg = query.getIdentifyingArg();
-   expect(nodeIdentifyingArg).toEqual({
-     name: 'number',
-     type: 'Int',
-     value: 5,
-   });
- });
+    const query = getNode(Relay.QL`
+      query {
+        task(number: 5) {
+          title
+        }
+      }
+    `);
+    const nodeIdentifyingArg = query.getIdentifyingArg();
+    expect(nodeIdentifyingArg).toEqual({
+      name: 'number',
+      type: 'Int',
+      value: 5,
+    });
+  });
 
- it('returns input-object identifying arguments', () => {
-   const query = getNode(Relay.QL`
-     query {
-       checkinSearchQuery(query: {query: "Facebook"}) {
-         query
-       }
-     }
-   `);
-   const nodeIdentifyingArg = query.getIdentifyingArg();
-   expect(nodeIdentifyingArg).toEqual({
-     name: 'query',
-     type: 'CheckinSearchInput',
-     value: {
-       query: 'Facebook',
-     },
-   });
- });
+  it('returns input-object identifying arguments', () => {
+    const query = getNode(Relay.QL`
+      query {
+        checkinSearchQuery(query: {query: "Facebook"}) {
+          query
+        }
+      }
+    `);
+    const nodeIdentifyingArg = query.getIdentifyingArg();
+    expect(nodeIdentifyingArg).toEqual({
+      name: 'query',
+      type: 'CheckinSearchInput',
+      value: {
+        query: 'Facebook',
+      },
+    });
+  });
 
- it('returns array identifying arguments', () => {
-   const query = getNode(Relay.QL`
-     query {
-       route(waypoints: [
-         {lat: "0.0", lon: "0.0"}
-         {lat: "1.1", lon: "1.1"}
-       ]) {
-         steps {
-           note
-         }
-       }
-     }
-   `);
-   const nodeIdentifyingArg = query.getIdentifyingArg();
-   expect(nodeIdentifyingArg).toEqual(
-     {
-       name: 'waypoints',
-       value: [
-         {lat: '0.0', lon: '0.0'},
-         {lat: '1.1', lon: '1.1'},
-       ],
-       type: '[WayPoint!]!',
-     }
-   );
- });
+  it('returns array identifying arguments', () => {
+    const query = getNode(Relay.QL`
+      query {
+        route(waypoints: [
+          {lat: "0.0", lon: "0.0"}
+          {lat: "1.1", lon: "1.1"}
+        ]) {
+          steps {
+            note
+          }
+        }
+      }
+    `);
+    const nodeIdentifyingArg = query.getIdentifyingArg();
+    expect(nodeIdentifyingArg).toEqual(
+      {
+        name: 'waypoints',
+        value: [
+          {lat: '0.0', lon: '0.0'},
+          {lat: '1.1', lon: '1.1'},
+        ],
+        type: '[WayPoint!]!',
+      }
+    );
+  });
 
   it('creates nodes', () => {
     const query = getNode(Relay.QL`

@@ -237,7 +237,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error.source).toEqual(response);
     });
 
-    it('handles server-side non-200 errors', () => {
+    it('handles server-side non-2xx  errors', () => {
       const response = {
         errors: [{
           message: 'Something went completely wrong.'
@@ -248,6 +248,9 @@ describe('RelayDefaultNetworkLayer', () => {
       networkLayer.sendMutation(request);
       expect(fetch).toBeCalled();
       const failureResponse = genFailureResponse(response);
+      expect(failureResponse.status).toBeLessThan(300); 
+      expect(failureResponse.status >= 200).toBeTruthy();
+      
       fetch.mock.deferreds[0].resolve(failureResponse);
       jest.runAllTimers();
 

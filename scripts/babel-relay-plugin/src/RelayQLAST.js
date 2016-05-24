@@ -14,6 +14,9 @@
 
 const {
   type: types,
+  type_directives: {
+    GraphQLDirective: GraphQLDirectiveClass,
+  },
   type_introspection: {
     SchemaMetaFieldDef,
     TypeMetaFieldDef,
@@ -22,11 +25,12 @@ const {
 } = require('./GraphQL');
 const GraphQLRelayDirective = require('./GraphQLRelayDirective');
 
-const buildDirective = require('./buildDirective');
 const find = require('./find');
 const invariant = require('./invariant');
 
-const GraphQLRelayDirectiveInstance = buildDirective(GraphQLRelayDirective);
+const GraphQLRelayDirectiveInstance = new GraphQLDirectiveClass(
+  GraphQLRelayDirective
+);
 
 import type {
   Argument as GraphQLArgument,
@@ -498,7 +502,7 @@ class RelayQLType {
           directive => directive.name.value === 'fixme_fat_interface'
         )
       ) {
-        const possibleTypes = type.getPossibleTypes();
+        const possibleTypes = this.context.schema.getPossibleTypes(type);
         for (let ii = 0; ii < possibleTypes.length; ii++) {
           const possibleField = possibleTypes[ii].getFields()[fieldName];
           if (possibleField) {
@@ -541,7 +545,7 @@ class RelayQLType {
       this.isAbstract(),
       'Cannot get concrete types of a concrete type.'
     );
-    return this.schemaUnmodifiedType.getPossibleTypes().map(
+    return this.context.schema.getPossibleTypes(this.schemaUnmodifiedType).map(
       concreteType => new RelayQLType(this.context, concreteType)
     );
   }

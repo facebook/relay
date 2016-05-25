@@ -3,6 +3,10 @@
 * The `this.props.relay` prop passed into components by `Relay.Container` now
   exposes `applyUpdate` and `commitUpdate` methods for dispatching mutations
   in the context of the current `Relay.Environment`.
+* Upgraded the Babel Relay plugin to `graphql-js` 0.6.0. Developers interested
+  in upgrading to `graphql-js` 0.6.0 might have to make some changes to their 
+  existing GraphQL schemas. Read the migration guide for more information:
+  https://gist.github.com/steveluscher/ffc1dfefbb10ad280c8a4c520a5c201c
 
 ## 0.8.1 (April 27, 2016)
 

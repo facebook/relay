@@ -53,7 +53,7 @@ class RelayReadyState {
     if (prevReadyState.aborted) {
       return;
     }
-    if (prevReadyState.done || prevReadyState.error) {
+    if (prevReadyState.done) {
       if (nextReadyState.stale) {
         if (prevReadyState.error) {
           this._mergeState(nextReadyState);
@@ -69,6 +69,11 @@ class RelayReadyState {
       }
       return;
     }
+    
+    if (prevReadyState.error && nextReadyState.aborted) {
+      return;
+    }
+
     this._mergeState(nextReadyState);
   }
 

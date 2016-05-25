@@ -293,6 +293,26 @@ describe('GraphQLQueryRunner', () => {
     );
   });
 
+  it('is done with error after all partial data is fetched', () => {
+    // We can have an error from the fetch but still get partial data
+    // back from the backend.
+    diffRelayQuery.mockImplementation(query => [query]);
+    mockSplitDeferredQueries();
+    const error = Error();
+
+    queryRunner.run(mockQuerySet, mockCallback);
+    jest.runAllTimers();
+
+    pendingQueryTracker.add.mock.fetches[0].resolve(error);
+    pendingQueryTracker.add.mock.fetches[1].resolve();
+    jest.runAllTimers();
+
+    expect(mockCallback.mock.calls).toEqual([
+      [{aborted: false, done: false, error: null, ready: false, stale: false}],
+      [{aborted: false, done: true, error: error, ready: true, stale: false}],
+    ]);
+  });
+
   it('calls the callback when aborted', () => {
     diffRelayQuery.mockImplementation(query => [query]);
     mockSplitDeferredQueries();

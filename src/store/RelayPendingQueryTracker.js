@@ -104,7 +104,7 @@ class PendingFetch {
   _fetchSubtractedQueryPromise: Promise<any>;
 
   _resolvedSubtractedQuery: boolean;
-  _resolvedDeferred: Deferred<void, ?Error>;
+  _resolvedDeferred: Deferred<?Error, ?Error>;
 
   _storeData: RelayStoreData;
 
@@ -114,6 +114,7 @@ class PendingFetch {
    * `_resolvedDeferred` is rejected with the earliest encountered error.
    */
   _errors: Array<?Error>;
+  _hasErrorAndResponse: boolean;
 
   constructor(
     {fetchMode, forceIndex, query}: PendingQueryParameters,
@@ -147,6 +148,7 @@ class PendingFetch {
 
     this._fetchedSubtractedQuery = !subtractedQuery;
     this._errors = [];
+    this._hasErrorAndResponse = false;
 
     if (subtractedQuery) {
       this._pendingFetchMap[queryID] = {
@@ -257,7 +259,25 @@ class PendingFetch {
     subtractedQuery: RelayQuery.Root,
     error: Error
   ): void {
-    this._markAsRejected(error);
+    if (error.source && error.source.data) {
+      const response = error.source.data;
+      invariant(
+        response && typeof response === 'object',
+        'RelayPendingQueryTracker: Expected response to be an object, got ' +
+        '`%s`.',
+        response ? typeof response : response
+      );
+      // handle the succesful payload part of the response
+      this._handleSubtractedQuerySuccess(subtractedQuery, {response});
+
+      // handle the error part of the response
+      console.warn(error.message);
+      this._errors.push(error);
+      this._hasErrorAndResponse = true;
+      this._updateResolvedDeferred();
+    } else {
+      this._markAsRejected(error);
+    }
   }
 
   _markSubtractedQueryAsResolved(): void {
@@ -305,7 +325,11 @@ class PendingFetch {
   _updateResolvedDeferred(): void {
     if (this._isSettled() && !this._resolvedDeferred.isSettled()) {
       if (this._errors.length) {
-        this._resolvedDeferred.reject(this._errors[0]);
+        if (this._hasErrorAndResponse) {
+          this._resolvedDeferred.resolve(this._errors[0]);
+        } else {
+          this._resolvedDeferred.reject(this._errors[0]);
+        }
       } else {
         this._resolvedDeferred.resolve(undefined);
       }

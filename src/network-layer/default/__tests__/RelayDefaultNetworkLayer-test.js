@@ -248,8 +248,7 @@ describe('RelayDefaultNetworkLayer', () => {
       networkLayer.sendMutation(request);
       expect(fetch).toBeCalled();
       const failureResponse = genFailureResponse(response);
-      expect(failureResponse.status).toBeLessThan(300); 
-      expect(failureResponse.status >= 200).toBeTruthy();
+      expect(failureResponse.status >= 300 || failureResponse.status < 200).toBeTruthy();
       
       fetch.mock.deferreds[0].resolve(failureResponse);
       jest.runAllTimers();

@@ -230,10 +230,13 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   ): void {
     const {recordID} = state;
     if (fragment.isDeferred()) {
+      const hash = fragment.getSourceCompositeHash() || fragment.getCompositeHash();
+
       this._writer.setHasDeferredFragmentData(
         recordID,
-        fragment.getCompositeHash()
+        hash
       );
+
       this.recordUpdate(recordID);
     }
     // Skip fragments that do not match the record's concrete type. Fragments

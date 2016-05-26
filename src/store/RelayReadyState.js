@@ -15,6 +15,7 @@
 import type {
   ReadyState,
   ReadyStateChangeCallback,
+  ReadyStateEvent,
 } from 'RelayTypes';
 
 const resolveImmediate = require('resolveImmediate');
@@ -24,6 +25,7 @@ type PartialReadyState = {
   aborted?: boolean;
   done?: boolean;
   error?: Error;
+  events?: Array<ReadyStateEvent>;
   ready?: boolean;
   stale?: boolean;
 };
@@ -42,13 +44,17 @@ class RelayReadyState {
       aborted: false,
       done: false,
       error: null,
+      events: [],
       ready: false,
       stale: false,
     };
     this._scheduled = false;
   }
 
-  update(nextReadyState: PartialReadyState): void {
+  update(
+    nextReadyState: PartialReadyState,
+    newEvents?: Array<ReadyStateEvent>,
+  ): void {
     const prevReadyState = this._readyState;
     if (prevReadyState.aborted) {
       return;
@@ -56,7 +62,7 @@ class RelayReadyState {
     if (prevReadyState.done || prevReadyState.error) {
       if (nextReadyState.stale) {
         if (prevReadyState.error) {
-          this._mergeState(nextReadyState);
+          this._mergeState(nextReadyState, newEvents);
         }
         // Do nothing if stale data comes after server data.
       } else if (!nextReadyState.aborted) {
@@ -69,13 +75,19 @@ class RelayReadyState {
       }
       return;
     }
-    this._mergeState(nextReadyState);
+    this._mergeState(nextReadyState, newEvents);
   }
 
-  _mergeState(nextReadyState: PartialReadyState): void {
+  _mergeState(
+    nextReadyState: PartialReadyState,
+    newEvents: ?Array<ReadyStateEvent>
+  ): void {
     this._readyState = {
       ...this._readyState,
       ...nextReadyState,
+      events: newEvents && newEvents.length ?
+        [...this._readyState.events, ...newEvents] :
+        this._readyState.events,
     };
     if (this._scheduled) {
       return;

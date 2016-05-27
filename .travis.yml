@@ -6,15 +6,16 @@ node_js:
 - '6'
 install: true
 env:
-- TYPECHECK=.
-- TYPECHECK=scripts/babel-relay-plugin
 - TEST=.
 - TEST=scripts/babel-relay-plugin
+- TYPECHECK=.
+- TYPECHECK=scripts/babel-relay-plugin
 script:
+- |
+    if [ $TEST ]; then
+      cd $TEST && npm install && npm run jest -- --runInBand --no-watchman
+    fi
 - |
     if [ $TYPECHECK ]; then
       cd $TYPECHECK && npm install && npm run typecheck
-    fi
-    if [ $TEST ]; then
-      cd $TEST && npm install && npm run jest -- --runInBand --no-watchman
     fi

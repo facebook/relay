@@ -1,3 +1,8 @@
+schema {
+  query: Root
+  mutation: Mutation
+}
+
 type Root {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings,

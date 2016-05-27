@@ -163,7 +163,7 @@ describe('RelayReadyState', () => {
     expect(onReadyStateChange.mock.calls.length).toBe(1);
   });
 
-  it('handles state changes after encountering errors', () => {
+  fit('handles state changes after encountering errors', () => {
     const error = new Error('Expected error.');
     readyState.update({error});
     jest.runAllTimers();
@@ -172,14 +172,14 @@ describe('RelayReadyState', () => {
     expect(warning).not.toBeCalled();
     expect(onReadyStateChange.mock.calls.length).toBe(1);
     expect(onReadyStateChange.mock.calls[0]).toEqual(
-      [{aborted: false, done: false, error, ready: false, stale: false}]
+      [{aborted: false, done: false, error, events: [], ready: false, stale: false}]
     );
     jest.runAllTimers();
 
     expect(warning).not.toBeCalled();
     expect(onReadyStateChange.mock.calls.length).toBe(2);
     expect(onReadyStateChange.mock.calls[1]).toEqual(
-      [{aborted: false, done: false, error, ready: true, stale: false}]
+      [{aborted: false, done: false, error, events: [], ready: true, stale: false}]
     );
   });
 

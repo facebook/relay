@@ -95,7 +95,6 @@ class RelayReadyStateRenderer extends React.Component {
         children = render({
           done: readyState.done,
           error: readyState.error,
-          events: readyState.events,
           props: readyState.ready ?
             this.state.getContainerProps(this.props) :
             null,

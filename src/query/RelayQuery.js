@@ -766,6 +766,7 @@ class RelayQuerySubscription extends RelayQueryOperation {
 class RelayQueryFragment extends RelayQueryNode {
   __compositeHash__: ?string;
   __metadata__: FragmentMetadata;
+  __sourceCompositeHash__: ?string;
 
   /**
    * Helper to construct a new fragment with the given attributes and 'empty'
@@ -828,6 +829,7 @@ class RelayQueryFragment extends RelayQueryNode {
     super(concreteNode, route, variables);
     this.__compositeHash__ = null;
     this.__metadata__ = metadata || DEFAULT_FRAGMENT_METADATA;
+    this.__sourceCompositeHash__ = null;
   }
 
   canHaveSubselections(): boolean {
@@ -867,6 +869,10 @@ class RelayQueryFragment extends RelayQueryNode {
       this.__compositeHash__ = compositeHash;
     }
     return compositeHash;
+  }
+
+  getSourceCompositeHash(): ?string {
+    return this.__sourceCompositeHash__;
   }
 
   isAbstract(): boolean {
@@ -922,6 +928,11 @@ class RelayQueryFragment extends RelayQueryNode {
       clone.__metadata__ = {
         ...this.__metadata__,
       };
+
+      // The container checks on the status of a deferred fragment using its
+      // composite hash. We need to cache this hash in this cloned fragment
+      // so it can be updated in the store with the correct hash when fetched.
+      clone.__sourceCompositeHash__ = this.getCompositeHash();
     }
     return clone;
   }

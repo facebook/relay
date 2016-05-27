@@ -60,6 +60,7 @@ const INACTIVE_READY_STATE = {
   aborted: false,
   done: false,
   error: null,
+  events: [],
   ready: false,
   stale: false,
 };

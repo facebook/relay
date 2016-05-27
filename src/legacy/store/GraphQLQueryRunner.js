@@ -143,7 +143,7 @@ function runQueries(
 
     if (hasItems(remainingRequiredFetchMap)) {
       if (error) {
-        readyState.update({error: error});
+        readyState.update({error: error}, [{type: 'NETWORK_QUERY_ERROR', error}]);
       }
       return;
     }
@@ -152,7 +152,7 @@ function runQueries(
       // The other resolvable query will resolve imminently and call
       // `readyState.update` instead.
       if (error) {
-        readyState.update({error: error});
+        readyState.update({error: error}, [{type: 'NETWORK_QUERY_ERROR', error}]);
       }
       return;
     }
@@ -169,22 +169,15 @@ function runQueries(
 
     if (hasItems(remainingFetchMap)) {
       (partialReadyState: any).done = false;
-      readyState.update(partialReadyState);
+      readyState.update(partialReadyState, [{type: 'NETWORK_QUERY_RECEIVED_REQUIRED'}]);
     } else {
       (partialReadyState: any).done = true;
-      readyState.update(partialReadyState);
+      readyState.update(partialReadyState, [{type: 'NETWORK_QUERY_RECEIVED_ALL'}]);
     }
   }
 
   function onRejected(pendingFetch: PendingFetch, error: Error) {
-    readyState.update({error});
-
-    const pendingQuery = pendingFetch.getQuery();
-    const pendingQueryID = pendingQuery.getID();
-    delete remainingFetchMap[pendingQueryID];
-    if (!pendingQuery.isDeferred()) {
-      delete remainingRequiredFetchMap[pendingQueryID];
-    }
+    readyState.update({error}, [{type: 'NETWORK_QUERY_ERROR', error}]);
   }
 
   function canResolve(fetch: PendingFetch): boolean {
@@ -218,7 +211,13 @@ function runQueries(
       });
     }
 
-    splitAndFlattenQueries(storeData, queries).forEach(query => {
+    const flattenedQueries = splitAndFlattenQueries(storeData, queries);
+
+    if (flattenedQueries.length) {
+      readyState.update({}, [{type: 'NETWORK_QUERY_START'}]);
+    }
+
+    flattenedQueries.forEach(query => {
       const pendingFetch = storeData.getPendingQueryTracker().add(
         {query, fetchMode, forceIndex, storeData}
       );
@@ -234,27 +233,43 @@ function runQueries(
     });
 
     if (!hasItems(remainingFetchMap)) {
-      readyState.update({done: true, ready: true});
+      readyState.update({
+        done: true,
+        ready: true,
+      }, [{type: 'STORE_FOUND_ALL'}]);
     } else {
       if (!hasItems(remainingRequiredFetchMap)) {
-        readyState.update({ready: true});
+        readyState.update({ready: true}, [{type: 'STORE_FOUND_REQUIRED'}]);
       } else {
         readyState.update({ready: false});
         resolveImmediate(() => {
           if (storeData.hasCacheManager()) {
+            readyState.update({}, [{type: 'CACHE_RESTORE_START'}]);
             const requiredQueryMap = mapObject(
               remainingRequiredFetchMap,
               value => value.getQuery()
             );
             storeData.restoreQueriesFromCache(requiredQueryMap, {
               onSuccess: () => {
-                readyState.update({ready: true, stale: true});
+                readyState.update({
+                  ready: true,
+                  stale: true,
+                }, [{type: 'CACHE_RESTORED_REQUIRED'}]);
+              },
+              onFailure: (error: any) => {
+                readyState.update({
+                  error,
+                  ready: false,
+                }, [{type: 'CACHE_RESTORE_FAILED', error}]);
               },
             });
           } else {
             if (everyObject(remainingRequiredFetchMap, canResolve)) {
               if (hasItems(remainingRequiredFetchMap)) {
-                readyState.update({ready: true, stale: true});
+                readyState.update({
+                  ready: true,
+                  stale: true,
+                }, [{type: 'STORE_FOUND_REQUIRED'}]);
               }
             }
           }
@@ -267,7 +282,7 @@ function runQueries(
 
   return {
     abort(): void {
-      readyState.update({aborted: true});
+      readyState.update({aborted: true}, [{type: 'ABORT'}]);
     },
   };
 }

@@ -1,8 +1,44 @@
 ## master
 
+## 0.9.0 (May 26, 2016)
+
+* Relay is now built with Babel 6.
+* Upgraded the Babel Relay plugin to `graphql-js` 0.6.0. Developers interested
+  in upgrading to `graphql-js` 0.6.0 might have to make some changes to their
+  existing GraphQL schemas. Read the migration guide for more information:
+  https://gist.github.com/steveluscher/ffc1dfefbb10ad280c8a4c520a5c201c
+* Debug information detailing every step of a Relay mutation is now printed to
+  the console when `DEV` is true, and `console.groupCollapsed` and
+  `console.groupEnd` are available.
 * The `this.props.relay` prop passed into components by `Relay.Container` now
   exposes `applyUpdate` and `commitUpdate` methods for dispatching mutations
   in the context of the current `Relay.Environment`.
+* `RANGE_DELETE` mutations can now remove multiple nodes from a connection,
+  because `deletedIDFieldName` can now point to a plural field.
+* You can now define `rangeBehaviors` as a function that receives the connection
+  arguments and returns one of `GraphQLMutatorConstants.RANGE_OPERATIONS`.
+* `RelayNetworkDebug#init` now lets you pass in a `RelayEnvironment` against
+  which you would like to debug. This does not yet allow you to debug more than
+  one environment at a time, but at least you can make the choice of which one.
+* `RelayReadyState` now contains an `events` array; a stream of events that can
+  be accessed from a `RelayReadyStateCallback`. You can reduce over this list of
+  events to implement any kind of custom rendering logic you like.
+* `this.props.variables` now reflects the variables after being processed with
+  `prepareVariables`. The fact that variables were the un-prepared values was
+  a source of confusion for many.
+* Fixed a bug where `prepareVariables` could be called twice, breaking
+  components with non-idempotent `prepareVariables` functions.
+* Relay now warns when you try to set a variable using `setVariables`, or
+  produce one through `prepareVariables`, that you have not declared in
+  `initialVariables` upfront.
+* It's now possible for the `stale` prop of a `readyState` to change even if
+  there was previously an `error` present.
+* Fixed a bug formatting error messages when the error being pointed to starts
+  at column 0.
+* A container definition can now optionally include a
+  `shouldComponentUpdate: () => boolean` function. If specified, this function
+  *always* overrides the default implementation (ie. there is no fall-through to
+  the default).
 
 ## 0.8.1 (April 27, 2016)
 

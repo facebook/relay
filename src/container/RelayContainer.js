@@ -428,7 +428,8 @@ function createContainerComponent(
           this.props,
           relay,
           route,
-          initialVariables
+          initialVariables,
+          null
         )
       );
     }
@@ -453,7 +454,8 @@ function createContainerComponent(
             spec,
             nextProps,
             state.rawVariables
-          )
+          ),
+          state.rawVariables
         );
       });
     }
@@ -467,7 +469,8 @@ function createContainerComponent(
       props: Object,
       environment,
       route: RelayQueryConfigInterface,
-      prevVariables: Variables
+      propVariables: Variables,
+      prevVariables: ?Variables
     ): {
       queryData: {[propName: string]: mixed};
       rawVariables: Variables,
@@ -476,7 +479,7 @@ function createContainerComponent(
       const rawVariables = getVariablesWithPropOverrides(
         spec,
         props,
-        prevVariables
+        propVariables
       );
       let nextVariables = rawVariables;
       if (prepareVariables) {
@@ -485,7 +488,7 @@ function createContainerComponent(
         nextVariables = prepareVariables(rawVariables, metaRoute);
         validateVariables(initialVariables, nextVariables);
       }
-      this._updateFragmentPointers(props, route, nextVariables);
+      this._updateFragmentPointers(props, route, nextVariables, prevVariables);
       this._updateFragmentResolvers(environment);
       return {
         queryData: this._getQueryData(props),
@@ -555,7 +558,8 @@ function createContainerComponent(
     _updateFragmentPointers(
       props: Object,
       route: RelayQueryConfigInterface,
-      variables: Variables
+      variables: Variables,
+      prevVariables: ?Variables
     ): void {
       const fragmentPointers = this._fragmentPointers;
       fragmentNames.forEach(fragmentName => {
@@ -620,7 +624,8 @@ function createContainerComponent(
                     componentName,
                     fragmentName,
                     fragment,
-                    item
+                    item,
+                    prevVariables
                   );
                   this._didShowFakeDataWarning = !isValid;
                 }
@@ -656,7 +661,8 @@ function createContainerComponent(
                 componentName,
                 fragmentName,
                 fragment,
-                propValue
+                propValue,
+                prevVariables
               );
               this._didShowFakeDataWarning = !isValid;
             }
@@ -1103,11 +1109,18 @@ function validateFragmentProp(
   componentName: string,
   fragmentName: string,
   fragment: RelayQuery.Fragment,
-  prop: Object
+  prop: Object,
+  prevVariables: ?Variables
 ): boolean {
   const hasFragmentData = RelayFragmentPointer.hasFragment(
     prop,
     fragment
+  ) || (
+    !!prevVariables &&
+    RelayContainerComparators.areQueryVariablesEqual(
+      prevVariables,
+      fragment.getVariables()
+    )
   );
   if (!hasFragmentData) {
     const variables = fragment.getVariables();

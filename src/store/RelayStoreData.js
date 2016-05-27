@@ -263,7 +263,7 @@ class RelayStoreData {
     fragment: RelayQuery.Fragment,
     path: QueryPath,
     callbacks: CacheProcessorCallbacks
-  ): void {
+  ): Abortable {
     const cacheManager = this._cacheManager;
     invariant(
       cacheManager,
@@ -273,7 +273,7 @@ class RelayStoreData {
     const changeTracker = new RelayChangeTracker();
     const profile =
       RelayProfiler.profile('RelayStoreData.readFragmentFromDiskCache');
-    restoreFragmentDataFromCache(
+    return restoreFragmentDataFromCache(
       dataID,
       fragment,
       path,

@@ -10,7 +10,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import 'babel-polyfill';
 import App from './components/App';
 import AppHomeRoute from './routes/AppHomeRoute';
 import React from 'react';

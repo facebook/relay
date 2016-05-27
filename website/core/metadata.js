@@ -262,6 +262,15 @@ module.exports = {
       "source": "QuickStart-Tutorial.md"
     },
     {
+      "id": "tutorial-zh-CN",
+      "title": "教程",
+      "layout": "docs",
+      "category": "Quick Start",
+      "permalink": "docs/tutorial-zh-CN.html",
+      "next": "thinking-in-graphql",
+      "source": "QuickStart-Tutorial.zh-CN.md"
+    },
+    {
       "id": "videos",
       "title": "Videos",
       "layout": "docs",

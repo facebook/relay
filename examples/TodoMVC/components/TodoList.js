@@ -138,6 +138,7 @@ class TodoList extends Component {
         </View>
         <ListView
           dataSource={this.state.todosDataSource}
+          enableEmptySections={true}
           initialListSize={this.state.initialListSize}
           renderRow={this.renderTodoEdge}
           renderSeparator={this.renderSeparator}
@@ -162,14 +163,16 @@ export default Relay.createContainer(TodoList, {
     }
     return {
       status: nextStatus,
-      limit: 2147483647,  // GraphQLInt
     };
   },
   fragments: {
     viewer: () => Relay.QL`
       fragment on User {
         completedCount
-        todos(status: $status, first: $limit) {
+        todos(
+          status: $status,
+          first: 2147483647  # max GraphQLInt
+        ) {
           edges {
             node {
               id

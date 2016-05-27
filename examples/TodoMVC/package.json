@@ -3,15 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "BABEL_ENV=server babel-node ./server.js",
-    "update-schema": "babel-node ./scripts/updateSchema.js",
-    "preinstall": "cd ../.. && npm install --ignore-scripts && cd scripts/babel-relay-plugin && npm install --ignore-scripts"
+    "start": "babel-node ./server.js",
+    "update-schema": "babel-node ./scripts/updateSchema.js"
   },
   "dependencies": {
-    "babel-preset-es2015": "6.9.0",
     "babel-preset-react-native": "1.9.0",
-    "babel-preset-stage-0": "6.5.0",
-    "babel-relay-plugin": "file:../../scripts/babel-relay-plugin",
+    "babel-relay-plugin": "0.9.0",
     "express": "4.13.4",
     "express-graphql": "0.5.2",
     "graphql": "0.6.0",
@@ -20,10 +17,11 @@
     "react-native": "0.26.2",
     "react-native-listitem": "1.0.5",
     "react-native-swipeout": "git+https://github.com/magrinj/react-native-swipeout#403d973504b58ede25c137fb31b0eff7e03b0a66",
-    "react-relay": "file:../../"
+    "react-relay": "0.9.0"
   },
   "devDependencies": {
-    "babel-cli": "6.9.0"
+    "babel-cli": "6.9.0",
+    "babel-core": "6.9.1"
   },
   "engines": {
     "npm": ">=3"

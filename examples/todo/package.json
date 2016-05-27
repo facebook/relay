@@ -2,8 +2,7 @@
   "private": true,
   "scripts": {
     "start": "babel-node ./server.js",
-    "update-schema": "babel-node ./scripts/updateSchema.js",
-    "preinstall": "cd ../.. && npm install --ignore-scripts && cd scripts/babel-relay-plugin && npm install --ignore-scripts"
+    "update-schema": "babel-node ./scripts/updateSchema.js"
   },
   "dependencies": {
     "babel-core": "6.9.0",
@@ -12,7 +11,7 @@
     "babel-preset-es2015": "6.9.0",
     "babel-preset-react": "6.5.0",
     "babel-preset-stage-0": "6.5.0",
-    "babel-relay-plugin": "file:../../scripts/babel-relay-plugin/",
+    "babel-relay-plugin": "0.9.0",
     "babel-runtime": "6.9.0",
     "classnames": "2.2.5",
     "express": "4.13.4",
@@ -22,7 +21,7 @@
     "history": "2.1.2",
     "react": "15.1.0",
     "react-dom": "15.1.0",
-    "react-relay": "file:../../",
+    "react-relay": "0.9.0",
     "react-router": "2.4.1",
     "react-router-relay": "0.13.2",
     "todomvc-app-css": "2.0.6",

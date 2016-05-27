@@ -1,35 +1,11 @@
 {
-  "env": {
-    "development": {
-      "passPerPreset": true,
-      "presets": [
-        {
-          "plugins": [
-            "./plugins/babelRelayPlugin"
-          ]
-        },
-        "react-native"
-      ]
-    },
-    "production": {
-      "passPerPreset": true,
-      "presets": [
-        {
-          "plugins": [
-            "./plugins/babelRelayPlugin"
-          ]
-        },
-        "react-native"
-      ]
-    },
-    "server": {
+  "passPerPreset": true,
+  "presets": [
+    {
       "plugins": [
         "./plugins/babelRelayPlugin"
-      ],
-      "presets": [
-        "es2015",
-        "stage-0"
       ]
-    }
-  }
+    },
+    "react-native"
+  ]
 }

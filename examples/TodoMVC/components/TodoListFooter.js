@@ -64,14 +64,17 @@ export default Relay.createContainer(TodoListFooter, {
   initialVariables: {
     status: 'any',
   },
+  prepareVariables(prevVars) {
+    return {
+      ...prevVars,
+      limit: 2147483647,  // GraphQLInt
+    };
+  },
   fragments: {
     viewer: () => Relay.QL`
       fragment on User {
         completedCount
-        todos(
-          status: $status,
-          first: 2147483647  # max GraphQLInt
-        ) {
+        todos(status: $status, first: $limit) {
           ${RemoveCompletedTodosMutation.getFragment('todos')}
         }
         totalCount

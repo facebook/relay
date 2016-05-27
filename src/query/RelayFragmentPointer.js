@@ -8,27 +8,28 @@
  *
  * @providesModule RelayFragmentPointer
  * @flow
- * @typechecks
  */
 
 'use strict';
 
+import type {Variables} from 'RelayTypes';
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
 import type RelayRecordStore from 'RelayRecordStore';
 
+const areEqual = require('areEqual');
 const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
 
 import type {DataID} from 'RelayInternalTypes';
 import type {Record} from 'RelayRecord';
 
-type FragmentDataIDMap = {
-  [fragmentID: string]: DataID;
+type FragmentVariablesMap = {
+  [fragmentID: string]: Array<Variables>;
 };
 export type FragmentProp = {
   __dataID__: DataID,
-  __fragments__: FragmentDataIDMap;
+  __fragments__: FragmentVariablesMap;
 };
 
 /**
@@ -41,8 +42,7 @@ export type FragmentProp = {
 const RelayFragmentPointer = {
   addFragment(
     record: Record,
-    fragment: RelayQuery.Fragment,
-    dataID: DataID
+    fragment: RelayQuery.Fragment
   ): void {
     let fragmentMap = record.__fragments__;
     if (fragmentMap == null) {
@@ -55,19 +55,69 @@ const RelayFragmentPointer = {
       fragmentMap,
       record.__dataID__
     );
-    fragmentMap[fragment.getConcreteFragmentID()] = dataID;
+    const fragmentID = fragment.getConcreteFragmentID();
+    let variableList = fragmentMap[fragmentID];
+    if (variableList == null) {
+      variableList = fragmentMap[fragmentID] = [];
+    }
+    invariant(
+      Array.isArray(variableList),
+      'RelayFragmentPointer: Expected record to contain a fragment/variable ' +
+      'map, got `%s` for record `%s`.',
+      variableList,
+      record.__dataID__
+    );
+    variableList.push(fragment.getVariables());
   },
 
-  getDataID(
+  /**
+   * Returns true if the concrete fragment is included in the fragment pointer
+   * results, regardless of the variables.
+   */
+  hasConcreteFragment(
     record: Record,
     fragment: RelayQuery.Fragment
-  ): ?DataID {
+  ): boolean {
     const fragmentMap = record.__fragments__;
     if (typeof fragmentMap === 'object' && fragmentMap != null) {
-      const ret = fragmentMap[fragment.getConcreteFragmentID()];
-      if (typeof ret === 'string') {
-        return ret;
-      }
+      const fragmentID = fragment.getConcreteFragmentID();
+      return fragmentMap.hasOwnProperty(fragmentID);
+    }
+    return false;
+  },
+
+  /**
+   * Returns true if the combination of concrete fragment + variables is
+   * included in the fragment pointer results.
+   */
+  hasFragment(
+    record: Record,
+    fragment: RelayQuery.Fragment
+  ): boolean {
+    const variableList = RelayFragmentPointer.getFragmentVariables(
+      record,
+      fragment
+    );
+    if (variableList != null) {
+      return variableList.some(
+        vars => areEqual(vars, fragment.getVariables())
+      );
+    }
+    return false;
+  },
+
+  /**
+   * Returns the list of variables whose results are available for the given
+   * concrete fragment.
+   */
+  getFragmentVariables(
+    record: Record,
+    fragment: RelayQuery.Fragment
+  ): ?Array<Variables> {
+    const fragmentMap = record.__fragments__;
+    if (typeof fragmentMap === 'object' && fragmentMap != null) {
+      const fragmentID = fragment.getConcreteFragmentID();
+      return fragmentMap[fragmentID];
     }
     return null;
   },
@@ -77,7 +127,7 @@ const RelayFragmentPointer = {
     fragment: RelayQuery.Fragment
   ): FragmentProp {
     const record = RelayRecord.create(dataID);
-    RelayFragmentPointer.addFragment(record, fragment, dataID);
+    RelayFragmentPointer.addFragment(record, fragment);
     return record;
   },
 

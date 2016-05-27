@@ -22,7 +22,7 @@ const RelayVariable = require('RelayVariable');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 
 describe('RelayQueryField', () => {
-  const {getNode} = RelayTestUtils;
+  const {getNode, getVerbatimNode} = RelayTestUtils;
 
   let aliasedIdField;
   let cursorField;
@@ -56,10 +56,10 @@ describe('RelayQueryField', () => {
           friends(first:"1") {
             edges {
               node {
-                special_id: id,
-              },
-            },
-          },
+                special_id: id
+              }
+            }
+          }
         }
       }
     `);
@@ -81,7 +81,7 @@ describe('RelayQueryField', () => {
 
     const friendsScalarFieldRQL = Relay.QL`
       fragment on User {
-        friend_scalar: friends
+        friends_scalar: friends
           (first:"10",after:"offset",orderby:"name") {
           edges {
             node {
@@ -235,8 +235,8 @@ describe('RelayQueryField', () => {
     const query = getNode(Relay.QL`
       fragment on Story {
         feedback {
-          id,
-          canViewerComment,
+          id
+          canViewerComment
         }
       }
     `).getChildren()[0];
@@ -287,7 +287,7 @@ describe('RelayQueryField', () => {
 
   it('returns the schema/application names', () => {
     expect(friendsScalarField.getSchemaName()).toBe('friends');
-    expect(friendsScalarField.getApplicationName()).toBe('friend_scalar');
+    expect(friendsScalarField.getApplicationName()).toBe('friends_scalar');
 
     expect(friendsVariableField.getSchemaName()).toBe('friends');
     expect(friendsVariableField.getApplicationName()).toBe('friends_variable');
@@ -357,55 +357,63 @@ describe('RelayQueryField', () => {
     });
   });
 
-  describe('getRangeBehaviorKey()', () => {
+  describe('getRangeBehaviorCalls()', () => {
     it('strips range calls on connections', () => {
       const connectionField = getNode(
         Relay.QL`fragment on User { friends(first:"10",isViewerFriend:true) }`
       ).getChildren()[0];
-      expect(connectionField.getRangeBehaviorKey())
-        .toBe('isViewerFriend(true)');
+      expect(connectionField.getRangeBehaviorCalls())
+        .toEqual([{name: 'isViewerFriend', value: true}]);
     });
 
     it('throws for non-connection fields', () => {
       const nonConnectionField = getNode(
         Relay.QL`query { node(id:"4") }`
       ).getChildren()[0];
-      expect(nonConnectionField.getRangeBehaviorKey).toThrow();
+      expect(nonConnectionField.getRangeBehaviorCalls).toThrow();
     });
 
     it('strips passing `if` calls', () => {
       const ifTrue = getNode(
         Relay.QL`fragment on User { friends(if:true) }`
       ).getChildren()[0];
-      expect(ifTrue.getRangeBehaviorKey()).toBe('');
+      expect(ifTrue.getRangeBehaviorCalls()).toEqual([]);
 
       const ifFalse = getNode(
         Relay.QL`fragment on User { friends(if:false) }`
       ).getChildren()[0];
-      expect(ifFalse.getRangeBehaviorKey()).toBe('if(false)');
+      expect(ifFalse.getRangeBehaviorCalls()).toEqual([{
+        name: 'if',
+        value: false,
+      }]);
     });
 
     it('strips failing `unless` calls', () => {
       const unlessTrue = getNode(
         Relay.QL`fragment on User { friends(unless:true) }`
       ).getChildren()[0];
-      expect(unlessTrue.getRangeBehaviorKey()).toBe('unless(true)');
+      expect(unlessTrue.getRangeBehaviorCalls()).toEqual([{
+        name: 'unless',
+        value: true,
+      }]);
 
       const unlessFalse = getNode(Relay.QL`
         fragment on User {
           friends(unless:false)
         }
       `).getChildren()[0];
-      expect(unlessFalse.getRangeBehaviorKey()).toBe('');
+      expect(unlessFalse.getRangeBehaviorCalls()).toEqual([]);
     });
 
     it('substitutes variable values', () => {
-      const key = 'isViewerFriend(false)';
       const friendsScalarRQL = Relay.QL`
         fragment on User { friends(isViewerFriend:false) }
       `;
       const friendsScalar = getNode(friendsScalarRQL).getChildren()[0];
-      expect(friendsScalar.getRangeBehaviorKey()).toBe(key);
+      expect(friendsScalar.getRangeBehaviorCalls()).toEqual([{
+        name: 'isViewerFriend',
+        value: false,
+      }]);
 
       const friendsVariableRQL = Relay.QL`
         fragment on User { friends(isViewerFriend:$isViewerFriend) }
@@ -413,26 +421,19 @@ describe('RelayQueryField', () => {
       const variables = {isViewerFriend: false};
       const friendsVariable =
         getNode(friendsVariableRQL, variables).getChildren()[0];
-      expect(friendsVariable.getRangeBehaviorKey()).toBe(key);
-    });
-
-    it('produces stable keys regardless of argument order', () => {
-      const friendFieldA = getNode(Relay.QL`fragment on User {
-        friends(orderby: "name", isViewerFriend: true)
-      }`).getChildren()[0];
-      const friendFieldB = getNode(Relay.QL`fragment on User {
-        friends(isViewerFriend: true, orderby: "name")
-      }`).getChildren()[0];
-      const expectedKey = 'isViewerFriend(true).orderby(name)';
-      expect(friendFieldA.getRangeBehaviorKey()).toBe(expectedKey);
-      expect(friendFieldB.getRangeBehaviorKey()).toBe(expectedKey);
+      expect(friendsVariable.getRangeBehaviorCalls()).toEqual([{
+        name: 'isViewerFriend',
+        value: false,
+      }]);
     });
   });
 
   describe('getSerializationKey()', () => {
     it('serializes all calls', () => {
       expect(friendsScalarField.getSerializationKey()).toBe(
-        generateRQLFieldAlias('friends.after(offset).first(10).orderby(name)')
+        generateRQLFieldAlias(
+          'friends.friends_scalar.after(offset).first(10).orderby(name)'
+        )
       );
     });
 
@@ -458,6 +459,34 @@ describe('RelayQueryField', () => {
       const pictureVariable =
         getNode(pictureVariableRQL, variables).getChildren()[0];
       expect(pictureVariable.getSerializationKey()).toBe(key);
+    });
+
+    it('includes the alias on fields with calls', () => {
+      const fragment = getVerbatimNode(Relay.QL`
+        fragment on User {
+          const: profilePicture(size: "100") { uri }
+          var: profilePicture(size: $size) { uri }
+        }
+      `, {
+        size: 100,
+      });
+      const children = fragment.getChildren();
+      expect(children[0].getSerializationKey()).toBe(
+        generateRQLFieldAlias('profilePicture.const.size(100)')
+      );
+      expect(children[1].getSerializationKey()).toBe(
+        generateRQLFieldAlias('profilePicture.var.size(100)')
+      );
+    });
+
+    it('excludes the alias on fields without calls', () => {
+      const fragment = getVerbatimNode(Relay.QL`
+        fragment on User {
+          alias: username
+        }
+      `);
+      const children = fragment.getChildren();
+      expect(children[0].getSerializationKey()).toBe('username');
     });
   });
 
@@ -649,7 +678,7 @@ describe('RelayQueryField', () => {
       {name: 'first', value: 25},
     ]);
     expect(clonedFeed.getSerializationKey()).toEqual(
-      generateRQLFieldAlias('friends.first(25)')
+      generateRQLFieldAlias('friends.friends_variable.first(25)')
     );
     expect(clonedFeed.getStorageKey()).toEqual('friends');
 

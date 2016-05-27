@@ -30,6 +30,7 @@ var x = function () {
         fieldName: 'id',
         kind: 'Field',
         metadata: {
+          isGenerated: true,
           isRequisite: true
         },
         type: 'String'

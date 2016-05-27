@@ -8,7 +8,6 @@
  *
  * @providesModule transformRelayQueryPayload
  * @flow
- * @typechecks
  */
 
 'use strict';

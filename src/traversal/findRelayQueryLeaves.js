@@ -8,7 +8,6 @@
  *
  * @providesModule findRelayQueryLeaves
  * @flow
- * @typechecks
  */
 
 'use strict';
@@ -30,24 +29,22 @@ import type {RangeInfo} from 'RelayRecordStore';
 
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 
-export type PendingItem = {
-  node: RelayQuery.Node;
-  path: QueryPath;
-  rangeCalls: ?Array<Call>;
-};
-
-export type PendingNodes = {[key: string]: Array<PendingItem>};
 export type FinderResult = {
   missingData: boolean;
-  pendingNodes: PendingNodes;
+  pendingNodeStates: Array<NodeState>;
 };
-
 type FinderState = {
   dataID: DataID;
   missingData: boolean;
   path: QueryPath;
   rangeCalls: ?Array<Call>;
   rangeInfo: ?RangeInfo;
+};
+export type NodeState = {
+  dataID: ?DataID,
+  node: RelayQuery.Node;
+  path: QueryPath;
+  rangeCalls: ?Array<Call>;
 };
 
 const {EDGES, PAGE_INFO} = RelayConnectionInterface;
@@ -58,7 +55,7 @@ const {EDGES, PAGE_INFO} = RelayConnectionInterface;
  * Traverses a query and data in the record store to determine if there are
  * additional nodes that needs to be read from disk cache. If it  ncounters
  * a node that is not in `cachedRecords`, it will queued that node by adding it
- * into the `pendingNodes` list. If it encounters a node that was already read
+ * into the `pendingNodeStates` list. If it encounters a node that was already read
  * but still missing data, then it will short circuit the evaluation since
  * there is no way for us to satisfy this query even with additional data from
  * disk cache and resturn
@@ -83,24 +80,24 @@ function findRelayQueryLeaves(
   finder.visit(queryNode, state);
   return {
     missingData: state.missingData,
-    pendingNodes: finder.getPendingNodes(),
+    pendingNodeStates: finder.getPendingNodeStates(),
   };
 }
 
 class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   _cachedRecords: RecordMap;
-  _pendingNodes: PendingNodes;
+  _pendingNodeStates: Array<NodeState>;
   _store: RelayRecordStore;
 
   constructor(store: RelayRecordStore, cachedRecords: RecordMap = {}) {
     super();
     this._store = store;
     this._cachedRecords = cachedRecords;
-    this._pendingNodes = {};
+    this._pendingNodeStates = [];
   }
 
-  getPendingNodes(): PendingNodes {
-    return this._pendingNodes;
+  getPendingNodeStates(): Array<NodeState> {
+    return this._pendingNodeStates;
   }
 
   /**
@@ -159,7 +156,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
         state.rangeInfo = metadata;
       }
     }
-    var rangeInfo = state.rangeInfo;
+    const rangeInfo = state.rangeInfo;
     if (rangeInfo && field.getSchemaName() === EDGES) {
       this._visitEdges(field, state);
     } else if (rangeInfo && field.getSchemaName() === PAGE_INFO) {
@@ -299,10 +296,10 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       // we still don't have data for the relevant field.
       state.missingData = true;
     } else {
-      // Store node in `pendingNodes` because we have not read data for
+      // Store node in `pendingNodeStates` because we have not read data for
       // this `dataID` from disk.
-      this._pendingNodes[dataID] = this._pendingNodes[dataID] || [];
-      this._pendingNodes[dataID].push({
+      this._pendingNodeStates.push({
+        dataID,
         node,
         path: state.path,
         rangeCalls: state.rangeCalls,

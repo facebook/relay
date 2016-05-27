@@ -3,7 +3,18 @@ language: node_js
 node_js:
 - '4'
 - '5'
+- '6'
+install: true
 env:
-- TEST_DIR=.
-- TEST_DIR=scripts/babel-relay-plugin
-script: cd $TEST_DIR && npm install && npm test
+- TYPECHECK=.
+- TYPECHECK=scripts/babel-relay-plugin
+- TEST=.
+- TEST=scripts/babel-relay-plugin
+script:
+- |
+    if [ $TYPECHECK ]; then
+      cd $TYPECHECK && npm install && npm run typecheck
+    fi
+    if [ $TEST ]; then
+      cd $TEST && npm install && npm run jest -- --runInBand --no-watchman
+    fi

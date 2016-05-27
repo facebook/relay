@@ -8,7 +8,6 @@
  *
  * @providesModule RelayRecordStore
  * @flow
- * @typechecks
  */
 
 'use strict';
@@ -383,17 +382,18 @@ class RelayRecordStore {
     const queuedRecord = this._queuedRecords ?
       this._queuedRecords[connectionID] :
       null;
-    var {
-      diffCalls,
+    const rangeInfo = range.retrieveRangeInfoForQuery(calls, queuedRecord);
+    let {diffCalls} = rangeInfo;
+    const {
       pageInfo,
       requestedEdgeIDs,
-    } = range.retrieveRangeInfoForQuery(calls, queuedRecord);
+    } = rangeInfo;
     if (diffCalls && diffCalls.length) {
       diffCalls = filterCalls.concat(diffCalls);
     } else {
       diffCalls = [];
     }
-    var filteredEdges;
+    let filteredEdges;
     if (requestedEdgeIDs) {
       filteredEdges = requestedEdgeIDs
         .map(edgeID => ({

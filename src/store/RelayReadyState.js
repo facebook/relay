@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule RelayReadyState
- * @typechecks
  * @flow
  */
 
@@ -16,6 +15,7 @@
 import type {
   ReadyState,
   ReadyStateChangeCallback,
+  ReadyStateEvent,
 } from 'RelayTypes';
 
 const resolveImmediate = require('resolveImmediate');
@@ -25,6 +25,7 @@ type PartialReadyState = {
   aborted?: boolean;
   done?: boolean;
   error?: Error;
+  events?: Array<ReadyStateEvent>;
   ready?: boolean;
   stale?: boolean;
 };
@@ -43,19 +44,28 @@ class RelayReadyState {
       aborted: false,
       done: false,
       error: null,
+      events: [],
       ready: false,
       stale: false,
     };
     this._scheduled = false;
   }
 
-  update(nextReadyState: PartialReadyState): void {
+  update(
+    nextReadyState: PartialReadyState,
+    newEvents?: Array<ReadyStateEvent>,
+  ): void {
     const prevReadyState = this._readyState;
     if (prevReadyState.aborted) {
       return;
     }
     if (prevReadyState.done || prevReadyState.error) {
-      if (!nextReadyState.aborted) {
+      if (nextReadyState.stale) {
+        if (prevReadyState.error) {
+          this._mergeState(nextReadyState, newEvents);
+        }
+        // Do nothing if stale data comes after server data.
+      } else if (!nextReadyState.aborted) {
         warning(
           false,
           'RelayReadyState: Invalid state change from `%s` to `%s`.',
@@ -65,9 +75,19 @@ class RelayReadyState {
       }
       return;
     }
+    this._mergeState(nextReadyState, newEvents);
+  }
+
+  _mergeState(
+    nextReadyState: PartialReadyState,
+    newEvents: ?Array<ReadyStateEvent>
+  ): void {
     this._readyState = {
-      ...prevReadyState,
+      ...this._readyState,
       ...nextReadyState,
+      events: newEvents && newEvents.length ?
+        [...this._readyState.events, ...newEvents] :
+        this._readyState.events,
     };
     if (this._scheduled) {
       return;

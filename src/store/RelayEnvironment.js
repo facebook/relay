@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule RelayEnvironment
- * @typechecks
  * @flow
  */
 
@@ -19,6 +18,7 @@ import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
 import type RelayQuery from 'RelayQuery';
+import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
 import type {TaskScheduler} from 'RelayTaskQueue';
@@ -51,33 +51,33 @@ export type FragmentResolver = {
   ) => ?(StoreReaderData | Array<?StoreReaderData>);
 };
 
-export type RelayEnvironmentInterface = {
-  forceFetch: (
+export interface RelayEnvironmentInterface {
+  forceFetch(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback
-  ) => Abortable;
-  getFragmentResolver: (
+  ): Abortable;
+  getFragmentResolver(
     fragment: RelayQuery.Fragment,
     onNext: () => void
-  ) => FragmentResolver;
-  getStoreData: () => RelayStoreData;
-  primeCache: (
+  ): FragmentResolver;
+  getStoreData(): RelayStoreData;
+  primeCache(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback
-  ) => Abortable;
-  read: (
+  ): Abortable;
+  read(
     node: RelayQuery.Node,
     dataID: DataID,
     options?: StoreReaderOptions
-  ) => ?StoreReaderData;
-};
+  ): ?StoreReaderData;
+}
 
 /**
  * @public
  *
  * `RelayEnvironment` is the public API for Relay core. Each instance provides
  * an isolated environment with:
- * - Methods for fetchng and updating data.
+ * - Methods for fetching and updating data.
  * - An in-memory cache of fetched data.
  * - A configurable network layer for resolving queries/mutations.
  * - A configurable task scheduler to control when internal tasks are executed.
@@ -88,6 +88,14 @@ export type RelayEnvironmentInterface = {
  * instance, server apps may create one instance per HTTP request.
  */
 class RelayEnvironment {
+  applyUpdate: (
+    mutation: RelayMutation<any>,
+    callbacks?: RelayMutationTransactionCommitCallbacks
+  ) => RelayMutationTransaction;
+  commitUpdate: (
+    mutation: RelayMutation<any>,
+    callbacks?: RelayMutationTransactionCommitCallbacks
+  ) => RelayMutationTransaction;
   _storeData: RelayStoreData;
 
   constructor() {
@@ -95,6 +103,8 @@ class RelayEnvironment {
     this._storeData.getChangeEmitter().injectBatchingStrategy(
       relayUnstableBatchedUpdates
     );
+    this.applyUpdate = this.applyUpdate.bind(this);
+    this.commitUpdate = this.commitUpdate.bind(this);
   }
 
   /**
@@ -113,6 +123,13 @@ class RelayEnvironment {
 
   injectNetworkLayer(networkLayer: ?NetworkLayer) {
     this._storeData.getNetworkLayer().injectImplementation(networkLayer);
+  }
+
+  /**
+   * @internal
+   */
+  injectQueryTracker(queryTracker: ?RelayQueryTracker) {
+    this._storeData.injectQueryTracker(queryTracker);
   }
 
   addNetworkSubscriber(
@@ -232,7 +249,7 @@ class RelayEnvironment {
    * RelayMutationTransaction can be committed or rolled back at a later time.
    */
   applyUpdate(
-    mutation: RelayMutation,
+    mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
     mutation.bindEnvironment(this);
@@ -246,7 +263,7 @@ class RelayEnvironment {
    * the RelayMutationTransaction.
    */
   commitUpdate(
-    mutation: RelayMutation,
+    mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
     return this
@@ -260,7 +277,7 @@ class RelayEnvironment {
    * Method renamed to commitUpdate
    */
   update(
-    mutation: RelayMutation,
+    mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): void {
     warning(

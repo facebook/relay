@@ -70,7 +70,7 @@ type TransformerOptions = {
   inputArgumentName: ?string;
   snakeCase: boolean;
   substituteVariables: boolean;
-  validator: ?Validator;
+  validator: ?Validator<any>;
 };
 type TextTransformOptions = {
   documentName: string;
@@ -185,7 +185,7 @@ class RelayQLTransformer {
   processDocumentText(
     documentText: string,
     {documentName}: TextTransformOptions
-  ): RelayQLDefinition {
+  ): RelayQLDefinition<any> {
     const document = parser.parse(new Source(documentText, documentName));
     const validationErrors = this.validateDocument(document, documentName);
     if (validationErrors) {

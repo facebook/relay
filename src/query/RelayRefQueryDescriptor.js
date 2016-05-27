@@ -8,7 +8,6 @@
  *
  * @providesModule RelayRefQueryDescriptor
  * @flow
- * @typechecks
  */
 
 'use strict';

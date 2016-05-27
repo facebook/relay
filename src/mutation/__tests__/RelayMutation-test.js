@@ -14,7 +14,7 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('RelayMutation');
+  .unmock('RelayMutation');
 
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
@@ -46,7 +46,7 @@ describe('RelayMutation', function() {
     environment.read = jest.fn();
 
     const initialVariables = {isRelative: false};
-    var makeMockMutation = () => {
+    const makeMockMutation = () => {
       class MockMutationClass extends Relay.Mutation {
         static initialVariables = initialVariables;
         static fragments = {
@@ -57,7 +57,7 @@ describe('RelayMutation', function() {
           `,
           bar: () => Relay.QL`
             fragment on Node {
-              id,
+              id
             }
           `,
         };

@@ -12,63 +12,52 @@
 
 'use strict';
 
-const TypeKind  = require('./GraphQL').type_introspection.TypeKind;
-
-const BOOLEAN = {
-  kind: TypeKind.SCALAR,
-  name: 'Boolean',
-};
-
-const STRING = {
-  kind: TypeKind.SCALAR,
-  name: 'String',
-};
+const {
+  type_directives: {
+    DirectiveLocation,
+  },
+  type_definition: {
+    GraphQLList,
+  },
+  type_scalars: {
+    GraphQLBoolean,
+    GraphQLString,
+  },
+} = require('./GraphQL');
 
 module.exports = {
   name: 'relay',
   description: 'The @relay directive.',
-  args: [
-    {
-      name: 'isConnectionWithoutNodeID',
+  args: {
+    isConnectionWithoutNodeID: {
       description:
         'Marks a connection field as containing nodes without `id` fields. ' +
         'This is used to silence the warning when diffing connections.',
-      type: BOOLEAN,
-      defaultValue: (null: ?boolean),
+      type: GraphQLBoolean,
     },
-    {
-      name: 'isStaticFragment',
+    isStaticFragment: {
       description:
         'Marks a fragment as static. A static fragment will share the same ' +
         'identity regardless of how many times the expression is evaluated.',
-      type: BOOLEAN,
-      defaultValue: (null: ?boolean),
+      type: GraphQLBoolean,
     },
-    {
-      name: 'pattern',
+    pattern: {
       description:
         'Marks a fragment as intended for pattern matching (as opposed to ' +
         'fetching).',
-      type: BOOLEAN,
-      defaultValue: (null: ?boolean),
+      type: GraphQLBoolean,
     },
-    {
-      name: 'plural',
+    plural: {
       description: 'Marks a fragment as being backed by a GraphQLList',
-      type: BOOLEAN,
-      defaultValue: (null: ?boolean),
+      type: GraphQLBoolean,
     },
-    {
-      name: 'variables',
+    variables: {
       description: 'Selectively pass variables down into a fragment.',
-      type: {
-        kind: TypeKind.LIST,
-        ofType: STRING,
-      },
-      defaultValue: (null: ?Array<string>)
+      type: new GraphQLList(GraphQLString),
     },
+  },
+  locations: [
+    DirectiveLocation.FIELD,
+    DirectiveLocation.FRAGMENT_DEFINITION,
   ],
-  onOperation: false,
-  onFragment: true,
-  onField: true,
 };

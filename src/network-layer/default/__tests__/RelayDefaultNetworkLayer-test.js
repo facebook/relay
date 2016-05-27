@@ -174,6 +174,35 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error.source).toEqual(response);
     });
 
+    it('handles errors with column 0', () => {
+      const response = {
+        errors: [{
+          message: 'Something went wrong.',
+          locations: [{
+            column: 0,
+            line: 1,
+          }],
+        }],
+      };
+
+      networkLayer.sendMutation(request);
+      fetch.mock.deferreds[0].resolve(genResponse(response));
+      jest.runAllTimers();
+
+      expect(rejectCallback.mock.calls.length).toBe(1);
+      const error = rejectCallback.mock.calls[0][0];
+      expect(error instanceof Error).toBe(true);
+      expect(error.message).toEqual([
+        'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+          'following reasons:',
+        '',
+        '1. Something went wrong.',
+        '   ' + request.getQueryString().substr(0, 60),
+        '   ^^^',
+      ].join('\n'));
+      expect(error.source).toEqual(response);
+    });
+
     it('handles custom errors', () => {
       const response = {
         errors: [{
@@ -282,8 +311,9 @@ describe('RelayDefaultNetworkLayer', () => {
       jest.runAllTimers();
 
       expect(rejectCallback).toBeCalled();
+
       expect(rejectCallback.mock.calls[0][0].message).toEqual(
-        'Unexpected token /'
+        RelayTestUtils.getJSONTokenError('/', 2)
       );
     });
 

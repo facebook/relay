@@ -14,8 +14,8 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment')
+  .unmock('GraphQLRange')
+  .unmock('GraphQLSegment')
   .mock('warning');
 
 const Relay = require('Relay');
@@ -54,7 +54,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           me {
-            id,
+            id
           }
         }
       `);
@@ -84,8 +84,8 @@ describe('writeRelayQueryPayload()', () => {
         query {
           viewer {
             actor {
-              id,
-            },
+              id
+            }
           }
         }
       `);
@@ -128,8 +128,8 @@ describe('writeRelayQueryPayload()', () => {
         query {
           viewer {
             actor {
-              id,
-            },
+              id
+            }
           }
         }
       `);
@@ -162,7 +162,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           username(name:"yuzhi") {
-            id,
+            id
           }
         }
       `);
@@ -183,6 +183,41 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getDataID('username', 'yuzhi')).toBe('1055790163');
     });
 
+    it('is updated for custom root calls with an id', () => {
+      const records = {};
+      const rootCallMap = {};
+      const store = new RelayRecordStore({records}, {rootCallMap});
+      const writer = new RelayRecordWriter(records, rootCallMap, false);
+      const query = getNode(Relay.QL`
+        query {
+          username(name:"yuzhi") {
+            id
+          }
+        }
+      `);
+      const payload = {
+        username: {
+          id: '1055790163',
+        },
+      };
+      writePayload(store, writer, query, payload);
+      const newPayload = {
+        username: {
+          id: '123',
+        },
+      };
+      const results = writePayload(store, writer, query, newPayload);
+      expect(results).toEqual({
+        created: {
+          '123': true,
+        },
+        updated: {},
+      });
+      expect(store.getRecordState('123')).toBe('EXISTENT');
+      expect(store.getField('123', 'id')).toBe('123');
+      expect(store.getDataID('username', 'yuzhi')).toBe('123');
+    });
+
     it('is created for custom root calls without an id', () => {
       const records = {};
       const rootCallMap = {};
@@ -192,7 +227,7 @@ describe('writeRelayQueryPayload()', () => {
       let query = getNode(Relay.QL`
         query {
           username(name:"yuzhi") {
-            name,
+            name
           }
         }
       `);
@@ -318,7 +353,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           checkinSearchQuery(query: {query: "Facebook"}) {
-            query,
+            query
           }
         }
       `);
@@ -524,7 +559,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getRefNode(Relay.QL`
         query {
           nodes(ids:$ref_q0) {
-            id,
+            id
             name
           }
         }
@@ -658,7 +693,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
+            id
             name
           }
         }
@@ -693,7 +728,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
+            id
           }
         }
       `);
@@ -719,7 +754,7 @@ describe('writeRelayQueryPayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id: "123") {
-            id,
+            id
             __typename
           }
         }

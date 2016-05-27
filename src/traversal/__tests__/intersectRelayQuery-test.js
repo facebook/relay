@@ -29,13 +29,13 @@ describe('intersectRelayQuery', () => {
     it('returns null for mutually exclusive nodes', () => {
       const subjectNode = getNode(Relay.QL`
         fragment on Date {
-          day,
-          month,
+          day
+          month
         }
       `);
       const patternNode = getNode(Relay.QL`
         fragment on Date {
-          year,
+          year
         }
       `);
       expect(intersectRelayQuery(subjectNode, patternNode)).toBe(null);
@@ -44,19 +44,19 @@ describe('intersectRelayQuery', () => {
     it('intersects shallow fields', () => {
       const subjectNode = getNode(Relay.QL`
         fragment on Actor {
-          name,
-          firstName,
+          name
+          firstName
         }
       `);
       const patternNode = getNode(Relay.QL`
         fragment on Actor {
-          lastName,
-          name,
+          lastName
+          name
         }
       `);
       const expected = getNode(Relay.QL`
         fragment on Actor {
-          name,
+          name
         }
       `);
       expect(
@@ -68,31 +68,31 @@ describe('intersectRelayQuery', () => {
       const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           birthdate {
-            day,
-            month,
-            year,
-          },
+            day
+            month
+            year
+          }
           hometown {
-            name,
-            url,
-          },
+            name
+            url
+          }
         }
       `);
       const patternNode = getNode(Relay.QL`
         fragment on Actor {
           hometown {
-            name,
-          },
+            name
+          }
           screennames {
-            service,
-          },
+            service
+          }
         }
       `);
       const expected = getNode(Relay.QL`
         fragment on Actor {
           hometown {
             name
-          },
+          }
         }
       `);
       expect(
@@ -103,19 +103,19 @@ describe('intersectRelayQuery', () => {
     it('includes fields with different arguments', () => {
       const subjectNode = getNode(Relay.QL`
         fragment on Actor {
-          id,
+          id
           url(site:"www")
         }
       `);
       const patternNode = getNode(Relay.QL`
         fragment on Actor {
-          id,
+          id
           url
         }
       `);
       const expected = getNode(Relay.QL`
         fragment on Actor {
-          id,
+          id
           url(site:"www")
         }
       `);
@@ -127,20 +127,20 @@ describe('intersectRelayQuery', () => {
     it('intersects aliased fields by storage key', () => {
       const subjectNode = getNode(Relay.QL`
         fragment on Actor {
-          name,
-          firstName,
+          name
+          firstName
         }
       `);
       const patternNode = getNode(Relay.QL`
         fragment on Actor {
-          name,
-          name: firstName,
+          name
+          name: firstName
         }
       `);
       const expected = getNode(Relay.QL`
         fragment on Actor {
-          name,
-          firstName,
+          name
+          firstName
         }
       `);
       expect(
@@ -152,22 +152,22 @@ describe('intersectRelayQuery', () => {
       const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           hometown {
-            name,
-            url,
-          },
+            name
+            url
+          }
         }
       `);
       const patternNode = getNode(Relay.QL`
         fragment on Actor {
-          hometown,
+          hometown
         }
       `);
       const expected = getNode(Relay.QL`
         fragment on Actor {
           hometown {
-            name,
-            url,
-          },
+            name
+            url
+          }
         }
       `);
       expect(
@@ -183,8 +183,8 @@ describe('intersectRelayQuery', () => {
           friends(first: "10") {
             edges {
               node {
-                id,
-                name,
+                id
+                name
               }
             }
           }
@@ -200,8 +200,8 @@ describe('intersectRelayQuery', () => {
           friends(first: "10") {
             edges {
               node {
-                id,
-                name,
+                id
+                name
               }
             }
           }
@@ -216,12 +216,12 @@ describe('intersectRelayQuery', () => {
       const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
-            count,
+            count
             edges {
               node {
-                id,
-                friends,
-                name,
+                id
+                friends
+                name
               }
             }
           }
@@ -250,11 +250,11 @@ describe('intersectRelayQuery', () => {
       const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
-            count,
+            count
             edges {
               node {
-                id,
-                name,
+                id
+                name
               }
             }
           }
@@ -284,11 +284,11 @@ describe('intersectRelayQuery', () => {
       const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           friends(orderby:"name",first: "10") {
-            count,
+            count
             edges {
               node {
-                id,
-                name,
+                id
+                name
               }
             }
           }
@@ -318,11 +318,11 @@ describe('intersectRelayQuery', () => {
       const subjectNode = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
-            count,
+            count
             edges {
               node {
-                id,
-                name,
+                id
+                name
               }
             }
           }
@@ -331,11 +331,11 @@ describe('intersectRelayQuery', () => {
       const patternNode = getNode(Relay.QL`
         fragment on Actor @relay(pattern: true) {
           friends {
-            count,
+            count
             edges {
               node {
-                id,
-                name,
+                id
+                name
               }
             }
           }
@@ -344,11 +344,11 @@ describe('intersectRelayQuery', () => {
       const expected = getNode(Relay.QL`
         fragment on Actor {
           friends(first: "10") {
-            count,
+            count
             edges {
               node {
-                id,
-                name,
+                id
+                name
               }
             }
           }

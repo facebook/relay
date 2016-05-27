@@ -13,51 +13,39 @@
 
 'use strict';
 
-var TypeKind = require('./GraphQL').type_introspection.TypeKind;
+var _require = require('./GraphQL');
 
-var BOOLEAN = {
-  kind: TypeKind.SCALAR,
-  name: 'Boolean'
-};
+var DirectiveLocation = _require.type_directives.DirectiveLocation;
+var GraphQLList = _require.type_definition.GraphQLList;
+var _require$type_scalars = _require.type_scalars;
+var GraphQLBoolean = _require$type_scalars.GraphQLBoolean;
+var GraphQLString = _require$type_scalars.GraphQLString;
 
-var STRING = {
-  kind: TypeKind.SCALAR,
-  name: 'String'
-};
 
 module.exports = {
   name: 'relay',
   description: 'The @relay directive.',
-  args: [{
-    name: 'isConnectionWithoutNodeID',
-    description: 'Marks a connection field as containing nodes without `id` fields. ' + 'This is used to silence the warning when diffing connections.',
-    type: BOOLEAN,
-    defaultValue: null
-  }, {
-    name: 'isStaticFragment',
-    description: 'Marks a fragment as static. A static fragment will share the same ' + 'identity regardless of how many times the expression is evaluated.',
-    type: BOOLEAN,
-    defaultValue: null
-  }, {
-    name: 'pattern',
-    description: 'Marks a fragment as intended for pattern matching (as opposed to ' + 'fetching).',
-    type: BOOLEAN,
-    defaultValue: null
-  }, {
-    name: 'plural',
-    description: 'Marks a fragment as being backed by a GraphQLList',
-    type: BOOLEAN,
-    defaultValue: null
-  }, {
-    name: 'variables',
-    description: 'Selectively pass variables down into a fragment.',
-    type: {
-      kind: TypeKind.LIST,
-      ofType: STRING
+  args: {
+    isConnectionWithoutNodeID: {
+      description: 'Marks a connection field as containing nodes without `id` fields. ' + 'This is used to silence the warning when diffing connections.',
+      type: GraphQLBoolean
     },
-    defaultValue: null
-  }],
-  onOperation: false,
-  onFragment: true,
-  onField: true
+    isStaticFragment: {
+      description: 'Marks a fragment as static. A static fragment will share the same ' + 'identity regardless of how many times the expression is evaluated.',
+      type: GraphQLBoolean
+    },
+    pattern: {
+      description: 'Marks a fragment as intended for pattern matching (as opposed to ' + 'fetching).',
+      type: GraphQLBoolean
+    },
+    plural: {
+      description: 'Marks a fragment as being backed by a GraphQLList',
+      type: GraphQLBoolean
+    },
+    variables: {
+      description: 'Selectively pass variables down into a fragment.',
+      type: new GraphQLList(GraphQLString)
+    }
+  },
+  locations: [DirectiveLocation.FIELD, DirectiveLocation.FRAGMENT_DEFINITION]
 };

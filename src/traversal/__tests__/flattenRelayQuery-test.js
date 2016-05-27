@@ -35,7 +35,7 @@ describe('flattenRelayQuery', () => {
             }
           }
           actor {
-            firstName,
+            firstName
             ... on Actor {
               lastName
             }
@@ -47,8 +47,8 @@ describe('flattenRelayQuery', () => {
       query {
         viewer {
           actor {
-            firstName,
-            name,
+            firstName
+            name
             lastName
           }
         }
@@ -61,7 +61,7 @@ describe('flattenRelayQuery', () => {
     const node = getNode(Relay.QL`
       fragment on Viewer {
         actor {
-          firstName,
+          firstName
           ... on Actor {
             lastName
             ... on Actor {
@@ -77,9 +77,9 @@ describe('flattenRelayQuery', () => {
     const expected = getNode(Relay.QL`
       fragment on Viewer {
         actor {
-          firstName,
-          lastName,
-          name,
+          firstName
+          lastName
+          name
           ... on User {
             username
           }
@@ -94,10 +94,10 @@ describe('flattenRelayQuery', () => {
       query {
         viewer {
           actor {
-            firstName,
-            name,
+            firstName
+            name
             ... on Actor {
-              name,
+              name
               lastName
             }
           }
@@ -108,8 +108,8 @@ describe('flattenRelayQuery', () => {
       query {
         viewer {
           actor {
-            firstName,
-            name,
+            firstName
+            name
             lastName
           }
         }
@@ -163,7 +163,7 @@ describe('flattenRelayQuery', () => {
       query {
         viewer {
           actor {
-            firstName,
+            firstName
             name
           }
         }

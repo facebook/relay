@@ -14,8 +14,8 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment')
+  .unmock('GraphQLRange')
+  .unmock('GraphQLSegment')
   .mock('warning');
 
 const Relay = require('Relay');
@@ -282,7 +282,7 @@ describe('writeRelayQueryPayload()', () => {
         query {
           viewer {
             actor {
-              id,
+              id
               __typename
             }
           }

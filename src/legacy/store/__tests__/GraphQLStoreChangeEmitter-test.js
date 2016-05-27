@@ -11,7 +11,7 @@
 
 'use strict';
 
-jest.dontMock('GraphQLStoreChangeEmitter');
+jest.unmock('GraphQLStoreChangeEmitter');
 
 const ErrorUtils = require('ErrorUtils');
 const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');

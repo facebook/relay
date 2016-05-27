@@ -8,7 +8,6 @@
  *
  * @providesModule QueryBuilder
  * @flow
- * @typechecks
  */
 
 'use strict';

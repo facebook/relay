@@ -12,7 +12,7 @@
 'use strict';
 
 jest
-  .autoMockOff()
+  .disableAutomock()
   .mock('performanceNow');
 
 const Relay = require('Relay');

@@ -79,8 +79,11 @@ Here's an example of this mutation in use by a `LikeButton` component:
 ```
 class LikeButton extends React.Component {
   _handleLike = () => {
-    // To perform a mutation, pass an instance of one to `Relay.Store.commitUpdate`
-    Relay.Store.commitUpdate(new LikeStoryMutation({story: this.props.story}));
+    // To perform a mutation, pass an instance of one to
+    // `this.props.relay.commitUpdate`
+    this.props.relay.commitUpdate(
+      new LikeStoryMutation({story: this.props.story})
+    );
   }
   render() {
     return (
@@ -329,9 +332,36 @@ Given a parent, a connection, and the name of the newly created edge in the resp
 
   The field name in the response that represents the newly created edge
 
-- `rangeBehaviors: {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS}`
+- `rangeBehaviors: {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS} | (connectionArgs: {[argName: string]: string}) => $Enum<GraphQLMutatorConstants.RANGE_OPERATIONS>`
 
-  A map between printed, dot-separated GraphQL calls *in alphabetical order*, and the behavior we want Relay to exhibit when adding the new edge to connections under the influence of those calls. Behaviors can be one of `'append'`, `'ignore'`, `'prepend'`, `'refetch'`, or `'remove'`.
+  A map between printed, dot-separated GraphQL calls *in alphabetical order* and the behavior we want Relay to exhibit when adding the new edge to connections under the influence of those calls or a function accepting an array of connection arguments, returning that behavior.
+
+For example, `rangeBehaviors` could be written this way:
+
+```
+const rangeBehaviors = {
+  // When the ships connection is not under the influence
+  // of any call, append the ship to the end of the connection
+  '': 'append',
+  // Prepend the ship, wherever the connection is sorted by age
+  'orderby(newest)': 'prepend',
+};
+```
+
+Or this way, with the same results:
+
+```
+const rangeBehaviors = ({orderby}) => {
+  if (orderby === 'newest') {
+    return 'prepend';
+  } else {
+    return 'append';
+  }
+};
+
+```
+
+Behaviors can be one of `'append'`, `'ignore'`, `'prepend'`, `'refetch'`, or `'remove'`.
 
 #### Example
 
@@ -382,9 +412,9 @@ Given a parent, a connection, one or more DataIDs in the response payload, and a
 
   The field name in the response that represents the parent of the connection
 
-- `parentID: string`
+- `parentID?: string`
 
-  The DataID of the parent node that contains the connection
+  The DataID of the parent node that contains the connection. Omit if the parent node does not have an ID.
 
 - `connectionName: string`
 
@@ -396,7 +426,7 @@ Given a parent, a connection, one or more DataIDs in the response payload, and a
 
 - `pathToConnection: Array<string>`
 
-  Any array containing the field names between the parent and the connection, including the parent and the connection
+  An array containing the field names between the parent and the connection, including the parent and the connection
 
 
 #### Example
@@ -438,7 +468,7 @@ A `REQUIRED_CHILDREN` config is used to append additional children to the mutati
 Data fetched as a result of a `REQUIRED_CHILDREN` config is not written into the client store, but you can add code that processes it in the `onSuccess` callback that you pass into `commitUpdate()`:
 
 ```
-Relay.Store.commitUpdate(
+this.props.relay.commitUpdate(
   new CreateCouponMutation(),
   {
     onSuccess: response => this.setState({

@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule RelayOSSContainerProxy
- * @typechecks
  * @flow
  */
 
@@ -21,7 +20,7 @@ import type {RelayContainer} from 'RelayTypes';
 const RelayOSSContainerProxy = {
   proxyMethods(
     Container: RelayContainer,
-    Component: ReactClass
+    Component: ReactClass<any>
   ): void {},
 };
 

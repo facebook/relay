@@ -14,8 +14,8 @@
 const RelayTestUtils = require('RelayTestUtils');
 
 jest
-  .dontMock('GraphQLSegment')
-  .dontMock('GraphQLRange')
+  .unmock('GraphQLSegment')
+  .unmock('GraphQLRange')
   .mock('warning');
 
 const GraphQLRange = require('GraphQLRange');
@@ -517,12 +517,12 @@ describe('GraphQLRange', () => {
 
   it('should error for first().last() query', () => {
     console.error = jest.fn();
-    var queryCalls = [
+    const queryCalls = [
       {name: 'first', value: 3},
       {name: 'last', value: 3},
     ];
 
-    var result = range.retrieveRangeInfoForQuery(queryCalls);
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
 
     expect(console.error.mock.calls.length).toBe(1);
     expect(console.error.mock.calls[0]).toEqual([
@@ -548,7 +548,7 @@ describe('GraphQLRange', () => {
     expect(result.pageInfo[HAS_PREV_PAGE]).toBe(false);
     expect(result.pageInfo[HAS_NEXT_PAGE]).toBe(true);
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: true,
       [HAS_PREV_PAGE]: false,
     };
@@ -673,7 +673,7 @@ describe('GraphQLRange', () => {
     expect(result.pageInfo[HAS_PREV_PAGE]).toBe(true);
     expect(result.pageInfo[HAS_NEXT_PAGE]).toBe(false);
 
-    var pageInfo = {
+    const pageInfo = {
       [HAS_NEXT_PAGE]: false,
       [HAS_PREV_PAGE]: true,
     };
@@ -1817,15 +1817,39 @@ describe('GraphQLRange', () => {
       {name: 'after', value: 'cursor3'},
       {name: 'first', value: 1},
     ]);
-    const queryCallsWithSession = [
+  });
+
+  it('should retrieve with deleted bumped edges cursor', () => {
+    const queryCalls = [
       {name: 'first', value: 3},
     ];
-    result = range.retrieveRangeInfoForQuery(queryCallsWithSession);
+
+    const pageInfo = {
+      [HAS_NEXT_PAGE]: true,
+      [HAS_PREV_PAGE]: false,
+    };
+    range.addItems(queryCalls, first3Edges, pageInfo);
+    let result = range.retrieveRangeInfoForQuery(queryCalls);
+
+    // bump the second edge
+    const afterQueryCalls = [
+      {name: 'after', value: 'cursor3'},
+      {name: 'first', value: 1},
+    ];
+    const bumpedEdge = {...edge2};
+    bumpedEdge.cursor = 'differentCursor';
+    range.addItems(afterQueryCalls, [bumpedEdge], pageInfo);
+
+    const queryCallsWithCursor = [
+      {name: 'after', value: 'cursor2'},
+      {name: 'first', value: 3},
+    ];
+    result = range.retrieveRangeInfoForQuery(queryCallsWithCursor);
     expect(result.requestedEdgeIDs).toEqual(
-      [edge1.__dataID__, edge3.__dataID__]
+      [edge3.__dataID__, bumpedEdge.__dataID__]
     );
     expect(result.diffCalls).toEqual([
-      {name: 'after', value: 'cursor3'},
+      {name: 'after', value: 'differentCursor'},
       {name: 'first', value: 1},
     ]);
   });
@@ -2097,6 +2121,25 @@ describe('GraphQLRange', () => {
       edge3.__dataID__,
       edge98.__dataID__,
       edge99.__dataID__,
+    ]);
+  });
+
+  it('returns correct segmented edge ids', () => {
+    // Starts off with two empty segments.
+    expect(range.getSegmentedEdgeIDs()).toEqual([[], []]);
+
+    const queryCalls = [
+      {name: 'first', value: 3},
+    ];
+    const pageInfo = {
+      [HAS_NEXT_PAGE]: true,
+      [HAS_PREV_PAGE]: false,
+    };
+
+    range.addItems(queryCalls, first3Edges, pageInfo);
+    expect(range.getSegmentedEdgeIDs()).toEqual([
+      [edge1.__dataID__, edge2.__dataID__, edge3.__dataID__],
+      [],
     ]);
   });
 });

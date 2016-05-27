@@ -37,6 +37,12 @@ Relay containers are created using `Relay.createContainer`.
       A method to modify the variables based on the runtime environment or previous variable values.
     </a>
   </li>
+  <li>
+    <a href="#shouldcomponentupdate">
+      <pre>shouldComponentUpdate</pre>
+      Optionally override RelayContainer's default implementation of `shouldComponentUpdate`.
+    </a>
+  </li>
 </ul>
 
 *Properties and Methods*
@@ -56,12 +62,12 @@ These are the methods and properties that the container will provide as `this.pr
   </li>
   <li>
     <a href="#setvariables">
-      <pre>setVariables([partialVariables, [onReadyStateChange]])</pre>
+      <pre>setVariables([partialVariables[, onReadyStateChange]])</pre>
     </a>
   </li>
   <li>
     <a href="#forcefetch">
-      <pre>forceFetch([partialVariables, [onReadyStateChange]]) </pre>
+      <pre>forceFetch([partialVariables[, onReadyStateChange]]) </pre>
     </a>
   </li>
   <li>
@@ -72,6 +78,17 @@ These are the methods and properties that the container will provide as `this.pr
   <li>
     <a href="#getpendingtransactions">
       <pre>getPendingTransactions(record) </pre>
+    </a>
+  </li>
+</ul>
+
+*Static Methods*
+
+<ul class="apiIndex">
+  <li>
+    <a href="#getfragment">
+      <pre>getFragment(name[, vars])</pre>
+      Get a reference to a container fragment for inclusion in a parent fragment.
     </a>
   </li>
 </ul>
@@ -169,6 +186,23 @@ module.exports = Relay.createContainer(ProfilePicture, {
       size: prevVariables.size * window.devicePixelRatio,
     };
   },
+  // ...
+});
+```
+
+### shouldComponentUpdate
+
+```
+shouldComponentUpdate: () => boolean;
+```
+
+RelayContainer implements a conservative default `shouldComponentUpdate` that returns `false` if no fragment props have changed and all other props are equal scalar values. This may block updates to components that receive data via context. To ensure an update in this case override the default behavior by specifying a `shouldComponentUpdate` function.
+
+#### Example
+
+```{2}
+module.exports = Relay.createContainer(ProfilePicture, {
+  shouldComponentUpdate: () => true,
   // ...
 });
 ```
@@ -425,3 +459,82 @@ module.exports = Relay.createContainer(ProfilePicture, {
 - `COLLISION_COMMIT_FAILED` — Transaction was queued for commit but another transaction with the same collision key failed. All transactions in the collision queue, including this one, have been failed. Transaction can be recommitted or rolled back.
 - `COMMITTING` — Transaction is waiting for the server to respond.
 - `COMMIT_FAILED` — Transaction was sent to the server for comitting but failed.
+
+## Static Methods
+
+### getFragment
+
+```
+getFragment(
+  fragmentName: string, 
+  variables?: {[name: string]: mixed}
+): RelayFragmentReference
+```
+
+Gets a reference to a child container's fragment for inclusion in a parent fragment.
+
+#### Example
+
+Fragment composition is achieved via ES6 template string interpolation and `getFragment`: 
+
+```{6}
+// Parent.js
+Relay.createContainer(Parent, {
+  fragments: {
+    parentFragment: () => Relay.QL`
+      fragment on Foo {
+        id
+        ${Child.getFragment('childFragment')}
+      }
+    `,
+  }
+});
+// Child.js
+Relay.createContainer(Child, {
+  initialVariables: {
+    size: 64,
+  },
+  fragments: {
+    childFragment: () => Relay.QL`
+      fragment on Foo {
+        photo(size: $size) { uri }
+      }
+    `,
+  }
+});
+```
+
+In this example, whenever `Parent` is fetched, `Child`'s fragment will also be fetched. When rendering, `<Parent>` will only have access to the `props.foo.id` field;  data from the child fragment will be [*masked*](http://facebook.github.io/relay/docs/thinking-in-relay.html#data-masking). By default, `childFragment` will use its corresponding initial variables. Relay will fetch `photo(size: 64)`. When `<Child>` is rendered it will also make the initial variables available as `props.relay.variables = {size: 64}`.
+
+#### Overriding Fragment Variables
+
+Sometimes a parent needs to override the default variables of a child component. Imagine that we want to render `Child` above with a photo size of 128 instead of the default 64. To do this, we have to ensure that both the fragment *and* the container know about the custom variable. To set a custom variable in the *query*, use the second argument to `getFragment`:
+
+```{6}
+// Parent.js
+Relay.createContainer(Parent, {
+  fragments: {
+    parentFragment: () => Relay.QL`
+      fragment on Foo {
+        id
+        ${Child.getFragment('childFragment', {size: 128}
+      }
+    `,
+  }
+});
+```
+
+Now Relay will fetch the photo with size 128 - but the `Child` container won't magically know about this variable. We have to tell it by passing the variable value as a prop:
+
+```{4}
+const Parent = (props) => {
+  return (
+    <Child 
+      childFragment={props.parentFragment} 
+      size={128} 
+    />;
+  );
+}
+```
+
+Now Relay will both fetch the larger photo size *and* `Child` will know to render it.

@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayDiskCacheReader');
+module.exports = require.requireActual('RelayOptimisticMutationUtils');

@@ -8,7 +8,6 @@
  *
  * @providesModule readRelayQueryData
  * @flow
- * @typechecks
  */
 
 'use strict';
@@ -183,7 +182,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     if (node.isContainerFragment() && !this._traverseFragmentReferences) {
       state.seenDataIDs[dataID] = true;
       const data = getDataObject(state);
-      RelayFragmentPointer.addFragment(data, node, dataID);
+      RelayFragmentPointer.addFragment(data, node);
     } else if (isCompatibleRelayFragmentType(
       node,
       this._recordStore.getType(dataID)
@@ -334,13 +333,8 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     const read = child => {
       if (child instanceof RelayQuery.Fragment) {
         if (child.isContainerFragment() && !this._traverseFragmentReferences) {
-          const dataID = getComponentDataID(state);
           nextData = nextData || {};
-          RelayFragmentPointer.addFragment(
-            nextData,
-            child,
-            dataID
-          );
+          RelayFragmentPointer.addFragment(nextData, child);
         } else {
           child.getChildren().forEach(read);
         }
@@ -425,10 +419,15 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     // Hash any pending mutation transactions.
     const mutationIDs = this._storeData.getClientMutationIDs(dataID);
     if (mutationIDs) {
+      const statuses = [];
       const mutationQueue = this._storeData.getMutationQueue();
-      data[MUTATION_STATUS] = mutationIDs.map(
-        mutationID => mutationQueue.getTransaction(mutationID).getHash()
-      ).join(',');
+      mutationIDs.forEach(mutationID => {
+        const transaction = mutationQueue.getTransaction(mutationID);
+        if (transaction) {
+          statuses.push(transaction.getHash());
+        }
+      });
+      data[MUTATION_STATUS] = statuses.join(',');
     }
   }
 
@@ -503,7 +502,7 @@ class RelayRangeCallEnforcer extends RelayQueryVisitor<RelayQuery.Field> {
     );
   }
 }
-var rangeCallEnforcer = new RelayRangeCallEnforcer();
+const rangeCallEnforcer = new RelayRangeCallEnforcer();
 
 /**
  * Returns the component-specific DataID stored in `state`, falling back to the

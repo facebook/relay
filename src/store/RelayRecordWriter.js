@@ -8,7 +8,6 @@
  *
  * @providesModule RelayRecordWriter
  * @flow
- * @typechecks
  */
 
 'use strict';

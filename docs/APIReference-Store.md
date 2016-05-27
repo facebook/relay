@@ -28,6 +28,11 @@ The Relay `Store` provides an API for dispatching mutations to the server.
   </li>
 </ul>
 
+**Note:** Equivalent `applyUpdate` and `commitUpdate` methods are also
+provided on the `this.props.relay` prop that is passed to components by
+`Relay.Container`. These dispatch mutations in the context of the currently
+active `Relay.Environment`.
+
 ## Methods
 
 ### commitUpdate (static method)

@@ -33,8 +33,8 @@ describe('RelayQueryVisitor', () => {
         friends(first:$first,after:$after) {
           edges {
             node {
-              id,
-              name,
+              id
+              name
               address {
                 city
               }
@@ -46,15 +46,15 @@ describe('RelayQueryVisitor', () => {
     query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
-          ${fragment},
+          id
+          ${fragment}
           friends(first:$first,after:$after) {
             edges {
               node {
-                id,
-                firstName,
+                id
+                firstName
                 address {
-                  city,
+                  city
                 }
               }
             }

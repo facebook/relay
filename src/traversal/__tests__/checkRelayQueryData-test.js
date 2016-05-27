@@ -154,7 +154,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             firstName
           }
         }
@@ -177,7 +177,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             firstName
           }
         }
@@ -206,7 +206,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             friends {count}
           }
         }
@@ -230,7 +230,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             friends {count}
           }
         }
@@ -257,7 +257,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             friends {count}
           }
         }
@@ -286,7 +286,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             screennames {service}
           }
         }
@@ -311,7 +311,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             screennames {service}
           }
         }
@@ -339,7 +339,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             screennames {service}
           }
         }
@@ -373,7 +373,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             friends(first:"10") {
               edges { node {id}}
             }
@@ -408,7 +408,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             friends(first:"10") {
               edges { node {id}}
             }
@@ -493,7 +493,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             friends(first:"10") {
               edges { node {id}, cursor}
             }
@@ -536,7 +536,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             friends(first:"10") {
               edges { node {id}, cursor}
             }
@@ -599,7 +599,7 @@ describe('checkRelayQueryData', () => {
       getNode(Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             ... on User {
               name
             }
@@ -623,7 +623,7 @@ describe('checkRelayQueryData', () => {
       getNode(Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             ... on User {
               name #unfetched
             }
@@ -647,7 +647,7 @@ describe('checkRelayQueryData', () => {
       getNode(Relay.QL`
         query {
           node(id:"1055790163") {
-            id,
+            id
             # non-matching type - should not count as missing data
             ... on Page {
               name

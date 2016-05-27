@@ -8,7 +8,6 @@
  *
  * @providesModule rangeOperationToMetadataKey
  * @flow
- * @typechecks
  */
 
 'use strict';

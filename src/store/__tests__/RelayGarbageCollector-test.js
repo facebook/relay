@@ -14,9 +14,8 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment')
-  .dontMock('performanceNow');
+  .unmock('GraphQLRange')
+  .unmock('GraphQLSegment');
 
 const Relay = require('Relay');
 const RelayNodeInterface = require('RelayNodeInterface');
@@ -260,9 +259,8 @@ describe('RelayGarbageCollector', () => {
       };
       let run = null;
       const {garbageCollector, storeData} = createGC(records, _run => {
-          run = _run;
-        }
-      );
+        run = _run;
+      });
       garbageCollector.register('a');
       garbageCollector.collect();
       jest.runAllTimers();
@@ -377,6 +375,36 @@ describe('RelayGarbageCollector', () => {
       jest.runAllTimers();
       jest.runAllTimers();
       expect(scheduler.mock.calls.length).toBe(1);
+    });
+  });
+
+  describe('interaction with query tracking', () => {
+    let garbageCollector;
+    let records;
+    let storeData;
+
+    beforeEach(() => {
+      records = {
+        foo: {__dataID__: 'foo'},
+      };
+      ({garbageCollector, storeData} = createGC(records));
+      garbageCollector.register('foo');
+    });
+
+    it('marks nodes as untracked when collected', () => {
+      const tracker = storeData.getQueryTracker();
+      tracker.untrackNodesForID = jest.fn();
+      garbageCollector.collectFromNode('foo');
+      jest.runAllTimers();
+      expect(tracker.untrackNodesForID.mock.calls).toEqual([['foo']]);
+    });
+
+    it('behaves gracefully in the absence of a query tracker', () => {
+      storeData.injectQueryTracker(null);
+      expect(() => {
+        garbageCollector.collectFromNode('foo');
+        jest.runAllTimers();
+      }).not.toThrow();
     });
   });
 });

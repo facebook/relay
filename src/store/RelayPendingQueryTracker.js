@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule RelayPendingQueryTracker
- * @typechecks
  * @flow
  */
 
@@ -102,7 +101,7 @@ class PendingFetch {
   _pendingDependencyMap: {[queryID: string]: PendingFetch};
 
   _fetchedSubtractedQuery: boolean;
-  _fetchSubtractedQueryPromise: Promise;
+  _fetchSubtractedQueryPromise: Promise<any>;
 
   _resolvedSubtractedQuery: boolean;
   _resolvedDeferred: Deferred<void, ?Error>;
@@ -184,7 +183,7 @@ class PendingFetch {
     return this._query;
   }
 
-  getResolvedPromise(): Promise {
+  getResolvedPromise(): Promise<any> {
     return this._resolvedDeferred.getPromise();
   }
 

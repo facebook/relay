@@ -14,8 +14,8 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment')
+  .unmock('GraphQLRange')
+  .unmock('GraphQLSegment')
   .mock('warning');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
@@ -82,13 +82,13 @@ describe('writePayload()', () => {
         query {
           node(id:"feedback_id") {
             topLevelComments(first:"1") {
-              count,
+              count
               edges {
                 node {
-                  id,
-                },
-              },
-            },
+                  id
+                }
+              }
+            }
           }
         }
       `);
@@ -127,9 +127,9 @@ describe('writePayload()', () => {
           commentDelete(input:$input) {
             feedback {
               topLevelComments {
-                count,
-              },
-            },
+                count
+              }
+            }
           }
         }
       `, {
@@ -217,13 +217,13 @@ describe('writePayload()', () => {
         query {
           node(id:"feedback_id") {
             topLevelComments(first:"1") {
-              count,
+              count
               edges {
                 node {
-                  id,
-                },
-              },
-            },
+                  id
+                }
+              }
+            }
           }
         }
       `);
@@ -261,12 +261,12 @@ describe('writePayload()', () => {
       const mutation = getNode(Relay.QL`
         mutation {
           commentDelete(input:$input) {
-            deletedCommentId,
+            deletedCommentId
             feedback {
               topLevelComments {
-                count,
-              },
-            },
+                count
+              }
+            }
           }
         }
       `, {
@@ -346,12 +346,12 @@ describe('writePayload()', () => {
       const mutation = getNode(Relay.QL`
         mutation {
           commentDelete(input:$input) {
-            deletedCommentId,
+            deletedCommentId
             feedback {
               topLevelComments {
-                count,
-              },
-            },
+                count
+              }
+            }
           }
         }
       `, {
@@ -523,6 +523,262 @@ describe('writePayload()', () => {
     });
   });
 
+  describe('plural range delete mutation', () => {
+    let store, queueStore, writer, queueWriter, commentIDs, connectionID, edgeIDs;
+
+    beforeEach(() => {
+      const records = {};
+      const queuedRecords = {};
+      const nodeConnectionMap = {};
+      const rootCallMap = {};
+      const rootCallMaps = {rootCallMap};
+
+      commentIDs = ['comment123', 'comment456', 'comment789'];
+
+      store = new RelayRecordStore(
+        {records},
+        rootCallMaps,
+        nodeConnectionMap
+      );
+      queueStore = new RelayRecordStore(
+        {records, queuedRecords},
+        rootCallMaps,
+        nodeConnectionMap
+      );
+      writer = new RelayRecordWriter(
+        records,
+        rootCallMap,
+        false,
+        nodeConnectionMap
+      );
+      queueWriter = new RelayRecordWriter(
+        queuedRecords,
+        rootCallMap,
+        true,
+        nodeConnectionMap,
+        null,
+        'mutationID'
+      );
+
+      const query = getNode(Relay.QL`
+        query {
+          node(id:"feedback_id") {
+            topLevelComments(first:"3") {
+              count
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      `);
+      const payload = {
+        node: {
+          __typename: 'Feedback',
+          id: 'feedback_id',
+          topLevelComments: {
+            count: commentIDs.length,
+            edges: commentIDs.map(id => {
+              return {
+                cursor: id + ':cursor',
+                node: {
+                  id,
+                },
+              };
+            }),
+          },
+        },
+      };
+      writePayload(store, writer, query, payload);
+      connectionID = store.getLinkedRecordID(
+        'feedback_id',
+        'topLevelComments'
+      );
+      edgeIDs = commentIDs.map(id => {
+        return generateClientEdgeID(connectionID, id);
+      });
+    });
+
+    it('optimistically deletes requests', () => {
+      // create the mutation and payload
+      const input = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        deletedCommentId: commentIDs,
+      };
+      const mutation = getNode(Relay.QL`
+        mutation {
+          commentDelete(input:$input) {
+            deletedCommentId
+            feedback {
+              topLevelComments {
+                count
+              }
+            }
+          }
+        }
+      `, {
+        input: JSON.stringify(input),
+      });
+      const configs = [{
+        type: RelayMutationType.RANGE_DELETE,
+        deletedIDFieldName: 'deletedCommentId',
+        pathToConnection: ['feedback', 'topLevelComments'],
+      }];
+
+      const payload = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        deletedCommentId: commentIDs,
+        feedback: {
+          id: 'feedback_id',
+          topLevelComments: {
+            count: 0,
+          },
+        },
+      };
+
+      // write to the queued store
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
+        queueStore,
+        queueWriter,
+        queryTracker,
+        changeTracker,
+        {isOptimisticUpdate: true}
+      );
+
+      writeRelayUpdatePayload(
+        queryWriter,
+        mutation,
+        payload,
+        {configs, isOptimisticUpdate: true}
+      );
+
+      expect(changeTracker.getChangeSet()).toEqual({
+        created: {},
+        updated: {
+          [connectionID]: true, // range edge deleted & count changed
+          ...edgeIDs.reduce((edgeMap, id) => { // edges are deleted
+            return {
+              ...edgeMap,
+              [id]: true,
+            };
+          }, {}),
+          // `commentID` is not modified
+        },
+      });
+
+      expect(queueStore.getField(connectionID, 'count')).toBe(0);
+      edgeIDs.forEach(edgeID => {
+        expect(queueStore.getRecordState(edgeID)).toBe('NONEXISTENT');
+      });
+      commentIDs.forEach(commentID => {
+        expect(queueStore.getRecordState(commentID)).toBe('EXISTENT');
+      });
+      // the range no longer returns this edge
+      expect(queueStore.getRangeMetadata(
+        connectionID,
+        [{name: 'first', value: '1'}]
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([]);
+
+      expect(store.getField(connectionID, 'count')).toBe(3);
+      edgeIDs.forEach(edgeID => {
+        // the range still contains this edge
+        expect(store.getRecordState(edgeID)).toBe('EXISTENT');
+      });
+      expect(store.getRangeMetadata(
+        connectionID,
+        [{name: 'first', value: commentIDs.length}]
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual(edgeIDs);
+    });
+
+    it('non-optimistically deletes requests', () => {
+      // create the mutation and payload
+      const input = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        deletedCommentId: commentIDs,
+      };
+      const mutation = getNode(Relay.QL`
+        mutation {
+          commentDelete(input:$input) {
+            deletedCommentId
+            feedback {
+              topLevelComments {
+                count
+              }
+            }
+          }
+        }
+      `, {
+        input: JSON.stringify(input),
+      });
+      const configs = [{
+        type: RelayMutationType.RANGE_DELETE,
+        deletedIDFieldName: 'deletedCommentId',
+        pathToConnection: ['feedback', 'topLevelComments'],
+      }];
+
+      const payload = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        deletedCommentId: commentIDs,
+        feedback: {
+          id: 'feedback_id',
+          topLevelComments: {
+            count: 0,
+          },
+        },
+      };
+
+      // write to the queued store
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
+        store,
+        writer,
+        queryTracker,
+        changeTracker
+      );
+
+      writeRelayUpdatePayload(
+        queryWriter,
+        mutation,
+        payload,
+        {configs, isOptimisticUpdate: false}
+      );
+
+      expect(changeTracker.getChangeSet()).toEqual({
+        created: {},
+        updated: {
+          [connectionID]: true, // range edge deleted & count changed
+          ...edgeIDs.reduce((edgeMap, id) => { // edges are deleted
+            return {
+              ...edgeMap,
+              [id]: true,
+            };
+          }, {}),
+          // `commentID` is not modified
+        },
+      });
+
+      expect(store.getField(connectionID, 'count')).toBe(0);
+      edgeIDs.forEach(edgeID => {
+        expect(store.getRecordState(edgeID)).toBe('NONEXISTENT');
+      });
+      commentIDs.forEach(commentID => {
+        expect(store.getRecordState(commentID)).toBe('EXISTENT');
+      });
+      // the range no longer returns this edge
+      expect(store.getRangeMetadata(
+        connectionID,
+        [{name: 'first', value: '1'}]
+      ).filteredEdges.map(edge => edge.edgeID)).toEqual([]);
+    });
+  });
+
   describe('node/range delete mutations', () => {
     let store, queueStore, writer, queueWriter, feedbackID, connectionID, firstCommentID, secondCommentID, firstEdgeID, secondEdgeID;
 
@@ -565,7 +821,7 @@ describe('writePayload()', () => {
         query {
           node(id:"feedback123") {
             topLevelComments(first:"1") {
-              count,
+              count
               edges {
                 node {
                   id
@@ -615,9 +871,9 @@ describe('writePayload()', () => {
       const mutation = getNode(Relay.QL`
         mutation {
           commentDelete(input:$input) {
-            deletedCommentId,
+            deletedCommentId
             feedback {
-              id,
+              id
               topLevelComments {
                 count
               }
@@ -713,9 +969,9 @@ describe('writePayload()', () => {
       const mutation = getNode(Relay.QL`
         mutation {
           commentDelete(input:$input) {
-            deletedCommentId,
+            deletedCommentId
             feedback {
-              id,
+              id
               topLevelComments {
                 count
               }
@@ -851,7 +1107,7 @@ describe('writePayload()', () => {
       const mutation = getNode(Relay.QL`
         mutation {
           applicationRequestDeleteAll(input:$input) {
-            deletedRequestIds,
+            deletedRequestIds
           }
         }
       `, {
@@ -917,7 +1173,7 @@ describe('writePayload()', () => {
       const mutation = getNode(Relay.QL`
         mutation {
           applicationRequestDeleteAll(input:$input) {
-            deletedRequestIds,
+            deletedRequestIds
           }
         }
       `, {
@@ -1014,7 +1270,7 @@ describe('writePayload()', () => {
         query {
           node(id:"feedback123") {
             topLevelComments(first:"1") {
-              count,
+              count
               edges {
                 node {
                   id
@@ -1057,11 +1313,11 @@ describe('writePayload()', () => {
         mutation {
           commentCreate(input:$input) {
             feedback {
-              id,
+              id
               topLevelComments {
-                count,
-              },
-            },
+                count
+              }
+            }
           }
         }
       `, {input: JSON.stringify(input)}
@@ -1124,23 +1380,23 @@ describe('writePayload()', () => {
         mutation {
           commentCreate(input:$input) {
             feedback {
-              id,
+              id
               topLevelComments {
-                count,
-              },
-            },
+                count
+              }
+            }
             feedbackCommentEdge {
-              cursor,
+              cursor
               node {
-                id,
+                id
                 body {
-                  text,
-                },
-              },
+                  text
+                }
+              }
               source {
-                id,
-              },
-            },
+                id
+              }
+            }
           }
         }
       `, {
@@ -1216,23 +1472,23 @@ describe('writePayload()', () => {
         mutation {
           commentCreate(input:$input) {
             feedback {
-              id,
+              id
               topLevelComments {
-                count,
-              },
-            },
+                count
+              }
+            }
             feedbackCommentEdge {
-              cursor,
+              cursor
               node {
-                id,
+                id
                 body {
-                  text,
-                },
-              },
+                  text
+                }
+              }
               source {
-                id,
-              },
-            },
+                id
+              }
+            }
           }
         }
       `, {
@@ -1311,23 +1567,23 @@ describe('writePayload()', () => {
         mutation {
           commentCreate(input:$input) {
             feedback {
-              id,
+              id
               topLevelComments {
-                count,
-              },
-            },
+                count
+              }
+            }
             feedbackCommentEdge {
-              cursor,
+              cursor
               node {
-                id,
+                id
                 body {
-                  text,
-                },
-              },
+                  text
+                }
+              }
               source {
-                id,
-              },
-            },
+                id
+              }
+            }
           }
         }
       `, {
@@ -1444,23 +1700,23 @@ describe('writePayload()', () => {
         mutation {
           commentCreate(input:$input) {
             feedback {
-              id,
+              id
               topLevelComments {
-                count,
-              },
-            },
+                count
+              }
+            }
             feedbackCommentEdge {
-              cursor,
+              cursor
               node {
-                id,
+                id
                 body {
-                  text,
-                },
-              },
+                  text
+                }
+              }
               source {
-                id,
-              },
-            },
+                id
+              }
+            }
           }
         }
       `, {

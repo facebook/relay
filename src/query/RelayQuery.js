@@ -8,7 +8,6 @@
  *
  * @providesModule RelayQuery
  * @flow
- * @typechecks
  */
 
 'use strict';
@@ -767,6 +766,7 @@ class RelayQuerySubscription extends RelayQueryOperation {
 class RelayQueryFragment extends RelayQueryNode {
   __compositeHash__: ?string;
   __metadata__: FragmentMetadata;
+  __sourceCompositeHash__: ?string;
 
   /**
    * Helper to construct a new fragment with the given attributes and 'empty'
@@ -775,6 +775,8 @@ class RelayQueryFragment extends RelayQueryNode {
   static build(
     name: string,
     type: string,
+    /* $FlowIssue: #11220887
+       `Array<Subclass-of-RelayQueryNode>` should be compatible here. */
     children?: ?Array<RelayQueryNode>,
     metadata?: ?{[key: string]: mixed}
   ): RelayQueryFragment {
@@ -827,6 +829,7 @@ class RelayQueryFragment extends RelayQueryNode {
     super(concreteNode, route, variables);
     this.__compositeHash__ = null;
     this.__metadata__ = metadata || DEFAULT_FRAGMENT_METADATA;
+    this.__sourceCompositeHash__ = null;
   }
 
   canHaveSubselections(): boolean {
@@ -866,6 +869,10 @@ class RelayQueryFragment extends RelayQueryNode {
       this.__compositeHash__ = compositeHash;
     }
     return compositeHash;
+  }
+
+  getSourceCompositeHash(): ?string {
+    return this.__sourceCompositeHash__;
   }
 
   isAbstract(): boolean {
@@ -921,6 +928,11 @@ class RelayQueryFragment extends RelayQueryNode {
       clone.__metadata__ = {
         ...this.__metadata__,
       };
+
+      // The container checks on the status of a deferred fragment using its
+      // composite hash. We need to cache this hash in this cloned fragment
+      // so it can be updated in the store with the correct hash when fetched.
+      clone.__sourceCompositeHash__ = this.getCompositeHash();
     }
     return clone;
   }
@@ -947,7 +959,7 @@ class RelayQueryFragment extends RelayQueryNode {
 class RelayQueryField extends RelayQueryNode {
   __debugName__: ?string;
   __isRefQueryDependency__: boolean;
-  __rangeBehaviorKey__: ?string;
+  __rangeBehaviorCalls__: ?Array<Call>;
   __shallowHash__: ?string;
 
   static create(
@@ -1015,7 +1027,7 @@ class RelayQueryField extends RelayQueryNode {
     super(concreteNode, route, variables);
     this.__debugName__ = undefined;
     this.__isRefQueryDependency__ = false;
-    this.__rangeBehaviorKey__ = undefined;
+    this.__rangeBehaviorCalls__ = undefined;
     this.__shallowHash__ = undefined;
   }
 
@@ -1085,33 +1097,29 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   /**
-   * A string representing the range behavior eligible arguments associated with
-   * this field. Arguments will be sorted.
-   *
-   * Non-core arguments (like connection and identifying arguments) are dropped.
-   *   `field(first: 10, foo: "bar", baz: "bat")` => `'baz(bat).foo(bar)'`
-   *   `username(name: "steve")`                  => `''`
-   */
-  getRangeBehaviorKey(): string {
+  * An Array of Calls to be used with rangeBehavior config functions.
+  *
+  * Non-core arguments (like connection and identifying arguments) are dropped.
+  *   `field(first: 10, foo: "bar", baz: "bat")` => `'baz(bat).foo(bar)'`
+  *   `username(name: "steve")`                  => `''`
+  */
+  getRangeBehaviorCalls(): Array<Call> {
     invariant(
       this.isConnection(),
       'RelayQueryField: Range behavior keys are associated exclusively with ' +
-      'connection fields. `getRangeBehaviorKey()` was called on the ' +
+      'connection fields. `getRangeBehaviorCalls()` was called on the ' +
       'non-connection field `%s`.',
       this.getSchemaName()
     );
-    let rangeBehaviorKey = this.__rangeBehaviorKey__;
-    if (rangeBehaviorKey == null) {
-      const printedCoreArgs = [];
-      this.getCallsWithValues().forEach(arg => {
-        if (this._isCoreArg(arg)) {
-          printedCoreArgs.push(serializeRelayQueryCall(arg));
-        }
+
+    let rangeBehaviorCalls = this.__rangeBehaviorCalls__;
+    if (!rangeBehaviorCalls) {
+      rangeBehaviorCalls = this.getCallsWithValues().filter(arg => {
+        return this._isCoreArg(arg);
       });
-      rangeBehaviorKey = printedCoreArgs.sort().join('').slice(1);
-      this.__rangeBehaviorKey__ = rangeBehaviorKey;
+      this.__rangeBehaviorCalls__ = rangeBehaviorCalls;
     }
-    return rangeBehaviorKey;
+    return rangeBehaviorCalls;
   }
 
   /**
@@ -1129,13 +1137,19 @@ class RelayQueryField extends RelayQueryNode {
   getSerializationKey(): string {
     let serializationKey = this.__serializationKey__;
     if (!serializationKey) {
-      serializationKey = generateRQLFieldAlias(
-        this.getSchemaName() +
-        this.getCallsWithValues()
+      let key = this.getSchemaName();
+      const calls = this.getCallsWithValues();
+      if (calls.length) {
+        const alias = (this.__concreteNode__: ConcreteField).alias;
+        if (alias != null) {
+          key += '.' + alias;
+        }
+        key += calls
           .map(serializeRelayQueryCall)
           .sort()
-          .join('')
-      );
+          .join('');
+      }
+      serializationKey = generateRQLFieldAlias(key);
       this.__serializationKey__ = serializationKey;
     }
     return serializationKey;

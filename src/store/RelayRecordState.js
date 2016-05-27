@@ -8,14 +8,13 @@
  *
  * @providesModule RelayRecordState
  * @flow
- * @typechecks
  */
 
 'use strict';
 
 export type RecordState = $Keys<typeof RelayRecordState>;
 
-var RelayRecordState = {
+const RelayRecordState = {
   /**
    * Record exists (either fetched from the server or produced by a local,
    * optimistic update).

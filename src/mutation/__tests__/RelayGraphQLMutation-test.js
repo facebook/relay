@@ -14,11 +14,12 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment')
-  .dontMock('RelayMutation')
-  .dontMock('RelayNetworkLayer');
+  .unmock('GraphQLRange')
+  .unmock('GraphQLSegment')
+  .unmock('RelayMutation')
+  .unmock('RelayNetworkLayer');
 
+const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayEnvironment = require('RelayEnvironment');
@@ -294,7 +295,7 @@ describe('RelayGraphQLMutation', () => {
     });
 
     describe('updating an existing node', () => {
-      pit('can toggle a boolean', () => {
+      it('can toggle a boolean', () => {
         writePayload(
           getNode(Relay.QL`
             query {
@@ -366,8 +367,8 @@ describe('RelayGraphQLMutation', () => {
         const likers = generateRQLFieldAlias('likers.first(10)');
         const result = {
           response: {
-            clientMutationId: id,
             feedbackLike: {
+              clientMutationId: id,
               feedback: {
                 id: 'aFeedbackId',
                 doesViewerLike: true,
@@ -401,69 +402,284 @@ describe('RelayGraphQLMutation', () => {
           },
         };
         request.resolve(result);
-        return request.then(() => {
-          // Item is removed from queue.
-          expect(() => queue.getStatus(id))
-            .toFailInvariant(
-              'RelayMutationQueue: `' + id + '` is not a valid pending ' +
-              'transaction ID.'
-            );
+        jest.runAllTimers();
 
-          // Success callback is notified.
-          expect(callbacks.onSuccess.mock.calls.length).toBe(1);
-          expect(callbacks.onSuccess.mock.calls[0]).toEqual([result.response]);
+        // Item is removed from queue.
+        expect(() => queue.getStatus(id))
+          .toFailInvariant(
+            'RelayMutationQueue: `' + id + '` is not a valid pending ' +
+            'transaction ID.'
+          );
 
-          //  Store is updated
-          const data = readData(
-            getNode(Relay.QL`
-              fragment on Feedback {
-                doesViewerLike
-                id
-                likers(first: "10") {
-                  count
-                  edges {
-                    cursor
-                    node {
-                      id
-                      name
-                    }
+        // Success callback is notified.
+        expect(callbacks.onSuccess.mock.calls.length).toBe(1);
+        expect(callbacks.onSuccess.mock.calls[0]).toEqual([result.response]);
+
+        //  Store is updated
+        const data = readData(
+          getNode(Relay.QL`
+            fragment on Feedback {
+              doesViewerLike
+              id
+              likers(first: "10") {
+                count
+                edges {
+                  cursor
+                  node {
+                    id
+                    name
                   }
-                  pageInfo {
-                    hasNextPage
-                    hasPreviousPage
+                }
+                pageInfo {
+                  hasNextPage
+                  hasPreviousPage
+                }
+              }
+            }
+          `),
+          'aFeedbackId'
+        );
+        expect(data).toMatchRecord({
+          doesViewerLike: true,
+          id: 'aFeedbackId',
+          likers: {
+            count: 2,
+            edges: [
+              {
+                cursor: 'cursor1',
+                node: {
+                  id: '1055790163',
+                  name: 'Yuzhi',
+                },
+              },
+              {
+                cursor: 'cursor2',
+                node: {
+                  id: '660361306',
+                  name: 'Greg',
+                },
+              },
+            ],
+            pageInfo: {
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+          },
+        });
+      });
+
+      it('can prepend to a range', () => {
+        writePayload(
+          getNode(Relay.QL`
+            query {
+              node(id: "aFeedbackId") {
+                ... on Feedback {
+                  id
+                  topLevelComments(first: "10") {
+                    edges {
+                      node {
+                        body {
+                          text
+                        }
+                        feedback {
+                          doesViewerLike
+                          id
+                        }
+                        id
+                      }
+                    }
                   }
                 }
               }
-            `),
-            'aFeedbackId'
-          );
-          expect(data).toMatchRecord({
-            doesViewerLike: true,
-            id: 'aFeedbackId',
-            likers: {
-              count: 2,
-              edges: [
-                {
-                  cursor: 'cursor1',
-                  node: {
-                    id: '1055790163',
-                    name: 'Yuzhi',
+            }
+          `),
+          {
+            node: {
+              __typename: 'Feedback',
+              id: 'aFeedbackId',
+              topLevelComments: {
+                edges: [
+                  {
+                    cursor: 'cursor1',
+                    node: {
+                      __typename: 'Comment',
+                      body: {
+                        text: 'First post!',
+                      },
+                      feedback: {
+                        doesViewerLike: false,
+                        id: 'aCommentFeedbackId',
+                      },
+                      id: 'aCommentId',
+                    },
                   },
+                ],
+                [PAGE_INFO]: {
+                  [HAS_NEXT_PAGE]: false,
+                  [HAS_PREV_PAGE]: false,
                 },
-                {
-                  cursor: 'cursor2',
-                  node: {
-                    id: '660361306',
-                    name: 'Greg',
-                  },
-                },
-              ],
-              pageInfo: {
-                hasNextPage: false,
-                hasPreviousPage: false,
               },
             },
-          });
+          }
+        );
+
+        const callbacks = {
+          onFailure: jest.fn(),
+          onSuccess: jest.fn(),
+        };
+        const query = Relay.QL`mutation CommentAddMutation {
+          commentCreate(input: $input) {
+            clientMutationId
+            feedbackCommentEdge {
+              cursor
+              node {
+                body {
+                  text
+                }
+                feedback {
+                  doesViewerLike
+                }
+              }
+              source {
+                id
+              }
+            }
+          }
+        }`;
+        const variables = {
+          input: {
+            feedbackId: 'aFeedbackId',
+            message: {
+              text: 'Hello, world!',
+            },
+          },
+        };
+        const mutation = new RelayGraphQLMutation(
+          query,
+          variables,
+          null,
+          environment,
+          callbacks
+        );
+        expect(sendMutation.mock.calls.length).toBe(0);
+
+        const configs = [{
+          type: 'RANGE_ADD',
+          connectionName: 'topLevelComments',
+          edgeName: 'feedbackCommentEdge',
+          parentID: 'aFeedbackId',
+          parentName: 'feedback',
+          rangeBehaviors: {
+            '': GraphQLMutatorConstants.PREPEND,
+            'if(true)': GraphQLMutatorConstants.PREPEND,
+          },
+        }];
+        const transaction = mutation.commit(configs);
+        const id = transaction.getID();
+
+        const request = requests[0];
+        const result = {
+          response: {
+            commentCreate: {
+              clientMutationId: id,
+              feedbackCommentEdge: {
+                __typename: 'CommentsEdge',
+                cursor: 'cursor2',
+                node: {
+                  body: {
+                    text: 'Hello, world!',
+                  },
+                  feedback: {
+                    doesViewerLike: false,
+                    id: 'otherCommentFeedbackId',
+                  },
+                  id: 'otherCommentId',
+                },
+                source: {
+                  id: 'aFeedbackId',
+                },
+              },
+            },
+          },
+        };
+        request.resolve(result);
+        jest.runAllTimers();
+
+        // Item is removed from queue.
+        expect(() => queue.getStatus(id))
+          .toFailInvariant(
+            'RelayMutationQueue: `' + id + '` is not a valid pending ' +
+            'transaction ID.'
+          );
+
+        // Success callback is notified.
+        expect(callbacks.onSuccess.mock.calls.length).toBe(1);
+        expect(callbacks.onSuccess.mock.calls[0]).toEqual([result.response]);
+
+        //  Store is updated
+        const data = readData(
+          getNode(Relay.QL`
+            fragment on Feedback {
+              id
+              topLevelComments(first: "10") {
+                edges {
+                  cursor
+                  node {
+                    body {
+                      text
+                    }
+                    feedback {
+                      doesViewerLike
+                      id
+                    }
+                    id
+                  }
+                }
+                pageInfo {
+                  hasNextPage
+                  hasPreviousPage
+                }
+              }
+            }
+          `),
+          'aFeedbackId'
+        );
+        expect(data).toMatchRecord({
+          id: 'aFeedbackId',
+          topLevelComments: {
+            edges: [
+              {
+                cursor: 'cursor2',
+                node: {
+                  body: {
+                    text: 'Hello, world!',
+                  },
+                  feedback: {
+                    doesViewerLike: false,
+                    id: 'otherCommentFeedbackId',
+                  },
+                  id: 'otherCommentId',
+                },
+              },
+              {
+                cursor: 'cursor1',
+                node: {
+                  body: {
+                    text: 'First post!',
+                  },
+                  feedback: {
+                    doesViewerLike: false,
+                    id: 'aCommentFeedbackId',
+                  },
+                  id: 'aCommentId',
+                },
+              },
+            ],
+            pageInfo: {
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+          },
         });
       });
 
@@ -514,7 +730,7 @@ describe('RelayGraphQLMutation', () => {
           expect(queue.getStatus(transaction2.getID())).toBe(COMMITTING);
         });
 
-        it('auto-generates non-colliding keys if none provided', () =>{
+        it('auto-generates non-colliding keys if none provided', () => {
           const mutation1 = RelayGraphQLMutation.create(
             feedbackLikeQuery,
             feedbackLikeVariables,

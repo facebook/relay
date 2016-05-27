@@ -14,9 +14,9 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('RelayStoreData')
-  .dontMock('GraphQLStoreChangeEmitter')
-  .dontMock('GraphQLStoreQueryResolver');
+  .unmock('RelayStoreData')
+  .unmock('GraphQLStoreChangeEmitter')
+  .unmock('GraphQLStoreQueryResolver');
 
 const Relay = require('Relay');
 const RelayQueryResultObservable = require('RelayQueryResultObservable');

@@ -8,7 +8,6 @@
  *
  * @providesModule RelayMutationQueue
  * @flow
- * @typechecks
  */
 
 'use strict';
@@ -22,10 +21,12 @@ const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationRequest = require('RelayMutationRequest');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
+const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
 import type RelayStoreData from 'RelayStoreData';
 import type {FileMap} from 'RelayMutation';
 import type RelayMutation from 'RelayMutation';
 const RelayQuery = require('RelayQuery');
+import type RelayQueryTracker from 'RelayQueryTracker';
 import type {
   RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
@@ -42,22 +43,22 @@ const nullthrows = require('nullthrows');
 const resolveImmediate = require('resolveImmediate');
 
 type CollisionQueueMap = {[key: string]: Array<PendingTransaction>};
-type PendingTransaction = {
+interface PendingTransaction {
   error: ?Error;
-  getCallName: () => string;
-  getCollisionKey: () => ?string;
-  getConfigs: () => Array<RelayMutationConfig>;
-  getFiles: () => ?FileMap;
-  getOptimisticConfigs: () => ?Array<{[key: string]: mixed}>;
-  getOptimisticQuery: (storeData: RelayStoreData) => ?RelayQuery.Mutation;
-  getOptimisticResponse: () => ?Object;
-  getQuery: (storeData: RelayStoreData) => RelayQuery.Mutation;
+  getCallName(): string;
+  getCollisionKey(): ?string;
+  getConfigs(): Array<RelayMutationConfig>;
+  getFiles(): ?FileMap;
+  getOptimisticConfigs(): ?Array<RelayMutationConfig>;
+  getOptimisticQuery(storeData: RelayStoreData): ?RelayQuery.Mutation;
+  getOptimisticResponse(): ?Object;
+  getQuery(storeData: RelayStoreData): RelayQuery.Mutation;
   id: ClientMutationID;
   mutationTransaction: RelayMutationTransaction;
   onFailure: ?RelayMutationTransactionCommitFailureCallback;
   onSuccess: ?RelayMutationTransactionCommitSuccessCallback;
   status: $Keys<typeof RelayMutationTransactionStatus>;
-};
+}
 type PendingTransactionMap = {
   [key: ClientMutationID]: PendingTransaction;
 };
@@ -67,7 +68,7 @@ type TransactionBuilder = (
 ) => PendingTransaction;
 type TransactionData = {
   id: ClientMutationID;
-  mutation: RelayMutation;
+  mutation: RelayMutation<any>;
   mutationTransaction: RelayMutationTransaction;
   onFailure: ?RelayMutationTransactionCommitFailureCallback;
   onSuccess: ?RelayMutationTransactionCommitSuccessCallback;
@@ -105,7 +106,7 @@ class RelayMutationQueue {
    * RelayMutation.
    */
   createTransaction(
-    mutation: RelayMutation,
+    mutation: RelayMutation<any>,
     callbacks: ?RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
     return this.createTransactionWithPendingTransaction(
@@ -134,7 +135,7 @@ class RelayMutationQueue {
   createTransactionWithPendingTransaction(
     pendingTransaction: ?PendingTransaction,
     transactionBuilder: ?TransactionBuilder
-  ): RelayMutationTransaction{
+  ): RelayMutationTransaction {
     invariant(
       pendingTransaction || transactionBuilder,
       'RelayMutationQueue: `createTransactionWithPendingTransaction()` ' +
@@ -150,8 +151,12 @@ class RelayMutationQueue {
     return mutationTransaction;
   }
 
-  getTransaction(id: ClientMutationID): RelayMutationTransaction {
-    return this._get(id).mutationTransaction;
+  getTransaction(id: ClientMutationID): ?RelayMutationTransaction {
+    const transaction = this._pendingTransactionMap[id];
+    if (transaction) {
+      return transaction.mutationTransaction;
+    }
+    return null;
   }
 
   getError(id: ClientMutationID): ?Error {
@@ -382,7 +387,7 @@ class RelayMutationQueue {
 class RelayPendingTransaction {
   error: ?Error;
   id: ClientMutationID;
-  mutation: RelayMutation;
+  mutation: RelayMutation<any>;
   mutationTransaction: RelayMutationTransaction;
   onFailure: ?RelayMutationTransactionCommitFailureCallback;
   onSuccess: ?RelayMutationTransactionCommitSuccessCallback;
@@ -403,6 +408,7 @@ class RelayPendingTransaction {
   _optimisticQuery: ?RelayQuery.Mutation;
   _optimisticResponse: ?Object;
   _query: RelayQuery.Mutation;
+  _rawOptimisticResponse: ?Object;
 
   constructor(
     transactionData: TransactionData
@@ -499,7 +505,7 @@ class RelayPendingTransaction {
     return this._mutationNode;
   }
 
-  getOptimisticConfigs(): ?Array<{[key: string]: mixed}> {
+  getOptimisticConfigs(): ?Array<RelayMutationConfig> {
     if (this._optimisticConfigs === undefined) {
       this._optimisticConfigs = this.mutation.getOptimisticConfigs() || null;
     }
@@ -508,9 +514,17 @@ class RelayPendingTransaction {
 
   getOptimisticQuery(storeData: RelayStoreData): ?RelayQuery.Mutation {
     if (this._optimisticQuery === undefined) {
-      const optimisticResponse = this.getOptimisticResponse();
+      /* eslint-disable no-console */
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        console.groupCollapsed(
+          'Optimistic query for `' + this.getCallName() + '`'
+        );
+      }
+      /* eslint-enable no-console */
+      const optimisticResponse = this._getRawOptimisticResponse();
       if (optimisticResponse) {
         const optimisticConfigs = this.getOptimisticConfigs();
+        const tracker = getTracker(storeData);
         if (optimisticConfigs) {
           this._optimisticQuery = RelayMutationQuery.buildQuery({
             configs: optimisticConfigs,
@@ -518,7 +532,7 @@ class RelayPendingTransaction {
             input: this.getInputVariable(),
             mutationName: this.mutation.constructor.name,
             mutation: this.getMutationNode(),
-            tracker: storeData.getQueryTracker(),
+            tracker,
           });
         } else {
           this._optimisticQuery =
@@ -531,34 +545,88 @@ class RelayPendingTransaction {
       } else {
         this._optimisticQuery = null;
       }
+      /* eslint-disable no-console */
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        require('RelayMutationDebugPrinter').printOptimisticMutation(
+          this._optimisticQuery,
+          optimisticResponse
+        );
+
+        console.groupEnd();
+      }
+      /* eslint-enable no-console */
     }
     return this._optimisticQuery;
   }
 
-  getOptimisticResponse(): ?Object {
-    if (this._optimisticResponse === undefined) {
+  _getRawOptimisticResponse(): ?Object {
+    if (this._rawOptimisticResponse === undefined) {
       const optimisticResponse = this.mutation.getOptimisticResponse() || null;
       if (optimisticResponse) {
         optimisticResponse[CLIENT_MUTATION_ID] = this.id;
       }
-      this._optimisticResponse = optimisticResponse;
+      this._rawOptimisticResponse = optimisticResponse;
+    }
+    return this._rawOptimisticResponse;
+  }
+
+  getOptimisticResponse(): ?Object {
+    if (this._optimisticResponse === undefined) {
+      const optimisticResponse = this._getRawOptimisticResponse();
+      if (optimisticResponse) {
+        this._optimisticResponse =
+          RelayOptimisticMutationUtils.inferRelayPayloadFromData(
+            optimisticResponse
+          );
+      } else {
+        this._optimisticResponse = optimisticResponse;
+      }
     }
     return this._optimisticResponse;
   }
 
   getQuery(storeData: RelayStoreData): RelayQuery.Mutation {
     if (!this._query) {
+      /* eslint-disable no-console */
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        console.groupCollapsed(
+          'Mutation query for `' + this.getCallName() + '`'
+        );
+      }
+      /* eslint-enable no-console */
+      const tracker = getTracker(storeData);
       this._query = RelayMutationQuery.buildQuery({
         configs: this.getConfigs(),
         fatQuery: this.getFatQuery(),
         input: this.getInputVariable(),
         mutationName: this.getMutationNode().name,
         mutation: this.getMutationNode(),
-        tracker: storeData.getQueryTracker(),
+        tracker,
       });
+      /* eslint-disable no-console */
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        require('RelayMutationDebugPrinter').printMutation(this._query);
+        console.groupEnd();
+      }
+      /* eslint-enable no-console */
     }
     return this._query;
   }
+}
+
+function getTracker(storeData: RelayStoreData): RelayQueryTracker {
+  const tracker = storeData.getQueryTracker();
+  invariant(
+    tracker,
+    'RelayMutationQueue: a RelayQueryTracker was not configured but an ' +
+    'attempt to process a RelayMutation instance was made. Either use ' +
+    'RelayGraphQLMutation (which does not require a tracker), or use ' +
+    '`RelayStoreData.injectQueryTracker()` to configure a tracker. Be ' +
+    'aware that trackers are provided by default, so if you are seeing ' +
+    'this error it means that somebody has explicitly intended to opt ' +
+    'out of query tracking.'
+  );
+  return tracker;
 }
 
 function getNextID(): string {

@@ -14,9 +14,9 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment')
-  .dontMock('GraphQLStoreQueryResolver');
+  .unmock('GraphQLRange')
+  .unmock('GraphQLSegment')
+  .unmock('GraphQLStoreQueryResolver');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const Relay = require('Relay');
@@ -57,8 +57,8 @@ describe('GraphQLStoreQueryResolver', () => {
     mockQueryFragment = getNode(Relay.QL`fragment on Node{id,name}`);
     mockPluralQueryFragment = getNode(Relay.QL`
       fragment on Node @relay(plural:true) {
-        id,
-        name,
+        id
+        name
       }
     `);
 

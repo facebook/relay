@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule intersectRelayQuery
- * @typechecks
  * @flow
  */
 
@@ -114,7 +113,7 @@ class RelayQueryRangeFilter extends RelayQueryTransform<void> {
   }
 }
 
-var rangeFilter = new RelayQueryRangeFilter();
+const rangeFilter = new RelayQueryRangeFilter();
 function filterRangeFields<Tn: RelayQuery.Field>(node: Tn): ?Tn {
   return rangeFilter.traverse(node, undefined);
 }

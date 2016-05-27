@@ -8,7 +8,6 @@
  *
  * @providesModule RelayMetaRoute
  * @flow
- * @typechecks
  */
 
 'use strict';
@@ -34,6 +33,6 @@ class RelayMetaRoute {
 
 }
 
-var cache: {[key: string]: RelayMetaRoute} = {};
+const cache: {[key: string]: RelayMetaRoute} = {};
 
 module.exports = RelayMetaRoute;

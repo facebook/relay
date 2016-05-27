@@ -208,13 +208,19 @@ class GraphQLRange {
    * @return {?number}
    */
   _getSegmentIndexByCursor(cursor) {
+    let deletedIndex = null;
     // TODO: revisit if we end up having too many segments
     for (let ii = 0; ii < this._orderedSegments.length; ii++) {
       if (this._orderedSegments[ii].containsEdgeWithCursor(cursor)) {
         return ii;
+      } else if (this._orderedSegments[ii].containsEdgeWithCursor(
+        cursor,
+        true
+      )) {
+        deletedIndex = ii;
       }
     }
-    return null;
+    return deletedIndex;
   }
 
   /**
@@ -904,9 +910,9 @@ class GraphQLRange {
 
     const requestedMetadata =
       segment.getMetadataAfterCursor(countNeeded, afterCursor);
-    var requestedEdgeIDs = requestedMetadata.edgeIDs;
+    let requestedEdgeIDs = requestedMetadata.edgeIDs;
     const requestedCursors = requestedMetadata.cursors;
-    var diffCalls = [];
+    const diffCalls = [];
     if (requestedCursors.length) {
       pageInfo[START_CURSOR] = requestedCursors[0];
       pageInfo[END_CURSOR] = requestedCursors[requestedCursors.length - 1];
@@ -1016,9 +1022,9 @@ class GraphQLRange {
 
     const requestedMetadata =
       segment.getMetadataBeforeCursor(countNeeded, beforeCursor);
-    var requestedEdgeIDs = requestedMetadata.edgeIDs;
+    let requestedEdgeIDs = requestedMetadata.edgeIDs;
     const requestedCursors = requestedMetadata.cursors;
-    var diffCalls = [];
+    const diffCalls = [];
     if (requestedCursors.length) {
       pageInfo[START_CURSOR] = requestedCursors[0];
       pageInfo[END_CURSOR] = requestedCursors[requestedCursors.length - 1];
@@ -1067,7 +1073,7 @@ class GraphQLRange {
         });
       }
       if (requestedEdgeIDs.length > calls.last) {
-        var length = requestedEdgeIDs.length;
+        const length = requestedEdgeIDs.length;
         requestedEdgeIDs = requestedEdgeIDs.slice(length - calls.last, length);
       }
     }
@@ -1120,6 +1126,10 @@ class GraphQLRange {
       edgeIDs.push(...query.edgeIDs);
     });
     return edgeIDs;
+  }
+
+  getSegmentedEdgeIDs() {
+    return this._orderedSegments.map(segment => segment.getEdgeIDs());
   }
 }
 

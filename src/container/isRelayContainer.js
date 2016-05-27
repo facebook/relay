@@ -8,7 +8,6 @@
  *
  * @providesModule isRelayContainer
  * @flow
- * @typechecks
  */
 
 'use strict';

@@ -58,7 +58,7 @@ export function checkHidingSpotForTreasure(id) {
   turnsRemaining--;
   var hidingSpot = getHidingSpot(id);
   hidingSpot.hasBeenChecked = true;
-};
+}
 export function getHidingSpot(id) {
   return hidingSpots.find(hs => hs.id === id)
 }
@@ -363,7 +363,7 @@ class App extends React.Component {
     if (this._isGameOver()) {
       return;
     }
-    Relay.Store.commitUpdate(
+    this.props.relay.commitUpdate(
       new CheckHidingSpotForTreasureMutation({
         game: this.props.game,
         hidingSpot,

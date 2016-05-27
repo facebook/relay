@@ -16,18 +16,34 @@ require('configureForRelayOSS');
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayChangeTracker = require('RelayChangeTracker');
-const RelayDiskCacheReader = require('RelayDiskCacheReader');
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
 const invariant = require('invariant');
+const {
+  restoreFragmentDataFromCache,
+  restoreQueriesDataFromCache,
+} = require('restoreRelayCacheData');
 
-describe('RelayDiskCacheReader', () => {
+describe('restoreRelayCacheData', () => {
   const {getNode} = RelayTestUtils;
 
-  function readDiskCache({
+  function performFragmentRestore(dataID, fragment, path, options) {
+    return _performRestore({
+      dataID,
+      fragment,
+      path,
+      ...options,
+    });
+  }
+
+  function performQueriesRestore(queries, options) {
+    return _performRestore({queries, ...options});
+  }
+
+  function _performRestore({
     cachedRecords,
     cachedRootCallMap,
     dataID,
@@ -79,7 +95,7 @@ describe('RelayDiskCacheReader', () => {
 
     let abort;
     if (queries) {
-      ({abort} = RelayDiskCacheReader.readQueries(
+      ({abort} = restoreQueriesDataFromCache(
         queries,
         store,
         cachedRecords,
@@ -90,7 +106,7 @@ describe('RelayDiskCacheReader', () => {
         callbacks
       ));
     } else if (dataID && fragment && path) {
-      ({abort} = RelayDiskCacheReader.readFragment(
+      ({abort} = restoreFragmentDataFromCache(
         dataID,
         fragment,
         path,
@@ -116,14 +132,14 @@ describe('RelayDiskCacheReader', () => {
 
   });
 
-  describe('read', () => {
+  describe('restoreQueriesDataFromCache', () => {
     it('reads disk for custom root call', () => {
       const queries = {
         q0: getNode(Relay.QL`
           query {username(name:"yuzhi") {id}}
         `),
       };
-      const {cacheManager} = readDiskCache({queries});
+      const {cacheManager} = performQueriesRestore(queries);
 
       const mockReadRoot = cacheManager.readRootCall.mock;
       expect(mockReadRoot.calls.length).toBe(1);
@@ -136,7 +152,7 @@ describe('RelayDiskCacheReader', () => {
           query {node(id:"1055790163") {id}}
         `),
       };
-      const {cacheManager} = readDiskCache({queries});
+      const {cacheManager} = performQueriesRestore(queries);
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
     });
@@ -147,7 +163,7 @@ describe('RelayDiskCacheReader', () => {
           query {username(name:"yuzhi") {id}}
         `),
       };
-      const {cacheManager, callbacks} = readDiskCache({queries});
+      const {cacheManager, callbacks} = performQueriesRestore(queries);
 
       const mockReadRoot = cacheManager.readRootCall.mock;
       expect(mockReadRoot.calls.length).toBe(1);
@@ -176,7 +192,7 @@ describe('RelayDiskCacheReader', () => {
       };
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({queries, diskCacheData});
+        performQueriesRestore(queries, {diskCacheData});
 
       const mockReadRoot = cacheManager.readRootCall.mock;
       expect(mockReadRoot.calls.length).toBe(1);
@@ -218,7 +234,7 @@ describe('RelayDiskCacheReader', () => {
       const rootCallMap = {username: {yuzhi: '1055790163'}};
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({queries, records, rootCallMap});
+        performQueriesRestore(queries, {records, rootCallMap});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(0);
@@ -250,7 +266,7 @@ describe('RelayDiskCacheReader', () => {
       const cachedRootCallMap = {username: {yuzhi: '1055790163'}};
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({queries, cachedRecords, cachedRootCallMap});
+        performQueriesRestore(queries, {cachedRecords, cachedRootCallMap});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(0);
@@ -272,7 +288,7 @@ describe('RelayDiskCacheReader', () => {
           query {node(id:"1055790163") {id}}
         `),
       };
-      const {cacheManager, callbacks} = readDiskCache({queries});
+      const {cacheManager, callbacks} = performQueriesRestore(queries);
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -300,7 +316,7 @@ describe('RelayDiskCacheReader', () => {
       };
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({queries, diskCacheData});
+        performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -342,7 +358,7 @@ describe('RelayDiskCacheReader', () => {
       };
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({queries, diskCacheData});
+        performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -394,7 +410,7 @@ describe('RelayDiskCacheReader', () => {
       };
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({queries, diskCacheData});
+        performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -438,8 +454,8 @@ describe('RelayDiskCacheReader', () => {
               friends(first:"5") {
                 edges {
                   node {
-                    name,
-                  },
+                    name
+                  }
                   cursor
                 }
               }
@@ -463,7 +479,7 @@ describe('RelayDiskCacheReader', () => {
       };
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({queries, diskCacheData});
+        performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -505,8 +521,8 @@ describe('RelayDiskCacheReader', () => {
               friends(first:"5") {
                 edges {
                   node {
-                    name,
-                  },
+                    name
+                  }
                   cursor
                 }
               }
@@ -535,7 +551,7 @@ describe('RelayDiskCacheReader', () => {
           pageInfo: {},
         });
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({queries, diskCacheData});
+        performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -577,8 +593,8 @@ describe('RelayDiskCacheReader', () => {
               friends(first:"5") {
                 edges {
                   node {
-                    name,
-                  },
+                    name
+                  }
                   cursor
                 }
               }
@@ -608,7 +624,7 @@ describe('RelayDiskCacheReader', () => {
           pageInfo: {},
         });
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({queries, diskCacheData});
+        performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -656,8 +672,8 @@ describe('RelayDiskCacheReader', () => {
               friends(first:"5") {
                 edges {
                   node {
-                    name,
-                  },
+                    name
+                  }
                   cursor
                 }
               }
@@ -697,7 +713,7 @@ describe('RelayDiskCacheReader', () => {
       diskCacheData['client:friends_id'].__range__.retrieveRangeInfoForQuery
         .mockReturnValue(rangeInfo);
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({queries, diskCacheData});
+        performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -773,7 +789,7 @@ describe('RelayDiskCacheReader', () => {
       });
     });
 
-    it('marks records as updated when more fields are loaded from cache', () => {
+    it('marks records as updated when more fields are read from cache', () => {
       const queries = {
         q0: getNode(Relay.QL`
           query {
@@ -806,7 +822,7 @@ describe('RelayDiskCacheReader', () => {
         },
       };
       const {callbacks, changeTracker, store} =
-        readDiskCache({queries, diskCacheData, records});
+        performQueriesRestore(queries, {diskCacheData, records});
 
       jest.runAllTimers();
 
@@ -863,7 +879,7 @@ describe('RelayDiskCacheReader', () => {
         'sn2': undefined,
       };
       const {callbacks, changeTracker, store} =
-        readDiskCache({queries, diskCacheData, records});
+        performQueriesRestore(queries, {diskCacheData, records});
 
       jest.runAllTimers();
 
@@ -920,7 +936,7 @@ describe('RelayDiskCacheReader', () => {
         },
       };
       const {callbacks, changeTracker, store} =
-        readDiskCache({queries, diskCacheData, records});
+        performQueriesRestore(queries, {diskCacheData, records});
 
       jest.runAllTimers();
 
@@ -958,7 +974,11 @@ describe('RelayDiskCacheReader', () => {
           id: '123',
         },
       };
-      readDiskCache({diskCacheData, garbageCollector, queries, records});
+      performQueriesRestore(queries, {
+        diskCacheData,
+        garbageCollector,
+        records,
+      });
 
       jest.runAllTimers();
 
@@ -968,14 +988,15 @@ describe('RelayDiskCacheReader', () => {
   });
 
   // Most field types are already tested in the normal read function above.
-  // This will test the various cases for the root node in `readFragment`.
+  // This will test the various cases for the root node in
+  // `restoreFragmentDataFromCache`.
 
-  describe('readFragment', () => {
+  describe('restoreFragmentDataFromCache', () => {
     it('calls `onFailure` when node is not in disk', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -987,7 +1008,7 @@ describe('RelayDiskCacheReader', () => {
       const diskCacheData = {};
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({dataID, fragment, path, diskCacheData});
+        performFragmentRestore(dataID, fragment, path, {diskCacheData});
 
       jest.runAllTimers();
 
@@ -1006,8 +1027,8 @@ describe('RelayDiskCacheReader', () => {
     it('calls `onFailure` when a field is not on disk', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1025,7 +1046,7 @@ describe('RelayDiskCacheReader', () => {
       };
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({dataID, fragment, path, diskCacheData});
+        performFragmentRestore(dataID, fragment, path, {diskCacheData});
 
       jest.runAllTimers();
 
@@ -1049,8 +1070,8 @@ describe('RelayDiskCacheReader', () => {
     it('calls `onSuccess` when node is in disk', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1069,7 +1090,7 @@ describe('RelayDiskCacheReader', () => {
       };
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({dataID, fragment, path, diskCacheData});
+        performFragmentRestore(dataID, fragment, path, {diskCacheData});
 
       jest.runAllTimers();
 
@@ -1093,8 +1114,8 @@ describe('RelayDiskCacheReader', () => {
     it('calls `onSuccess` when node is in cached store', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1113,7 +1134,7 @@ describe('RelayDiskCacheReader', () => {
       };
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({dataID, fragment, path, cachedRecords});
+        performFragmentRestore(dataID, fragment, path, {cachedRecords});
 
       jest.runAllTimers();
 
@@ -1134,8 +1155,8 @@ describe('RelayDiskCacheReader', () => {
     it('calls `onSuccess` when node is in store', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1154,7 +1175,7 @@ describe('RelayDiskCacheReader', () => {
       };
 
       const {cacheManager, callbacks, changeTracker, store} =
-        readDiskCache({dataID, fragment, path, records});
+        performFragmentRestore(dataID, fragment, path, {records});
 
       jest.runAllTimers();
 
@@ -1177,8 +1198,8 @@ describe('RelayDiskCacheReader', () => {
     it('does not call `onSuccess` if aborted', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1197,7 +1218,7 @@ describe('RelayDiskCacheReader', () => {
       };
 
       const {abort, callbacks, store} =
-        readDiskCache({dataID, fragment, path, diskCacheData});
+        performFragmentRestore(dataID, fragment, path, {diskCacheData});
 
       abort();
       // this would read 1055790163 from cache if not aborted
@@ -1211,8 +1232,8 @@ describe('RelayDiskCacheReader', () => {
     it('does not `onFailure` if aborted', () => {
       const fragment = getNode(Relay.QL`
         fragment on Node {
-          id,
-          name,
+          id
+          name
         }
       `);
       const path = RelayQueryPath.create(getNode(Relay.QL`
@@ -1230,7 +1251,7 @@ describe('RelayDiskCacheReader', () => {
       };
 
       const {abort, callbacks, store} =
-        readDiskCache({dataID, fragment, path, diskCacheData});
+        performFragmentRestore(dataID, fragment, path, {diskCacheData});
 
       abort();
       // The read would fail since `name` is missing from cached data.

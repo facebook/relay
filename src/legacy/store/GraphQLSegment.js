@@ -141,12 +141,15 @@ class GraphQLSegment {
   /**
    * Returns whether there is a non-deleted edge for cursor
    * @param {string} cursor
+   * @param {?boolean} includeDeleted
    * @return {boolean}
    */
-  containsEdgeWithCursor(cursor) {
+  containsEdgeWithCursor(cursor, includeDeleted = false) {
     const index = this._getIndexForCursor(cursor);
     if (index === undefined) {
       return false;
+    } else if (includeDeleted) {
+      return true;
     }
     return !!this._getEdgeAtIndex(index);
   }
@@ -177,8 +180,8 @@ class GraphQLSegment {
       currentIndex = index + 1;
     }
     let total = 0;
-    var edgeIDs = [];
-    var cursors = [];
+    const edgeIDs = [];
+    const cursors = [];
 
     while (currentIndex <= this._maxIndex && total < count) {
       const metadata = this._indexToMetadataMap[currentIndex];
@@ -221,8 +224,8 @@ class GraphQLSegment {
       currentIndex = index - 1;
     }
     let total = 0;
-    var edgeIDs = [];
-    var cursors = [];
+    const edgeIDs = [];
+    const cursors = [];
     while (currentIndex >= this._minIndex && total < count) {
       const metadata = this._indexToMetadataMap[currentIndex];
       if (!metadata.deleted) {

@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule RelayGraphQLMutation
- * @typechecks
  * @flow
  */
 
@@ -23,7 +22,7 @@ const {CLIENT_MUTATION_ID} = require('RelayConnectionInterface');
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 import type {RelayMutationTransactionCommitCallbacks} from 'RelayTypes';
-const RelayQuery = require('RelayQuery'); // TODO: decide whether I just need the type
+const RelayQuery = require('RelayQuery');
 import type RelayStoreData from 'RelayStoreData';
 import type {
   RelayMutationConfig,
@@ -86,7 +85,7 @@ class RelayGraphQLMutation {
    */
   static createWithFiles(
     mutation: RelayConcreteNode,
-    variables: Object,
+    variables: Variables,
     files: FileMap,
     environment: RelayEnvironmentInterface
   ): RelayGraphQLMutation {
@@ -139,7 +138,7 @@ class RelayGraphQLMutation {
    */
   constructor(
     query: RelayConcreteNode,
-    variables: Object,
+    variables: Variables,
     files: ?FileMap,
     environment: RelayEnvironmentInterface,
     callbacks: ?RelayMutationTransactionCommitCallbacks,
@@ -159,6 +158,9 @@ class RelayGraphQLMutation {
   /**
    * Call this to optimistically apply an update to the store.
    *
+   * The optional `config` parameter can be used to configure a `RANGE_ADD` type
+   * mutation, similar to `RelayMutation` API.
+   *
    * Optionally, follow up with a call to `commit()` to send the mutation
    * to the server.
    *
@@ -167,6 +169,7 @@ class RelayGraphQLMutation {
   applyOptimistic(
     optimisticQuery: RelayConcreteNode,
     optimisticResponse: Object,
+    configs: ?Array<RelayMutationConfig>
   ): RelayMutationTransaction {
     invariant(
       !this._transaction,
@@ -177,22 +180,25 @@ class RelayGraphQLMutation {
       optimisticQuery,
       optimisticResponse,
     );
-    return this._transaction.applyOptimistic();
+    return this._transaction.applyOptimistic(configs);
   }
 
   /**
    * Call this to send the mutation to the server.
+   *
+   * The optional `config` parameter can be used to configure a `RANGE_ADD` type
+   * mutation, similar to the `RelayMutation` API.
    *
    * Optionally, precede with a call to `applyOptimistic()` to apply an update
    * optimistically to the store.
    *
    * Note: This method may only be called once per instance.
    */
-  commit(): RelayMutationTransaction {
+  commit(configs: ?Array<RelayMutationConfig>): RelayMutationTransaction {
     if (!this._transaction) {
       this._transaction = this._createTransaction();
     }
-    return this._transaction.commit();
+    return this._transaction.commit(configs);
   }
 
   _createTransaction(
@@ -233,8 +239,10 @@ class PendingGraphQLTransaction {
 
   // Other properties:
   _collisionKey: string;
+  _configs: Array<RelayMutationConfig>;
   _files: ?FileMap;
   _mutation: ?RelayQuery.Mutation;
+  _optimisticConfigs: ?Array<RelayMutationConfig>;
   _optimisticResponse: ?Object;
   _optimisticQuery: ?RelayConcreteNode;
   _optimisticMutation: ?RelayQuery.Mutation;
@@ -251,6 +259,7 @@ class PendingGraphQLTransaction {
     collisionKey: string,
     callbacks: ?RelayMutationTransactionCommitCallbacks
   ) {
+    this._configs = [];
     this._query = query;
     this._variables = variables;
     this._optimisticQuery = optimisticQuery || null;
@@ -261,6 +270,7 @@ class PendingGraphQLTransaction {
     this.status = RelayMutationTransactionStatus.CREATED;
     this.error = null;
     this._mutation = null;
+    this._optimisticConfigs = null;
     this._optimisticMutation = null;
 
     this.mutationTransaction = environment
@@ -287,15 +297,15 @@ class PendingGraphQLTransaction {
   }
 
   getConfigs(): Array<RelayMutationConfig> {
-    return [];
+    return this._configs;
   }
 
   getFiles(): ?FileMap {
     return this._files;
   }
 
-  getOptimisticConfigs(): ?Array<{[key: string]: mixed}> {
-    return [];
+  getOptimisticConfigs(): ?Array<RelayMutationConfig> {
+    return this._optimisticConfigs;
   }
 
   getOptimisticQuery(storeData: RelayStoreData): ?RelayQuery.Mutation {
@@ -334,11 +344,19 @@ class PendingGraphQLTransaction {
 
   // Additional methods outside the PendingTransaction interface.
 
-  commit(): RelayMutationTransaction {
+  commit(configs: ?Array<RelayMutationConfig>): RelayMutationTransaction {
+    if (configs) {
+      this._configs = configs;
+    }
     return this.mutationTransaction.commit();
   }
 
-  applyOptimistic(): RelayMutationTransaction {
+  applyOptimistic(
+    configs: ?Array<RelayMutationConfig>
+  ): RelayMutationTransaction {
+    if (configs) {
+      this._optimisticConfigs = configs;
+    }
     return this.mutationTransaction.applyOptimistic();
   }
 

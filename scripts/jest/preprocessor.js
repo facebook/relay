@@ -7,62 +7,48 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-// TODO: sync babel config with gulpfile. There are differences (eg, we don't
-// want to use the DEV plugin).
-
 const assign = require('object-assign');
 const babel = require('babel-core');
-const babelDefaultOptions = require('fbjs-scripts/babel/default-options');
 const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
 const fs = require('fs');
+const getBabelOptions = require('../getBabelOptions');
 const getBabelRelayPlugin = require('../babel-relay-plugin');
 const path = require('path');
 
 const SCHEMA_PATH = path.resolve(__dirname, 'testschema.json');
 
-const graphQLPlugin = getBabelRelayPlugin(
-  JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8')).data,
-  {
-    substituteVariables: true,
-  }
-);
+const schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8')).data;
 
-// Fix the path to node_modules because jest is slooow with
-// node_modules paths (facebook/jest#465)
-function fixModules(list) {
-  Object.keys(list).forEach(function(moduleName) {
-    list[moduleName] = __dirname + '/../../node_modules/' + list[moduleName];
-  });
-  return list;
-}
-
-const babelOptions = assign(
-  {},
-  babelDefaultOptions,
-  {
-    plugins: babelDefaultOptions.plugins.concat([graphQLPlugin]),
-    retainLines: true,
-    blacklist: babelDefaultOptions.blacklist.concat('validation.react'),
-    _moduleMap: fixModules(assign({}, babelDefaultOptions._moduleMap, require('fbjs/module-map'), {
-      'React': 'react',
-      'reactComponentExpect': 'react/lib/reactComponentExpect',
-      'ReactDOM': 'react-dom',
-      'ReactDOMServer': 'react-dom/server',
-      'ReactUpdates': 'react/lib/ReactUpdates',
-      'ReactTestUtils': 'react/lib/ReactTestUtils.js',
-      'StaticContainer.react': 'react-static-container',
-    })),
-  }
-);
+const babelOptions = getBabelOptions({
+  env: 'test',
+  moduleMap: {
+    'React': 'react',
+    'reactComponentExpect': 'react/lib/reactComponentExpect',
+    'ReactDOM': 'react-dom',
+    'ReactDOMServer': 'react-dom/server',
+    'ReactTestUtils': 'react/lib/ReactTestUtils.js',
+    'ReactUpdates': 'react/lib/ReactUpdates',
+    'StaticContainer.react': 'react-static-container',
+  },
+  plugins: [
+    getBabelRelayPlugin(schema, {substituteVariables: true}),
+  ],
+});
 
 module.exports = {
-  process: function(src, path) {
-    return babel.transform(src, assign({filename: path}, babelOptions)).code;
+  process: function(src, filename) {
+    const options = assign({}, babelOptions, {
+      filename: filename,
+      retainLines: true,
+    });
+    return babel.transform(src, options).code;
   },
 
   getCacheKey: createCacheKeyFunction([
     __filename,
     SCHEMA_PATH,
     path.join(__dirname, '..', 'babel-relay-plugin', 'package.json'),
+    path.join(path.dirname(require.resolve('babel-preset-fbjs')), 'package.json'),
+    path.join(__dirname, '..', 'getBabelOptions.js'),
   ]),
 };

@@ -8,7 +8,6 @@
  *
  * @providesModule ConcreteQuery
  * @flow
- * @typechecks
  */
 
 'use strict';

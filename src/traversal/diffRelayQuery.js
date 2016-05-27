@@ -8,7 +8,6 @@
  *
  * @providesModule diffRelayQuery
  * @flow
- * @typechecks
  */
 
 'use strict';
@@ -77,7 +76,7 @@ type DiffOutput = {
 function diffRelayQuery(
   root: RelayQuery.Root,
   store: RelayRecordStore,
-  queryTracker: RelayQueryTracker
+  queryTracker: ?RelayQueryTracker
 ): Array<RelayQuery.Root> {
   const path = RelayQueryPath.create(root);
   const queries = [];
@@ -163,18 +162,21 @@ function diffRelayQuery(
  *   - `diffNode`: subset of the input that could not diffed out
  *   - `trackedNode`: subset of the input that must be tracked
  *
- * The provided `queryTracker` is updated whenever the traversal of a node
- * results in a `trackedNode` being created. New top-level queries are not
+ * The provided `queryTracker`, if any, is updated whenever the traversal of a
+ * node results in a `trackedNode` being created. New top-level queries are not
  * returned up the tree, and instead are available via `getSplitQueries()`.
+ *
+ * @note If no `queryTracker` is provided, all tracking-related functionality is
+ * skipped.
  */
 class RelayDiffQueryBuilder {
   _store: RelayRecordStore;
   _splitQueries: Array<RelayQuery.Root>;
-  _queryTracker: RelayQueryTracker;
+  _queryTracker: ?RelayQueryTracker;
 
   constructor(
     store: RelayRecordStore,
-    queryTracker: RelayQueryTracker
+    queryTracker: ?RelayQueryTracker
   ) {
     this._store = store;
     this._splitQueries = [];
@@ -299,7 +301,9 @@ class RelayDiffQueryBuilder {
       if (child instanceof RelayQuery.Field) {
         const diffOutput = this.visitField(child, path, scope);
         const diffChild = diffOutput ? diffOutput.diffNode : null;
-        const trackedChild = diffOutput ? diffOutput.trackedNode : null;
+        const trackedChild = diffOutput && this._queryTracker ?
+          diffOutput.trackedNode :
+          null;
 
         // Diff uses child nodes and keeps requisite fields
         if (diffChild) {
@@ -319,14 +323,16 @@ class RelayDiffQueryBuilder {
           diffChildren = diffChildren || [];
           diffChildren.push(child);
         }
-        // Tracker uses tracked children and keeps requisite fields
-        if (trackedChild) {
-          trackedChildren = trackedChildren || [];
-          trackedChildren.push(trackedChild);
-          hasTrackedField = hasTrackedField || !trackedChild.isGenerated();
-        } else if (child.isRequisite()) {
-          trackedChildren = trackedChildren || [];
-          trackedChildren.push(child);
+        if (this._queryTracker) {
+          // Tracker uses tracked children and keeps requisite fields
+          if (trackedChild) {
+            trackedChildren = trackedChildren || [];
+            trackedChildren.push(trackedChild);
+            hasTrackedField = hasTrackedField || !trackedChild.isGenerated();
+          } else if (child.isRequisite()) {
+            trackedChildren = trackedChildren || [];
+            trackedChildren.push(child);
+          }
         }
       } else if (child instanceof RelayQuery.Fragment) {
         const isCompatibleType = isCompatibleRelayFragmentType(
@@ -378,7 +384,11 @@ class RelayDiffQueryBuilder {
     // Record tracked nodes. Fragments can be skipped because these will
     // always be composed into, and therefore tracked by, their nearest
     // non-fragment parent.
-    if (trackedNode && !(trackedNode instanceof RelayQuery.Fragment)) {
+    if (
+      this._queryTracker &&
+      trackedNode &&
+      !(trackedNode instanceof RelayQuery.Fragment)
+    ) {
       this._queryTracker.trackNodeForID(trackedNode, scope.dataID, path);
     }
 
@@ -424,7 +434,7 @@ class RelayDiffQueryBuilder {
     if (nextDataID === null) {
       return {
         diffNode: null,
-        trackedNode: field,
+        trackedNode: this._queryTracker ? field : null,
       };
     }
 
@@ -456,7 +466,7 @@ class RelayDiffQueryBuilder {
       // Don't fetch if array is null or empty, but still track the fragment
       return {
         diffNode: null,
-        trackedNode: field,
+        trackedNode: this._queryTracker ? field : null,
       };
     } else if (field.getInferredRootCallName() === NODE) {
       // The items in this array are fetchable and may have been filled in
@@ -490,7 +500,7 @@ class RelayDiffQueryBuilder {
       if (hasSplitQueries) {
         return {
           diffNode: null,
-          trackedNode: field,
+          trackedNode: this._queryTracker ? field : null,
         };
       }
     } else {
@@ -532,12 +542,13 @@ class RelayDiffQueryBuilder {
         trackedNode: null,
       };
     }
-    // Don't fetch if connection is null, but continue to track the fragment
+    // Don't fetch if connection is null, but continue to track the fragment if
+    // appropriate.
     if (connectionID === null) {
-      return {
+      return this._queryTracker ? {
         diffNode: null,
         trackedNode: field,
-      };
+      } : null;
     }
     // If metadata fields but not edges are fetched, diff as a normal field.
     // In practice, `rangeInfo` is `undefined` if unfetched, `null` if the
@@ -585,8 +596,8 @@ class RelayDiffQueryBuilder {
       RelayQueryPath.getPath(path, field, connectionID),
       scope
     );
-    var diffNode = diffOutput ? diffOutput.diffNode : null;
-    var trackedNode = diffOutput ? diffOutput.trackedNode : null;
+    let diffNode = diffOutput ? diffOutput.diffNode : null;
+    let trackedNode = diffOutput ? diffOutput.trackedNode : null;
     if (diffCalls.length && diffNode instanceof RelayQuery.Field) {
       diffNode = diffNode.cloneFieldWithCalls(
         diffNode.getChildren(),
@@ -610,7 +621,7 @@ class RelayDiffQueryBuilder {
 
     return {
       diffNode,
-      trackedNode,
+      trackedNode: this._queryTracker ? trackedNode : null,
     };
   }
 
@@ -626,7 +637,7 @@ class RelayDiffQueryBuilder {
     path: QueryPath,
     edgeID: DataID,
     rangeInfo: RangeInfo
-  ): DiffOutput {
+  ): ?DiffOutput {
 
     let hasSplitQueries = false;
     const diffOutput = this.traverse(
@@ -718,10 +729,10 @@ class RelayDiffQueryBuilder {
     // The returned `trackedNode` is never tracked directly: instead it serves
     // as an indicator to `diffConnection` that the entire connection field must
     // be tracked.
-    return {
+    return this._queryTracker ? {
       diffNode: null,
       trackedNode: hasSplitQueries ? edgeField : trackedNode,
-    };
+    } : null;
   }
 }
 
@@ -815,7 +826,7 @@ function splitNodeAndEdgesFields(
         hasEdgeChild = hasEdgeChild || !child.isRequisite();
       }
     } else if (child instanceof RelayQuery.Fragment) {
-      var {edges, node} = splitNodeAndEdgesFields(child);
+      const {edges, node} = splitNodeAndEdgesFields(child);
       if (edges) {
         edgeChildren.push(edges);
         hasEdgeChild = true;

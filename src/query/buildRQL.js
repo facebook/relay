@@ -8,7 +8,6 @@
  *
  * @providesModule buildRQL
  * @flow
- * @typechecks
  */
 
 'use strict';

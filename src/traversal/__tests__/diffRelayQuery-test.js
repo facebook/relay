@@ -45,7 +45,7 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           name
         }
       }
@@ -82,7 +82,7 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           name
         }
       }
@@ -104,7 +104,7 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           profilePicture(size:"32") { uri }
         }
       }
@@ -130,7 +130,7 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           profilePicture(size:"64") { uri }
         }
       }
@@ -156,7 +156,7 @@ describe('diffRelayQuery', () => {
   it('removes fetched fragments', () => {
     const fragment = Relay.QL`
       fragment on Actor {
-        id,
+        id
         name
       }
     `;
@@ -194,10 +194,10 @@ describe('diffRelayQuery', () => {
         node(id:"story") {
           feedback {
             topLevelComments(first:"10") {
-              count,
+              count
               edges {
                 node {
-                  id,
+                  id
                   body {
                     text
                   }
@@ -241,7 +241,7 @@ describe('diffRelayQuery', () => {
             topLevelComments(first:"10") {
               edges {
                 node {
-                  id,
+                  id
                   body {
                     text
                   }
@@ -262,11 +262,11 @@ describe('diffRelayQuery', () => {
     `;
     const fragment = Relay.QL`
       fragment on TopLevelCommentsConnection {
-        count,
+        count
         edges {
           node {
-            id,
-            ${body},
+            id
+            ${body}
           }
         }
       }
@@ -276,7 +276,7 @@ describe('diffRelayQuery', () => {
         node(id:"story") {
           feedback {
             topLevelComments(first:"10") {
-              ${fragment},
+              ${fragment}
             }
           }
         }
@@ -292,9 +292,9 @@ describe('diffRelayQuery', () => {
       fragment on TopLevelCommentsConnection {
         edges {
           node {
-            ${body},
-          },
-        },
+            ${body}
+          }
+        }
       }
     `;
     const expectedQuery = getNode(Relay.QL`
@@ -302,7 +302,7 @@ describe('diffRelayQuery', () => {
         node(id:"story") {
           feedback {
             topLevelComments(first:"10") {
-              ${edgesFragment},
+              ${edgesFragment}
             }
           }
         }
@@ -339,8 +339,8 @@ describe('diffRelayQuery', () => {
         node(id:"story") {
           feedback {
             topLevelComments {
-              count,
-              totalCount,
+              count
+              totalCount
             }
           }
         }
@@ -441,7 +441,7 @@ describe('diffRelayQuery', () => {
         node(id:"story") {
           feedback {
             topLevelComments(first:"10") {
-              count,
+              count
               edges {
                 node {
                   id
@@ -474,7 +474,7 @@ describe('diffRelayQuery', () => {
 
     const fragment = Relay.QL`
       fragment on TopLevelCommentsConnection {
-        count,
+        count
         edges {
           node {
             id
@@ -487,7 +487,7 @@ describe('diffRelayQuery', () => {
         node(id:"story") {
           feedback {
             topLevelComments(first:"10") {
-              ${fragment},
+              ${fragment}
             }
           }
         }
@@ -509,7 +509,7 @@ describe('diffRelayQuery', () => {
         node(id:"story") {
           feedback {
             topLevelComments(first:"10") {
-              ${edgesFragment},
+              ${edgesFragment}
             }
           }
         }
@@ -563,7 +563,7 @@ describe('diffRelayQuery', () => {
     let query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           name
         }
       }
@@ -584,7 +584,7 @@ describe('diffRelayQuery', () => {
       query {
         viewer {
           actor {
-            id,
+            id
             name
           }
         }
@@ -664,7 +664,7 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         nodes(ids:["4","4808495"]) {
-          id,
+          id
           name
         }
       }
@@ -721,8 +721,8 @@ describe('diffRelayQuery', () => {
         viewer {
           actor {
             id
-          },
-          primaryEmail,
+          }
+          primaryEmail
         }
       }
     `);
@@ -755,8 +755,8 @@ describe('diffRelayQuery', () => {
       query {
         viewer {
           actor {
-            id,
-            name,
+            id
+            name
             address {
               city
             }
@@ -792,8 +792,8 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          firstName,
-          ${frag},
+          firstName
+          ${frag}
         }
       }
     `);
@@ -817,8 +817,8 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          firstName,
-          ${frag},
+          firstName
+          ${frag}
         }
       }
     `);
@@ -841,8 +841,8 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          firstName,
-          ${fragment},
+          firstName
+          ${fragment}
         }
       }
     `);
@@ -862,7 +862,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"4") {
-          ${fragment},
+          ${fragment}
         }
       }
     `));
@@ -880,8 +880,8 @@ describe('diffRelayQuery', () => {
     let query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
-          firstName,
+          id
+          firstName
         }
       }
     `);
@@ -893,7 +893,7 @@ describe('diffRelayQuery', () => {
     query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
         }
       }
     `);
@@ -915,9 +915,9 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
-          firstName,
-          lastName,
+          id
+          firstName
+          lastName
         }
       }
     `);
@@ -929,7 +929,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           lastName
         }
       }
@@ -955,11 +955,11 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           hometown {
-            id,
-            name,
-            websites,
+            id
+            name
+            websites
           }
         }
       }
@@ -972,10 +972,10 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           hometown {
-            id,
-            websites,
+            id
+            websites
           }
         }
       }
@@ -1016,12 +1016,12 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"12345") {
-          id,
+          id
           actors {
-            id,
-            name,
-            firstName,
-            lastName,
+            id
+            name
+            firstName
+            lastName
           }
         }
       }
@@ -1034,14 +1034,14 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495") {
-          __typename,
-          id,
+          __typename
+          id
           ... on Actor {
-            __typename,
-            id,
-            lastName,
-            name,
-          },
+            __typename
+            id
+            lastName
+            name
+          }
         }
       }
     `));
@@ -1049,14 +1049,14 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[1]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"1023896548") {
-          __typename,
-          id,
+          __typename
+          id
           ... on Actor {
-            __typename,
-            firstName,
-            id,
-            lastName,
-          },
+            __typename
+            firstName
+            id
+            lastName
+          }
         }
       }
     `));
@@ -1064,12 +1064,12 @@ describe('diffRelayQuery', () => {
     const trackedQuery = getNode(Relay.QL`
       query {
         node(id:"12345") {
-          id,
+          id
           actors {
-            id,
-            firstName,
-            lastName,
-            name,
+            id
+            firstName
+            lastName
+            name
           }
         }
       }
@@ -1103,10 +1103,10 @@ describe('diffRelayQuery', () => {
     const expected = getNode(Relay.QL`
       query {
         node(id:"12345") {
-          id,
+          id
           screennames {
-            name,
-          },
+            name
+          }
         }
       }
     `);
@@ -1115,9 +1115,9 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"12345") {
-          id,
+          id
           screennames {
-            name,
+            name
             service
           }
         }
@@ -1153,42 +1153,42 @@ describe('diffRelayQuery', () => {
     `;
     const nestingFrag = Relay.QL`
       fragment on Node {
-        ${firstNameFrag},
+        ${firstNameFrag}
         ${lastNameFrag}
       }
     `;
     const query = getNode(Relay.QL`
       query {
         nodes(ids:["4","4808495"]) {
-          id,
-          name,
-          ${defer(firstNameFrag)},
-          ${lastNameFrag},
-          ${defer(nestingFrag)},
+          id
+          name
+          ${defer(firstNameFrag)}
+          ${lastNameFrag}
+          ${defer(nestingFrag)}
         }
       }
     `);
     const expectedFragment = Relay.QL`
       fragment on Node {
-        ${firstNameFrag},
+        ${firstNameFrag}
       }
     `;
     const expected0 = getNode(Relay.QL`
       query {
         nodes(ids:["4"]) {
-          id,
-          ${firstNameFrag},
-          ${expectedFragment},
+          id
+          ${firstNameFrag}
+          ${expectedFragment}
         }
       }
     `);
     const expected1 = getNode(Relay.QL`
       query {
         nodes(ids:["4808495"]) {
-          id,
-          name,
-          ${defer(firstNameFrag)},
-          ${lastNameFrag},
+          id
+          name
+          ${defer(firstNameFrag)}
+          ${lastNameFrag}
           ${defer(nestingFrag)}
         }
       }
@@ -1234,16 +1234,16 @@ describe('diffRelayQuery', () => {
     const expected = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           friends(first:"5") {
             edges {
               node {
                 id
-              },
+              }
               cursor
-            },
+            }
             pageInfo {
-              hasNextPage,
+              hasNextPage
               hasPreviousPage
             }
           }
@@ -1254,8 +1254,8 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
-          name,
+          id
+          name
           friends(first:"5") {
             edges {
               node {
@@ -1308,16 +1308,16 @@ describe('diffRelayQuery', () => {
     const expected = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           friends(after:"cursor1",first:"4") {
             edges {
-              cursor,
+              cursor
               node {
                 id
               }
-            },
+            }
             pageInfo {
-              hasNextPage,
+              hasNextPage
               hasPreviousPage
             }
           }
@@ -1328,7 +1328,7 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           friends(first:"5") {
             edges {
               node {
@@ -1382,17 +1382,17 @@ describe('diffRelayQuery', () => {
     const expected1 = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           friends(after:"cursor1",first:"4") {
             edges{
-              cursor,
+              cursor
               node {
-                id,
+                id
                 name
               }
-            },
+            }
             pageInfo {
-              hasNextPage,
+              hasNextPage
               hasPreviousPage
             }
           }
@@ -1403,12 +1403,12 @@ describe('diffRelayQuery', () => {
     const expected2 = getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495") {
-          id,
-          __typename,
+          id
+          __typename
           ... on User {
-            id,
-            name,
-          },
+            id
+            name
+          }
         }
       }
     `);
@@ -1416,11 +1416,11 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           friends(first:"5") {
             edges {
               node {
-                id,
+                id
                 name
               }
             }
@@ -1443,11 +1443,11 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           friends(first:"5") {
             edges {
               node {
-                id,
+                id
                 name
               }
             }
@@ -1501,17 +1501,17 @@ describe('diffRelayQuery', () => {
     const expected1 = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           friends(after:"cursor1",first:"4") {
             edges{
-              cursor,
+              cursor
               node {
-                id,
+                id
                 name
               }
-            },
+            }
             pageInfo {
-              hasNextPage,
+              hasNextPage
               hasPreviousPage
             }
           }
@@ -1521,12 +1521,12 @@ describe('diffRelayQuery', () => {
     const expected2 = getVerbatimNode(Relay.QL`
       query {
         node(id:"660361306") {
-          id,
-          __typename,
+          id
+          __typename
           ... on User {
-            id,
-            name,
-          },
+            id
+            name
+          }
         }
       }
     `);
@@ -1534,11 +1534,11 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           friends(first:"5") {
             edges {
               node {
-                id,
+                id
                 name
               }
             }
@@ -1562,11 +1562,11 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
+          id
           friends(first:"5") {
             edges {
               node {
-                id,
+                id
                 name
               }
             }
@@ -1619,11 +1619,11 @@ describe('diffRelayQuery', () => {
             friends(first:"1") {
               edges {
                 node {
-                  name,
-                },
-              },
-            },
-          },
+                  name
+                }
+              }
+            }
+          }
         }
       }
     `);
@@ -1634,12 +1634,12 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495"){
-          id,
-          __typename,
+          id
+          __typename
           ... on User {
-            id,
-            name,
-          },
+            id
+            name
+          }
         }
       }
     `));
@@ -1648,16 +1648,16 @@ describe('diffRelayQuery', () => {
       query {
         viewer {
           actor {
-            id,
+            id
             friends(first:"1") {
               edges {
                 node {
-                  id,
-                  name,
-                },
-              },
-            },
-          },
+                  id
+                  name
+                }
+              }
+            }
+          }
         }
       }
     `);
@@ -1702,12 +1702,12 @@ describe('diffRelayQuery', () => {
     const expected = getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495") {
-          id,
-          __typename,
+          id
+          __typename
           ... on User {
-            id,
-            lastName,
-          },
+            id
+            lastName
+          }
         }
       }
     `);
@@ -1717,8 +1717,8 @@ describe('diffRelayQuery', () => {
         friends(first:"1") {
           edges {
             node {
-              firstName,
-              lastName,
+              firstName
+              lastName
             }
           }
         }
@@ -1741,8 +1741,8 @@ describe('diffRelayQuery', () => {
     const trackedQuery = getNode(Relay.QL`
       query {
         node(id:"4") {
-          id,
-          ${fragment},
+          id
+          ${fragment}
         }
       }
     `);
@@ -1787,15 +1787,15 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         nodes(ids:"4") {
-          id,
+          id
           friends(first:"1") {
             edges {
               node {
                 id
-              },
+              }
               source {
-                id,
-                name,
+                id
+                name
                 firstName
               }
             }
@@ -1812,17 +1812,17 @@ describe('diffRelayQuery', () => {
       query {
         nodes(ids:"4") {
           ... on User {
-            id,
-            __typename,
+            id
+            __typename
             friends(find:"4808495") {
               edges {
-                cursor,
+                cursor
                 node {
-                  id,
+                  id
                   __typename, # not strictly required here
-                },
+                }
                 source {
-                  id,
+                  id
                   firstName
                 }
               }
@@ -1867,12 +1867,12 @@ describe('diffRelayQuery', () => {
     const expected = getVerbatimNode(Relay.QL`
       query {
         node(id:"4808495") {
-          id,
-          __typename,
+          id
+          __typename
           ... on User {
-            id,
-            lastName,
-          },
+            id
+            lastName
+          }
         }
       }
     `);
@@ -1880,19 +1880,19 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         nodes(ids:"4") {
-          id,
+          id
           friends(first:"1") {
             edges {
               node {
-                id,
-              },
+                id
+              }
               source {
-                id,
+                id
                 friends(first:"1") {
                   edges {
                     node {
-                      id,
-                      name,
+                      id
+                      name
                       lastName
                     }
                   }
@@ -1915,13 +1915,13 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[1][0]).toEqualQueryNode(getNode(Relay.QL`
       fragment on FriendsEdge {
         source {
-          id,
+          id
           friends(first:"1") {
             edges {
               node {
-                id,
-                name,
-                lastName,
+                id
+                name
+                lastName
               }
             }
           }
@@ -1933,16 +1933,16 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[4][0]).toEqualQueryNode(getNode(Relay.QL`
       query {
         nodes(ids:"4") {
-          id,
+          id
           friends(first:"1") {
             edges {
               source {
-                id,
+                id
                 friends(first:"1") {
                   edges {
                     node {
-                      id,
-                      name,
+                      id
+                      name
                       lastName
                     }
                   }
@@ -2071,7 +2071,7 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         route(waypoints:[
-          {lat: "49.246292", lon: "-123.116226"},
+          {lat: "49.246292", lon: "-123.116226"}
           {lat: "49.246292", lon: "-123.116226"}
         ]) {
           steps { note }
@@ -2085,4 +2085,51 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[1].isAbstract()).toBe(false);
   });
 
+  it('uses the supplied query tracker', () => {
+    const query = getNode(Relay.QL`
+      query {
+        node(id: "4") {
+          friends {
+            count
+          }
+        }
+      }
+    `);
+    const records = {
+      '4': {
+        __dataID__: '4',
+        friends: null,
+      },
+    };
+    const store = new RelayRecordStore({records});
+    const tracker = new RelayQueryTracker();
+    tracker.trackNodeForID = jest.fn();
+    const diffQueries = diffRelayQuery(query, store, tracker);
+    expect(diffQueries.length).toBe(0);
+    expect(tracker.trackNodeForID).toBeCalled();
+  });
+
+  it('degrades gracefully in the absence of a query tracker', () => {
+    const query = getNode(Relay.QL`
+      query {
+        node(id: "4") {
+          friends {
+            count
+          }
+        }
+      }
+    `);
+    const records = {
+      '4': {
+        __dataID__: '4',
+        friends: null,
+      },
+    };
+    const store = new RelayRecordStore({records});
+    let diffQueries;
+    expect(() => {
+      diffQueries = diffRelayQuery(query, store, null);
+    }).not.toThrow();
+    expect(diffQueries.length).toBe(0);
+  });
 });

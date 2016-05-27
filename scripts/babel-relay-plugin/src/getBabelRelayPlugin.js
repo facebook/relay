@@ -37,7 +37,7 @@ function getBabelRelayPlugin(
     snakeCase?: ?boolean;
     suppressWarnings?: ?boolean;
     substituteVariables?: ?boolean;
-    validator?: ?Validator;
+    validator?: ?Validator<any>;
   }
 ): Function {
   const options = pluginOptions || {};

@@ -66,13 +66,13 @@ describe('filterRelayQuery()', () => {
         viewer {
           newsFeed(first: "10") {
             edges {
-              cursor,
+              cursor
               node {
-                id,
+                id
               }
-            },
+            }
             pageInfo {
-              hasNextPage,
+              hasNextPage
               hasPreviousPage
             }
           }

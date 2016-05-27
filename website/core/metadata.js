@@ -50,6 +50,15 @@ module.exports = {
       "source": "APIReference-Relay.md"
     },
     {
+      "id": "api-reference-relay-renderer",
+      "title": "Relay.Renderer",
+      "layout": "docs",
+      "category": "API Reference",
+      "permalink": "docs/api-reference-relay-renderer.html",
+      "next": "api-reference-relay-root-container",
+      "source": "APIReference-Renderer.md"
+    },
+    {
       "id": "api-reference-relay-root-container",
       "title": "Relay.RootContainer",
       "layout": "docs",
@@ -64,7 +73,7 @@ module.exports = {
       "layout": "docs",
       "category": "API Reference",
       "permalink": "docs/api-reference-relay-route.html",
-      "next": "api-reference-relay-root-container",
+      "next": "api-reference-relay-renderer",
       "source": "APIReference-Route.md"
     },
     {

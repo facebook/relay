@@ -8,7 +8,6 @@
  *
  * @providesModule RelayTypes
  * @flow
- * @typechecks
  */
 
 'use strict';
@@ -20,6 +19,7 @@ import type URI from 'URI';
 import type {
   DataID,
   FieldValue,
+  RangeBehaviors,
 } from 'RelayInternalTypes';
 import type RelayFragmentReference from 'RelayFragmentReference';
 import type RelayMutationRequest from 'RelayMutationRequest';
@@ -37,6 +37,7 @@ export type ComponentReadyState = {
   aborted: boolean;
   done: boolean;
   error: ?Error;
+  events: Array<ReadyStateEvent>;
   mounted: boolean;
   ready: boolean;
   stale: boolean;
@@ -49,10 +50,32 @@ export type ComponentFetchState = {
   stale: boolean;
 };
 
+type RelayContainerLoadingEventType = (
+  'ABORT' |
+  'CACHE_RESTORED_REQUIRED' |
+  'CACHE_RESTORE_START' |
+  'NETWORK_QUERY_RECEIVED_ALL' |
+  'NETWORK_QUERY_RECEIVED_REQUIRED' |
+  'NETWORK_QUERY_START' |
+  'STORE_FOUND_ALL' |
+  'STORE_FOUND_REQUIRED'
+);
+
+type RelayContainerErrorEventType = (
+  'CACHE_RESTORE_FAILED' |
+  'NETWORK_QUERY_ERROR'
+);
+
+export type ReadyStateEvent = {
+  type: RelayContainerLoadingEventType | RelayContainerErrorEventType;
+  error?: Error;
+}
+
 export type ReadyState = {
   aborted: boolean;
   done: boolean;
   error: ?Error;
+  events: Array<ReadyStateEvent>;
   ready: boolean;
   stale: boolean;
 };
@@ -107,8 +130,7 @@ export type RelayMutationConfig = {
   parentID?: string,
   connectionName: string,
   edgeName: string,
-  // from GraphQLMutatorConstants.RANGE_OPERATIONS
-  rangeBehaviors: {[call: string]: 'append' | 'prepend' | 'remove'},
+  rangeBehaviors: RangeBehaviors,
 } | {
   type: 'NODE_DELETE',
   parentName: string;
@@ -170,7 +192,7 @@ export type CacheManager = {
   ) => void;
 };
 
-export type CacheReadCallbacks = {
+export type CacheProcessorCallbacks = {
   onSuccess?: () => void;
   onFailure?: () => void;
 };
@@ -192,8 +214,8 @@ export type CacheWriter = {
 
 // Network requests
 export type NetworkLayer = {
-  sendMutation: (request: RelayMutationRequest) => ?Promise;
-  sendQueries: (requests: Array<RelayQueryRequest>) => ?Promise;
+  sendMutation: (request: RelayMutationRequest) => ?Promise<any>;
+  sendQueries: (requests: Array<RelayQueryRequest>) => ?Promise<any>;
   supports: (...options: Array<string>) => boolean;
 };
 export type RequestOptions = {

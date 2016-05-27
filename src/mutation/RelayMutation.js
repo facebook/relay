@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule RelayMutation
- * @typechecks
  * @flow
  */
 
@@ -20,6 +19,7 @@ const RelayFragmentReference = require('RelayFragmentReference');
 import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
+const RelayRecord = require('RelayRecord');
 import type {
   RelayMutationConfig,
   Variables,
@@ -243,7 +243,7 @@ class RelayMutation<Tp: Object> {
    * will be inferred from the optimistic response. Most subclasses shouldn't
    * need to extend this method.
    */
-  getOptimisticConfigs(): ?Array<{[key: string]: mixed}> {
+  getOptimisticConfigs(): ?Array<RelayMutationConfig> {
     return null;
   }
 
@@ -315,7 +315,24 @@ class RelayMutation<Tp: Object> {
             this.constructor.name,
             ii
           );
-          const dataID = RelayFragmentPointer.getDataID(item, fragment);
+          if (__DEV__) {
+            const hasFragmentData =
+              RelayFragmentPointer.hasFragment(item, fragment);
+            if (!hasFragmentData && !this._didShowFakeDataWarning) {
+              this._didShowFakeDataWarning = true;
+              warning(
+                false,
+                'RelayMutation: Expected prop `%s` element at index %s ' +
+                'supplied to `%s` to be data fetched by Relay. This is ' +
+                'likely an error unless you are purposely passing in mock ' +
+                'data that conforms to the shape of this mutation\'s fragment.',
+                fragmentName,
+                ii,
+                this.constructor.name
+              );
+            }
+          }
+          const dataID = RelayRecord.getDataIDForObject(item);
           invariant(
             dataID,
             'RelayMutation: Invalid prop `%s` supplied to `%s`, ' +
@@ -338,27 +355,28 @@ class RelayMutation<Tp: Object> {
           fragmentName,
           this.constructor.name
         );
-        const dataID = RelayFragmentPointer.getDataID(propValue, fragment);
+        if (__DEV__) {
+          const hasFragmentData =
+            RelayFragmentPointer.hasFragment(propValue, fragment);
+          if (!hasFragmentData && !this._didShowFakeDataWarning) {
+            this._didShowFakeDataWarning = true;
+            warning(
+              false,
+              'RelayMutation: Expected prop `%s` supplied to `%s` to ' +
+              'be data fetched by Relay. This is likely an error unless ' +
+              'you are purposely passing in mock data that conforms to ' +
+              'the shape of this mutation\'s fragment.',
+              fragmentName,
+              this.constructor.name
+            );
+          }
+        }
+        const dataID = RelayRecord.getDataIDForObject(propValue);
         if (dataID) {
           resolvedProps[fragmentName] = this._environment.read(
             fragment,
             dataID
           );
-        } else {
-          if (__DEV__) {
-            if (!this._didShowFakeDataWarning) {
-              this._didShowFakeDataWarning = true;
-              warning(
-                false,
-                'RelayMutation: Expected prop `%s` supplied to `%s` to ' +
-                'be data fetched by Relay. This is likely an error unless ' +
-                'you are purposely passing in mock data that conforms to ' +
-                'the shape of this mutation\'s fragment.',
-                fragmentName,
-                this.constructor.name
-              );
-            }
-          }
         }
       }
     });

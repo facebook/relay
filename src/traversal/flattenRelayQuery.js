@@ -8,7 +8,6 @@
  *
  * @providesModule flattenRelayQuery
  * @flow
- * @typechecks
  */
 
 'use strict';

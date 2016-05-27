@@ -82,7 +82,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     }
 
     print(
-      definition: RelayQLDefinition,
+      definition: RelayQLDefinition<any>,
       substitutions: Array<Substitution>
     ): Printable {
       let printedDocument;

@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule RelayNetworkDebug
- * @typechecks
  * @flow
  */
 
@@ -15,6 +14,7 @@
 
 import type {ChangeSubscription} from 'RelayInternalTypes';
 import type RelayMutationRequest from 'RelayMutationRequest';
+import type RelayEnvironment from 'RelayEnvironment';
 const Relay = require('RelayPublic');
 import type RelayQueryRequest from 'RelayQueryRequest';
 
@@ -23,7 +23,7 @@ const performanceNow = require('performanceNow');
 export type RelayNetworkDebuggable = {
   name: string;
   type: string;
-  promise: Promise;
+  promise: Promise<any>;
   logResult: (error: ?Object, response: ?Object) => void;
 };
 
@@ -32,10 +32,10 @@ class RelayNetworkDebugger {
   _queryID: number;
   _subscription: ChangeSubscription;
 
-  constructor() {
+  constructor(environment: RelayEnvironment) {
     this._initTime = performanceNow();
     this._queryID = 0;
-    this._subscription = Relay.Store.addNetworkSubscriber(
+    this._subscription = environment.addNetworkSubscriber(
       request =>
         this.logRequest(createDebuggableFromRequest('Relay Query', request)),
       request =>
@@ -51,20 +51,25 @@ class RelayNetworkDebugger {
     const id = this._queryID++;
     const timerName = `[${id}] Request Duration`;
 
-    console.timeStamp(`START: [${id}] ${type}: ${name} →`);
-    console.time(timerName);
+    /* eslint-disable no-console */
+    console.timeStamp && console.timeStamp(`START: [${id}] ${type}: ${name} →`);
+    console.time && console.time(timerName);
 
     const onSettled = (error, response) => {
       const time = (performanceNow() - this._initTime) / 1000;
-      console.timeStamp(`← END: [${id}] ${type}: ${name}`);
-      console.groupCollapsed(
-        `%c[${id}] ${type}: ${name} @ ${time}s`,
-        `color:${error ? 'red' : 'black'};`
-      );
-      console.timeEnd(timerName);
+      console.timeStamp && console.timeStamp(`← END: [${id}] ${type}: ${name}`);
+      const groupName = `%c[${id}] ${type}: ${name} @ ${time}s`;
+      console.groupCollapsed ?
+        console.groupCollapsed(
+          groupName,
+          `color:${error ? 'red' : 'black'};`
+        ) :
+        console.log(groupName);
+      console.timeEnd && console.timeEnd(timerName);
       logResult(error, response);
-      console.groupEnd();
+      console.groupEnd && console.groupEnd();
     };
+    /* eslint-enable no-console */
 
     promise.then(
       response => onSettled(null, response),
@@ -82,7 +87,8 @@ function createDebuggableFromRequest(
     type,
     promise: request.getPromise(),
     logResult(error, response) {
-      console.debug(
+      /* eslint-disable no-console */
+      console.debug && console.debug(
         '%c%s\n',
         'font-size:10px; color:#333; font-family:mplus-2m-regular,menlo,' +
         'monospaced;',
@@ -91,6 +97,7 @@ function createDebuggableFromRequest(
       console.log('Request variables\n', request.getVariables());
       error && console.error(error);
       response && console.log(response);
+      /* eslint-enable no-console */
     },
   };
 }
@@ -98,9 +105,9 @@ function createDebuggableFromRequest(
 let networkDebugger: ?RelayNetworkDebugger;
 
 const RelayNetworkDebug = {
-  init(): void {
+  init(environment: RelayEnvironment = Relay.Store): void {
     networkDebugger && networkDebugger.uninstall();
-    networkDebugger = new RelayNetworkDebugger();
+    networkDebugger = new RelayNetworkDebugger(environment);
   },
 
   logRequest(request: RelayNetworkDebuggable): void {

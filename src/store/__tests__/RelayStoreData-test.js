@@ -14,8 +14,8 @@
 require('configureForRelayOSS');
 
 jest
-  .dontMock('GraphQLRange')
-  .dontMock('GraphQLSegment');
+  .unmock('GraphQLRange')
+  .unmock('GraphQLSegment');
 
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayStoreData = require('RelayStoreData');
@@ -24,6 +24,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayStoreData', () => {
   let Relay;
+  let RelayQueryTracker;
 
   const {getNode, getVerbatimNode} = RelayTestUtils;
 
@@ -33,21 +34,23 @@ describe('RelayStoreData', () => {
     // @side-effect related to garbage collection
     Relay = require('Relay');
 
+    RelayQueryTracker = require('RelayQueryTracker');
+
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
-  describe('handleQueryPayload', () => {
+  describe('handleQueryPayload()', () => {
     it('writes responses to `records`', () => {
       const storeData = new RelayStoreData();
 
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
-            doesViewerLike,
+            id
+            doesViewerLike
             topLevelComments {
-              count,
-            },
+              count
+            }
           }
         }
       `);
@@ -81,11 +84,11 @@ describe('RelayStoreData', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
-            doesViewerLike,
+            id
+            doesViewerLike
             topLevelComments {
-              count,
-            },
+              count
+            }
           }
         }
       `);
@@ -132,11 +135,11 @@ describe('RelayStoreData', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            id,
-            doesViewerLike,
+            id
+            doesViewerLike
             topLevelComments {
-              count,
-            },
+              count
+            }
           }
         }
       `);
@@ -165,7 +168,7 @@ describe('RelayStoreData', () => {
     });
   });
 
-  describe('handleUpdatePayload', () => {
+  describe('handleUpdatePayload()', () => {
     it('writes server payloads to `records`', () => {
       const storeData = new RelayStoreData();
       // create the root node
@@ -174,14 +177,14 @@ describe('RelayStoreData', () => {
       const mutationQuery = getNode(Relay.QL`
         mutation {
           feedbackLike(input:$input) {
-            clientMutationId,
+            clientMutationId
             feedback {
-              id,
-              doesViewerLike,
+              id
+              doesViewerLike
               topLevelComments {
-                count,
+                count
               }
-            },
+            }
           }
         }
       `);
@@ -220,14 +223,14 @@ describe('RelayStoreData', () => {
       const mutationQuery = getNode(Relay.QL`
         mutation {
           feedbackLike(input:$input) {
-            clientMutationId,
+            clientMutationId
             feedback {
-              id,
-              doesViewerLike,
+              id
+              doesViewerLike
               topLevelComments {
-                count,
+                count
               }
-            },
+            }
           }
         }
       `);
@@ -279,11 +282,11 @@ describe('RelayStoreData', () => {
         const query = getNode(Relay.QL`
           query {
             node(id:"123") {
-              id,
-              doesViewerLike,
+              id
+              doesViewerLike
               topLevelComments {
-                count,
-              },
+                count
+              }
             }
           }
         `);
@@ -303,14 +306,14 @@ describe('RelayStoreData', () => {
         const mutationQuery = getNode(Relay.QL`
           mutation {
             feedbackLike(input:$input) {
-              clientMutationId,
+              clientMutationId
               feedback {
-                id,
-                doesViewerLike,
+                id
+                doesViewerLike
                 topLevelComments {
-                  count,
+                  count
                 }
-              },
+              }
             }
           }
         `);
@@ -353,7 +356,7 @@ describe('RelayStoreData', () => {
     );
   });
 
-  describe('buildFragmentQueryForDataID', () => {
+  describe('buildFragmentQueryForDataID()', () => {
     it('builds root queries for refetchable IDs', () => {
       const data = new RelayStoreData();
       const fragment = getNode(Relay.QL`
@@ -388,7 +391,7 @@ describe('RelayStoreData', () => {
       const node = getNode(Relay.QL`
         query {
           node(id: "123") {
-            id,
+            id
             ${addressFragment}
           }
         }
@@ -406,7 +409,7 @@ describe('RelayStoreData', () => {
 
       const fragment = getNode(Relay.QL`
         fragment on StreetAddress {
-          city,
+          city
         }
       `);
       const query = storeData.buildFragmentQueryForDataID(fragment, 'client:1');
@@ -414,15 +417,15 @@ describe('RelayStoreData', () => {
         query RelayStoreData($id_0: ID!) {
           node(id: $id_0) {
             ... on User {
-              id,
-              __typename,
+              id
+              __typename
               address {
                 ... on StreetAddress {
-                  city,
-                },
-              },
+                  city
+                }
+              }
             }
-          },
+          }
         }
       `, {id_0: '123'}));
       expect(query.getName()).toBe(node.getName());
@@ -473,5 +476,29 @@ describe('RelayStoreData', () => {
         expect(garbageCollector.register.mock.calls[0][0]).toBe('123');
       }
     );
+  });
+
+  describe('injectQueryTracker()', () => {
+    let storeData;
+
+    beforeEach(() => {
+      storeData = new RelayStoreData();
+    });
+
+    it('starts off configured with a default tracker', () => {
+      const tracker = storeData.getQueryTracker();
+      expect(tracker instanceof RelayQueryTracker).toBe(true);
+    });
+
+    it('clears the pre-set tracker', () => {
+      storeData.injectQueryTracker(null);
+      expect(storeData.getQueryTracker()).toBe(null);
+    });
+
+    it('can overwrite the pre-set tracker', () => {
+      const tracker = new RelayQueryTracker();
+      storeData.injectQueryTracker(tracker);
+      expect(storeData.getQueryTracker()).toBe(tracker);
+    });
   });
 });

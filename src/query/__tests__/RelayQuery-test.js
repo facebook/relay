@@ -428,10 +428,10 @@ describe('RelayQuery', () => {
     it('expands fragment references', () => {
       const innerFragment = Relay.QL`
         fragment on User {
-          id,
+          id
           profilePicture(size:$size) {
-            uri,
-          },
+            uri
+          }
         }
       `;
       const reference = new RelayFragmentReference(
@@ -445,8 +445,8 @@ describe('RelayQuery', () => {
       );
       const fragment = getNode(Relay.QL`
         fragment on User {
-          id,
-          ${reference},
+          id
+          ${reference}
         }
       `, {
         outerSize: 'override',

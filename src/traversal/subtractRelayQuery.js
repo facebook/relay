@@ -8,7 +8,6 @@
  *
  * @providesModule subtractRelayQuery
  * @flow
- * @typechecks
  */
 
 'use strict';

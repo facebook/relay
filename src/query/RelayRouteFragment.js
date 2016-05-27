@@ -8,7 +8,6 @@
  *
  * @providesModule RelayRouteFragment
  * @flow
- * @typechecks
  */
 
 'use strict';

@@ -8,7 +8,6 @@
  *
  * @providesModule RelayQueryConfig
  * @flow
- * @typechecks
  */
 
 'use strict';
@@ -19,12 +18,12 @@ import type {RelayQLQueryBuilder} from 'buildRQL';
 const invariant = require('invariant');
 
 export type ConfigQueries = {[queryName: string]: RelayQLQueryBuilder};
-export type RelayQueryConfigInterface = {
+export interface RelayQueryConfigInterface {
   name: string;
   params: Variables;
   queries: ConfigQueries;
   useMockData?: boolean;
-};
+}
 
 /**
  * Configures the root queries and initial variables that define the context in

@@ -32,8 +32,8 @@ describe('RelayQueryRoot', () => {
     me = getNode(Relay.QL`
       query {
         me {
-          name1: firstName,
-          name1: lastName,
+          name1: firstName
+          name1: lastName
         }
       }
     `);
@@ -41,7 +41,7 @@ describe('RelayQueryRoot', () => {
     usernames = getNode(Relay.QL`
       query {
         usernames(names:"mroch") {
-          firstName,
+          firstName
         }
       }
     `);
@@ -80,12 +80,12 @@ describe('RelayQueryRoot', () => {
     const query = getNode(Relay.QL`
       query {
         me {
-          id,
-          firstName @skip(if: $true),
-          lastName @include(if: $false),
-          name @skip(if: $true) @include(if: false),
-          emailAddresses @skip(if: $true) @include(if: true),
-          username @skip(if: $false) @include(if: false),
+          id
+          firstName @skip(if: $true)
+          lastName @include(if: $false)
+          name @skip(if: $true) @include(if: false)
+          emailAddresses @skip(if: $true) @include(if: true)
+          username @skip(if: $false) @include(if: false)
         }
       }
     `, {true: true, false: false});
@@ -98,10 +98,10 @@ describe('RelayQueryRoot', () => {
     const query = getNode(Relay.QL`
       query {
         me {
-          id,
-          firstName @skip(if: $false),
-          lastName @include(if: $true),
-          name @skip(if: false) @include(if: $true),
+          id
+          firstName @skip(if: $false)
+          lastName @include(if: $true)
+          name @skip(if: false) @include(if: $true)
         }
       }
     `, {false: false, true: true});
@@ -144,7 +144,7 @@ describe('RelayQueryRoot', () => {
     const query = getNode(Relay.QL`
       query {
         me {
-          firstName,
+          firstName
           lastName
         }
       }
@@ -236,8 +236,8 @@ describe('RelayQueryRoot', () => {
     const me2 = getNode(Relay.QL`
       query {
         me {
-          name1: firstName,
-          name1: lastName,
+          name1: firstName
+          name1: lastName
         }
       }
     `);
@@ -245,7 +245,7 @@ describe('RelayQueryRoot', () => {
     const usernames2 = getNode(Relay.QL`
       query {
         usernames(names:"mroch") {
-          firstName,
+          firstName
         }
       }
     `);
@@ -264,8 +264,8 @@ describe('RelayQueryRoot', () => {
     const me2 = getNode(Relay.QL`
       query {
         me {
-          name1: firstName,
-          lastName,
+          name1: firstName
+          lastName
         }
       }
     `);
@@ -273,7 +273,7 @@ describe('RelayQueryRoot', () => {
     const usernames2 = getNode(Relay.QL`
       query {
         usernames(names:"mroch") {
-          firstName,
+          firstName
           lastName
         }
       }
@@ -347,64 +347,64 @@ describe('RelayQueryRoot', () => {
   });
 
   it('returns numeric identifying arguments', () => {
-   const query = getNode(Relay.QL`
-     query {
-       task(number: 5) {
-         title
-       }
-     }
-   `);
-   const nodeIdentifyingArg = query.getIdentifyingArg();
-   expect(nodeIdentifyingArg).toEqual({
-     name: 'number',
-     type: 'Int',
-     value: 5,
-   });
- });
+    const query = getNode(Relay.QL`
+      query {
+        task(number: 5) {
+          title
+        }
+      }
+    `);
+    const nodeIdentifyingArg = query.getIdentifyingArg();
+    expect(nodeIdentifyingArg).toEqual({
+      name: 'number',
+      type: 'Int',
+      value: 5,
+    });
+  });
 
- it('returns input-object identifying arguments', () => {
-   const query = getNode(Relay.QL`
-     query {
-       checkinSearchQuery(query: {query: "Facebook"}) {
-         query,
-       }
-     }
-   `);
-   const nodeIdentifyingArg = query.getIdentifyingArg();
-   expect(nodeIdentifyingArg).toEqual({
-     name: 'query',
-     type: 'CheckinSearchInput',
-     value: {
-       query: 'Facebook',
-     },
-   });
- });
+  it('returns input-object identifying arguments', () => {
+    const query = getNode(Relay.QL`
+      query {
+        checkinSearchQuery(query: {query: "Facebook"}) {
+          query
+        }
+      }
+    `);
+    const nodeIdentifyingArg = query.getIdentifyingArg();
+    expect(nodeIdentifyingArg).toEqual({
+      name: 'query',
+      type: 'CheckinSearchInput',
+      value: {
+        query: 'Facebook',
+      },
+    });
+  });
 
- it('returns array identifying arguments', () => {
-   const query = getNode(Relay.QL`
-     query {
-       route(waypoints: [
-         {lat: "0.0", lon: "0.0"},
-         {lat: "1.1", lon: "1.1"}
-       ]) {
-         steps {
-           note
-         }
-       }
-     }
-   `);
-   const nodeIdentifyingArg = query.getIdentifyingArg();
-   expect(nodeIdentifyingArg).toEqual(
-     {
-       name: 'waypoints',
-       value: [
-         {lat: '0.0', lon: '0.0'},
-         {lat: '1.1', lon: '1.1'},
-       ],
-       type: '[WayPoint!]!',
-     }
-   );
- });
+  it('returns array identifying arguments', () => {
+    const query = getNode(Relay.QL`
+      query {
+        route(waypoints: [
+          {lat: "0.0", lon: "0.0"}
+          {lat: "1.1", lon: "1.1"}
+        ]) {
+          steps {
+            note
+          }
+        }
+      }
+    `);
+    const nodeIdentifyingArg = query.getIdentifyingArg();
+    expect(nodeIdentifyingArg).toEqual(
+      {
+        name: 'waypoints',
+        value: [
+          {lat: '0.0', lon: '0.0'},
+          {lat: '1.1', lon: '1.1'},
+        ],
+        type: '[WayPoint!]!',
+      }
+    );
+  });
 
   it('creates nodes', () => {
     const query = getNode(Relay.QL`
@@ -480,7 +480,7 @@ describe('RelayQueryRoot', () => {
       // Inherit all of the other RelayQueryField::getStorageKey() behavior,
       // like stripping out spurious if/unless and connection args.
       const mockField = {getStorageKey: jest.fn()};
-      RelayQuery.Field.build = jest.genMockFn().mockReturnValue(mockField);
+      RelayQuery.Field.build = jest.fn().mockReturnValue(mockField);
       query.getStorageKey();
       expect(RelayQuery.Field.build).toBeCalled();
       expect(mockField.getStorageKey).toBeCalled();

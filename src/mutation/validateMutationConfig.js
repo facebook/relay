@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule validateMutationConfig
- * @typechecks
  * @flow
  */
 
@@ -31,11 +30,13 @@ type Validator = {
 
 const FUZZY_THRESHOLD = 3;
 
+/* eslint-disable no-unused-vars */
 const DEPRECATED = Object.freeze({
   assert: warning,
   message: 'has deprecated property',
   type: 'DEPRECATED',
 });
+/* eslint-enable no-unused-vars */
 
 const OPTIONAL = Object.freeze({
   // These first two properties are not needed, but including them is easier

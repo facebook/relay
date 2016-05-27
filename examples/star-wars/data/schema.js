@@ -146,7 +146,7 @@ const {nodeInterface, nodeField} = nodeDefinitions(
  *     name: String
  *   }
  */
-var shipType = new GraphQLObjectType({
+const shipType = new GraphQLObjectType({
   name: 'Ship',
   description: 'A ship in the Star Wars saga',
   fields: () => ({
@@ -190,7 +190,7 @@ const {
  *     ships: ShipConnection
  *   }
  */
-var factionType = new GraphQLObjectType({
+const factionType = new GraphQLObjectType({
   name: 'Faction',
   description: 'A faction in the Star Wars saga',
   fields: () => ({

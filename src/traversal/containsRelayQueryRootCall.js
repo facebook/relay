@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule containsRelayQueryRootCall
- * @typechecks
  * @flow
  */
 
@@ -60,7 +59,7 @@ function containsRelayQueryRootCall(
   }
 }
 
-var canonicalRootCalls = {
+const canonicalRootCalls = {
   'nodes': 'node',
   'usernames': 'username',
 };

@@ -111,7 +111,7 @@ const Container = Relay.createContainer(({viewer}) => (
     limit: null
   },
   fragments: {
-    viewer: ({limit}) => Relay.QL`
+    viewer: () => Relay.QL`
       fragment on Viewer {
         friends(first: $limit) {
           edges {

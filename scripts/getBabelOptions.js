@@ -20,8 +20,6 @@ module.exports = function(options) {
   return {
     plugins: options.plugins,
     presets: [
-      'stage-1',
-      'react',
       require('babel-preset-fbjs/configure')({
         autoImport: true,
         inlineRequires: true,

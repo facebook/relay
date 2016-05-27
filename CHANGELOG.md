@@ -1,5 +1,7 @@
 ## master
 
+* Added `this.props.relay.pendingVariables` to the wrapped component which can be used to access variables from in-flight queries and e.g. display component specific loading spinners.
+
 ## 0.9.0 (May 26, 2016)
 
 * Relay is now built with Babel 6.

@@ -34,7 +34,7 @@ game<span class="token punctuation">.</span>id <span class="token operator">=</s
   turnsRemaining<span class="token operator">--</span><span class="token punctuation">;</span>
   <span class="token keyword">var</span> hidingSpot <span class="token operator">=</span> <span class="token function">getHidingSpot</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span><span class="token punctuation">;</span>
   hidingSpot<span class="token punctuation">.</span>hasBeenChecked <span class="token operator">=</span> <span class="token keyword">true</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
 <span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">getHidingSpot</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token keyword">return</span> hidingSpots<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span>hs <span class="token operator">=</span><span class="token operator">&gt;</span> hs<span class="token punctuation">.</span>id <span class="token operator">===</span> id<span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
@@ -255,7 +255,7 @@ npm start</pre><h2><a class="anchor" name="writing-the-game"></a>Writing the gam
     <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">_isGameOver</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token keyword">return</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
-    Relay<span class="token punctuation">.</span>Store<span class="token punctuation">.</span><span class="token function">commitUpdate</span><span class="token punctuation">(</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>relay<span class="token punctuation">.</span><span class="token function">commitUpdate</span><span class="token punctuation">(</span>
       <span class="token keyword">new</span> <span class="token class-name">CheckHidingSpotForTreasureMutation</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
         game<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>game<span class="token punctuation">,</span>
         hidingSpot<span class="token punctuation">,</span>

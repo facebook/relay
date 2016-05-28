@@ -60,7 +60,7 @@ export function checkHidingSpotForTreasure(id) {
   hidingSpot.hasBeenChecked = true;
 }
 export function getHidingSpot(id) {
-  return hidingSpots.find(hs => hs.id === id)
+  return hidingSpots.find(hs => hs.id === id);
 }
 export function getGame() { return game; }
 export function getHidingSpots() { return hidingSpots; }

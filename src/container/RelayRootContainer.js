@@ -27,11 +27,13 @@ type RootContainerProps = {
   Component: RelayContainer;
   forceFetch?: ?boolean;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
+  // $FlowFixMe - should renderFailure be allowed to return null/undefined?
   renderFailure?: ?(error: Error, retry: ?() => void) => React$Element<any>;
   renderFetched?: ?(
     data: Object,
     fetchState: ComponentFetchState
-  ) => React$Element<any>;
+  ) => ?React$Element<any>;
+  // $FlowFixMe - should renderLoading be allowed to return null/undefined?
   renderLoading?: ?() => React$Element<any>;
   route: RelayQueryConfigInterface;
 };

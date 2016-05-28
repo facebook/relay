@@ -27,13 +27,15 @@ type RootContainerProps = {
   Component: RelayContainer;
   forceFetch?: ?boolean;
   onReadyStateChange?: ?(readyState: ReadyState) => void;
-  // $FlowFixMe - should renderFailure be allowed to return null/undefined?
+  /* $FlowFixMe(site=react_native_fb,www) - should renderFailure be allowed to
+   * return null/undefined? */
   renderFailure?: ?(error: Error, retry: ?() => void) => React$Element<any>;
   renderFetched?: ?(
     data: Object,
     fetchState: ComponentFetchState
   ) => ?React$Element<any>;
-  // $FlowFixMe - should renderLoading be allowed to return null/undefined?
+  /* $FlowFixMe(site=react_native_fb,www) - should renderLoading be allowed to
+   * return null/undefined? */
   renderLoading?: ?() => React$Element<any>;
   route: RelayQueryConfigInterface;
 };

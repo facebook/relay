@@ -517,7 +517,7 @@ Relay.createContainer(Parent, {
     parentFragment: () => Relay.QL`
       fragment on Foo {
         id
-        ${Child.getFragment('childFragment', {size: 128}
+        ${Child.getFragment('childFragment', {size: 128})}
       }
     `,
   }

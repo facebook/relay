@@ -532,14 +532,14 @@ class GraphQLRange {
         }
       }
     }
+    const nextSegment = this._orderedSegments[segmentIndex + 1];
     if (beforeCursor !== undefined) {
       if (segmentIndex === this._orderedSegments.length - 1) {
         console.warn(
           'GraphQLRange cannot add because there is no next segment'
         );
         return;
-      } else if (this._orderedSegments[segmentIndex + 1].getFirstCursor() !==
-                 beforeCursor) {
+      } else if (!nextSegment.isFirstCursor(beforeCursor)) {
         warning(
           false,
           'GraphQLRange cannot add because beforeCursor does not match first ' +
@@ -654,15 +654,14 @@ class GraphQLRange {
         }
       }
     }
-
+    const prevSegment = this._orderedSegments[segmentIndex - 1];
     if (afterCursor !== undefined) {
       if (segmentIndex === 0) {
         console.warn(
           'GraphQLRange cannot add because there is no previous segment'
         );
         return;
-      } else if (this._orderedSegments[segmentIndex - 1].getLastCursor() !==
-                 afterCursor) {
+      } else if (!prevSegment.isLastCursor(afterCursor)) {
         warning(
           false,
           'GraphQLRange cannot add because afterCursor does not match last ' +

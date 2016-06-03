@@ -109,6 +109,43 @@ For a complete example of how to load a `schema.js` file, run the introspection 
 
 If you're using a different GraphQL server implementation, we recommend adapting the above example to load the schema from your GraphQL server (e.g. via an HTTP request) and then save the result as JSON.
 
+An example using `fetch` looks like this:
+
+```javascript
+const fetch = require('node-fetch');
+const fs = require('fs');
+const {
+  buildClientSchema,
+  introspectionQuery,
+  printSchema,
+} = require('graphql/utilities');
+const path = require('path');
+const schemaPath = path.join(__dirname, 'schema');
+
+const SERVER = 'http://example.com/graphql';
+
+// Save JSON of full schema introspection for Babel Relay Plugin to use
+fetch(`${SERVER}`, {
+  method: 'POST',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({'query': introspectionQuery}),
+}).then(res => res.json()).then(schemaJSON => {
+  fs.writeFileSync(
+    `${schemaPath}.json`,
+    JSON.stringify(schemaJSON, null, 2)
+  );
+
+  // Save user readable type system shorthand of schema
+  const graphQLSchema = buildClientSchema(schemaJSON.data);
+  fs.writeFileSync(
+    `${schemaPath}.graphql`,
+    printSchema(graphQLSchema)
+  );
+});
+```
 
 ## Additional Options
 

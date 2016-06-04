@@ -14,6 +14,7 @@
 
 import type {ChangeSubscription} from 'RelayInternalTypes';
 import type RelayMutationRequest from 'RelayMutationRequest';
+const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 const RelayQueryRequest = require('RelayQueryRequest');
@@ -63,6 +64,12 @@ class RelayNetworkLayer {
   }
 
   injectImplementation(implementation: ?NetworkLayer): void {
+    // Handle the case where this is called with the default implementation
+    // instead of using `injectDefaultImplementation`.
+    if (implementation instanceof RelayDefaultNetworkLayer) {
+      this.injectDefaultImplementation(implementation);
+      return;
+    }
     if (this._implementation) {
       warning(
         false,

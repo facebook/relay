@@ -328,6 +328,35 @@ class RelayStoreData {
   }
 
   /**
+   * Write the result of a fragment into the base record store.
+   */
+  handleFragmentPayload(
+    dataID: DataID,
+    fragment: RelayQuery.Fragment,
+    path: QueryPath,
+    payload: QueryPayload,
+    forceIndex: ?number
+  ): void {
+    const profiler =
+      RelayProfiler.profile('RelayStoreData.handleFragmentPayload');
+    const changeTracker = new RelayChangeTracker();
+    const writer = new RelayQueryWriter(
+      this._queuedStore,
+      this.getRecordWriter(),
+      this._queryTracker,
+      changeTracker,
+      {
+        forceIndex,
+        updateTrackedQueries: true,
+      }
+    );
+    writer.createRecordIfMissing(fragment, dataID, path, payload);
+    writer.writePayload(fragment, dataID, payload, path);
+    this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
+    profiler.stop();
+  }
+
+  /**
    * Write the results of an update into the base record store.
    */
   handleUpdatePayload(

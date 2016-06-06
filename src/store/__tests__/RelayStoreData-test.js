@@ -18,6 +18,7 @@ jest
   .unmock('GraphQLSegment');
 
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayQueryPath = require('RelayQueryPath');
 const RelayStoreData = require('RelayStoreData');
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayTestUtils = require('RelayTestUtils');
@@ -165,6 +166,88 @@ describe('RelayStoreData', () => {
 
       // `queuedRecords` is unchanged
       expect(storeData.getQueuedData()).toEqual({});
+    });
+  });
+
+  describe('handleFragmentPayload()', () => {
+    let fragment, rootPath, storeData;
+    beforeEach(() => {
+      storeData = new RelayStoreData();
+
+      fragment = getNode(Relay.QL`
+        fragment on Node {
+          id
+          doesViewerLike
+          topLevelComments {
+            count
+          }
+        }
+      `);
+      const query = getNode(Relay.QL`
+        query {
+          node(id:"123") {
+            id
+          }
+        }
+      `);
+      rootPath = RelayQueryPath.create(query);
+      const response = {
+        id: '123',
+        doesViewerLike: false,
+        topLevelComments: {
+          count: 1,
+        },
+        __typename: 'Story',
+      };
+      storeData.handleFragmentPayload(
+        '123',
+        fragment,
+        rootPath,
+        response
+      );
+    });
+
+    it('writes responses to `records`', () => {
+      // results are written to `records`
+      const recordStore = storeData.getRecordStore();
+      expect(recordStore.getRecordState('123')).toBe('EXISTENT');
+      expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
+      const commentsID =
+        recordStore.getLinkedRecordID('123', 'topLevelComments');
+      expect(recordStore.getField(commentsID, 'count')).toBe(1);
+
+      // `queuedRecords` is unchanged
+      expect(storeData.getQueuedData()).toEqual({});
+    });
+
+    it('broadcasts changes for created and updated records', () => {
+      const commentsID =
+        storeData.getRecordStore().getLinkedRecordID('123', 'topLevelComments');
+
+      const changeEmitter = storeData.getChangeEmitter();
+      // broadcasts for created ids
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith('123');
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith(commentsID);
+
+      const updatedResponse = {
+        id: '123',
+        doesViewerLike: true, // false -> true
+        topLevelComments: {
+          count: 2, // 1 -> 2
+        },
+        __typename: 'Story',
+      };
+      changeEmitter.broadcastChangeForID.mockClear();
+      storeData.handleFragmentPayload(
+        '123',
+        fragment,
+        rootPath,
+        updatedResponse
+      );
+
+      // broadcasts for updated ids
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith('123');
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith(commentsID);
     });
   });
 

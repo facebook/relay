@@ -95,8 +95,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     payload: Object
   ): ?string {
     if (this._isOptimisticUpdate) {
-      // Optimistic queries are inferred and fields have a generic 'any' type.
-      return null;
+      // Optimistic queries are inferred. Reuse existing type if available.
+      return this._store.getType(recordID);
     }
     let typeName = payload[TYPENAME];
     if (typeName == null) {

@@ -38,6 +38,7 @@ describe('RelayMutation', () => {
         query CreateFeedbackQuery($id: ID!) {
           node(id: $id) {
             ... on Feedback {
+              __typename
               id
               doesViewerLike
               body {
@@ -115,6 +116,7 @@ describe('RelayMutation', () => {
     const data = environment.readQuery(query)[0];
     expect(data).toEqual({
       __dataID__: feedbackID,
+      __typename: 'Feedback',
       id: feedbackID,
       doesViewerLike: false,
       body: {
@@ -136,6 +138,7 @@ describe('RelayMutation', () => {
       __dataID__: feedbackID,
       __mutationStatus__: '0:UNCOMMITTED',
       __status__: 1,
+      __typename: 'Feedback',
       id: feedbackID,
       doesViewerLike: true,
       body: {
@@ -160,6 +163,7 @@ describe('RelayMutation', () => {
       __mutationStatus__: '',
       // but optimistic data still applies:
       __status__: 1,
+      __typename: 'Feedback',
       id: feedbackID,
       doesViewerLike: true,
       body: {
@@ -172,6 +176,7 @@ describe('RelayMutation', () => {
     data = environment.readQuery(query)[0];
     expect(data).toEqual({
       __dataID__: feedbackID,
+      __typename: 'Feedback',
       id: feedbackID,
       doesViewerLike: false,
       body: {
@@ -202,6 +207,7 @@ describe('RelayMutation', () => {
       __mutationStatus__: '1:UNCOMMITTED',
       // has optimistic data:
       __status__: 1,
+      __typename: 'Feedback',
       id: feedbackID,
       // first transaction's payload still applies
       doesViewerLike: true,
@@ -219,6 +225,7 @@ describe('RelayMutation', () => {
       __dataID__: feedbackID,
       __mutationStatus__: '1:UNCOMMITTED',
       __status__: 1,
+      __typename: 'Feedback',
       id: feedbackID,
       // first transaction's payload reverted
       doesViewerLike: false,

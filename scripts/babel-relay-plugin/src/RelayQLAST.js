@@ -27,6 +27,7 @@ const GraphQLRelayDirective = require('./GraphQLRelayDirective');
 
 const find = require('./find');
 const invariant = require('./invariant');
+const {verboseInvariant} = require('./verboseInvariant');
 
 const GraphQLRelayDirectiveInstance = new GraphQLDirectiveClass(
   GraphQLRelayDirective
@@ -39,6 +40,7 @@ import type {
   FragmentDefinition as GraphQLFragmentDefinition,
   FragmentSpread as GraphQLFragmentSpread,
   InlineFragment as GraphQLInlineFragment,
+  Location as GraphQLLocation,
   OperationDefinition as GraphQLOperationDefinition,
   Value as GraphQLValue,
 } from 'GraphQLAST';
@@ -60,13 +62,21 @@ type RelayQLSelection =
   RelayQLFragmentSpread |
   RelayQLInlineFragment;
 
-class RelayQLNode<T> {
+type RelayQLNodeType = {
+  loc: ?GraphQLLocation,
+};
+
+class RelayQLNode<T: RelayQLNodeType> {
   ast: T;
   context: RelayQLContext;
 
   constructor(context: RelayQLContext, ast: T) {
     this.ast = ast;
     this.context = context;
+  }
+
+  getLocation(): ?GraphQLLocation {
+    return this.ast.loc;
   }
 
   getType(): RelayQLType {
@@ -103,7 +113,12 @@ class RelayQLNode<T> {
           this.getType()
         );
       } else {
-        invariant(false, 'Unexpected selection kind: %s', selection.kind);
+        verboseInvariant(
+          false,
+          this.getLocation(),
+          'Unexpected selection kind: %s',
+          selection.kind
+        );
       }
     });
   }
@@ -123,7 +138,7 @@ class RelayQLNode<T> {
   }
 }
 
-class RelayQLDefinition<T> extends RelayQLNode<T> {
+class RelayQLDefinition<T: RelayQLNodeType> extends RelayQLNode<T> {
   getName(): ?string {
     return this.ast.name ? this.ast.name.value : this.getType().getName({modifiers: false}); // TODO: this.context.definitionName;
   }
@@ -174,11 +189,13 @@ class RelayQLFragment extends RelayQLDefinition<
     if (this.hasStaticFragmentID && this.staticFragmentID == null) {
       const suffix = this.context.generateID();
       const name = this.getName();
-      invariant(
+      verboseInvariant(
         name,
+        this.getLocation(),
         'Static fragments require a name. Use `fragment NAME on %s { ... }`.',
         this.getType().getName({modifiers: true})
       );
+      invariant(name, 'For flow');
       this.staticFragmentID = name + ':' + suffix;
     }
     return this.staticFragmentID;
@@ -197,13 +214,16 @@ class RelayQLFragment extends RelayQLDefinition<
       );
     } else if (this.ast.kind === 'InlineFragment') {
       // Inline fragments without type conditions fall back to parent type.
-      invariant(
+      verboseInvariant(
         this.parentType,
+        this.getLocation(),
         'Cannot get type of typeless inline fragment without parent type.'
       );
+      invariant(this.parentType, 'For flow');
       return this.parentType;
     } else {
-      invariant(false, 'Unexpected fragment kind: %s', this.ast.kind);
+      verboseInvariant(false, this.getLocation(), 'Unexpected fragment kind: %s', this.ast.kind);
+      invariant(false, 'For flow');
     }
   }
 }
@@ -236,13 +256,15 @@ class RelayQLField extends RelayQLNode<GraphQLField> {
     super(context, ast);
     const fieldName = this.ast.name.value;
     const fieldDef = parentType.getFieldDefinition(fieldName, ast);
-    invariant(
+    verboseInvariant(
       fieldDef,
+      this.getLocation(),
       'You supplied a field named `%s` on type `%s`, but no such field ' +
       'exists on that type.',
       fieldName,
       parentType.getName({modifiers: false})
     );
+    invariant(fieldDef, 'For flow');
     this.fieldDef = fieldDef;
   }
 
@@ -271,8 +293,9 @@ class RelayQLField extends RelayQLNode<GraphQLField> {
     return (this.ast.arguments || []).map(arg => {
       const argName = arg.name.value;
       const argType = argTypes[argName];
-      invariant(
+      verboseInvariant(
         argType,
+        this.getLocation(),
         'You supplied an argument named `%s` on field `%s`, but no such ' +
         'argument exists on that field.',
         argName,
@@ -301,7 +324,8 @@ class RelayQLFragmentSpread extends RelayQLNode<GraphQLFragmentSpread> {
   }
 
   getSelections(): Array<RelayQLSelection> {
-    invariant(false, 'Cannot get selection of a fragment spread.');
+    verboseInvariant(false, this.getLocation(), 'Cannot get selection of a fragment spread.');
+    invariant(false, 'For flow');
   }
 }
 
@@ -337,14 +361,19 @@ class RelayQLDirective {
       directiveName === GraphQLRelayDirective.name ?
         GraphQLRelayDirectiveInstance :
         context.schema.getDirective(directiveName);
-    invariant(
+    verboseInvariant(
       schemaDirective,
+      this.getLocation(),
       'You supplied a directive named `%s`, but no such directive exists.',
       directiveName
     );
     schemaDirective.args.forEach(schemaArg => {
       this.argTypes[schemaArg.name] = new RelayQLArgumentType(schemaArg.type);
     });
+  }
+
+  getLocation(): ?GraphQLLocation {
+    return this.ast.loc;
   }
 
   getName(): string {
@@ -355,8 +384,9 @@ class RelayQLDirective {
     return (this.ast.arguments || []).map(arg => {
       const argName = arg.name.value;
       const argType = this.argTypes[argName];
-      invariant(
+      verboseInvariant(
         argType,
+        this.getLocation(),
         'You supplied an argument named `%s` on directive `%s`, but no ' +
         'such argument exists on that directive.',
         argName,
@@ -382,6 +412,10 @@ class RelayQLArgument {
     this.type = type;
   }
 
+  getLocation(): ?GraphQLLocation {
+    return this.ast.loc;
+  }
+
   getName(): string {
     return this.ast.name.value;
   }
@@ -395,16 +429,20 @@ class RelayQLArgument {
   }
 
   getVariableName(): string {
-    invariant(
+    verboseInvariant(
       this.ast.value.kind === 'Variable',
+      this.getLocation(),
       'Cannot get variable name of an argument value.'
     );
-    return this.ast.value.name.value;
+    return this.ast.value.kind === 'Variable'
+      ? this.ast.value.name.value
+      : 'For Flow';
   }
 
   getValue(): mixed {
-    invariant(
+    verboseInvariant(
       !this.isVariable(),
+      this.getLocation(),
       'Cannot get value of an argument variable.'
     );
     const value = this.ast.value;
@@ -799,16 +837,18 @@ function getLiteralValue(value: GraphQLValue): mixed {
       });
       return object;
     case 'Variable':
-      invariant(
+      verboseInvariant(
         false,
+        value.loc,
         'Unexpected nested variable `%s`; variables are supported as top-' +
         'level arguments - `node(id: $id)` - or directly within lists - ' +
         '`nodes(ids: [$id])`.',
         value.name.value
       );
     default:
-      invariant(
+      verboseInvariant(
         false,
+        value.loc,
         'Unexpected value kind: %s',
         value.kind
       );

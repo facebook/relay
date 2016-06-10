@@ -42,6 +42,11 @@ var RelayQLType = _require.RelayQLType;
 var find = require('./find');
 var invariant = require('./invariant');
 
+var _require2 = require('./verboseInvariant');
+
+var verboseInvariant = _require2.verboseInvariant;
+
+
 module.exports = function (t, options) {
   var formatFields = options.snakeCase ? function (fields) {
     var formatted = {};
@@ -92,7 +97,7 @@ module.exports = function (t, options) {
         } else if (definition instanceof RelayQLSubscription) {
           printedDocument = this.printSubscription(definition);
         } else {
-          invariant(false, 'Unsupported definition: %s', definition);
+          verboseInvariant(false, definition.getLocation(), 'Unsupported definition: %s', definition);
         }
         return t.callExpression(t.functionExpression(null, substitutions.map(function (substitution) {
           return t.identifier(substitution.name);
@@ -104,7 +109,7 @@ module.exports = function (t, options) {
       key: 'printQuery',
       value: function printQuery(query) {
         var rootFields = query.getFields();
-        invariant(rootFields.length === 1, 'There are %d fields supplied to the query named `%s`, but queries ' + 'must have exactly one field.', rootFields.length, query.getName());
+        verboseInvariant(rootFields.length === 1, query.getLocation(), 'There are %d fields supplied to the query named `%s`, but queries ' + 'must have exactly one field.', rootFields.length, query.getName());
         var rootField = rootFields[0];
         var rootFieldType = rootField.getType();
         var rootFieldArgs = rootField.getArguments();
@@ -125,7 +130,7 @@ module.exports = function (t, options) {
         if (rootFieldType.isAbstract()) {
           metadata.isAbstract = true;
         }
-        invariant(rootFieldArgs.length <= 1, 'Invalid root field `%s`; Relay only supports root fields with zero ' + 'or one argument.', rootField.getName());
+        verboseInvariant(rootFieldArgs.length <= 1, query.getLocation(), 'Invalid root field `%s`; Relay only supports root fields with zero ' + 'or one argument.', rootField.getName());
         var calls = NULL;
         if (rootFieldArgs.length === 1) {
           // Until such time as a root field's 'identifying argument' (one that has
@@ -198,7 +203,8 @@ module.exports = function (t, options) {
 
         if (selectVariables) {
           var selectVariablesValue = selectVariables.getValue();
-          invariant(Array.isArray(selectVariablesValue), 'The variables argument to the @relay directive should be an array ' + 'of strings.');
+          verboseInvariant(Array.isArray(selectVariablesValue), fragment.getLocation(), 'The variables argument to the @relay directive should be an array ' + 'of strings.');
+          invariant(Array.isArray(selectVariablesValue), 'For flow');
 
           return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__createFragment')), [fragmentCode, t.objectExpression(selectVariablesValue.map(function (item) {
             var value = item.getValue();
@@ -222,7 +228,7 @@ module.exports = function (t, options) {
       key: 'printMutation',
       value: function printMutation(mutation) {
         var rootFields = mutation.getFields();
-        invariant(rootFields.length === 1, 'There are %d fields supplied to the mutation named `%s`, but ' + 'mutations must have exactly one field.', rootFields.length, mutation.getName());
+        verboseInvariant(rootFields.length === 1, mutation.getLocation(), 'There are %d fields supplied to the mutation named `%s`, but ' + 'mutations must have exactly one field.', rootFields.length, mutation.getName());
         var rootField = rootFields[0];
         var rootFieldType = rootField.getType();
         validateMutationField(rootField);
@@ -254,7 +260,7 @@ module.exports = function (t, options) {
       key: 'printSubscription',
       value: function printSubscription(subscription) {
         var rootFields = subscription.getFields();
-        invariant(rootFields.length === 1, 'There are %d fields supplied to the subscription named `%s`, but ' + 'subscriptions must have exactly one field.', rootFields.length, subscription.getName());
+        verboseInvariant(rootFields.length === 1, subscription.getLocation(), 'There are %d fields supplied to the subscription named `%s`, but ' + 'subscriptions must have exactly one field.', rootFields.length, subscription.getName());
         var rootField = rootFields[0];
         var rootFieldType = rootField.getType();
         validateMutationField(rootField);
@@ -295,7 +301,7 @@ module.exports = function (t, options) {
         parent.getSelections().forEach(function (selection) {
           if (selection instanceof RelayQLFragmentSpread) {
             // Assume that all spreads exist via template substitution.
-            invariant(selection.getDirectives().length === 0, 'Directives are not yet supported for `${fragment}`-style fragment ' + 'references.');
+            verboseInvariant(selection.getDirectives().length === 0, selection.getLocation(), 'Directives are not yet supported for `${fragment}`-style fragment ' + 'references.');
             printedFragments.push(_this2.printFragmentReference(selection));
             didPrintFragmentReference = true;
           } else if (selection instanceof RelayQLInlineFragment) {
@@ -303,7 +309,7 @@ module.exports = function (t, options) {
           } else if (selection instanceof RelayQLField) {
             fields.push(selection);
           } else {
-            invariant(false, 'Unsupported selection type `%s`.', selection);
+            verboseInvariant(false, selection.getLocation(), 'Unsupported selection type `%s`.', selection);
           }
         });
         if (extraFragments) {
@@ -510,7 +516,7 @@ module.exports = function (t, options) {
         if (relayDirective) {
           relayDirective.getArguments().forEach(function (arg) {
             if (arg.isVariable()) {
-              invariant(!arg.isVariable(), 'You supplied `$%s` as the `%s` argument to the `@relay` ' + 'directive, but `@relay` require scalar argument values.', arg.getVariableName(), arg.getName());
+              verboseInvariant(!arg.isVariable(), node.getLocation(), 'You supplied `$%s` as the `%s` argument to the `@relay` ' + 'directive, but `@relay` require scalar argument values.', arg.getVariableName(), arg.getName());
             }
             if (arg.getName() !== 'variables') {
               properties.push(property(arg.getName(), t.valueToNode(arg.getValue())));
@@ -571,7 +577,7 @@ module.exports = function (t, options) {
     if (field.getName() === 'node') {
       var argTypes = field.getDeclaredArguments();
       var argNames = Object.keys(argTypes);
-      invariant(argNames.length !== 1 || argNames[0] !== 'id', 'You defined a `node(id: %s)` field on type `%s`, but Relay requires ' + 'the `node` field to be defined on the root type. See the Object ' + 'Identification Guide: \n' + 'http://facebook.github.io/relay/docs/graphql-object-identification.html', argNames[0] && argTypes[argNames[0]].getName({ modifiers: true }), parentType.getName({ modifiers: false }));
+      verboseInvariant(argNames.length !== 1 || argNames[0] !== 'id', field.getLocation(), 'You defined a `node(id: %s)` field on type `%s`, but Relay requires ' + 'the `node` field to be defined on the root type. See the Object ' + 'Identification Guide: \n' + 'http://facebook.github.io/relay/docs/graphql-object-identification.html', argNames[0] && argTypes[argNames[0]].getName({ modifiers: true }), parentType.getName({ modifiers: false }));
     }
   }
 
@@ -581,9 +587,9 @@ module.exports = function (t, options) {
     var before = field.findArgument('before');
     var after = field.findArgument('after');
 
-    invariant(!first || !last || first.isVariable() && last.isVariable(), 'Connection arguments `%s(first: <count>, last: <count>)` are ' + 'not supported unless both are variables. Use `(first: <count>)`, ' + '`(last: <count>)`, or `(first: $<var>, last: $<var>)`.', field.getName());
-    invariant(!first || !before || first.isVariable() && before.isVariable(), 'Connection arguments `%s(before: <cursor>, first: <count>)` are ' + 'not supported unless both are variables. Use `(first: <count>)`, ' + '`(after: <cursor>, first: <count>)`, `(before: <cursor>, last: <count>)`, ' + 'or `(before: $<var>, first: $<var>)`.', field.getName());
-    invariant(!last || !after || last.isVariable() && after.isVariable(), 'Connection arguments `%s(after: <cursor>, last: <count>)` are ' + 'not supported unless both are variables. Use `(last: <count>)`, ' + '`(before: <cursor>, last: <count>)`, `(after: <cursor>, first: <count>)`, ' + 'or `(after: $<var>, last: $<var>)`.', field.getName());
+    verboseInvariant(!first || !last || first.isVariable() && last.isVariable(), field.getLocation(), 'Connection arguments `%s(first: <count>, last: <count>)` are ' + 'not supported unless both are variables. Use `(first: <count>)`, ' + '`(last: <count>)`, or `(first: $<var>, last: $<var>)`.', field.getName());
+    verboseInvariant(!first || !before || first.isVariable() && before.isVariable(), field.getLocation(), 'Connection arguments `%s(before: <cursor>, first: <count>)` are ' + 'not supported unless both are variables. Use `(first: <count>)`, ' + '`(after: <cursor>, first: <count>)`, `(before: <cursor>, last: <count>)`, ' + 'or `(before: $<var>, first: $<var>)`.', field.getName());
+    verboseInvariant(!last || !after || last.isVariable() && after.isVariable(), field.getLocation(), 'Connection arguments `%s(after: <cursor>, last: <count>)` are ' + 'not supported unless both are variables. Use `(last: <count>)`, ' + '`(before: <cursor>, last: <count>)`, `(after: <cursor>, first: <count>)`, ' + 'or `(after: $<var>, last: $<var>)`.', field.getName());
 
     // Use `any` because we already check `isConnection` before validating.
     var connectionNodeType = field.getType().getFieldDefinition(FIELDS.edges).getType().getFieldDefinition(FIELDS.node).getType();
@@ -591,12 +597,12 @@ module.exports = function (t, options) {
     // NOTE: These checks are imperfect because we cannot trace fragment spreads.
     forEachRecursiveField(field, function (subfield) {
       if (subfield.getName() === FIELDS.edges || subfield.getName() === FIELDS.pageInfo) {
-        invariant(field.isPattern() || field.hasArgument('find') || field.hasArgument('first') || field.hasArgument('last'), 'You supplied the `%s` field on a connection named `%s`, but you did ' + 'not supply an argument necessary to do so. Use either the `find`, ' + '`first`, or `last` argument.', subfield.getName(), field.getName());
+        verboseInvariant(field.isPattern() || field.hasArgument('find') || field.hasArgument('first') || field.hasArgument('last'), field.getLocation(), 'You supplied the `%s` field on a connection named `%s`, but you did ' + 'not supply an argument necessary to do so. Use either the `find`, ' + '`first`, or `last` argument.', subfield.getName(), field.getName());
       } else {
         // Suggest `edges{node{...}}` instead of `nodes{...}`.
         var subfieldType = subfield.getType();
         var isNodesLikeField = subfieldType.isList() && subfieldType.getName({ modifiers: false }) === connectionNodeType.getName({ modifiers: false });
-        invariant(!isNodesLikeField, 'You supplied a field named `%s` on a connection named `%s`, but ' + 'pagination is not supported on connections without using `%s`. ' + 'Use `%s{%s{%s{...}}}` instead.', subfield.getName(), field.getName(), FIELDS.edges, field.getName(), FIELDS.edges, FIELDS.node);
+        verboseInvariant(!isNodesLikeField, field.getLocation(), 'You supplied a field named `%s` on a connection named `%s`, but ' + 'pagination is not supported on connections without using `%s`. ' + 'Use `%s{%s{%s{...}}}` instead.', subfield.getName(), field.getName(), FIELDS.edges, field.getName(), FIELDS.edges, FIELDS.node);
       }
     });
   }
@@ -604,11 +610,11 @@ module.exports = function (t, options) {
   function validateMutationField(rootField) {
     var declaredArgs = rootField.getDeclaredArguments();
     var declaredArgNames = Object.keys(declaredArgs);
-    invariant(declaredArgNames.length === 1, 'Your schema defines a mutation field `%s` that takes %d arguments, ' + 'but mutation fields must have exactly one argument named `%s`.', rootField.getName(), declaredArgNames.length, INPUT_ARGUMENT_NAME);
-    invariant(declaredArgNames[0] === INPUT_ARGUMENT_NAME, 'Your schema defines a mutation field `%s` that takes an argument ' + 'named `%s`, but mutation fields must have exactly one argument ' + 'named `%s`.', rootField.getName(), declaredArgNames[0], INPUT_ARGUMENT_NAME);
+    verboseInvariant(declaredArgNames.length === 1, rootField.getLocation(), 'Your schema defines a mutation field `%s` that takes %d arguments, ' + 'but mutation fields must have exactly one argument named `%s`.', rootField.getName(), declaredArgNames.length, INPUT_ARGUMENT_NAME);
+    verboseInvariant(declaredArgNames[0] === INPUT_ARGUMENT_NAME, rootField.getLocation(), 'Your schema defines a mutation field `%s` that takes an argument ' + 'named `%s`, but mutation fields must have exactly one argument ' + 'named `%s`.', rootField.getName(), declaredArgNames[0], INPUT_ARGUMENT_NAME);
 
     var rootFieldArgs = rootField.getArguments();
-    invariant(rootFieldArgs.length <= 1, 'There are %d arguments supplied to the mutation field named `%s`, ' + 'but mutation fields must have exactly one `%s` argument.', rootFieldArgs.length, rootField.getName(), INPUT_ARGUMENT_NAME);
+    verboseInvariant(rootFieldArgs.length <= 1, rootField.getLocation(), 'There are %d arguments supplied to the mutation field named `%s`, ' + 'but mutation fields must have exactly one `%s` argument.', rootFieldArgs.length, rootField.getName(), INPUT_ARGUMENT_NAME);
   }
 
   var forEachRecursiveField = function forEachRecursiveField(selection, callback) {

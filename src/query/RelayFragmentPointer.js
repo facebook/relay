@@ -114,6 +114,11 @@ const RelayFragmentPointer = {
     record: Record,
     fragment: RelayQuery.Fragment
   ): ?Array<Variables> {
+    /* $FlowFixMe(>=0.27.0): `fragmentMap is refined to type
+     *                       `{[key: string]: mixed}` below, which means that
+     *                       return is Flowing `mixed` to `Array<Variables>`,
+     *                       which is unsafe.
+     */
     const fragmentMap = record.__fragments__;
     if (typeof fragmentMap === 'object' && fragmentMap != null) {
       const fragmentID = fragment.getConcreteFragmentID();

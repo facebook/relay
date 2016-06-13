@@ -67,13 +67,13 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
     this._state = 'COMPLETED';
   }
 
-  handleFailure(): void {
+  handleFailure(error: any): void {
     invariant(
       this._state !== 'COMPLETED',
       'RelayStoreReader: Query set already failed/completed.'
     );
     this._state = 'COMPLETED';
-    this._callbacks.onFailure && this._callbacks.onFailure();
+    this._callbacks.onFailure && this._callbacks.onFailure(error);
   }
 
   handleNodeVisited(
@@ -120,7 +120,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
           return;
         }
         if (error) {
-          this.handleFailure();
+          this.handleFailure(error);
           return;
         }
         this.handleIdentifiedRootVisited(
@@ -157,7 +157,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
           return;
         }
         if (error) {
-          this.handleFailure();
+          this.handleFailure(error);
           return;
         }
         this.handleNodeVisited(node, dataID, record, nextState);

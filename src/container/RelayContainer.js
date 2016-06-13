@@ -937,6 +937,7 @@ function getDeferredFragment(
     {
       isDeferred: true,
       isContainerFragment: fragmentReference.isContainerFragment(),
+      isTypeConditional: false,
     }
   );
 }

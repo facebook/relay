@@ -53,6 +53,7 @@ type BatchCall = {
 type FragmentMetadata = {
   isDeferred: boolean;
   isContainerFragment: boolean;
+  isTypeConditional: boolean;
 };
 // TODO: replace once #6525923 is resolved
 type NextChildren = Array<any>;
@@ -70,6 +71,7 @@ let _nextQueryID = 0;
 const DEFAULT_FRAGMENT_METADATA = {
   isDeferred: false,
   isContainerFragment: false,
+  isTypeConditional: false,
 };
 const EMPTY_DIRECTIVES = [];
 const EMPTY_CALLS = [];
@@ -793,6 +795,7 @@ class RelayQueryFragment extends RelayQueryNode {
       {
         isDeferred: !!(metadata && metadata.isDeferred),
         isContainerFragment: !!(metadata && metadata.isContainerFragment),
+        isTypeConditional: !!(metadata && metadata.isTypeConditional),
       }
     );
     fragment.__children__ = nextChildren;
@@ -911,6 +914,10 @@ class RelayQueryFragment extends RelayQueryNode {
 
   isContainerFragment(): boolean {
     return this.__metadata__.isContainerFragment;
+  }
+
+  isTypeConditional(): boolean {
+    return this.__metadata__.isTypeConditional;
   }
 
   hasDeferredDescendant(): boolean {
@@ -1342,6 +1349,7 @@ function createNode(
         {
           isDeferred: false,
           isContainerFragment: true,
+          isTypeConditional: false,
         }
       );
     }
@@ -1374,6 +1382,7 @@ function createNode(
         {
           isDeferred: concreteNode.isDeferred(),
           isContainerFragment: concreteNode.isContainerFragment(),
+          isTypeConditional: concreteNode.isTypeConditional(),
         }
       );
     }

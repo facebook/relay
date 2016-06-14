@@ -73,7 +73,7 @@ describe('RelayContainer', function() {
       .expectRenderedChild()
       .toBeCompositeComponentWithType(MockComponent)
       .expectRenderedChild()
-      .toBeDOMComponentWithTag('div');
+      .toBeComponentOfType('div');
   });
 
   it('provides Relay statics', () => {
@@ -103,6 +103,6 @@ describe('RelayContainer', function() {
       .expectRenderedChild()
       .toBeCompositeComponentWithType(MyComponent)
       .expectRenderedChild()
-      .toBeDOMComponentWithTag('span');
+      .toBeComponentOfType('span');
   });
 });

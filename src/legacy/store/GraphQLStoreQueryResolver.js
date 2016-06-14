@@ -13,11 +13,11 @@
 'use strict';
 
 import type RelayGarbageCollector from 'RelayGarbageCollector';
-import type {ChangeSubscription, DataID} from 'RelayInternalTypes';
+import type {DataID} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
-import type {StoreReaderData} from 'RelayTypes';
+import type {ChangeSubscription, StoreReaderData} from 'RelayTypes';
 
 const readRelayQueryData = require('readRelayQueryData');
 const recycleNodesInto = require('recycleNodesInto');

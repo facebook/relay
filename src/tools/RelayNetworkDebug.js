@@ -12,7 +12,7 @@
 
 'use strict';
 
-import type {ChangeSubscription} from 'RelayInternalTypes';
+import type {ChangeSubscription} from 'RelayTypes';
 import type RelayMutationRequest from 'RelayMutationRequest';
 import type RelayEnvironment from 'RelayEnvironment';
 const Relay = require('RelayPublic');

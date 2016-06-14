@@ -13,7 +13,6 @@
 'use strict';
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-import type {ChangeSubscription} from 'RelayInternalTypes';
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
@@ -22,7 +21,7 @@ import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
 import type {TaskScheduler} from 'RelayTaskQueue';
-import type {NetworkLayer} from 'RelayTypes';
+import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const readRelayQueryData = require('readRelayQueryData');

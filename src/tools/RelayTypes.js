@@ -175,6 +175,11 @@ export type StoreReaderOptions = {
   traverseGeneratedFields?: boolean;
 };
 
+// Store Change Emitter
+export type ChangeSubscription = {
+  remove: () => void;
+};
+
 // Disk Cache
 export type CacheManager = {
   clear: () => void;

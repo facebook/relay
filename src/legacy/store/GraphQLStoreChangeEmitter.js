@@ -14,7 +14,7 @@
 
 const ErrorUtils = require('ErrorUtils');
 import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
-import type {ChangeSubscription} from 'RelayInternalTypes';
+import type {ChangeSubscription} from 'RelayTypes';
 
 const resolveImmediate = require('resolveImmediate');
 

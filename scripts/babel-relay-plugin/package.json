@@ -34,7 +34,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
     "babel-preset-es2015": "^6.9.0",
     "eslint": "^2.10.2",
-    "flow-bin": "^0.25.0",
+    "flow-bin": "^0.27.0",
     "glob": "^7.0.3",
     "jest-cli": "^12.1.1",
     "minimist": "^1.2.0",

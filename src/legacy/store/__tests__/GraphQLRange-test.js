@@ -301,6 +301,49 @@ describe('GraphQLRange', () => {
 
   });
 
+  it('should not make empty segment for before().first() query with gap', () => {
+    let queryCalls = [
+      {name: 'first', value: 3},
+    ];
+
+    const pageInfo = {
+      [HAS_NEXT_PAGE]: true,
+      [HAS_PREV_PAGE]: false,
+    };
+
+    range.addItems(queryCalls, first3Edges, pageInfo);
+
+    const incrementalQueryCall = [
+      {name: 'before', value: 'cursor1'},
+      {name: 'first', value: 2},
+    ];
+
+    const incrementalEdges = [];
+    const incrementalPageInfo = {
+      [HAS_NEXT_PAGE]: true,
+      [HAS_PREV_PAGE]: false,
+    };
+    range.addItems(
+      incrementalQueryCall,
+      incrementalEdges,
+      incrementalPageInfo
+    );
+    // Request super set
+    queryCalls = [
+      {name: 'first', value: 5},
+    ];
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
+
+    expect(result.requestedEdgeIDs).toEqual(
+      [edge1.__dataID__, edge2.__dataID__, edge3.__dataID__]
+    );
+    expect(result.diffCalls).toEqual([
+      {name: 'after', value: 'cursor3'},
+      {name: 'first', value: 2},
+    ]);
+
+  });
+
   it('should add for last() query', () => {
     const queryCalls = [
       {name: 'last', value: 3},
@@ -495,6 +538,45 @@ describe('GraphQLRange', () => {
       {name: 'before', value: 'cursor110'},
       {name: 'after', value: 'cursor100'},
       {name: 'last', value: 3},
+    ]);
+  });
+
+ it('should not make empty segment for after().last() query with gap', () => {
+    let queryCalls = [
+      {name: 'after', value: null},
+      {name: 'last', value: 3},
+    ];
+
+    const pageInfo = {
+      [HAS_NEXT_PAGE]: false,
+      [HAS_PREV_PAGE]: true,
+    };
+
+    range.addItems(queryCalls, last3Edges, pageInfo);
+
+    queryCalls = [
+      {name: 'after', value: 'cursor100'},
+      {name: 'last', value: 2},
+    ];
+    range.addItems(
+      queryCalls,
+      [],
+      {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: true}
+    );
+
+    // Request the super set
+    queryCalls = [
+      {name: 'after', value: null},
+      {name: 'last', value: 5},
+    ];
+    const result = range.retrieveRangeInfoForQuery(queryCalls);
+
+    expect(result.requestedEdgeIDs).toEqual(
+      [edge98.__dataID__, edge99.__dataID__, edge100.__dataID__]
+    );
+    expect(result.diffCalls).toEqual([
+      {name: 'before', value: 'cursor98'},
+      {name: 'last', value: 2},
     ]);
   });
 

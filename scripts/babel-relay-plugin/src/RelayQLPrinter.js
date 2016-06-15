@@ -29,6 +29,7 @@ const {
 
 const find = require('./find');
 const invariant = require('./invariant');
+const {verboseInvariant} = require('./verboseInvariant');
 
 export type Printable = Object;
 export type Substitution = {
@@ -75,7 +76,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
     constructor(
       tagName: string,
-      variableNames: {[variableName: string]: void}
+      variableNames: {[variableName: string]: void},
     ) {
       this.tagName = tagName;
       this.variableNames = variableNames;
@@ -95,7 +96,12 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       } else if (definition instanceof RelayQLSubscription) {
         printedDocument = this.printSubscription(definition);
       } else {
-        invariant(false, 'Unsupported definition: %s', definition);
+        verboseInvariant(
+          false,
+          definition.getLocation(),
+          'Unsupported definition: %s',
+          definition
+        );
       }
       return t.callExpression(
         t.functionExpression(
@@ -111,8 +117,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
     printQuery(query: RelayQLQuery): Printable {
       const rootFields = query.getFields();
-      invariant(
+      verboseInvariant(
         rootFields.length === 1,
+        query.getLocation(),
         'There are %d fields supplied to the query named `%s`, but queries ' +
         'must have exactly one field.',
         rootFields.length,
@@ -138,8 +145,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       if (rootFieldType.isAbstract()) {
         metadata.isAbstract = true;
       }
-      invariant(
+      verboseInvariant(
         rootFieldArgs.length <= 1,
+        query.getLocation(),
         'Invalid root field `%s`; Relay only supports root fields with zero ' +
         'or one argument.',
         rootField.getName()
@@ -221,11 +229,13 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
       if (selectVariables) {
         const selectVariablesValue = selectVariables.getValue();
-        invariant(
+        verboseInvariant(
           Array.isArray(selectVariablesValue),
+          fragment.getLocation(),
           'The variables argument to the @relay directive should be an array ' +
           'of strings.'
         );
+        invariant(Array.isArray(selectVariablesValue), 'For flow');
 
         return t.callExpression(
           t.memberExpression(
@@ -264,8 +274,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
     printMutation(mutation: RelayQLMutation): Printable {
       const rootFields = mutation.getFields();
-      invariant(
+      verboseInvariant(
         rootFields.length === 1,
+        mutation.getLocation(),
         'There are %d fields supplied to the mutation named `%s`, but ' +
         'mutations must have exactly one field.',
         rootFields.length,
@@ -305,8 +316,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
     printSubscription(subscription: RelayQLSubscription): Printable {
       const rootFields = subscription.getFields();
-      invariant(
+      verboseInvariant(
         rootFields.length === 1,
+        subscription.getLocation(),
         'There are %d fields supplied to the subscription named `%s`, but ' +
         'subscriptions must have exactly one field.',
         rootFields.length,
@@ -356,8 +368,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       parent.getSelections().forEach(selection => {
         if (selection instanceof RelayQLFragmentSpread) {
           // Assume that all spreads exist via template substitution.
-          invariant(
+          verboseInvariant(
             selection.getDirectives().length === 0,
+            selection.getLocation(),
             'Directives are not yet supported for `${fragment}`-style fragment ' +
             'references.'
           );
@@ -368,7 +381,12 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         } else if (selection instanceof RelayQLField) {
           fields.push(selection);
         } else {
-          invariant(false, 'Unsupported selection type `%s`.', selection);
+          verboseInvariant(
+            false,
+            selection.getLocation(),
+            'Unsupported selection type `%s`.',
+            selection
+          );
         }
       });
       if (extraFragments) {
@@ -630,8 +648,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       if (relayDirective) {
         relayDirective.getArguments().forEach(arg => {
           if (arg.isVariable()) {
-            invariant(
+            verboseInvariant(
               !arg.isVariable(),
+              node.getLocation(),
               'You supplied `$%s` as the `%s` argument to the `@relay` ' +
               'directive, but `@relay` require scalar argument values.',
               arg.getVariableName(),
@@ -693,8 +712,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     if (field.getName() === 'node') {
       var argTypes = field.getDeclaredArguments();
       var argNames = Object.keys(argTypes);
-      invariant(
+      verboseInvariant(
         argNames.length !== 1 || argNames[0] !== 'id',
+        field.getLocation(),
         'You defined a `node(id: %s)` field on type `%s`, but Relay requires ' +
         'the `node` field to be defined on the root type. See the Object ' +
         'Identification Guide: \n' +
@@ -712,23 +732,26 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       field.findArgument('before'),
       field.findArgument('after'),
     ]
-    invariant(
+    verboseInvariant(
       (!first || !last) || (first.isVariable() && last.isVariable()),
+      field.getLocation(),
       'Connection arguments `%s(first: <count>, last: <count>)` are ' +
       'not supported unless both are variables. Use `(first: <count>)`, ' +
       '`(last: <count>)`, or `(first: $<var>, last: $<var>)`.',
       field.getName()
     );
-    invariant(
+    verboseInvariant(
       (!first || !before) || (first.isVariable() && before.isVariable()),
+      field.getLocation(),
       'Connection arguments `%s(before: <cursor>, first: <count>)` are ' +
       'not supported unless both are variables. Use `(first: <count>)`, ' +
       '`(after: <cursor>, first: <count>)`, `(before: <cursor>, last: <count>)`, ' +
       'or `(before: $<var>, first: $<var>)`.',
       field.getName()
     );
-    invariant(
+    verboseInvariant(
       (!last || !after) || (last.isVariable() && after.isVariable()),
+      field.getLocation(),
       'Connection arguments `%s(after: <cursor>, last: <count>)` are ' +
       'not supported unless both are variables. Use `(last: <count>)`, ' +
       '`(before: <cursor>, last: <count>)`, `(after: <cursor>, first: <count>)`, ' +
@@ -745,11 +768,12 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     forEachRecursiveField(field, subfield => {
       if (subfield.getName() === FIELDS.edges ||
           subfield.getName() === FIELDS.pageInfo) {
-        invariant(
+        verboseInvariant(
           field.isPattern() ||
           field.hasArgument('find') ||
           field.hasArgument('first') ||
           field.hasArgument('last'),
+          field.getLocation(),
           'You supplied the `%s` field on a connection named `%s`, but you did ' +
           'not supply an argument necessary to do so. Use either the `find`, ' +
           '`first`, or `last` argument.',
@@ -763,8 +787,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
           subfieldType.isList() &&
           subfieldType.getName({modifiers: false}) ===
             connectionNodeType.getName({modifiers: false});
-        invariant(
+        verboseInvariant(
           !isNodesLikeField,
+          field.getLocation(),
           'You supplied a field named `%s` on a connection named `%s`, but ' +
           'pagination is not supported on connections without using `%s`. ' +
           'Use `%s{%s{%s{...}}}` instead.',
@@ -782,16 +807,18 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   function validateMutationField(rootField: RelayQLField): void {
     const declaredArgs = rootField.getDeclaredArguments();
     const declaredArgNames = Object.keys(declaredArgs);
-    invariant(
+    verboseInvariant(
       declaredArgNames.length === 1,
+      rootField.getLocation(),
       'Your schema defines a mutation field `%s` that takes %d arguments, ' +
       'but mutation fields must have exactly one argument named `%s`.',
       rootField.getName(),
       declaredArgNames.length,
       INPUT_ARGUMENT_NAME
     );
-    invariant(
+    verboseInvariant(
       declaredArgNames[0] === INPUT_ARGUMENT_NAME,
+      rootField.getLocation(),
       'Your schema defines a mutation field `%s` that takes an argument ' +
       'named `%s`, but mutation fields must have exactly one argument ' +
       'named `%s`.',
@@ -801,8 +828,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     );
 
     const rootFieldArgs = rootField.getArguments();
-    invariant(
+    verboseInvariant(
       rootFieldArgs.length <= 1,
+      rootField.getLocation(),
       'There are %d arguments supplied to the mutation field named `%s`, ' +
       'but mutation fields must have exactly one `%s` argument.',
       rootFieldArgs.length,

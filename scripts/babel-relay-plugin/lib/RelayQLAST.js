@@ -13,6 +13,8 @@
 
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -36,6 +38,8 @@ var GraphQLRelayDirective = require('./GraphQLRelayDirective');
 
 var find = require('./find');
 var invariant = require('./invariant');
+var util = require('util');
+var RelayTransformError = require('./RelayTransformError');
 
 var GraphQLRelayDirectiveInstance = new GraphQLDirectiveClass(GraphQLRelayDirective);
 
@@ -51,6 +55,11 @@ var RelayQLNode = function () {
   }
 
   _createClass(RelayQLNode, [{
+    key: 'getLocation',
+    value: function getLocation() {
+      return this.ast.loc;
+    }
+  }, {
     key: 'getType',
     value: function getType() {
       invariant(false, 'Missing Implementation');
@@ -89,7 +98,7 @@ var RelayQLNode = function () {
         } else if (selection.kind === 'InlineFragment') {
           return new RelayQLInlineFragment(_this.context, selection, _this.getType());
         } else {
-          invariant(false, 'Unexpected selection kind: %s', selection.kind);
+          throw new RelayTransformError(util.format('Unexpected selection kind: %s', selection.kind), _this.getLocation());
         }
       });
     }
@@ -174,7 +183,9 @@ var RelayQLFragment = function (_RelayQLDefinition) {
       if (this.hasStaticFragmentID && this.staticFragmentID == null) {
         var suffix = this.context.generateID();
         var _name = this.getName();
-        invariant(_name, 'Static fragments require a name. Use `fragment NAME on %s { ... }`.', this.getType().getName({ modifiers: true }));
+        if (!_name) {
+          throw new RelayTransformError(util.format('Static fragments require a name. Use `fragment NAME on %s { ... }`.', this.getType().getName({ modifiers: true })), this.getLocation());
+        }
         this.staticFragmentID = _name + ':' + suffix;
       }
       return this.staticFragmentID;
@@ -191,10 +202,12 @@ var RelayQLFragment = function (_RelayQLDefinition) {
         return new RelayQLType(this.context, this.context.schema.getType(type.name.value));
       } else if (this.ast.kind === 'InlineFragment') {
         // Inline fragments without type conditions fall back to parent type.
-        invariant(this.parentType, 'Cannot get type of typeless inline fragment without parent type.');
+        if (!this.parentType) {
+          throw new RelayTransformError('Cannot get type of typeless inline fragment without parent type.', this.getLocation());
+        }
         return this.parentType;
       } else {
-        invariant(false, 'Unexpected fragment kind: %s', this.ast.kind);
+        throw new RelayTransformError(util.format('Unexpected fragment kind: %s', this.ast.kind), this.getLocation());
       }
     }
   }]);
@@ -269,7 +282,9 @@ var RelayQLField = function (_RelayQLNode2) {
 
     var fieldName = _this8.ast.name.value;
     var fieldDef = parentType.getFieldDefinition(fieldName, ast);
-    invariant(fieldDef, 'You supplied a field named `%s` on type `%s`, but no such field ' + 'exists on that type.', fieldName, parentType.getName({ modifiers: false }));
+    if (!fieldDef) {
+      throw new RelayTransformError(util.format('You supplied a field named `%s` on type `%s`, but no such field ' + 'exists on that type.', fieldName, parentType.getName({ modifiers: false })), _this8.getLocation());
+    }
     _this8.fieldDef = fieldDef;
     return _this8;
   }
@@ -312,7 +327,9 @@ var RelayQLField = function (_RelayQLNode2) {
       return (this.ast.arguments || []).map(function (arg) {
         var argName = arg.name.value;
         var argType = argTypes[argName];
-        invariant(argType, 'You supplied an argument named `%s` on field `%s`, but no such ' + 'argument exists on that field.', argName, _this9.getName());
+        if (!argType) {
+          throw new RelayTransformError(util.format('You supplied an argument named `%s` on field `%s`, but no such ' + 'argument exists on that field.', argName, _this9.getName()), _this9.getLocation());
+        }
         return new RelayQLArgument(_this9.context, arg, argType);
       });
     }
@@ -353,7 +370,7 @@ var RelayQLFragmentSpread = function (_RelayQLNode3) {
   }, {
     key: 'getSelections',
     value: function getSelections() {
-      invariant(false, 'Cannot get selection of a fragment spread.');
+      throw new RelayTransformError('Cannot get selection of a fragment spread.', this.getLocation());
     }
   }]);
 
@@ -394,13 +411,20 @@ var RelayQLDirective = function () {
 
     var directiveName = ast.name.value;
     var schemaDirective = directiveName === GraphQLRelayDirective.name ? GraphQLRelayDirectiveInstance : context.schema.getDirective(directiveName);
-    invariant(schemaDirective, 'You supplied a directive named `%s`, but no such directive exists.', directiveName);
+    if (!schemaDirective) {
+      throw new RelayTransformError(util.format('You supplied a directive named `%s`, but no such directive exists.', directiveName), this.getLocation());
+    }
     schemaDirective.args.forEach(function (schemaArg) {
       _this12.argTypes[schemaArg.name] = new RelayQLArgumentType(schemaArg.type);
     });
   }
 
   _createClass(RelayQLDirective, [{
+    key: 'getLocation',
+    value: function getLocation() {
+      return this.ast.loc;
+    }
+  }, {
     key: 'getName',
     value: function getName() {
       return this.ast.name.value;
@@ -413,7 +437,9 @@ var RelayQLDirective = function () {
       return (this.ast.arguments || []).map(function (arg) {
         var argName = arg.name.value;
         var argType = _this13.argTypes[argName];
-        invariant(argType, 'You supplied an argument named `%s` on directive `%s`, but no ' + 'such argument exists on that directive.', argName, _this13.getName());
+        if (!argType) {
+          throw new RelayTransformError(util.format('You supplied an argument named `%s` on directive `%s`, but no ' + 'such argument exists on that directive.', argName, _this13.getName()), _this13.getLocation());
+        }
         return new RelayQLArgument(_this13.context, arg, argType);
       });
     }
@@ -432,6 +458,11 @@ var RelayQLArgument = function () {
   }
 
   _createClass(RelayQLArgument, [{
+    key: 'getLocation',
+    value: function getLocation() {
+      return this.ast.loc;
+    }
+  }, {
     key: 'getName',
     value: function getName() {
       return this.ast.name.value;
@@ -449,7 +480,9 @@ var RelayQLArgument = function () {
   }, {
     key: 'getVariableName',
     value: function getVariableName() {
-      invariant(this.ast.value.kind === 'Variable', 'Cannot get variable name of an argument value.');
+      if (this.ast.value.kind !== 'Variable') {
+        throw new RelayTransformError('Cannot get variable name of an argument value.', this.getLocation());
+      }
       return this.ast.value.name.value;
     }
   }, {
@@ -457,7 +490,10 @@ var RelayQLArgument = function () {
     value: function getValue() {
       var _this14 = this;
 
-      invariant(!this.isVariable(), 'Cannot get value of an argument variable.');
+      if (this.isVariable()) {
+        throw new RelayTransformError('Cannot get value of an argument variable.', this.getLocation());
+      }
+
       var value = this.ast.value;
       if (value.kind === 'ListValue') {
         return value.values.map(function (value) {
@@ -826,28 +862,42 @@ function stripMarkerTypes(schemaModifiedType) {
 }
 
 function getLiteralValue(value) {
-  switch (value.kind) {
-    case 'IntValue':
-      return parseInt(value.value, 10);
-    case 'FloatValue':
-      return parseFloat(value.value);
-    case 'StringValue':
-    case 'BooleanValue':
-    case 'EnumValue':
-      return value.value;
-    case 'ListValue':
-      return value.values.map(getLiteralValue);
-    case 'ObjectValue':
-      var object = {};
-      value.fields.forEach(function (field) {
-        object[field.name.value] = getLiteralValue(field.value);
-      });
-      return object;
-    case 'Variable':
-      invariant(false, 'Unexpected nested variable `%s`; variables are supported as top-' + 'level arguments - `node(id: $id)` - or directly within lists - ' + '`nodes(ids: [$id])`.', value.name.value);
-    default:
-      invariant(false, 'Unexpected value kind: %s', value.kind);
-  }
+  var _ret2 = function () {
+    switch (value.kind) {
+      case 'IntValue':
+        return {
+          v: parseInt(value.value, 10)
+        };
+      case 'FloatValue':
+        return {
+          v: parseFloat(value.value)
+        };
+      case 'StringValue':
+      case 'BooleanValue':
+      case 'EnumValue':
+        return {
+          v: value.value
+        };
+      case 'ListValue':
+        return {
+          v: value.values.map(getLiteralValue)
+        };
+      case 'ObjectValue':
+        var object = {};
+        value.fields.forEach(function (field) {
+          object[field.name.value] = getLiteralValue(field.value);
+        });
+        return {
+          v: object
+        };
+      case 'Variable':
+        throw new RelayTransformError(util.format('Unexpected nested variable `%s`; variables are supported as top-' + 'level arguments - `node(id: $id)` - or directly within lists - ' + '`nodes(ids: [$id])`.', value.name.value), value.loc);
+      default:
+        throw new RelayTransformError(util.format('Unexpected value kind: %s', value.kind), value.loc);
+    }
+  }();
+
+  if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
 }
 
 module.exports = {

@@ -70,15 +70,7 @@ function getObjectFromCalls(
 ): {[argName: string]: string} {
   const behaviors = {};
   calls.forEach(call => {
-    const behavior = call.value;
-    invariant(
-      typeof behavior === 'string',
-      'getRangeBehavior(): Expected range behavior for key `%s` to be a ' +
-      'string, got `%s`.',
-      call.name,
-      behavior
-    );
-    behaviors[call.name] = behavior;
+    behaviors[call.name] = call.value;
   });
   return behaviors;
 }

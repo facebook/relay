@@ -28,6 +28,14 @@ describe('getRangeBehavior()', () => {
       const rangeBehavior = getRangeBehavior(rangeBehaviors, calls);
       expect(rangeBehavior).toBe('append');
     });
+
+    describe('when calls contain non-string values', () => {
+      it('returns the rangeBehavior for the calls', () => {
+        const calls = [{name: 'status', value: 1}];
+        const rangeBehavior = getRangeBehavior(rangeBehaviors, calls);
+        expect(rangeBehavior).toBe('refetch');
+      });
+    });
   });
 
   describe('when rangeBehaviors are a plain object', () => {

@@ -235,12 +235,13 @@ function runQueries(
           [...networkEvent, {type: 'STORE_FOUND_REQUIRED'}]
         );
       } else {
-        if (storeData.hasCacheManager()) {
-          readyState.update(
-            {ready: false},
-            [...networkEvent, {type: 'CACHE_RESTORE_START'}]
-          );
-          resolveImmediate(() => {
+        readyState.update(
+          {ready: false},
+          [...networkEvent, {type: 'CACHE_RESTORE_START'}]
+        );
+
+        resolveImmediate(() => {
+          if (storeData.hasCacheManager()) {
             const requiredQueryMap = mapObject(
               remainingRequiredFetchMap,
               value => value.getQuery()
@@ -255,24 +256,21 @@ function runQueries(
               onFailure: (error: any) => {
                 readyState.update({
                   error,
-                  ready: false,
                 }, [{type: 'CACHE_RESTORE_FAILED', error}]);
               },
             });
-          });
-        } else {
-          readyState.update({ready: false}, networkEvent);
-          resolveImmediate(() => {
-            if (everyObject(remainingRequiredFetchMap, canResolve)) {
-              if (hasItems(remainingRequiredFetchMap)) {
+          } else {
+            if (everyObject(remainingRequiredFetchMap, canResolve) &&
+              hasItems(remainingRequiredFetchMap)) {
                 readyState.update({
                   ready: true,
                   stale: true,
-                }, [{type: 'STORE_FOUND_REQUIRED'}]);
-              }
+                }, [{type: 'CACHE_RESTORED_REQUIRED'}]);
+            } else {
+              readyState.update({}, [{type: 'CACHE_RESTORE_FAILED'}]);
             }
-          });
-        }
+          }
+        });
       }
     }
     // Stop profiling when queries have been sent to the network layer.

@@ -76,7 +76,7 @@ export type UpdateOptions = {
 };
 
 type RangeBehaviorsFunction = (
-  connectionArgs: {[argName: string]: string},
+  connectionArgs: {[argName: string]: CallValue},
 ) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 
 type RangeBehaviorsObject = {

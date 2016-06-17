@@ -20,10 +20,7 @@ import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
 import type {QueryResult} from 'RelayTypes';
 
-const containsRelayQueryRootCall = require('containsRelayQueryRootCall');
-const everyObject = require('everyObject');
 const invariant = require('invariant');
-const subtractRelayQuery = require('subtractRelayQuery');
 
 type PendingQueryParameters = {
   fetchMode: FetchMode;
@@ -39,10 +36,6 @@ type PendingState = {
  * @internal
  *
  * Tracks pending (in-flight) queries.
- *
- * In order to send minimal queries and avoid re-retrieving data,
- * `RelayPendingQueryTracker` maintains a registry of pending queries, and
- * "subtracts" those from any new queries that callers enqueue.
  */
 class RelayPendingQueryTracker {
   _pendingFetchMap: {[queryID: string]: PendingState};
@@ -97,23 +90,15 @@ class PendingFetch {
 
   _forceIndex: ?number;
 
-  _dependents: Array<PendingFetch>;
-  _pendingDependencyMap: {[queryID: string]: PendingFetch};
+  _fetchedQuery: boolean;
+  _fetchQueryPromise: Promise<any>;
 
-  _fetchedSubtractedQuery: boolean;
-  _fetchSubtractedQueryPromise: Promise<any>;
-
-  _resolvedSubtractedQuery: boolean;
+  _resolvedQuery: boolean;
   _resolvedDeferred: Deferred<void, ?Error>;
 
   _storeData: RelayStoreData;
 
-  /**
-   * Error(s) in fetching/handleUpdate-ing its or one of its pending
-   * dependency's subtracted query. There may be more than one error. However,
-   * `_resolvedDeferred` is rejected with the earliest encountered error.
-   */
-  _errors: Array<?Error>;
+  _error: ?Error;
 
   constructor(
     {fetchMode, forceIndex, query}: PendingQueryParameters,
@@ -124,59 +109,33 @@ class PendingFetch {
     }
   ) {
     const queryID = query.getID();
-    this._dependents = [];
     this._forceIndex = forceIndex;
-    this._pendingDependencyMap = {};
     this._pendingFetchMap = pendingFetchMap;
     this._preloadQueryMap = preloadQueryMap;
     this._query = query;
     this._resolvedDeferred = new Deferred();
-    this._resolvedSubtractedQuery = false;
+    this._resolvedQuery = false;
     this._storeData = storeData;
 
-    let subtractedQuery;
-    if (fetchMode === RelayFetchMode.PRELOAD) {
-      subtractedQuery = query;
-      this._fetchSubtractedQueryPromise = this._preloadQueryMap.get(queryID);
-    } else {
-      subtractedQuery = this._subtractPending(query);
-      this._fetchSubtractedQueryPromise = subtractedQuery ?
-        storeData.getNetworkLayer().fetchRelayQuery(subtractedQuery) :
-        Promise.resolve();
-    }
+    this._fetchQueryPromise = fetchMode === RelayFetchMode.PRELOAD
+      ? this._preloadQueryMap.get(queryID)
+      : storeData.getNetworkLayer().fetchRelayQuery(query);
 
-    this._fetchedSubtractedQuery = !subtractedQuery;
-    this._errors = [];
+    this._fetchedQuery = false;
+    this._error = null;
 
-    if (subtractedQuery) {
-      this._pendingFetchMap[queryID] = {
-        fetch: this,
-        query: subtractedQuery,
-      };
-      this._fetchSubtractedQueryPromise.done(
-        this._handleSubtractedQuerySuccess.bind(this, subtractedQuery),
-        this._handleSubtractedQueryFailure.bind(this, subtractedQuery)
-      );
-    } else {
-      this._markSubtractedQueryAsResolved();
-    }
+    this._pendingFetchMap[queryID] = {
+      fetch: this,
+      query: query,
+    };
+    this._fetchQueryPromise.done(
+      this._handleQuerySuccess.bind(this),
+      this._handleQueryFailure.bind(this),
+    );
   }
 
-  /**
-   * A pending query is resolvable if it is already resolved or will be resolved
-   * imminently (i.e. its subtracted query and the subtracted queries of all its
-   * pending dependencies have been fetched).
-   */
   isResolvable(): boolean {
-    if (this._fetchedSubtractedQuery) {
-      return everyObject(
-        this._pendingDependencyMap,
-        pendingDependency => pendingDependency._fetchedSubtractedQuery
-      );
-      // Pending dependencies further down the graph either don't affect the
-      // result or are already in `_pendingDependencyMap`.
-    }
-    return false;
+    return this._resolvedQuery;
   }
 
   getQuery(): RelayQuery.Root {
@@ -187,52 +146,10 @@ class PendingFetch {
     return this._resolvedDeferred.getPromise();
   }
 
-  /**
-   * Subtracts all pending queries from the supplied `query` and returns the
-   * resulting difference. The difference can be null if the entire query is
-   * pending.
-   *
-   * If any pending queries were subtracted, they will be added as dependencies
-   * and the query will only resolve once the subtracted query and all
-   * dependencies have resolved.
-   *
-   * This, combined with our use of diff queries (see `diffRelayQuery`) means
-   * that we only go to the server for things that are not in (or not on their
-   * way to) the cache (`RelayRecordStore`).
-   */
-  _subtractPending(query: ?RelayQuery.Root): ?RelayQuery.Root {
-    everyObject(this._pendingFetchMap, pending => {
-      // Stop if the entire query is subtracted.
-      if (!query) {
-        return false;
-      }
-      if (containsRelayQueryRootCall(pending.query, query)) {
-        const subtractedQuery = subtractRelayQuery(query, pending.query);
-        if (subtractedQuery !== query) {
-          query = subtractedQuery;
-          this._addPendingDependency(pending.fetch);
-        }
-      }
-      return true;
-    });
-    return query;
-  }
-
-  _addPendingDependency(pendingFetch: PendingFetch): void {
-    const queryID = pendingFetch.getQuery().getID();
-    this._pendingDependencyMap[queryID] = pendingFetch;
-    pendingFetch._addDependent(this);
-  }
-
-  _addDependent(pendingFetch: PendingFetch): void {
-    this._dependents.push(pendingFetch);
-  }
-
-  _handleSubtractedQuerySuccess(
-    subtractedQuery: RelayQuery.Root,
+  _handleQuerySuccess(
     result: QueryResult
   ): void {
-    this._fetchedSubtractedQuery = true;
+    this._fetchedQuery = true;
 
     this._storeData.getTaskQueue().enqueue(() => {
       const response = result.response;
@@ -243,33 +160,28 @@ class PendingFetch {
         response ? typeof response : response
       );
       this._storeData.handleQueryPayload(
-        subtractedQuery,
+        this._query,
         response,
         this._forceIndex
       );
     }).done(
-      this._markSubtractedQueryAsResolved.bind(this),
+      this._markQueryAsResolved.bind(this),
       this._markAsRejected.bind(this)
     );
   }
 
-  _handleSubtractedQueryFailure(
-    subtractedQuery: RelayQuery.Root,
+  _handleQueryFailure(
     error: Error
   ): void {
     this._markAsRejected(error);
   }
 
-  _markSubtractedQueryAsResolved(): void {
+  _markQueryAsResolved(): void {
     const queryID = this.getQuery().getID();
     delete this._pendingFetchMap[queryID];
 
-    this._resolvedSubtractedQuery = true;
+    this._resolvedQuery = true;
     this._updateResolvedDeferred();
-
-    this._dependents.forEach(dependent =>
-      dependent._markDependencyAsResolved(queryID)
-    );
   }
 
   _markAsRejected(error: Error): void {
@@ -278,34 +190,14 @@ class PendingFetch {
 
     console.warn(error.message);
 
-    this._errors.push(error);
+    this._error = error;
     this._updateResolvedDeferred();
-
-    this._dependents.forEach(dependent =>
-      dependent._markDependencyAsRejected(queryID, error)
-    );
-  }
-
-  _markDependencyAsResolved(dependencyQueryID: string): void {
-    delete this._pendingDependencyMap[dependencyQueryID];
-
-    this._updateResolvedDeferred();
-  }
-
-  _markDependencyAsRejected(dependencyQueryID: string, error: Error): void {
-    delete this._pendingDependencyMap[dependencyQueryID];
-
-    this._errors.push(error);
-    this._updateResolvedDeferred();
-
-    // Dependencies further down the graph are either not affected or informed
-    // by `dependencyQueryID`.
   }
 
   _updateResolvedDeferred(): void {
     if (this._isSettled() && !this._resolvedDeferred.isSettled()) {
-      if (this._errors.length) {
-        this._resolvedDeferred.reject(this._errors[0]);
+      if (this._error) {
+        this._resolvedDeferred.reject(this._error);
       } else {
         this._resolvedDeferred.resolve(undefined);
       }
@@ -313,8 +205,7 @@ class PendingFetch {
   }
 
   _isSettled(): boolean {
-    return this._errors.length > 0 ||
-      (this._resolvedSubtractedQuery && !hasItems(this._pendingDependencyMap));
+    return (!!this._error || this._resolvedQuery);
   }
 }
 

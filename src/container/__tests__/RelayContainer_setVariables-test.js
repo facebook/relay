@@ -234,6 +234,10 @@ describe('RelayContainer.setVariables', function() {
       expect(mockInstance.state.relayProp.variables.site).toBe('mobile');
     });
 
+    it('renders with default pendingVariables', () => {
+      expect(mockInstance.state.relayProp.pendingVariables).toEqual({});
+    });
+
     it('lets props override default variables', () => {
       const anotherInstance = RelayTestUtils.createRenderer().render(
         genMockPointer => (
@@ -283,9 +287,44 @@ describe('RelayContainer.setVariables', function() {
       expect(mockInstance.state.queryData.entity).toBe(updatedQueryData);
     });
 
+    it('sets pendingVariables when request is in-flight', () => {
+      mockInstance.setVariables({site: 'www'});
+      jest.runAllTimers();
+      environment.primeCache.mock.requests[0].block();
+      expect(mockInstance.state.relayProp.pendingVariables).toEqual({site: 'www'});
+    });
+
+    it('re-sets pendingVariables when request is aborted', () => {
+      mockInstance.setVariables({site: 'www'});
+      jest.runAllTimers();
+      environment.primeCache.mock.requests[0].block();
+      environment.primeCache.mock.requests[0].abort();
+      expect(mockInstance.state.relayProp.pendingVariables).toEqual({});
+    });
+
+    it('re-sets pendingVariables when request succeeded', () => {
+      mockInstance.setVariables({site: 'www'});
+      jest.runAllTimers();
+      environment.primeCache.mock.requests[0].block();
+      environment.primeCache.mock.requests[0].succeed();
+      expect(mockInstance.state.relayProp.pendingVariables).toEqual({});
+    });
+
+    fit('updates pendingVariables when new request is sent', () => {
+      mockInstance.setVariables({site: 'www'});
+      jest.runAllTimers();
+      environment.primeCache.mock.requests[0].block();
+
+      mockInstance.setVariables({site: 'test'});
+      jest.runAllTimers();
+      environment.primeCache.mock.requests[1].block();
+      expect(mockInstance.state.relayProp.pendingVariables).toEqual({site: 'test'});
+    });
+
     it('aborts pending requests before creating a new request', () => {
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
+      environment.primeCache.mock.requests[0].block();
       expect(environment.primeCache.mock.abort[0]).not.toBeCalled();
 
       mockInstance.setVariables({site: 'mobile'});
@@ -317,12 +356,15 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('re-requests currently pending variables', () => {
+      const requests = environment.primeCache.mock.requests;
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
+      requests[0].block();
 
       expect(environment.primeCache.mock.abort[0]).not.toBeCalled();
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
+      requests[0].block();
       expect(environment.primeCache.mock.abort[0]).toBeCalled();
       expect(environment.primeCache.mock.calls.length).toBe(2);
     });
@@ -337,13 +379,16 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('re-requests the last variables with a pending request', () => {
+      const requests = environment.primeCache.mock.requests;
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
+      requests[0].block();
 
       const {mock} = environment.primeCache;
       expect(mock.abort[0]).not.toBeCalled();
       mockInstance.setVariables({site: 'mobile'});
       jest.runAllTimers();
+      requests[0].block();
       expect(mock.abort[0]).toBeCalled();
 
       expect(mock.calls.length).toBe(2);

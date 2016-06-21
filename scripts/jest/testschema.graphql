@@ -1,6 +1,7 @@
 schema {
   query: Root
   mutation: Mutation
+  subscription: Subscription
 }
 
 type Root {
@@ -48,6 +49,10 @@ type Mutation {
   nodeSavedState(input: NodeSaveStateInput): NodeSavedStateResponsePayload
   unfriend(input: UnfriendInput): UnfriendResponsePayload
   viewerNotificationsUpdateAllSeenState(input: UpdateAllSeenStateInput): ViewerNotificationsUpdateAllSeenStateResponsePayload
+}
+
+type Subscription {
+  feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
 }
 
 input ActorSubscribeInput {

@@ -25,7 +25,7 @@ next: tutorial
 
 2. ** GraphQL 服务器 **
 
-  任何服务器都可以使用 GraphQL。我们的 [示例](https://github.com/facebook/relay/tree/master/examples) 中用的是 Express。
+  任何服务器都可以使用 GraphQL。我们的 [示例](https://github.com/facebook/relay/tree/081b4a3f17dcf/examples) 中用的是 Express。
 
   - **[express-graphql](https://github.com/graphql/express-graphql)** on [npm](https://www.npmjs.com/package/express-graphql)
 

@@ -61,7 +61,7 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
   let queryText = null;
   if (node instanceof RelayQuery.Root) {
     queryText = printRoot(node, printerState);
-  } else if (node instanceof RelayQuery.Operation) {
+  } else if (node instanceof RelayQuery.Mutation || node instanceof RelayQuery.Subscription) {
     queryText = printOperation(node, printerState);
   } else if (node instanceof RelayQuery.Fragment) {
     queryText = printFragment(node, printerState);
@@ -121,8 +121,11 @@ function printRoot(
     oneIndent + fieldName + children + newLine + '}';
 }
 
-function printOperation(node: RelayQuery.Operation, printerState: PrinterState): string {
-  const operationKind = node.getConcreteQueryNode().kind.toLowerCase();
+function printOperation(
+  node: RelayQuery.Mutation | RelayQuery.Subscription,
+  printerState: PrinterState
+): string {
+  const operationKind = node instanceof RelayQuery.Mutation ? 'mutation' : 'subscription';
   const call = node.getCall();
   const inputString = printArgument(
     node.getCallVariableName(),

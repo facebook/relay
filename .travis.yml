@@ -6,25 +6,11 @@ node_js:
 - '6'
 install: true
 env:
-- BUILD_EXAMPLE=examples/relay-treasurehunt
-- BUILD_EXAMPLE=examples/star-wars
-- BUILD_EXAMPLE=examples/todo
-- BUILD_EXAMPLE=examples/TodoMVC
 - TEST=.
 - TEST=scripts/babel-relay-plugin
 - TYPECHECK=.
 - TYPECHECK=scripts/babel-relay-plugin
-matrix:
-  allow_failures:
-  - env: BUILD_EXAMPLE=examples/relay-treasurehunt
-  - env: BUILD_EXAMPLE=examples/star-wars
-  - env: BUILD_EXAMPLE=examples/todo
-  - env: BUILD_EXAMPLE=examples/TodoMVC
 script:
-- |
-    if [ $BUILD_EXAMPLE ]; then
-      cd $BUILD_EXAMPLE && npm install && npm run update-schema
-    fi
 - |
     if [ $TEST ]; then
       cd $TEST && npm install && npm run jest -- --runInBand --no-watchman

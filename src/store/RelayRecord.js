@@ -22,18 +22,18 @@ import type {QueryPath} from 'RelayQueryPath';
 
 export type Record = {
   [key: string]: mixed;
-  __dataID__: string;
-  __filterCalls__?: Array<Call>;
-  __forceIndex__?: number;
-  __mutationIDs__?: Array<ClientMutationID>;
-  __mutationStatus__?: string;
-  __path__?: QueryPath;
-  __range__?: GraphQLRange;
-  __resolvedDeferredFragments__?: {[fragmentID: string]: boolean};
-  __resolvedFragmentMapGeneration__?: number;
-  __resolvedFragmentMap__?: {[fragmentID: string]: boolean};
-  __status__?: number;
-  __typename?: ?string;
+  __dataID__: string,
+  __filterCalls__?: Array<Call>,
+  __forceIndex__?: number,
+  __mutationIDs__?: Array<ClientMutationID>,
+  __mutationStatus__?: string,
+  __path__?: QueryPath,
+  __range__?: GraphQLRange,
+  __resolvedDeferredFragments__?: {[fragmentID: string]: boolean},
+  __resolvedFragmentMapGeneration__?: number,
+  __resolvedFragmentMap__?: {[fragmentID: string]: boolean},
+  __status__?: number,
+  __typename?: ?string,
 };
 
 export type RecordMap = {[key: DataID]: ?Record};

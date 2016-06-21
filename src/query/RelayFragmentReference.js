@@ -22,8 +22,8 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 type Condition = {
-  passingValue: boolean;
-  variable: string;
+  passingValue: boolean,
+  variable: string,
 };
 type FragmentGetter = () => ConcreteFragment;
 type PrepareVariablesCallback = (

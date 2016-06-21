@@ -22,12 +22,12 @@ const resolveImmediate = require('resolveImmediate');
 const warning = require('warning');
 
 type PartialReadyState = {
-  aborted?: boolean;
-  done?: boolean;
-  error?: Error;
-  events?: Array<ReadyStateEvent>;
-  ready?: boolean;
-  stale?: boolean;
+  aborted?: boolean,
+  done?: boolean,
+  error?: Error,
+  events?: Array<ReadyStateEvent>,
+  ready?: boolean,
+  stale?: boolean,
 };
 
 /**

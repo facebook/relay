@@ -22,9 +22,9 @@ import typeof GraphQLMutatorConstants from 'GraphQLMutatorConstants';
 import type RelayQuery from 'RelayQuery';
 
 export type Call = {
-  name: string;
-  type?: string;
-  value: CallValue;
+  name: string,
+  type?: string,
+  value: CallValue,
 };
 export type CallValue = ?(
   boolean |
@@ -39,19 +39,19 @@ export type ClientMutationID = string;
 export type DataID = string;
 
 export type Directive = {
-  args: Array<Call>;
-  name: string;
+  args: Array<Call>,
+  name: string,
 };
 
 export type FieldValue = mixed;
 
 export type MutationVariables = {
-  input: {[key: string]: mixed};
+  input: {[key: string]: mixed},
 };
 
 export type PrintedQuery = {
-  text: string;
-  variables: {[key: string]: mixed};
+  text: string,
+  variables: {[key: string]: mixed},
 };
 
 // Maps root calls to a single data ID through an indentifying arg (or EMPTY)
@@ -71,8 +71,8 @@ export type RelayQuerySet = {[queryName: string]: ?RelayQuery.Root};
 export type QueryPayload = {[key: string]: mixed};
 
 export type UpdateOptions = {
-  configs: Array<{[key: string]: mixed}>;
-  isOptimisticUpdate: boolean;
+  configs: Array<{[key: string]: mixed}>,
+  isOptimisticUpdate: boolean,
 };
 
 type RangeBehaviorsFunction = (
@@ -86,26 +86,26 @@ type RangeBehaviorsObject = {
 export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 
 type AfterConnectionArgumentMap = {
-  after: string;
-  first: number;
+  after: string,
+  first: number,
 };
 type BeforeConnectionArgumentMap = {
-  before: string;
-  last: number;
+  before: string,
+  last: number,
 };
 type HeadConnectionArgumentMap = {
-  before: string;
-  first: number;
+  before: string,
+  first: number,
 };
 type InitialHeadConnectionArgumentMap = {
-  first: number;
+  first: number,
 };
 type InitialTailConnectionArgumentMap = {
-  last: number;
+  last: number,
 };
 type TailConnectionArgumentMap = {
-  after: string;
-  last: number;
+  after: string,
+  last: number,
 };
 export type ConnectionArgumentsMap = (
   AfterConnectionArgumentMap |

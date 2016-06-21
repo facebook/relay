@@ -37,40 +37,40 @@ const warning = require('warning');
 type MutationConfig = {[key: string]: $FlowFixMe};
 
 type BasicMutationFragmentBuilderConfig = {
-  fatQuery: RelayQuery.Fragment;
-  tracker: RelayQueryTracker;
+  fatQuery: RelayQuery.Fragment,
+  tracker: RelayQueryTracker,
 };
 type FieldsMutationFragmentBuilderConfig =
   BasicMutationFragmentBuilderConfig & {
-    fieldIDs: {[fieldName: string]: DataID | Array<DataID>};
+    fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
   };
 type EdgeDeletionMutationFragmentBuilderConfig =
   BasicMutationFragmentBuilderConfig & {
-    connectionName: string;
-    parentID: DataID;
-    parentName: string;
+    connectionName: string,
+    parentID: DataID,
+    parentName: string,
   };
 type EdgeInsertionMutationFragmentBuilderConfig =
   BasicMutationFragmentBuilderConfig & {
-    connectionName: string;
-    parentID: DataID;
-    edgeName: string;
-    parentName?: string;
-    rangeBehaviors: RangeBehaviors;
+    connectionName: string,
+    parentID: DataID,
+    edgeName: string,
+    parentName?: string,
+    rangeBehaviors: RangeBehaviors,
   };
 
 type BasicOptimisticMutationFragmentBuilderConfig = {
-  fatQuery: RelayQuery.Fragment;
+  fatQuery: RelayQuery.Fragment,
 };
 
 type OptimisticUpdateFragmentBuilderConfig =
   BasicOptimisticMutationFragmentBuilderConfig & {
-    response: Object;
+    response: Object,
   };
 type OptimisticUpdateQueryBuilderConfig =
   BasicOptimisticMutationFragmentBuilderConfig & {
-    mutation: ConcreteMutation;
-    response: Object;
+    mutation: ConcreteMutation,
+    response: Object,
   };
 
 const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
@@ -375,12 +375,12 @@ const RelayMutationQuery = {
       mutation,
       tracker,
     }: {
-      configs: Array<MutationConfig>;
-      fatQuery: RelayQuery.Fragment;
+      configs: Array<MutationConfig>,
+      fatQuery: RelayQuery.Fragment,
       input: Variables,
-      mutationName: string;
-      mutation: ConcreteMutation;
-      tracker: RelayQueryTracker;
+      mutationName: string,
+      mutation: ConcreteMutation,
+      tracker: RelayQueryTracker,
     }
   ): RelayQuery.Mutation {
     let children: Array<?RelayQuery.Node> = [

@@ -35,17 +35,17 @@ const typeField = RelayQuery.Field.build({
 });
 
 type ClientPath = {
-  node: RelayQuery.Field | RelayQuery.Fragment;
-  parent: QueryPath;
-  type: 'client';
+  node: RelayQuery.Field | RelayQuery.Fragment,
+  parent: QueryPath,
+  type: 'client',
 }
 type NodePath = {
-  dataID: DataID;
-  name: string;
-  type: 'node';
+  dataID: DataID,
+  name: string,
+  type: 'node',
 };
 type RootPath = {
-  root: RelayQuery.Root;
+  root: RelayQuery.Root,
   type: 'root',
 };
 

@@ -21,10 +21,10 @@ import type RelayQueryRequest from 'RelayQueryRequest';
 const performanceNow = require('performanceNow');
 
 export type RelayNetworkDebuggable = {
-  name: string;
-  type: string;
-  promise: Promise<any>;
-  logResult: (error: ?Object, response: ?Object) => void;
+  name: string,
+  type: string,
+  promise: Promise<any>,
+  logResult: (error: ?Object, response: ?Object) => void,
 };
 
 class RelayNetworkDebugger {

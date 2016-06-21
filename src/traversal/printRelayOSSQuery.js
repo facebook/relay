@@ -21,16 +21,16 @@ const base62 = require('base62');
 const invariant = require('invariant');
 
 type PrinterState = {
-  fragmentCount: number;
-  fragmentNameByHash: {[fragmentHash: string]: string};
-  fragmentNameByText: {[fragmentText: string]: string};
-  fragmentTexts: Array<string>;
-  variableCount: number;
-  variableMap: Map<string, Map<mixed, Variable>>;
+  fragmentCount: number,
+  fragmentNameByHash: {[fragmentHash: string]: string},
+  fragmentNameByText: {[fragmentText: string]: string},
+  fragmentTexts: Array<string>,
+  variableCount: number,
+  variableMap: Map<string, Map<mixed, Variable>>,
 };
 type Variable = {
-  value: mixed;
-  variableID: string;
+  value: mixed,
+  variableID: string,
 };
 
 let oneIndent = '';

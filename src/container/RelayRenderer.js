@@ -33,25 +33,25 @@ import type {
 const getRelayQueries = require('getRelayQueries');
 
 type Props = {
-  Container: RelayContainer;
-  forceFetch?: ?boolean;
+  Container: RelayContainer,
+  forceFetch?: ?boolean,
   onForceFetch?: ?(
     querySet: RelayQuerySet,
     callback: (readyState: ReadyState) => void
-  ) => Abortable;
+  ) => Abortable,
   onPrimeCache?: ?(
     querySet: RelayQuerySet,
     callback: (readyState: ReadyState) => void
-  ) => Abortable;
-  onReadyStateChange?: ?(readyState: ReadyState) => void;
-  queryConfig: RelayQueryConfigInterface;
-  environment: RelayEnvironmentInterface;
-  render?: ?RelayRenderCallback;
+  ) => Abortable,
+  onReadyStateChange?: ?(readyState: ReadyState) => void,
+  queryConfig: RelayQueryConfigInterface,
+  environment: RelayEnvironmentInterface,
+  render?: ?RelayRenderCallback,
 };
 type State = {
-  active: boolean;
-  readyState: ?ComponentReadyState;
-  retry: RelayRetryCallback;
+  active: boolean,
+  readyState: ?ComponentReadyState,
+  retry: RelayRetryCallback,
 };
 
 const {PropTypes} = React;

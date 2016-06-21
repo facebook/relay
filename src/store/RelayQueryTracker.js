@@ -21,8 +21,8 @@ const TYPE = '__type__';
 
 class RelayQueryTracker {
   _trackedNodesByID: {[key: string]: {
-    isMerged: boolean;
-    trackedNodes: Array<RelayQuery.Node>;
+    isMerged: boolean,
+    trackedNodes: Array<RelayQuery.Node>,
   }};
 
   constructor() {

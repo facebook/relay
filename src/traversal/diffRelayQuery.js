@@ -56,14 +56,14 @@ const nodeWithID = RelayQuery.Field.build({
 import type {DataID} from 'RelayInternalTypes';
 
 type DiffScope = {
-  connectionField: ?RelayQuery.Field;
+  connectionField: ?RelayQuery.Field,
   dataID: DataID,
   edgeID: ?DataID,
-  rangeInfo: ?RangeInfo;
+  rangeInfo: ?RangeInfo,
 };
 type DiffOutput = {
-  diffNode: ?RelayQuery.Node;
-  trackedNode: ?RelayQuery.Node;
+  diffNode: ?RelayQuery.Node,
+  trackedNode: ?RelayQuery.Node,
 };
 
 /**

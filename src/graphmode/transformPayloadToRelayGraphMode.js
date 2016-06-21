@@ -56,9 +56,9 @@ type GraphOperation =
   PutRootOperation;
 
 type PayloadState = {
-  currentRecord: GraphRecord;
-  path: QueryPath;
-  payloadRecord: PayloadRecord;
+  currentRecord: GraphRecord,
+  path: QueryPath,
+  payloadRecord: PayloadRecord,
 };
 type PayloadRecord = {[storageKey: string]: ?PayloadValue};
 type PayloadScalar = (
@@ -72,7 +72,7 @@ type PayloadValue = (
   Array<?PayloadScalar>
 );
 type TransformOptions = {
-  updateTrackedQueries?: boolean;
+  updateTrackedQueries?: boolean,
 };
 
 /**

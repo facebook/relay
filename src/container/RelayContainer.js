@@ -56,13 +56,13 @@ type FragmentPointer = {
 export type RelayContainerSpec = {
   fragments: {
     [propName: string]: RelayQLFragmentBuilder
-  };
-  initialVariables?: Variables;
+  },
+  initialVariables?: Variables,
   prepareVariables?: (
     prevVariables: Variables,
     route: RelayMetaRoute
-  ) => Variables;
-  shouldComponentUpdate?: () => boolean;
+  ) => Variables,
+  shouldComponentUpdate?: () => boolean,
 };
 export type RelayLazyContainer = Function;
 
@@ -105,13 +105,13 @@ function createContainerComponent(
     _fragmentResolvers: {[key: string]: ?FragmentResolver};
 
     pending: ?{
-      rawVariables: Variables;
-      request: Abortable;
+      rawVariables: Variables,
+      request: Abortable,
     };
     state: {
-      queryData: {[propName: string]: mixed};
-      rawVariables: Variables;
-      relayProp: RelayProp;
+      queryData: {[propName: string]: mixed},
+      rawVariables: Variables,
+      relayProp: RelayProp,
     };
 
     constructor(props, context) {
@@ -472,9 +472,9 @@ function createContainerComponent(
       propVariables: Variables,
       prevVariables: ?Variables
     ): {
-      queryData: {[propName: string]: mixed};
+      queryData: {[propName: string]: mixed},
       rawVariables: Variables,
-      relayProp: RelayProp;
+      relayProp: RelayProp,
     } {
       const rawVariables = getVariablesWithPropOverrides(
         spec,

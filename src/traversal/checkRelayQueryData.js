@@ -25,9 +25,9 @@ const forEachRootCallArg = require('forEachRootCallArg');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 
 type CheckerState = {
-  dataID: ?DataID;
-  rangeInfo: ?RangeInfo;
-  result: boolean;
+  dataID: ?DataID,
+  rangeInfo: ?RangeInfo,
+  result: boolean,
 };
 
 const {EDGES, PAGE_INFO} = RelayConnectionInterface;

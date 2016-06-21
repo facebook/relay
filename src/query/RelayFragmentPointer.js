@@ -29,7 +29,7 @@ type FragmentVariablesMap = {
 };
 export type FragmentProp = {
   __dataID__: DataID,
-  __fragments__: FragmentVariablesMap;
+  __fragments__: FragmentVariablesMap,
 };
 
 /**

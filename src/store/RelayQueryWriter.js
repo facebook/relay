@@ -34,15 +34,15 @@ const warning = require('warning');
 import type {DataID} from 'RelayInternalTypes';
 
 type WriterOptions = {
-  forceIndex?: ?number;
-  isOptimisticUpdate?: boolean;
-  updateTrackedQueries?: boolean;
+  forceIndex?: ?number,
+  isOptimisticUpdate?: boolean,
+  updateTrackedQueries?: boolean,
 };
 type WriterState = {
-  nodeID: ?DataID;
-  path: QueryPath;
-  recordID: DataID;
-  responseData: ?mixed;
+  nodeID: ?DataID,
+  path: QueryPath,
+  recordID: DataID,
+  responseData: ?mixed,
 };
 
 const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;

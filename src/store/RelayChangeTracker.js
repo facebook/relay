@@ -17,8 +17,8 @@ import type {DataID} from 'RelayInternalTypes';
 type ChangeMap = {[key: string]: boolean};
 
 export type ChangeSet = {
-  created: ChangeMap;
-  updated: ChangeMap;
+  created: ChangeMap,
+  updated: ChangeMap,
 };
 
 /**

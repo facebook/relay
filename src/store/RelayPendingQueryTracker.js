@@ -23,13 +23,13 @@ import type {QueryResult} from 'RelayTypes';
 const invariant = require('invariant');
 
 type PendingQueryParameters = {
-  fetchMode: FetchMode;
-  forceIndex: ?number;
-  query: RelayQuery.Root;
+  fetchMode: FetchMode,
+  forceIndex: ?number,
+  query: RelayQuery.Root,
 };
 type PendingState = {
-  fetch: PendingFetch;
-  query: RelayQuery.Root;
+  fetch: PendingFetch,
+  query: RelayQuery.Root,
 };
 
 /**
@@ -103,9 +103,9 @@ class PendingFetch {
   constructor(
     {fetchMode, forceIndex, query}: PendingQueryParameters,
     {pendingFetchMap, preloadQueryMap, storeData}: {
-      pendingFetchMap: {[queryID: string]: PendingState};
-      preloadQueryMap: PromiseMap<Object, Error>;
-      storeData: RelayStoreData;
+      pendingFetchMap: {[queryID: string]: PendingState},
+      preloadQueryMap: PromiseMap<Object, Error>,
+      storeData: RelayStoreData,
     }
   ) {
     const queryID = query.getID();

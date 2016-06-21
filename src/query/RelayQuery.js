@@ -46,14 +46,14 @@ const shallowEqual = require('shallowEqual');
 const stableStringify = require('stableStringify');
 
 type BatchCall = {
-  refParamName: string;
-  sourceQueryID: string;
-  sourceQueryPath: string;
+  refParamName: string,
+  sourceQueryID: string,
+  sourceQueryPath: string,
 };
 type FragmentMetadata = {
-  isDeferred: boolean;
-  isContainerFragment: boolean;
-  isTypeConditional: boolean;
+  isDeferred: boolean,
+  isContainerFragment: boolean,
+  isTypeConditional: boolean,
 };
 // TODO: replace once #6525923 is resolved
 type NextChildren = Array<any>;
@@ -1000,13 +1000,13 @@ class RelayQueryField extends RelayQueryNode {
     metadata,
     type,
   }: {
-    alias?: ?string;
-    directives?: ?Array<Directive>;
-    calls?: ?Array<Call>;
-    children?: ?NextChildren;
-    fieldName: string;
-    metadata?: ?ConcreteFieldMetadata;
-    type: string;
+    alias?: ?string,
+    directives?: ?Array<Directive>,
+    calls?: ?Array<Call>,
+    children?: ?NextChildren,
+    fieldName: string,
+    metadata?: ?ConcreteFieldMetadata,
+    type: string,
   }): RelayQueryField {
     const nextChildren = children ? children.filter(child => !!child) : [];
     const concreteField = QueryBuilder.createField({

@@ -19,8 +19,8 @@ const invariant = require('invariant');
 const stableStringify = require('stableStringify');
 
 type IdentifyingArg = {
-  identifyingArgValue: CallValue;
-  identifyingArgKey: ?string;
+  identifyingArgValue: CallValue,
+  identifyingArgKey: ?string,
 };
 
 /**

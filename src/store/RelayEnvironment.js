@@ -43,32 +43,32 @@ import type {
 } from 'RelayInternalTypes';
 
 export type FragmentResolver = {
-  dispose: () => void;
+  dispose: () => void,
   resolve: (
     fragment: RelayQuery.Fragment,
     dataIDs: DataID | Array<DataID>
-  ) => ?(StoreReaderData | Array<?StoreReaderData>);
+  ) => ?(StoreReaderData | Array<?StoreReaderData>),
 };
 
 export interface RelayEnvironmentInterface {
   forceFetch(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback
-  ): Abortable;
+  ): Abortable,
   getFragmentResolver(
     fragment: RelayQuery.Fragment,
     onNext: () => void
-  ): FragmentResolver;
-  getStoreData(): RelayStoreData;
+  ): FragmentResolver,
+  getStoreData(): RelayStoreData,
   primeCache(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback
-  ): Abortable;
+  ): Abortable,
   read(
     node: RelayQuery.Node,
     dataID: DataID,
     options?: StoreReaderOptions
-  ): ?StoreReaderData;
+  ): ?StoreReaderData,
 }
 
 /**

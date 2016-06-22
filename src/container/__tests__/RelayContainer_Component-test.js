@@ -83,8 +83,26 @@ describe('RelayContainer', function() {
     expect(typeof MockContainer.getFragment).toEqual('function');
   });
 
-  it('has the correct displayName based on the inner component', () => {
+  it('has the correct displayName when using class components', () => {
     expect(MockContainer.displayName).toEqual('Relay(MockComponent)');
+  });
+
+  it('has the correct displayName when using stateless components', () => {
+    function MyComponent() {
+      return <span />;
+    }
+    mockCreateContainer(MyComponent);
+    expect(MockContainer.displayName).toEqual('Relay(MyComponent)');
+  });
+
+  it('defaults to "StatelessComponent" when using a component without name', () => {
+    mockCreateContainer(() => <span />);
+    expect(MockContainer.displayName).toEqual('Relay(StatelessComponent)');
+  });
+
+  it('defaults to "props => ReactElement" when using a ReactElement', () => {
+    mockCreateContainer(<span />);
+    expect(MockContainer.displayName).toEqual('Relay(props => ReactElement)');
   });
 
   it('works with ES6 classes', () => {

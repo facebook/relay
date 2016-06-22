@@ -1008,8 +1008,10 @@ function getComponentName(Component: ReactClass<any>): string {
   const ComponentClass = getReactComponent(Component);
   if (ComponentClass) {
     name = ComponentClass.displayName || ComponentClass.name;
-  } else {
+  } else if (typeof Component === 'function') {
     // This is a stateless functional component.
+    name = Component.displayName || Component.name || 'StatelessComponent';
+  } else {
     name = 'props => ReactElement';
   }
   return name;

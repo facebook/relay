@@ -107,7 +107,9 @@ let networkDebugger: ?RelayNetworkDebugger;
 const RelayNetworkDebug = {
   init(environment: RelayEnvironment = Relay.Store): void {
     networkDebugger && networkDebugger.uninstall();
-    networkDebugger = new RelayNetworkDebugger(environment);
+    if (console.groupCollapsed) { // without groupCollapsed RelayNetworkDebug is too noisy
+      networkDebugger = new RelayNetworkDebugger(environment);
+    }
   },
 
   logRequest(request: RelayNetworkDebuggable): void {

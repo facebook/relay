@@ -1012,7 +1012,7 @@ function getComponentName(Component: ReactClass<any>): string {
     // This is a stateless functional component.
     name = Component.displayName || Component.name || 'StatelessComponent';
   } else {
-    name = 'props => ReactElement';
+    name = 'ReactElement';
   }
   return name;
 }

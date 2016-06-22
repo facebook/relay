@@ -100,9 +100,9 @@ describe('RelayContainer', function() {
     expect(MockContainer.displayName).toEqual('Relay(StatelessComponent)');
   });
 
-  it('defaults to "props => ReactElement" when using a ReactElement', () => {
+  it('defaults to "ReactElement" when using a ReactElement', () => {
     mockCreateContainer(<span />);
-    expect(MockContainer.displayName).toEqual('Relay(props => ReactElement)');
+    expect(MockContainer.displayName).toEqual('Relay(ReactElement)');
   });
 
   it('works with ES6 classes', () => {

@@ -10,10 +10,11 @@ Relay is a JavaScript framework for building data-driven React applications.
 
 ## Example
 
-The repository comes with an implementation of [TodoMVC](http://todomvc.com/). To try it out:
+The repository contains an implementation of [TodoMVC](http://todomvc.com/). To try it out:
 
 ```
 git clone https://github.com/facebook/relay.git
+git checkout 081b4a3f17dcf
 cd relay/examples/todo && npm install
 npm start
 ```

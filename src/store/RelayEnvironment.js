@@ -80,7 +80,6 @@ export interface RelayEnvironmentInterface {
  * - An in-memory cache of fetched data.
  * - A configurable network layer for resolving queries/mutations.
  * - A configurable task scheduler to control when internal tasks are executed.
- * - A configurable cache manager for persisting data between sessions.
  *
  * No data or configuration is shared between instances. We recommend creating
  * one `RelayEnvironment` instance per user: client apps may share a single

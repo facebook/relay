@@ -375,7 +375,8 @@ class RelayQueryRoot extends RelayQueryNode {
     value: mixed,
     children: ?Array<RelayQueryNode>,
     metadata: ConcreteQueryMetadata,
-    type: string
+    type: string,
+    routeName?: string
   ): RelayQueryRoot {
     const nextChildren = children ? children.filter(child => !!child) : [];
     const batchCallVariable = QueryBuilder.getBatchCallVariable(value);
@@ -396,7 +397,7 @@ class RelayQueryRoot extends RelayQueryNode {
     });
     const root = new RelayQueryRoot(
       concreteRoot,
-      RelayMetaRoute.get('$RelayQuery'),
+      RelayMetaRoute.get(routeName || '$RelayQuery'),
       {}
     );
     root.__children__ = nextChildren;
@@ -674,7 +675,8 @@ class RelayQueryMutation extends RelayQueryOperation {
     callName: string,
     callValue?: ?mixed,
     children?: ?Array<RelayQueryNode>,
-    metadata?: ?ConcreteOperationMetadata
+    metadata?: ?ConcreteOperationMetadata,
+    routeName?: string
   ): RelayQueryMutation {
     const nextChildren = children ? children.filter(child => !!child) : [];
     const concreteMutation = QueryBuilder.createMutation({
@@ -688,7 +690,7 @@ class RelayQueryMutation extends RelayQueryOperation {
     });
     const mutation = new RelayQueryMutation(
       concreteMutation,
-      RelayMetaRoute.get('$RelayQuery'),
+      RelayMetaRoute.get(routeName || '$RelayQuery'),
       {input: callValue || ''}
     );
     mutation.__children__ = nextChildren;
@@ -780,7 +782,8 @@ class RelayQueryFragment extends RelayQueryNode {
     /* $FlowIssue: #11220887
        `Array<Subclass-of-RelayQueryNode>` should be compatible here. */
     children?: ?Array<RelayQueryNode>,
-    metadata?: ?{[key: string]: mixed}
+    metadata?: ?{[key: string]: mixed},
+    routeName?: string
   ): RelayQueryFragment {
     const nextChildren = children ? children.filter(child => !!child) : [];
     const concreteFragment = QueryBuilder.createFragment({
@@ -790,7 +793,7 @@ class RelayQueryFragment extends RelayQueryNode {
     });
     const fragment = new RelayQueryFragment(
       concreteFragment,
-      RelayMetaRoute.get('$RelayQuery'),
+      RelayMetaRoute.get(routeName || '$RelayQuery'),
       {},
       {
         isDeferred: !!(metadata && metadata.isDeferred),
@@ -998,6 +1001,7 @@ class RelayQueryField extends RelayQueryNode {
     children,
     fieldName,
     metadata,
+    routeName,
     type,
   }: {
     alias?: ?string,
@@ -1006,6 +1010,7 @@ class RelayQueryField extends RelayQueryNode {
     children?: ?NextChildren,
     fieldName: string,
     metadata?: ?ConcreteFieldMetadata,
+    routeName?: string,
     type: string,
   }): RelayQueryField {
     const nextChildren = children ? children.filter(child => !!child) : [];
@@ -1019,7 +1024,7 @@ class RelayQueryField extends RelayQueryNode {
     });
     const field = new RelayQueryField(
       concreteField,
-      RelayMetaRoute.get('$RelayQuery'),
+      RelayMetaRoute.get(routeName || '$RelayQuery'),
       {}
     );
     field.__children__ = nextChildren;

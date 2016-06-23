@@ -44,11 +44,15 @@ describe('RelayQuery', () => {
           'RelayQueryTest',
           'node',
           '4',
-          [field]
+          [field],
+          {},
+          'Node',
+          'FooRoute'
         );
         expect(root instanceof RelayQuery.Root).toBe(true);
         expect(root.getChildren().length).toBe(1);
         expect(root.getChildren()[0]).toBe(field);
+        expect(root.getRoute().name).toBe('FooRoute');
       });
 
       it('creates deferred roots', () => {
@@ -184,7 +188,8 @@ describe('RelayQuery', () => {
           'TestFragment',
           'Node',
           [field],
-          {plural: true}
+          {plural: true},
+          'FooRoute'
         );
         expect(fragment instanceof RelayQuery.Fragment).toBe(true);
         expect(fragment.getDebugName()).toBe('TestFragment');
@@ -192,6 +197,7 @@ describe('RelayQuery', () => {
         expect(fragment.getChildren().length).toBe(1);
         expect(fragment.getChildren()[0]).toBe(field);
         expect(fragment.isPlural()).toBe(true);
+        expect(fragment.getRoute().name).toBe('FooRoute');
       });
     });
 
@@ -334,11 +340,22 @@ describe('RelayQuery', () => {
           name: 'foo',
         }]);
       });
+
+      it('builds fields with custom route names', () => {
+        const field = RelayQuery.Field.build({
+          fieldName: 'node',
+          children: [],
+          metadata: {},
+          routeName: 'FooRoute',
+          type: 'Node',
+        });
+        expect(field.getRoute().name).toBe('FooRoute');
+      });
     });
   });
 
   describe('Mutation', () => {
-    describe('buildMutation()', () => {
+    describe('build()', () => {
       it('builds mutation with value', () => {
         const field = RelayQuery.Field.build({
           fieldName: 'does_viewer_like',
@@ -349,7 +366,9 @@ describe('RelayQuery', () => {
           'FeedbackLikeResponsePayload',
           'feedback_like',
           {feedback_id:'123'},
-          [field]
+          [field],
+          {},
+          'FooRoute'
         );
 
         expect(mutation instanceof RelayQuery.Mutation).toBe(true);
@@ -360,6 +379,7 @@ describe('RelayQuery', () => {
         expect(mutation.getCall())
           .toEqual({name: 'feedback_like', value: {feedback_id:'123'}});
         expect(mutation.getCallVariableName()).toEqual('input');
+        expect(mutation.getRoute().name).toBe('FooRoute');
       });
 
       it('builds mutation with variable', () => {

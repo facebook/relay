@@ -24,20 +24,24 @@ var graphql = require('graphql');
 
 var TESTS_DIR = path.resolve(__dirname, '..', '__tests__');
 
-try {
-  (function () {
-    var inFile = path.join(TESTS_DIR, 'testschema.rfc.graphql');
-    var outFile = path.join(TESTS_DIR, 'testschema.rfc.json');
+fs.readdirSync(TESTS_DIR).forEach(function (inFilename) {
+  if (path.extname(inFilename) === '.graphql') {
+    try {
+      (function () {
+        var inFile = path.join(TESTS_DIR, inFilename);
+        var outFile = path.join(TESTS_DIR, path.basename(inFilename, '.graphql') + '.json');
 
-    var body = fs.readFileSync(inFile, 'utf8');
-    var ast = language.parse(body);
-    var astSchema = utilities.buildASTSchema(ast);
-    graphql.graphql(astSchema, utilities.introspectionQuery).then(function (result) {
-      var out = JSON.stringify(result, null, 2);
-      fs.writeFileSync(outFile, out);
-    });
-  })();
-} catch (error) {
-  console.error(error);
-  console.error(error.stack);
-}
+        var body = fs.readFileSync(inFile, 'utf8');
+        var ast = language.parse(body);
+        var astSchema = utilities.buildASTSchema(ast);
+        graphql.graphql(astSchema, utilities.introspectionQuery).then(function (result) {
+          var out = JSON.stringify(result, null, 2);
+          fs.writeFileSync(outFile, out);
+        });
+      })();
+    } catch (error) {
+      console.error(error);
+      console.error(error.stack);
+    }
+  }
+});

@@ -173,8 +173,9 @@ module.exports = function (t, options) {
 
         var requisiteFields = {};
         var idFragment = void 0;
-        if (fragmentType.hasField(FIELDS.id)) {
-          requisiteFields.id = true;
+        var existingIdField = fragmentType.getIdField(FIELDS.id);
+        if (existingIdField) {
+          requisiteFields[existingIdField] = true;
         } else if (shouldGenerateIdFragment(fragment, fragmentType)) {
           idFragment = fragmentType.generateIdFragment();
         }
@@ -374,8 +375,9 @@ module.exports = function (t, options) {
         var metadata = {};
         var requisiteFields = {};
         var idFragment = void 0;
-        if (fieldType.hasField(FIELDS.id)) {
-          requisiteFields.id = true;
+        var existingIdField = fieldType.getIdField(FIELDS.id);
+        if (existingIdField) {
+          requisiteFields[existingIdField] = true;
         } else if (shouldGenerateIdFragment(field, fieldType)) {
           idFragment = fieldType.generateIdFragment();
         }
@@ -390,7 +392,7 @@ module.exports = function (t, options) {
         // TODO: Generalize to non-`Node` types.
         if (fieldType.alwaysImplements('Node')) {
           metadata.inferredRootCallName = 'node';
-          metadata.inferredPrimaryKey = 'id';
+          metadata.inferredPrimaryKey = existingIdField;
         }
         if (fieldType.isConnection()) {
           if (field.hasDeclaredArgument('first') || field.hasDeclaredArgument('last')) {

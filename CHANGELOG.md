@@ -1,4 +1,16 @@
-## master
+## 0.9.1 (June 25, 2016)
+
+* Examples are moving from [their former home](https://github.com/facebook/relay/tree/081b4a3f17dcf/examples) inside the main Relay repo into a separate [relay-examples repository](https://github.com/relayjs/relay-examples).
+* Non-behavioral changes to support development of future `RelayConnection` API.
+* `npm run update-schema` inside the Relay repo works again.
+* The `onReadyStateChange` callback now receives an additional `events` parameter that can be used to reduce over a list of events received so far (eg. ` [{type: 'NETWORK_QUERY_START'}, {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'}]`) and implement arbitrary logic.
+* Fix a potential race condition in `GraphQLQueryRunner` (only relevant to users of the non-public cache manager API).
+* We now show line numbers in the Babel Relay plugin, making it easier to understand transform errors.
+* Relaxed validation when using a `rangeBehaviors` function to allow non-string calls.
+* `subtractRelayQuery` is removed.
+* The printer now knows how to print `Subscription` nodes.
+* `RelayNetworkDebug` is won't do anything unless `console.groupCollapsed` is available, because otherwise the output is too noisy to be useful.
+* `RelayContainer` now uses more descriptive names for stateless functional components, instead of `Relay(props => ReactElement)`.
 
 ## 0.9.0 (May 26, 2016)
 

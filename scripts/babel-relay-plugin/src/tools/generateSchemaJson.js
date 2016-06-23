@@ -21,19 +21,23 @@ const graphql = require('graphql');
 
 const TESTS_DIR = path.resolve(__dirname, '..', '__tests__');
 
-try {
-  const inFile = path.join(TESTS_DIR, 'testschema.rfc.graphql');
-  const outFile = path.join(TESTS_DIR, 'testschema.rfc.json');
+fs.readdirSync(TESTS_DIR).forEach((inFilename) => {
+  if (path.extname(inFilename) === '.graphql') {
+    try {
+      const inFile = path.join(TESTS_DIR, inFilename);
+      const outFile = path.join(TESTS_DIR, `${path.basename(inFilename, '.graphql')}.json`);
 
-  const body = fs.readFileSync(inFile, 'utf8');
-  const ast = language.parse(body);
-  const astSchema = utilities.buildASTSchema(ast);
-  graphql.graphql(astSchema, utilities.introspectionQuery).then(
-    function(result) {
-      const out = JSON.stringify(result, null, 2);
-      fs.writeFileSync(outFile, out);
-    });
-} catch (error) {
-  console.error(error);
-  console.error(error.stack);
-}
+      const body = fs.readFileSync(inFile, 'utf8');
+      const ast = language.parse(body);
+      const astSchema = utilities.buildASTSchema(ast);
+      graphql.graphql(astSchema, utilities.introspectionQuery).then(
+        function(result) {
+          const out = JSON.stringify(result, null, 2);
+          fs.writeFileSync(outFile, out);
+        });
+    } catch (error) {
+      console.error(error);
+      console.error(error.stack);
+    }
+  }
+});

@@ -18,20 +18,17 @@ var transformGraphQL = require('./transformGraphQL');
 var readFixtures = require('./readFixtures');
 
 var SRC_DIR = path.dirname(__dirname);
-
 var FIXTURE_PATH = path.join(SRC_DIR, '__fixtures__');
-var SCHEMA_PATH = path.join(SRC_DIR, '__tests__', './testschema.rfc.json');
 
 function writeFixture(basename, text) {
   fs.writeFileSync(path.join(FIXTURE_PATH, basename), text, 'utf8');
 }
 
-var transform = transformGraphQL.bind(null, SCHEMA_PATH);
-
 function genFixtures() {
   var fixtures = readFixtures(FIXTURE_PATH);
   Object.keys(fixtures).forEach(filename => {
     var fixture = fixtures[filename];
+    var transform = transformGraphQL.bind(null, path.resolve(SRC_DIR, '__tests__', `${fixture.schema}.json`));
     if (fixture.output !== undefined) {
       // fixture for valid input, update the expected output
       try {
@@ -39,6 +36,9 @@ function genFixtures() {
         writeFixture(
           filename,
           [
+            'Schema:',
+            fixture.schema,
+            '', // newline
             'Input:',
             fixture.input,
             '', // newline

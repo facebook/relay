@@ -19,9 +19,6 @@ const transformGraphQL = require('../tools/transformGraphQL');
 
 const FIXTURE_PATTERN = process.env.FIXTURE;
 const FIXTURE_PATH = path.resolve(__dirname, '..', '__fixtures__');
-const SCHEMA_PATH = path.resolve(__dirname, 'testschema.rfc.json');
-
-const transform = transformGraphQL.bind(null, SCHEMA_PATH);
 
 const ConsoleErrorQueue = {
   print: console.error.bind(console),
@@ -51,6 +48,8 @@ describe('getBabelRelayPlugin', () => {
     }
 
     const fixture = fixtures[testName];
+    const transform = transformGraphQL.bind(null, path.resolve(__dirname, `${fixture.schema}.json`));
+
     if (fixture.output !== undefined) {
       let expected;
       try {

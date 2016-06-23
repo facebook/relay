@@ -22,7 +22,7 @@ Relay.createContainer(Component, {
               metadata: {
                 isRequisite: true
               },
-              type: 'String'
+              type: 'ID'
             }],
             fieldName: 'actor',
             kind: 'Field',

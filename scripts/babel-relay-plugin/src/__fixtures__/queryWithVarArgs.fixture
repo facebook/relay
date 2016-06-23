@@ -34,7 +34,7 @@ var x = function () {
       metadata: {
         isRequisite: true
       },
-      type: 'String'
+      type: 'ID'
     }, {
       fieldName: '__typename',
       kind: 'Field',

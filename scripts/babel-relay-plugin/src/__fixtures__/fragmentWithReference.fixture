@@ -15,7 +15,7 @@ var x = function (RQL_0) {
         isGenerated: true,
         isRequisite: true
       },
-      type: 'String'
+      type: 'ID'
     }, {
       fieldName: '__typename',
       kind: 'Field',

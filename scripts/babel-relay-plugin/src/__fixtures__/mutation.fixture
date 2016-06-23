@@ -40,7 +40,7 @@ var x = function () {
           isGenerated: true,
           isRequisite: true
         },
-        type: 'String'
+        type: 'ID'
       }],
       fieldName: 'actor',
       kind: 'Field',

@@ -98,7 +98,7 @@ type Story implements Node {
   message: String
   actors: [User]
   attachments: [Node]
-  id: String
+  id: ID!
 }
 
 type PendingPostsConnection {
@@ -130,12 +130,12 @@ type UserConnectionEdge {
 }
 
 interface Node {
-  id: String
+  id: ID!
 }
 
 type User implements Node Actor {
   friends(first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender, before: String, after: String): UserConnection
-  id: String
+  id: ID!
   name: String
   profilePicture(size: Int): ProfilePicture
   websites: [String]
@@ -159,7 +159,7 @@ type FakeEdge {
 }
 
 type FakeNode implements Node {
-  id: String
+  id: ID!
 }
 
 type ProfilePicture {

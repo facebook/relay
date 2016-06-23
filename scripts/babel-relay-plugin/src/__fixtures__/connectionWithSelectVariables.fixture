@@ -52,7 +52,7 @@ var x = function () {
         isGenerated: true,
         isRequisite: true
       },
-      type: 'String'
+      type: 'ID'
     }, {
       fieldName: '__typename',
       kind: 'Field',
@@ -90,7 +90,7 @@ var x = function () {
                 isGenerated: true,
                 isRequisite: true
               },
-              type: 'String'
+              type: 'ID'
             }],
             fieldName: 'node',
             kind: 'Field',
@@ -116,7 +116,7 @@ var x = function () {
                   isGenerated: true,
                   isRequisite: true
                 },
-                type: 'String'
+                type: 'ID'
               }],
               fieldName: 'node',
               kind: 'Field',
@@ -205,7 +205,7 @@ var x = function () {
                 isGenerated: true,
                 isRequisite: true
               },
-              type: 'String'
+              type: 'ID'
             }],
             fieldName: 'node',
             kind: 'Field',
@@ -247,7 +247,7 @@ var x = function () {
                   isGenerated: true,
                   isRequisite: true
                 },
-                type: 'String'
+                type: 'ID'
               }],
               fieldName: 'node',
               kind: 'Field',
@@ -320,7 +320,7 @@ var x = function () {
           isGenerated: true,
           isRequisite: true
         },
-        type: 'String'
+        type: 'ID'
       }],
       id: Relay.QL.__id(),
       kind: 'Fragment',

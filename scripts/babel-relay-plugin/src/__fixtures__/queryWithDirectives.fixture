@@ -34,7 +34,7 @@ var x = function () {
         isGenerated: true,
         isRequisite: true
       },
-      type: 'String'
+      type: 'ID'
     }, {
       fieldName: '__typename',
       kind: 'Field',
@@ -67,7 +67,7 @@ var x = function () {
           isGenerated: true,
           isRequisite: true
         },
-        type: 'String'
+        type: 'ID'
       }],
       directives: [{
         kind: 'Directive',

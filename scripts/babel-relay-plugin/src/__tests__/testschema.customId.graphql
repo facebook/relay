@@ -1,0 +1,27 @@
+type Root {
+  node(relayID: ID!): Node
+}
+
+interface Node {
+  relayID: ID!
+}
+
+type User implements Node {
+  relayID: ID!
+  name: String
+}
+
+type NodelessUser {
+  id: ID!
+  relayID: ID!
+  name: String
+}
+
+type UserWithAnId {
+  id: ID!
+  name: String
+}
+
+schema {
+  query: Root
+}

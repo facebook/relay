@@ -1,0 +1,34 @@
+Schema:
+testschema.stringId
+
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`fragment on User { name }`;
+
+Output:
+'use strict';
+
+var Relay = require('react-relay');
+var x = function () {
+  return {
+    children: [{
+      fieldName: 'name',
+      kind: 'Field',
+      metadata: {},
+      type: 'String'
+    }, {
+      fieldName: 'id',
+      kind: 'Field',
+      metadata: {
+        isGenerated: true,
+        isRequisite: true
+      },
+      type: 'String'
+    }],
+    id: Relay.QL.__id(),
+    kind: 'Fragment',
+    metadata: {},
+    name: 'FragmentWithStringIdRelayQL',
+    type: 'User'
+  };
+}();

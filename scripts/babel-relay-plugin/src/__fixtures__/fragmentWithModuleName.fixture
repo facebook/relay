@@ -1,3 +1,6 @@
+Schema:
+testschema.rfc
+
 Input:
 /** @providesModule Foo.react */
 var Relay = require('react-relay');

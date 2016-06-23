@@ -1,3 +1,6 @@
+Schema:
+testschema.rfc
+
 Input:
 var Relay = require('Relay');
 var foo = Relay.QL`

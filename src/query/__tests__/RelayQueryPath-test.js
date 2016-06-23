@@ -54,6 +54,7 @@ describe('RelayQueryPath', () => {
 
     const path = RelayQueryPath.create(query);
     expect(RelayQueryPath.getName(path)).toBe(query.getName());
+    expect(RelayQueryPath.getRouteName(path)).toBe(query.getRoute().name);
 
     writer.putRecord('123', 'User');
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
@@ -94,6 +95,7 @@ describe('RelayQueryPath', () => {
       }
     `));
     expect(RelayQueryPath.getName(path)).toBe(query.getName());
+    expect(RelayQueryPath.getRouteName(path)).toBe(query.getRoute().name);
   });
 
   it('creates root paths for argument-less root calls without IDs', () => {
@@ -123,6 +125,7 @@ describe('RelayQueryPath', () => {
       }
     `));
     expect(RelayQueryPath.getName(path)).toBe(query.getName());
+    expect(RelayQueryPath.getRouteName(path)).toBe(query.getRoute().name);
   });
 
   it('creates paths to non-refetchable fields', () => {
@@ -166,6 +169,7 @@ describe('RelayQueryPath', () => {
     `));
     expect(RelayQueryPath.getName(path)).toBe(query.getName());
     expect(pathQuery.getName()).toBe(query.getName());
+    expect(pathQuery.getRoute().name).toBe(query.getRoute().name);
     expect(pathQuery.isAbstract()).toBe(true);
   });
 
@@ -207,6 +211,7 @@ describe('RelayQueryPath', () => {
       }
     `));
     expect(pathQuery.getName()).toBe(query.getName());
+    expect(pathQuery.getRoute().name).toBe(query.getRoute().name);
   });
 
   it('warns if the root record\'s type is unknown', () => {
@@ -245,6 +250,7 @@ describe('RelayQueryPath', () => {
       }
     `));
     expect(pathQuery.getName()).toBe(query.getName());
+    expect(pathQuery.getRoute().name).toBe(query.getRoute().name);
     expect([
       'RelayQueryPath: No typename found for %s record `%s`. Generating a ' +
       'possibly invalid query.',

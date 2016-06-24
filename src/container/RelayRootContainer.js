@@ -146,8 +146,4 @@ RelayRootContainer.propTypes = {
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 
-RelayRootContainer.childContextTypes = {
-  route: RelayPropTypes.QueryConfig.isRequired,
-};
-
 module.exports = RelayRootContainer;

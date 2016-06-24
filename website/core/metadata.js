@@ -235,6 +235,15 @@ module.exports = {
       "source": "QuickStart-GettingStarted.md"
     },
     {
+      "id": "getting-started",
+      "title": "准备",
+      "layout": "docs",
+      "category": "Quick Start",
+      "permalink": "docs/getting-started.zh-CN.html",
+      "next": "tutorial",
+      "source": "QuickStart-GettingStarted.zh-CN.md"
+    },
+    {
       "id": "thinking-in-graphql",
       "title": "Thinking in GraphQL",
       "layout": "docs",
@@ -242,6 +251,15 @@ module.exports = {
       "permalink": "docs/thinking-in-graphql.html",
       "next": "thinking-in-relay",
       "source": "QuickStart-ThinkingInGraphQL.md"
+    },
+    {
+      "id": "thinking-in-graphql",
+      "title": "深入理解 GraphQL",
+      "layout": "docs",
+      "category": "Quick Start",
+      "permalink": "docs/thinking-in-graphql.zh-CN.html",
+      "next": "thinking-in-relay",
+      "source": "QuickStart-ThinkingInGraphQL.zh-CN.md"
     },
     {
       "id": "thinking-in-relay",

@@ -1,3 +1,6 @@
+Schema:
+testschema.rfc
+
 Input:
 var RelayQL = require('react-relay/RelayQL');
 var x = RelayQL`
@@ -31,7 +34,7 @@ var x = function () {
       metadata: {
         isRequisite: true
       },
-      type: 'String'
+      type: 'ID'
     }, {
       fieldName: '__typename',
       kind: 'Field',

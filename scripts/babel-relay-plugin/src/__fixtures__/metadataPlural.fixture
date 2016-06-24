@@ -1,3 +1,6 @@
+Schema:
+testschema.rfc
+
 Input:
 var Relay = require('react-relay');
 var x = Relay.QL`
@@ -34,7 +37,7 @@ var x = function () {
         isGenerated: true,
         isRequisite: true
       },
-      type: 'String'
+      type: 'ID'
     }, {
       fieldName: '__typename',
       kind: 'Field',
@@ -58,7 +61,7 @@ var x = function () {
           isGenerated: true,
           isRequisite: true
         },
-        type: 'String'
+        type: 'ID'
       }],
       id: Relay.QL.__id(),
       kind: 'Fragment',

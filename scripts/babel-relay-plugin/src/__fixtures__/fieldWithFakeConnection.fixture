@@ -1,3 +1,6 @@
+Schema:
+testschema.rfc
+
 Input:
 var Relay = require('Relay');
 var foo = Relay.QL`
@@ -27,7 +30,7 @@ var foo = function () {
             metadata: {
               isRequisite: true
             },
-            type: 'String'
+            type: 'ID'
           }],
           fieldName: 'node',
           kind: 'Field',
@@ -68,7 +71,7 @@ var foo = function () {
         isGenerated: true,
         isRequisite: true
       },
-      type: 'String'
+      type: 'ID'
     }],
     id: Relay.QL.__id(),
     kind: 'Fragment',

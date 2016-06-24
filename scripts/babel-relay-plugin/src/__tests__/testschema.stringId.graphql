@@ -1,0 +1,17 @@
+type Root {
+  node(id: ID!): Node
+  user(id: ID!): User
+}
+
+interface Node {
+  id: String
+}
+
+type User implements Node {
+  id: String
+  name: String
+}
+
+schema {
+  query: Root
+}

@@ -1,9 +1,9 @@
 Schema:
-testschema.rfc
+testschema.stringId
 
 Input:
 var Relay = require('react-relay');
-var x = Relay.QL`fragment FragmentNameHere on Node { id }`;
+var x = Relay.QL`fragment on User { name }`;
 
 Output:
 'use strict';
@@ -12,14 +12,12 @@ var Relay = require('react-relay');
 var x = function () {
   return {
     children: [{
-      fieldName: 'id',
+      fieldName: 'name',
       kind: 'Field',
-      metadata: {
-        isRequisite: true
-      },
-      type: 'ID'
+      metadata: {},
+      type: 'String'
     }, {
-      fieldName: '__typename',
+      fieldName: 'id',
       kind: 'Field',
       metadata: {
         isGenerated: true,
@@ -29,10 +27,8 @@ var x = function () {
     }],
     id: Relay.QL.__id(),
     kind: 'Fragment',
-    metadata: {
-      isAbstract: true
-    },
-    name: 'FragmentNameHere',
-    type: 'Node'
+    metadata: {},
+    name: 'FragmentWithStringIdRelayQL',
+    type: 'User'
   };
 }();

@@ -1,3 +1,6 @@
+Schema:
+testschema.rfc
+
 Input:
 var Relay = require('react-relay');
 Relay.createContainer(Component, {
@@ -22,7 +25,7 @@ Relay.createContainer(Component, {
               metadata: {
                 isRequisite: true
               },
-              type: 'String'
+              type: 'ID'
             }],
             fieldName: 'actor',
             kind: 'Field',

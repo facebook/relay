@@ -28,29 +28,35 @@ function readFixtures(fixturePath) {
     var parts;
 
     // Matches a file of form:
+    //   Schema:
+    //   <name>
     //   Input:
     //   <code>
     //   Output:
     //   <code>
-    parts = data.match(new RegExp('(?:^|\\n)' + ['Input:\\n([\\s\\S]*)', 'Output:\\n([\\s\\S]*)'].join('\\n') + '$'));
+    parts = data.match(new RegExp('(?:^|\\n)' + ['Schema:\\n([\\s\\S]*)', 'Input:\\n([\\s\\S]*)', 'Output:\\n([\\s\\S]*)'].join('\\n') + '$'));
     if (parts) {
       fixtures[name] = {
-        input: parts[1].trim(),
-        output: parts[2].trim()
+        schema: parts[1].trim(),
+        input: parts[2].trim(),
+        output: parts[3].trim()
       };
       return;
     }
 
     // Matches a file of form:
+    //   Schema:
+    //   <name>
     //   Input:
     //   <code>
     //   Error:
     //   <code>
-    parts = data.match(new RegExp('(?:^|\\n)' + ['Input:\\n([\\s\\S]*)', 'Error:\\n([\\s\\S]*)'].join('\\n') + '$'));
+    parts = data.match(new RegExp('(?:^|\\n)' + ['Schema:\\n([\\s\\S]*)', 'Input:\\n([\\s\\S]*)', 'Error:\\n([\\s\\S]*)'].join('\\n') + '$'));
     if (parts) {
       fixtures[name] = {
-        input: parts[1].trim(),
-        error: parts[2].trim()
+        schema: parts[1].trim(),
+        input: parts[2].trim(),
+        error: parts[3].trim()
       };
       return;
     }

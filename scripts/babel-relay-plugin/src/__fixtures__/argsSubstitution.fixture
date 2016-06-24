@@ -1,3 +1,6 @@
+Schema:
+testschema.rfc
+
 Input:
 var foo = Relay.QL`
   query Args {
@@ -26,7 +29,7 @@ var foo = function (RQL_0) {
       metadata: {
         isRequisite: true
       },
-      type: "String"
+      type: "ID"
     }, {
       fieldName: "__typename",
       kind: "Field",

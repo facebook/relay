@@ -1,3 +1,6 @@
+Schema:
+testschema.rfc
+
 Input:
 var foo = Relay.QL`
   query Args {
@@ -45,7 +48,7 @@ var foo = function () {
         isGenerated: true,
         isRequisite: true
       },
-      type: "String"
+      type: "ID"
     }, {
       fieldName: "__typename",
       kind: "Field",
@@ -107,7 +110,7 @@ var foo = function () {
               metadata: {
                 isRequisite: true
               },
-              type: "String"
+              type: "ID"
             }, {
               calls: [{
                 kind: "Call",
@@ -198,7 +201,7 @@ var foo = function () {
           isGenerated: true,
           isRequisite: true
         },
-        type: "String"
+        type: "ID"
       }],
       id: Relay.QL.__id(),
       kind: "Fragment",

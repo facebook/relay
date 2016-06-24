@@ -1,3 +1,6 @@
+Schema:
+testschema.rfc
+
 Input:
 var foo = Relay.QL`
   query IntrospectionQueryForSchema {

@@ -1,3 +1,6 @@
+Schema:
+testschema.rfc
+
 Input:
 /** @providesModule Foo.react */
 var Relay = require('react-relay');
@@ -17,7 +20,7 @@ var x = function () {
       metadata: {
         isRequisite: true
       },
-      type: 'String'
+      type: 'ID'
     }, {
       fieldName: '__typename',
       kind: 'Field',
@@ -44,7 +47,7 @@ var y = function () {
       metadata: {
         isRequisite: true
       },
-      type: 'String'
+      type: 'ID'
     }, {
       fieldName: '__typename',
       kind: 'Field',

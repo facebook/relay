@@ -709,6 +709,37 @@ class RelayQLType {
     };
     return new RelayQLFragment(this.context, (generatedFragmentAST: any), this);
   }
+
+  getNodeIdField(): ?string {
+    const node = this.context.schema.getType('Node');
+    if (node && node instanceof types.GraphQLInterfaceType) {
+      const fields = node.getFields();
+      const field = find(Object.keys(fields), fieldName => {
+        const type = fields[fieldName].type.ofType;
+        return type && type.name === 'ID';
+      });
+
+      if (field && this.hasField(field)) {
+        let nodeInterface = this.schemaUnmodifiedType === node && this;
+        if (!nodeInterface) {
+          nodeInterface = find(this.getInterfaces(), (iface) => {
+            return iface.schemaUnmodifiedType === node;
+          });
+        }
+        if (!nodeInterface) {
+          console.warn(`Using ${field} of ${this.schemaUnmodifiedType.name} ` +
+                       'as Node ID, even though it does not explicitly ' +
+                       'implement the Node interface.');
+        }
+        return field;
+      }
+    }
+    return null;
+  }
+
+  getIdField(defaultField: string): ?string {
+    return this.getNodeIdField() || (this.hasField(defaultField) && defaultField) || null;
+  }
 }
 
 class RelayQLFieldDefinition {

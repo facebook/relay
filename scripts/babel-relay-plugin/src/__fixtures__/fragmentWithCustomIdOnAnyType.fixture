@@ -1,9 +1,9 @@
 Schema:
-testschema.rfc
+testschema.customId
 
 Input:
 var Relay = require('react-relay');
-var x = Relay.QL`fragment FragmentNameHere on Node { id }`;
+var x = Relay.QL`fragment on NodelessUser { name }`;
 
 Output:
 'use strict';
@@ -12,27 +12,23 @@ var Relay = require('react-relay');
 var x = function () {
   return {
     children: [{
-      fieldName: 'id',
+      fieldName: 'name',
       kind: 'Field',
-      metadata: {
-        isRequisite: true
-      },
-      type: 'ID'
+      metadata: {},
+      type: 'String'
     }, {
-      fieldName: '__typename',
+      fieldName: 'relayID',
       kind: 'Field',
       metadata: {
         isGenerated: true,
         isRequisite: true
       },
-      type: 'String'
+      type: 'ID'
     }],
     id: Relay.QL.__id(),
     kind: 'Fragment',
-    metadata: {
-      isAbstract: true
-    },
-    name: 'FragmentNameHere',
-    type: 'Node'
+    metadata: {},
+    name: 'FragmentWithCustomIdOnAnyTypeRelayQL',
+    type: 'NodelessUser'
   };
 }();

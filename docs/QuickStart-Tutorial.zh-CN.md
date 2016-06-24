@@ -1,9 +1,9 @@
 ---
-id: tutorial-zh-CN
+id: tutorial
 title: 教程
 layout: docs
 category: Quick Start
-permalink: docs/tutorial-zh-CN.html
+permalink: docs/tutorial.zh-CN.html
 next: thinking-in-graphql
 ---
 

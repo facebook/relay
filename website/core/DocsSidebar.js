@@ -20,7 +20,7 @@ const Metadata = require('Metadata');
  * the "canonical" (non-localized) version.
  */
 function shouldOverwritePreviousWithCanonical(previous, maybeCanonical) {
-  let match = previous.permalink.match(/^(.+)\.([a-z]+-[a-z]+)\.html$/);
+  let match = previous.permalink.match(/^(.+)\.([a-z]+-[a-z]+)\.html$/i);
   if (match) {
     // `previous` is a localized file.
     const previousBase = match[1];

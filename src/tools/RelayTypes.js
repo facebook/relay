@@ -100,6 +100,7 @@ export type RelayProp = {
   hasPartialData: (
     record: Object
   ) => boolean,
+  pendingVariables: ?Variables,
   route: RelayQueryConfigInterface,
   setVariables: (
     partialVariables?: ?Variables,

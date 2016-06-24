@@ -152,6 +152,7 @@ function createContainerComponent(
           hasFragmentData: this.hasFragmentData.bind(this),
           hasOptimisticUpdate: this.hasOptimisticUpdate.bind(this),
           hasPartialData: this.hasPartialData.bind(this),
+          pendingVariables: null,
           route,
           setVariables: this.setVariables.bind(this),
           variables: {},
@@ -294,11 +295,17 @@ function createContainerComponent(
             rawVariables,
             relayProp: {
               ...this.state.relayProp,
+              pendingVariables: null,
               variables: nextVariables,
             },
           };
         } else {
-          partialState = {};
+          partialState = {
+            relayProp: {
+              ...this.state.relayProp,
+              pendingVariables: isComplete ? null : nextVariables,
+            },
+          };
         }
         const mounted = this.mounted;
         if (mounted) {

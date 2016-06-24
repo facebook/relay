@@ -261,7 +261,7 @@
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Fields">5.1</a></span>Fields</h3>
       <p>A Relay&#8208;compliant server may expose root fields that accept a list of input arguments, and returns a list of responses. For Relay to use these fields, these fields must be <em>plural identifying root fields</em>, and obey the following requirements.</p>
       <div
-        class="spec-note">Relay&#8208;compliant servers may expose root fields that are not <em>plural identifying root fields</em>; the Relay client will just be unable to use those fields as root fields in its queries.</div>
+      class="spec-note">Relay&#8208;compliant servers may expose root fields that are not <em>plural identifying root fields</em>; the Relay client will just be unable to use those fields as root fields in its queries.</div>
         <p><em>Plural identifying root fields</em> must have a single argument. The type of that argument must be a non&#8208;null list of non&#8208;nulls. In our <code>usernames</code> example, the field would take a single argument named <code>usernames</code>,
           whose type (using our type system shorthand) would be <code>[String!]!</code>.</p>
         <p>The return type of a <em>plural identifying root field</em> must be a list, or a non&#8208;null wrapper around a list. The list must wrap the <code>Node</code> interface, an object that implements the <code>Node</code> interface, or a non&#8208;null

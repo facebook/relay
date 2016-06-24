@@ -285,7 +285,7 @@ If no request is in flight pendingVariables is `null`.
 
 #### Example
 
-```{11}
+```{12}
 class ProfilePicture extends React.Component {
   requestRandomPictureSize = () => {
     const randIntMin = 10;

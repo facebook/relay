@@ -12,12 +12,47 @@
 'use strict';
 
 const Metadata = require('Metadata');
+const React = require('React');
+
+/**
+ * We're not really set up to support translations well at the moment (ie.
+ * multiple documents with the same `id` but different `permalink`s of the
+ * form "foo.html" and "foo.zh-CN.html"), so we make sure we always prefer
+ * the "canonical" (non-localized) version.
+ */
+function shouldOverwritePreviousWithCanonical(previous, maybeCanonical) {
+  let match = previous.permalink.match(/^(.+)\.[a-z]+-[a-z]+\.html$/i);
+  if (match) {
+    // `previous` is a localized file.
+    const previousBase = match[1];
+    match = maybeCanonical.permalink.match(/^(.+)\.html/);
+    if (match && match[1] === previousBase) {
+      // Found canonical "foo.html"; should overwrite "foo.zh-CN.html".
+      return true;
+    }
+  }
+  return false;
+}
 
 const DocsSidebar = React.createClass({
   getCategories: function() {
-    const metadatas = Metadata.files.filter(function(metadata) {
-      return metadata.layout === 'docs';
-    });
+    // Skip over non-docs and non-en_US entries.
+    const metadatas = Array.from(
+        Metadata.files.reduce(function(acc, metadata) {
+          if (metadata.layout === 'docs') {
+            const previous = acc.get(metadata.id);
+            if (
+              !previous ||
+              shouldOverwritePreviousWithCanonical(previous, metadata)
+            ) {
+              acc.delete(metadata.id);
+              acc.set(metadata.id, metadata);
+            }
+          }
+          return acc;
+        }, new Map()
+      ).values()
+    );
 
     // Build a hashmap of article_id -> metadata
     const articles = {};
@@ -58,8 +93,8 @@ const DocsSidebar = React.createClass({
         currentCategory && categories.push(currentCategory);
         currentCategory = {
           name: metadata.category,
-          links: []
-        }
+          links: [],
+        };
       }
       currentCategory.links.push(metadata);
       metadata = articles[metadata.next];
@@ -97,7 +132,7 @@ const DocsSidebar = React.createClass({
         </div>
       )}
     </div>;
-  }
+  },
 });
 
 module.exports = DocsSidebar;

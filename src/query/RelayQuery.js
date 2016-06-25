@@ -215,13 +215,19 @@ class RelayQueryNode {
           if (concreteChild == null) {
             return;
           }
-          const node = createNode(
+          const nodeOrNodes = createNode(
             concreteChild,
             this.__route__,
             this.__variables__
           );
-          if (node && node.isIncluded()) {
-            nextChildren.push(node);
+          if (Array.isArray(nodeOrNodes)) {
+            nodeOrNodes.forEach(node => {
+              if (node && node.isIncluded()) {
+                nextChildren.push(node);
+              }
+            });
+          } else if (nodeOrNodes && nodeOrNodes.isIncluded()) {
+            nextChildren.push(nodeOrNodes);
           }
         });
       }
@@ -1328,7 +1334,7 @@ function createNode(
   concreteNode: mixed,
   route: RelayMetaRoute,
   variables: Variables
-): ?RelayQueryNode {
+): ?RelayQueryNode | Array<?RelayQueryNode> {
   invariant(
     typeof concreteNode === 'object' &&
     concreteNode !== null,
@@ -1366,13 +1372,15 @@ function createNode(
     type = RelayQuerySubscription;
   } else if (concreteNode instanceof RelayRouteFragment) {
     const fragment = concreteNode.getFragmentForRoute(route);
-    if (fragment) {
-      // may be null if no value was defined for this route.
-      return createNode(
-        fragment,
-        route,
-        variables
-      );
+    // May be null if no value was defined for this route.
+    if (Array.isArray(fragment)) {
+      // A route-conditional function may return a single fragment reference
+      // or an array of fragment references.
+      return fragment.map(frag => {
+        return createNode(frag, route, variables);
+      });
+    } else if (fragment) {
+      return createNode(fragment, route, variables);
     }
     return null;
   } else if (concreteNode instanceof RelayFragmentReference) {

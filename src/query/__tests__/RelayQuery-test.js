@@ -292,7 +292,7 @@ describe('RelayQuery', () => {
           type: 'Node',
         });
         expect(field.canHaveSubselections()).toBe(true);
-        var children = field.getChildren();
+        const children = field.getChildren();
         expect(children.length).toBe(2);
         expect(children[0]).toBe(child);
         expect(children[1]).toBe(fragment);
@@ -485,6 +485,63 @@ describe('RelayQuery', () => {
       expect(grandchildren[1].getCallsWithValues()).toEqual([
         {name: 'size', value: 'override'},
       ]);
+    });
+
+    it('expands route conditional fragments', () => {
+      const innerFragment1 = Relay.QL`
+        fragment on User {
+          id,
+          profilePicture(size:$size) {
+            uri,
+          },
+        }
+      `;
+      const innerFragment2 = Relay.QL`
+        fragment on User {
+          id,
+          firstName
+        }
+      `;
+      const reference1 = new RelayFragmentReference(
+        () => innerFragment1,
+        {
+          size: 'default',
+        },
+        {
+          size: QueryBuilder.createCallVariable('outerSize'),
+        }
+      );
+      const reference2 = new RelayFragmentReference(() => innerFragment2, {}, {});
+      const fragment = getNode(Relay.QL`
+        fragment on User {
+          id,
+          ${route => reference1},
+          ${route => [reference2]}
+        }
+      `, {
+        outerSize: 'override',
+      });
+
+      const children = fragment.getChildren();
+      expect(children.length).toBe(3);
+      expect(children[0].getSchemaName()).toBe('id');
+
+      expect(children[1] instanceof RelayQuery.Fragment);
+      expect(children[1].getType()).toBe('User');
+      let grandchildren = children[1].getChildren();
+      expect(grandchildren.length).toBe(2);
+      expect(grandchildren[0].getSchemaName()).toBe('id');
+      expect(grandchildren[1].getSchemaName()).toBe('profilePicture');
+      expect(grandchildren[1].getCallsWithValues()).toEqual([
+        {name: 'size', value: 'override'},
+      ]);
+
+      expect(children[2] instanceof RelayQuery.Fragment);
+      expect(children[2].getType()).toBe('User');
+      grandchildren = children[2].getChildren();
+      expect(grandchildren.length).toBe(2);
+      expect(grandchildren[0].getSchemaName()).toBe('id');
+      expect(grandchildren[1].getSchemaName()).toBe('firstName');
     });
   });
 });

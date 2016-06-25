@@ -26,6 +26,12 @@ Relay uses routes to define entry points into a Relay application.
     </a>
   </li>
   <li>
+    <a href="#prepareparams-static-property">
+      <pre>static prepareParams</pre>
+      Declare additional parameters or conversion for parameters.
+    </a>
+  </li>
+  <li>
     <a href="#queries-static-property">
       <pre>static queries</pre>
       Declare the set of query roots.
@@ -70,6 +76,57 @@ class ProfileRoute extends Relay.Route {
 }
 ```
 
+### prepareParams (static property)
+
+```
+static prepareParams: ?(prevParams: {[prevParam: string]: mixed}) => {[param: string]: mixed};
+```
+
+Routes can declare additional parameters, or conversion for parameters on initialisation. These can also be used as query parameters in your nested containers.
+
+#### Example
+
+```
+class ProfileRoute extends Relay.Route {
+  static queries = {
+    viewer: () => Relay.QL`query { viewer }`
+  };
+  static prepareParams = (prevParams) => {
+    return {
+      // Ensure any params that ProfileRoute gets initialised with will still be passed down.
+      ...prevParams,
+      //  Override the `limit` variable in the top level container.
+      limit: 10
+    }
+  }
+  // ...
+}
+
+const Container = Relay.createContainer(({viewer}) => (
+  <View>
+    {viewer.edges.map((edge) => <div>edge.node.name</div>)}
+  </View>
+  ), {
+  initialVariables: {
+    limit: null
+  },
+  fragments: {
+    viewer: () => Relay.QL`
+      fragment on Viewer {
+        friends(first: $limit) {
+          edges {
+            node {
+              name
+            }
+          }
+        }
+      }
+    `
+  }
+});
+```
+In this example `prepareParams` overrides any `limit` variables the route gets initialised with. Given `ProfileRoute` and `Container` are both being passed into `Relay.Renderer`, that limit variable will automatically be passed down to `Container`.
+
 ### queries (static property)
 
 ```
@@ -91,6 +148,7 @@ class ProfileRoute extends Relay.Route {
   // ...
 }
 ```
+In this example the Route should be initialised with an `userID` which gets passed on to the query. That `userID` variable will automatically be passed down to the top-level container and can be used there if needed. Further the top-level RelayContainer is expected to have a `user` fragment with the fields to be queried.
 
 ### routeName (static property)
 

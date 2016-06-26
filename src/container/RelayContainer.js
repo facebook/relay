@@ -17,6 +17,7 @@ const ErrorUtils = require('ErrorUtils');
 const React = require('React');
 const RelayContainerComparators = require('RelayContainerComparators');
 const RelayContainerProxy = require('RelayContainerProxy');
+import type RelayEnvironment from 'RelayEnvironment';
 import type {FragmentResolver} from 'RelayEnvironment';
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const RelayFragmentReference = require('RelayFragmentReference');
@@ -44,7 +45,6 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const isReactComponent = require('isReactComponent');
 const isRelayEnvironment = require('isRelayEnvironment');
-const nullthrows = require('nullthrows');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
@@ -52,6 +52,11 @@ const warning = require('warning');
 type FragmentPointer = {
   fragment: RelayQuery.Fragment,
   dataIDs: DataID | Array<DataID>
+};
+type RelayContainerContext = {
+  relay: RelayEnvironment,
+  route: RelayQueryConfigInterface,
+  useFakeData: boolean,
 };
 export type RelayContainerSpec = {
   fragments: {
@@ -69,6 +74,7 @@ export type RelayLazyContainer = Function;
 const containerContextTypes = {
   relay: RelayPropTypes.Environment,
   route: RelayPropTypes.QueryConfig.isRequired,
+  useFakeData: React.PropTypes.bool,
 };
 
 /**
@@ -426,15 +432,13 @@ function createContainerComponent(
     }
 
     componentWillMount(): void {
-      const {relay, route} = this.context;
-      if (route.useMockData) {
+      if (this.context.route.useMockData) {
         return;
       }
       this.setState(
         this._initialize(
           this.props,
-          relay,
-          route,
+          this.context,
           initialVariables,
           null
         )
@@ -443,20 +447,20 @@ function createContainerComponent(
 
     componentWillReceiveProps(
       nextProps: Object,
-      nextContext?: Object
+      maybeNextContext?: RelayContainerContext
     ): void {
-      const {relay, route} = nullthrows(nextContext);
-      if (route.useMockData) {
+      const nextContext = maybeNextContext;
+      invariant(nextContext, 'RelayContainer: Expected a context to be set.');
+      if (nextContext.route.useMockData) {
         return;
       }
       this.setState(state => {
-        if (this.context.relay !== relay) {
+        if (this.context.relay !== nextContext.relay) {
           this._cleanup();
         }
         return this._initialize(
           nextProps,
-          relay,
-          route,
+          nextContext,
           resetPropOverridesForVariables(
             spec,
             nextProps,
@@ -474,8 +478,7 @@ function createContainerComponent(
 
     _initialize(
       props: Object,
-      environment,
-      route: RelayQueryConfigInterface,
+      context: RelayContainerContext,
       propVariables: Variables,
       prevVariables: ?Variables
     ): {
@@ -491,21 +494,26 @@ function createContainerComponent(
       let nextVariables = rawVariables;
       if (prepareVariables) {
         // TODO: Allow routes without names, #7856965.
-        const metaRoute = RelayMetaRoute.get(route.name);
+        const metaRoute = RelayMetaRoute.get(context.route.name);
         nextVariables = prepareVariables(rawVariables, metaRoute);
         validateVariables(initialVariables, nextVariables);
       }
-      this._updateFragmentPointers(props, route, nextVariables, prevVariables);
-      this._updateFragmentResolvers(environment);
+      this._updateFragmentPointers(
+        props,
+        context,
+        nextVariables,
+        prevVariables
+      );
+      this._updateFragmentResolvers(context.relay);
       return {
         queryData: this._getQueryData(props),
         rawVariables,
-        relayProp: (this.state.relayProp.route === route)
+        relayProp: (this.state.relayProp.route === context.route)
           && shallowEqual(this.state.relayProp.variables, nextVariables) ?
           this.state.relayProp :
           {
             ...this.state.relayProp,
-            route,
+            route: context.route,
             variables: nextVariables,
           },
       };
@@ -564,7 +572,7 @@ function createContainerComponent(
 
     _updateFragmentPointers(
       props: Object,
-      route: RelayQueryConfigInterface,
+      context: RelayContainerContext,
       variables: Variables,
       prevVariables: ?Variables
     ): void {
@@ -595,7 +603,7 @@ function createContainerComponent(
           fragmentPointers[fragmentName] = null;
           return;
         }
-        const fragment = getFragment(fragmentName, route, variables);
+        const fragment = getFragment(fragmentName, context.route, variables);
         let dataIDOrIDs;
 
         if (fragment.isPlural()) {
@@ -626,7 +634,9 @@ function createContainerComponent(
                 }
               }
               if (__DEV__) {
-                if (!route.useMockData && !this._didShowFakeDataWarning) {
+                if (!context.route.useMockData &&
+                    !context.useFakeData &&
+                    !this._didShowFakeDataWarning) {
                   const isValid = validateFragmentProp(
                     componentName,
                     fragmentName,
@@ -663,7 +673,9 @@ function createContainerComponent(
             dataIDOrIDs = RelayRecord.getDataIDForObject(propValue);
           }
           if (__DEV__) {
-            if (!route.useMockData && !this._didShowFakeDataWarning) {
+            if (!context.route.useMockData &&
+                !context.useFakeData &&
+                !this._didShowFakeDataWarning) {
               const isValid = validateFragmentProp(
                 componentName,
                 fragmentName,
@@ -685,7 +697,7 @@ function createContainerComponent(
           if (fragmentPointers[fragmentName]) {
             return;
           }
-          const fragment = getFragment(fragmentName, route, variables);
+          const fragment = getFragment(fragmentName, context.route, variables);
           Object.keys(props).forEach(propName => {
             warning(
               fragmentPointers[propName] ||

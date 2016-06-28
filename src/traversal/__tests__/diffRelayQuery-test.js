@@ -1080,23 +1080,18 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[0][0]).toEqualQueryNode(trackedQuery);
   });
 
-  it('handles arrays containing non-Nodes', () => {
+  it('diffs plural fields having exactly one linked record', () => {
     const records = {
       '12345': {
         __dataID__: '12345',
         id: '12345',
         screennames: [
           {__dataID__: 'client:1'},
-          {__dataID__: 'client:2'},
         ],
       },
       'client:1': {
         __dataID__: 'client:1',
         service: 'GTALK',
-      },
-      'client:2': {
-        __dataID__: 'client:2',
-        service: 'TWITTER',
       },
     };
     const store = new RelayRecordStore({records});
@@ -1129,6 +1124,46 @@ describe('diffRelayQuery', () => {
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(expected);
+  });
+
+  it('does not diff plural fields having more than one linked record', () => {
+    const records = {
+      '12345': {
+        __dataID__: '12345',
+        id: '12345',
+        screennames: [
+          {__dataID__: 'client:1'},
+          {__dataID__: 'client:2'},
+        ],
+      },
+      'client:1': {
+        __dataID__: 'client:1',
+        service: 'GTALK',
+      },
+      'client:2': {
+        __dataID__: 'client:2',
+        service: 'TWITTER',
+      },
+    };
+    const store = new RelayRecordStore({records});
+
+    // Assume node(12345) is a Story
+    const query = getNode(Relay.QL`
+      query {
+        node(id:"12345") {
+          id
+          screennames {
+            name
+            service
+          }
+        }
+      }
+    `);
+
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
+    expect(diffQueries.length).toBe(1);
+    expect(diffQueries[0]).toBe(query);
   });
 
   it('handles missing fields in fragments', () => {

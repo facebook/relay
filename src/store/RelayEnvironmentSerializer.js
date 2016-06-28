@@ -20,7 +20,7 @@ const RelayEnvironmentSerializer = {
     return JSON.stringify(relayEnvironment.getStoreData());
   },
 
-  persist(str: string): RelayEnvironment {
+  deserialize(str: string): RelayEnvironment {
     return new RelayEnvironment(RelayStoreData.fromJSON(JSON.parse(str)));
   },
 };

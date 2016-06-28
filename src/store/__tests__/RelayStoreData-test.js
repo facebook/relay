@@ -584,4 +584,108 @@ describe('RelayStoreData', () => {
       expect(storeData.getQueryTracker()).toBe(tracker);
     });
   });
+
+  it('should toJSON', () => {
+    const storeData = new RelayStoreData();
+    const query = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          id
+          ... on User {
+            friends(first:"2") {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    const response = {
+      node: {
+        id: '123',
+        _friends48QovS: {
+          edges: [
+            {
+              node: {
+                id: '456',
+              },
+            },
+            {
+              node: {
+                id: '789',
+              },
+            },
+          ],
+        },
+        __typename: 'User',
+      },
+    };
+    storeData.handleQueryPayload(query, response);
+    const stringifiedStoreData = JSON.stringify(storeData);
+    const graphQLRangeData = storeData.getNodeData()['client:1']['__range__'];
+
+    const expectedStoreData = {
+      'cachedRecords': {},
+      'cachedRootCallMap': {},
+      'queuedRecords': {},
+      'records': {
+        '123': {
+          '__dataID__': '123',
+          '__typename': 'User',
+          'id': '123',
+          'friends': {
+            '__dataID__': 'client:1',
+          },
+        },
+        '456': {
+          '__dataID__': '456',
+          '__typename': 'User',
+          'id': '456',
+        },
+        '789': {
+          '__dataID__': '789',
+          '__typename': 'User',
+          'id': '789',
+        },
+        'client:1': {
+          '__dataID__': 'client:1',
+          '__typename': null,
+          '__filterCalls__': [],
+          '__forceIndex__': 0,
+          // GraphQLRange implements toJSON/fromJSON
+          '__range__': graphQLRangeData,
+        },
+        'client:client:1:456': {
+          '__dataID__': 'client:client:1:456',
+          '__typename': null,
+          'node': {
+            '__dataID__': '456',
+          },
+          'cursor': null,
+        },
+        'client:client:1:789': {
+          '__dataID__': 'client:client:1:789',
+          '__typename': null,
+          'node': {
+            '__dataID__': '789',
+          },
+          'cursor': null,
+        },
+      },
+      'rootCallMap': {},
+      'nodeRangeMap': {
+        '456': {
+          'client:1': true,
+        },
+        '789': {
+          'client:1': true,
+        }
+      },
+    };
+    expect(stringifiedStoreData).toEqual(JSON.stringify(expectedStoreData));
+  });
 });

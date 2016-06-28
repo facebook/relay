@@ -96,8 +96,8 @@ class RelayEnvironment {
   ) => RelayMutationTransaction;
   _storeData: RelayStoreData;
 
-  constructor() {
-    this._storeData = new RelayStoreData();
+  constructor(storeData?: RelayStoreData) {
+    this._storeData = storeData ? storeData : new RelayStoreData();
     this._storeData.getChangeEmitter().injectBatchingStrategy(
       relayUnstableBatchedUpdates
     );

@@ -25,7 +25,7 @@ To get started building Relay applications, you will need three things:
 
 2. **A GraphQL Server**
 
-  Any server can be taught to load a schema and speak GraphQL. Our [examples](https://github.com/facebook/relay/tree/081b4a3f17dcf/examples) use Express.
+  Any server can be taught to load a schema and speak GraphQL. Our [examples](https://github.com/relayjs/relay-examples) use Express.
 
   - **[express-graphql](https://github.com/graphql/express-graphql)** on [npm](https://www.npmjs.com/package/express-graphql)
 

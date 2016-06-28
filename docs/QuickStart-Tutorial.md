@@ -432,6 +432,6 @@ export default Relay.createContainer(App, {
 });
 ```
 
-A working copy of the treasure hunt can be found under the [`./examples/`](https://github.com/facebook/relay/tree/081b4a3f17dcf/examples) directory in the Relay repository.
+A working copy of the treasure hunt can be found in the [relay-examples](https://github.com/relayjs/relay-examples) repository.
 
 Now that we've gone through this tutorial, let's dive into what it means to build a GraphQL client framework and how this compares to clients for more traditional REST systems.

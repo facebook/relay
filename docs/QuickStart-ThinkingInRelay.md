@@ -62,7 +62,7 @@ In React, rendering a view requires two inputs: the *component* to render, and a
 
 ```javascript
 ReactDOM.render(
-  <RelayRootContainer
+  <Relay.RootContainer
     Component={StoryContainer}
     route={{
       queries: {

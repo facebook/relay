@@ -44,6 +44,11 @@ var invariant = require('./invariant');
 var util = require('util');
 var RelayTransformError = require('./RelayTransformError');
 
+var _require2 = require('./RelayQLNodeInterface');
+
+var ID = _require2.ID;
+
+
 module.exports = function (t, options) {
   var formatFields = options.snakeCase ? function (fields) {
     var formatted = {};
@@ -66,7 +71,6 @@ module.exports = function (t, options) {
     edges: 'edges',
     hasNextPage: 'hasNextPage',
     hasPreviousPage: 'hasPreviousPage',
-    id: 'id',
     node: 'node',
     pageInfo: 'pageInfo'
   });
@@ -173,7 +177,7 @@ module.exports = function (t, options) {
 
         var requisiteFields = {};
         var idFragment = void 0;
-        if (fragmentType.hasField(FIELDS.id)) {
+        if (fragmentType.hasField(ID)) {
           requisiteFields.id = true;
         } else if (shouldGenerateIdFragment(fragment, fragmentType)) {
           idFragment = fragmentType.generateIdFragment();
@@ -374,7 +378,7 @@ module.exports = function (t, options) {
         var metadata = {};
         var requisiteFields = {};
         var idFragment = void 0;
-        if (fieldType.hasField(FIELDS.id)) {
+        if (fieldType.hasField(ID)) {
           requisiteFields.id = true;
         } else if (shouldGenerateIdFragment(field, fieldType)) {
           idFragment = fieldType.generateIdFragment();
@@ -390,7 +394,7 @@ module.exports = function (t, options) {
         // TODO: Generalize to non-`Node` types.
         if (fieldType.alwaysImplements('Node')) {
           metadata.inferredRootCallName = 'node';
-          metadata.inferredPrimaryKey = 'id';
+          metadata.inferredPrimaryKey = ID;
         }
         if (fieldType.isConnection()) {
           if (field.hasDeclaredArgument('first') || field.hasDeclaredArgument('last')) {
@@ -585,8 +589,8 @@ module.exports = function (t, options) {
     if (field.getName() === 'node') {
       var argTypes = field.getDeclaredArguments();
       var argNames = Object.keys(argTypes);
-      if (argNames.length === 1 && argNames[0] === 'id') {
-        throw new RelayTransformError(util.format('You defined a `node(id: %s)` field on type `%s`, but Relay requires ' + 'the `node` field to be defined on the root type. See the Object ' + 'Identification Guide: \n' + 'http://facebook.github.io/relay/docs/graphql-object-identification.html', argNames[0] && argTypes[argNames[0]].getName({ modifiers: true }), parentType.getName({ modifiers: false })), field.getLocation());
+      if (argNames.length === 1 && argNames[0] === ID) {
+        throw new RelayTransformError(util.format('You defined a `node(%s: %s)` field on type `%s`, but Relay requires ' + 'the `node` field to be defined on the root type. See the Object ' + 'Identification Guide: \n' + 'http://facebook.github.io/relay/docs/graphql-object-identification.html', ID, argNames[0] && argTypes[argNames[0]].getName({ modifiers: true }), parentType.getName({ modifiers: false })), field.getLocation());
       }
     }
   }

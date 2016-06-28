@@ -121,7 +121,7 @@ const RelayMutationQuery = {
       /* eslint-disable no-console */
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
         console.groupCollapsed('Building fragment for `' + fieldName + '`');
-        console.log('id: ', dataIDOrIDs);
+        console.log(RelayNodeInterface.ID + ': ', dataIDOrIDs);
 
         const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
         RelayMutationDebugPrinter.printMutation(

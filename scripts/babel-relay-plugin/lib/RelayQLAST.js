@@ -41,6 +41,11 @@ var invariant = require('./invariant');
 var util = require('util');
 var RelayTransformError = require('./RelayTransformError');
 
+var _require2 = require('./RelayQLNodeInterface');
+
+var ID = _require2.ID;
+
+
 var GraphQLRelayDirectiveInstance = new GraphQLDirectiveClass(GraphQLRelayDirective);
 
 // TODO: Import types from `graphql`.
@@ -633,7 +638,7 @@ var RelayQLType = function () {
     key: 'getIdentifyingFieldDefinition',
     value: function getIdentifyingFieldDefinition() {
       if (this.alwaysImplements('Node')) {
-        return this.getFieldDefinition('id');
+        return this.getFieldDefinition(ID);
       }
       return null;
     }

@@ -431,6 +431,6 @@ export default Relay.createContainer(App, {
 });
 ```
 
-在 Relay 仓库的 [`./examples/`](https://github.com/facebook/relay/tree/081b4a3f17dcf/examples) 目录下，有这个寻宝游戏的副本。
+这个寻宝游戏的副本在 [relay-examples](https://github.com/relayjs/relay-examples) 仓库里。
 
 学完这篇教程后，我们将会深入了解构建一个 GraphQL 客户端框架到底意味着什么，以及如何将它与更多的为客户端搭建的 REST 系统作比较。

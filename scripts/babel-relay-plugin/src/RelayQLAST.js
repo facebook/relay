@@ -29,6 +29,7 @@ const find = require('./find');
 const invariant = require('./invariant');
 const util = require('util');
 const RelayTransformError = require('./RelayTransformError');
+const {ID} = require('./RelayQLNodeInterface');
 
 const GraphQLRelayDirectiveInstance = new GraphQLDirectiveClass(
   GraphQLRelayDirective
@@ -607,7 +608,7 @@ class RelayQLType {
 
   getIdentifyingFieldDefinition(): ?RelayQLFieldDefinition {
     if (this.alwaysImplements('Node')) {
-      return this.getFieldDefinition('id');
+      return this.getFieldDefinition(ID);
     }
     return null;
   }

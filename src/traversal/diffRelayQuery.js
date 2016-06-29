@@ -822,7 +822,7 @@ function splitNodeAndEdgesFields(
             const subField = subFields[0];
             if (
               !(subField instanceof RelayQuery.Field) ||
-              subField.getSchemaName() !== 'id'
+              subField.getSchemaName() !== ID
             ) {
               nodeChild = child;
             }

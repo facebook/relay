@@ -16,11 +16,15 @@ require('configureForRelayOSS');
 jest.unmock('RelayQueryTracker');
 
 const Relay = require('Relay');
+const RelayQuery = require('RelayQuery');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryTracker', () => {
-  const {getNode} = RelayTestUtils;
+  const {
+    getNode,
+    getVerbatimNode,
+  } = RelayTestUtils;
 
   function sortChildren(children) {
     return children.sort((a, b) => {
@@ -124,5 +128,71 @@ describe('RelayQueryTracker', () => {
     expect(tracker.getTrackedChildrenForID(actorID)).not.toEqual([]);
     tracker.untrackNodesForID(actorID);
     expect(tracker.getTrackedChildrenForID(actorID)).toEqual([]);
+  });
+
+  it('flattens tracked fields when there exist multiple nodes', () => {
+    const firstQuery = getVerbatimNode(Relay.QL`
+      query {
+        viewer {
+          actor {
+            id
+            __typename
+            ... on Node {
+              __typename
+            }
+            ... on User {
+              id
+            }
+          }
+        }
+      }
+    `);
+    const secondQuery = getVerbatimNode(Relay.QL`
+      query {
+        viewer {
+          actor {
+            id
+            __typename
+            ... on Node {
+              id
+            }
+            ... on User {
+              __typename
+            }
+          }
+        }
+      }
+    `);
+    const firstActor = firstQuery.getFieldByStorageKey('actor');
+    const secondActor = secondQuery.getFieldByStorageKey('actor');
+    const actorID = '123';
+    const tracker = new RelayQueryTracker();
+
+    tracker.trackNodeForID(firstActor, actorID);
+    tracker.trackNodeForID(secondActor, actorID);
+    const trackedChildren = tracker.getTrackedChildrenForID(actorID);
+    expect(trackedChildren.length).toBe(3);
+    expect(trackedChildren[0]).toEqualQueryNode(RelayQuery.Field.build({
+      fieldName: 'id',
+      type: 'ID',
+    }));
+    expect(trackedChildren[1]).toEqualQueryNode(RelayQuery.Field.build({
+      fieldName: '__typename',
+      type: 'String',
+    }));
+    expect(trackedChildren[2]).toEqualQueryNode(RelayQuery.Fragment.build(
+      'User',
+      'User',
+      [
+        RelayQuery.Field.build({
+          fieldName: '__typename',
+          type: 'String',
+        }),
+        RelayQuery.Field.build({
+          fieldName: 'id',
+          type: 'ID',
+        }),
+      ]
+    ));
   });
 });

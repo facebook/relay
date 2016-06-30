@@ -189,7 +189,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       (this.isNewRecord(recordID) || this._updateTrackedQueries) &&
       (!RelayRecord.isClientID(recordID) || RelayQueryPath.isRootPath(path))
     ) {
-      this._queryTracker.trackNodeForID(node, recordID, path);
+      this._queryTracker.trackNodeForID(node, recordID);
     }
   }
 

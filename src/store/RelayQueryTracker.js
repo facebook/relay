@@ -15,7 +15,6 @@
 import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
-import type {QueryPath} from 'RelayQueryPath';
 
 const TYPE = '__type__';
 
@@ -31,8 +30,7 @@ class RelayQueryTracker {
 
   trackNodeForID(
     node: RelayQuery.Node,
-    dataID: DataID,
-    path: ?QueryPath
+    dataID: DataID
   ): void {
     // Don't track `__type__` fields
     if (node instanceof RelayQuery.Field && node.getSchemaName() === TYPE) {

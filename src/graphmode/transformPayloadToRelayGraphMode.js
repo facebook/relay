@@ -236,10 +236,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       this._updateTrackedQueries ||
       this._store.getRecordState(dataID) !== 'EXISTENT'
     ) {
-      const path = node instanceof RelayQuery.Root ?
-        RelayQueryPath.create(node) :
-        null;
-      this._queryTracker.trackNodeForID(node, dataID, path);
+      this._queryTracker.trackNodeForID(node, dataID);
     }
   }
 

@@ -22,22 +22,22 @@ The container created using `Relay.createContainer` must be supplied via the `Co
 ```
 ReactDOM.render(
   <Relay.Renderer
-    Component={ProfilePicture}
-    route={profileRoute}
+    Container={ProfilePicture}
+    queryConfig={profileRoute}
   />,
-  container
+  component
 );
 ```
 
 When the **Relay.Renderer** above is rendered, Relay will construct a query and send it to the GraphQL server. As soon as all required data has been fetched, `ProfilePicture` will be rendered. Props with fragments will contain data that was fetched from the server.
 
-## render
+If either `Container` or `queryConfig` ever changes, **Relay.Renderer** will immediately start attempting to fulfill the new data requirements.
 
-If either `Component` or `route` ever changes, **Relay.Renderer** will immediately start attempting to fulfill the new data requirements.
+**Relay.Renderer** renders the loading state whenever it cannot immediately fulfill data needed to render. This often happens on the initial render, but it can also happen if either `Container` or `queryConfig` changes.
 
-**Relay.Renderer** renders the loading state whenever it cannot immediately fulfill data needed to render. This often happens on the initial render, but it can also happen if either `Component` or `route` changes.
+By default, nothing is rendered while loading data for the initial render. If a previous set of `Container` and `queryConfig` were fulfilled and rendered, the default behavior is to continue rendering the previous view.
 
-By default, nothing is rendered while loading data for the initial render. If a previous set of `Component` and `route` were fulfilled and rendered, the default behavior is to continue rendering the previous view.
+## render prop
 
 We can change this behavior by supplying the `render` prop:
 
@@ -109,9 +109,9 @@ stale: boolean
 
 True when `forceFetch` is enabled and `props` is present due to available client data. Once the forced server request completes, `stale` will return to false.
 
-The `render` callback can return `undefined` to continue rendering the last view rendered (e.g. when transitioning from one `queryConfig` to another).
-
 If a `render` callback is not supplied, the default behavior is to render the container if data is available, the existing view if one exists, or nothing.
+
+A `render` callback can simulate the default behavior by returning `undefined` to continue rendering the last view rendered (e.g. when transitioning from one `queryConfig` to another). Notice that this is different from a `render` callback that returns `null`, which would render nothing whenever data is loading, even if there was a previous view rendered.
 
 ### ref
 
@@ -127,16 +127,14 @@ function handleFooRef(component) {
 }
 ```
 
-A `render` callback can simulate the default behavior by returning `undefined`. Notice that this is different from a `render` callback that returns `null`, which would render nothing whenever data is loading, even if there was a previous view rendered.
-
-t ## Force Fetching
+## Force Fetching
 
 Like most of the Relay APIs, **Relay.Renderer** attempts to resolve data using the client store before sending a request to the server. If we instead wanted to force a server request even if data is available on the client, we could use the `forceFetch` boolean prop.
 
 ```{4}
 <Relay.Renderer
-  Component={ProfilePicture}
-  route={profileRoute}
+  Container={ProfilePicture}
+  queryConfig={profileRoute}
   forceFetch={true}
 />
 ```

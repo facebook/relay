@@ -503,26 +503,25 @@ class RelayDiffQueryBuilder {
           trackedNode: this._queryTracker ? field : null,
         };
       }
-    } else if (linkedIDs.length === 1) {
-      // The one item in this array is not fetchable by ID, so nothing else
-      // could have fetched additional data for individual items. Therefore,
-      // we can diff the sole record to figure out which fields have previously
-      // been fetched.
-      const sampleItemID = linkedIDs[0];
-      return this.traverse(
-        field,
-        RelayQueryPath.getPath(path, field, sampleItemID),
-        makeScope(sampleItemID)
-      );
     } else {
-      // There are multiple linked items that are not fetchable by ID (ie. they
-      // have only client IDs). Refetch every field: since each linked record
-      // could be the result of having requested a different set of fields, we
-      // can not reason about all of them by looking at one of them.
-      return {
-        diffNode: field,
-        trackedNode: null,
-      };
+      // The items in this array are not fetchable by ID, so nothing else could
+      // have fetched additional data for individual items. If any item in this
+      // list is missing data, refetch the whole field.
+      const atLeastOneItemHasMissingData =
+        linkedIDs.some(itemID => {
+          const itemState = this.traverse(
+            field,
+            RelayQueryPath.getPath(path, field, itemID),
+            makeScope(itemID)
+          );
+          return itemState && (itemState.diffNode || itemState.trackedNode);
+        });
+      if (atLeastOneItemHasMissingData) {
+        return {
+          diffNode: field,
+          trackedNode: null,
+        };
+      }
     }
     return null;
   }

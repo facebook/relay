@@ -113,6 +113,26 @@ If a `render` callback is not supplied, the default behavior is to render the co
 
 A `render` callback can simulate the default behavior by returning `undefined` to continue rendering the last view rendered (e.g. when transitioning from one `queryConfig` to another). Notice that this is different from a `render` callback that returns `null`, which would render nothing whenever data is loading, even if there was a previous view rendered.
 
+### Example
+
+```{4-6}
+// In this example, `ErrorComponent` and `LoadingComponent`
+// simply display a static error message / loading indicator.
+<Relay.Renderer
+  Container={ProfilePicture}
+  queryConfig={profileRoute}
+  render={({done, error, props, retry, stale}) => {
+        if (error) {
+          return <ErrorComponent />;
+        } else if (props) {
+          return <ProfilePicture {...props} />;
+        } else {
+          return <LoadingComponent />;
+        }
+      }}
+/>
+```
+
 ### ref
 
 References to elements rendered by the `render` callback can be obtained by using the React `ref` prop. For example:

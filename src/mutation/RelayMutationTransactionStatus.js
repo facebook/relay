@@ -49,6 +49,11 @@ const RelayMutationTransactionStatus = {
    * Transaction was sent to the server for comitting but was failed.
    */
   COMMIT_FAILED: 'COMMIT_FAILED',
+
+  /**
+   * Transaction has been rolled back by the developer.
+   */
+  ROLLED_BACK: 'ROLLED_BACK',
 };
 
 module.exports = RelayMutationTransactionStatus;

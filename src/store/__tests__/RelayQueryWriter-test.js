@@ -61,7 +61,7 @@ describe('RelayQueryWriter', () => {
       queryWriter.createRecordIfMissing(node, recordID, path, payload);
 
       // The interesting bit:
-      expect(trackNodeForID).toBeCalledWith(node, recordID, path);
+      expect(trackNodeForID).toBeCalledWith(node, recordID);
 
       // Sanity check.
       expect(records).toEqual({

@@ -389,7 +389,7 @@ class RelayDiffQueryBuilder {
       trackedNode &&
       !(trackedNode instanceof RelayQuery.Fragment)
     ) {
-      this._queryTracker.trackNodeForID(trackedNode, scope.dataID, path);
+      this._queryTracker.trackNodeForID(trackedNode, scope.dataID);
     }
 
     return {

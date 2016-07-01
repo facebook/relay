@@ -15,7 +15,8 @@
 import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
-import type {QueryPath} from 'RelayQueryPath';
+
+const flattenRelayQuery = require('flattenRelayQuery');
 
 const TYPE = '__type__';
 
@@ -31,8 +32,7 @@ class RelayQueryTracker {
 
   trackNodeForID(
     node: RelayQuery.Node,
-    dataID: DataID,
-    path: ?QueryPath
+    dataID: DataID
   ): void {
     // Don't track `__type__` fields
     if (node instanceof RelayQuery.Field && node.getSchemaName() === TYPE) {
@@ -65,11 +65,12 @@ class RelayQueryTracker {
       });
       trackedNodes.length = 0;
       trackedNodesByID.isMerged = true;
-      const containerNode = RelayQuery.Fragment.build(
+      let containerNode = RelayQuery.Fragment.build(
         'RelayQueryTracker',
         RelayNodeInterface.NODE_TYPE,
         trackedChildren
       );
+      containerNode = flattenRelayQuery(containerNode);
       if (containerNode) {
         trackedNodes.push(containerNode);
       }

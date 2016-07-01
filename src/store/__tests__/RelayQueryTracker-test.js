@@ -16,26 +16,15 @@ require('configureForRelayOSS');
 jest.unmock('RelayQueryTracker');
 
 const Relay = require('Relay');
-const RelayQueryPath = require('RelayQueryPath');
+const RelayQuery = require('RelayQuery');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
-const invariant = require('invariant');
-
 describe('RelayQueryTracker', () => {
-  const {getNode} = RelayTestUtils;
-
-  function getField(node, ...fieldNames) {
-    for (let ii = 0; ii < fieldNames.length; ii++) {
-      node = node.getFieldByStorageKey(fieldNames[ii]);
-      invariant(
-        !!node,
-        'getField(): Expected node to have field named `%s`.',
-        fieldNames[ii]
-      );
-    }
-    return node;
-  }
+  const {
+    getNode,
+    getVerbatimNode,
+  } = RelayTestUtils;
 
   function sortChildren(children) {
     return children.sort((a, b) => {
@@ -63,10 +52,9 @@ describe('RelayQueryTracker', () => {
         }
       }
     `);
-    const path = RelayQueryPath.create(query);
     const tracker = new RelayQueryTracker();
 
-    tracker.trackNodeForID(query, 'client:1', path);
+    tracker.trackNodeForID(query, 'client:1');
     const trackedChildren = tracker.getTrackedChildrenForID('client:1');
     expect(trackedChildren.length).toBe(1);
     expect(trackedChildren[0])
@@ -84,10 +72,9 @@ describe('RelayQueryTracker', () => {
       }
     `);
     const nodeID = '123';
-    const path = RelayQueryPath.create(query);
     const tracker = new RelayQueryTracker();
 
-    tracker.trackNodeForID(query, nodeID, path);
+    tracker.trackNodeForID(query, nodeID);
     const trackedChildren = sortChildren(tracker.getTrackedChildrenForID(nodeID));
     const children = sortChildren(query.getChildren());
     expect(trackedChildren.length).toBe(3);
@@ -110,14 +97,9 @@ describe('RelayQueryTracker', () => {
     `);
     const actor = query.getFieldByStorageKey('actor');
     const actorID = '123';
-    const path = RelayQueryPath.getPath(
-      RelayQueryPath.create(query),
-      getField(query, 'actor'),
-      actorID
-    );
     const tracker = new RelayQueryTracker();
 
-    tracker.trackNodeForID(actor, actorID, path);
+    tracker.trackNodeForID(actor, actorID);
     const children = sortChildren(actor.getChildren());
     const trackedChildren =
       sortChildren(tracker.getTrackedChildrenForID(actorID));
@@ -140,16 +122,77 @@ describe('RelayQueryTracker', () => {
     `);
     const actor = query.getFieldByStorageKey('actor');
     const actorID = '123';
-    const path = RelayQueryPath.getPath(
-      RelayQueryPath.create(query),
-      getField(query, 'actor'),
-      actorID
-    );
     const tracker = new RelayQueryTracker();
 
-    tracker.trackNodeForID(actor, actorID, path);
+    tracker.trackNodeForID(actor, actorID);
     expect(tracker.getTrackedChildrenForID(actorID)).not.toEqual([]);
     tracker.untrackNodesForID(actorID);
     expect(tracker.getTrackedChildrenForID(actorID)).toEqual([]);
+  });
+
+  it('flattens tracked fields when there exist multiple nodes', () => {
+    const firstQuery = getVerbatimNode(Relay.QL`
+      query {
+        viewer {
+          actor {
+            id
+            __typename
+            ... on Node {
+              __typename
+            }
+            ... on User {
+              id
+            }
+          }
+        }
+      }
+    `);
+    const secondQuery = getVerbatimNode(Relay.QL`
+      query {
+        viewer {
+          actor {
+            id
+            __typename
+            ... on Node {
+              id
+            }
+            ... on User {
+              __typename
+            }
+          }
+        }
+      }
+    `);
+    const firstActor = firstQuery.getFieldByStorageKey('actor');
+    const secondActor = secondQuery.getFieldByStorageKey('actor');
+    const actorID = '123';
+    const tracker = new RelayQueryTracker();
+
+    tracker.trackNodeForID(firstActor, actorID);
+    tracker.trackNodeForID(secondActor, actorID);
+    const trackedChildren = tracker.getTrackedChildrenForID(actorID);
+    expect(trackedChildren.length).toBe(3);
+    expect(trackedChildren[0]).toEqualQueryNode(RelayQuery.Field.build({
+      fieldName: 'id',
+      type: 'ID',
+    }));
+    expect(trackedChildren[1]).toEqualQueryNode(RelayQuery.Field.build({
+      fieldName: '__typename',
+      type: 'String',
+    }));
+    expect(trackedChildren[2]).toEqualQueryNode(RelayQuery.Fragment.build(
+      'User',
+      'User',
+      [
+        RelayQuery.Field.build({
+          fieldName: '__typename',
+          type: 'String',
+        }),
+        RelayQuery.Field.build({
+          fieldName: 'id',
+          type: 'ID',
+        }),
+      ]
+    ));
   });
 });

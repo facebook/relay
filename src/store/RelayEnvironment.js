@@ -264,9 +264,17 @@ class RelayEnvironment {
     mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
-    return this
-      .applyUpdate(mutation, callbacks)
-      .commit();
+    const transaction = this.applyUpdate(mutation, callbacks);
+    // The idea here is to defer the call to `commit()` to give the optimistic
+    // mutation time to flush out to the UI before starting the commit work.
+    const preCommitStatus = transaction.getStatus();
+    setTimeout(() => {
+      if (transaction.getStatus() !== preCommitStatus) {
+        return;
+      }
+      transaction.commit();
+    });
+    return transaction;
   }
 
   /**

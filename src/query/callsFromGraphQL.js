@@ -48,7 +48,7 @@ function callsFromGraphQL(
   for (let ii = 0; ii < callsOrDirectives.length; ii++) {
     const callOrDirective = callsOrDirectives[ii];
     let {value, metadata} = callOrDirective;
-    let type: ?string;
+    let type: ?string = null;
     if (metadata && metadata.type){
       type = metadata.type;
     }

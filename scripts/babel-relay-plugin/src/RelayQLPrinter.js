@@ -197,7 +197,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       const requisiteFields = {};
       let idFragment;
       if (fragmentType.hasField(ID)) {
-        requisiteFields.id = true;
+        requisiteFields[ID] = true;
       } else if (shouldGenerateIdFragment(fragment, fragmentType)) {
         idFragment = fragmentType.generateIdFragment();
       }
@@ -488,7 +488,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       const requisiteFields = {};
       let idFragment;
       if (fieldType.hasField(ID)) {
-        requisiteFields.id = true;
+        requisiteFields[ID] = true;
       } else if (shouldGenerateIdFragment(field, fieldType)) {
         idFragment = fieldType.generateIdFragment();
       }

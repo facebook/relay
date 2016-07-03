@@ -47,7 +47,7 @@ describe('createRelayQuery', () => {
     );
     expect(root instanceof RelayQuery.Root).toBe(true);
     expect(root.getFieldByStorageKey('newsFeed').getCallsWithValues()).toEqual(
-      [{name: 'first', value: 10}]
+      [{name: 'first', value: 10, type: null}]
     );
   });
 });

@@ -197,7 +197,7 @@ describe('RelayQueryFragment', () => {
     expect(fragment.getDirectives()).toEqual([
       {
         args: [
-          {name: 'if', value: true},
+          {name: 'if', value: true, type: null},
         ],
         name: 'include',
       },

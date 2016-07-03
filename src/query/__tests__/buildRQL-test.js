@@ -100,7 +100,7 @@ describe('buildRQL', () => {
       expect(children[1].getSchemaName()).toBe('profilePicture');
       // Variable has the applied value, not initial value.
       expect(children[1].getCallsWithValues()).toEqual([
-        {name: 'size', value: '32'},
+        {name: 'size', value: '32', type: null},
       ]);
     });
 

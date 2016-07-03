@@ -43,8 +43,11 @@ function callsFromGraphQL(
   const orderedCalls = [];
   for (let ii = 0; ii < callsOrDirectives.length; ii++) {
     const callOrDirective = callsOrDirectives[ii];
-    let {value} = callOrDirective;
-    let {type} = callOrDirective.metadata;
+    let {value, metadata} = callOrDirective;
+    let type = undefined;
+    if (metadata){
+      type = metadata.type;
+    }
     if (value != null) {
       if (Array.isArray(value)) {
         value = value.map(arg => getCallValue(arg, variables));

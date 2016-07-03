@@ -100,7 +100,7 @@ describe('RelayQuery', () => {
           {identifyingArgName: 'id'}
         );
         expect(root.getCallsWithValues()).toEqual([
-          {name: 'id', value: '123'},
+          {name: 'id', value: '123', type: null},
         ]);
       });
 
@@ -138,6 +138,7 @@ describe('RelayQuery', () => {
         expect(root.getIdentifyingArg()).toEqual({
           name: 'id',
           value: '123',
+          type: null,
         });
       });
 
@@ -377,7 +378,7 @@ describe('RelayQuery', () => {
         expect(mutation.getChildren().length).toBe(1);
         expect(mutation.getChildren()[0]).toBe(field);
         expect(mutation.getCall())
-          .toEqual({name: 'feedback_like', value: {feedback_id:'123'}});
+          .toEqual({name: 'feedback_like', value: {feedback_id:'123'}, type: null});
         expect(mutation.getCallVariableName()).toEqual('input');
         expect(mutation.getRoute().name).toBe('FooRoute');
       });
@@ -401,7 +402,7 @@ describe('RelayQuery', () => {
         expect(mutation.getChildren().length).toBe(1);
         expect(mutation.getChildren()[0]).toBe(field);
         expect(mutation.getCall())
-          .toEqual({name: 'feedback_like', value: ''});
+          .toEqual({name: 'feedback_like', value: '', type: null});
         expect(mutation.getCallVariableName()).toEqual('input');
       });
     });

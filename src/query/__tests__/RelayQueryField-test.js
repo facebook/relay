@@ -685,8 +685,8 @@ describe('RelayQueryField', () => {
     clonedFeed = friendsVariableField.cloneFieldWithCalls(
       friendsVariableField.getChildren(),
       [
-        {name: 'first', value: 10},
-        {name: 'after', value: 'offset'},
+        {name: 'first', value: 10, type: null},
+        {name: 'after', value: 'offset', type: null},
       ]
     );
     expect(clonedFeed).toBe(friendsVariableField);

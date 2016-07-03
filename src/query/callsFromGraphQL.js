@@ -23,10 +23,14 @@ import type {Variables} from 'RelayTypes';
 
 const invariant = require('invariant');
 
+type Metadata = {
+  type: ?string,
+};
+
 type CallOrDirective = {
   name: string,
   value: ?ConcreteValue,
-  type?: ?string,
+  metadata: ?Metadata,
 };
 
 /**
@@ -44,8 +48,8 @@ function callsFromGraphQL(
   for (let ii = 0; ii < callsOrDirectives.length; ii++) {
     const callOrDirective = callsOrDirectives[ii];
     let {value, metadata} = callOrDirective;
-    let type = undefined;
-    if (metadata){
+    let type?: string;
+    if (metadata && metadata.type){
       type = metadata.type;
     }
     if (value != null) {

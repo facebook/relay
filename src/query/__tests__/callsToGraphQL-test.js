@@ -23,6 +23,7 @@ describe('callsToGraphQL', function() {
     const relayCalls = [{
       name: 'size',
       value: null,
+      type: null,
     }];
     const graphqlCalls = [RelayTestUtils.createCall('size', null)];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
@@ -33,6 +34,7 @@ describe('callsToGraphQL', function() {
     const relayCalls = [{
       name: 'size',
       value: [],
+      type: null,
     }];
     const graphqlCalls = [RelayTestUtils.createCall('size', [])];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
@@ -43,6 +45,7 @@ describe('callsToGraphQL', function() {
     const relayCalls = [{
       name: 'size',
       value: [32, 64],
+      type: null,
     }];
     const graphqlCalls = [RelayTestUtils.createCall('size', [32, 64])];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);
@@ -53,6 +56,7 @@ describe('callsToGraphQL', function() {
     const relayCalls = [{
       name: 'size',
       value: 32,
+      type: null,
     }];
     const graphqlCalls = [RelayTestUtils.createCall('size', 32)];
     expect(callsFromGraphQL(graphqlCalls)).toEqual(relayCalls);

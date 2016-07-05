@@ -670,12 +670,10 @@ class RelayDiffQueryBuilder {
           connectionField.getStorageKey()
         );
       } else {
-        /* eslint-disable prefer-const */
         let {
           edges: diffEdgesField,
           node: diffNodeField,
         } = splitNodeAndEdgesFields(diffNode);
-        /* eslint-enable prefer-const */
 
         // split missing `node` fields into a `node(id)` root query
         if (diffNodeField) {

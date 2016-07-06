@@ -44,11 +44,11 @@ We can change this behavior by supplying the `render` prop:
   Container={ProfilePicture}
   queryConfig={profileRoute}
   render={({props}) => {
-      if (props) {
-        return <ProfilePicture {...props} />;
-      } else {
-        return <div>Loading...</div>;
-      }
+    if (props) {
+      return <ProfilePicture {...props} />;
+    } else {
+      return <div>Loading...</div>;
+    }
   }}
 />
 ```
@@ -118,14 +118,14 @@ A `render` callback can simulate the default behavior by returning `undefined` t
   Container={ProfilePicture}
   queryConfig={profileRoute}
   render={({done, error, props, retry, stale}) => {
-        if (error) {
-          return <ErrorComponent />;
-        } else if (props) {
-          return <ProfilePicture {...props} />;
-        } else {
-          return <LoadingComponent />;
-        }
-      }}
+    if (error) {
+      return <ErrorComponent />;
+    } else if (props) {
+      return <ProfilePicture {...props} />;
+    } else {
+      return <LoadingComponent />;
+    }
+  }}
 />
 ```
 

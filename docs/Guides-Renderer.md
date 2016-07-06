@@ -35,7 +35,7 @@ If either `Container` or `queryConfig` ever changes, **Relay.Renderer** will imm
 
 By default, **Relay.Renderer** renders nothing while loading data for the initial render. If a previous set of `Container` and `queryConfig` were fulfilled and rendered, the default behavior is to continue rendering the previous view.
 
-## render prop
+## Render Callback
 
 We can change this behavior by supplying the `render` prop:
 
@@ -67,7 +67,7 @@ render({
 }): ?React$Element
 ```
 
-### props
+### `props`
 
 ```
 props: ?{[propName: string]: mixed}
@@ -75,7 +75,7 @@ props: ?{[propName: string]: mixed}
 
 If present, sufficient data is ready to render the container. This object must be spread into the container using the spread attribute operator. If absent, there is insufficient data to render the container.
 
-### done
+### `done`
 
 ```
 done: boolean
@@ -83,7 +83,7 @@ done: boolean
 
 Whether all data dependencies have been fulfilled. If `props` is present but `done` is false, then sufficient data is ready to render, but some data dependencies have not yet been fulfilled.
 
-### error
+### `error`
 
 ```
 error: ?Error
@@ -91,7 +91,7 @@ error: ?Error
 
 If present, an error occurred while fulfilling data dependencies. If `props` and `error` are both present, then sufficient data is ready to render, but an error occurred while fulfilling deferred dependencies.
 
-### retry
+### `retry`
 
 ```
 retry: ?Function
@@ -99,7 +99,7 @@ retry: ?Function
 
 A function that can be called to re-attempt to fulfill data dependencies. This property is only present if an `error` has occurred.
 
-### stale
+### `stale`
 
 ```
 stale: boolean

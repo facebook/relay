@@ -19,6 +19,10 @@ To use these pieces to construct a full-fledged GraphQL query that we can send t
 
 The container created using `Relay.createContainer` must be supplied via the `Container` prop, and the query configuration that conforms to the shape of a `RelayQueryConfig` must be supplied via the `queryConfig` prop. The `environment` prop can be supplied with the global instance `Relay.Store` or your own isolated store and network subsystem, created with `new RelayEnvironment()`.
 
+By default, **Relay.Renderer** renders nothing while loading data for the initial render. If a previous set of `Container` and `queryConfig` were fulfilled and rendered, the default behavior is to continue rendering the previous view.
+
+If either `Container` or `queryConfig` ever changes, **Relay.Renderer** will immediately start attempting to fulfill the new data requirements.
+
 ```
 ReactDOM.render(
   <Relay.Renderer
@@ -31,10 +35,6 @@ ReactDOM.render(
 ```
 
 When the **Relay.Renderer** above is rendered, Relay will construct a query and send it to the GraphQL server. As soon as all required data has been fetched, `ProfilePicture` will be rendered. Props with fragments will contain data that was fetched from the server.
-
-If either `Container` or `queryConfig` ever changes, **Relay.Renderer** will immediately start attempting to fulfill the new data requirements.
-
-By default, **Relay.Renderer** renders nothing while loading data for the initial render. If a previous set of `Container` and `queryConfig` were fulfilled and rendered, the default behavior is to continue rendering the previous view.
 
 ## Render Callback
 

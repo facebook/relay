@@ -8,14 +8,14 @@ next: guides-ready-state
 
 So far, we've covered two pieces that each contribute to declaring data:
 
- - **Relay.Route** lets us declare query roots.
+ - **Relay.queryConfig** lets us declare query roots.
  - **Relay.Container** lets components declare fragments.
 
 To use these pieces to construct a full-fledged GraphQL query that we can send to the server to fetch data, we need to use the **Relay.Renderer**.
 
 ## Component and Route
 
-**Relay.Renderer** is a React component that, given a `Container` and a `route` or `queryConfig`, attempts to fulfill the data required in order to render an instance of `Container`.
+**Relay.Renderer** is a React component that, given a `Container`, `enviroment`, and `queryConfig`, attempts to fulfill the data required in order to render an instance of `Container`.
 
 The container created using `Relay.createContainer` must be supplied via the `Container` prop, and the query configuration that conforms to the shape of a `RelayQueryConfig` must be supplied via the `queryConfig` prop.
 

@@ -15,15 +15,16 @@ To use these pieces to construct a full-fledged GraphQL query that we can send t
 
 ## Component and Route
 
-**Relay.Renderer** is a React component that, given a `Container`, `enviroment`, and `queryConfig`, attempts to fulfill the data required in order to render an instance of `Container`.
+**Relay.Renderer** is a React component that, given a `Container`, `environment`, and `queryConfig`, attempts to fulfill the data required in order to render an instance of `Container`.
 
-The container created using `Relay.createContainer` must be supplied via the `Container` prop, and the query configuration that conforms to the shape of a `RelayQueryConfig` must be supplied via the `queryConfig` prop.
+The container created using `Relay.createContainer` must be supplied via the `Container` prop, and the query configuration that conforms to the shape of a `RelayQueryConfig` must be supplied via the `queryConfig` prop. The `environment` prop can be supplied with the global instance `Relay.Store` or your own isolated store and network subsystem, created with `new RelayEnvironment()`.
 
 ```
 ReactDOM.render(
   <Relay.Renderer
     Container={ProfilePicture}
     queryConfig={profileRoute}
+    environment={Relay.Store}
   />,
   component
 );
@@ -43,6 +44,7 @@ We can change this behavior by supplying the `render` prop:
 <Relay.Renderer
   Container={ProfilePicture}
   queryConfig={profileRoute}
+  environment={Relay.Store}
   render={({props}) => {
     if (props) {
       return <ProfilePicture {...props} />;
@@ -117,6 +119,7 @@ A `render` callback can simulate the default behavior by returning `undefined` t
 <Relay.Renderer
   Container={ProfilePicture}
   queryConfig={profileRoute}
+  environment={Relay.Store}
   render={({done, error, props, retry, stale}) => {
     if (error) {
       return <ErrorComponent />;
@@ -151,6 +154,7 @@ Like most of the Relay APIs, **Relay.Renderer** attempts to resolve data using t
 <Relay.Renderer
   Container={ProfilePicture}
   queryConfig={profileRoute}
+  environment={Relay.Store}
   forceFetch={true}
 />
 ```

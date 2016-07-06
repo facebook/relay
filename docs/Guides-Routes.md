@@ -122,6 +122,7 @@ window.addEventListener('popstate', () => {
     <Relay.Renderer
       Component={UserProfile}
       route={profileRoute}
+      environment={Relay.Store}
     />,
     document.getElementById('app')
   );

@@ -33,9 +33,7 @@ When the **Relay.Renderer** above is rendered, Relay will construct a query and 
 
 If either `Container` or `queryConfig` ever changes, **Relay.Renderer** will immediately start attempting to fulfill the new data requirements.
 
-**Relay.Renderer** renders the loading state whenever it cannot immediately fulfill data needed to render. This often happens on the initial render, but it can also happen if either `Container` or `queryConfig` changes.
-
-By default, nothing is rendered while loading data for the initial render. If a previous set of `Container` and `queryConfig` were fulfilled and rendered, the default behavior is to continue rendering the previous view.
+By default, **Relay.Renderer** renders nothing while loading data for the initial render. If a previous set of `Container` and `queryConfig` were fulfilled and rendered, the default behavior is to continue rendering the previous view.
 
 ## render prop
 

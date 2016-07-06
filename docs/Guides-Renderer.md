@@ -107,8 +107,6 @@ stale: boolean
 
 True when `forceFetch` is enabled and `props` is present due to available client data. Once the forced server request completes, `stale` will return to false.
 
-If a `render` callback is not supplied, the default behavior is to render the container if data is available, the existing view if one exists, or nothing.
-
 A `render` callback can simulate the default behavior by returning `undefined` to continue rendering the last view rendered (e.g. when transitioning from one `queryConfig` to another). Notice that this is different from a `render` callback that returns `null`, which would render nothing whenever data is loading, even if there was a previous view rendered.
 
 ### Example

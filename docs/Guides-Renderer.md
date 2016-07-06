@@ -129,7 +129,7 @@ A `render` callback can simulate the default behavior by returning `undefined` t
 />
 ```
 
-### ref
+## Refs
 
 References to elements rendered by the `render` callback can be obtained by using the React `ref` prop. For example:
 

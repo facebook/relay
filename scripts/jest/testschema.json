@@ -694,6 +694,41 @@
               "deprecationReason": null
             },
             {
+              "name": "checkins",
+              "description": null,
+              "args": [
+                {
+                  "name": "environments",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                          "kind": "ENUM",
+                          "name": "Environment",
+                          "ofType": null
+                        }
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "CheckinSearchResult",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "comments",
               "description": null,
               "args": [
@@ -884,6 +919,20 @@
                     "kind": "SCALAR",
                     "name": "Boolean",
                     "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "traits",
+                  "description": null,
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "PersonalityTraits",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": null
                 }
@@ -5284,6 +5333,41 @@
           "possibleTypes": null
         },
         {
+          "kind": "ENUM",
+          "name": "PersonalityTraits",
+          "description": null,
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "CHEERFUL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "DERISIVE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "HELPFUL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SNARKY",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
           "kind": "INPUT_OBJECT",
           "name": "StorySearchInput",
           "description": null,
@@ -6173,41 +6257,6 @@
           ],
           "interfaces": null,
           "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "ENUM",
-          "name": "PersonalityTraits",
-          "description": null,
-          "fields": null,
-          "inputFields": null,
-          "interfaces": null,
-          "enumValues": [
-            {
-              "name": "CHEERFUL",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "DERISIVE",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "HELPFUL",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "SNARKY",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
           "possibleTypes": null
         },
         {

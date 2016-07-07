@@ -13,7 +13,6 @@
 'use strict';
 
 const RelayMutationRequest = require('RelayMutationRequest');
-// import type RelayMutationRequest from 'RelayMutationRequest';
 import type RelayQueryRequest from 'RelayQueryRequest';
 
 const fetch = require('fetch');

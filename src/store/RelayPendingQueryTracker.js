@@ -94,7 +94,7 @@ class PendingFetch {
   _fetchQueryPromise: Promise<any>;
 
   _resolvedQuery: boolean;
-  _resolvedDeferred: Deferred<void, ?Error>;
+  _resolvedDeferred: Deferred<?Error, ?Error>;
 
   _storeData: RelayStoreData;
 
@@ -184,11 +184,11 @@ class PendingFetch {
         response ? typeof response : response
       );
       // handle the succesful payload part of the response
-      this._handleSubtractedQuerySuccess(subtractedQuery, {response});
+      this._handleQuerySuccess({response});
 
       // handle the error part of the response
       console.warn(error.message);
-      this._errors.push(error);
+      this._error = error;
       this._hasErrorAndResponse = true;
       this._updateResolvedDeferred();
     } else {

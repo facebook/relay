@@ -33,17 +33,21 @@ In order to accept your pull request, we need you to submit a CLA. You only need
 
 [Complete your CLA here.](https://code.facebook.com/cla)
 
-## Bugs
+## Bugs & Questions
 
-### Where to Find Known Issues
+### Questions regarding how to use Relay and/or GraphQL
 
-We will be using GitHub Issues for our public bugs. We will keep a close eye on this and try to make it clear when we have an internal fix in progress. Before filing a new issue, try to make sure your problem doesn't already exist.
+We want to keep signal strong in the GitHub issue tracker – to make sure that it remains the best place to track issues that affect the development of Relay.
 
-### Reporting New Issues
+If you have a question on how to use Relay, please [post it to Stack Overflow](https://stackoverflow.com/questions/ask?tags=relayjs) with the tag [#relayjs](http://stackoverflow.com/questions/tagged/relayjs).
 
-The best way to get your bug fixed is to provide a reduced test case. Please provide a public repository with a runnable example.
+### Reporting issues with Relay
 
-### Security Bugs
+We will be using GitHub Issues for our public bugs. We will keep a close eye on this and try to make it clear when we have an internal fix in progress. Before filing a new issue, make sure an issue for your problem doesn't already exist.
+
+The best way to get your bug fixed is to provide a reduced test case. Please provide a public repository with a runnable example, or use the in-browser [Relay Playground](https://facebook.github.io/relay/prototyping/playground.html) to develop a minimal schema and application that reproduces the issue.
+
+### Security bugs
 
 Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe disclosure of security bugs. With that in mind, please do not file public issues; go through the process outlined on that page.
 

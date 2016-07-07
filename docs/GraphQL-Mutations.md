@@ -8,17 +8,11 @@ indent: true
 next: graphql-further-reading
 ---
 
-Relay uses a common pattern for mutations, where they are root fields on the
-mutation type with a single argument, `input`, and where the input and output
-both contain a client mutation identifier used to reconcile requests and
-responses.
+Relay uses a common pattern for mutations, where they are root fields on the mutation type with a single argument, `input`, and where the input and output both contain a client mutation identifier used to reconcile requests and responses.
 
-By convention, mutations are named as verbs, their inputs are the name with
-"Input" appended at the end, and they return an object that is the name with
-"Payload" appended.
+By convention, mutations are named as verbs, their inputs are the name with "Input" appended at the end, and they return an object that is the name with "Payload" appended.
 
-So for our `introduceShip` mutation, we create two types: `IntroduceShipInput`
-and `IntroduceShipPayload`:
+So for our `introduceShip` mutation, we create two types: `IntroduceShipInput` and `IntroduceShipPayload`:
 
 ```
 input IntroduceShipInput {
@@ -80,6 +74,4 @@ and we'll get this result:
 }
 ```
 
-Complete details on how the server should behave are
-available in the [GraphQL Input Object Mutations](../graphql/mutations.htm)
-spec.
+Complete details on how the server should behave are available in the [GraphQL Input Object Mutations](../graphql/mutations.htm) spec.

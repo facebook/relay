@@ -26,6 +26,12 @@ Relay uses routes to define entry points into a Relay application.
     </a>
   </li>
   <li>
+    <a href="#prepareparams-static-property">
+      <pre>static prepareParams</pre>
+      Declare additional parameters or conversion for parameters.
+    </a>
+  </li>
+  <li>
     <a href="#queries-static-property">
       <pre>static queries</pre>
       Declare the set of query roots.
@@ -70,6 +76,35 @@ class ProfileRoute extends Relay.Route {
 }
 ```
 
+### prepareParams (static property)
+
+```
+static prepareParams: ?(prevParams: {[prevParam: string]: mixed}) => {[param: string]: mixed};
+```
+
+Routes can use `prepareParams` to provide default parameters, or pass through, convert or suppress passed-in parameters.
+
+#### Example
+
+```
+class ProfileRoute extends Relay.Route {
+  static queries = {
+    viewer: () => Relay.QL`query { viewer }`
+  };
+  static prepareParams = (prevParams) => {
+    return {
+      // Pass base set of supplied params through:
+      ...prevParams,
+      // Transform a param to meet internal requirements:
+      id: toGlobalId('Profile', prevParams.id),
+      // Provide a starting `limit` variable:
+      limit: 10,
+    }
+  }
+  // ...
+}
+```
+
 ### queries (static property)
 
 ```
@@ -91,6 +126,7 @@ class ProfileRoute extends Relay.Route {
   // ...
 }
 ```
+In this example the Route should be initialized with a `userID` which gets passed on to the query. That `userID` variable will automatically be passed down to the top-level container and can be used there if needed. Further the top-level RelayContainer is expected to have a `user` fragment with the fields to be queried.
 
 ### routeName (static property)
 

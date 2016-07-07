@@ -24,7 +24,7 @@ type PayloadState = {
   server: QueryPayload,
 };
 type TransformConfig = {
-  getKeyForClientData: (field: RelayQuery.Field) => string;
+  getKeyForClientData: (field: RelayQuery.Field) => string,
   traverseChildren: (
     node: RelayQuery.Node,
     callback: (
@@ -33,7 +33,7 @@ type TransformConfig = {
       children: Array<RelayQuery.Node>
     ) => void,
     context: any
-  ) => void;
+  ) => void,
 };
 
 /**

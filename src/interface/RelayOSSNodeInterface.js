@@ -18,14 +18,14 @@ const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
 
 type PayloadResult = {
-  result: mixed;
-  rootCallInfo: RootCallInfo;
+  result: mixed,
+  rootCallInfo: RootCallInfo,
 };
 
 type RootCallInfo = {
-  storageKey: string;
-  identifyingArgKey: ?string;
-  identifyingArgValue: mixed;
+  storageKey: string,
+  identifyingArgKey: ?string,
+  identifyingArgValue: mixed,
 };
 
 /**

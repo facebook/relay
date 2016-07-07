@@ -298,8 +298,8 @@ class GraphQLRange {
     if (calls.first) {
       // before().first() calls can produce gaps
       if (calls.before && !calls.after) {
-        // make a new segment if there is a gap
-        if (pageInfo[HAS_NEXT_PAGE] === true) {
+        // make a new segment if there is a gap and there are new edges
+        if (pageInfo[HAS_NEXT_PAGE] === true && edges.length !== 0) {
           if (this._getSegmentIndexByCursor(calls.before) === 0) {
             this._orderedSegments.unshift(
               new GraphQLSegment()
@@ -344,8 +344,8 @@ class GraphQLRange {
     } else if (calls.last) {
       // after().last() calls can produce gaps
       if (calls.after && !calls.before) {
-        // make a new segment if there is a gap
-        if (pageInfo[HAS_PREV_PAGE] === true) {
+        // make a new segment if there is a gap and there are new edges
+        if (pageInfo[HAS_PREV_PAGE] === true && edges.length !== 0) {
           if (this._getSegmentIndexByCursor(calls.after) ===
               this._orderedSegments.length - 1) {
             this._orderedSegments.push(new GraphQLSegment());
@@ -532,14 +532,14 @@ class GraphQLRange {
         }
       }
     }
+    const nextSegment = this._orderedSegments[segmentIndex + 1];
     if (beforeCursor !== undefined) {
       if (segmentIndex === this._orderedSegments.length - 1) {
         console.warn(
           'GraphQLRange cannot add because there is no next segment'
         );
         return;
-      } else if (this._orderedSegments[segmentIndex + 1].getFirstCursor() !==
-                 beforeCursor) {
+      } else if (!nextSegment.isFirstCursor(beforeCursor)) {
         warning(
           false,
           'GraphQLRange cannot add because beforeCursor does not match first ' +
@@ -654,15 +654,14 @@ class GraphQLRange {
         }
       }
     }
-
+    const prevSegment = this._orderedSegments[segmentIndex - 1];
     if (afterCursor !== undefined) {
       if (segmentIndex === 0) {
         console.warn(
           'GraphQLRange cannot add because there is no previous segment'
         );
         return;
-      } else if (this._orderedSegments[segmentIndex - 1].getLastCursor() !==
-                 afterCursor) {
+      } else if (!prevSegment.isLastCursor(afterCursor)) {
         warning(
           false,
           'GraphQLRange cannot add because afterCursor does not match last ' +

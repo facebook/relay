@@ -34,15 +34,15 @@ const warning = require('warning');
 import type {DataID} from 'RelayInternalTypes';
 
 type WriterOptions = {
-  forceIndex?: ?number;
-  isOptimisticUpdate?: boolean;
-  updateTrackedQueries?: boolean;
+  forceIndex?: ?number,
+  isOptimisticUpdate?: boolean,
+  updateTrackedQueries?: boolean,
 };
 type WriterState = {
-  nodeID: ?DataID;
-  path: QueryPath;
-  recordID: DataID;
-  responseData: ?mixed;
+  nodeID: ?DataID,
+  path: QueryPath,
+  recordID: DataID,
+  responseData: ?mixed,
 };
 
 const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
@@ -95,8 +95,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     payload: Object
   ): ?string {
     if (this._isOptimisticUpdate) {
-      // Optimistic queries are inferred and fields have a generic 'any' type.
-      return null;
+      // Optimistic queries are inferred. Reuse existing type if available.
+      return this._store.getType(recordID);
     }
     let typeName = payload[TYPENAME];
     if (typeName == null) {
@@ -189,7 +189,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       (this.isNewRecord(recordID) || this._updateTrackedQueries) &&
       (!RelayRecord.isClientID(recordID) || RelayQueryPath.isRootPath(path))
     ) {
-      this._queryTracker.trackNodeForID(node, recordID, path);
+      this._queryTracker.trackNodeForID(node, recordID);
     }
   }
 

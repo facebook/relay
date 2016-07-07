@@ -31,10 +31,11 @@ const fromGraphQL = require('fromGraphQL');
 
 const {
   COLLISION_COMMIT_FAILED,
-  COMMITTING,
   COMMIT_FAILED,
   COMMIT_QUEUED,
+  COMMITTING,
   CREATED,
+  ROLLED_BACK,
   UNCOMMITTED,
 } = RelayMutationTransactionStatus;
 
@@ -513,9 +514,7 @@ describe('RelayMutationQueue', () => {
 
       transaction2.rollback();
 
-      expect(() => transaction2.getStatus()).toFailInvariant(
-        'RelayMutationQueue: `1` is not a valid pending transaction ID.'
-      );
+      expect(transaction2.getStatus()).toBe(ROLLED_BACK);
 
       const request = networkLayer.sendMutation.mock.calls[0][0];
       request.resolve({response: {'res': 'ponse'}});

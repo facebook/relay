@@ -20,8 +20,8 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 type ParamDefinition = {
-  type: string;
-  required: boolean;
+  type: string,
+  required: boolean,
 };
 export type ParamDefinitions = {[param: string]: ParamDefinition};
 type StringOrURI = string | URI;

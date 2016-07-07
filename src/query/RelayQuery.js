@@ -46,13 +46,14 @@ const shallowEqual = require('shallowEqual');
 const stableStringify = require('stableStringify');
 
 type BatchCall = {
-  refParamName: string;
-  sourceQueryID: string;
-  sourceQueryPath: string;
+  refParamName: string,
+  sourceQueryID: string,
+  sourceQueryPath: string,
 };
 type FragmentMetadata = {
-  isDeferred: boolean;
-  isContainerFragment: boolean;
+  isDeferred: boolean,
+  isContainerFragment: boolean,
+  isTypeConditional: boolean,
 };
 // TODO: replace once #6525923 is resolved
 type NextChildren = Array<any>;
@@ -70,6 +71,7 @@ let _nextQueryID = 0;
 const DEFAULT_FRAGMENT_METADATA = {
   isDeferred: false,
   isContainerFragment: false,
+  isTypeConditional: false,
 };
 const EMPTY_DIRECTIVES = [];
 const EMPTY_CALLS = [];
@@ -213,13 +215,19 @@ class RelayQueryNode {
           if (concreteChild == null) {
             return;
           }
-          const node = createNode(
+          const nodeOrNodes = createNode(
             concreteChild,
             this.__route__,
             this.__variables__
           );
-          if (node && node.isIncluded()) {
-            nextChildren.push(node);
+          if (Array.isArray(nodeOrNodes)) {
+            nodeOrNodes.forEach(node => {
+              if (node && node.isIncluded()) {
+                nextChildren.push(node);
+              }
+            });
+          } else if (nodeOrNodes && nodeOrNodes.isIncluded()) {
+            nextChildren.push(nodeOrNodes);
           }
         });
       }
@@ -373,7 +381,8 @@ class RelayQueryRoot extends RelayQueryNode {
     value: mixed,
     children: ?Array<RelayQueryNode>,
     metadata: ConcreteQueryMetadata,
-    type: string
+    type: string,
+    routeName?: string
   ): RelayQueryRoot {
     const nextChildren = children ? children.filter(child => !!child) : [];
     const batchCallVariable = QueryBuilder.getBatchCallVariable(value);
@@ -394,7 +403,7 @@ class RelayQueryRoot extends RelayQueryNode {
     });
     const root = new RelayQueryRoot(
       concreteRoot,
-      RelayMetaRoute.get('$RelayQuery'),
+      RelayMetaRoute.get(routeName || '$RelayQuery'),
       {}
     );
     root.__children__ = nextChildren;
@@ -672,7 +681,8 @@ class RelayQueryMutation extends RelayQueryOperation {
     callName: string,
     callValue?: ?mixed,
     children?: ?Array<RelayQueryNode>,
-    metadata?: ?ConcreteOperationMetadata
+    metadata?: ?ConcreteOperationMetadata,
+    routeName?: string
   ): RelayQueryMutation {
     const nextChildren = children ? children.filter(child => !!child) : [];
     const concreteMutation = QueryBuilder.createMutation({
@@ -686,7 +696,7 @@ class RelayQueryMutation extends RelayQueryOperation {
     });
     const mutation = new RelayQueryMutation(
       concreteMutation,
-      RelayMetaRoute.get('$RelayQuery'),
+      RelayMetaRoute.get(routeName || '$RelayQuery'),
       {input: callValue || ''}
     );
     mutation.__children__ = nextChildren;
@@ -778,7 +788,8 @@ class RelayQueryFragment extends RelayQueryNode {
     /* $FlowIssue: #11220887
        `Array<Subclass-of-RelayQueryNode>` should be compatible here. */
     children?: ?Array<RelayQueryNode>,
-    metadata?: ?{[key: string]: mixed}
+    metadata?: ?{[key: string]: mixed},
+    routeName?: string
   ): RelayQueryFragment {
     const nextChildren = children ? children.filter(child => !!child) : [];
     const concreteFragment = QueryBuilder.createFragment({
@@ -788,11 +799,12 @@ class RelayQueryFragment extends RelayQueryNode {
     });
     const fragment = new RelayQueryFragment(
       concreteFragment,
-      RelayMetaRoute.get('$RelayQuery'),
+      RelayMetaRoute.get(routeName || '$RelayQuery'),
       {},
       {
         isDeferred: !!(metadata && metadata.isDeferred),
         isContainerFragment: !!(metadata && metadata.isContainerFragment),
+        isTypeConditional: !!(metadata && metadata.isTypeConditional),
       }
     );
     fragment.__children__ = nextChildren;
@@ -913,6 +925,10 @@ class RelayQueryFragment extends RelayQueryNode {
     return this.__metadata__.isContainerFragment;
   }
 
+  isTypeConditional(): boolean {
+    return this.__metadata__.isTypeConditional;
+  }
+
   hasDeferredDescendant(): boolean {
     return this.isDeferred() || super.hasDeferredDescendant();
   }
@@ -991,15 +1007,17 @@ class RelayQueryField extends RelayQueryNode {
     children,
     fieldName,
     metadata,
+    routeName,
     type,
   }: {
-    alias?: ?string;
-    directives?: ?Array<Directive>;
-    calls?: ?Array<Call>;
-    children?: ?NextChildren;
-    fieldName: string;
-    metadata?: ?ConcreteFieldMetadata;
-    type: string;
+    alias?: ?string,
+    directives?: ?Array<Directive>,
+    calls?: ?Array<Call>,
+    children?: ?NextChildren,
+    fieldName: string,
+    metadata?: ?ConcreteFieldMetadata,
+    routeName?: string,
+    type: string,
   }): RelayQueryField {
     const nextChildren = children ? children.filter(child => !!child) : [];
     const concreteField = QueryBuilder.createField({
@@ -1012,7 +1030,7 @@ class RelayQueryField extends RelayQueryNode {
     });
     const field = new RelayQueryField(
       concreteField,
-      RelayMetaRoute.get('$RelayQuery'),
+      RelayMetaRoute.get(routeName || '$RelayQuery'),
       {}
     );
     field.__children__ = nextChildren;
@@ -1316,7 +1334,7 @@ function createNode(
   concreteNode: mixed,
   route: RelayMetaRoute,
   variables: Variables
-): ?RelayQueryNode {
+): ?RelayQueryNode | Array<?RelayQueryNode> {
   invariant(
     typeof concreteNode === 'object' &&
     concreteNode !== null,
@@ -1342,6 +1360,7 @@ function createNode(
         {
           isDeferred: false,
           isContainerFragment: true,
+          isTypeConditional: false,
         }
       );
     }
@@ -1353,13 +1372,15 @@ function createNode(
     type = RelayQuerySubscription;
   } else if (concreteNode instanceof RelayRouteFragment) {
     const fragment = concreteNode.getFragmentForRoute(route);
-    if (fragment) {
-      // may be null if no value was defined for this route.
-      return createNode(
-        fragment,
-        route,
-        variables
-      );
+    // May be null if no value was defined for this route.
+    if (Array.isArray(fragment)) {
+      // A route-conditional function may return a single fragment reference
+      // or an array of fragment references.
+      return fragment.map(frag => {
+        return createNode(frag, route, variables);
+      });
+    } else if (fragment) {
+      return createNode(fragment, route, variables);
     }
     return null;
   } else if (concreteNode instanceof RelayFragmentReference) {
@@ -1374,6 +1395,7 @@ function createNode(
         {
           isDeferred: concreteNode.isDeferred(),
           isContainerFragment: concreteNode.isContainerFragment(),
+          isTypeConditional: concreteNode.isTypeConditional(),
         }
       );
     }

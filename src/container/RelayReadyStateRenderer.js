@@ -26,12 +26,12 @@ const getRelayQueries = require('getRelayQueries');
 const mapObject = require('mapObject');
 
 type Props = {
-  Container: RelayContainer;
-  environment: RelayEnvironmentInterface;
-  queryConfig: RelayQueryConfigInterface;
-  readyState?: ?ReadyState;
-  render?: ?RelayRenderCallback;
-  retry: RelayRetryCallback;
+  Container: RelayContainer,
+  environment: RelayEnvironmentInterface,
+  queryConfig: RelayQueryConfigInterface,
+  readyState?: ?ReadyState,
+  render?: ?RelayRenderCallback,
+  retry: RelayRetryCallback,
 };
 
 type RelayContainerProps = {
@@ -41,11 +41,11 @@ type RelayContainerPropsFactory = RelayContainerPropsFactory;
 export type RelayRenderCallback =
   (renderArgs: RelayRenderArgs) => ?React$Element<any>;
 type RelayRenderArgs = {
-  done: boolean;
-  error: ?Error;
-  props: ?RelayContainerProps;
-  retry: ?RelayRetryCallback;
-  stale: boolean;
+  done: boolean,
+  error: ?Error,
+  props: ?RelayContainerProps,
+  retry: ?RelayRetryCallback,
+  stale: boolean,
 };
 export type RelayRetryCallback = () => void;
 
@@ -68,7 +68,7 @@ class RelayReadyStateRenderer extends React.Component {
 
   props: Props;
   state: {
-    getContainerProps: RelayContainerPropsFactory;
+    getContainerProps: RelayContainerPropsFactory,
   };
 
   constructor(props: Props, context: any) {

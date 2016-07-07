@@ -18,6 +18,7 @@ jest
   .unmock('GraphQLSegment');
 
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayQueryPath = require('RelayQueryPath');
 const RelayStoreData = require('RelayStoreData');
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayTestUtils = require('RelayTestUtils');
@@ -165,6 +166,88 @@ describe('RelayStoreData', () => {
 
       // `queuedRecords` is unchanged
       expect(storeData.getQueuedData()).toEqual({});
+    });
+  });
+
+  describe('handleFragmentPayload()', () => {
+    let fragment, rootPath, storeData;
+    beforeEach(() => {
+      storeData = new RelayStoreData();
+
+      fragment = getNode(Relay.QL`
+        fragment on Node {
+          id
+          doesViewerLike
+          topLevelComments {
+            count
+          }
+        }
+      `);
+      const query = getNode(Relay.QL`
+        query {
+          node(id:"123") {
+            id
+          }
+        }
+      `);
+      rootPath = RelayQueryPath.create(query);
+      const response = {
+        id: '123',
+        doesViewerLike: false,
+        topLevelComments: {
+          count: 1,
+        },
+        __typename: 'Story',
+      };
+      storeData.handleFragmentPayload(
+        '123',
+        fragment,
+        rootPath,
+        response
+      );
+    });
+
+    it('writes responses to `records`', () => {
+      // results are written to `records`
+      const recordStore = storeData.getRecordStore();
+      expect(recordStore.getRecordState('123')).toBe('EXISTENT');
+      expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
+      const commentsID =
+        recordStore.getLinkedRecordID('123', 'topLevelComments');
+      expect(recordStore.getField(commentsID, 'count')).toBe(1);
+
+      // `queuedRecords` is unchanged
+      expect(storeData.getQueuedData()).toEqual({});
+    });
+
+    it('broadcasts changes for created and updated records', () => {
+      const commentsID =
+        storeData.getRecordStore().getLinkedRecordID('123', 'topLevelComments');
+
+      const changeEmitter = storeData.getChangeEmitter();
+      // broadcasts for created ids
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith('123');
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith(commentsID);
+
+      const updatedResponse = {
+        id: '123',
+        doesViewerLike: true, // false -> true
+        topLevelComments: {
+          count: 2, // 1 -> 2
+        },
+        __typename: 'Story',
+      };
+      changeEmitter.broadcastChangeForID.mockClear();
+      storeData.handleFragmentPayload(
+        '123',
+        fragment,
+        rootPath,
+        updatedResponse
+      );
+
+      // broadcasts for updated ids
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith('123');
+      expect(changeEmitter.broadcastChangeForID).toBeCalledWith(commentsID);
     });
   });
 
@@ -500,5 +583,109 @@ describe('RelayStoreData', () => {
       storeData.injectQueryTracker(tracker);
       expect(storeData.getQueryTracker()).toBe(tracker);
     });
+  });
+
+  it('should toJSON', () => {
+    const storeData = new RelayStoreData();
+    const query = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          id
+          ... on User {
+            friends(first:"2") {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    const response = {
+      node: {
+        id: '123',
+        _friends48QovS: {
+          edges: [
+            {
+              node: {
+                id: '456',
+              },
+            },
+            {
+              node: {
+                id: '789',
+              },
+            },
+          ],
+        },
+        __typename: 'User',
+      },
+    };
+    storeData.handleQueryPayload(query, response);
+    const stringifiedStoreData = JSON.stringify(storeData);
+    const graphQLRangeData = storeData.getNodeData()['client:1']['__range__'];
+
+    const expectedStoreData = {
+      'cachedRecords': {},
+      'cachedRootCallMap': {},
+      'queuedRecords': {},
+      'records': {
+        '123': {
+          '__dataID__': '123',
+          '__typename': 'User',
+          'id': '123',
+          'friends': {
+            '__dataID__': 'client:1',
+          },
+        },
+        '456': {
+          '__dataID__': '456',
+          '__typename': 'User',
+          'id': '456',
+        },
+        '789': {
+          '__dataID__': '789',
+          '__typename': 'User',
+          'id': '789',
+        },
+        'client:1': {
+          '__dataID__': 'client:1',
+          '__typename': null,
+          '__filterCalls__': [],
+          '__forceIndex__': 0,
+          // GraphQLRange implements toJSON/fromJSON
+          '__range__': graphQLRangeData,
+        },
+        'client:client:1:456': {
+          '__dataID__': 'client:client:1:456',
+          '__typename': null,
+          'node': {
+            '__dataID__': '456',
+          },
+          'cursor': null,
+        },
+        'client:client:1:789': {
+          '__dataID__': 'client:client:1:789',
+          '__typename': null,
+          'node': {
+            '__dataID__': '789',
+          },
+          'cursor': null,
+        },
+      },
+      'rootCallMap': {},
+      'nodeRangeMap': {
+        '456': {
+          'client:1': true,
+        },
+        '789': {
+          'client:1': true,
+        }
+      },
+    };
+    expect(stringifiedStoreData).toEqual(JSON.stringify(expectedStoreData));
   });
 });

@@ -19,8 +19,8 @@ import type {StoreReaderOptions} from 'RelayTypes';
 const emptyFunction = require('emptyFunction');
 
 type AliasMap = {
-  children: {[applicationName: string]: AliasMap};
-  hash: ?string;
+  children: {[applicationName: string]: AliasMap},
+  hash: ?string,
 };
 
 let validateRelayReadQuery = emptyFunction;

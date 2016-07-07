@@ -56,14 +56,14 @@ const nodeWithID = RelayQuery.Field.build({
 import type {DataID} from 'RelayInternalTypes';
 
 type DiffScope = {
-  connectionField: ?RelayQuery.Field;
+  connectionField: ?RelayQuery.Field,
   dataID: DataID,
   edgeID: ?DataID,
-  rangeInfo: ?RangeInfo;
+  rangeInfo: ?RangeInfo,
 };
 type DiffOutput = {
-  diffNode: ?RelayQuery.Node;
-  trackedNode: ?RelayQuery.Node;
+  diffNode: ?RelayQuery.Node,
+  trackedNode: ?RelayQuery.Node,
 };
 
 /**
@@ -389,7 +389,7 @@ class RelayDiffQueryBuilder {
       trackedNode &&
       !(trackedNode instanceof RelayQuery.Fragment)
     ) {
-      this._queryTracker.trackNodeForID(trackedNode, scope.dataID, path);
+      this._queryTracker.trackNodeForID(trackedNode, scope.dataID);
     }
 
     return {
@@ -504,16 +504,24 @@ class RelayDiffQueryBuilder {
         };
       }
     } else {
-      // The items in this array are not fetchable by ID, so nothing else
-      // could have fetched additional data for individual items. Therefore,
-      // we only need to diff the first record to figure out which fields have
-      // previously been fetched.
-      const sampleItemID = linkedIDs[0];
-      return this.traverse(
-        field,
-        RelayQueryPath.getPath(path, field, sampleItemID),
-        makeScope(sampleItemID)
-      );
+      // The items in this array are not fetchable by ID, so nothing else could
+      // have fetched additional data for individual items. If any item in this
+      // list is missing data, refetch the whole field.
+      const atLeastOneItemHasMissingData =
+        linkedIDs.some(itemID => {
+          const itemState = this.traverse(
+            field,
+            RelayQueryPath.getPath(path, field, itemID),
+            makeScope(itemID)
+          );
+          return itemState && (itemState.diffNode || itemState.trackedNode);
+        });
+      if (atLeastOneItemHasMissingData) {
+        return {
+          diffNode: field,
+          trackedNode: null,
+        };
+      }
     }
     return null;
   }
@@ -662,12 +670,10 @@ class RelayDiffQueryBuilder {
           connectionField.getStorageKey()
         );
       } else {
-        /* eslint-disable prefer-const */
         let {
           edges: diffEdgesField,
           node: diffNodeField,
         } = splitNodeAndEdgesFields(diffNode);
-        /* eslint-enable prefer-const */
 
         // split missing `node` fields into a `node(id)` root query
         if (diffNodeField) {
@@ -813,7 +819,7 @@ function splitNodeAndEdgesFields(
             const subField = subFields[0];
             if (
               !(subField instanceof RelayQuery.Field) ||
-              subField.getSchemaName() !== 'id'
+              subField.getSchemaName() !== ID
             ) {
               nodeChild = child;
             }

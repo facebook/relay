@@ -172,6 +172,12 @@ describe('GraphQLQueryRunner', () => {
         {
           type: 'NETWORK_QUERY_START',
         },
+        {
+          type: 'CACHE_RESTORE_START',
+        },
+        {
+          type: 'CACHE_RESTORE_FAILED',
+        },
       ],
       ready: false,
       stale: false,
@@ -210,6 +216,12 @@ describe('GraphQLQueryRunner', () => {
         {
           type: 'NETWORK_QUERY_START',
         },
+        {
+          type: 'CACHE_RESTORE_START',
+        },
+        {
+          type: 'CACHE_RESTORE_FAILED',
+        },
       ],
       ready: false,
       stale: false,
@@ -225,6 +237,12 @@ describe('GraphQLQueryRunner', () => {
       events: [
         {
           type: 'NETWORK_QUERY_START',
+        },
+        {
+          type: 'CACHE_RESTORE_START',
+        },
+        {
+          type: 'CACHE_RESTORE_FAILED',
         },
         {
           type: 'NETWORK_QUERY_RECEIVED_ALL',
@@ -316,6 +334,9 @@ describe('GraphQLQueryRunner', () => {
           {
             type: 'NETWORK_QUERY_START',
           },
+          {
+            type: 'CACHE_RESTORE_START',
+          },
         ],
         ready: false,
         stale: false,
@@ -327,6 +348,30 @@ describe('GraphQLQueryRunner', () => {
         events: [
           {
             type: 'NETWORK_QUERY_START',
+          },
+          {
+            type: 'CACHE_RESTORE_START',
+          },
+          {
+            type: 'CACHE_RESTORE_FAILED',
+          },
+        ],
+        ready: false,
+        stale: false,
+      }],
+      [{
+        aborted: false,
+        done: false,
+        error: null,
+        events: [
+          {
+            type: 'NETWORK_QUERY_START',
+          },
+          {
+            type: 'CACHE_RESTORE_START',
+          },
+          {
+            type: 'CACHE_RESTORE_FAILED',
           },
           {
             type: 'NETWORK_QUERY_RECEIVED_REQUIRED',
@@ -347,6 +392,12 @@ describe('GraphQLQueryRunner', () => {
       events: [
         {
           type: 'NETWORK_QUERY_START',
+        },
+        {
+          type: 'CACHE_RESTORE_START',
+        },
+        {
+          type: 'CACHE_RESTORE_FAILED',
         },
         {
           type: 'NETWORK_QUERY_RECEIVED_REQUIRED',
@@ -375,6 +426,12 @@ describe('GraphQLQueryRunner', () => {
         {
           type: 'NETWORK_QUERY_START',
         },
+        {
+          type: 'CACHE_RESTORE_START',
+        },
+        {
+          type: 'CACHE_RESTORE_FAILED',
+        },
       ],
       ready: false,
       stale: false,
@@ -393,6 +450,27 @@ describe('GraphQLQueryRunner', () => {
           {
             type: 'NETWORK_QUERY_START',
           },
+          {
+            type: 'CACHE_RESTORE_START',
+          },
+        ],
+        ready: false,
+        stale: false,
+      }],
+      [{
+        aborted: false,
+        done: false,
+        error: null,
+        events: [
+          {
+            type: 'NETWORK_QUERY_START',
+          },
+          {
+            type: 'CACHE_RESTORE_START',
+          },
+          {
+            type: 'CACHE_RESTORE_FAILED',
+          },
         ],
         ready: false,
         stale: false,
@@ -404,6 +482,12 @@ describe('GraphQLQueryRunner', () => {
         events: [
           {
             type: 'NETWORK_QUERY_START',
+          },
+          {
+            type: 'CACHE_RESTORE_START',
+          },
+          {
+            type: 'CACHE_RESTORE_FAILED',
           },
           {
             type: 'NETWORK_QUERY_RECEIVED_ALL',
@@ -433,6 +517,12 @@ describe('GraphQLQueryRunner', () => {
       events: [
         {
           type: 'NETWORK_QUERY_START',
+        },
+        {
+          type: 'CACHE_RESTORE_START',
+        },
+        {
+          type: 'CACHE_RESTORE_FAILED',
         },
         {
           type: 'NETWORK_QUERY_RECEIVED_ALL',
@@ -479,6 +569,9 @@ describe('GraphQLQueryRunner', () => {
           type: 'NETWORK_QUERY_START',
         },
         {
+          type: 'CACHE_RESTORE_START',
+        },
+        {
           type: 'ABORT',
         },
       ],
@@ -501,18 +594,6 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-        ],
-        ready: false,
-        stale: false,
-      }],
       [{
         aborted: false,
         done: false,
@@ -572,6 +653,9 @@ describe('GraphQLQueryRunner', () => {
         events: [
           {
             type: 'NETWORK_QUERY_START',
+          },
+          {
+            type: 'CACHE_RESTORE_START',
           },
         ],
         ready: false,
@@ -648,6 +732,9 @@ describe('GraphQLQueryRunner', () => {
           {
             type: 'NETWORK_QUERY_START',
           },
+          {
+            type: 'CACHE_RESTORE_START',
+          },
         ],
         ready: false,
         stale: false,
@@ -703,6 +790,9 @@ describe('GraphQLQueryRunner', () => {
           {
             type: 'NETWORK_QUERY_START',
           },
+          {
+            type: 'CACHE_RESTORE_START',
+          },
         ],
         ready: false,
         stale: false,
@@ -716,7 +806,10 @@ describe('GraphQLQueryRunner', () => {
             type: 'NETWORK_QUERY_START',
           },
           {
-            type: 'STORE_FOUND_REQUIRED',
+            type: 'CACHE_RESTORE_START',
+          },
+          {
+            type: 'CACHE_RESTORED_REQUIRED',
           },
         ],
         ready: true,
@@ -737,7 +830,10 @@ describe('GraphQLQueryRunner', () => {
           type: 'NETWORK_QUERY_START',
         },
         {
-          type: 'STORE_FOUND_REQUIRED',
+          type: 'CACHE_RESTORE_START',
+        },
+        {
+          type: 'CACHE_RESTORED_REQUIRED',
         },
         {
           type: 'NETWORK_QUERY_RECEIVED_ALL',
@@ -824,12 +920,17 @@ describe('GraphQLQueryRunner', () => {
         expect(mockCallback.mock.calls).toEqual([
           [{
             ...defaultState,
-            events: [{type: 'NETWORK_QUERY_START'}],
+            events: [
+              {type: 'NETWORK_QUERY_START'},
+              {type: 'CACHE_RESTORE_START'},
+            ],
           }],
           [{
             ...defaultState,
             events: [
               {type: 'NETWORK_QUERY_START'},
+              {type: 'CACHE_RESTORE_START'},
+              {type: 'CACHE_RESTORE_FAILED'},
               {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
             ],
             ready: true,
@@ -844,13 +945,18 @@ describe('GraphQLQueryRunner', () => {
         expect(mockCallback.mock.calls).toEqual([
           [{
             ...defaultState,
-            events: [{type: 'NETWORK_QUERY_START'}],
+            events: [
+              {type: 'NETWORK_QUERY_START'},
+              {type: 'CACHE_RESTORE_START'},
+            ],
             ready: false,
           }],
           [{
             ...defaultState,
             events: [
               {type: 'NETWORK_QUERY_START'},
+              {type: 'CACHE_RESTORE_START'},
+              {type: 'CACHE_RESTORE_FAILED'},
               {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
             ],
             ready: true,
@@ -859,6 +965,8 @@ describe('GraphQLQueryRunner', () => {
             ...defaultState,
             events: [
               {type: 'NETWORK_QUERY_START'},
+              {type: 'CACHE_RESTORE_START'},
+              {type: 'CACHE_RESTORE_FAILED'},
               {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
               {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
             ],
@@ -875,6 +983,8 @@ describe('GraphQLQueryRunner', () => {
             done: true,
             events: [
               {type: 'NETWORK_QUERY_START'},
+              {type: 'CACHE_RESTORE_START'},
+              {type: 'CACHE_RESTORE_FAILED'},
               {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
               {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
               {type: 'NETWORK_QUERY_RECEIVED_ALL'},

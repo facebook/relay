@@ -213,8 +213,9 @@ function runQueries(
 
     const flattenedQueries = splitAndFlattenQueries(storeData, queries);
 
+    const networkEvent = [];
     if (flattenedQueries.length) {
-      readyState.update({}, [{type: 'NETWORK_QUERY_START'}]);
+      networkEvent.push({type: 'NETWORK_QUERY_START'});
     }
 
     flattenedQueries.forEach(query => {
@@ -236,15 +237,21 @@ function runQueries(
       readyState.update({
         done: true,
         ready: true,
-      }, [{type: 'STORE_FOUND_ALL'}]);
+      }, [...networkEvent, {type: 'STORE_FOUND_ALL'}]);
     } else {
       if (!hasItems(remainingRequiredFetchMap)) {
-        readyState.update({ready: true}, [{type: 'STORE_FOUND_REQUIRED'}]);
+        readyState.update(
+          {ready: true},
+          [...networkEvent, {type: 'STORE_FOUND_REQUIRED'}]
+        );
       } else {
-        readyState.update({ready: false});
+        readyState.update(
+          {ready: false},
+          [...networkEvent, {type: 'CACHE_RESTORE_START'}]
+        );
+
         resolveImmediate(() => {
           if (storeData.hasCacheManager()) {
-            readyState.update({}, [{type: 'CACHE_RESTORE_START'}]);
             const requiredQueryMap = mapObject(
               remainingRequiredFetchMap,
               value => value.getQuery()
@@ -259,18 +266,18 @@ function runQueries(
               onFailure: (error: any) => {
                 readyState.update({
                   error,
-                  ready: false,
                 }, [{type: 'CACHE_RESTORE_FAILED', error}]);
               },
             });
           } else {
-            if (everyObject(remainingRequiredFetchMap, canResolve)) {
-              if (hasItems(remainingRequiredFetchMap)) {
+            if (everyObject(remainingRequiredFetchMap, canResolve) &&
+              hasItems(remainingRequiredFetchMap)) {
                 readyState.update({
                   ready: true,
                   stale: true,
-                }, [{type: 'STORE_FOUND_REQUIRED'}]);
-              }
+                }, [{type: 'CACHE_RESTORED_REQUIRED'}]);
+            } else {
+              readyState.update({}, [{type: 'CACHE_RESTORE_FAILED'}]);
             }
           }
         });

@@ -21,7 +21,10 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
-type Condition = (variables: Variables) => boolean;
+type Condition = {
+  passingValue: boolean,
+  variable: string,
+};
 type FragmentGetter = () => ConcreteFragment;
 type PrepareVariablesCallback = (
   prevVariables: Variables,
@@ -95,6 +98,7 @@ class RelayFragmentReference {
   _fragmentGetter: FragmentGetter;
   _isContainerFragment: boolean;
   _isDeferred: boolean;
+  _isTypeConditional: boolean;
   _variableMapping: ?VariableMapping;
   _prepareVariables: ?PrepareVariablesCallback;
 
@@ -120,13 +124,41 @@ class RelayFragmentReference {
     variableMapping?: ?VariableMapping,
     prepareVariables?: ?PrepareVariablesCallback
   ) {
+    this._conditions = null;
     this._initialVariables = initialVariables || {};
     this._fragment = undefined;
     this._fragmentGetter = fragmentGetter;
     this._isContainerFragment = false;
     this._isDeferred = false;
+    this._isTypeConditional = false;
     this._variableMapping = variableMapping;
     this._prepareVariables = prepareVariables;
+  }
+
+  conditionOnType(): RelayFragmentReference {
+    this._isTypeConditional = true;
+    return this;
+  }
+
+  getConditions(): ?Array<Condition> {
+    return this._conditions;
+  }
+
+  getFragmentUnconditional(): ConcreteFragment {
+    let fragment = this._fragment;
+    if (fragment == null) {
+      fragment = this._fragmentGetter();
+      this._fragment = fragment;
+    }
+    return fragment;
+  }
+
+  getInitialVariables(): Variables {
+    return this._initialVariables;
+  }
+
+  getVariableMapping(): ?VariableMapping {
+    return this._variableMapping;
   }
 
   /**
@@ -148,9 +180,10 @@ class RelayFragmentReference {
       'Expected a variable.',
       callVariable
     );
-    this._addCondition(
-      variables => !!variables[callVariable.callVariableName]
-    );
+    this._addCondition({
+      passingValue: true,
+      variable: callVariable.callVariableName,
+    });
     return this;
   }
 
@@ -165,22 +198,11 @@ class RelayFragmentReference {
       'Expected a variable.',
       callVariable
     );
-    this._addCondition(
-      variables => !variables[callVariable.callVariableName]
-    );
+    this._addCondition({
+      passingValue: false,
+      variable: callVariable.callVariableName,
+    });
     return this;
-  }
-
-  /**
-   * @private
-   */
-  _getFragment(): ConcreteFragment {
-    let fragment = this._fragment;
-    if (fragment == null) {
-      fragment = this._fragmentGetter();
-      this._fragment = fragment;
-    }
-    return fragment;
   }
 
   /**
@@ -189,10 +211,12 @@ class RelayFragmentReference {
   getFragment(variables: Variables): ?ConcreteFragment {
     // determine if the variables match the supplied if/unless conditions
     const conditions = this._conditions;
-    if (conditions && !conditions.every(cb => cb(variables))) {
+    if (conditions && !conditions.every(({variable, passingValue}) => {
+      return !!variables[variable] === passingValue;
+    })) {
       return null;
     }
-    return this._getFragment();
+    return this.getFragmentUnconditional();
   }
 
   /**
@@ -216,7 +240,7 @@ class RelayFragmentReference {
             'RelayFragmentReference: Variable `%s` is undefined in fragment ' +
             '`%s`.',
             name,
-            this._getFragment().name
+            this.getFragmentUnconditional().name
           );
         } else {
           innerVariables[name] = value;
@@ -238,6 +262,10 @@ class RelayFragmentReference {
 
   isDeferred(): boolean {
     return this._isDeferred;
+  }
+
+  isTypeConditional(): boolean {
+    return this._isTypeConditional;
   }
 
   _addCondition(condition: Condition): void {

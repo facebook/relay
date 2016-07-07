@@ -83,7 +83,7 @@ describe('RelayGraphQLMutation', () => {
     queue = storeData.getMutationQueue();
     sendMutation = jest.fn(request => {
       requests.push(request);
-      return request.getPromise();
+      return request;
     });
     storeData.getNetworkLayer().injectImplementation({sendMutation});
 

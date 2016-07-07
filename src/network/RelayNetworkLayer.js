@@ -12,12 +12,11 @@
 
 'use strict';
 
-import type {ChangeSubscription} from 'RelayInternalTypes';
 import type RelayMutationRequest from 'RelayMutationRequest';
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 const RelayQueryRequest = require('RelayQueryRequest');
-import type {NetworkLayer} from 'RelayTypes';
+import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 
 const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');

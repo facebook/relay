@@ -20,14 +20,14 @@ const RelayQueryVisitor = require('RelayQueryVisitor');
 const sortTypeFirst = require('sortTypeFirst');
 
 type FlattenedQuery = {
-  node: RelayQuery.Node;
-  type: string;
-  flattenedFieldMap: Map<string, FlattenedQuery>;
-  flattenedFragmentMap: Map<string, FlattenedQuery>;
+  node: RelayQuery.Node,
+  type: string,
+  flattenedFieldMap: Map<string, FlattenedQuery>,
+  flattenedFragmentMap: Map<string, FlattenedQuery>,
 };
 export type FlattenRelayQueryOptions = {
-  preserveEmptyNodes?: boolean;
-  shouldRemoveFragments?: boolean;
+  preserveEmptyNodes?: boolean,
+  shouldRemoveFragments?: boolean,
 };
 
 /**

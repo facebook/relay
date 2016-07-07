@@ -35,17 +35,18 @@ const typeField = RelayQuery.Field.build({
 });
 
 type ClientPath = {
-  node: RelayQuery.Field | RelayQuery.Fragment;
-  parent: QueryPath;
-  type: 'client';
+  node: RelayQuery.Field | RelayQuery.Fragment,
+  parent: QueryPath,
+  type: 'client',
 }
 type NodePath = {
-  dataID: DataID;
-  name: string;
-  type: 'node';
+  dataID: DataID,
+  name: string,
+  routeName: string,
+  type: 'node',
 };
 type RootPath = {
-  root: RelayQuery.Root;
+  root: RelayQuery.Root,
   type: 'root',
 };
 
@@ -59,7 +60,7 @@ export type QueryPath = ClientPath | NodePath | RootPath;
  * refetchable nodes) or the field path from the nearest refetchable node.
  */
 const RelayQueryPath = {
-  createForID(dataID: DataID, name: string): QueryPath {
+  createForID(dataID: DataID, name: string, routeName: ?string): QueryPath {
     invariant(
       !RelayRecord.isClientID(dataID),
       'RelayQueryPath.createForID: Expected dataID to be a server id, got ' +
@@ -69,6 +70,7 @@ const RelayQueryPath = {
     return {
       dataID,
       name,
+      routeName: routeName || '$RelayQuery',
       type: 'node',
     };
   },
@@ -80,6 +82,7 @@ const RelayQueryPath = {
         return {
           dataID: identifyingArg.value,
           name: root.getName(),
+          routeName: root.getRoute().name,
           type: 'node',
         };
       }
@@ -107,6 +110,7 @@ const RelayQueryPath = {
       return {
         dataID,
         name: RelayQueryPath.getName(parent),
+        routeName: RelayQueryPath.getRouteName(parent),
         type: 'node',
       };
     }
@@ -135,7 +139,24 @@ const RelayQueryPath = {
     } else {
       invariant(
         false,
-        'RelayQueryPath: Invalid path `%s`.',
+        'RelayQueryPath.getName(): Invalid path `%s`.',
+        path
+      );
+    }
+  },
+
+  getRouteName(path: QueryPath): string {
+    while (path.type === 'client') {
+      path = path.parent;
+    }
+    if (path.type === 'root') {
+      return path.root.getRoute().name;
+    } else if (path.type === 'node') {
+      return path.routeName;
+    } else {
+      invariant(
+        false,
+        'RelayQueryPath.getRouteName(): Invalid path `%s`.',
         path
       );
     }
@@ -198,7 +219,8 @@ function createRootQueryFromNodePath(
       isDeferred: false,
       isPlural: false,
     },
-    NODE_TYPE
+    NODE_TYPE,
+    nodePath.routeName
   );
 }
 

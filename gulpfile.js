@@ -114,8 +114,8 @@ const paths = {
   ],
 };
 
-gulp.task('clean', function(cb) {
-  del([paths.dist, paths.lib], cb);
+gulp.task('clean', function() {
+  return del([paths.dist, paths.lib]);
 });
 
 gulp.task('modules', function() {

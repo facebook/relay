@@ -21,16 +21,16 @@ const base62 = require('base62');
 const invariant = require('invariant');
 
 type PrinterState = {
-  fragmentCount: number;
-  fragmentNameByHash: {[fragmentHash: string]: string};
-  fragmentNameByText: {[fragmentText: string]: string};
-  fragmentTexts: Array<string>;
-  variableCount: number;
-  variableMap: Map<string, Map<mixed, Variable>>;
+  fragmentCount: number,
+  fragmentNameByHash: {[fragmentHash: string]: string},
+  fragmentNameByText: {[fragmentText: string]: string},
+  fragmentTexts: Array<string>,
+  variableCount: number,
+  variableMap: Map<string, Map<mixed, Variable>>,
 };
 type Variable = {
-  value: mixed;
-  variableID: string;
+  value: mixed,
+  variableID: string,
 };
 
 let oneIndent = '';
@@ -61,8 +61,8 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
   let queryText = null;
   if (node instanceof RelayQuery.Root) {
     queryText = printRoot(node, printerState);
-  } else if (node instanceof RelayQuery.Mutation) {
-    queryText = printMutation(node, printerState);
+  } else if (node instanceof RelayQuery.Operation) {
+    queryText = printOperation(node, printerState);
   } else if (node instanceof RelayQuery.Fragment) {
     queryText = printFragment(node, printerState);
   }
@@ -121,10 +121,13 @@ function printRoot(
     oneIndent + fieldName + children + newLine + '}';
 }
 
-function printMutation(
-  node: RelayQuery.Mutation,
+function printOperation(
+  node: RelayQuery.Operation,
   printerState: PrinterState
 ): string {
+  const operationKind = node instanceof RelayQuery.Mutation ?
+    'mutation' :
+    'subscription';
   const call = node.getCall();
   const inputString = printArgument(
     node.getCallVariableName(),
@@ -134,18 +137,20 @@ function printMutation(
   );
   invariant(
     inputString,
-    'printRelayOSSQuery(): Expected mutation `%s` to have a value for `%s`.',
+    'printRelayOSSQuery(): Expected %s `%s` to have a value for `%s`.',
+    operationKind,
     node.getName(),
     node.getCallVariableName()
   );
   // Note: children must be traversed before printing variable definitions
   const children = printChildren(node, printerState, oneIndent);
-  const mutationString =
+  const operationString =
     node.getName() + printVariableDefinitions(printerState);
   const fieldName = call.name + '(' + inputString + ')';
 
-  return 'mutation ' + mutationString + ' {' + newLine +
+  return operationKind + ' ' + operationString + ' {' + newLine +
     oneIndent + fieldName + children + newLine + '}';
+
 }
 
 function printVariableDefinitions({variableMap}: PrinterState): string {

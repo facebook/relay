@@ -122,13 +122,13 @@ const QueryBuilder = {
   },
 
   createField(partialField: {
-    alias?: ?string;
-    calls?: ?Array<ConcreteCall>;
-    children?: ?Array<?ConcreteSelection>;
-    directives?: ?Array<ConcreteDirective>;
-    fieldName: string;
-    metadata?: ?ConcreteFieldMetadata;
-    type: string;
+    alias?: ?string,
+    calls?: ?Array<ConcreteCall>,
+    children?: ?Array<?ConcreteSelection>,
+    directives?: ?Array<ConcreteDirective>,
+    fieldName: string,
+    metadata?: ?ConcreteFieldMetadata,
+    type: string,
   }): ConcreteField {
     const partialMetadata = partialField.metadata || EMPTY_METADATA;
     return {
@@ -154,12 +154,12 @@ const QueryBuilder = {
   },
 
   createFragment(partialFragment: {
-    children?: ?Array<?ConcreteSelection>;
-    directives?: ?Array<ConcreteDirective>;
-    isPlural?: boolean;
-    metadata?: ?ConcreteFragmentMetadata;
-    name: string;
-    type: string;
+    children?: ?Array<?ConcreteSelection>,
+    directives?: ?Array<ConcreteDirective>,
+    isPlural?: boolean,
+    metadata?: ?ConcreteFragmentMetadata,
+    name: string,
+    type: string,
   }): ConcreteFragment {
     const metadata = partialFragment.metadata || EMPTY_METADATA;
     return {
@@ -187,12 +187,12 @@ const QueryBuilder = {
   },
 
   createMutation(partialMutation: {
-    calls?: ?Array<ConcreteCall>;
-    children?: ?Array<?ConcreteSelection>;
-    directives?: ?Array<ConcreteDirective>;
-    metadata?: ?ConcreteOperationMetadata;
-    name: string;
-    responseType: string;
+    calls?: ?Array<ConcreteCall>,
+    children?: ?Array<?ConcreteSelection>,
+    directives?: ?Array<ConcreteDirective>,
+    metadata?: ?ConcreteOperationMetadata,
+    name: string,
+    responseType: string,
   }): ConcreteMutation {
     const metadata = partialMutation.metadata || EMPTY_METADATA;
     return {
@@ -209,14 +209,14 @@ const QueryBuilder = {
   },
 
   createQuery(partialQuery: {
-    children?: ?Array<?ConcreteSelection>;
-    directives?: ?Array<ConcreteDirective>;
-    fieldName: string;
-    identifyingArgValue: ?ConcreteValue;
-    isDeferred?: boolean;
-    metadata?: ?ConcreteQueryMetadata;
-    name: string;
-    type: string;
+    children?: ?Array<?ConcreteSelection>,
+    directives?: ?Array<ConcreteDirective>,
+    fieldName: string,
+    identifyingArgValue: ?ConcreteValue,
+    isDeferred?: boolean,
+    metadata?: ?ConcreteQueryMetadata,
+    name: string,
+    type: string,
   }): ConcreteQuery {
     const metadata = partialQuery.metadata || EMPTY_METADATA;
     let calls = [];
@@ -260,12 +260,12 @@ const QueryBuilder = {
   },
 
   createSubscription(partialSubscription: {
-    calls?: ?Array<ConcreteCall>;
-    children?: ?Array<?ConcreteSelection>;
-    directives?: ?Array<ConcreteDirective>;
-    metadata?: ?ConcreteOperationMetadata;
-    name: string;
-    responseType: string;
+    calls?: ?Array<ConcreteCall>,
+    children?: ?Array<?ConcreteSelection>,
+    directives?: ?Array<ConcreteDirective>,
+    metadata?: ?ConcreteOperationMetadata,
+    name: string,
+    responseType: string,
   }): ConcreteSubscription {
     const metadata = partialSubscription.metadata || EMPTY_METADATA;
     return {

@@ -30,21 +30,21 @@ import type {RangeInfo} from 'RelayRecordStore';
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 
 export type FinderResult = {
-  missingData: boolean;
-  pendingNodeStates: Array<NodeState>;
+  missingData: boolean,
+  pendingNodeStates: Array<NodeState>,
 };
 type FinderState = {
-  dataID: DataID;
-  missingData: boolean;
-  path: QueryPath;
-  rangeCalls: ?Array<Call>;
-  rangeInfo: ?RangeInfo;
+  dataID: DataID,
+  missingData: boolean,
+  path: QueryPath,
+  rangeCalls: ?Array<Call>,
+  rangeInfo: ?RangeInfo,
 };
 export type NodeState = {
   dataID: ?DataID,
-  node: RelayQuery.Node;
-  path: QueryPath;
-  rangeCalls: ?Array<Call>;
+  node: RelayQuery.Node,
+  path: QueryPath,
+  rangeCalls: ?Array<Call>,
 };
 
 const {EDGES, PAGE_INFO} = RelayConnectionInterface;

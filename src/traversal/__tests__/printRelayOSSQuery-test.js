@@ -344,10 +344,11 @@ describe('printRelayOSSQuery', () => {
               storyCommentSearch(query: $query) {id}
             }
           }
-        }
-      `, {
-        query: {text: 'foo'}
-      });
+        }`,
+        {
+          query: {text: 'foo'},
+        },
+      );
       const storySearchAlias =
         generateRQLFieldAlias('storySearch.query({"text":"foo"})');
       const storyCommentSearchAlias =
@@ -862,6 +863,58 @@ describe('printRelayOSSQuery', () => {
       ) {
         feedbackLike(input: $input_0) {
           clientMutationId,
+          feedback {
+            id,
+            actor {
+              ${alias}: profilePicture(preset: $preset_1) {
+                uri
+              },
+              id,
+              __typename
+            },
+            likeSentence,
+            likers
+          }
+        }
+      }
+    `);
+    expect(variables).toEqual({
+      input_0: inputValue,
+      preset_1: 'SMALL',
+    });
+  });
+
+  it('prints a subscription', () => {
+    const inputValue = {
+      foo: 'bar',
+    };
+    const subscription = getNode(Relay.QL`
+      subscription {
+        feedbackLikeSubscribe(input: $input) {
+          clientSubscriptionId
+          feedback {
+            id
+            actor {
+              profilePicture(preset: SMALL) {
+                uri
+              }
+            }
+            likeSentence
+            likers
+          }
+        }
+      }
+    `, {input: inputValue});
+
+    const alias = generateRQLFieldAlias('profilePicture.preset(SMALL)');
+    const {text, variables} = printRelayOSSQuery(subscription);
+    expect(text).toEqualPrintedQuery(`
+      subscription PrintRelayOSSQuery(
+        $input_0: FeedbackLikeInput!,
+        $preset_1: PhotoSize!
+      ) {
+        feedbackLikeSubscribe(input: $input_0) {
+          clientSubscriptionId,
           feedback {
             id,
             actor {

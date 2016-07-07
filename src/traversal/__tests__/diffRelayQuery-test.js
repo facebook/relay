@@ -1080,7 +1080,7 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[0][0]).toEqualQueryNode(trackedQuery);
   });
 
-  it('handles arrays containing non-Nodes', () => {
+  it('diffs plural fields out when every record has all specified data', () => {
     const records = {
       '12345': {
         __dataID__: '12345',
@@ -1096,20 +1096,50 @@ describe('diffRelayQuery', () => {
       },
       'client:2': {
         __dataID__: 'client:2',
-        service: 'TWITTER',
+        service: 'ICQ',
       },
     };
     const store = new RelayRecordStore({records});
-    const expected = getNode(Relay.QL`
+
+    // Assume node(12345) is a Story
+    const query = getNode(Relay.QL`
       query {
         node(id:"12345") {
           id
           screennames {
-            name
+            service
           }
         }
       }
     `);
+
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
+    expect(diffQueries.length).toBe(0);
+  });
+
+  it('does not diff plural fields if any record is missing data', () => {
+    const records = {
+      '12345': {
+        __dataID__: '12345',
+        id: '12345',
+        screennames: [
+          {__dataID__: 'client:1'},
+          {__dataID__: 'client:2'},
+        ],
+      },
+      'client:1': {
+        __dataID__: 'client:1',
+        // missing `name`
+        service: 'GTALK',
+      },
+      'client:2': {
+        __dataID__: 'client:2',
+        name: 'steveluscher',
+        service: 'TWITTER',
+      },
+    };
+    const store = new RelayRecordStore({records});
 
     // Assume node(12345) is a Story
     const query = getNode(Relay.QL`
@@ -1127,8 +1157,7 @@ describe('diffRelayQuery', () => {
     const tracker = new RelayQueryTracker();
     const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
-    expect(diffQueries[0].getName()).toBe(query.getName());
-    expect(diffQueries[0]).toEqualQueryRoot(expected);
+    expect(diffQueries[0]).toBe(query);
   });
 
   it('handles missing fields in fragments', () => {

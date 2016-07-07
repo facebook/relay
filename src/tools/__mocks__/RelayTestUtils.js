@@ -576,12 +576,14 @@ const RelayTestUtils = {
     const indentSize = 2;
     const indent = indentBy.bind(null, indentSize);
     const printedQuery = printRelayQuery(flattenRelayQuery(node));
+    /* eslint-disable no-console-disallow */
     console.log(
       'Node:\n' +
       indent(prettifyQueryString(printedQuery.text, indentSize)) + '\n\n' +
       'Variables:\n' +
       indent(prettyStringify(printedQuery.variables, indentSize)) + '\n'
     );
+    /* eslint-enable no-console-disallow */
   },
 
   /**

@@ -10,9 +10,9 @@
 'use strict';
 
 type Result = {
-  isMatched: boolean;
-  message: ?string;
-  path: ?Array<string>;
+  isMatched: boolean,
+  message: ?string,
+  path: ?Array<string>,
 };
 
 const METADATA_KEYS = {

@@ -23,11 +23,11 @@ import type {NodePath} from 'RelayRefQueryDescriptor';
 const invariant = require('invariant');
 
 export type SplitQueries = {
-  __nodePath__: NodePath;
-  __parent__: ?SplitQueries;
-  __refQuery__: ?RelayRefQueryDescriptor;
-  deferred: Array<SplitQueries>;
-  required: ?RelayQuery.Root;
+  __nodePath__: NodePath,
+  __parent__: ?SplitQueries,
+  __refQuery__: ?RelayRefQueryDescriptor,
+  deferred: Array<SplitQueries>,
+  required: ?RelayQuery.Root,
 };
 
 /**

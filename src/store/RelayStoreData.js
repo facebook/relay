@@ -48,6 +48,7 @@ import type {TaskScheduler} from 'RelayTaskQueue';
 import type {Abortable, CacheManager, CacheProcessorCallbacks} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
+const mapObject = require('mapObject');
 const invariant = require('invariant');
 const generateForceIndex = require('generateForceIndex');
 const {
@@ -97,15 +98,15 @@ class RelayStoreData {
   _rootCallMap: RootCallMap;
   _taskQueue: RelayTaskQueue;
 
-  constructor() {
-    const cachedRecords: RecordMap = {};
-    const cachedRootCallMap: RootCallMap = {};
-    const queuedRecords: RecordMap = {};
-    const records: RecordMap = {};
-    const rootCallMap: RootCallMap = {};
-    const nodeRangeMap: NodeRangeMap = {};
-    const rangeData = new GraphQLStoreRangeUtils();
-
+  constructor(
+    cachedRecords?: RecordMap = {},
+    cachedRootCallMap?: RootCallMap = {},
+    queuedRecords?: RecordMap = {},
+    records?: RecordMap = {},
+    rootCallMap?: RootCallMap = {},
+    nodeRangeMap?: NodeRangeMap = {},
+    rangeData?: GraphQLStoreRangeUtils = new GraphQLStoreRangeUtils(),
+  ) {
     this._cacheManager = null;
     this._cachedRecords = cachedRecords;
     this._cachedRootCallMap = cachedRootCallMap;
@@ -263,7 +264,7 @@ class RelayStoreData {
     fragment: RelayQuery.Fragment,
     path: QueryPath,
     callbacks: CacheProcessorCallbacks
-  ): void {
+  ): Abortable {
     const cacheManager = this._cacheManager;
     invariant(
       cacheManager,
@@ -273,7 +274,7 @@ class RelayStoreData {
     const changeTracker = new RelayChangeTracker();
     const profile =
       RelayProfiler.profile('RelayStoreData.readFragmentFromDiskCache');
-    restoreFragmentDataFromCache(
+    return restoreFragmentDataFromCache(
       dataID,
       fragment,
       path,
@@ -323,6 +324,35 @@ class RelayStoreData {
       query,
       payload
     );
+    this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
+    profiler.stop();
+  }
+
+  /**
+   * Write the result of a fragment into the base record store.
+   */
+  handleFragmentPayload(
+    dataID: DataID,
+    fragment: RelayQuery.Fragment,
+    path: QueryPath,
+    payload: QueryPayload,
+    forceIndex: ?number
+  ): void {
+    const profiler =
+      RelayProfiler.profile('RelayStoreData.handleFragmentPayload');
+    const changeTracker = new RelayChangeTracker();
+    const writer = new RelayQueryWriter(
+      this._queuedStore,
+      this.getRecordWriter(),
+      this._queryTracker,
+      changeTracker,
+      {
+        forceIndex,
+        updateTrackedQueries: true,
+      }
+    );
+    writer.createRecordIfMissing(fragment, dataID, path, payload);
+    writer.writePayload(fragment, dataID, payload, path);
     this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
     profiler.stop();
   }
@@ -566,6 +596,51 @@ class RelayStoreData {
     );
   }
 
+  toJSON() {
+    /**
+     * A util function which remove the querypath from the record. Used to stringify the RecordMap.
+     */
+    const getRecordsWithoutPaths = (recordMap: ?RecordMap) => {
+      return mapObject(recordMap, record => {
+        const nextRecord = {...record};
+        delete nextRecord[RelayRecord.MetadataKey.PATH];
+        return nextRecord;
+      });
+    };
+
+    return {
+      cachedRecords: getRecordsWithoutPaths(this._cachedRecords),
+      cachedRootCallMap: this._cachedRootCallMap,
+      queuedRecords: getRecordsWithoutPaths(this._queuedRecords),
+      records: getRecordsWithoutPaths(this._records),
+      rootCallMap: this._rootCallMap,
+      nodeRangeMap: this._nodeRangeMap,
+    };
+  }
+
+  static fromJSON(obj): RelayStoreData {
+    invariant(
+      obj,
+      'RelayStoreData: JSON object is empty',
+    );
+    const {
+      cachedRecords,
+      cachedRootCallMap,
+      queuedRecords,
+      records,
+      rootCallMap,
+      nodeRangeMap,
+    } = obj;
+
+    return new RelayStoreData(
+      cachedRecords,
+      cachedRootCallMap,
+      queuedRecords,
+      records,
+      rootCallMap,
+      nodeRangeMap,
+    );
+  }
 }
 
 RelayProfiler.instrumentMethods(RelayStoreData.prototype, {

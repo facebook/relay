@@ -32,6 +32,7 @@ const {
 class RelayMutationTransaction {
   _id: ClientMutationID;
   _mutationQueue: RelayMutationQueue;
+  _rolledBack: boolean = false;
 
   constructor(mutationQueue: RelayMutationQueue, id: ClientMutationID) {
     this._id = id;
@@ -99,6 +100,7 @@ class RelayMutationTransaction {
       '`COMMIT_QUEUED` can be rolled back.'
     );
 
+    this._rolledBack = true;
     this._mutationQueue.rollback(this._id);
   }
 
@@ -107,7 +109,9 @@ class RelayMutationTransaction {
   }
 
   getStatus(): $Keys<typeof RelayMutationTransactionStatus> {
-    return this._mutationQueue.getStatus(this._id);
+    return this._rolledBack ?
+      RelayMutationTransactionStatus.ROLLED_BACK :
+      this._mutationQueue.getStatus(this._id);
   }
 
   getHash(): string {

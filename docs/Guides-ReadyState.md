@@ -26,6 +26,10 @@ When Relay fulfills data, the `onReadyStateChange` callback is called one or mor
   This is an instance of `Error` if there is a failure. Otherwise, this is
   `null`.
 
+- `events: Array<ReadyStateEvent>`
+
+  This is an array of events received so far (see `ReadyStateEvent` below).
+
 - `stale: boolean`
 
   When "force fetching", this is true if `ready` is true as a result of data being available on the client before the server request has completed.
@@ -33,6 +37,19 @@ When Relay fulfills data, the `onReadyStateChange` callback is called one or mor
 - `aborted: boolean`
 
   Whether the request was aborted.
+
+## `ReadyStateEvent`
+
+- `ABORT`
+- `CACHE_RESTORED_REQUIRED`
+- `CACHE_RESTORE_FAILED`
+- `CACHE_RESTORE_START`
+- `NETWORK_QUERY_ERROR`
+- `NETWORK_QUERY_RECEIVED_ALL`
+- `NETWORK_QUERY_RECEIVED_REQUIRED`
+- `NETWORK_QUERY_START`
+- `STORE_FOUND_ALL`
+- `STORE_FOUND_REQUIRED`
 
 ## Examples
 

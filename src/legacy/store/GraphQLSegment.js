@@ -89,6 +89,42 @@ class GraphQLSegment {
   }
 
   /**
+   * @return {boolean} returns whether cursor is before the first non-deleted
+   * cursor inclusively.
+   */
+  isFirstCursor(cursor) {
+    if (this.getLength()) {
+      for (let ii = this._minIndex; ii <= this._maxIndex; ii++) {
+        const metadata = this._indexToMetadataMap[ii];
+        if (!metadata.deleted) {
+          return metadata.cursor === cursor;
+        } else if (metadata.cursor === cursor) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
+ /**
+   * @return {boolean} returns whether cursor is after the last non-deleted
+   * cursor inclusively.
+   */
+  isLastCursor(cursor) {
+    if (this.getLength()) {
+      for (let ii = this._maxIndex; ii >= this._minIndex; ii--) {
+        const metadata = this._indexToMetadataMap[ii];
+        if (!metadata.deleted) {
+          return metadata.cursor === cursor;
+        } else if (metadata.cursor === cursor) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
+  /**
    * @return {?string} id for first non-deleted edge
    */
   getFirstID() {

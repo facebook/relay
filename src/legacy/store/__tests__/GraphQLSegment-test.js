@@ -342,13 +342,21 @@ describe('GraphQLSegment', () => {
     // Returns property for basic edges
     segment.addEdgesAfterCursor(edges, null);
     expect(segment.getFirstCursor()).toEqual('cursor1');
+    expect(segment.isFirstCursor('cursor1')).toBeTruthy();
+    expect(segment.isFirstCursor('cursor2')).toBeFalsy();
     expect(segment.getLastCursor()).toEqual('cursor3');
+    expect(segment.isLastCursor('cursor3')).toBeTruthy();
+    expect(segment.isLastCursor('cursor2')).toBeFalsy();
 
     // Skips over deleted edges
     segment.removeEdge('edge1');
     segment.removeEdge('edge3');
     expect(segment.getFirstCursor()).toEqual('cursor2');
+    expect(segment.isFirstCursor('cursor1')).toBeTruthy();
+    expect(segment.isFirstCursor('cursor2')).toBeTruthy();
     expect(segment.getLastCursor()).toEqual('cursor2');
+    expect(segment.isLastCursor('cursor3')).toBeTruthy();
+    expect(segment.isLastCursor('cursor2')).toBeTruthy();
 
     // Returns undefined when all edges are deleted
     segment.removeEdge('edge2');

@@ -334,7 +334,7 @@ describe('RelayDefaultNetworkLayer', () => {
     it('rejects invalid JSON response payloads', () => {
       const rejectCallback = jest.fn();
       networkLayer.sendQueries([requestA]);
-      requestA.getPromise().catch(rejectCallback);
+      requestA.catch(rejectCallback);
       jest.runAllTimers();
 
       fetchWithRetries.mock.deferreds[0].resolve({
@@ -353,7 +353,7 @@ describe('RelayDefaultNetworkLayer', () => {
     it('rejects errors in query responses', () => {
       const rejectCallback = jest.fn();
       networkLayer.sendQueries([requestA]);
-      requestA.getPromise().catch(rejectCallback);
+      requestA.catch(rejectCallback);
       jest.runAllTimers();
 
       const payloadA = {
@@ -386,7 +386,7 @@ describe('RelayDefaultNetworkLayer', () => {
       const rejectACallback = jest.fn();
       const resolveBCallback = jest.fn();
       networkLayer.sendQueries([requestA, requestB]);
-      requestA.getPromise().catch(rejectACallback);
+      requestA.catch(rejectACallback);
       requestB.done(resolveBCallback);
       jest.runAllTimers();
 

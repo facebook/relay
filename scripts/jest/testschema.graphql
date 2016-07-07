@@ -1,3 +1,9 @@
+schema {
+  query: Root
+  mutation: Mutation
+  subscription: Subscription
+}
+
 type Root {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings,
@@ -43,6 +49,10 @@ type Mutation {
   nodeSavedState(input: NodeSaveStateInput): NodeSavedStateResponsePayload
   unfriend(input: UnfriendInput): UnfriendResponsePayload
   viewerNotificationsUpdateAllSeenState(input: UpdateAllSeenStateInput): ViewerNotificationsUpdateAllSeenStateResponsePayload
+}
+
+type Subscription {
+  feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
 }
 
 input ActorSubscribeInput {
@@ -604,6 +614,7 @@ type User implements Node Actor {
   subscribers(first: String): SubscribersConnection
   topLevelComments(first: String): TopLevelCommentsConnection
   tracking: String
+  traits: [PersonalityTraits]
   url(relative: Boolean, site: String): String
   websites: [String]
   username: String
@@ -647,6 +658,13 @@ enum Environment {
 enum PhotoSize {
   SMALL
   LARGE
+}
+
+enum PersonalityTraits {
+  CHEERFUL
+  DERISIVE
+  HELPFUL
+  SNARKY
 }
 
 type Settings {

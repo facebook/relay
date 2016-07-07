@@ -152,21 +152,22 @@ function runQueries(
     }
 
     if (hasItems(remainingFetchMap)) {
-      readyState.update({done: false, ready: true, stale: false});
+      readyState.update({
+        done: false,
+        ready: true,
+        stale: false,
+      }, [{type: 'NETWORK_QUERY_RECEIVED_REQUIRED'}]);
     } else {
-      readyState.update({done: true, ready: true, stale: false});
+      readyState.update({
+        done: true,
+        ready: true,
+        stale: false,
+      }, [{type: 'NETWORK_QUERY_RECEIVED_ALL'}]);
     }
   }
 
   function onRejected(pendingFetch: PendingFetch, error: Error) {
-    readyState.update({error});
-
-    const pendingQuery = pendingFetch.getQuery();
-    const pendingQueryID = pendingQuery.getID();
-    delete remainingFetchMap[pendingQueryID];
-    if (!pendingQuery.isDeferred()) {
-      delete remainingRequiredFetchMap[pendingQueryID];
-    }
+    readyState.update({error}, [{type: 'NETWORK_QUERY_ERROR', error}]);
   }
 
   function canResolve(fetch: PendingFetch): boolean {
@@ -200,7 +201,14 @@ function runQueries(
       });
     }
 
-    splitAndFlattenQueries(storeData, queries).forEach(query => {
+    const flattenedQueries = splitAndFlattenQueries(storeData, queries);
+
+    const networkEvent = [];
+    if (flattenedQueries.length) {
+      networkEvent.push({type: 'NETWORK_QUERY_START'});
+    }
+
+    flattenedQueries.forEach(query => {
       const pendingFetch = storeData.getPendingQueryTracker().add(
         {query, fetchMode, forceIndex, storeData}
       );
@@ -216,12 +224,22 @@ function runQueries(
     });
 
     if (!hasItems(remainingFetchMap)) {
-      readyState.update({done: true, ready: true});
+      readyState.update({
+        done: true,
+        ready: true,
+      }, [...networkEvent, {type: 'STORE_FOUND_ALL'}]);
     } else {
       if (!hasItems(remainingRequiredFetchMap)) {
-        readyState.update({ready: true});
+        readyState.update(
+          {ready: true},
+          [...networkEvent, {type: 'STORE_FOUND_REQUIRED'}]
+        );
       } else {
-        readyState.update({ready: false});
+        readyState.update(
+          {ready: false},
+          [...networkEvent, {type: 'CACHE_RESTORE_START'}]
+        );
+
         resolveImmediate(() => {
           if (storeData.hasCacheManager()) {
             const requiredQueryMap = mapObject(
@@ -230,14 +248,26 @@ function runQueries(
             );
             storeData.restoreQueriesFromCache(requiredQueryMap, {
               onSuccess: () => {
-                readyState.update({ready: true, stale: true});
+                readyState.update({
+                  ready: true,
+                  stale: true,
+                }, [{type: 'CACHE_RESTORED_REQUIRED'}]);
+              },
+              onFailure: (error: any) => {
+                readyState.update({
+                  error,
+                }, [{type: 'CACHE_RESTORE_FAILED', error}]);
               },
             });
           } else {
-            if (everyObject(remainingRequiredFetchMap, canResolve)) {
-              if (hasItems(remainingRequiredFetchMap)) {
-                readyState.update({ready: true, stale: true});
-              }
+            if (everyObject(remainingRequiredFetchMap, canResolve) &&
+              hasItems(remainingRequiredFetchMap)) {
+                readyState.update({
+                  ready: true,
+                  stale: true,
+                }, [{type: 'CACHE_RESTORED_REQUIRED'}]);
+            } else {
+              readyState.update({}, [{type: 'CACHE_RESTORE_FAILED'}]);
             }
           }
         });
@@ -249,7 +279,7 @@ function runQueries(
 
   return {
     abort(): void {
-      readyState.update({aborted: true});
+      readyState.update({aborted: true}, [{type: 'ABORT'}]);
     },
   };
 }

@@ -244,6 +244,18 @@ function mergeField(
     path = RelayQueryPath.createForID(recordID, 'writeRelayUpdatePayload');
   } else {
     recordID = store.getDataID(fieldName);
+    if (!recordID) {
+      invariant(
+        false,
+        'writeRelayUpdatePayload(): Expected a record ID in the response ' +
+        'payload supplied to update the store for field `%s`, ' +
+        'payload keys [%s], operation name `%s`.',
+        fieldName,
+        Object.keys(payload).join(', '),
+        operation.getName()
+      );
+    }
+
     // Root fields that do not accept arguments
     path = RelayQueryPath.create(RelayQuery.Root.build(
       'writeRelayUpdatePayload',
@@ -260,12 +272,6 @@ function mergeField(
       ANY_TYPE
     ));
   }
-  invariant(
-    recordID,
-    'writeRelayUpdatePayload(): Expected a record ID in the response payload ' +
-    'supplied to update the store.'
-  );
-
   // write the results for only the current field, for every instance of that
   // field in any subfield/fragment in the query.
   const handleNode = node => {

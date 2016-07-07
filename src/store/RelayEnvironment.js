@@ -13,7 +13,6 @@
 'use strict';
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-import type {ChangeSubscription} from 'RelayInternalTypes';
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
@@ -22,7 +21,7 @@ import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
 import type {TaskScheduler} from 'RelayTaskQueue';
-import type {NetworkLayer} from 'RelayTypes';
+import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const readRelayQueryData = require('readRelayQueryData');
@@ -44,32 +43,32 @@ import type {
 } from 'RelayInternalTypes';
 
 export type FragmentResolver = {
-  dispose: () => void;
+  dispose: () => void,
   resolve: (
     fragment: RelayQuery.Fragment,
     dataIDs: DataID | Array<DataID>
-  ) => ?(StoreReaderData | Array<?StoreReaderData>);
+  ) => ?(StoreReaderData | Array<?StoreReaderData>),
 };
 
 export interface RelayEnvironmentInterface {
   forceFetch(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback
-  ): Abortable;
+  ): Abortable,
   getFragmentResolver(
     fragment: RelayQuery.Fragment,
     onNext: () => void
-  ): FragmentResolver;
-  getStoreData(): RelayStoreData;
+  ): FragmentResolver,
+  getStoreData(): RelayStoreData,
   primeCache(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback
-  ): Abortable;
+  ): Abortable,
   read(
     node: RelayQuery.Node,
     dataID: DataID,
     options?: StoreReaderOptions
-  ): ?StoreReaderData;
+  ): ?StoreReaderData,
 }
 
 /**
@@ -81,7 +80,6 @@ export interface RelayEnvironmentInterface {
  * - An in-memory cache of fetched data.
  * - A configurable network layer for resolving queries/mutations.
  * - A configurable task scheduler to control when internal tasks are executed.
- * - A configurable cache manager for persisting data between sessions.
  *
  * No data or configuration is shared between instances. We recommend creating
  * one `RelayEnvironment` instance per user: client apps may share a single
@@ -98,8 +96,8 @@ class RelayEnvironment {
   ) => RelayMutationTransaction;
   _storeData: RelayStoreData;
 
-  constructor() {
-    this._storeData = new RelayStoreData();
+  constructor(storeData?: RelayStoreData) {
+    this._storeData = storeData ? storeData : new RelayStoreData();
     this._storeData.getChangeEmitter().injectBatchingStrategy(
       relayUnstableBatchedUpdates
     );
@@ -266,9 +264,17 @@ class RelayEnvironment {
     mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ): RelayMutationTransaction {
-    return this
-      .applyUpdate(mutation, callbacks)
-      .commit();
+    const transaction = this.applyUpdate(mutation, callbacks);
+    // The idea here is to defer the call to `commit()` to give the optimistic
+    // mutation time to flush out to the UI before starting the commit work.
+    const preCommitStatus = transaction.getStatus();
+    setTimeout(() => {
+      if (transaction.getStatus() !== preCommitStatus) {
+        return;
+      }
+      transaction.commit();
+    });
+    return transaction;
   }
 
   /**

@@ -24,27 +24,27 @@ export type GraphOperation =
   PutEdgesOperation;
 export type PutRootOperation = {
   op: 'putRoot',
-  field: string;
-  identifier: mixed;
-  root: ?(GraphRecord | GraphReference);
+  field: string,
+  identifier: mixed,
+  root: ?(GraphRecord | GraphReference),
 };
 export type PutNodesOperation = {
-  op: 'putNodes';
-  nodes: {[dataID: DataID]: GraphRecord};
+  op: 'putNodes',
+  nodes: {[dataID: DataID]: GraphRecord},
 };
 export type PutEdgesOperation = {
-  op: 'putEdges';
-  args: Array<Call>;
-  edges: Array<?GraphRecord>;
-  pageInfo: PageInfo;
+  op: 'putEdges',
+  args: Array<Call>,
+  edges: Array<?GraphRecord>,
+  pageInfo: PageInfo,
   range: {
-    __key: CacheKey;
-  };
+    __key: CacheKey,
+  },
 };
 
 export type GraphRecord = {[storageKey: string]: ?GraphValue};
 export type GraphReference = {
-  __ref: DataID;
+  __ref: DataID,
 };
 export type GraphScalar = (
   boolean |

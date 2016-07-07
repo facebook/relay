@@ -24,16 +24,20 @@ import type {
 const RelayRenderer = require('RelayRenderer');
 
 type RootContainerProps = {
-  Component: RelayContainer;
-  forceFetch?: ?boolean;
-  onReadyStateChange?: ?(readyState: ReadyState) => void;
-  renderFailure?: ?(error: Error, retry: ?() => void) => React$Element<any>;
+  Component: RelayContainer,
+  forceFetch?: ?boolean,
+  onReadyStateChange?: ?(readyState: ReadyState) => void,
+  /* $FlowFixMe(site=react_native_fb,www) - should renderFailure be allowed to
+   * return null/undefined? */
+  renderFailure?: ?(error: Error, retry: ?() => void) => React$Element<any>,
   renderFetched?: ?(
     data: Object,
     fetchState: ComponentFetchState
-  ) => React$Element<any>;
-  renderLoading?: ?() => React$Element<any>;
-  route: RelayQueryConfigInterface;
+  ) => ?React$Element<any>,
+  /* $FlowFixMe(site=react_native_fb,www) - should renderLoading be allowed to
+   * return null/undefined? */
+  renderLoading?: ?() => React$Element<any>,
+  route: RelayQueryConfigInterface,
 };
 
 const {PropTypes} = React;
@@ -139,10 +143,6 @@ RelayRootContainer.propTypes = {
   renderFailure: PropTypes.func,
   renderFetched: PropTypes.func,
   renderLoading: PropTypes.func,
-  route: RelayPropTypes.QueryConfig.isRequired,
-};
-
-RelayRootContainer.childContextTypes = {
   route: RelayPropTypes.QueryConfig.isRequired,
 };
 

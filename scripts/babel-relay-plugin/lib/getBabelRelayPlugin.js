@@ -15,11 +15,14 @@
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+var computeLocation = require('./computeLocation');
+
 var _require = require('./GraphQL');
 
 var buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema;
 
 var RelayQLTransformer = require('./RelayQLTransformer');
+var RelayTransformError = require('./RelayTransformError');
 var babelAdapter = require('./babelAdapter');
 var invariant = require('./invariant');
 var util = require('util');
@@ -119,35 +122,46 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
                 propName: propName
               });
             } catch (error) {
-              // Print a console warning and replace the code with a function
-              // that will immediately throw an error in the browser.
-              var sourceText = error.sourceText;
-              var validationErrors = error.validationErrors;
-
               var basename = state.file.opts.basename || 'UnknownFile';
               var filename = state.file.opts.filename || 'UnknownFile';
               var errorMessages = [];
-              var isValidationError = !!(validationErrors && sourceText);
-              if (isValidationError) {
-                var sourceLines = sourceText.split('\n');
-                validationErrors.forEach(function (_ref3) {
-                  var message = _ref3.message;
-                  var locations = _ref3.locations;
 
-                  errorMessages.push(message);
-                  warning('\n-- GraphQL Validation Error -- %s --\n', basename);
-                  warning(['File:  ' + filename, 'Error: ' + message, 'Source:'].join('\n'));
-                  locations.forEach(function (location) {
-                    var preview = sourceLines[location.line - 1];
-                    if (preview) {
-                      warning(['> ', '> ' + preview, '> ' + ' '.repeat(location.column - 1) + '^^^'].join('\n'));
-                    }
-                  });
-                });
-              } else {
+              if (error instanceof RelayTransformError) {
                 errorMessages.push(error.message);
                 warning('\n-- Relay Transform Error -- %s --\n', basename);
-                warning(['File:  ' + filename, 'Error: ' + error.stack].join('\n'));
+                var sourceLine = node.quasi.loc.start.line;
+                var relative_loc = computeLocation(error.loc);
+                if (relative_loc) {
+                  warning(['Within RelayQLDocument ' + filename + ':' + sourceLine, '> ', '> line ' + relative_loc.line + ' (approximate)', '> ' + relative_loc.source, '> ' + ' '.repeat(relative_loc.column - 1) + '^^^', 'Error: ' + error.message, 'Stack: ' + error.stack].join('\n'));
+                }
+              } else {
+                // Print a console warning and replace the code with a function
+                // that will immediately throw an error in the browser.
+                var sourceText = error.sourceText;
+                var validationErrors = error.validationErrors;
+
+                var isValidationError = !!(validationErrors && sourceText);
+                if (isValidationError) {
+                  var sourceLines = sourceText.split('\n');
+                  validationErrors.forEach(function (_ref3) {
+                    var message = _ref3.message;
+                    var locations = _ref3.locations;
+
+                    errorMessages.push(message);
+                    warning('\n-- GraphQL Validation Error -- %s --\n', basename);
+                    warning(['File:  ' + filename, 'Error: ' + message, 'Source:'].join('\n'));
+                    locations.forEach(function (location) {
+                      var preview = sourceLines[location.line - 1];
+                      if (preview) {
+                        warning(['> ', '> ' + preview, '> ' + ' '.repeat(location.column - 1) + '^^^'].join('\n'));
+                      }
+                    });
+                  });
+                } else {
+                  errorMessages.push(error.message);
+                  warning('\n-- Relay Transform Error -- %s --\n', basename);
+                  warning(['File:  ' + filename, 'Error: ' + error.stack].join('\n'));
+                }
               }
               var runtimeMessage = util.format('%s error ``%s`` in file `%s`. Try updating your GraphQL ' + 'schema if an argument/field/type was recently added.', isValidationError ? 'GraphQL validation' : 'Relay transform', errorMessages.join(' '), filename);
               result = t.callExpression(t.functionExpression(null, [], t.blockStatement([t.throwStatement(t.newExpression(t.identifier('Error'), [t.valueToNode(runtimeMessage)]))])), []);

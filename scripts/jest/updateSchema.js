@@ -1,4 +1,4 @@
-#!/usr/bin/env babel-node --optional es7.asyncFunctions
+#!/usr/bin/env babel-node
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -20,7 +20,7 @@ try {
 
   const body = fs.readFileSync(inFile, 'utf8');
   const ast = parse(body);
-  const astSchema = buildASTSchema(ast, 'Root', 'Mutation');
+  const astSchema = buildASTSchema(ast);
   graphql(astSchema, introspectionQuery).then(
     function(result) {
       const out = JSON.stringify(result, null, 2);

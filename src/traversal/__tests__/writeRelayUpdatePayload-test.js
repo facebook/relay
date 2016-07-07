@@ -32,7 +32,7 @@ const RelayTestUtils = require('RelayTestUtils');
 const generateClientEdgeID = require('generateClientEdgeID');
 const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
-describe('writePayload()', () => {
+describe('writeRelayUpdatePayload()', () => {
   const {getNode, writePayload} = RelayTestUtils;
 
   beforeEach(() => {
@@ -42,7 +42,13 @@ describe('writePayload()', () => {
   });
 
   describe('fields changed mutations', () => {
-    let store, queueStore, writer, queueWriter, commentID, connectionID;
+    let commentID;
+    let connectionID;
+    let query;
+    let queueStore;
+    let queueWriter;
+    let store;
+    let writer;
 
     beforeEach(() => {
       const records = {};
@@ -77,9 +83,8 @@ describe('writePayload()', () => {
         null,
         'mutationID'
       );
-
-      const query = getNode(Relay.QL`
-        query {
+      query = getNode(Relay.QL`
+        query TestQuery {
           node(id:"feedback_id") {
             topLevelComments(first:"1") {
               count
@@ -173,6 +178,39 @@ describe('writePayload()', () => {
       });
 
       expect(queueStore.getField(connectionID, 'count')).toBe(1);
+    });
+
+    it('reports useful debug info for unexpectedly missing records', () => {
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
+        store,
+        writer,
+        queryTracker,
+        changeTracker,
+      );
+      const configs = [{
+        type: RelayMutationType.FIELDS_CHANGE,
+        fieldIDs: {feedback: 'feedback_id'},
+      }];
+      const input = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        deletedCommentId: commentID,
+      };
+      const payload = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        feedback: {
+          id: null, // Malformed response.
+          topLevelComments: {},
+        },
+      };
+      expect(() => writeRelayUpdatePayload(queryWriter, query, payload, {configs}))
+        .toFailInvariant(
+          'writeRelayUpdatePayload(): Expected a record ID in the response ' +
+          'payload supplied to update the store for field `feedback`, ' +
+          'payload keys [id, topLevelComments], operation name `TestQuery`.'
+        );
     });
   });
 

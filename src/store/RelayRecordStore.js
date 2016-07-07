@@ -37,27 +37,27 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 type RangeEdge = {
-  edgeID: string;
-  nodeID: ?string;
+  edgeID: string,
+  nodeID: ?string,
 };
 
 export type RangeInfo = {
-  diffCalls: Array<Call>;
-  filterCalls: Array<Call>;
-  pageInfo: ?PageInfo;
-  requestedEdgeIDs: Array<string>;
-  filteredEdges: Array<RangeEdge>;
+  diffCalls: Array<Call>,
+  filterCalls: Array<Call>,
+  pageInfo: ?PageInfo,
+  requestedEdgeIDs: Array<string>,
+  filteredEdges: Array<RangeEdge>,
 };
 
 type RecordCollection = {
-  cachedRecords?: ?RecordMap;
-  queuedRecords?: ?RecordMap;
-  records: RecordMap;
+  cachedRecords?: ?RecordMap,
+  queuedRecords?: ?RecordMap,
+  records: RecordMap,
 };
 
 type RootCallMapCollection = {
-  cachedRootCallMap?: RootCallMap;
-  rootCallMap: RootCallMap;
+  cachedRootCallMap?: RootCallMap,
+  rootCallMap: RootCallMap,
 };
 
 const EMPTY = '';

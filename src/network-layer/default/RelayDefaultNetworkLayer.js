@@ -20,12 +20,12 @@ const fetchWithRetries = require('fetchWithRetries');
 import type {InitWithRetries} from 'fetchWithRetries';
 
 type GraphQLError = {
-  message: string;
-  locations: Array<GraphQLErrorLocation>;
+  message: string,
+  locations: Array<GraphQLErrorLocation>,
 };
 type GraphQLErrorLocation = {
-  column: number;
-  line: number;
+  column: number,
+  line: number,
 };
 
 class RelayDefaultNetworkLayer {

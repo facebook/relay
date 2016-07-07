@@ -23,9 +23,9 @@ type PropertyDescription = {
   [name: string]: Validator;
 };
 type Validator = {
-  assert: Function;
-  message: string;
-  type: 'DEPRECATED' | 'OPTIONAL' | 'REQUIRED';
+  assert: Function,
+  message: string,
+  type: 'DEPRECATED' | 'OPTIONAL' | 'REQUIRED',
 };
 
 const FUZZY_THRESHOLD = 3;

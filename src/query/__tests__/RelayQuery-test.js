@@ -11,6 +11,9 @@
 
 'use strict';
 
+jest
+  .mock('warning');
+
 require('configureForRelayOSS');
 
 const QueryBuilder = require('QueryBuilder');
@@ -82,6 +85,24 @@ describe('RelayQuery', () => {
           sourceQueryID: 'q0',
           sourceQueryPath: '$.*.id',
         });
+      });
+
+      // There are some cases where the identifyingArgValue is optional
+      it('warns if the identifyingArgValue is missing', () => {
+        const field = buildIdField();
+        RelayQuery.Root.build(
+          'RelayQueryTest',
+          'node',
+          null,
+          [field],
+          {isDeferred: true}
+        );
+        expect([
+          'QueryBuilder.createQuery(): An argument value may be required for ' +
+          'query `%s(%s: ???)`.',
+          'node',
+          'id',
+        ]).toBeWarnedNTimes(1);
       });
     });
 

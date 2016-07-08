@@ -58,13 +58,13 @@ var StoryContainer = Relay.createContainer(Story, {
 
 ## Rendering
 
-In React, rendering a view requires two inputs: the *component* to render, and a *root* DOM (UI) node to render into. Rendering Relay containers is similar: we need a *container* to render, and a *root* in the graph from which to start our query. We also must ensure that the queries for the container are executed and may want to show a loading indicator while data is being fetched. Similar to `ReactDOM.render(component, domNode)`, Relay provides `<RelayRootContainer Component={...} route={...}>` for this purpose. The component is the item to render, and the route provides queries that specify *which* item to fetch. Here's how we might render `<StoryContainer>`:
+In React, rendering a view requires two inputs: the *component* to render, and a *root* DOM (UI) node to render into. Rendering Relay containers is similar: we need a *container* to render, and a *root* in the graph from which to start our query. We also must ensure that the queries for the container are executed and may want to show a loading indicator while data is being fetched. Similar to `ReactDOM.render(component, domNode)`, Relay provides `<Relay.Renderer Container={...} queryConfig={...}>` for this purpose. The container is the item to render, and the queryConfig provides queries that specify *which* item to fetch. Here's how we might render `<StoryContainer>`:
 
 ```javascript
 ReactDOM.render(
-  <RelayRootContainer
-    Component={StoryContainer}
-    route={{
+  <Relay.Renderer
+    Container={StoryContainer}
+    queryConfig={{
       queries: {
         story: () => Relay.QL`
           query {
@@ -78,7 +78,7 @@ ReactDOM.render(
 )
 ```
 
-`RelayRootContainer` can then orchestrate the fetching of the queries; diffing them against cached data, fetching any missing information, updating the cache, and finally rendering `StoryContainer` once the data is available. The default is to render nothing while data is fetching, but the loading view can be customized via the `renderLoading` prop. Just as React allows developers to render views without directly manipulating the underlying view, Relay and `RelayRootContainer` remove the need to directly communicate with the network.
+`Relay.Renderer` can then orchestrate the fetching of the queries; diffing them against cached data, fetching any missing information, updating the cache, and finally rendering `StoryContainer` once the data is available. The default is to render nothing while data is fetching, but the loading view can be customized via the `render` prop. Just as React allows developers to render views without directly manipulating the underlying view, Relay and `Relay.Renderer` remove the need to directly communicate with the network.
 
 ## Data Masking
 

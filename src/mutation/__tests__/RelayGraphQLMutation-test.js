@@ -83,7 +83,7 @@ describe('RelayGraphQLMutation', () => {
     queue = storeData.getMutationQueue();
     sendMutation = jest.fn(request => {
       requests.push(request);
-      return request.getPromise();
+      return request;
     });
     storeData.getNetworkLayer().injectImplementation({sendMutation});
 
@@ -730,7 +730,7 @@ describe('RelayGraphQLMutation', () => {
           expect(queue.getStatus(transaction2.getID())).toBe(COMMITTING);
         });
 
-        it('auto-generates non-colliding keys if none provided', () =>{
+        it('auto-generates non-colliding keys if none provided', () => {
           const mutation1 = RelayGraphQLMutation.create(
             feedbackLikeQuery,
             feedbackLikeVariables,

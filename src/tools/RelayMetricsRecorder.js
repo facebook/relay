@@ -22,19 +22,19 @@ const measurementDefaults = {
 };
 
 type Measurement = {
-  aggregateTime: number;
-  callCount: number;
+  aggregateTime: number,
+  callCount: number,
 };
 type Metrics = {
-  measurements: {[name: string]: Measurement};
-  profiles: Array<ProfileEvent>;
-  recordingTime: number;
-  totalTime: number;
+  measurements: {[name: string]: Measurement},
+  profiles: Array<ProfileEvent>,
+  recordingTime: number,
+  totalTime: number,
 };
 type ProfileEvent = {
-  endTime: number;
-  name: string;
-  startTime: number;
+  endTime: number,
+  name: string,
+  startTime: number,
 };
 
 /**

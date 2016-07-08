@@ -253,6 +253,18 @@ function mergeField(
     path = RelayQueryPath.createForID(recordID, 'writeRelayUpdatePayload');
   } else {
     recordID = store.getDataID(fieldName);
+    if (!recordID) {
+      invariant(
+        false,
+        'writeRelayUpdatePayload(): Expected a record ID in the response ' +
+        'payload supplied to update the store for field `%s`, ' +
+        'payload keys [%s], operation name `%s`.',
+        fieldName,
+        Object.keys(payload).join(', '),
+        operation.getName()
+      );
+    }
+
     // Root fields that do not accept arguments
     path = RelayQueryPath.create(RelayQuery.Root.build(
       'writeRelayUpdatePayload',
@@ -269,12 +281,6 @@ function mergeField(
       ANY_TYPE
     ));
   }
-  invariant(
-    recordID,
-    'writeRelayUpdatePayload(): Expected a record ID in the response payload ' +
-    'supplied to update the store.'
-  );
-
   // write the results for only the current field, for every instance of that
   // field in any subfield/fragment in the query.
   const handleNode = node => {
@@ -668,26 +674,53 @@ function handleRangeDelete(
 ): void {
   const store = writer.getRecordStore();
 
-  const recordID =
-    Array.isArray(config.deletedIDFieldName) ?
-      getIDFromPath(store, config.deletedIDFieldName, payload) :
-      getString(payload, config.deletedIDFieldName);
+  let recordIDs = null;
+
+  if (Array.isArray(config.deletedIDFieldName)) {
+    recordIDs = getIDsFromPath(store, config.deletedIDFieldName, payload);
+  } else {
+    recordIDs = payload[config.deletedIDFieldName];
+
+    // Coerce numbers to strings for backwards compatibility.
+    if (typeof recordIDs === 'number') {
+      warning(
+        false,
+        'writeRelayUpdatePayload(): Expected `%s` to be a string, got the ' +
+        'number `%s`.',
+        config.deletedIDFieldName,
+        recordIDs
+      );
+      recordIDs = '' + recordIDs;
+    }
+
+    invariant(
+      recordIDs == null || (!Array.isArray(recordIDs) || typeof recordIDs !== 'string'),
+      'writeRelayUpdatePayload(): Expected `%s` to be an array/string, got `%s`.',
+      config.deletedIDFieldName,
+      JSON.stringify(recordIDs)
+    );
+
+    if (!Array.isArray(recordIDs)) {
+      recordIDs = [recordIDs];
+    }
+  }
 
   invariant(
-    recordID != null,
-    'writeRelayUpdatePayload(): Missing ID for deleted record at field `%s`.',
+    recordIDs != null,
+    'writeRelayUpdatePayload(): Missing ID(s) for deleted record at field `%s`.',
     config.deletedIDFieldName
   );
 
   // Extract the id of the node with the connection that we are deleting from.
   const connectionName = config.pathToConnection.pop();
-  const connectionParentID =
-    getIDFromPath(store, config.pathToConnection, payload);
+  const connectionParentIDs =
+    getIDsFromPath(store, config.pathToConnection, payload);
   // Restore pathToConnection to its original state
   config.pathToConnection.push(connectionName);
-  if (!connectionParentID) {
+  if (!connectionParentIDs) {
     return;
   }
+  const connectionParentID = connectionParentIDs[0];
 
   const connectionIDs = store.getConnectionIDsForField(
     connectionParentID,
@@ -695,7 +728,11 @@ function handleRangeDelete(
   );
   if (connectionIDs) {
     connectionIDs.forEach(connectionID => {
-      deleteRangeEdge(writer, connectionID, recordID);
+      if (recordIDs) {
+        recordIDs.forEach(recordID => {
+          deleteRangeEdge(writer, connectionID, recordID);
+        });
+      }
     });
   }
 }
@@ -717,41 +754,61 @@ function deleteRangeEdge(
 }
 
 /**
- * Given a payload of data and a path of fields, extracts the `id` of the node
+ * Given a payload of data and a path of fields, extracts the `id` of the node(s)
  * specified by the path.
  *
- * Example:
+ * Examples:
  * path: ['root', 'field']
  * data: {root: {field: {id: 'xyz'}}}
  *
+ * path: ['root', 'field']
+ * data: {root: {field: [{id: 'abc'}, {id: 'def'}]}}
+ *
  * Returns:
- * 'xyz'
+ * ['xyz']
+ *
+ * ['abc', 'def']
  */
-function getIDFromPath(
+function getIDsFromPath(
   store: RelayRecordStore,
   path: Array<string>,
   payload: PayloadObject
-): ?string {
+): ?Array<string> {
   // We have a special case for the path for root nodes without ids like
   // ['viewer']. We try to match it up with something in the root call mapping
   // first.
   if (path.length === 1) {
     const rootCallID = store.getDataID(path[0]);
     if (rootCallID) {
-      return rootCallID;
+      return [rootCallID];
     }
   }
-  const payloadItem = path.reduce((item, step) => {
-    return item ? getObject(item, step) : null;
-  }, payload);
-  if (payloadItem) {
-    const id = getString(payloadItem, ID);
-    invariant(
-      id != null,
-      'writeRelayUpdatePayload(): Expected `%s.id` to be a string.',
-      path.join('.')
-    );
-    return id;
+
+  let payloadItems = payload;
+  path.forEach((step, idx) => {
+    if (!payloadItems || Array.isArray(payloadItems)) {
+      return;
+    }
+    if (idx === path.length - 1) {
+      payloadItems = getObjectOrArray(payloadItems, step);
+    } else {
+      payloadItems = getObject(payloadItems, step);
+    }
+  });
+
+  if (payloadItems) {
+    if (!Array.isArray(payloadItems)) {
+      payloadItems = [payloadItems];
+    }
+    return payloadItems.map(item => {
+      const id = getString(item, ID);
+      invariant(
+        id != null,
+        'writeRelayUpdatePayload(): Expected `%s.id` to be a string.',
+        path.join('.')
+      );
+      return id;
+    });
   }
   return null;
 }
@@ -789,6 +846,20 @@ function getObject(
   invariant(
     value == null || (typeof value === 'object' && !Array.isArray(value)),
     'writeRelayUpdatePayload(): Expected `%s` to be an object, got `%s`.',
+    field,
+    JSON.stringify(value)
+  );
+  return value;
+}
+
+function getObjectOrArray(
+  payload: PayloadObject,
+  field: string
+): ?PayloadArray | ?PayloadObject {
+  const value = payload[field];
+  invariant(
+    value == null || (typeof value === 'object'),
+    'writeRelayUpdatePayload(): Expected `%s` to be an object/array, got `%s`.',
     field,
     JSON.stringify(value)
   );

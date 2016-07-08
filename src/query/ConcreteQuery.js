@@ -23,8 +23,8 @@
  * but that causes lots of Flow errors.
  */
 export type ConcreteNode = {
-  children?: ?Array<?ConcreteSelection>;
-  directives?: ?Array<ConcreteDirective>;
+  children?: ?Array<?ConcreteSelection>,
+  directives?: ?Array<ConcreteDirective>,
 };
 
 export type ConcreteSelection =
@@ -44,141 +44,141 @@ export type ConcreteDirectiveValue =
   Array<ConcreteCallValue | ConcreteCallVariable>;
 
 export type ConcreteBatchCallVariable = {
-  jsonPath: string;
-  kind: 'BatchCallVariable';
-  sourceQueryID: string;
+  jsonPath: string,
+  kind: 'BatchCallVariable',
+  sourceQueryID: string,
 };
 
 export type ConcreteCall = {
-  kind: 'Call';
+  kind: 'Call',
   metadata: {
-    type?: ?string;
-  };
-  name: string;
-  value: ?ConcreteValue;
+    type?: ?string,
+  },
+  name: string,
+  value: ?ConcreteValue,
 };
 
 export type ConcreteCallValue = {
-  callValue: mixed;
-  kind: 'CallValue';
+  callValue: mixed,
+  kind: 'CallValue',
 }
 
 export type ConcreteCallVariable = {
-  callVariableName: string;
-  kind: 'CallVariable';
+  callVariableName: string,
+  kind: 'CallVariable',
 };
 
 export type ConcreteDirective = {
-  args: Array<ConcreteDirectiveArgument>;
-  kind: 'Directive';
-  name: string;
+  args: Array<ConcreteDirectiveArgument>,
+  kind: 'Directive',
+  name: string,
 };
 
 export type ConcreteDirectiveArgument = {
-  name: string;
-  value: ?ConcreteDirectiveValue;
+  name: string,
+  value: ?ConcreteDirectiveValue,
 };
 
 export type ConcreteFieldMetadata = {
-  canHaveSubselections?: ?boolean;
-  inferredPrimaryKey?: ?string;
-  inferredRootCallName?: ?string;
-  isAbstract?: boolean;
-  isConnection?: boolean;
-  isConnectionWithoutNodeID?: boolean;
-  isFindable?: boolean;
-  isGenerated?: boolean;
-  isPlural?: boolean;
-  isRequisite?: boolean;
+  canHaveSubselections?: ?boolean,
+  inferredPrimaryKey?: ?string,
+  inferredRootCallName?: ?string,
+  isAbstract?: boolean,
+  isConnection?: boolean,
+  isConnectionWithoutNodeID?: boolean,
+  isFindable?: boolean,
+  isGenerated?: boolean,
+  isPlural?: boolean,
+  isRequisite?: boolean,
 };
 
 export type ConcreteField = {
-  alias?: ?string;
-  calls?: ?Array<ConcreteCall>;
-  children?: ?Array<?ConcreteSelection>;
-  directives?: ?Array<ConcreteDirective>;
-  fieldName: string;
-  kind: 'Field';
-  metadata: ConcreteFieldMetadata;
-  type: string;
+  alias?: ?string,
+  calls?: ?Array<ConcreteCall>,
+  children?: ?Array<?ConcreteSelection>,
+  directives?: ?Array<ConcreteDirective>,
+  fieldName: string,
+  kind: 'Field',
+  metadata: ConcreteFieldMetadata,
+  type: string,
 };
 
 export type ConcreteFragmentMetadata = {
-  isAbstract?: boolean;
-  pattern?: boolean;
-  plural?: boolean;
+  isAbstract?: boolean,
+  pattern?: boolean,
+  plural?: boolean,
 };
 
 export type ConcreteFragment = {
-  children?: ?Array<?ConcreteSelection>;
-  directives?: ?Array<ConcreteDirective>;
-  id: string;
-  kind: 'Fragment';
+  children?: ?Array<?ConcreteSelection>,
+  directives?: ?Array<ConcreteDirective>,
+  id: string,
+  kind: 'Fragment',
   metadata: {
-    isAbstract?: boolean;
-    isPlural?: boolean; // FB Printer
-    isTrackingEnabled?: boolean;
-    pattern?: boolean;  // from @relay directive
-    plural?: boolean;   // OSS Printer from `@relay`
-  };
-  name: string;
-  type: string;
+    isAbstract?: boolean,
+    isPlural?: boolean, // FB Printer
+    isTrackingEnabled?: boolean,
+    pattern?: boolean,  // from @relay directive
+    plural?: boolean,   // OSS Printer from `@relay`
+  },
+  name: string,
+  type: string,
 };
 
 export type ConcreteFragmentReference = {
-  kind: 'FragmentReference';
-  fragment: ConcreteFragment;
+  kind: 'FragmentReference',
+  fragment: ConcreteFragment,
 };
 
 export type ConcreteMutation = {
-  calls: Array<ConcreteCall>;
-  children?: ?Array<?ConcreteSelection>;
-  directives?: ?Array<ConcreteDirective>;
-  kind: 'Mutation';
+  calls: Array<ConcreteCall>,
+  children?: ?Array<?ConcreteSelection>,
+  directives?: ?Array<ConcreteDirective>,
+  kind: 'Mutation',
   metadata: {
-    inputType?: ?string;
-  };
-  name: string;
-  responseType: string;
+    inputType?: ?string,
+  },
+  name: string,
+  responseType: string,
 };
 
 export type ConcreteOperationMetadata = {
-  inputType?: ?string;
+  inputType?: ?string,
 };
 
 export type ConcreteQueryMetadata = {
-  identifyingArgName: ?string;
-  identifyingArgType: ?string;
-  isAbstract: ?boolean;
-  isDeferred: ?boolean;
-  isPlural: ?boolean;
+  identifyingArgName: ?string,
+  identifyingArgType: ?string,
+  isAbstract: ?boolean,
+  isDeferred: ?boolean,
+  isPlural: ?boolean,
 };
 
 export type ConcreteQuery = {
-  calls?: ?Array<ConcreteCall>;
-  children?: ?Array<?ConcreteSelection>;
-  directives?: ?Array<ConcreteDirective>;
-  fieldName: string;
-  isDeferred?: boolean;
-  kind: 'Query';
+  calls?: ?Array<ConcreteCall>,
+  children?: ?Array<?ConcreteSelection>,
+  directives?: ?Array<ConcreteDirective>,
+  fieldName: string,
+  isDeferred?: boolean,
+  kind: 'Query',
   metadata: {
-    identifyingArgName?: ?string;
-    identifyingArgType?: ?string;
-    isAbstract?: ?boolean;
-    isPlural?: ?boolean;
-  };
-  name: string;
-  type: string;
+    identifyingArgName?: ?string,
+    identifyingArgType?: ?string,
+    isAbstract?: ?boolean,
+    isPlural?: ?boolean,
+  },
+  name: string,
+  type: string,
 };
 
 export type ConcreteSubscription = {
-  calls: Array<ConcreteCall>;
-  children?: ?Array<?ConcreteSelection>;
-  directives?: ?Array<ConcreteDirective>;
-  kind: 'Subscription';
-  name: string;
-  responseType: string;
+  calls: Array<ConcreteCall>,
+  children?: ?Array<?ConcreteSelection>,
+  directives?: ?Array<ConcreteDirective>,
+  kind: 'Subscription',
+  name: string,
+  responseType: string,
   metadata: {
-    inputType?: ?string;
-  };
+    inputType?: ?string,
+  },
 };

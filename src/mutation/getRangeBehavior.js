@@ -14,6 +14,7 @@
 
 import type {
   Call,
+  CallValue,
   RangeBehaviors,
 } from 'RelayInternalTypes';
 
@@ -67,18 +68,10 @@ function getRangeBehavior(
 */
 function getObjectFromCalls(
   calls: Array<Call>
-): {[argName: string]: string} {
-  const behaviors = {};
+): {[argName: string]: CallValue} {
+  const behaviors: {[argName: string]: CallValue} = {};
   calls.forEach(call => {
-    const behavior = call.value;
-    invariant(
-      typeof behavior === 'string',
-      'getRangeBehavior(): Expected range behavior for key `%s` to be a ' +
-      'string, got `%s`.',
-      call.name,
-      behavior
-    );
-    behaviors[call.name] = behavior;
+    behaviors[call.name] = call.value;
   });
   return behaviors;
 }

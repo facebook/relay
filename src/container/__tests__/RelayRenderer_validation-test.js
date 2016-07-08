@@ -46,7 +46,13 @@ describe('RelayRenderer.validation', () => {
     environment = new RelayEnvironment();
 
     console.error = jest.fn(message => {
-      throw new Error(message.replace(/Composite propType/, 'propType'));
+      throw new Error(
+        message
+          // React 15.2 changes the wording to "prop type" and adds stack traces
+          // (which we'll ignore for now)
+          .replace(/Failed propType/, 'Failed prop type')
+          .replace(/\n {4}in .*/, '')
+      );
     });
   });
 
@@ -58,8 +64,8 @@ describe('RelayRenderer.validation', () => {
     expect(() => ShallowRenderer.render(
       <RelayRenderer queryConfig={queryConfig} environment={environment} />
     )).toThrowError(
-      'Warning: Failed propType: Required prop `Container` was not specified ' +
-      'in `RelayRenderer`.'
+      'Warning: Failed prop type: Required prop `Container` was not ' +
+      'specified in `RelayRenderer`.'
     );
 
     expect(() => ShallowRenderer.render(
@@ -69,7 +75,7 @@ describe('RelayRenderer.validation', () => {
         environment={environment}
       />
     )).toThrowError(
-      'Warning: Failed propType: Invalid prop `Container` supplied to ' +
+      'Warning: Failed prop type: Invalid prop `Container` supplied to ' +
       '`RelayRenderer`, expected a RelayContainer.'
     );
   });
@@ -78,7 +84,7 @@ describe('RelayRenderer.validation', () => {
     expect(() => ShallowRenderer.render(
       <RelayRenderer Container={MockContainer} environment={environment} />
     )).toThrowError(
-      'Warning: Failed propType: Required prop `queryConfig` was not ' +
+      'Warning: Failed prop type: Required prop `queryConfig` was not ' +
       'specified in `RelayRenderer`.'
     );
 
@@ -89,7 +95,7 @@ describe('RelayRenderer.validation', () => {
         environment={environment}
       />
     )).toThrowError(
-      'Warning: Failed propType: Required prop `queryConfig.name` was not ' +
+      'Warning: Failed prop type: Required prop `queryConfig.name` was not ' +
       'specified in `RelayRenderer`.'
     );
   });
@@ -98,7 +104,7 @@ describe('RelayRenderer.validation', () => {
     expect(() => ShallowRenderer.render(
       <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
     )).toThrowError(
-      'Warning: Failed propType: Invalid prop/context `environment` ' +
+      'Warning: Failed prop type: Invalid prop/context `environment` ' +
       'supplied to `RelayRenderer`, expected `undefined` to be an object ' +
       'conforming to the `RelayEnvironment` interface.'
     );
@@ -110,7 +116,7 @@ describe('RelayRenderer.validation', () => {
         environment={{}}
       />
     )).toThrowError(
-      'Warning: Failed propType: Invalid prop/context `environment` ' +
+      'Warning: Failed prop type: Invalid prop/context `environment` ' +
       'supplied to `RelayRenderer`, expected `[object Object]` to be an ' +
       'object conforming to the `RelayEnvironment` interface.'
     );

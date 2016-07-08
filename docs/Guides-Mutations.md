@@ -412,9 +412,9 @@ Given a parent, a connection, one or more DataIDs in the response payload, and a
 
   The field name in the response that represents the parent of the connection
 
-- `parentID: string`
+- `parentID?: string`
 
-  The DataID of the parent node that contains the connection
+  The DataID of the parent node that contains the connection. Omit if the parent node does not have an ID.
 
 - `connectionName: string`
 

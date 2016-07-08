@@ -16,14 +16,14 @@ import type {Call} from 'RelayInternalTypes';
 import type {Record} from 'RelayRecord';
 
 export type EdgeRecord = Record & {
-  cursor: mixed;
-  node: Record;
+  cursor: mixed,
+  node: Record,
 };
 export type PageInfo = {
-  endCursor: ?string;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  startCursor: ?string;
+  endCursor: ?string,
+  hasNextPage: boolean,
+  hasPreviousPage: boolean,
+  startCursor: ?string,
 };
 
 const CLIENT_MUTATION_ID = 'clientMutationId';

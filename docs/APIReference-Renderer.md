@@ -130,6 +130,7 @@ onReadyStateChange(
     aborted: boolean;
     done: boolean;
     error: ?Error;
+    events: Array<ReadyStateEvent>;
     ready: boolean;
     stale: boolean;
   }

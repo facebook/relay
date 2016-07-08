@@ -64,8 +64,8 @@ describe('RelayOSSNodeInterface', () => {
       viewer: {
         actor: {
           id: '123',
-       },
-     },
+        },
+      },
     };
     const result = RelayFBNodeInterface.getResultsFromPayload(
       query,
@@ -199,7 +199,7 @@ describe('RelayOSSNodeInterface', () => {
           identifyingArgKey: '123',
           identifyingArgValue: '123',
         },
-     },
+      },
       {
         result: payload.nodes[1],
         rootCallInfo: {
@@ -207,7 +207,7 @@ describe('RelayOSSNodeInterface', () => {
           identifyingArgKey: '456',
           identifyingArgValue: '456',
         },
-     },
+      },
     ]);
   });
 

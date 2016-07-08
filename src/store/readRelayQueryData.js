@@ -40,18 +40,18 @@ const {MUTATION_STATUS} = RelayRecord.MetadataKey;
 
 export type DataIDSet = {[key: string]: boolean};
 export type StoreReaderResult = {
-  data: ?StoreReaderData;
-  dataIDs: DataIDSet;
+  data: ?StoreReaderData,
+  dataIDs: DataIDSet,
 };
 
 type State = {
-  componentDataID: ?DataID;
-  data: mixed;
-  isPartial: boolean;
-  parent: ?RelayQuery.Field;
-  rangeInfo: ?RangeInfo;
-  seenDataIDs: DataIDSet;
-  storeDataID: DataID;
+  componentDataID: ?DataID,
+  data: mixed,
+  isPartial: boolean,
+  parent: ?RelayQuery.Field,
+  rangeInfo: ?RangeInfo,
+  seenDataIDs: DataIDSet,
+  storeDataID: DataID,
 };
 
 const {EDGES, PAGE_INFO} = RelayConnectionInterface;

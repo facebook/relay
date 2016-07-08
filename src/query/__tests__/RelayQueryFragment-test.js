@@ -64,6 +64,11 @@ describe('RelayQueryFragment', () => {
     expect(fragment2.equals(fragment)).toBe(false);
   });
 
+  it('does not return a source composite hash for un-cloned fragments', () => {
+    expect(fragment.getSourceCompositeHash())
+      .toBe(null);
+  });
+
   it('does not equal equivalent fragments with a different structure', () => {
     expect(fragment.equals(fragment)).toBe(true);
     // invert the fields between outer/inner fragments
@@ -131,6 +136,18 @@ describe('RelayQueryFragment', () => {
     expect(fragment.clone(children.map(c => c))).toBe(fragment);
   });
 
+  it('returns the source composite hash for cloned fragments', () => {
+    const query = getNode(Relay.QL`
+      fragment on StreetAddress {
+        country
+        city
+      }
+    `);
+    const clone = fragment.clone([query.getChildren()[0]]);
+    expect(clone.getSourceCompositeHash())
+      .toBe(fragment.getCompositeHash());
+  });
+
   it('returns null when cloning without children', () => {
     expect(fragment.clone([])).toBe(null);
     expect(fragment.clone([null])).toBe(null);
@@ -143,7 +160,7 @@ describe('RelayQueryFragment', () => {
         city
       }
     `);
-    const clone = query.clone([query.getChildren()[0]]);
+    const clone = fragment.clone([query.getChildren()[0]]);
     expect(clone.getChildren().length).toBe(1);
     expect(clone.getChildren()[0].getSchemaName()).toBe('country');
     expect(clone.getFieldByStorageKey('city')).toBe(undefined);

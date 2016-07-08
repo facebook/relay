@@ -19,6 +19,7 @@ jest
 
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayFragmentReference = require('RelayFragmentReference');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -71,6 +72,73 @@ describe('diffRelayQuery - fragments', () => {
 
     const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(0);
+  });
+
+  it('caches original fragment composite hash if deferred and missing fields', () => {
+    const records = {};
+    const store = new RelayRecordStore({records});
+    const writer = new RelayRecordWriter(records, {}, false);
+    const tracker = new RelayQueryTracker();
+
+    const writeFragment = Relay.QL`
+      fragment on User {
+        firstName
+      }
+    `;
+    const writeQuery = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ${writeFragment}
+        }
+      }
+    `);
+    const payload = {
+      node: {
+        id: '123',
+        __typename: 'User',
+        firstName: 'Joe', // missing `lastName`
+      },
+    };
+    writePayload(store, writer, writeQuery, payload, tracker);
+
+    const readFragment = getNode(Relay.QL`
+      fragment on User {
+        firstName
+        lastName
+      }
+    `);
+
+    const fragmentReference = new RelayFragmentReference(
+      () => readFragment.getConcreteQueryNode(),
+      {}
+    );
+    fragmentReference.defer();
+
+    const query = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ${fragmentReference}
+        }
+      }
+    `);
+
+    const diffQueries = diffRelayQuery(query, store, tracker);
+    expect(diffQueries.length).toBe(1);
+    expect(diffQueries[0].getChildren().length).toBe(3);
+
+    const fragmentRef = diffQueries[0].getChildren()[2];
+    const originalCompositeHash = readFragment.getCompositeHash();
+    expect(fragmentRef.getSourceCompositeHash()).toBe(originalCompositeHash);
+
+    expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ... on User {
+            lastName
+          }
+        }
+      }
+    `));
   });
 
   it('tracks fragments for null linked fields', () => {

@@ -109,17 +109,71 @@ For a complete example of how to load a `schema.js` file, run the introspection 
 
 If you're using a different GraphQL server implementation, we recommend adapting the above example to load the schema from your GraphQL server (e.g. via an HTTP request) and then save the result as JSON.
 
+An example using `fetch` looks like this:
+
+```javascript
+const fetch = require('node-fetch');
+const fs = require('fs');
+const {
+  buildClientSchema,
+  introspectionQuery,
+  printSchema,
+} = require('graphql/utilities');
+const path = require('path');
+const schemaPath = path.join(__dirname, 'schema');
+
+const SERVER = 'http://example.com/graphql';
+
+// Save JSON of full schema introspection for Babel Relay Plugin to use
+fetch(`${SERVER}`, {
+  method: 'POST',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({'query': introspectionQuery}),
+}).then(res => res.json()).then(schemaJSON => {
+  fs.writeFileSync(
+    `${schemaPath}.json`,
+    JSON.stringify(schemaJSON, null, 2)
+  );
+
+  // Save user readable type system shorthand of schema
+  const graphQLSchema = buildClientSchema(schemaJSON.data);
+  fs.writeFileSync(
+    `${schemaPath}.graphql`,
+    printSchema(graphQLSchema)
+  );
+});
+```
 
 ## Additional Options
 
 By default, `babel-relay-plugin` catches GraphQL validation errors and logs them without exiting. The compiled code will also throw the same errors at runtime, making it obvious that something went wrong whether you're looking at your terminal or browser console.
 
-When compiling code for production deployment, the plugin can be configured to immediately throw upon encountering a validation problem:
+When compiling code for production deployment, the plugin can be configured to immediately throw upon encountering a validation problem. The plugin can be further customized for different environments with the following options:
 
 ```javascript
 babel.transform(source, {
   plugins: [
-    [getBabelRelayPlugin(schemaData), {enforceSchema: true}],
+    [getBabelRelayPlugin(schemaData, {
+      // Only if `enforceSchema` is `false` and `debug` is `true`
+      // will validation errors be logged at build time.
+      debug: false,
+      // Suppresses all warnings that would be printed.
+      suppressWarnings: false,
+      // Can add a custom validator.
+      // Supplying one overrides the default one, skipping the default rules.
+      validator: (GraphQL) => {
+        return (schema, ast) => {
+          // Return an array of `Error` instances.
+          return [];
+        };
+      },
+    }), {
+    // Will throw an error when it validates the queries at build time.
+    enforceSchema: true,
+    }],
   ],
 });
 ```

@@ -291,7 +291,7 @@ describe('GraphQLSegment', () => {
     expect(segment.__debug().idToIndices.edge2.length).toBe(1);
 
     const otherSegment = new GraphQLSegment();
-    var edge2 = edges.slice(1, 2);
+    const edge2 = edges.slice(1, 2);
     otherSegment.addEdgesAfterCursor(edge2, null);
     // bumping the edge
     otherSegment.removeEdge('edge2', 1001);
@@ -331,6 +331,7 @@ describe('GraphQLSegment', () => {
     expect(segment.containsEdgeWithCursor('cursor1')).toBeTruthy();
     // Deleted
     expect(segment.containsEdgeWithCursor('cursor2')).toBeFalsy();
+    expect(segment.containsEdgeWithCursor('cursor2', true)).toBeTruthy();
   });
 
   it('should get first and last cursor in segment', () => {
@@ -341,13 +342,21 @@ describe('GraphQLSegment', () => {
     // Returns property for basic edges
     segment.addEdgesAfterCursor(edges, null);
     expect(segment.getFirstCursor()).toEqual('cursor1');
+    expect(segment.isFirstCursor('cursor1')).toBeTruthy();
+    expect(segment.isFirstCursor('cursor2')).toBeFalsy();
     expect(segment.getLastCursor()).toEqual('cursor3');
+    expect(segment.isLastCursor('cursor3')).toBeTruthy();
+    expect(segment.isLastCursor('cursor2')).toBeFalsy();
 
     // Skips over deleted edges
     segment.removeEdge('edge1');
     segment.removeEdge('edge3');
     expect(segment.getFirstCursor()).toEqual('cursor2');
+    expect(segment.isFirstCursor('cursor1')).toBeTruthy();
+    expect(segment.isFirstCursor('cursor2')).toBeTruthy();
     expect(segment.getLastCursor()).toEqual('cursor2');
+    expect(segment.isLastCursor('cursor3')).toBeTruthy();
+    expect(segment.isLastCursor('cursor2')).toBeTruthy();
 
     // Returns undefined when all edges are deleted
     segment.removeEdge('edge2');

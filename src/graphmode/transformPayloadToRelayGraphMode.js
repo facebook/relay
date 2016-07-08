@@ -56,9 +56,9 @@ type GraphOperation =
   PutRootOperation;
 
 type PayloadState = {
-  currentRecord: GraphRecord;
-  path: QueryPath;
-  payloadRecord: PayloadRecord;
+  currentRecord: GraphRecord,
+  path: QueryPath,
+  payloadRecord: PayloadRecord,
 };
 type PayloadRecord = {[storageKey: string]: ?PayloadValue};
 type PayloadScalar = (
@@ -72,7 +72,7 @@ type PayloadValue = (
   Array<?PayloadScalar>
 );
 type TransformOptions = {
-  updateTrackedQueries?: boolean;
+  updateTrackedQueries?: boolean,
 };
 
 /**
@@ -236,10 +236,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       this._updateTrackedQueries ||
       this._store.getRecordState(dataID) !== 'EXISTENT'
     ) {
-      const path = node instanceof RelayQuery.Root ?
-        RelayQueryPath.create(node) :
-        null;
-      this._queryTracker.trackNodeForID(node, dataID, path);
+      this._queryTracker.trackNodeForID(node, dataID);
     }
   }
 

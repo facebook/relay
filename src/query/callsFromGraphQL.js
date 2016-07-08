@@ -24,8 +24,8 @@ import type {Variables} from 'RelayTypes';
 const invariant = require('invariant');
 
 type CallOrDirective = {
-  name: string;
-  value: ?ConcreteValue;
+  name: string,
+  value: ?ConcreteValue,
 };
 
 /**

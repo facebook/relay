@@ -27,7 +27,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 const readRelayQueryData = require('readRelayQueryData');
 
-const {CREATED} = RelayMutationTransactionStatus;
+const {CREATED, ROLLED_BACK, UNCOMMITTED} = RelayMutationTransactionStatus;
 
 describe('RelayEnvironment', () => {
   let environment;
@@ -176,11 +176,13 @@ describe('RelayEnvironment', () => {
     let mockMutation;
     let mockQueue;
     let mockTransaction;
+    let status;
 
     beforeEach(() => {
+      status = CREATED;
       mockQueue = {
-        applyOptimistic: () => {},
-        getStatus: jest.fn(() => CREATED),
+        applyOptimistic: () => { status = UNCOMMITTED; },
+        getStatus: jest.fn(() => status),
       };
       mockTransaction = new RelayMutationTransaction(mockQueue);
       mockTransaction.commit = jest.fn();
@@ -237,13 +239,27 @@ describe('RelayEnvironment', () => {
         expect(mockMutation.bindEnvironment.mock.calls[0][0]).toBe(environment);
       });
 
-      it('creates a new RelayMutationTransaction and commits it', () => {
+      it('creates a new RelayMutationTransaction and defers the commit', () => {
         environment.commitUpdate(mockMutation, mockCallbacks);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
           mockCallbacks
         );
+        expect(mockTransaction.commit).not.toBeCalled();
+        jest.runAllTimers();
         expect(mockTransaction.commit).toBeCalled();
+      });
+
+      it('cancels a scheduled commit action if the status changes', () => {
+        environment.commitUpdate(mockMutation, mockCallbacks);
+        expect(createTransactionMock).toBeCalledWith(
+          mockMutation,
+          mockCallbacks
+        );
+        expect(mockTransaction.commit).not.toBeCalled();
+        status = ROLLED_BACK;
+        jest.runAllTimers();
+        expect(mockTransaction.commit).not.toBeCalled();
       });
     });
   });

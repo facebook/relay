@@ -56,6 +56,11 @@ These are the methods and properties that the container will provide as `this.pr
     </a>
   </li>
   <li>
+    <a href="#pendingvariables">
+      <pre>pendingVariables </pre>
+    </a>
+  </li>
+  <li>
     <a href="#variables">
       <pre>variables</pre>
     </a>
@@ -267,6 +272,65 @@ In this example, the `width` of the rendered image will always correspond to the
 > Note
 >
 > Never mutate `this.props.relay.variables` directly as it will not trigger data to be fetched properly. Treat `this.props.relay.variables` as if it were immutable, just like props.
+
+### pendingVariables
+
+```
+pendingVariables: ?{[name: string]: mixed}
+```
+
+`pendingVariables` contains the set of variables that are being used to fetch the new props, i.e. when `this.props.relay.setVariables()` or `this.props.relay.forceFetch()` are called and the corresponding request is in flight.
+
+If no request is in flight pendingVariables is `null`.
+
+#### Example
+
+```{12}
+class ProfilePicture extends React.Component {
+  requestRandomPictureSize = () => {
+    const randIntMin = 10;
+    const randIntMax = 200;
+    const size = (Math.floor(Math.random() * (randIntMax - randIntMin + 1)) + randIntMin);
+    this.props.relay.setVariables({size});
+  }
+
+  render() {
+    const {relay, user} = this.props;
+    const {pendingVariables} = relay;
+    if (pendingVariables && 'size' in pendingVariables) {
+      // Profile picture with new size is loading
+      return (
+        <View>
+          <LoadingSpinner />
+        </View>
+      )
+    }
+
+    return (
+      <View>
+        <Image
+          uri={user.profilePicture.uri}
+          width={relay.variables.size}
+        />
+        <button onclick={this.requestRandomPictureSize}>
+          Request random picture size
+        </button>
+      </View>
+    );
+  }
+}
+module.exports = Relay.createContainer(ProfilePicture, {
+  initialVariables: {size: 50},
+  fragments: {
+    user: () => Relay.QL`
+      fragment on User { profilePicture(size: $size) { ... } }
+    `,
+  },
+});
+```
+
+In this example, whenever a picture with a new size is being loaded a spinner is displayed instead of the picture.
+
 
 ### setVariables
 
@@ -517,7 +581,7 @@ Relay.createContainer(Parent, {
     parentFragment: () => Relay.QL`
       fragment on Foo {
         id
-        ${Child.getFragment('childFragment', {size: 128}
+        ${Child.getFragment('childFragment', {size: 128})}
       }
     `,
   }

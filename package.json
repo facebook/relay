@@ -1,7 +1,7 @@
 {
   "name": "react-relay",
   "description": "A framework for building data-driven React applications.",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "keywords": [
     "graphql",
     "react",
@@ -34,7 +34,7 @@
     "react-static-container": "^1.0.1"
   },
   "peerDependencies": {
-    "babel-relay-plugin": "0.9.1",
+    "babel-relay-plugin": "0.9.2",
     "react": "^15.0.0 || ^0.14.0"
   },
   "devDependencies": {

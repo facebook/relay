@@ -165,7 +165,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -197,14 +197,12 @@ describe('writeRelayUpdatePayload()', () => {
         deletedCommentId: commentID,
       };
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         feedback: {
           id: null, // Malformed response.
           topLevelComments: {},
         },
       };
-      expect(() => writeRelayUpdatePayload(queryWriter, query, payload, {configs}))
+      expect(() => writeRelayUpdatePayload(queryWriter, '0', query, payload, {configs}))
         .toFailInvariant(
           'writeRelayUpdatePayload(): Expected a record ID in the response ' +
           'payload supplied to update the store for field `feedback`, ' +
@@ -338,7 +336,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -421,7 +419,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: false}
@@ -533,7 +531,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: false}
@@ -662,8 +660,6 @@ describe('writeRelayUpdatePayload()', () => {
       }];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: commentIDs,
         feedback: {
           id: 'feedback_id',
@@ -686,6 +682,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -756,8 +753,6 @@ describe('writeRelayUpdatePayload()', () => {
       }];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: commentIDs,
         feedback: {
           id: 'feedback_id',
@@ -779,6 +774,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: false}
@@ -945,7 +941,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -1041,7 +1037,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: false}
@@ -1167,7 +1163,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -1231,7 +1227,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: false}
@@ -1380,7 +1376,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -1473,7 +1469,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -1564,7 +1560,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -1662,7 +1658,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: true}
@@ -1793,7 +1789,7 @@ describe('writeRelayUpdatePayload()', () => {
 
       writeRelayUpdatePayload(
         queryWriter,
-        '0',
+        input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         mutation,
         payload,
         {configs, isOptimisticUpdate: false}

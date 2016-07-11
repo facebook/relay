@@ -366,7 +366,6 @@ describe('RelayGraphQLMutation', () => {
         const result = {
           response: {
             feedbackLike: {
-              clientMutationId: id,
               feedback: {
                 id: 'aFeedbackId',
                 doesViewerLike: true,
@@ -527,7 +526,6 @@ describe('RelayGraphQLMutation', () => {
         };
         const query = Relay.QL`mutation CommentAddMutation {
           commentCreate(input: $input) {
-            clientMutationId
             feedbackCommentEdge {
               cursor
               node {
@@ -579,7 +577,6 @@ describe('RelayGraphQLMutation', () => {
         const result = {
           response: {
             commentCreate: {
-              clientMutationId: id,
               feedbackCommentEdge: {
                 __typename: 'CommentsEdge',
                 cursor: 'cursor2',

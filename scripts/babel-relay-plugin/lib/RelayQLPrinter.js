@@ -65,7 +65,6 @@ module.exports = function (t, options) {
   var EMPTY_ARRAY = t.arrayExpression([]);
   var FIELDS = formatFields({
     __typename: '__typename',
-    clientMutationId: 'clientMutationId',
     clientSubscriptionId: 'clientSubscriptionId',
     cursor: 'cursor',
     edges: 'edges',
@@ -240,11 +239,7 @@ module.exports = function (t, options) {
         var rootField = rootFields[0];
         var rootFieldType = rootField.getType();
         validateMutationField(rootField);
-        var requisiteFields = {};
-        if (rootFieldType.hasField(FIELDS.clientMutationId)) {
-          requisiteFields[FIELDS.clientMutationId] = true;
-        }
-        var selections = this.printSelections(rootField, requisiteFields);
+        var selections = this.printSelections(rootField, {});
         var metadata = {
           inputType: this.printArgumentTypeForMetadata(rootField.getDeclaredArgument(INPUT_ARGUMENT_NAME))
         };

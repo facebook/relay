@@ -50,14 +50,6 @@ var x = function () {
         inferredPrimaryKey: 'id'
       },
       type: 'User'
-    }, {
-      fieldName: 'clientMutationId',
-      kind: 'Field',
-      metadata: {
-        isGenerated: true,
-        isRequisite: true
-      },
-      type: 'String'
     }],
     kind: 'Mutation',
     metadata: {

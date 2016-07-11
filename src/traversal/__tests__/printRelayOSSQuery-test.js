@@ -872,8 +872,7 @@ describe('printRelayOSSQuery', () => {
             },
             likeSentence,
             likers
-          },
-          clientMutationId
+          }
         }
       }
     `);

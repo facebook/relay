@@ -550,17 +550,18 @@ class RelayRecordWriter {
 
 
     /**
-     * Prepend, append, or delete edges to/from a range.
+     * Prepend, append, or delete elements to/from a range.
      */
   applyRangeElementUpdate(
-    connectionID: DataID,
-    edgeID: DataID,
+    parentID: DataID,
+    mutatedFieldName: string,
+    nodeID: DataID,
     operation: RangeOperation
   ): void {
     if (this._isOptimisticWrite) {
-      this._applyOptimisticRangeElementUpdate(connectionID, edgeID, operation);
+      this._applyOptimisticRangeElementUpdate(parentID, mutatedFieldName, nodeID, operation);
     } else {
-      this._applyServerRangeElementUpdate(connectionID, edgeID, operation);
+      this._applyServerRangeElementUpdate(parentID, mutatedFieldName, nodeID, operation);
     }
   }
 
@@ -579,6 +580,29 @@ class RelayRecordWriter {
       cursor: this.getField(edgeID, CURSOR),
       node: RelayRecord.create(nodeID),
     });
+  }
+
+  _applyOptimisticRangeElementUpdate(
+    parentID: DataID,
+    mutatedFieldName: string,
+    nodeID: DataID,
+    operation: RangeOperation
+  ): void {
+    let parentRecord: ?Record = this._getRecordForWrite(parentID);
+    const fieldValue = RelayRecord.create(nodeID);
+
+    if (!parentRecord) {
+      parentRecord = RelayRecord.create(parentID);
+      parentRecord[mutatedFieldName] = [];
+      this._records[parentID] = parentRecord;
+    }
+
+    this._setClientMutationID(parentRecord);
+    if (operation === PREPEND) {
+      parentRecord[mutatedFieldName].unshift(fieldValue);
+    } else {
+      parentRecord[mutatedFieldName].push(fieldValue);
+    }
   }
 
   _applyOptimisticRangeUpdate(
@@ -610,7 +634,6 @@ class RelayRecordWriter {
     edgeID: DataID,
     operation: RangeOperation
   ): void {
-    console.log('----in applyServerRangeUpdate-----')
     const range: ?GraphQLRange = (this._getField(connectionID, RANGE): any);
     invariant(
       range,
@@ -635,53 +658,41 @@ class RelayRecordWriter {
         range.prependEdge(this._getRangeEdgeRecord(edgeID));
       }
     }
-    console.log('I do not have a chachewriter?????', this._cacheWriter)
     if (this._cacheWriter) {
       this._cacheWriter.writeField(connectionID, RANGE, range);
     }
   }
 
 
-    _applyServerRangeElementUpdate(
-      parentID: DataID,
-      nodeID: DataID,
-      operation: RangeOperation
-    ): void {
-      console.log('----in applyServerRangeUpdate-----')
-      // const range: ?GraphQLRange = (this._getField(connectionID, RANGE): any);
-      // invariant(
-      //   range,
-      //   'RelayRecordWriter: Cannot apply `%s` update to non-existent record ' +
-      //   '`%s`.',
-      //   operation,
-      //   connectionID
-      // );
-      const list = this._getField(parentID, 'simpleTopLevelComments');
-      // list.push()
-      console.log('|||||||||||||>>>>>>>>>>>>>>>>>>>||', parentID, list);
-      list.push({__dataID__: nodeID})
-      // if (operation === REMOVE) {
-      //   range.removeEdgeWithID(edgeID);
-      //   const nodeID = this.getLinkedRecordID(edgeID, 'node');
-      //   if (nodeID) {
-      //     this._removeConnectionForNode(connectionID, nodeID);
-      //   }
-      // } else {
-      //   const edgeRecord = this._getRangeEdgeRecord(edgeID);
-      //   const nodeID = RelayRecord.getDataID(edgeRecord.node);
-      //   this._addConnectionForNode(connectionID, nodeID);
-      //   if (operation === APPEND) {
-      //     range.appendEdge(this._getRangeEdgeRecord(edgeID));
-      //   } else {
-      //     range.prependEdge(this._getRangeEdgeRecord(edgeID));
-      //   }
-      // }
-      console.log('I do not have a chachewriter?????', this._cacheWriter)
-      if (this._cacheWriter) {
-        console.log('Writing field here with cacheWriter')
-        this._cacheWriter.writeField(parentID, 'simpleTopLevelComments', list);
+  _applyServerRangeElementUpdate(
+    parentID: DataID,
+    mutatedFieldName: string,
+    nodeID: DataID,
+    operation: RangeOperation
+  ): void {
+    let list = this._getField(parentID, mutatedFieldName);
+
+    invariant(
+      list,
+      'RelayRecordWriter: Cannot apply `%s` update to non-existent list ' +
+      '`%s` with parent of ID: %s.',
+      operation,
+      mutatedFieldName,
+      parentID
+    );
+    if (operation === REMOVE) {
+      list = list.filter((node) => node.__dataID__ !== nodeID);
+    } else {
+      if (operation === APPEND) {
+        list.push({__dataID__: nodeID})
+      } else {
+        list.unshift({__dataID__: nodeID});
       }
     }
+    if (this._cacheWriter) {
+      this._cacheWriter.writeField(parentID, mutatedFieldName, list);
+    }
+  }
 
   /**
    * Record that the node is contained in the connection.
@@ -736,8 +747,6 @@ class RelayRecordWriter {
    */
   _getField(dataID: DataID, storageKey: string): ?FieldValue {
     const record = this._records[dataID];
-    console.log('in _getField')
-    console.log(record)
     if (record === null) {
       return null;
     } else if (record && record.hasOwnProperty(storageKey)) {

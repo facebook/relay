@@ -321,7 +321,7 @@ function _prepareSimpleRangeAdd(
   isOptimisticUpdate: boolean
 ) : void {
   // Extracts the new element from the payload
-  const newElement = getObject(payload, (config.elementName || 'newElement'));
+  const newElement = getObject(payload, (config.newElementName || 'newElement'));
 
   // Extract the id of the node with that contains the list that we are adding
   // the element to
@@ -362,7 +362,6 @@ function handleRangeAdd(
   config: OperationConfig,
   isOptimisticUpdate: boolean
 ): void {
-  console.log('--------in handleRangeAdd----------');
   const clientMutationID = getString(payload, CLIENT_MUTATION_ID);
   invariant(
     clientMutationID,
@@ -371,14 +370,13 @@ function handleRangeAdd(
     CLIENT_MUTATION_ID
   );
   const store = writer.getRecordStore();
+  const recordWriter = writer.getRecordWriter();
 
   let connectionParentID;
   let nodeID;
   let rangeData;
-  console.log('hhheeerrr bayby!')
-  if (config.elementName) {
+  if (config.newElementName) {
     [connectionParentID, nodeID, rangeData] = _prepareSimpleRangeAdd(writer, payload, operation, config, isOptimisticUpdate);
-    console.log(connectionParentID)
     addRangeElement(
       writer,
       operation,
@@ -467,23 +465,12 @@ function addRangeElement(
   writer: RelayQueryWriter,
   operation: RelayQuery.Operation,
   config: OperationConfig,
-  connectionID: DataID,
-  nodeID: DataID,
-  edgeData: any
+  parentID: DataID,
+  newElementID: DataID,
+  newElementData: any
 ) {
-  console.log('iiiiiinnnnnn addRangeElement--------')
-  const store = writer.getRecordStore();
   const recordWriter = writer.getRecordWriter();
-  const filterCalls = store.getRangeFilterCalls(connectionID);
-  let rangeBehavior = APPEND;
-  console.log(rangeBehavior)
-  if (config.rangeBehaviors) {
-    rangeBehavior = filterCalls ?
-      getRangeBehavior(config.rangeBehaviors, filterCalls) :
-      null;
-  }
-  console.log(rangeBehavior);
-  // no range behavior specified for this combination of filter calls
+  const rangeBehavior = getRangeBehavior(config.rangeBehaviors, []);
   if (!rangeBehavior || rangeBehavior === IGNORE) {
     warning(
       rangeBehavior,
@@ -492,65 +479,21 @@ function addRangeElement(
     );
     return;
   }
-  console.log('whaaaaaa')
-  NODE_FIELD.fieldName = 'simpleTopLevelComments'
 
-  // const edgeID = generateClientEdgeID(connectionID, nodeID);
-  // let path = store.getPathToRecord(connectionID);
-  // const path = RelayQueryPath.getPath(path, NODE_FIELD, nodeID);
-  const path = RelayQueryPath.createForID(nodeID, 'simpleTopLevelComments');
+  NODE_FIELD.fieldName = config.listName;
+  const path = RelayQueryPath.createForID(newElementID, NODE_FIELD.fieldName);
   invariant(
     path,
     'writeRelayUpdatePayload(): Expected a path for connection record, `%s`.',
-    connectionID
+    parentID
   );
-  // path = RelayQueryPath.getPath(path, EDGES_FIELD, edgeID);
-  console.log('coools got path', path)
   // create the edge record
-  writer.createRecordIfMissing(NODE_FIELD, nodeID, path, edgeData);
-
-  console.log('Got operation!');
-  console.log(operation);
-
-  // write data for all `edges` fields
-  // TODO #7167718: more efficient mutation/subscription writes
-  let hasEdgeField = false;
-  const handleNode = node => {
-    node.getChildren().forEach(child => {
-      console.log('in for each', child.getSchemaName())
-      if (child instanceof RelayQuery.Fragment) {
-        handleNode(child);
-      } else if (
-        child instanceof RelayQuery.Field &&
-        child.getSchemaName() === config.elementName
-      ) {
-        console.log('has something here', path)
-        hasEdgeField = true;
-        if (path) {
-          console.log('writing payload!')
-          writer.writePayload(
-            child,
-            nodeID,
-            edgeData,
-            path
-          );
-        }
-      }
-    });
-  };
-  handleNode(operation);
-
-  // invariant(
-  //   hasEdgeField,
-  //   'writeRelayUpdatePayload(): Expected mutation query to include the ' +
-  //   'relevant edge field, `%s`.',
-  //   config.edgeName
-  // );
+  writer.createRecordIfMissing(NODE_FIELD, newElementID, path, newElementData);
 
   // append/prepend the item to the range.
   if (rangeBehavior in GraphQLMutatorConstants.RANGE_OPERATIONS) {
-    recordWriter.applyRangeElementUpdate(connectionID, nodeID, (rangeBehavior: any));
-    writer.recordUpdate(connectionID);
+    recordWriter.applyRangeElementUpdate(parentID, NODE_FIELD.fieldName, newElementID, (rangeBehavior: any));
+    writer.recordUpdate(parentID);
   } else {
     console.error(
       'writeRelayUpdatePayload(): invalid range operation `%s`, valid ' +
@@ -576,7 +519,6 @@ function addRangeNode(
   nodeID: DataID,
   edgeData: any
 ) {
-  console.log('-------in addRangeNode-------------')
   const store = writer.getRecordStore();
   const recordWriter = writer.getRecordWriter();
   const filterCalls = store.getRangeFilterCalls(connectionID);
@@ -610,8 +552,6 @@ function addRangeNode(
   // TODO #7167718: more efficient mutation/subscription writes
   let hasEdgeField = false;
   const handleNode = node => {
-    console.log(node.getChildren())
-    console.log('end children')
     node.getChildren().forEach(child => {
       if (child instanceof RelayQuery.Fragment) {
         handleNode(child);
@@ -631,9 +571,6 @@ function addRangeNode(
       }
     });
   };
-  console.log('got operation');
-  console.log(operation)
-  console.log('--end operation--')
   handleNode(operation);
 
   invariant(
@@ -644,9 +581,7 @@ function addRangeNode(
   );
 
   // append/prepend the item to the range.
-  console.log('whhhhhhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', rangeBehavior)
   if (rangeBehavior in GraphQLMutatorConstants.RANGE_OPERATIONS) {
-    console.log('calling applyRangeUpdate!!!!')
     recordWriter.applyRangeUpdate(connectionID, edgeID, (rangeBehavior: any));
     writer.recordUpdate(connectionID);
   } else {

@@ -310,6 +310,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       return;
     }
 
+
     if (!field.canHaveSubselections()) {
       this._writeScalar(field, state, recordID, fieldData);
     } else if (field.isConnection()) {

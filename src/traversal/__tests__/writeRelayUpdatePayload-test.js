@@ -1262,7 +1262,7 @@ describe('writeRelayUpdatePayload()', () => {
   });
 
   describe('plain list range add mutations', () => {
-    let connectionIDs;
+    // let connectionIDs;
     let feedbackID;
     let queueStore;
     let queueWriter;
@@ -1325,14 +1325,107 @@ describe('writeRelayUpdatePayload()', () => {
           ],
         },
       };
-      // console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-      const results = writePayload(store, writer, query, payload);
-      console.log('Got results frim writePayload')
-      console.log(results)
-      connectionIDs = store.getLinkedRecordIDs(feedbackID, 'simpleTopLevelComments');
+      writePayload(store, writer, query, payload);
     });
 
-    fit('non-optimistically prepends comments', () => {
+
+    it('optimistically prepends comments', () => {
+      // create the mutation and payload
+      const input = {
+        actor_id: 'actor:123',
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        feedback_id: feedbackID,
+        message: {
+          text: 'Hello World!',
+          ranges: [],
+        },
+      };
+
+      const mutation = getNode(Relay.QL`
+        mutation {
+          commentCreate(input:$input) {
+            feedback {
+              id
+            }
+            feedbackCommentElement {
+              id
+              body {
+                text
+              }
+            }
+          }
+        }
+      `, {
+        input: JSON.stringify(input),
+      });
+      const configs = [{
+        type: RelayMutationType.RANGE_ADD,
+        parentName: 'feedback',
+        listName: 'simpleTopLevelComments',
+        newElementName: 'feedbackCommentElement',
+        rangeBehaviors: () => GraphQLMutatorConstants.PREPEND,
+      }];
+
+      const nextNodeID = 'comment789';
+      const bodyID = 'client:1';
+      const payload = {
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        feedback: {
+          id: feedbackID,
+        },
+        feedbackCommentElement: {
+          __typename: 'Comment',
+          id: nextNodeID,
+          body: {
+            text: input.message.text,
+          },
+        },
+      };
+
+      // write to queued store
+      const changeTracker = new RelayChangeTracker();
+      const queryTracker = new RelayQueryTracker();
+      const queryWriter = new RelayQueryWriter(
+        queueStore,
+        queueWriter,
+        queryTracker,
+        changeTracker,
+        {isOptimisticUpdate: true}
+      );
+
+      writeRelayUpdatePayload(
+        queryWriter,
+        mutation,
+        payload,
+        {configs, isOptimisticUpdate: true}
+      );
+
+      // queued records are updated: element added
+      expect(changeTracker.getChangeSet()).toEqual({
+        created: {
+          [nextNodeID]: true, // node added
+          [bodyID]: true, // `body` subfield
+        },
+        updated: {
+          [feedbackID]: true, // range item added & count changed
+        },
+      });
+
+
+      expect(Object.keys(queueStore.getField(feedbackID, 'simpleTopLevelComments')).length).toBe(1);
+      expect(queueStore.getField(nextNodeID, 'id')).toBe(nextNodeID);
+      expect(queueStore.getLinkedRecordID(nextNodeID, 'body')).toBe(bodyID);
+      expect(queueStore.getField(bodyID, 'text')).toBe(input.message.text);
+
+      // base records are not modified
+      expect(Object.keys(queueStore.getField(feedbackID, 'simpleTopLevelComments')).length).toBe(1);
+      expect(store.getRecordState(nextNodeID)).toBe('UNKNOWN');
+      expect(store.getRecordState(bodyID)).toBe('UNKNOWN');
+    });
+
+
+    it('non-optimistically prepends comments', () => {
       // create the mutation and payload
       const input = {
         actor_id: 'actor:123',
@@ -1364,13 +1457,13 @@ describe('writeRelayUpdatePayload()', () => {
       const configs = [{
         type: RelayMutationType.RANGE_ADD,
         parentName: 'feedback',
-        elementName: 'feedbackCommentElement',
-        // rangeBehaviors: () => GraphQLMutatorConstants.PREPEND,
+        listName: 'simpleTopLevelComments',
+        newElementName: 'feedbackCommentElement',
+        rangeBehaviors: () => GraphQLMutatorConstants.PREPEND,
       }];
 
       const nextNodeID = 'comment789';
       const bodyID = 'client:1';
-      // const nextEdgeID = generateClientEdgeID(connectionID, nextNodeID);
       const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]:
           input[RelayConnectionInterface.CLIENT_MUTATION_ID],
@@ -1415,25 +1508,13 @@ describe('writeRelayUpdatePayload()', () => {
 
       // base records are updated: element added
       expect(Object.keys(store.getField(feedbackID, 'simpleTopLevelComments')).length).toBe(2);
-      // expect(store.getLinkedRecordID(nextEdgeID, 'source')).toBe(
-      //   feedbackID
-      // );
-      // expect(store.getField(nextEdgeID, 'cursor')).toBe(nextCursor);
-      // expect(store.getLinkedRecordID(nextEdgeID, 'node')).toBe(nextNodeID);
       expect(store.getField(nextNodeID, 'id')).toBe(nextNodeID);
       expect(store.getType(nextNodeID)).toBe('Comment');
-      // expect(store.getLinkedRecordID(nextNodeID, 'body')).toBe(bodyID);
+      expect(store.getLinkedRecordID(nextNodeID, 'body')).toBe(bodyID);
       expect(store.getField(bodyID, 'text')).toBe(input.message.text);
-      console.log('store getLinkedRecordIDs!')
-      console.log(store.getLinkedRecordIDs(feedbackID, 'simpleTopLevelComments'))
-      connectionIDs[1] = nextNodeID
-      expect(store.getLinkedRecordIDs(feedbackID, 'simpleTopLevelComments')).toEqual(connectionIDs);
-      // expect(store.getRangeMetadata(
-      //   connectionIDs[0],
-      //   [{name: '', value: ''}]
-      // ).filteredEdges.map(edge => edge.edgeID)).toEqual([
-      //   nextNodeID
-      // ]);
+      const connectionIDs = store.getLinkedRecordIDs(feedbackID, 'simpleTopLevelComments');
+      expect(connectionIDs.length).toEqual(2)
+      expect(connectionIDs[0]).toEqual(nextNodeID)
     });
   });
 

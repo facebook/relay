@@ -23,7 +23,7 @@ try {
   const astSchema = buildASTSchema(ast);
   graphql(astSchema, introspectionQuery).then(
     function(result) {
-      const out = JSON.stringify(result, null, 2);
+      const out = JSON.stringify(result, null, 2) + '\n';
       fs.writeFileSync(outFile, out);
     });
 } catch (error) {

@@ -592,12 +592,13 @@ type User implements Node Actor {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
+  checkins(environments: [Environment!]!): CheckinSearchResult
   comments(first: String, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
+  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String

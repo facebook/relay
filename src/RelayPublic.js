@@ -18,6 +18,7 @@ const RelayInternals = require('RelayInternals');
 const RelayMutation = require('RelayMutation');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayQL = require('RelayQL');
+const RelayQueryConfig = require('RelayQueryConfig');
 const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
 const RelayRenderer = require('RelayRenderer');
 const RelayRootContainer = require('RelayRootContainer');
@@ -41,6 +42,7 @@ const RelayPublic = {
   Mutation: RelayMutation,
   PropTypes: RelayPropTypes,
   QL: RelayQL,
+  QueryConfig: RelayQueryConfig,
   ReadyStateRenderer: RelayReadyStateRenderer,
   Renderer: RelayRenderer,
   RootContainer: RelayRootContainer,

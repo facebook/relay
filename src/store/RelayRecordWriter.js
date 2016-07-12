@@ -598,10 +598,15 @@ class RelayRecordWriter {
     }
 
     this._setClientMutationID(parentRecord);
-    if (operation === PREPEND) {
-      parentRecord[mutatedFieldName].unshift(fieldValue);
+    if (Array.isArray(parentRecord[mutatedFieldName])) {
+      if (operation === PREPEND) {
+        parentRecord[mutatedFieldName].unshift(fieldValue);
+      } else {
+        parentRecord[mutatedFieldName].push(fieldValue);
+      }
     } else {
-      parentRecord[mutatedFieldName].push(fieldValue);
+      console.warn('Expected ' + parentRecord[mutatedFieldName] + ' to be an array.'
+        + 'Optimistic response will not be applied.');
     }
   }
 
@@ -670,7 +675,7 @@ class RelayRecordWriter {
     nodeID: DataID,
     operation: RangeOperation
   ): void {
-    let list = this._getField(parentID, mutatedFieldName);
+    let list: ?Array<Record> = (this._getField(parentID, mutatedFieldName): any);
 
     invariant(
       list,
@@ -684,7 +689,7 @@ class RelayRecordWriter {
       list = list.filter((node) => node.__dataID__ !== nodeID);
     } else {
       if (operation === APPEND) {
-        list.push({__dataID__: nodeID})
+        list.push({__dataID__: nodeID});
       } else {
         list.unshift({__dataID__: nodeID});
       }

@@ -58,14 +58,6 @@ const EDGES_FIELD = RelayQuery.Field.build({
   },
 });
 
-const NODE_FIELD = RelayQuery.Field.build({
-  type: ANY_TYPE,
-  metadata: {
-    canHaveSubselections: true,
-    isPlural: false,
-  },
-});
-
 const IGNORED_KEYS = {
   error: true,
   [CLIENT_MUTATION_ID]: true,
@@ -319,7 +311,7 @@ function _prepareSimpleRangeAdd(
   operation: RelayQuery.Operation,
   config: OperationConfig,
   isOptimisticUpdate: boolean
-) : void {
+) : any {
   // Extracts the new element from the payload
   const newElement = getObject(payload, (config.newElementName || 'newElement'));
 
@@ -340,7 +332,7 @@ function _prepareSimpleRangeAdd(
     config.parentName
   );
 
-  const nodeID = getString(newElement, ID) || generateClientID();
+  const nodeID = getString(newElement || {}, ID) || generateClientID();
   const elementData = {
     ...newElement,
     id: nodeID,
@@ -370,13 +362,13 @@ function handleRangeAdd(
     CLIENT_MUTATION_ID
   );
   const store = writer.getRecordStore();
-  const recordWriter = writer.getRecordWriter();
 
   let connectionParentID;
-  let nodeID;
+  let nodeID: DataID;
   let rangeData;
   if (config.newElementName) {
-    [connectionParentID, nodeID, rangeData] = _prepareSimpleRangeAdd(writer, payload, operation, config, isOptimisticUpdate);
+    [connectionParentID, nodeID, rangeData] = _prepareSimpleRangeAdd(writer,
+      payload, operation, config, isOptimisticUpdate);
     addRangeElement(
       writer,
       operation,
@@ -408,7 +400,7 @@ function handleRangeAdd(
       config.edgeName
     );
 
-    const nodeID = getString(edgeNode, ID) || generateClientID();
+    nodeID  = getString(edgeNode, ID) || generateClientID();
     const cursor = edge.cursor || STUB_CURSOR_ID;
     const edgeData = {
       ...edge,
@@ -480,19 +472,27 @@ function addRangeElement(
     return;
   }
 
-  NODE_FIELD.fieldName = config.listName;
-  const path = RelayQueryPath.createForID(newElementID, NODE_FIELD.fieldName);
+  const path = RelayQueryPath.createForID(newElementID, config.listName);
   invariant(
     path,
     'writeRelayUpdatePayload(): Expected a path for connection record, `%s`.',
     parentID
   );
-  // create the edge record
-  writer.createRecordIfMissing(NODE_FIELD, newElementID, path, newElementData);
+
+  const nodeField = RelayQuery.Field.build({
+    fieldName: config.listName,
+    type: ANY_TYPE,
+    metadata: {
+      canHaveSubselections: true,
+      isPlural: false,
+    },
+  });
+  // create the element record
+  writer.createRecordIfMissing(nodeField, newElementID, path, newElementData);
 
   // append/prepend the item to the range.
   if (rangeBehavior in GraphQLMutatorConstants.RANGE_OPERATIONS) {
-    recordWriter.applyRangeElementUpdate(parentID, NODE_FIELD.fieldName, newElementID, (rangeBehavior: any));
+    recordWriter.applyRangeElementUpdate(parentID, config.listName, newElementID, (rangeBehavior: any));
     writer.recordUpdate(parentID);
   } else {
     console.error(

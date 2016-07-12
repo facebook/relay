@@ -120,6 +120,13 @@ function validateMutationConfig(
         parentID: OPTIONAL,
         parentName: OPTIONAL,
         rangeBehaviors: REQUIRED,
+      }) ||
+      assertValid({
+        listName: REQUIRED,
+        newElementName: REQUIRED,
+        parentID: OPTIONAL,
+        parentName: OPTIONAL,
+        rangeBehaviors: REQUIRED,
       });
       break;
 

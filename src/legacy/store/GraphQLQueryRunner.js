@@ -260,12 +260,14 @@ function runQueries(
               },
             });
           } else {
-            if (everyObject(remainingRequiredFetchMap, canResolve) &&
-              hasItems(remainingRequiredFetchMap)) {
-                readyState.update({
-                  ready: true,
-                  stale: true,
-                }, [{type: 'CACHE_RESTORED_REQUIRED'}]);
+            if (
+              everyObject(remainingRequiredFetchMap, canResolve) &&
+              hasItems(remainingRequiredFetchMap)
+            ) {
+              readyState.update({
+                ready: true,
+                stale: true,
+              }, [{type: 'CACHE_RESTORED_REQUIRED'}]);
             } else {
               readyState.update({}, [{type: 'CACHE_RESTORE_FAILED'}]);
             }

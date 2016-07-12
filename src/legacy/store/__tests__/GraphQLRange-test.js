@@ -541,7 +541,7 @@ describe('GraphQLRange', () => {
     ]);
   });
 
- it('should not make empty segment for after().last() query with gap', () => {
+  it('should not make empty segment for after().last() query with gap', () => {
     let queryCalls = [
       {name: 'after', value: null},
       {name: 'last', value: 3},

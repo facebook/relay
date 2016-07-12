@@ -1,5 +1,6 @@
 [ignore]
 .*/__tests__/.*
+.*/**/*.native.js
 .*/node_modules/graphql/.*
 .*/react/node_modules/.*
 .*/react-static-container/node_modules/.*

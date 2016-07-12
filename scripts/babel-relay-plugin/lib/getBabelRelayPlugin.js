@@ -178,8 +178,8 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
             if (state.isLegacyState) {
               return result; // eslint-disable-line consistent-return
             } else {
-                path.replaceWith(result);
-              }
+              path.replaceWith(result);
+            }
           }
         }
       };

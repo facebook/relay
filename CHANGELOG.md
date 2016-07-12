@@ -1,3 +1,12 @@
+# master
+
+## 0.9.2 (July 11, 2016)
+
+* Added a context property `useFakeData` that you can use to silence the warning when using a `RelayContainer` with fake data.
+* You can now interpolate a function that returns an array of fragment references (eg. a route-conditional function) into a `Relay.QL` string. See https://github.com/facebook/relay/issues/896
+* Added `RelayStoreData#toJSON`.
+* Fixed a bug where the query for a plural field might get diffed out, when in fact there was data missing in the store for which a query should have been produced.
+
 ## 0.9.1 (June 24, 2016)
 
 * Added `this.props.relay.pendingVariables` which can be used to access variables from in-flight queries (to e.g. display a component-specific loading spinner).

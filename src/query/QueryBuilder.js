@@ -36,7 +36,7 @@ import type {
 const RelayNodeInterface = require('RelayNodeInterface');
 
 const generateConcreteFragmentID = require('generateConcreteFragmentID');
-const invariant = require('invariant');
+const warning = require('warning');
 
 const EMPTY_CALLS: Array<ConcreteCall> = [];
 const EMPTY_CHILDREN: Array<?ConcreteSelection> = [];
@@ -228,9 +228,9 @@ const QueryBuilder = {
       identifyingArgName = RelayNodeInterface.ID;
     }
     if (identifyingArgName != null) {
-      invariant(
+      warning(
         partialQuery.identifyingArgValue != null,
-        'QueryBuilder.createQuery(): An argument value is required for ' +
+        'QueryBuilder.createQuery(): An argument value may be required for ' +
         'query `%s(%s: ???)`.',
         partialQuery.fieldName,
         identifyingArgName

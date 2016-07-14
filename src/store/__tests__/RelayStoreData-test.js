@@ -683,7 +683,7 @@ describe('RelayStoreData', () => {
         },
         '789': {
           'client:1': true,
-        }
+        },
       },
     };
     expect(stringifiedStoreData).toEqual(JSON.stringify(expectedStoreData));

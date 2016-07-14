@@ -118,7 +118,7 @@ function validateMutationConfig(
         connectionName: OPTIONAL,
         edgeName: OPTIONAL,
         listName: OPTIONAL,
-        elementName: OPTIONAL,
+        newElementName: OPTIONAL,
         parentID: OPTIONAL,
         parentName: OPTIONAL,
         rangeBehaviors: REQUIRED,

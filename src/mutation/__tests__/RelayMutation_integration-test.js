@@ -16,8 +16,10 @@ require('configureForRelayOSS');
 jest.autoMockOff();
 
 const Relay = require('Relay');
+const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayMutation = require('RelayMutation');
+const RelayMutationType = require('RelayMutationType');
 
 describe('RelayMutation', () => {
   let bodyID;
@@ -239,3 +241,144 @@ describe('RelayMutation', () => {
   });
 });
 
+describe('RelayMutation list mutations', () => {
+  let bodyID;
+  let environment;
+  let feedbackID;
+  let storeData;
+  let query;
+
+  beforeEach(() => {
+    jest.resetModuleRegistry();
+
+    environment = new RelayEnvironment();
+    storeData = environment.getStoreData();
+    feedbackID = '123';
+
+    query = Relay.createQuery(
+        Relay.QL`
+        query CreateFeedbackQuery($id: ID!) {
+          node(id: $id) {
+            ... on Feedback {
+              __typename
+              id
+              simpleTopLevelComments {
+                id
+                body {
+                  text
+                }
+              }
+            }
+          }
+        }
+      `,
+      {
+        id: feedbackID,
+      }
+    );
+    storeData.handleQueryPayload(
+      query,
+      {
+        node: {
+          id: feedbackID,
+          __typename: 'Feedback',
+          simpleTopLevelComments: [
+            {
+              id: 'comment1',
+              body: {
+                text: 'First comment'
+              }
+            },
+            {
+              id: 'comment2',
+              body: {
+                text: 'Another great comment'
+              }
+            }
+          ]
+        },
+      }
+    );
+    // bodyID = storeData.getCachedStore().getLinkedRecordID(feedbackID, 'body');
+  });
+
+  class NewCommentMutation extends RelayMutation {
+    getMutation() {
+      return Relay.QL`mutation { commentCreate }`;
+    }
+    getVariables() {
+      return {
+        input: '',
+      };
+    }
+    getFatQuery() {
+      return Relay.QL`
+        fragment on CommentCreateResponsePayload {
+          clientMutationId
+          comment
+        }
+      `;
+    }
+
+    getConfigs() {
+      const parentID = '123';
+      const listName = 'simpleTopLevelComments';
+      const newElementName = 'comment';
+      const rangeBehaviors = () => GraphQLMutatorConstants.PREPEND;
+      return [
+        {
+          type: RelayMutationType.RANGE_ADD,
+          parentID,
+          listName,
+          newElementName,
+          rangeBehaviors,
+        },
+      ];
+    }
+    getOptimisticResponse() {
+      return {
+        comment: {
+          id: 'comment3',
+          body: {
+            text: 'I am an optimistic comment.'
+          }
+        },
+      };
+    }
+  }
+
+  fit('optimistically adds new element to list', () => {
+    const mutation = new NewCommentMutation();
+    environment.applyUpdate(mutation);
+
+    const data = environment.readQuery(query)[0];
+    console.log(data);
+    expect(data).toEqual({
+      __dataID__: 'feedbackID',
+      __mutationStatus__: '0:UNCOMMITTED',
+      __status__: 1,
+      __typename: 'Feedback',
+      id: feedbackID,
+      simpleTopLevelComments: [
+        {
+          id: 'comment1',
+          body: {
+            text: 'First comment'
+          }
+        },
+        {
+          id: 'comment2',
+          body: {
+            text: 'Another great comment'
+          }
+        },
+        {
+          id: 'comment3',
+          body: {
+            text: 'I am an optimistic comment.'
+          }
+        },
+      ],
+    });
+  });
+});

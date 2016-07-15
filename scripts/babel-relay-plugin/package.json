@@ -25,7 +25,7 @@
     "babel-cli": "^6.9.0",
     "babel-core": "^6.9.0",
     "babel-eslint": "^6.0.4",
-    "babel-jest": "^12.1.0",
+    "babel-jest": "^13.2.2",
     "babel-plugin-syntax-flow": "^6.8.0",
     "babel-plugin-syntax-object-rest-spread": "^6.8.0",
     "babel-plugin-syntax-trailing-function-commas": "^6.8.0",
@@ -36,7 +36,7 @@
     "eslint": "^2.10.2",
     "flow-bin": "^0.27.0",
     "glob": "^7.0.3",
-    "jest-cli": "^12.1.1",
+    "jest-cli": "^13.2.3",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.5.2"

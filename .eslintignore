@@ -2,7 +2,7 @@ dist/
 docs/
 **/node_modules/
 lib/
-scripts/
+scripts/lib/
 # TODO: Enable ESLint for website.
 website/
 website-prototyping-tools/HelloApp.js

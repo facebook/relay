@@ -1,8 +1,0 @@
----
-
-extends:
-  - fbjs
-
-rules:
-  # this is very noisy, so disable
-  consistent-return: 0

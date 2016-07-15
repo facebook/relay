@@ -119,8 +119,9 @@ describe('RelayMutationQueue', () => {
         })
       );
       expect(storeData.handleUpdatePayload.mock.calls).toEqual([[
+        '0',
         'optimisticQuery',
-        {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
+        {},
         {configs: 'optimisticConfigs', isOptimisticUpdate: true},
       ]]);
     });
@@ -137,9 +138,7 @@ describe('RelayMutationQueue', () => {
         RelayMutationQuery.buildQueryForOptimisticUpdate.mock.calls;
       expect(buildQueryCalls.length).toBe(1);
       expect(buildQueryCalls[0][0].mutation).toBe(mutationNode);
-      expect(buildQueryCalls[0][0].response).toEqual({
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-      });
+      expect(buildQueryCalls[0][0].response).toEqual({});
       expect(buildQueryCalls[0][0].fatQuery).toEqualQueryNode(
         flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
           preserveEmptyNodes: true,
@@ -147,8 +146,9 @@ describe('RelayMutationQueue', () => {
         })
       );
       expect(storeData.handleUpdatePayload.mock.calls).toEqual([[
+        '0',
         'optimisticQuery',
-        {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
+        {},
         {configs: 'configs', isOptimisticUpdate: true},
       ]]);
     });

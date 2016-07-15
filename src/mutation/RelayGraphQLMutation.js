@@ -101,7 +101,6 @@ class RelayGraphQLMutation {
    *    Relay.QL`
    *      mutation StoryLikeQuery {
    *        likeStory(input: $input) {
-   *          clientMutationId
    *          story {
    *            likeCount
    *            likers {
@@ -126,9 +125,8 @@ class RelayGraphQLMutation {
    *
    * - The mutation should take a single argument named "input".
    * - That input argument should contain a (string) "clientMutationId" property
-   *   for the purposes of reconciling requests and responses (automatically
-   *   added by the RelayGraphQLMutation API).
-   * - The query should request "clientMutationId" as a subselection.
+   *   for backwards compatibility.
+   * - The query may request "clientMutationId" as a subselection.
    *
    * @see http://facebook.github.io/relay/docs/graphql-mutations.html
    * @see http://facebook.github.io/relay/graphql/mutations.htm
@@ -323,10 +321,7 @@ class PendingGraphQLTransaction {
   }
 
   getOptimisticResponse(): ?Object {
-    return {
-      ...this._optimisticResponse,
-      [CLIENT_MUTATION_ID]: this.id,
-    };
+    return this._optimisticResponse;
   }
 
   getQuery(storeData: RelayStoreData): RelayQuery.Mutation {

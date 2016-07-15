@@ -73,7 +73,6 @@ type OptimisticUpdateQueryBuilderConfig =
     response: Object,
   };
 
-const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
 
 /**
@@ -383,13 +382,7 @@ const RelayMutationQuery = {
       tracker: RelayQueryTracker,
     }
   ): RelayQuery.Mutation {
-    let children: Array<?RelayQuery.Node> = [
-      RelayQuery.Field.build({
-        fieldName: CLIENT_MUTATION_ID,
-        type: 'String',
-        metadata: {isRequisite:true},
-      }),
-    ];
+    let children: Array<?RelayQuery.Node> = [];
     /* eslint-disable no-console */
     if (__DEV__ && console.groupCollapsed && console.groupEnd) {
       console.groupCollapsed('Mutation Configs');

@@ -21,15 +21,6 @@ var x = function () {
         callVariableName: 'input'
       }
     }],
-    children: [{
-      fieldName: 'clientMutationId',
-      kind: 'Field',
-      metadata: {
-        isGenerated: true,
-        isRequisite: true
-      },
-      type: 'String'
-    }],
     kind: 'Mutation',
     metadata: {
       inputType: 'ActorSubscribeInput'

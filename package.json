@@ -59,7 +59,7 @@
     "gulp-flatten": "^0.2.0",
     "gulp-header": "1.8.2",
     "gulp-util": "^3.0.7",
-    "jest": "^12.1.1",
+    "jest": "^13.2.3",
     "object-assign": "^4.1.0",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",

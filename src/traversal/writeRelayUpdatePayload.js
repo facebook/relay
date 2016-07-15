@@ -26,6 +26,7 @@ const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryWriter from 'RelayQueryWriter';
 const RelayProfiler = require('RelayProfiler');
 const RelayRecordState = require('RelayRecordState');
+const printRelayOSSQuery = require('printRelayOSSQuery');
 import type RelayRecordStore from 'RelayRecordStore';
 
 const generateClientEdgeID = require('generateClientEdgeID');
@@ -375,7 +376,8 @@ function handleRangeAdd(
       config,
       connectionParentID,
       nodeID,
-      rangeData
+      rangeData,
+      isOptimisticUpdate
     );
   } else {
     // Extracts the new edge from the payload
@@ -459,9 +461,11 @@ function addRangeElement(
   config: OperationConfig,
   parentID: DataID,
   newElementID: DataID,
-  newElementData: any
+  newElementData: any,
+  isOptimisticUpdate: boolean,
 ) {
   const recordWriter = writer.getRecordWriter();
+  const store = writer.getRecordStore();
   const rangeBehavior = getRangeBehavior(config.rangeBehaviors, []);
   if (!rangeBehavior || rangeBehavior === IGNORE) {
     warning(
@@ -489,10 +493,11 @@ function addRangeElement(
   });
   // create the element record
   writer.createRecordIfMissing(nodeField, newElementID, path, newElementData);
-
   // append/prepend the item to the range.
   if (rangeBehavior in GraphQLMutatorConstants.RANGE_OPERATIONS) {
-    recordWriter.applyRangeElementUpdate(parentID, config.listName, newElementID, (rangeBehavior: any));
+    const existingRecords = isOptimisticUpdate ? store.getField(parentID, config.listName) : [];
+    recordWriter.applyRangeElementUpdate(parentID, config.listName, newElementID, (rangeBehavior: any),
+      (existingRecords: any));
     writer.recordUpdate(parentID);
   } else {
     console.error(

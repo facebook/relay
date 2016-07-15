@@ -22,6 +22,7 @@ import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecord = require('RelayRecord');
 const RelayRecordState = require('RelayRecordState');
+const printRelayOSSQuery = require('printRelayOSSQuery');
 import type RelayRecordStore from 'RelayRecordStore';
 import type RelayRecordWriter from 'RelayRecordWriter';
 
@@ -309,7 +310,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       }
       return;
     }
-
 
     if (!field.canHaveSubselections()) {
       this._writeScalar(field, state, recordID, fieldData);

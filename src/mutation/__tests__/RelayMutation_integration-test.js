@@ -133,7 +133,11 @@ describe('RelayMutation', () => {
       feedbackID,
       doesViewerLike: true,
     });
-    environment.applyUpdate(mutation);
+    const callbacks = {
+      onSuccess: jest.fn(),
+      onFailure: jest.fn(),
+    };
+    environment.applyUpdate(mutation, callbacks);
 
     const data = environment.readQuery(query)[0];
     expect(data).toEqual({
@@ -148,6 +152,10 @@ describe('RelayMutation', () => {
         text: 'Give Relay',
       },
     });
+
+    // Callbacks don't fire for optimistic updates.
+    expect(callbacks.onFailure).not.toBeCalled();
+    expect(callbacks.onSuccess).not.toBeCalled();
   });
 
   it('reverts optimistic payloads asynchronously', () => {
@@ -242,7 +250,6 @@ describe('RelayMutation', () => {
 });
 
 describe('RelayMutation list mutations', () => {
-  let bodyID;
   let environment;
   let feedbackID;
   let storeData;
@@ -286,12 +293,14 @@ describe('RelayMutation list mutations', () => {
             {
               id: 'comment1',
               body: {
+                id: 'body1',
                 text: 'First comment'
               }
             },
             {
               id: 'comment2',
               body: {
+                id: 'body2',
                 text: 'Another great comment'
               }
             }
@@ -324,7 +333,7 @@ describe('RelayMutation list mutations', () => {
       const parentID = '123';
       const listName = 'simpleTopLevelComments';
       const newElementName = 'comment';
-      const rangeBehaviors = () => GraphQLMutatorConstants.PREPEND;
+      const rangeBehaviors = () => GraphQLMutatorConstants.APPEND;
       return [
         {
           type: RelayMutationType.RANGE_ADD,
@@ -340,6 +349,7 @@ describe('RelayMutation list mutations', () => {
         comment: {
           id: 'comment3',
           body: {
+            id: 'body3',
             text: 'I am an optimistic comment.'
           }
         },
@@ -347,38 +357,48 @@ describe('RelayMutation list mutations', () => {
     }
   }
 
-  fit('optimistically adds new element to list', () => {
+  it('optimistically appends a new element to a list', () => {
     const mutation = new NewCommentMutation();
     environment.applyUpdate(mutation);
 
     const data = environment.readQuery(query)[0];
-    console.log(data);
-    expect(data).toEqual({
-      __dataID__: 'feedbackID',
-      __mutationStatus__: '0:UNCOMMITTED',
+    const expectedData = {
+      __dataID__: feedbackID,
       __status__: 1,
+      __mutationStatus__: '0:UNCOMMITTED',
       __typename: 'Feedback',
       id: feedbackID,
       simpleTopLevelComments: [
         {
+          __dataID__: 'comment1',
           id: 'comment1',
           body: {
+            __dataID__: 'body1',
             text: 'First comment'
           }
         },
         {
+          __dataID__: 'comment2',
           id: 'comment2',
           body: {
+            __dataID__: 'body2',
             text: 'Another great comment'
           }
         },
         {
+          __dataID__: 'comment3',
           id: 'comment3',
+          __mutationStatus__: '0:UNCOMMITTED',
+          __status__: 1,
           body: {
-            text: 'I am an optimistic comment.'
+            __dataID__: 'body3',
+            text: 'I am an optimistic comment.',
+            __status__: 1,
+            __mutationStatus__: '0:UNCOMMITTED'
           }
         },
       ],
-    });
+    };
+    expect(data).toEqual(expectedData);
   });
 });

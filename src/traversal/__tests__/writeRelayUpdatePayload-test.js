@@ -1261,7 +1261,7 @@ describe('writeRelayUpdatePayload()', () => {
     });
   });
 
-  describe('plain list range add mutations', () => {
+  describe('simple list range add mutations', () => {
     // let connectionIDs;
     let feedbackID;
     let queueStore;
@@ -1413,13 +1413,13 @@ describe('writeRelayUpdatePayload()', () => {
       });
 
 
-      expect(Object.keys(queueStore.getField(feedbackID, 'simpleTopLevelComments')).length).toBe(1);
+      expect(Object.keys(queueStore.getField(feedbackID, 'simpleTopLevelComments')).length).toBe(2);
       expect(queueStore.getField(nextNodeID, 'id')).toBe(nextNodeID);
       expect(queueStore.getLinkedRecordID(nextNodeID, 'body')).toBe(bodyID);
       expect(queueStore.getField(bodyID, 'text')).toBe(input.message.text);
 
       // base records are not modified
-      expect(Object.keys(queueStore.getField(feedbackID, 'simpleTopLevelComments')).length).toBe(1);
+      expect(Object.keys(store.getField(feedbackID, 'simpleTopLevelComments')).length).toBe(1);
       expect(store.getRecordState(nextNodeID)).toBe('UNKNOWN');
       expect(store.getRecordState(bodyID)).toBe('UNKNOWN');
     });

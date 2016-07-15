@@ -539,7 +539,7 @@ class RelayRecordWriter {
   applyRangeUpdate(
     connectionID: DataID,
     edgeID: DataID,
-    operation: RangeOperation
+    operation: RangeOperation,
   ): void {
     if (this._isOptimisticWrite) {
       this._applyOptimisticRangeUpdate(connectionID, edgeID, operation);
@@ -556,10 +556,11 @@ class RelayRecordWriter {
     parentID: DataID,
     mutatedFieldName: string,
     nodeID: DataID,
-    operation: RangeOperation
+    operation: RangeOperation,
+    existingRecords: Array<?Object>,
   ): void {
     if (this._isOptimisticWrite) {
-      this._applyOptimisticRangeElementUpdate(parentID, mutatedFieldName, nodeID, operation);
+      this._applyOptimisticRangeElementUpdate(parentID, mutatedFieldName, nodeID, operation, existingRecords);
     } else {
       this._applyServerRangeElementUpdate(parentID, mutatedFieldName, nodeID, operation);
     }
@@ -586,14 +587,16 @@ class RelayRecordWriter {
     parentID: DataID,
     mutatedFieldName: string,
     nodeID: DataID,
-    operation: RangeOperation
+    operation: RangeOperation,
+    existingRecords: Array<?Object>,
   ): void {
     let parentRecord: ?Record = this._getRecordForWrite(parentID);
     const fieldValue = RelayRecord.create(nodeID);
 
     if (!parentRecord) {
       parentRecord = RelayRecord.create(parentID);
-      parentRecord[mutatedFieldName] = [];
+      // copy existing records over
+      parentRecord[mutatedFieldName] = existingRecords.slice();
       this._records[parentID] = parentRecord;
     }
 
@@ -613,7 +616,7 @@ class RelayRecordWriter {
   _applyOptimisticRangeUpdate(
     connectionID: DataID,
     edgeID: DataID,
-    operation: RangeOperation
+    operation: RangeOperation,
   ): void {
     let record: ?Record = this._getRecordForWrite(connectionID);
     if (!record) {
@@ -685,6 +688,7 @@ class RelayRecordWriter {
       mutatedFieldName,
       parentID
     );
+
     if (operation === REMOVE) {
       list = list.filter((node) => node.__dataID__ !== nodeID);
     } else {

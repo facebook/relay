@@ -12,6 +12,7 @@
 
 'use strict';
 
+const {EDGES} = require('RelayConnectionInterface');
 import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
@@ -168,8 +169,20 @@ const RelayQueryPath = {
     appendNode: RelayQuery.Fragment | RelayQuery.Field
   ): RelayQuery.Root {
     let child = appendNode;
+    let prevField;
     while (path.type === 'client') {
       const node = path.node;
+      if (node instanceof RelayQuery.Field) {
+        const schemaName = node.getSchemaName();
+        warning(
+          !prevField || prevField !== EDGES || !node.isConnection(),
+          'RelayQueryPath.getQuery(): Cannot generate accurate query for ' +
+          'path with connection `%s`. Consider adding an `id` field to each ' +
+          '`node` to make them refetchable.',
+          schemaName
+        );
+        prevField = schemaName;
+      }
       const idFieldName = node instanceof RelayQuery.Field ?
         node.getInferredPrimaryKey() :
         ID;

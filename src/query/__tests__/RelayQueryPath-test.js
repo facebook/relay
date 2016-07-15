@@ -214,6 +214,70 @@ describe('RelayQueryPath', () => {
     expect(pathQuery.getRoute().name).toBe(query.getRoute().name);
   });
 
+  it('creates paths to non-refetchable connection fields', () => {
+    const query = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          id
+        }
+      }
+    `);
+    const friends = getNode(Relay.QL`
+      fragment on User {
+        friends(first:"1") {
+          edges {
+            cursor
+          }
+        }
+      }
+    `).getFieldByStorageKey('friends');
+    const edges = getNode(Relay.QL`
+      fragment on FriendsConnection {
+        edges {
+          cursor
+        }
+      }
+    `).getFieldByStorageKey('edges');
+    const cursor = getNode(Relay.QL`
+      fragment on FriendsEdge {
+        cursor
+      }
+    `).getFieldByStorageKey('cursor');
+
+    // edges is not refetchable because it is tied to a connection.
+    writer.putRecord('123', 'User');
+    const root = RelayQueryPath.create(query);
+    let path = RelayQueryPath.getPath(root, friends, 'client:1');
+    path = RelayQueryPath.getPath(path, edges, 'client:2');
+
+    const pathQuery = RelayQueryPath.getQuery(store, path, cursor);
+    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ... on User {
+            __typename
+            id
+            friends(first:"1") {
+              edges {
+                cursor
+              }
+            }
+          }
+        }
+      }
+    `));
+    expect([
+      'RelayQueryPath.getQuery(): Cannot generate accurate query for ' +
+      'path with connection `%s`. Consider adding an `id` field to each ' +
+      '`node` to make them refetchable.',
+      'friends',
+    ]).toBeWarnedNTimes(1);
+    expect(RelayQueryPath.getName(path)).toBe(query.getName());
+    expect(pathQuery.getName()).toBe(query.getName());
+    expect(pathQuery.getRoute().name).toBe(query.getRoute().name);
+    expect(pathQuery.isAbstract()).toBe(true);
+  });
+
   it('warns if the root record\'s type is unknown', () => {
     const query = getNode(Relay.QL`
       query {

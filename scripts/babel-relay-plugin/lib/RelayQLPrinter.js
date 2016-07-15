@@ -677,6 +677,7 @@ module.exports = function (t, options) {
   }
 
   function identify(str) {
+    // $FlowFixMe
     return str.split('.').reduce(function (acc, name) {
       if (!acc) {
         return t.identifier(name);

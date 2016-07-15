@@ -14,8 +14,6 @@
 
 import type {Location} from 'GraphQLAST';
 
-const util = require('util');
-
 class RelayTransformError {
   message: string;
   loc: ?Location;

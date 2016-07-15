@@ -34,12 +34,12 @@ type GraphQLSchemaProvider = (Object | () => Object);
 function getBabelRelayPlugin(
   schemaProvider: GraphQLSchemaProvider,
   pluginOptions?: ?{
-    debug?: ?boolean;
-    inputArgumentName?: ?string;
-    snakeCase?: ?boolean;
-    suppressWarnings?: ?boolean;
-    substituteVariables?: ?boolean;
-    validator?: ?Validator<any>;
+    debug?: ?boolean,
+    inputArgumentName?: ?string,
+    snakeCase?: ?boolean,
+    suppressWarnings?: ?boolean,
+    substituteVariables?: ?boolean,
+    validator?: ?Validator<any>,
   }
 ): Function {
   const options = pluginOptions || {};

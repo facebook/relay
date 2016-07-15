@@ -54,10 +54,10 @@ type GraphQLSchemaField = Object;
 type GraphQLSchemaType = Object;
 
 type RelayQLContext = {
-  definitionName: string;
-  generateID: () => string;
-  isPattern: boolean;
-  schema: GraphQLSchema;
+  definitionName: string,
+  generateID: () => string,
+  isPattern: boolean,
+  schema: GraphQLSchema,
 };
 type RelayQLSelection =
   RelayQLField |
@@ -140,7 +140,10 @@ class RelayQLNode<T: RelayQLNodeType> {
 
 class RelayQLDefinition<T: RelayQLNodeType> extends RelayQLNode<T> {
   getName(): ?string {
-    return this.ast.name ? this.ast.name.value : this.getType().getName({modifiers: false}); // TODO: this.context.definitionName;
+    // TODO: this.context.definitionName;
+    return this.ast.name ?
+      this.ast.name.value :
+      this.getType().getName({modifiers: false});
   }
 }
 
@@ -196,7 +199,7 @@ class RelayQLFragment extends RelayQLDefinition<
             this.getType().getName({modifiers: true}),
           ),
           this.getLocation(),
-        )
+        );
       }
       this.staticFragmentID = name + ':' + suffix;
     }
@@ -216,7 +219,7 @@ class RelayQLFragment extends RelayQLDefinition<
       );
     } else if (this.ast.kind === 'InlineFragment') {
       // Inline fragments without type conditions fall back to parent type.
-      if(!this.parentType) {
+      if (!this.parentType) {
         throw new RelayTransformError(
           'Cannot get type of typeless inline fragment without parent type.',
           this.getLocation(),
@@ -816,9 +819,9 @@ class RelayQLArgumentType {
 }
 
 function stripMarkerTypes(schemaModifiedType: GraphQLSchemaType): {
-  isListType: boolean;
-  isNonNullType: boolean;
-  schemaUnmodifiedType: GraphQLSchemaType;
+  isListType: boolean,
+  isNonNullType: boolean,
+  schemaUnmodifiedType: GraphQLSchemaType,
 } {
   let isListType = false;
   let isNonNullType = false;

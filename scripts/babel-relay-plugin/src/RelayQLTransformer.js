@@ -36,46 +36,46 @@ import type {Document as GraphQLDocument} from 'GraphQLAST';
 import type {Printable, Substitution} from './RelayQLPrinter';
 
 type GraphQLLocation = {
-  column: number;
-  line: number;
+  column: number,
+  line: number,
 };
 type GraphQLSchema = Object;
 type GraphQLValidationError = {
-  message: string;
-  locations: Array<GraphQLLocation>;
+  message: string,
+  locations: Array<GraphQLLocation>,
 };
 
 type TemplateLiteral = {
-  type: 'TemplateElement';
-  quasis: Array<TemplateElement>;
-  expressions: Array<Printable>;
-  range: [number, number];
-  loc: Object;
+  type: 'TemplateElement',
+  quasis: Array<TemplateElement>,
+  expressions: Array<Printable>,
+  range: [number, number],
+  loc: Object,
 };
 type TemplateElement = {
-  type: 'TemplateElement';
+  type: 'TemplateElement',
   value: {
-    raw: string;
-    cooked: string;
-  };
-  tail: boolean;
-  range: [number, number];
-  loc: Object;
+    raw: string,
+    cooked: string,
+  },
+  tail: boolean,
+  range: [number, number],
+  loc: Object,
 };
 export type Validator<T> = (GraphQL: typeof GraphQL) => (
   (schema: GraphQLSchema, ast: T) => Array<Error>
 );
 
 type TransformerOptions = {
-  inputArgumentName: ?string;
-  snakeCase: boolean;
-  substituteVariables: boolean;
-  validator: ?Validator<any>;
+  inputArgumentName: ?string,
+  snakeCase: boolean,
+  substituteVariables: boolean,
+  validator: ?Validator<any>,
 };
 type TextTransformOptions = {
-  documentName: string;
-  propName: ?string;
-  tagName: string;
+  documentName: string,
+  propName: ?string,
+  tagName: string,
 };
 
 /**
@@ -118,9 +118,9 @@ class RelayQLTransformer {
     node: TemplateLiteral,
     documentName: string
   ): {
-    substitutions: Array<Substitution>;
-    templateText: string;
-    variableNames: {[variableName: string]: void};
+    substitutions: Array<Substitution>,
+    templateText: string,
+    variableNames: {[variableName: string]: void},
   } {
     const chunks = [];
     const variableNames = {};

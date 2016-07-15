@@ -22,7 +22,7 @@ function babelAdapter(
   visitorsBuilder: (t: any) => {
     visitor: {
       [key: string]: Function;
-    };
+    },
   }
 ): mixed {
   if (Plugin == null || /^6\./.test(babelVersion)) {

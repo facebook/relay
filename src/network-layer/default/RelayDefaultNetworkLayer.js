@@ -12,7 +12,7 @@
 
 'use strict';
 
-import type RelayMutationRequest from 'RelayMutationRequest';
+const RelayMutationRequest = require('RelayMutationRequest');
 import type RelayQueryRequest from 'RelayQueryRequest';
 
 const fetch = require('fetch');
@@ -47,12 +47,7 @@ class RelayDefaultNetworkLayer {
       result => result.json()
     ).then(payload => {
       if (payload.hasOwnProperty('errors')) {
-        const error = new Error(
-          'Server request for mutation `' + request.getDebugName() + '` ' +
-          'failed for the following reasons:\n\n' +
-          formatRequestErrors(request, payload.errors)
-        );
-        (error: any).source = payload;
+        const error = createRequestError(request, '200', payload);
         request.reject(error);
       } else {
         request.resolve({response: payload.data});
@@ -68,12 +63,7 @@ class RelayDefaultNetworkLayer {
         result => result.json()
       ).then(payload => {
         if (payload.hasOwnProperty('errors')) {
-          const error = new Error(
-            'Server request for query `' + request.getDebugName() + '` ' +
-            'failed for the following reasons:\n\n' +
-            formatRequestErrors(request, payload.errors)
-          );
-          (error: any).source = payload;
+          const error = createRequestError(request, '200', payload);
           request.reject(error);
         } else if (!payload.hasOwnProperty('data')) {
           request.reject(new Error(
@@ -132,7 +122,7 @@ class RelayDefaultNetworkLayer {
         method: 'POST',
       };
     }
-    return fetch(this._uri, init).then(throwOnServerError);
+    return fetch(this._uri, init).then(throwOnServerError.bind(this, request));
   }
 
   /**
@@ -159,11 +149,16 @@ class RelayDefaultNetworkLayer {
  * Rejects HTTP responses with a status code that is not >= 200 and < 300.
  * This is done to follow the internal behavior of `fetchWithRetries`.
  */
-function throwOnServerError(response: any): any  {
+function throwOnServerError(
+  request: RelayMutationRequest,
+  response: any
+): any  {
   if (response.status >= 200 && response.status < 300) {
     return response;
   } else {
-    throw response;
+    return response.text().then(payload => {
+      throw createRequestError(request, response.status, payload);
+    });
   }
 }
 
@@ -197,6 +192,23 @@ function formatRequestErrors(
     return prefix + message + locationMessage;
 
   }).join('\n');
+}
+
+function createRequestError(
+  request: RelayMutationRequest | RelayQueryRequest,
+  responseStatus: string,
+  payload: any
+): Error {
+  const requestType: string = request instanceof RelayMutationRequest ? 'mutation' : 'query';
+  const errorReason: string = typeof payload === 'object' ? formatRequestErrors(request, payload.errors) :
+  'Server response had an error status: ' + responseStatus;
+
+  const error = new Error('Server request for ' + requestType + ' `' + request.getDebugName() + '` ' +
+  'failed for the following reasons:\n\n' + errorReason);
+  (error: any).source = payload;
+  (error: any).status = responseStatus;
+
+  return error;
 }
 
 module.exports = RelayDefaultNetworkLayer;

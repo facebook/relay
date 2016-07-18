@@ -138,7 +138,7 @@ class RelayDefaultNetworkLayer {
   /**
    * Sends a POST request and retries if the request fails or times out.
    */
-  _sendQuery(request: RelayQueryRequest: Promise<any>, overrides?: Object = {}) {
+  _sendQuery(request: RelayQueryRequest, overrides?: Object = {}): Promise<any> {
     return fetchWithRetries(this._uri, {
       ...this._init,
       body: JSON.stringify({

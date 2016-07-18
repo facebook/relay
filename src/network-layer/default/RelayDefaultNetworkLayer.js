@@ -147,6 +147,7 @@ class RelayDefaultNetworkLayer {
       }),
       headers: {
         ...this._init.headers,
+        overrides.headers ? ...overrides.headers : {},
         'Accept': '*/*',
         'Content-Type': 'application/json',
       },

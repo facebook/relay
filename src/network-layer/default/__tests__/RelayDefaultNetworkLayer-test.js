@@ -36,6 +36,14 @@ describe('RelayDefaultNetworkLayer', () => {
     };
   }
 
+  function genFailureResponse(data) {
+    return {
+      json: () => Promise.resolve(data),
+      text: () => Promise.resolve(JSON.stringify(data)),
+      status: 500,
+    };
+  }
+
   beforeEach(() => {
     jest.resetModuleRegistry();
 
@@ -172,6 +180,7 @@ describe('RelayDefaultNetworkLayer', () => {
         '            ^^^',
       ].join('\n'));
       expect(error.source).toEqual(response);
+      expect(error.status).toEqual('200');
     });
 
     it('handles errors with column 0', () => {
@@ -201,6 +210,7 @@ describe('RelayDefaultNetworkLayer', () => {
         '   ^^^',
       ].join('\n'));
       expect(error.source).toEqual(response);
+      expect(error.status).toEqual('200');
     });
 
     it('handles custom errors', () => {
@@ -227,6 +237,36 @@ describe('RelayDefaultNetworkLayer', () => {
         '1. Something went wrong.',
       ].join('\n'));
       expect(error.source).toEqual(response);
+      expect(error.status).toEqual('200');
+    });
+
+    it('handles server-side non-2xx errors', () => {
+      const response = {
+        errors: [{
+          message: 'Something went completely wrong.',
+        }],
+      };
+
+      expect(fetch).not.toBeCalled();
+      networkLayer.sendMutation(request);
+      expect(fetch).toBeCalled();
+      const failureResponse = genFailureResponse(response);
+
+      fetch.mock.deferreds[0].resolve(failureResponse);
+      jest.runAllTimers();
+
+      expect(rejectCallback.mock.calls.length).toBe(1);
+      const error = rejectCallback.mock.calls[0][0];
+      expect(error instanceof Error).toBe(true);
+      expect(error.message).toEqual([
+        'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+          'following reasons:',
+        '',
+        'Server response had an error status: 500',
+      ].join('\n'));
+      expect(error.status).toEqual(failureResponse.status);
+      expect(error.source).toBe('{"errors":[{"message":"Something went ' +
+        'completely wrong."}]}');
     });
 
   });
@@ -347,6 +387,7 @@ describe('RelayDefaultNetworkLayer', () => {
         '         ^^^',
       ].join('\n'));
       expect(error.source).toEqual(payloadA);
+      expect(error.status).toEqual('200');
     });
 
     it('rejects requests with missing responses', () => {

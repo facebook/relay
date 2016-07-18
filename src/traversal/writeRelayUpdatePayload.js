@@ -26,7 +26,6 @@ const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryWriter from 'RelayQueryWriter';
 const RelayProfiler = require('RelayProfiler');
 const RelayRecordState = require('RelayRecordState');
-const printRelayOSSQuery = require('printRelayOSSQuery');
 import type RelayRecordStore from 'RelayRecordStore';
 
 const generateClientEdgeID = require('generateClientEdgeID');
@@ -334,9 +333,9 @@ function _prepareSimpleRangeAdd(
   );
 
   const nodeID = getString(newElement || {}, ID) || generateClientID();
+  newElement['id'] = nodeID;
   const elementData = {
-    ...newElement,
-    id: nodeID,
+    ...newElement
   };
 
   return [parentID, nodeID, elementData];
@@ -386,7 +385,6 @@ function handleRangeAdd(
     if (!edge || !edgeNode) {
       return;
     }
-
     // Extract the id of the node with the connection that we are adding to.
     let connectionParentID = config.parentID;
     if (!connectionParentID) {
@@ -476,10 +474,25 @@ function addRangeElement(
     return;
   }
 
-  const path = RelayQueryPath.createForID(newElementID, config.listName);
+  // const path = RelayQueryPath.createForID(newElementID, config.listName);
+  // const path = RelayQueryPath.getPath({}, nodeField, newElementID);
+  // console.log('<><><><><><>sdgdr:');
+  // console.log(writer._store._records);
+  // console.log('*************');
+  // console.log(writer._store._storage);
+  // console.log('*************');
+  // console.log(writer._queryTracker);
+  // console.log('*************');
+  // console.log(writer._writer);
+  // console.log('*************');
+  // console.log(store.getFieldNameFromKey(parentID));
+  // console.log(path);
+  // let path = store.getPathToRecord(parentID);
+  // console.log('got path', path);
+  const path = RelayQueryPath.createForID(newElementID, config.listName)
   invariant(
     path,
-    'writeRelayUpdatePayload(): Expected a path for connection record, `%s`.',
+    'writeRelayUpdatePayload(): Expected a path for list record, `%s`.',
     parentID
   );
 
@@ -491,6 +504,11 @@ function addRangeElement(
       isPlural: false,
     },
   });
+  // path, EDGES_FIELD, edgeID
+  // path = RelayQueryPath.getPath(path, nodeField, newElementID);
+  // path = {};
+  console.log('new path', path);
+
   // create the element record
   writer.createRecordIfMissing(nodeField, newElementID, path, newElementData);
   // append/prepend the item to the range.
@@ -543,12 +561,15 @@ function addRangeNode(
 
   const edgeID = generateClientEdgeID(connectionID, nodeID);
   let path = store.getPathToRecord(connectionID);
+  console.log('got path', path);
   invariant(
     path,
     'writeRelayUpdatePayload(): Expected a path for connection record, `%s`.',
     connectionID
   );
   path = RelayQueryPath.getPath(path, EDGES_FIELD, edgeID);
+  console.log('new path for connection is', path);
+
 
   // create the edge record
   writer.createRecordIfMissing(EDGES_FIELD, edgeID, path, edgeData);

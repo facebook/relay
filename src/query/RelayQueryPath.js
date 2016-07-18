@@ -61,12 +61,12 @@ export type QueryPath = ClientPath | NodePath | RootPath;
  */
 const RelayQueryPath = {
   createForID(dataID: DataID, name: string, routeName: ?string): QueryPath {
-    invariant(
-      !RelayRecord.isClientID(dataID),
-      'RelayQueryPath.createForID: Expected dataID to be a server id, got ' +
-      '`%s`.',
-      dataID
-    );
+    // invariant(
+    //   !RelayRecord.isClientID(dataID),
+    //   'RelayQueryPath.createForID: Expected dataID to be a server id, got ' +
+    //   '`%s`.',
+    //   dataID
+    // );
     return {
       dataID,
       name,

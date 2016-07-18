@@ -62,9 +62,9 @@ class RelayDefaultNetworkLayer {
     );
   }
 
-  sendQueries(requests: Array<RelayQueryRequest>): ?Promise<any> {
+  sendQueries(requests: Array<RelayQueryRequest>, overrides?: Object = {}): ?Promise<any> {
     return Promise.all(requests.map(request => (
-      this._sendQuery(request).then(
+      this._sendQuery(request, overrides).then(
         result => result.json()
       ).then(payload => {
         if (payload.hasOwnProperty('errors')) {
@@ -138,7 +138,7 @@ class RelayDefaultNetworkLayer {
   /**
    * Sends a POST request and retries if the request fails or times out.
    */
-  _sendQuery(request: RelayQueryRequest): Promise<any> {
+  _sendQuery(request: RelayQueryRequest, overrides?: Object = {}): Promise<any> {
     return fetchWithRetries(this._uri, {
       ...this._init,
       body: JSON.stringify({

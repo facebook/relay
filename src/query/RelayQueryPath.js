@@ -206,7 +206,7 @@ const RelayQueryPath = {
       root.getFieldByStorageKey(TYPENAME),
     ];
     const rootChildren = getRootFragmentForQuery(store, root, children);
-    const pathQuery = root.clone(rootChildren);
+    const pathQuery = root.cloneWithRoute(rootChildren, appendNode.getRoute());
     // for flow
     invariant(
       pathQuery instanceof RelayQuery.Root,

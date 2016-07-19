@@ -16,6 +16,7 @@ require('configureForRelayOSS');
 jest.mock('warning');
 
 const Relay = require('Relay');
+const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
@@ -171,6 +172,46 @@ describe('RelayQueryPath', () => {
     expect(pathQuery.getName()).toBe(query.getName());
     expect(pathQuery.getRoute().name).toBe(query.getRoute().name);
     expect(pathQuery.isAbstract()).toBe(true);
+  });
+
+   it('creates roots with route from child', () => {
+    let query = getNode(Relay.QL`
+      query {
+        node(id:"123") {
+          id
+        }
+      }
+    `);
+
+    query = query.cloneWithRoute(
+      query.getChildren(),
+      RelayMetaRoute.get('FooRoute')
+    );
+
+    const fragment = Relay.QL`
+      fragment on Node {
+        id
+        __typename
+        name
+      }
+    `;
+
+    const path = RelayQueryPath.create(query);
+
+    writer.putRecord('123', 'User');
+    const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
+    expect(pathQuery.getRoute()).toBe(getNode(fragment).getRoute());
+    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+      query {
+        node(id:"123") {
+          ... on User {
+            ${fragment}
+            id
+            __typename
+          }
+        }
+      }
+    `));
   });
 
   it('creates roots for refetchable fields', () => {

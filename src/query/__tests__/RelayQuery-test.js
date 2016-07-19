@@ -104,6 +104,27 @@ describe('RelayQuery', () => {
           'id',
         ]).toBeWarnedNTimes(1);
       });
+      it('clones roots with different route', () => {
+        const field = buildIdField();
+        const root = RelayQuery.Root.build(
+          'RelayQueryTest',
+          'node',
+          '4',
+          [field],
+          {},
+          'Node',
+          'FooRoute'
+        );
+        const newRoute = RelayMetaRoute.get('BarRoute');
+        const clone = root.cloneWithRoute([field], newRoute);
+        expect(clone instanceof RelayQuery.Root).toBe(true);
+        expect(clone.getChildren().length).toBe(1);
+        expect(clone.getChildren()[0]).toBe(field);
+        expect(clone.getRoute().name).toBe('BarRoute');
+        expect(root.getRoute().name).toBe('FooRoute');
+        expect(root.cloneWithRoute([field], RelayMetaRoute.get('FooRoute')))
+          .toBe(root);
+      });
     });
 
     describe('getCallsWithValues()', () => {

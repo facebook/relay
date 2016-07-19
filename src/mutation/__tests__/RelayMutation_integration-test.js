@@ -410,7 +410,7 @@ describe('RelayMutation list mutations', () => {
     }
   }
 
-  fit('optimistically appends a new edge to the connection', () => {
+  it('optimistically appends a new edge to the connection', () => {
     const mutation = new NewCommentMutation({connectionMutation: true});
     environment.applyUpdate(mutation);
 

@@ -199,7 +199,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   ): void {
     const {path, recordID, responseData} = state;
     const recordState = this._store.getRecordState(recordID);
-    console.log('in ROOT, got RECORDSTATE', recordState, 'RECORDID', recordID, 'PATH', path, 'RESPONSEDATA', responseData);
 
     // GraphQL should never return undefined for a field
     if (responseData == null) {
@@ -311,17 +310,13 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       return;
     }
 
-    console.log('------------------------!!!!!!!!!!!!!!!!!!!>>>>>>>>>>>>>>');
     if (!field.canHaveSubselections()) {
-      console.log('----------------WRITING SCALAR RECORDID', recordID);
       this._writeScalar(field, state, recordID, fieldData);
     } else if (field.isConnection()) {
       this._writeConnection(field, state, recordID, fieldData);
     } else if (field.isPlural()) {
-      console.log('----------------WRITING plural RECORDID', recordID);
       this._writePluralLink(field, state, recordID, fieldData);
     } else {
-      console.log('----------------WRITING RECORDID', recordID);
       this._writeLink(field, state, recordID, fieldData);
     }
   }

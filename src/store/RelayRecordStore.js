@@ -356,7 +356,10 @@ class RelayRecordStore {
     if (connectionID == null) {
       return connectionID;
     }
-    const range: ?GraphQLRange = (this._getField(connectionID, RANGE): any);
+    let range: ?GraphQLRange = (this._getField(connectionID, RANGE): any);
+    if (Array.isArray(range)) {
+      range = GraphQLRange.fromJSON(range);
+    }
     if (range == null) {
       if (range === null) {
         warning(

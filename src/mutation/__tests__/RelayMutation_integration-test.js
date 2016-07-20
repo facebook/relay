@@ -14,6 +14,7 @@
 require('configureForRelayOSS');
 
 jest.autoMockOff();
+jest.mock('generateClientID');
 
 const Relay = require('Relay');
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
@@ -300,7 +301,6 @@ describe('RelayMutation list mutations', () => {
     comment1 = {
       id: 'comment1',
       body: {
-        id: 'body1',
         text: 'First comment'
       }
     };
@@ -308,7 +308,6 @@ describe('RelayMutation list mutations', () => {
     comment2 = {
       id: 'comment2',
       body: {
-        id: 'body2',
         text: 'Another great comment'
       }
     };
@@ -355,7 +354,6 @@ describe('RelayMutation list mutations', () => {
 
     getConfigs() {
       if (this.props.connectionMutation) {
-        console.log('we are in here getConfigs!');
         return [
           {
             type: RelayMutationType.RANGE_ADD,
@@ -377,15 +375,12 @@ describe('RelayMutation list mutations', () => {
       }
     }
     getOptimisticResponse() {
-      console.log('we have', this.props);
       if (this.props.connectionMutation) {
-        console.log('we are in here optimsitict!');
         return {
           feedbackCommentEdge: {
             __typename: 'CommentsEdge',
             cursor: 'comment3:cursor',
             node: {
-              // id: 'comment3',
               body: {
                 text: 'I am an optimistic edge comment.',
               },
@@ -398,10 +393,7 @@ describe('RelayMutation list mutations', () => {
       } else {
         return {
           comment: {
-            // id: 'comment3',
-            // id: 'client:-12736066694',
             body: {
-              id: 'body3',
               text: 'I am an optimistic comment.'
             }
           },
@@ -424,33 +416,42 @@ describe('RelayMutation list mutations', () => {
       __typename: 'Feedback',
       id: feedbackID,
       topLevelComments: {
+        __dataID__: 'client:1_first(10)',
+        count: '2',
+        '__status__': 1,
+        '__mutationStatus__': '0:UNCOMMITTED',
         edges: [{
+          __dataID__: 'client:client:1:comment1',
           node: {
             __dataID__: comment1.id,
             id: comment1.id,
             body: {
-              __dataID__: comment1.body.id,
+              __dataID__: 'client:2',
               text: comment1.body.text
             }
           }
         }, {
+          __dataID__: 'client:client:1:comment2',
           node: {
             __dataID__: comment2.id,
             id: comment2.id,
             body: {
-              __dataID__: comment2.body.id,
+              __dataID__: 'client:3',
               text: comment2.body.text
             }
           }
         }, {
+          __dataID__: 'client:client:1:client:4',
+          __status__: 1,
+          __mutationStatus__: '0:UNCOMMITTED',
           node: {
-            __dataID__: 'comment3',
-            id: 'comment3',
+            __dataID__: 'client:4',
+            id: 'client:4',
             __mutationStatus__: '0:UNCOMMITTED',
             __status__: 1,
             body: {
-              __dataID__: 'body3',
-              text: 'I am an optimistic comment.',
+              __dataID__: 'client:5',
+              text: 'I am an optimistic edge comment.',
               __status__: 1,
               __mutationStatus__: '0:UNCOMMITTED'
             }
@@ -458,23 +459,20 @@ describe('RelayMutation list mutations', () => {
         },
       ]},
     };
-    console.log('---------> printing data in test:');
-    console.log(JSON.stringify(data, null, 2));
-    console.log('--------------------');
-    console.log(JSON.stringify(expectedData, null, 2));
+
     expect(data).toEqual(expectedData);
-    console.log('DONE WITH FIRST FIT TEST!!!!');
   });
 
-  fit('optimistically appends a new element to the list', () => {
+  it('optimistically appends a new element to the list', () => {
     const mutation = new NewCommentMutation();
     environment.applyUpdate(mutation);
 
     const data = environment.readQuery(query)[0];
+    // we are not interested in topLevelComments here
     delete data['topLevelComments'];
     const expectedData = {
       __dataID__: feedbackID,
-      __status__: 1,
+      __status__: 5,
       __mutationStatus__: '0:UNCOMMITTED',
       __typename: 'Feedback',
       id: feedbackID,
@@ -483,7 +481,7 @@ describe('RelayMutation list mutations', () => {
           __dataID__: comment1.id,
           id: comment1.id,
           body: {
-            __dataID__: comment1.body.id,
+            __dataID__: 'client:2',
             text: comment1.body.text
           }
         },
@@ -491,17 +489,16 @@ describe('RelayMutation list mutations', () => {
           __dataID__: comment2.id,
           id: comment2.id,
           body: {
-            __dataID__: comment2.body.id,
+            __dataID__: 'client:3',
             text: comment2.body.text
           }
         },
         {
-          __dataID__: 'comment3',
-          id: 'comment3',
+          __dataID__: 'client:4',
           __mutationStatus__: '0:UNCOMMITTED',
-          __status__: 1,
+          __status__: 5,
           body: {
-            __dataID__: 'body3',
+            __dataID__: 'client:5',
             text: 'I am an optimistic comment.',
             __status__: 1,
             __mutationStatus__: '0:UNCOMMITTED'
@@ -509,13 +506,6 @@ describe('RelayMutation list mutations', () => {
         },
       ],
     };
-    console.log('**************');
-    console.log(JSON.stringify(data, null, 2));
-    console.log('******************');
-    console.log(JSON.stringify(expectedData, null, 2));
-    console.log('******************');
-
-
 
     expect(data).toEqual(expectedData);
   });

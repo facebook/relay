@@ -92,7 +92,7 @@ function writeRelayUpdatePayload(
           isOptimisticUpdate
         );
         if (config.newElementName && path) {
-          pathForConfig[config.newElementName] = path;
+          pathForConfig[(config.newElementName: any)] = path;
         }
         break;
       case RelayMutationType.RANGE_DELETE:
@@ -180,7 +180,7 @@ function handleMerge(
   writer: RelayQueryWriter,
   payload: PayloadObject,
   operation: RelayQuery.Operation,
-  pathForConfig: ?Object,
+  pathForConfig: Object,
 ): void {
   const store = writer.getRecordStore();
 
@@ -321,7 +321,7 @@ function _prepareSimpleRangeAdd(
   isOptimisticUpdate: boolean
 ) : any {
   // Extracts the new element from the payload
-  const newElement = getObject(payload, (config.newElementName || 'newElement'));
+  const newElement = getObject(payload, (config.newElementName || 'newElement')) || {};
 
   // Extract the id of the node with that contains the list that we are adding
   // the element to

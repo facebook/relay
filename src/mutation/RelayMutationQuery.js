@@ -59,6 +59,15 @@ type EdgeInsertionMutationFragmentBuilderConfig =
     rangeBehaviors: RangeBehaviors,
   };
 
+type ElementInsertionMutationFragmentBuilderConfig =
+  BasicMutationFragmentBuilderConfig & {
+    listName: string,
+    parentID: DataID,
+    newElementName: string,
+    parentName?: string,
+    rangeBehaviors: RangeBehaviors,
+  };
+
 type BasicOptimisticMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment,
 };
@@ -331,12 +340,12 @@ const RelayMutationQuery = {
       parentName,
       rangeBehaviors,
       tracker,
-    }: EdgeInsertionMutationFragmentBuilderConfig
+    }: ElementInsertionMutationFragmentBuilderConfig
   ): RelayQuery.Fragment {
+    // TODO(Markus): cleanup
     const mutatedFields = [];
     // const keysWithoutRangeBehavior: {[hash: string]: boolean} = {};
     const trackedChildren = tracker.getTrackedChildrenForID(parentID);
-    console.log('trackedChildren: ', trackedChildren);
     const trackedLists = [];
     trackedChildren.forEach(trackedChild => {
       trackedLists.push(
@@ -412,7 +421,6 @@ const RelayMutationQuery = {
     //     );
     //   }
     // }
-    console.log('parentName', parentName);
     if (parentName != null) {
       const fatParent = getFieldFromFatQuery(fatQuery, parentName);
 
@@ -555,19 +563,21 @@ const RelayMutationQuery = {
             rangeBehaviors: sanitizeRangeBehaviors(config.rangeBehaviors),
             tracker,
           };
+          let toBeInserted: RelayQuery.Fragment = (null: any);
           if (config.listName) {
-            children.push(RelayMutationQuery.buildFragmentForElementInsertion({
+            toBeInserted = RelayMutationQuery.buildFragmentForElementInsertion({
               listName: config.listName,
               newElementName: config.newElementName,
               ...insertionArgs
-            }));
+            });
           } else {
-            children.push(RelayMutationQuery.buildFragmentForEdgeInsertion({
+            toBeInserted = RelayMutationQuery.buildFragmentForEdgeInsertion({
               connectionName: config.connectionName,
               edgeName: config.edgeName,
               ...insertionArgs
-            }));
+            });
           }
+          children.push(toBeInserted);
           /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupEnd();

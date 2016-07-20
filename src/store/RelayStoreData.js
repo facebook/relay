@@ -44,6 +44,7 @@ import type {RecordMap} from 'RelayRecord';
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTaskQueue = require('RelayTaskQueue');
+const GraphQLRange = require('GraphQLRange');
 import type {TaskScheduler} from 'RelayTaskQueue';
 import type {Abortable, CacheManager, CacheProcessorCallbacks} from 'RelayTypes';
 
@@ -631,6 +632,14 @@ class RelayStoreData {
       rootCallMap,
       nodeRangeMap,
     } = obj;
+
+    for (const key in records) {
+      const record = records[key];
+      const range = record.__range__;
+      if (range) {
+        record.__range__ = GraphQLRange.fromJSON(range);
+      }
+    }
 
     return new RelayStoreData(
       cachedRecords,

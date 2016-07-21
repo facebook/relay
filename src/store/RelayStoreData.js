@@ -633,13 +633,9 @@ class RelayStoreData {
       nodeRangeMap,
     } = obj;
 
-    for (const key in records) {
-      const record = records[key];
-      const range = record.__range__;
-      if (range) {
-        record.__range__ = GraphQLRange.fromJSON(range);
-      }
-    }
+    deserializeRecordRanges(cachedRecords);
+    deserializeRecordRanges(queuedRecords);
+    deserializeRecordRanges(records);
 
     return new RelayStoreData(
       cachedRecords,
@@ -649,6 +645,20 @@ class RelayStoreData {
       rootCallMap,
       nodeRangeMap,
     );
+  }
+}
+
+/**
+ * A helper function which checks for serialized GraphQLRange
+ * instances and deserializes them in toJSON()
+ */
+function deserializeRecordRanges(records) {
+  for (const key in records) {
+    const record = records[key];
+    const range = record.__range__;
+    if (range) {
+      record.__range__ = GraphQLRange.fromJSON(range);
+    }
   }
 }
 

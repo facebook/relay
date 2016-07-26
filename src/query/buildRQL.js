@@ -21,6 +21,7 @@ const QueryBuilder = require('QueryBuilder');
 import type {RelayConcreteNode} from 'RelayQL';
 const RelayProfiler = require('RelayProfiler');
 import type {RelayContainer, Variables} from 'RelayTypes';
+const DisableRelayQueryCache = require('DisableRelayQueryCache');
 
 const filterObject = require('filterObject');
 const invariant = require('invariant');
@@ -96,13 +97,17 @@ const buildRQL = {
     queryName: string,
     values: Variables
   ): ?ConcreteQuery {
-    let componentCache = queryCache.get(queryBuilder);
     let node;
-    if (!componentCache) {
-      componentCache = new Map();
-      queryCache.set(queryBuilder, componentCache);
-    } else {
-      node = componentCache.get(Component);
+    let componentCache = {};
+    const queryCacheEnabled = DisableRelayQueryCache.getCacheEnabled();
+    if (queryCacheEnabled) {
+      componentCache = queryCache.get(queryBuilder);
+      if (!componentCache) {
+        componentCache = new Map();
+        queryCache.set(queryBuilder, componentCache);
+      } else {
+        node = componentCache.get(Component);
+      }
     }
     if (!node) {
       const variables = toVariables(values);
@@ -149,7 +154,9 @@ const buildRQL = {
           }
         }
       }
-      componentCache.set(Component, node);
+      if (queryCacheEnabled) {
+        componentCache.set(Component, node);
+      }
     }
     if (node) {
       return QueryBuilder.getQuery(node) || undefined;

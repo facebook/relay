@@ -23,10 +23,12 @@ const RelayRenderer = require('RelayRenderer');
 const RelayRootContainer = require('RelayRootContainer');
 const RelayRoute = require('RelayRoute');
 const RelayStore = require('RelayStore');
+const DisableRelayQueryCache = require('DisableRelayQueryCache');
 
 const createRelayQuery = require('createRelayQuery');
 const getRelayQueries = require('getRelayQueries');
 const isRelayContainer = require('isRelayContainer');
+
 
 if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
   global.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = RelayInternals;
@@ -50,6 +52,7 @@ const RelayPublic = {
   createContainer: RelayContainer.create,
   createQuery: createRelayQuery,
   getQueries: getRelayQueries,
+  disableQueryCache: DisableRelayQueryCache.disableCache,
   injectNetworkLayer: RelayStore.injectNetworkLayer.bind(RelayStore),
   injectTaskScheduler: RelayStore.injectTaskScheduler.bind(RelayStore),
   isContainer: isRelayContainer,

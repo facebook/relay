@@ -13,8 +13,8 @@
 
 const React = require('React');
 
-class Header extends React.Component {
-  slug = (string) => {
+const Header = React.createClass({
+  slug: function(string) {
     //  var accents = "àáäâèéëêìíïîòóöôùúüûñç";
     const accents = "\u00e0\u00e1\u00e4\u00e2\u00e8"
       + "\u00e9\u00eb\u00ea\u00ec\u00ed\u00ef"
@@ -42,9 +42,9 @@ class Header extends React.Component {
 
       // Trim dashes
       .replace(/^-|-$/g, '');
-  };
+  },
 
-  render() {
+  render: function() {
     const slug = this.slug(this.props.toSlug || this.props.children);
     const Heading = 'h' + this.props.level;
 
@@ -56,6 +56,6 @@ class Header extends React.Component {
       </Heading>
     );
   }
-}
+});
 
 module.exports = Header;

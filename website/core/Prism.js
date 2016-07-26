@@ -428,6 +428,7 @@ Prism.hooks.add('wrap', function(env) {
 		env.attributes['title'] = env.content.replace(/&amp;/, '&');
 	}
 });
+;
 Prism.languages.clike = {
 	'comment': [
 		{
@@ -454,6 +455,7 @@ Prism.languages.clike = {
 	'operator': /[-+]{1,2}|!|<=?|>=?|={1,3}|&{1,2}|\|?\||\?|\*|\/|~|\^|%/,
 	'punctuation': /[{}[\];(),.:]/
 };
+;
 Prism.languages.javascript = Prism.languages.extend('clike', {
 	'keyword': /\b(as|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|false|finally|for|from|function|get|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|set|static|super|switch|this|throw|true|try|typeof|var|void|while|with|yield)\b/,
 	'number': /\b-?(0x[\dA-Fa-f]+|0b[01]+|0o[0-7]+|\d*\.?\d+([Ee][+-]?\d+)?|NaN|Infinity)\b/,
@@ -500,7 +502,7 @@ if (Prism.languages.markup) {
 			alias: 'language-javascript'
 		}
 	});
-}
+};
 
 const javascript = Prism.util.clone(Prism.languages.javascript);
 
@@ -521,45 +523,47 @@ Prism.languages.insertBefore('inside', 'attr-value',{
 	}
 }, Prism.languages.jsx.tag);
 
-class PrismComponent extends React.Component {
-    static _ = _;
-
-    static defaultProps = {
+const PrismComponent = React.createClass({
+  statics: {
+    _: _
+  },
+  getDefaultProps: function() {
+    return {
       language: 'javascript'
     };
-
-    render() {
-      const lines = [];
-      if (this.props.line) {
-        this.props.line.split(',').forEach(function(range) {
-          const parts = range.split('-');
-          if (parts.length === 1) {
-            lines.push(parts[0].trim());
-          } else {
-            const start = parseInt(parts[0].trim(), 10);
-            const end = parseInt(parts[1].trim(), 10);
-            for (let ii = start; ii <= end; ii++) {
-              lines.push(ii);
-            }
+  },
+  render: function() {
+    const lines = [];
+    if (this.props.line) {
+      this.props.line.split(',').forEach(function(range) {
+        const parts = range.split('-');
+        if (parts.length === 1) {
+          lines.push(parts[0].trim());
+        } else {
+          const start = parseInt(parts[0].trim(), 10);
+          const end = parseInt(parts[1].trim(), 10);
+          for (let ii = start; ii <= end; ii++) {
+            lines.push(ii);
           }
-        });
-      }
-      const grammar = _.languages[this.props.language];
-      return (
-        <pre className={'prism language-' + this.props.language}>
-          {Token.reactify(_.tokenize(this.props.children, grammar))}
-          {lines.map(function(line, ii) {
-            return (
-              <div
-                className="line-highlight"
-                key={ii}
-                style={{height: 20, top: 20 * (line - 1)}}
-              />
-            );
-          })}
-        </pre>
-      );
+        }
+      });
     }
-}
+    const grammar = _.languages[this.props.language];
+    return (
+      <pre className={'prism language-' + this.props.language}>
+        {Token.reactify(_.tokenize(this.props.children, grammar))}
+        {lines.map(function(line, ii) {
+          return (
+            <div
+              className="line-highlight"
+              key={ii}
+              style={{height: 20, top: 20 * (line - 1)}}
+            />
+          );
+        })}
+      </pre>
+    );
+  }
+});
 
 module.exports = PrismComponent;

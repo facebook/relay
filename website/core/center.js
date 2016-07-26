@@ -15,8 +15,8 @@ const React = require('React');
 
 const assign = require('object-assign');
 
-const center = React.createClass({
-  render: function() {
+class center extends React.Component {
+  render() {
     let {style, ...props} = this.props;
     style = assign({}, style, {textAlign: 'center'});
 
@@ -24,6 +24,6 @@ const center = React.createClass({
       <div {...props} style={style}>{this.props.children}</div>
     );
   }
-});
+}
 
 module.exports = center;

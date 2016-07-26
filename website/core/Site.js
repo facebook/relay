@@ -14,8 +14,8 @@
 const React = require('React');
 const HeaderLinks = require('HeaderLinks');
 
-const Site = React.createClass({
-  render: function() {
+class Site extends React.Component {
+  render() {
     const title = this.props.title ? this.props.title : 'Relay | A JavaScript framework for building data-driven React applications';
     return (
       <html>
@@ -67,6 +67,6 @@ const Site = React.createClass({
       </html>
     );
   }
-});
+}
 
 module.exports = Site;

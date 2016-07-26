@@ -13,8 +13,8 @@ const React = require('React');
 const Site = require('Site');
 const SiteData = require('SiteData');
 
-const index = React.createClass({
-  render: function() {
+class index extends React.Component {
+  render() {
     return (
       <Site>
         <div className="hero">
@@ -141,6 +141,6 @@ const index = React.createClass({
       </Site>
     );
   }
-});
+}
 
 module.exports = index;

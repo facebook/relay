@@ -15,8 +15,9 @@ const React = require('React');
 const Site = require('Site');
 const Marked = require('Marked');
 const DocsSidebar = require('DocsSidebar');
-const DocsLayout = React.createClass({
-  render: function() {
+
+class DocsLayout extends React.Component {
+  render() {
     const metadata = this.props.metadata;
     const content = this.props.children;
     const title = metadata.title + ' | Relay Docs';
@@ -38,6 +39,6 @@ const DocsLayout = React.createClass({
       </Site>
     );
   }
-});
+}
 
 module.exports = DocsLayout;

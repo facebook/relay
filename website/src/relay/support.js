@@ -20,8 +20,8 @@ const Site = require('Site');
 const center = require('center');
 const H2 = require('H2');
 
-class support extends React.Component {
-  render() {
+const support = React.createClass({
+  render: function() {
     return (
       <Site section="support" title="Relay Support">
 
@@ -49,6 +49,6 @@ class support extends React.Component {
       </Site>
     );
   }
-}
+});
 
 module.exports = support;

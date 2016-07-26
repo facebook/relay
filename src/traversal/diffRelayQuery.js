@@ -507,19 +507,30 @@ class RelayDiffQueryBuilder {
       // The items in this array are not fetchable by ID, so nothing else could
       // have fetched additional data for individual items. If any item in this
       // list is missing data, refetch the whole field.
-      const atLeastOneItemHasMissingData =
-        linkedIDs.some(itemID => {
-          const itemState = this.traverse(
-            field,
-            RelayQueryPath.getPath(path, field, itemID),
-            makeScope(itemID)
-          );
-          return itemState && (itemState.diffNode || itemState.trackedNode);
-        });
-      if (atLeastOneItemHasMissingData) {
+
+      let atLeastOneItemHasMissingData = false;
+      let atLeastOneItemHasTrackedData = false;
+
+      linkedIDs.some(itemID => {
+        const itemState = this.traverse(
+          field,
+          RelayQueryPath.getPath(path, field, itemID),
+          makeScope(itemID)
+        );
+        if (itemState && itemState.diffNode) {
+          atLeastOneItemHasMissingData = true;
+        }
+        if (itemState && itemState.trackedNode) {
+          atLeastOneItemHasTrackedData = true;
+        }
+        // Exit early if possible
+        return atLeastOneItemHasMissingData && atLeastOneItemHasTrackedData;
+      });
+
+      if (atLeastOneItemHasMissingData || atLeastOneItemHasTrackedData) {
         return {
-          diffNode: field,
-          trackedNode: null,
+          diffNode: atLeastOneItemHasMissingData ? field : null,
+          trackedNode: atLeastOneItemHasTrackedData ? field : null,
         };
       }
     }

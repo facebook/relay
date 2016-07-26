@@ -1486,6 +1486,58 @@ describe('diffRelayQuery', () => {
     `));
   });
 
+  it('does not fetch plural fields with null linked field children', () => {
+    const records = {
+      '12345': {
+        __dataID__: '12345',
+        id: '12345',
+        allPhones: [
+          {__dataID__: 'client:1'},
+          {__dataID__: 'client:2'},
+        ],
+      },
+      'client:1': {
+        __dataID__: 'client:1',
+        isVerified: false,
+        phoneNumber: {__dataID__: 'client:1A'},
+      },
+      'client:1A': {
+        __dataID__: 'client:1A',
+        displayNumber: null,
+      },
+      'client:2': {
+        __dataID__: 'client:2',
+        isVerified: false,
+        phoneNumber: null,
+      },
+    };
+    const store = new RelayRecordStore({records});
+
+    // Assume node(12345) is an Actor
+    const query = getNode(Relay.QL`
+      query {
+        node(id:"12345") {
+          id
+          allPhones {
+            isVerified
+            phoneNumber {
+              displayNumber
+            }
+          }
+        }
+      }
+    `);
+
+    const tracker = new RelayQueryTracker();
+    const diffQueries = diffRelayQuery(query, store, tracker);
+    expect(diffQueries.length).toBe(0);
+
+    const trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(2);
+    expect(trackedQueries[0][1]).toBe('client:2');
+    expect(trackedQueries[1][1]).toBe('12345');
+  });
+
   it('skips known-deleted nodes from ranges', () => {
     const mockRange = new GraphQLRange();
     const mockEdges = [

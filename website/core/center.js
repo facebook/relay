@@ -15,15 +15,15 @@ const React = require('React');
 
 const assign = require('object-assign');
 
-class center extends React.Component {
-  render() {
+const center = React.createClass({
+  render: function() {
     let {style, ...props} = this.props;
     style = assign({}, style, {textAlign: 'center'});
 
     return (
       <div {...props} style={style}>{this.props.children}</div>
     );
-  }
-}
+  },
+});
 
 module.exports = center;

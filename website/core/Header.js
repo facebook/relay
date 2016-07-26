@@ -13,15 +13,9 @@
 
 const React = require('React');
 
-class Header extends React.Component {
-  slug = (string) => {
-    //  var accents = "àáäâèéëêìíïîòóöôùúüûñç";
-    const accents = "\u00e0\u00e1\u00e4\u00e2\u00e8"
-      + "\u00e9\u00eb\u00ea\u00ec\u00ed\u00ef"
-      + "\u00ee\u00f2\u00f3\u00f6\u00f4\u00f9"
-      + "\u00fa\u00fc\u00fb\u00f1\u00e7";
-
-    const without = "aaaaeeeeiiiioooouuuunc";
+const Header = React.createClass({
+  slug: function(string) {
+    //  var accents = "àáäâèéëêìíïîòóöôùúüûñç"'\u00e0\u00e1\u00e4\u00e2\u00e8'0e1\u00e4'\u00e9\u00eb\u00ea\u00ec\u00ed\u00ef'0ea\u00ec'\u00ee\u00f2\u00f3\u00f6\u00f4\u00f9'0f3\u00f6'\u00fa\u00fc\u00fb\u00f1\u00e7'0fc\u00fb\u00f1\u00e7";'aaaaeeeeiiiioooouuuunc'aaaeeeeiiiioooouuuunc";
 
     return string
       .toString()
@@ -42,9 +36,9 @@ class Header extends React.Component {
 
       // Trim dashes
       .replace(/^-|-$/g, '');
-  };
+  },
 
-  render() {
+  render: function() {
     const slug = this.slug(this.props.toSlug || this.props.children);
     const Heading = 'h' + this.props.level;
 
@@ -53,9 +47,9 @@ class Header extends React.Component {
         <a className="anchor" name={slug}></a>
         {this.props.children}
         {' '}<a className="hash-link" href={'#' + slug}>#</a>
-      </Heading>
+     , </Heading>
     );
   }
-}
+});
 
 module.exports = Header;

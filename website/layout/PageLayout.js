@@ -15,8 +15,8 @@ const React = require('React');
 const Site = require('Site');
 const Marked = require('Marked');
 
-class support extends React.Component {
-  render() {
+const support = React.createClass({
+  render: function() {
     const metadata = this.props.metadata;
     const content = this.props.children;
     return (
@@ -28,7 +28,7 @@ class support extends React.Component {
         </section>
       </Site>
     );
-  }
-}
+  },
+});
 
 module.exports = support;

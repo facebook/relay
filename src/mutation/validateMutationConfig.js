@@ -115,8 +115,10 @@ function validateMutationConfig(
 
     case 'RANGE_ADD':
       assertValid({
-        connectionName: REQUIRED,
-        edgeName: REQUIRED,
+        connectionName: OPTIONAL,
+        edgeName: OPTIONAL,
+        listName: OPTIONAL,
+        newElementName: OPTIONAL,
         parentID: OPTIONAL,
         parentName: OPTIONAL,
         rangeBehaviors: REQUIRED,

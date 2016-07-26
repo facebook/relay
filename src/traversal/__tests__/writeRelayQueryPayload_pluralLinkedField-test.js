@@ -76,7 +76,7 @@ describe('writeRelayQueryPayload()', () => {
       expect(phoneIDs).toEqual([]);
     });
 
-    it('creates linked records', () => {
+    fit('creates linked records', () => {
       const records = {
         '123': {
           __dataID__: '123',

@@ -18,6 +18,7 @@ import type {
   DataID,
   UpdateOptions,
 } from 'RelayInternalTypes';
+import type {QueryPath} from 'RelayQueryPath';
 const RelayMutationTracker = require('RelayMutationTracker');
 const RelayMutationType = require('RelayMutationType');
 const RelayNodeInterface = require('RelayNodeInterface');
@@ -57,6 +58,7 @@ const EDGES_FIELD = RelayQuery.Field.build({
     isPlural: true,
   },
 });
+
 const IGNORED_KEYS = {
   error: true,
   [CLIENT_MUTATION_ID]: true,
@@ -75,19 +77,23 @@ function writeRelayUpdatePayload(
   payload: PayloadObject,
   {configs, isOptimisticUpdate}: UpdateOptions
 ): void {
+  let pathForConfig = {};
   configs.forEach(config => {
     switch (config.type) {
       case RelayMutationType.NODE_DELETE:
         handleNodeDelete(writer, payload, config);
         break;
       case RelayMutationType.RANGE_ADD:
-        handleRangeAdd(
+        const path = handleRangeAdd(
           writer,
           payload,
           operation,
           config,
           isOptimisticUpdate
         );
+        if (config.newElementName && path) {
+          pathForConfig[(config.newElementName: any)] = path;
+        }
         break;
       case RelayMutationType.RANGE_DELETE:
         handleRangeDelete(writer, payload, config);
@@ -102,8 +108,7 @@ function writeRelayUpdatePayload(
         );
     }
   });
-
-  handleMerge(writer, payload, operation);
+  handleMerge(writer, payload, operation, pathForConfig);
 }
 
 /**
@@ -174,7 +179,8 @@ function deleteRecord(
 function handleMerge(
   writer: RelayQueryWriter,
   payload: PayloadObject,
-  operation: RelayQuery.Operation
+  operation: RelayQuery.Operation,
+  pathForConfig: Object,
 ): void {
   const store = writer.getRecordStore();
 
@@ -204,7 +210,8 @@ function handleMerge(
         writer,
         fieldName,
         payloadData,
-        operation
+        operation,
+        pathForConfig
       );
     }
   }
@@ -217,7 +224,8 @@ function mergeField(
   writer: RelayQueryWriter,
   fieldName: string,
   payload: PayloadObject | PayloadArray,
-  operation: RelayQuery.Operation
+  operation: RelayQuery.Operation,
+  pathForConfig: Object,
 ): void {
   // don't write mutation/subscription metadata fields
   if (fieldName in IGNORED_KEYS) {
@@ -227,7 +235,7 @@ function mergeField(
     payload.forEach(item => {
       if (typeof item === 'object' && item != null && !Array.isArray(item)) {
         if (getString(item, ID)) {
-          mergeField(writer, fieldName, item, operation);
+          mergeField(writer, fieldName, item, operation, pathForConfig);
         }
       }
     });
@@ -238,11 +246,12 @@ function mergeField(
 
   const store = writer.getRecordStore();
   let recordID = getString(payloadData, ID);
-  let path;
+  let path = pathForConfig[fieldName];
 
-  if (recordID != null) {
+
+  if (recordID != null && !path) {
     path = RelayQueryPath.createForID(recordID, 'writeRelayUpdatePayload');
-  } else {
+  } else if (!path) {
     recordID = store.getDataID(fieldName);
     if (!recordID) {
       invariant(
@@ -304,6 +313,42 @@ function mergeField(
   handleNode(operation);
 }
 
+function _prepareSimpleRangeAdd(
+  writer: RelayQueryWriter,
+  payload: PayloadObject,
+  operation: RelayQuery.Operation,
+  config: OperationConfig,
+  isOptimisticUpdate: boolean
+) : any {
+  // Extracts the new element from the payload
+  const newElement = getObject(payload, (config.newElementName || 'newElement')) || {};
+
+  // Extract the id of the node with that contains the list that we are adding
+  // the element to
+  let parentID = config.parentID;
+  if (!parentID) {
+    const edgeSource = getObject(payload, (config.parentName || 'source'));
+    if (edgeSource) {
+      parentID = getString(edgeSource, ID);
+    }
+  }
+
+  invariant(
+    parentID,
+    'writeRelayUpdatePayload(): Cannot handle new list element without a configured ' +
+    '`parentID` or a `%.id` field.',
+    config.parentName
+  );
+
+  const nodeID = getString(newElement || {}, ID) || generateClientID();
+  newElement['id'] = nodeID;
+  const elementData = {
+    ...newElement
+  };
+
+  return [parentID, nodeID, elementData];
+}
+
 /**
  * Handles the payload for a range addition. The configuration specifies:
  * - which field in the payload contains data for the new edge
@@ -316,7 +361,7 @@ function handleRangeAdd(
   operation: RelayQuery.Operation,
   config: OperationConfig,
   isOptimisticUpdate: boolean
-): void {
+): ?QueryPath {
   const clientMutationID = getString(payload, CLIENT_MUTATION_ID);
   invariant(
     clientMutationID,
@@ -326,51 +371,68 @@ function handleRangeAdd(
   );
   const store = writer.getRecordStore();
 
-  // Extracts the new edge from the payload
-  const edge = getObject(payload, config.edgeName);
-  const edgeNode = edge && getObject(edge, NODE);
-  if (!edge || !edgeNode) {
-    return;
-  }
-
-  // Extract the id of the node with the connection that we are adding to.
-  let connectionParentID = config.parentID;
-  if (!connectionParentID) {
-    const edgeSource = getObject(edge, 'source');
-    if (edgeSource) {
-      connectionParentID = getString(edgeSource, ID);
-    }
-  }
-  invariant(
-    connectionParentID,
-    'writeRelayUpdatePayload(): Cannot insert edge without a configured ' +
-    '`parentID` or a `%s.source.id` field.',
-    config.edgeName
-  );
-
-  const nodeID = getString(edgeNode, ID) || generateClientID();
-  const cursor = edge.cursor || STUB_CURSOR_ID;
-  const edgeData = {
-    ...edge,
-    cursor: cursor,
-    node: {
-      ...edgeNode,
-      id: nodeID,
-    },
-  };
-
-  // add the node to every connection for this field
-  const connectionIDs =
-    store.getConnectionIDsForField(connectionParentID, config.connectionName);
-  if (connectionIDs) {
-    connectionIDs.forEach(connectionID => addRangeNode(
+  let connectionParentID;
+  let nodeID: DataID;
+  let rangeData;
+  let path = null;
+  if (config.newElementName) {
+    [connectionParentID, nodeID, rangeData] = _prepareSimpleRangeAdd(writer,
+      payload, operation, config, isOptimisticUpdate);
+    path = addRangeElement(
       writer,
       operation,
       config,
-      connectionID,
+      connectionParentID,
       nodeID,
-      edgeData
-    ));
+      rangeData,
+      isOptimisticUpdate
+    );
+  } else {
+    // Extracts the new edge from the payload
+    const edge = getObject(payload, config.edgeName);
+    const edgeNode = edge && getObject(edge, NODE);
+    if (!edge || !edgeNode) {
+      return null;
+    }
+    // Extract the id of the node with the connection that we are adding to.
+    let connectionParentID = config.parentID;
+    if (!connectionParentID) {
+      const edgeSource = getObject(edge, 'source');
+      if (edgeSource) {
+        connectionParentID = getString(edgeSource, ID);
+      }
+    }
+    invariant(
+      connectionParentID,
+      'writeRelayUpdatePayload(): Cannot insert edge without a configured ' +
+      '`parentID` or a `%s.source.id` field.',
+      config.edgeName
+    );
+
+    nodeID  = getString(edgeNode, ID) || generateClientID();
+    const cursor = edge.cursor || STUB_CURSOR_ID;
+    const edgeData = {
+      ...edge,
+      cursor: cursor,
+      node: {
+        ...edgeNode,
+        id: nodeID,
+      },
+    };
+
+    // add the node to every connection for this field
+    const connectionIDs =
+      store.getConnectionIDsForField(connectionParentID, config.connectionName);
+    if (connectionIDs) {
+      connectionIDs.forEach(connectionID => addRangeNode(
+        writer,
+        operation,
+        config,
+        connectionID,
+        nodeID,
+        edgeData
+      ));
+    }
   }
 
   if (isOptimisticUpdate) {
@@ -394,6 +456,81 @@ function handleRangeAdd(
       RelayMutationTracker.deleteClientIDForMutation(clientMutationID);
     }
   }
+
+  return path;
+}
+
+/**
+ * Writes the node data for the given field to the store and prepends/appends
+ * the node to the given connection.
+ */
+function addRangeElement(
+  writer: RelayQueryWriter,
+  operation: RelayQuery.Operation,
+  config: OperationConfig,
+  parentID: DataID,
+  newElementID: DataID,
+  newElementData: any,
+  isOptimisticUpdate: boolean,
+): ?QueryPath {
+  const recordWriter = writer.getRecordWriter();
+  const store = writer.getRecordStore();
+  const rangeBehavior = getRangeBehavior(config.rangeBehaviors, []);
+  if (!rangeBehavior || rangeBehavior === IGNORE) {
+    warning(
+      rangeBehavior,
+      'Using `null` as a rangeBehavior value is deprecated. Use `ignore` to avoid ' +
+      'refetching a range.'
+    );
+    return null;
+  }
+
+  let path = RelayQueryPath.create(RelayQuery.Root.build(
+    'writeRelayUpdatePayload',
+    config.newElementName,
+    null,
+    null,
+    {
+      identifyingArgName: null,
+      identifyingArgType: null,
+      isAbstract: true,
+      isDeferred: false,
+      isPlural: false,
+    },
+    ANY_TYPE
+  ));
+
+  const nodeField = RelayQuery.Field.build({
+    fieldName: config.listName,
+    type: ANY_TYPE,
+    metadata: {
+      canHaveSubselections: true,
+      isPlural: false,
+    },
+  });
+  path = RelayQueryPath.getPath(path, nodeField, newElementID);
+
+  // create the element record
+  writer.createRecordIfMissing(nodeField, newElementID, path, newElementData);
+  // append/prepend the item to the range.
+  if (rangeBehavior in GraphQLMutatorConstants.RANGE_OPERATIONS) {
+    const existingRecords = isOptimisticUpdate ? store.getField(parentID, config.listName) : [];
+    recordWriter.applyRangeElementUpdate(parentID, config.listName, newElementID, (rangeBehavior: any),
+      (existingRecords: any));
+    writer.recordUpdate(parentID);
+  } else {
+    console.error(
+      'writeRelayUpdatePayload(): invalid range operation `%s`, valid ' +
+      'options are `%s`, `%s`, `%s`, or `%s`.',
+      rangeBehavior,
+      APPEND,
+      PREPEND,
+      IGNORE,
+      REFETCH,
+    );
+  }
+
+  return path;
 }
 
 /**
@@ -433,6 +570,7 @@ function addRangeNode(
     connectionID
   );
   path = RelayQueryPath.getPath(path, EDGES_FIELD, edgeID);
+
 
   // create the edge record
   writer.createRecordIfMissing(EDGES_FIELD, edgeID, path, edgeData);

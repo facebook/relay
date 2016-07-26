@@ -1064,6 +1064,71 @@ describe('RelayMutationQuery', () => {
         .toEqualQueryNode(expectedMutationQuery);
     });
 
+    fit('creates a query for simple list RANGE_ADD', () => {
+      tracker.getTrackedChildrenForID.mockReturnValue([getNode(Relay.QL`
+        fragment on Feedback {
+          simpleTopLevelComments {
+            body {
+              text
+            }
+          }
+        }
+      `)]);
+      const fatQuery = fromGraphQL.Fragment(Relay.QL`
+        fragment on CommentCreateResponsePayload {
+          comment
+        }
+      `);
+      // const parentName = 'feedback';
+      const parentID = '123';
+      const listName = 'simpleTopLevelComments';
+      const newElementName = 'comment';
+      const rangeBehaviors = () => GraphQLMutatorConstants.PREPEND;
+      const configs = [
+        {
+          type: RelayMutationType.RANGE_ADD,
+          // parentName,
+          parentID,
+          listName,
+          newElementName,
+          rangeBehaviors,
+        },
+      ];
+
+      const mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
+      const mutationName = 'CommentAddMutation';
+      const variables = {input: ''};
+      const query = RelayMutationQuery.buildQuery({
+        tracker,
+        fatQuery,
+        configs,
+        mutationName,
+        mutation,
+      });
+
+      const expectedMutationQuery = filterGeneratedFields(
+        getNodeWithoutSource(Relay.QL`
+          mutation {
+            commentCreate(input:$input) {
+              clientMutationId
+              ... on CommentCreateResponsePayload {
+                comment {
+                  __typename
+                  body {
+                    text
+                  }
+                  id
+                }
+              }
+            }
+          }
+        `, variables)
+      );
+
+      expect(query)
+        .toEqualQueryNode(expectedMutationQuery);
+    });
+
     it('creates a query for NODE_DELETE', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
         fragment on Feedback {

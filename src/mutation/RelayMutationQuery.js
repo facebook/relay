@@ -59,6 +59,15 @@ type EdgeInsertionMutationFragmentBuilderConfig =
     rangeBehaviors: RangeBehaviors,
   };
 
+type ElementInsertionMutationFragmentBuilderConfig =
+  BasicMutationFragmentBuilderConfig & {
+    listName: string,
+    parentID: DataID,
+    newElementName: string,
+    parentName?: string,
+    rangeBehaviors: RangeBehaviors,
+  };
+
 type BasicOptimisticMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment,
 };
@@ -319,6 +328,126 @@ const RelayMutationQuery = {
     return buildMutationFragment(fatQuery, mutatedFields);
   },
 
+  /*
+   * Docs to come
+   */
+  buildFragmentForElementInsertion(
+    {
+      fatQuery,
+      listName,
+      parentID,
+      newElementName,
+      parentName,
+      rangeBehaviors,
+      tracker,
+    }: ElementInsertionMutationFragmentBuilderConfig
+  ): RelayQuery.Fragment {
+    // TODO(Markus): cleanup
+    const mutatedFields = [];
+    // const keysWithoutRangeBehavior: {[hash: string]: boolean} = {};
+    const trackedChildren = tracker.getTrackedChildrenForID(parentID);
+    const trackedLists = [];
+    trackedChildren.forEach(trackedChild => {
+      trackedLists.push(
+        ...findDescendantFields(trackedChild, listName)
+      );
+    });
+    const mutatedListFields = [];
+    trackedLists.forEach(trackedList => {
+      mutatedListFields.push(...trackedList.getChildren());
+    });
+
+    mutatedFields.push(
+      buildElementField(parentID, newElementName, mutatedListFields)
+    );
+
+    const rangeBehavior = getRangeBehavior(rangeBehaviors, []);
+    /* eslint-disable no-console */
+    if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+      console.log('Applying rangeBehavior:', rangeBehavior || 'None');
+    }
+    /* eslint-enable no-console */
+
+    // trackedChildren.forEach(trackedChild => {
+    //   trackedConnections.push(
+    //     ...findDescendantFields(trackedChild, connectionName)
+    //   );
+    // });
+
+    // const rangeBehavior =
+    //   getRangeBehavior(rangeBehaviors, []);
+    // /* eslint-disable no-console */
+    // if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+    //   console.log('Applying rangeBehavior:', rangeBehavior || 'None');
+    // }
+    // /* eslint-enable no-console */
+    // if (rangeBehavior && rangeBehavior !== REFETCH) {
+    //   // Include edges from all connections that exist in `rangeBehaviors`.
+    //   // This may add duplicates, but they will eventually be flattened.
+    //   trackedEdges.forEach(trackedEdge => {
+    //     mutatedEdgeFields.push(...trackedEdge.getChildren());
+    //   });
+    // } else {
+    //   // If the connection is not in `rangeBehaviors` or we have explicitly
+    //   // set the behavior to `refetch`, re-fetch it.
+    //   warning(
+    //     rangeBehavior === REFETCH,
+    //     'RelayMutation: The connection `%s` on the mutation field `%s` ' +
+    //     'that corresponds to the ID `%s` did not match any of the ' +
+    //     '`rangeBehaviors` specified in your RANGE_ADD config. This means ' +
+    //     'that the entire connection will be refetched. Configure a range ' +
+    //     'behavior for this mutation in order to fetch only the new edge ' +
+    //     'and to enable optimistic mutations or use `refetch` to squelch ' +
+    //     'this warning.',
+    //     trackedConnection.getStorageKey(),
+    //     parentName,
+    //     parentID
+    //   );
+    //   keysWithoutRangeBehavior[trackedConnection.getShallowHash()] = true;
+    // }
+
+    // TODO(Markus): delete
+    // if (trackedConnections.length) {
+    //   // If the first instance of the connection passes validation, all will.
+    //   validateConnection(parentName, connectionName, trackedConnections[0]);
+    //
+    //   const mutatedEdgeFields = [];
+    //   trackedConnections.forEach(trackedConnection => {
+    //
+    //   });
+    //   if (mutatedEdgeFields.length) {
+    //     mutatedFields.push(
+    //       buildEdgeField(parentID, edgeName, mutatedEdgeFields)
+    //     );
+    //   }
+    // }
+    if (parentName != null) {
+      const fatParent = getFieldFromFatQuery(fatQuery, parentName);
+
+      // The connection may not be explicit in the fat query, but if it is, we
+      // try to validate it.
+      // getConnectionAndValidate(fatParent, parentName, connectionName);
+
+      const trackedParent = fatParent.clone(trackedChildren);
+      if (trackedParent) {
+        // const filterUnterminatedRange = node => (
+        //   node.getSchemaName() === connectionName &&
+        //   !keysWithoutRangeBehavior.hasOwnProperty(node.getShallowHash())
+        // );
+        const mutatedParent = intersectRelayQuery(
+          trackedParent,
+          fatParent,
+          // filterUnterminatedRange
+        );
+        if (mutatedParent) {
+          mutatedFields.push(mutatedParent);
+        }
+      }
+    }
+
+    return buildMutationFragment(fatQuery, mutatedFields);
+  },
+
   /**
    * Creates a fragment used to fetch the given optimistic response.
    */
@@ -427,15 +556,28 @@ const RelayMutationQuery = {
             console.groupCollapsed('RANGE_ADD');
           }
           /* eslint-enable no-console */
-          children.push(RelayMutationQuery.buildFragmentForEdgeInsertion({
-            connectionName: config.connectionName,
-            edgeName: config.edgeName,
+          const insertionArgs = {
             fatQuery,
             parentID: config.parentID,
             parentName: config.parentName,
             rangeBehaviors: sanitizeRangeBehaviors(config.rangeBehaviors),
             tracker,
-          }));
+          };
+          let toBeInserted: RelayQuery.Fragment = (null: any);
+          if (config.listName) {
+            toBeInserted = RelayMutationQuery.buildFragmentForElementInsertion({
+              listName: config.listName,
+              newElementName: config.newElementName,
+              ...insertionArgs
+            });
+          } else {
+            toBeInserted = RelayMutationQuery.buildFragmentForEdgeInsertion({
+              connectionName: config.connectionName,
+              edgeName: config.edgeName,
+              ...insertionArgs
+            });
+          }
+          children.push(toBeInserted);
           /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupEnd();
@@ -628,6 +770,50 @@ function buildEdgeField(
     'RelayMutationQuery: Expected a field.'
   );
   return edgeField;
+}
+
+function buildElementField(
+  parentID: DataID,
+  listName: string,
+  mutatedListFields: Array<RelayQuery.Node>
+): RelayQuery.Field {
+  const fields = [
+    RelayQuery.Field.build({
+      fieldName: TYPENAME,
+      type: 'String',
+    }),
+  ];
+  // if (!RelayRecord.isClientID(parentID)) {
+  //   fields.push(
+  //     RelayQuery.Field.build({
+  //       children: [
+  //         RelayQuery.Field.build({
+  //           fieldName: ID,
+  //           type: 'String',
+  //         }),
+  //         RelayQuery.Field.build({
+  //           fieldName: TYPENAME,
+  //           type: 'String',
+  //         }),
+  //       ],
+  //       fieldName: 'source',
+  //       metadata: {canHaveSubselections: true},
+  //       type: ANY_TYPE,
+  //     })
+  //   );
+  // }
+  fields.push(...mutatedListFields);
+  const listField = flattenRelayQuery(RelayQuery.Field.build({
+    children: fields,
+    fieldName: listName,
+    metadata: {canHaveSubselections: true},
+    type: ANY_TYPE,
+  }));
+  invariant(
+    listField instanceof RelayQuery.Field,
+    'RelayMutationQuery: Expected a field.'
+  );
+  return listField;
 }
 
 function sanitizeRangeBehaviors(

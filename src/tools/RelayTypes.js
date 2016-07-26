@@ -130,6 +130,8 @@ export type RelayMutationConfig = {
   parentID?: string,
   connectionName: string,
   edgeName: string,
+  listName: string,
+  elementName: string,
   rangeBehaviors: RangeBehaviors,
 } | {
   type: 'NODE_DELETE',

@@ -14,10 +14,13 @@
 require('configureForRelayOSS');
 
 jest.autoMockOff();
+jest.mock('generateClientID');
 
 const Relay = require('Relay');
+const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayMutation = require('RelayMutation');
+const RelayMutationType = require('RelayMutationType');
 
 describe('RelayMutation', () => {
   let bodyID;
@@ -131,7 +134,11 @@ describe('RelayMutation', () => {
       feedbackID,
       doesViewerLike: true,
     });
-    environment.applyUpdate(mutation);
+    const callbacks = {
+      onSuccess: jest.fn(),
+      onFailure: jest.fn(),
+    };
+    environment.applyUpdate(mutation, callbacks);
 
     const data = environment.readQuery(query)[0];
     expect(data).toEqual({
@@ -146,6 +153,10 @@ describe('RelayMutation', () => {
         text: 'Give Relay',
       },
     });
+
+    // Callbacks don't fire for optimistic updates.
+    expect(callbacks.onFailure).not.toBeCalled();
+    expect(callbacks.onSuccess).not.toBeCalled();
   });
 
   it('reverts optimistic payloads asynchronously', () => {
@@ -239,3 +250,263 @@ describe('RelayMutation', () => {
   });
 });
 
+describe('RelayMutation list mutations', () => {
+  let environment;
+  let feedbackID;
+  let storeData;
+  let query;
+  let comment1;
+  let comment2;
+
+  beforeEach(() => {
+    jest.resetModuleRegistry();
+
+    environment = new RelayEnvironment();
+    storeData = environment.getStoreData();
+    feedbackID = '123';
+
+    query = Relay.createQuery(
+        Relay.QL`
+        query CreateFeedbackQuery($id: ID!) {
+          node(id: $id) {
+            ... on Feedback {
+              __typename
+              id
+              topLevelComments(first:"10") {
+                count
+                edges {
+                  node {
+                    id
+                    body {
+                      text
+                    }
+                  }
+                }
+              }
+              simpleTopLevelComments {
+                id
+                body {
+                  text
+                }
+              }
+            }
+          }
+        }
+      `,
+      {
+        id: feedbackID,
+      }
+    );
+
+    comment1 = {
+      id: 'comment1',
+      body: {
+        text: 'First comment'
+      }
+    };
+
+    comment2 = {
+      id: 'comment2',
+      body: {
+        text: 'Another great comment'
+      }
+    };
+    const transformRelayQueryPayload = require('transformRelayQueryPayload');
+    const payload = {
+      node: {
+        id: feedbackID,
+        __typename: 'Feedback',
+        topLevelComments: {
+          count: '2',
+          edges: [{
+            cursor: comment1.id + ':cursor',
+            node: comment1
+          }, {
+            cursor: comment2.id + ':cursor',
+            node: comment2
+          }]
+        },
+        simpleTopLevelComments: [comment1, comment2]
+      },
+    };
+
+    storeData.handleQueryPayload(query, transformRelayQueryPayload(query, payload));
+    // bodyID = storeData.getCachedStore().getLinkedRecordID(feedbackID, 'body');
+  });
+
+  class NewCommentMutation extends RelayMutation {
+    getMutation() {
+      return Relay.QL`mutation { commentCreate }`;
+    }
+    getVariables() {
+      return {
+        input: '',
+      };
+    }
+    getFatQuery() {
+      return Relay.QL`
+        fragment on CommentCreateResponsePayload {
+          clientMutationId
+          comment
+        }
+      `;
+    }
+
+    getConfigs() {
+      if (this.props.connectionMutation) {
+        return [
+          {
+            type: RelayMutationType.RANGE_ADD,
+            connectionName: 'topLevelComments',
+            edgeName: 'feedbackCommentEdge',
+            rangeBehaviors: () => GraphQLMutatorConstants.APPEND,
+          }
+        ];
+      } else {
+        return [
+          {
+            type: RelayMutationType.RANGE_ADD,
+            parentID: feedbackID,
+            listName: 'simpleTopLevelComments',
+            newElementName: 'comment',
+            rangeBehaviors: () => GraphQLMutatorConstants.APPEND,
+          },
+        ];
+      }
+    }
+    getOptimisticResponse() {
+      if (this.props.connectionMutation) {
+        return {
+          feedbackCommentEdge: {
+            __typename: 'CommentsEdge',
+            cursor: 'comment3:cursor',
+            node: {
+              body: {
+                text: 'I am an optimistic edge comment.',
+              },
+            },
+            source: {
+              id: feedbackID,
+            },
+          },
+        };
+      } else {
+        return {
+          comment: {
+            body: {
+              text: 'I am an optimistic comment.'
+            }
+          },
+        };
+      }
+    }
+  }
+
+  it('optimistically appends a new edge to the connection', () => {
+    const mutation = new NewCommentMutation({connectionMutation: true});
+    environment.applyUpdate(mutation);
+
+    const data = environment.readQuery(query)[0];
+    // are not interested in simpleTopLevelComments in this test
+    delete data['simpleTopLevelComments'];
+    const expectedData = {
+      __dataID__: feedbackID,
+      __status__: 1,
+      __mutationStatus__: '0:UNCOMMITTED',
+      __typename: 'Feedback',
+      id: feedbackID,
+      topLevelComments: {
+        __dataID__: 'client:1_first(10)',
+        count: '2',
+        '__status__': 1,
+        '__mutationStatus__': '0:UNCOMMITTED',
+        edges: [{
+          __dataID__: 'client:client:1:comment1',
+          node: {
+            __dataID__: comment1.id,
+            id: comment1.id,
+            body: {
+              __dataID__: 'client:2',
+              text: comment1.body.text
+            }
+          }
+        }, {
+          __dataID__: 'client:client:1:comment2',
+          node: {
+            __dataID__: comment2.id,
+            id: comment2.id,
+            body: {
+              __dataID__: 'client:3',
+              text: comment2.body.text
+            }
+          }
+        }, {
+          __dataID__: 'client:client:1:client:4',
+          __status__: 1,
+          __mutationStatus__: '0:UNCOMMITTED',
+          node: {
+            __dataID__: 'client:4',
+            id: 'client:4',
+            __mutationStatus__: '0:UNCOMMITTED',
+            __status__: 1,
+            body: {
+              __dataID__: 'client:5',
+              text: 'I am an optimistic edge comment.',
+              __status__: 1,
+              __mutationStatus__: '0:UNCOMMITTED'
+            }
+          }
+        },
+      ]},
+    };
+
+    expect(data).toEqual(expectedData);
+  });
+
+  it('optimistically appends a new element to the list', () => {
+    const mutation = new NewCommentMutation();
+    environment.applyUpdate(mutation);
+
+    const data = environment.readQuery(query)[0];
+    // we are not interested in topLevelComments here
+    delete data['topLevelComments'];
+    const expectedData = {
+      __dataID__: feedbackID,
+      __status__: 5,
+      __mutationStatus__: '0:UNCOMMITTED',
+      __typename: 'Feedback',
+      id: feedbackID,
+      simpleTopLevelComments: [
+        {
+          __dataID__: comment1.id,
+          id: comment1.id,
+          body: {
+            __dataID__: 'client:2',
+            text: comment1.body.text
+          }
+        },
+        {
+          __dataID__: comment2.id,
+          id: comment2.id,
+          body: {
+            __dataID__: 'client:3',
+            text: comment2.body.text
+          }
+        },
+        {
+          __dataID__: 'client:4',
+          __mutationStatus__: '0:UNCOMMITTED',
+          __status__: 5,
+          body: {
+            __dataID__: 'client:5',
+            text: 'I am an optimistic comment.',
+            __status__: 1,
+            __mutationStatus__: '0:UNCOMMITTED'
+          }
+        },
+      ],
+    };
+
+    expect(data).toEqual(expectedData);
+  });
+});

@@ -267,9 +267,6 @@ class RelayQLTransformer {
           'graphql/validation/rules/PossibleFragmentSpreads'
         ).PossibleFragmentSpreads,
         require(
-          'graphql/validation/rules/PossibleFragmentSpreads'
-        ).PossibleFragmentSpreads,
-        require(
           'graphql/validation/rules/VariablesInAllowedPosition'
         ).VariablesInAllowedPosition,
       ];

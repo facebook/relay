@@ -57,7 +57,6 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
           /**
            * Extract the module name from `@providesModule`.
            */
-
           Program: function Program(_ref2, state) {
             var parent = _ref2.parent;
 

@@ -50,7 +50,6 @@ var GraphQLRelayDirectiveInstance = new GraphQLDirectiveClass(GraphQLRelayDirect
 
 // TODO: Import types from `graphql`.
 
-
 var RelayQLNode = function () {
   function RelayQLNode(context, ast) {
     _classCallCheck(this, RelayQLNode);

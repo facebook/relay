@@ -42,8 +42,8 @@ const buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder} from 'buildRQL';
 const filterObject = require('filterObject');
 const forEachObject = require('forEachObject');
+const {getComponentName, getReactComponent} = require('RelayContainerUtils');
 const invariant = require('invariant');
-const isReactComponent = require('isReactComponent');
 const isRelayEnvironment = require('isRelayEnvironment');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
@@ -1010,30 +1010,6 @@ function validateSpec(
       name
     );
   });
-}
-
-function getReactComponent(
-  Component: ReactClass<any>
-): ?ReactClass<any> {
-  if (isReactComponent(Component)) {
-    return (Component: any);
-  } else {
-    return null;
-  }
-}
-
-function getComponentName(Component: ReactClass<any>): string {
-  let name;
-  const ComponentClass = getReactComponent(Component);
-  if (ComponentClass) {
-    name = ComponentClass.displayName || ComponentClass.name;
-  } else if (typeof Component === 'function') {
-    // This is a stateless functional component.
-    name = Component.displayName || Component.name || 'StatelessComponent';
-  } else {
-    name = 'ReactElement';
-  }
-  return name;
 }
 
 function getContainerName(Component: ReactClass<any>): string {

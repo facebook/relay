@@ -76,11 +76,6 @@ class RelayMetricsRecorder {
     this._recordingStartTime = 0;
     this._recordingTotalTime = 0;
     this._startTimesStack = [];
-
-    (this: any)._measure = this._measure.bind(this);
-    (this: any)._instrumentProfile = this._instrumentProfile.bind(this);
-    (this: any)._startMeasurement = this._startMeasurement.bind(this);
-    (this: any)._stopMeasurement = this._stopMeasurement.bind(this);
   }
 
   start(): void {
@@ -138,13 +133,13 @@ class RelayMetricsRecorder {
     };
   }
 
-  _measure(name: string, callback: Function): void {
+  _measure = (name: string, callback: Function): void => {
     this._startMeasurement(name);
     callback();
     this._stopMeasurement(name);
-  }
+  };
 
-  _instrumentProfile(name: string): () => void {
+  _instrumentProfile = (name: string): () => void => {
     const startTime = performanceNow();
     return () => {
       this._profiles.push({
@@ -153,16 +148,16 @@ class RelayMetricsRecorder {
         startTime,
       });
     };
-  }
+  };
 
-  _startMeasurement(name: string): void {
+  _startMeasurement = (name: string): void => {
     this._measurements[name] =
       this._measurements[name] || {...measurementDefaults};
     this._profileStack.unshift(0);
     this._startTimesStack.unshift(performanceNow());
-  }
+  };
 
-  _stopMeasurement(name: string): void {
+  _stopMeasurement = (name: string): void => {
     const innerTime = this._profileStack.shift();
     const start = this._startTimesStack.shift();
     const totalTime = performanceNow() - start;
@@ -171,7 +166,7 @@ class RelayMetricsRecorder {
     this._measurements[name].callCount++;
 
     this._profileStack[0] += totalTime;
-  }
+  };
 }
 
 module.exports = RelayMetricsRecorder;

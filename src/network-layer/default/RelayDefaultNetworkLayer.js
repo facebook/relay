@@ -36,14 +36,9 @@ class RelayDefaultNetworkLayer {
   constructor(uri: string, init?: ?InitWithRetries) {
     this._uri = uri;
     this._init = {...init};
-
-    // Facilitate reuse when creating custom network layers.
-    (this: any).sendMutation = this.sendMutation.bind(this);
-    (this: any).sendQueries = this.sendQueries.bind(this);
-    (this: any).supports = this.supports.bind(this);
   }
 
-  sendMutation(request: RelayMutationRequest): ?Promise<any> {
+  sendMutation = (request: RelayMutationRequest): ?Promise<any> => {
     return this._sendMutation(request).then(
       result => result.json()
     ).then(payload => {
@@ -56,9 +51,9 @@ class RelayDefaultNetworkLayer {
     }).catch(
       error => request.reject(error)
     );
-  }
+  };
 
-  sendQueries(requests: Array<RelayQueryRequest>): ?Promise<any> {
+  sendQueries = (requests: Array<RelayQueryRequest>): ?Promise<any> => {
     return Promise.all(requests.map(request => (
       this._sendQuery(request).then(
         result => result.json()
@@ -78,12 +73,12 @@ class RelayDefaultNetworkLayer {
         error => request.reject(error)
       )
     )));
-  }
+  };
 
-  supports(...options: Array<string>): boolean {
+  supports = (...options: Array<string>): boolean => {
     // Does not support the only defined option, "defer".
     return false;
-  }
+  };
 
   /**
    * Sends a POST request with optional files.

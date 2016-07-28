@@ -160,6 +160,7 @@ function createContainerComponent(
           hasPartialData: this.hasPartialData.bind(this),
           pendingVariables: null,
           route,
+          subscribe: this.context.relay.subscribe,
           setVariables: this.setVariables.bind(this),
           variables: {},
         },

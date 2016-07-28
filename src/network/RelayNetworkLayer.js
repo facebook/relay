@@ -13,10 +13,12 @@
 'use strict';
 
 import type RelayMutationRequest from 'RelayMutationRequest';
+import type RelaySubscriptionRequest from 'RelaySubscriptionRequest';
 const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 const RelayQueryRequest = require('RelayQueryRequest');
 import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
+import type {Subscription} from 'RelayTypes';
 
 const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
@@ -112,6 +114,28 @@ class RelayNetworkLayer {
     if (promise) {
       Promise.resolve(promise).done();
     }
+  }
+
+  sendSubscription(subscriptionRequest: RelaySubscriptionRequest): Subscription {
+    const implementation = this._getImplementation();
+
+    invariant(
+      typeof implementation.sendSubscription === 'function',
+      'RelayNetworkLayer: does not support subscriptions.  Expected `sendSubscription` to be ' +
+      'a function.'
+    );
+
+    const result = implementation.sendSubscription(subscriptionRequest);
+
+    invariant(
+      result && typeof result.dispose === 'function',
+      'RelayNetworkLayer: `sendSubscription` should return an object with a ' +
+      '`dispose` property that is a no-argument function.  This function is ' +
+      'called when the client unsubscribes from the subscription ' +
+      'and any network layer resources can be cleaned up.'
+    );
+
+    return result;
   }
 
   supports(...options: Array<string>): boolean {

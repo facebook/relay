@@ -77,6 +77,7 @@
     "setupEnvScriptFile": "node_modules/fbjs-scripts/jest/environment.js",
     "persistModuleRegistryBetweenSpecs": true,
     "modulePathIgnorePatterns": [
+      "[.](.*).js",
       "<rootDir>/lib/",
       "<rootDir>/src/(.*).native.js",
       "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"

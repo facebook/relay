@@ -101,6 +101,8 @@ class RelayEnvironment {
     this._storeData.getChangeEmitter().injectBatchingStrategy(
       relayUnstableBatchedUpdates
     );
+    this.applyUpdate = this.applyUpdate.bind(this);
+    this.commitUpdate = this.commitUpdate.bind(this);
   }
 
   /**
@@ -244,24 +246,24 @@ class RelayEnvironment {
    * Adds an update to the store without committing it. The returned
    * RelayMutationTransaction can be committed or rolled back at a later time.
    */
-  applyUpdate = (
+  applyUpdate(
     mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
-  ): RelayMutationTransaction => {
+  ): RelayMutationTransaction {
     mutation.bindEnvironment(this);
     return this._storeData.getMutationQueue()
       .createTransaction(mutation, callbacks)
       .applyOptimistic();
-  };
+  }
 
   /**
    * Adds an update to the store and commits it immediately. Returns
    * the RelayMutationTransaction.
    */
-  commitUpdate = (
+  commitUpdate(
     mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
-  ): RelayMutationTransaction => {
+  ): RelayMutationTransaction {
     const transaction = this.applyUpdate(mutation, callbacks);
     // The idea here is to defer the call to `commit()` to give the optimistic
     // mutation time to flush out to the UI before starting the commit work.
@@ -273,7 +275,7 @@ class RelayEnvironment {
       transaction.commit();
     });
     return transaction;
-  };
+  }
 
   /**
    * @deprecated

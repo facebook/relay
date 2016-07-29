@@ -38,6 +38,7 @@ import type {
   Variables,
 } from 'RelayTypes';
 
+const areEqual = require('areEqual');
 const buildRQL = require('buildRQL');
 import type {RelayQLFragmentBuilder} from 'buildRQL';
 const filterObject = require('filterObject');
@@ -1115,10 +1116,7 @@ function validateFragmentProp(
     fragment
   ) || (
     !!prevVariables &&
-    RelayContainerComparators.areQueryVariablesEqual(
-      prevVariables,
-      fragment.getVariables()
-    )
+    areEqual(prevVariables, fragment.getVariables())
   );
   if (!hasFragmentData) {
     const variables = fragment.getVariables();

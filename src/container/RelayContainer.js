@@ -771,6 +771,7 @@ function createContainerComponent(
 
       const fragmentPointers = this._fragmentPointers;
       return (
+        !!nextState.relayProp.pendingVariables ||
         !RelayContainerComparators.areNonQueryPropsEqual(
           fragments,
           this.props,

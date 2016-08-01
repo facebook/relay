@@ -42,18 +42,35 @@ const block = {
 
 block.bullet = /(?:[*+-]|\d+\.)/;
 block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;
-block.item = replace(block.item, 'gm')(/bull/g, block.bullet)();
+block.item = replace(block.item, 'gm')
+  (/bull/g, block.bullet)
+  ();
 
-block.list = replace(block.list)(/bull/g, block.bullet)('hr', /\n+(?=(?: *[-*_]){3,} *(?:\n+|$))/)();
+block.list = replace(block.list)
+  (/bull/g, block.bullet)
+  ('hr', /\n+(?=(?: *[-*_]){3,} *(?:\n+|$))/)
+  ();
 
 block._tag = '(?!(?:'
   + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
   + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
   + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|@)\\b';
 
-block.html = replace(block.html)('comment', /<!--[\s\S]*?-->/)('closed', /<(tag)[\s\S]+?<\/\1>/)('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)(/tag/g, block._tag)();
+block.html = replace(block.html)
+  ('comment', /<!--[\s\S]*?-->/)
+  ('closed', /<(tag)[\s\S]+?<\/\1>/)
+  ('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
+  (/tag/g, block._tag)
+  ();
 
-block.paragraph = replace(block.paragraph)('hr', block.hr)('heading', block.heading)('lheading', block.lheading)('blockquote', block.blockquote)('tag', '<' + block._tag)('def', block.def)();
+block.paragraph = replace(block.paragraph)
+  ('hr', block.hr)
+  ('heading', block.heading)
+  ('lheading', block.lheading)
+  ('blockquote', block.blockquote)
+  ('tag', '<' + block._tag)
+  ('def', block.def)
+  ();
 
 /**
  * Normal Block Grammar
@@ -306,7 +323,7 @@ Lexer.prototype.token = function(src, top) {
         // Determine whether the next list item belongs here.
         // Backpedal if it does not belong in this list.
         if (this.options.smartLists && i !== l - 1) {
-          b = block.bullet.exec(cap[i + +1])[0];
+          b = block.bullet.exec(cap[i + 1])[0];
           if (bull !== b && !(bull.length > 1 && b.length > 1)) {
             src = cap.slice(i + 1).join('\n') + src;
             i = l - 1;
@@ -318,7 +335,7 @@ Lexer.prototype.token = function(src, top) {
         // for discount behavior.
         loose = next || /\n\n(?!\s*$)/.test(item);
         if (i !== l - 1) {
-          next = item[item.length - -1] === '\n';
+          next = item[item.length - 1] === '\n';
           if (!loose) loose = next;
         }
 
@@ -405,7 +422,7 @@ Lexer.prototype.token = function(src, top) {
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: 'paragraph',
-        text: cap[1][cap[1].length - -1] === '\n'
+        text: cap[1][cap[1].length - 1] === '\n'
           ? cap[1].slice(0, -1)
           : cap[1],
       });
@@ -772,7 +789,7 @@ Parser.prototype.next = function() {
  */
 
 Parser.prototype.peek = function() {
-  return this.tokens[this.tokens.length - -1] || 0;
+  return this.tokens[this.tokens.length - 1] || 0;
 };
 
 /**
@@ -1029,7 +1046,7 @@ function marked(src, opt, callback) {
   } catch (e) {
     e.message += '\nPlease report this to https://github.com/chjj/marked.';
     if ((opt || marked.defaults).silent) {
-      return [React.DOM.p(null, 'An error occurred:'"An error occurred:"),
+      return [React.DOM.p(null, "An error occurred:"),
         React.DOM.pre(null, e.message)];
     }
     throw e;

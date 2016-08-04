@@ -37,20 +37,31 @@ function getRelayQueries(
   Component: RelayLazyContainer,
   route: RelayQueryConfigInterface
 ): RelayQuerySet {
-  let cache = {};
-  let cacheKey = '';
   const queryCacheEnabled = DisableRelayQueryCache.getCacheEnabled();
-  if (queryCacheEnabled) {
-    cache = queryCache.get(Component);
-    if (!cache) {
-      cache = {};
-      queryCache.set(Component, cache);
-    }
-    cacheKey = route.name + ':' + stableStringify(route.params);
-    if (cache.hasOwnProperty(cacheKey)) {
-      return cache[cacheKey];
-    }
+  if (!queryCacheEnabled) {
+    return buildQuerySet(Component, route);
   }
+  let cache = queryCache.get(Component);
+  if (!cache) {
+    cache = {};
+    queryCache.set(Component, cache);
+  }
+  let cacheKey = route.name + ':' + stableStringify(route.params);
+  if (cache.hasOwnProperty(cacheKey)) {
+    return cache[cacheKey];
+  }
+  const querySet = buildQuerySet(Component, route);
+  cache[cacheKey] = querySet;
+  return querySet;
+}
+
+/**
+ * @internal
+ */
+function buildQuerySet(
+  Component: RelayLazyContainer,
+  route: RelayQueryConfigInterface
+): RelayQuerySet {
   const querySet = {};
   Component.getFragmentNames().forEach(fragmentName => {
     querySet[fragmentName] = null;
@@ -98,9 +109,6 @@ function getRelayQueries(
     }
     querySet[queryName] = null;
   });
-  if (queryCacheEnabled) {
-    cache[cacheKey] = querySet;
-  }
   return querySet;
 }
 

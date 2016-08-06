@@ -29,7 +29,6 @@ const createRelayQuery = require('createRelayQuery');
 const getRelayQueries = require('getRelayQueries');
 const isRelayContainer = require('isRelayContainer');
 
-
 if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
   global.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = RelayInternals;
 }

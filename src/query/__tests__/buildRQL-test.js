@@ -203,7 +203,7 @@ describe('buildRQL', () => {
       `;
       const node1 = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
       const node2 = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
-      expect(node1 === node2).toBe(false);
+      expect(node1).not.toBe(node2);
     });
 
     it('filters the variables passed to components', () => {

@@ -60,8 +60,16 @@ class RelayQueryTracker {
     const {isMerged, trackedNodes} = trackedNodesByID;
     if (!isMerged) {
       const trackedChildren = [];
+      let wrapperNode = null;
       trackedNodes.forEach(trackedQuery => {
-        trackedChildren.push(...trackedQuery.getChildren());
+        wrapperNode = new RelayQuery.Fragment.build(
+          'RelayQueryTracker',
+          trackedQuery.getType(),
+          trackedQuery.getChildren()
+        );
+        if (wrapperNode) {
+          trackedChildren.push(wrapperNode);
+        }
       });
       trackedNodes.length = 0;
       trackedNodesByID.isMerged = true;

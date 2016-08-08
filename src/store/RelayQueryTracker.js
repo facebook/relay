@@ -59,18 +59,13 @@ class RelayQueryTracker {
     }
     const {isMerged, trackedNodes} = trackedNodesByID;
     if (!isMerged) {
-      const trackedChildren = [];
-      let wrapperNode = null;
-      trackedNodes.forEach(trackedQuery => {
-        wrapperNode = new RelayQuery.Fragment.build(
-          'RelayQueryTracker',
+      const trackedChildren = trackedNodes.map(trackedQuery =>
+        new RelayQuery.Fragment.build(
+          'RelayQueryTrackerWrapperFragment',
           trackedQuery.getType(),
           trackedQuery.getChildren()
-        );
-        if (wrapperNode) {
-          trackedChildren.push(wrapperNode);
-        }
-      });
+        )
+      );
       trackedNodes.length = 0;
       trackedNodesByID.isMerged = true;
       let containerNode = RelayQuery.Fragment.build(

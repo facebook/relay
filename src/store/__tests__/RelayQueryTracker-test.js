@@ -57,7 +57,9 @@ describe('RelayQueryTracker', () => {
     tracker.trackNodeForID(query, 'client:1');
     const trackedChildren = tracker.getTrackedChildrenForID('client:1');
     expect(trackedChildren.length).toBe(1);
-    expect(trackedChildren[0])
+    expect(trackedChildren[0].getChildren().length).toBe(1);
+
+    expect(trackedChildren[0].getChildren()[0])
       .toEqualQueryNode(query.getFieldByStorageKey('actor'));
   });
 
@@ -75,7 +77,8 @@ describe('RelayQueryTracker', () => {
     const tracker = new RelayQueryTracker();
 
     tracker.trackNodeForID(query, nodeID);
-    const trackedChildren = sortChildren(tracker.getTrackedChildrenForID(nodeID));
+    const trackedChildren =
+        sortChildren(tracker.getTrackedChildrenForID(nodeID));
     const children = sortChildren(query.getChildren());
     expect(trackedChildren.length).toBe(3);
     children.forEach((child, ii) => {
@@ -102,7 +105,7 @@ describe('RelayQueryTracker', () => {
     tracker.trackNodeForID(actor, actorID);
     const children = sortChildren(actor.getChildren());
     const trackedChildren =
-      sortChildren(tracker.getTrackedChildrenForID(actorID));
+      sortChildren(tracker.getTrackedChildrenForID(actorID)[0].getChildren());
     children.forEach((child, ii) => {
       expect(trackedChildren[ii]).toEqualQueryNode(child);
     });
@@ -170,17 +173,35 @@ describe('RelayQueryTracker', () => {
 
     tracker.trackNodeForID(firstActor, actorID);
     tracker.trackNodeForID(secondActor, actorID);
+
     const trackedChildren = tracker.getTrackedChildrenForID(actorID);
-    expect(trackedChildren.length).toBe(3);
-    expect(trackedChildren[0]).toEqualQueryNode(RelayQuery.Field.build({
+
+    expect(trackedChildren.length).toBe(1);
+    expect(trackedChildren[0].getChildren().length).toBe(4);
+
+    expect(trackedChildren[0].getChildren()[0]).toEqualQueryNode(RelayQuery.Field.build({
       fieldName: 'id',
       type: 'ID',
     }));
-    expect(trackedChildren[1]).toEqualQueryNode(RelayQuery.Field.build({
+    expect(trackedChildren[0].getChildren()[1]).toEqualQueryNode(RelayQuery.Field.build({
       fieldName: '__typename',
       type: 'String',
     }));
-    expect(trackedChildren[2]).toEqualQueryNode(RelayQuery.Fragment.build(
+    expect(trackedChildren[0].getChildren()[2]).toEqualQueryNode(RelayQuery.Fragment.build(
+      'Node',
+      'Node',
+      [
+        RelayQuery.Field.build({
+          fieldName: '__typename',
+          type: 'String',
+        }),
+        RelayQuery.Field.build({
+          fieldName: 'id',
+          type: 'ID',
+        }),
+      ]
+    ));
+    expect(trackedChildren[0].getChildren()[3]).toEqualQueryNode(RelayQuery.Fragment.build(
       'User',
       'User',
       [

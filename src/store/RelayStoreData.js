@@ -197,6 +197,10 @@ class RelayStoreData {
     return !!this._cacheManager;
   }
 
+  getCacheManager(): ?CacheManager {
+    return this._cacheManager;
+  }
+
   /**
    * Returns whether a given record is affected by an optimistic update.
    */

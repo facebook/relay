@@ -35,7 +35,7 @@ const HeaderLinks = React.createClass({
         }, this)}
       </ul>
     );
-  }
+  },
 });
 
 module.exports = HeaderLinks;

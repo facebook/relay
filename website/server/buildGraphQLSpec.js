@@ -22,4 +22,4 @@ module.exports = function(targetDir) {
     );
     fs.writeFileSync(outFilename, html.toString());
   });
-}
+};

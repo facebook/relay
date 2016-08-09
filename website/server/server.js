@@ -35,7 +35,7 @@ if (argv.$0.indexOf('./server/generate.js') !== -1) {
   // Build (and watch) the prototyping tools
   spawn('npm', ['start'], {
     cwd: path.resolve(__dirname, '../../website-prototyping-tools'),
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
 }
 
@@ -50,7 +50,7 @@ const buildOptions = {
   },
   serverRender: true,
   dev: argv.dev !== 'false',
-  static: true
+  static: true,
 };
 
 const app = connect()

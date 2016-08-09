@@ -37,7 +37,7 @@ const DocsLayout = React.createClass({
         </section>
       </Site>
     );
-  }
+  },
 });
 
 module.exports = DocsLayout;

@@ -23,7 +23,7 @@ const center = React.createClass({
     return (
       <div {...props} style={style}>{this.props.children}</div>
     );
-  }
+  },
 });
 
 module.exports = center;

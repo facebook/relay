@@ -16,12 +16,12 @@ const React = require('React');
 const Header = React.createClass({
   slug: function(string) {
     //  var accents = "àáäâèéëêìíïîòóöôùúüûñç";
-    const accents = "\u00e0\u00e1\u00e4\u00e2\u00e8"
-      + "\u00e9\u00eb\u00ea\u00ec\u00ed\u00ef"
-      + "\u00ee\u00f2\u00f3\u00f6\u00f4\u00f9"
-      + "\u00fa\u00fc\u00fb\u00f1\u00e7";
+    const accents = '\u00e0\u00e1\u00e4\u00e2\u00e8'
+      + '\u00e9\u00eb\u00ea\u00ec\u00ed\u00ef'
+      + '\u00ee\u00f2\u00f3\u00f6\u00f4\u00f9'
+      + '\u00fa\u00fc\u00fb\u00f1\u00e7';
 
-    const without = "aaaaeeeeiiiioooouuuunc";
+    const without = 'aaaaeeeeiiiioooouuuunc';
 
     return string
       .toString()
@@ -55,7 +55,7 @@ const Header = React.createClass({
         {' '}<a className="hash-link" href={'#' + slug}>#</a>
       </Heading>
     );
-  }
+  },
 });
 
 module.exports = Header;

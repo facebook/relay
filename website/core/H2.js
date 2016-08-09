@@ -16,8 +16,8 @@ const Header = require('Header');
 
 const H2 = React.createClass({
   render: function() {
-    return <Header {...this.props} level={2}>{this.props.children}</Header>
-  }
+    return <Header {...this.props} level={2}>{this.props.children}</Header>;
+  },
 });
 
 module.exports = H2;

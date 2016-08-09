@@ -38,7 +38,7 @@ const queue = (function() {
     is_executing = true;
     fn(function() {
       is_executing = false;
-      execute()
+      execute();
     });
   }
   return {push: push};
@@ -76,7 +76,7 @@ glob('src/**/*.*', function(er, files) {
 
   queue.push(function(cb) {
     server.close();
-    console.log('It is live at: http://facebook.github.io/relay/')
+    console.log('It is live at: http://facebook.github.io/relay/');
     cb();
   });
 });

@@ -46,7 +46,7 @@ HelloApp = Relay.createContainer(HelloApp, {
         hello,
       }
     `,
-  }
+  },
 });
 
 /**

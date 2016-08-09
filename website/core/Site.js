@@ -66,7 +66,7 @@ const Site = React.createClass({
         </body>
       </html>
     );
-  }
+  },
 });
 
 module.exports = Site;

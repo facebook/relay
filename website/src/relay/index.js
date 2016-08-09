@@ -140,7 +140,7 @@ const index = React.createClass({
         </section>
       </Site>
     );
-  }
+  },
 });
 
 module.exports = index;

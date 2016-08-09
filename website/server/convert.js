@@ -26,7 +26,7 @@ function splitHeader(content) {
   }
   return {
     header: lines.slice(1, i + 1).join('\n'),
-    content: lines.slice(i + 1).join('\n')
+    content: lines.slice(i + 1).join('\n'),
   };
 }
 
@@ -68,7 +68,7 @@ function execute() {
         const key = keyvalue[0].trim();
         let value = keyvalue.slice(1).join(':').trim();
         // Handle the case where you have "Community #10"
-        try { value = JSON.parse(value); } catch(e) { }
+        try { value = JSON.parse(value); } catch (e) { }
         metadata[key] = value;
       }
       metadata['source'] = path.basename(file);
@@ -125,7 +125,7 @@ function execute() {
 }
 
 if (argv.convert) {
-  console.log('convert!')
+  console.log('convert!');
   execute();
 }
 

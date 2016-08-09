@@ -48,7 +48,7 @@ const support = React.createClass({
 
       </Site>
     );
-  }
+  },
 });
 
 module.exports = support;

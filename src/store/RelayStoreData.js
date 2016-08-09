@@ -44,6 +44,7 @@ import type {RecordMap} from 'RelayRecord';
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTaskQueue = require('RelayTaskQueue');
+const GraphQLRange = require('GraphQLRange');
 import type {TaskScheduler} from 'RelayTaskQueue';
 import type {Abortable, CacheManager, CacheProcessorCallbacks} from 'RelayTypes';
 
@@ -194,6 +195,10 @@ class RelayStoreData {
 
   hasCacheManager(): boolean {
     return !!this._cacheManager;
+  }
+
+  getCacheManager(): ?CacheManager {
+    return this._cacheManager;
   }
 
   /**
@@ -632,6 +637,10 @@ class RelayStoreData {
       nodeRangeMap,
     } = obj;
 
+    deserializeRecordRanges(cachedRecords);
+    deserializeRecordRanges(queuedRecords);
+    deserializeRecordRanges(records);
+
     return new RelayStoreData(
       cachedRecords,
       cachedRootCallMap,
@@ -640,6 +649,20 @@ class RelayStoreData {
       rootCallMap,
       nodeRangeMap,
     );
+  }
+}
+
+/**
+ * A helper function which checks for serialized GraphQLRange
+ * instances and deserializes them in toJSON()
+ */
+function deserializeRecordRanges(records) {
+  for (const key in records) {
+    const record = records[key];
+    const range = record.__range__;
+    if (range) {
+      record.__range__ = GraphQLRange.fromJSON(range);
+    }
   }
 }
 

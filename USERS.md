@@ -25,6 +25,7 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 ## J
 
 - [Junglejobs](http://www.junglejobs.ru/)
+- [Jusbrasil](http://jusbrasil.com.br/)
 
 ## N
 
@@ -43,3 +44,4 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 ## T
 
 - [ThoughtMachine](https://thoughtmachine.net/)
+- [Twitter](https://fabric.io/blog/building-fabric-mission-control-with-graphql-and-relay)

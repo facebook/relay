@@ -1,5 +1,4 @@
 /* @flow */
-/* eslint no-unused-vars: 0 */
 /**
  *  Copyright (c) 2015, Facebook, Inc.
  *  All rights reserved.
@@ -16,8 +15,8 @@ declare module GraphQLAST {
    * the region of the source from which the AST derived.
    */
   declare type Location = {
-    start: number;
-    end: number;
+    start: number,
+    end: number,
     source?: any
   }
 
@@ -60,17 +59,17 @@ declare module GraphQLAST {
   // Name
 
   declare type Name = {
-    kind: 'Name';
-    loc?: ?Location;
-    value: string;
+    kind: 'Name',
+    loc?: ?Location,
+    value: string,
   }
 
   // Document
 
   declare type Document = {
-    kind: 'Document';
-    loc?: ?Location;
-    definitions: Array<Definition>;
+    kind: 'Document',
+    loc?: ?Location,
+    definitions: Array<Definition>,
   }
 
   declare type Definition = OperationDefinition
@@ -78,34 +77,34 @@ declare module GraphQLAST {
                          | TypeDefinition
 
   declare type OperationDefinition = {
-    kind: 'OperationDefinition';
-    loc?: ?Location;
+    kind: 'OperationDefinition',
+    loc?: ?Location,
     // Note: subscription is an experimental non-spec addition.
-    operation: 'query' | 'mutation' | 'subscription';
-    name?: ?Name;
-    variableDefinitions?: ?Array<VariableDefinition>;
-    directives?: ?Array<Directive>;
-    selectionSet: SelectionSet;
+    operation: 'query' | 'mutation' | 'subscription',
+    name?: ?Name,
+    variableDefinitions?: ?Array<VariableDefinition>,
+    directives?: ?Array<Directive>,
+    selectionSet: SelectionSet,
   }
 
   declare type VariableDefinition = {
-    kind: 'VariableDefinition';
-    loc?: ?Location;
-    variable: Variable;
-    type: Type;
-    defaultValue?: ?Value;
+    kind: 'VariableDefinition',
+    loc?: ?Location,
+    variable: Variable,
+    type: Type,
+    defaultValue?: ?Value,
   }
 
   declare type Variable = {
-    kind: 'Variable';
-    loc?: ?Location;
-    name: Name;
+    kind: 'Variable',
+    loc?: ?Location,
+    name: Name,
   }
 
   declare type SelectionSet = {
-    kind: 'SelectionSet';
-    loc?: ?Location;
-    selections: Array<Selection>;
+    kind: 'SelectionSet',
+    loc?: ?Location,
+    selections: Array<Selection>,
   }
 
   declare type Selection = Field
@@ -113,47 +112,47 @@ declare module GraphQLAST {
                         | InlineFragment
 
   declare type Field = {
-    kind: 'Field';
-    loc?: ?Location;
-    alias?: ?Name;
-    name: Name;
-    arguments?: ?Array<Argument>;
-    directives?: ?Array<Directive>;
-    selectionSet?: ?SelectionSet;
+    kind: 'Field',
+    loc?: ?Location,
+    alias?: ?Name,
+    name: Name,
+    arguments?: ?Array<Argument>,
+    directives?: ?Array<Directive>,
+    selectionSet?: ?SelectionSet,
   }
 
   declare type Argument = {
-    kind: 'Argument';
-    loc?: ?Location;
-    name: Name;
-    value: Value;
+    kind: 'Argument',
+    loc?: ?Location,
+    name: Name,
+    value: Value,
   }
 
 
   // Fragments
 
   declare type FragmentSpread = {
-    kind: 'FragmentSpread';
-    loc?: ?Location;
-    name: Name;
-    directives?: ?Array<Directive>;
+    kind: 'FragmentSpread',
+    loc?: ?Location,
+    name: Name,
+    directives?: ?Array<Directive>,
   }
 
   declare type InlineFragment = {
-    kind: 'InlineFragment';
-    loc?: ?Location;
-    typeCondition?: ?NamedType;
-    directives?: ?Array<Directive>;
-    selectionSet: SelectionSet;
+    kind: 'InlineFragment',
+    loc?: ?Location,
+    typeCondition?: ?NamedType,
+    directives?: ?Array<Directive>,
+    selectionSet: SelectionSet,
   }
 
   declare type FragmentDefinition = {
-    kind: 'FragmentDefinition';
-    loc?: ?Location;
-    name: Name;
-    typeCondition: NamedType;
-    directives?: ?Array<Directive>;
-    selectionSet: SelectionSet;
+    kind: 'FragmentDefinition',
+    loc?: ?Location,
+    name: Name,
+    typeCondition: NamedType,
+    directives?: ?Array<Directive>,
+    selectionSet: SelectionSet,
   }
 
 
@@ -169,62 +168,62 @@ declare module GraphQLAST {
                     | ObjectValue
 
   declare type IntValue = {
-    kind: 'IntValue';
-    loc?: ?Location;
-    value: string;
+    kind: 'IntValue',
+    loc?: ?Location,
+    value: string,
   }
 
   declare type FloatValue = {
-    kind: 'FloatValue';
-    loc?: ?Location;
-    value: string;
+    kind: 'FloatValue',
+    loc?: ?Location,
+    value: string,
   }
 
   declare type StringValue = {
-    kind: 'StringValue';
-    loc?: ?Location;
-    value: string;
+    kind: 'StringValue',
+    loc?: ?Location,
+    value: string,
   }
 
   declare type BooleanValue = {
-    kind: 'BooleanValue';
-    loc?: ?Location;
-    value: boolean;
+    kind: 'BooleanValue',
+    loc?: ?Location,
+    value: boolean,
   }
 
   declare type EnumValue = {
-    kind: 'EnumValue';
-    loc?: ?Location;
-    value: string;
+    kind: 'EnumValue',
+    loc?: ?Location,
+    value: string,
   }
 
   declare type ListValue = {
-    kind: 'ListValue';
-    loc?: ?Location;
-    values: Array<Value>;
+    kind: 'ListValue',
+    loc?: ?Location,
+    values: Array<Value>,
   }
 
   declare type ObjectValue = {
-    kind: 'ObjectValue';
-    loc?: ?Location;
-    fields: Array<ObjectField>;
+    kind: 'ObjectValue',
+    loc?: ?Location,
+    fields: Array<ObjectField>,
   }
 
   declare type ObjectField = {
-    kind: 'ObjectField';
-    loc?: ?Location;
-    name: Name;
-    value: Value;
+    kind: 'ObjectField',
+    loc?: ?Location,
+    name: Name,
+    value: Value,
   }
 
 
   // Directives
 
   declare type Directive = {
-    kind: 'Directive';
-    loc?: ?Location;
-    name: Name;
-    arguments?: ?Array<Argument>;
+    kind: 'Directive',
+    loc?: ?Location,
+    name: Name,
+    arguments?: ?Array<Argument>,
   }
 
 
@@ -235,21 +234,21 @@ declare module GraphQLAST {
                    | NonNullType
 
   declare type NamedType = {
-    kind: 'NamedType';
-    loc?: ?Location;
-    name: Name;
+    kind: 'NamedType',
+    loc?: ?Location,
+    name: Name,
   };
 
   declare type ListType = {
-    kind: 'ListType';
-    loc?: ?Location;
-    type: Type;
+    kind: 'ListType',
+    loc?: ?Location,
+    type: Type,
   }
 
   declare type NonNullType = {
-    kind: 'NonNullType';
-    loc?: ?Location;
-    type: NamedType | ListType;
+    kind: 'NonNullType',
+    loc?: ?Location,
+    type: NamedType | ListType,
   }
 
   // Type Definition
@@ -263,73 +262,73 @@ declare module GraphQLAST {
                              | TypeExtensionDefinition
 
   declare type ObjectTypeDefinition = {
-    kind: 'ObjectTypeDefinition';
-    loc?: ?Location;
-    name: Name;
-    interfaces?: ?Array<NamedType>;
-    fields: Array<FieldDefinition>;
+    kind: 'ObjectTypeDefinition',
+    loc?: ?Location,
+    name: Name,
+    interfaces?: ?Array<NamedType>,
+    fields: Array<FieldDefinition>,
   }
 
   declare type FieldDefinition = {
-    kind: 'FieldDefinition';
-    loc?: ?Location;
-    name: Name;
-    arguments: Array<InputValueDefinition>;
-    type: Type;
+    kind: 'FieldDefinition',
+    loc?: ?Location,
+    name: Name,
+    arguments: Array<InputValueDefinition>,
+    type: Type,
   }
 
   declare type InputValueDefinition = {
-    kind: 'InputValueDefinition';
-    loc?: ?Location;
-    name: Name;
-    type: Type;
-    defaultValue?: ?Value;
+    kind: 'InputValueDefinition',
+    loc?: ?Location,
+    name: Name,
+    type: Type,
+    defaultValue?: ?Value,
   }
 
   declare type InterfaceTypeDefinition = {
-    kind: 'InterfaceTypeDefinition';
-    loc?: ?Location;
-    name: Name;
-    fields: Array<FieldDefinition>;
+    kind: 'InterfaceTypeDefinition',
+    loc?: ?Location,
+    name: Name,
+    fields: Array<FieldDefinition>,
   }
 
   declare type UnionTypeDefinition = {
-    kind: 'UnionTypeDefinition';
-    loc?: ?Location;
-    name: Name;
-    types: Array<NamedType>;
+    kind: 'UnionTypeDefinition',
+    loc?: ?Location,
+    name: Name,
+    types: Array<NamedType>,
   }
 
   declare type ScalarTypeDefinition = {
-    kind: 'ScalarTypeDefinition';
-    loc?: ?Location;
-    name: Name;
+    kind: 'ScalarTypeDefinition',
+    loc?: ?Location,
+    name: Name,
   }
 
   declare type EnumTypeDefinition = {
-    kind: 'EnumTypeDefinition';
-    loc?: ?Location;
-    name: Name;
-    values: Array<EnumValueDefinition>;
+    kind: 'EnumTypeDefinition',
+    loc?: ?Location,
+    name: Name,
+    values: Array<EnumValueDefinition>,
   }
 
   declare type EnumValueDefinition = {
-    kind: 'EnumValueDefinition';
-    loc?: ?Location;
-    name: Name;
+    kind: 'EnumValueDefinition',
+    loc?: ?Location,
+    name: Name,
   }
 
   declare type InputObjectTypeDefinition = {
-    kind: 'InputObjectTypeDefinition';
-    loc?: ?Location;
-    name: Name;
-    fields: Array<InputValueDefinition>;
+    kind: 'InputObjectTypeDefinition',
+    loc?: ?Location,
+    name: Name,
+    fields: Array<InputValueDefinition>,
   }
 
   declare type TypeExtensionDefinition = {
-    kind: 'TypeExtensionDefinition';
-    loc?: ?Location;
-    definition: ObjectTypeDefinition;
+    kind: 'TypeExtensionDefinition',
+    loc?: ?Location,
+    definition: ObjectTypeDefinition,
   }
 
 }

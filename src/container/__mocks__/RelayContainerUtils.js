@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('isReactComponent');
+module.exports = require.requireActual('RelayContainerUtils');

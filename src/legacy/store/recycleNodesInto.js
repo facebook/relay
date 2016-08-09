@@ -16,7 +16,8 @@
  * Recycles subtrees from `prevData` by replacing equal subtrees in `nextData`.
  */
 function recycleNodesInto<T>(prevData: T, nextData: T): T {
-  if (typeof prevData !== 'object' || !prevData ||
+  if (prevData === nextData ||
+      typeof prevData !== 'object' || !prevData ||
       typeof nextData !== 'object' || !nextData) {
     return nextData;
   }

@@ -1,21 +1,8 @@
 ---
-parser: babel-eslint
 
 extends:
-  - ./node_modules/fbjs-scripts/eslint/.eslintrc.js
-
-plugins:
-  - react
+  - fbjs
 
 rules:
-  react/jsx-uses-react: 2
-
-globals:
-  $Keys: true
-  $FixMe: true
-  $FlowFixMe: true
-  $FlowIssue: true
-  Iterator: true
-  IteratorResult: true
-  ReactClass: true
-  ReactElement: true
+  # this is very noisy, so disable
+  consistent-return: 0

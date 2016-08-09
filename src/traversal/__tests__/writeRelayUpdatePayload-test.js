@@ -818,7 +818,7 @@ describe('writeRelayUpdatePayload()', () => {
   });
 
   describe('node/range delete mutations', () => {
-    let store, queueStore, writer, queueWriter, feedbackID, connectionID, firstCommentID, secondCommentID, firstEdgeID, secondEdgeID;
+    let store, queueStore, writer, queueWriter, feedbackID, connectionID, firstCommentID, secondCommentID, firstEdgeID, secondEdgeID; // eslint-disable-line max-len
 
     beforeEach(() => {
       const records = {};

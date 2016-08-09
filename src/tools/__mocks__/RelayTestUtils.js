@@ -756,7 +756,7 @@ function prettifyQueryString(queryText, indentSize) {
       indent = indent.substr(0, indent.length - 2);
       output += '\n' + indent + '}';
     } else if (match[0] === ',') {
-      output += ',' + '\n' + indent;
+      output += ',\n' + indent;
     } else {
       output += match[0];
     }

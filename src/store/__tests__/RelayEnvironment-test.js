@@ -262,5 +262,15 @@ describe('RelayEnvironment', () => {
         expect(mockTransaction.commit).not.toBeCalled();
       });
     });
+
+    describe('injectCacheManager()', () => {
+      it('passes down the cacheManager to the store data', () => {
+        const mockCacheManager = {};
+        environment.injectCacheManager(mockCacheManager);
+        expect(
+          environment.getStoreData().getCacheManager()
+        ).toBe(mockCacheManager);
+      });
+    });
   });
 });

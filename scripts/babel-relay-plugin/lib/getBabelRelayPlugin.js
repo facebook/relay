@@ -57,7 +57,6 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
           /**
            * Extract the module name from `@providesModule`.
            */
-
           Program: function Program(_ref2, state) {
             var parent = _ref2.parent;
 
@@ -178,8 +177,8 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
             if (state.isLegacyState) {
               return result; // eslint-disable-line consistent-return
             } else {
-                path.replaceWith(result);
-              }
+              path.replaceWith(result);
+            }
           }
         }
       };

@@ -8,6 +8,7 @@ type Root {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings,
   route(waypoints: [WayPoint!]!): Route
+  maybeNode: MaybeNode
   me: User
   node(id: ID): Node
   nodes(ids: [ID!]): [Node]
@@ -18,6 +19,17 @@ type Root {
   usernames(names: [String!]!): [Actor]
   viewer: Viewer
   _mutation: Mutation
+}
+
+union MaybeNode = Story | FakeNode | NonNode
+
+type FakeNode {
+  id: ID!
+}
+
+type NonNode {
+  id: String
+  name: String
 }
 
 type Task {
@@ -592,12 +604,13 @@ type User implements Node Actor {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
+  checkins(environments: [Environment!]!): CheckinSearchResult
   comments(first: String, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean): FriendsConnection
+  friends(after: String, first: String, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String

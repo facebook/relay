@@ -33,14 +33,14 @@ export class Game {}
 export class HidingSpot {}
 
 // Mock data
-var game = new Game();
+const game = new Game();
 game.id = '1';
 
-var hidingSpots = [];
+const hidingSpots = [];
 (function() {
-  var hidingSpot;
-  var indexOfSpotWithTreasure = Math.floor(Math.random() * 9);
-  for (var i = 0; i < 9; i++) {
+  let hidingSpot;
+  const indexOfSpotWithTreasure = Math.floor(Math.random() * 9);
+  for (let i = 0; i < 9; i++) {
     hidingSpot = new HidingSpot();
     hidingSpot.id = `${i}`;
     hidingSpot.hasTreasure = (i === indexOfSpotWithTreasure);
@@ -49,14 +49,14 @@ var hidingSpots = [];
   }
 })();
 
-var turnsRemaining = 3;
+let turnsRemaining = 3;
 
 export function checkHidingSpotForTreasure(id) {
   if (hidingSpots.some(hs => hs.hasTreasure && hs.hasBeenChecked)) {
     return;
   }
   turnsRemaining--;
-  var hidingSpot = getHidingSpot(id);
+  const hidingSpot = getHidingSpot(id);
   hidingSpot.hasBeenChecked = true;
 }
 export function getHidingSpot(id) {
@@ -102,9 +102,9 @@ At this point, you can delete everything up until `queryType` in `./data/schema.
 Next, let's define a node interface and type. We need only provide a way for Relay to map from an object to the GraphQL type associated with that object, and from a global ID to the object it points to:
 
 ```
-var {nodeInterface, nodeField} = nodeDefinitions(
+const {nodeInterface, nodeField} = nodeDefinitions(
   (globalId) => {
-    var {type, id} = fromGlobalId(globalId);
+    const {type, id} = fromGlobalId(globalId);
     if (type === 'Game') {
       return getGame(id);
     } else if (type === 'HidingSpot') {
@@ -116,7 +116,7 @@ var {nodeInterface, nodeField} = nodeDefinitions(
   (obj) => {
     if (obj instanceof Game) {
       return gameType;
-    } else if (obj instanceof HidingSpot)  {
+    } else if (obj instanceof HidingSpot) {
       return hidingSpotType;
     } else {
       return null;
@@ -128,7 +128,7 @@ var {nodeInterface, nodeField} = nodeDefinitions(
 Next, let's define our game and hiding spot types, and the fields that are available on each.
 
 ```
-var gameType = new GraphQLObjectType({
+const gameType = new GraphQLObjectType({
   name: 'Game',
   description: 'A treasure search game',
   fields: () => ({
@@ -148,7 +148,7 @@ var gameType = new GraphQLObjectType({
   interfaces: [nodeInterface],
 });
 
-var hidingSpotType = new GraphQLObjectType({
+const hidingSpotType = new GraphQLObjectType({
   name: 'HidingSpot',
   description: 'A place where you might find treasure',
   fields: () => ({
@@ -177,14 +177,14 @@ var hidingSpotType = new GraphQLObjectType({
 Since one game can have many hiding spots, we need to create a connection that we can use to link them together.
 
 ```
-var {connectionType: hidingSpotConnection} =
+const {connectionType: hidingSpotConnection} =
   connectionDefinitions({name: 'HidingSpot', nodeType: hidingSpotType});
 ```
 
 Now let's associate these types with the root query type.
 
 ```
-var queryType = new GraphQLObjectType({
+const queryType = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
     node: nodeField,
@@ -199,7 +199,7 @@ var queryType = new GraphQLObjectType({
 With the queries out of the way, let's start in on our only mutation: the one that spends a turn by checking a spot for treasure. Here, we define the input to the mutation (the id of a spot to check for treasure) and a list of all of the possible fields that the client might want updates about after the mutation has taken place. Finally, we implement a method that performs the underlying mutation.
 
 ```
-var CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
+const CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
   name: 'CheckHidingSpotForTreasure',
   inputFields: {
     id: { type: new GraphQLNonNull(GraphQLID) },
@@ -215,7 +215,7 @@ var CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
     },
   },
   mutateAndGetPayload: ({id}) => {
-    var localHidingSpotId = fromGlobalId(id).id;
+    const localHidingSpotId = fromGlobalId(id).id;
     checkHidingSpotForTreasure(localHidingSpotId);
     return {localHidingSpotId};
   },
@@ -225,7 +225,7 @@ var CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
 Let's associate the mutation we just created with the root mutation type:
 
 ```
-var mutationType = new GraphQLObjectType({
+const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
     checkHidingSpotForTreasure: CheckHidingSpotForTreasureMutation,
@@ -236,7 +236,7 @@ var mutationType = new GraphQLObjectType({
 Finally, we construct our schema (whose starting query type is the query type we defined above) and export it.
 
 ```
-export var Schema = new GraphQLSchema({
+export const Schema = new GraphQLSchema({
   query: queryType,
   mutation: mutationType
 });
@@ -257,7 +257,6 @@ Let's tweak the file `./js/routes/AppHomeRoute.js` to anchor our game to the `ga
 
 ```
 export default class extends Relay.Route {
-  static path = '/';
   static queries = {
     game: () => Relay.QL`query { game }`,
   };
@@ -292,7 +291,7 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
   }
   getFatQuery() {
     return Relay.QL`
-      fragment on CheckHidingSpotForTreasurePayload {
+      fragment on CheckHidingSpotForTreasurePayload @relay(pattern: true) {
         hidingSpot {
           hasBeenChecked,
           hasTreasure,
@@ -335,10 +334,12 @@ Finally, let's tie it all together in `./js/components/App.js`:
 
 ```
 import CheckHidingSpotForTreasureMutation from '../mutations/CheckHidingSpotForTreasureMutation';
+import React from 'react';
+import Relay from 'react-relay';
 
 class App extends React.Component {
   _getHidingSpotStyle(hidingSpot) {
-    var color;
+    let color;
     if (this.props.relay.hasOptimisticUpdate(hidingSpot)) {
       color = 'lightGrey';
     } else if (hidingSpot.hasBeenChecked) {
@@ -390,7 +391,7 @@ class App extends React.Component {
     });
   }
   render() {
-    var headerText;
+    let headerText;
     if (this.props.relay.getPendingTransactions(this.props.game)) {
       headerText = '\u2026';
     } else if (this._hasFoundTreasure()) {

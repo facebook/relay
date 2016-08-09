@@ -35,6 +35,7 @@ import type {
   ReadyStateChangeCallback,
   StoreReaderData,
   StoreReaderOptions,
+  CacheManager,
 } from 'RelayTypes';
 
 import type {
@@ -142,6 +143,10 @@ class RelayEnvironment {
 
   injectTaskScheduler(scheduler: ?TaskScheduler): void {
     this._storeData.injectTaskScheduler(scheduler);
+  }
+
+  injectCacheManager(cacheManager: ?CacheManager): void {
+    this._storeData.injectCacheManager(cacheManager);
   }
 
   /**

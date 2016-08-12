@@ -57,6 +57,7 @@ describe('RelayQueryMutation', () => {
     expect(mutationQuery.getCall()).toEqual({
       name: 'commentCreate',
       value: input,
+      type: null,
     });
     const children = mutationQuery.getChildren();
     expect(children.length).toBe(2);

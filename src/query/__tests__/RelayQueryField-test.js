@@ -334,6 +334,7 @@ describe('RelayQueryField', () => {
           null,
           undefined,
         ],
+        type: null,
       },
     ]);
   });
@@ -363,7 +364,7 @@ describe('RelayQueryField', () => {
         Relay.QL`fragment on User { friends(first:"10",isViewerFriend:true) }`
       ).getChildren()[0];
       expect(connectionField.getRangeBehaviorCalls())
-        .toEqual([{name: 'isViewerFriend', value: true}]);
+        .toEqual([{name: 'isViewerFriend', value: true, type: null}]);
     });
 
     it('throws for non-connection fields', () => {
@@ -385,6 +386,7 @@ describe('RelayQueryField', () => {
       expect(ifFalse.getRangeBehaviorCalls()).toEqual([{
         name: 'if',
         value: false,
+        type: null,
       }]);
     });
 
@@ -395,6 +397,7 @@ describe('RelayQueryField', () => {
       expect(unlessTrue.getRangeBehaviorCalls()).toEqual([{
         name: 'unless',
         value: true,
+        type: null,
       }]);
 
       const unlessFalse = getNode(Relay.QL`
@@ -413,6 +416,7 @@ describe('RelayQueryField', () => {
       expect(friendsScalar.getRangeBehaviorCalls()).toEqual([{
         name: 'isViewerFriend',
         value: false,
+        type: null,
       }]);
 
       const friendsVariableRQL = Relay.QL`
@@ -424,6 +428,7 @@ describe('RelayQueryField', () => {
       expect(friendsVariable.getRangeBehaviorCalls()).toEqual([{
         name: 'isViewerFriend',
         value: false,
+        type: null,
       }]);
     });
   });
@@ -620,14 +625,14 @@ describe('RelayQueryField', () => {
   it('returns arguments with values', () => {
     // scalar values are converted to strings
     expect(friendsScalarField.getCallsWithValues()).toEqual([
-      {name: 'first', value: '10'},
-      {name: 'after', value: 'offset'},
-      {name: 'orderby', value: 'name'},
+      {name: 'first', value: '10', type: null},
+      {name: 'after', value: 'offset', type: null},
+      {name: 'orderby', value: 'name', type: null},
     ]);
     // variables return their values
     expect(friendsVariableField.getCallsWithValues()).toEqual([
-      {name: 'first', value: 10},
-      {name: 'after', value: 'offset'},
+      {name: 'first', value: 10, type: null},
+      {name: 'after', value: 'offset', type: null},
     ]);
 
     const pictureScalarRQL = Relay.QL`
@@ -637,7 +642,7 @@ describe('RelayQueryField', () => {
     `;
     const pictureScalar = getNode(pictureScalarRQL).getChildren()[0];
     expect(pictureScalar.getCallsWithValues()).toEqual([
-      {name: 'size', value: ['32', '64']},
+      {name: 'size', value: ['32', '64'], type: null},
     ]);
 
     const pictureVariableRQL = Relay.QL`
@@ -652,7 +657,7 @@ describe('RelayQueryField', () => {
     const pictureVariable =
       getNode(pictureVariableRQL, variables).getChildren()[0];
     expect(pictureVariable.getCallsWithValues()).toEqual([
-      {name: 'size', value: [32, '64']},
+      {name: 'size', value: [32, '64'], type: null},
     ]);
   });
 
@@ -664,7 +669,7 @@ describe('RelayQueryField', () => {
       }
     `, variables).getChildren()[0];
     expect(profilePicture.getCallsWithValues()).toEqual(
-      [{name: 'size', value: [32, 64]}]
+      [{name: 'size', value: [32, 64], type: null}]
     );
   });
 
@@ -685,8 +690,8 @@ describe('RelayQueryField', () => {
     clonedFeed = friendsVariableField.cloneFieldWithCalls(
       friendsVariableField.getChildren(),
       [
-        {name: 'first', value: 10},
-        {name: 'after', value: 'offset'},
+        {name: 'first', value: 10, type: null},
+        {name: 'after', value: 'offset', type: null},
       ]
     );
     expect(clonedFeed).toBe(friendsVariableField);
@@ -792,7 +797,7 @@ describe('RelayQueryField', () => {
     expect(field.getDirectives()).toEqual([
       {
         args: [
-          {name: 'if', value: true},
+          {name: 'if', value: true, type: null},
         ],
         name: 'include',
       },

@@ -23,9 +23,14 @@ import type {Variables} from 'RelayTypes';
 
 const invariant = require('invariant');
 
+type Metadata = {
+  type: ?string,
+};
+
 type CallOrDirective = {
   name: string,
   value: ?ConcreteValue,
+  metadata: ?Metadata,
 };
 
 /**
@@ -42,7 +47,11 @@ function callsFromGraphQL(
   const orderedCalls = [];
   for (let ii = 0; ii < callsOrDirectives.length; ii++) {
     const callOrDirective = callsOrDirectives[ii];
-    let {value} = callOrDirective;
+    let {value, metadata} = callOrDirective;
+    let type: ?string = null;
+    if (metadata && metadata.type){
+      type = metadata.type;
+    }
     if (value != null) {
       if (Array.isArray(value)) {
         value = value.map(arg => getCallValue(arg, variables));
@@ -53,7 +62,7 @@ function callsFromGraphQL(
         value = getCallValue(value, variables);
       }
     }
-    orderedCalls.push({name: callOrDirective.name, value});
+    orderedCalls.push({name: callOrDirective.name, value, type});
   }
   return orderedCalls;
 }

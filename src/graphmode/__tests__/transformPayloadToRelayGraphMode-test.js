@@ -296,7 +296,7 @@ describe('transformPayloadToRelayGraphMode()', () => {
       },
       {
         op: 'putEdges',
-        args: [{name: 'first', value: '1'}, {name: 'orderby', value: 'date'}],
+        args: [{name: 'first', value: '1', type: null}, {name: 'orderby', value: 'date', type: null}],
         edges: [
           {
             __typename: 'CommentsEdge',

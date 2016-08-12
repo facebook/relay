@@ -23,7 +23,7 @@ import type RelayQuery from 'RelayQuery';
 
 export type Call = {
   name: string,
-  type?: string,
+  type?: ?string,
   value: CallValue,
 };
 export type CallValue = ?(

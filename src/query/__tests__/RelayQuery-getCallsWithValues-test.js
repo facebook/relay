@@ -36,6 +36,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: null,
+          type: null,
         }]);
       });
 
@@ -44,6 +45,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: 32,
+          type: null,
         }]);
       });
     });
@@ -56,6 +58,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: null,
+          type: null,
         }]);
       });
 
@@ -66,6 +69,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: [],
+          type: null, 
         }]);
       });
 
@@ -76,6 +80,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: 32,
+          type: null,
         }]);
       });
 
@@ -86,6 +91,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: [32],
+          type: null,
         }]);
       });
     });
@@ -98,6 +104,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: [],
+          type: null,
         }]);
       });
 
@@ -108,6 +115,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: [64],
+          type: null,
         }]);
       });
     });
@@ -121,6 +129,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: [null],
+          type: null,
         }]);
       });
 
@@ -132,6 +141,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: [[]],
+          type: null,
         }]);
       });
 
@@ -143,6 +153,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: [32],
+          type: null,
         }]);
       });
 
@@ -154,6 +165,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: [[32]],
+          type: null,
         }]);
       });
 
@@ -168,6 +180,7 @@ describe('RelayQueryNode.prototype.getCallsWithValues()', function() {
         expect(field.getCallsWithValues()).toEqual([{
           name: 'size',
           value: [32, 64],
+          type: null,
         }]);
       });
     });

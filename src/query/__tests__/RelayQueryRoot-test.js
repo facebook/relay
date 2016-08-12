@@ -159,7 +159,7 @@ describe('RelayQueryRoot', () => {
     expect(me.getIdentifyingArg()).toEqual(undefined);
 
     expect(usernames.getIdentifyingArg()).toEqual(
-      {name: 'names', value: 'mroch'}
+      {name: 'names', value: 'mroch', type: '[String!]!'}
     );
 
     expect(getNode(Relay.QL`
@@ -441,7 +441,7 @@ describe('RelayQueryRoot', () => {
     expect(query.getDirectives()).toEqual([
       {
         args: [
-          {name: 'if', value: true},
+          {name: 'if', value: true, type: null},
         ],
         name: 'include',
       },

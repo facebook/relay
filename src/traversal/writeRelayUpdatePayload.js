@@ -416,12 +416,16 @@ function addRangeNode(
     null;
 
   // no range behavior specified for this combination of filter calls
-  if (!rangeBehavior || rangeBehavior === IGNORE) {
+  if (!rangeBehavior) {
     warning(
       rangeBehavior,
       'Using `null` as a rangeBehavior value is deprecated. Use `ignore` to avoid ' +
       'refetching a range.'
     );
+    return;
+  }
+
+  if (rangeBehavior === IGNORE) {
     return;
   }
 

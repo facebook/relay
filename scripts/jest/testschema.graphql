@@ -498,6 +498,8 @@ type PhotoStory implements FeedUnit Node {
 }
 
 type Story implements FeedUnit Node {
+  attachments: [StoryAttachment]
+
   # FeedUnit
   canViewerDelete: Boolean
   seenState: String
@@ -538,6 +540,11 @@ type Story implements FeedUnit Node {
   websites: [String]
   username: String
   viewerSavedState: String
+}
+
+type StoryAttachment {
+  target: Story
+  styleList: [String]
 }
 
 type StreetAddress {

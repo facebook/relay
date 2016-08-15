@@ -595,6 +595,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
 
     const prevLinkedIDs = this._store.getLinkedRecordIDs(recordID, storageKey);
     const nextLinkedIDs = [];
+    const nextRecords = {};
     let isUpdate = false;
     let nextIndex = 0;
     fieldData.forEach(nextRecord => {
@@ -620,19 +621,24 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
 
       const path = RelayQueryPath.getPath(state.path, field, nextLinkedID);
       this.createRecordIfMissing(field, nextLinkedID, path, nextRecord);
+      nextRecords[nextLinkedID] = {record: nextRecord, path};
       isUpdate = isUpdate || nextLinkedID !== prevLinkedID;
-
-      this.traverse(field, {
-        nodeID: null, // never propagate `nodeID` past the first linked field
-        path,
-        recordID: nextLinkedID,
-        responseData: nextRecord,
-      });
       nextIndex++;
     });
-
+    // Write the linked records before traverse to prevent generating extraneous
+    // client ids.
     this._writer.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
-
+    nextLinkedIDs.forEach(nextLinkedID => {
+      const itemData = nextRecords[nextLinkedID];
+      if (itemData) {
+        this.traverse(field, {
+          nodeID: null, // never propagate `nodeID` past the first linked field
+          path: itemData.path,
+          recordID: nextLinkedID,
+          responseData: itemData.record,
+        });
+      }
+    });
     // Only broadcast a list-level change if a record was changed/added/removed
     if (
       isUpdate ||

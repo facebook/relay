@@ -428,5 +428,47 @@ describe('writeRelayQueryPayload()', () => {
       writePayload(store, writer, query, payload);
       expect(store.getType('123')).toBe('User');
     });
+
+    it('does not overwrite nested child field', () => {
+      const records = {};
+      const store = new RelayRecordStore({records});
+      const writer = new RelayRecordWriter(records, {}, false);
+      const query = getNode(Relay.QL`
+        query {
+          node(id: "1") {
+            ... on Story {
+              attachments {
+                target {
+                  attachments {
+                    styleList
+                  }
+                }
+              }
+            }
+          }
+        }
+      `);
+      const styleList = ['Image'];
+      const payload = {
+        node: {
+          id: '1',
+          attachments: [{
+            target: {
+              id: '1',
+              attachments: [{
+                styleList,
+              }],
+            },
+          }],
+          __typename: 'Story',
+        },
+      };
+      writePayload(store, writer, query, payload);
+      const attachmentIDs = store.getLinkedRecordIDs('1', 'attachments');
+      expect(attachmentIDs.length).toBe(1);
+      expect(store.getField(attachmentIDs[0], 'styleList'))
+        .toEqual(styleList);
+      expect(store.getLinkedRecordID(attachmentIDs[0], 'target')).toBe('1');
+    });
   });
 });

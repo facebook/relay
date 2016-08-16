@@ -22,6 +22,7 @@ import type {
   RangeBehaviors,
 } from 'RelayInternalTypes';
 import type RelayFragmentReference from 'RelayFragmentReference';
+import type RelayMutation from 'RelayMutation';
 import type RelayMutationRequest from 'RelayMutationRequest';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
@@ -85,6 +86,14 @@ export type ReadyStateChangeCallback = (readyState: ReadyState) => void;
 export type RelayContainer = ReactClass<any>;
 
 export type RelayProp = {
+  applyUpdate: (
+    mutation: RelayMutation<any>,
+    callbacks?: RelayMutationTransactionCommitCallbacks
+  ) => RelayMutationTransaction,
+  commitUpdate: (
+    mutation: RelayMutation<any>,
+    callbacks?: RelayMutationTransactionCommitCallbacks
+  ) => RelayMutationTransaction,
   forceFetch: (
     partialVariables?: ?Variables,
     callback?: ?ComponentReadyStateChangeCallback

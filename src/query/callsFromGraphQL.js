@@ -25,6 +25,9 @@ const invariant = require('invariant');
 
 type CallOrDirective = {
   name: string,
+  metadata?: {
+    type?: ?string,
+  },
   value: ?ConcreteValue,
 };
 
@@ -53,7 +56,12 @@ function callsFromGraphQL(
         value = getCallValue(value, variables);
       }
     }
-    orderedCalls.push({name: callOrDirective.name, value});
+    const {metadata, name} = callOrDirective;
+    const orderedCall: Call = {name, value};
+    if (metadata && metadata.type) {
+      orderedCall.type = metadata.type;
+    }
+    orderedCalls.push(orderedCall);
   }
   return orderedCalls;
 }

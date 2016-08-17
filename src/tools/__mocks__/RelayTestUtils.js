@@ -121,7 +121,7 @@ const RelayTestUtils = {
     return reference;
   },
 
-  createCall(name, value) {
+  createCall(name, value, type) {
     const QueryBuilder = require('QueryBuilder');
 
     if (Array.isArray(value)) {
@@ -129,7 +129,7 @@ const RelayTestUtils = {
     } else if (value != null) {
       value = QueryBuilder.createCallValue(value);
     }
-    return QueryBuilder.createCall(name, value);
+    return QueryBuilder.createCall(name, value, type);
   },
 
   createContainerFragment(fragment) {

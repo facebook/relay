@@ -22,14 +22,14 @@ const QueryBuilder = require('QueryBuilder');
  * Convert from plain object `{name, value}` calls to GraphQL call nodes.
  */
 function callsToGraphQL(calls: Array<Call>): Array<ConcreteCall> {
-  return calls.map(({name, value}) => {
+  return calls.map(({name, type, value}) => {
     let concreteValue = null;
     if (Array.isArray(value)) {
       concreteValue = value.map(QueryBuilder.createCallValue);
     } else if (value != null)  {
       concreteValue = QueryBuilder.createCallValue(value);
     }
-    return QueryBuilder.createCall(name, concreteValue);
+    return QueryBuilder.createCall(name, concreteValue, type);
   });
 }
 

@@ -7,9 +7,15 @@ permalink: docs/videos.html
 next: guides-containers
 ---
 
+## [Silicon Valley ReactJS Meetup](http://www.meetup.com/Silicon-Valley-ReactJS-Meetup/)
+
+### Relay 2: simpler, faster, more predictable ([slides](https://speakerdeck.com/wincent/relay-2-simpler-faster-more-predictable))
+
+<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/OEfUBN9dAI8" frameborder="0" allowfullscreen></iframe>
+
 ## [Relay Tech Talks 2016](https://relaytechtalk.splashthat.com/)
 
-### Relay Deep Dive
+### Relay Deep Dive ([slides](https://speakerdeck.com/wincent/relay-deep-dive))
 
 <iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/oPSuvaYmXBY" frameborder="0" allowfullscreen></iframe>
 

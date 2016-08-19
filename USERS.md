@@ -5,6 +5,8 @@ This is an alphabetical list of some people and projects using Relay in producti
 Using Relay in your production app? If you'd like to add your team to the list, please [submit a pull request](https://github.com/facebook/relay/pulls).
 
 ---
+## 1
+- [1stdibs](https://www.1stdibs.com/)
 
 ## 4
 

@@ -52,6 +52,7 @@ const forEachObject = require('forEachObject');
 const mapObject = require('mapObject');
 const invariant = require('invariant');
 const generateForceIndex = require('generateForceIndex');
+const RelaySubscriptionObserver = require('RelaySubscriptionObserver');
 const {
   restoreFragmentDataFromCache,
   restoreQueriesDataFromCache,
@@ -96,6 +97,7 @@ class RelayStoreData {
   _queryTracker: ?RelayQueryTracker;
   _queryRunner: GraphQLQueryRunner;
   _rangeData: GraphQLStoreRangeUtils;
+  _relaySubscriptionObserver: RelaySubscriptionObserver;
   _rootCallMap: RootCallMap;
   _taskQueue: RelayTaskQueue;
 
@@ -129,13 +131,14 @@ class RelayStoreData {
       {cachedRootCallMap, rootCallMap},
       nodeRangeMap
     );
+    this._rangeData = rangeData;
     this._records = records;
     this._recordStore = new RelayRecordStore(
       {records},
       {rootCallMap},
       nodeRangeMap
     );
-    this._rangeData = rangeData;
+    this._relaySubscriptionObserver = new RelaySubscriptionObserver(this);
     this._rootCallMap = rootCallMap;
     this._taskQueue = new RelayTaskQueue();
   }
@@ -538,6 +541,10 @@ class RelayStoreData {
 
   getTaskQueue(): RelayTaskQueue {
     return this._taskQueue;
+  }
+
+  getSubscriptionObserver(): RelaySubscriptionObserver {
+    return this._relaySubscriptionObserver;
   }
 
   /**

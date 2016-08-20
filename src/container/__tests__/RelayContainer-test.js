@@ -25,6 +25,7 @@ const ReactTestUtils = require('ReactTestUtils');
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayMutation = require('RelayMutation');
+const RelaySubscription = require('RelaySubscription');
 const RelayQuery = require('RelayQuery');
 const RelayRoute = require('RelayRoute');
 const RelayTestUtils = require('RelayTestUtils');
@@ -560,6 +561,22 @@ describe('RelayContainer', function() {
         mockRoute
       );
       expect(environment.commitUpdate.mock.calls[0][0]).toBe(mockMutation);
+    });
+  });
+
+  describe('props.relay.subscribe', () => {
+    it('forwards to the underlying RelayEnvironment', () => {
+      const mockSubscription = new RelaySubscription();
+      environment.subscribe = jest.fn();
+      render.mockImplementation(function() {
+        this.props.relay.subscribe(mockSubscription);
+      });
+      RelayTestRenderer.render(
+        () => <MockContainer />,
+        environment,
+        mockRoute
+      );
+      expect(environment.subscribe.mock.calls[0][0]).toBe(mockSubscription);
     });
   });
 

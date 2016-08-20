@@ -18,8 +18,10 @@ import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
 import type RelayQuery from 'RelayQuery';
 import type RelayQueryTracker from 'RelayQueryTracker';
+import type RelaySubscription from 'RelaySubscription';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
+import type {Subscription} from 'RelayTypes';
 import type {TaskScheduler} from 'RelayTaskQueue';
 import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 
@@ -28,10 +30,13 @@ const readRelayQueryData = require('readRelayQueryData');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
 
+const noop = function() {};
+
 import type {
   Abortable,
   Observable,
   RelayMutationTransactionCommitCallbacks,
+  RelaySubscriptionObservableCallbacks,
   ReadyStateChangeCallback,
   StoreReaderData,
   StoreReaderOptions,
@@ -95,6 +100,10 @@ class RelayEnvironment {
     mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ) => RelayMutationTransaction;
+  subscribe: (
+    subscription: RelaySubscription<any>,
+    callbacks?: RelaySubscriptionObservableCallbacks
+  ) => Subscription;
   _storeData: RelayStoreData;
 
   constructor(storeData?: RelayStoreData) {
@@ -104,6 +113,7 @@ class RelayEnvironment {
     );
     this.applyUpdate = this.applyUpdate.bind(this);
     this.commitUpdate = this.commitUpdate.bind(this);
+    this.subscribe = this.subscribe.bind(this);
   }
 
   /**
@@ -280,6 +290,24 @@ class RelayEnvironment {
       transaction.commit();
     });
     return transaction;
+  }
+
+  /**
+   * Adds a subscription to the store and subscribes to it immediately.
+   * Returns the Rx Subscription (disposable).
+   */
+  subscribe(
+    subscription: RelaySubscription<any>,
+    callbacks?: RelaySubscriptionObservableCallbacks
+  ): Subscription {
+    callbacks = callbacks || {
+      onCompleted: noop,
+      onError: noop,
+      onNext: noop,
+    };
+    subscription.bindEnvironment(this);
+    const subscriptionObservable = this._storeData.getSubscriptionObserver().observe(subscription);
+    return subscriptionObservable.subscribe(callbacks);
   }
 
   /**

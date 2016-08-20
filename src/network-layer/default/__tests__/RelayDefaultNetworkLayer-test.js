@@ -18,6 +18,7 @@ const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationRequest = require('RelayMutationRequest');
+const RelaySubscriptionRequest = require('RelaySubscriptionRequest');
 const RelayQuery = require('RelayQuery');
 const RelayQueryRequest = require('RelayQueryRequest');
 const RelayTestUtils = require('RelayTestUtils');
@@ -409,6 +410,51 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(rejectACallback).toBeCalled();
       expect(rejectACallback.mock.calls[0][0].message).toEqual(
         'Server response was missing for query `RelayDefaultNetworkLayer`.'
+      );
+    });
+  });
+
+  describe('sendSubscription', () => {
+    let mockSubscriptionRequest;
+
+    beforeEach(() => {
+      const initialVariables = {feedbackId: 'aFeedbackId'};
+      function makeMockSubscription() {
+        class MockSubscriptionClass extends Relay.Subscription {
+          static initialVariables = initialVariables;
+          getConfigs() {
+            return [];
+          }
+          getSubscription() {
+            return Relay.QL`
+              subscription {
+                feedbackLikeSubscribe (input: $input) {
+                  feedback {
+                    likeSentence
+                  }
+                }
+              }
+            `;
+          }
+          getVariables() {
+            return initialVariables;
+          }
+        }
+        return MockSubscriptionClass;
+      }
+      const MockSubscription = makeMockSubscription();
+      const mockSubscription = new MockSubscription();
+      mockSubscriptionRequest = new RelaySubscriptionRequest(mockSubscription, {
+        onNext: jest.fn(),
+        onError: jest.fn(),
+        onCompleted: jest.fn(),
+      });
+    });
+
+    it('should throw "not implemented" invariant error', () => {
+      expect(() => networkLayer.sendSubscription(mockSubscriptionRequest)).toFailInvariant(
+        'RelayDefaultNetworkLayer: `sendSubscription` is not implemented in the ' +
+        'default network layer.  A custom network layer must be injected.'
       );
     });
   });

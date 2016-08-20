@@ -33,6 +33,7 @@ describe('RelayNetworkLayer', () => {
     injectedNetworkLayer = {
       sendMutation: jest.fn(),
       sendQueries: jest.fn(),
+      sendSubscription: jest.fn(),
       supports: jest.fn(() => true),
     };
     networkLayer = new RelayNetworkLayer();
@@ -201,6 +202,60 @@ describe('RelayNetworkLayer', () => {
 
       expect(resolvedCallback).not.toBeCalled();
       expect(rejectedCallback).toBeCalledWith(error);
+    });
+  });
+
+  describe('sendSubscription', () => {
+    let subscriptionRequest;
+    beforeEach(() => {
+      subscriptionRequest = {};
+    });
+
+    it('should call network layer does sendSubscription', () => {
+      injectedNetworkLayer.sendSubscription.mockReturnValue({ dispose: jest.fn() });
+      networkLayer.sendSubscription(subscriptionRequest);
+
+      expect(injectedNetworkLayer.sendSubscription).toBeCalled();
+      expect(injectedNetworkLayer.sendSubscription.mock.calls.length).toBe(1);
+      expect(injectedNetworkLayer.sendSubscription).toBeCalledWith(subscriptionRequest);
+    });
+
+    it('throws error when network layer sendSubscription does not returns nothing', () => {
+      injectedNetworkLayer.sendSubscription.mockReturnValue(undefined);
+
+      expect(() => networkLayer.sendSubscription(subscriptionRequest)).toFailInvariant(
+        'RelayNetworkLayer: `sendSubscription` should return an object with a ' +
+        '`dispose` property that is a no-argument function.  This function is ' +
+        'called when the client unsubscribes from the subscription ' +
+        'and any network layer resources can be cleaned up.'
+      );
+    });
+
+    it('throws error when network layer sendSubscription does not return a disposable', () => {
+      injectedNetworkLayer.sendSubscription.mockReturnValue({});
+
+      expect(() => networkLayer.sendSubscription(subscriptionRequest)).toFailInvariant(
+        'RelayNetworkLayer: `sendSubscription` should return an object with a ' +
+        '`dispose` property that is a no-argument function.  This function is ' +
+        'called when the client unsubscribes from the subscription ' +
+        'and any network layer resources can be cleaned up.'
+      );
+    });
+
+    describe('injected network layer does not have sendSubscription', () => {
+      beforeEach(() => {
+        networkLayer.injectImplementation({
+          ...injectedNetworkLayer,
+          sendSubscription: undefined,
+        });
+      });
+
+      it('throws when network layer does not have sendSubscription', () => {
+        expect(() => networkLayer.sendSubscription(subscriptionRequest)).toFailInvariant(
+          'RelayNetworkLayer: does not support subscriptions.  Expected `sendSubscription` to be ' +
+          'a function.'
+        );
+      });
     });
   });
 

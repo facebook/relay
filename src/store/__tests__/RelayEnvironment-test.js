@@ -23,6 +23,8 @@ const RelayMutation = require('RelayMutation');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 const RelayMutationQueue = require('RelayMutationQueue');
+const RelaySubscription = require('RelaySubscription');
+const RelaySubscriptionObserver = require('RelaySubscriptionObserver');
 const RelayTestUtils = require('RelayTestUtils');
 
 const readRelayQueryData = require('readRelayQueryData');
@@ -189,6 +191,7 @@ describe('RelayEnvironment', () => {
       createTransactionMock = jest.fn();
       createTransactionMock.mockReturnValue(mockTransaction);
       RelayMutationQueue.prototype.createTransaction = createTransactionMock;
+      RelayMutationQueue.prototype.createTransaction.id = 999;
       mockMutation = new RelayMutation();
       mockCallbacks = jest.fn();
     });
@@ -271,6 +274,60 @@ describe('RelayEnvironment', () => {
           environment.getStoreData().getCacheManager()
         ).toBe(mockCacheManager);
       });
+    });
+  });
+
+  describe('subscribe()', () => {
+    let mockSubscription;
+    let mockDisposable;
+    let mockObservable;
+    let observeMock;
+
+    beforeEach(() => {
+      mockDisposable = {};
+      mockObservable = {
+        subscribe: jest.fn().mockReturnValue(mockDisposable),
+      };
+      observeMock = jest.fn();
+      observeMock.mockReturnValue(mockObservable);
+      RelaySubscriptionObserver.prototype.observe.mockReturnValue(mockObservable);
+      RelaySubscriptionObserver.prototype.observe.id = 991;
+      mockSubscription = new RelaySubscription();
+    });
+
+    it('binds environment to subscription before creating observable', () => {
+      mockSubscription.bindEnvironment.mockImplementation(() => {
+        expect(observeMock).not.toBeCalled();
+      });
+      environment.subscribe(mockSubscription);
+
+      expect(mockSubscription.bindEnvironment).toBeCalled();
+      expect(mockSubscription.bindEnvironment.mock.calls[0][0]).toBe(environment);
+    });
+
+    it('always uses the pre-bound version of `this`', () => {
+      mockSubscription.bindEnvironment = jest.fn();
+      var subscribe = environment.subscribe;
+      subscribe(mockSubscription); // Without binding, `this` would be `global`.
+
+      expect(mockSubscription.bindEnvironment).toBeCalled();
+      expect(mockSubscription.bindEnvironment.mock.calls[0][0]).toBe(environment);
+    });
+
+    it('creates a new RelaySubscriptionObservable, subscribes to it without callbacks, and returns disposable', () => {
+      const disposable = environment.subscribe(mockSubscription);
+
+      expect(disposable).toBe(mockDisposable);
+      expect(mockObservable .subscribe).toBeCalled();
+    });
+
+    it('creates a new RelaySubscriptionObservable and subscribes to it with callbacks', () => {
+      const callbacks = {};
+      const disposable = environment.subscribe(mockSubscription, callbacks);
+
+      expect(disposable).toBe(mockDisposable);
+      expect(mockObservable.subscribe).toBeCalled();
+      expect(mockObservable.subscribe).toBeCalledWith({});
     });
   });
 });

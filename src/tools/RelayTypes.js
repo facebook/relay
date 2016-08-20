@@ -158,6 +158,9 @@ export type RelayMutationConfig = {
   children: Array<RelayConcreteNode>,
 };
 
+// Subscriptions
+export type RelaySubscriptionObservableCallbacks = SubscriptionCallbacks<SubscriptionResult>
+
 // Observable
 export type Observable<T> = {
   subscribe: (callbacks: SubscriptionCallbacks<T>) => Subscription,
@@ -260,6 +263,9 @@ export type QueryResult = {
   error?: ?Error,
   ref_params?: ?{[name: string]: mixed},
   response: Object,
+};
+export type SubscriptionResult = {
+  [key: string]: Object
 };
 
 // Utility

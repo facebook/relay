@@ -16,9 +16,12 @@ const RelayMutationRequest = require('RelayMutationRequest');
 
 const fetch = require('fetch');
 const fetchWithRetries = require('fetchWithRetries');
+const invariant = require('invariant');
 
 import type {InitWithRetries} from 'fetchWithRetries';
 import type RelayQueryRequest from 'RelayQueryRequest';
+import type RelaySubscriptionRequest from 'RelaySubscriptionRequest';
+import type {Subscription} from 'RelayTypes';
 
 type GraphQLError = {
   message: string,
@@ -40,6 +43,7 @@ class RelayDefaultNetworkLayer {
     // Facilitate reuse when creating custom network layers.
     (this: any).sendMutation = this.sendMutation.bind(this);
     (this: any).sendQueries = this.sendQueries.bind(this);
+    (this: any).sendSubscription = this.sendSubscription.bind(this);
     (this: any).supports = this.supports.bind(this);
   }
 
@@ -78,6 +82,14 @@ class RelayDefaultNetworkLayer {
         error => request.reject(error)
       )
     )));
+  }
+
+  sendSubscription(request: RelaySubscriptionRequest): Subscription {
+    invariant(
+      false,
+      'RelayDefaultNetworkLayer: `sendSubscription` is not implemented in the ' +
+      'default network layer.  A custom network layer must be injected.'
+    );
   }
 
   supports(...options: Array<string>): boolean {

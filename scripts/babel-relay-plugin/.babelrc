@@ -1,0 +1,13 @@
+{
+  "presets": [
+    "es2015"
+  ],
+  "plugins": [
+    "syntax-flow",
+    "syntax-trailing-function-commas",
+    "syntax-object-rest-spread",
+    "transform-class-properties",
+    "transform-flow-strip-types",
+    "transform-object-rest-spread"
+  ]
+}

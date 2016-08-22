@@ -1,4 +1,3 @@
-// @generated
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -31,17 +30,31 @@ var transform = transformGraphQL.bind(null, SCHEMA_PATH);
 
 function genFixtures() {
   var fixtures = readFixtures(FIXTURE_PATH);
-  Object.keys(fixtures).forEach(function (filename) {
+  Object.keys(fixtures).forEach(filename => {
     var fixture = fixtures[filename];
     if (fixture.output !== undefined) {
       // fixture for valid input, update the expected output
       try {
         var graphql = transform(fixture.input, filename);
-        writeFixture(filename, ['Input:', fixture.input, '', // newline
-        'Output:', graphql, ''].join('\n'));
+        writeFixture(
+          filename,
+          [
+            'Input:',
+            fixture.input,
+            '', // newline
+            'Output:',
+            graphql,
+            '', // newline
+          ].join('\n')
+        );
         console.log('Updated fixture `%s`.', filename);
       } catch (e) {
-        console.error('Failed to transform fixture `%s`: %s: %s', filename, e.message, e.stack);
+        console.error(
+          'Failed to transform fixture `%s`: %s: %s',
+          filename,
+          e.message,
+          e.stack
+        );
       }
     } // else: fixture for invalid code, nothing to update
   });

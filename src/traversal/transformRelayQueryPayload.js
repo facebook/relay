@@ -139,6 +139,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       if (serverData == null) {
         server[serializationKey] = serverData = [];
       }
+      // $FlowFixMe(>=0.31.0)
       clientData.forEach((clientItem, index) => {
         invariant(
           Array.isArray(serverData),
@@ -154,6 +155,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
         if (serverItem == null) {
           serverData[index] = serverItem = {};
         }
+        // $FlowFixMe(>=0.31.0)
         this.traverse(node, {
           client: clientItem,
           server: serverItem,

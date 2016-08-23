@@ -221,6 +221,7 @@ function createContainerComponent(
             fragmentName
           );
           const dataIDs = [];
+          // $FlowFixMe(>=0.31.0)
           queryData.forEach((data, ii) => {
             const dataID = RelayRecord.getDataIDForObject(data);
             if (dataID) {

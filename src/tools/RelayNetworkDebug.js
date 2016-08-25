@@ -52,7 +52,6 @@ class RelayNetworkDebugger {
     const id = this._queryID++;
     const timerName = `[${id}] Request Duration`;
 
-    /* eslint-disable no-console-disallow */
     console.timeStamp && console.timeStamp(
       `START: [${id}] ${type}: ${name} \u2192`
     );
@@ -64,17 +63,11 @@ class RelayNetworkDebugger {
         `\u2190 END: [${id}] ${type}: ${name}`
       );
       const groupName = `%c[${id}] ${type}: ${name} @ ${time}s`;
-      console.groupCollapsed ?
-        console.groupCollapsed(
-          groupName,
-          `color:${error ? 'red' : 'black'};`
-        ) :
-        console.log(groupName);
+      console.groupCollapsed(groupName, `color:${error ? 'red' : 'black'};`);
       console.timeEnd && console.timeEnd(timerName);
       logResult(error, response);
-      console.groupEnd && console.groupEnd();
+      console.groupEnd();
     };
-    /* eslint-enable no-console-disallow */
 
     promise.then(
       response => onSettled(null, response),
@@ -93,25 +86,30 @@ function createDebuggableFromRequest(
     promise: request.getPromise(),
     logResult(error, response) {
       /* eslint-disable no-console-disallow */
-      console.debug(
-        'Request Size (Estimate): %s',
-        formatSize(
-          xhrSimpleDataSerializer({
-            q: request.getQueryString(),
-            query_params: request.getVariables(),
-          }).length
-        )
+      const requestSize = formatSize(
+        xhrSimpleDataSerializer({
+          q: request.getQueryString(),
+          query_params: request.getVariables(),
+        }).length
       );
+      const requestVariables = request.getVariables();
 
-      console.debug && console.debug(
+      console.groupCollapsed(
+        'Request Query (Estimated Size: %s)',
+        requestSize
+      );
+      console.debug(
         '%c%s\n',
         'font-size:10px; color:#333; font-family:mplus-2m-regular,menlo,' +
         'monospaced;',
         request.getQueryString()
       );
+      console.groupEnd();
 
+      if (Object.keys(requestVariables).length > 0) {
+        console.log('Request Variables\n', request.getVariables());
+      }
 
-      console.log('Request Variables\n', request.getVariables());
       error && console.error(error);
       response && console.log(response);
       /* eslint-enable no-console-disallow */
@@ -136,7 +134,8 @@ let networkDebugger: ?RelayNetworkDebugger;
 const RelayNetworkDebug = {
   init(environment: RelayEnvironment = Relay.Store): void {
     networkDebugger && networkDebugger.uninstall();
-    if (console.groupCollapsed) { // without groupCollapsed RelayNetworkDebug is too noisy
+    // Without `groupCollapsed`, RelayNetworkDebug is too noisy.
+    if (console.groupCollapsed) {
       networkDebugger = new RelayNetworkDebugger(environment);
     }
   },

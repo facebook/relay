@@ -567,7 +567,10 @@ class RelayQueryRoot extends RelayQueryNode {
       return this.clone(children);
     }
     const clone = RelayQueryNode.create(
-      this.__concreteNode__,
+      {
+        ...this.__concreteNode__,
+        name: route.name,
+      },
       route,
       this.__variables__
     );

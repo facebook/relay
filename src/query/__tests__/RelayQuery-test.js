@@ -121,7 +121,9 @@ describe('RelayQuery', () => {
         expect(clone.getChildren().length).toBe(1);
         expect(clone.getChildren()[0]).toBe(field);
         expect(clone.getRoute().name).toBe('BarRoute');
+        expect(clone.getName()).toBe('BarRoute');
         expect(root.getRoute().name).toBe('FooRoute');
+        expect(root.getName()).toBe('RelayQueryTest');
         expect(root.cloneWithRoute([field], RelayMetaRoute.get('FooRoute')))
           .toBe(root);
       });

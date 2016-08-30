@@ -802,15 +802,15 @@ describe('RelayContainer.setVariables', function() {
 
       const MockInnerContainer = Relay.createContainer(MockInnerComponent, {
         fragments: {
-          entity: () => Relay.QL`  fragment on User {
-                        url(site:$site)
-                        storySearch(query:$query) {
-                          id
-                        }
-                        profilePicture(size:$size) {
-                          uri
-                        }
-                      }`,
+          entity: () => Relay.QL`fragment on User {
+            url(site: $site)
+            storySearch(query: $query) {
+              id
+            }
+            profilePicture(size: $size) {
+              uri
+            }
+          }`,
         },
         initialVariables: {
           site: 'mobile',
@@ -832,9 +832,9 @@ describe('RelayContainer.setVariables', function() {
         }
       }
 
-      MockContainer = Relay.createContainer(MockWrapperComponent, {
+      const MockWrapperContainer = Relay.createContainer(MockWrapperComponent, {
         fragments: {
-          entity: variables => Relay.QL`  fragment on User {
+          entity: variables => Relay.QL`fragment on User {
             ${MockInnerContainer.getFragment('entity', {
               query: variables.query,
               size: variables.size,
@@ -847,11 +847,11 @@ describe('RelayContainer.setVariables', function() {
         },
       });
 
-      mockInstance = RelayTestUtils.createRenderer(domContainer).render(
-        genMockPointer => <MockContainer entity={genMockPointer('42')} />,
+      const mockWrapperInstance = RelayTestUtils.createRenderer(domContainer).render(
+        genMockPointer => <MockWrapperContainer entity={genMockPointer('42')} />,
         environment
       );
-      const innerComponent = mockInstance.refs.component.refs.inner;
+      const innerComponent = mockWrapperInstance.refs.component.refs.inner;
       expect(innerComponent.state.relayProp.variables.query).toEqual({
         text: 'recent'
       });
@@ -868,14 +868,14 @@ describe('RelayContainer.setVariables', function() {
         size: [32, 64]
       });
 
-      mockInstance.setVariables({
+      mockWrapperInstance.setVariables({
         query: { text: 'recent' },
         size: [32, 64]
       });
       jest.runAllTimers();
 
       environment.primeCache.mock.requests[1].succeed();
-      expect(mockInstance.state.relayProp.variables).toEqual({
+      expect(mockWrapperInstance.state.relayProp.variables).toEqual({
         query: { text: 'recent' },
         size: [32, 64]
       });

@@ -18,6 +18,7 @@ import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
+const RelayQueryCaching = require('RelayQueryCaching');
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 
 const buildRQL = require('buildRQL');
@@ -36,6 +37,10 @@ function getRelayQueries(
   Component: RelayLazyContainer,
   route: RelayQueryConfigInterface
 ): RelayQuerySet {
+  const queryCachingEnabled = RelayQueryCaching.getEnabled();
+  if (!queryCachingEnabled) {
+    return buildQuerySet(Component, route);
+  }
   let cache = queryCache.get(Component);
   if (!cache) {
     cache = {};
@@ -45,6 +50,18 @@ function getRelayQueries(
   if (cache.hasOwnProperty(cacheKey)) {
     return cache[cacheKey];
   }
+  const querySet = buildQuerySet(Component, route);
+  cache[cacheKey] = querySet;
+  return querySet;
+}
+
+/**
+ * @internal
+ */
+function buildQuerySet(
+  Component: RelayLazyContainer,
+  route: RelayQueryConfigInterface
+): RelayQuerySet {
   const querySet = {};
   Component.getFragmentNames().forEach(fragmentName => {
     querySet[fragmentName] = null;
@@ -92,7 +109,6 @@ function getRelayQueries(
     }
     querySet[queryName] = null;
   });
-  cache[cacheKey] = querySet;
   return querySet;
 }
 

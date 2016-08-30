@@ -20,6 +20,7 @@ const Map = require('Map');
 const QueryBuilder = require('QueryBuilder');
 import type {RelayConcreteNode} from 'RelayQL';
 const RelayProfiler = require('RelayProfiler');
+const RelayQueryCaching = require('RelayQueryCaching');
 import type {RelayContainer, Variables} from 'RelayTypes';
 
 const filterObject = require('filterObject');
@@ -96,58 +97,20 @@ const buildRQL = {
     queryName: string,
     values: Variables
   ): ?ConcreteQuery {
-    let componentCache = queryCache.get(queryBuilder);
+    const queryCacheEnabled = RelayQueryCaching.getEnabled();
     let node;
-    if (!componentCache) {
-      componentCache = new Map();
-      queryCache.set(queryBuilder, componentCache);
+    if (!queryCacheEnabled) {
+      node = buildNode(queryBuilder, Component, queryName, values);
     } else {
-      node = componentCache.get(Component);
-    }
-    if (!node) {
-      const variables = toVariables(values);
-      invariant(
-        !isDeprecatedCallWithArgCountGreaterThan(queryBuilder, 2),
-        'Relay.QL: Deprecated usage detected. If you are trying to define a ' +
-        'query, use `(Component, variables) => Relay.QL`.'
-      );
-      if (isDeprecatedCallWithArgCountGreaterThan(queryBuilder, 0)) {
-        node = queryBuilder(Component, variables);
+      let componentCache = queryCache.get(queryBuilder);
+      if (!componentCache) {
+        componentCache = new Map();
+        queryCache.set(queryBuilder, componentCache);
       } else {
-        node = queryBuilder(Component, variables);
-        const query = QueryBuilder.getQuery(node);
-        if (query) {
-          let hasFragment = false;
-          let hasScalarFieldsOnly = true;
-          if (query.children) {
-            query.children.forEach(child => {
-              if (child) {
-                hasFragment = hasFragment || child.kind === 'Fragment';
-                hasScalarFieldsOnly = hasScalarFieldsOnly && (
-                  child.kind === 'Field' &&
-                  (!child.children || child.children.length === 0)
-                );
-              }
-            });
-          }
-          if (!hasFragment) {
-            const children = query.children ? [...query.children] : [];
-            invariant(
-              hasScalarFieldsOnly,
-              'Relay.QL: Expected query `%s` to be empty. For example, use ' +
-              '`node(id: $id)`, not `node(id: $id) { ... }`.',
-              query.fieldName
-            );
-            const fragmentVariables = filterObject(variables, (_, name) =>
-              Component.hasVariable(name)
-            );
-            children.push(Component.getFragment(queryName, fragmentVariables));
-            node = {
-              ...query,
-              children,
-            };
-          }
-        }
+        node = componentCache.get(Component);
+      }
+      if (!node) {
+        node = buildNode(queryBuilder, Component, queryName, values);
       }
       componentCache.set(Component, node);
     }
@@ -157,6 +120,63 @@ const buildRQL = {
     return null;
   },
 };
+
+/**
+ * @internal
+ */
+function buildNode(
+  queryBuilder: RelayQLQueryBuilder,
+  Component: any,
+  queryName: string,
+  values: Variables
+): ?mixed {
+  const variables = toVariables(values);
+  invariant(
+    !isDeprecatedCallWithArgCountGreaterThan(queryBuilder, 2),
+    'Relay.QL: Deprecated usage detected. If you are trying to define a ' +
+    'query, use `(Component, variables) => Relay.QL`.'
+  );
+  let node;
+  if (isDeprecatedCallWithArgCountGreaterThan(queryBuilder, 0)) {
+    node = queryBuilder(Component, variables);
+  } else {
+    node = queryBuilder(Component, variables);
+    const query = QueryBuilder.getQuery(node);
+    if (query) {
+      let hasFragment = false;
+      let hasScalarFieldsOnly = true;
+      if (query.children) {
+        query.children.forEach(child => {
+          if (child) {
+            hasFragment = hasFragment || child.kind === 'Fragment';
+            hasScalarFieldsOnly = hasScalarFieldsOnly && (
+              child.kind === 'Field' &&
+              (!child.children || child.children.length === 0)
+            );
+          }
+        });
+      }
+      if (!hasFragment) {
+        const children = query.children ? [...query.children] : [];
+        invariant(
+          hasScalarFieldsOnly,
+          'Relay.QL: Expected query `%s` to be empty. For example, use ' +
+          '`node(id: $id)`, not `node(id: $id) { ... }`.',
+          query.fieldName
+        );
+        const fragmentVariables = filterObject(variables, (_, name) =>
+          Component.hasVariable(name)
+        );
+        children.push(Component.getFragment(queryName, fragmentVariables));
+        node = {
+          ...query,
+          children,
+        };
+      }
+    }
+  }
+  return node;
+}
 
 function toVariables(variables: Variables): {
   [key: string]: $FlowIssue; // ConcreteCallVariable should flow into mixed

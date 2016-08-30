@@ -18,6 +18,7 @@ const RelayInternals = require('RelayInternals');
 const RelayMutation = require('RelayMutation');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayQL = require('RelayQL');
+const RelayQueryCaching = require('RelayQueryCaching');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
 const RelayRenderer = require('RelayRenderer');
@@ -52,6 +53,7 @@ const RelayPublic = {
   createContainer: RelayContainer.create,
   createQuery: createRelayQuery,
   getQueries: getRelayQueries,
+  disableQueryCaching: RelayQueryCaching.disable,
   injectNetworkLayer: RelayStore.injectNetworkLayer.bind(RelayStore),
   injectTaskScheduler: RelayStore.injectTaskScheduler.bind(RelayStore),
   isContainer: isRelayContainer,

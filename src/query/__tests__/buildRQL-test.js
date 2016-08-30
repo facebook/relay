@@ -19,6 +19,7 @@ const QueryBuilder = require('QueryBuilder');
 const React = require('React');
 const Relay = require('Relay');
 const RelayQuery = require('RelayQuery');
+const RelayQueryCaching = require('RelayQueryCaching');
 const RelayTestUtils = require('RelayTestUtils');
 
 const buildRQL = require('buildRQL');
@@ -50,6 +51,11 @@ describe('buildRQL', () => {
     });
 
     jasmine.addMatchers(RelayTestUtils.matchers);
+  });
+
+  afterEach(() => {
+    // Ensure RelayQueryCaching reverts to pristine state.
+    jest.resetModuleRegistry();
   });
 
   describe('Fragment()', () => {
@@ -188,6 +194,20 @@ describe('buildRQL', () => {
       const node1 = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
       const node2 = buildRQL.Query(builder, MockContainer2, 'foo', {id: null});
       expect(node1 === node2).toBe(false);
+    });
+
+    it('returns different queries for the same component if cache is disabled', () => {
+      RelayQueryCaching.disable();
+      const builder = Component => Relay.QL`
+        query {
+          node(id:$id) {
+            ${Component.getFragment('foo')}
+          }
+        }
+      `;
+      const node1 = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
+      const node2 = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
+      expect(node1).not.toBe(node2);
     });
 
     it('filters the variables passed to components', () => {

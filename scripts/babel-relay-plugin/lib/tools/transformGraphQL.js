@@ -32,17 +32,22 @@ function getSchema(schemaPath) {
   }
 }
 
-function transformGraphQL(schemaPath, source, filename) {
-  var relayPlugin = getBabelRelayPlugin(getSchema(schemaPath), {
+function transformGraphQL(schemaPath, source, filename, pluginOptions, babelOptions) {
+  var defaultPluginOptions = {
     debug: true,
     substituteVariables: true,
     suppressWarnings: true
-  });
-  return babel.transform(source, {
+  };
+
+  var relayPlugin = getBabelRelayPlugin(getSchema(schemaPath), Object.assign(defaultPluginOptions, pluginOptions || {}));
+
+  var defaultBabelOptions = {
     plugins: [relayPlugin],
     compact: false,
     filename: filename
-  }).code;
+  };
+
+  return babel.transform(source, Object.assign(defaultBabelOptions, babelOptions || {})).code;
 }
 
 module.exports = transformGraphQL;

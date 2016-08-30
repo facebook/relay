@@ -455,6 +455,7 @@ class RemoveTagMutation extends Relay.Mutation {
       parentID: this.props.todo.id,
       connectionName: 'tags',
       deletedIDFieldName: 'removedTagIDs',
+      pathToConnection: ['todo', 'tags'],
     }];
   }
   /* ... */

@@ -792,5 +792,99 @@ describe('RelayContainer.setVariables', function() {
         size: 48,
       });
     });
+
+    it('does not reset variables if outside props are the same', () => {
+      class MockInnerComponent extends React.Component {
+        render() {
+          return <div />;
+        }
+      }
+
+      const MockInnerContainer = Relay.createContainer(MockInnerComponent, {
+        fragments: {
+          entity: () => Relay.QL`fragment on User {
+            url(site: $site)
+            storySearch(query: $query) {
+              id
+            }
+            profilePicture(size: $size) {
+              uri
+            }
+          }`,
+        },
+        initialVariables: {
+          site: 'mobile',
+          query: undefined, // <-- Object type
+          size: undefined, // <-- Array type
+        },
+      });
+
+      class MockWrapperComponent extends React.Component {
+        render() {
+          return (
+            <MockInnerContainer
+              ref="inner"
+              query={this.props.relay.variables.query}
+              size={this.props.relay.variables.size}
+              entity={this.props.entity}
+            />
+          );
+        }
+      }
+
+      const MockWrapperContainer = Relay.createContainer(MockWrapperComponent, {
+        fragments: {
+          entity: variables => Relay.QL`fragment on User {
+            ${MockInnerContainer.getFragment('entity', {
+              query: variables.query,
+              size: variables.size,
+            })}
+          }`,
+        },
+        initialVariables: {
+          query: { text: 'recent' },
+          size: [32, 64],
+        },
+      });
+
+      const mockWrapperInstance = RelayTestUtils.createRenderer(domContainer).render(
+        genMockPointer => <MockWrapperContainer entity={genMockPointer('42')} />,
+        environment
+      );
+      const innerComponent = mockWrapperInstance.refs.component.refs.inner;
+      expect(innerComponent.state.relayProp.variables.query).toEqual({
+        text: 'recent',
+      });
+      expect(innerComponent.state.relayProp.variables.size).toEqual([32, 64]);
+
+      innerComponent.setVariables({
+        site: 'www',
+      });
+      jest.runAllTimers();
+      environment.primeCache.mock.requests[0].succeed();
+      expect(innerComponent.state.relayProp.variables).toEqual({
+        site: 'www',
+        query: { text: 'recent' },
+        size: [32, 64],
+      });
+
+      mockWrapperInstance.setVariables({
+        query: { text: 'recent' },
+        size: [32, 64],
+      });
+      jest.runAllTimers();
+
+      environment.primeCache.mock.requests[1].succeed();
+      expect(mockWrapperInstance.state.relayProp.variables).toEqual({
+        query: { text: 'recent' },
+        size: [32, 64],
+      });
+
+      expect(innerComponent.state.relayProp.variables).toEqual({
+        site: 'www',
+        query: { text: 'recent' },
+        size: [32, 64],
+      });
+    });
   });
 });

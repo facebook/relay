@@ -884,7 +884,7 @@ function resetPropOverridesForVariables(
 ): Variables {
   const initialVariables = spec.initialVariables;
   for (const key in initialVariables) {
-    if (key in props && props[key] !== variables[key]) {
+    if (key in props && !areEqual(props[key], variables[key])) {
       return initialVariables;
     }
   }

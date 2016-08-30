@@ -49,9 +49,9 @@ In Relay, data dependencies are described using [GraphQL](https://github.com/fac
 
 ```
 Relay.QL`
-  # This fragment only applies to objects of type `User`.
+  # This fragment only applies to objects of type 'User'.
   fragment on User {
-    # Set the `size` argument to a GraphQL variable named `$size` so that we can
+    # Set the 'size' argument to a GraphQL variable named '$size' so that we can
     # later change its value via the slider.
     profilePhoto(size: $size) {
       # Get the appropriate URI for the given size, for example on a CDN.
@@ -188,12 +188,12 @@ module.exports = Relay.createContainer(Profile, {
     // expected to be populated with server data by the `<Profile>` component.
     user: () => Relay.QL`
       fragment on User {
-        # Specify any fields required by `<Profile>` itself.
+        # Specify any fields required by '<Profile>' itself.
         name,
 
         # Include a reference to the fragment from the child component. Here,
-        # the `user` is the name of the fragment specified on the child
-        # `<ProfilePicture>`'s `fragments` definition.
+        # the 'user' is the name of the fragment specified on the child
+        # "<ProfilePicture>'s" 'fragments' definition.
         ${ProfilePicture.getFragment('user')},
       }
     `,

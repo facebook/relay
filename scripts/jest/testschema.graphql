@@ -168,6 +168,7 @@ type CommentCreateResponsePayload {
 type CommentDeleteResponsePayload {
   clientMutationId: String
   deletedCommentId: ID
+  deletedComment: Comment
   feedback: Feedback
 }
 

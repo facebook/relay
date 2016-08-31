@@ -103,7 +103,7 @@ function writeRelayUpdatePayload(
     }
   });
 
-  handleMerge(writer, payload, operation);
+  handleMerge(writer, payload, operation, {configs, isOptimisticUpdate});
 }
 
 /**
@@ -116,7 +116,18 @@ function handleNodeDelete(
   payload: PayloadObject,
   config: OperationConfig
 ): void {
-  const recordIDs = payload[config.deletedIDFieldName];
+  let recordIDs;
+  // support array path deletedIDFieldName
+  if (Array.isArray(config.deletedIDFieldName)) {
+    // if the deletedIDFieldName is ["deletedComment"],
+    // the path will be payload.deletedComment.id
+    recordIDs = config.deletedIDFieldName.concat(ID).reduce(
+      (node, fieldName) => (node ? node[fieldName] : null)
+    , payload);
+  } else {
+    recordIDs = payload[config.deletedIDFieldName];
+  }
+
   if (!recordIDs) {
     // for some mutations, deletions don't always occur so if there's no field
     // in the payload, carry on
@@ -174,7 +185,8 @@ function deleteRecord(
 function handleMerge(
   writer: RelayQueryWriter,
   payload: PayloadObject,
-  operation: RelayQuery.Operation
+  operation: RelayQuery.Operation,
+  {configs}: UpdateOptions
 ): void {
   const store = writer.getRecordStore();
 
@@ -187,6 +199,17 @@ function handleMerge(
     if (!Object.prototype.hasOwnProperty.call(payload, fieldName)) {
       continue;
     }
+
+    // if fieldName is part of deletedIDFieldName in some NODE_DELETE config
+    if (configs.some((config) => {
+      return config.type === RelayMutationType.NODE_DELETE &&
+        Array.isArray(config.deletedIDFieldName) &&
+        config.deletedIDFieldName.length > 0 &&
+        config.deletedIDFieldName[0] === fieldName;
+    })) {
+      continue;
+    }
+
     const payloadData = (payload[fieldName]: $FlowIssue); // #9357395
     if (typeof payloadData !== 'object' || payloadData == null) {
       continue;

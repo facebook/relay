@@ -1079,195 +1079,195 @@ describe('writeRelayUpdatePayload()', () => {
       expect(store.getField(connectionID, 'count')).toBe(0);
     });
 
-    // test cases for array path deletedIDFieldName
-    it('optimistically deletes comments, array path deletedIDFieldName', () => {
-      // create the mutation and payload
-      const input = {
-        actor_id: 'actor:123',
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        deletedCommentId: firstCommentID,
-      };
-      const mutation = getNode(Relay.QL`
-        mutation {
-          commentDelete(input:$input) {
-            deletedComment {
-              id
-            }
-            feedback {
-              id
-              topLevelComments {
-                count
+    describe('with an array path `deletedIDFieldName`', () => {
+      it('optimistically deletes comments', () => {
+        // create the mutation and payload
+        const input = {
+          actor_id: 'actor:123',
+          [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+          deletedCommentId: firstCommentID,
+        };
+        const mutation = getNode(Relay.QL`
+          mutation {
+            commentDelete(input:$input) {
+              deletedComment {
+                id
+              }
+              feedback {
+                id
+                topLevelComments {
+                  count
+                }
               }
             }
           }
-        }
-      `, {
-        input: JSON.stringify(input),
-      });
-      const configs = [{
-        type: RelayMutationType.NODE_DELETE,
-        deletedIDFieldName: ['deletedComment'],
-      }];
+        `, {
+          input: JSON.stringify(input),
+        });
+        const configs = [{
+          type: RelayMutationType.NODE_DELETE,
+          deletedIDFieldName: ['deletedComment'],
+        }];
 
-      const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
-        deletedComment: {
-          id: firstCommentID,
-        },
-        feedback: {
-          id: feedbackID,
-          topLevelComments: {
-            count: 0,
+        const payload = {
+          [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+            input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+          deletedComment: {
+            id: firstCommentID,
           },
-        },
-      };
+          feedback: {
+            id: feedbackID,
+            topLevelComments: {
+              count: 0,
+            },
+          },
+        };
 
-      // write to the queued store
-      const changeTracker = new RelayChangeTracker();
-      const queryTracker = new RelayQueryTracker();
-      const queryWriter = new RelayQueryWriter(
-        queueStore,
-        queueWriter,
-        queryTracker,
-        changeTracker,
-        {isOptimisticUpdate: true}
-      );
+        // write to the queued store
+        const changeTracker = new RelayChangeTracker();
+        const queryTracker = new RelayQueryTracker();
+        const queryWriter = new RelayQueryWriter(
+          queueStore,
+          queueWriter,
+          queryTracker,
+          changeTracker,
+          {isOptimisticUpdate: true}
+        );
 
-      writeRelayUpdatePayload(
-        queryWriter,
-        mutation,
-        payload,
-        {configs, isOptimisticUpdate: true}
-      );
+        writeRelayUpdatePayload(
+          queryWriter,
+          mutation,
+          payload,
+          {configs, isOptimisticUpdate: true}
+        );
 
-      expect(changeTracker.getChangeSet()).toEqual({
-        created: {},
-        updated: {
-          [connectionID]: true, // range item deleted & count changed
-          [firstEdgeID]: true, // edge deleted
-          [firstCommentID]: true, // node deleted
-        },
+        expect(changeTracker.getChangeSet()).toEqual({
+          created: {},
+          updated: {
+            [connectionID]: true, // range item deleted & count changed
+            [firstEdgeID]: true, // edge deleted
+            [firstCommentID]: true, // node deleted
+          },
+        });
+
+        // node is deleted
+        expect(queueStore.getRecordState(firstCommentID)).toBe('NONEXISTENT');
+        expect(queueStore.getRecordState(secondCommentID)).toBe('EXISTENT');
+        // corresponding edge is deleted for every range this node appears in
+        expect(queueStore.getRecordState(firstEdgeID)).toBe('NONEXISTENT');
+        expect(queueStore.getRecordState(secondEdgeID)).toBe('EXISTENT');
+        // the range no longer returns this edge
+        expect(queueStore.getRangeMetadata(
+          connectionID,
+          [{name: 'first', value: '2'}]
+        ).filteredEdges.map(edge => edge.edgeID)).toEqual([
+          secondEdgeID,
+        ]);
+        // connection metadata is merged into the queued store
+        expect(queueStore.getField(connectionID, 'count')).toBe(0);
+
+        // base records are not modified: node & edge exist, the edge is still
+        // in the range, and the connection metadata is unchanged
+        expect(store.getRecordState(firstCommentID)).toBe('EXISTENT');
+        expect(store.getRecordState(secondCommentID)).toBe('EXISTENT');
+        expect(store.getRecordState(firstEdgeID)).toBe('EXISTENT');
+        expect(store.getRecordState(secondEdgeID)).toBe('EXISTENT');
+        expect(store.getField(connectionID, 'count')).toBe(1);
+        expect(store.getRangeMetadata(
+          connectionID,
+          [{name: 'first', value: '2'}]
+        ).filteredEdges.map(edge => edge.edgeID)).toEqual([
+          firstEdgeID,
+          secondEdgeID,
+        ]);
       });
 
-      // node is deleted
-      expect(queueStore.getRecordState(firstCommentID)).toBe('NONEXISTENT');
-      expect(queueStore.getRecordState(secondCommentID)).toBe('EXISTENT');
-      // corresponding edge is deleted for every range this node appears in
-      expect(queueStore.getRecordState(firstEdgeID)).toBe('NONEXISTENT');
-      expect(queueStore.getRecordState(secondEdgeID)).toBe('EXISTENT');
-      // the range no longer returns this edge
-      expect(queueStore.getRangeMetadata(
-        connectionID,
-        [{name: 'first', value: '2'}]
-      ).filteredEdges.map(edge => edge.edgeID)).toEqual([
-        secondEdgeID,
-      ]);
-      // connection metadata is merged into the queued store
-      expect(queueStore.getField(connectionID, 'count')).toBe(0);
-
-      // base records are not modified: node & edge exist, the edge is still
-      // in the range, and the connection metadata is unchanged
-      expect(store.getRecordState(firstCommentID)).toBe('EXISTENT');
-      expect(store.getRecordState(secondCommentID)).toBe('EXISTENT');
-      expect(store.getRecordState(firstEdgeID)).toBe('EXISTENT');
-      expect(store.getRecordState(secondEdgeID)).toBe('EXISTENT');
-      expect(store.getField(connectionID, 'count')).toBe(1);
-      expect(store.getRangeMetadata(
-        connectionID,
-        [{name: 'first', value: '2'}]
-      ).filteredEdges.map(edge => edge.edgeID)).toEqual([
-        firstEdgeID,
-        secondEdgeID,
-      ]);
-    });
-
-    it('non-optimistically deletes comments, array path deletedIDFieldName', () => {
-      // create the mutation and payload
-      const input = {
-        actor_id: 'actor:123',
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
-        deletedCommentId: firstCommentID,
-      };
-      const mutation = getNode(Relay.QL`
-        mutation {
-          commentDelete(input:$input) {
-            deletedComment {
-              id
-            }
-            feedback {
-              id
-              topLevelComments {
-                count
+      it('non-optimistically deletes comments', () => {
+        // create the mutation and payload
+        const input = {
+          actor_id: 'actor:123',
+          [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+          deletedCommentId: firstCommentID,
+        };
+        const mutation = getNode(Relay.QL`
+          mutation {
+            commentDelete(input:$input) {
+              deletedComment {
+                id
+              }
+              feedback {
+                id
+                topLevelComments {
+                  count
+                }
               }
             }
           }
-        }
-      `, {
-        input: JSON.stringify(input),
-      });
-      const configs = [{
-        type: RelayMutationType.NODE_DELETE,
-        deletedIDFieldName: ['deletedComment'],
-      }];
+        `, {
+          input: JSON.stringify(input),
+        });
+        const configs = [{
+          type: RelayMutationType.NODE_DELETE,
+          deletedIDFieldName: ['deletedComment'],
+        }];
 
-      const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
-        deletedComment: {
-          id: firstCommentID,
-        },
-        feedback: {
-          id: feedbackID,
-          topLevelComments: {
-            count: 0,
+        const payload = {
+          [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+            input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+          deletedComment: {
+            id: firstCommentID,
           },
-        },
-      };
+          feedback: {
+            id: feedbackID,
+            topLevelComments: {
+              count: 0,
+            },
+          },
+        };
 
-      // write to the base store
-      const changeTracker = new RelayChangeTracker();
-      const queryTracker = new RelayQueryTracker();
-      const queryWriter = new RelayQueryWriter(
-        store,
-        writer,
-        queryTracker,
-        changeTracker
-      );
+        // write to the base store
+        const changeTracker = new RelayChangeTracker();
+        const queryTracker = new RelayQueryTracker();
+        const queryWriter = new RelayQueryWriter(
+          store,
+          writer,
+          queryTracker,
+          changeTracker
+        );
 
-      writeRelayUpdatePayload(
-        queryWriter,
-        mutation,
-        payload,
-        {configs, isOptimisticUpdate: false}
-      );
+        writeRelayUpdatePayload(
+          queryWriter,
+          mutation,
+          payload,
+          {configs, isOptimisticUpdate: false}
+        );
 
-      expect(changeTracker.getChangeSet()).toEqual({
-        created: {},
-        updated: {
-          [connectionID]: true, // range item deleted & count changed
-          [firstEdgeID]: true, // edge deleted
-          [firstCommentID]: true, // node deleted
-        },
+        expect(changeTracker.getChangeSet()).toEqual({
+          created: {},
+          updated: {
+            [connectionID]: true, // range item deleted & count changed
+            [firstEdgeID]: true, // edge deleted
+            [firstCommentID]: true, // node deleted
+          },
+        });
+
+        // node is deleted
+        expect(store.getRecordState(firstCommentID)).toBe('NONEXISTENT');
+        expect(store.getRecordState(secondCommentID)).toBe('EXISTENT');
+        // corresponding edge is deleted for every range this node appears in
+        expect(store.getRecordState(firstEdgeID)).toBe('NONEXISTENT');
+        expect(store.getRecordState(secondEdgeID)).toBe('EXISTENT');
+        // the range no longer returns this edge
+        expect(store.getRangeMetadata(
+          connectionID,
+          [{name: 'first', value: '1'}]
+        ).filteredEdges.map(edge => edge.edgeID)).toEqual([
+          secondEdgeID,
+        ]);
+        // connection metadata is merged into the queued store
+        expect(store.getField(connectionID, 'count')).toBe(0);
       });
-
-      // node is deleted
-      expect(store.getRecordState(firstCommentID)).toBe('NONEXISTENT');
-      expect(store.getRecordState(secondCommentID)).toBe('EXISTENT');
-      // corresponding edge is deleted for every range this node appears in
-      expect(store.getRecordState(firstEdgeID)).toBe('NONEXISTENT');
-      expect(store.getRecordState(secondEdgeID)).toBe('EXISTENT');
-      // the range no longer returns this edge
-      expect(store.getRangeMetadata(
-        connectionID,
-        [{name: 'first', value: '1'}]
-      ).filteredEdges.map(edge => edge.edgeID)).toEqual([
-        secondEdgeID,
-      ]);
-      // connection metadata is merged into the queued store
-      expect(store.getField(connectionID, 'count')).toBe(0);
     });
-
   });
 
   describe('plural node delete mutation', () => {
@@ -1450,8 +1450,6 @@ describe('writeRelayUpdatePayload()', () => {
       expect(store.getRecordState(thirdRequestID)).toBe('EXISTENT');
     });
   });
-
-
 
   describe('range add mutations', () => {
     let connectionID;

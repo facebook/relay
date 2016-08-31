@@ -201,12 +201,12 @@ function handleMerge(
     }
 
     // if fieldName is part of deletedIDFieldName in some NODE_DELETE config
-    if (configs.some((config) => {
-      return config.type === RelayMutationType.NODE_DELETE &&
-        Array.isArray(config.deletedIDFieldName) &&
-        config.deletedIDFieldName.length > 0 &&
-        config.deletedIDFieldName[0] === fieldName;
-    })) {
+    if (configs.some(config => (
+      config.type === RelayMutationType.NODE_DELETE &&
+      Array.isArray(config.deletedIDFieldName) &&
+      config.deletedIDFieldName.length &&
+      config.deletedIDFieldName[0] === fieldName
+    ))) {
       continue;
     }
 

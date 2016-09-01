@@ -1,5 +1,21 @@
 # master
 
+## 0.9.3 (September 1, 2016)
+
+* Fix issue where containers would forget variables previously set with `setVariables`, specifically when using array/object variables (closes [#1357](https://github.com/facebook/relay/issues/1357)).
+* Add `Relay.disableQueryCaching` API (closes [#754](https://github.com/facebook/relay/issues/754)), which may be useful running Relay in a server context.
+* Suppress spurious warning when using `IGNORE` as a `rangeBehavior` (closes [#1337](https://github.com/facebook/relay/issues/1337)).
+* Use a more accurate query name based on current route in `RelayQuery.cloneWithRoute` (see commit [de954992](https://github.com/facebook/relay/commit/de95499215827667b301160588976f2d3355dee6)), making logging and analytics that relies on query names more accurate.
+* `RelayNetworkDebug` now prints an estimated request size (see commit [b94ba409](https://github.com/facebook/relay/commit/b94ba409fbe1a12b2d9e389598ea3859d9de1b75)).
+* Preserve type information in `callsToGraphQL`/`callsFromGraphQL`, fixing issues with `null` (closes [#1256](https://github.com/facebook/relay/issues/1256)).
+* Fix a subtle ordering issue by writing linked IDs before traversing plural linked fields; this solves a rare edge case where data could be written to the wrong ID given a recursive query (see commit [be45692f](https://github.com/facebook/relay/commit/be45692f7c784a30379fef5e49cd376b2a9a0af2)).
+* Expose `injectCacheManager` on `RelayEnvironment` (closes [#1320](https://github.com/facebook/relay/pull/1320)).
+* Expose `Relay.QueryConfig` (closes [#1279](https://github.com/facebook/relay/pull/1279)).
+* Ensure that instances of `GraphQLRange` get correctly deserialized (closes [#1293](https://github.com/facebook/relay/issues/1293)).
+* Fix a case where tracked nodes would incorrectly trigger a refetch of plural fields with null linked field children (see commit [5c08fd60](https://github.com/facebook/relay/commit/5c08fd6052be38c905938b71615d117c80843995)).
+* Make error-handling consistent between 200 status responses with `errors` attributes and non-200 responses ([#1163](https://github.com/facebook/relay/pull/1163)).
+* Warn when producing a diff query involving a `client:` ID, necessitating the use of a path when a refetchable ID would be preferable in order to produce a correct result (commit [928411df](https://github.com/facebook/relay/commit/928412df5605c697281bad433350d88a2ede791c)).
+
 ## 0.9.2 (July 11, 2016)
 
 * Added a context property `useFakeData` that you can use to silence the warning when using a `RelayContainer` with fake data.

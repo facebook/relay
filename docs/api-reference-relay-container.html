@@ -99,13 +99,13 @@ initialVariables<span class="token punctuation">:</span> <span class="token punc
 module<span class="token punctuation">.</span>exports <span class="token operator">=</span> Relay<span class="token punctuation">.</span><span class="token function">createContainer</span><span class="token punctuation">(</span>ProfilePicture<span class="token punctuation">,</span> <span class="token punctuation">{</span>
   initialVariables<span class="token punctuation">:</span> <span class="token punctuation">{</span>size<span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
   fragments<span class="token punctuation">:</span> <span class="token punctuation">{</span>
-    user<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL<span class="token template-string"><span class="token string">`
-      # The variable defined above is available here as `</span></span>$size<span class="token template-string"><span class="token string">`.
-      # Any variable referenced here is required to have been defined in initialVariables above.
-      # An `</span></span>undefined<span class="token template-string"><span class="token string">` variable value will throw an `</span></span>Invariant Violation<span class="token template-string"><span class="token string">` exception.
-      # Use `</span></span><span class="token keyword">null</span><span class="token template-string"><span class="token string">` to initialize unknown values.
-      fragment on User { profilePicture(size: $size) { ... } }
-    `</span></span><span class="token punctuation">,</span>
+    user<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> Relay<span class="token punctuation">.</span>QL`
+      # The variable defined above is available here <span class="token keyword">as</span> <span class="token string">&#x27;$size&#x27;</span><span class="token punctuation">.</span>
+      # Any variable referenced here is required to have been defined <span class="token keyword">in</span> initialVariables above<span class="token punctuation">.</span>
+      # An <span class="token string">&#x27;undefined&#x27;</span> variable value will <span class="token keyword">throw</span> an <span class="token string">&#x27;Invariant Violation&#x27;</span> exception<span class="token punctuation">.</span>
+      # Use <span class="token string">&#x27;null&#x27;</span> to initialize unknown values<span class="token punctuation">.</span>
+      fragment on User <span class="token punctuation">{</span> <span class="token function">profilePicture</span><span class="token punctuation">(</span>size<span class="token punctuation">:</span> $size<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>
+    `<span class="token punctuation">,</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><div class="line-highlight" style="height:20px;top:60px;"></div></pre><p>In this example, <code>profilePicture(size: 50)</code> will be fetched for the intial render.</p><h3><a class="anchor" name="preparevariables"></a>prepareVariables <a class="hash-link" href="#preparevariables">#</a></h3><pre class="prism language-javascript">
 prepareVariables<span class="token punctuation">:</span> <span class="token operator">?</span><span class="token punctuation">(</span>

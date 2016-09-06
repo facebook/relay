@@ -21,6 +21,7 @@
 function isReactComponent(component: mixed): boolean {
   return !!(
     component &&
+    typeof component.prototype === 'object' &&
     component.prototype &&
     component.prototype.isReactComponent
   );

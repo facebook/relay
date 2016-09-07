@@ -293,12 +293,11 @@ describe('RelayContainer.setVariables', function() {
     });
 
     it('re-renders when there are pendingVariables', () => {
-      const before = render.mock.calls.length;
-      expect(render.mock.calls.length).toBe(1);
+      render.mockClear();
       mockInstance.setVariables({site: 'www'});
       jest.runAllTimers();
       environment.primeCache.mock.requests[0].block();
-      expect(render.mock.calls.length - before).toBe(1);
+      expect(render.mock.calls.length).toBe(1);
     });
 
     it('sets pendingVariables when request is in-flight', () => {

@@ -42,6 +42,7 @@ const HAS_NEXT_PAGE = 'hasNextPage';
 const HAS_PREV_PAGE = 'hasPreviousPage';
 const NODE = 'node';
 const PAGE_INFO = 'pageInfo';
+const PAGE_INFO_TYPE = 'PageInfo';
 const REQUIRED_RANGE_CALLS = {
   'find': true,
   'first': true,
@@ -63,6 +64,7 @@ const RelayOSSConnectionInterface = {
   HAS_PREV_PAGE,
   NODE,
   PAGE_INFO,
+  PAGE_INFO_TYPE,
   START_CURSOR,
 
   /**

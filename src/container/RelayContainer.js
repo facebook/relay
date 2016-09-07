@@ -771,7 +771,6 @@ function createContainerComponent(
 
       const fragmentPointers = this._fragmentPointers;
       return (
-        !!nextState.relayProp.pendingVariables ||
         !RelayContainerComparators.areNonQueryPropsEqual(
           fragments,
           this.props,
@@ -788,6 +787,10 @@ function createContainerComponent(
         !RelayContainerComparators.areQueryVariablesEqual(
           this.state.relayProp.variables,
           nextState.relayProp.variables
+        ) ||
+        !RelayContainerComparators.areQueryVariablesEqual(
+          this.state.relayProp.pendingVariables,
+          nextState.relayProp.pendingVariables
         )
       );
     }

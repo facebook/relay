@@ -69,6 +69,7 @@ type Viewer {
   newsFeed(first: Int): NewsFeedConnection
   pendingPosts(first: Int): PendingPostsConnection
   actor: User
+  actorByName(name: String!): Actor
 }
 
 type ConfigsConnection {

@@ -270,13 +270,6 @@ class RelayQLTransformer {
           'graphql/validation/rules/VariablesInAllowedPosition'
         ).VariablesInAllowedPosition,
       ];
-      if (!isMutation) {
-        rules.push(
-          require(
-            'graphql/validation/rules/ProvidedNonNullArguments'
-          ).ProvidedNonNullArguments
-        );
-      }
       validationErrors = validate(this.schema, document, rules);
     }
 

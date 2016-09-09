@@ -29,6 +29,10 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 - [Junglejobs](http://www.junglejobs.ru/)
 - [Jusbrasil](http://jusbrasil.com.br/)
 
+## M
+
+- [M1 Finance](https://www.m1finance.com/)
+
 ## N
 
 - [Notarize](http://www.notarize.com/)

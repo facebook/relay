@@ -11,6 +11,8 @@
 
 'use strict';
 
+jest.useFakeTimers();
+
 require('configureForRelayOSS');
 
 const Relay = require('Relay');
@@ -105,9 +107,9 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('sends correct data to server', () => {
-      expect(fetch).not.toBeCalled();
+      expect(fetch.mock.calls.length).toBe(0);
       networkLayer.sendMutation(request);
-      expect(fetch).toBeCalled();
+      expect(fetch.mock.calls.length).toBeGreaterThan(0);
 
       const call = fetch.mock.calls[0];
       expect(call[0]).toBe(networkConfig.uri);
@@ -136,9 +138,9 @@ describe('RelayDefaultNetworkLayer', () => {
         },
       };
 
-      expect(fetch).not.toBeCalled();
+      expect(fetch.mock.calls.length).toBe(0);
       networkLayer.sendMutation(request);
-      expect(fetch).toBeCalled();
+      expect(fetch.mock.calls.length).toBeGreaterThan(0);
 
       fetch.mock.deferreds[0].resolve(genResponse(response));
       jest.runAllTimers();
@@ -161,9 +163,9 @@ describe('RelayDefaultNetworkLayer', () => {
         }],
       };
 
-      expect(fetch).not.toBeCalled();
+      expect(fetch.mock.calls.length).toBe(0);
       networkLayer.sendMutation(request);
-      expect(fetch).toBeCalled();
+      expect(fetch.mock.calls.length).toBeGreaterThan(0);
 
       fetch.mock.deferreds[0].resolve(genResponse(response));
       jest.runAllTimers();
@@ -220,9 +222,9 @@ describe('RelayDefaultNetworkLayer', () => {
         }],
       };
 
-      expect(fetch).not.toBeCalled();
+      expect(fetch.mock.calls.length).toBe(0);
       networkLayer.sendMutation(request);
-      expect(fetch).toBeCalled();
+      expect(fetch.mock.calls.length).toBeGreaterThan(0);
 
       fetch.mock.deferreds[0].resolve(genResponse(response));
       jest.runAllTimers();
@@ -247,9 +249,9 @@ describe('RelayDefaultNetworkLayer', () => {
         }],
       };
 
-      expect(fetch).not.toBeCalled();
+      expect(fetch.mock.calls.length).toBe(0);
       networkLayer.sendMutation(request);
-      expect(fetch).toBeCalled();
+      expect(fetch.mock.calls.length).toBeGreaterThan(0);
       const failureResponse = genFailureResponse(response);
 
       fetch.mock.deferreds[0].resolve(failureResponse);
@@ -288,9 +290,9 @@ describe('RelayDefaultNetworkLayer', () => {
     });
 
     it('invokes `fetchWithRetries` with the correct values', () => {
-      expect(fetchWithRetries).not.toBeCalled();
+      expect(fetchWithRetries.mock.calls.length).toBe(0);
       networkLayer.sendQueries([requestA]);
-      expect(fetchWithRetries).toBeCalled();
+      expect(fetchWithRetries.mock.calls.length).toBeGreaterThan(0);
       const call = fetchWithRetries.mock.calls[0];
       expect(call[0]).toBe(networkConfig.uri);
       const {body, fetchTimeout, headers, method, retryDelays} = call[1];
@@ -350,7 +352,7 @@ describe('RelayDefaultNetworkLayer', () => {
       });
       jest.runAllTimers();
 
-      expect(rejectCallback).toBeCalled();
+      expect(rejectCallback.mock.calls.length).toBeGreaterThan(0);
 
       expect(rejectCallback.mock.calls[0][0].message).toEqual(
         RelayTestUtils.getJSONTokenError('/', 2)
@@ -376,7 +378,7 @@ describe('RelayDefaultNetworkLayer', () => {
       fetchWithRetries.mock.deferreds[0].resolve(genResponse(payloadA));
       jest.runAllTimers();
 
-      expect(rejectCallback).toBeCalled();
+      expect(rejectCallback.mock.calls.length).toBeGreaterThan(0);
       const error = rejectCallback.mock.calls[0][0];
       expect(error.message).toEqual([
         'Server request for query `RelayDefaultNetworkLayer` failed for the ' +
@@ -405,8 +407,8 @@ describe('RelayDefaultNetworkLayer', () => {
       fetchWithRetries.mock.deferreds[1].resolve(genResponse(payload));
       jest.runAllTimers();
 
-      expect(resolveBCallback).toBeCalled();
-      expect(rejectACallback).toBeCalled();
+      expect(resolveBCallback.mock.calls.length).toBeGreaterThan(0);
+      expect(rejectACallback.mock.calls.length).toBeGreaterThan(0);
       expect(rejectACallback.mock.calls[0][0].message).toEqual(
         'Server response was missing for query `RelayDefaultNetworkLayer`.'
       );

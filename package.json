@@ -59,7 +59,7 @@
     "gulp-flatten": "^0.3.0",
     "gulp-header": "1.8.7",
     "gulp-util": "^3.0.7",
-    "jest": "^14.0.0",
+    "jest": "^15.1.1",
     "object-assign": "^4.1.0",
     "react": "^15.1.0",
     "react-addons-test-utils": "^15.0.0",
@@ -75,8 +75,8 @@
   "jest": {
     "rootDir": "",
     "scriptPreprocessor": "scripts/jest/preprocessor.js",
-    "setupEnvScriptFile": "node_modules/fbjs-scripts/jest/environment.js",
-    "persistModuleRegistryBetweenSpecs": true,
+    "setupFiles": ["node_modules/fbjs-scripts/jest/environment.js"],
+    "automock": true,
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
       "<rootDir>/src/(.*).native.js",

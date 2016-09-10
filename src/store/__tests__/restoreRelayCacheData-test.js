@@ -11,6 +11,9 @@
 
 'use strict';
 
+jest.mock('warning');
+jest.useFakeTimers();
+
 require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');

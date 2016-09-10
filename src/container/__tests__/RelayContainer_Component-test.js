@@ -11,6 +11,8 @@
 
 'use strict';
 
+jest.mock('warning');
+
 require('configureForRelayOSS');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');

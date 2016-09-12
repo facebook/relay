@@ -106,6 +106,24 @@ const RelayFragmentPointer = {
     return false;
   },
 
+  getVariablesForID(record: Record, fragmentID: string): ?Variables {
+    const fragmentMap = record.__fragments__;
+    if (typeof fragmentMap === 'object' && fragmentMap != null) {
+      const variables = fragmentMap[fragmentID];
+      if (variables) {
+        invariant(
+          Array.isArray(variables) &&
+          variables.length === 1,
+          'RelayFragmentPointer: Expected an array with at most one set of ' +
+          'variables per concrete fragment, got %s.',
+          variables
+        );
+        return (variables[0]: any);
+      }
+    }
+    return null;
+  },
+
   /**
    * Returns the list of variables whose results are available for the given
    * concrete fragment.

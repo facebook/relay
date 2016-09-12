@@ -41,6 +41,10 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 
 - [OpenGov](http://opengov.com/)
 
+## P
+
+- [Playlyfe](https://catalyst.playlyfe.com/)
+
 ## R
 
 - [RelateRocket](https://relaterocket.co/)

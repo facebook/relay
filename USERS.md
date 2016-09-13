@@ -15,6 +15,7 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 ## A
 
 - [AlphaSights](https://engineering.alphasights.com/)
+- [Artsy](https://artsy.github.io/series/react-native-at-artsy/)
 
 ## B
 

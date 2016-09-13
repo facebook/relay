@@ -20,6 +20,10 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 
 - [Beek](https://www.beek.io)
 
+## C
+
+- [chloe + isabel](https://www.chloeandisabel.com)
+
 ## F
 
 - [Facebook](https://www.facebook.com/)

@@ -201,6 +201,12 @@ class RelayGraphQLMutation {
     return this._transaction.commit(configs);
   }
 
+  rollback(): void {
+    if (this._transaction) {
+      return this._transaction.rollback();
+    }
+  }
+
   _createTransaction(
     optimisticQuery: ?RelayConcreteNode,
     optimisticResponse: ?Object,
@@ -358,6 +364,10 @@ class PendingGraphQLTransaction {
       this._optimisticConfigs = configs;
     }
     return this.mutationTransaction.applyOptimistic();
+  }
+
+  rollback(): void {
+    this.mutationTransaction.rollback();
   }
 
   _getVariables(): Variables {

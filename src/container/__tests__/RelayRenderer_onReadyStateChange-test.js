@@ -13,6 +13,7 @@
 
 require('configureForRelayOSS');
 
+jest.useFakeTimers();
 jest.unmock('RelayRenderer');
 
 const React = require('React');

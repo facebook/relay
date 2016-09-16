@@ -13,6 +13,7 @@
 
 require('configureForRelayOSS');
 
+jest.useFakeTimers();
 jest.unmock('RelayNetworkLayer');
 
 const Deferred = require('Deferred');

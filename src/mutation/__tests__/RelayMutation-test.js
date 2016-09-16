@@ -13,8 +13,8 @@
 
 require('configureForRelayOSS');
 
-jest
-  .unmock('RelayMutation');
+jest.mock('warning');
+jest.unmock('RelayMutation');
 
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');

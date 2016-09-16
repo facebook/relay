@@ -13,6 +13,7 @@
 
 require('configureForRelayOSS');
 
+jest.mock('warning');
 jest
   .unmock('GraphQLRange')
   .unmock('GraphQLSegment');

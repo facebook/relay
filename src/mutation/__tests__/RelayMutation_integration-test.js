@@ -13,7 +13,8 @@
 
 require('configureForRelayOSS');
 
-jest.autoMockOff();
+jest.useFakeTimers();
+jest.disableAutomock();
 
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
@@ -238,4 +239,3 @@ describe('RelayMutation', () => {
     });
   });
 });
-

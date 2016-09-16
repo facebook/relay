@@ -13,6 +13,7 @@
 
 require('configureForRelayOSS');
 
+jest.useFakeTimers();
 jest
   .unmock('RelayStoreData')
   .unmock('GraphQLStoreChangeEmitter')

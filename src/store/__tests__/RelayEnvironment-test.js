@@ -11,6 +11,7 @@
 
 'use strict';
 
+jest.useFakeTimers();
 jest.unmock('RelayEnvironment');
 
 require('configureForRelayOSS');

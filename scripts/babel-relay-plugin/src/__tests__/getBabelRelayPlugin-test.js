@@ -11,7 +11,7 @@
 
 'use strict';
 
-jest.autoMockOff();
+jest.disableAutomock();
 
 const path = require('path');
 const readFixtures = require('../tools/readFixtures');

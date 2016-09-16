@@ -1,8 +1,8 @@
 Input:
 var Relay = require('react-relay');
 var x = Relay.QL`
-  fragment on Viewer {
-    actorByName @relay(pattern: true) {
+  fragment on Viewer @relay(pattern: true) {
+    actorByName {
       name
     }
   }
@@ -12,7 +12,7 @@ Output:
 'use strict';
 
 var Relay = require('react-relay');
-var x = function () {
+var x = function() {
   return {
     children: [{
       children: [{
@@ -57,7 +57,6 @@ var x = function () {
       fieldName: 'actorByName',
       kind: 'Field',
       metadata: {
-        pattern: true,
         canHaveSubselections: true,
         isAbstract: true
       },
@@ -65,7 +64,9 @@ var x = function () {
     }],
     id: Relay.QL.__id(),
     kind: 'Fragment',
-    metadata: {},
+    metadata: {
+      pattern: true
+    },
     name: 'FragmentPatternRelayQL',
     type: 'Viewer'
   };

@@ -32,6 +32,7 @@ var RelayQLQuery = _require.RelayQLQuery;
 var RelayQLSubscription = _require.RelayQLSubscription;
 
 var RelayQLPrinter = require('./RelayQLPrinter');
+var GraphQLRelayDirective = require('./GraphQLRelayDirective');
 
 var invariant = require('./invariant');
 var util = require('util');
@@ -170,6 +171,11 @@ var RelayQLTransformer = function () {
       invariant(document.definitions.length === 1, 'You supplied a GraphQL document named `%s` with %d definitions, but ' + 'it must have exactly one definition.', documentName, document.definitions.length);
       var definition = document.definitions[0];
       var isMutation = definition.kind === 'OperationDefinition' && definition.operation === 'mutation';
+      var isPattern = definition.kind === 'FragmentDefinition' && (definition.directives || []).some(function (directive) {
+        return directive.name.value === GraphQLRelayDirective.name && (directive.arguments || []).some(function (arg) {
+          return arg.name.value === 'pattern' && arg.value.kind === 'BooleanValue' && arg.value.value;
+        });
+      });
 
       var validator = this.options.validator;
       var validationErrors = void 0;
@@ -181,6 +187,9 @@ var RelayQLTransformer = function () {
         validationErrors = _validate(this.schema, document);
       } else {
         var rules = [require('graphql/validation/rules/ArgumentsOfCorrectType').ArgumentsOfCorrectType, require('graphql/validation/rules/DefaultValuesOfCorrectType').DefaultValuesOfCorrectType, require('graphql/validation/rules/FieldsOnCorrectType').FieldsOnCorrectType, require('graphql/validation/rules/FragmentsOnCompositeTypes').FragmentsOnCompositeTypes, require('graphql/validation/rules/KnownArgumentNames').KnownArgumentNames, require('graphql/validation/rules/KnownTypeNames').KnownTypeNames, require('graphql/validation/rules/PossibleFragmentSpreads').PossibleFragmentSpreads, require('graphql/validation/rules/VariablesInAllowedPosition').VariablesInAllowedPosition];
+        if (!isMutation && !isPattern) {
+          rules.push(require('graphql/validation/rules/ProvidedNonNullArguments').ProvidedNonNullArguments);
+        }
         validationErrors = validate(this.schema, document, rules);
       }
 

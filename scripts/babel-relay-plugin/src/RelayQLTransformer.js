@@ -28,6 +28,7 @@ const {
   RelayQLSubscription,
 } = require('./RelayQLAST');
 const RelayQLPrinter = require('./RelayQLPrinter');
+const GraphQLRelayDirective = require('./GraphQLRelayDirective');
 
 const invariant = require('./invariant');
 const util = require('util');
@@ -237,6 +238,16 @@ class RelayQLTransformer {
     const isMutation =
       definition.kind === 'OperationDefinition' &&
       definition.operation === 'mutation';
+    const isPattern =
+      definition.kind === 'FragmentDefinition' &&
+      (definition.directives || []).some(
+        directive => directive.name.value === GraphQLRelayDirective.name &&
+          (directive.arguments || []).some(
+            arg => arg.name.value === 'pattern' &&
+              arg.value.kind === 'BooleanValue' &&
+              arg.value.value
+          )
+      );
 
     const validator = this.options.validator;
     let validationErrors;
@@ -270,6 +281,13 @@ class RelayQLTransformer {
           'graphql/validation/rules/VariablesInAllowedPosition'
         ).VariablesInAllowedPosition,
       ];
+      if (!isMutation && !isPattern) {
+        rules.push(
+          require(
+            'graphql/validation/rules/ProvidedNonNullArguments'
+          ).ProvidedNonNullArguments
+        );
+      }
       validationErrors = validate(this.schema, document, rules);
     }
 

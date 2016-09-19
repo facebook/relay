@@ -344,7 +344,7 @@ You can also pass variables to the mutation's fragment builder from the outer fr
 class Movie extends React.Component {
   /* ... */
   static fragments = {
-    movie: () => Relay.QL`
+    movie: (variables) => Relay.QL`
       fragment on Movie {
         posterImage(lang: $lang) { url },
         trailerVideo(format: $format, lang: $lang) { url },

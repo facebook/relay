@@ -1,0 +1,73 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  fragment on Viewer @relay(pattern: true) {
+    actorByName {
+      name
+    }
+  }
+`;
+
+Output:
+'use strict';
+
+var Relay = require('react-relay');
+var x = function() {
+  return {
+    children: [{
+      children: [{
+        fieldName: 'name',
+        kind: 'Field',
+        metadata: {},
+        type: 'String'
+      }, {
+        fieldName: '__typename',
+        kind: 'Field',
+        metadata: {
+          isGenerated: true,
+          isRequisite: true
+        },
+        type: 'String'
+      }, {
+        children: [{
+          fieldName: 'id',
+          kind: 'Field',
+          metadata: {
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: 'String'
+        }, {
+          fieldName: '__typename',
+          kind: 'Field',
+          metadata: {
+            isGenerated: true,
+            isRequisite: true
+          },
+          type: 'String'
+        }],
+        id: Relay.QL.__id(),
+        kind: 'Fragment',
+        metadata: {
+          isAbstract: true
+        },
+        name: 'IdFragment',
+        type: 'Node'
+      }],
+      fieldName: 'actorByName',
+      kind: 'Field',
+      metadata: {
+        canHaveSubselections: true,
+        isAbstract: true
+      },
+      type: 'Actor'
+    }],
+    id: Relay.QL.__id(),
+    kind: 'Fragment',
+    metadata: {
+      pattern: true
+    },
+    name: 'FragmentPatternRelayQL',
+    type: 'Viewer'
+  };
+}();

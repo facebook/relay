@@ -8,9 +8,8 @@
  */
 
 import 'babel-polyfill';
-import 'graphiql/graphiql.css';
-
 import GraphiQL from 'graphiql';
+import 'graphiql/graphiql.css';
 import React from 'react'; window.React = React;
 import ReactDOM from 'react-dom';
 

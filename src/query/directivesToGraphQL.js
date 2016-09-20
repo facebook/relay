@@ -12,9 +12,10 @@
 
 'use strict';
 
+const QueryBuilder = require('QueryBuilder');
+
 import type {ConcreteDirective} from 'ConcreteQuery';
 import type {Directive} from 'RelayInternalTypes';
-const QueryBuilder = require('QueryBuilder');
 
 /**
  * @internal

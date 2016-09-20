@@ -18,9 +18,10 @@ const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryTransform = require('RelayQueryTransform');
 const RelayRefQueryDescriptor = require('RelayRefQueryDescriptor');
-import type {NodePath} from 'RelayRefQueryDescriptor';
 
 const invariant = require('invariant');
+
+import type {NodePath} from 'RelayRefQueryDescriptor';
 
 export type SplitQueries = {
   __nodePath__: NodePath,

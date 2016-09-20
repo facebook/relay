@@ -19,71 +19,8 @@
  */
 
 import typeof GraphQLMutatorConstants from 'GraphQLMutatorConstants';
+
 import type RelayQuery from 'RelayQuery';
-
-export type Call = {
-  name: string,
-  type?: string,
-  value: CallValue,
-};
-export type CallValue = ?(
-  boolean |
-  number |
-  string |
-  {[key: string]: CallValue} |
-  Array<CallValue>
-);
-
-export type ClientMutationID = string;
-
-export type DataID = string;
-
-export type Directive = {
-  args: Array<Call>,
-  name: string,
-};
-
-export type FieldValue = mixed;
-
-export type MutationVariables = {
-  input: {[key: string]: mixed},
-};
-
-export type PrintedQuery = {
-  text: string,
-  variables: {[key: string]: mixed},
-};
-
-// Maps root calls to a single data ID through an indentifying arg (or EMPTY)
-// eg. username(name: "joe")   => '123'
-//     username(name: "steve") => '456'
-//     viewer                  => '456'
-type IdentifyingArgsMap = {[identifyingArgValue: string]: DataID};
-export type RootCallMap = {[storageKey: string]: IdentifyingArgsMap};
-
-// maps node IDs to the IDs of the connections that contain them
-export type NodeRangeMap = {
-  [dataID: DataID]: {[connectionID: DataID]: boolean}
-};
-
-export type RelayQuerySet = {[queryName: string]: ?RelayQuery.Root};
-
-export type QueryPayload = {[key: string]: mixed};
-
-export type UpdateOptions = {
-  configs: Array<{[key: string]: mixed}>,
-  isOptimisticUpdate: boolean,
-};
-
-type RangeBehaviorsFunction = (
-  connectionArgs: {[argName: string]: CallValue},
-) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
-
-type RangeBehaviorsObject = {
-  [key: string]: $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
-};
-
-export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 
 type AfterConnectionArgumentMap = {
   after: string,
@@ -97,16 +34,41 @@ type HeadConnectionArgumentMap = {
   before: string,
   first: number,
 };
+// Maps root calls to a single data ID through an indentifying arg (or EMPTY)
+// eg. username(name: "joe")   => '123'
+//     username(name: "steve") => '456'
+//     viewer                  => '456'
+type IdentifyingArgsMap = {[identifyingArgValue: string]: DataID};
 type InitialHeadConnectionArgumentMap = {
   first: number,
 };
 type InitialTailConnectionArgumentMap = {
   last: number,
 };
+type RangeBehaviorsFunction = (
+  connectionArgs: {[argName: string]: CallValue},
+) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
+type RangeBehaviorsObject = {
+  [key: string]: $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
+};
 type TailConnectionArgumentMap = {
   after: string,
   last: number,
 };
+
+export type Call = {
+  name: string,
+  type?: string,
+  value: CallValue,
+};
+export type CallValue = ?(
+  boolean |
+  number |
+  string |
+  {[key: string]: CallValue} |
+  Array<CallValue>
+);
+export type ClientMutationID = string;
 export type ConnectionArgumentsMap = (
   AfterConnectionArgumentMap |
   BeforeConnectionArgumentMap |
@@ -115,3 +77,28 @@ export type ConnectionArgumentsMap = (
   InitialTailConnectionArgumentMap |
   TailConnectionArgumentMap
 );
+export type DataID = string;
+export type Directive = {
+  args: Array<Call>,
+  name: string,
+};
+export type FieldValue = mixed;
+export type MutationVariables = {
+  input: {[key: string]: mixed},
+};
+// maps node IDs to the IDs of the connections that contain them
+export type NodeRangeMap = {
+  [dataID: DataID]: {[connectionID: DataID]: boolean}
+};
+export type PrintedQuery = {
+  text: string,
+  variables: {[key: string]: mixed},
+};
+export type QueryPayload = {[key: string]: mixed};
+export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
+export type RelayQuerySet = {[queryName: string]: ?RelayQuery.Root};
+export type RootCallMap = {[storageKey: string]: IdentifyingArgsMap};
+export type UpdateOptions = {
+  configs: Array<{[key: string]: mixed}>,
+  isOptimisticUpdate: boolean,
+};

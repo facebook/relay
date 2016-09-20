@@ -13,18 +13,19 @@
 'use strict';
 
 const Map = require('Map');
-import type {RelayLazyContainer} from 'RelayContainer';
-import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryCaching = require('RelayQueryCaching');
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 
 const buildRQL = require('buildRQL');
 const invariant = require('invariant');
 const stableStringify = require('stableStringify');
 const warning = require('warning');
+
+import type {RelayLazyContainer} from 'RelayContainer';
+import type {RelayQuerySet} from 'RelayInternalTypes';
+import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 
 const queryCache = new Map();
 

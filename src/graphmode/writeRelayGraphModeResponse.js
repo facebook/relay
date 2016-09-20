@@ -16,6 +16,16 @@ const Map = require('Map');
 const RelayChangeTracker = require('RelayChangeTracker');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayGraphModeInterface = require('RelayGraphModeInterface');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayRecord = require('RelayRecord');
+const RelayRecordState = require('RelayRecordState');
+
+const forEachObject = require('forEachObject');
+const generateClientEdgeID = require('generateClientEdgeID');
+const generateClientID = require('generateClientID');
+const invariant = require('invariant');
+const stableStringify = require('stableStringify');
+
 import type {
   CacheKey,
   GraphModePayload,
@@ -29,17 +39,8 @@ import type {
 import type {
   DataID,
 } from 'RelayInternalTypes';
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayRecord = require('RelayRecord');
-const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type RelayRecordWriter from 'RelayRecordWriter';
-
-const forEachObject = require('forEachObject');
-const generateClientEdgeID = require('generateClientEdgeID');
-const generateClientID = require('generateClientID');
-const invariant = require('invariant');
-const stableStringify = require('stableStringify');
 
 const {ID, NODE} = RelayConnectionInterface;
 const {

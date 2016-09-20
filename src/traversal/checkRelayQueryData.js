@@ -13,16 +13,17 @@
 'use strict';
 
 const RelayConnectionInterface = require('RelayConnectionInterface');
-import type {DataID} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
-import type RelayQuery from 'RelayQuery';
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecordState = require('RelayRecordState');
-import type RelayRecordStore from 'RelayRecordStore';
-import type {RangeInfo} from 'RelayRecordStore';
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+
+import type {DataID} from 'RelayInternalTypes';
+import type RelayQuery from 'RelayQuery';
+import type RelayRecordStore from 'RelayRecordStore';
+import type {RangeInfo} from 'RelayRecordStore';
 
 type CheckerState = {
   dataID: ?DataID,

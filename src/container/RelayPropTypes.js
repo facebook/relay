@@ -12,11 +12,11 @@
 
 'use strict';
 
-const {PropTypes} = require('React');
-
 const isRelayContainer = require('isRelayContainer');
 const isRelayEnvironment = require('isRelayEnvironment');
 const sprintf = require('sprintf');
+
+const {PropTypes} = require('React');
 
 const RelayPropTypes = {
   Container(props: Object, propName: string, componentName: string): ?Error {

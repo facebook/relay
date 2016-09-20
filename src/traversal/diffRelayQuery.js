@@ -16,17 +16,18 @@ const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
-import type {QueryPath} from 'RelayQueryPath';
 const RelayQueryPath = require('RelayQueryPath');
-import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayRecord = require('RelayRecord');
-import type RelayRecordStore from 'RelayRecordStore';
-import type {RangeInfo} from 'RelayRecordStore';
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 const warning = require('warning');
+
+import type {QueryPath} from 'RelayQueryPath';
+import type RelayQueryTracker from 'RelayQueryTracker';
+import type RelayRecordStore from 'RelayRecordStore';
+import type {RangeInfo} from 'RelayRecordStore';
 
 const {ID, ID_TYPE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 const {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;

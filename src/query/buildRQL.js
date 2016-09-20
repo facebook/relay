@@ -12,20 +12,21 @@
 
 'use strict';
 
-import type {
-  ConcreteFragment,
-  ConcreteQuery,
-} from 'ConcreteQuery';
 const Map = require('Map');
 const QueryBuilder = require('QueryBuilder');
-import type {RelayConcreteNode} from 'RelayQL';
 const RelayProfiler = require('RelayProfiler');
 const RelayQueryCaching = require('RelayQueryCaching');
-import type {RelayContainer, Variables} from 'RelayTypes';
 
 const filterObject = require('filterObject');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
+
+import type {
+  ConcreteFragment,
+  ConcreteQuery,
+} from 'ConcreteQuery';
+import type {RelayConcreteNode} from 'RelayQL';
+import type {RelayContainer, Variables} from 'RelayTypes';
 
 export type RelayQLFragmentBuilder =
   (variables: Variables) => RelayConcreteNode;

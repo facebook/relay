@@ -15,6 +15,7 @@
 const invariant = require('invariant');
 
 type TaskCallback = () => void;
+
 export type TaskExecutor = () => void;
 export type TaskScheduler = (executeTask: TaskExecutor) => void;
 

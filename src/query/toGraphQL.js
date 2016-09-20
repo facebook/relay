@@ -12,18 +12,19 @@
 
 'use strict';
 
-import type {
-  ConcreteField,
-  ConcreteFragment,
-  ConcreteQuery,
-  ConcreteSelection,
-} from 'ConcreteQuery';
 const QueryBuilder = require('QueryBuilder');
 const RelayQuery = require('RelayQuery');
 
 const callsToGraphQL = require('callsToGraphQL');
 const generateConcreteFragmentID = require('generateConcreteFragmentID');
 const invariant = require('invariant');
+
+import type {
+  ConcreteField,
+  ConcreteFragment,
+  ConcreteQuery,
+  ConcreteSelection,
+} from 'ConcreteQuery';
 
 /**
  * @internal

@@ -12,11 +12,12 @@
 
 'use strict';
 
-import type RelayQuery from 'RelayQuery';
 const RelayQueryVisitor = require('RelayQueryVisitor');
-import type {StoreReaderOptions} from 'RelayTypes';
 
 const emptyFunction = require('emptyFunction');
+
+import type RelayQuery from 'RelayQuery';
+import type {StoreReaderOptions} from 'RelayTypes';
 
 type AliasMap = {
   children: {[applicationName: string]: AliasMap},

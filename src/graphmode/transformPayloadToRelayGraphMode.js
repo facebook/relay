@@ -14,6 +14,17 @@
 
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayGraphModeInterface = require('RelayGraphModeInterface');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayQuery = require('RelayQuery');
+const RelayQueryPath = require('RelayQueryPath');
+const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayRecord = require('RelayRecord');
+
+const base62 = require('base62');
+const invariant = require('invariant');
+const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const warning = require('warning');
+
 import type {
   GraphModePayload,
   GraphRecord,
@@ -23,19 +34,9 @@ import type {
   PutRootOperation,
 } from 'RelayGraphModeInterface';
 import type {DataID, QueryPayload} from 'RelayInternalTypes';
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayQuery = require('RelayQuery');
 import type {QueryPath} from 'RelayQueryPath';
-const RelayQueryPath = require('RelayQueryPath');
 import type RelayQueryTracker from 'RelayQueryTracker';
-const RelayQueryVisitor = require('RelayQueryVisitor');
-const RelayRecord = require('RelayRecord');
 import type RelayRecordStore from 'RelayRecordStore';
-
-const base62 = require('base62');
-const invariant = require('invariant');
-const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
-const warning = require('warning');
 
 const {EDGES, PAGE_INFO} = RelayConnectionInterface;
 const {

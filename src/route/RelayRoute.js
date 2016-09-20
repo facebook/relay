@@ -12,20 +12,22 @@
 
 'use strict';
 
-import type URI from 'URI';
-import type {ConfigQueries} from 'RelayQueryConfig';
 const RelayQueryConfig = require('RelayQueryConfig');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
+import type {ConfigQueries} from 'RelayQueryConfig';
+import type URI from 'URI';
+
 type ParamDefinition = {
   type: string,
   required: boolean,
 };
-export type ParamDefinitions = {[param: string]: ParamDefinition};
 type StringOrURI = string | URI;
 type URICreator = (routeConstructor: any, params: Object) => ?StringOrURI;
+
+export type ParamDefinitions = {[param: string]: ParamDefinition};
 
 let createURI: $FlowIssue = () => null;
 

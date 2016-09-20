@@ -15,10 +15,11 @@
 
 'use strict';
 
+const H2 = require('H2');
 const React = require('React');
 const Site = require('Site');
+
 const center = require('center');
-const H2 = require('H2');
 
 const support = React.createClass({
   render: function() {

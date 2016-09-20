@@ -13,12 +13,15 @@
 'use strict';
 
 const React = require('React');
+const RelayPropTypes = require('RelayPropTypes');
+const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
+
+const getRelayQueries = require('getRelayQueries');
+
 import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {GarbageCollectionHold} from 'RelayGarbageCollector';
 import type {RelayQuerySet} from 'RelayInternalTypes';
-const RelayPropTypes = require('RelayPropTypes');
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
-const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
 import type {
   RelayRenderCallback,
   RelayRetryCallback,
@@ -29,8 +32,6 @@ import type {
   ReadyState,
   RelayContainer,
 } from 'RelayTypes';
-
-const getRelayQueries = require('getRelayQueries');
 
 type Props = {
   Container: RelayContainer,

@@ -15,6 +15,7 @@
 const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
 const RelayPublic = require('RelayPublic');
 const RelayStore = require('RelayStore');
+
 const warning = require('warning');
 
 if (__DEV__) {

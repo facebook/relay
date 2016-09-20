@@ -12,16 +12,23 @@
 
 'use strict';
 
-const RelayFragmentPointer = require('RelayFragmentPointer');
-import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
 const RelayConnectionInterface = require('RelayConnectionInterface');
-import type {DataID} from 'RelayInternalTypes';
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecord = require('RelayRecord');
 const RelayRecordState = require('RelayRecordState');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
+
+const callsFromGraphQL = require('callsFromGraphQL');
+const callsToGraphQL = require('callsToGraphQL');
+const invariant = require('invariant');
+const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const validateRelayReadQuery = require('validateRelayReadQuery');
+
+import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
+import type {DataID} from 'RelayInternalTypes';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 import type RelayStoreData from 'RelayStoreData';
@@ -29,12 +36,6 @@ import type {
   StoreReaderData,
   StoreReaderOptions,
 } from 'RelayTypes';
-
-const callsFromGraphQL = require('callsFromGraphQL');
-const callsToGraphQL = require('callsToGraphQL');
-const invariant = require('invariant');
-const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
-const validateRelayReadQuery = require('validateRelayReadQuery');
 
 const {MUTATION_STATUS} = RelayRecord.MetadataKey;
 

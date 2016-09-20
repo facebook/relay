@@ -15,9 +15,9 @@
 
 'use strict';
 
-const React = require('React');
-const Prism = require('Prism');
 const Header = require('Header');
+const Prism = require('Prism');
+const React = require('React');
 
 /**
  * Block-Level Grammar

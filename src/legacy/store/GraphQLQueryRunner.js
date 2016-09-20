@@ -13,13 +13,8 @@
 'use strict';
 
 const RelayFetchMode = require('RelayFetchMode');
-import type {FetchMode} from 'RelayFetchMode';
-import type {RelayQuerySet} from 'RelayInternalTypes';
-import type {PendingFetch} from 'RelayPendingQueryTracker';
 const RelayProfiler = require('RelayProfiler');
-import type RelayQuery from 'RelayQuery';
 const RelayReadyState = require('RelayReadyState');
-import type RelayStoreData from 'RelayStoreData';
 
 const checkRelayQueryData = require('checkRelayQueryData');
 const diffRelayQuery = require('diffRelayQuery');
@@ -33,6 +28,11 @@ const someObject = require('someObject');
 const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
 const warning = require('warning');
 
+import type {FetchMode} from 'RelayFetchMode';
+import type {RelayQuerySet} from 'RelayInternalTypes';
+import type {PendingFetch} from 'RelayPendingQueryTracker';
+import type RelayQuery from 'RelayQuery';
+import type RelayStoreData from 'RelayStoreData';
 import type {
   Abortable,
   ReadyStateChangeCallback,

@@ -19,8 +19,8 @@ const RelayRouteFragment = require('RelayRouteFragment');
 const generateConcreteFragmentID = require('generateConcreteFragmentID');
 const invariant = require('invariant');
 
-import type {VariableMapping} from 'RelayFragmentReference';
 import type {ConcreteFragment} from 'ConcreteQuery';
+import type {VariableMapping} from 'RelayFragmentReference';
 
 export type RelayConcreteNode = mixed;
 

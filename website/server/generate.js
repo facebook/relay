@@ -10,10 +10,10 @@
 'use strict';
 
 const buildGraphQLSpec = require('./buildGraphQLSpec');
-const request = require('request');
-const glob = require('glob');
 const fs = require('fs-extra');
+const glob = require('glob');
 const mkdirp = require('mkdirp');
+const request = require('request');
 const server = require('./server.js');
 const exec = require('child_process').execSync;
 

@@ -13,24 +13,27 @@
 'use strict';
 
 const QueryBuilder = require('QueryBuilder');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
+const RelayQuery = require('RelayQuery');
+
+const invariant = require('invariant');
+
+const {CLIENT_MUTATION_ID} = require('RelayConnectionInterface');
+
 import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {ClientMutationID} from 'RelayInternalTypes';
-const RelayMetaRoute = require('RelayMetaRoute');
 import type {FileMap} from 'RelayMutation';
-import type {RelayConcreteNode} from 'RelayQL';
-const {CLIENT_MUTATION_ID} = require('RelayConnectionInterface');
 import type RelayMutationTransaction from 'RelayMutationTransaction';
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-import type {RelayMutationTransactionCommitCallbacks} from 'RelayTypes';
-const RelayQuery = require('RelayQuery');
+import type {RelayConcreteNode} from 'RelayQL';
 import type RelayStoreData from 'RelayStoreData';
+import type {RelayMutationTransactionCommitCallbacks} from 'RelayTypes';
 import type {
   RelayMutationConfig,
   RelayMutationTransactionCommitFailureCallback,
   RelayMutationTransactionCommitSuccessCallback,
   Variables,
 } from 'RelayTypes';
-const invariant = require('invariant');
 
 const COUNTER_PREFIX = 'RelayGraphQLMutation';
 let collisionIDCounter = 0;

@@ -30,6 +30,7 @@ import type {
   CacheManager,
   CacheProcessorCallbacks,
 } from 'RelayTypes';
+
 type ProcessorState = 'PENDING' | 'LOADING' | 'COMPLETED';
 
 /**

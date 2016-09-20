@@ -13,14 +13,41 @@
 'use strict';
 
 const GraphQLQueryRunner = require('GraphQLQueryRunner');
+const GraphQLRange = require('GraphQLRange');
 const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 const RelayChangeTracker = require('RelayChangeTracker');
-import type {ChangeSet} from 'RelayChangeTracker';
 const RelayConnectionInterface = require('RelayConnectionInterface');
-import type {GarbageCollectionScheduler} from 'RelayGarbageCollector';
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayMutationQueue = require('RelayMutationQueue');
+const RelayNetworkLayer = require('RelayNetworkLayer');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayPendingQueryTracker = require('RelayPendingQueryTracker');
+const RelayProfiler = require('RelayProfiler');
+const RelayQuery = require('RelayQuery');
+const RelayQueryPath = require('RelayQueryPath');
+const RelayQueryTracker = require('RelayQueryTracker');
+const RelayQueryWriter = require('RelayQueryWriter');
+const RelayRecord = require('RelayRecord');
+const RelayRecordStore = require('RelayRecordStore');
+const RelayRecordWriter = require('RelayRecordWriter');
+const RelayTaskQueue = require('RelayTaskQueue');
+
+const forEachObject = require('forEachObject');
+const generateForceIndex = require('generateForceIndex');
+const invariant = require('invariant');
+const mapObject = require('mapObject');
+const warning = require('warning');
+const writeRelayQueryPayload = require('writeRelayQueryPayload');
+const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
+
+const {
+  restoreFragmentDataFromCache,
+  restoreQueriesDataFromCache,
+} = require('restoreRelayCacheData');
+
+import type {ChangeSet} from 'RelayChangeTracker';
+import type {GarbageCollectionScheduler} from 'RelayGarbageCollector';
 import type {
   ClientMutationID,
   DataID,
@@ -30,35 +57,10 @@ import type {
   RootCallMap,
   UpdateOptions,
 } from 'RelayInternalTypes';
-const RelayNetworkLayer = require('RelayNetworkLayer');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayPendingQueryTracker = require('RelayPendingQueryTracker');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
 import type {QueryPath} from 'RelayQueryPath';
-const RelayQueryPath = require('RelayQueryPath');
-const RelayQueryTracker = require('RelayQueryTracker');
-const RelayQueryWriter = require('RelayQueryWriter');
-const RelayRecord = require('RelayRecord');
 import type {RecordMap} from 'RelayRecord';
-const RelayRecordStore = require('RelayRecordStore');
-const RelayRecordWriter = require('RelayRecordWriter');
-const RelayTaskQueue = require('RelayTaskQueue');
-const GraphQLRange = require('GraphQLRange');
 import type {TaskScheduler} from 'RelayTaskQueue';
 import type {Abortable, CacheManager, CacheProcessorCallbacks} from 'RelayTypes';
-
-const forEachObject = require('forEachObject');
-const mapObject = require('mapObject');
-const invariant = require('invariant');
-const generateForceIndex = require('generateForceIndex');
-const {
-  restoreFragmentDataFromCache,
-  restoreQueriesDataFromCache,
-} = require('restoreRelayCacheData');
-const warning = require('warning');
-const writeRelayQueryPayload = require('writeRelayQueryPayload');
-const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
 const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;

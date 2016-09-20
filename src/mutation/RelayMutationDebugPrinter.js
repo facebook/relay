@@ -11,9 +11,9 @@
  */
 
 'use strict';
-import type RelayQuery from 'RelayQuery';
-
 const printRelayQuery = require('printRelayQuery');
+
+import type RelayQuery from 'RelayQuery';
 
 /**
  * @internal

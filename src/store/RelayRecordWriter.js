@@ -15,6 +15,13 @@
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const GraphQLRange = require('GraphQLRange');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayRecord = require('RelayRecord');
+const RelayRecordStatusMap = require('RelayRecordStatusMap');
+
+const invariant = require('invariant');
+const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
+
 import type {
   EdgeRecord,
   PageInfo,
@@ -27,19 +34,13 @@ import type {
   NodeRangeMap,
   RootCallMap,
 } from 'RelayInternalTypes';
-const RelayNodeInterface = require('RelayNodeInterface');
 import type {QueryPath} from 'RelayQueryPath';
-const RelayRecord = require('RelayRecord');
 import type {
   Record,
   RecordMap,
 } from 'RelayRecord';
 import type {RecordState} from 'RelayRecordState';
-const RelayRecordStatusMap = require('RelayRecordStatusMap');
 import type {CacheWriter} from 'RelayTypes';
-
-const invariant = require('invariant');
-const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 
 const EMPTY = '';
 const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;

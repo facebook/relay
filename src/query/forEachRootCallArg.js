@@ -12,11 +12,11 @@
 
 'use strict';
 
-import type {CallValue} from 'RelayInternalTypes';
-import type RelayQuery from 'RelayQuery';
-
 const invariant = require('invariant');
 const stableStringify = require('stableStringify');
+
+import type {CallValue} from 'RelayInternalTypes';
+import type RelayQuery from 'RelayQuery';
 
 type IdentifyingArg = {
   identifyingArgValue: CallValue,

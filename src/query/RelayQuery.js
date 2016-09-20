@@ -14,24 +14,12 @@
 
 /* eslint-disable consistent-this */
 
-import type {
-  ConcreteField,
-  ConcreteFieldMetadata,
-  ConcreteFragment,
-  ConcreteMutation,
-  ConcreteNode,
-  ConcreteOperationMetadata,
-  ConcreteQuery,
-  ConcreteQueryMetadata,
-} from 'ConcreteQuery';
 const QueryBuilder = require('QueryBuilder');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayFragmentReference = require('RelayFragmentReference');
-import type {Call, Directive}  from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayProfiler = require('RelayProfiler');
 const RelayRouteFragment = require('RelayRouteFragment');
-import type {Variables} from 'RelayTypes';
 const RelayVariable = require('RelayVariable');
 
 const areEqual = require('areEqual');
@@ -44,6 +32,19 @@ const invariant = require('invariant');
 const serializeRelayQueryCall = require('serializeRelayQueryCall');
 const shallowEqual = require('shallowEqual');
 const stableStringify = require('stableStringify');
+
+import type {
+  ConcreteField,
+  ConcreteFieldMetadata,
+  ConcreteFragment,
+  ConcreteMutation,
+  ConcreteNode,
+  ConcreteOperationMetadata,
+  ConcreteQuery,
+  ConcreteQueryMetadata,
+} from 'ConcreteQuery';
+import type {Call, Directive}  from 'RelayInternalTypes';
+import type {Variables} from 'RelayTypes';
 
 type BatchCall = {
   refParamName: string,

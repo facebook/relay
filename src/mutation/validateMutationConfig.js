@@ -12,12 +12,12 @@
 
 'use strict';
 
-import type {RelayMutationConfig} from 'RelayTypes';
-
 const invariant = require('invariant');
 const sprintf = require('sprintf');
 const testEditDistance = require('testEditDistance');
 const warning = require('warning');
+
+import type {RelayMutationConfig} from 'RelayTypes';
 
 type PropertyDescription = {
   [name: string]: Validator;

@@ -12,6 +12,8 @@
 
 'use strict';
 
+const invariant = require('invariant');
+
 import type {
   ConcreteCall,
   ConcreteValue,
@@ -20,8 +22,6 @@ import type {
 } from 'ConcreteQuery';
 import type {Call, CallValue} from 'RelayInternalTypes';
 import type {Variables} from 'RelayTypes';
-
-const invariant = require('invariant');
 
 type CallOrDirective = {
   name: string,

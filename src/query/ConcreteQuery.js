@@ -22,33 +22,11 @@
  * Ideally this would be a union of Field/Fragment/Mutation/Query/Subscription,
  * but that causes lots of Flow errors.
  */
-export type ConcreteNode = {
-  children?: ?Array<?ConcreteSelection>,
-  directives?: ?Array<ConcreteDirective>,
-};
-
-export type ConcreteSelection =
-  ConcreteField |
-  ConcreteFragment |
-  ConcreteFragmentReference;
-
-export type ConcreteValue =
-  ConcreteBatchCallVariable |
-  ConcreteCallValue |
-  ConcreteCallVariable |
-  Array<ConcreteCallValue | ConcreteCallVariable>;
-
-export type ConcreteDirectiveValue =
-  ConcreteCallValue |
-  ConcreteCallVariable |
-  Array<ConcreteCallValue | ConcreteCallVariable>;
-
 export type ConcreteBatchCallVariable = {
   jsonPath: string,
   kind: 'BatchCallVariable',
   sourceQueryID: string,
 };
-
 export type ConcreteCall = {
   kind: 'Call',
   metadata: {
@@ -57,28 +35,37 @@ export type ConcreteCall = {
   name: string,
   value: ?ConcreteValue,
 };
-
 export type ConcreteCallValue = {
   callValue: mixed,
   kind: 'CallValue',
 }
-
 export type ConcreteCallVariable = {
   callVariableName: string,
   kind: 'CallVariable',
 };
-
 export type ConcreteDirective = {
   args: Array<ConcreteDirectiveArgument>,
   kind: 'Directive',
   name: string,
 };
-
 export type ConcreteDirectiveArgument = {
   name: string,
   value: ?ConcreteDirectiveValue,
 };
-
+export type ConcreteDirectiveValue =
+  ConcreteCallValue |
+  ConcreteCallVariable |
+  Array<ConcreteCallValue | ConcreteCallVariable>;
+export type ConcreteField = {
+  alias?: ?string,
+  calls?: ?Array<ConcreteCall>,
+  children?: ?Array<?ConcreteSelection>,
+  directives?: ?Array<ConcreteDirective>,
+  fieldName: string,
+  kind: 'Field',
+  metadata: ConcreteFieldMetadata,
+  type: string,
+};
 export type ConcreteFieldMetadata = {
   canHaveSubselections?: ?boolean,
   inferredPrimaryKey?: ?string,
@@ -91,24 +78,6 @@ export type ConcreteFieldMetadata = {
   isPlural?: boolean,
   isRequisite?: boolean,
 };
-
-export type ConcreteField = {
-  alias?: ?string,
-  calls?: ?Array<ConcreteCall>,
-  children?: ?Array<?ConcreteSelection>,
-  directives?: ?Array<ConcreteDirective>,
-  fieldName: string,
-  kind: 'Field',
-  metadata: ConcreteFieldMetadata,
-  type: string,
-};
-
-export type ConcreteFragmentMetadata = {
-  isAbstract?: boolean,
-  pattern?: boolean,
-  plural?: boolean,
-};
-
 export type ConcreteFragment = {
   children?: ?Array<?ConcreteSelection>,
   directives?: ?Array<ConcreteDirective>,
@@ -124,12 +93,15 @@ export type ConcreteFragment = {
   name: string,
   type: string,
 };
-
+export type ConcreteFragmentMetadata = {
+  isAbstract?: boolean,
+  pattern?: boolean,
+  plural?: boolean,
+};
 export type ConcreteFragmentReference = {
   kind: 'FragmentReference',
   fragment: ConcreteFragment,
 };
-
 export type ConcreteMutation = {
   calls: Array<ConcreteCall>,
   children?: ?Array<?ConcreteSelection>,
@@ -141,19 +113,13 @@ export type ConcreteMutation = {
   name: string,
   responseType: string,
 };
-
+export type ConcreteNode = {
+  children?: ?Array<?ConcreteSelection>,
+  directives?: ?Array<ConcreteDirective>,
+};
 export type ConcreteOperationMetadata = {
   inputType?: ?string,
 };
-
-export type ConcreteQueryMetadata = {
-  identifyingArgName: ?string,
-  identifyingArgType: ?string,
-  isAbstract: ?boolean,
-  isDeferred: ?boolean,
-  isPlural: ?boolean,
-};
-
 export type ConcreteQuery = {
   calls?: ?Array<ConcreteCall>,
   children?: ?Array<?ConcreteSelection>,
@@ -170,7 +136,17 @@ export type ConcreteQuery = {
   name: string,
   type: string,
 };
-
+export type ConcreteQueryMetadata = {
+  identifyingArgName: ?string,
+  identifyingArgType: ?string,
+  isAbstract: ?boolean,
+  isDeferred: ?boolean,
+  isPlural: ?boolean,
+};
+export type ConcreteSelection =
+  ConcreteField |
+  ConcreteFragment |
+  ConcreteFragmentReference;
 export type ConcreteSubscription = {
   calls: Array<ConcreteCall>,
   children?: ?Array<?ConcreteSelection>,
@@ -182,3 +158,8 @@ export type ConcreteSubscription = {
     inputType?: ?string,
   },
 };
+export type ConcreteValue =
+  ConcreteBatchCallVariable |
+  ConcreteCallValue |
+  ConcreteCallVariable |
+  Array<ConcreteCallValue | ConcreteCallVariable>;

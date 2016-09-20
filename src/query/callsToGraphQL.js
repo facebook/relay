@@ -12,9 +12,10 @@
 
 'use strict';
 
+const QueryBuilder = require('QueryBuilder');
+
 import type {ConcreteCall} from 'ConcreteQuery';
 import type {Call} from 'RelayInternalTypes';
-const QueryBuilder = require('QueryBuilder');
 
 /**
  * @internal

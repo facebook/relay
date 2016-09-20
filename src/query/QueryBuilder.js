@@ -12,6 +12,11 @@
 
 'use strict';
 
+const RelayNodeInterface = require('RelayNodeInterface');
+
+const generateConcreteFragmentID = require('generateConcreteFragmentID');
+const warning = require('warning');
+
 import type {
   ConcreteBatchCallVariable,
   ConcreteCall,
@@ -33,10 +38,6 @@ import type {
   ConcreteSubscription,
   ConcreteValue,
 } from 'ConcreteQuery';
-const RelayNodeInterface = require('RelayNodeInterface');
-
-const generateConcreteFragmentID = require('generateConcreteFragmentID');
-const warning = require('warning');
 
 const EMPTY_CALLS: Array<ConcreteCall> = [];
 const EMPTY_CHILDREN: Array<?ConcreteSelection> = [];

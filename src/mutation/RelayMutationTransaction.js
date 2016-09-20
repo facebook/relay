@@ -12,11 +12,12 @@
 
 'use strict';
 
-import type {ClientMutationID} from 'RelayInternalTypes';
-import type RelayMutationQueue from 'RelayMutationQueue';
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 
 const invariant = require('invariant');
+
+import type {ClientMutationID} from 'RelayInternalTypes';
+import type RelayMutationQueue from 'RelayMutationQueue';
 
 const {
   COLLISION_COMMIT_FAILED,

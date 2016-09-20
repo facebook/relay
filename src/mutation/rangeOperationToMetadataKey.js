@@ -13,6 +13,7 @@
 'use strict';
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+
 const mapObject = require('mapObject');
 
 const RANGE_OPERATION_METADATA_PREFIX = '__rangeOperation';

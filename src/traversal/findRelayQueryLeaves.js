@@ -13,32 +13,34 @@
 'use strict';
 
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayProfiler = require('RelayProfiler');
+const RelayQueryPath = require('RelayQueryPath');
+const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayRecordState = require('RelayRecordState');
+
+const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+
 import type {
   Call,
   DataID,
 } from 'RelayInternalTypes';
-const RelayProfiler = require('RelayProfiler');
 import type RelayQuery from 'RelayQuery';
 import type {QueryPath} from 'RelayQueryPath';
-const RelayQueryPath = require('RelayQueryPath');
-const RelayQueryVisitor = require('RelayQueryVisitor');
 import type {RecordMap} from 'RelayRecord';
-const RelayRecordState = require('RelayRecordState');
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
-const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
-
-export type FinderResult = {
-  missingData: boolean,
-  pendingNodeStates: Array<NodeState>,
-};
 type FinderState = {
   dataID: DataID,
   missingData: boolean,
   path: QueryPath,
   rangeCalls: ?Array<Call>,
   rangeInfo: ?RangeInfo,
+};
+
+export type FinderResult = {
+  missingData: boolean,
+  pendingNodeStates: Array<NodeState>,
 };
 export type NodeState = {
   dataID: ?DataID,

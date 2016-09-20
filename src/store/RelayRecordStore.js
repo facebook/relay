@@ -14,6 +14,13 @@
 
 const GraphQLRange = require('GraphQLRange');
 const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayNodeInterface = require('RelayNodeInterface');
+const RelayRecord = require('RelayRecord');
+
+const forEachObject = require('forEachObject');
+const invariant = require('invariant');
+const warning = require('warning');
+
 import type {PageInfo} from 'RelayConnectionInterface';
 import type {
   Call,
@@ -23,22 +30,25 @@ import type {
   NodeRangeMap,
   RootCallMap,
 } from 'RelayInternalTypes';
-const RelayNodeInterface = require('RelayNodeInterface');
 import type {QueryPath} from 'RelayQueryPath';
-const RelayRecord = require('RelayRecord');
 import type {
   Record,
   RecordMap,
 } from 'RelayRecord';
 import type {RecordState} from 'RelayRecordState';
 
-const forEachObject = require('forEachObject');
-const invariant = require('invariant');
-const warning = require('warning');
-
 type RangeEdge = {
   edgeID: string,
   nodeID: ?string,
+};
+type RecordCollection = {
+  cachedRecords?: ?RecordMap,
+  queuedRecords?: ?RecordMap,
+  records: RecordMap,
+};
+type RootCallMapCollection = {
+  cachedRootCallMap?: RootCallMap,
+  rootCallMap: RootCallMap,
 };
 
 export type RangeInfo = {
@@ -47,17 +57,6 @@ export type RangeInfo = {
   pageInfo: ?PageInfo,
   requestedEdgeIDs: Array<string>,
   filteredEdges: Array<RangeEdge>,
-};
-
-type RecordCollection = {
-  cachedRecords?: ?RecordMap,
-  queuedRecords?: ?RecordMap,
-  records: RecordMap,
-};
-
-type RootCallMapCollection = {
-  cachedRootCallMap?: RootCallMap,
-  rootCallMap: RootCallMap,
 };
 
 const EMPTY = '';

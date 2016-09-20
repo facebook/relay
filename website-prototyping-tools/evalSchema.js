@@ -9,10 +9,10 @@
 
 /* eslint-disable no-unused-vars, no-eval */
 
-import {transform} from 'babel-core';
-
 const GraphQL = require('graphql');
 var GraphQLRelay = require('graphql-relay');
+
+import {transform} from 'babel-core';
 
 export default function(source) {
   // Make these modules available to the schema author through a require shim.

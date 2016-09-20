@@ -12,12 +12,12 @@
 
 'use strict';
 
+const flattenArray = require('flattenArray');
+
 import type {
   Call,
   CallValue,
 } from 'RelayInternalTypes';
-
-const flattenArray = require('flattenArray');
 
 /**
  * @internal

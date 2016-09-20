@@ -14,12 +14,13 @@
 
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
-import type RelayQuery from 'RelayQuery';
 const RelayQueryPath = require('RelayQueryPath');
-import type RelayQueryWriter from 'RelayQueryWriter';
-import type {QueryPayload} from 'RelayInternalTypes';
 
 const generateClientID = require('generateClientID');
+
+import type {QueryPayload} from 'RelayInternalTypes';
+import type RelayQuery from 'RelayQuery';
+import type RelayQueryWriter from 'RelayQueryWriter';
 
 const {ID} = RelayNodeInterface;
 

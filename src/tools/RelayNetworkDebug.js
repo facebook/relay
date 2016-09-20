@@ -12,14 +12,15 @@
 
 'use strict';
 
-import type {ChangeSubscription} from 'RelayTypes';
-import type RelayMutationRequest from 'RelayMutationRequest';
-import type RelayEnvironment from 'RelayEnvironment';
 const Relay = require('RelayPublic');
-import type RelayQueryRequest from 'RelayQueryRequest';
 
 const performanceNow = require('performanceNow');
 const xhrSimpleDataSerializer = require('xhrSimpleDataSerializer');
+
+import type RelayEnvironment from 'RelayEnvironment';
+import type RelayMutationRequest from 'RelayMutationRequest';
+import type RelayQueryRequest from 'RelayQueryRequest';
+import type {ChangeSubscription} from 'RelayTypes';
 
 export type RelayNetworkDebuggable = {
   name: string,

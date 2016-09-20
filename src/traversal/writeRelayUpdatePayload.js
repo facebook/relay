@@ -14,19 +14,13 @@
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const RelayConnectionInterface = require('RelayConnectionInterface');
-import type {
-  DataID,
-  UpdateOptions,
-} from 'RelayInternalTypes';
 const RelayMutationTracker = require('RelayMutationTracker');
 const RelayMutationType = require('RelayMutationType');
 const RelayNodeInterface = require('RelayNodeInterface');
+const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
-import type RelayQueryWriter from 'RelayQueryWriter';
-const RelayProfiler = require('RelayProfiler');
 const RelayRecordState = require('RelayRecordState');
-import type RelayRecordStore from 'RelayRecordStore';
 
 const generateClientEdgeID = require('generateClientEdgeID');
 const generateClientID = require('generateClientID');
@@ -34,13 +28,19 @@ const getRangeBehavior = require('getRangeBehavior');
 const invariant = require('invariant');
 const warning = require('warning');
 
+import type {
+  DataID,
+  UpdateOptions,
+} from 'RelayInternalTypes';
+import type RelayQueryWriter from 'RelayQueryWriter';
+import type RelayRecordStore from 'RelayRecordStore';
+
 // TODO: Replace with enumeration for possible config types.
 /* OperationConfig was originally typed such that each property had the type
  * mixed.  Mixed is safer than any, but that safety comes from Flow forcing you
  * to inspect a mixed value at runtime before using it.  However these mixeds
  * are ending up everywhere and are not being inspected */
 type OperationConfig = {[key: string]: $FlowFixMe};
-
 type Payload = mixed | PayloadObject | PayloadArray;
 type PayloadArray = Array<Payload>;
 type PayloadObject = {[key: string]: Payload};

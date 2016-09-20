@@ -13,21 +13,25 @@
 'use strict';
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-import type RelayMutation from 'RelayMutation';
-import type RelayMutationTransaction from 'RelayMutationTransaction';
-import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
-import type RelayQuery from 'RelayQuery';
-import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
-import type {TaskScheduler} from 'RelayTaskQueue';
-import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const readRelayQueryData = require('readRelayQueryData');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
 
+import type {
+  DataID,
+  RelayQuerySet,
+} from 'RelayInternalTypes';
+import type RelayMutation from 'RelayMutation';
+import type RelayMutationTransaction from 'RelayMutationTransaction';
+import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
+import type RelayQuery from 'RelayQuery';
+import type RelayQueryTracker from 'RelayQueryTracker';
+import type {TaskScheduler} from 'RelayTaskQueue';
+import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 import type {
   Abortable,
   Observable,
@@ -37,11 +41,6 @@ import type {
   StoreReaderOptions,
   CacheManager,
 } from 'RelayTypes';
-
-import type {
-  DataID,
-  RelayQuerySet,
-} from 'RelayInternalTypes';
 
 export type FragmentResolver = {
   dispose: () => void,

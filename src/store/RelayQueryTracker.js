@@ -12,11 +12,12 @@
 
 'use strict';
 
-import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 
 const flattenRelayQuery = require('flattenRelayQuery');
+
+import type {DataID} from 'RelayInternalTypes';
 
 const TYPE = '__type__';
 

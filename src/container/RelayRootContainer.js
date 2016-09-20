@@ -14,14 +14,15 @@
 
 const React = require('React');
 const RelayPropTypes = require('RelayPropTypes');
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
+const RelayRenderer = require('RelayRenderer');
 const RelayStore = require('RelayStore');
+
+import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 import type {
   ComponentFetchState,
   ReadyState,
   RelayContainer,
 } from 'RelayTypes';
-const RelayRenderer = require('RelayRenderer');
 
 type RootContainerProps = {
   Component: RelayContainer,

@@ -13,18 +13,18 @@
 'use strict';
 
 const ErrorUtils = require('ErrorUtils');
-import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
-import type {ChangeSubscription} from 'RelayTypes';
 
 const resolveImmediate = require('resolveImmediate');
 
-type BatchStrategy = (callback: Function) => void;
-type SubscriptionCallback = () => void;
+import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
+import type {ChangeSubscription} from 'RelayTypes';
 
+type BatchStrategy = (callback: Function) => void;
 type Subscriber = {
   callback: SubscriptionCallback,
   subscribedIDs: Array<string>,
 };
+type SubscriptionCallback = () => void;
 
 /**
  * Asynchronous change emitter for nodes stored in the Relay cache.

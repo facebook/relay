@@ -12,6 +12,7 @@
 'use strict';
 
 const RelayTestUtils = require('RelayTestUtils');
+
 const validateMutationConfig = require('validateMutationConfig');
 
 describe('validateMutationConfig()', () => {

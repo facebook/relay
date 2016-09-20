@@ -8,7 +8,6 @@
  */
 
 import 'babel-polyfill';
-
 import React from 'react'; window.React = React;
 import ReactDOM from 'react-dom';
 import RelayPlayground from './RelayPlayground';

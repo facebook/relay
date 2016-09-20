@@ -11,8 +11,8 @@
 
 'use strict';
 
-const React = require('React');
 const Header = require('Header');
+const React = require('React');
 
 const H2 = React.createClass({
   render: function() {

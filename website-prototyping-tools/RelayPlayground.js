@@ -11,9 +11,8 @@
 
 import './RelayPlayground.css';
 import 'codemirror/mode/javascript/javascript';
-
-import Codemirror from 'react-codemirror';
 import React from 'react';
+import Codemirror from 'react-codemirror';
 import ReactDOM from 'react-dom';
 import Relay from 'react-relay'; window.Relay = Relay;
 import RelayLocalSchema from 'relay-local-schema';

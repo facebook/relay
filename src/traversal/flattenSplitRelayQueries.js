@@ -13,7 +13,6 @@
 'use strict';
 
 import type RelayQuery from 'RelayQuery';
-
 import type {SplitQueries} from 'splitDeferredRelayQueries';
 
 /**

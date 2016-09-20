@@ -11,10 +11,10 @@
 
 'use strict';
 
+const DocsSidebar = require('DocsSidebar');
+const Marked = require('Marked');
 const React = require('React');
 const Site = require('Site');
-const Marked = require('Marked');
-const DocsSidebar = require('DocsSidebar');
 const DocsLayout = React.createClass({
   render: function() {
     const metadata = this.props.metadata;

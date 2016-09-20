@@ -14,10 +14,11 @@
 
 const RelayQuery = require('RelayQuery');
 const RelayQueryVisitor = require('RelayQueryVisitor');
-import type {QueryPayload} from 'RelayInternalTypes';
 
 const invariant = require('invariant');
 const mapObject = require('mapObject');
+
+import type {QueryPayload} from 'RelayInternalTypes';
 
 type PayloadState = {
   client: QueryPayload,

@@ -12,17 +12,19 @@
 
 'use strict';
 
-const {EDGES} = require('RelayConnectionInterface');
-import type {DataID} from 'RelayInternalTypes';
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
 const RelayRecordState = require('RelayRecordState');
-import type RelayRecordStore from 'RelayRecordStore';
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
 const warning = require('warning');
+
+const {EDGES} = require('RelayConnectionInterface');
+
+import type {DataID} from 'RelayInternalTypes';
+import type RelayRecordStore from 'RelayRecordStore';
 
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 

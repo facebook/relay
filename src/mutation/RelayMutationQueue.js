@@ -12,28 +12,15 @@
 
 'use strict';
 
-import type {ConcreteMutation} from 'ConcreteQuery';
 const ErrorUtils = require('ErrorUtils');
 const QueryBuilder = require('QueryBuilder');
 const RelayConnectionInterface = require('RelayConnectionInterface');
-import type {ClientMutationID} from 'RelayInternalTypes';
 const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationRequest = require('RelayMutationRequest');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
-import type RelayStoreData from 'RelayStoreData';
-import type {FileMap} from 'RelayMutation';
-import type RelayMutation from 'RelayMutation';
 const RelayQuery = require('RelayQuery');
-import type RelayQueryTracker from 'RelayQueryTracker';
-import type {
-  RelayMutationConfig,
-  RelayMutationTransactionCommitCallbacks,
-  RelayMutationTransactionCommitFailureCallback,
-  RelayMutationTransactionCommitSuccessCallback,
-  Variables,
-} from 'RelayTypes';
 
 const base62 = require('base62');
 const flattenRelayQuery = require('flattenRelayQuery');
@@ -41,6 +28,20 @@ const fromGraphQL = require('fromGraphQL');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const resolveImmediate = require('resolveImmediate');
+
+import type {ConcreteMutation} from 'ConcreteQuery';
+import type {ClientMutationID} from 'RelayInternalTypes';
+import type {FileMap} from 'RelayMutation';
+import type RelayMutation from 'RelayMutation';
+import type RelayQueryTracker from 'RelayQueryTracker';
+import type RelayStoreData from 'RelayStoreData';
+import type {
+  RelayMutationConfig,
+  RelayMutationTransactionCommitCallbacks,
+  RelayMutationTransactionCommitFailureCallback,
+  RelayMutationTransactionCommitSuccessCallback,
+  Variables,
+} from 'RelayTypes';
 
 type CollisionQueueMap = {[key: string]: Array<PendingTransaction>};
 interface PendingTransaction {

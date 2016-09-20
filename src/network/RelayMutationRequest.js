@@ -13,12 +13,13 @@
 'use strict';
 
 const Deferred = require('Deferred');
+
+const printRelayQuery = require('printRelayQuery');
+
 import type {PrintedQuery} from 'RelayInternalTypes';
 import type {FileMap} from 'RelayMutation';
 import type RelayQuery from 'RelayQuery';
 import type {MutationResult, Variables} from 'RelayTypes';
-
-const printRelayQuery = require('printRelayQuery');
 
 /**
  * @internal

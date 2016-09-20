@@ -12,16 +12,17 @@
 
 'use strict';
 
-import type RelayGarbageCollector from 'RelayGarbageCollector';
-import type {DataID} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
-import type RelayQuery from 'RelayQuery';
-import type RelayStoreData from 'RelayStoreData';
-import type {ChangeSubscription, StoreReaderData} from 'RelayTypes';
 
 const readRelayQueryData = require('readRelayQueryData');
 const recycleNodesInto = require('recycleNodesInto');
 const warning = require('warning');
+
+import type RelayGarbageCollector from 'RelayGarbageCollector';
+import type {DataID} from 'RelayInternalTypes';
+import type RelayQuery from 'RelayQuery';
+import type RelayStoreData from 'RelayStoreData';
+import type {ChangeSubscription, StoreReaderData} from 'RelayTypes';
 
 type DataIDSet = {[dataID: DataID]: any};
 

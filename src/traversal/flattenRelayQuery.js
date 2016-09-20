@@ -25,6 +25,7 @@ type FlattenedQuery = {
   flattenedFieldMap: Map<string, FlattenedQuery>,
   flattenedFragmentMap: Map<string, FlattenedQuery>,
 };
+
 export type FlattenRelayQueryOptions = {
   preserveEmptyNodes?: boolean,
   shouldRemoveFragments?: boolean,

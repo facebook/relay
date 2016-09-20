@@ -12,10 +12,8 @@
 
 'use strict';
 
-import type {Variables} from 'RelayTypes';
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
-import type RelayRecordStore from 'RelayRecordStore';
 
 const areEqual = require('areEqual');
 const forEachRootCallArg = require('forEachRootCallArg');
@@ -23,10 +21,13 @@ const invariant = require('invariant');
 
 import type {DataID} from 'RelayInternalTypes';
 import type {Record} from 'RelayRecord';
+import type RelayRecordStore from 'RelayRecordStore';
+import type {Variables} from 'RelayTypes';
 
 type FragmentVariablesMap = {
   [fragmentID: string]: Array<Variables>;
 };
+
 export type FragmentProp = {
   __dataID__: DataID,
   __fragments__: FragmentVariablesMap,

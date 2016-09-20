@@ -13,6 +13,9 @@
 'use strict';
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+
+const invariant = require('invariant');
+
 import type {DataID} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
@@ -21,8 +24,6 @@ import type {
   Subscription,
   SubscriptionCallbacks,
 } from 'RelayTypes';
-
-const invariant = require('invariant');
 
 /**
  * An Rx Observable representing the results of a fragment in the local cache.

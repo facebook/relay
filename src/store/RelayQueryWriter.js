@@ -12,18 +12,13 @@
 
 'use strict';
 
-const RelayQuery = require('RelayQuery');
-import type RelayChangeTracker from 'RelayChangeTracker';
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
-import type {QueryPath} from 'RelayQueryPath';
+const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
-import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecord = require('RelayRecord');
 const RelayRecordState = require('RelayRecordState');
-import type RelayRecordStore from 'RelayRecordStore';
-import type RelayRecordWriter from 'RelayRecordWriter';
 
 const generateClientEdgeID = require('generateClientEdgeID');
 const generateClientID = require('generateClientID');
@@ -31,7 +26,12 @@ const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 const warning = require('warning');
 
+import type RelayChangeTracker from 'RelayChangeTracker';
 import type {DataID} from 'RelayInternalTypes';
+import type {QueryPath} from 'RelayQueryPath';
+import type RelayQueryTracker from 'RelayQueryTracker';
+import type RelayRecordStore from 'RelayRecordStore';
+import type RelayRecordWriter from 'RelayRecordWriter';
 
 type WriterOptions = {
   forceIndex?: ?number,

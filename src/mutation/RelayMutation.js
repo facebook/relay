@@ -12,25 +12,26 @@
 
 'use strict';
 
-import type {ConcreteFragment} from 'ConcreteQuery';
-import type {RelayConcreteNode} from 'RelayQL';
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const RelayFragmentReference = require('RelayFragmentReference');
-import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
-import type {
-  RelayMutationConfig,
-  Variables,
-} from 'RelayTypes';
 
 const buildRQL = require('buildRQL');
-import type {RelayQLFragmentBuilder} from 'buildRQL';
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const validateMutationConfig = require('validateMutationConfig');
 const warning = require('warning');
+
+import type {ConcreteFragment} from 'ConcreteQuery';
+import type {RelayEnvironmentInterface} from 'RelayEnvironment';
+import type {RelayConcreteNode} from 'RelayQL';
+import type {
+  RelayMutationConfig,
+  Variables,
+} from 'RelayTypes';
+import type {RelayQLFragmentBuilder} from 'buildRQL';
 
 export type FileMap = {[key: string]: File};
 export type RelayMutationFragments<Tk> = {

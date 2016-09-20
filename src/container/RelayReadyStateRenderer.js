@@ -13,17 +13,18 @@
 'use strict';
 
 const React = require('React');
-import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 const RelayFragmentPointer = require('RelayFragmentPointer');
-import type {RelayQuerySet} from 'RelayInternalTypes';
 const RelayPropTypes = require('RelayPropTypes');
-import type RelayQuery from 'RelayQuery';
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
-import type {ReadyState, RelayContainer} from 'RelayTypes';
 const StaticContainer = require('StaticContainer.react');
 
 const getRelayQueries = require('getRelayQueries');
 const mapObject = require('mapObject');
+
+import type {RelayEnvironmentInterface} from 'RelayEnvironment';
+import type {RelayQuerySet} from 'RelayInternalTypes';
+import type RelayQuery from 'RelayQuery';
+import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
+import type {ReadyState, RelayContainer} from 'RelayTypes';
 
 type Props = {
   Container: RelayContainer,
@@ -33,13 +34,10 @@ type Props = {
   render?: ?RelayRenderCallback,
   retry: RelayRetryCallback,
 };
-
 type RelayContainerProps = {
   [propName: string]: mixed;
 };
 type RelayContainerPropsFactory = RelayContainerPropsFactory;
-export type RelayRenderCallback =
-  (renderArgs: RelayRenderArgs) => ?React$Element<any>;
 type RelayRenderArgs = {
   done: boolean,
   error: ?Error,
@@ -47,6 +45,9 @@ type RelayRenderArgs = {
   retry: ?RelayRetryCallback,
   stale: boolean,
 };
+
+export type RelayRenderCallback =
+  (renderArgs: RelayRenderArgs) => ?React$Element<any>;
 export type RelayRetryCallback = () => void;
 
 /**

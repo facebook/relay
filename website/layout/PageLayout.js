@@ -11,9 +11,9 @@
 
 'use strict';
 
+const Marked = require('Marked');
 const React = require('React');
 const Site = require('Site');
-const Marked = require('Marked');
 
 const support = React.createClass({
   render: function() {

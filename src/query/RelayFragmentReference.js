@@ -12,14 +12,15 @@
 
 'use strict';
 
-import type {ConcreteFragment} from 'ConcreteQuery';
 const QueryBuilder = require('QueryBuilder');
-import type RelayMetaRoute from 'RelayMetaRoute';
-import type {Variables} from 'RelayTypes';
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
+
+import type {ConcreteFragment} from 'ConcreteQuery';
+import type RelayMetaRoute from 'RelayMetaRoute';
+import type {Variables} from 'RelayTypes';
 
 type Condition = {
   passingValue: boolean,
@@ -30,6 +31,7 @@ type PrepareVariablesCallback = (
   prevVariables: Variables,
   route: RelayMetaRoute
 ) => Variables;
+
 export type VariableMapping = {[key: string]: mixed};
 
 /**

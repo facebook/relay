@@ -12,23 +12,24 @@
 
 'use strict';
 
-import type RelayMutationRequest from 'RelayMutationRequest';
 const RelayProfiler = require('RelayProfiler');
-import type RelayQuery from 'RelayQuery';
 const RelayQueryRequest = require('RelayQueryRequest');
-import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 
 const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
 const warning = require('warning');
 
-export type MutationCallback = (request: RelayMutationRequest) => void;
-export type QueryCallback = (request: RelayQueryRequest) => void;
+import type RelayMutationRequest from 'RelayMutationRequest';
+import type RelayQuery from 'RelayQuery';
+import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 
 type Subscriber = {
   queryCallback: ?QueryCallback,
   mutationCallback: ?MutationCallback,
 };
+
+export type MutationCallback = (request: RelayMutationRequest) => void;
+export type QueryCallback = (request: RelayQueryRequest) => void;
 
 /**
  * @internal

@@ -12,38 +12,36 @@
 
 'use strict';
 
-import type {ConcreteMutation} from 'ConcreteQuery';
 const RelayConnectionInterface = require('RelayConnectionInterface');
-import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationType = require('RelayMutationType');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
 const RelayQuery = require('RelayQuery');
-import type RelayQueryTracker from 'RelayQueryTracker';
 const RelayRecord = require('RelayRecord');
-import type {Variables} from 'RelayTypes';
-const {REFETCH} = require('GraphQLMutatorConstants');
 
 const flattenRelayQuery = require('flattenRelayQuery');
 const forEachObject = require('forEachObject');
 const getRangeBehavior = require('getRangeBehavior');
-const nullthrows = require('nullthrows');
 const intersectRelayQuery = require('intersectRelayQuery');
 const invariant = require('invariant');
+const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-// This should probably use disjoint unions.
-type MutationConfig = {[key: string]: $FlowFixMe};
+const {REFETCH} = require('GraphQLMutatorConstants');
+
+import type {ConcreteMutation} from 'ConcreteQuery';
+import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
+import type RelayQueryTracker from 'RelayQueryTracker';
+import type {Variables} from 'RelayTypes';
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment,
   tracker: RelayQueryTracker,
 };
-type FieldsMutationFragmentBuilderConfig =
-  BasicMutationFragmentBuilderConfig & {
-    fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
-  };
+type BasicOptimisticMutationFragmentBuilderConfig = {
+  fatQuery: RelayQuery.Fragment,
+};
 type EdgeDeletionMutationFragmentBuilderConfig =
   BasicMutationFragmentBuilderConfig & {
     connectionName: string,
@@ -58,11 +56,12 @@ type EdgeInsertionMutationFragmentBuilderConfig =
     parentName?: string,
     rangeBehaviors: RangeBehaviors,
   };
-
-type BasicOptimisticMutationFragmentBuilderConfig = {
-  fatQuery: RelayQuery.Fragment,
-};
-
+type FieldsMutationFragmentBuilderConfig =
+  BasicMutationFragmentBuilderConfig & {
+    fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
+  };
+// This should probably use disjoint unions.
+type MutationConfig = {[key: string]: $FlowFixMe};
 type OptimisticUpdateFragmentBuilderConfig =
   BasicOptimisticMutationFragmentBuilderConfig & {
     response: Object,

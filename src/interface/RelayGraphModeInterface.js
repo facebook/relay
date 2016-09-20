@@ -16,32 +16,11 @@ import type {PageInfo} from 'RelayConnectionInterface';
 import type {Call, DataID} from 'RelayInternalTypes';
 
 export type CacheKey = string;
-
 export type GraphModePayload = Array<GraphOperation>;
 export type GraphOperation =
   PutRootOperation |
   PutNodesOperation |
   PutEdgesOperation;
-export type PutRootOperation = {
-  op: 'putRoot',
-  field: string,
-  identifier: mixed,
-  root: ?(GraphRecord | GraphReference),
-};
-export type PutNodesOperation = {
-  op: 'putNodes',
-  nodes: {[dataID: DataID]: GraphRecord},
-};
-export type PutEdgesOperation = {
-  op: 'putEdges',
-  args: Array<Call>,
-  edges: Array<?GraphRecord>,
-  pageInfo: PageInfo,
-  range: {
-    __key: CacheKey,
-  },
-};
-
 export type GraphRecord = {[storageKey: string]: ?GraphValue};
 export type GraphReference = {
   __ref: DataID,
@@ -57,6 +36,25 @@ export type GraphValue = (
   GraphScalar |
   Array<?GraphScalar>
 );
+export type PutEdgesOperation = {
+  op: 'putEdges',
+  args: Array<Call>,
+  edges: Array<?GraphRecord>,
+  pageInfo: PageInfo,
+  range: {
+    __key: CacheKey,
+  },
+};
+export type PutNodesOperation = {
+  op: 'putNodes',
+  nodes: {[dataID: DataID]: GraphRecord},
+};
+export type PutRootOperation = {
+  op: 'putRoot',
+  field: string,
+  identifier: mixed,
+  root: ?(GraphRecord | GraphReference),
+};
 
 const RelayGraphModeInterface = {
   CACHE_KEY: '__key',

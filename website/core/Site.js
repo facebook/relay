@@ -11,8 +11,8 @@
 
 'use strict';
 
-const React = require('React');
 const HeaderLinks = require('HeaderLinks');
+const React = require('React');
 
 const Site = React.createClass({
   render: function() {

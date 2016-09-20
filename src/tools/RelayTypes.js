@@ -15,24 +15,86 @@
 /**
  * Types that Relay framework users may find useful.
  */
-import type URI from 'URI';
+import type RelayFragmentReference from 'RelayFragmentReference';
 import type {
   DataID,
   FieldValue,
   RangeBehaviors,
 } from 'RelayInternalTypes';
-import type RelayFragmentReference from 'RelayFragmentReference';
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationRequest from 'RelayMutationRequest';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
+import type {RelayConcreteNode} from 'RelayQL';
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 import type RelayQueryRequest from 'RelayQueryRequest';
 import type {Record} from 'RelayRecord';
-import type {RelayConcreteNode} from 'RelayQL';
+import type URI from 'URI';
 
-// Variables
-export type Variables = {[name: string]: mixed};
+type RelayContainerErrorEventType = (
+  'CACHE_RESTORE_FAILED' |
+  'NETWORK_QUERY_ERROR'
+);
+type RelayContainerLoadingEventType = (
+  'ABORT' |
+  'CACHE_RESTORED_REQUIRED' |
+  'CACHE_RESTORE_START' |
+  'NETWORK_QUERY_RECEIVED_ALL' |
+  'NETWORK_QUERY_RECEIVED_REQUIRED' |
+  'NETWORK_QUERY_START' |
+  'STORE_FOUND_ALL' |
+  'STORE_FOUND_REQUIRED'
+);
+type XHRErrorData = {
+  errorCode: ?string,
+  errorMsg: ?string,
+  errorType: ?string,
+};
 
+// Utility
+export type Abortable = {
+  abort: () => void,
+};
+// Disk Cache
+export type CacheManager = {
+  clear: () => void,
+  getMutationWriter: () => CacheWriter,
+  getQueryWriter: () => CacheWriter,
+  readNode: (
+    id: DataID,
+    callback: (error: any, value: any) => void
+  ) => void,
+   readRootCall: (
+    callName: string,
+    callValue: string,
+    callback: (error: any, value: any) => void
+  ) => void,
+};
+export type CacheProcessorCallbacks = {
+  onSuccess?: () => void,
+  onFailure?: () => void,
+};
+export type CacheWriter = {
+  writeField: (
+    dataID: DataID,
+    field: string,
+    value: ?FieldValue,
+    typeName: ?string
+  ) => void,
+  writeNode: (dataID: DataID, record: ?Record) => void,
+  writeRootCall: (
+    storageKey: string,
+    identifyingArgValue: string,
+    dataID: DataID
+  ) => void,
+};
+// Store Change Emitter
+export type ChangeSubscription = {
+  remove: () => void,
+};
+export type ComponentFetchState = {
+  done: boolean,
+  stale: boolean,
+};
 // Ready State
 export type ComponentReadyState = {
   aborted: boolean,
@@ -45,33 +107,28 @@ export type ComponentReadyState = {
 };
 export type ComponentReadyStateChangeCallback =
   (readyState: ComponentReadyState) => void;
-
-export type ComponentFetchState = {
-  done: boolean,
-  stale: boolean,
+export type MultiObservable<T> = {
+  subscribe: (callbacks: SubscriptionCallbacks<Array<T>>) => Subscription,
+  setDataIDs: (dataIDs: Array<DataID>) => void,
 };
-
-type RelayContainerLoadingEventType = (
-  'ABORT' |
-  'CACHE_RESTORED_REQUIRED' |
-  'CACHE_RESTORE_START' |
-  'NETWORK_QUERY_RECEIVED_ALL' |
-  'NETWORK_QUERY_RECEIVED_REQUIRED' |
-  'NETWORK_QUERY_START' |
-  'STORE_FOUND_ALL' |
-  'STORE_FOUND_REQUIRED'
-);
-
-type RelayContainerErrorEventType = (
-  'CACHE_RESTORE_FAILED' |
-  'NETWORK_QUERY_ERROR'
-);
-
-export type ReadyStateEvent = {
-  type: RelayContainerLoadingEventType | RelayContainerErrorEventType,
-  error?: Error,
-}
-
+export type MutationResult = {
+  response: Object,
+};
+// Network requests
+export type NetworkLayer = {
+  sendMutation: (request: RelayMutationRequest) => ?Promise<any>,
+  sendQueries: (requests: Array<RelayQueryRequest>) => ?Promise<any>,
+  supports: (...options: Array<string>) => boolean,
+};
+// Observable
+export type Observable<T> = {
+  subscribe: (callbacks: SubscriptionCallbacks<T>) => Subscription,
+};
+export type QueryResult = {
+  error?: ?Error,
+  ref_params?: ?{[name: string]: mixed},
+  response: Object,
+};
 export type ReadyState = {
   aborted: boolean,
   done: boolean,
@@ -81,10 +138,51 @@ export type ReadyState = {
   stale: boolean,
 };
 export type ReadyStateChangeCallback = (readyState: ReadyState) => void;
-
+export type ReadyStateEvent = {
+  type: RelayContainerLoadingEventType | RelayContainerErrorEventType,
+  error?: Error,
+}
 // Containers
 export type RelayContainer = ReactClass<any>;
-
+export type RelayMutationConfig = {
+  type: 'FIELDS_CHANGE',
+  fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
+} | {
+  type: 'RANGE_ADD',
+  parentName: string,
+  parentID?: string,
+  connectionName: string,
+  edgeName: string,
+  rangeBehaviors: RangeBehaviors,
+} | {
+  type: 'NODE_DELETE',
+  parentName: string,
+  parentID?: string,
+  connectionName: string,
+  deletedIDFieldName: string,
+} | {
+  type: 'RANGE_DELETE',
+  parentName: string,
+  parentID?: string,
+  connectionName: string,
+  deletedIDFieldName: string,
+  pathToConnection: Array<string>,
+} | {
+  type: 'REQUIRED_CHILDREN',
+  children: Array<RelayConcreteNode>,
+};
+export type RelayMutationTransactionCommitCallbacks = {
+  onFailure?: ?RelayMutationTransactionCommitFailureCallback,
+  onSuccess?: ?RelayMutationTransactionCommitSuccessCallback,
+};
+// Mutations
+export type RelayMutationTransactionCommitFailureCallback = (
+  transaction: RelayMutationTransaction,
+  preventAutoRollback: () => void,
+) => void;
+export type RelayMutationTransactionCommitSuccessCallback = (
+  response: {[key: string]: Object}
+) => void;
 export type RelayProp = {
   applyUpdate: (
     mutation: RelayMutation<any>,
@@ -117,121 +215,6 @@ export type RelayProp = {
   ) => void,
   variables: Variables,
 };
-
-// Mutations
-export type RelayMutationTransactionCommitFailureCallback = (
-  transaction: RelayMutationTransaction,
-  preventAutoRollback: () => void,
-) => void;
-export type RelayMutationTransactionCommitSuccessCallback = (
-  response: {[key: string]: Object}
-) => void;
-export type RelayMutationTransactionCommitCallbacks = {
-  onFailure?: ?RelayMutationTransactionCommitFailureCallback,
-  onSuccess?: ?RelayMutationTransactionCommitSuccessCallback,
-};
-export type RelayMutationConfig = {
-  type: 'FIELDS_CHANGE',
-  fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
-} | {
-  type: 'RANGE_ADD',
-  parentName: string,
-  parentID?: string,
-  connectionName: string,
-  edgeName: string,
-  rangeBehaviors: RangeBehaviors,
-} | {
-  type: 'NODE_DELETE',
-  parentName: string,
-  parentID?: string,
-  connectionName: string,
-  deletedIDFieldName: string,
-} | {
-  type: 'RANGE_DELETE',
-  parentName: string,
-  parentID?: string,
-  connectionName: string,
-  deletedIDFieldName: string,
-  pathToConnection: Array<string>,
-} | {
-  type: 'REQUIRED_CHILDREN',
-  children: Array<RelayConcreteNode>,
-};
-
-// Observable
-export type Observable<T> = {
-  subscribe: (callbacks: SubscriptionCallbacks<T>) => Subscription,
-};
-
-export type MultiObservable<T> = {
-  subscribe: (callbacks: SubscriptionCallbacks<Array<T>>) => Subscription,
-  setDataIDs: (dataIDs: Array<DataID>) => void,
-};
-
-export type Subscription = {
-  dispose(): void,
-};
-
-export type SubscriptionCallbacks<T> = {
-  onNext: ((value: T) => void),
-  onError: ((error: Error) => void),
-  onCompleted: (() => void),
-};
-
-// Store
-export type StoreReaderData = Object;
-export type StoreReaderOptions = {
-  traverseFragmentReferences?: boolean,
-  traverseGeneratedFields?: boolean,
-};
-
-// Store Change Emitter
-export type ChangeSubscription = {
-  remove: () => void,
-};
-
-// Disk Cache
-export type CacheManager = {
-  clear: () => void,
-  getMutationWriter: () => CacheWriter,
-  getQueryWriter: () => CacheWriter,
-  readNode: (
-    id: DataID,
-    callback: (error: any, value: any) => void
-  ) => void,
-   readRootCall: (
-    callName: string,
-    callValue: string,
-    callback: (error: any, value: any) => void
-  ) => void,
-};
-
-export type CacheProcessorCallbacks = {
-  onSuccess?: () => void,
-  onFailure?: () => void,
-};
-
-export type CacheWriter = {
-  writeField: (
-    dataID: DataID,
-    field: string,
-    value: ?FieldValue,
-    typeName: ?string
-  ) => void,
-  writeNode: (dataID: DataID, record: ?Record) => void,
-  writeRootCall: (
-    storageKey: string,
-    identifyingArgValue: string,
-    dataID: DataID
-  ) => void,
-};
-
-// Network requests
-export type NetworkLayer = {
-  sendMutation: (request: RelayMutationRequest) => ?Promise<any>,
-  sendQueries: (requests: Array<RelayQueryRequest>) => ?Promise<any>,
-  supports: (...options: Array<string>) => boolean,
-};
 export type RequestOptions = {
   data?: ?{[key: string]: mixed},
   errorHandler?: ?(error: XHRErrorData) => void,
@@ -248,21 +231,19 @@ export type RequestOptions = {
   transportBuilder?: any,
   uri: URI,
 };
-type XHRErrorData = {
-  errorCode: ?string,
-  errorMsg: ?string,
-  errorType: ?string,
+// Store
+export type StoreReaderData = Object;
+export type StoreReaderOptions = {
+  traverseFragmentReferences?: boolean,
+  traverseGeneratedFields?: boolean,
 };
-export type MutationResult = {
-  response: Object,
+export type Subscription = {
+  dispose(): void,
 };
-export type QueryResult = {
-  error?: ?Error,
-  ref_params?: ?{[name: string]: mixed},
-  response: Object,
+export type SubscriptionCallbacks<T> = {
+  onNext: ((value: T) => void),
+  onError: ((error: Error) => void),
+  onCompleted: (() => void),
 };
-
-// Utility
-export type Abortable = {
-  abort: () => void,
-};
+// Variables
+export type Variables = {[name: string]: mixed};

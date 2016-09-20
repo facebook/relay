@@ -12,9 +12,9 @@
 'use strict';
 
 const React = require('React');
-const Relay = require('Relay');
 const ReactDOM = require('ReactDOM');
 const ReactTestUtils = require('ReactTestUtils');
+const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayReadyStateRenderer = require('RelayReadyStateRenderer');

@@ -12,16 +12,15 @@
 
 'use strict';
 
-import type RelayQuery from 'RelayQuery';
-
 const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
+
+import type RelayQuery from 'RelayQuery';
 
 type PayloadResult = {
   result: mixed,
   rootCallInfo: RootCallInfo,
 };
-
 type RootCallInfo = {
   storageKey: string,
   identifyingArgKey: ?string,

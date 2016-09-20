@@ -12,11 +12,12 @@
 
 'use strict';
 
-import type {DataID} from 'RelayInternalTypes';
 const RelayStore = require('RelayStore');
 
 const invariant = require('invariant');
 const warning = require('warning');
+
+import type {DataID} from 'RelayInternalTypes';
 
 let _stepLength = -1; // collect in a single pass by default
 

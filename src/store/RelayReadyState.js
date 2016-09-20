@@ -12,14 +12,14 @@
 
 'use strict';
 
+const resolveImmediate = require('resolveImmediate');
+const warning = require('warning');
+
 import type {
   ReadyState,
   ReadyStateChangeCallback,
   ReadyStateEvent,
 } from 'RelayTypes';
-
-const resolveImmediate = require('resolveImmediate');
-const warning = require('warning');
 
 type PartialReadyState = {
   aborted?: boolean,

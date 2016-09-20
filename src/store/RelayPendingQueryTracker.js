@@ -15,12 +15,13 @@
 const Deferred = require('Deferred');
 const PromiseMap = require('PromiseMap');
 const RelayFetchMode = require('RelayFetchMode');
+
+const invariant = require('invariant');
+
 import type {FetchMode} from 'RelayFetchMode';
 import type RelayQuery from 'RelayQuery';
 import type RelayStoreData from 'RelayStoreData';
 import type {QueryResult} from 'RelayTypes';
-
-const invariant = require('invariant');
 
 type PendingQueryParameters = {
   fetchMode: FetchMode,

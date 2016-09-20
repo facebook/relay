@@ -12,14 +12,14 @@
 
 'use strict';
 
+const invariant = require('invariant');
+const serializeRelayQueryCall = require('serializeRelayQueryCall');
+
 import type {
   Call,
   CallValue,
   RangeBehaviors,
 } from 'RelayInternalTypes';
-
-const invariant = require('invariant');
-const serializeRelayQueryCall = require('serializeRelayQueryCall');
 
 /**
  * Return the action (prepend/append) to use when adding an item to

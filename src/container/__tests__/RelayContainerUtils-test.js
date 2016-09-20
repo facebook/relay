@@ -12,6 +12,7 @@
 'use strict';
 
 const React = require('React');
+
 const {
   getComponentName,
   getReactComponent,

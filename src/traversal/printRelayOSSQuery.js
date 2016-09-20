@@ -13,12 +13,13 @@
 'use strict';
 
 const Map = require('Map');
-import type {PrintedQuery} from 'RelayInternalTypes';
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 
 const base62 = require('base62');
 const invariant = require('invariant');
+
+import type {PrintedQuery} from 'RelayInternalTypes';
 
 type PrinterState = {
   fragmentCount: number,

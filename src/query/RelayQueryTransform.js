@@ -12,8 +12,9 @@
 
 'use strict';
 
-import type RelayQuery from 'RelayQuery';
 const RelayQueryVisitor = require('RelayQueryVisitor');
+
+import type RelayQuery from 'RelayQuery';
 
 /**
  * @internal

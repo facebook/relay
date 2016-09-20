@@ -342,6 +342,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       if (rootFieldType.hasField(FIELDS.clientSubscriptionId)) {
         requisiteFields[FIELDS.clientSubscriptionId] = true;
       }
+      if (rootFieldType.hasField(FIELDS.clientMutationId)) {
+        requisiteFields[FIELDS.clientMutationId] = true;
+      }
       const selections = this.printSelections(rootField, requisiteFields);
       const metadata = {
         inputType: this.printArgumentTypeForMetadata(

@@ -278,6 +278,9 @@ module.exports = function (t, options) {
         if (rootFieldType.hasField(FIELDS.clientSubscriptionId)) {
           requisiteFields[FIELDS.clientSubscriptionId] = true;
         }
+        if (rootFieldType.hasField(FIELDS.clientMutationId)) {
+          requisiteFields[FIELDS.clientMutationId] = true;
+        }
         var selections = this.printSelections(rootField, requisiteFields);
         var metadata = {
           inputType: this.printArgumentTypeForMetadata(rootField.getDeclaredArgument(INPUT_ARGUMENT_NAME))

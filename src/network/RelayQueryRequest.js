@@ -41,7 +41,8 @@ class RelayQueryRequest extends Deferred<QueryResult, Error> {
    * Gets a string name used to refer to this request for printing debug output.
    */
   getDebugName(): string {
-    return this._query.getName();
+    const name = this._query.getName();
+    return this._query.isDeferred() ? name + ' (DEFERRED)' : name;
   }
 
   /**

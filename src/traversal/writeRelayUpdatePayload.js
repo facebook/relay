@@ -124,10 +124,12 @@ function handleNodeDelete(
   }
 
   if (Array.isArray(recordIDs)) {
+    // $FlowFixMe(>=0.33.0)
     recordIDs.forEach(id => {
       deleteRecord(writer, id);
     });
   } else {
+    // $FlowFixMe(>=0.33.0)
     deleteRecord(writer, recordIDs);
   }
 }

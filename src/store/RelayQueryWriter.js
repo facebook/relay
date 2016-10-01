@@ -540,6 +540,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         generateClientID()
       );
       // TODO: Flow: `nodeID` is `string`
+      // $FlowFixMe(>=0.33.0)
       const edgeID = generateClientEdgeID(connectionID, nodeID);
       const path = RelayQueryPath.getPath(state.path, edges, edgeID);
       this.createRecordIfMissing(edges, edgeID, path, null);
@@ -550,6 +551,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // which would cause the generated ID here to not match the ID generated
       // in `_writeLink`.
       this.traverse(edges, {
+        // $FlowFixMe(>=0.33.0)
         nodeID,
         path,
         recordID: edgeID,
@@ -617,10 +619,14 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         prevLinkedID ||
         generateClientID()
       );
+      // $FlowFixMe(>=0.33.0)
       nextLinkedIDs.push(nextLinkedID);
 
+      // $FlowFixMe(>=0.33.0)
       const path = RelayQueryPath.getPath(state.path, field, nextLinkedID);
+      // $FlowFixMe(>=0.33.0)
       this.createRecordIfMissing(field, nextLinkedID, path, nextRecord);
+      // $FlowFixMe(>=0.33.0)
       nextRecords[nextLinkedID] = {record: nextRecord, path};
       isUpdate = isUpdate || nextLinkedID !== prevLinkedID;
       nextIndex++;
@@ -629,6 +635,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // client ids.
     this._writer.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
     nextLinkedIDs.forEach(nextLinkedID => {
+      // $FlowFixMe(>=0.33.0)
       const itemData = nextRecords[nextLinkedID];
       if (itemData) {
         this.traverse(field, {
@@ -682,11 +689,14 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       generateClientID()
     );
 
+    // $FlowFixMe(>=0.33.0)
     const path = RelayQueryPath.getPath(state.path, field, nextLinkedID);
+    // $FlowFixMe(>=0.33.0)
     this.createRecordIfMissing(field, nextLinkedID, path, fieldData);
     // always update the store to ensure the value is present in the appropriate
     // data sink (record/queuedRecords), but only record an update if the value
     // changed.
+    // $FlowFixMe(>=0.33.0)
     this._writer.putLinkedRecordID(recordID, storageKey, nextLinkedID);
     if (prevLinkedID !== nextLinkedID) {
       this.recordUpdate(recordID);
@@ -695,6 +705,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this.traverse(field, {
       nodeID: null,
       path,
+      // $FlowFixMe(>=0.33.0)
       recordID: nextLinkedID,
       responseData: fieldData,
     });

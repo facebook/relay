@@ -28,7 +28,9 @@ function serializeRelayQueryCall(call: Call): string {
   const {value} = call;
   let valueString;
   if (Array.isArray(value)) {
-    valueString = flattenArray(value).map(serializeCallValue).join(',');
+    valueString = flattenArray(value)
+      .map(value => serializeCallValue((value: any)))
+      .join(',');
   } else {
     valueString = serializeCallValue(value);
   }

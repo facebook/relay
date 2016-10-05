@@ -13,7 +13,7 @@
 
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -306,7 +306,7 @@ module.exports = function (t, options) {
       value: function printSelections(parent, requisiteFields, extraFragments) {
         var _this2 = this;
 
-        var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+        var isGeneratedQuery = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
         var fields = [];
         var printedFragments = [];
@@ -346,7 +346,7 @@ module.exports = function (t, options) {
       value: function printFields(fields, parent, requisiteFields) {
         var _this3 = this;
 
-        var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+        var isGeneratedQuery = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
         var parentType = parent.getType();
         if (parentType.isConnection() && parentType.hasField(FIELDS.pageInfo) && fields.some(function (field) {
@@ -374,7 +374,7 @@ module.exports = function (t, options) {
       value: function printField(field, parent, requisiteSiblings, generatedSiblings) {
         var _this4 = this;
 
-        var isGeneratedQuery = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
+        var isGeneratedQuery = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
         var fieldType = field.getType();
 
@@ -599,10 +599,11 @@ module.exports = function (t, options) {
   }
 
   function validateConnectionField(field) {
-    var first = field.findArgument('first');
-    var last = field.findArgument('last');
-    var before = field.findArgument('before');
-    var after = field.findArgument('after');
+    var _ref = [field.findArgument('first'), field.findArgument('last'), field.findArgument('before'), field.findArgument('after')];
+    var first = _ref[0];
+    var last = _ref[1];
+    var before = _ref[2];
+    var after = _ref[3];
 
     var condition = !first || !last || first.isVariable() && last.isVariable();
     if (!condition) {

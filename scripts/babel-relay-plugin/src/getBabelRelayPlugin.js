@@ -22,6 +22,7 @@ const invariant = require('./invariant');
 const util = require('util');
 
 const PROVIDES_MODULE = 'providesModule';
+const RELAY_QL_GENERATED = 'RelayQL_GENERATED';
 
 type GraphQLSchema = Object;
 type GraphQLSchemaProvider = (Object | () => Object);
@@ -99,6 +100,7 @@ function getBabelRelayPlugin(
           const tagName =
             tag.matchesPattern('Relay.QL') ? 'Relay.QL' :
             tag.isIdentifier({name: 'RelayQL'}) ? 'RelayQL' :
+            tag.isIdentifier({name: RELAY_QL_GENERATED}) ? RELAY_QL_GENERATED :
             null;
           if (!tagName) {
             return;
@@ -123,6 +125,7 @@ function getBabelRelayPlugin(
                 node.quasi,
                 {
                   documentName,
+                  enableValidation: tagName !== RELAY_QL_GENERATED,
                   tagName,
                   propName,
                 }

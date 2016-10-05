@@ -74,6 +74,7 @@ type TransformerOptions = {
 };
 type TextTransformOptions = {
   documentName: string,
+  enableValidation: boolean,
   propName: ?string,
   tagName: string,
 };
@@ -184,10 +185,12 @@ class RelayQLTransformer {
    */
   processDocumentText(
     documentText: string,
-    {documentName}: TextTransformOptions
+    {documentName, enableValidation}: TextTransformOptions
   ): RelayQLDefinition<any> {
     const document = parser.parse(new Source(documentText, documentName));
-    const validationErrors = this.validateDocument(document, documentName);
+    const validationErrors = enableValidation ?
+      this.validateDocument(document, documentName) :
+      null;
     if (validationErrors) {
       const error = new Error(util.format(
         'You supplied a GraphQL document named `%s` with validation errors.',

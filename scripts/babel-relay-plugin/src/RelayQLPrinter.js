@@ -85,17 +85,18 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
     print(
       definition: RelayQLDefinition<any>,
-      substitutions: Array<Substitution>
+      substitutions: Array<Substitution>,
+      enableValidation: boolean = true
     ): Printable {
       let printedDocument;
       if (definition instanceof RelayQLQuery) {
-        printedDocument = this.printQuery(definition);
+        printedDocument = this.printQuery(definition, enableValidation);
       } else if (definition instanceof RelayQLFragment) {
         printedDocument = this.printFragment(definition);
       } else if (definition instanceof RelayQLMutation) {
-        printedDocument = this.printMutation(definition);
+        printedDocument = this.printMutation(definition, enableValidation);
       } else if (definition instanceof RelayQLSubscription) {
-        printedDocument = this.printSubscription(definition);
+        printedDocument = this.printSubscription(definition, enableValidation);
       } else {
         throw new RelayTransformError(
           util.format('Unsupported definition: %s', definition),
@@ -114,9 +115,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       );
     }
 
-    printQuery(query: RelayQLQuery): Printable {
+    printQuery(query: RelayQLQuery, enableValidation: boolean): Printable {
       const rootFields = query.getFields();
-      if (rootFields.length !== 1) {
+      if (rootFields.length !== 1 && enableValidation) {
         throw new RelayTransformError(
           util.format(
             'There are %d fields supplied to the query named `%s`, but queries ' +
@@ -277,9 +278,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       }
     }
 
-    printMutation(mutation: RelayQLMutation): Printable {
+    printMutation(mutation: RelayQLMutation, enableValidation: boolean): Printable {
       const rootFields = mutation.getFields();
-      if (rootFields.length !== 1) {
+      if (rootFields.length !== 1 && enableValidation) {
         throw new RelayTransformError(
           util.format(
             'There are %d fields supplied to the mutation named `%s`, but ' +
@@ -322,9 +323,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       });
     }
 
-    printSubscription(subscription: RelayQLSubscription): Printable {
+    printSubscription(subscription: RelayQLSubscription, enableValidation: boolean): Printable {
       const rootFields = subscription.getFields();
-      if (rootFields.length !== 1) {
+      if (rootFields.length !== 1 && enableValidation) {
         throw new RelayTransformError(
           util.format(
             'There are %d fields supplied to the subscription named `%s`, but ' +

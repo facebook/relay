@@ -62,7 +62,7 @@ var RelayQLTransformer = function () {
       var definition = this.processDocumentText(documentText, options);
 
       var Printer = RelayQLPrinter(t, this.options);
-      return new Printer(options.tagName, variableNames).print(definition, substitutions);
+      return new Printer(options.tagName, variableNames).print(definition, substitutions, options.enableValidation);
     }
 
     /**
@@ -131,9 +131,10 @@ var RelayQLTransformer = function () {
     key: 'processDocumentText',
     value: function processDocumentText(documentText, _ref2) {
       var documentName = _ref2.documentName;
+      var enableValidation = _ref2.enableValidation;
 
       var document = parser.parse(new Source(documentText, documentName));
-      var validationErrors = this.validateDocument(document, documentName);
+      var validationErrors = enableValidation ? this.validateDocument(document, documentName) : null;
       if (validationErrors) {
         var error = new Error(util.format('You supplied a GraphQL document named `%s` with validation errors.', documentName));
         error.validationErrors = validationErrors;

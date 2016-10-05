@@ -13,7 +13,7 @@
 
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -88,15 +88,17 @@ module.exports = function (t, options) {
     _createClass(RelayQLPrinter, [{
       key: 'print',
       value: function print(definition, substitutions) {
+        var enableValidation = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
         var printedDocument = void 0;
         if (definition instanceof RelayQLQuery) {
-          printedDocument = this.printQuery(definition);
+          printedDocument = this.printQuery(definition, enableValidation);
         } else if (definition instanceof RelayQLFragment) {
           printedDocument = this.printFragment(definition);
         } else if (definition instanceof RelayQLMutation) {
-          printedDocument = this.printMutation(definition);
+          printedDocument = this.printMutation(definition, enableValidation);
         } else if (definition instanceof RelayQLSubscription) {
-          printedDocument = this.printSubscription(definition);
+          printedDocument = this.printSubscription(definition, enableValidation);
         } else {
           throw new RelayTransformError(util.format('Unsupported definition: %s', definition), definition.getLocation());
         }
@@ -108,9 +110,9 @@ module.exports = function (t, options) {
       }
     }, {
       key: 'printQuery',
-      value: function printQuery(query) {
+      value: function printQuery(query, enableValidation) {
         var rootFields = query.getFields();
-        if (rootFields.length !== 1) {
+        if (rootFields.length !== 1 && enableValidation) {
           throw new RelayTransformError(util.format('There are %d fields supplied to the query named `%s`, but queries ' + 'must have exactly one field.', rootFields.length, query.getName()), query.getLocation());
         }
         var rootField = rootFields[0];
@@ -232,9 +234,9 @@ module.exports = function (t, options) {
       }
     }, {
       key: 'printMutation',
-      value: function printMutation(mutation) {
+      value: function printMutation(mutation, enableValidation) {
         var rootFields = mutation.getFields();
-        if (rootFields.length !== 1) {
+        if (rootFields.length !== 1 && enableValidation) {
           throw new RelayTransformError(util.format('There are %d fields supplied to the mutation named `%s`, but ' + 'mutations must have exactly one field.', rootFields.length, mutation.getName()), mutation.getLocation());
         }
         var rootField = rootFields[0];
@@ -266,9 +268,9 @@ module.exports = function (t, options) {
       }
     }, {
       key: 'printSubscription',
-      value: function printSubscription(subscription) {
+      value: function printSubscription(subscription, enableValidation) {
         var rootFields = subscription.getFields();
-        if (rootFields.length !== 1) {
+        if (rootFields.length !== 1 && enableValidation) {
           throw new RelayTransformError(util.format('There are %d fields supplied to the subscription named `%s`, but ' + 'subscriptions must have exactly one field.', rootFields.length, subscription.getName()), subscription.getLocation());
         }
         var rootField = rootFields[0];
@@ -306,7 +308,7 @@ module.exports = function (t, options) {
       value: function printSelections(parent, requisiteFields, extraFragments) {
         var _this2 = this;
 
-        var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+        var isGeneratedQuery = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
         var fields = [];
         var printedFragments = [];
@@ -346,7 +348,7 @@ module.exports = function (t, options) {
       value: function printFields(fields, parent, requisiteFields) {
         var _this3 = this;
 
-        var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+        var isGeneratedQuery = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
         var parentType = parent.getType();
         if (parentType.isConnection() && parentType.hasField(FIELDS.pageInfo) && fields.some(function (field) {
@@ -374,7 +376,7 @@ module.exports = function (t, options) {
       value: function printField(field, parent, requisiteSiblings, generatedSiblings) {
         var _this4 = this;
 
-        var isGeneratedQuery = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
+        var isGeneratedQuery = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
         var fieldType = field.getType();
 
@@ -599,10 +601,11 @@ module.exports = function (t, options) {
   }
 
   function validateConnectionField(field) {
-    var first = field.findArgument('first');
-    var last = field.findArgument('last');
-    var before = field.findArgument('before');
-    var after = field.findArgument('after');
+    var _ref = [field.findArgument('first'), field.findArgument('last'), field.findArgument('before'), field.findArgument('after')];
+    var first = _ref[0];
+    var last = _ref[1];
+    var before = _ref[2];
+    var after = _ref[3];
 
     var condition = !first || !last || first.isVariable() && last.isVariable();
     if (!condition) {

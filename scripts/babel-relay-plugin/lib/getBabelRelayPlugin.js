@@ -13,7 +13,7 @@
 
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var computeLocation = require('./computeLocation');
 
@@ -28,6 +28,7 @@ var invariant = require('./invariant');
 var util = require('util');
 
 var PROVIDES_MODULE = 'providesModule';
+var RELAY_QL_GENERATED = 'RelayQL_GENERATED';
 
 /**
  * Returns a new Babel Transformer that uses the supplied schema to transform
@@ -96,7 +97,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
 
 
             var tag = path.get('tag');
-            var tagName = tag.matchesPattern('Relay.QL') ? 'Relay.QL' : tag.isIdentifier({ name: 'RelayQL' }) ? 'RelayQL' : null;
+            var tagName = tag.matchesPattern('Relay.QL') ? 'Relay.QL' : tag.isIdentifier({ name: 'RelayQL' }) ? 'RelayQL' : tag.isIdentifier({ name: RELAY_QL_GENERATED }) ? RELAY_QL_GENERATED : null;
             if (!tagName) {
               return;
             }
@@ -117,6 +118,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
             try {
               result = transformer.transform(t, node.quasi, {
                 documentName: documentName,
+                enableValidation: tagName !== RELAY_QL_GENERATED,
                 tagName: tagName,
                 propName: propName
               });

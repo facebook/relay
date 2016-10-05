@@ -131,9 +131,10 @@ var RelayQLTransformer = function () {
     key: 'processDocumentText',
     value: function processDocumentText(documentText, _ref2) {
       var documentName = _ref2.documentName;
+      var enableValidation = _ref2.enableValidation;
 
       var document = parser.parse(new Source(documentText, documentName));
-      var validationErrors = this.validateDocument(document, documentName);
+      var validationErrors = enableValidation ? this.validateDocument(document, documentName) : null;
       if (validationErrors) {
         var error = new Error(util.format('You supplied a GraphQL document named `%s` with validation errors.', documentName));
         error.validationErrors = validationErrors;

@@ -24,7 +24,7 @@ import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
-import type {ReadyState, RelayContainer} from 'RelayTypes';
+import type {ReadyState, ReadyStateEvent, RelayContainer} from 'RelayTypes';
 
 type Props = {
   Container: RelayContainer,
@@ -41,6 +41,7 @@ type RelayContainerPropsFactory = RelayContainerPropsFactory;
 type RelayRenderArgs = {
   done: boolean,
   error: ?Error,
+  events: Array<ReadyStateEvent>,
   props: ?RelayContainerProps,
   retry: ?RelayRetryCallback,
   stale: boolean,

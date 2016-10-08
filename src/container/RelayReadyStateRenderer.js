@@ -87,6 +87,38 @@ class RelayReadyStateRenderer extends React.Component {
     };
   }
 
+  /**
+   * Avoid updating when we have fetched data but are still not ready.
+   */
+  shouldComponentUpdate(nextProps: Props): boolean {
+    const prevProps = this.props;
+    if (
+      prevProps.Container !== nextProps.Container ||
+      prevProps.environment !== nextProps.environment ||
+      prevProps.queryConfig !== nextProps.queryConfig ||
+      prevProps.render !== nextProps.render ||
+      prevProps.retry !== nextProps.retry
+    ) {
+      return true;
+    }
+    const prevReadyState = prevProps.readyState;
+    const nextReadyState = nextProps.readyState;
+    if (prevReadyState == null ||
+        nextReadyState == null) {
+      return true;
+    }
+    if (
+      prevReadyState.aborted !== nextReadyState.aborted ||
+      prevReadyState.done !== nextReadyState.done ||
+      prevReadyState.error !== nextReadyState.error ||
+      prevReadyState.ready !== nextReadyState.ready ||
+      prevReadyState.stale !== nextReadyState.stale
+    ) {
+      return true;
+    }
+    return nextReadyState.ready;
+  }
+
   render(): ?React$Element<any> {
     let children;
     let shouldUpdate = false;

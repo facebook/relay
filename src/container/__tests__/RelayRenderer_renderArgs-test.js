@@ -149,9 +149,7 @@ describe('RelayRenderer.renderArgs', () => {
   });
 
   it('has a `retry` function that does nothing without a failure', () => {
-    expect(request => request.block()).toRenderWithArgs({error: null});
-
-    const {retry} = render.mock.calls[1][0];
+    const {retry} = render.mock.calls[0][0];
     expect(typeof retry).toBe('function');
     expect(environment.primeCache.mock.calls.length).toBe(1);
     retry();

@@ -139,7 +139,7 @@ describe('RelayRenderer.render', () => {
     expect(loadingView).toBeRenderedChild();
   });
 
-  it('renders whenever updated after request is sent', () => {
+  it('renders whenever updated after data is ready', () => {
     const render = jest.fn();
     function update() {
       renderElement(
@@ -153,6 +153,16 @@ describe('RelayRenderer.render', () => {
     }
     update();
     environment.primeCache.mock.requests[0].block();
+
+    expect(render.mock.calls.length).toBe(1);
+
+    update();
+    update();
+    update();
+
+    expect(render.mock.calls.length).toBe(1);
+
+    environment.primeCache.mock.requests[0].resolve();
 
     expect(render.mock.calls.length).toBe(2);
 
@@ -180,13 +190,13 @@ describe('RelayRenderer.render', () => {
     expect(render.mock.calls.length).toBe(1);
 
     request.block();
-    expect(render.mock.calls.length).toBe(2);
+    expect(render.mock.calls.length).toBe(1);
 
     request.resolve();
-    expect(render.mock.calls.length).toBe(3);
+    expect(render.mock.calls.length).toBe(2);
 
     request.succeed();
-    expect(render.mock.calls.length).toBe(4);
+    expect(render.mock.calls.length).toBe(3);
   });
 
   describe('GC integration', () => {

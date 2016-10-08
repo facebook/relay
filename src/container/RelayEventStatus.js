@@ -35,31 +35,31 @@ module.exports = {
               error: true,
               loadingNetwork: false,
             };
-            case 'NETWORK_QUERY_START':
-              return {
-                ...intermediateStatus,
-                error: false,
-                loadingNetwork: true,
-                ready: false,
-              };
-            case 'CACHE_RESTORE_START':
-              return {
-                ...intermediateStatus,
-                error: false,
-                loadingCache: true,
-                ready: false,
-              };
-            case 'CACHE_RESTORED_REQUIRED':
-            case 'NETWORK_QUERY_RECEIVED_REQUIRED':
-            case 'NETWORK_QUERY_RECEIVED_ALL':
-              return {
-                ...intermediateStatus,
-                error: false,
-                loadingCache: false,
-                ready: true,
-              };
-            default:
-              return intermediateStatus;
+          case 'NETWORK_QUERY_START':
+            return {
+              ...intermediateStatus,
+              error: false,
+              loadingNetwork: true,
+              ready: false,
+            };
+          case 'CACHE_RESTORE_START':
+            return {
+              ...intermediateStatus,
+              error: false,
+              loadingCache: true,
+              ready: false,
+            };
+          case 'CACHE_RESTORED_REQUIRED':
+          case 'NETWORK_QUERY_RECEIVED_REQUIRED':
+          case 'NETWORK_QUERY_RECEIVED_ALL':
+            return {
+              ...intermediateStatus,
+              error: false,
+              loadingCache: false,
+              ready: true,
+            };
+          default:
+            return intermediateStatus;
         }
       },
       {

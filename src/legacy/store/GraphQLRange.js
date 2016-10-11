@@ -471,16 +471,16 @@ class GraphQLRange {
   }
 
   /**
-   * Remove any edges in the range if it matches any of the ids in the input.
-   * This function is used to prevent us from adding any id that already exist
-   * in the range.
+   * Filter out edges that are already in the range to keep a stable ordering.
    *
    * @param {array} edges
+   * @return {array} filtered edges
    */
-  _removeEdgesIfApplicable(edges) {
-    for (let ii = 0; ii < edges.length; ii++) {
-      this._removeEdgeIfApplicable(edges[ii]);
-    }
+  _dedupEdgesAgainstRange(edges) {
+    return edges.filter(edge => {
+      const id = RelayRecord.getDataIDForObject(edge);
+      return this._getSegmentIndexByID(id) == null;
+    });
   }
 
   /**
@@ -553,8 +553,8 @@ class GraphQLRange {
       this._hasFirst = true;
     }
 
-    this._removeEdgesIfApplicable(edges);
-    segment.addEdgesAfterCursor(edges, afterCursor);
+    const filteredEdges = this._dedupEdgesAgainstRange(edges);
+    segment.addEdgesAfterCursor(filteredEdges, afterCursor);
     if (!hasNextPage) {
       if (beforeCursor !== undefined) {
         // If we have a beforeCursor and there is no next page,
@@ -675,8 +675,8 @@ class GraphQLRange {
       this._hasLast = true;
     }
 
-    this._removeEdgesIfApplicable(edges);
-    segment.addEdgesBeforeCursor(edges, beforeCursor);
+    const filteredEdges = this._dedupEdgesAgainstRange(edges);
+    segment.addEdgesBeforeCursor(filteredEdges, beforeCursor);
     if (!hasPrevPage) {
       if (afterCursor !== undefined) {
         // If we have an afterCursor and there is no previous page,

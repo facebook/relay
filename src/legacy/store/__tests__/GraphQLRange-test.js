@@ -1048,7 +1048,7 @@ describe('GraphQLRange', () => {
     expect(result.diffCalls.length).toBe(0);
   });
 
-  it('should support bumping', () => {
+  it('should dedup non-mutation edges', () => {
     let queryCalls = [
       {name: 'first', value: 3},
     ];
@@ -1065,11 +1065,11 @@ describe('GraphQLRange', () => {
       {name: 'first', value: 1},
     ];
 
-    // Testing add after: adding id2 to end of range
+    // Testing add after: adding id2 to end of range should not change ordering
     range.addItems(afterQueryCalls, [first3Edges[1]], pageInfo);
     let result = range.retrieveRangeInfoForQuery(queryCalls);
     expect(result.requestedEdgeIDs).toEqual(
-      [edge1.__dataID__, edge3.__dataID__, edge2.__dataID__]
+      [edge1.__dataID__, edge2.__dataID__, edge3.__dataID__]
     );
     expect(result.diffCalls.length).toBe(0);
 
@@ -1097,11 +1097,12 @@ describe('GraphQLRange', () => {
       {name: 'last', value: 1},
     ];
 
-    // Testing add before: adding id99 to end of range
+    // Testing add before: adding id99 to end of range should not change
+    // ordering
     range.addItems(beforeQueryCalls, [last3Edges[1]], pageInfo);
     result = range.retrieveRangeInfoForQuery(queryCalls);
     expect(result.requestedEdgeIDs).toEqual(
-      [edge99.__dataID__, edge98.__dataID__, edge100.__dataID__]
+      [edge98.__dataID__, edge99.__dataID__, edge100.__dataID__]
     );
     expect(result.diffCalls.length).toBe(0);
 
@@ -1897,41 +1898,6 @@ describe('GraphQLRange', () => {
     );
     expect(result.diffCalls).toEqual([
       {name: 'after', value: 'cursor3'},
-      {name: 'first', value: 1},
-    ]);
-  });
-
-  it('should retrieve with deleted bumped edges cursor', () => {
-    const queryCalls = [
-      {name: 'first', value: 3},
-    ];
-
-    const pageInfo = {
-      [HAS_NEXT_PAGE]: true,
-      [HAS_PREV_PAGE]: false,
-    };
-    range.addItems(queryCalls, first3Edges, pageInfo);
-    let result = range.retrieveRangeInfoForQuery(queryCalls);
-
-    // bump the second edge
-    const afterQueryCalls = [
-      {name: 'after', value: 'cursor3'},
-      {name: 'first', value: 1},
-    ];
-    const bumpedEdge = {...edge2};
-    bumpedEdge.cursor = 'differentCursor';
-    range.addItems(afterQueryCalls, [bumpedEdge], pageInfo);
-
-    const queryCallsWithCursor = [
-      {name: 'after', value: 'cursor2'},
-      {name: 'first', value: 3},
-    ];
-    result = range.retrieveRangeInfoForQuery(queryCallsWithCursor);
-    expect(result.requestedEdgeIDs).toEqual(
-      [edge3.__dataID__, bumpedEdge.__dataID__]
-    );
-    expect(result.diffCalls).toEqual([
-      {name: 'after', value: 'differentCursor'},
       {name: 'first', value: 1},
     ]);
   });

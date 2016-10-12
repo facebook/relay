@@ -27,6 +27,7 @@ import type {
 type RootContainerProps = {
   Component: RelayContainer,
   forceFetch?: ?boolean,
+  shouldFetch?: ?boolean,
   onReadyStateChange?: ?(readyState: ReadyState) => void,
   /* $FlowFixMe(site=react_native_fb,www) - should renderFailure be allowed to
    * return null/undefined? */
@@ -107,6 +108,7 @@ function RelayRootContainer({
   renderFetched,
   renderLoading,
   route,
+  shouldFetch,
 }: RootContainerProps): React$Element<any> {
   return (
     <RelayRenderer
@@ -115,6 +117,7 @@ function RelayRootContainer({
       onReadyStateChange={onReadyStateChange}
       queryConfig={route}
       environment={RelayStore}
+      shouldFetch={shouldFetch}
       render={({done, error, props, retry, stale}) => {
         if (error) {
           if (renderFailure) {
@@ -145,6 +148,7 @@ RelayRootContainer.propTypes = {
   renderFetched: PropTypes.func,
   renderLoading: PropTypes.func,
   route: RelayPropTypes.QueryConfig.isRequired,
+  shouldFetch: PropTypes.bool,
 };
 
 module.exports = RelayRootContainer;

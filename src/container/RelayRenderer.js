@@ -33,8 +33,12 @@ import type {
   RelayContainer,
 } from 'RelayTypes';
 
+type DefaultProps = {
+  shouldFetch?: ?boolean,
+};
 type Props = {
   Container: RelayContainer,
+  shouldFetch?: ?boolean,
   forceFetch?: ?boolean,
   onForceFetch?: ?(
     querySet: RelayQuerySet,
@@ -125,7 +129,21 @@ const INACTIVE_READY_STATE = {
  *   }
  *
  */
-class RelayRenderer extends React.Component<void, Props, State> {
+class RelayRenderer extends React.Component<DefaultProps, Props, State> {
+  static propTypes = {
+    Container: RelayPropTypes.Container,
+    forceFetch: PropTypes.bool,
+    onReadyStateChange: PropTypes.func,
+    queryConfig: RelayPropTypes.QueryConfig.isRequired,
+    environment: RelayPropTypes.Environment,
+    render: PropTypes.func,
+    shouldFetch: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    shouldFetch: true,
+  };
+
   gcHold: ?GarbageCollectionHold;
   lastRequest: ?Abortable;
   mounted: boolean;
@@ -162,8 +180,13 @@ class RelayRenderer extends React.Component<void, Props, State> {
       onPrimeCache,
       queryConfig,
       environment,
+      shouldFetch,
     }: Props
   ): void {
+    if (!shouldFetch) {
+      return;
+    }
+
     const onReadyStateChange = readyState => {
       if (!this.mounted) {
         this._handleReadyStateChange({...readyState, mounted: false});
@@ -219,6 +242,7 @@ class RelayRenderer extends React.Component<void, Props, State> {
     if (nextProps.Container !== this.props.Container ||
         nextProps.environment !== this.props.environment ||
         nextProps.queryConfig !== this.props.queryConfig ||
+        nextProps.shouldFetch !== this.props.shouldFetch ||
         (nextProps.forceFetch && !this.props.forceFetch)) {
       if (nextProps.environment !== this.props.environment) {
         if (this.gcHold) {
@@ -284,14 +308,5 @@ class RelayRenderer extends React.Component<void, Props, State> {
     );
   }
 }
-
-RelayRenderer.propTypes = {
-  Container: RelayPropTypes.Container,
-  forceFetch: PropTypes.bool,
-  onReadyStateChange: PropTypes.func,
-  queryConfig: RelayPropTypes.QueryConfig.isRequired,
-  environment: RelayPropTypes.Environment,
-  render: PropTypes.func,
-};
 
 module.exports = RelayRenderer;

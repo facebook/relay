@@ -795,7 +795,7 @@ function createContainerComponent(
       );
     }
 
-    render(): React$Element<any> {
+    render(): React.Element<any> {
       if (ComponentClass) {
         return (
           <ComponentClass

@@ -291,7 +291,7 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
     this.mounted = false;
   }
 
-  render(): ?React.Element<any> {
+  render(): ?React.Element<*> {
     const readyState = this.state.active ?
       this.state.readyState :
       INACTIVE_READY_STATE;

@@ -48,7 +48,7 @@ type RelayRenderArgs = {
 };
 
 export type RelayRenderCallback =
-  (renderArgs: RelayRenderArgs) => ?React.Element<any>;
+  (renderArgs: RelayRenderArgs) => ?React.Element<*>;
 export type RelayRetryCallback = () => void;
 
 /**
@@ -119,7 +119,7 @@ class RelayReadyStateRenderer extends React.Component {
     return nextReadyState.ready;
   }
 
-  render(): ?React.Element<any> {
+  render(): ?React.Element<*> {
     let children;
     let shouldUpdate = false;
 

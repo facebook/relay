@@ -133,3 +133,24 @@ Relay.createContainer(Story, {
 ```
 
 Wherever the inverse grammar serves you better, you can use `@skip(if: ...)` instead of `@include(if: ...)`.
+
+### Array fields
+
+In order to resolve a fragment into an array of objects you have to use the `@relay(plural: true)` directive.
+
+This will inform `Relay.QL` that this particular field is an array. This will also allow you to use a plural name for the fragment (i.e. `bars` instead of `bar`).
+
+```{4,9}
+Relay.createContainer(Story, {
+  fragments: {
+    bars: () => Relay.QL`
+      fragment on Bar @relay(plural: true) {
+        id
+        name
+      }
+    `,
+  }
+});
+```
+
+On the Relay Container the prop `bars` will be an array instead of an object.

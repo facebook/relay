@@ -858,7 +858,7 @@ describe('writeRelayUpdatePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"feedback123") {
-            topLevelComments(first:"1") {
+            topLevelComments(first:"2") {
               count
               edges {
                 node {
@@ -874,7 +874,7 @@ describe('writeRelayUpdatePayload()', () => {
           __typename: 'Feedback',
           id: feedbackID,
           topLevelComments: {
-            count: 1,
+            count: 2,
             edges: [
               {
                 cursor: firstCommentID + ':cursor',
@@ -933,7 +933,7 @@ describe('writeRelayUpdatePayload()', () => {
         feedback: {
           id: feedbackID,
           topLevelComments: {
-            count: 0,
+            count: 1,
           },
         },
       };
@@ -979,7 +979,7 @@ describe('writeRelayUpdatePayload()', () => {
         secondEdgeID,
       ]);
       // connection metadata is merged into the queued store
-      expect(queueStore.getField(connectionID, 'count')).toBe(0);
+      expect(queueStore.getField(connectionID, 'count')).toBe(1);
 
       // base records are not modified: node & edge exist, the edge is still
       // in the range, and the connection metadata is unchanged
@@ -987,7 +987,7 @@ describe('writeRelayUpdatePayload()', () => {
       expect(store.getRecordState(secondCommentID)).toBe('EXISTENT');
       expect(store.getRecordState(firstEdgeID)).toBe('EXISTENT');
       expect(store.getRecordState(secondEdgeID)).toBe('EXISTENT');
-      expect(store.getField(connectionID, 'count')).toBe(1);
+      expect(store.getField(connectionID, 'count')).toBe(2);
       expect(store.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '2'}]
@@ -1031,7 +1031,7 @@ describe('writeRelayUpdatePayload()', () => {
         feedback: {
           id: feedbackID,
           topLevelComments: {
-            count: 0,
+            count: 1,
           },
         },
       };
@@ -1076,7 +1076,7 @@ describe('writeRelayUpdatePayload()', () => {
         secondEdgeID,
       ]);
       // connection metadata is merged into the queued store
-      expect(store.getField(connectionID, 'count')).toBe(0);
+      expect(store.getField(connectionID, 'count')).toBe(1);
     });
   });
 

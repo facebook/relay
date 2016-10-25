@@ -491,7 +491,8 @@ class RelayDiffQueryBuilder {
               itemID,
               itemState.diffNode.getChildren(),
               RelayQueryPath.getName(path),
-              field.getType()
+              field.getType(),
+              field.isAbstract()
             ));
           }
         }
@@ -701,7 +702,8 @@ class RelayDiffQueryBuilder {
             nodeID,
             diffNodeField.getChildren(),
             RelayQueryPath.getName(path),
-            nodeField.getType()
+            nodeField.getType(),
+            nodeField.isAbstract()
           ));
         }
 
@@ -873,7 +875,8 @@ function buildRoot(
   rootID: DataID,
   nodes: Array<RelayQuery.Node>,
   name: string,
-  type: string
+  type: string,
+  isAbstract: boolean
 ): RelayQuery.Root {
   const children = [idField, typeField];
   const fields = [];
@@ -887,7 +890,8 @@ function buildRoot(
   children.push(RelayQuery.Fragment.build(
     'diffRelayQuery',
     type,
-    fields
+    fields,
+    {isAbstract}
   ));
 
   return RelayQuery.Root.build(

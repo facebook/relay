@@ -101,6 +101,7 @@ class RelayDefaultNetworkLayer {
       for (const filename in filesMap) {
         if (filesMap.hasOwnProperty(filename)) {
           var files = filesMap[filename];
+          // cheking if it is a FileList:
           if(typeof files.item === 'function'){
             for(var i=0; i<files.length; i++) {
               formData.append(filename, files.item(i));

@@ -90,17 +90,24 @@ class RelayDefaultNetworkLayer {
    */
   _sendMutation(request: RelayMutationRequest): Promise<any> {
     let init;
-    const files = request.getFiles();
-    if (files) {
+    const filesMap = request.getFiles();
+    if (filesMap) {
       if (!global.FormData) {
         throw new Error('Uploading files without `FormData` not supported.');
       }
       const formData = new FormData();
       formData.append('query', request.getQueryString());
       formData.append('variables', JSON.stringify(request.getVariables()));
-      for (const filename in files) {
-        if (files.hasOwnProperty(filename)) {
-          formData.append(filename, files[filename]);
+      for (const filename in filesMap) {
+        if (filesMap.hasOwnProperty(filename)) {
+          var files = filesMap[filename];
+          if(typeof files.item === 'function'){
+            for(var i=0; i<files.length; i++) {
+              formData.append(filename, files.item(i));
+            }
+          } else {
+            formData.append(filename, files);
+          }
         }
       }
       init = {

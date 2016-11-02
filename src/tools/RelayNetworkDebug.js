@@ -34,14 +34,19 @@ class RelayNetworkDebugger {
   _queryID: number;
   _subscription: ChangeSubscription;
 
-  constructor(environment: RelayEnvironment) {
+  constructor(
+    environment: RelayEnvironment,
+    graphiqlPrinter: ?((request: RelayQueryRequest | RelayMutationRequest) => string),
+  ) {
     this._initTime = performanceNow();
     this._queryID = 0;
     this._subscription = environment.addNetworkSubscriber(
-      request =>
-        this.logRequest(createDebuggableFromRequest('Relay Query', request)),
-      request =>
-        this.logRequest(createDebuggableFromRequest('Relay Mutation', request))
+      request => this.logRequest(
+        createDebuggableFromRequest('Relay Query', request, graphiqlPrinter)
+      ),
+      request => this.logRequest(
+        createDebuggableFromRequest('Relay Mutation', request, graphiqlPrinter)
+      ),
     );
   }
 
@@ -79,7 +84,8 @@ class RelayNetworkDebugger {
 
 function createDebuggableFromRequest(
   type: string,
-  request: RelayQueryRequest | RelayMutationRequest
+  request: RelayQueryRequest | RelayMutationRequest,
+  graphiqlPrinter: ?((request: RelayQueryRequest | RelayMutationRequest) => string),
 ): RelayNetworkDebuggable {
   return {
     name: request.getDebugName(),
@@ -99,12 +105,22 @@ function createDebuggableFromRequest(
         'Request Query (Estimated Size: %s)',
         requestSize
       );
+
+      if (graphiqlPrinter) {
+        console.groupCollapsed('GraphiQL Link');
+        console.debug(graphiqlPrinter(request));
+        console.groupEnd();
+      }
+
+      console.groupCollapsed('Query Text');
       console.debug(
         '%c%s\n',
         'font-size:10px; color:#333; font-family:mplus-2m-regular,menlo,' +
         'monospaced;',
         request.getQueryString()
       );
+      console.groupEnd();
+
       console.groupEnd();
 
       if (Object.keys(requestVariables).length > 0) {
@@ -133,11 +149,14 @@ function formatSize(bytes: number): string {
 let networkDebugger: ?RelayNetworkDebugger;
 
 const RelayNetworkDebug = {
-  init(environment: RelayEnvironment = Relay.Store): void {
+  init(
+    environment: RelayEnvironment = Relay.Store,
+    graphiqlPrinter: ?((request: RelayQueryRequest | RelayMutationRequest) => string),
+  ): void {
     networkDebugger && networkDebugger.uninstall();
     // Without `groupCollapsed`, RelayNetworkDebug is too noisy.
     if (console.groupCollapsed) {
-      networkDebugger = new RelayNetworkDebugger(environment);
+      networkDebugger = new RelayNetworkDebugger(environment, graphiqlPrinter);
     }
   },
 

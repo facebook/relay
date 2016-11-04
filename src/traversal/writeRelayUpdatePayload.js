@@ -193,13 +193,13 @@ function handleMerge(
     if (typeof payloadData !== 'object' || payloadData == null) {
       continue;
     }
-    // if the field is an argument-less root call, determine the corresponding
-    // root record ID
-    const rootID = store.getDataID(fieldName);
+
     // check for valid data (has an ID or is an array) and write the field
     if (
       ID in payloadData ||
-      rootID ||
+      // if the field is an argument-less root call, determine the corresponding
+      // root record ID
+      store.getDataID(fieldName) ||
       Array.isArray(payloadData)
     ) {
       mergeField(

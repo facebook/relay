@@ -16,9 +16,9 @@
 // Convert a GraphQL location object with relative start/end position in RelayQLDocument in
 // source into {line, column, source} information.
 function computeLocation(_ref) {
-  var start = _ref.start;
-  var end = _ref.end;
-  var source = _ref.source;
+  var start = _ref.start,
+      end = _ref.end,
+      source = _ref.source;
 
   if (!source) {
     return null;

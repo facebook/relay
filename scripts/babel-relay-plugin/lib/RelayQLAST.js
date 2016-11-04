@@ -25,14 +25,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _require = require('./GraphQL');
-
-var types = _require.type;
-var GraphQLDirectiveClass = _require.type_directives.GraphQLDirective;
-var _require$type_introsp = _require.type_introspection;
-var SchemaMetaFieldDef = _require$type_introsp.SchemaMetaFieldDef;
-var TypeMetaFieldDef = _require$type_introsp.TypeMetaFieldDef;
-var TypeNameMetaFieldDef = _require$type_introsp.TypeNameMetaFieldDef;
+var _require = require('./GraphQL'),
+    types = _require.type,
+    GraphQLDirectiveClass = _require.type_directives.GraphQLDirective,
+    _require$type_introsp = _require.type_introspection,
+    SchemaMetaFieldDef = _require$type_introsp.SchemaMetaFieldDef,
+    TypeMetaFieldDef = _require$type_introsp.TypeMetaFieldDef,
+    TypeNameMetaFieldDef = _require$type_introsp.TypeNameMetaFieldDef;
 
 var GraphQLRelayDirective = require('./GraphQLRelayDirective');
 
@@ -41,10 +40,8 @@ var invariant = require('./invariant');
 var util = require('util');
 var RelayTransformError = require('./RelayTransformError');
 
-var _require2 = require('./RelayQLNodeInterface');
-
-var ID = _require2.ID;
-
+var _require2 = require('./RelayQLNodeInterface'),
+    ID = _require2.ID;
 
 var GraphQLRelayDirectiveInstance = new GraphQLDirectiveClass(GraphQLRelayDirective);
 
@@ -519,11 +516,10 @@ var RelayQLType = function () {
 
     this.context = context;
 
-    var _stripMarkerTypes = stripMarkerTypes(schemaModifiedType);
-
-    var isListType = _stripMarkerTypes.isListType;
-    var isNonNullType = _stripMarkerTypes.isNonNullType;
-    var schemaUnmodifiedType = _stripMarkerTypes.schemaUnmodifiedType;
+    var _stripMarkerTypes = stripMarkerTypes(schemaModifiedType),
+        isListType = _stripMarkerTypes.isListType,
+        isNonNullType = _stripMarkerTypes.isNonNullType,
+        schemaUnmodifiedType = _stripMarkerTypes.schemaUnmodifiedType;
 
     this.isListType = isListType;
     this.isNonNullType = isNonNullType;
@@ -793,11 +789,10 @@ var RelayQLArgumentType = function () {
   function RelayQLArgumentType(schemaModifiedArgType) {
     _classCallCheck(this, RelayQLArgumentType);
 
-    var _stripMarkerTypes2 = stripMarkerTypes(schemaModifiedArgType);
-
-    var isListType = _stripMarkerTypes2.isListType;
-    var isNonNullType = _stripMarkerTypes2.isNonNullType;
-    var schemaUnmodifiedType = _stripMarkerTypes2.schemaUnmodifiedType;
+    var _stripMarkerTypes2 = stripMarkerTypes(schemaModifiedArgType),
+        isListType = _stripMarkerTypes2.isListType,
+        isNonNullType = _stripMarkerTypes2.isNonNullType,
+        schemaUnmodifiedType = _stripMarkerTypes2.schemaUnmodifiedType;
 
     this.isListType = isListType;
     this.isNonNullType = isNonNullType;

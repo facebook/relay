@@ -17,9 +17,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var computeLocation = require('./computeLocation');
 
-var _require = require('./GraphQL');
-
-var buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema;
+var _require = require('./GraphQL'),
+    buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema;
 
 var RelayQLTransformer = require('./RelayQLTransformer');
 var RelayTransformError = require('./RelayTransformError');
@@ -48,9 +47,9 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
   });
 
   return function (_ref) {
-    var Plugin = _ref.Plugin;
-    var types = _ref.types;
-    var version = _ref.version;
+    var Plugin = _ref.Plugin,
+        types = _ref.types,
+        version = _ref.version;
 
     return babelAdapter(Plugin, types, version, 'relay-query', function (t) {
       return {
@@ -138,15 +137,15 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
               } else {
                 // Print a console warning and replace the code with a function
                 // that will immediately throw an error in the browser.
-                var sourceText = error.sourceText;
-                var validationErrors = error.validationErrors;
+                var sourceText = error.sourceText,
+                    validationErrors = error.validationErrors;
 
                 var isValidationError = !!(validationErrors && sourceText);
                 if (isValidationError) {
                   var sourceLines = sourceText.split('\n');
                   validationErrors.forEach(function (_ref3) {
-                    var message = _ref3.message;
-                    var locations = _ref3.locations;
+                    var message = _ref3.message,
+                        locations = _ref3.locations;
 
                     errorMessages.push(message);
                     warning('\n-- GraphQL Validation Error -- %s --\n', basename);

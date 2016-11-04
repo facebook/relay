@@ -18,18 +18,17 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var GraphQL = require('./GraphQL');
-var formatError = GraphQL.error.formatError;
-var parser = GraphQL.language_parser;
-var Source = GraphQL.language_source.Source;
-var validate = GraphQL.validation.validate;
+var formatError = GraphQL.error.formatError,
+    parser = GraphQL.language_parser,
+    Source = GraphQL.language_source.Source,
+    validate = GraphQL.validation.validate;
 
-var _require = require('./RelayQLAST');
-
-var RelayQLDefinition = _require.RelayQLDefinition;
-var RelayQLFragment = _require.RelayQLFragment;
-var RelayQLMutation = _require.RelayQLMutation;
-var RelayQLQuery = _require.RelayQLQuery;
-var RelayQLSubscription = _require.RelayQLSubscription;
+var _require = require('./RelayQLAST'),
+    RelayQLDefinition = _require.RelayQLDefinition,
+    RelayQLFragment = _require.RelayQLFragment,
+    RelayQLMutation = _require.RelayQLMutation,
+    RelayQLQuery = _require.RelayQLQuery,
+    RelayQLSubscription = _require.RelayQLSubscription;
 
 var RelayQLPrinter = require('./RelayQLPrinter');
 
@@ -52,11 +51,10 @@ var RelayQLTransformer = function () {
     key: 'transform',
     value: function transform(t, // Babel
     node, options) {
-      var _processTemplateLiter = this.processTemplateLiteral(node, options.documentName);
-
-      var substitutions = _processTemplateLiter.substitutions;
-      var templateText = _processTemplateLiter.templateText;
-      var variableNames = _processTemplateLiter.variableNames;
+      var _processTemplateLiter = this.processTemplateLiteral(node, options.documentName),
+          substitutions = _processTemplateLiter.substitutions,
+          templateText = _processTemplateLiter.templateText,
+          variableNames = _processTemplateLiter.variableNames;
 
       var documentText = this.processTemplateText(templateText, options);
       var definition = this.processDocumentText(documentText, options);
@@ -105,8 +103,8 @@ var RelayQLTransformer = function () {
   }, {
     key: 'processTemplateText',
     value: function processTemplateText(templateText, _ref) {
-      var documentName = _ref.documentName;
-      var propName = _ref.propName;
+      var documentName = _ref.documentName,
+          propName = _ref.propName;
 
       var pattern = /^(fragment|mutation|query|subscription)\s*(\w*)?([\s\S]*)/;
       var matches = pattern.exec(templateText);
@@ -130,8 +128,8 @@ var RelayQLTransformer = function () {
   }, {
     key: 'processDocumentText',
     value: function processDocumentText(documentText, _ref2) {
-      var documentName = _ref2.documentName;
-      var enableValidation = _ref2.enableValidation;
+      var documentName = _ref2.documentName,
+          enableValidation = _ref2.enableValidation;
 
       var document = parser.parse(new Source(documentText, documentName));
       var validationErrors = enableValidation ? this.validateDocument(document, documentName) : null;
@@ -175,9 +173,8 @@ var RelayQLTransformer = function () {
       var validator = this.options.validator;
       var validationErrors = void 0;
       if (validator) {
-        var _validator = validator(GraphQL);
-
-        var _validate = _validator.validate;
+        var _validator = validator(GraphQL),
+            _validate = _validator.validate;
 
         validationErrors = _validate(this.schema, document);
       } else {

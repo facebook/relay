@@ -23,31 +23,27 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _require = require('./RelayQLAST');
-
-var RelayQLArgument = _require.RelayQLArgument;
-var RelayQLArgumentType = _require.RelayQLArgumentType;
-var RelayQLDefinition = _require.RelayQLDefinition;
-var RelayQLDirective = _require.RelayQLDirective;
-var RelayQLField = _require.RelayQLField;
-var RelayQLFragment = _require.RelayQLFragment;
-var RelayQLFragmentSpread = _require.RelayQLFragmentSpread;
-var RelayQLInlineFragment = _require.RelayQLInlineFragment;
-var RelayQLMutation = _require.RelayQLMutation;
-var RelayQLQuery = _require.RelayQLQuery;
-var RelayQLSubscription = _require.RelayQLSubscription;
-var RelayQLType = _require.RelayQLType;
-
+var _require = require('./RelayQLAST'),
+    RelayQLArgument = _require.RelayQLArgument,
+    RelayQLArgumentType = _require.RelayQLArgumentType,
+    RelayQLDefinition = _require.RelayQLDefinition,
+    RelayQLDirective = _require.RelayQLDirective,
+    RelayQLField = _require.RelayQLField,
+    RelayQLFragment = _require.RelayQLFragment,
+    RelayQLFragmentSpread = _require.RelayQLFragmentSpread,
+    RelayQLInlineFragment = _require.RelayQLInlineFragment,
+    RelayQLMutation = _require.RelayQLMutation,
+    RelayQLQuery = _require.RelayQLQuery,
+    RelayQLSubscription = _require.RelayQLSubscription,
+    RelayQLType = _require.RelayQLType;
 
 var find = require('./find');
 var invariant = require('./invariant');
 var util = require('util');
 var RelayTransformError = require('./RelayTransformError');
 
-var _require2 = require('./RelayQLNodeInterface');
-
-var ID = _require2.ID;
-
+var _require2 = require('./RelayQLNodeInterface'),
+    ID = _require2.ID;
 
 module.exports = function (t, options) {
   var formatFields = options.snakeCase ? function (fields) {
@@ -601,11 +597,11 @@ module.exports = function (t, options) {
   }
 
   function validateConnectionField(field) {
-    var _ref = [field.findArgument('first'), field.findArgument('last'), field.findArgument('before'), field.findArgument('after')];
-    var first = _ref[0];
-    var last = _ref[1];
-    var before = _ref[2];
-    var after = _ref[3];
+    var _ref = [field.findArgument('first'), field.findArgument('last'), field.findArgument('before'), field.findArgument('after')],
+        first = _ref[0],
+        last = _ref[1],
+        before = _ref[2],
+        after = _ref[3];
 
     var condition = !first || !last || first.isVariable() && last.isVariable();
     if (!condition) {

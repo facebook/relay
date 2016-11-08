@@ -57,10 +57,13 @@ type GraphOperation =
   PutRootOperation;
 
 type PayloadState = {
+  // $FlowFixMe(>=0.34.0)
   currentRecord: GraphRecord,
+  // $FlowFixMe(>=0.34.0)
   path: QueryPath,
   payloadRecord: PayloadRecord,
 };
+// $FlowFixMe(>=0.34.0)
 type PayloadRecord = {[storageKey: string]: ?PayloadValue};
 type PayloadScalar = (
   boolean |
@@ -299,6 +302,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
         field.getSchemaName(),
         fieldData
       );
+      // $FlowFixMe(>=0.34.0)
       currentRecord[field.getStorageKey()] = fieldData;
     } else if (field.isConnection()) {
       invariant(
@@ -336,6 +340,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     fieldData: PayloadRecord
   ): void {
     const {currentRecord} = state;
+    // $FlowFixMe(>=0.34.0)
     const path = RelayQueryPath.getPath(
       state.path,
       field
@@ -369,10 +374,12 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     parentNode.getChildren().forEach(child => {
       if (child instanceof RelayQuery.Field) {
         if (child.getSchemaName() === EDGES) {
+          // $FlowFixMe(>=0.34.0)
           this._transformEdges(connectionField, child, state);
         } else if (child.getSchemaName() !== PAGE_INFO) {
           // Page info is handled by the range
           // Otherwise, write metadata fields normally (ex: `count`)
+          // $FlowFixMe(>=0.34.0)
           this.visit(child, state);
         }
       } else {
@@ -442,6 +449,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     fieldData: Array<?PayloadScalar>
   ): void {
     const {currentRecord} = state;
+    // $FlowFixMe(>=0.34.0)
     const storageKey = field.getStorageKey();
 
     const linkedRecords = currentRecord[storageKey];

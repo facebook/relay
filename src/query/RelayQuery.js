@@ -812,6 +812,7 @@ class RelayQueryFragment extends RelayQueryNode {
     routeName?: string
   ): RelayQueryFragment {
     const nextChildren = children ? children.filter(child => !!child) : [];
+    // $FlowFixMe(>=0.34.0)
     const concreteFragment = QueryBuilder.createFragment({
       name,
       type,

@@ -43,11 +43,11 @@ import type {
 } from 'RelayTypes';
 
 export type FragmentResolver = {
-  dispose: () => void,
-  resolve: (
+  dispose(): void,
+  resolve(
     fragment: RelayQuery.Fragment,
     dataIDs: DataID | Array<DataID>
-  ) => ?(StoreReaderData | Array<?StoreReaderData>),
+  ): ?(StoreReaderData | Array<?StoreReaderData>),
 };
 
 export interface RelayEnvironmentInterface {

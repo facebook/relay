@@ -21,6 +21,7 @@ export type GraphOperation =
   PutRootOperation |
   PutNodesOperation |
   PutEdgesOperation;
+// $FlowFixMe(>=0.34.0)
 export type GraphRecord = {[storageKey: string]: ?GraphValue};
 export type GraphReference = {
   __ref: DataID,

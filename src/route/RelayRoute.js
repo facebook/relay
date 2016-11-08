@@ -40,7 +40,7 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
 
   static path: ?string;
   static paramDefinitions: ?ParamDefinitions;
-  static prepareParams: ?(prevParams: Tv) => Tv;
+  static +prepareParams: ?(prevParams: Tv) => Tv;
   static queries: ?ConfigQueries;
   static routeName: string;
 

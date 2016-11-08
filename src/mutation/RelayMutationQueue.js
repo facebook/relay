@@ -397,6 +397,7 @@ class RelayPendingTransaction {
   // Lazily computed and memoized private properties
   _callName: string;
   _collisionKey: ?string;
+  // $FlowFixMe(>=0.34.0)
   _configs: Array<{[key: string]: mixed}>;
   _error: ?Error;
   _fatQuery: RelayQuery.Fragment;
@@ -405,6 +406,7 @@ class RelayPendingTransaction {
   _mutationNode: ConcreteMutation;
   _onCommitFailureCallback: ?RelayMutationTransactionCommitFailureCallback;
   _onCommitSuccessCallback: ?RelayMutationTransactionCommitSuccessCallback;
+  // $FlowFixMe(>=0.34.0)
   _optimisticConfigs: ?Array<{[key: string]: mixed}>;
   _optimisticQuery: ?RelayQuery.Mutation;
   _optimisticResponse: ?Object;

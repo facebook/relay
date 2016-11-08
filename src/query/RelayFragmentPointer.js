@@ -150,6 +150,7 @@ const RelayFragmentPointer = {
     dataID: DataID,
     fragment: RelayQuery.Fragment
   ): FragmentProp {
+    // $FlowFixMe(>=0.34.0)
     const record = RelayRecord.create(dataID);
     RelayFragmentPointer.addFragment(record, fragment);
     return record;

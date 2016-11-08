@@ -163,6 +163,7 @@ class RelayGarbageCollector {
     }
     this._isCollecting = true;
 
+    // $FlowFixMe(>=0.34.0)
     const cachedRecords = this._storeData.getCachedData();
     const freshRecords = this._storeData.getNodeData();
     this._scheduler(() => {
@@ -205,6 +206,7 @@ class RelayGarbageCollector {
     return null;
   }
 
+  // $FlowFixMe(>=0.34.0)
   _traverseRecord(record: {[key: string]: mixed}): void {
     forEachObject(record, (value, storageKey) => {
       if (storageKey === RelayRecord.MetadataKey.PATH) {

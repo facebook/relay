@@ -207,6 +207,7 @@ class RelayMutation<Tp: Object> {
   /**
    * These variables form the "input" to the mutation query sent to the server.
    */
+  // $FlowFixMe(>=0.34.0)
   getVariables(): {[name: string]: mixed} {
     invariant(
       false,
@@ -234,6 +235,7 @@ class RelayMutation<Tp: Object> {
    * can be a superset of the actual response payload if certain fields that are
    * affected have not been queried by the client, yet.
    */
+  // $FlowFixMe(>=0.34.0)
   getOptimisticResponse(): ?{[key: string]: mixed} {
     return null;
   }

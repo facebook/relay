@@ -52,44 +52,44 @@ type XHRErrorData = {
 
 // Utility
 export type Abortable = {
-  abort: () => void,
+  abort(): void,
 };
 // Disk Cache
 export type CacheManager = {
-  clear: () => void,
-  getMutationWriter: () => CacheWriter,
-  getQueryWriter: () => CacheWriter,
-  readNode: (
+  clear(): void,
+  getMutationWriter(): CacheWriter,
+  getQueryWriter(): CacheWriter,
+  readNode(
     id: DataID,
     callback: (error: any, value: any) => void
-  ) => void,
-   readRootCall: (
+  ): void,
+   readRootCall(
     callName: string,
     callValue: string,
     callback: (error: any, value: any) => void
-  ) => void,
+  ): void,
 };
 export type CacheProcessorCallbacks = {
-  onSuccess?: () => void,
-  onFailure?: () => void,
+  +onSuccess?: () => void,
+  +onFailure?: () => void,
 };
 export type CacheWriter = {
-  writeField: (
+  writeField(
     dataID: DataID,
     field: string,
     value: ?FieldValue,
     typeName: ?string
-  ) => void,
-  writeNode: (dataID: DataID, record: ?Record) => void,
-  writeRootCall: (
+  ): void,
+  writeNode(dataID: DataID, record: ?Record): void,
+  writeRootCall(
     storageKey: string,
     identifyingArgValue: string,
     dataID: DataID
-  ) => void,
+  ): void,
 };
 // Store Change Emitter
 export type ChangeSubscription = {
-  remove: () => void,
+  remove(): void,
 };
 export type ComponentFetchState = {
   done: boolean,
@@ -108,21 +108,21 @@ export type ComponentReadyState = {
 export type ComponentReadyStateChangeCallback =
   (readyState: ComponentReadyState) => void;
 export type MultiObservable<T> = {
-  subscribe: (callbacks: SubscriptionCallbacks<Array<T>>) => Subscription,
-  setDataIDs: (dataIDs: Array<DataID>) => void,
+  subscribe(callbacks: SubscriptionCallbacks<Array<T>>): Subscription,
+  setDataIDs(dataIDs: Array<DataID>): void,
 };
 export type MutationResult = {
   response: Object,
 };
 // Network requests
 export type NetworkLayer = {
-  sendMutation: (request: RelayMutationRequest) => ?Promise<any>,
-  sendQueries: (requests: Array<RelayQueryRequest>) => ?Promise<any>,
-  supports: (...options: Array<string>) => boolean,
+  sendMutation(request: RelayMutationRequest): ?Promise<any>,
+  sendQueries(requests: Array<RelayQueryRequest>): ?Promise<any>,
+  supports(...options: Array<string>): boolean,
 };
 // Observable
 export type Observable<T> = {
-  subscribe: (callbacks: SubscriptionCallbacks<T>) => Subscription,
+  subscribe(callbacks: SubscriptionCallbacks<T>): Subscription,
 };
 export type QueryResult = {
   error?: ?Error,
@@ -196,7 +196,7 @@ export type RelayProp = {
     partialVariables?: ?Variables,
     callback?: ?ComponentReadyStateChangeCallback
   ) => void,
-  getPendingTransactions: (record: Object) => ?Array<RelayMutationTransaction>,
+  getPendingTransactions(record: Object): ?Array<RelayMutationTransaction>,
   hasFragmentData: (
     fragmentReference: RelayFragmentReference,
     record: Object
@@ -241,9 +241,9 @@ export type Subscription = {
   dispose(): void,
 };
 export type SubscriptionCallbacks<T> = {
-  onNext: ((value: T) => void),
-  onError: ((error: Error) => void),
-  onCompleted: (() => void),
+  onNext(value: T): void,
+  onError(error: Error): void,
+  onCompleted(): void,
 };
 // Variables
 export type Variables = {[name: string]: mixed};

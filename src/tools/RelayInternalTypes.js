@@ -99,6 +99,7 @@ export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 export type RelayQuerySet = {[queryName: string]: ?RelayQuery.Root};
 export type RootCallMap = {[storageKey: string]: IdentifyingArgsMap};
 export type UpdateOptions = {
+  // $FlowFixMe(>=0.34.0)
   configs: Array<{[key: string]: mixed}>,
   isOptimisticUpdate: boolean,
 };

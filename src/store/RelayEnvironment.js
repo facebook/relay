@@ -69,6 +69,10 @@ export interface RelayEnvironmentInterface {
     dataID: DataID,
     options?: StoreReaderOptions
   ): ?StoreReaderData,
+  readQuery(
+    root: RelayQuery.Root,
+    options?: StoreReaderOptions
+  ): Array<?StoreReaderData>,
 }
 
 /**

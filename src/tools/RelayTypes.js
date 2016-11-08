@@ -165,7 +165,7 @@ export type RelayMutationConfig = {
   parentName: string,
   parentID?: string,
   connectionName: string,
-  deletedIDFieldName: string,
+  deletedIDFieldName: string | Array<string>,
   pathToConnection: Array<string>,
 } | {
   type: 'REQUIRED_CHILDREN',

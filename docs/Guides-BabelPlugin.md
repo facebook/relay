@@ -40,8 +40,10 @@ The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, 
 ```javascript
 {
   "passPerPreset": true,
+  "plugins": [
+    "./plugins/babelRelayPlugin"
+  ],
   "presets": [
-    {"plugins": ["./plugins/babelRelayPlugin"]},
     "react-native"
   ]
 }

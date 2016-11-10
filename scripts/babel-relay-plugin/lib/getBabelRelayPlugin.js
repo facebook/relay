@@ -7,7 +7,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * 
+ *
  * @fullSyntaxTransform
  */
 
@@ -18,7 +18,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var computeLocation = require('./computeLocation');
 
 var _require = require('./GraphQL'),
-    buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema;
+    buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema,
+    buildASTSchema = _require.utilities_buildASTSchema.buildASTSchema;
 
 var RelayQLTransformer = require('./RelayQLTransformer');
 var RelayTransformError = require('./RelayTransformError');
@@ -189,8 +190,13 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
 
 function getSchema(schemaProvider) {
   var introspection = typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
-  invariant((typeof introspection === 'undefined' ? 'undefined' : _typeof(introspection)) === 'object' && introspection && _typeof(introspection.__schema) === 'object' && introspection.__schema, 'Invalid introspection data supplied to `getBabelRelayPlugin()`. The ' + 'resulting schema is not an object with a `__schema` property.');
-  return buildClientSchema(introspection);
+  if (_typeof(introspection.__schema) == 'object' && introspection.__schema) {
+    return buildClientSchema(introspection);
+  } else if (introspection.kind && introspection.kind === 'Document') {
+    return buildASTSchema(introspection);
+  }
+
+  throw new Error('Invalid introspection data supplied to `getBabelRelayPlugin()`. The ' + 'resulting schema is not an object with a `__schema` property or ' + 'a schema IDL language.');
 }
 
 module.exports = getBabelRelayPlugin;

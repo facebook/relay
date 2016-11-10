@@ -25,6 +25,7 @@ var GraphQL = {
   type_scalars: require('graphql/type/scalars'),
   utilities: require('graphql/utilities'),
   utilities_buildClientSchema: require('graphql/utilities/buildClientSchema'),
+  utilities_buildASTSchema: require('graphql/utilities/buildASTSchema'),
   validation: require('graphql/validation'),
   validation_rules_KnownFragmentNames: require('graphql/validation/rules/KnownFragmentNames'),
   validation_rules_NoUndefinedVariables: require('graphql/validation/rules/NoUndefinedVariables'),

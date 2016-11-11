@@ -125,7 +125,7 @@ const schemaPath = path.join(__dirname, 'schema');
 const SERVER = 'http://example.com/graphql';
 
 // Save JSON of full schema introspection for Babel Relay Plugin to use
-fetch(`${SERVER}`, {
+fetch(SERVER, {
   method: 'POST',
   headers: {
     'Accept': 'application/json',

@@ -252,6 +252,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             fragmentCode,
             t.objectExpression(
               selectVariablesValue.map((item) => {
+                // $FlowFixMe
                 const value = item.getValue();
                 return property(value, this.printVariable(value));
               })
@@ -560,6 +561,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         directives: this.printDirectives(field.getDirectives()),
         fieldName: t.valueToNode(field.getName()),
         kind: t.valueToNode('Field'),
+        // $FlowFixMe
         metadata: this.printRelayDirectiveMetadata(field, metadata),
         type: t.valueToNode(fieldType.getName({modifiers: false})),
       });
@@ -617,6 +619,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     printValue(value: mixed): Printable {
       if (Array.isArray(value)) {
         return t.arrayExpression(
+          // $FlowFixMe
           value.map(element => this.printArgumentValue(element))
         );
       }

@@ -32,7 +32,7 @@ const RelayQLPrinter = require('./RelayQLPrinter');
 const invariant = require('./invariant');
 const util = require('util');
 
-import type {Document as GraphQLDocument} from 'GraphQLAST';
+import type {Document as GraphQLDocument} from '../interfaces/GraphQLAST';
 import type {Printable, Substitution} from './RelayQLPrinter';
 
 type GraphQLLocation = {

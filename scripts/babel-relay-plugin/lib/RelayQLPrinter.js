@@ -211,6 +211,7 @@ module.exports = function (t, options) {
             throw new RelayTransformError('The variables argument to the @relay directive should be an array ' + 'of strings.', fragment.getLocation());
           }
           return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__createFragment')), [fragmentCode, t.objectExpression(selectVariablesValue.map(function (item) {
+            // $FlowFixMe
             var value = item.getValue();
             return property(value, _this.printVariable(value));
           }))]);
@@ -442,6 +443,7 @@ module.exports = function (t, options) {
           directives: this.printDirectives(field.getDirectives()),
           fieldName: t.valueToNode(field.getName()),
           kind: t.valueToNode('Field'),
+          // $FlowFixMe
           metadata: this.printRelayDirectiveMetadata(field, metadata),
           type: t.valueToNode(fieldType.getName({ modifiers: false }))
         });
@@ -493,7 +495,9 @@ module.exports = function (t, options) {
         var _this5 = this;
 
         if (Array.isArray(value)) {
-          return t.arrayExpression(value.map(function (element) {
+          return t.arrayExpression(
+          // $FlowFixMe
+          value.map(function (element) {
             return _this5.printArgumentValue(element);
           }));
         }

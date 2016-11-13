@@ -91,6 +91,7 @@ var RelayQLNode = function () {
       if (!this.ast.selectionSet) {
         return [];
       }
+      // $FlowFixMe
       return this.ast.selectionSet.selections.map(function (selection) {
         if (selection.kind === 'Field') {
           return new RelayQLField(_this.context, selection, _this.getType());
@@ -108,6 +109,7 @@ var RelayQLNode = function () {
     value: function getDirectives() {
       var _this2 = this;
 
+      // $FlowFixMe
       return (this.ast.directives || []).map(function (directive) {
         return new RelayQLDirective(_this2.context, directive);
       });
@@ -115,6 +117,7 @@ var RelayQLNode = function () {
   }, {
     key: 'hasDirective',
     value: function hasDirective(name) {
+      // $FlowFixMe
       return (this.ast.directives || []).some(function (d) {
         return d.name.value === name;
       });
@@ -142,7 +145,9 @@ var RelayQLDefinition = function (_RelayQLNode) {
     key: 'getName',
     value: function getName() {
       // TODO: this.context.definitionName;
-      return this.ast.name ? this.ast.name.value : this.getType().getName({ modifiers: false });
+      return this.ast.name ?
+      // $FlowFixMe
+      this.ast.name.value : this.getType().getName({ modifiers: false });
     }
   }]);
 

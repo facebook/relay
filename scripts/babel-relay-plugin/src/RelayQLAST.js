@@ -45,7 +45,7 @@ import type {
   Location as GraphQLLocation,
   OperationDefinition as GraphQLOperationDefinition,
   Value as GraphQLValue,
-} from 'GraphQLAST';
+} from '../interfaces/GraphQLAST';
 
 // TODO: Import types from `graphql`.
 type GraphQLSchema = Object;
@@ -103,6 +103,7 @@ class RelayQLNode<T: RelayQLNodeType> {
     if (!this.ast.selectionSet) {
       return [];
     }
+    // $FlowFixMe
     return this.ast.selectionSet.selections.map(selection => {
       if (selection.kind === 'Field') {
         return new RelayQLField(this.context, selection, this.getType());
@@ -124,12 +125,14 @@ class RelayQLNode<T: RelayQLNodeType> {
   }
 
   getDirectives(): Array<RelayQLDirective> {
+    // $FlowFixMe
     return (this.ast.directives || []).map(
       directive => new RelayQLDirective(this.context, directive)
     );
   }
 
   hasDirective(name: string): boolean {
+    // $FlowFixMe
     return (this.ast.directives || []).some(d => d.name.value === name);
   }
 
@@ -142,6 +145,7 @@ class RelayQLDefinition<T: RelayQLNodeType> extends RelayQLNode<T> {
   getName(): ?string {
     // TODO: this.context.definitionName;
     return this.ast.name ?
+      // $FlowFixMe
       this.ast.name.value :
       this.getType().getName({modifiers: false});
   }

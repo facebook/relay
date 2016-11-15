@@ -18,7 +18,6 @@ jest
   .mock('warning');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const GraphQLStoreTestUtils = require('GraphQLStoreTestUtils');
 const QueryBuilder = require('QueryBuilder');
 const React = require('React');
 const ReactTestUtils = require('ReactTestUtils');
@@ -76,8 +75,6 @@ describe('RelayContainer', function() {
 
     RelayTestRenderer = RelayTestUtils.createRenderer();
 
-    // TODO: #6524377 - migrate to RelayTestUtils matchers
-    jasmine.addMatchers(GraphQLStoreTestUtils.matchers);
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 

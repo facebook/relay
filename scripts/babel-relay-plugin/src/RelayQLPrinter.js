@@ -6,11 +6,16 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @flow
  * @fullSyntaxTransform
  */
 
 'use strict';
+
+const RelayTransformError = require('./RelayTransformError');
+
+const find = require('./find');
+const invariant = require('./invariant');
+const util = require('util');
 
 const {
   RelayQLArgument,
@@ -26,11 +31,6 @@ const {
   RelayQLSubscription,
   RelayQLType,
 } = require('./RelayQLAST');
-
-const find = require('./find');
-const invariant = require('./invariant');
-const util = require('util');
-const RelayTransformError = require('./RelayTransformError');
 const {ID} = require('./RelayQLNodeInterface');
 
 export type Printable = Object;
@@ -748,7 +748,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   }
 
   function validateConnectionField(field: RelayQLField): void {
-    let [first, last, before, after] = [
+    const [first, last, before, after] = [
       field.findArgument('first'),
       field.findArgument('last'),
       field.findArgument('before'),

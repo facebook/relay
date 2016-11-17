@@ -7,7 +7,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * 
  * @fullSyntaxTransform
  */
 
@@ -23,6 +22,12 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var RelayTransformError = require('./RelayTransformError');
+
+var find = require('./find');
+var invariant = require('./invariant');
+var util = require('util');
+
 var _require = require('./RelayQLAST'),
     RelayQLArgument = _require.RelayQLArgument,
     RelayQLArgumentType = _require.RelayQLArgumentType,
@@ -36,11 +41,6 @@ var _require = require('./RelayQLAST'),
     RelayQLQuery = _require.RelayQLQuery,
     RelayQLSubscription = _require.RelayQLSubscription,
     RelayQLType = _require.RelayQLType;
-
-var find = require('./find');
-var invariant = require('./invariant');
-var util = require('util');
-var RelayTransformError = require('./RelayTransformError');
 
 var _require2 = require('./RelayQLNodeInterface'),
     ID = _require2.ID;

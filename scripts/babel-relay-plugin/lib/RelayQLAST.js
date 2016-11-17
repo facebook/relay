@@ -7,7 +7,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * 
  * @fullSyntaxTransform
  */
 
@@ -25,6 +24,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var GraphQLRelayDirective = require('./GraphQLRelayDirective');
+var RelayTransformError = require('./RelayTransformError');
+
+var find = require('./find');
+var invariant = require('./invariant');
+var util = require('util');
+
 var _require = require('./GraphQL'),
     types = _require.type,
     GraphQLDirectiveClass = _require.type_directives.GraphQLDirective,
@@ -32,13 +38,6 @@ var _require = require('./GraphQL'),
     SchemaMetaFieldDef = _require$type_introsp.SchemaMetaFieldDef,
     TypeMetaFieldDef = _require$type_introsp.TypeMetaFieldDef,
     TypeNameMetaFieldDef = _require$type_introsp.TypeNameMetaFieldDef;
-
-var GraphQLRelayDirective = require('./GraphQLRelayDirective');
-
-var find = require('./find');
-var invariant = require('./invariant');
-var util = require('util');
-var RelayTransformError = require('./RelayTransformError');
 
 var _require2 = require('./RelayQLNodeInterface'),
     ID = _require2.ID;

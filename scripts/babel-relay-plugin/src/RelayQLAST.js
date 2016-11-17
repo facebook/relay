@@ -6,11 +6,17 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @flow
  * @fullSyntaxTransform
  */
 
 'use strict';
+
+const GraphQLRelayDirective = require('./GraphQLRelayDirective');
+const RelayTransformError = require('./RelayTransformError');
+
+const find = require('./find');
+const invariant = require('./invariant');
+const util = require('util');
 
 const {
   type: types,
@@ -23,12 +29,6 @@ const {
     TypeNameMetaFieldDef,
   },
 } = require('./GraphQL');
-const GraphQLRelayDirective = require('./GraphQLRelayDirective');
-
-const find = require('./find');
-const invariant = require('./invariant');
-const util = require('util');
-const RelayTransformError = require('./RelayTransformError');
 const {ID} = require('./RelayQLNodeInterface');
 
 const GraphQLRelayDirectiveInstance = new GraphQLDirectiveClass(

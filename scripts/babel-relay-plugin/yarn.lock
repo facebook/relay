@@ -1526,9 +1526,9 @@ graceful-fs@^4.0.0, graceful-fs@^4.1.2, graceful-fs@^4.1.4, graceful-fs@^4.1.6:
   version "1.0.1"
   resolved graceful-readlink-1.0.1.tgz#4cafad76bc62f02fa039b2f94e9a3dd3a391a725
 
-graphql@^0.6.0:
-  version "0.6.2"
-  resolved graphql-0.6.2.tgz#19cdcb17e5862d64396a0684f92f7be64e90e7af
+graphql@0.8.2:
+  version "0.8.2"
+  resolved graphql-0.8.2.tgz#eb1bb524b38104bbf2c9157f9abc67db2feba7d2
   dependencies:
     iterall "1.0.2"
 

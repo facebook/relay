@@ -6,23 +6,25 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @flow
  * @fullSyntaxTransform
  */
 
 'use strict';
 
+const RelayQLTransformer = require('./RelayQLTransformer');
+const RelayTransformError = require('./RelayTransformError');
+
+const babelAdapter = require('./babelAdapter');
 const computeLocation = require('./computeLocation');
+const invariant = require('./invariant');
+const util = require('util');
+
 const {
   utilities_buildClientSchema: {buildClientSchema},
   utilities_buildASTSchema: {buildASTSchema},
 } = require('./GraphQL');
+
 import type {Validator} from './RelayQLTransformer';
-const RelayQLTransformer = require('./RelayQLTransformer');
-const RelayTransformError = require('./RelayTransformError');
-const babelAdapter = require('./babelAdapter');
-const invariant = require('./invariant');
-const util = require('util');
 
 const PROVIDES_MODULE = 'providesModule';
 const RELAY_QL_GENERATED = 'RelayQL_GENERATED';
@@ -251,7 +253,7 @@ function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
   const introspection = typeof schemaProvider === 'function' ?
     schemaProvider() :
     schemaProvider;
-  if (typeof introspection.__schema == 'object' && introspection.__schema) {
+  if (typeof introspection.__schema === 'object' && introspection.__schema) {
     return buildClientSchema(introspection);
   } else if (introspection.kind && introspection.kind === 'Document') {
     return buildASTSchema(introspection);

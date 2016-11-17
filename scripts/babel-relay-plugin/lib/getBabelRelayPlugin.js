@@ -7,7 +7,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- *
  * @fullSyntaxTransform
  */
 
@@ -15,17 +14,17 @@
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+var RelayQLTransformer = require('./RelayQLTransformer');
+var RelayTransformError = require('./RelayTransformError');
+
+var babelAdapter = require('./babelAdapter');
 var computeLocation = require('./computeLocation');
+var invariant = require('./invariant');
+var util = require('util');
 
 var _require = require('./GraphQL'),
     buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema,
     buildASTSchema = _require.utilities_buildASTSchema.buildASTSchema;
-
-var RelayQLTransformer = require('./RelayQLTransformer');
-var RelayTransformError = require('./RelayTransformError');
-var babelAdapter = require('./babelAdapter');
-var invariant = require('./invariant');
-var util = require('util');
 
 var PROVIDES_MODULE = 'providesModule';
 var RELAY_QL_GENERATED = 'RelayQL_GENERATED';
@@ -190,7 +189,7 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
 
 function getSchema(schemaProvider) {
   var introspection = typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
-  if (_typeof(introspection.__schema) == 'object' && introspection.__schema) {
+  if (_typeof(introspection.__schema) === 'object' && introspection.__schema) {
     return buildClientSchema(introspection);
   } else if (introspection.kind && introspection.kind === 'Document') {
     return buildASTSchema(introspection);

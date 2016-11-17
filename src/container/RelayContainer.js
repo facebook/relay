@@ -330,6 +330,7 @@ function createContainerComponent(
             });
             if (callback) {
               callback.call(
+                // eslint-disable-next-line react/no-string-refs
                 this.refs.component || null,
                 {...readyState, mounted}
               );
@@ -801,7 +802,7 @@ function createContainerComponent(
           <ComponentClass
             {...this.props}
             {...this.state.queryData}
-            ref={'component'}
+            ref={'component'} // eslint-disable-line react/no-string-refs
             relay={this.state.relayProp}
           />
         );

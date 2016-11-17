@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
+ * @flow
  * @fullSyntaxTransform
  */
 
@@ -31,7 +32,7 @@ const RelayQLPrinter = require('./RelayQLPrinter');
 const invariant = require('./invariant');
 const util = require('util');
 
-import type {Document as GraphQLDocument} from '../interfaces/GraphQLAST';
+import type {DocumentNode} from 'graphql';
 import type {Printable, Substitution} from './RelayQLPrinter';
 
 type GraphQLLocation = {
@@ -225,7 +226,7 @@ class RelayQLTransformer {
   }
 
   validateDocument(
-    document: GraphQLDocument,
+    document: DocumentNode,
     documentName: string,
   ): ?Array<GraphQLValidationError> {
     invariant(

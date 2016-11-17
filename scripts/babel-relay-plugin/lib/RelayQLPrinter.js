@@ -7,6 +7,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
+ * 
  * @fullSyntaxTransform
  */
 
@@ -503,7 +504,10 @@ module.exports = function (t, options) {
         }
         return codify({
           kind: t.valueToNode('CallValue'),
-          callValue: printLiteralValue(value)
+          // codify() skips properties where value === NULL, but `callValue` is a
+          // required property. Create fresh null literals to force the property
+          // to be printed.
+          callValue: value == null ? t.nullLiteral() : printLiteralValue(value)
         });
       }
     }, {
@@ -660,8 +664,8 @@ module.exports = function (t, options) {
     }
   }
 
-  var forEachRecursiveField = function forEachRecursiveField(selection, callback) {
-    selection.getSelections().forEach(function (selection) {
+  var forEachRecursiveField = function forEachRecursiveField(parentSelection, callback) {
+    parentSelection.getSelections().forEach(function (selection) {
       if (selection instanceof RelayQLField) {
         callback(selection);
       } else if (selection instanceof RelayQLInlineFragment) {

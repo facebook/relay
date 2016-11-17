@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
+ * @flow
  * @fullSyntaxTransform
  */
 
@@ -625,7 +626,12 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       }
       return codify({
         kind: t.valueToNode('CallValue'),
-        callValue: printLiteralValue(value),
+        // codify() skips properties where value === NULL, but `callValue` is a
+        // required property. Create fresh null literals to force the property
+        // to be printed.
+        callValue: value == null ?
+          t.nullLiteral() :
+          printLiteralValue(value),
       });
     }
 
@@ -893,10 +899,10 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   }
 
   const forEachRecursiveField = function(
-    selection: RelayQLField | RelayQLFragment,
+    parentSelection: RelayQLField | RelayQLFragment,
     callback: (field: RelayQLField) => void
   ): void {
-    selection.getSelections().forEach(selection => {
+    parentSelection.getSelections().forEach(selection => {
       if (selection instanceof RelayQLField) {
         callback(selection);
       } else if (selection instanceof RelayQLInlineFragment) {

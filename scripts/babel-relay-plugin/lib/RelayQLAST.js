@@ -7,6 +7,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
+ * 
  * @fullSyntaxTransform
  */
 
@@ -33,7 +34,7 @@ var util = require('util');
 
 var _require = require('./GraphQL'),
     types = _require.type,
-    GraphQLDirectiveClass = _require.type_directives.GraphQLDirective,
+    GraphQLDirective = _require.type_directives.GraphQLDirective,
     _require$type_introsp = _require.type_introspection,
     SchemaMetaFieldDef = _require$type_introsp.SchemaMetaFieldDef,
     TypeMetaFieldDef = _require$type_introsp.TypeMetaFieldDef,
@@ -42,7 +43,7 @@ var _require = require('./GraphQL'),
 var _require2 = require('./RelayQLNodeInterface'),
     ID = _require2.ID;
 
-var GraphQLRelayDirectiveInstance = new GraphQLDirectiveClass(GraphQLRelayDirective);
+var GraphQLRelayDirectiveInstance = new GraphQLDirective(GraphQLRelayDirective);
 
 // TODO: Import types from `graphql`.
 
@@ -884,6 +885,10 @@ function getLiteralValue(value) {
       case 'ListValue':
         return {
           v: value.values.map(getLiteralValue)
+        };
+      case 'NullValue':
+        return {
+          v: null
         };
       case 'ObjectValue':
         var object = {};

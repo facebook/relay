@@ -98,6 +98,25 @@
 * Removed `uri` from `RelayQueryConfigSpec`. The `uri` property was part of `RelayRoute`, but never `RelayQueryConfig`. This revision simply cleans up the Flow shape in `RelayContainer`.
 * RelayRenderer now runs queries after mount to make sure `RelayRenderer` does not run queries during synchronous server-side rendering.
 
+## 0.7.2 (March 4, 2016)
+
+* Identifying arguments on root fields can now be of any type - boolean, number,
+  string, or array/object of the the same.
+* Fixes a bug when we read connections or fragments without allocating a record
+  until we encounter a child field that is not null. We now ensure that we
+  allocate the record for connections and fragments (if it exists) regardless.
+* Made babelAdapter compatible with Babel 6.6
+* `npm run build` now works on Windows
+* Tests now pass when using Node 5 / NPM 3
+* Passing an empty array as a prop corresponding to a plural fragment no longer
+  warns about mock data. The empty array is now passed through to the component
+  as-is.
+* Removed `uri` from `RelayQueryConfigSpec`. The `uri` property was part of
+  `RelayRoute`, but never `RelayQueryConfig`. This revision simply cleans up the
+  Flow shape in `RelayContainer`.
+* RelayRenderer now runs queries after mount to make sure `RelayRenderer` does
+  not run queries during synchronous server-side rendering.
+
 ## 0.7.1 (February 18, 2016)
 
 * Having fixed a bug, now you can *actually* interpolate an array of fragments into a `Relay.QL` query. eg. `${containers.map(c => c.getFragment('foo'))}`

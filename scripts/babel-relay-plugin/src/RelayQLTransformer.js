@@ -32,18 +32,13 @@ const RelayQLPrinter = require('./RelayQLPrinter');
 const invariant = require('./invariant');
 const util = require('util');
 
-import type {DocumentNode} from 'graphql';
+import type {
+  DocumentNode,
+  GraphQLError,
+  GraphQLFormattedError,
+  GraphQLSchema,
+} from 'graphql';
 import type {Printable, Substitution} from './RelayQLPrinter';
-
-type GraphQLLocation = {
-  column: number,
-  line: number,
-};
-type GraphQLSchema = Object;
-type GraphQLValidationError = {
-  message: string,
-  locations: Array<GraphQLLocation>,
-};
 
 type TemplateLiteral = {
   type: 'TemplateElement',
@@ -62,9 +57,9 @@ type TemplateElement = {
   range: [number, number],
   loc: Object,
 };
-export type Validator<T> = (GraphQL: typeof GraphQL) => (
-  (schema: GraphQLSchema, ast: T) => Array<Error>
-);
+export type Validator<T> = (GraphQL: any) => ({
+  validate: (schema: GraphQLSchema, ast: T) => Array<GraphQLError>,
+});
 
 type TransformerOptions = {
   inputArgumentName: ?string,
@@ -228,7 +223,7 @@ class RelayQLTransformer {
   validateDocument(
     document: DocumentNode,
     documentName: string,
-  ): ?Array<GraphQLValidationError> {
+  ): ?Array<GraphQLFormattedError> {
     invariant(
       document.definitions.length === 1,
       'You supplied a GraphQL document named `%s` with %d definitions, but ' +

@@ -164,11 +164,11 @@ babel.transform(source, {
       suppressWarnings: false,
       // Can add a custom validator.
       // Supplying one overrides the default one, skipping the default rules.
-      validator: (GraphQL) => {
-        return (schema, ast) => {
+      validator: {
+        validate(schema, ast) {
           // Return an array of `Error` instances.
           return [];
-        };
+        },
       },
     }), {
     // Will throw an error when it validates the queries at build time.

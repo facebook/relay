@@ -43,27 +43,23 @@ const Relay = require('Relay');
 import type {RelayContainerSpec, RelayLazyContainer} from 'RelayContainer';
 
 const RelayShallowMock = {
-   createContainer: (
-     component: ReactClass<any>,
-     spec: RelayContainerSpec,
-   ) : RelayLazyContainer => {
-     const Container = class extends React.Component {
-       render() {
-         return React.createElement(
-           'RelayContainer',
-           null,
-           component.displayName || component.name,
-         );
-       }
+  createContainer: (
+    component: ReactClass<any>,
+    spec: RelayContainerSpec,
+  ) : RelayLazyContainer => {
+    return class extends React.Component {
+      render() {
+        return React.createElement(
+          `Relay(${component.displayName || component.name || 'Unknown'})`,
+        );
+      }
 
-       static unwrap(): ReactClass<any> {
-         return component;
-       }
-     };
-
-     return Container;
-   },
- };
+      static unwrap(): ReactClass<any> {
+        return component;
+      }
+    };
+  },
+};
 
 module.exports = {
   ...Relay,

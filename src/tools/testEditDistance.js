@@ -10,6 +10,7 @@
  * @flow
  *
  */
+'use strict';
 
 /* eslint-disable no-shadow */
 

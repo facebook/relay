@@ -2,6 +2,7 @@
  * @generated
  * @providesModule Metadata
  */
+'use strict';
 module.exports = {
   "files": [
     {

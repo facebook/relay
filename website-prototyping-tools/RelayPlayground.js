@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
+'use strict';
 
 /* eslint-disable no-unused-vars, no-eval */
 
@@ -189,7 +190,7 @@ export default class RelayPlayground extends React.Component {
       this._updateApp(appSource);
     }
   }, 300, {trailing: true})
-  _updateApp = (appSource) => {
+  _updateApp(appSource) {
     clearTimeout(this._errorReporterTimeout);
     // We're running in a browser. Create a require() shim to catch any imports.
     const require = (path) => {
@@ -266,10 +267,10 @@ export default class RelayPlayground extends React.Component {
       this.props.onSchemaSourceChange(newSource);
     }
   }
-  _updateEditTarget = (editTarget) => {
+  _updateEditTarget(editTarget) {
     this.setState({editTarget});
   }
-  _updateSchema = (schemaSource, appSource) => {
+  _updateSchema(schemaSource, appSource) {
     try {
       var Schema = evalSchema(schemaSource);
     } catch (error) {

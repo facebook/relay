@@ -29,6 +29,8 @@
     "update-schema": "babel-node ./scripts/jest/updateSchema.js"
   },
   "dependencies": {
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
     "babel-runtime": "^6.6.1",
     "fbjs": "^0.8.1",
     "react-static-container": "^1.0.1"

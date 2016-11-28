@@ -163,7 +163,6 @@ class RelayGarbageCollector {
     }
     this._isCollecting = true;
 
-    // $FlowFixMe(>=0.34.0)
     const cachedRecords = this._storeData.getCachedData();
     const freshRecords = this._storeData.getNodeData();
     this._scheduler(() => {

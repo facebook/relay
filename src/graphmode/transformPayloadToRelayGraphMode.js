@@ -340,7 +340,6 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     fieldData: PayloadRecord
   ): void {
     const {currentRecord} = state;
-    // $FlowFixMe(>=0.34.0)
     const path = RelayQueryPath.getPath(
       state.path,
       field
@@ -428,6 +427,9 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     const edgeRecords = edgesData.map(edgeItem => this._writeRecord(
       state.path,
       edgesField,
+      /* $FlowFixMe(>=0.36.0 site=react_native_fb) Flow error detected during
+       * the deploy of Flow v0.36.0. To see the error, remove this comment and
+       * run Flow */
       edgeItem
     ));
     // Inner ranges may reference cache keys defined in their parents. Using
@@ -449,7 +451,6 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     fieldData: Array<?PayloadScalar>
   ): void {
     const {currentRecord} = state;
-    // $FlowFixMe(>=0.34.0)
     const storageKey = field.getStorageKey();
 
     const linkedRecords = currentRecord[storageKey];

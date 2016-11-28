@@ -140,7 +140,6 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       if (serverData == null) {
         server[serializationKey] = serverData = [];
       }
-      // $FlowFixMe(>=0.31.0)
       clientData.forEach((clientItem, index) => {
         invariant(
           Array.isArray(serverData),
@@ -156,9 +155,14 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
         if (serverItem == null) {
           serverData[index] = serverItem = {};
         }
-        // $FlowFixMe(>=0.31.0)
         this.traverse(node, {
+          /* $FlowFixMe(>=0.36.0 site=react_native_fb) Flow error detected
+           * during the deploy of Flow v0.36.0. To see the error, remove this
+           * comment and run Flow */
           client: clientItem,
+          /* $FlowFixMe(>=0.36.0 site=react_native_fb) Flow error detected
+           * during the deploy of Flow v0.36.0. To see the error, remove this
+           * comment and run Flow */
           server: serverItem,
         });
       });

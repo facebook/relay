@@ -124,8 +124,10 @@ function handleNodeDelete(
   }
 
   if (Array.isArray(recordIDs)) {
-    // $FlowFixMe(>=0.33.0)
     recordIDs.forEach(id => {
+      /* $FlowFixMe(>=0.36.0 site=react_native_fb) Flow error detected during
+       * the deploy of Flow v0.36.0. To see the error, remove this comment and
+       * run Flow */
       deleteRecord(writer, id);
     });
   } else {

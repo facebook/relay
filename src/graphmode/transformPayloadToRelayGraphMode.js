@@ -427,7 +427,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     const edgeRecords = edgesData.map(edgeItem => this._writeRecord(
       state.path,
       edgesField,
-      /* $FlowFixMe(>=0.36.0 site=react_native_fb) Flow error detected during
+      /* $FlowFixMe(>=0.36.0) Flow error detected during
        * the deploy of Flow v0.36.0. To see the error, remove this comment and
        * run Flow */
       edgeItem

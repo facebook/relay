@@ -225,7 +225,7 @@ function createContainerComponent(
           );
           const dataIDs = [];
           queryData.forEach((data, ii) => {
-            /* $FlowFixMe(>=0.36.0 site=react_native_fb) Flow error detected
+            /* $FlowFixMe(>=0.36.0) Flow error detected
              * during the deploy of Flow v0.36.0. To see the error, remove this
              * comment and run Flow */
             const dataID = RelayRecord.getDataIDForObject(data);

@@ -125,7 +125,7 @@ function handleNodeDelete(
 
   if (Array.isArray(recordIDs)) {
     recordIDs.forEach(id => {
-      /* $FlowFixMe(>=0.36.0 site=react_native_fb) Flow error detected during
+      /* $FlowFixMe(>=0.36.0) Flow error detected during
        * the deploy of Flow v0.36.0. To see the error, remove this comment and
        * run Flow */
       deleteRecord(writer, id);

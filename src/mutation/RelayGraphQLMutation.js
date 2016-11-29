@@ -385,7 +385,7 @@ class PendingGraphQLTransaction {
     }
     return {
       ...this._variables,
-      /* $FlowFixMe(>=0.35.0 site=www,mobile,react_native_fb) - This comment
+      /* $FlowFixMe(>=0.35.0) - This comment
        * suppresses an error that was found when Flow v0.35.0 was deployed. To
        * see the error, remove this comment and run flow ~/www or
        * flow ~/www/html/js/mobile or flow ~/fbobjc/Libraries/FBReactKit/js */

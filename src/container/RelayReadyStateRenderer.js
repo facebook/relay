@@ -35,7 +35,6 @@ type Props = {
   retry: RelayRetryCallback,
 };
 type RelayContainerProps = {
-  // $FlowFixMe(>=0.34.0)
   [propName: string]: mixed;
 };
 type RelayContainerPropsFactory = RelayContainerPropsFactory;

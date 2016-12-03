@@ -392,17 +392,20 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       this.recordCreate(connectionID);
     }
 
-    // Only create a range if `edges` field is present
-    // Overwrite an existing range only if the new force index is greater
-    if (hasEdges &&
-        (!this._writer.hasRange(connectionID) ||
-         (this._forceIndex &&
-          this._forceIndex > this._store.getRangeForceIndex(connectionID)))) {
-      this._writer.putRange(
-        connectionID,
-        field.getCallsWithValues(),
-        this._forceIndex
-      );
+    if (hasEdges) {
+      // Only create a range if `edges` field is present
+      // Overwrite an existing range only if the new force index is greater
+      if (!this._writer.hasRange(connectionID) ||
+          (this._forceIndex &&
+           this._forceIndex > this._store.getRangeForceIndex(connectionID))) {
+        this._writer.putRange(
+          connectionID,
+          field.getCallsWithValues(),
+          this._forceIndex
+        );
+      }
+      // Update the connection record regardless of whether a range was written
+      // to also handle cases like an empty edge range or updated page_info.
       this.recordUpdate(connectionID);
     }
 

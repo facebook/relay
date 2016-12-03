@@ -710,6 +710,7 @@ describe('writeRelayQueryPayload()', () => {
       expect(results).toEqual({
         created: {},
         updated: {
+          'client:1': true, // connection updated w/ new nodes
           'node1': true,    // `name` added
           // range not updated, only the node changed
         },
@@ -925,6 +926,58 @@ describe('writeRelayQueryPayload()', () => {
         requestedEdgeIDs: ['client:client:1:node1b'],
         filteredEdges: [
           {edgeID: 'client:client:1:node1b', nodeID: 'node1b'},
+        ],
+      });
+    });
+
+    it('updates page info for empty edges', () => {
+      const query = getNode(Relay.QL`
+        query {
+          node(id:"123") {
+            friends(after:"cursor1", first:"1") {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      `);
+      const payload = {
+        node: {
+          id: '123',
+          friends: {
+            edges: [],
+            [PAGE_INFO]: {
+              [HAS_NEXT_PAGE]: false,
+              [HAS_PREV_PAGE]: false,
+            },
+          },
+          __typename: 'User',
+        },
+      };
+      const results = writePayload(store, writer, query, payload);
+      expect(results).toEqual({
+        created: {},
+        updated: {
+          'client:1': true, // page_info updated
+        },
+      });
+      expect(store.getRangeMetadata('client:1', [
+        {name: 'first', value: 1},
+      ])).toEqual({
+        diffCalls: [],
+        filterCalls: [],
+        pageInfo: {
+          [END_CURSOR]: 'cursor1',
+          [HAS_NEXT_PAGE]: false,
+          [HAS_PREV_PAGE]: false,
+          [START_CURSOR]: 'cursor1',
+        },
+        requestedEdgeIDs: ['client:client:1:node1'],
+        filteredEdges: [
+          {edgeID: 'client:client:1:node1', nodeID: 'node1'},
         ],
       });
     });

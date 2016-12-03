@@ -35,6 +35,12 @@ var util = require('util');
 var _require = require('./GraphQL'),
     types = _require.type,
     GraphQLDirective = _require.type_directives.GraphQLDirective,
+    _require$type_scalars = _require.type_scalars,
+    GraphQLBoolean = _require$type_scalars.GraphQLBoolean,
+    GraphQLFloat = _require$type_scalars.GraphQLFloat,
+    GraphQLID = _require$type_scalars.GraphQLID,
+    GraphQLInt = _require$type_scalars.GraphQLInt,
+    GraphQLString = _require$type_scalars.GraphQLString,
     _require$type_introsp = _require.type_introspection,
     SchemaMetaFieldDef = _require$type_introsp.SchemaMetaFieldDef,
     TypeMetaFieldDef = _require$type_introsp.TypeMetaFieldDef,
@@ -817,6 +823,11 @@ var RelayQLArgumentType = function () {
     value: function ofType() {
       invariant(this.isList() || this.isNonNull(), 'Can only get type of list or non-null type.');
       return new RelayQLArgumentType(this.schemaUnmodifiedArgType);
+    }
+  }, {
+    key: 'isCustomScalar',
+    value: function isCustomScalar() {
+      return this.isScalar() && !(this.schemaUnmodifiedArgType === GraphQLBoolean || this.schemaUnmodifiedArgType === GraphQLFloat || this.schemaUnmodifiedArgType === GraphQLID || this.schemaUnmodifiedArgType === GraphQLInt || this.schemaUnmodifiedArgType === GraphQLString);
     }
   }, {
     key: 'isEnum',

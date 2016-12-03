@@ -564,11 +564,13 @@ module.exports = function (t, options) {
     }, {
       key: 'printArgumentTypeForMetadata',
       value: function printArgumentTypeForMetadata(argType) {
-        // Currently, we always send Enum and Object types as variables.
-        if (argType.isEnum() || argType.isObject()) {
+        // Print enums, object, and custom scalars as variables, since there are
+        // more complicated rules for printing them (correctly inlining custom
+        // scalars would require access to the type definition at runtime).
+        if (argType.isEnum() || argType.isObject() || argType.isCustomScalar()) {
           return argType.getName({ modifiers: true });
         }
-        // Currently, we always inline scalar types.
+        // Only the built-in scalar types can be printed inline
         if (argType.isScalar()) {
           return null;
         }

@@ -1,5 +1,9 @@
 # master
 
+* Update `babel-relay-plugin` to use `graphql@0.8.2`, which supports the latest
+  revision of the GraphQL specification.
+* Fix an issue with custom scalar field arguments not printing correctly.
+
 ## 0.9.3 (September 1, 2016)
 
 * Fix issue where containers would forget variables previously set with `setVariables`, specifically when using array/object variables (closes [#1357](https://github.com/facebook/relay/issues/1357)).

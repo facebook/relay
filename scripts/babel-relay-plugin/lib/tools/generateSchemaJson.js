@@ -1,6 +1,4 @@
 // @generated
-'use strict';
-
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -11,16 +9,17 @@
  *
  * @fullSyntaxTransform
  */
+'use strict';
 
 /**
  * Generates `testschema.rfc.json` from `testschema.rfc.graphql`.
  */
 
 var fs = require('fs');
-var path = require('path');
-var language = require('graphql/language');
-var utilities = require('graphql/utilities');
 var graphql = require('graphql');
+var language = require('graphql/language');
+var path = require('path');
+var utilities = require('graphql/utilities');
 
 var TESTS_DIR = path.resolve(__dirname, '..', '__tests__');
 

@@ -24,6 +24,13 @@ const {
   type_directives: {
     GraphQLDirective,
   },
+  type_scalars: {
+    GraphQLBoolean,
+    GraphQLFloat,
+    GraphQLID,
+    GraphQLInt,
+    GraphQLString,
+  },
   type_introspection: {
     SchemaMetaFieldDef,
     TypeMetaFieldDef,
@@ -800,6 +807,16 @@ class RelayQLArgumentType {
       'Can only get type of list or non-null type.'
     );
     return new RelayQLArgumentType(this.schemaUnmodifiedArgType);
+  }
+
+  isCustomScalar(): boolean {
+    return this.isScalar() && !(
+      this.schemaUnmodifiedArgType === GraphQLBoolean ||
+      this.schemaUnmodifiedArgType === GraphQLFloat ||
+      this.schemaUnmodifiedArgType === GraphQLID ||
+      this.schemaUnmodifiedArgType === GraphQLInt ||
+      this.schemaUnmodifiedArgType === GraphQLString
+    )
   }
 
   isEnum(): boolean {

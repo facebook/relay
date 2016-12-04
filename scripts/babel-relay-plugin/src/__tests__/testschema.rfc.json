@@ -14,15 +14,42 @@
         {
           "kind": "OBJECT",
           "name": "Root",
-          "description": null,
+          "description": "",
           "fields": [
             {
+              "name": "customScalar",
+              "description": "",
+              "args": [
+                {
+                  "name": "arg",
+                  "description": "",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "JSON",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SearchResult",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "node",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "id",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
@@ -45,11 +72,11 @@
             },
             {
               "name": "nodes",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "ids",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -80,11 +107,11 @@
             },
             {
               "name": "media",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "id",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",
@@ -103,7 +130,7 @@
             },
             {
               "name": "viewer",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -115,11 +142,11 @@
             },
             {
               "name": "search",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "query",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
@@ -146,11 +173,11 @@
             },
             {
               "name": "searchAll",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "queries",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
@@ -185,7 +212,7 @@
             },
             {
               "name": "_invalid",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -197,7 +224,7 @@
             },
             {
               "name": "actor",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "INTERFACE",
@@ -215,6 +242,49 @@
         },
         {
           "kind": "SCALAR",
+          "name": "JSON",
+          "description": "",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SearchResult",
+          "description": "",
+          "fields": [
+            {
+              "name": "title",
+              "description": "",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "String",
+          "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
           "name": "ID",
           "description": "The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `\"4\"`) or integer (such as `4`) input value will be accepted as an ID.",
           "fields": null,
@@ -226,11 +296,11 @@
         {
           "kind": "INTERFACE",
           "name": "Node",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "id",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -264,16 +334,6 @@
         },
         {
           "kind": "SCALAR",
-          "name": "String",
-          "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.",
-          "fields": null,
-          "inputFields": null,
-          "interfaces": null,
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "SCALAR",
           "name": "Int",
           "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. ",
           "fields": null,
@@ -285,7 +345,7 @@
         {
           "kind": "UNION",
           "name": "Media",
-          "description": null,
+          "description": "",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -306,11 +366,11 @@
         {
           "kind": "OBJECT",
           "name": "Story",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "message",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -322,7 +382,7 @@
             },
             {
               "name": "actors",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -338,7 +398,7 @@
             },
             {
               "name": "attachments",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -354,7 +414,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -379,15 +439,15 @@
         {
           "kind": "OBJECT",
           "name": "User",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "friends",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "first",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",
@@ -397,7 +457,7 @@
                 },
                 {
                   "name": "last",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",
@@ -407,7 +467,7 @@
                 },
                 {
                   "name": "orderby",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -421,7 +481,7 @@
                 },
                 {
                   "name": "find",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -431,7 +491,7 @@
                 },
                 {
                   "name": "isViewerFriend",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -441,7 +501,7 @@
                 },
                 {
                   "name": "gender",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "ENUM",
                     "name": "Gender",
@@ -451,7 +511,7 @@
                 },
                 {
                   "name": "before",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -461,7 +521,7 @@
                 },
                 {
                   "name": "after",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -480,7 +540,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -492,7 +552,7 @@
             },
             {
               "name": "name",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -504,11 +564,11 @@
             },
             {
               "name": "profilePicture",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "size",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",
@@ -527,7 +587,7 @@
             },
             {
               "name": "websites",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -543,7 +603,7 @@
             },
             {
               "name": "userOnlyField",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -555,7 +615,7 @@
             },
             {
               "name": "gender",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "ENUM",
@@ -567,11 +627,11 @@
             },
             {
               "name": "firstName",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "if",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -581,7 +641,7 @@
                 },
                 {
                   "name": "unless",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Boolean",
@@ -600,7 +660,7 @@
             },
             {
               "name": "fakeConnection",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -630,11 +690,11 @@
         {
           "kind": "INTERFACE",
           "name": "Actor",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "name",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -674,26 +734,26 @@
         {
           "kind": "ENUM",
           "name": "Gender",
-          "description": null,
+          "description": "",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
           "enumValues": [
             {
               "name": "MALE",
-              "description": null,
+              "description": "",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "FEMALE",
-              "description": null,
+              "description": "",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "UNKNOWN",
-              "description": null,
+              "description": "",
               "isDeprecated": false,
               "deprecationReason": null
             }
@@ -703,11 +763,11 @@
         {
           "kind": "OBJECT",
           "name": "UserConnection",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "count",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -719,7 +779,7 @@
             },
             {
               "name": "edges",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -735,7 +795,7 @@
             },
             {
               "name": "nodes",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -751,7 +811,7 @@
             },
             {
               "name": "pageInfo",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -770,11 +830,11 @@
         {
           "kind": "OBJECT",
           "name": "UserConnectionEdge",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "cursor",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -786,7 +846,7 @@
             },
             {
               "name": "node",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -798,7 +858,7 @@
             },
             {
               "name": "source",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -817,11 +877,11 @@
         {
           "kind": "OBJECT",
           "name": "PageInfo",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "hasPreviousPage",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -833,7 +893,7 @@
             },
             {
               "name": "hasNextPage",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -845,7 +905,7 @@
             },
             {
               "name": "endCursor",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -857,7 +917,7 @@
             },
             {
               "name": "startCursor",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -876,11 +936,11 @@
         {
           "kind": "OBJECT",
           "name": "ProfilePicture",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "uri",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -892,7 +952,7 @@
             },
             {
               "name": "width",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -904,7 +964,7 @@
             },
             {
               "name": "height",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -923,11 +983,11 @@
         {
           "kind": "OBJECT",
           "name": "FakeConnection",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "edges",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -950,11 +1010,11 @@
         {
           "kind": "OBJECT",
           "name": "FakeEdge",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "cursor",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -966,7 +1026,7 @@
             },
             {
               "name": "node",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -985,11 +1045,11 @@
         {
           "kind": "OBJECT",
           "name": "FakeNode",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "id",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1014,11 +1074,11 @@
         {
           "kind": "OBJECT",
           "name": "Viewer",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "__configs__",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1030,11 +1090,11 @@
             },
             {
               "name": "newsFeed",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "first",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",
@@ -1053,11 +1113,11 @@
             },
             {
               "name": "pendingPosts",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "first",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",
@@ -1076,7 +1136,7 @@
             },
             {
               "name": "actor",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1095,11 +1155,11 @@
         {
           "kind": "OBJECT",
           "name": "ConfigsConnection",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "edges",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -1122,11 +1182,11 @@
         {
           "kind": "OBJECT",
           "name": "ConfigsConnectionEdge",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "cursor",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1138,7 +1198,7 @@
             },
             {
               "name": "node",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1157,11 +1217,11 @@
         {
           "kind": "OBJECT",
           "name": "Config",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "name",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1180,11 +1240,11 @@
         {
           "kind": "OBJECT",
           "name": "NewsFeedConnection",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "edges",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -1200,7 +1260,7 @@
             },
             {
               "name": "pageInfo",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1219,11 +1279,11 @@
         {
           "kind": "OBJECT",
           "name": "NewsFeedConnectionEdge",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "cursor",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1235,7 +1295,7 @@
             },
             {
               "name": "node",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "INTERFACE",
@@ -1254,11 +1314,11 @@
         {
           "kind": "OBJECT",
           "name": "PendingPostsConnection",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "count",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1270,7 +1330,7 @@
             },
             {
               "name": "edges",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -1286,7 +1346,7 @@
             },
             {
               "name": "pageInfo",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1305,11 +1365,11 @@
         {
           "kind": "OBJECT",
           "name": "PendingPostsConnectionEdge",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "cursor",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1321,7 +1381,7 @@
             },
             {
               "name": "node",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1340,11 +1400,11 @@
         {
           "kind": "OBJECT",
           "name": "PendingPost",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "text",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1363,12 +1423,12 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "SearchInput",
-          "description": null,
+          "description": "",
           "fields": null,
           "inputFields": [
             {
               "name": "queryText",
-              "description": null,
+              "description": "",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -1383,39 +1443,16 @@
         },
         {
           "kind": "OBJECT",
-          "name": "SearchResult",
-          "description": null,
-          "fields": [
-            {
-              "name": "title",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
           "name": "InvalidType",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "node",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "id",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",
@@ -1441,15 +1478,15 @@
         {
           "kind": "OBJECT",
           "name": "Mutation",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "actorSubscribe",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "input",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "INPUT_OBJECT",
                     "name": "ActorSubscribeInput",
@@ -1468,11 +1505,11 @@
             },
             {
               "name": "actorSubscribeSubscribe",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "input",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
@@ -1495,7 +1532,7 @@
             },
             {
               "name": "mutationMissingArg",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1507,11 +1544,11 @@
             },
             {
               "name": "mutationWrongArgs",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "foo",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -1537,12 +1574,12 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "ActorSubscribeInput",
-          "description": null,
+          "description": "",
           "fields": null,
           "inputFields": [
             {
               "name": "clientMutationId",
-              "description": null,
+              "description": "",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -1552,7 +1589,7 @@
             },
             {
               "name": "actorId",
-              "description": null,
+              "description": "",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -1568,11 +1605,11 @@
         {
           "kind": "OBJECT",
           "name": "ActorSubscribeResponsePayload",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "clientMutationId",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1584,7 +1621,7 @@
             },
             {
               "name": "actor",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -1603,11 +1640,11 @@
         {
           "kind": "OBJECT",
           "name": "FakeResponsePayload",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "clientMutationId",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1626,15 +1663,15 @@
         {
           "kind": "OBJECT",
           "name": "Subscription",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "likeStory",
-              "description": null,
+              "description": "",
               "args": [
                 {
                   "name": "input",
-                  "description": null,
+                  "description": "",
                   "type": {
                     "kind": "INPUT_OBJECT",
                     "name": "LikeStorySubscriptionInput",
@@ -1660,12 +1697,12 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "LikeStorySubscriptionInput",
-          "description": null,
+          "description": "",
           "fields": null,
           "inputFields": [
             {
               "name": "clientSubscriptionId",
-              "description": null,
+              "description": "",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -1675,7 +1712,7 @@
             },
             {
               "name": "story",
-              "description": null,
+              "description": "",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -1691,11 +1728,11 @@
         {
           "kind": "OBJECT",
           "name": "LikeStorySubscriptionPayload",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "clientSubscriptionId",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -1707,7 +1744,7 @@
             },
             {
               "name": "doesViewerLike",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2310,7 +2347,7 @@
         {
           "kind": "OBJECT",
           "name": "__Directive",
-          "description": "A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.\n\nIn some cases, you need to provide options to alter GraphQL’s execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.",
+          "description": "A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.\n\nIn some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.",
           "fields": [
             {
               "name": "name",
@@ -2564,11 +2601,11 @@
         {
           "kind": "OBJECT",
           "name": "ActorSubscribeSubscription",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "clientMutationId",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2587,11 +2624,11 @@
         {
           "kind": "OBJECT",
           "name": "Page",
-          "description": null,
+          "description": "",
           "fields": [
             {
               "name": "name",
-              "description": null,
+              "description": "",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -2675,7 +2712,7 @@
           "args": [
             {
               "name": "reason",
-              "description": "Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formattedin [Markdown](https://daringfireball.net/projects/markdown/).",
+              "description": "Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted in [Markdown](https://daringfireball.net/projects/markdown/).",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",

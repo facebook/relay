@@ -1,4 +1,5 @@
 type Root {
+  customScalar(arg: JSON): [SearchResult]
   node(id: ID!): Node
   nodes(ids: [ID!]): [Node]
   media(id: Int): Media
@@ -8,6 +9,8 @@ type Root {
   _invalid: InvalidType
   actor: Actor
 }
+
+scalar JSON
 
 interface Actor {
   name: String

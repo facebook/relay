@@ -701,11 +701,18 @@ module.exports = function(t: any, options: PrinterOptions): Function {
      * Prints the type for arguments that are transmitted via variables.
      */
     printArgumentTypeForMetadata(argType: RelayQLArgumentType): ?string {
-      // Currently, we always send Enum and Object types as variables.
-      if (argType.isEnum() || argType.isObject()) {
+      // Print enums, input objects, and custom scalars as variables, since
+      // there are more complicated rules for printing them (for example,
+      // correctly inlining custom scalars would require access to the
+      // user-defined type definition at runtime).
+      if (
+        argType.isEnum() ||
+        argType.isObject() ||
+        argType.isCustomScalar()
+      ) {
         return argType.getName({modifiers: true});
       }
-      // Currently, we always inline scalar types.
+      // Only the built-in scalar types can be printed inline
       if (argType.isScalar()) {
         return null;
       }

@@ -130,10 +130,12 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
               if (error instanceof RelayTransformError) {
                 errorMessages.push(error.message);
                 warning('\n-- Relay Transform Error -- %s --\n', basename);
-                var sourceLine = node.quasi.loc.start.line;
-                var relative_loc = computeLocation(error.loc);
-                if (relative_loc) {
-                  warning(['Within RelayQLDocument ' + filename + ':' + sourceLine, '> ', '> line ' + relative_loc.line + ' (approximate)', '> ' + relative_loc.source, '> ' + ' '.repeat(relative_loc.column - 1) + '^^^', 'Error: ' + error.message, 'Stack: ' + error.stack].join('\n'));
+                var sourceLine = node.quasi.loc && node.quasi.loc.start.line;
+                var relativeLocation = error.loc && computeLocation(error.loc);
+                if (sourceLine && relativeLocation) {
+                  warning(['Within RelayQLDocument ' + filename + ':' + sourceLine, '> ', '> line ' + relativeLocation.line + ' (approximate)', '> ' + relativeLocation.source, '> ' + ' '.repeat(relativeLocation.column - 1) + '^^^', 'Error: ' + error.message, 'Stack: ' + error.stack].join('\n'));
+                } else {
+                  warning(error.message);
                 }
               } else {
                 // Print a console warning and replace the code with a function

@@ -57,8 +57,9 @@ describe('RelayReadyStateRenderer', () => {
         !element.type.name) {
       return jasmine.pp(element);
     }
-    const ppProps = Object.entries(element.props)
-      .map(([key, value]) => {
+    const ppProps = Object.keys(element.props)
+      .map(key => {
+        const value = element.props[key];
         const ppValue = jasmine.pp(value);
         return ` ${key}={${ppValue.length > 120 ? '...' : ppValue}}`;
       })

@@ -24,9 +24,10 @@ const babelOptions = getBabelOptions({
   env: 'test',
   moduleMap: {
     'React': 'react',
-    'reactComponentExpect': 'react/lib/reactComponentExpect',
+    'reactComponentExpect': 'react-dom/lib/reactComponentExpect',
     'ReactDOM': 'react-dom',
     'ReactDOMServer': 'react-dom/server',
+    'ReactTestRenderer': 'react-test-renderer',
     'ReactTestUtils': 'react-addons-test-utils',
     'StaticContainer.react': 'react-static-container',
   },

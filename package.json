@@ -64,6 +64,7 @@
     "react": "^15.1.0",
     "react-addons-test-utils": "^15.0.0",
     "react-dom": "^15.1.0",
+    "react-test-renderer": "^15.1.0",
     "run-sequence": "^1.2.1",
     "webpack": "^1.13.1",
     "webpack-stream": "^3.2.0"

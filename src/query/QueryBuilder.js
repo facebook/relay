@@ -30,6 +30,7 @@ import type {
   ConcreteFragment,
   ConcreteFragmentMetadata,
   ConcreteFragmentReference,
+  ConcreteFragmentSpread,
   ConcreteMutation,
   ConcreteOperationMetadata,
   ConcreteQuery,
@@ -308,6 +309,12 @@ const QueryBuilder = {
 
   getFragmentReference(node: mixed): ?ConcreteFragmentReference {
     if (isConcreteKind(node, 'FragmentReference')) {
+      return (node: any);
+    }
+  },
+
+  getFragmentSpread(node: mixed): ?ConcreteFragmentSpread {
+    if (isConcreteKind(node, 'FragmentSpread')) {
       return (node: any);
     }
   },

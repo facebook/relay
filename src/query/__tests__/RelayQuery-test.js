@@ -268,9 +268,9 @@ describe('RelayQuery', () => {
         const route = RelayMetaRoute.get('route');
         const variables = {foo: 123};
         expect(
-          new RelayQuery.Fragment(node, route, variables).getCompositeHash()
+          RelayQuery.Fragment.create(node, route, variables).getCompositeHash()
         ).toBe(
-          new RelayQuery.Fragment(node, route, variables).getCompositeHash()
+          RelayQuery.Fragment.create(node, route, variables).getCompositeHash()
         );
       });
 
@@ -280,9 +280,9 @@ describe('RelayQuery', () => {
         const variablesA = {foo: 123};
         const variablesB = {foo: 456};
         expect(
-          new RelayQuery.Fragment(node, route, variablesA).getCompositeHash()
+          RelayQuery.Fragment.create(node, route, variablesA).getCompositeHash()
         ).not.toBe(
-          new RelayQuery.Fragment(node, route, variablesB).getCompositeHash()
+          RelayQuery.Fragment.create(node, route, variablesB).getCompositeHash()
         );
       });
 
@@ -292,9 +292,9 @@ describe('RelayQuery', () => {
         const routeB = RelayMetaRoute.get('routeB');
         const variables = {foo: 123};
         expect(
-          new RelayQuery.Fragment(node, routeA, variables).getCompositeHash()
+          RelayQuery.Fragment.create(node, routeA, variables).getCompositeHash()
         ).not.toBe(
-          new RelayQuery.Fragment(node, routeB, variables).getCompositeHash()
+          RelayQuery.Fragment.create(node, routeB, variables).getCompositeHash()
         );
       });
 

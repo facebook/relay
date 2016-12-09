@@ -12,6 +12,8 @@
 
 'use strict';
 
+import type {Variables} from 'RelayTypes';
+
 /**
  * @internal
  *
@@ -98,6 +100,12 @@ export type ConcreteFragmentMetadata = {
   pattern?: boolean,
   plural?: boolean,
 };
+// DEPRECATED in favor of ConcreteFragmentSpread
+// This was used as a way to serialize the results of a
+// `Container.getFragment()` call to a JSON structure but
+// is no longer used.
+//
+// TODO #14985090: delete ConcreteFragmentReference and callers
 export type ConcreteFragmentReference = {
   kind: 'FragmentReference',
   fragment: ConcreteFragment,
@@ -146,7 +154,8 @@ export type ConcreteQueryMetadata = {
 export type ConcreteSelection =
   ConcreteField |
   ConcreteFragment |
-  ConcreteFragmentReference;
+  ConcreteFragmentReference |
+  ConcreteFragmentSpread;
 export type ConcreteSubscription = {
   calls: Array<ConcreteCall>,
   children?: ?Array<?ConcreteSelection>,
@@ -163,3 +172,43 @@ export type ConcreteValue =
   ConcreteCallValue |
   ConcreteCallVariable |
   Array<ConcreteCallValue | ConcreteCallVariable>;
+
+export type ConcreteFragmentSpread = {
+  kind: 'FragmentSpread',
+  args: Variables,
+  fragment: ConcreteFragmentDefinition,
+};
+
+/**
+ * The output of a graphql-tagged fragment definition.
+ */
+export type ConcreteFragmentDefinition = {
+  kind: 'FragmentDefinition',
+  argumentDefinitions: Array<ConcreteArgumentDefinition>,
+  node: ConcreteFragment,
+};
+
+export type ConcreteArgumentDefinition =
+  ConcreteLocalArgumentDefinition |
+  ConcreteRootArgumentDefinition;
+
+export type ConcreteLocalArgumentDefinition = {
+  kind: 'LocalArgument',
+  name: string,
+  defaultValue: mixed,
+};
+
+export type ConcreteRootArgumentDefinition = {
+  kind: 'RootArgument',
+  name: string,
+};
+
+/**
+ * The output of a graphql-tagged operation definition.
+ */
+export type ConcreteOperationDefinition = {
+  kind: 'OperationDefinition',
+  queries: {[key: string]: ConcreteMutation | ConcreteQuery | ConcreteSubscription},
+  argumentDefinitions: Array<ConcreteLocalArgumentDefinition>,
+  fragment: ConcreteFragment,
+};

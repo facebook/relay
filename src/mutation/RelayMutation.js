@@ -207,8 +207,7 @@ class RelayMutation<Tp: Object> {
   /**
    * These variables form the "input" to the mutation query sent to the server.
    */
-  // $FlowFixMe(>=0.34.0)
-  getVariables(): {[name: string]: mixed} {
+  getVariables(): Object {
     invariant(
       false,
       '%s: Expected abstract method `getVariables` to be implemented.',

@@ -1,0 +1,22 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const CompatProfilePic = require('CompatProfilePic');
+const Relay2CompatContainer = require('Relay2CompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = Relay2CompatContainer.createContainer(CompatProfile, {
+  user: graphql`
+    fragment CompatProfile_user on User {
+      name
+      ...CompatProfilePic_user
+    }
+  `,
+});

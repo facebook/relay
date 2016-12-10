@@ -208,7 +208,9 @@ export type ConcreteRootArgumentDefinition = {
  */
 export type ConcreteOperationDefinition = {
   kind: 'OperationDefinition',
-  queries: {[key: string]: ConcreteMutation | ConcreteQuery | ConcreteSubscription},
   argumentDefinitions: Array<ConcreteLocalArgumentDefinition>,
   fragment: ConcreteFragment,
+  name: string,
+  operation: 'mutation' | 'query' | 'subscription',
+  queries: {[key: string]: ConcreteMutation | ConcreteQuery | ConcreteSubscription},
 };

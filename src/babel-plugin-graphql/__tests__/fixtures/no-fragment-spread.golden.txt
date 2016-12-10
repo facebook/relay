@@ -17,7 +17,7 @@ module.exports = Relay2CompatContainer.createContainer(CompatProfile, {
       const RelayQL_GENERATED = require('RelayQL_GENERATED');
 
       return {
-        kind: 'Fragment',
+        kind: 'FragmentDefinition',
         argumentDefinitions: [],
         node: RelayQL_GENERATED`fragment CompatProfile_user on User {
   name

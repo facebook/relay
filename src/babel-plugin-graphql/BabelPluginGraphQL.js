@@ -124,7 +124,7 @@ function create(options) {
                   'spread `...%s`; only the @arguments directive is supported ' +
                   'on fragment spreads when using the graphql tag.',
                   directive.name.value,
-                  fragmentName,
+                  fragmentName
                 );
                 const fragmentArgumentsObject = {};
                 directive.arguments.forEach(argNode => {
@@ -203,7 +203,7 @@ function create(options) {
               keyName
             );
             transformedAST = createObject(t, {
-              kind: t.stringLiteral('Fragment'),
+              kind: t.stringLiteral('FragmentDefinition'),
               argumentDefinitions: createFragmentArguments(
                 t,
                 argumentDefinitions,
@@ -226,13 +226,15 @@ function create(options) {
             const fragmentAST = createFragmentFromRoot(t, legacyAST);
             const queryASTs = splitRootFields(t, legacyAST);
             transformedAST = createObject(t, {
-              kind: t.stringLiteral('Operation'),
+              kind: t.stringLiteral('OperationDefinition'),
               argumentDefinitions: createOperationArguments(
                 t,
                 variableDefinitions
               ),
               fragment: fragmentAST,
-              queries: queryASTs,
+              name: t.stringLiteral(definitionName),
+              operation: t.stringLiteral(legacyAST.operation),
+              queries: queryASTs
             });
           } else {
             invariant(
@@ -419,20 +421,17 @@ function splitRootFields(t, root) {
       selection.name.value;
     return t.objectProperty(
       t.identifier(queryProp),
-      createRelayQLTemplate(t, {
-        ...root,
+      createRelayQLTemplate(t, Object.assign({}, root, {
         name: {
           kind: 'Name',
           value: root.name.value + '_' + queryProp,
         },
-        selectionSet: {
-          ...root.selectionSet,
-          selections: [{
-            ...selection,
+        selectionSet: Object.assign({}, root.selectionSet, {
+          selections: [Object.assign({}, selection, {
             alias: null,
-          }],
-        },
-      })
+          })],
+        }),
+      }))
     );
   });
   return t.objectExpression(properties);

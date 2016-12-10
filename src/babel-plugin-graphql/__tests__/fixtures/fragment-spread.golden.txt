@@ -19,7 +19,7 @@ module.exports = Relay2CompatContainer.createContainer(CompatProfile, {
             CompatProfilePic_user = CompatProfilePic.getFragment('user');
 
       return {
-        kind: 'Fragment',
+        kind: 'FragmentDefinition',
         argumentDefinitions: [],
         node: RelayQL_GENERATED`fragment CompatProfile_user on User {
   name

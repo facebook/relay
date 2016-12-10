@@ -15,7 +15,7 @@ const CompatViewerQuery = {
           CompatProfilePic_user = CompatProfilePic.getFragment('user');
 
     return {
-      kind: 'Operation',
+      kind: 'OperationDefinition',
       argumentDefinitions: [{
         defaultValue: null,
         kind: 'LocalArgument',
@@ -39,6 +39,8 @@ const CompatViewerQuery = {
     }
   }
 }`,
+      name: 'CompatViewerQuery',
+      operation: 'query',
       queries: {
         viewer: RelayQL_GENERATED`query CompatViewerQuery_viewer($id: ID!, $scale: Float = 1.5) {
   viewer {

@@ -15,7 +15,7 @@ const CompatCommentCreateMutation = {
           CompatProfilePic_user = CompatProfilePic.getFragment('user');
 
     return {
-      kind: 'Operation',
+      kind: 'OperationDefinition',
       argumentDefinitions: [{
         defaultValue: null,
         kind: 'LocalArgument',
@@ -31,6 +31,8 @@ const CompatCommentCreateMutation = {
     }
   }
 }`,
+      name: 'CompatCommentCreateMutation',
+      operation: 'mutation',
       queries: {
         commentCreate: RelayQL_GENERATED`mutation CompatCommentCreateMutation_commentCreate($input: CommentCreateInput!) {
   commentCreate(input: $input) {

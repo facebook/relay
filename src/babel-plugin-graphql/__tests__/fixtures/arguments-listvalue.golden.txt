@@ -16,7 +16,7 @@ module.exports = Relay2CompatContainer.createContainer(CompatProfile, {
       const RelayQL_GENERATED = require('RelayQL_GENERATED');
 
       return {
-        kind: 'Fragment',
+        kind: 'FragmentDefinition',
         argumentDefinitions: [{
           defaultValue: 'BROWSE_FEED',
           kind: 'LocalArgument',

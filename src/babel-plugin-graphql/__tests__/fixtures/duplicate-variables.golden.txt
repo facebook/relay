@@ -17,7 +17,7 @@ module.exports = Relay2CompatContainer.createContainer(CompatProfilePic, {
       const RelayQL_GENERATED = require('RelayQL_GENERATED');
 
       return {
-        kind: 'Fragment',
+        kind: 'FragmentDefinition',
         argumentDefinitions: [{
           defaultValue: null,
           kind: 'LocalArgument',
@@ -39,7 +39,7 @@ module.exports = Relay2CompatContainer.createContainer(CompatProfilePic, {
       const RelayQL_GENERATED = require('RelayQL_GENERATED');
 
       return {
-        kind: 'Fragment',
+        kind: 'FragmentDefinition',
         argumentDefinitions: [{
           defaultValue: null,
           kind: 'LocalArgument',

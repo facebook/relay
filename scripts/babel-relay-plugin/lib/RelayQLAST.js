@@ -665,6 +665,11 @@ var RelayQLType = function () {
       return this.isNonNullType;
     }
   }, {
+    key: 'isQueryType',
+    value: function isQueryType() {
+      return this.schemaUnmodifiedType === this.context.schema.getQueryType();
+    }
+  }, {
     key: 'isConnection',
     value: function isConnection() {
       if (!/Connection$/.test(this.getName({ modifiers: false }))) {

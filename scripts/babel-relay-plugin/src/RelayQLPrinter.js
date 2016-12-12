@@ -743,7 +743,11 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     if (field.getName() === 'node') {
       var argTypes = field.getDeclaredArguments();
       var argNames = Object.keys(argTypes);
-      if (argNames.length === 1 && argNames[0] === ID) {
+      if (
+        !parentType.isQueryType() &&
+        argNames.length === 1 &&
+        argNames[0] === ID
+      ) {
         throw new RelayTransformError(
           util.format(
             'You defined a `node(%s: %s)` field on type `%s`, but Relay requires ' +

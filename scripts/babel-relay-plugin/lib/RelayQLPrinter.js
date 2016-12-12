@@ -601,7 +601,7 @@ module.exports = function (t, options) {
     if (field.getName() === 'node') {
       var argTypes = field.getDeclaredArguments();
       var argNames = Object.keys(argTypes);
-      if (argNames.length === 1 && argNames[0] === ID) {
+      if (!parentType.isQueryType() && argNames.length === 1 && argNames[0] === ID) {
         throw new RelayTransformError(util.format('You defined a `node(%s: %s)` field on type `%s`, but Relay requires ' + 'the `node` field to be defined on the root type. See the Object ' + 'Identification Guide: \n' + 'http://facebook.github.io/relay/docs/graphql-object-identification.html', ID, argNames[0] && argTypes[argNames[0]].getName({ modifiers: true }), parentType.getName({ modifiers: false })), field.getLocation());
       }
     }

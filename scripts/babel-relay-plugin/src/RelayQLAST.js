@@ -640,6 +640,10 @@ class RelayQLType {
     return this.isNonNullType;
   }
 
+  isQueryType(): boolean {
+    return this.schemaUnmodifiedType === this.context.schema.getQueryType();
+  }
+
   isConnection(): boolean {
     if (!/Connection$/.test(this.getName({modifiers: false}))) {
       return false;
@@ -816,7 +820,7 @@ class RelayQLArgumentType {
       this.schemaUnmodifiedArgType === GraphQLID ||
       this.schemaUnmodifiedArgType === GraphQLInt ||
       this.schemaUnmodifiedArgType === GraphQLString
-    )
+    );
   }
 
   isEnum(): boolean {

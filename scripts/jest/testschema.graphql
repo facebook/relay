@@ -1,10 +1,10 @@
 schema {
-  query: Root
+  query: Query
   mutation: Mutation
   subscription: Subscription
 }
 
-type Root {
+type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings,
   route(waypoints: [WayPoint!]!): Route

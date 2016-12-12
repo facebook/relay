@@ -1,8 +1,13 @@
-# master
+## 0.10.0 (December 12, 2016)
 
-* Update `babel-relay-plugin` to use `graphql@0.8.2`, which supports the latest
-  revision of the GraphQL specification.
+* Update `babel-relay-plugin` to use `graphql@0.8.2`, which supports the latest revision of the GraphQL specification.
 * Fix an issue with custom scalar field arguments not printing correctly.
+* Promoted `RelayGraphQLMutation` to public API.
+* Added `rollback` method to `RelayGraphQLMutation`.
+* Added initial preparatory changes for moving to the new Relay API methods in a future release (eg. `BabelPluginGraphQL`).
+* Avoid unnecessary un-ready updates.
+* Add `graphiqlPrinter` argument to the `RelayNetworkDebug` constructor that can be used to print a link to view the request in GraphiQL.
+* Fix problem using "node" as a key in a mutation response payload.
 
 ## 0.9.3 (September 1, 2016)
 

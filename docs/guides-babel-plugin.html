@@ -94,11 +94,11 @@ babel<span class="token punctuation">.</span><span class="token function">transf
       suppressWarnings<span class="token punctuation">:</span> <span class="token keyword">false</span><span class="token punctuation">,</span>
       <span spellcheck="true" class="token comment">// Can add a custom validator.</span>
       <span spellcheck="true" class="token comment">// Supplying one overrides the default one, skipping the default rules.</span>
-      validator<span class="token punctuation">:</span> <span class="token punctuation">(</span>GraphQL<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">{</span>
-        <span class="token keyword">return</span> <span class="token punctuation">(</span>schema<span class="token punctuation">,</span> ast<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+      validator<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token function">validate</span><span class="token punctuation">(</span>schema<span class="token punctuation">,</span> ast<span class="token punctuation">)</span> <span class="token punctuation">{</span>
           <span spellcheck="true" class="token comment">// Return an array of `Error` instances.</span>
           <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
       <span class="token punctuation">}</span><span class="token punctuation">,</span>
     <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
     <span spellcheck="true" class="token comment">// Will throw an error when it validates the queries at build time.</span>

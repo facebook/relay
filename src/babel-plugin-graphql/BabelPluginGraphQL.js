@@ -223,18 +223,18 @@ function create(options) {
               definitionName,
               state.file.opts.documentName
             );
-            const fragmentAST = createFragmentFromRoot(t, legacyAST);
-            const queryASTs = splitRootFields(t, legacyAST);
+            const nodeAST = legacyAST.operation === 'query' ?
+              createFragmentForOperation(t, legacyAST) :
+              createRelayQLTemplate(t, legacyAST);
             transformedAST = createObject(t, {
               kind: t.stringLiteral('OperationDefinition'),
               argumentDefinitions: createOperationArguments(
                 t,
                 variableDefinitions
               ),
-              fragment: fragmentAST,
               name: t.stringLiteral(definitionName),
               operation: t.stringLiteral(legacyAST.operation),
-              queries: queryASTs
+              node: nodeAST,
             });
           } else {
             invariant(
@@ -387,54 +387,38 @@ function createRequireCall(t, moduleName) {
   );
 }
 
-function createFragmentFromRoot(t, root) {
+function createFragmentForOperation(t, operation) {
+  let type;
+  switch (operation.operation) {
+    case 'query':
+      type = 'Query';
+      break;
+    case 'mutation':
+      type = 'Mutation';
+      break;
+    case 'subscription':
+      type = 'Subscription';
+      break;
+    default:
+      invariant(false, 'Unexpected operation type %s.', operation.operation);
+  }
   return createRelayQLTemplate(t, {
     kind: 'FragmentDefinition',
-    loc: root.loc,
+    loc: operation.loc,
     name: {
       kind: 'Name',
-      value: root.name.value + '__fragment',
+      value: operation.name.value,
     },
     typeCondition: {
       kind: 'NamedType',
       name: {
         kind: 'Name',
-        value: 'Query',
+        value: type,
       },
     },
-    directives: root.directives,
-    selectionSet: root.selectionSet,
+    directives: operation.directives,
+    selectionSet: operation.selectionSet,
   });
-}
-
-function splitRootFields(t, root) {
-  const properties = root.selectionSet.selections.map(selection => {
-    invariant(
-      selection.kind === 'Field',
-      'BabelPluginGraphQL: Expected the root fields of operation `%s` to be ' +
-      'fields, got `%s`.',
-      root.name.value,
-      selection.kind
-    );
-    const queryProp = selection.alias ?
-      selection.alias.value :
-      selection.name.value;
-    return t.objectProperty(
-      t.identifier(queryProp),
-      createRelayQLTemplate(t, Object.assign({}, root, {
-        name: {
-          kind: 'Name',
-          value: root.name.value + '_' + queryProp,
-        },
-        selectionSet: Object.assign({}, root.selectionSet, {
-          selections: [Object.assign({}, selection, {
-            alias: null,
-          })],
-        }),
-      }))
-    );
-  });
-  return t.objectExpression(properties);
 }
 
 function createRelayQLTemplate(t, node) {

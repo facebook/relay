@@ -25,7 +25,9 @@ const CompatViewerQuery = {
         kind: 'LocalArgument',
         name: 'scale'
       }],
-      fragment: RelayQL_GENERATED`fragment CompatViewerQuery__fragment on Query {
+      name: 'CompatViewerQuery',
+      operation: 'query',
+      node: RelayQL_GENERATED`fragment CompatViewerQuery on Query {
   viewer {
     actor {
       id
@@ -38,27 +40,7 @@ const CompatViewerQuery = {
       ...CompatProfilePic_user
     }
   }
-}`,
-      name: 'CompatViewerQuery',
-      operation: 'query',
-      queries: {
-        viewer: RelayQL_GENERATED`query CompatViewerQuery_viewer($id: ID!, $scale: Float = 1.5) {
-  viewer {
-    actor {
-      id
-      ...CompatProfilePic_user
-    }
-  }
-}`,
-        user: RelayQL_GENERATED`query CompatViewerQuery_user($id: ID!, $scale: Float = 1.5) {
-  node(id: $id) {
-    ... on User {
-      id
-      ...CompatProfilePic_user
-    }
-  }
 }`
-      }
     };
   },
   relayExperimental: function () {

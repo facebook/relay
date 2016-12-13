@@ -13,25 +13,34 @@
 'use strict';
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const RelayMetaRoute = require('RelayMetaRoute');
+const RelayQuery = require('RelayQuery');
+const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
 
+const deepFreeze = require('deepFreeze');
 const forEachRootCallArg = require('forEachRootCallArg');
 const readRelayQueryData = require('readRelayQueryData');
+const recycleNodesInto = require('recycleNodesInto');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
 
 import type {
+  Disposable,
+  Selector,
+  Snapshot,
+} from 'RelayEnvironmentTypes';
+import type {
   DataID,
+  QueryPayload,
   RelayQuerySet,
 } from 'RelayInternalTypes';
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
-import type RelayQuery from 'RelayQuery';
 import type RelayQueryTracker from 'RelayQueryTracker';
 import type {TaskScheduler} from 'RelayTaskQueue';
-import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 import type {
   Abortable,
   Observable,
@@ -41,6 +50,7 @@ import type {
   StoreReaderOptions,
   CacheManager,
 } from 'RelayTypes';
+import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 
 export type FragmentResolver = {
   dispose(): void,
@@ -90,6 +100,97 @@ export interface RelayEnvironmentInterface {
  * instance, server apps may create one instance per HTTP request.
  */
 class RelayEnvironment {
+  commitPayload(
+    selector: Selector,
+    payload: QueryPayload,
+  ): void {
+    const fragment = RelayQuery.Fragment.create(
+      selector.node,
+      RelayMetaRoute.get('$RelayEnvironment'),
+      selector.variables,
+    );
+    const path = RelayQueryPath.getRootRecordPath();
+    this._storeData.handleFragmentPayload(
+      selector.dataID,
+      fragment,
+      path,
+      payload,
+      null, // forceIndex
+    );
+  }
+
+  /**
+   * An internal implementation of the "lookup" API that is shared by `lookup()`
+   * and `subscribe()`. Note that `subscribe()` cannot use `lookup()` directly,
+   * since the former may modify the result data before freezing it.
+   */
+  _lookup(selector: Selector): Snapshot {
+    const fragment = RelayQuery.Fragment.create(
+      selector.node,
+      RelayMetaRoute.get('$RelayEnvironment'),
+      selector.variables,
+    );
+    const {data, dataIDs} = readRelayQueryData(this._storeData, fragment, selector.dataID);
+    // Ensure that the root ID is considered "seen" and will be watched for
+    // changes if the returned selector is passed to `subscribe()`.
+    dataIDs[selector.dataID] = true;
+    return {
+      ...selector,
+      data,
+      seenRecords: (dataIDs: any),
+    };
+  }
+
+  lookup(selector: Selector): Snapshot {
+    const snapshot = this._lookup(selector);
+    if (__DEV__) {
+      deepFreezeSnapshot(snapshot);
+    }
+    return snapshot;
+  }
+
+  subscribe(
+    snapshot: Snapshot,
+    callback: (snapshot: Snapshot) => void,
+  ): Disposable {
+    let subscription;
+    const changeEmitter = this._storeData.getChangeEmitter();
+    const update = () => {
+      // Re-read data and see if anything changed
+      const nextSnapshot = this._lookup(snapshot);
+      // Note that `recycleNodesInto` may modify the "next" value
+      nextSnapshot.data = recycleNodesInto(snapshot.data, nextSnapshot.data);
+      if (nextSnapshot.data === snapshot.data) {
+        // The record changes don't affect the results of the selector
+        return;
+      }
+      if (__DEV__) {
+        deepFreezeSnapshot(nextSnapshot);
+      }
+      if (subscription) {
+        subscription.remove();
+      }
+      subscription = changeEmitter.addListenerForIDs(
+        Object.keys(nextSnapshot.seenRecords),
+        update,
+      );
+      snapshot = nextSnapshot;
+      callback(snapshot);
+    };
+    subscription = changeEmitter.addListenerForIDs(
+      Object.keys(snapshot.seenRecords),
+      update,
+    );
+    return {
+      dispose() {
+        if (subscription) {
+          subscription.remove();
+          subscription = null;
+        }
+      },
+    };
+  }
+
   applyUpdate: (
     mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
@@ -301,6 +402,22 @@ class RelayEnvironment {
     );
     this.commitUpdate(mutation, callbacks);
   }
+}
+
+/**
+ * RelayQuery mutates the `__cachedFragment__` property of concrete nodes for
+ * memoization purposes, so a snapshot cannot be completely frozen. Instead this
+ * function shallow-freezes the snapshot itself and deeply freezes all
+ * properties except the `node`.
+ */
+function deepFreezeSnapshot(snapshot: Snapshot): Snapshot {
+  Object.freeze(snapshot);
+  if (snapshot.data != null) {
+    deepFreeze(snapshot.data);
+  }
+  deepFreeze(snapshot.seenRecords);
+  deepFreeze(snapshot.variables);
+  return snapshot;
 }
 
 module.exports = RelayEnvironment;

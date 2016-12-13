@@ -37,7 +37,7 @@ const typeField = RelayQuery.Field.build({
   type: 'String',
 });
 
-type ClientPath = {
+export type ClientPath = {
   node: RelayQuery.Field | RelayQuery.Fragment,
   parent: QueryPath,
   type: 'client',
@@ -52,8 +52,16 @@ type RootPath = {
   root: RelayQuery.Root,
   type: 'root',
 };
+type RootRecordPath = {
+  type: 'rootRecord',
+};
 
-export type QueryPath = ClientPath | NodePath | RootPath;
+// Placeholder path used to write data to root record (ROOT_ID).
+const ROOT_RECORD_PATH = {
+  type: 'rootRecord',
+};
+
+export type QueryPath = ClientPath | NodePath | RootPath | RootRecordPath;
 
 /**
  * @internal
@@ -63,6 +71,10 @@ export type QueryPath = ClientPath | NodePath | RootPath;
  * refetchable nodes) or the field path from the nearest refetchable node.
  */
 const RelayQueryPath = {
+  getRootRecordPath(): QueryPath {
+    return ROOT_RECORD_PATH;
+  },
+
   createForID(dataID: DataID, name: string, routeName: ?string): QueryPath {
     invariant(
       !RelayRecord.isClientID(dataID),
@@ -135,7 +147,9 @@ const RelayQueryPath = {
     while (path.type === 'client') {
       path = path.parent;
     }
-    if (path.type === 'root') {
+    if (path === ROOT_RECORD_PATH) {
+      return 'RootRecordPath';
+    } else if (path.type === 'root') {
       return path.root.getName();
     } else if (path.type === 'node') {
       return path.name;
@@ -152,7 +166,9 @@ const RelayQueryPath = {
     while (path.type === 'client') {
       path = path.parent;
     }
-    if (path.type === 'root') {
+    if (path === ROOT_RECORD_PATH) {
+      return '$RelayQueryPath';
+    } else if (path.type === 'root') {
       return path.root.getRoute().name;
     } else if (path.type === 'node') {
       return path.routeName;
@@ -199,6 +215,13 @@ const RelayQueryPath = {
       }
       path = path.parent;
     }
+    invariant(
+      path.type !== 'rootRecord',
+      'RelayQueryPath: Attempted to construct a legacy query, but the ' +
+      'record was initially fetched with new Relay APIs. Ensure that ' +
+      'deprecated components such as RelayContainer are not nested in ' +
+      'new APIs such as QueryRenderer or FragmentContainer.'
+    );
     const root = path.type === 'root' ?
       path.root :
       createRootQueryFromNodePath(path);

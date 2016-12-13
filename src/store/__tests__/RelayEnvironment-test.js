@@ -11,267 +11,133 @@
 
 'use strict';
 
-jest.useFakeTimers();
-jest.unmock('RelayEnvironment');
+jest
+  .dontMock('GraphQLStoreChangeEmitter')
+  .autoMockOff();
 
-require('configureForRelayOSS');
-
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryResultObservable = require('RelayQueryResultObservable');
-const RelayMutation = require('RelayMutation');
-const RelayMutationTransaction = require('RelayMutationTransaction');
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-const RelayMutationQueue = require('RelayMutationQueue');
+const {ROOT_ID} = require('RelayStoreConstants');
 const RelayTestUtils = require('RelayTestUtils');
+const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const {graphql} = require('RelayGraphQLTag');
 
-const readRelayQueryData = require('readRelayQueryData');
-
-const {CREATED, ROLLED_BACK, UNCOMMITTED} = RelayMutationTransactionStatus;
-
-describe('RelayEnvironment', () => {
+describe('RelayFragmentSpecResolver', () => {
+  let UserQuery;
   let environment;
-  let filter;
-  let dataIDs;
-  let queries;
-  let callback;
-  let recordWriter;
-  let queryRunner;
 
-  const {getNode} = RelayTestUtils;
+  function setName(id, name) {
+    environment.getStoreData().getNodeData()[id].name = name;
+    environment.getStoreData().getChangeEmitter().broadcastChangeForID(id);
+    jest.runAllTimers();
+  }
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jasmine.addMatchers(RelayTestUtils.matchers);
 
     environment = new RelayEnvironment();
 
-    filter = () => true;
-    dataIDs = ['feedback_id', 'likers_id'];
-    queries = {};
-    callback = jest.fn();
-    queryRunner = environment.getStoreData().getQueryRunner();
-    recordWriter = environment.getStoreData().getRecordWriter();
-  });
-
-  describe('primeCache', () => {
-    it('invokes `GraphQLQueryRunner#run`', () => {
-      environment.primeCache(queries, callback);
-
-      expect(queryRunner.run).toBeCalled();
-      expect(queryRunner.run.mock.calls[0][0]).toBe(queries);
-      expect(queryRunner.run.mock.calls[0][1]).toBe(callback);
-    });
-  });
-
-  describe('forceFetch', () => {
-    it('invokes `GraphQLQueryRunner#forceFetch`', () => {
-      environment.forceFetch(queries, callback);
-
-      expect(queryRunner.forceFetch).toBeCalled();
-      expect(queryRunner.forceFetch.mock.calls[0][0]).toBe(queries);
-      expect(queryRunner.forceFetch.mock.calls[0][1]).toBe(callback);
-    });
-  });
-
-  describe('read', () => {
-    it('invokes `readRelayQueryData`', () => {
-      environment.read(queries, dataIDs[0]);
-      expect(readRelayQueryData).toBeCalled();
-      expect(readRelayQueryData.mock.calls[0][1]).toEqual(queries);
-      expect(readRelayQueryData.mock.calls[0][2]).toBe(dataIDs[0]);
-      expect(readRelayQueryData.mock.calls[0][3]).toBeUndefined();
-    });
-
-    it('invokes `readRelayQueryData` with a filter', () => {
-      environment.read(queries, dataIDs[0], filter);
-      expect(readRelayQueryData).toBeCalled();
-      expect(readRelayQueryData.mock.calls[0][3]).toBe(filter);
-    });
-  });
-
-  describe('readAll', () => {
-    it('invokes `readRelayQueryData`', () => {
-      environment.readAll(queries, dataIDs);
-      expect(readRelayQueryData.mock.calls.length).toBe(dataIDs.length);
-      expect(readRelayQueryData.mock.calls.map(call => call[2])).toEqual(
-        dataIDs
-      );
-    });
-
-    it('invokes `readRelayQueryData` with a filter', () => {
-      environment.readAll(queries, dataIDs, filter);
-      expect(readRelayQueryData.mock.calls.length).toBe(dataIDs.length);
-      readRelayQueryData.mock.calls.forEach((call) => {
-        expect(call[3]).toBe(filter);
-      });
-    });
-  });
-
-  describe('readQuery', () => {
-    it('accepts a query with no arguments', () => {
-      recordWriter.putDataID('viewer', null, 'client:1');
-      environment.readQuery(getNode(Relay.QL`query{viewer{actor{id}}}`));
-      expect(readRelayQueryData.mock.calls.length).toBe(1);
-      expect(readRelayQueryData.mock.calls[0][2]).toBe('client:1');
-    });
-
-    it('accepts a query with arguments', () => {
-      environment.readQuery(getNode(Relay.QL`
-        query {
-          nodes(ids:["123","456"]) {
-            id
-          }
-        }
-      `));
-      expect(readRelayQueryData.mock.calls.length).toBe(2);
-      expect(readRelayQueryData.mock.calls[0][2]).toBe('123');
-      expect(readRelayQueryData.mock.calls[1][2]).toBe('456');
-    });
-
-    it('accepts a query with unrecognized arguments', () => {
-      const result = environment.readQuery(getNode(Relay.QL`
-        query {
-          username(name:"foo") {
-            id
-          }
-        }
-      `));
-      expect(readRelayQueryData.mock.calls.length).toBe(0);
-      expect(result).toEqual([undefined]);
-    });
-  });
-
-  describe('observe', () => {
-    it('instantiates RelayQueryResultObservable', () => {
-      const fragment = getNode(Relay.QL`
-        fragment on Node {
+    UserQuery = graphql`
+      query RelayEnvironmentQuery($id: ID!, $size: Int) {
+        user: node(id: $id) {
           id
+          name
+          profilePicture(size: $size) {
+            uri
+          }
         }
-      `);
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(
-        (pointerFragment, dataID) => {
-          expect(pointerFragment).toBe(fragment);
-          expect(dataID).toBe('123');
-          return {
-            __dataID__: '123',
-            id: '123',
-          };
-        }
-      );
+      }
+    `.relay();
 
-      const observer = environment.observe(fragment, '123');
-      const onNext = jest.fn();
-      expect(observer instanceof RelayQueryResultObservable).toBe(true);
-      observer.subscribe({onNext});
-      expect(onNext).toBeCalledWith({
-        __dataID__: '123',
-        id: '123',
+    const nodeAlias = generateRQLFieldAlias('node.user.id(4)');
+    const photoAlias = generateRQLFieldAlias('profilePicture.size(1)');
+    environment.commitPayload(
+      {
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {id: '4', size: 1},
+      },
+      {
+        [nodeAlias]: {
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+          [photoAlias]: {
+            uri: 'https://4.jpg',
+          },
+        },
+      },
+    );
+    jest.runAllTimers();
+  });
+
+  describe('lookup()', () => {
+    it('returns the results of executing a query', () => {
+      const selector = {
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {id: '4', size: 1},
+      };
+      const snapshot = environment.lookup(selector);
+      expect(snapshot.data).toEqual({
+        __dataID__: jasmine.any(String),
+        user: {
+          __dataID__: '4',
+          id: '4',
+          name: 'Zuck',
+          profilePicture: {
+            __dataID__: jasmine.any(String),
+            uri: 'https://4.jpg',
+          },
+        },
       });
     });
   });
 
-  describe('update functions', () => {
-    let createTransactionMock;
-    let mockCallbacks;
-    let mockMutation;
-    let mockQueue;
-    let mockTransaction;
-    let status;
-
-    beforeEach(() => {
-      status = CREATED;
-      mockQueue = {
-        applyOptimistic: () => { status = UNCOMMITTED; },
-        getStatus: jest.fn(() => status),
+  describe('subscribe()', () => {
+    it('calls the callback if data changes', () => {
+      const selector = {
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {id: '4', size: 1},
       };
-      mockTransaction = new RelayMutationTransaction(mockQueue);
-      mockTransaction.commit = jest.fn();
-      createTransactionMock = jest.fn();
-      createTransactionMock.mockReturnValue(mockTransaction);
-      RelayMutationQueue.prototype.createTransaction = createTransactionMock;
-      mockMutation = new RelayMutation();
-      mockCallbacks = jest.fn();
+      const snapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
+      expect(callback).not.toBeCalled();
+      setName('4', 'Mark'); // Zuck -> Mark
+      expect(callback.mock.calls.length).toBe(1);
+      const nextSnapshot = callback.mock.calls[0][0];
+      expect(nextSnapshot.data).toEqual({
+        __dataID__: jasmine.any(String),
+        user: {
+          __dataID__: '4',
+          id: '4',
+          name: 'Mark', // updated value
+          profilePicture: {
+            __dataID__: jasmine.any(String),
+            uri: 'https://4.jpg',
+          },
+        },
+      });
+      expect(nextSnapshot.data).not.toBe(snapshot.data);
+      expect(nextSnapshot.data.user).not.toBe(snapshot.data.user);
+      // Unchanged portions of the results are === to previous values
+      expect(nextSnapshot.data.user.profilePicture)
+        .toBe(snapshot.data.user.profilePicture);
     });
 
-    describe('applyUpdate()', () => {
-      it('binds environment to mutation before creating transaction', () => {
-        mockMutation.bindEnvironment.mockImplementation(() => {
-          expect(createTransactionMock).not.toBeCalled();
-        });
-        environment.applyUpdate(mockMutation);
-        expect(mockMutation.bindEnvironment).toBeCalled();
-        expect(mockMutation.bindEnvironment.mock.calls[0][0]).toBe(environment);
-      });
-
-      it('always uses the pre-bound version of `this`', () => {
-        mockMutation.bindEnvironment = jest.fn();
-        const applyUpdate = environment.applyUpdate;
-        applyUpdate(mockMutation); // Without binding, `this` would be `global`.
-        expect(mockMutation.bindEnvironment.mock.calls[0][0]).toBe(environment);
-      });
-
-      it('creates a new RelayMutationTransaction without committing it', () => {
-        const transaction =
-          environment.applyUpdate(mockMutation, mockCallbacks);
-        expect(transaction).toEqual(mockTransaction);
-        expect(createTransactionMock).toBeCalledWith(
-          mockMutation,
-          mockCallbacks
-        );
-        expect(mockTransaction.commit).not.toBeCalled();
-      });
-    });
-
-    describe('commitUpdate()', () => {
-      it('binds environment to mutation before creating transaction', () => {
-        mockMutation.bindEnvironment.mockImplementation(() => {
-          expect(createTransactionMock).not.toBeCalled();
-        });
-        environment.commitUpdate(mockMutation);
-        expect(mockMutation.bindEnvironment).toBeCalled();
-        expect(mockMutation.bindEnvironment.mock.calls[0][0]).toBe(environment);
-      });
-
-      it('always uses the pre-bound version of `this`', () => {
-        mockMutation.bindEnvironment = jest.fn();
-        const commitUpdate = environment.commitUpdate;
-        commitUpdate(mockMutation); // Without binding, `this` would be `global`.
-        expect(mockMutation.bindEnvironment.mock.calls[0][0]).toBe(environment);
-      });
-
-      it('creates a new RelayMutationTransaction and defers the commit', () => {
-        environment.commitUpdate(mockMutation, mockCallbacks);
-        expect(createTransactionMock).toBeCalledWith(
-          mockMutation,
-          mockCallbacks
-        );
-        expect(mockTransaction.commit).not.toBeCalled();
-        jest.runAllTimers();
-        expect(mockTransaction.commit).toBeCalled();
-      });
-
-      it('cancels a scheduled commit action if the status changes', () => {
-        environment.commitUpdate(mockMutation, mockCallbacks);
-        expect(createTransactionMock).toBeCalledWith(
-          mockMutation,
-          mockCallbacks
-        );
-        expect(mockTransaction.commit).not.toBeCalled();
-        status = ROLLED_BACK;
-        jest.runAllTimers();
-        expect(mockTransaction.commit).not.toBeCalled();
-      });
-    });
-
-    describe('injectCacheManager()', () => {
-      it('passes down the cacheManager to the store data', () => {
-        const mockCacheManager = {};
-        environment.injectCacheManager(mockCacheManager);
-        expect(
-          environment.getStoreData().getCacheManager()
-        ).toBe(mockCacheManager);
-      });
+    it('does not call the callback if disposed', () => {
+      const selector = {
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {id: '4', size: 1},
+      };
+      const snapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      const {dispose} = environment.subscribe(snapshot, callback);
+      dispose();
+      setName('4', 'Mark'); // Zuck -> Mark
+      expect(callback).not.toBeCalled();
     });
   });
 });

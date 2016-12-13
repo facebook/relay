@@ -21,20 +21,9 @@ const CompatCommentCreateMutation = {
         kind: 'LocalArgument',
         name: 'input'
       }],
-      fragment: RelayQL_GENERATED`fragment CompatCommentCreateMutation__fragment on Query {
-  commentCreate(input: $input) {
-    viewer {
-      actor {
-        id
-        ...CompatProfilePic_user
-      }
-    }
-  }
-}`,
       name: 'CompatCommentCreateMutation',
       operation: 'mutation',
-      queries: {
-        commentCreate: RelayQL_GENERATED`mutation CompatCommentCreateMutation_commentCreate($input: CommentCreateInput!) {
+      node: RelayQL_GENERATED`mutation CompatCommentCreateMutation($input: CommentCreateInput!) {
   commentCreate(input: $input) {
     viewer {
       actor {
@@ -44,7 +33,6 @@ const CompatCommentCreateMutation = {
     }
   }
 }`
-      }
     };
   },
   relayExperimental: function () {

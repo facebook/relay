@@ -13,7 +13,9 @@ jest
   .mock('warning')
   .autoMockOff();
 
+const {ROOT_ID} = require('RelayStoreConstants');
 const {graphql} = require('RelayGraphQLTag');
+const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
 const {
@@ -30,7 +32,6 @@ describe('RelaySelector', () => {
   let UserQuery;
   let UsersFragment;
   let environment;
-  let store;
   let zuck;
   let variables;
 
@@ -38,9 +39,7 @@ describe('RelaySelector', () => {
     jasmine.addMatchers(RelayTestUtils.matchers);
 
     environment = new RelayEnvironment();
-    store = environment.getStoreData();
 
-    // Object property
     const fragments = {
       user: graphql`
         fragment RelaySelector_user on User {
@@ -85,23 +84,26 @@ describe('RelaySelector', () => {
     UserFragment = fragments.user;
     UsersFragment = fragments.users;
 
-    const query = RelayTestUtils.getNode(
-      UserQuery.queries.node,
-      {id: '4', size: null, cond: false},
-    );
-    RelayTestUtils.writePayload(
-      store.getRecordStore(),
-      store.getRecordWriter(),
-      query,
+    const nodeAlias = generateRQLFieldAlias('node.id(4)');
+    environment.commitPayload(
       {
-        node: {
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {id: '4', size: null, cond: false},
+      },
+      {
+        [nodeAlias]: {
           id: '4',
           __typename: 'User',
           name: 'Zuck',
         },
       },
     );
-    zuck = environment.readQuery(query)[0];
+    zuck = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.node,
+      variables: {id: '4', size: null, cond: false},
+    }).data.node;
     variables = {
       size: null,
       cond: false,
@@ -141,7 +143,7 @@ describe('RelaySelector', () => {
       const selector = getSelector(variables, UserFragment, zuck);
       expect(selector).toEqual({
         dataID: '4',
-        node: UserFragment,
+        node: UserFragment.node,
         variables,
       });
     });
@@ -175,7 +177,7 @@ describe('RelaySelector', () => {
       const selectors = getSelectorList(variables, UserFragment, [zuck]);
       expect(selectors).toEqual([{
         dataID: '4',
-        node: UserFragment,
+        node: UserFragment.node,
         variables,
       }]);
     });
@@ -225,7 +227,7 @@ describe('RelaySelector', () => {
       expect(selectors).toEqual({
         user: {
           dataID: '4',
-          node: UserFragment,
+          node: UserFragment.node,
           variables,
         },
       });
@@ -259,7 +261,7 @@ describe('RelaySelector', () => {
       expect(selectors).toEqual({
         user: {
           dataID: '4',
-          node: UserFragment,
+          node: UserFragment.node,
           variables,
         },
       });
@@ -274,7 +276,7 @@ describe('RelaySelector', () => {
       expect(selectors).toEqual({
         user: [{
           dataID: '4',
-          node: UsersFragment,
+          node: UsersFragment.node,
           variables,
         }],
       });
@@ -371,11 +373,11 @@ describe('RelaySelector', () => {
     };
 
     beforeEach(() => {
-      const query = RelayTestUtils.getNode(
-        UserQuery.queries.node,
-        inputVariables,
-      );
-      zuck = environment.readQuery(query)[0];
+      zuck = environment.lookup({
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: inputVariables,
+      }).data.node;
     });
 
     it('throws for invalid inputs', () => {
@@ -464,7 +466,7 @@ describe('RelaySelector', () => {
     it('returns trure for equivalent selectors', () => {
       const selector = {
         dataID: '4',
-        node: UserFragment,
+        node: UserFragment.node,
         variables,
       };
       const clone = {
@@ -478,7 +480,7 @@ describe('RelaySelector', () => {
     it('returns false for different selectors', () => {
       const selector = {
         dataID: '4',
-        node: UserFragment,
+        node: UserFragment.node,
         variables,
       };
       const differentID = {...selector, dataID: 'beast'};

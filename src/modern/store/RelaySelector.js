@@ -74,7 +74,7 @@ function getSelector(
   if (dataID != null && fragmentVariables != null) {
     return {
       dataID,
-      node: fragment,
+      node: fragment.node,
       variables: fragmentVariables,
     };
   }

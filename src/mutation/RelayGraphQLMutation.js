@@ -39,7 +39,7 @@ const COUNTER_PREFIX = 'RelayGraphQLMutation';
 let collisionIDCounter = 0;
 
 /**
- * @internal
+ * @public
  *
  * Low-level API for modeling a GraphQL mutation.
  *
@@ -51,11 +51,6 @@ let collisionIDCounter = 0;
  * (There is an even lower-level representation, `RelayMutationRequest`,
  * underlying this which is an entirely internal implementation detail that
  * product code need not be aware of.)
- *
- * Low-level mutations cannot (yet) be applied optimistically or rolled back.
- * They don't provide any bells and whistles such as fat queries or tracked
- * queries. If you want those, you can opt in to the higher-level
- * `RelayMutation` API.
  *
  * @see http://facebook.github.io/graphql/.
  *

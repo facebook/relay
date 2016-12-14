@@ -2,7 +2,6 @@
  * @generated
  * @providesModule Metadata
  */
-'use strict';
 module.exports = {
   "files": [
     {
@@ -15,12 +14,21 @@ module.exports = {
       "source": "APIReference-Container.md"
     },
     {
+      "id": "api-reference-relay-graphql-mutation",
+      "title": "Relay.GraphQLMutation",
+      "layout": "docs",
+      "category": "API Reference",
+      "permalink": "docs/api-reference-relay-graphql-mutation.html",
+      "next": "api-reference-relay-proptypes",
+      "source": "APIReference-GraphQLMutation.md"
+    },
+    {
       "id": "api-reference-relay-mutation",
       "title": "Relay.Mutation",
       "layout": "docs",
       "category": "API Reference",
       "permalink": "docs/api-reference-relay-mutation.html",
-      "next": "api-reference-relay-proptypes",
+      "next": "api-reference-relay-graphql-mutation",
       "source": "APIReference-Mutation.md"
     },
     {

@@ -218,7 +218,7 @@ const transaction = mutation.applyOptimistic(
 );
 ```
 
-See also: [Relay.Mutation::getConfigs()](api-reference-relay-mutation.html#getconfigs)
+See also: [Relay.Mutation::getConfigs()](api-reference-relay-mutation.html#getconfigs-abstract-method)
 
 ### commit
 
@@ -250,7 +250,7 @@ const configs = [{
 const transaction = mutation.commit(configs);
 ```
 
-See also: [Relay.Mutation::getConfigs()](api-reference-relay-mutation.html#getconfigs)
+See also: [Relay.Mutation::getConfigs()](api-reference-relay-mutation.html#getconfigs-abstract-method)
 
 ### rollback
 

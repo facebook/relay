@@ -23,7 +23,7 @@ The premise of the example is that we want to use GraphQL to query for informati
 
 It is assumed that the reader is already familiar with GraphQL; if not, the README for [GraphQL.js](https://github.com/graphql/graphql-js) is a good place to start.
 
-It is also assumed that the reader is already familiar with Star Wars; if not, the 1977 version of Star Wars is a good place to start, though the 1997 Special Edition will serve for the purposes of this document.
+It is also assumed that the reader is already familiar with [Star Wars](https://en.wikipedia.org/wiki/Star_Wars); if not, the 1977 version of Star Wars is a good place to start, though the 1997 Special Edition will serve for the purposes of this document.
 
 ## Schema
 

@@ -111,8 +111,6 @@ static createWithFiles(
 ): RelayGraphQLMutation;
 ```
 
-See also: [GraphQLMutation > Constructor](#constructor)
-
 #### Example
 
 ```{7-11}
@@ -129,6 +127,8 @@ const mutation = RelayGraphQLMutation.createWithFiles(
   environment
 );
 ```
+
+See also: [GraphQLMutation > Constructor](#constructor)
 
 ## Methods
 

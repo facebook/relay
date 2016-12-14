@@ -41,7 +41,7 @@ This is the lowest level of abstraction at which product code may deal with muta
     </a>
   </li>
   <li>
-    <a href="#applyOptimistic">
+    <a href="#applyoptimistic">
       <pre>applyOptimistic(optimisticQuery, optimisticResponse, configs)</pre>
     </a>
   </li>

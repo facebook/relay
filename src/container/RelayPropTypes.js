@@ -12,8 +12,8 @@
 
 'use strict';
 
+const isLegacyRelayEnvironment = require('isLegacyRelayEnvironment');
 const isRelayContainer = require('isRelayContainer');
-const isRelayEnvironment = require('isRelayEnvironment');
 const sprintf = require('sprintf');
 
 const {PropTypes} = require('React');
@@ -39,7 +39,7 @@ const RelayPropTypes = {
 
   Environment(props: Object, propName: string, componentName: string): ?Error {
     const context = props[propName];
-    if (!isRelayEnvironment(context)) {
+    if (!isLegacyRelayEnvironment(context)) {
       return new Error(sprintf(
         'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
         'an object conforming to the `RelayEnvironment` interface.',

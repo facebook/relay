@@ -31,7 +31,7 @@ const buildRQL = require('buildRQL');
 const filterObject = require('filterObject');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const isRelayEnvironment = require('isRelayEnvironment');
+const isLegacyRelayEnvironment = require('isLegacyRelayEnvironment');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
@@ -129,7 +129,7 @@ function createContainerComponent(
 
       const {relay, route} = context;
       invariant(
-        isRelayEnvironment(relay),
+        isLegacyRelayEnvironment(relay),
         'RelayContainer: `%s` was rendered with invalid Relay context `%s`. ' +
         'Make sure the `relay` property on the React context conforms to the ' +
         '`RelayEnvironment` interface.',

@@ -41,6 +41,7 @@ import type {
   ConcreteFragment,
   ConcreteMutation,
   ConcreteNode,
+  ConcreteOperationDefinition,
   ConcreteOperationMetadata,
   ConcreteQuery,
   ConcreteQueryMetadata,
@@ -614,6 +615,96 @@ class RelayQueryRoot extends RelayQueryNode {
       this.getFieldName() !== that.getFieldName() ||
       !areCallValuesEqual(this.getCallsWithValues(), that.getCallsWithValues())
     ) {
+      return false;
+    }
+    return super.equals(that);
+  }
+}
+
+/**
+ * @internal
+ *
+ * Wraps access to OSS GraphQL query nodes created with
+ *
+ *    graphql`query ...`
+ *
+ * Unlike RelayQueryRoot (which represents the semantics of legacy GraphQL
+ * queries), this class supports multiple, arbitrary root fields within a single
+ * query. Fields may have arbitrary numbers of arguments, return connections,
+ * have aliases, etc.
+ */
+class RelayOSSQuery extends RelayQueryNode {
+  __id__: ?string;
+
+  static create(
+    concreteNode: mixed,
+    metaRoute: RelayMetaRoute,
+    variables: Variables
+  ): RelayOSSQuery {
+    const operation = QueryBuilder.getOperationDefinition(concreteNode);
+    invariant(
+      operation,
+      'RelayQueryRoot.create(): Expected a value created with graphql`query { ... }` ' +
+      '(using the `graphql` tag), got: %s',
+      concreteNode,
+    );
+    const rootContext = createRootContext(metaRoute, variables);
+    return new RelayOSSQuery(
+      operation,
+      rootContext,
+      variables
+    );
+  }
+
+  constructor(
+    concreteNode: ConcreteOperationDefinition,
+    rootContext: RootContext,
+    variables: Variables
+  ) {
+    invariant(
+      concreteNode && concreteNode.operation === 'query',
+      'RelayQueryRoot.create(): Expected a value created with graphql`query { ... }` ' +
+      '(using the `graphql` tag), got: %s',
+      concreteNode,
+    );
+    super(concreteNode.node, rootContext, variables);
+    this.__id__ = undefined;
+
+    // Ensure IDs are generated in the order that queries are created
+    this.getID();
+  }
+
+  canHaveSubselections(): boolean {
+    return true;
+  }
+
+  isDeferred(): boolean {
+    return false;
+  }
+
+  getName(): string {
+    let name = (this.__concreteNode__: ConcreteQuery).name;
+    if (!name) {
+      name = this.getID();
+      (this.__concreteNode__: ConcreteQuery).name = name;
+    }
+    return name;
+  }
+
+  getID(): string {
+    let id = this.__id__;
+    if (id == null) {
+      id = 'q' + _nextQueryID++;
+      this.__id__ = id;
+    }
+    return id;
+  }
+
+  equals(that: RelayQueryNode): boolean {
+    if (this === that) {
+      return true;
+    }
+    if (!(that instanceof RelayOSSQuery)) {
       return false;
     }
     return super.equals(that);
@@ -1438,6 +1529,8 @@ function createNode(
         isTypeConditional: false,
       }
     );
+  } else if (kind === 'OperationDefinition') {
+    type = RelayOSSQuery;
   } else if (kind === 'Query') {
     type = RelayQueryRoot;
   } else if (kind === 'Mutation') {
@@ -1609,6 +1702,7 @@ module.exports = {
   Mutation: RelayQueryMutation,
   Node: RelayQueryNode,
   Operation: RelayQueryOperation,
+  OSSQuery: RelayOSSQuery,
   Root: RelayQueryRoot,
   Subscription: RelayQuerySubscription,
 };

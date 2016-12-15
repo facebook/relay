@@ -66,10 +66,13 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
     queryText = printOperation(node, printerState);
   } else if (node instanceof RelayQuery.Fragment) {
     queryText = printFragment(node, printerState);
+  } else if (node instanceof RelayQuery.OSSQuery) {
+    queryText = printOSSQuery(node, printerState);
   }
   invariant(
     queryText,
-    'printRelayOSSQuery(): Unsupported node type.'
+    'printRelayOSSQuery(): Unsupported node type, got `%s`.',
+    JSON.stringify(node),
   );
   const variables = {};
   variableMap.forEach(variablesForType => {
@@ -84,6 +87,24 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
   };
 }
 
+/**
+ * Prints a query with (potentially) multiple root fields.
+ */
+function printOSSQuery(
+  query: RelayQuery.OSSQuery,
+  printerState: PrinterState,
+): string {
+  const children = printChildren(query, printerState, oneIndent);
+  const directives = printDirectives(query);
+  // Note: variable definitions must be processed *after* traversing children
+  const variableDefinitions = printVariableDefinitions(printerState);
+  return 'query ' + query.getName() + variableDefinitions +
+    directives + children;
+}
+
+/**
+ * Prints the output of a legacy Relay.QL query.
+ */
 function printRoot(
   node: RelayQuery.Root,
   printerState: PrinterState

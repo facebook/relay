@@ -16,14 +16,17 @@ jest
   .autoMockOff();
 
 const RelayEnvironment = require('RelayEnvironment');
+const RelayOperationSelector = require('RelayOperationSelector');
 const {ROOT_ID} = require('RelayStoreConstants');
 const RelayTestUtils = require('RelayTestUtils');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const {graphql} = require('RelayGraphQLTag');
 
-describe('RelayFragmentSpecResolver', () => {
+describe('RelayEnvironment', () => {
   let UserQuery;
   let environment;
+  let nodeAlias;
+  let photoAlias;
 
   function setName(id, name) {
     environment.getStoreData().getNodeData()[id].name = name;
@@ -48,8 +51,8 @@ describe('RelayFragmentSpecResolver', () => {
       }
     `.relay();
 
-    const nodeAlias = generateRQLFieldAlias('node.user.id(4)');
-    const photoAlias = generateRQLFieldAlias('profilePicture.size(1)');
+    nodeAlias = generateRQLFieldAlias('node.user.id(4)');
+    photoAlias = generateRQLFieldAlias('profilePicture.size(1)');
     environment.commitPayload(
       {
         dataID: ROOT_ID,
@@ -138,6 +141,136 @@ describe('RelayFragmentSpecResolver', () => {
       dispose();
       setName('4', 'Mark'); // Zuck -> Mark
       expect(callback).not.toBeCalled();
+    });
+  });
+
+  // In the legacy core these functions intentionally have the same behavior
+  ['sendQuery', 'sendQuerySubscription'].forEach(functionName => {
+    describe(functionName + '()', () => {
+      let callbacks;
+      let deferred;
+      let sendQueries;
+      let onCompleted;
+      let onError;
+      let onNext;
+      let operation;
+
+      beforeEach(() => {
+        onCompleted = jest.fn();
+        onError = jest.fn();
+        onNext = jest.fn();
+        callbacks = {onCompleted, onError, onNext};
+
+        sendQueries = jest.fn(queries => {
+          expect(queries.length).toBe(1);
+          deferred = queries[0];
+        });
+        environment.injectNetworkLayer({
+          sendMutation: jest.fn(),
+          sendQueries,
+          supports: jest.fn(() => false),
+        });
+        operation = RelayOperationSelector.createOperationSelector(
+          UserQuery,
+          {id: '4', size: 1},
+        );
+      });
+
+      it('fetches queries', () => {
+        environment[functionName]({operation});
+        expect(sendQueries.mock.calls.length).toBe(1);
+        const request = sendQueries.mock.calls[0][0][0];
+        expect(request.getQuery().getConcreteQueryNode()).toBe(UserQuery.node);
+        expect(request.getQuery().getVariables()).toEqual({
+          id: '4',
+          size: 1,
+        });
+      });
+
+      it('calls onCompleted() when the batch completes', () => {
+        environment[functionName]({
+          ...callbacks,
+          operation,
+        });
+        deferred.resolve({
+          [nodeAlias]: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+            [photoAlias]: {
+              uri: 'https://4.jpg',
+            },
+          },
+        });
+        jest.runAllTimers();
+        expect(onCompleted.mock.calls.length).toBe(1);
+        expect(onNext.mock.calls.length).toBe(1);
+        expect(onError).not.toBeCalled();
+      });
+
+      it('calls onError() when the batch has an error', () => {
+        environment[functionName]({
+          ...callbacks,
+          operation,
+        });
+        const error = new Error('wtf');
+        deferred.reject(error);
+        jest.runAllTimers();
+
+        expect(onError).toBeCalled();
+        expect(onCompleted).not.toBeCalled();
+        expect(onNext.mock.calls.length).toBe(0);
+      });
+
+      it('calls onNext() and publishes payloads to the store', () => {
+        const selector = {
+          dataID: ROOT_ID,
+          node: UserQuery.node,
+          variables: {id: '4', size: 1},
+        };
+        const snapshot = environment.lookup(selector);
+        const callback = jest.fn();
+        environment.subscribe(snapshot, callback);
+
+        environment[functionName]({
+          ...callbacks,
+          operation,
+        });
+        const payload = {
+          [nodeAlias]: {
+            id: '4',
+            __typename: 'User',
+            name: 'Mark', // Zuck -> Mark
+            [photoAlias]: {
+              uri: 'https://4.jpg',
+            },
+          },
+        };
+        deferred.resolve(payload);
+        jest.runAllTimers();
+
+        expect(onNext.mock.calls.length).toBe(1);
+        expect(onNext).toBeCalledWith({
+          dataID: ROOT_ID,
+          node: UserQuery.node,
+          variables: {id: '4', size: 1},
+        });
+        expect(onCompleted).toBeCalled();
+        expect(onError).not.toBeCalled();
+        expect(callback.mock.calls.length).toBe(1);
+        expect(callback.mock.calls[0][0].data).toEqual({
+          __dataID__: jasmine.any(String),
+          user: {
+            __dataID__: '4',
+            id: '4',
+            name: 'Mark', // Reflects changed value
+            profilePicture: {
+              __dataID__: jasmine.any(String),
+              uri: 'https://4.jpg',
+            },
+          },
+        });
+      });
     });
   });
 });

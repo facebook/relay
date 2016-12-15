@@ -50,7 +50,7 @@ function createOperationSelector(
 
   return {
     fragment,
-    node: operation.node,
+    node: operation,
     root: fragment,
     variables: operationVariables,
   };

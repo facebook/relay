@@ -19,6 +19,7 @@ const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
+const {graphql} = require('RelayGraphQLTag');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const printRelayOSSQuery = require('printRelayOSSQuery');
 
@@ -28,6 +29,49 @@ describe('printRelayOSSQuery', () => {
   beforeEach(() => {
     jest.resetModuleRegistry();
     jasmine.addMatchers(RelayTestUtils.matchers);
+  });
+
+  describe('OSS queries', () => {
+    it('prints a query with multiple root fields', () => {
+      const query = getNode(graphql`
+        query printRelayOSSQuery(
+          $taskNumber: Int,
+          $id: ID!,
+        ) {
+          user: node(id: $id) {
+            ... on User {
+              name
+            }
+          }
+          activeTask: task(number: $taskNumber) {
+            title
+          }
+        }
+      `.relay(), {
+        id: '842472',
+        taskNumber: 2,
+      });
+      const {text, variables} = printRelayOSSQuery(query);
+      const nodeAlias = generateRQLFieldAlias('node.user.id(842472)');
+      const taskAlias = generateRQLFieldAlias('task.activeTask.number(2)');
+      expect(text).toEqualPrintedQuery(`
+        query PrintRelayOSSQuery {
+          ${nodeAlias}: node(id: "842472") {
+            id,
+            __typename,
+            ...F0
+          },
+          ${taskAlias}: task(number: 2) {
+            title
+          }
+        }
+        fragment F0 on User {
+          name,
+          id
+        }
+      `);
+      expect(variables).toEqual({});
+    });
   });
 
   describe('roots', () => {

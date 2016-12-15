@@ -13,11 +13,11 @@
 'use strict';
 
 const Deferred = require('Deferred');
+const RelayQuery = require('RelayQuery');
 
 const printRelayQuery = require('printRelayQuery');
 
 import type {PrintedQuery} from 'RelayInternalTypes';
-import type RelayQuery from 'RelayQuery';
 import type {QueryResult, Variables} from 'RelayTypes';
 
 /**
@@ -27,9 +27,9 @@ import type {QueryResult, Variables} from 'RelayTypes';
  */
 class RelayQueryRequest extends Deferred<QueryResult, Error> {
   _printedQuery: ?PrintedQuery;
-  _query: RelayQuery.Root;
+  _query: RelayQuery.Root | RelayQuery.OSSQuery;
 
-  constructor(query: RelayQuery.Root) {
+  constructor(query: RelayQuery.Root | RelayQuery.OSSQuery) {
     super();
     this._printedQuery = null;
     this._query = query;
@@ -89,7 +89,7 @@ class RelayQueryRequest extends Deferred<QueryResult, Error> {
    * @public
    * @unstable
    */
-  getQuery(): RelayQuery.Root {
+  getQuery(): RelayQuery.Root | RelayQuery.OSSQuery {
     return this._query;
   }
 }

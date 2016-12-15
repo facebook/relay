@@ -16,6 +16,7 @@ const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
+const RelayQueryRequest = require('RelayQueryRequest');
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
 
@@ -27,7 +28,9 @@ const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
 
 import type {
+  CacheConfig,
   Disposable,
+  OperationSelector,
   Selector,
   Snapshot,
 } from 'RelayEnvironmentTypes';
@@ -189,6 +192,59 @@ class RelayEnvironment {
         }
       },
     };
+  }
+
+  sendQuery({
+    cacheConfig,
+    onCompleted,
+    onError,
+    onNext,
+    operation,
+  }: {
+    cacheConfig?: ?CacheConfig,
+    onCompleted?: ?() => void,
+    onError?: ?(error: Error) => void,
+    onNext?: ?(selector: Selector) => void,
+    operation: OperationSelector,
+  }): Disposable {
+    let isDisposed = false;
+    const dispose = () => {
+      isDisposed = true;
+    };
+    const query = RelayQuery.OSSQuery.create(
+      operation.node,
+      RelayMetaRoute.get('$RelayEnvironment'),
+      operation.variables,
+    );
+    const request = new RelayQueryRequest(query);
+    request.then(
+      payload => {
+        if (isDisposed) {
+          return;
+        }
+        this.commitPayload(operation.root, payload);
+        onNext && onNext(operation.root);
+        onCompleted && onCompleted();
+      },
+      error => {
+        if (isDisposed) {
+          return;
+        }
+        onError && onError(error);
+      },
+    );
+    this._storeData.getNetworkLayer().sendQueries([request]);
+    return {dispose};
+  }
+
+  sendQuerySubscription(config: {
+    cacheConfig?: ?CacheConfig,
+    onCompleted?: ?() => void,
+    onError?: ?(error: Error) => void,
+    onNext?: ?(selector: Selector) => void,
+    operation: OperationSelector,
+  }): Disposable {
+    return this.sendQuery(config);
   }
 
   applyUpdate: (

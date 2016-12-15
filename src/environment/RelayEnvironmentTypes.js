@@ -15,9 +15,17 @@
 import type {
   ConcreteFragment,
   ConcreteFragmentDefinition,
+  ConcreteOperationDefinition,
 } from 'ConcreteQuery';
 import type {DataID} from 'RelayInternalTypes';
 import type {Variables} from 'RelayTypes';
+
+/**
+ * Settings for how a query response may be cached.
+ */
+export type CacheConfig = {
+  force: boolean,
+};
 
 /**
  * Represents any resource that must be explicitly disposed of. The most common
@@ -62,6 +70,7 @@ export type SelectorData = {[key: string]: mixed};
  */
 export type OperationSelector = {
   fragment: Selector,
+  node: ConcreteOperationDefinition,
   root: Selector,
   variables: Variables,
 };
@@ -71,13 +80,58 @@ export type OperationSelector = {
  * own in-memory cache.
  */
 export interface Environment {
+
+  /**
+   * Read the results of a selector from in-memory records in the store.
+   */
   lookup(
     selector: Selector,
   ): Snapshot,
+
+  /**
+   * Subscribe to changes to the results of a selector. The callback is called
+   * when data has been committed to the store that would cause the results of
+   * the snapshot's selector to change.
+   */
   subscribe(
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable,
+
+  /**
+   * Send a query to the server with request/response semantics: the query will
+   * either complete successfully (calling `onNext` and `onCompleted`) or fail
+   * (calling `onError`).
+   *
+   * Note: Most applications should use `sendQuerySubscription` in order to
+   * optionally receive updated information over time, should that feature be
+   * supported by the network/server. A good rule of thumb is to use this method
+   * if you would otherwise immediately dispose the `sendQuerySubscription()`
+   * after receving the first `onNext` result.
+   */
+  sendQuery(config: {|
+    cacheConfig?: ?CacheConfig,
+    onCompleted?: ?() => void,
+    onError?: ?(error: Error) => void,
+    onNext?: ?(selector: Selector) => void,
+    operation: OperationSelector,
+  |}): Disposable,
+
+  /**
+   * Send a query to the server with request/subscription semantics: one or more
+   * responses may be returned (via `onNext`) over time followed by either
+   * the request completing (`onCompleted`) or an error (`onError`).
+   *
+   * Networks/servers that support subscriptions may choose to hold the
+   * subscription open indefinitely such that `onCompleted` is not called.
+   */
+  sendQuerySubscription(config: {|
+    cacheConfig?: ?CacheConfig,
+    onCompleted?: ?() => void,
+    onError?: ?(error: Error) => void,
+    onNext?: ?(selector: Selector) => void,
+    operation: OperationSelector,
+  |}): Disposable,
 }
 
 /**

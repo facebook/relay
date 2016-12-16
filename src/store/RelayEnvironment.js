@@ -13,6 +13,7 @@
 'use strict';
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const RelayLegacyCore = require('RelayLegacyCore');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
@@ -31,6 +32,7 @@ import type {
   CacheConfig,
   Disposable,
   OperationSelector,
+  RelayCore,
   Selector,
   Snapshot,
 } from 'RelayEnvironmentTypes';
@@ -103,6 +105,8 @@ export interface RelayEnvironmentInterface {
  * instance, server apps may create one instance per HTTP request.
  */
 class RelayEnvironment {
+  unstable_internal: RelayCore;
+
   commitPayload(
     selector: Selector,
     payload: QueryPayload,
@@ -264,6 +268,7 @@ class RelayEnvironment {
     );
     this.applyUpdate = this.applyUpdate.bind(this);
     this.commitUpdate = this.commitUpdate.bind(this);
+    this.unstable_internal = RelayLegacyCore;
   }
 
   /**

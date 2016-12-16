@@ -12,13 +12,35 @@
 
 'use strict';
 
+const QueryBuilder = require('QueryBuilder');
+
 const invariant = require('invariant');
+
+import type {
+  ConcreteFragmentDefinition,
+  ConcreteOperationDefinition,
+} from 'ConcreteQuery';
+
+// The type of a graphql`...` tagged template expression.
+export type GraphQLTaggedNode = {
+  relay: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
+  // TODO: type this once the new core is in OSS
+  relayExperimental?: () => any,
+};
+
+/**
+ * A map used to memoize the results of executing the `.relay()` functions on
+ * graphql`...` tagged expressions. Memoization allows the framework to use
+ * object equality checks to compare fragments (useful, for example, when
+ * comparing two `Selector`s to see if they select the same data).
+ */
+const legacyNodeMap = new WeakMap();
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.
  * All calls to this function should be transformed by the plugin.
  */
-function graphql() {
+function graphql(): GraphQLTaggedNode {
   invariant(
     false,
     'graphql: Unexpected invocation at runtime. Either the Babel transform ' +
@@ -27,6 +49,42 @@ function graphql() {
   );
 }
 
+function getLegacyFragment(
+  taggedNode: GraphQLTaggedNode,
+): ConcreteFragmentDefinition {
+  let concreteNode = legacyNodeMap.get(taggedNode);
+  if (concreteNode == null) {
+    concreteNode = taggedNode.relay();
+    legacyNodeMap.set(taggedNode, concreteNode);
+  }
+  const fragment = QueryBuilder.getFragmentDefinition();
+  invariant(
+    fragment,
+    'RelayGraphQLTag: Expected a fragment, got `%s`.',
+    JSON.stringify(concreteNode),
+  );
+  return fragment;
+}
+
+function getLegacyOperation(
+  taggedNode: GraphQLTaggedNode,
+): ConcreteOperationDefinition {
+  let concreteNode = legacyNodeMap.get(taggedNode);
+  if (concreteNode == null) {
+    concreteNode = taggedNode.relay();
+    legacyNodeMap.set(taggedNode, concreteNode);
+  }
+  const operation = QueryBuilder.getOperationDefinition();
+  invariant(
+    operation,
+    'RelayGraphQLTag: Expected an operation, got `%s`.',
+    JSON.stringify(concreteNode),
+  );
+  return operation;
+}
+
 module.exports = {
+  getLegacyFragment,
+  getLegacyOperation,
   graphql,
 };

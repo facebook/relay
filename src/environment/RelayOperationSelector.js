@@ -24,10 +24,10 @@ import type {OperationSelector} from 'RelayEnvironmentTypes';
 import type {Variables} from 'RelayTypes';
 
 /**
- * Creates an instance of the `OperationSelector` type defined in
- * `RelayEnvironmentTypes` given an operation and some variables. The input
- * variables are filtered to exclude variables that do not match defined
- * arguments on the operation, and default values are populated for null values.
+ * @public
+ *
+ * Implementation of `RelayCore#createOperationSelector()` defined in
+ * `RelayEnvironmentTypes` for the legacy core.
  */
 function createOperationSelector(
   operation: ConcreteOperationDefinition,

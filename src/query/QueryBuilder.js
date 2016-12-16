@@ -28,6 +28,7 @@ import type {
   ConcreteField,
   ConcreteFieldMetadata,
   ConcreteFragment,
+  ConcreteFragmentDefinition,
   ConcreteFragmentMetadata,
   ConcreteFragmentReference,
   ConcreteFragmentSpread,
@@ -304,6 +305,12 @@ const QueryBuilder = {
 
   getFragment(node: mixed): ?ConcreteFragment {
     if (isConcreteKind(node, 'Fragment')) {
+      return (node: any);
+    }
+  },
+
+  getFragmentDefinition(node: mixed): ?ConcreteFragmentDefinition {
+    if (isConcreteKind(node, 'FragmentDefinition')) {
       return (node: any);
     }
   },

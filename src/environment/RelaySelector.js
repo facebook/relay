@@ -21,38 +21,12 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 import type {ConcreteFragmentDefinition} from 'ConcreteQuery';
-import type {Selector} from 'RelayEnvironmentTypes';
+import type {FragmentMap, Props, Selector} from 'RelayEnvironmentTypes';
 import type {DataID} from 'RelayInternalTypes';
 import type {Variables} from 'RelayTypes';
 
 /**
  * @public
- *
- * Given the result `item` from a parent that fetched `fragment`, creates a
- * selector that can be used to read the results of that fragment for that item.
- *
- * Example:
- *
- * Given two fragments as follows:
- *
- * ```
- * fragment Parent on User {
- *   id
- *   ...Child
- * }
- * fragment Child on User {
- *   name
- * }
- * ```
- *
- * And given some object `parent` that is the results of `Parent` for id "4",
- * the results of `Child` can be accessed by first getting a selector and then
- * using that selector to `lookup()` the results against the environment:
- *
- * ```
- * const childSelector = getSelector(queryVariables, Child, parent);
- * const childData = environment.lookup(childSelector).data;
- * ```
  */
 function getSelector(
   operationVariables: Variables,
@@ -92,11 +66,6 @@ function getSelector(
 
 /**
  * @public
- *
- * Given the result `items` from a parent that fetched `fragment`, creates a
- * selector that can be used to read the results of that fragment on those
- * items. This is similar to `getSelector` but for "plural" fragments that
- * expect an array of results and therefore return an array of selectors.
  */
 function getSelectorList(
   operationVariables: Variables,
@@ -118,18 +87,11 @@ function getSelectorList(
 
 /**
  * @public
- *
- * Given a mapping of keys -> results and a mapping of keys -> fragments,
- * extracts the selectors for those fragments from the results.
- *
- * The canonical use-case for this function are Relay Containers, which
- * use this function to convert (props, fragments) into selectors so that they
- * can read the results to pass to the inner component.
  */
 function getSelectorsFromObject(
   operationVariables: Variables,
-  fragments: {[key: string]: ConcreteFragmentDefinition},
-  object: {[key: string]: mixed},
+  fragments: FragmentMap,
+  object: Props,
 ): {[key: string]: ?(Selector | Array<Selector>)} {
   const selectors = {};
   forEachObject(fragments, (fragment, key) => {
@@ -179,8 +141,8 @@ function getSelectorsFromObject(
  * determining the "identity" of the props passed to a component.
  */
 function getDataIDsFromObject(
-  fragments: {[key: string]: ConcreteFragmentDefinition},
-  object: {[key: string]: mixed},
+  fragments: FragmentMap,
+  object: Props,
 ): {[key: string]: ?(DataID | Array<DataID>)} {
   const ids = {};
   forEachObject(fragments, (fragment, key) => {
@@ -258,18 +220,11 @@ function getDataID(fragment: ConcreteFragmentDefinition, item: mixed): ?DataID {
 
 /**
  * @public
- *
- * Given a mapping of keys -> results and a mapping of keys -> fragments,
- * extracts the merged variables that would be in scope for those
- * fragments/results.
- *
- * This can be useful in determing what varaibles were used to fetch the data
- * for a Relay container, for example.
  */
 function getVariablesFromObject(
   operationVariables: Variables,
-  fragments: {[key: string]: ConcreteFragmentDefinition},
-  object: {[key: string]: mixed},
+  fragments: FragmentMap,
+  object: Props,
 ): Variables {
   const variables = {};
   forEachObject(fragments, (fragment, key) => {
@@ -325,10 +280,6 @@ function getVariables(
 
 /**
  * @public
- *
- * Determine if two selectors are equal (represent the same selection). Note
- * that this function returns `false` when the two queries/fragments are
- * different objects, even if they select the same fields.
  */
 function areEqualSelectors(
   thisSelector: Selector,

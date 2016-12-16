@@ -22,6 +22,8 @@ import type {
   Disposable,
   Environment,
   FragmentMap,
+  FragmentSpecResults,
+  Props,
   RelayContext,
   Selector,
   SelectorData,
@@ -29,19 +31,11 @@ import type {
 } from 'RelayEnvironmentTypes';
 import type {Variables} from 'RelayTypes';
 
-type Props = {[key: string]: mixed};
 type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
 
 /**
- * A utility for resolving and subscribing to the results of a fragment spec
- * (key -> fragment mapping) given some "props" that determine the root ID
- * and variables to use when reading each fragment. When props are changed via
- * `setProps()`, the resolver will update its results and subscriptions
- * accordingly. Internally, the resolver:
- * - Converts the fragment map & props map into a map of `Selector`s.
- * - Removes any resolvers for any props that became null.
- * - Creates resolvers for any props that became non-null.
- * - Updates resolvers with the latest props.
+ * An implementation of the `FragmentSpecResolver` interface defined in
+ * `RelayEnvironmentTypes`.
  *
  * This utility is implemented as an imperative, stateful API for performance
  * reasons: reusing previous resolvers, callback functions, and subscriptions
@@ -81,7 +75,7 @@ class RelayFragmentSpecResolver {
     forEachObject(this._resolvers, disposeCallback);
   }
 
-  resolve(): {[key: string]: mixed} {
+  resolve(): FragmentSpecResults {
     if (this._stale) {
       // Avoid mapping the object multiple times, which could occur if data for
       // multiple keys changes in the same event loop.

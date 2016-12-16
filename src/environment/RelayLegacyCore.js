@@ -12,6 +12,8 @@
 
 'use strict';
 
+const RelayFragmentSpecResolver = require('RelayFragmentSpecResolver');
+
 const {
   getLegacyFragment,
   getLegacyOperation,
@@ -26,12 +28,29 @@ const {
   getVariablesFromObject,
 } = require('RelaySelector');
 
+import type {
+  FragmentMap,
+  FragmentSpecResolver,
+  Props,
+  RelayContext,
+} from 'RelayEnvironmentTypes';
+
+function createFragmentSpecResolver(
+  context: RelayContext,
+  fragments: FragmentMap,
+  props: Props,
+  callback: () => void,
+): FragmentSpecResolver {
+  return new RelayFragmentSpecResolver(context, fragments, props, callback);
+}
+
 /**
  * The legacy implementation of the `RelayCore` interface defined in
  * `RelayEnvironmentTypes`.
  */
 module.exports = {
   areEqualSelectors,
+  createFragmentSpecResolver,
   createOperationSelector,
   getDataIDsFromObject,
   getFragment: getLegacyFragment,

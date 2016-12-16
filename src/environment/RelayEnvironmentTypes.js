@@ -100,6 +100,15 @@ export interface Environment {
   ): Disposable,
 
   /**
+   * Ensure that all the records necessary to fulfill the given selector are
+   * retained in-memory. The records will not be eligible for garbage collection
+   * until the returned reference is disposed.
+   *
+   * Note: This is a no-op in the legacy core.
+   */
+  retain(selector: Selector): Disposable,
+
+  /**
    * Send a query to the server with request/response semantics: the query will
    * either complete successfully (calling `onNext` and `onCompleted`) or fail
    * (calling `onError`).

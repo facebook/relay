@@ -21,6 +21,7 @@ function isRelayEnvironment(environment: mixed): boolean {
     typeof environment === 'object' &&
     environment !== null &&
     typeof environment.lookup === 'function' &&
+    typeof environment.retain === 'function' &&
     typeof environment.sendQuery === 'function' &&
     typeof environment.sendQuerySubscription === 'function' &&
     typeof environment.subscribe === 'function'

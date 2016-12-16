@@ -211,6 +211,12 @@ class RelayEnvironment {
     };
   }
 
+  retain(selector: Selector): Disposable {
+    return {
+      dispose() {},
+    };
+  }
+
   sendQuery({
     cacheConfig,
     onCompleted,

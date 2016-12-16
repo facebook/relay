@@ -31,6 +31,7 @@ const warning = require('warning');
 import type {
   CacheConfig,
   Disposable,
+  Environment,
   OperationSelector,
   RelayCore,
   Selector,
@@ -54,6 +55,7 @@ import type {
   StoreReaderData,
   StoreReaderOptions,
   CacheManager,
+  Variables,
 } from 'RelayTypes';
 import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 
@@ -65,7 +67,7 @@ export type FragmentResolver = {
   ): ?(StoreReaderData | Array<?StoreReaderData>),
 };
 
-export interface RelayEnvironmentInterface {
+export type RelayEnvironmentInterface = Environment & {
   forceFetch(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback
@@ -89,6 +91,17 @@ export interface RelayEnvironmentInterface {
     options?: StoreReaderOptions
   ): Array<?StoreReaderData>,
 }
+
+/**
+ * A version of the `RelayContext` interface where the `environment` property
+ * satisfies both new `Environment` API and the legacy environment API. Values
+ * of this type allow both the legacy and new APIs to be used together within a
+ * single React view hierarchy.
+ */
+export type LegacyRelayContext = {
+  environment: RelayEnvironmentInterface,
+  variables: Variables,
+};
 
 /**
  * @public

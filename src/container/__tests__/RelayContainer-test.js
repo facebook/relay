@@ -334,10 +334,7 @@ describe('RelayContainer', function() {
   });
 
   it('throws if rendered with an invalid relay context', () => {
-    const fakeContext = {
-      getStoreData: null,
-      getFragmentResolver: null,
-    };
+    const fakeContext = {};
     const ShallowRenderer = ReactTestUtils.createRenderer();
     expect(() => ShallowRenderer.render(
       <MockContainer foo={mockFooPointer} />,
@@ -351,9 +348,13 @@ describe('RelayContainer', function() {
 
   it('throws if rendered without a route', () => {
     const ShallowRenderer = ReactTestUtils.createRenderer();
+    const relay = {
+      environment,
+      variables: {},
+    };
     expect(() => ShallowRenderer.render(
       <MockContainer foo={mockFooPointer} />,
-      {relay: environment}
+      {relay}
     )).toFailInvariant(
       'RelayContainer: `Relay(MockComponent)` was rendered without a valid ' +
       'route. Make sure the route is valid, and make sure that it is ' +

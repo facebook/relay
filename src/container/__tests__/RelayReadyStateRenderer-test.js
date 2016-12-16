@@ -536,7 +536,7 @@ describe('RelayReadyStateRenderer', () => {
     it('sets environment and query config on the React context', () => {
       class TestComponent extends React.Component {
         static contextTypes = {
-          relay: Relay.PropTypes.Environment,
+          relay: Relay.PropTypes.Relay,
           route: Relay.PropTypes.QueryConfig.isRequired,
         };
         render() {
@@ -556,7 +556,10 @@ describe('RelayReadyStateRenderer', () => {
         container
       );
       expect(onRenderContext).toBeCalledWith({
-        relay: defaultProps.environment,
+        relay: {
+          environment: defaultProps.environment,
+          variables: {},
+        },
         route: defaultProps.queryConfig,
       });
     });

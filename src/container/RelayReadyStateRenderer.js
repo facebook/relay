@@ -20,7 +20,7 @@ const StaticContainer = require('StaticContainer.react');
 const getRelayQueries = require('getRelayQueries');
 const mapObject = require('mapObject');
 
-import type {RelayEnvironmentInterface} from 'RelayEnvironment';
+import type {LegacyRelayContext, RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
@@ -64,10 +64,11 @@ export type RelayRetryCallback = () => void;
  */
 class RelayReadyStateRenderer extends React.Component {
   static childContextTypes = {
-    relay: RelayPropTypes.Environment,
+    relay: RelayPropTypes.LegacyRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
   };
 
+  _relay: LegacyRelayContext;
   props: Props;
   state: {
     getContainerProps: RelayContainerPropsFactory,
@@ -75,6 +76,10 @@ class RelayReadyStateRenderer extends React.Component {
 
   constructor(props: Props, context: any) {
     super(props, context);
+    this._relay = {
+      environment: props.environment,
+      variables: props.queryConfig.params,
+    };
     this.state = {
       getContainerProps: createContainerPropsFactory(),
     };
@@ -82,9 +87,21 @@ class RelayReadyStateRenderer extends React.Component {
 
   getChildContext(): Object {
     return {
-      relay: this.props.environment,
+      relay: this._relay,
       route: this.props.queryConfig,
     };
+  }
+
+  componentWillReceiveProps(nextProps: Props): void {
+    if (
+      this.props.environment !== nextProps.environment ||
+      this.props.queryConfig !== nextProps.queryConfig
+    ) {
+      this._relay = {
+        environment: nextProps.environment,
+        variables: nextProps.queryConfig.params,
+      };
+    }
   }
 
   /**

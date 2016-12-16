@@ -37,7 +37,7 @@ class RelayMockRenderer extends React.Component {
   mockContext: any;
 
   static childContextTypes = {
-    relay: RelayPropTypes.Environment,
+    relay: RelayPropTypes.LegacyRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
     useFakeData: React.PropTypes.bool,
   };
@@ -46,10 +46,17 @@ class RelayMockRenderer extends React.Component {
     super();
     this.mockContext = {
       relay: {
-        forceFetch: emptyFunction,
-        getFragmentResolver: emptyFunction,
-        getStoreData: emptyFunction,
-        primeCache: emptyFunction,
+        environment: {
+          forceFetch: emptyFunction,
+          getFragmentResolver: emptyFunction,
+          getStoreData: emptyFunction,
+          lookup: emptyFunction,
+          primeCache: emptyFunction,
+          publish: emptyFunction,
+          sendQuery: emptyFunction,
+          sendQuerySubscription: emptyFunction,
+        },
+        variables: {},
       },
       route: {
         name: '$RelayMockRenderer',

@@ -47,7 +47,7 @@ const RelayTestUtils = {
       }
     }
     ContextSetter.childContextTypes = {
-      relay: RelayPropTypes.Environment,
+      relay: RelayPropTypes.LegacyRelay,
       route: RelayPropTypes.QueryConfig.isRequired,
     };
 
@@ -59,13 +59,23 @@ const RelayTestUtils = {
 
     container = container || document.createElement('div');
 
+    let prevEnvironment;
+    let relay;
+
     return {
-      render(render, relay, route) {
+      render(render, environment, route) {
         invariant(
-          relay == null || relay instanceof RelayEnvironment,
+          environment == null || environment instanceof RelayEnvironment,
           'render(): Expected an instance of `RelayEnvironment`.'
         );
-        relay = relay || new RelayEnvironment();
+        environment = environment || prevEnvironment || new RelayEnvironment();
+        if (!relay || !prevEnvironment || prevEnvironment !== environment) {
+          prevEnvironment = environment;
+          relay = {
+            environment,
+            variables: {},
+          };
+        }
         route = route || RelayRoute.genMockInstance();
 
         let result;

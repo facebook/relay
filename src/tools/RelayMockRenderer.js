@@ -47,6 +47,7 @@ class RelayMockRenderer extends React.Component {
     this.mockContext = {
       relay: {
         environment: {
+          applyMutation: emptyFunction,
           forceFetch: emptyFunction,
           getFragmentResolver: emptyFunction,
           getStoreData: emptyFunction,

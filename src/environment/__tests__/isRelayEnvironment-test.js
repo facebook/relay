@@ -26,6 +26,7 @@ describe('isRelayEnvironment()', () => {
 
   it('returns true for objects that conform to the interface', () => {
     const environment = {
+      applyMutation: jest.fn(),
       lookup: jest.fn(),
       retain: jest.fn(),
       sendQuery: jest.fn(),

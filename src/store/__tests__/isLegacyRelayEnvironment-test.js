@@ -24,6 +24,7 @@ describe('isLegacyRelayEnvironment()', () => {
 
   it('returns true for objects that conform to the interface', () => {
     const environment = {
+      applyMutation: () => null,
       forceFetch: () => null,
       getFragmentResolver: () => null,
       getStoreData: () => null,

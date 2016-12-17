@@ -13,6 +13,7 @@
 'use strict';
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const RelayGraphQLMutation = require('RelayGraphQLMutation');
 const RelayLegacyCore = require('RelayLegacyCore');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
@@ -29,6 +30,7 @@ const recycleNodesInto = require('recycleNodesInto');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
 
+import type {ConcreteMutation} from 'ConcreteQuery';
 import type {
   CacheConfig,
   Disposable,
@@ -50,15 +52,17 @@ import type RelayQueryTracker from 'RelayQueryTracker';
 import type {TaskScheduler} from 'RelayTaskQueue';
 import type {
   Abortable,
+  CacheManager,
+  ChangeSubscription,
+  NetworkLayer,
   Observable,
+  RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
   ReadyStateChangeCallback,
   StoreReaderData,
   StoreReaderOptions,
-  CacheManager,
   Variables,
 } from 'RelayTypes';
-import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
 
 export type FragmentResolver = {
   dispose(): void,
@@ -120,6 +124,39 @@ export type LegacyRelayContext = {
  */
 class RelayEnvironment {
   unstable_internal: RelayCore;
+
+  applyMutation({
+    configs,
+    mutation,
+    optimisticResponse,
+    variables,
+  }: {
+    configs: Array<RelayMutationConfig>,
+    mutation: ConcreteMutation,
+    optimisticResponse: Object,
+    variables: Variables,
+  }): Disposable {
+    const mutationTransaction = new RelayGraphQLMutation(
+      mutation,
+      variables,
+      null,
+      this
+    );
+    mutationTransaction.applyOptimistic(
+      mutation,
+      optimisticResponse,
+      configs,
+    );
+    let disposed = false;
+    return {
+      dispose() {
+        if (!disposed) {
+          disposed = true;
+          mutationTransaction.rollback();
+        }
+      },
+    };
+  }
 
   _commitPayload(
     selector: Selector,
@@ -459,6 +496,7 @@ class RelayEnvironment {
       .createTransaction(mutation, callbacks)
       .applyOptimistic();
   }
+
 
   /**
    * Adds an update to the store and commits it immediately. Returns

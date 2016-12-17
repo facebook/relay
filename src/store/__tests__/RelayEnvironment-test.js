@@ -15,6 +15,7 @@ jest
   .dontMock('GraphQLStoreChangeEmitter')
   .autoMockOff();
 
+const QueryBuilder = require('QueryBuilder');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayOperationSelector = require('RelayOperationSelector');
 const {ROOT_ID} = require('RelayStoreConstants');
@@ -40,7 +41,7 @@ describe('RelayEnvironment', () => {
     environment = new RelayEnvironment();
 
     UserQuery = graphql`
-      query RelayEnvironmentQuery($id: ID!, $size: Int) {
+      query RelayEnvironmentUserQuery($id: ID!, $size: Int) {
         user: node(id: $id) {
           id
           name
@@ -71,6 +72,102 @@ describe('RelayEnvironment', () => {
       },
     );
     jest.runAllTimers();
+  });
+
+  describe('applyMutation()', () => {
+    let FeedbackQuery, FeedbackMutation;
+
+    beforeEach(() => {
+      FeedbackQuery = graphql`
+        query RelayEnvironmentFeedbackQuery($id: ID!) {
+          feedback: node(id: $id) {
+            id
+            ... on Feedback {
+              doesViewerLike
+            }
+          }
+        }
+      `.relay();
+
+      nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
+      environment.commitPayload(
+        {
+          dataID: ROOT_ID,
+          node: FeedbackQuery.node,
+          variables: {id: '123'},
+        },
+        {
+          [nodeAlias]: {
+            id: '123',
+            __typename: 'Feedback',
+            doesViewerLike: false,
+          },
+        },
+      );
+
+      FeedbackMutation = graphql`
+        mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
+          feedbackLike {
+            clientMutationId
+            feedback {
+              id
+              doesViewerLike
+            }
+          }
+        }
+      `.relay();
+      jest.runAllTimers();
+    });
+    it('applies and disposes the optimistic response', () => {
+      const mutation = QueryBuilder.getMutation(FeedbackMutation.node);
+      const disposable = environment.applyMutation({
+        configs: [],
+        mutation,
+        optimisticResponse: {
+          feedback: {
+            id: '123',
+            __typename: 'Feedback',
+            doesViewerLike: true,
+          },
+        },
+        variables: {
+          input: {
+            actor_id: '4',
+            client_mutation_id: '0',
+            feedback_id: '123',
+          },
+        },
+      });
+      const selector = {
+        dataID: ROOT_ID,
+        node: FeedbackQuery.node,
+        variables: {id: '123'},
+      };
+      const snapshot = environment.lookup(selector);
+      expect(snapshot.data).toEqual({
+        __dataID__: jasmine.any(String),
+        feedback: {
+          __dataID__: '123',
+          id: '123',
+          doesViewerLike: true, // `true` from optimistic response.
+          __mutationStatus__: '0:UNCOMMITTED',
+          __status__: 1,
+        },
+      });
+
+      disposable.dispose();
+      jest.runAllTimers();
+
+      const disposedSnapshot = environment.lookup(selector);
+      expect(disposedSnapshot.data).toEqual({
+        __dataID__: jasmine.any(String),
+        feedback: {
+          __dataID__: '123',
+          id: '123',
+          doesViewerLike: false, // reverted to `false`.
+        },
+      });
+    });
   });
 
   describe('lookup()', () => {

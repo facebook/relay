@@ -20,6 +20,7 @@ function isLegacyRelayEnvironment(environment: mixed): boolean {
   return (
     typeof environment === 'object' &&
     environment !== null &&
+    typeof environment.applyMutation === 'function' &&
     typeof environment.forceFetch === 'function' &&
     typeof environment.getFragmentResolver === 'function' &&
     typeof environment.getStoreData === 'function' &&

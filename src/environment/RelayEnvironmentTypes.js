@@ -15,11 +15,12 @@
 import type {
   ConcreteFragment,
   ConcreteFragmentDefinition,
+  ConcreteMutation,
   ConcreteOperationDefinition,
 } from 'ConcreteQuery';
 import type {GraphQLTaggedNode} from 'RelayGraphQLTag';
 import type {DataID} from 'RelayInternalTypes';
-import type {Variables} from 'RelayTypes';
+import type {Variables, RelayMutationConfig} from 'RelayTypes';
 
 /**
  * Settings for how a query response may be cached.
@@ -81,6 +82,18 @@ export type OperationSelector = {
  * own in-memory cache.
  */
 export interface Environment {
+
+  /**
+   * Applies an optimistic mutation to the store without committing it to the
+   * server. The returned Disposable can be used to revert this change at a
+   * later time.
+   */
+  applyMutation(config: {|
+     configs: Array<RelayMutationConfig>,
+     mutation: ConcreteMutation,
+     optimisticResponse: Object,
+     variables: Variables,
+   |}): Disposable,
 
   /**
    * Read the results of a selector from in-memory records in the store.

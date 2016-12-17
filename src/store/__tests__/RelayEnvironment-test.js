@@ -271,6 +271,110 @@ describe('RelayEnvironment', () => {
           },
         });
       });
+
+      it('force-fetches data', () => {
+        // Populate initial data for the query
+        const FriendsQuery = graphql`
+          query RelayEnvironmentFriendsQuery($id: ID!) {
+            user: node(id: $id) {
+              id
+              friends(first: 1) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        `.relay();
+
+        nodeAlias = generateRQLFieldAlias('node.user.id(4)');
+        const friendsAlias = generateRQLFieldAlias('friends.first(1)');
+        operation = RelayOperationSelector.createOperationSelector(
+          FriendsQuery,
+          {id: '4'},
+        );
+        environment.commitPayload(operation.root, {
+          [nodeAlias]: {
+            id: '4',
+            __typename: 'User',
+            [friendsAlias]: {
+              edges: [{
+                cursor: 'cursor:beast',
+                node: {
+                  id: 'beast',
+                },
+              }],
+              pageInfo: {
+                hasPreviousPage: false,
+                hasNextPage: true,
+                startCursor: 'cursor:beast',
+                endCursor: 'cursor:beast',
+              },
+            },
+          },
+        });
+        jest.runAllTimers();
+        const snapshot = environment.lookup(operation.fragment);
+        const callback = jest.fn();
+        environment.subscribe(snapshot, callback);
+
+        // Force-fetch, connection edges should be replaced
+        environment[functionName]({
+          ...callbacks,
+          cacheConfig: {force: true},
+          operation,
+        });
+        const payload = {
+          [nodeAlias]: {
+            id: '4',
+            __typename: 'User',
+            [friendsAlias]: {
+              edges: [{
+                cursor: 'cursor:foo',
+                node: {
+                  id: 'foo', // different node: beast -> foo
+                },
+              }],
+              pageInfo: {
+                hasPreviousPage: false,
+                hasNextPage: true,
+                startCursor: 'cursor:foo',
+                endCursor: 'cursor:foo',
+              },
+            },
+          },
+        };
+        deferred.resolve(payload);
+        jest.runAllTimers();
+
+        expect(onNext.mock.calls.length).toBe(1);
+        expect(onNext).toBeCalledWith(operation.root);
+        expect(onCompleted).toBeCalled();
+        expect(onError).not.toBeCalled();
+        expect(callback.mock.calls.length).toBe(1);
+
+        // New payload causes selector results to change, has the updated edges
+        expect(callback.mock.calls[0][0].data).toEqual({
+          __dataID__: jasmine.any(String),
+          user: {
+            __dataID__: '4',
+            id: '4',
+            friends: {
+              __dataID__: jasmine.any(String),
+              edges: [{
+                __dataID__: jasmine.any(String),
+                node: {
+                  // beast -> foo
+                  __dataID__: 'foo',
+                  id: 'foo',
+                },
+              }],
+            },
+          },
+        });
+      });
     });
   });
 });

@@ -23,6 +23,7 @@ const RelayStoreData = require('RelayStoreData');
 
 const deepFreeze = require('deepFreeze');
 const forEachRootCallArg = require('forEachRootCallArg');
+const generateForceIndex = require('generateForceIndex');
 const readRelayQueryData = require('readRelayQueryData');
 const recycleNodesInto = require('recycleNodesInto');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
@@ -120,9 +121,10 @@ export type LegacyRelayContext = {
 class RelayEnvironment {
   unstable_internal: RelayCore;
 
-  commitPayload(
+  _commitPayload(
     selector: Selector,
     payload: QueryPayload,
+    cacheConfig?: ?CacheConfig,
   ): void {
     const fragment = RelayQuery.Fragment.create(
       selector.node,
@@ -130,13 +132,23 @@ class RelayEnvironment {
       selector.variables,
     );
     const path = RelayQueryPath.getRootRecordPath();
+    const forceIndex = cacheConfig && cacheConfig.force ?
+      generateForceIndex() :
+      null;
     this._storeData.handleFragmentPayload(
       selector.dataID,
       fragment,
       path,
       payload,
-      null, // forceIndex
+      forceIndex,
     );
+  }
+
+  commitPayload(
+    selector: Selector,
+    payload: QueryPayload,
+  ): void {
+    this._commitPayload(selector, payload);
   }
 
   /**
@@ -245,7 +257,8 @@ class RelayEnvironment {
         if (isDisposed) {
           return;
         }
-        this.commitPayload(operation.root, payload);
+        this._commitPayload(operation.root, payload, cacheConfig);
+
         onNext && onNext(operation.root);
         onCompleted && onCompleted();
       },
@@ -256,7 +269,9 @@ class RelayEnvironment {
         onError && onError(error);
       },
     );
-    this._storeData.getNetworkLayer().sendQueries([request]);
+    this._storeData.getTaskQueue().enqueue(() => {
+      this._storeData.getNetworkLayer().sendQueries([request]);
+    });
     return {dispose};
   }
 

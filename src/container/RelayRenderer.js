@@ -166,7 +166,18 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
   }
 
   componentDidMount(): void {
+    this._validateProps(this.props);
     this._runQueries(this.props);
+  }
+
+  /**
+   * @private
+   */
+  _validateProps(props: Props) {
+    const error = RelayRenderer.propTypes.Container(props, 'Container', 'RelayRenderer');
+    if (error) {
+      throw error;
+    }
   }
 
   /**
@@ -252,6 +263,7 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
           nextProps.environment.getStoreData().getGarbageCollector();
         this.gcHold = garbageCollector && garbageCollector.acquireHold();
       }
+      this._validateProps(nextProps);
       this._runQueries(nextProps);
       this.setState({readyState: null});
     }

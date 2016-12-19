@@ -71,7 +71,7 @@ describe('RelayReadyStateRenderer', () => {
   let defaultReadyState;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     const TestQueryConfig = RelayQueryConfig.genMock({
       routeName: 'TestQueryConfig',

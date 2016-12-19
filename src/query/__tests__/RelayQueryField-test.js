@@ -38,7 +38,7 @@ describe('RelayQueryField', () => {
   let userAddressField;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     jasmine.addMatchers(RelayTestUtils.matchers);
 

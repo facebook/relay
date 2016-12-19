@@ -29,7 +29,7 @@ describe('RelayContainer', function() {
   let mockRender;
 
   beforeEach(function() {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     MockComponent = React.createClass({
       render: jest.fn(() => <div />),

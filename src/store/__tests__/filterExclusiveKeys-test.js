@@ -15,7 +15,7 @@ const filterExclusiveKeys = require('filterExclusiveKeys');
 
 describe('filterExclusiveKeys', () => {
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
   });
 
   it('computes exclusive keys between two objects with overlap', () => {

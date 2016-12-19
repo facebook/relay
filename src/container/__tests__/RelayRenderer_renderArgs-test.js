@@ -31,7 +31,7 @@ describe('RelayRenderer.renderArgs', () => {
   let render;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     const MockComponent = React.createClass({render: () => <div />});
     MockContainer = Relay.createContainer(MockComponent, {

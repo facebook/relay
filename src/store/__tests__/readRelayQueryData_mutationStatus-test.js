@@ -59,7 +59,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
   }
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     mutationIDs = {};
     mutationStatuses = {};

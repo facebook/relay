@@ -17,7 +17,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQL', () => {
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });

@@ -36,7 +36,7 @@ describe('writeRelayUpdatePayload()', () => {
   const {getNode, writePayload} = RelayTestUtils;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });

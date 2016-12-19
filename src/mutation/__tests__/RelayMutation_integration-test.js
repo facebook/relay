@@ -28,7 +28,7 @@ describe('RelayMutation', () => {
   let query;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     environment = new RelayEnvironment();
     storeData = environment.getStoreData();

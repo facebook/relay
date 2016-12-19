@@ -15,7 +15,7 @@ const RelayMetaRoute = require('RelayMetaRoute');
 
 describe('RelayMetaRoute', () => {
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
   });
 
   it('is immutable', () => {

@@ -39,7 +39,7 @@ describe('RelayContainer', () => {
     let store;
 
     beforeEach(() => {
-      jest.resetModuleRegistry();
+      jest.resetModules();
 
       class MockComponent extends React.Component {
         render() {

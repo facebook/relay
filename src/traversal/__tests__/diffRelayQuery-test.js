@@ -30,7 +30,7 @@ describe('diffRelayQuery', () => {
   let rootCallMap;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     RelayRecordStore = require('RelayRecordStore');
 

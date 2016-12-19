@@ -25,7 +25,7 @@ describe('RelayQueryRoot', () => {
   let usernames;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     jasmine.addMatchers(RelayTestUtils.matchers);
 

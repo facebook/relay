@@ -49,7 +49,7 @@ describe('RelayMutationQueue', () => {
   let networkLayer;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     RelayStoreData.prototype.handleUpdatePayload = jest.fn();
     storeData = RelayStore.getStoreData();

@@ -60,7 +60,7 @@ describe('RelayQueryResultObservable', () => {
   }
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     query = getNode(Relay.QL`fragment on Node{id,name}`);
     const records = {

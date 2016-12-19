@@ -54,7 +54,7 @@ describe('RelayGarbageCollector', () => {
   }
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 

@@ -30,7 +30,7 @@ describe('diffRelayQuery', () => {
   const {getNode, writePayload} = RelayTestUtils;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     RelayRecordStore = require('RelayRecordStore');
     RelayRecordWriter = require('RelayRecordWriter');

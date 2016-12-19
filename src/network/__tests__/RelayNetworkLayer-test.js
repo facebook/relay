@@ -25,7 +25,7 @@ describe('RelayNetworkLayer', () => {
   let networkLayer;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     const RelayQuery = jest.genMockFromModule('RelayQuery');
     jest.setMock('RelayQuery', RelayQuery);

@@ -24,7 +24,7 @@ describe('RelayQueryMutation', () => {
   let mutationQuery;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     jasmine.addMatchers(RelayTestUtils.matchers);
 

@@ -21,7 +21,7 @@ const createRelayQuery = require('createRelayQuery');
 
 describe('createRelayQuery', () => {
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });

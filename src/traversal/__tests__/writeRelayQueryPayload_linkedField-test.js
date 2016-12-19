@@ -33,7 +33,7 @@ describe('writeRelayQueryPayload()', () => {
   } = RelayTestUtils;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     RelayRecordStore = require('RelayRecordStore');
     RelayRecordWriter = require('RelayRecordWriter');

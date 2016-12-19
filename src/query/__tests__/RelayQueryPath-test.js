@@ -28,7 +28,7 @@ describe('RelayQueryPath', () => {
   let writer;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     const records = {};
     store = new RelayRecordStore({records});

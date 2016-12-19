@@ -40,7 +40,7 @@ describe('checkRelayQueryData', () => {
   }
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     RelayRecordStore = require('RelayRecordStore');
 

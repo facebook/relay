@@ -25,7 +25,7 @@ describe('RelayFragmentReference', () => {
   let route;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     route = new RelayMetaRoute('');
     jasmine.addMatchers(RelayTestUtils.matchers);

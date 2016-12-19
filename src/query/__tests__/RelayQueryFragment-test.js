@@ -23,7 +23,7 @@ describe('RelayQueryFragment', () => {
   let fragment;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     jasmine.addMatchers(RelayTestUtils.matchers);
 

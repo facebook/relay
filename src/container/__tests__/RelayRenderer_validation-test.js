@@ -33,7 +33,7 @@ describe('RelayRenderer.validation', () => {
   const {error} = console;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
     jasmine.addMatchers(RelayTestUtils.matchers);
 
     MockComponent = React.createClass({render: () => <div />});

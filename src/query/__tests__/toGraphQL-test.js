@@ -73,7 +73,7 @@ describe('toGraphQL', function() {
   }
 
   beforeEach(function() {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     jasmine.addMatchers({
       toConvert() {

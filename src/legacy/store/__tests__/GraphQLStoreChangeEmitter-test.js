@@ -24,7 +24,7 @@ describe('GraphQLStoreChangeEmitter', () => {
   let rangeData;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     rangeData = new GraphQLStoreRangeUtils();
     changeEmitter = new GraphQLStoreChangeEmitter(rangeData);

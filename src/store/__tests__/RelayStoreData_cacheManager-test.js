@@ -45,7 +45,7 @@ describe('RelayStoreData', function() {
   }
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     ({
       CLIENT_MUTATION_ID,

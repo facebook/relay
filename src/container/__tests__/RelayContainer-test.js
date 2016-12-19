@@ -45,7 +45,7 @@ describe('RelayContainer', function() {
   const {getNode, getPointer} = RelayTestUtils;
 
   beforeEach(function() {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     render = jest.fn(function() {
       // Make it easier to expect prop values.

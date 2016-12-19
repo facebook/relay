@@ -40,7 +40,7 @@ describe('RelayMutation', function() {
   }
 
   beforeEach(function() {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     environment = new RelayEnvironment();
     environment.read = jest.fn();

@@ -27,7 +27,7 @@ describe('RelayMetricsRecorder', () => {
 
   beforeEach(() => {
     window.__DEV__ = true;
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     const {getNode} = RelayTestUtils;
     query = getNode(Relay.QL`
@@ -115,7 +115,7 @@ describe('RelayMetricsRecorder', () => {
   describe('__DEV__ false', () => {
     beforeEach(() => {
       window.__DEV__ = false;
-      jest.resetModuleRegistry();
+      jest.resetModules();
     });
 
     it('records profiles only', () => {

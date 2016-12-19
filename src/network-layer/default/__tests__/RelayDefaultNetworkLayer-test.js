@@ -47,7 +47,7 @@ describe('RelayDefaultNetworkLayer', () => {
   }
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     networkConfig = {
       uri: '/graphql',

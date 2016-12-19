@@ -26,7 +26,7 @@ describe('RelayOptimisticMutationUtils', () => {
   let HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     ({
       HAS_NEXT_PAGE,

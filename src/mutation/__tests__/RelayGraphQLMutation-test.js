@@ -75,7 +75,7 @@ describe('RelayGraphQLMutation', () => {
 
   beforeEach(() => {
     jasmine.addMatchers(RelayTestUtils.matchers);
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     requests = [];
     environment = new RelayEnvironment();

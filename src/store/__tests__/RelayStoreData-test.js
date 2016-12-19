@@ -30,7 +30,7 @@ describe('RelayStoreData', () => {
   const {getNode, getVerbatimNode} = RelayTestUtils;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     // @side-effect related to garbage collection
     Relay = require('Relay');

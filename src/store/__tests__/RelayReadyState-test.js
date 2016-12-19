@@ -24,7 +24,7 @@ describe('RelayReadyState', () => {
   let readyState;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     onReadyStateChange = jest.fn();
     readyState = new RelayReadyState(onReadyStateChange);

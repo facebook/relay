@@ -24,7 +24,7 @@ describe('RelayFragmentPointer', () => {
   const {getNode, getRefNode} = RelayTestUtils;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     jasmine.addMatchers(RelayTestUtils.matchers);
     jasmine.addMatchers({

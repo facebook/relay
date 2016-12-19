@@ -28,7 +28,7 @@ describe('RelayContainer.hasPartialData', () => {
   let RelayTestRenderer;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     class MockComponent extends React.Component {
       render() {

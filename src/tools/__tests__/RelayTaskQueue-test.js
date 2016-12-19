@@ -21,7 +21,7 @@ const resolveImmediate = require('resolveImmediate');
 
 describe('RelayTaskQueue', () => {
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 

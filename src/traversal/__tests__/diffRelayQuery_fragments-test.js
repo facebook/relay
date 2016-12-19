@@ -37,7 +37,7 @@ describe('diffRelayQuery - fragments', () => {
   };
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     RelayRecordStore = require('RelayRecordStore');
     RelayRecordWriter = require('RelayRecordWriter');

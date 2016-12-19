@@ -36,7 +36,7 @@ describe('splitDeferredRelayQueries()', () => {
 
   beforeEach(() => {
     // Reset query numbers back to q0.
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });

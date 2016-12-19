@@ -129,7 +129,7 @@ describe('restoreRelayCacheData', () => {
   }
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
     jest.clearAllTimers();
     jasmine.addMatchers(RelayTestUtils.matchers);
 

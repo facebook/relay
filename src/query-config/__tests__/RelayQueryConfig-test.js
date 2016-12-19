@@ -21,7 +21,7 @@ describe('RelayQueryConfig', () => {
   let makeConfig;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     makeConfig = function() {
       class MockConfig extends RelayQueryConfig <{

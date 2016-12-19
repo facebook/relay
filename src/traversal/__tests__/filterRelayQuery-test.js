@@ -25,7 +25,7 @@ describe('filterRelayQuery()', () => {
   const {getNode} = RelayTestUtils;
 
   beforeEach(function() {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     query = getNode(Relay.QL`
       query {

@@ -27,7 +27,7 @@ describe('printRelayOSSQuery', () => {
   const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 

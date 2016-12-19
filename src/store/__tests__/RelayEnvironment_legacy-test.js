@@ -42,7 +42,7 @@ describe('RelayEnvironment', () => {
   const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     environment = new RelayEnvironment();
 

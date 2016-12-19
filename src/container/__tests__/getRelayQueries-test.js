@@ -30,7 +30,7 @@ describe('getRelayQueries', () => {
   const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     MockPageComponent = class _MockPageComponent extends React.Component {
       render() {

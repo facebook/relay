@@ -48,7 +48,7 @@ describe('GraphQLStoreQueryResolver', () => {
   }
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     storeData = new RelayStoreData();
     changeEmitter = storeData.getChangeEmitter();

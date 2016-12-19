@@ -80,7 +80,7 @@ describe('GraphQLRange', () => {
   let HAS_NEXT_PAGE, HAS_PREV_PAGE;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
     consoleError = console.error;
     consoleWarn = console.warn;
 

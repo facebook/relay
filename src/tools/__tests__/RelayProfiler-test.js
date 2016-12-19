@@ -25,7 +25,7 @@ describe('RelayProfiler', function() {
   };
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     mockMethod = jest.fn();
     const mockMethod2 = jest.fn();

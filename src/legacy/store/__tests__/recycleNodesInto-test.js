@@ -22,7 +22,7 @@ const recycleNodesInto = require('recycleNodesInto');
 
 describe('recycleNodesInto', () => {
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
   });
 
   describe('scalars', () => {

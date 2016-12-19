@@ -18,7 +18,7 @@ const {
 
 describe('Relay2ConcreteVariables', () => {
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
   });
 
   describe('getFragmentVariables()', () => {

@@ -46,7 +46,7 @@ describe('RelayMutationQuery', () => {
   let tracker;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     tracker = new RelayQueryTracker();
 

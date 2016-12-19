@@ -55,7 +55,7 @@ describe('buildRQL', () => {
 
   afterEach(() => {
     // Ensure RelayQueryCaching reverts to pristine state.
-    jest.resetModuleRegistry();
+    jest.resetModules();
   });
 
   describe('Fragment()', () => {

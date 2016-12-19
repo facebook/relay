@@ -28,7 +28,7 @@ describe('validateRelayReadQuery', () => {
   let realConsoleError;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     realConsoleError = console.error;
     mockConsoleError = console.error = jest.fn();

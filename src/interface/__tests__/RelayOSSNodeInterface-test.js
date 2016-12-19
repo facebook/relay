@@ -19,7 +19,7 @@ describe('RelayOSSNodeInterface', () => {
   const {getNode, getVerbatimNode} = RelayTestUtils;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
   });
 
   it('creates results for argument-less custom root calls with an id', () => {

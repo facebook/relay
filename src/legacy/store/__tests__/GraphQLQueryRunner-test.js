@@ -62,7 +62,7 @@ describe('GraphQLQueryRunner', () => {
   }
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     const storeData = new RelayStoreData();
     networkLayer = storeData.getNetworkLayer();

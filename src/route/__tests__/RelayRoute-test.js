@@ -21,7 +21,7 @@ describe('RelayRoute', () => {
   let makeRoute;
 
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
 
     makeRoute = function() {
       class MockRoute extends RelayRoute {}

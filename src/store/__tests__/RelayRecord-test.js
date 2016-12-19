@@ -15,7 +15,7 @@ const RelayRecord = require('RelayRecord');
 
 describe('RelayRecord', () => {
   beforeEach(() => {
-    jest.resetModuleRegistry();
+    jest.resetModules();
   });
 
   it('checks if a value is a record', () => {

@@ -15,6 +15,7 @@
 const QueryBuilder = require('QueryBuilder');
 
 const invariant = require('invariant');
+const nullthrows = require('nullthrows');
 
 import type {
   ConcreteFragmentDefinition,
@@ -23,8 +24,10 @@ import type {
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode = {
-  relay: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
+  r1?: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
+  relay?: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
   // TODO: type this once the new core is in OSS
+  r2?: () => any,
   relayExperimental?: () => any,
 };
 
@@ -54,10 +57,12 @@ function getLegacyFragment(
 ): ConcreteFragmentDefinition {
   let concreteNode = legacyNodeMap.get(taggedNode);
   if (concreteNode == null) {
-    concreteNode = taggedNode.relay();
+    // TODO: unify tag output
+    const fn = nullthrows(taggedNode.r1 || taggedNode.relay);
+    concreteNode = fn();
     legacyNodeMap.set(taggedNode, concreteNode);
   }
-  const fragment = QueryBuilder.getFragmentDefinition();
+  const fragment = QueryBuilder.getFragmentDefinition(concreteNode);
   invariant(
     fragment,
     'RelayGraphQLTag: Expected a fragment, got `%s`.',
@@ -71,10 +76,12 @@ function getLegacyOperation(
 ): ConcreteOperationDefinition {
   let concreteNode = legacyNodeMap.get(taggedNode);
   if (concreteNode == null) {
-    concreteNode = taggedNode.relay();
+    // TODO: unify tag output
+    const fn = nullthrows(taggedNode.r1 || taggedNode.relay);
+    concreteNode = fn();
     legacyNodeMap.set(taggedNode, concreteNode);
   }
-  const operation = QueryBuilder.getOperationDefinition();
+  const operation = QueryBuilder.getOperationDefinition(concreteNode);
   invariant(
     operation,
     'RelayGraphQLTag: Expected an operation, got `%s`.',

@@ -20,7 +20,7 @@ function isRelayEnvironment(environment: mixed): boolean {
   return (
     typeof environment === 'object' &&
     environment !== null &&
-    typeof environment.applyMutation === 'function' &&
+    // TODO: add applyMutation/sendMutation once ready in both cores
     typeof environment.lookup === 'function' &&
     typeof environment.retain === 'function' &&
     typeof environment.sendQuery === 'function' &&

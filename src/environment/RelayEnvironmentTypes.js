@@ -81,7 +81,6 @@ export type OperationSelector = {
  * own in-memory cache.
  */
 export interface Environment {
-
   /**
    * Applies an optimistic mutation to the store without committing it to the
    * server. The returned Disposable can be used to revert this change at a
@@ -289,7 +288,6 @@ export interface RelayCore {
     props: Props,
   ) => Variables,
 }
-
 
 /**
  * A utility for resolving and subscribing to the results of a fragment spec

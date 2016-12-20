@@ -21,6 +21,7 @@ const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryRequest = require('RelayQueryRequest');
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
+const RelayVariables = require('RelayVariables');
 
 const deepFreeze = require('deepFreeze');
 const forEachRootCallArg = require('forEachRootCallArg');
@@ -30,7 +31,7 @@ const recycleNodesInto = require('recycleNodesInto');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
 
-import type {ConcreteMutation} from 'ConcreteQuery';
+import type {ConcreteOperationDefinition} from 'ConcreteQuery';
 import type {
   CacheConfig,
   Disposable,
@@ -127,23 +128,23 @@ class RelayEnvironment {
 
   applyMutation({
     configs,
-    mutation,
+    operation,
     optimisticResponse,
     variables,
   }: {
     configs: Array<RelayMutationConfig>,
-    mutation: ConcreteMutation,
+    operation: ConcreteOperationDefinition,
     optimisticResponse: Object,
     variables: Variables,
   }): Disposable {
     const mutationTransaction = new RelayGraphQLMutation(
-      mutation,
-      variables,
+      operation.node,
+      RelayVariables.getOperationVariables(operation, variables),
       null,
       this
     );
     mutationTransaction.applyOptimistic(
-      mutation,
+      operation.node,
       optimisticResponse,
       configs,
     );

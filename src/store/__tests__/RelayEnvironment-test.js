@@ -15,7 +15,6 @@ jest
   .dontMock('GraphQLStoreChangeEmitter')
   .autoMockOff();
 
-const QueryBuilder = require('QueryBuilder');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayOperationSelector = require('RelayOperationSelector');
 const {ROOT_ID} = require('RelayStoreConstants');
@@ -119,10 +118,9 @@ describe('RelayEnvironment', () => {
       jest.runAllTimers();
     });
     it('applies and disposes the optimistic response', () => {
-      const mutation = QueryBuilder.getMutation(FeedbackMutation.node);
       const disposable = environment.applyMutation({
         configs: [],
-        mutation,
+        operation: FeedbackMutation,
         optimisticResponse: {
           feedback: {
             id: '123',

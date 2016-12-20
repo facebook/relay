@@ -15,7 +15,6 @@
 import type {
   ConcreteFragment,
   ConcreteFragmentDefinition,
-  ConcreteMutation,
   ConcreteOperationDefinition,
 } from 'ConcreteQuery';
 import type {GraphQLTaggedNode} from 'RelayGraphQLTag';
@@ -90,7 +89,7 @@ export interface Environment {
    */
   applyMutation(config: {|
      configs: Array<RelayMutationConfig>,
-     mutation: ConcreteMutation,
+     operation: ConcreteOperationDefinition,
      optimisticResponse: Object,
      variables: Variables,
    |}): Disposable,

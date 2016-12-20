@@ -12,12 +12,17 @@
 
 'use strict';
 
+const QueryBuilder = require('QueryBuilder');
+
 const invariant = require('invariant');
+const mapObject = require('mapObject');
+const warning = require('warning');
 
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from 'ConcreteQuery';
+import type {VariableMapping} from 'RelayFragmentReference';
 import type {Variables} from 'RelayTypes';
 
 /**
@@ -64,6 +69,30 @@ function getFragmentVariables(
   return variables || argumentVariables;
 }
 
+function getFragmentSpreadArguments(
+  fragmentName: string,
+  variableMapping: VariableMapping,
+  parentVariables: Variables,
+): Variables {
+  return mapObject(variableMapping, (value, name) => {
+    const callVariable = QueryBuilder.getCallVariable(value);
+    if (callVariable) {
+      value = parentVariables[callVariable.callVariableName];
+    }
+    if (value === undefined) {
+      warning(
+        false,
+        'RelayVariables.getFragmentSpreadArguments(): Variable `%s` is ' +
+        'undefined in fragment `%s`.',
+        name,
+        fragmentName,
+      );
+      value = null;
+    }
+    return value;
+  });
+}
+
 /**
  * Determines the variables that are in scope for a given operation given values
  * for some/all of its arguments. Extraneous input variables are filtered from
@@ -86,6 +115,7 @@ function getOperationVariables(
 }
 
 module.exports = {
+  getFragmentSpreadArguments,
   getFragmentVariables,
   getOperationVariables,
 };

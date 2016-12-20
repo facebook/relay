@@ -35,6 +35,8 @@ const serializeRelayQueryCall = require('serializeRelayQueryCall');
 const shallowEqual = require('shallowEqual');
 const stableStringify = require('stableStringify');
 
+const {getFragmentSpreadArguments} = require('RelayVariables');
+
 import type {
   ConcreteField,
   ConcreteFieldMetadata,
@@ -921,19 +923,16 @@ class RelayQueryFragment extends RelayQueryNode {
   static build(
     name: string,
     type: string,
-    /* $FlowIssue: #11220887
-       `Array<Subclass-of-RelayQueryNode>` should be compatible here. */
     children?: ?Array<RelayQueryNode>,
     metadata?: ?{[key: string]: mixed},
     routeName?: string
   ): RelayQueryFragment {
     const nextChildren = children ? children.filter(child => !!child) : [];
-    // $FlowFixMe(>=0.34.0)
-    const concreteFragment = QueryBuilder.createFragment({
+    const concreteFragment = QueryBuilder.createFragment(({
       name,
       type,
       metadata,
-    });
+    }: any));
     const variables = {};
     const metaRoute = RelayMetaRoute.get(routeName || '$RelayQuery');
     const rootContext = createRootContext(metaRoute, variables);
@@ -1512,7 +1511,11 @@ function createNode(
     return null;
   } else if (kind === 'FragmentSpread') {
     const spread = nullthrows(QueryBuilder.getFragmentSpread(concreteNode));
-    const argumentVariables = spread.args;
+    const argumentVariables = getFragmentSpreadArguments(
+      spread.fragment.node.name,
+      spread.args,
+      variables,
+    );
     const rootVariables = rootContext.variables;
     const fragmentVariables = RelayVariables.getFragmentVariables(
       spread.fragment,

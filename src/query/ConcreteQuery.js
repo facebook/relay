@@ -12,7 +12,7 @@
 
 'use strict';
 
-import type {Variables} from 'RelayTypes';
+import type {VariableMapping} from 'RelayFragmentReference';
 
 /**
  * @internal
@@ -175,7 +175,7 @@ export type ConcreteValue =
 
 export type ConcreteFragmentSpread = {
   kind: 'FragmentSpread',
-  args: Variables,
+  args: VariableMapping,
   fragment: ConcreteFragmentDefinition,
 };
 

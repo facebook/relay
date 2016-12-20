@@ -23,6 +23,8 @@ const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
+const {getLegacyFragment, graphql} = require('RelayGraphQLTag');
+
 describe('RelayQuery', () => {
   const {getNode} = RelayTestUtils;
 
@@ -522,6 +524,106 @@ describe('RelayQuery', () => {
       // the reference is expanded with overridden query variables
       expect(children[1] instanceof RelayQuery.Fragment);
       expect(children[1].getType()).toBe('User');
+      const grandchildren = children[1].getChildren();
+      expect(grandchildren.length).toBe(2);
+      expect(grandchildren[0].getSchemaName()).toBe('id');
+      expect(grandchildren[1].getSchemaName()).toBe('profilePicture');
+      expect(grandchildren[1].getCallsWithValues()).toEqual([
+        {name: 'size', value: 'override'},
+      ]);
+    });
+
+    it('expands fragment spreads with call variables', () => {
+      const fragments = {
+        foo: graphql`
+          fragment RelayQuery_foo on User @argumentDefinitions(
+            size: {type: "Int"}
+            cond: {type: "Boolean!", defaultValue: true}
+          ) {
+            id
+            profilePicture(size: $size) @include(if: $cond) {
+              uri
+            }
+          }
+        `,
+      };
+
+      const spread = {
+        kind: 'FragmentSpread',
+        args: {
+          // Create a call variable to simulate passing a `params` object
+          size: QueryBuilder.createCallVariable('outerSize'),
+        },
+        fragment: getLegacyFragment(fragments.foo),
+      };
+      const fragment = getNode(Relay.QL`
+        fragment on User {
+          id
+          ${spread}
+        }
+      `, {
+        outerSize: 'override',
+      });
+      const children = fragment.getChildren();
+      expect(children.length).toBe(2);
+      expect(children[0].getSchemaName()).toBe('id');
+
+      // the reference is expanded with overridden query variables
+      expect(children[1] instanceof RelayQuery.Fragment);
+      expect(children[1].getType()).toBe('User');
+      expect(children[1].getVariables()).toEqual({
+        size: 'override',
+        cond: true, // defaults are populated
+      });
+      const grandchildren = children[1].getChildren();
+      expect(grandchildren.length).toBe(2);
+      expect(grandchildren[0].getSchemaName()).toBe('id');
+      expect(grandchildren[1].getSchemaName()).toBe('profilePicture');
+      expect(grandchildren[1].getCallsWithValues()).toEqual([
+        {name: 'size', value: 'override'},
+      ]);
+    });
+
+    it('expands fragment spreads with literal variables', () => {
+      const fragments = {
+        foo: graphql`
+          fragment RelayQuery_foo on User @argumentDefinitions(
+            size: {type: "Int"}
+            cond: {type: "Boolean!", defaultValue: true}
+          ) {
+            id
+            profilePicture(size: $size) @include(if: $cond) {
+              uri
+            }
+          }
+        `,
+      };
+
+      const spread = {
+        kind: 'FragmentSpread',
+        args: {
+          // pass a literal value
+          size: 'override',
+        },
+        fragment: getLegacyFragment(fragments.foo),
+      };
+      const fragment = getNode(Relay.QL`
+        fragment on User {
+          id
+          ${spread}
+        }
+      `);
+      const children = fragment.getChildren();
+      expect(children.length).toBe(2);
+      expect(children[0].getSchemaName()).toBe('id');
+
+      // the reference is expanded with overridden query variables
+      expect(children[1] instanceof RelayQuery.Fragment);
+      expect(children[1].getType()).toBe('User');
+      expect(children[1].getVariables()).toEqual({
+        size: 'override',
+        cond: true, // defaults are populated
+      });
       const grandchildren = children[1].getChildren();
       expect(grandchildren.length).toBe(2);
       expect(grandchildren[0].getSchemaName()).toBe('id');

@@ -137,7 +137,7 @@ interface Node {
 }
 
 type User implements Node Actor {
-  friends(first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender, before: String, after: String): UserConnection
+  friends(first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender, before: ID, after: ID): UserConnection
   id: String
   name: String
   profilePicture(size: Int): ProfilePicture

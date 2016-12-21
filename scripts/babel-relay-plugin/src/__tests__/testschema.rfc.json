@@ -514,7 +514,7 @@
                   "description": "",
                   "type": {
                     "kind": "SCALAR",
-                    "name": "String",
+                    "name": "ID",
                     "ofType": null
                   },
                   "defaultValue": null
@@ -524,7 +524,7 @@
                   "description": "",
                   "type": {
                     "kind": "SCALAR",
-                    "name": "String",
+                    "name": "ID",
                     "ofType": null
                   },
                   "defaultValue": null

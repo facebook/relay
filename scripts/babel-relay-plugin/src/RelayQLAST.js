@@ -823,8 +823,16 @@ class RelayQLArgumentType {
     );
   }
 
+  isBoolean(): boolean {
+    return this.schemaUnmodifiedArgType === types.GraphQLBoolean;
+  }
+
   isEnum(): boolean {
     return this.schemaUnmodifiedArgType instanceof types.GraphQLEnumType;
+  }
+
+  isID(): boolean {
+    return this.schemaUnmodifiedArgType === types.GraphQLID;
   }
 
   isList(): boolean {
@@ -835,12 +843,23 @@ class RelayQLArgumentType {
     return this.isNonNullType;
   }
 
+  isNumber(): boolean {
+    return (
+      this.schemaUnmodifiedArgType === types.GraphQLFloat ||
+      this.schemaUnmodifiedArgType === types.GraphQLInt
+    );
+  }
+
   isObject(): boolean {
     return this.schemaUnmodifiedArgType instanceof types.GraphQLInputObjectType;
   }
 
   isScalar(): boolean {
     return this.schemaUnmodifiedArgType instanceof types.GraphQLScalarType;
+  }
+
+  isString(): boolean {
+    return this.schemaUnmodifiedArgType === types.GraphQLString;
   }
 }
 

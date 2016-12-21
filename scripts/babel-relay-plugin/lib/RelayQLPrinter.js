@@ -564,18 +564,19 @@ module.exports = function (t, options) {
     }, {
       key: 'printArgumentTypeForMetadata',
       value: function printArgumentTypeForMetadata(argType) {
-        // Print enums, input objects, and custom scalars as variables, since
-        // there are more complicated rules for printing them (for example,
-        // correctly inlining custom scalars would require access to the
-        // user-defined type definition at runtime).
-        if (argType.isEnum() || argType.isObject() || argType.isCustomScalar()) {
-          return argType.getName({ modifiers: true });
-        }
-        // Only the built-in scalar types can be printed inline
-        if (argType.isScalar()) {
+        // Only booleans and strings can be safely inlined, which is indicated to
+        // the runtime by the lack of a `metadata.type` property.
+        // - numbers may be represented as strings in client code due to
+        //   the limitations with JavaScript numeric representations, and a
+        //   string can't be inlined where a number is expected.
+        // - enums are unquoted, unlike JSON.
+        // - input objects have unquoted keys, unlike JSON.
+        // - custom scalars could be objects, in which case input object rules
+        //   apply.
+        if (argType.isBoolean() || argType.isID() || argType.isString()) {
           return null;
         }
-        invariant(false, 'Unsupported input type: %s', argType);
+        return argType.getName({ modifiers: true });
       }
     }]);
 

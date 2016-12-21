@@ -835,9 +835,19 @@ var RelayQLArgumentType = function () {
       return this.isScalar() && !(this.schemaUnmodifiedArgType === GraphQLBoolean || this.schemaUnmodifiedArgType === GraphQLFloat || this.schemaUnmodifiedArgType === GraphQLID || this.schemaUnmodifiedArgType === GraphQLInt || this.schemaUnmodifiedArgType === GraphQLString);
     }
   }, {
+    key: 'isBoolean',
+    value: function isBoolean() {
+      return this.schemaUnmodifiedArgType === types.GraphQLBoolean;
+    }
+  }, {
     key: 'isEnum',
     value: function isEnum() {
       return this.schemaUnmodifiedArgType instanceof types.GraphQLEnumType;
+    }
+  }, {
+    key: 'isID',
+    value: function isID() {
+      return this.schemaUnmodifiedArgType === types.GraphQLID;
     }
   }, {
     key: 'isList',
@@ -850,6 +860,11 @@ var RelayQLArgumentType = function () {
       return this.isNonNullType;
     }
   }, {
+    key: 'isNumber',
+    value: function isNumber() {
+      return this.schemaUnmodifiedArgType === types.GraphQLFloat || this.schemaUnmodifiedArgType === types.GraphQLInt;
+    }
+  }, {
     key: 'isObject',
     value: function isObject() {
       return this.schemaUnmodifiedArgType instanceof types.GraphQLInputObjectType;
@@ -858,6 +873,11 @@ var RelayQLArgumentType = function () {
     key: 'isScalar',
     value: function isScalar() {
       return this.schemaUnmodifiedArgType instanceof types.GraphQLScalarType;
+    }
+  }, {
+    key: 'isString',
+    value: function isString() {
+      return this.schemaUnmodifiedArgType === types.GraphQLString;
     }
   }]);
 

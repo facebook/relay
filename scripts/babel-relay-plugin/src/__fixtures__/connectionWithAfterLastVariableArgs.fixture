@@ -61,7 +61,9 @@ var x = function () {
           }
         }, {
           kind: 'Call',
-          metadata: {},
+          metadata: {
+            type: 'Int'
+          },
           name: 'last',
           value: {
             kind: 'CallVariable',

@@ -50,7 +50,9 @@ var x = function () {
         alias: 'mugShot',
         calls: [{
           kind: 'Call',
-          metadata: {},
+          metadata: {
+            type: 'Int'
+          },
           name: 'size',
           value: {
             kind: 'CallValue',

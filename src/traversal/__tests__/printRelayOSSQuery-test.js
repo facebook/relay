@@ -55,13 +55,13 @@ describe('printRelayOSSQuery', () => {
       const nodeAlias = generateRQLFieldAlias('node.user.id(842472)');
       const taskAlias = generateRQLFieldAlias('task.activeTask.number(2)');
       expect(text).toEqualPrintedQuery(`
-        query PrintRelayOSSQuery {
+        query PrintRelayOSSQuery($number_0: Int!) {
           ${nodeAlias}: node(id: "842472") {
             id,
             __typename,
             ...F0
           },
-          ${taskAlias}: task(number: 2) {
+          ${taskAlias}: task(number: $number_0) {
             title
           }
         }
@@ -70,7 +70,9 @@ describe('printRelayOSSQuery', () => {
           id
         }
       `);
-      expect(variables).toEqual({});
+      expect(variables).toEqual({
+        number_0: 2,
+      });
     });
   });
 

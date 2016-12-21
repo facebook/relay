@@ -13,8 +13,10 @@
 
 require('configureForRelayOSS');
 
-jest.useFakeTimers();
-jest.disableAutomock();
+jest
+  .useFakeTimers()
+  .disableAutomock()
+  .mock('relayUnstableBatchedUpdates');
 
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');

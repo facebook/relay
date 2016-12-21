@@ -11,6 +11,7 @@
 
 jest
   .dontMock('GraphQLStoreChangeEmitter')
+  .mock('relayUnstableBatchedUpdates')
   .autoMockOff();
 
 const RelayEnvironment = require('RelayEnvironment');

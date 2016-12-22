@@ -74,6 +74,21 @@ const INCLUDE = 'include';
 
 let _nextQueryID = 0;
 
+/**
+ * When a modern container is rendered within a legacy RelayRootContainer or
+ * RelayRenderer, that container's fragment may need to reference global
+ * vaiables. This means that adding a single new-style container to an existing
+ * codebase could require setting up global variables on all routes that may
+ * ever be used to render any ancestor of the component - not ideal. In a pure
+ * modern-style app all such globals would be set via the `variables` prop on
+ * the renderer, but as a workaround for incrementally converting components, an
+ * application can configure default global variables to be used on all queries.
+ */
+let _defaultGlobalVariables = null;
+function setDefaultGlobalVariables(variables: Variables): void {
+  _defaultGlobalVariables = variables;
+}
+
 const DEFAULT_FRAGMENT_METADATA = {
   isDeferred: false,
   isContainerFragment: false,
@@ -1681,6 +1696,12 @@ function createRootContext(
   metaRoute: RelayMetaRoute,
   variables: Variables,
 ): RootContext {
+  if (_defaultGlobalVariables) {
+    variables = {
+      ..._defaultGlobalVariables,
+      ...variables,
+    };
+  }
   return {
     routeName: metaRoute.name,
     variables,
@@ -1710,4 +1731,5 @@ module.exports = {
   OSSQuery: RelayOSSQuery,
   Root: RelayQueryRoot,
   Subscription: RelayQuerySubscription,
+  setDefaultGlobalVariables,
 };

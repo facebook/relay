@@ -29,6 +29,7 @@ describe('isLegacyRelayEnvironment()', () => {
       getFragmentResolver: () => null,
       getStoreData: () => null,
       primeCache: () => null,
+      sendMutation: () => null,
     };
     expect(isLegacyRelayEnvironment(environment)).toBe(true);
   });

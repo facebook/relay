@@ -29,6 +29,7 @@ describe('isRelayEnvironment()', () => {
       applyMutation: jest.fn(),
       lookup: jest.fn(),
       retain: jest.fn(),
+      sendMutation: jest.fn(),
       sendQuery: jest.fn(),
       sendQuerySubscription: jest.fn(),
       subscribe: jest.fn(),

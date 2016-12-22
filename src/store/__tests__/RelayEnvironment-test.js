@@ -195,6 +195,155 @@ describe('RelayEnvironment', () => {
     });
   });
 
+  describe('sendMutation()', () => {
+    let FeedbackQuery,FeedbackMutation;
+    let disposable, onCompleted, onError, sendMutation, requests, result;
+
+    beforeEach(() => {
+      requests = [];
+      sendMutation = jest.fn(request => {
+        requests.push(request);
+        return request;
+      });
+      environment.injectNetworkLayer({sendMutation});
+
+      FeedbackQuery = graphql`
+        query RelayEnvironmentFeedbackQuery($id: ID!) {
+          feedback: node(id: $id) {
+            id
+            ... on Feedback {
+              doesViewerLike
+            }
+          }
+        }
+      `.relay();
+
+      nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
+      environment.commitPayload(
+        {
+          dataID: ROOT_ID,
+          node: FeedbackQuery.node,
+          variables: {id: '123'},
+        },
+        {
+          [nodeAlias]: {
+            id: '123',
+            __typename: 'Feedback',
+            doesViewerLike: false,
+          },
+        },
+      );
+
+      FeedbackMutation = graphql`
+        mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
+          feedbackLike {
+            clientMutationId
+            feedback {
+              id
+              doesViewerLike
+            }
+          }
+        }
+      `.relay();
+      jest.runAllTimers();
+
+      onCompleted = jest.fn();
+      onError = jest.fn();
+      disposable = environment.sendMutation({
+        configs: [],
+        operation: FeedbackMutation,
+        onCompleted,
+        onError,
+        optimisticResponse: {
+          feedback: {
+            id: '123',
+            __typename: 'Feedback',
+            doesViewerLike: true,
+          },
+        },
+        variables: {
+          input: {
+            actor_id: '4',
+            client_mutation_id: '0',
+            feedback_id: '123',
+          },
+        },
+      });
+      result = {
+        response: {
+          feedbackLike: {
+            clientMutationId: '0',
+            feedback: {
+              id: '123',
+              doesViewerLike: true,
+            },
+          },
+        },
+      };
+    });
+
+    it('applies optimistic response and sends server mutation', () => {
+      const selector = {
+        dataID: ROOT_ID,
+        node: FeedbackQuery.node,
+        variables: {id: '123'},
+      };
+      const snapshot = environment.lookup(selector);
+      expect(snapshot.data).toEqual({
+        __dataID__: jasmine.any(String),
+        feedback: {
+          __dataID__: '123',
+          id: '123',
+          doesViewerLike: true, // `true` from optimistic response.
+          __mutationStatus__: '1:COMMITTING',
+          __status__: 1,
+        },
+      });
+      expect(sendMutation.mock.calls.length).toBe(1);
+      const request = requests[0];
+      request.resolve(result);
+      jest.runAllTimers();
+
+      const resolvedSnapshot = environment.lookup(selector);
+      expect(resolvedSnapshot.data).toEqual({
+        __dataID__: jasmine.any(String),
+        feedback: {
+          __dataID__: '123',
+          id: '123',
+          doesViewerLike: true,
+        },
+      });
+      expect(onCompleted).toBeCalledWith(result.response);
+      expect(onError).not.toBeCalled();
+    });
+
+    it('applies changes but do not call callbacks after mutation has been disposed', () => {
+      const selector = {
+        dataID: ROOT_ID,
+        node: FeedbackQuery.node,
+        variables: {id: '123'},
+      };
+
+      disposable.dispose();
+      const request = requests[0];
+
+      request.resolve(result);
+      jest.runAllTimers();
+
+      const disposedSnapshot = environment.lookup(selector);
+      expect(disposedSnapshot.data).toEqual({
+        __dataID__: jasmine.any(String),
+        feedback: {
+          __dataID__: '123',
+          id: '123',
+          doesViewerLike: true,
+        },
+      });
+      expect(onCompleted).not.toBeCalled();
+      expect(onError).not.toBeCalled();
+    });
+  });
+
   describe('subscribe()', () => {
     it('calls the callback if data changes', () => {
       const selector = {

@@ -208,6 +208,71 @@ class RelayEnvironment {
     return snapshot;
   }
 
+  sendMutation({
+    configs,
+    onCompleted,
+    onError,
+    operation,
+    optimisticOperation,
+    optimisticResponse,
+    variables,
+  }: {
+    configs: Array<RelayMutationConfig>,
+    onCompleted?: ?(response: {[key: string]: Object}) => void,
+    onError?: ?(error: Error) => void,
+    operation: ConcreteOperationDefinition,
+    optimisticOperation?: ?ConcreteOperationDefinition,
+    optimisticResponse?: ?Object,
+    variables: Variables,
+  }): Disposable {
+    let disposed = false;
+    const mutationTransaction = new RelayGraphQLMutation(
+      operation.node,
+      RelayVariables.getOperationVariables(operation, variables),
+      null,
+      this,
+      {
+        onSuccess: response => {
+          if (disposed) {
+            return;
+          }
+          onCompleted && onCompleted(response);
+        },
+        onFailure: transaction => {
+          if (disposed) {
+            return;
+          }
+          if (onError) {
+            let error = transaction.getError();
+            if (!error) {
+              error = new Error(
+                `RelayEnvironment: Unknown error executing mutation ${operation.node.name}`
+              );
+            }
+            onError(error);
+          }
+        },
+      }
+    );
+
+    if (optimisticResponse) {
+      mutationTransaction.applyOptimistic(
+        optimisticOperation ? optimisticOperation.node : operation.node,
+        optimisticResponse,
+        configs,
+      );
+    }
+
+    mutationTransaction.commit(configs);
+    return {
+      dispose() {
+        if (!disposed) {
+          disposed = true;
+        }
+      },
+    };
+  }
+
   subscribe(
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,

@@ -159,10 +159,9 @@ class RelayEnvironment {
     };
   }
 
-  _commitPayload(
+  commitPayload(
     selector: Selector,
     payload: QueryPayload,
-    cacheConfig?: ?CacheConfig,
   ): void {
     const fragment = RelayQuery.Fragment.create(
       selector.node,
@@ -170,23 +169,13 @@ class RelayEnvironment {
       selector.variables,
     );
     const path = RelayQueryPath.getRootRecordPath();
-    const forceIndex = cacheConfig && cacheConfig.force ?
-      generateForceIndex() :
-      null;
     this._storeData.handleFragmentPayload(
       selector.dataID,
       fragment,
       path,
       payload,
-      forceIndex,
+      null
     );
-  }
-
-  commitPayload(
-    selector: Selector,
-    payload: QueryPayload,
-  ): void {
-    this._commitPayload(selector, payload);
   }
 
   /**
@@ -295,7 +284,10 @@ class RelayEnvironment {
         if (isDisposed) {
           return;
         }
-        this._commitPayload(operation.root, payload, cacheConfig);
+        const forceIndex = cacheConfig && cacheConfig.force ?
+          generateForceIndex() :
+          null;
+        this._storeData.handleOSSQueryPayload(query, payload.response, forceIndex);
 
         onNext && onNext(operation.root);
         onCompleted && onCompleted();

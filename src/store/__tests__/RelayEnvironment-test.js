@@ -16,11 +16,14 @@ jest
   .mock('relayUnstableBatchedUpdates')
   .autoMockOff();
 
+const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayOperationSelector = require('RelayOperationSelector');
 const {ROOT_ID} = require('RelayStoreConstants');
 const RelayTestUtils = require('RelayTestUtils');
+const createRelayQuery = require('createRelayQuery');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const mapObject = require('mapObject');
 const {graphql} = require('RelayGraphQLTag');
 
 describe('RelayEnvironment', () => {
@@ -289,12 +292,14 @@ describe('RelayEnvironment', () => {
           operation,
         });
         deferred.resolve({
-          [nodeAlias]: {
-            id: '4',
-            __typename: 'User',
-            name: 'Zuck',
-            [photoAlias]: {
-              uri: 'https://4.jpg',
+          response: {
+            [nodeAlias]: {
+              id: '4',
+              __typename: 'User',
+              name: 'Zuck',
+              [photoAlias]: {
+                uri: 'https://4.jpg',
+              },
             },
           },
         });
@@ -332,7 +337,7 @@ describe('RelayEnvironment', () => {
           ...callbacks,
           operation,
         });
-        const payload = {
+        const response = {
           [nodeAlias]: {
             id: '4',
             __typename: 'User',
@@ -342,7 +347,7 @@ describe('RelayEnvironment', () => {
             },
           },
         };
-        deferred.resolve(payload);
+        deferred.resolve({response});
         jest.runAllTimers();
 
         expect(onNext.mock.calls.length).toBe(1);
@@ -363,6 +368,146 @@ describe('RelayEnvironment', () => {
             profilePicture: {
               __dataID__: jasmine.any(String),
               uri: 'https://4.jpg',
+            },
+          },
+        });
+      });
+
+      it('supports multiple root fields', () => {
+        UserQuery = graphql`
+          query RelayEnvironmentUserQuery {
+            viewer {
+              actor {
+                id
+              }
+            }
+            user: node(id: "4") {
+              name
+            }
+          }
+        `.relay();
+        operation = RelayOperationSelector.createOperationSelector(
+          UserQuery,
+          {},
+        );
+        const selector = {
+          dataID: ROOT_ID,
+          node: UserQuery.node,
+          variables: {},
+        };
+        const snapshot = environment.lookup(selector);
+        const callback = jest.fn();
+        environment.subscribe(snapshot, callback);
+
+        environment[functionName]({
+          ...callbacks,
+          operation,
+        });
+        const response = {
+          viewer: {
+            actor: {
+              id: '4',
+              __typename: 'User',
+            },
+          },
+          [nodeAlias]: {
+            id: '4',
+            name: 'Mark', // Zuck -> Mark
+          },
+        };
+        deferred.resolve({response});
+        jest.runAllTimers();
+
+        expect(onNext.mock.calls.length).toBe(1);
+        expect(onNext).toBeCalledWith({
+          dataID: ROOT_ID,
+          node: UserQuery.node,
+          variables: {},
+        });
+        expect(onCompleted).toBeCalled();
+        expect(onError).not.toBeCalled();
+        expect(callback.mock.calls.length).toBe(1);
+
+        const recordStore = environment.getStoreData().getRecordStore();
+        const viewerID = recordStore.getDataID('viewer');
+        expect(recordStore.getPathToRecord(viewerID).type).toBe('root');
+        expect(callback.mock.calls[0][0].data).toEqual({
+          __dataID__: jasmine.any(String),
+          viewer: {
+            __dataID__: viewerID,
+            actor: {
+              __dataID__: '4',
+              id: '4',
+            },
+          },
+          user: {
+            __dataID__: '4',
+            name: 'Mark', // Reflects changed value
+          },
+        });
+      });
+
+      it('writes id-less root fields (e.g. viewer)', () => {
+        UserQuery = graphql`
+          query RelayEnvironmentUserQuery {
+            viewer {
+              actor {
+                id
+                name
+              }
+            }
+          }
+        `.relay();
+        operation = RelayOperationSelector.createOperationSelector(
+          UserQuery,
+          {},
+        );
+        const selector = {
+          dataID: ROOT_ID,
+          node: UserQuery.node,
+          variables: {},
+        };
+        const snapshot = environment.lookup(selector);
+        const callback = jest.fn();
+        environment.subscribe(snapshot, callback);
+
+        environment[functionName]({
+          ...callbacks,
+          operation,
+        });
+        const response = {
+          viewer: {
+            actor: {
+              id: '4',
+              __typename: 'User',
+              name: 'Mark', // Zuck -> Mark
+            },
+          },
+        };
+        deferred.resolve({response});
+        jest.runAllTimers();
+
+        expect(onNext.mock.calls.length).toBe(1);
+        expect(onNext).toBeCalledWith({
+          dataID: ROOT_ID,
+          node: UserQuery.node,
+          variables: {},
+        });
+        expect(onCompleted).toBeCalled();
+        expect(onError).not.toBeCalled();
+        expect(callback.mock.calls.length).toBe(1);
+
+        const recordStore = environment.getStoreData().getRecordStore();
+        const viewerID = recordStore.getDataID('viewer');
+        expect(recordStore.getPathToRecord(viewerID).type).toBe('root');
+        expect(callback.mock.calls[0][0].data).toEqual({
+          __dataID__: jasmine.any(String),
+          viewer: {
+            __dataID__: viewerID,
+            actor: {
+              __dataID__: '4',
+              id: '4',
+              name: 'Mark', // Reflects changed value
             },
           },
         });
@@ -422,7 +567,7 @@ describe('RelayEnvironment', () => {
           cacheConfig: {force: true},
           operation,
         });
-        const payload = {
+        const response = {
           [nodeAlias]: {
             id: '4',
             __typename: 'User',
@@ -442,7 +587,7 @@ describe('RelayEnvironment', () => {
             },
           },
         };
-        deferred.resolve(payload);
+        deferred.resolve({response});
         jest.runAllTimers();
 
         expect(onNext.mock.calls.length).toBe(1);
@@ -470,6 +615,146 @@ describe('RelayEnvironment', () => {
             },
           },
         });
+      });
+    });
+  });
+
+  describe('integration tests', () => {
+    let Container;
+    let Query;
+    let deferred;
+    let fragments;
+    let sendQueries;
+    let operation;
+
+    beforeEach(() => {
+      fragments = {
+        user: graphql`
+          fragment RelayEnvironment_user on User {
+            name
+            profilePicture(size: $size) {
+              uri
+            }
+          }
+        `,
+      };
+      Container = {
+        getFragment(fragmentName, args) {
+          return {
+            kind: 'FragmentSpread',
+            args: args || {},
+            fragment: environment.unstable_internal.getFragment(fragments[fragmentName]),
+          };
+        },
+      };
+      Query = environment.unstable_internal.getOperation(graphql`
+        query RelayEnvironmentUserQuery($id: ID!, $size: Int) {
+          user: node(id: $id) {
+            ...Container_user
+          }
+        }
+      `);
+
+      sendQueries = jest.fn(queries => {
+        expect(queries.length).toBe(1);
+        deferred = queries[0];
+      });
+      environment.injectNetworkLayer({
+        sendMutation: jest.fn(),
+        sendQueries,
+        supports: jest.fn(() => false),
+      });
+      operation = environment.unstable_internal.createOperationSelector(
+        Query,
+        {id: '4', size: 1},
+      );
+    });
+
+    it('resolves fragment data with legacy readQuery()', () => {
+      environment.sendQuery({operation});
+      deferred.resolve({
+        response: {
+          [nodeAlias]: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+            [photoAlias]: {
+              uri: 'https://4.jpg',
+            },
+          },
+        },
+      });
+      jest.runAllTimers();
+
+      const query = createRelayQuery(Relay.QL`
+        query {
+          node(id: $id) {
+            ${Container.getFragment('user')}
+          }
+        }
+      `, {id: '4', size: 1});
+
+      // read the parent data using `readQuery()`
+      const user = environment.readQuery(query)[0];
+      const context = {
+        environment,
+        variables: {id: '4', size: 1},
+      };
+      const resolver = environment.unstable_internal.createFragmentSpecResolver(
+        context,
+        mapObject(fragments, environment.unstable_internal.getFragment),
+        {user},
+        jest.fn(),
+      );
+      expect(resolver.resolve()).toEqual({
+        user: {
+          __dataID__: '4',
+          name: 'Zuck',
+          profilePicture: {
+            __dataID__: jasmine.any(String),
+            uri: 'https://4.jpg',
+          },
+        },
+      });
+    });
+
+    it('resolves fragment data with lookup()', () => {
+      environment.sendQuery({operation});
+      deferred.resolve({
+        response: {
+          [nodeAlias]: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+            [photoAlias]: {
+              uri: 'https://4.jpg',
+            },
+          },
+        },
+      });
+      jest.runAllTimers();
+
+      // read the parent data using `lookup()`
+      const user = environment.lookup(operation.root).data.user;
+      const context = {
+        environment,
+        variables: {id: '4', size: 1},
+      };
+      const resolver = environment.unstable_internal.createFragmentSpecResolver(
+        context,
+        mapObject(fragments, environment.unstable_internal.getFragment),
+        {user},
+        jest.fn(),
+      );
+      expect(resolver.resolve()).toEqual({
+        user: {
+          __dataID__: '4',
+          name: 'Zuck',
+          profilePicture: {
+            __dataID__: jasmine.any(String),
+            uri: 'https://4.jpg',
+          },
+        },
       });
     });
   });

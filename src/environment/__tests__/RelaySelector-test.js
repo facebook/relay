@@ -443,8 +443,11 @@ describe('RelaySelector', () => {
         {user: UserFragment},
         {user: zuck},
       );
+      // includes root variables
       expect(variables).toEqual({
         cond: true,
+        id: '4',
+        other: 'whatevs',
         size: 42,
       });
     });
@@ -455,8 +458,11 @@ describe('RelaySelector', () => {
         {user: UsersFragment},
         {user: [null, zuck, null]},
       );
+      // includes root variables
       expect(variables).toEqual({
         cond: true,
+        id: '4',
+        other: 'whatevs',
         size: 42,
       });
     });

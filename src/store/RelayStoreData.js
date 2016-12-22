@@ -16,9 +16,11 @@ const GraphQLQueryRunner = require('GraphQLQueryRunner');
 const GraphQLRange = require('GraphQLRange');
 const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+const QueryBuilder = require('QueryBuilder');
 const RelayChangeTracker = require('RelayChangeTracker');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayGarbageCollector = require('RelayGarbageCollector');
+const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationQueue = require('RelayMutationQueue');
 const RelayNetworkLayer = require('RelayNetworkLayer');
 const RelayNodeInterface = require('RelayNodeInterface');
@@ -37,6 +39,7 @@ const forEachObject = require('forEachObject');
 const generateForceIndex = require('generateForceIndex');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
+const nullthrows = require('nullthrows');
 const warning = require('warning');
 const writeRelayQueryPayload = require('writeRelayQueryPayload');
 const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
@@ -64,6 +67,8 @@ import type {Abortable, CacheManager, CacheProcessorCallbacks} from 'RelayTypes'
 
 const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
+const {ROOT_ID, ROOT_TYPE} = require('RelayStoreConstants');
+const {EXISTENT} = require('RelayRecordState');
 
 const idField = RelayQuery.Field.build({
   fieldName: ID,
@@ -304,6 +309,70 @@ class RelayStoreData {
         },
       }
     );
+  }
+
+  /**
+   * Write the results of an OSS query, which can have multiple root fields,
+   * updating both the root call map (for consistency with legacy queries)
+   * and the root record (for consistency with modern queries/fragments).
+   */
+  handleOSSQueryPayload(
+    query: RelayQuery.OSSQuery,
+    payload: QueryPayload,
+    forceIndex: ?number,
+  ): void {
+    const profiler = RelayProfiler.profile('RelayStoreData.handleQueryPayload');
+    const changeTracker = new RelayChangeTracker();
+    const recordWriter = this.getRecordWriter();
+    const writer = new RelayQueryWriter(
+      this._queuedStore,
+      recordWriter,
+      this._queryTracker,
+      changeTracker,
+      {
+        forceIndex,
+        updateTrackedQueries: true,
+      }
+    );
+    getRootsWithPayloads(query, payload).forEach(({field, root, rootPayload}) => {
+      // Write the results of the field-specific query
+      writeRelayQueryPayload(writer, root, rootPayload);
+
+      // Ensure the root record exists
+      const path = RelayQueryPath.getRootRecordPath();
+      recordWriter.putRecord(ROOT_ID, ROOT_TYPE, path);
+      if (this._queuedStore.getRecordState(ROOT_ID) !== EXISTENT) {
+        changeTracker.createID(ROOT_ID);
+      } else {
+        changeTracker.updateID(ROOT_ID);
+      }
+
+      // Collect linked record ids for this root field
+      const dataIDs = [];
+      RelayNodeInterface.getResultsFromPayload(root, rootPayload)
+      .forEach(({result, rootCallInfo}) => {
+        const {storageKey, identifyingArgKey} = rootCallInfo;
+        const dataID = recordWriter.getDataID(storageKey, identifyingArgKey);
+        if (dataID != null) {
+          dataIDs.push(dataID);
+        }
+      });
+
+      // Write the field to the root record
+      const storageKey = field.getStorageKey();
+      if (field.isPlural()) {
+        recordWriter.putLinkedRecordIDs(ROOT_ID, storageKey, dataIDs);
+      } else {
+        const dataID = dataIDs[0];
+        if (dataID != null) {
+          recordWriter.putLinkedRecordID(ROOT_ID, storageKey, dataID);
+        } else {
+          recordWriter.putField(ROOT_ID, storageKey, null);
+        }
+      }
+    });
+    this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
+    profiler.stop();
   }
 
   /**
@@ -666,6 +735,81 @@ function deserializeRecordRanges(records) {
       record.__range__ = GraphQLRange.fromJSON(range);
     }
   }
+}
+
+/**
+ * Given an OSS query and response, returns an array of information
+ * corresponding to each root field with items as follows:
+ * - `field`: the root field from the input query
+ * - `root`: the synthesized RelayQueryRoot corresponding to that field
+ * - `rootPayload`: the payload for that `root`
+ */
+function getRootsWithPayloads(
+  query: RelayQuery.OSSQuery,
+  response: Object,
+): Array<{
+  field: RelayQuery.Field,
+  root: RelayQuery.Root,
+  rootPayload: Object,
+}> {
+  const results = [];
+  query.getChildren().forEach(child => {
+    const field = child;
+    if (
+      !(field instanceof RelayQuery.Field) ||
+      !field.canHaveSubselections()
+    ) {
+      // Only care about linked fields
+      return;
+    }
+    // Get the concrete field from the RelayQueryField
+    const concreteField =
+      nullthrows(QueryBuilder.getField(field.getConcreteQueryNode()));
+    // Build the identifying argument for the query
+    let identifyingArgName;
+    let identifyingArgType;
+    const identifyingArg = concreteField.calls && concreteField.calls[0];
+    if (identifyingArg) {
+      identifyingArgName = identifyingArg.name;
+      identifyingArgType = identifyingArg.metadata && identifyingArg.metadata.type;
+    }
+    // Build the concrete query
+    const concreteQuery = {
+      calls: concreteField.calls,
+      children: concreteField.children,
+      directives: [], // @include/@skip directives are processed within getChildren()
+      fieldName: concreteField.fieldName,
+      isDeferred: false,
+      kind: 'Query',
+      metadata: {
+        identifyingArgName,
+        identifyingArgType,
+        isAbstract: concreteField.metadata && concreteField.metadata.isAbstract,
+        isPlural: concreteField.metadata && concreteField.metadata.isPlural,
+      },
+      name: query.getName(),
+      // Note that legacy queries are typed as the type of the root field, not
+      // the `Query` type
+      type: field.getType(),
+    };
+    // Construct a root query
+    const root = RelayQuery.Root.create(
+      concreteQuery,
+      RelayMetaRoute.get('$RelayEnvironment'),
+      query.getVariables(),
+    );
+    // Construct the payload that would have been returned had `root` been
+    // used to fetch data.
+    const serializationKey = field.getSerializationKey();
+    const rootPayload = {};
+    rootPayload[root.getFieldName()] = response[serializationKey];
+    results.push({
+      field,
+      root,
+      rootPayload,
+    });
+  });
+  return results;
 }
 
 RelayProfiler.instrumentMethods(RelayStoreData.prototype, {

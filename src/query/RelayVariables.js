@@ -48,19 +48,16 @@ function getFragmentVariables(
         variables[definition.name] = definition.defaultValue;
         break;
       case 'RootArgument':
-        invariant(
-          rootVariables.hasOwnProperty(definition.name),
-          'RelaySelector: Expected a defined query variable for `$%s` ' +
-          'in fragment `%s`.',
-          definition.name,
-          fragment.node.name,
-        );
-        variables[definition.name] = rootVariables[definition.name];
+        // In the new core this would be an error. In the legacy core a variable
+        // may be conditionally unused, in which case it's okay for it to be
+        // null.
+        const rootValue = rootVariables[definition.name];
+        variables[definition.name] = rootValue !== undefined ? rootValue : null;
         break;
       default:
         invariant(
           false,
-          'RelaySelector: Unexpected node kind `%s` in fragment `%s`.',
+          'RelayVariables: Unexpected node kind `%s` in fragment `%s`.',
           definition.kind,
           fragment.node.name,
         );
@@ -73,11 +70,14 @@ function getFragmentSpreadArguments(
   fragmentName: string,
   variableMapping: VariableMapping,
   parentVariables: Variables,
+  rootVariables: Variables,
 ): Variables {
   return mapObject(variableMapping, (value, name) => {
     const callVariable = QueryBuilder.getCallVariable(value);
     if (callVariable) {
-      value = parentVariables[callVariable.callVariableName];
+      value = parentVariables.hasOwnProperty(callVariable.callVariableName) ?
+        parentVariables[callVariable.callVariableName] :
+        rootVariables[callVariable.callVariableName];
     }
     if (value === undefined) {
       warning(

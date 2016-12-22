@@ -49,7 +49,10 @@ function getSelector(
     return {
       dataID,
       node: fragment.node,
-      variables: fragmentVariables,
+      variables: {
+        ...operationVariables,
+        ...fragmentVariables,
+      },
     };
   }
   warning(

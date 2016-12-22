@@ -1514,6 +1514,7 @@ function createNode(
       spread.fragment.node.name,
       spread.args,
       variables,
+      rootContext.variables,
     );
     const rootVariables = rootContext.variables;
     const fragmentVariables = RelayVariables.getFragmentVariables(
@@ -1590,7 +1591,9 @@ function createMemoizedFragment(
   variables: Variables,
   metadata: FragmentMetadata
 ): RelayQueryFragment {
-  const cacheKey = rootContext.routeName + ':' + stableStringify(variables) +
+  const cacheKey = rootContext.routeName +
+    ':' + stableStringify(rootContext.variables) +
+    ':' + stableStringify(variables) +
     ':' + stableStringify(metadata);
   let fragment = (concreteFragment: any).__cachedFragment__;
   const fragmentCacheKey = (concreteFragment: any).__cacheKey__;

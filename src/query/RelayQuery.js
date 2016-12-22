@@ -1012,7 +1012,6 @@ class RelayQueryFragment extends RelayQueryNode {
   getCompositeHash(): string {
     let compositeHash = this.__compositeHash__;
     if (!compositeHash) {
-      // TODO: Simplify this hash function, #9599170.
       compositeHash = generateRQLFieldAlias(
         this.getConcreteFragmentID() +
         '.' + this.__root__.routeName +

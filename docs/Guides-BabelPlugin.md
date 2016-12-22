@@ -172,10 +172,9 @@ babel.transform(source, {
           return [];
         },
       },
-    }), {
-    // Will throw an error when it validates the queries at build time.
-    enforceSchema: true,
-    }],
+      // Will throw an error when it validates the queries at build time.
+      enforceSchema: true,
+    })],
   ],
 });
 ```

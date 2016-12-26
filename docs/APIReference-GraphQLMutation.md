@@ -89,7 +89,7 @@ const variables = {
   },
 };
 
-const mutation = RelayGraphQLMutation.create(
+const mutation = Relay.GraphQLMutation.create(
   query,
   variables,
   environment
@@ -120,7 +120,7 @@ static createWithFiles(
 //
 // and `query`, `variables` and `environment` arguments
 // as in the previous example:
-const mutation = RelayGraphQLMutation.createWithFiles(
+const mutation = Relay.GraphQLMutation.createWithFiles(
   query,
   variables,
   files,
@@ -159,7 +159,7 @@ If not supplied, a unique collision key is derived (meaning that the created mut
 
 ```
 const collisionKey = 'feedback-like: ' + variables.input.feedbackId;
-const mutation = new RelayGraphQLMutation(
+const mutation = new Relay.GraphQLMutation(
   query,
   variables,
   null, // No files.

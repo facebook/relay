@@ -19,7 +19,6 @@ jest
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayOperationSelector = require('RelayOperationSelector');
-const RelayQuery = require('RelayQuery');
 const {ROOT_ID} = require('RelayStoreConstants');
 const RelayTestUtils = require('RelayTestUtils');
 const createRelayQuery = require('createRelayQuery');
@@ -889,61 +888,6 @@ describe('RelayEnvironment', () => {
       const context = {
         environment,
         variables: {id: '4', size: 1},
-      };
-      const resolver = environment.unstable_internal.createFragmentSpecResolver(
-        context,
-        mapObject(fragments, environment.unstable_internal.getFragment),
-        {user},
-        jest.fn(),
-      );
-      expect(resolver.resolve()).toEqual({
-        user: {
-          __dataID__: '4',
-          name: 'Zuck',
-          profilePicture: {
-            __dataID__: jasmine.any(String),
-            uri: 'https://4.jpg',
-          },
-        },
-      });
-    });
-
-    it('uses default global variables if set', () => {
-      operation = environment.unstable_internal.createOperationSelector(
-        Query,
-        {id: '4'},
-      );
-      environment.sendQuery({operation});
-      deferred.resolve({
-        response: {
-          [nodeAlias]: {
-            id: '4',
-            __typename: 'User',
-            name: 'Zuck',
-            [photoAlias]: {
-              uri: 'https://4.jpg',
-            },
-          },
-        },
-      });
-      jest.runAllTimers();
-
-      // Specify a default size
-      RelayQuery.setDefaultGlobalVariables({size: 1});
-
-      // read the parent data using `readQuery()`, but without specifying a
-      // value for the root variable `size`: the default should be used.
-      const query = createRelayQuery(Relay.QL`
-        query {
-          node(id: $id) {
-            ${Container.getFragment('user')}
-          }
-        }
-      `, {id: '4'});
-      const user = environment.readQuery(query)[0];
-      const context = {
-        environment,
-        variables: {id: '4'},
       };
       const resolver = environment.unstable_internal.createFragmentSpecResolver(
         context,

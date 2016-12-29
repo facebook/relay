@@ -58,9 +58,13 @@ function create(options) {
         },
 
         TaggedTemplateExpression(path, state) {
-          if (!t.isIdentifier(path.node.tag, {name: 'graphql'})) {
+          if (!(
+            t.isIdentifier(path.node.tag, {name: 'graphql'}) ||
+            t.isIdentifier(path.node.tag, {name: 'Relay2QLCompat'})
+          )) {
             return;
           }
+          const isGraphQLTag = t.isIdentifier(path.node.tag, {name: 'graphql'});
 
           invariant(
             path.node.quasi.quasis.length === 1,
@@ -86,7 +90,6 @@ function create(options) {
           const variables = {};
           let argumentDefinitions = null;
           let variableDefinitions = null;
-          let usesParams = false;
 
           const visitors = {
             Directive(node) {
@@ -130,9 +133,6 @@ function create(options) {
                 directive.arguments.forEach(argNode => {
                   const arg = convertArgument(t, argNode);
                   fragmentArgumentsObject[arg.name] = arg.ast;
-                  if (arg.usesParams) {
-                    usesParams = true;
-                  }
                 });
                 fragmentArgumentsAST = createObject(t, fragmentArgumentsObject);
                 fragmentID++;
@@ -245,37 +245,35 @@ function create(options) {
             );
           }
 
-          const concreteNode = {
-            relay: t.functionExpression(
-              null,
-              usesParams ? [
-                t.identifier('params')
-              ] : [],
-              t.blockStatement([
-                t.variableDeclaration(
-                  'const',
-                  [
-                    t.variableDeclarator(
-                      t.identifier('RelayQL_GENERATED'),
-                      createRequireCall(t, 'RelayQL_GENERATED')
-                    )
-                  ].concat(substitutions)
-                ),
-                t.returnStatement(transformedAST)
-              ])
-            ),
-          };
-          if (options.relayExperimental) {
-            concreteNode.relayExperimental = t.functionExpression(
-              null,
-              [],
-              t.blockStatement([
-                t.returnStatement(
-                  createRequireCall(t, definitionName + '.relay2ql')
-                ),
-              ])
-            );
-          }
+          // TODO: unify tag output
+          const legacyKey = isGraphQLTag ? 'relay' : 'r1';
+          const modernKey = isGraphQLTag ? 'relayExperimental' : 'r2';
+          const concreteNode = {};
+          concreteNode[legacyKey] = t.functionExpression(
+            null,
+            [],
+            t.blockStatement([
+              t.variableDeclaration(
+                'const',
+                [
+                  t.variableDeclarator(
+                    t.identifier('RelayQL_GENERATED'),
+                    createRequireCall(t, 'RelayQL_GENERATED')
+                  )
+                ].concat(substitutions)
+              ),
+              t.returnStatement(transformedAST)
+            ])
+          );
+          concreteNode[modernKey] = t.functionExpression(
+            null,
+            [],
+            t.blockStatement([
+              t.returnStatement(
+                createRequireCall(t, definitionName + '.relay2ql')
+              ),
+            ])
+          );
           path.replaceWith(createObject(t, concreteNode));
         },
       },
@@ -356,20 +354,18 @@ function convertArgument(t, argNode) {
   const name = argNode.name.value;
   const value = argNode.value;
   let ast = null;
-  let usesParams = false;
   switch (value.kind) {
     case 'Variable':
       const paramName = value.name.value;
-      usesParams = true;
-      ast = t.memberExpression(
-        t.identifier('params'),
-        t.identifier(paramName)
-      );
+      ast = createObject(t, {
+        kind: t.stringLiteral('CallVariable'),
+        callVariableName: t.stringLiteral(paramName),
+      });
       break;
     default:
       ast = parseValue(t, value);
   }
-  return {name, ast, usesParams};
+  return {name, ast};
 }
 
 function createObject(t, obj) {

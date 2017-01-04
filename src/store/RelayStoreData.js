@@ -802,6 +802,11 @@ function getRootsWithPayloads(
     // used to fetch data.
     const serializationKey = field.getSerializationKey();
     const rootPayload = {};
+    if (!response.hasOwnProperty(serializationKey)) {
+      // Data is missing for this field. This can occur when the field is empty
+      // due to a failing conditional (@include/@skip) in its subtree.
+      return;
+    }
     rootPayload[root.getFieldName()] = response[serializationKey];
     results.push({
       field,

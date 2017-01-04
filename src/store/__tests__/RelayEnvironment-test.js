@@ -596,6 +596,56 @@ describe('RelayEnvironment', () => {
         });
       });
 
+      it('ignores empty fields', () => {
+        UserQuery = graphql`
+          query RelayEnvironmentUserQuery {
+            viewer {
+              actor @include(if: false) {
+                id
+              }
+            }
+          }
+        `.relay();
+        operation = RelayOperationSelector.createOperationSelector(
+          UserQuery,
+          {},
+        );
+        const selector = {
+          dataID: ROOT_ID,
+          node: UserQuery.node,
+          variables: {},
+        };
+        const snapshot = environment.lookup(selector);
+        const callback = jest.fn();
+        environment.subscribe(snapshot, callback);
+
+        environment[functionName]({
+          ...callbacks,
+          operation,
+        });
+        // The printed query (and therefore the server response) won't have a
+        // `viewer` field.
+        const response = {
+          __typename: 'Query',
+        };
+        deferred.resolve({response});
+        jest.runAllTimers();
+
+        expect(onNext.mock.calls.length).toBe(1);
+        expect(onNext).toBeCalledWith({
+          dataID: ROOT_ID,
+          node: UserQuery.node,
+          variables: {},
+        });
+        expect(onCompleted).toBeCalled();
+        expect(onError).not.toBeCalled();
+        expect(callback.mock.calls.length).toBe(0);
+
+        const recordStore = environment.getStoreData().getRecordStore();
+        const viewerID = recordStore.getDataID('viewer');
+        expect(viewerID).toBe(undefined);
+      });
+
       it('writes id-less root fields (e.g. viewer)', () => {
         UserQuery = graphql`
           query RelayEnvironmentUserQuery {

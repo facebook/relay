@@ -74,6 +74,65 @@ describe('printRelayOSSQuery', () => {
         number_0: 2,
       });
     });
+
+    it('prints "empty" queries', () => {
+      const query = getNode(graphql`
+        query printRelayOSSQuery($cond: Boolean!) {
+          viewer {
+            actor @include(if: $cond) {
+              name
+            }
+          }
+        }
+      `.relay(), {
+        cond: false,
+      });
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query PrintRelayOSSQuery {
+          __typename
+        }
+      `);
+      expect(variables).toEqual({});
+    });
+
+    it('skips "empty" fields', () => {
+      const query = getNode(graphql`
+        query printRelayOSSQuery($cond: Boolean!, $id: ID!) {
+          node(id: $id) {
+            ... on User {
+              name
+            }
+          }
+          # viewer is empty once directives are accounted for,
+          # is skipped in output
+          viewer {
+            actor @include(if: $cond) {
+              name
+            }
+          }
+        }
+      `.relay(), {
+        cond: false,
+        id: '842472',
+      });
+      const nodeAlias = generateRQLFieldAlias('node.id(842472)');
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query PrintRelayOSSQuery {
+          ${nodeAlias}: node(id: "842472") {
+            id,
+            __typename,
+            ...F0
+          }
+        }
+        fragment F0 on User {
+          name,
+          id
+        }
+      `);
+      expect(variables).toEqual({});
+    });
   });
 
   describe('roots', () => {
@@ -449,6 +508,53 @@ describe('printRelayOSSQuery', () => {
       expect(() => printRelayOSSQuery(query)).toFailInvariant(
         'printRelayOSSQuery(): Deferred queries are not supported.'
       );
+    });
+
+    it('prints "empty" queries', () => {
+      const query = getNode(Relay.QL`
+        query($cond: Boolean!) {
+          viewer {
+            actor @include(if: $cond) {
+              name
+            }
+          }
+        }
+      `, {
+        cond: false,
+      });
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query PrintRelayOSSQuery {
+          __typename
+        }
+      `);
+      expect(variables).toEqual({});
+    });
+
+    it('prints queries with "empty" fragment references', () => {
+      const fragment = Relay.QL`
+        fragment on Viewer {
+          ... on Viewer @include(if: false) {
+            actor {
+              name
+            }
+          }
+        }
+      `;
+      const query = getNode(Relay.QL`
+        query {
+          viewer {
+            ${RelayTestUtils.createContainerFragment(fragment)}
+          }
+        }
+      `);
+      const {text, variables} = printRelayOSSQuery(query);
+      expect(text).toEqualPrintedQuery(`
+        query PrintRelayOSSQuery {
+          __typename
+        }
+      `);
+      expect(variables).toEqual({});
     });
   });
 
@@ -893,8 +999,8 @@ describe('printRelayOSSQuery', () => {
                 uri
               }
             }
-            likeSentence
-            likers
+            likeSentence { text }
+            likers { count }
           }
         }
       }
@@ -918,8 +1024,12 @@ describe('printRelayOSSQuery', () => {
               id,
               __typename
             },
-            likeSentence,
-            likers
+            likeSentence {
+              text
+            },
+            likers {
+              count
+            }
           }
         }
       }
@@ -945,8 +1055,8 @@ describe('printRelayOSSQuery', () => {
                 uri
               }
             }
-            likeSentence
-            likers
+            likeSentence { text }
+            likers { count }
           }
         }
       }
@@ -970,8 +1080,12 @@ describe('printRelayOSSQuery', () => {
               id,
               __typename
             },
-            likeSentence,
-            likers
+            likeSentence {
+              text
+            },
+            likers {
+              count
+            }
           },
           clientMutationId
         }

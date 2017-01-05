@@ -1,0 +1,40 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const Relay2CompatContainer = require('Relay2CompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = Relay2CompatContainer.createContainer(CompatProfile, {
+  viewer: {
+    relay: function () {
+      const RelayQL_GENERATED = require('RelayQL_GENERATED');
+
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [{
+          defaultValue: 'BROWSE_FEED',
+          kind: 'LocalArgument',
+          name: 'browserContext'
+        }, {
+          defaultValue: [0, 50],
+          kind: 'LocalArgument',
+          name: 'priceRange'
+        }],
+        node: RelayQL_GENERATED`fragment CompatProfile_viewer on Viewer {
+  marketplace_explore(marketplace_browse_context: $browserContext, with_price_between: $priceRange) {
+    count
+  }
+}`
+      };
+    },
+    relayExperimental: function () {
+      return require('CompatProfile_viewer.relay2ql');
+    }
+  }
+});

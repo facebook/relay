@@ -15,7 +15,6 @@
 const QueryBuilder = require('QueryBuilder');
 
 const invariant = require('invariant');
-const nullthrows = require('nullthrows');
 
 import type {
   ConcreteFragmentDefinition,
@@ -24,11 +23,9 @@ import type {
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode = {
-  r1?: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
-  relay?: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
+  relay: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
   // TODO: type this once the new core is in OSS
-  r2?: () => any,
-  relayExperimental?: () => any,
+  relayExperimental: () => any,
 };
 
 /**
@@ -69,9 +66,7 @@ function getLegacyFragment(
 ): ConcreteFragmentDefinition {
   let concreteNode = legacyNodeMap.get(taggedNode);
   if (concreteNode == null) {
-    // TODO: unify tag output
-    const fn = nullthrows(taggedNode.r1 || taggedNode.relay);
-    concreteNode = fn();
+    concreteNode = taggedNode.relay();
     legacyNodeMap.set(taggedNode, concreteNode);
   }
   const fragment = QueryBuilder.getFragmentDefinition(concreteNode);
@@ -89,8 +84,7 @@ function getLegacyOperation(
   let concreteNode = legacyNodeMap.get(taggedNode);
   if (concreteNode == null) {
     // TODO: unify tag output
-    const fn = nullthrows(taggedNode.r1 || taggedNode.relay);
-    concreteNode = fn();
+    concreteNode = taggedNode.relay();
     legacyNodeMap.set(taggedNode, concreteNode);
   }
   const operation = QueryBuilder.getOperationDefinition(concreteNode);

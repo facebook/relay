@@ -16,7 +16,7 @@ const {
   getOperationVariables,
 } = require('RelayVariables');
 
-describe('Relay2ConcreteVariables', () => {
+describe('RelayConcreteVariables', () => {
   beforeEach(() => {
     jest.resetModules();
   });

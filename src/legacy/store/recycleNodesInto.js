@@ -41,8 +41,11 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
     const nextKeys = Object.keys(nextObject);
     canRecycle =
       nextKeys.reduce((wasEqual, key) => {
-        const nextValue = nextObject[key];
-        nextObject[key] = recycleNodesInto(prevObject[key], nextValue);
+        const prevValue = prevObject[key];
+        const nextValue = recycleNodesInto(prevValue, nextObject[key]);
+        if (nextValue !== nextObject[key]) {
+          nextObject[key] = nextValue;
+        }
         return wasEqual && nextObject[key] === prevObject[key];
       }, true) &&
       prevKeys.length === nextKeys.length;

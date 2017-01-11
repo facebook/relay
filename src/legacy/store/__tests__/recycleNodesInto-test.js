@@ -104,6 +104,15 @@ describe('recycleNodesInto', () => {
       expect(recycled).toBe(prevData);
     });
 
+    it('recycles identical leaves', () => {
+      const prevData = {foo: 1};
+      const nextData = {foo: 1};
+      // "next" data should not be modified if it is === to previous data
+      Object.freeze(nextData);
+      const recycled = recycleNodesInto(prevData, nextData);
+      expect(recycled).toBe(prevData);
+    });
+
     it('does not recycle arrays as objects', () => {
       const prevData = [1, 2];
       const nextData = {0: 1, 1: 2};

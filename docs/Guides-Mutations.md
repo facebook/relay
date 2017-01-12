@@ -266,9 +266,9 @@ Given a parent, a connection, and one or more DataIDs in the response payload, R
 
   The field name in the response that represents the parent of the connection
 
-- `parentID: string`
+- `parentID?: string`
 
-  The DataID of the parent node that contains the connection
+  The DataID of the parent node that contains the connection. This argument is optional.
 
 - `connectionName: string`
 

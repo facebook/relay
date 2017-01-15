@@ -13,6 +13,7 @@
 'use strict';
 
 const QueryBuilder = require('QueryBuilder');
+const RelayGraphQLTagMap = require('RelayGraphQLTagMap');
 
 const invariant = require('invariant');
 
@@ -34,7 +35,7 @@ export type GraphQLTaggedNode = {
  * object equality checks to compare fragments (useful, for example, when
  * comparing two `Selector`s to see if they select the same data).
  */
-const legacyNodeMap = new WeakMap();
+const legacyNodeMap = new RelayGraphQLTagMap();
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.

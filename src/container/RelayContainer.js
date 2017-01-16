@@ -154,8 +154,8 @@ function createContainerComponent(
         queryData: {},
         rawVariables: {},
         relayProp: {
-          applyUpdate: this.context.relay.environment.applyUpdate,
-          commitUpdate: this.context.relay.environment.commitUpdate,
+          applyUpdate: this.applyUpdate.bind(this),
+          commitUpdate: this.commitUpdate.bind(this),
           forceFetch: this.forceFetch.bind(this),
           getPendingTransactions: this.getPendingTransactions.bind(this),
           hasFragmentData: this.hasFragmentData.bind(this),
@@ -179,6 +179,26 @@ function createContainerComponent(
       callback?: ?ComponentReadyStateChangeCallback
     ): void {
       this._runVariables(partialVariables, callback, false);
+    }
+
+    /**
+     * Requests a mutation to be applied to the current relay environment.
+     */
+    applyUpdate(
+      mutation: RelayMutation<any>,
+      callbacks?: RelayMutationTransactionCommitCallbacks
+    ): RelayMutationTransaction {
+      return this.context.relay.environment.applyUpdate(mutation, callbacks);
+    }
+
+    /**
+     * Requests a mutation to be committed to the current relay environment.
+     */
+    commitUpdate(
+      mutation: RelayMutation<any>,
+      callbacks?: RelayMutationTransactionCommitCallbacks
+    ): RelayMutationTransaction {
+      return this.context.relay.environment.commitUpdate(mutation, callbacks);
     }
 
     /**

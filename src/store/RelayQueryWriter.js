@@ -55,6 +55,8 @@ const {EXISTENT} = RelayRecordState;
  * Helper for writing the result of one or more queries/operations into the
  * store, updating tracked queries, and recording changed record IDs.
  */
+/* $FlowFixMe(>=0.38.0 site=react_native_fb) - Flow error detected during the
+ * deployment of v0.38.0. To see the error, remove this comment and run flow */
 class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   _changeTracker: RelayChangeTracker;
   _forceIndex: number;
@@ -554,7 +556,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // which would cause the generated ID here to not match the ID generated
       // in `_writeLink`.
       this.traverse(edges, {
-        // $FlowFixMe(>=0.33.0)
         nodeID,
         path,
         recordID: edgeID,
@@ -708,7 +709,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this.traverse(field, {
       nodeID: null,
       path,
-      // $FlowFixMe(>=0.33.0)
       recordID: nextLinkedID,
       responseData: fieldData,
     });

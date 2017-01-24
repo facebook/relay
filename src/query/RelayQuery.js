@@ -1491,23 +1491,6 @@ function createNode(
     type = RelayQueryField;
   } else if (kind === 'Fragment') {
     type = RelayQueryFragment;
-  } else if (kind === 'FragmentReference') {
-    // DEPRECATED in favor of ConcreteFragmentSpread
-    // TODO #14985090: delete ConcreteFragmentReference and callers
-    const fragment = QueryBuilder.getFragment(concreteNode.fragment);
-    if (fragment) {
-      return createMemoizedFragment(
-        fragment,
-        rootContext,
-        {},
-        {
-          isDeferred: false,
-          isContainerFragment: true,
-          isTypeConditional: false,
-        }
-      );
-    }
-    return null;
   } else if (kind === 'FragmentSpread') {
     const spread = nullthrows(QueryBuilder.getFragmentSpread(concreteNode));
     const rootVariables = rootContext.variables;

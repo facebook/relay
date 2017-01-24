@@ -30,7 +30,6 @@ import type {
   ConcreteFragment,
   ConcreteFragmentDefinition,
   ConcreteFragmentMetadata,
-  ConcreteFragmentReference,
   ConcreteFragmentSpread,
   ConcreteMutation,
   ConcreteOperationDefinition,
@@ -181,15 +180,6 @@ const QueryBuilder = {
     };
   },
 
-  createFragmentReference(
-    fragment: ConcreteFragment
-  ): ConcreteFragmentReference {
-    return {
-      kind: 'FragmentReference',
-      fragment,
-    };
-  },
-
   createMutation(partialMutation: {
     calls?: ?Array<ConcreteCall>,
     children?: ?Array<?ConcreteSelection>,
@@ -311,12 +301,6 @@ const QueryBuilder = {
 
   getFragmentDefinition(node: mixed): ?ConcreteFragmentDefinition {
     if (isConcreteKind(node, 'FragmentDefinition')) {
-      return (node: any);
-    }
-  },
-
-  getFragmentReference(node: mixed): ?ConcreteFragmentReference {
-    if (isConcreteKind(node, 'FragmentReference')) {
       return (node: any);
     }
   },

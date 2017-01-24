@@ -119,24 +119,6 @@ describe('RelayQL', () => {
     }).not.toThrow();
   });
 
-  it('permits fragment reference substitutions', () => {
-    const fragmentReference = QueryBuilder.createFragmentReference(
-      QueryBuilder.createFragment({
-        name: 'Foo',
-        type: 'Bar',
-      })
-    );
-    expect(() => {
-      Relay.QL`
-        query {
-          viewer {
-            ${fragmentReference}
-          }
-        }
-      `;
-    }).not.toThrow();
-  });
-
   it('permits an array of fragment substitutions', () => {
     const fragment = QueryBuilder.createFragment({
       name: 'Foo',

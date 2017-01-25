@@ -174,7 +174,7 @@ describe('RelayQueryPath', () => {
     expect(pathQuery.isAbstract()).toBe(true);
   });
 
-   it('creates roots with route from child', () => {
+  it('creates roots with route from child', () => {
     let query = getNode(Relay.QL`
       query {
         node(id:"123") {

@@ -14,6 +14,9 @@
     "update-fixtures": "babel-node ./src/tools/regenerateFixtures.js",
     "update-schema": "babel-node ./src/tools/generateSchemaJson.js"
   },
+  "engines" : {
+    "node" : "*"
+  },
   "files": [
     "LICENSE",
     "PATENTS",

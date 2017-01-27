@@ -13,6 +13,8 @@
 
 'use strict';
 
+// $FlowFixMe: Resolves to third-party module instead of core Node.js module.
+
 var util = require('util');
 
 function invariant(condition, format) {

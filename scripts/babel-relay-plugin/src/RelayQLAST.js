@@ -17,6 +17,8 @@ const RelayTransformError = require('./RelayTransformError');
 
 const find = require('./find');
 const invariant = require('./invariant');
+
+// $FlowFixMe: Resolves to third-party module instead of core Node.js module.
 const util = require('util');
 
 const {

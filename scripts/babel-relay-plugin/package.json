@@ -42,7 +42,7 @@
     "rimraf": "^2.5.2"
   },
   "dependencies": {
-    "graphql": "0.8.2"
+    "graphql": "0.9.1"
   },
   "jest": {
     "automock": true,

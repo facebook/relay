@@ -14,9 +14,6 @@
     "update-fixtures": "babel-node ./src/tools/regenerateFixtures.js",
     "update-schema": "babel-node ./src/tools/generateSchemaJson.js"
   },
-  "engines" : {
-    "node" : "*"
-  },
   "files": [
     "LICENSE",
     "PATENTS",
@@ -42,7 +39,7 @@
     "rimraf": "^2.5.2"
   },
   "dependencies": {
-    "graphql": "0.8.2"
+    "graphql": "0.9.1"
   },
   "jest": {
     "automock": true,

@@ -1,3 +1,4 @@
+// @generated
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -6,22 +7,14 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @flow
- * @fullSyntaxTransform
+ * 
  */
 
 'use strict';
 
-const util = require('./util');
+// Flow: https://github.com/facebook/relay/issues/1508
 
-function invariant(
-  condition: mixed,
-  format: string,
-  ...args: Array<mixed>
-): void {
-  if (!condition) {
-    throw new Error(util.format(format, ...args));
-  }
-}
+var resolved = require.resolve('util');
+var util = require(resolved);
 
-module.exports = invariant;
+module.exports = util;

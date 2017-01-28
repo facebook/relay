@@ -30,7 +30,7 @@ const {
 const RelayQLPrinter = require('./RelayQLPrinter');
 
 const invariant = require('./invariant');
-const util = require('util');
+const util = require('./util');
 
 import type {
   DocumentNode,

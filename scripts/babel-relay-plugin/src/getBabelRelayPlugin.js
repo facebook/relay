@@ -18,7 +18,7 @@ const RelayTransformError = require('./RelayTransformError');
 const babelAdapter = require('./babelAdapter');
 const computeLocation = require('./computeLocation');
 const invariant = require('./invariant');
-const util = require('util');
+const util = require('./util');
 
 const {
   utilities_buildClientSchema: {buildClientSchema},

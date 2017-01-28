@@ -30,9 +30,7 @@ const {
 const RelayQLPrinter = require('./RelayQLPrinter');
 
 const invariant = require('./invariant');
-
-// $FlowFixMe: Resolves to third-party module instead of core Node.js module.
-const util = require('util');
+const util = require('./util');
 
 import type {
   DocumentNode,

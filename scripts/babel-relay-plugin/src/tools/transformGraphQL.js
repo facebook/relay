@@ -13,9 +13,7 @@
 
 const babel = require('babel-core');
 const fs = require('fs');
-
-// $FlowFixMe: Resolves to third-party module instead of core Node.js module.
-const util = require('util');
+const util = require('./util');
 
 const getBabelRelayPlugin = require('../getBabelRelayPlugin');
 

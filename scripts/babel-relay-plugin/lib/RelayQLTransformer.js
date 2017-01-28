@@ -34,9 +34,7 @@ var RelayQLSubscription = _require.RelayQLSubscription;
 var RelayQLPrinter = require('./RelayQLPrinter');
 
 var invariant = require('./invariant');
-
-// $FlowFixMe: Resolves to third-party module instead of core Node.js module.
-var util = require('util');
+var util = require('./util');
 
 /**
  * Transforms a TemplateLiteral node into a RelayQLDefinition, which is then

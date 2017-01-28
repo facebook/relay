@@ -7,21 +7,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
- * @fullSyntaxTransform
  */
 
 'use strict';
 
-const util = require('./util');
+// Flow: https://github.com/facebook/relay/issues/1508
+const resolved = require.resolve('util');
+const util = require(resolved);
 
-function invariant(
-  condition: mixed,
-  format: string,
-  ...args: Array<mixed>
-): void {
-  if (!condition) {
-    throw new Error(util.format(format, ...args));
-  }
-}
-
-module.exports = invariant;
+module.exports = util;

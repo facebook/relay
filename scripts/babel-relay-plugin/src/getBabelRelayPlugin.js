@@ -18,9 +18,7 @@ const RelayTransformError = require('./RelayTransformError');
 const babelAdapter = require('./babelAdapter');
 const computeLocation = require('./computeLocation');
 const invariant = require('./invariant');
-
-// $FlowFixMe: Resolves to third-party module instead of core Node.js module.
-const util = require('util');
+const util = require('./util');
 
 const {
   utilities_buildClientSchema: {buildClientSchema},

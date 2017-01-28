@@ -21,9 +21,7 @@ var RelayTransformError = require('./RelayTransformError');
 var babelAdapter = require('./babelAdapter');
 var computeLocation = require('./computeLocation');
 var invariant = require('./invariant');
-
-// $FlowFixMe: Resolves to third-party module instead of core Node.js module.
-var util = require('util');
+var util = require('./util');
 
 var _require = require('./GraphQL');
 

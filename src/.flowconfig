@@ -32,4 +32,4 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(>=0\\.\\(3[0-6]\\|[1-2][0-9]\\|
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
 
 [version]
-^0.36.0
+^0.38.0

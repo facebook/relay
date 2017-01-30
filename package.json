@@ -52,7 +52,7 @@
     "eslint-plugin-react": "^5.2.2",
     "fbjs-scripts": "^0.7.1",
     "flow-bin": "^0.38.0",
-    "graphql": "0.6.0",
+    "graphql": "0.9.1",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-derequire": "^2.1.0",

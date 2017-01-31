@@ -1061,6 +1061,21 @@ describe('RelayContainer', function() {
     });
   });
 
+  it('skips `shouldComponentUpdate` with mock data', () => {
+    mockRoute.useMockData = true;
+    RelayTestRenderer.render(
+      () => <MockContainer foo={{mockFoo: 1}} />,
+      environment,
+      mockRoute,
+    );
+    RelayTestRenderer.render(
+      () => <MockContainer foo={{mockFoo: 2}} />,
+      environment,
+      mockRoute,
+    );
+    expect(MockContainer.mock.render.mock.calls.length).toBe(2);
+  });
+
   it('applies `shouldComponentUpdate` properly', () => {
     const mockDataSet = {
       '42': {__dataID__: '42', name: 'Tim'},

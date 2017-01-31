@@ -778,6 +778,10 @@ function createContainerComponent(
         return true;
       }
 
+      if (this.context.route.useMockData) {
+        return true;
+      }
+
       const fragmentPointers = this._fragmentPointers;
       return (
         !RelayContainerComparators.areNonQueryPropsEqual(

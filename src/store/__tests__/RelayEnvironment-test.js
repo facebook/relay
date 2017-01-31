@@ -196,7 +196,7 @@ describe('RelayEnvironment', () => {
   });
 
   describe('sendMutation()', () => {
-    let FeedbackQuery,FeedbackMutation;
+    let FeedbackQuery, FeedbackMutation;
     let disposable, onCompleted, onError, sendMutation, requests, result;
 
     beforeEach(() => {

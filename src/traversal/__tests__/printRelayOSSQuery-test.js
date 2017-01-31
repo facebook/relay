@@ -441,15 +441,17 @@ describe('printRelayOSSQuery', () => {
 
     it('creates distinct variables for values of different types', () => {
       // Relay allows the same variable at both locations, regardless of type:
-      const query = getNode(Relay.QL`
-        query DistinctVars {
-          node(id: "123") {
-            ... on User {
-              storySearch(query: $query) {id}
-              storyCommentSearch(query: $query) {id}
+      const query = getNode(
+        Relay.QL`
+          query DistinctVars {
+            node(id: "123") {
+              ... on User {
+                storySearch(query: $query) {id}
+                storyCommentSearch(query: $query) {id}
+              }
             }
           }
-        }`,
+        `,
         {
           query: {text: 'foo'},
         },

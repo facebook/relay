@@ -119,8 +119,9 @@ describe('RelaySelector', () => {
         );
       expect(() => getSelector(variables, UserFragment, [zuck]))
         .toFailInvariant(
-          'RelaySelector: Expected value for fragment `RelaySelector_user` to be an object, got ' +
-          '`[{"__dataID__":"4","__fragments__":{"0::client":[{"size":null,"cond":false}],"1::client":[{"size":null,"cond":false}]}}]`.'
+          'RelaySelector: Expected value for fragment `RelaySelector_user` to ' +
+          'be an object, got `[{"__dataID__":"4","__fragments__":{"0::client":' +
+          '[{"size":null,"cond":false}],"1::client":[{"size":null,"cond":false}]}}]`.'
         );
     });
 

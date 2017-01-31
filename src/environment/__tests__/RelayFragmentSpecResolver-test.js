@@ -532,7 +532,7 @@ describe('RelayFragmentSpecResolver', () => {
       );
       expect(resolver.resolve()).toEqual({
         user: [{
-            __dataID__: '4',
+          __dataID__: '4',
           id: '4',
           name: 'Zuck',
         }],
@@ -551,7 +551,7 @@ describe('RelayFragmentSpecResolver', () => {
       expect(callback).toBeCalled();
       expect(resolver.resolve()).toEqual({
         user: [{
-            __dataID__: '4',
+          __dataID__: '4',
           id: '4',
           name: 'Mark',
         }],
@@ -571,7 +571,7 @@ describe('RelayFragmentSpecResolver', () => {
       expect(callback).not.toBeCalled();
       expect(resolver.resolve()).toEqual({
         user: [{
-            __dataID__: '4',
+          __dataID__: '4',
           id: '4',
           name: 'Zuck', // does not reflect latest changes
         }],

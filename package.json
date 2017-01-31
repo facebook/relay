@@ -34,7 +34,7 @@
     "react-static-container": "^1.0.1"
   },
   "peerDependencies": {
-    "babel-relay-plugin": "0.10.0",
+    "babel-relay-plugin": "0.11.0",
     "react": "^15.0.0 || ^0.14.0"
   },
   "devDependencies": {

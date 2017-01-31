@@ -26,7 +26,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var RelayTransformError = require('./RelayTransformError');
 
 var find = require('./find');
-var invariant = require('./invariant');
 var util = require('./util');
 
 var _require = require('./RelayQLAST');

@@ -15,7 +15,6 @@
 const RelayTransformError = require('./RelayTransformError');
 
 const find = require('./find');
-const invariant = require('./invariant');
 const util = require('./util');
 
 const {

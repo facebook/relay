@@ -1,6 +1,6 @@
 {
   "name": "babel-relay-plugin",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Babel Relay Plugin for transpiling GraphQL queries for use with Relay.",
   "license": "BSD-3-Clause",
   "repository": "facebook/relay",
@@ -13,9 +13,6 @@
     "typecheck": "flow check src/",
     "update-fixtures": "babel-node ./src/tools/regenerateFixtures.js",
     "update-schema": "babel-node ./src/tools/generateSchemaJson.js"
-  },
-  "engines" : {
-    "node" : "*"
   },
   "files": [
     "LICENSE",

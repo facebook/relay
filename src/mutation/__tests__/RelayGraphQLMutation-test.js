@@ -764,5 +764,18 @@ describe('RelayGraphQLMutation', () => {
         );
       });
     });
+
+    it('passes files through', () => {
+      const files = {foo: 'bar'};
+      const mutation = new RelayGraphQLMutation(
+        feedbackLikeQuery,
+        feedbackLikeVariables,
+        files,
+        environment
+      );
+      mutation.commit();
+      const request = requests[0];
+      expect(request.getFiles()).toEqual(files);
+    });
   });
 });

@@ -3,6 +3,7 @@
 .*/**/*.native.js
 .*/node_modules/graphql/.*
 .*/react/node_modules/.*
+.*/react-dom/node_modules/.*
 .*/react-static-container/node_modules/.*
 
 [include]
@@ -10,6 +11,7 @@
 ../node_modules/fbjs/lib
 ../node_modules/invariant
 ../node_modules/react
+../node_modules/react-dom
 ../node_modules/react-static-container/lib
 
 [libs]
@@ -17,6 +19,7 @@
 
 [options]
 module.system=haste
+module.name_mapper='^ReactDOM$' -> 'react-dom'
 
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable

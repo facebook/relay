@@ -1,0 +1,94 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfilePic = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
+  passing: {
+    relay: function () {
+      const RelayQL_GENERATED = require('RelayQL_GENERATED'),
+            ProfilePic_user_args1 = ProfilePic.getFragment('user', {
+        size: 40,
+        scale: 1.5,
+        title: 'Photo'
+      }),
+            ProfilePic_user_args2 = ProfilePic.getFragment('user', {
+        size: {
+          kind: 'CallVariable',
+          callVariableName: 'pictureSize'
+        }
+      });
+
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [],
+        node: RelayQL_GENERATED`fragment CompatProfile_passing on User {
+  ...ProfilePic_user_args1
+  ...ProfilePic_user_args2
+}`
+      };
+    },
+    relayExperimental: function () {
+      return require('CompatProfile_passing.graphql');
+    }
+  },
+  receiving: {
+    relay: function () {
+      const RelayQL_GENERATED = require('RelayQL_GENERATED');
+
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [{
+          defaultValue: 5,
+          kind: 'LocalArgument',
+          name: 'first'
+        }, {
+          defaultValue: 'john',
+          kind: 'LocalArgument',
+          name: 'named'
+        }, {
+          defaultValue: 1.5,
+          kind: 'LocalArgument',
+          name: 'scale'
+        }],
+        node: RelayQL_GENERATED`fragment CompatProfile_receiving on User {
+  friends(first: $first, named: $named, scale: $scale) {
+    count
+  }
+}`
+      };
+    },
+    relayExperimental: function () {
+      return require('CompatProfile_receiving.graphql');
+    }
+  },
+  receivingGlobals: {
+    relay: function () {
+      const RelayQL_GENERATED = require('RelayQL_GENERATED');
+
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [{
+          kind: 'RootArgument',
+          name: 'friendsCount'
+        }],
+        node: RelayQL_GENERATED`fragment CompatProfile_receivingGlobals on User {
+  friends(first: $friendsCount) {
+    count
+  }
+}`
+      };
+    },
+    relayExperimental: function () {
+      return require('CompatProfile_receivingGlobals.graphql');
+    }
+  }
+});

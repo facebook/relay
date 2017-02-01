@@ -1,0 +1,28 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const Relay = require('Relay');
+
+const {graphql} = Relay;
+
+const CompatProfile = () => null;
+
+module.exports = Relay.createFragmentContainer(CompatProfile, {
+  viewer: graphql.experimental`
+    fragment CompatProfile_viewer on Viewer @argumentDefinitions(
+      browserContext: {type: "MarketplaceBrowseContext", defaultValue: BROWSE_FEED}
+      priceRange: {type: "[Float]", defaultValue: [0, 50]}
+    ) {
+      marketplace_explore(
+        marketplace_browse_context: $browserContext,
+        with_price_between: $priceRange,
+      ) {
+        count
+      }
+    }
+  `
+});

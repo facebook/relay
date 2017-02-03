@@ -1,3 +1,0 @@
-ERROR:
-
-Error: unknown: BabelPluginGraphQL: Expected exactly one fragment in the graphql tag referenced by the property user.

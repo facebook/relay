@@ -1,3 +1,0 @@
-ERROR:
-
-Error: unknown: BabelPluginGraphQL: Expected exactly one operation (query, mutation, or subscription) per graphql tag.

@@ -841,56 +841,56 @@ describe('RelayMutationQuery', () => {
           'to be a connection.'
         );
       });
-    });
 
-    it('throws when not explicit in fat query', () => {
-      fatQuery = fromGraphQL.Fragment(Relay.QL`
-        fragment on CommentCreateResponsePayload {
-          feedback
-        }
-      `);
-
-      // As long as we have it in a tracked query.
-      tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
-        fragment on Feedback {
-          doesViewerLike
-        }
-      `));
-      expect(() => {
-        RelayMutationQuery.buildFragmentForEdgeInsertion({
-          fatQuery,
-          tracker,
-          connectionName: 'doesViewerLike',
-          parentID: '123',
-          edgeName: 'feedbackCommentEdge',
-          parentName: 'feedback',
-          rangeBehaviors,
-        });
-      }).toFailInvariant(
-        'RelayMutationQuery: Expected field `doesViewerLike` on ' +
-        '`feedback` to be a connection.'
-      );
-
-      // Note that if the tracked query doesn't have the field then we can't
-      // validate.
-      tracker.getTrackedChildrenForID.mockReturnValue(
-        getNodeChildren(Relay.QL`
-          fragment on Feedback {
-            comments { count }
+      it('throws when not explicit in fat query', () => {
+        fatQuery = fromGraphQL.Fragment(Relay.QL`
+          fragment on CommentCreateResponsePayload {
+            feedback
           }
-        `)
-      );
-      expect(() => {
-        RelayMutationQuery.buildFragmentForEdgeInsertion({
-          fatQuery,
-          tracker,
-          connectionName: 'doesViewerLike',
-          parentID: '123',
-          edgeName: 'feedbackCommentEdge',
-          parentName: 'feedback',
-          rangeBehaviors,
-        });
-      }).not.toThrow();
+        `);
+
+        // As long as we have it in a tracked query.
+        tracker.getTrackedChildrenForID.mockReturnValue(getNodeChildren(Relay.QL`
+          fragment on Feedback {
+            doesViewerLike
+          }
+        `));
+        expect(() => {
+          RelayMutationQuery.buildFragmentForEdgeInsertion({
+            fatQuery,
+            tracker,
+            connectionName: 'doesViewerLike',
+            parentID: '123',
+            edgeName: 'feedbackCommentEdge',
+            parentName: 'feedback',
+            rangeBehaviors,
+          });
+        }).toFailInvariant(
+          'RelayMutationQuery: Expected field `doesViewerLike` on ' +
+          '`feedback` to be a connection.'
+        );
+
+        // Note that if the tracked query doesn't have the field then we can't
+        // validate.
+        tracker.getTrackedChildrenForID.mockReturnValue(
+          getNodeChildren(Relay.QL`
+            fragment on Feedback {
+              comments { count }
+            }
+          `)
+        );
+        expect(() => {
+          RelayMutationQuery.buildFragmentForEdgeInsertion({
+            fatQuery,
+            tracker,
+            connectionName: 'doesViewerLike',
+            parentID: '123',
+            edgeName: 'feedbackCommentEdge',
+            parentName: 'feedback',
+            rangeBehaviors,
+          });
+        }).not.toThrow();
+      });
     });
   });
 

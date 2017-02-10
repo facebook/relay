@@ -22,6 +22,7 @@ const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const {graphql} = require('RelayGraphQLTag');
 
 describe('RelayFragmentSpecResolver', () => {
+  let fragments;
   let UserFragment;
   let UserQuery;
   let UsersFragment;
@@ -109,7 +110,7 @@ describe('RelayFragmentSpecResolver', () => {
     mockInstanceMethod(environment, 'lookup');
     mockDisposableMethod(environment, 'subscribe');
 
-    const fragments = {
+    fragments = {
       user: graphql`
         fragment RelayFragmentSpecResolver_user on User {
           id

@@ -28,6 +28,7 @@ const {
 } = require('RelaySelector');
 
 describe('RelaySelector', () => {
+  let fragments;
   let UserFragment;
   let UserQuery;
   let UsersFragment;
@@ -40,7 +41,7 @@ describe('RelaySelector', () => {
 
     environment = new RelayEnvironment();
 
-    const fragments = {
+    fragments = {
       user: graphql`
         fragment RelaySelector_user on User {
           id

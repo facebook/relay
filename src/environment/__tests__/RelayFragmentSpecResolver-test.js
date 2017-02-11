@@ -19,10 +19,9 @@ const RelayFragmentSpecResolver = require('RelayFragmentSpecResolver');
 const {ROOT_ID} = require('RelayStoreConstants');
 const RelayTestUtils = require('RelayTestUtils');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const {graphql} = require('RelayGraphQLTag');
+const {graphql, getLegacyFragment, getLegacyOperation} = require('RelayGraphQLTag');
 
 describe('RelayFragmentSpecResolver', () => {
-  let fragments;
   let UserFragment;
   let UserQuery;
   let UsersFragment;
@@ -110,8 +109,8 @@ describe('RelayFragmentSpecResolver', () => {
     mockInstanceMethod(environment, 'lookup');
     mockDisposableMethod(environment, 'subscribe');
 
-    fragments = {
-      user: graphql`
+    const fragments = {
+      user: getLegacyFragment(graphql`
         fragment RelayFragmentSpecResolver_user on User {
           id
           name
@@ -119,8 +118,8 @@ describe('RelayFragmentSpecResolver', () => {
             uri
           }
         }
-      `.relay(),
-      users: graphql`
+      `),
+      users: getLegacyFragment(graphql`
         fragment RelayFragmentSpecResolver_users on User @relay(plural: true) {
           id
           name
@@ -128,7 +127,7 @@ describe('RelayFragmentSpecResolver', () => {
             uri
           }
         }
-      `.relay(),
+      `),
     };
     // Fake a container: The `...Container_*` fragment spreads below are
     // transformed to `Container.getFragment('*')` calls.
@@ -143,14 +142,14 @@ describe('RelayFragmentSpecResolver', () => {
         };
       },
     };
-    UserQuery = graphql`
+    UserQuery = getLegacyOperation(graphql`
       query RelayFragmentSpecResolverQuery($id: ID!, $size: Int, $fetchSize: Boolean!) {
         node(id: $id) {
           ...Container_user
           ...Container_users
         }
       }
-    `.relay();
+    `);
     UserFragment = fragments.user;
     UsersFragment = fragments.users;
 

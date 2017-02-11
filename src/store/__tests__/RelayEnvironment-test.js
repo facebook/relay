@@ -24,7 +24,7 @@ const RelayTestUtils = require('RelayTestUtils');
 const createRelayQuery = require('createRelayQuery');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const mapObject = require('mapObject');
-const {graphql} = require('RelayGraphQLTag');
+const {graphql, getLegacyOperation} = require('RelayGraphQLTag');
 
 describe('RelayEnvironment', () => {
   let UserQuery;
@@ -43,7 +43,7 @@ describe('RelayEnvironment', () => {
 
     environment = new RelayEnvironment();
 
-    UserQuery = graphql`
+    UserQuery = getLegacyOperation(graphql`
       query RelayEnvironmentUserQuery($id: ID!, $size: Int) {
         user: node(id: $id) {
           id
@@ -53,7 +53,7 @@ describe('RelayEnvironment', () => {
           }
         }
       }
-    `.relay();
+    `);
 
     nodeAlias = generateRQLFieldAlias('node.user.id(4)');
     photoAlias = generateRQLFieldAlias('profilePicture.size(1)');
@@ -81,7 +81,7 @@ describe('RelayEnvironment', () => {
     let FeedbackQuery, FeedbackMutation;
 
     beforeEach(() => {
-      FeedbackQuery = graphql`
+      FeedbackQuery = getLegacyOperation(graphql`
         query RelayEnvironmentFeedbackQuery($id: ID!) {
           feedback: node(id: $id) {
             id
@@ -90,7 +90,7 @@ describe('RelayEnvironment', () => {
             }
           }
         }
-      `.relay();
+      `);
 
       nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
       environment.commitPayload(
@@ -108,7 +108,7 @@ describe('RelayEnvironment', () => {
         },
       );
 
-      FeedbackMutation = graphql`
+      FeedbackMutation = getLegacyOperation(graphql`
         mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
           feedbackLike {
             clientMutationId
@@ -118,7 +118,7 @@ describe('RelayEnvironment', () => {
             }
           }
         }
-      `.relay();
+      `);
       jest.runAllTimers();
     });
     it('applies and disposes the optimistic response', () => {
@@ -207,7 +207,7 @@ describe('RelayEnvironment', () => {
       });
       environment.injectNetworkLayer({sendMutation});
 
-      FeedbackQuery = graphql`
+      FeedbackQuery = getLegacyOperation(graphql`
         query RelayEnvironmentFeedbackQuery($id: ID!) {
           feedback: node(id: $id) {
             id
@@ -216,7 +216,7 @@ describe('RelayEnvironment', () => {
             }
           }
         }
-      `.relay();
+      `);
 
       nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
       environment.commitPayload(
@@ -234,7 +234,7 @@ describe('RelayEnvironment', () => {
         },
       );
 
-      FeedbackMutation = graphql`
+      FeedbackMutation = getLegacyOperation(graphql`
         mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
           feedbackLike {
             clientMutationId
@@ -244,7 +244,7 @@ describe('RelayEnvironment', () => {
             }
           }
         }
-      `.relay();
+      `);
       jest.runAllTimers();
 
       onCompleted = jest.fn();
@@ -523,7 +523,7 @@ describe('RelayEnvironment', () => {
       });
 
       it('supports multiple root fields', () => {
-        UserQuery = graphql`
+        UserQuery = getLegacyOperation(graphql`
           query RelayEnvironmentUserQuery {
             viewer {
               actor {
@@ -534,7 +534,7 @@ describe('RelayEnvironment', () => {
               name
             }
           }
-        `.relay();
+        `);
         operation = RelayOperationSelector.createOperationSelector(
           UserQuery,
           {},
@@ -597,7 +597,7 @@ describe('RelayEnvironment', () => {
       });
 
       it('ignores empty fields', () => {
-        UserQuery = graphql`
+        UserQuery = getLegacyOperation(graphql`
           query RelayEnvironmentUserQuery {
             viewer {
               actor @include(if: false) {
@@ -605,7 +605,7 @@ describe('RelayEnvironment', () => {
               }
             }
           }
-        `.relay();
+        `);
         operation = RelayOperationSelector.createOperationSelector(
           UserQuery,
           {},
@@ -647,7 +647,7 @@ describe('RelayEnvironment', () => {
       });
 
       it('writes id-less root fields (e.g. viewer)', () => {
-        UserQuery = graphql`
+        UserQuery = getLegacyOperation(graphql`
           query RelayEnvironmentUserQuery {
             viewer {
               actor {
@@ -656,7 +656,7 @@ describe('RelayEnvironment', () => {
               }
             }
           }
-        `.relay();
+        `);
         operation = RelayOperationSelector.createOperationSelector(
           UserQuery,
           {},
@@ -714,7 +714,7 @@ describe('RelayEnvironment', () => {
 
       it('force-fetches data', () => {
         // Populate initial data for the query
-        const FriendsQuery = graphql`
+        const FriendsQuery = getLegacyOperation(graphql`
           query RelayEnvironmentFriendsQuery($id: ID!) {
             user: node(id: $id) {
               id
@@ -727,7 +727,7 @@ describe('RelayEnvironment', () => {
               }
             }
           }
-        `.relay();
+        `);
 
         nodeAlias = generateRQLFieldAlias('node.user.id(4)');
         const friendsAlias = generateRQLFieldAlias('friends.first(1)');

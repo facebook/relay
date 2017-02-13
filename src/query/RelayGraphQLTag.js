@@ -13,7 +13,6 @@
 'use strict';
 
 const QueryBuilder = require('QueryBuilder');
-const RelayGraphQLTagMap = require('RelayGraphQLTagMap');
 
 const invariant = require('invariant');
 
@@ -28,14 +27,6 @@ export type GraphQLTaggedNode = {
   // TODO: type this once the new core is in OSS
   relayExperimental: () => any,
 };
-
-/**
- * A map used to memoize the results of executing the `.relay()` functions on
- * graphql`...` tagged expressions. Memoization allows the framework to use
- * object equality checks to compare fragments (useful, for example, when
- * comparing two `Selector`s to see if they select the same data).
- */
-const legacyNodeMap = new RelayGraphQLTagMap();
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.
@@ -62,14 +53,33 @@ graphql.experimental = function(): GraphQLTaggedNode {
   );
 };
 
+const LEGACY_NODE = '__legacy_node__';
+
+/**
+ * Memoizes the results of executing the `.relay()` functions on
+ * graphql`...` tagged expressions. Memoization allows the framework to use
+ * object equality checks to compare fragments (useful, for example, when
+ * comparing two `Selector`s to see if they select the same data).
+ */
+function getLegacyNode(taggedNode) {
+  let concreteNode = (taggedNode: any)[LEGACY_NODE];
+  if (concreteNode == null) {
+    const fn = taggedNode.relay;
+    invariant(
+      typeof fn === 'function',
+      'RelayGraphQLTag: Expected a graphql literal, got `%s`.',
+      JSON.stringify(taggedNode),
+    );
+    concreteNode = fn();
+    (taggedNode: any)[LEGACY_NODE] = concreteNode;
+  }
+  return concreteNode;
+}
+
 function getLegacyFragment(
   taggedNode: GraphQLTaggedNode,
 ): ConcreteFragmentDefinition {
-  let concreteNode = legacyNodeMap.get(taggedNode);
-  if (concreteNode == null) {
-    concreteNode = taggedNode.relay();
-    legacyNodeMap.set(taggedNode, concreteNode);
-  }
+  const concreteNode = getLegacyNode(taggedNode);
   const fragment = QueryBuilder.getFragmentDefinition(concreteNode);
   invariant(
     fragment,
@@ -82,12 +92,7 @@ function getLegacyFragment(
 function getLegacyOperation(
   taggedNode: GraphQLTaggedNode,
 ): ConcreteOperationDefinition {
-  let concreteNode = legacyNodeMap.get(taggedNode);
-  if (concreteNode == null) {
-    // TODO: unify tag output
-    concreteNode = taggedNode.relay();
-    legacyNodeMap.set(taggedNode, concreteNode);
-  }
+  const concreteNode = getLegacyNode(taggedNode);
   const operation = QueryBuilder.getOperationDefinition(concreteNode);
   invariant(
     operation,

@@ -29,7 +29,7 @@ type RootContainerProps = {
   forceFetch?: ?boolean,
   shouldFetch?: ?boolean,
   onReadyStateChange?: ?(readyState: ReadyState) => void,
-  /* $FlowFixMe(site=react_native_fb,www) - should renderFailure be allowed to
+  /* $FlowFixMe(site=react_native_fb) - should renderFailure be allowed to
    * return null/undefined? */
   renderFailure?: ?(error: Error, retry: ?() => void) => React.Element<*>,
   renderFetched?: ?(

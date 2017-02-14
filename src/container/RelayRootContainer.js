@@ -36,7 +36,7 @@ type RootContainerProps = {
     data: Object,
     fetchState: ComponentFetchState
   ) => ?React.Element<*>,
-  /* $FlowFixMe(site=react_native_fb) - should renderLoading be allowed to
+  /* $FlowFixMe(site=react_native_fb,www) - should renderLoading be allowed to
    * return null/undefined? */
   renderLoading?: ?() => React.Element<*>,
   route: RelayQueryConfigInterface,

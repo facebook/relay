@@ -351,7 +351,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
 
     this._setDataValue(
       state,
-      PAGE_INFO,
+      node.getApplicationName(),
       nextData
     );
   }

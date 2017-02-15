@@ -155,14 +155,11 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
         if (serverItem == null) {
           serverData[index] = serverItem = {};
         }
+        /* $FlowFixMe(>=0.38.0 site=www,mobile,react_native_fb) - Flow error
+         * detected during the deployment of v0.38.0. To see the error, remove
+         * this comment and run flow */
         this.traverse(node, {
-          /* $FlowFixMe(>=0.36.0) Flow error detected
-           * during the deploy of Flow v0.36.0. To see the error, remove this
-           * comment and run Flow */
           client: clientItem,
-          /* $FlowFixMe(>=0.36.0) Flow error detected
-           * during the deploy of Flow v0.36.0. To see the error, remove this
-           * comment and run Flow */
           server: serverItem,
         });
       });

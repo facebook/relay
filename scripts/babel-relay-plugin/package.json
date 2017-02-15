@@ -1,6 +1,6 @@
 {
   "name": "babel-relay-plugin",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Babel Relay Plugin for transpiling GraphQL queries for use with Relay.",
   "license": "BSD-3-Clause",
   "repository": "facebook/relay",
@@ -31,7 +31,7 @@
     "babel-plugin-transform-flow-strip-types": "^6.8.0",
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
     "babel-preset-es2015": "^6.9.0",
-    "flow-bin": "^0.36.0",
+    "flow-bin": "^0.39.0",
     "glob": "^7.0.3",
     "jest-cli": "^15.1.1",
     "minimist": "^1.2.0",
@@ -39,7 +39,7 @@
     "rimraf": "^2.5.2"
   },
   "dependencies": {
-    "graphql": "0.8.2"
+    "graphql": "0.9.1"
   },
   "jest": {
     "automock": true,

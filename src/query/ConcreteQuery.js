@@ -100,16 +100,6 @@ export type ConcreteFragmentMetadata = {
   pattern?: boolean,
   plural?: boolean,
 };
-// DEPRECATED in favor of ConcreteFragmentSpread
-// This was used as a way to serialize the results of a
-// `Container.getFragment()` call to a JSON structure but
-// is no longer used.
-//
-// TODO #14985090: delete ConcreteFragmentReference and callers
-export type ConcreteFragmentReference = {
-  kind: 'FragmentReference',
-  fragment: ConcreteFragment,
-};
 export type ConcreteMutation = {
   calls: Array<ConcreteCall>,
   children?: ?Array<?ConcreteSelection>,
@@ -154,7 +144,6 @@ export type ConcreteQueryMetadata = {
 export type ConcreteSelection =
   ConcreteField |
   ConcreteFragment |
-  ConcreteFragmentReference |
   ConcreteFragmentSpread;
 export type ConcreteSubscription = {
   calls: Array<ConcreteCall>,

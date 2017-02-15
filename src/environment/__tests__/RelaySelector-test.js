@@ -14,7 +14,7 @@ jest
   .autoMockOff();
 
 const {ROOT_ID} = require('RelayStoreConstants');
-const {graphql} = require('RelayGraphQLTag');
+const {graphql, getLegacyFragment, getLegacyOperation} = require('RelayGraphQLTag');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
@@ -41,7 +41,7 @@ describe('RelaySelector', () => {
     environment = new RelayEnvironment();
 
     const fragments = {
-      user: graphql`
+      user: getLegacyFragment(graphql`
         fragment RelaySelector_user on User {
           id
           name
@@ -49,8 +49,8 @@ describe('RelaySelector', () => {
             uri
           }
         }
-      `.relay(),
-      users: graphql`
+      `),
+      users: getLegacyFragment(graphql`
         fragment RelaySelector_users on User @relay(plural: true) {
           id
           name
@@ -58,7 +58,7 @@ describe('RelaySelector', () => {
             uri
           }
         }
-      `.relay(),
+      `),
     };
     // Fake a container: The `...Container_*` fragment spreads below are
     // transformed to `Container.getFragment('*')` calls.
@@ -73,14 +73,14 @@ describe('RelaySelector', () => {
         };
       },
     };
-    UserQuery = graphql`
+    UserQuery = getLegacyOperation(graphql`
       query RelaySelectorQuery($id: ID!, $size: Int, $cond: Boolean!) {
         node(id: $id) {
           ...Container_user
           ...Container_users
         }
       }
-    `.relay();
+    `);
     UserFragment = fragments.user;
     UsersFragment = fragments.users;
 
@@ -119,8 +119,9 @@ describe('RelaySelector', () => {
         );
       expect(() => getSelector(variables, UserFragment, [zuck]))
         .toFailInvariant(
-          'RelaySelector: Expected value for fragment `RelaySelector_user` to be an object, got ' +
-          '`[{"__dataID__":"4","__fragments__":{"0::client":[{"size":null,"cond":false}],"1::client":[{"size":null,"cond":false}]}}]`.'
+          'RelaySelector: Expected value for fragment `RelaySelector_user` to ' +
+          'be an object, got `[{"__dataID__":"4","__fragments__":{"0::client":' +
+          '[{"size":null,"cond":false}],"1::client":[{"size":null,"cond":false}]}}]`.'
         );
     });
 

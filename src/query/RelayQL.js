@@ -51,7 +51,6 @@ function assertValidFragment(substitution: any): void {
   invariant(
     substitution instanceof RelayFragmentReference ||
     QueryBuilder.getFragment(substitution) ||
-    QueryBuilder.getFragmentReference(substitution) ||
     QueryBuilder.getFragmentSpread(substitution),
     'RelayQL: Invalid fragment composition, use ' +
     '`${Child.getFragment(\'name\')}`.'

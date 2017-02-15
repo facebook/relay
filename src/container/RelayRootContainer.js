@@ -29,16 +29,14 @@ type RootContainerProps = {
   forceFetch?: ?boolean,
   shouldFetch?: ?boolean,
   onReadyStateChange?: ?(readyState: ReadyState) => void,
-  /* $FlowFixMe(site=react_native_fb,www) - should renderFailure be allowed to
+  /* $FlowFixMe(site=react_native_fb) - should renderFailure be allowed to
    * return null/undefined? */
-  renderFailure?: ?(error: Error, retry: ?() => void) => React.Element<*>,
+  renderFailure?: ?(error: Error, retry: ?() => void) => ?React.Element<any>,
   renderFetched?: ?(
     data: Object,
     fetchState: ComponentFetchState
-  ) => ?React.Element<*>,
-  /* $FlowFixMe(site=react_native_fb,www) - should renderLoading be allowed to
-   * return null/undefined? */
-  renderLoading?: ?() => React.Element<*>,
+  ) => ?React.Element<any>,
+  renderLoading?: ?() => ?React.Element<any>,
   route: RelayQueryConfigInterface,
 };
 
@@ -109,7 +107,7 @@ function RelayRootContainer({
   renderLoading,
   route,
   shouldFetch,
-}: RootContainerProps): React.Element<*> {
+}: RootContainerProps): ?React.Element<any> {
   return (
     <RelayRenderer
       Container={Component}

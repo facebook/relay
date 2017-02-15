@@ -19,7 +19,7 @@ const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const {graphql} = require('RelayGraphQLTag');
+const {graphql, getLegacyOperation} = require('RelayGraphQLTag');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const printRelayOSSQuery = require('printRelayOSSQuery');
 
@@ -33,7 +33,7 @@ describe('printRelayOSSQuery', () => {
 
   describe('OSS queries', () => {
     it('prints a query with multiple root fields', () => {
-      const query = getNode(graphql`
+      const query = getNode(getLegacyOperation(graphql`
         query printRelayOSSQuery(
           $taskNumber: Int,
           $id: ID!,
@@ -47,7 +47,7 @@ describe('printRelayOSSQuery', () => {
             title
           }
         }
-      `.relay(), {
+      `), {
         id: '842472',
         taskNumber: 2,
       });
@@ -76,7 +76,7 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints "empty" queries', () => {
-      const query = getNode(graphql`
+      const query = getNode(getLegacyOperation(graphql`
         query printRelayOSSQuery($cond: Boolean!) {
           viewer {
             actor @include(if: $cond) {
@@ -84,7 +84,7 @@ describe('printRelayOSSQuery', () => {
             }
           }
         }
-      `.relay(), {
+      `), {
         cond: false,
       });
       const {text, variables} = printRelayOSSQuery(query);
@@ -97,7 +97,7 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('skips "empty" fields', () => {
-      const query = getNode(graphql`
+      const query = getNode(getLegacyOperation(graphql`
         query printRelayOSSQuery($cond: Boolean!, $id: ID!) {
           node(id: $id) {
             ... on User {
@@ -112,7 +112,7 @@ describe('printRelayOSSQuery', () => {
             }
           }
         }
-      `.relay(), {
+      `), {
         cond: false,
         id: '842472',
       });
@@ -441,15 +441,17 @@ describe('printRelayOSSQuery', () => {
 
     it('creates distinct variables for values of different types', () => {
       // Relay allows the same variable at both locations, regardless of type:
-      const query = getNode(Relay.QL`
-        query DistinctVars {
-          node(id: "123") {
-            ... on User {
-              storySearch(query: $query) {id}
-              storyCommentSearch(query: $query) {id}
+      const query = getNode(
+        Relay.QL`
+          query DistinctVars {
+            node(id: "123") {
+              ... on User {
+                storySearch(query: $query) {id}
+                storyCommentSearch(query: $query) {id}
+              }
             }
           }
-        }`,
+        `,
         {
           query: {text: 'foo'},
         },

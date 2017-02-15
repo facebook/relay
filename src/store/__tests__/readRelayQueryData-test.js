@@ -645,6 +645,56 @@ describe('readRelayQueryData', () => {
     });
   });
 
+  it('retrieves PAGE_INFO with alias', () => {
+    const query = getNode(Relay.QL`
+      fragment on Feedback {
+        topLevelComments(first:"1") {
+          count
+          page_info: pageInfo {
+            hasNextPage
+          }
+        }
+      }`
+    );
+
+    const records = {
+      feedbackID: {
+        __dataID__: 'feedbackID',
+        topLevelComments: {
+          __dataID__: 'commentsID',
+        },
+      },
+      commentsID: {
+        __dataID__: 'commentsID',
+        __range__: new GraphQLRange(),
+        count: 57,
+      },
+    };
+
+    GraphQLRange.prototype.retrieveRangeInfoForQuery.mockReturnValue({
+      requestedEdgeIDs: ['comment_edge_id'],
+      diffCalls: [],
+      pageInfo: {
+        [START_CURSOR]: 'cursor',
+        [END_CURSOR]: 'cursor',
+        [HAS_NEXT_PAGE]: true,
+        [HAS_PREV_PAGE]: false,
+      },
+    });
+
+    const data = readData(getStoreData({records}), query, 'feedbackID');
+    expect(data).toEqual({
+      __dataID__: 'feedbackID',
+      topLevelComments: {
+        __dataID__: 'commentsID_first(1)',
+        count: 57,
+        page_info: {
+          [HAS_NEXT_PAGE]: true,
+        },
+      },
+    });
+  });
+
   it('retrieves a mixture of "range" and non-"range" connection fields', () => {
     const query = getNode(Relay.QL`
       fragment on Feedback {

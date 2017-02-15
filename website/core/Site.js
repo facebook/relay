@@ -51,7 +51,7 @@ const Site = React.createClass({
             {this.props.children}
 
             <footer className="wrap">
-              <div className="right">©2016 Facebook Inc.</div>
+              <div className="right">©2017 Facebook Inc.</div>
             </footer>
           </div>
 

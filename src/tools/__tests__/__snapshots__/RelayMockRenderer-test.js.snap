@@ -1,3 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`RelayMockRenderer renders a container with mock data 1`] = `
 <h1>
   Zuck

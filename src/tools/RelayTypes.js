@@ -63,7 +63,7 @@ export type CacheManager = {
     id: DataID,
     callback: (error: any, value: any) => void
   ): void,
-   readRootCall(
+  readRootCall(
     callName: string,
     callValue: string,
     callback: (error: any, value: any) => void

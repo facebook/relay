@@ -123,7 +123,7 @@ export type LegacyRelayContext = {
  * one `RelayEnvironment` instance per user: client apps may share a single
  * instance, server apps may create one instance per HTTP request.
  */
-class RelayEnvironment {
+class RelayEnvironment implements Environment {
   unstable_internal: RelayCore;
 
   applyMutation({

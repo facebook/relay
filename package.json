@@ -59,7 +59,7 @@
     "gulp-flatten": "^0.3.0",
     "gulp-header": "1.8.7",
     "gulp-util": "^3.0.7",
-    "jest": "^17.0.3",
+    "jest": "^19.0.2",
     "object-assign": "^4.1.0",
     "react": "^15.1.0",
     "react-addons-test-utils": "^15.0.0",
@@ -76,10 +76,10 @@
   "jest": {
     "rootDir": "",
     "setupFiles": [
-      "node_modules/fbjs-scripts/jest/environment.js"
+      "<rootDir>/node_modules/fbjs-scripts/jest/environment.js"
     ],
     "transform": {
-      ".*": "scripts/jest/preprocessor.js"
+      ".*": "<rootDir>/scripts/jest/preprocessor.js"
     },
     "transformIgnorePatterns": [
       "<rootDir>/node_modules/"
@@ -90,7 +90,7 @@
       "<rootDir>/src/(.*).native.js",
       "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"
     ],
-    "testPathDirs": [
+    "roots": [
       "<rootDir>/node_modules/fbjs/lib/",
       "<rootDir>/node_modules/fbjs-scripts/jest",
       "<rootDir>/node_modules/react/lib/",

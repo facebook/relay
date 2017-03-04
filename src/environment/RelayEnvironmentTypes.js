@@ -87,26 +87,26 @@ export interface Environment {
    * later time.
    */
   applyMutation(config: {|
-     configs: Array<RelayMutationConfig>,
-     operation: ConcreteOperationDefinition,
-     optimisticResponse: Object,
-     variables: Variables,
-   |}): Disposable,
+    configs: Array<RelayMutationConfig>,
+    operation: ConcreteOperationDefinition,
+    optimisticResponse: Object,
+    variables: Variables,
+  |}): Disposable,
 
-   /**
-    * Applies an optimistic mutation if provided and commits the mutation to the
-    * server. The returned Disposable can be used to bypass the `onCompleted`
-    * and `onError` callbacks when the server response is returned.
-    */
-   sendMutation(config: {|
-      configs: Array<RelayMutationConfig>,
-      onCompleted?: ?(response: {[key: string]: Object}) => void,
-      onError?: ?(error: Error) => void,
-      operation: ConcreteOperationDefinition,
-      optimisticOperation?: ?ConcreteOperationDefinition,
-      optimisticResponse?: ?Object,
-      variables: Variables,
-    |}): Disposable,
+  /**
+   * Applies an optimistic mutation if provided and commits the mutation to the
+   * server. The returned Disposable can be used to bypass the `onCompleted`
+   * and `onError` callbacks when the server response is returned.
+   */
+  sendMutation(config: {|
+    configs: Array<RelayMutationConfig>,
+    onCompleted?: ?(response: {[key: string]: Object}) => void,
+    onError?: ?(error: Error) => void,
+    operation: ConcreteOperationDefinition,
+    optimisticOperation?: ?ConcreteOperationDefinition,
+    optimisticResponse?: ?Object,
+    variables: Variables,
+  |}): Disposable,
 
   /**
    * Read the results of a selector from in-memory records in the store.

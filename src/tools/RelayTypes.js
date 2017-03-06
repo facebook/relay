@@ -15,6 +15,7 @@
 /**
  * Types that Relay framework users may find useful.
  */
+import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 import type RelayFragmentReference from 'RelayFragmentReference';
 import type {
   DataID,
@@ -192,6 +193,7 @@ export type RelayProp = {
     mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks
   ) => RelayMutationTransaction,
+  environment: RelayEnvironmentInterface,
   forceFetch: (
     partialVariables?: ?Variables,
     callback?: ?ComponentReadyStateChangeCallback

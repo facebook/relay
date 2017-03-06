@@ -561,6 +561,18 @@ describe('RelayContainer', function() {
     });
   });
 
+  describe('props.relay.environment', () => {
+    it('exposes the environment', () => {
+      RelayTestRenderer.render(
+        () => <MockContainer />,
+        environment,
+        mockRoute
+      );
+      const props = render.mock.calls[0].props;
+      expect(props.relay.environment).toBe(environment);
+    });
+  });
+
   it('creates resolvers for each query prop with a fragment pointer', () => {
     RelayTestRenderer.render(
       () => <MockContainer foo={mockFooPointer} />,

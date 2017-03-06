@@ -159,6 +159,7 @@ function createContainerComponent(
         relayProp: {
           applyUpdate: this.context.relay.environment.applyUpdate,
           commitUpdate: this.context.relay.environment.commitUpdate,
+          environment: this.context.relay.environment,
           forceFetch: this.forceFetch.bind(this),
           getPendingTransactions: this.getPendingTransactions.bind(this),
           hasFragmentData: this.hasFragmentData.bind(this),

@@ -20,16 +20,16 @@ const {areEqualSelectors, getSelectorsFromObject} = require('RelaySelector');
 
 import type {
   Disposable,
-  FragmentSpecResults,
   FragmentSpecResolver,
+  FragmentSpecResults,
   Props,
+  SelectorData,
 } from 'RelayCombinedEnvironmentTypes';
 import type {
   Environment,
   FragmentMap,
   RelayContext,
   Selector,
-  SelectorData,
   Snapshot,
 } from 'RelayEnvironmentTypes';
 import type {Variables} from 'RelayTypes';

@@ -24,6 +24,7 @@ import type {
   Disposable,
   FragmentSpecResolver,
   Props,
+  SelectorData,
 } from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayGraphQLTag';
 import type {DataID} from 'RelayInternalTypes';
@@ -42,11 +43,6 @@ export type Snapshot = Selector & {
   data: ?SelectorData,
   seenRecords: {[key: DataID]: mixed},
 };
-
-/**
- * The results of executing a selector against the store.
- */
-export type SelectorData = {[key: string]: mixed};
 
 /**
  * An operation selector describes a specific instance of a GraphQL operation

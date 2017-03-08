@@ -52,6 +52,11 @@ export type CSelector<TNode> = {
 };
 
 /**
+ * The results of a selector given a store/RecordSource.
+ */
+export type SelectorData = {[key: string]: mixed};
+
+/**
  * The results of reading the results of a FragmentMap given some input
  * `Props`.
  */

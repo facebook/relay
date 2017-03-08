@@ -57,26 +57,26 @@ export type FragmentSpecResults = {[key: string]: mixed};
  * - Creates resolvers for any props that became non-null.
  * - Updates resolvers with the latest props.
  */
-export type FragmentSpecResolver = {
+export interface FragmentSpecResolver {
   /**
    * Stop watching for changes to the results of the fragments.
    */
-  +dispose: () => void,
+  dispose(): void,
 
   /**
    * Get the current results.
    */
-  +resolve: () => FragmentSpecResults,
+  resolve(): FragmentSpecResults,
 
   /**
    * Update the resolver with new inputs. Call `resolve()` to get the updated
    * results.
    */
-  +setProps: (props: Props) => void,
+  setProps(props: Props): void,
 
   /**
    * Override the variables used to read the results of the fragments. Call
    * `resolve()` to get the updated results.
    */
-  +setVariables: (variables: Variables) => void,
+  setVariables(variables: Variables): void,
 }

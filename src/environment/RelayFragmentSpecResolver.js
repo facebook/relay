@@ -21,6 +21,7 @@ const {areEqualSelectors, getSelectorsFromObject} = require('RelaySelector');
 import type {
   Disposable,
   FragmentSpecResults,
+  FragmentSpecResolver,
   Props,
 } from 'RelayCombinedEnvironmentTypes';
 import type {
@@ -47,7 +48,7 @@ type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
  * the resolver as stale and notify the caller, and the actual results are
  * recomputed the first time `resolve()` is called.
  */
-class RelayFragmentSpecResolver {
+class RelayFragmentSpecResolver implements FragmentSpecResolver {
   _callback: () => void;
   _context: RelayContext;
   _data: Object;

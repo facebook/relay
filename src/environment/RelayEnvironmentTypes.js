@@ -17,25 +17,14 @@ import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from 'ConcreteQuery';
+import type {
+  CacheConfig,
+  Disposable,
+  FragmentSpecResults,
+} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayGraphQLTag';
 import type {DataID} from 'RelayInternalTypes';
 import type {Variables, RelayMutationConfig} from 'RelayTypes';
-
-/**
- * Settings for how a query response may be cached.
- */
-export type CacheConfig = {
-  force: boolean,
-};
-
-/**
- * Represents any resource that must be explicitly disposed of. The most common
- * use-case is as a return value for subscriptions, where calling `dispose()`
- * would cancel the subscription.
- */
-export type Disposable = {
-  dispose(): void,
-};
 
 /**
  * A selector defines the starting point for a traversal into the graph for the
@@ -354,9 +343,3 @@ export type FragmentMap = {[key: string]: ConcreteFragmentDefinition};
  * Arbitrary data e.g. received by a container as props.
  */
 export type Props = {[key: string]: mixed};
-
-/**
- * The results of reading the results of a FragmentMap given some input
- * `Props`.
- */
-export type FragmentSpecResults = {[key: string]: mixed};

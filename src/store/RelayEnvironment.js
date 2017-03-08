@@ -32,9 +32,8 @@ const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
 
 import type {ConcreteOperationDefinition} from 'ConcreteQuery';
+import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {
-  CacheConfig,
-  Disposable,
   Environment,
   OperationSelector,
   RelayCore,

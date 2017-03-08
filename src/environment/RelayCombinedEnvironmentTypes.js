@@ -80,3 +80,5 @@ export interface FragmentSpecResolver {
    */
   setVariables(variables: Variables): void,
 }
+
+export type CFragmentMap<TFragment> = {[key: string]: TFragment};

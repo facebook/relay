@@ -19,6 +19,7 @@ import type {
 } from 'ConcreteQuery';
 import type {
   CacheConfig,
+  CFragmentMap,
   Disposable,
   FragmentSpecResolver,
   Props,
@@ -26,6 +27,10 @@ import type {
 import type {GraphQLTaggedNode} from 'RelayGraphQLTag';
 import type {DataID} from 'RelayInternalTypes';
 import type {Variables, RelayMutationConfig} from 'RelayTypes';
+
+type TFragment = ConcreteFragmentDefinition;
+
+export type FragmentMap = CFragmentMap<TFragment>;
 
 /**
  * A selector defines the starting point for a traversal into the graph for the
@@ -302,5 +307,3 @@ export type RelayContext = {
   environment: Environment,
   variables: Variables,
 };
-
-export type FragmentMap = {[key: string]: ConcreteFragmentDefinition};

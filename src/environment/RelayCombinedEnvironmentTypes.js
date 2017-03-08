@@ -99,14 +99,28 @@ export interface FragmentSpecResolver {
 
 export type CFragmentMap<TFragment> = {[key: string]: TFragment};
 
+/**
+ * An operation selector describes a specific instance of a GraphQL operation
+ * with variables applied.
+ *
+ * - `root`: a selector intended for processing server results or retaining
+ *   response data in the store.
+ * - `fragment`: a selector intended for use in reading or subscribing to
+ *   the results of the the operation.
+ */
+export type COperationSelector<TNode, TOperation> = {
+  fragment: CSelector<TNode>,
+  node: TOperation,
+  root: CSelector<TNode>,
+  variables: Variables,
+};
+
 export interface CUnstableEnvironmentCore<
+  TEnvironment,
   TFragment,
   TGraphQLTaggedNode,
   TNode,
   TOperation,
-  // TODO(jkassens) these should be also abstracted
-  RelayContext,
-  OperationSelector,
 > {
   /**
    * Create an instance of a FragmentSpecResolver.
@@ -116,7 +130,7 @@ export interface CUnstableEnvironmentCore<
    * separate implementations until the experimental core is in OSS.
    */
   createFragmentSpecResolver: (
-    context: RelayContext,
+    context: CRelayContext<TEnvironment>,
     fragments: CFragmentMap<TFragment>,
     props: Props,
     callback: () => void,
@@ -131,7 +145,7 @@ export interface CUnstableEnvironmentCore<
   createOperationSelector: (
     operation: TOperation,
     variables: Variables,
-  ) => OperationSelector,
+  ) => COperationSelector<TNode, TOperation>,
 
   /**
    * Given a graphql`...` tagged template, extract a fragment definition usable
@@ -238,3 +252,12 @@ export interface CUnstableEnvironmentCore<
     props: Props,
   ) => Variables,
 }
+
+/**
+ * The type of the `relay` property set on React context by the React/Relay
+ * integration layer (e.g. QueryRenderer, FragmentContainer, etc).
+ */
+export type CRelayContext<TEnvironment> = {
+  environment: TEnvironment,
+  variables: Variables,
+};

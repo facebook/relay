@@ -20,6 +20,8 @@ import type {
 import type {
   CacheConfig,
   CFragmentMap,
+  COperationSelector,
+  CRelayContext,
   CSelector,
   CUnstableEnvironmentCore,
   Disposable,
@@ -29,20 +31,22 @@ import type {GraphQLTaggedNode} from 'RelayGraphQLTag';
 import type {DataID} from 'RelayInternalTypes';
 import type {Variables, RelayMutationConfig} from 'RelayTypes';
 
+type TEnvironment = Environment;
 type TFragment = ConcreteFragmentDefinition;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteFragment;
 type TOperation = ConcreteOperationDefinition;
 
 export type FragmentMap = CFragmentMap<TFragment>;
+export type OperationSelector = COperationSelector<TNode, TOperation>;
+export type RelayContext = CRelayContext<TEnvironment>;
 export type Selector = CSelector<TNode>;
 export interface RelayCore extends CUnstableEnvironmentCore<
+  TEnvironment,
   TFragment,
   TGraphQLTaggedNode,
   TNode,
   TOperation,
-  RelayContext,
-  OperationSelector,
 > {}
 
 /**
@@ -51,22 +55,6 @@ export interface RelayCore extends CUnstableEnvironmentCore<
 export type Snapshot = Selector & {
   data: ?SelectorData,
   seenRecords: {[key: DataID]: mixed},
-};
-
-/**
- * An operation selector describes a specific instance of a GraphQL operation
- * with variables applied.
- *
- * - `root`: a selector intended for processing server results or retaining
- *   response data in the store.
- * - `fragment`: a selector intended for use in reading or subscribing to
- *   the results of the the operation.
- */
-export type OperationSelector = {
-  fragment: Selector,
-  node: ConcreteOperationDefinition,
-  root: Selector,
-  variables: Variables,
 };
 
 /**
@@ -164,12 +152,3 @@ export interface Environment {
 
   unstable_internal: RelayCore,
 }
-
-/**
- * The type of the `relay` property set on React context by the React/Relay
- * integration layer (e.g. QueryRenderer, FragmentContainer, etc).
- */
-export type RelayContext = {
-  environment: Environment,
-  variables: Variables,
-};

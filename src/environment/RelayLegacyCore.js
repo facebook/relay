@@ -29,9 +29,11 @@ const {
 } = require('RelaySelector');
 
 import type {
-  FragmentMap,
   FragmentSpecResolver,
   Props,
+} from 'RelayCombinedEnvironmentTypes';
+import type {
+  FragmentMap,
   RelayContext,
 } from 'RelayEnvironmentTypes';
 

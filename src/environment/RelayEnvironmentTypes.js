@@ -20,7 +20,8 @@ import type {
 import type {
   CacheConfig,
   Disposable,
-  FragmentSpecResults,
+  FragmentSpecResolver,
+  Props,
 } from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayGraphQLTag';
 import type {DataID} from 'RelayInternalTypes';
@@ -294,41 +295,6 @@ export interface RelayCore {
 }
 
 /**
- * A utility for resolving and subscribing to the results of a fragment spec
- * (key -> fragment mapping) given some "props" that determine the root ID
- * and variables to use when reading each fragment. When props are changed via
- * `setProps()`, the resolver will update its results and subscriptions
- * accordingly. Internally, the resolver:
- * - Converts the fragment map & props map into a map of `Selector`s.
- * - Removes any resolvers for any props that became null.
- * - Creates resolvers for any props that became non-null.
- * - Updates resolvers with the latest props.
- */
-export type FragmentSpecResolver = {
-  /**
-   * Stop watching for changes to the results of the fragments.
-   */
-  +dispose: () => void,
-
-  /**
-   * Get the current results.
-   */
-  +resolve: () => FragmentSpecResults,
-
-  /**
-   * Update the resolver with new inputs. Call `resolve()` to get the updated
-   * results.
-   */
-  +setProps: (props: Props) => void,
-
-  /**
-   * Override the variables used to read the results of the fragments. Call
-   * `resolve()` to get the updated results.
-   */
-  +setVariables: (variables: Variables) => void,
-}
-
-/**
  * The type of the `relay` property set on React context by the React/Relay
  * integration layer (e.g. QueryRenderer, FragmentContainer, etc).
  */
@@ -338,8 +304,3 @@ export type RelayContext = {
 };
 
 export type FragmentMap = {[key: string]: ConcreteFragmentDefinition};
-
-/**
- * Arbitrary data e.g. received by a container as props.
- */
-export type Props = {[key: string]: mixed};

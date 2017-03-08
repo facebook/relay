@@ -12,6 +12,7 @@
 
 'use strict';
 
+import type {DataID} from 'RelayInternalTypes';
 import type {
   Variables,
 } from 'RelayTypes';
@@ -39,6 +40,16 @@ export type Disposable = {
  * Arbitrary data e.g. received by a container as props.
  */
 export type Props = {[key: string]: mixed};
+
+/**
+ * A selector defines the starting point for a traversal into the graph for the
+ * purposes of targeting a subgraph.
+ */
+export type CSelector<TNode> = {
+  dataID: DataID,
+  node: TNode,
+  variables: Variables,
+};
 
 /**
  * The results of reading the results of a FragmentMap given some input

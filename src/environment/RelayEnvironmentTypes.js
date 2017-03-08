@@ -20,6 +20,7 @@ import type {
 import type {
   CacheConfig,
   CFragmentMap,
+  CSelector,
   Disposable,
   FragmentSpecResolver,
   Props,
@@ -29,18 +30,10 @@ import type {DataID} from 'RelayInternalTypes';
 import type {Variables, RelayMutationConfig} from 'RelayTypes';
 
 type TFragment = ConcreteFragmentDefinition;
+type TNode = ConcreteFragment;
 
 export type FragmentMap = CFragmentMap<TFragment>;
-
-/**
- * A selector defines the starting point for a traversal into the graph for the
- * purposes of targeting a subgraph.
- */
-export type Selector = {
-  dataID: DataID,
-  node: ConcreteFragment,
-  variables: Variables,
-};
+export type Selector = CSelector<TNode>;
 
 /**
  * A representation of a selector and its results at a particular point in time.

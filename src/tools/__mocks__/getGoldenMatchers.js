@@ -225,13 +225,8 @@ function normalize(string) {
  * Log some output.
  */
 function log(...args) {
-  // Before logging, erase "Running 6 test suites..." that Jest may have
-  // inserted at the beginning of the current line.
-  const ERASE_LINE = '\x1b[2K';
-  const BEGINNING_OF_LINE = '\x1b[50D';
-  process.stdout.write(`${ERASE_LINE}${BEGINNING_OF_LINE}`);
-
-  console.log.apply(console, args); // eslint-disable-line no-console-disallow
+  // eslint-disable-next-line no-console-disallow
+  console.log(...args);
 }
 
 function printDiff(expectedText, actualText, info) {

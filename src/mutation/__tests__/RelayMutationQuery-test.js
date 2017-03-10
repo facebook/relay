@@ -212,6 +212,61 @@ describe('RelayMutationQuery', () => {
         ['456'],
       ]);
     });
+
+   it('wraps queries in a Node fragment to avoid type conflicts', () => {
+     var fatQuery = fromGraphQL.Fragment(Relay.QL`
+       fragment on FeedbackLikeResponsePayload {
+         feedback {
+           doesViewerLike
+         }
+       }
+     `);
+     // Create two tracked queries for the node, with conflicting types
+     // (NOTE: both Feedback and Story implement Node)
+     var trackedChildren = [
+       fromGraphQL.Fragment(Relay.QL`
+         fragment on Feedback {
+           doesViewerLike
+         }
+       `),
+       fromGraphQL.Fragment(Relay.QL`
+         fragment on Story {
+           canViewerDelete
+         }
+       `),
+     ];
+     tracker.getTrackedChildrenForID.mockImplementation(
+       dataID => trackedChildren
+     );
+     var result = RelayMutationQuery.buildFragmentForFields({
+       fatQuery,
+       tracker,
+       fieldIDs: {
+         feedback: '123',
+       },
+     });
+     // NOTE: this assertion isn't necessarily the right solution. It would,
+     // however, solve this *specific* test case
+     var expected = RelayTestUtils.getVerbatimNode(Relay.QL`
+       fragment on FeedbackLikeResponsePayload {
+         feedback {
+           ... on Node {
+             ... on Feedback {
+               id
+               doesViewerLike
+             },
+             ... on Story {
+               id
+             },
+           }
+         }
+       }
+     `);
+     // Clone because the root node will differ, but that's okay.
+     expect(expected.clone(result.getChildren()))
+       .toEqualQueryNode(expected);
+     expect(tracker.getTrackedChildrenForID.mock.calls).toEqual([['123']]);
+   });
   });
 
   describe('edge deletion', () => {

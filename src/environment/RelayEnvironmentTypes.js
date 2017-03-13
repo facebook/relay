@@ -42,13 +42,13 @@ export type OperationSelector = COperationSelector<TNode, TOperation>;
 export type RelayContext = CRelayContext<TEnvironment>;
 export type Selector = CSelector<TNode>;
 export type Snapshot = CSnapshot<TNode>;
-export interface RelayCore extends CUnstableEnvironmentCore<
+export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,
   TGraphQLTaggedNode,
   TNode,
   TOperation,
-> {}
+>;
 
 /**
  * The public API of Relay core. Represents an encapsulated environment with its

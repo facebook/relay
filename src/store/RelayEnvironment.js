@@ -36,7 +36,7 @@ import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {
   Environment,
   OperationSelector,
-  RelayCore,
+  UnstableEnvironmentCore,
   Selector,
   Snapshot,
 } from 'RelayEnvironmentTypes';
@@ -123,7 +123,7 @@ export type LegacyRelayContext = {
  * instance, server apps may create one instance per HTTP request.
  */
 class RelayEnvironment implements Environment {
-  unstable_internal: RelayCore;
+  unstable_internal: UnstableEnvironmentCore;
 
   applyMutation({
     configs,

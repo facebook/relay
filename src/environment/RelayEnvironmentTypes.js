@@ -23,10 +23,9 @@ import type {
   COperationSelector,
   CRelayContext,
   CSelector,
+  CSnapshot,
   CUnstableEnvironmentCore,
   Disposable,
-  RecordMap,
-  SelectorData,
 } from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayGraphQLTag';
 import type {Variables, RelayMutationConfig} from 'RelayTypes';
@@ -41,6 +40,7 @@ export type FragmentMap = CFragmentMap<TFragment>;
 export type OperationSelector = COperationSelector<TNode, TOperation>;
 export type RelayContext = CRelayContext<TEnvironment>;
 export type Selector = CSelector<TNode>;
+export type Snapshot = CSnapshot<TNode>;
 export interface RelayCore extends CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,
@@ -48,14 +48,6 @@ export interface RelayCore extends CUnstableEnvironmentCore<
   TNode,
   TOperation,
 > {}
-
-/**
- * A representation of a selector and its results at a particular point in time.
- */
-export type Snapshot = Selector & {
-  data: ?SelectorData,
-  seenRecords: RecordMap,
-};
 
 /**
  * The public API of Relay core. Represents an encapsulated environment with its

@@ -62,6 +62,14 @@ export type CSelector<TNode> = {
 };
 
 /**
+ * A representation of a selector and its results at a particular point in time.
+ */
+export type CSnapshot<TNode> = CSelector<TNode> & {
+  data: ?SelectorData,
+  seenRecords: RecordMap,
+};
+
+/**
  * The results of a selector given a store/RecordSource.
  */
 export type SelectorData = {[key: string]: mixed};

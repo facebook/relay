@@ -18,7 +18,7 @@ import type {
   ConcreteOperationDefinition,
 } from 'ConcreteQuery';
 import type {
-  CacheConfig,
+  CEnvironment,
   CFragmentMap,
   COperationSelector,
   CRelayContext,
@@ -35,6 +35,7 @@ type TFragment = ConcreteFragmentDefinition;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteFragment;
 type TOperation = ConcreteOperationDefinition;
+type TPayload = Selector;
 
 export type FragmentMap = CFragmentMap<TFragment>;
 export type OperationSelector = COperationSelector<TNode, TOperation>;
@@ -53,7 +54,14 @@ export interface RelayCore extends CUnstableEnvironmentCore<
  * The public API of Relay core. Represents an encapsulated environment with its
  * own in-memory cache.
  */
-export interface Environment {
+export interface Environment extends CEnvironment<
+  TEnvironment,
+  TFragment,
+  TGraphQLTaggedNode,
+  TNode,
+  TOperation,
+  TPayload,
+> {
   /**
    * Applies an optimistic mutation to the store without committing it to the
    * server. The returned Disposable can be used to revert this change at a
@@ -80,67 +88,4 @@ export interface Environment {
     optimisticResponse?: ?Object,
     variables: Variables,
   |}): Disposable,
-
-  /**
-   * Read the results of a selector from in-memory records in the store.
-   */
-  lookup(
-    selector: Selector,
-  ): Snapshot,
-
-  /**
-   * Subscribe to changes to the results of a selector. The callback is called
-   * when data has been committed to the store that would cause the results of
-   * the snapshot's selector to change.
-   */
-  subscribe(
-    snapshot: Snapshot,
-    callback: (snapshot: Snapshot) => void,
-  ): Disposable,
-
-  /**
-   * Ensure that all the records necessary to fulfill the given selector are
-   * retained in-memory. The records will not be eligible for garbage collection
-   * until the returned reference is disposed.
-   *
-   * Note: This is a no-op in the legacy core.
-   */
-  retain(selector: Selector): Disposable,
-
-  /**
-   * Send a query to the server with request/response semantics: the query will
-   * either complete successfully (calling `onNext` and `onCompleted`) or fail
-   * (calling `onError`).
-   *
-   * Note: Most applications should use `sendQuerySubscription` in order to
-   * optionally receive updated information over time, should that feature be
-   * supported by the network/server. A good rule of thumb is to use this method
-   * if you would otherwise immediately dispose the `sendQuerySubscription()`
-   * after receving the first `onNext` result.
-   */
-  sendQuery(config: {|
-    cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(selector: Selector) => void,
-    operation: OperationSelector,
-  |}): Disposable,
-
-  /**
-   * Send a query to the server with request/subscription semantics: one or more
-   * responses may be returned (via `onNext`) over time followed by either
-   * the request completing (`onCompleted`) or an error (`onError`).
-   *
-   * Networks/servers that support subscriptions may choose to hold the
-   * subscription open indefinitely such that `onCompleted` is not called.
-   */
-  sendQuerySubscription(config: {|
-    cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(selector: Selector) => void,
-    operation: OperationSelector,
-  |}): Disposable,
-
-  unstable_internal: RelayCore,
 }

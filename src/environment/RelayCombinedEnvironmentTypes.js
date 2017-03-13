@@ -133,6 +133,88 @@ export type COperationSelector<TNode, TOperation> = {
   variables: Variables,
 };
 
+/**
+ * The public API of Relay core. Represents an encapsulated environment with its
+ * own in-memory cache.
+ */
+export interface CEnvironment<
+  TEnvironment,
+  TFragment,
+  TGraphQLTaggedNode,
+  TNode,
+  TOperation,
+  TPayload,
+> {
+  /**
+   * Read the results of a selector from in-memory records in the store.
+   */
+  lookup(
+    selector: CSelector<TNode>,
+  ): CSnapshot<TNode>,
+
+  /**
+   * Subscribe to changes to the results of a selector. The callback is called
+   * when data has been committed to the store that would cause the results of
+   * the snapshot's selector to change.
+   */
+  subscribe(
+    snapshot: CSnapshot<TNode>,
+    callback: (snapshot: CSnapshot<TNode>) => void,
+  ): Disposable,
+
+  /**
+   * Ensure that all the records necessary to fulfill the given selector are
+   * retained in-memory. The records will not be eligible for garbage collection
+   * until the returned reference is disposed.
+   *
+   * Note: This is a no-op in the legacy core.
+   */
+  retain(selector: CSelector<TNode>): Disposable,
+
+  /**
+   * Send a query to the server with request/response semantics: the query will
+   * either complete successfully (calling `onNext` and `onCompleted`) or fail
+   * (calling `onError`).
+   *
+   * Note: Most applications should use `sendQuerySubscription` in order to
+   * optionally receive updated information over time, should that feature be
+   * supported by the network/server. A good rule of thumb is to use this method
+   * if you would otherwise immediately dispose the `sendQuerySubscription()`
+   * after receving the first `onNext` result.
+   */
+  sendQuery(config: {|
+    cacheConfig?: ?CacheConfig,
+    onCompleted?: ?() => void,
+    onError?: ?(error: Error) => void,
+    onNext?: ?(payload: TPayload) => void,
+    operation: COperationSelector<TNode, TOperation>,
+  |}): Disposable,
+
+  /**
+   * Send a query to the server with request/subscription semantics: one or more
+   * responses may be returned (via `onNext`) over time followed by either
+   * the request completing (`onCompleted`) or an error (`onError`).
+   *
+   * Networks/servers that support subscriptions may choose to hold the
+   * subscription open indefinitely such that `onCompleted` is not called.
+   */
+  sendQuerySubscription(config: {|
+    cacheConfig?: ?CacheConfig,
+    onCompleted?: ?() => void,
+    onError?: ?(error: Error) => void,
+    onNext?: ?(payload: TPayload) => void,
+    operation: COperationSelector<TNode, TOperation>,
+  |}): Disposable,
+
+  unstable_internal: CUnstableEnvironmentCore<
+    TEnvironment,
+    TFragment,
+    TGraphQLTaggedNode,
+    TNode,
+    TOperation,
+  >,
+}
+
 export interface CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,

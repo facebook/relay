@@ -25,10 +25,10 @@ import type {
   CSelector,
   CUnstableEnvironmentCore,
   Disposable,
+  RecordMap,
   SelectorData,
 } from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayGraphQLTag';
-import type {DataID} from 'RelayInternalTypes';
 import type {Variables, RelayMutationConfig} from 'RelayTypes';
 
 type TEnvironment = Environment;
@@ -54,7 +54,7 @@ export interface RelayCore extends CUnstableEnvironmentCore<
  */
 export type Snapshot = Selector & {
   data: ?SelectorData,
-  seenRecords: {[key: DataID]: mixed},
+  seenRecords: RecordMap,
 };
 
 /**

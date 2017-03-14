@@ -72,7 +72,7 @@ export type FragmentResolver = {
   ): ?(StoreReaderData | Array<?StoreReaderData>),
 };
 
-export type RelayEnvironmentInterface = {
+export interface RelayEnvironmentInterface {
   forceFetch(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback
@@ -122,7 +122,7 @@ export type LegacyRelayContext = {
  * one `RelayEnvironment` instance per user: client apps may share a single
  * instance, server apps may create one instance per HTTP request.
  */
-class RelayEnvironment implements Environment {
+class RelayEnvironment implements Environment, RelayEnvironmentInterface {
   unstable_internal: UnstableEnvironmentCore;
 
   applyMutation({

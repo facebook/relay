@@ -99,7 +99,7 @@ class RelayNetworkLayer {
     }
   }
 
-  sendQueries(queryRequests: Array<RelayQueryRequest>): void {
+  sendQueries(queryRequests: Array<RelayQueryRequest>, overrides?: Object = {}): void {
     const implementation = this._getImplementation();
     this._subscribers.forEach(({queryCallback}) => {
       if (queryCallback) {
@@ -109,7 +109,7 @@ class RelayNetworkLayer {
         });
       }
     });
-    const promise = implementation.sendQueries(queryRequests);
+    const promise = implementation.sendQueries(queryRequests, overrides);
     if (promise) {
       Promise.resolve(promise).done();
     }

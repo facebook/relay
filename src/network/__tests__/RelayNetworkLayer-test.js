@@ -131,9 +131,10 @@ describe('RelayNetworkLayer', () => {
 
     it('delegates queries to the injected network layer', () => {
       const queries = [];
+      const overrides = {};
       expect(injectedNetworkLayer.sendQueries).not.toBeCalled();
-      networkLayer.sendQueries(queries);
-      expect(injectedNetworkLayer.sendQueries).toBeCalledWith(queries);
+      networkLayer.sendQueries(queries, overrides);
+      expect(injectedNetworkLayer.sendQueries).toBeCalledWith(queries, overrides);
     });
   });
 

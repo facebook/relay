@@ -72,7 +72,7 @@ export type FragmentResolver = {
   ): ?(StoreReaderData | Array<?StoreReaderData>),
 };
 
-export type RelayEnvironmentInterface = Environment & {
+export type RelayEnvironmentInterface = {
   forceFetch(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback

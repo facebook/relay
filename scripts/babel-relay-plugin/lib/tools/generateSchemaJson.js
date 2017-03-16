@@ -24,18 +24,16 @@ var utilities = require('graphql/utilities');
 var TESTS_DIR = path.resolve(__dirname, '..', '__tests__');
 
 try {
-  (function () {
-    var inFile = path.join(TESTS_DIR, 'testschema.rfc.graphql');
-    var outFile = path.join(TESTS_DIR, 'testschema.rfc.json');
+  var inFile = path.join(TESTS_DIR, 'testschema.rfc.graphql');
+  var outFile = path.join(TESTS_DIR, 'testschema.rfc.json');
 
-    var body = fs.readFileSync(inFile, 'utf8');
-    var ast = language.parse(body);
-    var astSchema = utilities.buildASTSchema(ast);
-    graphql.graphql(astSchema, utilities.introspectionQuery).then(function (result) {
-      var out = JSON.stringify(result, null, 2);
-      fs.writeFileSync(outFile, out);
-    });
-  })();
+  var body = fs.readFileSync(inFile, 'utf8');
+  var ast = language.parse(body);
+  var astSchema = utilities.buildASTSchema(ast);
+  graphql.graphql(astSchema, utilities.introspectionQuery).then(function (result) {
+    var out = JSON.stringify(result, null, 2);
+    fs.writeFileSync(outFile, out);
+  });
 } catch (error) {
   console.error(error);
   console.error(error.stack);

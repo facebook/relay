@@ -13,7 +13,7 @@
 
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -28,25 +28,22 @@ var RelayTransformError = require('./RelayTransformError');
 var find = require('./find');
 var util = require('./util');
 
-var _require = require('./RelayQLAST');
+var _require = require('./RelayQLAST'),
+    RelayQLArgument = _require.RelayQLArgument,
+    RelayQLArgumentType = _require.RelayQLArgumentType,
+    RelayQLDefinition = _require.RelayQLDefinition,
+    RelayQLDirective = _require.RelayQLDirective,
+    RelayQLField = _require.RelayQLField,
+    RelayQLFragment = _require.RelayQLFragment,
+    RelayQLFragmentSpread = _require.RelayQLFragmentSpread,
+    RelayQLInlineFragment = _require.RelayQLInlineFragment,
+    RelayQLMutation = _require.RelayQLMutation,
+    RelayQLQuery = _require.RelayQLQuery,
+    RelayQLSubscription = _require.RelayQLSubscription,
+    RelayQLType = _require.RelayQLType;
 
-var RelayQLArgument = _require.RelayQLArgument;
-var RelayQLArgumentType = _require.RelayQLArgumentType;
-var RelayQLDefinition = _require.RelayQLDefinition;
-var RelayQLDirective = _require.RelayQLDirective;
-var RelayQLField = _require.RelayQLField;
-var RelayQLFragment = _require.RelayQLFragment;
-var RelayQLFragmentSpread = _require.RelayQLFragmentSpread;
-var RelayQLInlineFragment = _require.RelayQLInlineFragment;
-var RelayQLMutation = _require.RelayQLMutation;
-var RelayQLQuery = _require.RelayQLQuery;
-var RelayQLSubscription = _require.RelayQLSubscription;
-var RelayQLType = _require.RelayQLType;
-
-var _require2 = require('./RelayQLNodeInterface');
-
-var ID = _require2.ID;
-
+var _require2 = require('./RelayQLNodeInterface'),
+    ID = _require2.ID;
 
 module.exports = function (t, options) {
   var formatFields = options.snakeCase ? function (fields) {
@@ -87,7 +84,7 @@ module.exports = function (t, options) {
     _createClass(RelayQLPrinter, [{
       key: 'print',
       value: function print(definition, substitutions) {
-        var enableValidation = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
+        var enableValidation = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
         var printedDocument = void 0;
         if (definition instanceof RelayQLQuery) {
@@ -308,7 +305,7 @@ module.exports = function (t, options) {
       value: function printSelections(parent, requisiteFields, extraFragments) {
         var _this2 = this;
 
-        var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+        var isGeneratedQuery = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
         var fields = [];
         var printedFragments = [];
@@ -348,7 +345,7 @@ module.exports = function (t, options) {
       value: function printFields(fields, parent, requisiteFields) {
         var _this3 = this;
 
-        var isGeneratedQuery = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+        var isGeneratedQuery = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
         var parentType = parent.getType();
         if (parentType.isConnection() && parentType.hasField(FIELDS.pageInfo) && fields.some(function (field) {
@@ -376,7 +373,7 @@ module.exports = function (t, options) {
       value: function printField(field, parent, requisiteSiblings, generatedSiblings) {
         var _this4 = this;
 
-        var isGeneratedQuery = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
+        var isGeneratedQuery = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
         var fieldType = field.getType();
 
@@ -550,14 +547,12 @@ module.exports = function (t, options) {
           });
         }
         if (maybeMetadata) {
-          (function () {
-            var metadata = maybeMetadata;
-            Object.keys(metadata).forEach(function (key) {
-              if (metadata[key]) {
-                properties.push(property(key, t.valueToNode(metadata[key])));
-              }
-            });
-          })();
+          var metadata = maybeMetadata;
+          Object.keys(metadata).forEach(function (key) {
+            if (metadata[key]) {
+              properties.push(property(key, t.valueToNode(metadata[key])));
+            }
+          });
         }
         return t.objectExpression(properties);
       }
@@ -614,10 +609,11 @@ module.exports = function (t, options) {
   }
 
   function validateConnectionField(field) {
-    var first = field.findArgument('first');
-    var last = field.findArgument('last');
-    var before = field.findArgument('before');
-    var after = field.findArgument('after');
+    var _ref = [field.findArgument('first'), field.findArgument('last'), field.findArgument('before'), field.findArgument('after')],
+        first = _ref[0],
+        last = _ref[1],
+        before = _ref[2],
+        after = _ref[3];
 
     var condition = !first || !last || first.isVariable() && last.isVariable();
     if (!condition) {
@@ -725,16 +721,10 @@ module.exports = function (t, options) {
     } else if (Array.isArray(value)) {
       return t.arrayExpression(value.map(printLiteralValue));
     } else if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && value != null) {
-      var _ret2 = function () {
-        var objectValue = value;
-        return {
-          v: t.objectExpression(Object.keys(objectValue).map(function (key) {
-            return property(key, printLiteralValue(objectValue[key]));
-          }))
-        };
-      }();
-
-      if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+      var objectValue = value;
+      return t.objectExpression(Object.keys(objectValue).map(function (key) {
+        return property(key, printLiteralValue(objectValue[key]));
+      }));
     } else {
       return t.valueToNode(value);
     }

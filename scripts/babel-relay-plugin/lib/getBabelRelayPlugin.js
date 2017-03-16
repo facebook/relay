@@ -13,7 +13,7 @@
 
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var RelayQLTransformer = require('./RelayQLTransformer');
 var RelayTransformError = require('./RelayTransformError');
@@ -23,11 +23,9 @@ var computeLocation = require('./computeLocation');
 var invariant = require('./invariant');
 var util = require('./util');
 
-var _require = require('./GraphQL');
-
-var buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema;
-var buildASTSchema = _require.utilities_buildASTSchema.buildASTSchema;
-
+var _require = require('./GraphQL'),
+    buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema,
+    buildASTSchema = _require.utilities_buildASTSchema.buildASTSchema;
 
 var PROVIDES_MODULE = 'providesModule';
 var RELAY_QL_GENERATED = 'RelayQL_GENERATED';
@@ -50,9 +48,9 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
   });
 
   return function (_ref) {
-    var Plugin = _ref.Plugin;
-    var types = _ref.types;
-    var version = _ref.version;
+    var Plugin = _ref.Plugin,
+        types = _ref.types,
+        version = _ref.version;
 
     return babelAdapter(Plugin, types, version, 'relay-query', function (t) {
       return {
@@ -60,7 +58,6 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
           /**
            * Extract the module name from `@providesModule`.
            */
-
           Program: function Program(_ref2, state) {
             var parent = _ref2.parent;
 
@@ -143,15 +140,15 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
               } else {
                 // Print a console warning and replace the code with a function
                 // that will immediately throw an error in the browser.
-                var sourceText = error.sourceText;
-                var validationErrors = error.validationErrors;
+                var sourceText = error.sourceText,
+                    validationErrors = error.validationErrors;
 
                 var isValidationError = !!(validationErrors && sourceText);
                 if (isValidationError) {
                   var sourceLines = sourceText.split('\n');
                   validationErrors.forEach(function (_ref3) {
-                    var message = _ref3.message;
-                    var locations = _ref3.locations;
+                    var message = _ref3.message,
+                        locations = _ref3.locations;
 
                     errorMessages.push(message);
                     warning('\n-- GraphQL Validation Error -- %s --\n', basename);
@@ -184,8 +181,8 @@ function getBabelRelayPlugin(schemaProvider, pluginOptions) {
             if (state.isLegacyState) {
               return result; // eslint-disable-line consistent-return
             } else {
-                path.replaceWith(result);
-              }
+              path.replaceWith(result);
+            }
           }
         }
       };

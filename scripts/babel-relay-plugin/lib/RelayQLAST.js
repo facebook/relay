@@ -30,22 +30,28 @@ var find = require('./find');
 var invariant = require('./invariant');
 var util = require('./util');
 
-var _require = require('./GraphQL'),
-    types = _require.type,
-    GraphQLDirective = _require.type_directives.GraphQLDirective,
-    _require$type_scalars = _require.type_scalars,
-    GraphQLBoolean = _require$type_scalars.GraphQLBoolean,
-    GraphQLFloat = _require$type_scalars.GraphQLFloat,
-    GraphQLID = _require$type_scalars.GraphQLID,
-    GraphQLInt = _require$type_scalars.GraphQLInt,
-    GraphQLString = _require$type_scalars.GraphQLString,
-    _require$type_introsp = _require.type_introspection,
-    SchemaMetaFieldDef = _require$type_introsp.SchemaMetaFieldDef,
-    TypeMetaFieldDef = _require$type_introsp.TypeMetaFieldDef,
-    TypeNameMetaFieldDef = _require$type_introsp.TypeNameMetaFieldDef;
+var _require = require('./RelayQLNodeInterface'),
+    ID = _require.ID;
 
-var _require2 = require('./RelayQLNodeInterface'),
-    ID = _require2.ID;
+var _require2 = require('graphql'),
+    GraphQLBoolean = _require2.GraphQLBoolean,
+    GraphQLDirective = _require2.GraphQLDirective,
+    GraphQLEnumType = _require2.GraphQLEnumType,
+    GraphQLFloat = _require2.GraphQLFloat,
+    GraphQLID = _require2.GraphQLID,
+    GraphQLInputObjectType = _require2.GraphQLInputObjectType,
+    GraphQLInt = _require2.GraphQLInt,
+    GraphQLInterfaceType = _require2.GraphQLInterfaceType,
+    GraphQLList = _require2.GraphQLList,
+    GraphQLNonNull = _require2.GraphQLNonNull,
+    GraphQLObjectType = _require2.GraphQLObjectType,
+    GraphQLScalarType = _require2.GraphQLScalarType,
+    GraphQLString = _require2.GraphQLString,
+    GraphQLUnionType = _require2.GraphQLUnionType,
+    isAbstractType = _require2.isAbstractType,
+    SchemaMetaFieldDef = _require2.SchemaMetaFieldDef,
+    TypeMetaFieldDef = _require2.TypeMetaFieldDef,
+    TypeNameMetaFieldDef = _require2.TypeNameMetaFieldDef;
 
 var GraphQLRelayDirectiveInstance = new GraphQLDirective(GraphQLRelayDirective);
 
@@ -539,7 +545,7 @@ var RelayQLType = function () {
   _createClass(RelayQLType, [{
     key: 'canHaveSubselections',
     value: function canHaveSubselections() {
-      return !(this.schemaUnmodifiedType instanceof types.GraphQLScalarType || this.schemaUnmodifiedType instanceof types.GraphQLEnumType);
+      return !(this.schemaUnmodifiedType instanceof GraphQLScalarType || this.schemaUnmodifiedType instanceof GraphQLEnumType);
     }
   }, {
     key: 'getName',
@@ -558,8 +564,8 @@ var RelayQLType = function () {
     value: function getFieldDefinition(fieldName, fieldAST) {
       var type = this.schemaUnmodifiedType;
       var isQueryType = type === this.context.schema.getQueryType();
-      var hasTypeName = type instanceof types.GraphQLObjectType || type instanceof types.GraphQLInterfaceType || type instanceof types.GraphQLUnionType;
-      var hasFields = type instanceof types.GraphQLObjectType || type instanceof types.GraphQLInterfaceType;
+      var hasTypeName = type instanceof GraphQLObjectType || type instanceof GraphQLInterfaceType || type instanceof GraphQLUnionType;
+      var hasFields = type instanceof GraphQLObjectType || type instanceof GraphQLInterfaceType;
 
       var schemaFieldDef = void 0;
       if (isQueryType && fieldName === SchemaMetaFieldDef.name) {
@@ -577,12 +583,12 @@ var RelayQLType = function () {
         if (hasTypeName && fieldName === '__type__') {
           schemaFieldDef = {
             name: '__type__',
-            type: new types.GraphQLNonNull(this.context.schema.getType('Type')),
+            type: new GraphQLNonNull(this.context.schema.getType('Type')),
             description: 'The introspected type of this object.',
             deprecatedReason: 'Use __typename',
             args: []
           };
-        } else if (types.isAbstractType(type) && fieldAST && fieldAST.directives && fieldAST.directives.some(function (directive) {
+        } else if (isAbstractType(type) && fieldAST && fieldAST.directives && fieldAST.directives.some(function (directive) {
           return directive.name.value === 'fixme_fat_interface';
         })) {
           var possibleTypes = this.context.schema.getPossibleTypes(type);
@@ -622,7 +628,7 @@ var RelayQLType = function () {
     value: function getInterfaces() {
       var _this15 = this;
 
-      if (this.schemaUnmodifiedType instanceof types.GraphQLObjectType) {
+      if (this.schemaUnmodifiedType instanceof GraphQLObjectType) {
         return this.schemaUnmodifiedType.getInterfaces().map(function (schemaInterface) {
           return new RelayQLType(_this15.context, schemaInterface);
         });
@@ -650,7 +656,7 @@ var RelayQLType = function () {
   }, {
     key: 'isAbstract',
     value: function isAbstract() {
-      return types.isAbstractType(this.schemaUnmodifiedType);
+      return isAbstractType(this.schemaUnmodifiedType);
     }
   }, {
     key: 'isList',
@@ -835,17 +841,17 @@ var RelayQLArgumentType = function () {
   }, {
     key: 'isBoolean',
     value: function isBoolean() {
-      return this.schemaUnmodifiedArgType === types.GraphQLBoolean;
+      return this.schemaUnmodifiedArgType === GraphQLBoolean;
     }
   }, {
     key: 'isEnum',
     value: function isEnum() {
-      return this.schemaUnmodifiedArgType instanceof types.GraphQLEnumType;
+      return this.schemaUnmodifiedArgType instanceof GraphQLEnumType;
     }
   }, {
     key: 'isID',
     value: function isID() {
-      return this.schemaUnmodifiedArgType === types.GraphQLID;
+      return this.schemaUnmodifiedArgType === GraphQLID;
     }
   }, {
     key: 'isList',
@@ -860,22 +866,22 @@ var RelayQLArgumentType = function () {
   }, {
     key: 'isNumber',
     value: function isNumber() {
-      return this.schemaUnmodifiedArgType === types.GraphQLFloat || this.schemaUnmodifiedArgType === types.GraphQLInt;
+      return this.schemaUnmodifiedArgType === GraphQLFloat || this.schemaUnmodifiedArgType === GraphQLInt;
     }
   }, {
     key: 'isObject',
     value: function isObject() {
-      return this.schemaUnmodifiedArgType instanceof types.GraphQLInputObjectType;
+      return this.schemaUnmodifiedArgType instanceof GraphQLInputObjectType;
     }
   }, {
     key: 'isScalar',
     value: function isScalar() {
-      return this.schemaUnmodifiedArgType instanceof types.GraphQLScalarType;
+      return this.schemaUnmodifiedArgType instanceof GraphQLScalarType;
     }
   }, {
     key: 'isString',
     value: function isString() {
-      return this.schemaUnmodifiedArgType === types.GraphQLString;
+      return this.schemaUnmodifiedArgType === GraphQLString;
     }
   }]);
 
@@ -887,9 +893,9 @@ function stripMarkerTypes(schemaModifiedType) {
   var isNonNullType = false;
   var schemaUnmodifiedType = schemaModifiedType;
   while (true) {
-    if (schemaUnmodifiedType instanceof types.GraphQLList) {
+    if (schemaUnmodifiedType instanceof GraphQLList) {
       isListType = true;
-    } else if (schemaUnmodifiedType instanceof types.GraphQLNonNull) {
+    } else if (schemaUnmodifiedType instanceof GraphQLNonNull) {
       isNonNullType = true;
     } else {
       break;

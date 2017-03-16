@@ -21,9 +21,9 @@ const invariant = require('./invariant');
 const util = require('./util');
 
 const {
-  utilities_buildClientSchema: {buildClientSchema},
-  utilities_buildASTSchema: {buildASTSchema},
-} = require('./GraphQL');
+  buildASTSchema,
+  buildClientSchema,
+} = require('graphql');
 
 import type {Validator} from './RelayQLTransformer';
 

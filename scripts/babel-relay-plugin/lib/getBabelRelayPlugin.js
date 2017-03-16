@@ -23,9 +23,9 @@ var computeLocation = require('./computeLocation');
 var invariant = require('./invariant');
 var util = require('./util');
 
-var _require = require('./GraphQL'),
-    buildClientSchema = _require.utilities_buildClientSchema.buildClientSchema,
-    buildASTSchema = _require.utilities_buildASTSchema.buildASTSchema;
+var _require = require('graphql'),
+    buildASTSchema = _require.buildASTSchema,
+    buildClientSchema = _require.buildClientSchema;
 
 var PROVIDES_MODULE = 'providesModule';
 var RELAY_QL_GENERATED = 'RelayQL_GENERATED';

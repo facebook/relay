@@ -22,11 +22,13 @@ import type {
 } from 'ConcreteQuery';
 
 // The type of a graphql`...` tagged template expression.
-export type GraphQLTaggedNode = {
-  legacy: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
-  // TODO: type this once the modern core is in OSS
-  modern: () => any,
-};
+// TODO: type this once the modern core is in OSS
+export type GraphQLTaggedNode =
+  (() => any) |
+  {
+    modern: () => any,
+    legacy: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
+  };
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.

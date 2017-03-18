@@ -17,9 +17,12 @@ const RelayQuery = require('RelayQuery');
 
 const invariant = require('invariant');
 
+import type {RelayConcreteNode} from 'RelayQL';
+import type {Variables} from 'RelayTypes';
+
 function createRelayQuery(
-  node: Object,
-  variables: {[key: string]: mixed}
+  node: RelayConcreteNode,
+  variables: Variables
 ): RelayQuery.Root {
   invariant(
     typeof variables === 'object' &&

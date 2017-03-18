@@ -23,9 +23,9 @@ import type {
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode = {
-  relay: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
-  // TODO: type this once the new core is in OSS
-  relayExperimental: () => any,
+  legacy: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
+  // TODO: type this once the modern core is in OSS
+  modern: () => any,
 };
 
 /**
@@ -56,7 +56,7 @@ graphql.experimental = function(): GraphQLTaggedNode {
 const LEGACY_NODE = '__legacy_node__';
 
 /**
- * Memoizes the results of executing the `.relay()` functions on
+ * Memoizes the results of executing the `.legacy()` functions on compat
  * graphql`...` tagged expressions. Memoization allows the framework to use
  * object equality checks to compare fragments (useful, for example, when
  * comparing two `Selector`s to see if they select the same data).
@@ -64,7 +64,7 @@ const LEGACY_NODE = '__legacy_node__';
 function getLegacyNode(taggedNode) {
   let concreteNode = (taggedNode: any)[LEGACY_NODE];
   if (concreteNode == null) {
-    const fn = taggedNode.relay;
+    const fn = taggedNode.legacy;
     invariant(
       typeof fn === 'function',
       'RelayGraphQLTag: Expected a graphql literal, got `%s`.',

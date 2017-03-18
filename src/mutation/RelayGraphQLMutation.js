@@ -27,13 +27,13 @@ import type {FileMap} from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {RelayConcreteNode} from 'RelayQL';
 import type RelayStoreData from 'RelayStoreData';
-import type {RelayMutationTransactionCommitCallbacks} from 'RelayTypes';
 import type {
   RelayMutationConfig,
   RelayMutationTransactionCommitFailureCallback,
   RelayMutationTransactionCommitSuccessCallback,
   Variables,
 } from 'RelayTypes';
+import type {RelayMutationTransactionCommitCallbacks} from 'RelayTypes';
 
 const COUNTER_PREFIX = 'RelayGraphQLMutation';
 let collisionIDCounter = 0;
@@ -381,10 +381,6 @@ class PendingGraphQLTransaction {
     }
     return {
       ...this._variables,
-      /* $FlowFixMe(>=0.35.0) - This comment
-       * suppresses an error that was found when Flow v0.35.0 was deployed. To
-       * see the error, remove this comment and run flow ~/www or
-       * flow ~/www/html/js/mobile or flow ~/fbobjc/Libraries/FBReactKit/js */
       input: {
         ...input,
         [CLIENT_MUTATION_ID]: this.id,

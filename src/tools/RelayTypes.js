@@ -248,5 +248,4 @@ export type SubscriptionCallbacks<T> = {
   onCompleted(): void,
 };
 // Variables
-export type VariablesOfType<T> = {[name: string]: T};
-export type Variables = VariablesOfType<mixed>;
+export type Variables = {[name: string]: *};

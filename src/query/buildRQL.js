@@ -29,9 +29,6 @@ import type {RelayConcreteNode} from 'RelayQL';
 import type {RelayContainer, Variables} from 'RelayTypes';
 
 export type RelayQLFragmentBuilder =
-  /* $FlowFixMe(>=0.38.0 site=react_native_fb) - Flow error detected during the
-   * deployment of v0.38.0. To see the error, remove this comment and run flow
-   */
   (variables: Variables) => RelayConcreteNode;
 export type RelayQLQueryBuilder =
   (Component: RelayContainer, params: Variables) => RelayConcreteNode;

@@ -63,7 +63,7 @@ Relay uses routes to define entry points into a Relay application.
 static paramDefinitions: {[param: string]: {required: boolean}}
 ```
 
-Routes can declare a set of parameter names that it requires to be supplied to the constructor. This is also a convenient place to document the set of valid parameters.
+Routes can declare a set of parameter names that are required to be supplied to the constructor. This is also a convenient place to document the set of valid parameters.
 
 #### Example
 

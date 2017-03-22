@@ -96,6 +96,8 @@ const mutation = Relay.GraphQLMutation.create(
 );
 ```
 
+Note: In most cases, it is possible to rely on the default singleton instance of the environment, which is exposed as `Relay.Store`.
+
 See also: [GraphQLMutation > Constructor](#constructor)
 
 ### createWithFiles (static method)

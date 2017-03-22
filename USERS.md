@@ -30,6 +30,10 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 
 - [Facebook](https://www.facebook.com/)
 
+## H
+
+- [Hudl](https://www.hudl.com/)
+
 ## J
 
 - [Junglejobs](http://www.junglejobs.ru/)

@@ -382,7 +382,7 @@ class PendingGraphQLTransaction {
     return {
       ...this._variables,
       input: {
-        ...input,
+        ...(input: $FlowFixMe),
         [CLIENT_MUTATION_ID]: this.id,
       },
     };

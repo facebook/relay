@@ -1,0 +1,208 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule RelayFileWriter
+ * @flow
+ */
+
+'use strict';
+
+const ASTConvert = require('ASTConvert');
+const CodegenDirectory = require('CodegenDirectory');
+const RelayCompiler = require('RelayCompiler');
+const RelayCompilerContext = require('RelayCompilerContext');
+const RelayValidator = require('RelayValidator');
+
+const writeFlowFile = require('./writeFlowFile');
+const writeRelayQLFile = require('./writeRelayQLFile');
+
+const {getOperationDefinitionAST} = require('RelaySchemaUtils');
+const {Map: ImmutableMap} = require('immutable');
+
+import type {CompilerTransforms} from 'RelayCompiler';
+import type {GeneratedNode} from 'RelayConcreteNode';
+import type {SchemaTransform} from 'RelayIRTransforms';
+import type {
+  DocumentNode,
+  GraphQLSchema,
+} from 'graphql';
+
+type GenerateExtraFiles = (
+  getOutputDirectory: (path?: string) => CodegenDirectory,
+  compilerContext: RelayCompilerContext,
+) => void;
+
+export type WriterConfig = {
+  buildCommand: string,
+  compilerTransforms: CompilerTransforms,
+  generateExtraFiles?: GenerateExtraFiles,
+  outputDir: string,
+  persistQuery?: (text: string) => Promise<string>,
+  platform?: string,
+  schemaTransforms: Array<SchemaTransform>,
+};
+
+/* eslint-disable no-console-disallow */
+
+class RelayFileWriter {
+  _onlyValidate: boolean;
+  _config: WriterConfig;
+  _baseSchema: GraphQLSchema;
+  _baseDocuments: ImmutableMap<string, DocumentNode>;
+  _documents: ImmutableMap<string, DocumentNode>;
+
+  constructor(options: {
+    config: WriterConfig,
+    onlyValidate: boolean,
+    baseDocuments: ImmutableMap<string, DocumentNode>,
+    documents: ImmutableMap<string, DocumentNode>,
+    schema: GraphQLSchema,
+  }) {
+    const {config, onlyValidate, baseDocuments, documents, schema} = options;
+    this._baseDocuments = baseDocuments || ImmutableMap();
+    this._baseSchema = schema;
+    this._config = config;
+    this._documents = documents;
+    this._onlyValidate = onlyValidate;
+  }
+
+  async writeAll(): Promise<Map<string, CodegenDirectory>> {
+    const tStart = Date.now();
+
+    // Can't convert to IR unless the schema already has Relay-local extensions
+    const transformedSchema = ASTConvert.transformASTSchema(
+      this._baseSchema,
+      this._config.schemaTransforms,
+    );
+    const extendedSchema = ASTConvert.extendASTSchema(
+      transformedSchema,
+      this._baseDocuments.merge(this._documents).valueSeq().toArray(),
+    );
+
+    // Build a context from all the documents
+    const baseDefinitionNames = new Set();
+    this._baseDocuments.forEach(doc => {
+      doc.definitions.forEach(def => {
+        const astDefinition = getOperationDefinitionAST(def);
+        if (astDefinition && astDefinition.name) {
+          baseDefinitionNames.add(astDefinition.name.value);
+        }
+      });
+    });
+    const definitions = ASTConvert.convertASTDocumentsWithBase(
+      extendedSchema,
+      this._baseDocuments.valueSeq().toArray(),
+      this._documents.valueSeq().toArray(),
+      RelayValidator.LOCAL_RULES,
+    );
+
+    const compilerContext = new RelayCompilerContext(extendedSchema);
+    const compiler = new RelayCompiler(
+      this._baseSchema,
+      compilerContext,
+      this._config.compilerTransforms,
+    );
+
+    const outputDirectory = new CodegenDirectory(
+      this._config.outputDir,
+      {onlyValidate: this._onlyValidate},
+    );
+    const allOutputDirectories: Map<string, CodegenDirectory> = new Map();
+    allOutputDirectories.set(this._config.outputDir, outputDirectory);
+
+    const nodes = compiler.addDefinitions(definitions);
+
+    const transformedQueryContext = compiler.transformedQueryContext();
+    const compiledDocumentMap = compiler.compile();
+
+    const tCompiled = Date.now();
+
+    const onlyValidate = this._onlyValidate;
+    function getOutputDirectory(dir?: string): CodegenDirectory {
+      if (!dir) {
+        return outputDirectory;
+      }
+      let outputDir = allOutputDirectories.get(dir);
+      if (!outputDir) {
+        outputDir = new CodegenDirectory(dir, {onlyValidate});
+        allOutputDirectories.set(dir, outputDir);
+      }
+      return outputDir;
+    }
+
+    const compiledDocuments: Array<GeneratedNode> = [];
+    nodes.forEach(node => {
+      if (baseDefinitionNames.has(node.name)) {
+        // don't add definitions that were part of base context
+        return;
+      }
+      if (node.kind === 'Fragment') {
+        writeFlowFile(
+          outputDirectory,
+          node,
+          this._config.buildCommand,
+          this._config.platform,
+        );
+      }
+      const compiledNode = compiledDocumentMap.get(node.name);
+      if (compiledNode) {
+        compiledDocuments.push(compiledNode);
+      }
+    });
+
+    const tFlow = Date.now();
+
+    let tRelayQL;
+    try {
+      await Promise.all(compiledDocuments.map(async (generatedNode) => {
+        await writeRelayQLFile(
+          outputDirectory,
+          generatedNode,
+          this._config.buildCommand,
+          this.skipPersist ? null : this._config.persistQuery,
+          this._config.platform,
+        );
+      }));
+      tRelayQL = Date.now();
+
+      if (this._config.generateExtraFiles) {
+        this._config.generateExtraFiles(
+          getOutputDirectory,
+          transformedQueryContext,
+        );
+      }
+
+      outputDirectory.deleteExtraFiles();
+    } catch (error) {
+      tRelayQL = Date.now();
+      let details;
+      try {
+        details = JSON.parse(error.message);
+      } catch (_) {
+      }
+      if (details && details.name === 'GraphQL2Exception' && details.message) {
+        console.log('ERROR writing modules:\n' + details.message);
+      } else {
+        console.log('Error writing modules:\n' + error.toString());
+      }
+      return allOutputDirectories;
+    }
+
+    const tExtra = Date.now();
+    console.log(
+      'Writer time: %s [%s compiling, %s relay files, %s flow types, %s extra]',
+      toSeconds(tStart, tExtra),
+      toSeconds(tStart, tCompiled),
+      toSeconds(tCompiled, tFlow),
+      toSeconds(tFlow, tRelayQL),
+      toSeconds(tRelayQL, tExtra),
+    );
+    return allOutputDirectories;
+  }
+}
+
+function toSeconds(t0, t1) {
+  return ((t1 - t0) / 1000).toFixed(2) + 's';
+}
+
+module.exports = RelayFileWriter;

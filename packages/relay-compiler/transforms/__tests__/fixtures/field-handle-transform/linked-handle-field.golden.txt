@@ -1,0 +1,5 @@
+fragment LinkedHandleField on User {
+  friends: __friends_clientFriends {
+    count
+  }
+}

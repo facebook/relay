@@ -1,0 +1,3 @@
+ERROR:
+
+Error: unknown: BabelPluginGraphQL: Expected only fragments within this graphql tag.

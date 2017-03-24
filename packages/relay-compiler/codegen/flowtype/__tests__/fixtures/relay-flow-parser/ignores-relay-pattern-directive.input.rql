@@ -1,0 +1,4 @@
+fragment myFragment on User @relay(pattern: true) {
+  id
+  likers
+}

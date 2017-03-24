@@ -1,0 +1,13 @@
+query TestQuery($id: ID!, $count: Int!) {
+  node(id: $id) {
+    ... on User {
+      friends(first: $count) {
+        edges {
+          node {
+            id @export(as: "friendID")
+          }
+        }
+      }
+    }
+  }
+}

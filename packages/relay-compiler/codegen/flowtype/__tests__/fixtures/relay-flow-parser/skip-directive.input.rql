@@ -1,0 +1,5 @@
+fragment myFragment on User {
+  actor @skip(if: $conditional) {
+    id
+  }
+}

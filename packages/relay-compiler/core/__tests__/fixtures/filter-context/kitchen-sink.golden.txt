@@ -1,0 +1,13 @@
+query MainQuery {
+  me {
+    ...Bar
+  }
+}
+
+fragment Bar on User {
+  ...Baz
+}
+
+fragment Baz on User {
+  id
+}

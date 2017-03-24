@@ -1,0 +1,23 @@
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on User {
+      id
+      profilePicture(size: 128) {
+        uri
+      }
+      friends(first: 10) {
+        edges {
+          node {
+            id
+            profilePicture(size: 128) {
+              uri
+            }
+          }
+        }
+      }
+    }
+  }
+}

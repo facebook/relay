@@ -1,0 +1,25 @@
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...Profile_4j8R3y
+    ...ProfileFriends
+  }
+}
+
+fragment Profile_4j8R3y on User {
+  profilePicture(size: 128) {
+    uri
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile_4j8R3y
+      }
+    }
+  }
+}

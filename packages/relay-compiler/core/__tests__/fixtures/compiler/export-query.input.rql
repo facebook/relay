@@ -1,0 +1,7 @@
+query ViewerQuery {
+  viewer {
+    actor {
+      id @export(as: "userID")
+    }
+  }
+}

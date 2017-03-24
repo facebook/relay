@@ -1,0 +1,12 @@
+query CommentQuery {
+  node(id: "comment") {
+    __typename
+    ... on Comment {
+      actors {
+        __typename
+        id
+      }
+    }
+    id
+  }
+}

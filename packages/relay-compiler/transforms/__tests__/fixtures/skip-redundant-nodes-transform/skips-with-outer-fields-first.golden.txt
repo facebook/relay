@@ -1,0 +1,10 @@
+query SkipWithOuterFieldFirst(
+  $cond: Boolean
+  $notCond: Boolean
+) {
+  viewer {
+    actor {
+      id
+    }
+  }
+}

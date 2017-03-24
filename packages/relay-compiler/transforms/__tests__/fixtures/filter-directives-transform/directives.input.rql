@@ -1,0 +1,14 @@
+query SampleQuery(
+  $gk: Boolean!
+  $id: ID!
+) {
+  node(id: $id) {
+    ... on User {
+      # The @export directive is defined as an extension, so will get stripped.
+      id @export(as: "id")
+
+      # The @include directive is defined in the base schema, so survives.
+      name @include(if: $gk)
+    }
+  }
+}

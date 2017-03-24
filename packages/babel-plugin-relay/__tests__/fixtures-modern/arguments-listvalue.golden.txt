@@ -1,0 +1,18 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const Relay = require('Relay');
+
+const { graphql } = Relay;
+
+const CompatProfile = () => null;
+
+module.exports = Relay.createFragmentContainer(CompatProfile, {
+  viewer: function () {
+    return require('CompatProfile_viewer.graphql');
+  }
+});

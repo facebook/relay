@@ -48,7 +48,7 @@ class RelayDefaultNetworkLayer {
       result => result.json()
     ).then(payload => {
       if (payload.hasOwnProperty('errors')) {
-        const error = createRequestError(request, '200', payload);
+        const error = this._createRequestError(request, '200', payload);
         request.reject(error);
       } else {
         request.resolve({response: payload.data});
@@ -64,7 +64,7 @@ class RelayDefaultNetworkLayer {
         result => result.json()
       ).then(payload => {
         if (payload.hasOwnProperty('errors')) {
-          const error = createRequestError(request, '200', payload);
+          const error = this._createRequestError(request, '200', payload);
           request.reject(error);
         } else if (!payload.hasOwnProperty('data')) {
           request.reject(new Error(
@@ -83,6 +83,57 @@ class RelayDefaultNetworkLayer {
   supports(...options: Array<string>): boolean {
     // Does not support the only defined option, "defer".
     return false;
+  }
+
+  /**
+   * Formats an error response from GraphQL server request.
+   */
+  __formatRequestErrors(
+    request: RelayMutationRequest | RelayQueryRequest,
+    errors: Array<GraphQLError>
+  ): string {
+    const CONTEXT_BEFORE = 20;
+    const CONTEXT_LENGTH = 60;
+  
+    const queryLines = request.getQueryString().split('\n');
+    return errors.map(({locations, message}, ii) => {
+      const prefix = (ii + 1) + '. ';
+      const indent = ' '.repeat(prefix.length);
+  
+      //custom errors thrown in graphql-server may not have locations
+      const locationMessage = locations ?
+        ('\n' + locations.map(({column, line}) => {
+          const queryLine = queryLines[line - 1];
+          const offset = Math.min(column - 1, CONTEXT_BEFORE);
+          return [
+            queryLine.substr(column - 1 - offset, CONTEXT_LENGTH),
+            ' '.repeat(Math.max(0, offset)) + '^^^',
+          ].map(messageLine => indent + messageLine).join('\n');
+        }).join('\n')) :
+        '';
+  
+      return prefix + message + locationMessage;
+  
+    }).join('\n');
+  }
+
+  _createRequestError(
+    request: RelayMutationRequest | RelayQueryRequest,
+    responseStatus: string,
+    payload: any
+  ): Error {
+    const requestType =
+      request instanceof RelayMutationRequest ? 'mutation' : 'query';
+    const errorReason = typeof payload === 'object' ?
+      this.__formatRequestErrors(request, payload.errors) :
+      `Server response had an error status: ${responseStatus}`;
+    const error = new Error(
+      `Server request for ${requestType} \`${request.getDebugName()}\` ` +
+      `failed for the following reasons:\n\n${errorReason}`
+    );
+    (error: any).source = payload;
+    (error: any).status = responseStatus;
+    return error;
   }
 
   /**
@@ -124,7 +175,7 @@ class RelayDefaultNetworkLayer {
       };
     }
     return fetch(this._uri, init)
-      .then(response => throwOnServerError(request, response));
+      .then(response => this._throwOnServerError(request, response));
   }
 
   /**
@@ -145,74 +196,23 @@ class RelayDefaultNetworkLayer {
       method: 'POST',
     });
   }
-}
 
-/**
- * Rejects HTTP responses with a status code that is not >= 200 and < 300.
- * This is done to follow the internal behavior of `fetchWithRetries`.
- */
-function throwOnServerError(
-  request: RelayMutationRequest,
-  response: any
-): any {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  } else {
-    return response.text().then(payload => {
-      throw createRequestError(request, response.status, payload);
-    });
+  /**
+   * Rejects HTTP responses with a status code that is not >= 200 and < 300.
+   * This is done to follow the internal behavior of `fetchWithRetries`.
+   */
+  _throwOnServerError(
+    request: RelayMutationRequest,
+    response: any
+  ): any {
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    } else {
+      return response.text().then(payload => {
+        throw this._createRequestError(request, response.status, payload);
+      });
+    }
   }
-}
-
-/**
- * Formats an error response from GraphQL server request.
- */
-function formatRequestErrors(
-  request: RelayMutationRequest | RelayQueryRequest,
-  errors: Array<GraphQLError>
-): string {
-  const CONTEXT_BEFORE = 20;
-  const CONTEXT_LENGTH = 60;
-
-  const queryLines = request.getQueryString().split('\n');
-  return errors.map(({locations, message}, ii) => {
-    const prefix = (ii + 1) + '. ';
-    const indent = ' '.repeat(prefix.length);
-
-    //custom errors thrown in graphql-server may not have locations
-    const locationMessage = locations ?
-      ('\n' + locations.map(({column, line}) => {
-        const queryLine = queryLines[line - 1];
-        const offset = Math.min(column - 1, CONTEXT_BEFORE);
-        return [
-          queryLine.substr(column - 1 - offset, CONTEXT_LENGTH),
-          ' '.repeat(Math.max(0, offset)) + '^^^',
-        ].map(messageLine => indent + messageLine).join('\n');
-      }).join('\n')) :
-      '';
-
-    return prefix + message + locationMessage;
-
-  }).join('\n');
-}
-
-function createRequestError(
-  request: RelayMutationRequest | RelayQueryRequest,
-  responseStatus: string,
-  payload: any
-): Error {
-  const requestType =
-    request instanceof RelayMutationRequest ? 'mutation' : 'query';
-  const errorReason = typeof payload === 'object' ?
-    formatRequestErrors(request, payload.errors) :
-    `Server response had an error status: ${responseStatus}`;
-  const error = new Error(
-    `Server request for ${requestType} \`${request.getDebugName()}\` ` +
-    `failed for the following reasons:\n\n${errorReason}`
-  );
-  (error: any).source = payload;
-  (error: any).status = responseStatus;
-  return error;
 }
 
 module.exports = RelayDefaultNetworkLayer;

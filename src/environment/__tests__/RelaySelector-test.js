@@ -14,7 +14,7 @@ jest
   .autoMockOff();
 
 const {ROOT_ID} = require('RelayStoreConstants');
-const {graphql, getLegacyFragment, getLegacyOperation} = require('RelayGraphQLTag');
+const {graphql, getClassicFragment, getClassicOperation} = require('RelayGraphQLTag');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
@@ -41,7 +41,7 @@ describe('RelaySelector', () => {
     environment = new RelayEnvironment();
 
     const fragments = {
-      user: getLegacyFragment(graphql`
+      user: getClassicFragment(graphql`
         fragment RelaySelector_user on User {
           id
           name
@@ -50,7 +50,7 @@ describe('RelaySelector', () => {
           }
         }
       `),
-      users: getLegacyFragment(graphql`
+      users: getClassicFragment(graphql`
         fragment RelaySelector_users on User @relay(plural: true) {
           id
           name
@@ -73,7 +73,7 @@ describe('RelaySelector', () => {
         };
       },
     };
-    UserQuery = getLegacyOperation(graphql`
+    UserQuery = getClassicOperation(graphql`
       query RelaySelectorQuery($id: ID!, $size: Int, $cond: Boolean!) {
         node(id: $id) {
           ...Container_user

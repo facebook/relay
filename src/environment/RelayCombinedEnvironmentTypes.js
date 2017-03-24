@@ -167,7 +167,7 @@ export interface CEnvironment<
    * retained in-memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
    *
-   * Note: This is a no-op in the legacy core.
+   * Note: This is a no-op in the classic core.
    */
   retain(selector: CSelector<TNode>): Disposable,
 

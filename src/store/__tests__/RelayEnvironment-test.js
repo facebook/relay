@@ -24,7 +24,7 @@ const RelayTestUtils = require('RelayTestUtils');
 const createRelayQuery = require('createRelayQuery');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const mapObject = require('mapObject');
-const {graphql, getLegacyOperation} = require('RelayGraphQLTag');
+const {graphql, getClassicOperation} = require('RelayGraphQLTag');
 
 describe('RelayEnvironment', () => {
   let UserQuery;
@@ -43,7 +43,7 @@ describe('RelayEnvironment', () => {
 
     environment = new RelayEnvironment();
 
-    UserQuery = getLegacyOperation(graphql`
+    UserQuery = getClassicOperation(graphql`
       query RelayEnvironmentUserQuery($id: ID!, $size: Int) {
         user: node(id: $id) {
           id
@@ -81,7 +81,7 @@ describe('RelayEnvironment', () => {
     let FeedbackQuery, FeedbackMutation;
 
     beforeEach(() => {
-      FeedbackQuery = getLegacyOperation(graphql`
+      FeedbackQuery = getClassicOperation(graphql`
         query RelayEnvironmentFeedbackQuery($id: ID!) {
           feedback: node(id: $id) {
             id
@@ -108,7 +108,7 @@ describe('RelayEnvironment', () => {
         },
       );
 
-      FeedbackMutation = getLegacyOperation(graphql`
+      FeedbackMutation = getClassicOperation(graphql`
         mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
           feedbackLike {
             clientMutationId
@@ -207,7 +207,7 @@ describe('RelayEnvironment', () => {
       });
       environment.injectNetworkLayer({sendMutation});
 
-      FeedbackQuery = getLegacyOperation(graphql`
+      FeedbackQuery = getClassicOperation(graphql`
         query RelayEnvironmentFeedbackQuery($id: ID!) {
           feedback: node(id: $id) {
             id
@@ -234,7 +234,7 @@ describe('RelayEnvironment', () => {
         },
       );
 
-      FeedbackMutation = getLegacyOperation(graphql`
+      FeedbackMutation = getClassicOperation(graphql`
         mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
           feedbackLike {
             clientMutationId
@@ -392,7 +392,7 @@ describe('RelayEnvironment', () => {
     });
   });
 
-  // In the legacy core these functions intentionally have the same behavior
+  // In the classic core these functions intentionally have the same behavior
   ['sendQuery', 'sendQuerySubscription'].forEach(functionName => {
     describe(functionName + '()', () => {
       let callbacks;
@@ -523,7 +523,7 @@ describe('RelayEnvironment', () => {
       });
 
       it('supports multiple root fields', () => {
-        UserQuery = getLegacyOperation(graphql`
+        UserQuery = getClassicOperation(graphql`
           query RelayEnvironmentUserQuery {
             viewer {
               actor {
@@ -597,7 +597,7 @@ describe('RelayEnvironment', () => {
       });
 
       it('ignores empty fields', () => {
-        UserQuery = getLegacyOperation(graphql`
+        UserQuery = getClassicOperation(graphql`
           query RelayEnvironmentUserQuery {
             viewer {
               actor @include(if: false) {
@@ -647,7 +647,7 @@ describe('RelayEnvironment', () => {
       });
 
       it('writes id-less root fields (e.g. viewer)', () => {
-        UserQuery = getLegacyOperation(graphql`
+        UserQuery = getClassicOperation(graphql`
           query RelayEnvironmentUserQuery {
             viewer {
               actor {
@@ -714,7 +714,7 @@ describe('RelayEnvironment', () => {
 
       it('force-fetches data', () => {
         // Populate initial data for the query
-        const FriendsQuery = getLegacyOperation(graphql`
+        const FriendsQuery = getClassicOperation(graphql`
           query RelayEnvironmentFriendsQuery($id: ID!) {
             user: node(id: $id) {
               id
@@ -869,7 +869,7 @@ describe('RelayEnvironment', () => {
       );
     });
 
-    it('resolves fragment data with legacy readQuery()', () => {
+    it('resolves fragment data with classic readQuery()', () => {
       environment.sendQuery({operation});
       deferred.resolve({
         response: {

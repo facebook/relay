@@ -313,7 +313,7 @@ class RelayStoreData {
 
   /**
    * Write the results of an OSS query, which can have multiple root fields,
-   * updating both the root call map (for consistency with legacy queries)
+   * updating both the root call map (for consistency with classic queries)
    * and the root record (for consistency with modern queries/fragments).
    */
   handleOSSQueryPayload(
@@ -788,7 +788,7 @@ function getRootsWithPayloads(
         isPlural: concreteField.metadata && concreteField.metadata.isPlural,
       },
       name: query.getName(),
-      // Note that legacy queries are typed as the type of the root field, not
+      // Note that classic queries are typed as the type of the root field, not
       // the `Query` type
       type: field.getType(),
     };

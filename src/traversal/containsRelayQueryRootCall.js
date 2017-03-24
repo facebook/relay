@@ -67,7 +67,7 @@ const canonicalRootCalls = {
 /**
  * @private
  *
- * This is required to support legacy versions of GraphQL.
+ * This is required to support classic versions of GraphQL.
  */
 function getCanonicalName(name: string): string {
   if (canonicalRootCalls.hasOwnProperty(name)) {

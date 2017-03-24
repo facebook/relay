@@ -48,7 +48,7 @@ function getFragmentVariables(
         variables[definition.name] = definition.defaultValue;
         break;
       case 'RootArgument':
-        // In the new core this would be an error. In the legacy core a variable
+        // In the new core this would be an error. In the classic core a variable
         // may be conditionally unused, in which case it's okay for it to be
         // null.
         const rootValue = rootVariables[definition.name];

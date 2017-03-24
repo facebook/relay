@@ -15,11 +15,11 @@ require('configureForRelayOSS');
 
 const RelayEnvironment = require('RelayEnvironment');
 
-const isLegacyRelayEnvironment = require('isLegacyRelayEnvironment');
+const isClassicRelayEnvironment = require('isClassicRelayEnvironment');
 
-describe('isLegacyRelayEnvironment()', () => {
+describe('isClassicRelayEnvironment()', () => {
   it('returns true for `RelayEnvironment` instances', () => {
-    expect(isLegacyRelayEnvironment(new RelayEnvironment())).toBe(true);
+    expect(isClassicRelayEnvironment(new RelayEnvironment())).toBe(true);
   });
 
   it('returns true for objects that conform to the interface', () => {
@@ -31,7 +31,7 @@ describe('isLegacyRelayEnvironment()', () => {
       primeCache: () => null,
       sendMutation: () => null,
     };
-    expect(isLegacyRelayEnvironment(environment)).toBe(true);
+    expect(isClassicRelayEnvironment(environment)).toBe(true);
   });
 
   it('returns false for objects that do not conform to the interface', () => {
@@ -41,13 +41,13 @@ describe('isLegacyRelayEnvironment()', () => {
       getStoreData: true,
       primeCache: true,
     };
-    expect(isLegacyRelayEnvironment(fakeEnvironment)).toBe(false);
+    expect(isClassicRelayEnvironment(fakeEnvironment)).toBe(false);
   });
 
   it('returns false for non-objects', () => {
-    expect(isLegacyRelayEnvironment(null)).toBe(false);
-    expect(isLegacyRelayEnvironment(false)).toBe(false);
-    expect(isLegacyRelayEnvironment('relay')).toBe(false);
-    expect(isLegacyRelayEnvironment(1)).toBe(false);
+    expect(isClassicRelayEnvironment(null)).toBe(false);
+    expect(isClassicRelayEnvironment(false)).toBe(false);
+    expect(isClassicRelayEnvironment('relay')).toBe(false);
+    expect(isClassicRelayEnvironment(1)).toBe(false);
   });
 });

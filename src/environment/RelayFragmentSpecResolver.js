@@ -210,7 +210,7 @@ class SelectorResolver {
   }
 
   setVariables(variables: Variables): void {
-    // Note: in the legacy implementation variables have to be merged because
+    // Note: in the classic implementation variables have to be merged because
     // they also contain root variables.
     const selector = {
       ...this._selector,

@@ -31,8 +31,8 @@ const resolveImmediate = require('resolveImmediate');
 
 import type {ConcreteMutation} from 'ConcreteQuery';
 import type {ClientMutationID} from 'RelayInternalTypes';
-import type {FileMap} from 'RelayMutation';
 import type RelayMutation from 'RelayMutation';
+import type {FileMap} from 'RelayMutation';
 import type RelayQueryTracker from 'RelayQueryTracker';
 import type RelayStoreData from 'RelayStoreData';
 import type {
@@ -131,7 +131,7 @@ class RelayMutationQueue {
    * - A function that can build such an object.
    *
    * Used by the high-level `createTransaction` API, but also enables us to
-   * run legacy and low-level mutations.
+   * run classic and low-level mutations.
    */
   createTransactionWithPendingTransaction(
     pendingTransaction: ?PendingTransaction,

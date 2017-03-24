@@ -20,7 +20,7 @@ const StaticContainer = require('StaticContainer.react');
 const getRelayQueries = require('getRelayQueries');
 const mapObject = require('mapObject');
 
-import type {LegacyRelayContext, RelayEnvironmentInterface} from 'RelayEnvironment';
+import type {ClassicRelayContext, RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
@@ -66,11 +66,11 @@ export type RelayRetryCallback = () => void;
  */
 class RelayReadyStateRenderer extends React.Component {
   static childContextTypes = {
-    relay: RelayPropTypes.LegacyRelay,
+    relay: RelayPropTypes.ClassicRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
   };
 
-  _relay: LegacyRelayContext;
+  _relay: ClassicRelayContext;
   props: Props;
   state: {
     getContainerProps: RelayContainerPropsFactory,

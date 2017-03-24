@@ -108,7 +108,7 @@ function printOSSQuery(
 }
 
 /**
- * Prints the output of a legacy Relay.QL query.
+ * Prints the output of a classic Relay.QL query.
  */
 function printRoot(
   node: RelayQuery.Root,

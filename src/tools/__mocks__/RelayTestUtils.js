@@ -47,7 +47,7 @@ const RelayTestUtils = {
       }
     }
     ContextSetter.childContextTypes = {
-      relay: RelayPropTypes.LegacyRelay,
+      relay: RelayPropTypes.ClassicRelay,
       route: RelayPropTypes.QueryConfig.isRequired,
     };
 

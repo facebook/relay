@@ -217,7 +217,7 @@ const RelayQueryPath = {
     }
     invariant(
       path.type !== 'rootRecord',
-      'RelayQueryPath: Attempted to construct a legacy query, but the ' +
+      'RelayQueryPath: Attempted to construct a classic query, but the ' +
       'record was initially fetched with new Relay APIs. Ensure that ' +
       'deprecated components such as RelayContainer are not nested in ' +
       'new APIs such as QueryRenderer or FragmentContainer.'

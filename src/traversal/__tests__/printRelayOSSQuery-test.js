@@ -19,7 +19,7 @@ const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const {graphql, getLegacyOperation} = require('RelayGraphQLTag');
+const {graphql, getClassicOperation} = require('RelayGraphQLTag');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const printRelayOSSQuery = require('printRelayOSSQuery');
 
@@ -33,7 +33,7 @@ describe('printRelayOSSQuery', () => {
 
   describe('OSS queries', () => {
     it('prints a query with multiple root fields', () => {
-      const query = getNode(getLegacyOperation(graphql`
+      const query = getNode(getClassicOperation(graphql`
         query printRelayOSSQuery(
           $taskNumber: Int,
           $id: ID!,
@@ -76,7 +76,7 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints "empty" queries', () => {
-      const query = getNode(getLegacyOperation(graphql`
+      const query = getNode(getClassicOperation(graphql`
         query printRelayOSSQuery($cond: Boolean!) {
           viewer {
             actor @include(if: $cond) {
@@ -97,7 +97,7 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('skips "empty" fields', () => {
-      const query = getNode(getLegacyOperation(graphql`
+      const query = getNode(getClassicOperation(graphql`
         query printRelayOSSQuery($cond: Boolean!, $id: ID!) {
           node(id: $id) {
             ... on User {

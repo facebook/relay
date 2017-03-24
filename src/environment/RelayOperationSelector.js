@@ -27,7 +27,7 @@ import type {Variables} from 'RelayTypes';
  * @public
  *
  * Implementation of `RelayCore#createOperationSelector()` defined in
- * `RelayEnvironmentTypes` for the legacy core.
+ * `RelayEnvironmentTypes` for the classic core.
  */
 function createOperationSelector(
   operation: ConcreteOperationDefinition,

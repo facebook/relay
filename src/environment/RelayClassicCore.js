@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayLegacyCore
+ * @providesModule RelayClassicCore
  * @flow
  */
 
@@ -15,8 +15,8 @@
 const RelayFragmentSpecResolver = require('RelayFragmentSpecResolver');
 
 const {
-  getLegacyFragment,
-  getLegacyOperation,
+  getClassicFragment,
+  getClassicOperation,
 } = require('RelayGraphQLTag');
 const {createOperationSelector} = require('RelayOperationSelector');
 const {
@@ -47,7 +47,7 @@ function createFragmentSpecResolver(
 }
 
 /**
- * The legacy implementation of the `RelayCore` interface defined in
+ * The classic implementation of the `RelayCore` interface defined in
  * `RelayEnvironmentTypes`.
  */
 module.exports = {
@@ -55,8 +55,8 @@ module.exports = {
   createFragmentSpecResolver,
   createOperationSelector,
   getDataIDsFromObject,
-  getFragment: getLegacyFragment,
-  getOperation: getLegacyOperation,
+  getFragment: getClassicFragment,
+  getOperation: getClassicOperation,
   getSelector,
   getSelectorList,
   getSelectorsFromObject,

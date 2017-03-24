@@ -6,27 +6,27 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule isLegacyRelayContext
+ * @providesModule isClassicRelayContext
  * @flow
  */
 
 'use strict';
 
-const isLegacyRelayEnvironment = require('isLegacyRelayEnvironment');
+const isClassicRelayEnvironment = require('isClassicRelayEnvironment');
 const isRelayVariables = require('isRelayVariables');
 
 /**
  * Determine if a given value is an object that implements the `RelayContext`
  * interface.
  */
-function isLegacyRelayContext(relay: mixed): boolean {
+function isClassicRelayContext(relay: mixed): boolean {
   return (
     typeof relay === 'object' &&
     relay !== null &&
     !Array.isArray(relay) &&
-    isLegacyRelayEnvironment(relay.environment) &&
+    isClassicRelayEnvironment(relay.environment) &&
     isRelayVariables(relay.variables)
   );
 }
 
-module.exports = isLegacyRelayContext;
+module.exports = isClassicRelayContext;

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule isLegacyRelayEnvironment
+ * @providesModule isClassicRelayEnvironment
  * @flow
  */
 
@@ -16,7 +16,7 @@
  * Determine if a given value is an object that implements the `RelayEnvironment`
  * interface.
  */
-function isLegacyRelayEnvironment(environment: mixed): boolean {
+function isClassicRelayEnvironment(environment: mixed): boolean {
   return (
     typeof environment === 'object' &&
     environment !== null &&
@@ -29,4 +29,4 @@ function isLegacyRelayEnvironment(environment: mixed): boolean {
   );
 }
 
-module.exports = isLegacyRelayEnvironment;
+module.exports = isClassicRelayEnvironment;

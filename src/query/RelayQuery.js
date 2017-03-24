@@ -630,7 +630,7 @@ class RelayQueryRoot extends RelayQueryNode {
  *
  *    graphql`query ...`
  *
- * Unlike RelayQueryRoot (which represents the semantics of legacy GraphQL
+ * Unlike RelayQueryRoot (which represents the semantics of classic GraphQL
  * queries), this class supports multiple, arbitrary root fields within a single
  * query. Fields may have arbitrary numbers of arguments, return connections,
  * have aliases, etc.

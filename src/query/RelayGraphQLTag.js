@@ -55,7 +55,7 @@ graphql.experimental = function(): GraphQLTaggedNode {
   );
 };
 
-const LEGACY_NODE = '__legacy_node__';
+const CLASSIC_NODE = '__classic_node__';
 
 /**
  * Memoizes the results of executing the `.relay()` functions on
@@ -63,8 +63,8 @@ const LEGACY_NODE = '__legacy_node__';
  * object equality checks to compare fragments (useful, for example, when
  * comparing two `Selector`s to see if they select the same data).
  */
-function getLegacyNode(taggedNode) {
-  let concreteNode = (taggedNode: any)[LEGACY_NODE];
+function getClassicNode(taggedNode) {
+  let concreteNode = (taggedNode: any)[CLASSIC_NODE];
   if (concreteNode == null) {
     const fn = taggedNode.relay;
     invariant(
@@ -73,15 +73,15 @@ function getLegacyNode(taggedNode) {
       JSON.stringify(taggedNode),
     );
     concreteNode = fn();
-    (taggedNode: any)[LEGACY_NODE] = concreteNode;
+    (taggedNode: any)[CLASSIC_NODE] = concreteNode;
   }
   return concreteNode;
 }
 
-function getLegacyFragment(
+function getClassicFragment(
   taggedNode: GraphQLTaggedNode,
 ): ConcreteFragmentDefinition {
-  const concreteNode = getLegacyNode(taggedNode);
+  const concreteNode = getClassicNode(taggedNode);
   const fragment = QueryBuilder.getFragmentDefinition(concreteNode);
   invariant(
     fragment,
@@ -91,10 +91,10 @@ function getLegacyFragment(
   return fragment;
 }
 
-function getLegacyOperation(
+function getClassicOperation(
   taggedNode: GraphQLTaggedNode,
 ): ConcreteOperationDefinition {
-  const concreteNode = getLegacyNode(taggedNode);
+  const concreteNode = getClassicNode(taggedNode);
   const operation = QueryBuilder.getOperationDefinition(concreteNode);
   invariant(
     operation,
@@ -105,7 +105,7 @@ function getLegacyOperation(
 }
 
 module.exports = {
-  getLegacyFragment,
-  getLegacyOperation,
+  getClassicFragment,
+  getClassicOperation,
   graphql,
 };

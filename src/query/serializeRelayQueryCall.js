@@ -22,7 +22,7 @@ import type {
 /**
  * @internal
  *
- * Serializes a query "call" (a legacy combination of field and argument value).
+ * Serializes a query "call" (a classic combination of field and argument value).
  */
 function serializeRelayQueryCall(call: Call): string {
   const {value} = call;

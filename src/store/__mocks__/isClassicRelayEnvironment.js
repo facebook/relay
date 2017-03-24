@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('isLegacyRelayContext');
+module.exports = require.requireActual('isClassicRelayEnvironment');

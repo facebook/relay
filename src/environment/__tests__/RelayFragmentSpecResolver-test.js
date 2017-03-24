@@ -19,7 +19,7 @@ const RelayFragmentSpecResolver = require('RelayFragmentSpecResolver');
 const {ROOT_ID} = require('RelayStoreConstants');
 const RelayTestUtils = require('RelayTestUtils');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const {graphql, getLegacyFragment, getLegacyOperation} = require('RelayGraphQLTag');
+const {graphql, getClassicFragment, getClassicOperation} = require('RelayGraphQLTag');
 
 describe('RelayFragmentSpecResolver', () => {
   let UserFragment;
@@ -110,7 +110,7 @@ describe('RelayFragmentSpecResolver', () => {
     mockDisposableMethod(environment, 'subscribe');
 
     const fragments = {
-      user: getLegacyFragment(graphql`
+      user: getClassicFragment(graphql`
         fragment RelayFragmentSpecResolver_user on User {
           id
           name
@@ -119,7 +119,7 @@ describe('RelayFragmentSpecResolver', () => {
           }
         }
       `),
-      users: getLegacyFragment(graphql`
+      users: getClassicFragment(graphql`
         fragment RelayFragmentSpecResolver_users on User @relay(plural: true) {
           id
           name
@@ -142,7 +142,7 @@ describe('RelayFragmentSpecResolver', () => {
         };
       },
     };
-    UserQuery = getLegacyOperation(graphql`
+    UserQuery = getClassicOperation(graphql`
       query RelayFragmentSpecResolverQuery($id: ID!, $size: Int, $fetchSize: Boolean!) {
         node(id: $id) {
           ...Container_user

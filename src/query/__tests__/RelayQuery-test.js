@@ -23,7 +23,7 @@ const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const {getLegacyFragment, graphql} = require('RelayGraphQLTag');
+const {getClassicFragment, graphql} = require('RelayGraphQLTag');
 
 describe('RelayQuery', () => {
   const {getNode} = RelayTestUtils;
@@ -554,7 +554,7 @@ describe('RelayQuery', () => {
           // Create a call variable to simulate passing a `params` object
           size: QueryBuilder.createCallVariable('outerSize'),
         },
-        fragment: getLegacyFragment(fragments.foo),
+        fragment: getClassicFragment(fragments.foo),
       };
       const fragment = getNode(Relay.QL`
         fragment on User {
@@ -605,7 +605,7 @@ describe('RelayQuery', () => {
           // pass a literal value
           size: 'override',
         },
-        fragment: getLegacyFragment(fragments.foo),
+        fragment: getClassicFragment(fragments.foo),
       };
       const fragment = getNode(Relay.QL`
         fragment on User {

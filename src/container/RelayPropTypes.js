@@ -12,7 +12,7 @@
 
 'use strict';
 
-const isLegacyRelayEnvironment = require('isLegacyRelayEnvironment');
+const isClassicRelayEnvironment = require('isClassicRelayEnvironment');
 const isRelayContainer = require('isRelayContainer');
 const isRelayContext = require('isRelayContext');
 const isRelayEnvironment = require('isRelayEnvironment');
@@ -42,7 +42,7 @@ const RelayPropTypes = {
   Environment(props: Object, propName: string, componentName: string): ?Error {
     const context = props[propName];
     if (
-      !isLegacyRelayEnvironment(context) ||
+      !isClassicRelayEnvironment(context) ||
       !isRelayEnvironment(context)
     ) {
       return new Error(sprintf(
@@ -62,15 +62,15 @@ const RelayPropTypes = {
     queries: PropTypes.object.isRequired,
   }),
 
-  LegacyRelay(props: Object, propName: string, componentName: string): ?Error {
+  ClassicRelay(props: Object, propName: string, componentName: string): ?Error {
     const relay = props[propName];
     if (
       !isRelayContext(relay) ||
-      !isLegacyRelayEnvironment(relay.environment)
+      !isClassicRelayEnvironment(relay.environment)
     ) {
       return new Error(sprintf(
         'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
-        'an object with a legacy `environment` implementation and `variables`.',
+        'an object with a classic `environment` implementation and `variables`.',
         propName,
         componentName,
         relay

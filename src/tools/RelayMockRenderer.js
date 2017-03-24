@@ -36,7 +36,7 @@ class RelayMockRenderer extends React.Component {
   mockContext: any;
 
   static childContextTypes = {
-    relay: RelayPropTypes.LegacyRelay,
+    relay: RelayPropTypes.ClassicRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
     useFakeData: React.PropTypes.bool,
   };

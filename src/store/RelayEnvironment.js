@@ -13,8 +13,8 @@
 'use strict';
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const RelayClassicCore = require('RelayClassicCore');
 const RelayGraphQLMutation = require('RelayGraphQLMutation');
-const RelayLegacyCore = require('RelayLegacyCore');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
@@ -99,11 +99,11 @@ export interface RelayEnvironmentInterface {
 
 /**
  * A version of the `RelayContext` interface where the `environment` property
- * satisfies both new `Environment` API and the legacy environment API. Values
- * of this type allow both the legacy and new APIs to be used together within a
+ * satisfies both new `Environment` API and the classic environment API. Values
+ * of this type allow both the classic and new APIs to be used together within a
  * single React view hierarchy.
  */
-export type LegacyRelayContext = {
+export type ClassicRelayContext = {
   environment: RelayEnvironmentInterface,
   variables: Variables,
 };
@@ -396,7 +396,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     );
     this.applyUpdate = this.applyUpdate.bind(this);
     this.commitUpdate = this.commitUpdate.bind(this);
-    this.unstable_internal = RelayLegacyCore;
+    this.unstable_internal = RelayClassicCore;
   }
 
   /**

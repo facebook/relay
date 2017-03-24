@@ -31,7 +31,7 @@ const buildRQL = require('buildRQL');
 const filterObject = require('filterObject');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const isLegacyRelayContext = require('isLegacyRelayContext');
+const isClassicRelayContext = require('isClassicRelayContext');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
@@ -39,7 +39,7 @@ const warning = require('warning');
 const {getComponentName, getReactComponent} = require('RelayContainerUtils');
 
 import type {ConcreteFragment} from 'ConcreteQuery';
-import type {FragmentResolver, LegacyRelayContext} from 'RelayEnvironment';
+import type {FragmentResolver, ClassicRelayContext} from 'RelayEnvironment';
 import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 import type {
@@ -56,7 +56,7 @@ type FragmentPointer = {
   dataIDs: DataID | Array<DataID>
 };
 type RelayContainerContext = {
-  relay: LegacyRelayContext,
+  relay: ClassicRelayContext,
   route: RelayQueryConfigInterface,
   useFakeData: boolean,
 };
@@ -75,7 +75,7 @@ export type RelayContainerSpec = {
 export type RelayLazyContainer = Function;
 
 const containerContextTypes = {
-  relay: RelayPropTypes.LegacyRelay,
+  relay: RelayPropTypes.ClassicRelay,
   route: RelayPropTypes.QueryConfig.isRequired,
   useFakeData: React.PropTypes.bool,
 };
@@ -128,7 +128,7 @@ function createContainerComponent(
 
       const {relay, route} = context;
       invariant(
-        isLegacyRelayContext(relay),
+        isClassicRelayContext(relay),
         'RelayContainer: `%s` was rendered with invalid Relay context `%s`. ' +
         'Make sure the `relay` property on the React context conforms to the ' +
         '`RelayEnvironment` interface.',

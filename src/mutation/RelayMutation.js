@@ -33,7 +33,7 @@ import type {
 } from 'RelayTypes';
 import type {RelayQLFragmentBuilder} from 'buildRQL';
 
-export type FileMap = {[key: string]: File};
+export type FileMap = {[key: string]: File | FileList};
 export type RelayMutationFragments<Tk> = {
   [key: Tk]: RelayQLFragmentBuilder;
 };

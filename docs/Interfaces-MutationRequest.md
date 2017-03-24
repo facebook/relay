@@ -64,10 +64,10 @@ Gets the variables used by the mutation. These variables should be serialized an
 ### getFiles
 
 ```
-getFiles(): ?{[key: string]: File}
+getFiles(): ?{[key: string]: File | FileList}
 ```
 
-Gets an optional map from name to File objects.
+Gets an optional map from name to File objects or FileList objects.
 
 ### getID
 

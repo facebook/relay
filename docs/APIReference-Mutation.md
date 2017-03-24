@@ -387,10 +387,10 @@ class LikeStoryMutation extends Relay.Mutation {
 getFiles(): ?FileMap
 
 // Type of the FileMap object
-type FileMap = {[key: string]: File};
+type FileMap = {[key: string]: File | FileList};
 ```
 
-Implement this method to return a map of `File` objects to upload as part of a mutation.
+Implement this method to return a map of `File` or `FileList` objects to upload as part of a mutation.
 
 #### Example
 

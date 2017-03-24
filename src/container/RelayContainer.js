@@ -798,6 +798,10 @@ function createContainerComponent(
         !RelayContainerComparators.areQueryVariablesEqual(
           this.state.relayProp.variables,
           nextState.relayProp.variables
+        ) ||
+        !RelayContainerComparators.areQueryVariablesEqual(
+          this.state.relayProp.pendingVariables,
+          nextState.relayProp.pendingVariables
         )
       );
     }

@@ -164,23 +164,24 @@ describe('RelayReadyState', () => {
     expect(onReadyStateChange.mock.calls.length).toBe(1);
   });
 
-  it('warns about state changes after encountering errors', () => {
+  fit('handles state changes after encountering errors', () => {
     const error = new Error('Expected error.');
     readyState.update({error});
     jest.runAllTimers();
     readyState.update({ready: true});
 
-    expect([
-      'RelayReadyState: Invalid state change from `%s` to `%s`.',
-      JSON.stringify(
-        {aborted: false, done: false, error, events: [], ready: false, stale: false}
-      ),
-      JSON.stringify({ready: true}),
-    ]).toBeWarnedNTimes(1);
-
+    expect(warning).not.toBeCalled();
     expect(onReadyStateChange.mock.calls.length).toBe(1);
+    expect(onReadyStateChange.mock.calls[0]).toEqual(
+      [{aborted: false, done: false, error, events: [], ready: false, stale: false}]
+    );
     jest.runAllTimers();
-    expect(onReadyStateChange.mock.calls.length).toBe(1);
+
+    expect(warning).not.toBeCalled();
+    expect(onReadyStateChange.mock.calls.length).toBe(2);
+    expect(onReadyStateChange.mock.calls[1]).toEqual(
+      [{aborted: false, done: false, error, events: [], ready: true, stale: false}]
+    );
   });
 
   it('ignores state changed to aborted when done', () => {

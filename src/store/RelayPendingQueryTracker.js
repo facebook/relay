@@ -95,11 +95,12 @@ class PendingFetch {
   _fetchQueryPromise: Promise<any>;
 
   _resolvedQuery: boolean;
-  _resolvedDeferred: Deferred<void, ?Error>;
+  _resolvedDeferred: Deferred<?Error, ?Error>;
 
   _storeData: RelayStoreData;
 
   _error: ?Error;
+  _hasErrorAndResponse: boolean;
 
   constructor(
     {fetchMode, forceIndex, query}: PendingQueryParameters,
@@ -124,6 +125,7 @@ class PendingFetch {
 
     this._fetchedQuery = false;
     this._error = null;
+    this._hasErrorAndResponse = false;
 
     this._pendingFetchMap[queryID] = {
       fetch: this,
@@ -174,7 +176,25 @@ class PendingFetch {
   _handleQueryFailure(
     error: Error
   ): void {
-    this._markAsRejected(error);
+    if (error.source && error.source.data) {
+      const response = error.source.data;
+      invariant(
+        response && typeof response === 'object',
+        'RelayPendingQueryTracker: Expected response to be an object, got ' +
+        '`%s`.',
+        response ? typeof response : response
+      );
+      // handle the succesful payload part of the response
+      this._handleQuerySuccess({response});
+
+      // handle the error part of the response
+      console.warn(error.message);
+      this._error = error;
+      this._hasErrorAndResponse = true;
+      this._updateResolvedDeferred();
+    } else {
+      this._markAsRejected(error);
+    }
   }
 
   _markQueryAsResolved(): void {
@@ -198,7 +218,11 @@ class PendingFetch {
   _updateResolvedDeferred(): void {
     if (this._isSettled() && !this._resolvedDeferred.isSettled()) {
       if (this._error) {
-        this._resolvedDeferred.reject(this._error);
+        if (this._hasErrorAndResponse) {
+          this._resolvedDeferred.resolve(this._error);
+        } else {
+          this._resolvedDeferred.reject(this._error);
+        }
       } else {
         this._resolvedDeferred.resolve(undefined);
       }

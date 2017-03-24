@@ -133,7 +133,7 @@ function runQueries(
   const remainingFetchMap: {[queryID: string]: PendingFetch} = {};
   const remainingRequiredFetchMap: {[queryID: string]: PendingFetch} = {};
 
-  function onResolved(pendingFetch: PendingFetch) {
+  function onResolved(pendingFetch: PendingFetch, error: ?Error) {
     const pendingQuery = pendingFetch.getQuery();
     const pendingQueryID = pendingQuery.getID();
     delete remainingFetchMap[pendingQueryID];
@@ -142,27 +142,37 @@ function runQueries(
     }
 
     if (hasItems(remainingRequiredFetchMap)) {
+      if (error) {
+        readyState.update({error: error}, [{type: 'NETWORK_QUERY_ERROR', error}]);
+      }
       return;
     }
 
     if (someObject(remainingFetchMap, query => query.isResolvable())) {
       // The other resolvable query will resolve imminently and call
       // `readyState.update` instead.
+      if (error) {
+        readyState.update({error: error}, [{type: 'NETWORK_QUERY_ERROR', error}]);
+      }
       return;
     }
 
+    const partialReadyState = {
+      stale: false,
+      ready: true
+    };
+
+    if (error) {
+      (partialReadyState: any).error = error;
+    }
+
+
     if (hasItems(remainingFetchMap)) {
-      readyState.update({
-        done: false,
-        ready: true,
-        stale: false,
-      }, [{type: 'NETWORK_QUERY_RECEIVED_REQUIRED'}]);
+      (partialReadyState: any).done = false;
+      readyState.update(partialReadyState, [{type: 'NETWORK_QUERY_RECEIVED_REQUIRED'}]);
     } else {
-      readyState.update({
-        done: true,
-        ready: true,
-        stale: false,
-      }, [{type: 'NETWORK_QUERY_RECEIVED_ALL'}]);
+      (partialReadyState: any).done = true;
+      readyState.update(partialReadyState, [{type: 'NETWORK_QUERY_RECEIVED_ALL'}]);
     }
   }
 

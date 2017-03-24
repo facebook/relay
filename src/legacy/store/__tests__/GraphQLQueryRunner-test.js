@@ -534,6 +534,58 @@ describe('GraphQLQueryRunner', () => {
     });
   });
 
+  fit('is done with error after all partial data is fetched', () => {
+    // We can have an error from the fetch but still get partial data
+    // back from the backend.
+    diffRelayQuery.mockImplementation(query => [query]);
+    mockSplitDeferredQueries();
+    const error = Error();
+
+    queryRunner.run(mockQuerySet, mockCallback);
+    jest.runAllTimers();
+
+    pendingQueryTracker.add.mock.fetches[0].resolve(error);
+    pendingQueryTracker.add.mock.fetches[1].resolve();
+    jest.runAllTimers();
+
+    expect(mockCallback.mock.calls).toEqual([
+      [{aborted: false,
+        done: false,
+        error: null,
+        events: [
+          { type: 'NETWORK_QUERY_START' },
+          { type: 'CACHE_RESTORE_START' }
+        ],
+        ready: false,
+        stale: false
+      }],
+      [{aborted: false,
+        done: false,
+        error: null,
+        events: [
+          { type: 'NETWORK_QUERY_START' },
+          { type: 'CACHE_RESTORE_START' },
+          { type: 'CACHE_RESTORE_FAILED' }
+        ],
+        ready: false,
+        stale: false
+      }],
+      [{aborted: false,
+        done: true,
+        error: error,
+        events: [
+          { type: 'NETWORK_QUERY_START' },
+          { type: 'CACHE_RESTORE_START' },
+          { type: 'CACHE_RESTORE_FAILED' },
+          { type: 'NETWORK_QUERY_ERROR', error: error },
+          { type: 'NETWORK_QUERY_RECEIVED_ALL' }
+        ],
+        ready: true,
+        stale: false
+      }],
+    ]);
+  });
+
   it('calls the callback when aborted', () => {
     diffRelayQuery.mockImplementation(query => [query]);
     mockSplitDeferredQueries();

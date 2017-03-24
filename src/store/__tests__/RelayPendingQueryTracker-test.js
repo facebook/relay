@@ -130,6 +130,34 @@ describe('RelayPendingQueryTracker', () => {
     expect(mockFailureA).toBeCalledWith(mockError);
   });
 
+  it('handles the succesful response part if fetching throws an error', () => {
+    const mockQuery = getNode(Relay.QL`
+      query {
+        viewer{actor{id,name}}
+      }
+    `);
+    const pendingA = addPending({query: mockQuery});
+    const mockFailureA = jest.fn();
+    const mockSuccessA = jest.fn();
+    pendingA.done(mockSuccessA);
+
+    const mockError = new Error('Expected error.');
+    mockError.source = {
+      data: {viewer:{}}
+    };
+    fetchRelayQuery.mock.requests[0].reject(mockError);
+    expect(() => {
+      jest.runAllTimers();
+    }).toConsoleWarn([mockError.message]);
+
+    const writeCalls = writeRelayQueryPayload.mock.calls;
+    expect(writeCalls.length).toBe(1);
+    expect(writeCalls[0][1]).toEqualQueryRoot(mockQuery);
+    expect(writeCalls[0][2]).toEqual({viewer:{}});
+
+    expect(mockSuccessA).toBeCalledWith(mockError);
+  });
+
   it('fails if `writeRelayQueryPayload` throws', () => {
     const mockQuery = getNode(Relay.QL`
       query {

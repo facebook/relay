@@ -17,7 +17,7 @@ const RelayParser = require('RelayParser');
 
 const invariant = require('invariant');
 
-const {getOperationDefinitionAST} = require('RelaySchemaUtils');
+const {isOperationDefinitionAST} = require('RelaySchemaUtils');
 
 import type {
   Fragment,
@@ -220,9 +220,8 @@ function parse(
 
   const nodes = [];
   definitions.forEach(definition => {
-    const operationDefinition = getOperationDefinitionAST(definition);
-    if (operationDefinition) {
-      nodes.push(RelayParser.transform(schema, operationDefinition));
+    if (isOperationDefinitionAST(definition)) {
+      nodes.push(RelayParser.transform(schema, definition));
     }
   });
   return nodes;

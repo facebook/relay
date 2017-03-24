@@ -20,7 +20,6 @@ const nullthrows = require('nullthrows');
 import type {
   ASTNode,
   DefinitionNode,
-  FragmentDefinitionNode,
   GraphQLCompositeType,
   GraphQLDirective,
   GraphQLEnumType,
@@ -29,9 +28,7 @@ import type {
   GraphQLNullableType,
   GraphQLScalarType,
   GraphQLType,
-  OperationDefinitionNode,
   TypeNode,
-  TypeSystemDefinitionNode,
 } from 'graphql';
 
 const {
@@ -241,20 +238,11 @@ function parseSchema(text: string): GraphQLSchema {
  *
  * Determine if an AST node contains a fragment/operation definition.
  */
-function isOperationDefinitionAST(ast: ASTNode): boolean {
+function isOperationDefinitionAST(ast: ASTNode): boolean %checks {
   return (
     ast.kind === 'FragmentDefinition' ||
     ast.kind === 'OperationDefinition'
   );
-}
-
-function getOperationDefinitionAST(
-  ast: ASTNode,
-): ?(FragmentDefinitionNode | OperationDefinitionNode) {
-  if (isOperationDefinitionAST(ast)) {
-    return (ast: any);
-  }
-  return null;
 }
 
 /**
@@ -262,7 +250,7 @@ function getOperationDefinitionAST(
  *
  * Determine if an AST node contains a schema definition.
  */
-function isSchemaDefinitionAST(ast: ASTNode): boolean {
+function isSchemaDefinitionAST(ast: ASTNode): boolean %checks {
   return (
     ast.kind === 'DirectiveDefinition' ||
     ast.kind === 'EnumTypeDefinition' ||
@@ -273,13 +261,6 @@ function isSchemaDefinitionAST(ast: ASTNode): boolean {
     ast.kind === 'TypeExtensionDefinition' ||
     ast.kind === 'UnionTypeDefinition'
   );
-}
-
-function getSchemaDefinitionAST(ast: ASTNode): ?TypeSystemDefinitionNode {
-  if (isSchemaDefinitionAST(ast)) {
-    return (ast: any);
-  }
-  return null;
 }
 
 function assertTypeWithFields(type: GraphQLType): GraphQLObjectType | GraphQLInterfaceType {
@@ -340,9 +321,7 @@ module.exports = {
   definitionName,
   canHaveSelections,
   getNullableType,
-  getOperationDefinitionAST,
   getRawType,
-  getSchemaDefinitionAST,
   getSingularType,
   getTypeFromAST,
   hasID,

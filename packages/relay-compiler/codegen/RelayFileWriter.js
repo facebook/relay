@@ -16,7 +16,7 @@ const RelayValidator = require('RelayValidator');
 const writeFlowFile = require('./writeFlowFile');
 const writeRelayQLFile = require('./writeRelayQLFile');
 
-const {getOperationDefinitionAST} = require('RelaySchemaUtils');
+const {isOperationDefinitionAST} = require('RelaySchemaUtils');
 const {Map: ImmutableMap} = require('immutable');
 
 import type {CompilerTransforms} from 'RelayCompiler';
@@ -83,9 +83,8 @@ class RelayFileWriter {
     const baseDefinitionNames = new Set();
     this._baseDocuments.forEach(doc => {
       doc.definitions.forEach(def => {
-        const astDefinition = getOperationDefinitionAST(def);
-        if (astDefinition && astDefinition.name) {
-          baseDefinitionNames.add(astDefinition.name.value);
+        if (isOperationDefinitionAST(def) && def.name) {
+          baseDefinitionNames.add(def.name.value);
         }
       });
     });

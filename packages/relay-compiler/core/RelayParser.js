@@ -22,9 +22,9 @@ const partitionArray = require('partitionArray');
 const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
 const {
   getNullableType,
-  getOperationDefinitionAST,
   getRawType,
   getTypeFromAST,
+  isOperationDefinitionAST,
 } = require('RelaySchemaUtils');
 
 import type {
@@ -113,9 +113,8 @@ function parse(
   const nodes = [];
   schema = GraphQL.extendSchema(schema, ast);
   ast.definitions.forEach(definition => {
-    const operationDefinition = getOperationDefinitionAST(definition);
-    if (operationDefinition) {
-      nodes.push(transform(schema, operationDefinition));
+    if (isOperationDefinitionAST(definition)) {
+      nodes.push(transform(schema, definition));
     }
   });
   return nodes;

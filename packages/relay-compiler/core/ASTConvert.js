@@ -11,8 +11,8 @@ const RelayParser = require('RelayParser');
 const RelayValidator = require('RelayValidator');
 
 const {
+  isOperationDefinitionAST,
   isSchemaDefinitionAST,
-  getOperationDefinitionAST,
 } = require('RelaySchemaUtils');
 const {extendSchema, visit} = require('graphql');
 
@@ -39,10 +39,8 @@ function convertASTDocuments(
   const astDefinitions: Array<ASTDefinitionNode> = [];
   documents.forEach(doc => {
     doc.definitions.forEach(definition => {
-      // TODO: isOperationDefinitionAST should %checks, once %checks is available
-      const astDefinition = getOperationDefinitionAST(definition);
-      if (astDefinition) {
-        astDefinitions.push((definition: any));
+      if (isOperationDefinitionAST(definition)) {
+        astDefinitions.push(definition);
       }
     });
   });
@@ -62,20 +60,18 @@ function convertASTDocumentsWithBase(
   const requiredDefinitions = new Map();
   const baseMap: Map<string, ASTDefinitionNode> = new Map();
   baseDefinitions.forEach(definition => {
-    const astDefinition = getOperationDefinitionAST(definition);
-    if (astDefinition) {
-      if (astDefinition.name) {
+    if (isOperationDefinitionAST(definition)) {
+      if (definition.name) {
         // If there's no name, no reason to put in the map
-        baseMap.set(astDefinition.name.value, astDefinition);
+        baseMap.set(definition.name.value, definition);
       }
     }
   });
 
   const definitionsToVisit: Array<ASTDefinitionNode> = [];
   definitions.forEach(definition => {
-    const astDefinition = getOperationDefinitionAST(definition);
-    if (astDefinition) {
-      definitionsToVisit.push(astDefinition);
+    if (isOperationDefinitionAST(definition)) {
+      definitionsToVisit.push(definition);
     }
   });
   while (definitionsToVisit.length > 0) {
@@ -111,9 +107,8 @@ function convertASTDefinitions(
 ): Array<Fragment | Root> {
   const operationDefinitions: Array<ASTDefinitionNode> = [];
   definitions.forEach(definition => {
-    const operation: ?ASTDefinitionNode = getOperationDefinitionAST(definition);
-    if (operation) {
-      operationDefinitions.push(operation);
+    if (isOperationDefinitionAST(definition)) {
+      operationDefinitions.push(definition);
     }
   });
 

@@ -7525,6 +7525,18 @@
               "deprecationReason": null
             },
             {
+              "name": "deletedComment",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Comment",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "feedback",
               "description": null,
               "args": [],

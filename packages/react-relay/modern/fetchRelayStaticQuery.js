@@ -12,7 +12,7 @@
 
 'use strict';
 
-import type {SelectorData, CacheConfig} from 'RelayCombinedEnvironmentTypes';
+import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 import type {Variables} from 'RelayTypes';
 
@@ -23,13 +23,18 @@ import type {Variables} from 'RelayTypes';
  *
  * NOTE: This module is primarily intended for integrating with classic APIs.
  * Most product code should use a Renderer or Container.
+ *
+ * TODO(t16875667): The return type should be `Promise<?SelectorData>`, but
+ * that's not really helpful as `SelectorData` is essentially just `mixed`. We
+ * can probably leverage generated flow types here to return the real expected
+ * shape.
  */
 function fetchRelayStaticQuery(
   environment: $FlowFixMe,
   taggedNode: GraphQLTaggedNode,
   variables: Variables,
   cacheConfig?: ?CacheConfig,
-): Promise<?SelectorData> {
+): Promise<$FlowFixMe> {
   const {
     createOperationSelector,
     getOperation,

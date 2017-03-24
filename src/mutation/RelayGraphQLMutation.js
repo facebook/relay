@@ -323,6 +323,24 @@ class PendingGraphQLTransaction {
       );
       this._optimisticMutation =
         (mutation: any); // Cast RelayQuery.{Node -> Mutation}.
+      /* eslint-disable no-console */
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        console.groupCollapsed(
+          'Optimistic query for `' + this._optimisticMutation.getCall().name + '`'
+        );
+        const printedQuery = this._optimisticMutation ? require('printRelayQuery')(this._optimisticMutation) : null;
+        console.groupCollapsed('Optimistic Variables');
+        console.log(printedQuery ? printedQuery.variables : {});
+        console.groupEnd();
+        console.groupCollapsed('Optimistic Query');
+        console.log(printedQuery ? printedQuery.text : '');
+        console.groupEnd();
+        console.groupCollapsed('Optimistic Response');
+        console.log(this.getOptimisticResponse());
+        console.groupEnd();
+        console.groupEnd();
+      }
+      /* eslint-enable no-console */
     }
     return this._optimisticMutation;
   }
@@ -343,6 +361,21 @@ class PendingGraphQLTransaction {
         this._getVariables()
       );
       this._mutation = (mutation: any); // Cast RelayQuery.{Node -> Mutation}.
+      /* eslint-disable no-console */
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        console.groupCollapsed(
+          'Mutation query for `' + this.getCallName() + '`'
+        );
+        const printedQuery = this._mutation ? require('printRelayQuery')(this._mutation) : null;
+        console.groupCollapsed('Mutation Variables');
+        console.log(printedQuery ? printedQuery.variables : {});
+        console.groupEnd();
+        console.groupCollapsed('Mutation Query');
+        console.log(printedQuery ? printedQuery.text : '');
+        console.groupEnd();
+        console.groupEnd();
+      }
+      /* eslint-enable no-console */
     }
     return this._mutation;
   }

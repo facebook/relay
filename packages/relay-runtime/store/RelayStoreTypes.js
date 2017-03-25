@@ -223,6 +223,18 @@ export interface Environment extends CEnvironment<
     updater?: ?SelectorStoreUpdater,
     uploadables?: UploadableMap,
   |}): Disposable,
+
+  /**
+   * Send a (GraphQL) subscription to the server. Whenever there is a push from
+   * the server, commit the update to the environment.
+   */
+  sendSubscription(config: {|
+    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
+    onNext?: ?(payload: RelayResponsePayload) => void,
+    onError?: ?(error: Error) => void,
+    operation: OperationSelector,
+    updater?: ?SelectorStoreUpdater,
+  |}): Disposable,
 }
 
 export type Observer<T> = {

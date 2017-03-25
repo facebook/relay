@@ -14,6 +14,7 @@
 
 const RelayError = require('RelayError');
 
+const invariant = require('invariant');
 const normalizeRelayPayload = require('normalizeRelayPayload');
 
 const {ROOT_ID} = require('RelayStoreUtils');
@@ -25,6 +26,7 @@ import type {
   Network,
   QueryPayload,
   RelayResponsePayload,
+  RequestStreamFunction,
   UploadableMap,
 } from 'RelayNetworkTypes';
 import type {Observer} from 'RelayStoreTypes';
@@ -35,7 +37,8 @@ import type {Variables} from 'RelayTypes';
  * `RelayNetworkTypes` given a single `fetch` function.
  */
 function create(
-  fetch: FetchFunction
+  fetch: FetchFunction,
+  subscribe?: RequestStreamFunction,
 ): Network {
   async function request(
     operation: ConcreteBatch,
@@ -53,29 +56,44 @@ function create(
     cacheConfig: ?CacheConfig,
     {onCompleted, onError, onNext}: Observer<RelayResponsePayload>,
   ): Disposable {
+    if (operation.query.operation === 'subscription') {
+      invariant(
+        subscribe,
+        'The default network layer does not support GraphQL Subscriptions. To use ' +
+        'Subscriptions, provide a custom network layer.',
+      );
+      return subscribe(operation, variables, null, {
+        onCompleted,
+        onError,
+        onNext,
+      });
+    }
+
     let isDisposed = false;
-    fetch(operation, variables, cacheConfig).then(
-      payload => {
-        if (isDisposed) {
-          return;
-        }
-        let relayPayload;
-        try {
-          relayPayload = normalizePayload(operation, variables, payload);
-        } catch (err) {
-          onError && onError(err);
-          return;
-        }
-        onNext && onNext(relayPayload);
-        onCompleted && onCompleted();
-      },
-      error => {
-        if (isDisposed) {
-          return;
-        }
-        onError && onError(error);
-      }
-    ).catch(rethrow);
+    fetch(operation, variables, cacheConfig)
+      .then(
+        payload => {
+          if (isDisposed) {
+            return;
+          }
+          let relayPayload;
+          try {
+            relayPayload = normalizePayload(operation, variables, payload);
+          } catch (err) {
+            onError && onError(err);
+            return;
+          }
+          onNext && onNext(relayPayload);
+          onCompleted && onCompleted();
+        },
+        error => {
+          if (isDisposed) {
+            return;
+          }
+          onError && onError(error);
+        },
+      )
+      .catch(rethrow);
     return {
       dispose() {
         isDisposed = true;
@@ -111,7 +129,7 @@ function normalizePayload(
   const error = RelayError.create(
     'RelayNetwork',
     'No data returned for operation `%s`, got error(s):\n%s\n\nSee the error ' +
-    '`source` property for more information.',
+      '`source` property for more information.',
     operation.name,
     errors ? errors.map(({message}) => message).join('\n') : '(No errors)',
   );
@@ -120,9 +138,12 @@ function normalizePayload(
 }
 
 function rethrow(err) {
-  setTimeout(() => {
-    throw err;
-  }, 0);
+  setTimeout(
+    () => {
+      throw err;
+    },
+    0,
+  );
 }
 
 module.exports = {create};

@@ -21,6 +21,7 @@ const RelayStaticGraphQLTag = require('RelayStaticGraphQLTag');
 const commitLocalUpdate = require('commitLocalUpdate');
 const commitRelayStaticMutation = require('commitRelayStaticMutation');
 const fetchRelayStaticQuery = require('fetchRelayStaticQuery');
+const requestRelaySubscription = require('requestRelaySubscription');
 
 export type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 export type {
@@ -51,4 +52,5 @@ module.exports = {
   createRefetchContainer: ReactRelayRefetchContainer.createContainer,
   fetchQuery: fetchRelayStaticQuery,
   graphql: RelayStaticGraphQLTag.graphql,
+  requestSubscription: requestRelaySubscription,
 };

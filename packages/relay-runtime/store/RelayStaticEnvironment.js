@@ -219,6 +219,35 @@ class RelayStaticEnvironment implements Environment {
     });
     return {dispose};
   }
+
+  sendSubscription({
+    onCompleted,
+    onNext,
+    onError,
+    operation,
+    updater,
+  }: {
+    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
+    onNext?: ?(payload: RelayResponsePayload) => void,
+    onError?: ?(error: Error) => void,
+    operation: OperationSelector,
+    updater?: ?SelectorStoreUpdater,
+  }): Disposable {
+    return this._network.requestStream(
+      operation.node,
+      operation.variables,
+      {force: true},
+      {
+        onCompleted,
+        onError,
+        onNext: payload => {
+          this._publishQueue.commitPayload(operation.fragment, payload, updater);
+          this._publishQueue.run();
+          onNext && onNext(payload);
+        },
+      },
+    );
+  }
 }
 
 module.exports = RelayStaticEnvironment;

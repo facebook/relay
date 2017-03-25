@@ -369,7 +369,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     return {dispose};
   }
 
-  sendQuerySubscription(config: {
+  streamQuery(config: {
     cacheConfig?: ?CacheConfig,
     onCompleted?: ?() => void,
     onError?: ?(error: Error) => void,

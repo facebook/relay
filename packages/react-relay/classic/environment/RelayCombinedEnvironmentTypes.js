@@ -176,10 +176,10 @@ export interface CEnvironment<
    * either complete successfully (calling `onNext` and `onCompleted`) or fail
    * (calling `onError`).
    *
-   * Note: Most applications should use `sendQuerySubscription` in order to
+   * Note: Most applications should use `streamQuery` in order to
    * optionally receive updated information over time, should that feature be
    * supported by the network/server. A good rule of thumb is to use this method
-   * if you would otherwise immediately dispose the `sendQuerySubscription()`
+   * if you would otherwise immediately dispose the `streamQuery()`
    * after receving the first `onNext` result.
    */
   sendQuery(config: {|
@@ -198,7 +198,7 @@ export interface CEnvironment<
    * Networks/servers that support subscriptions may choose to hold the
    * subscription open indefinitely such that `onCompleted` is not called.
    */
-  sendQuerySubscription(config: {|
+  streamQuery(config: {|
     cacheConfig?: ?CacheConfig,
     onCompleted?: ?() => void,
     onError?: ?(error: Error) => void,

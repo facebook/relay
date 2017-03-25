@@ -247,7 +247,7 @@ class ReactRelayQueryRenderer extends React.Component {
     if (this._rootSubscription) {
       this._rootSubscription.dispose();
     }
-    const request = environment.sendQuerySubscription({
+    const request = environment.streamQuery({
       cacheConfig,
       onCompleted,
       onError,

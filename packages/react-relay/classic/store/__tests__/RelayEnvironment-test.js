@@ -393,7 +393,7 @@ describe('RelayEnvironment', () => {
   });
 
   // In the classic core these functions intentionally have the same behavior
-  ['sendQuery', 'sendQuerySubscription'].forEach(functionName => {
+  ['sendQuery', 'streamQuery'].forEach(functionName => {
     describe(functionName + '()', () => {
       let callbacks;
       let deferred;

@@ -36,7 +36,7 @@ export interface ResponseCache {
 export interface Network {
   fetch: FetchFunction,
   request: RequestResponseFunction,
-  requestSubscription: RequestSubscriptionFunction,
+  requestStream: RequestStreamFunction,
 }
 
 export type PayloadData = {[key: string]: mixed};
@@ -85,7 +85,7 @@ export type FetchFunction = (
  * initial result and optional updates e.g. as the results of the operation
  * change.
  */
-export type RequestSubscriptionFunction = (
+export type RequestStreamFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: ?CacheConfig,

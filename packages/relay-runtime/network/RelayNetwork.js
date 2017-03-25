@@ -47,7 +47,7 @@ function create(
     return normalizePayload(operation, variables, payload);
   }
 
-  function requestSubscription(
+  function requestStream(
     operation: ConcreteBatch,
     variables: Variables,
     cacheConfig: ?CacheConfig,
@@ -86,7 +86,7 @@ function create(
   return {
     fetch,
     request,
-    requestSubscription,
+    requestStream,
   };
 }
 

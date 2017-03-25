@@ -527,7 +527,7 @@ describe('RelayStaticEnvironment', () => {
     });
   });
 
-  describe('sendQuerySubscription()', () => {
+  describe('streamQuery()', () => {
     let callbacks;
     let environment;
     let fetch;
@@ -596,14 +596,14 @@ describe('RelayStaticEnvironment', () => {
       environment = new RelayStaticEnvironment({
         network: {
           request: () => new Deferred(), // not used in this test
-          requestSubscription: fetch,
+          requestStream: fetch,
         },
         store,
       });
     });
 
     it('fetches queries', () => {
-      environment.sendQuerySubscription({operation});
+      environment.streamQuery({operation});
       expect(fetch.mock.calls.length).toBe(1);
       expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
@@ -612,7 +612,7 @@ describe('RelayStaticEnvironment', () => {
 
     it('fetches queries with force:true', () => {
       const cacheConfig = {force: true};
-      environment.sendQuerySubscription({cacheConfig, operation});
+      environment.streamQuery({cacheConfig, operation});
       expect(fetch.mock.calls.length).toBe(1);
       expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
@@ -620,7 +620,7 @@ describe('RelayStaticEnvironment', () => {
     });
 
     it('calls onNext() when payloads return', () => {
-      environment.sendQuerySubscription({
+      environment.streamQuery({
         ...callbacks,
         operation,
       });
@@ -651,7 +651,7 @@ describe('RelayStaticEnvironment', () => {
     });
 
     it('calls onCompleted() when the network request completes', () => {
-      environment.sendQuerySubscription({
+      environment.streamQuery({
         ...callbacks,
         operation,
       });
@@ -662,7 +662,7 @@ describe('RelayStaticEnvironment', () => {
     });
 
     it('calls onError() when the batch has an error', () => {
-      environment.sendQuerySubscription({
+      environment.streamQuery({
         ...callbacks,
         operation,
       });
@@ -685,7 +685,7 @@ describe('RelayStaticEnvironment', () => {
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
-      environment.sendQuerySubscription({
+      environment.streamQuery({
         ...callbacks,
         operation,
       });

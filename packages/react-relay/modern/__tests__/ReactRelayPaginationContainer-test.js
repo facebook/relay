@@ -855,7 +855,7 @@ describe('ReactRelayPaginationContainer', () => {
         id: '4',
       };
       const {dispose} = loadMore(1, jest.fn());
-      const sendQueryDispose = environment.sendQuerySubscription.mock.dispose;
+      const sendQueryDispose = environment.streamQuery.mock.dispose;
       expect(sendQueryDispose).not.toBeCalled();
       dispose();
       expect(sendQueryDispose).toBeCalled();
@@ -949,7 +949,7 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('continues the fetch if new props refer to the same records', () => {
       loadMore(1, jest.fn());
-      const dispose = environment.sendQuerySubscription.mock.dispose;
+      const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
@@ -961,7 +961,7 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('cancels the fetch if new props refer to different records', () => {
       loadMore(1, jest.fn());
-      const dispose = environment.sendQuerySubscription.mock.dispose;
+      const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
@@ -1086,7 +1086,7 @@ describe('ReactRelayPaginationContainer', () => {
         id: '4',
       };
       const {dispose} = refetchConnection(1, jest.fn());
-      const sendQueryDispose = environment.sendQuerySubscription.mock.dispose;
+      const sendQueryDispose = environment.streamQuery.mock.dispose;
       expect(sendQueryDispose).not.toBeCalled();
       dispose();
       expect(sendQueryDispose).toBeCalled();
@@ -1196,7 +1196,7 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('continues the fetch if new props refer to the same records', () => {
       refetchConnection(1, jest.fn());
-      const dispose = environment.sendQuerySubscription.mock.dispose;
+      const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
@@ -1208,7 +1208,7 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('cancels the fetch if new props refer to different records', () => {
       refetchConnection(1, jest.fn());
-      const dispose = environment.sendQuerySubscription.mock.dispose;
+      const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,

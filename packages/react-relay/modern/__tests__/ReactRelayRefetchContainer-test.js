@@ -606,7 +606,7 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, jest.fn());
-      const dispose = environment.sendQuerySubscription.mock.dispose;
+      const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
@@ -622,7 +622,7 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, jest.fn());
-      const dispose = environment.sendQuerySubscription.mock.dispose;
+      const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,

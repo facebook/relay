@@ -135,7 +135,7 @@ class RelayStaticEnvironment implements Environment {
     return {dispose};
   }
 
-  sendQuerySubscription({
+  streamQuery({
     cacheConfig,
     onCompleted,
     onError,
@@ -148,7 +148,7 @@ class RelayStaticEnvironment implements Environment {
     onNext?: ?(payload: RelayResponsePayload) => void,
     operation: OperationSelector,
   }): Disposable {
-    return this._network.requestSubscription(
+    return this._network.requestStream(
       operation.node,
       operation.variables,
       cacheConfig,

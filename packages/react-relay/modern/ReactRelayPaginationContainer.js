@@ -527,7 +527,7 @@ function createContainerWithFragments<TDefaultProps, TProps>(
       if (this._pendingRefetch) {
         this._pendingRefetch.dispose();
       }
-      const pendingRefetch = environment.sendQuerySubscription({
+      const pendingRefetch = environment.streamQuery({
         cacheConfig,
         onCompleted,
         onError,

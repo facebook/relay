@@ -1,5 +1,10 @@
 /**
- * Copyright 2004-present Facebook. All Rights Reserved.
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule RelayIRTransforms
  * @flow
@@ -59,11 +64,11 @@ const QUERY_TRANSFORMS: Array<IRTransform> = [
   RelayExportTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayGenerateRequisiteFieldsTransform.transform,
-  RelayFilterDirectivesTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.
 const CODEGEN_TRANSFORMS: Array<IRTransform> = [
+  RelayFilterDirectivesTransform.transform,
   (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {
     flattenAbstractTypes: true,
     flattenFragmentSpreads: true,
@@ -73,6 +78,7 @@ const CODEGEN_TRANSFORMS: Array<IRTransform> = [
 
 // Transforms applied before printing the query sent to the server.
 const PRINT_TRANSFORMS: Array<IRTransform> = [
+  RelayFilterDirectivesTransform.transform,
   (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {}),
   RelaySkipHandleFieldTransform.transform,
 ];

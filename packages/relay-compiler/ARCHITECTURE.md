@@ -45,7 +45,7 @@ The compiler module is composed of a set of core building blocks as well as a he
 - `Parser`: Converts a GraphQL schema and raw GraphQL text into typed IR objects.
 - `Printer`: a function that accepts IR and converts it to a GraphQL string.
 
-The `RelayCompiler` module is a helper class that demonstrates one way of combining these primitives. It manages extracting GraphQL from source files, parsing them to IR and constructing a CompilerContext, transforming it, and generating output artifacts intended for use with Relay runtime.
+The `RelayCompiler` module is a helper class that demonstrates one way of combining these primitives. It takes IR transforms, and given IR definitions, constructs a CompilerContext from them, transforming them, and generating output artifacts intended for use with Relay runtime.
 
 ## Transforms
 

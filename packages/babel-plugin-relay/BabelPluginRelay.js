@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule BabelPluginGraphQL
+ * @providesModule BabelPluginRelay
  */
 
 'use strict';
@@ -14,24 +14,24 @@
 const GraphQL = require('graphql');
 
 /**
- * Using babel-plugin-graphql with only the modern runtime?
+ * Using babel-plugin-relay with only the modern runtime?
  *
  *     {
  *       plugins: [
- *         ["graphql", {"modernOnly": true}]
+ *         ["relay", {"modernOnly": true}]
  *       ]
  *     }
  *
- * Using babel-plugin-graphql in compatability mode?
+ * Using babel-plugin-relay in compatability mode?
  *
  *     {
  *       plugins: [
- *         "graphql"
+ *         "relay"
  *       ]
  *     }
  *
  */
-module.exports = function BabelPluginGraphQL({ types: t }) {
+module.exports = function BabelPluginRelay({ types: t }) {
   return {
     visitor: {
       TaggedTemplateExpression(path, state) {
@@ -48,7 +48,7 @@ module.exports = function BabelPluginGraphQL({ types: t }) {
           if (objPropName) {
             if (ast.definitions.length !== 1) {
               throw new Error(
-                'BabelPluginGraphQL: Expected exactly one fragment in the ' +
+                'BabelPluginRelay: Expected exactly one fragment in the ' +
                 `graphql tag referenced by the property ${objPropName}.`
               );
             }
@@ -65,7 +65,7 @@ module.exports = function BabelPluginGraphQL({ types: t }) {
           for (const definition of ast.definitions) {
             if (definition.kind !== 'FragmentDefinition') {
               throw new Error(
-                'BabelPluginGraphQL: Expected only fragments within this ' +
+                'BabelPluginRelay: Expected only fragments within this ' +
                 'graphql tag.'
               );
             }
@@ -73,7 +73,7 @@ module.exports = function BabelPluginGraphQL({ types: t }) {
             const [, propName] = getFragmentNameParts(definition.name.value);
             if (!propName) {
               throw new Error(
-                'BabelPluginGraphQL: Fragments should be named ' +
+                'BabelPluginRelay: Fragments should be named ' +
                 '`ModuleName_fragmentName`, got `' + definition.name.value + '`.'
               );
             }
@@ -87,7 +87,7 @@ module.exports = function BabelPluginGraphQL({ types: t }) {
         if (mainDefinition.kind === 'OperationDefinition') {
           if (ast.definitions.length !== 1) {
             throw new Error(
-              'BabelPluginGraphQL: Expected exactly one operation ' +
+              'BabelPluginRelay: Expected exactly one operation ' +
               '(query, mutation, or subscription) per graphql tag.'
             );
           }
@@ -101,7 +101,7 @@ module.exports = function BabelPluginGraphQL({ types: t }) {
         }
 
         throw new Error(
-          'BabelPluginGraphQL: Expected a fragment, mutation, query, or ' +
+          'BabelPluginRelay: Expected a fragment, mutation, query, or ' +
           'subscription, got `' + mainDefinition.kind + '`.'
         );
       },
@@ -212,7 +212,7 @@ function createClassicAST(t, definition) {
         case 'argumentDefinitions':
           if (argumentDefinitions) {
             throw new Error(
-              'BabelPluginGraphQL: Expected only one ' +
+              'BabelPluginRelay: Expected only one ' +
               '@argumentDefinitions directive'
             );
           }
@@ -242,7 +242,7 @@ function createClassicAST(t, definition) {
           directive.name.value !== 'arguments'
         ) {
           throw new Error(
-            'BabelPluginGraphQL: Unsupported directive `' +
+            'BabelPluginRelay: Unsupported directive `' +
             directive.name.value + '` on fragment spread `...' +
             fragmentName + '`.'
           );
@@ -366,7 +366,7 @@ function parseValue(t, value) {
       return t.arrayExpression(value.values.map(item => parseValue(t, item)));
     default:
       throw new Error(
-        'BabelPluginGraphQL: Unsupported literal type `' + value.kind + '`.'
+        'BabelPluginRelay: Unsupported literal type `' + value.kind + '`.'
       );
   }
 }
@@ -418,7 +418,7 @@ function createFragmentForOperation(t, operation) {
       break;
     default:
       throw new Error(
-        'BabelPluginGraphQL: Unexpected operation type: `' +
+        'BabelPluginRelay: Unexpected operation type: `' +
         operation.operation + '`.'
       );
   }
@@ -545,7 +545,7 @@ function getValidGraphQLTag(path) {
 
   if (quasis.length !== 1) {
     throw new Error(
-      'BabelPluginGraphQL: Substitutions are not allowed in ' +
+      'BabelPluginRelay: Substitutions are not allowed in ' +
       'graphql fragments. Included fragments should be referenced ' +
       'as `...MyModule_propName`.'
     );
@@ -557,7 +557,7 @@ function getValidGraphQLTag(path) {
   // such as fragment arguments are disabled
   if (tagName === 'graphql' && /@argument(Definition)?s\b/.test(text)) {
     throw new Error(
-      'BabelPluginGraphQL: Unexpected use of fragment variables: ' +
+      'BabelPluginRelay: Unexpected use of fragment variables: ' +
       '@arguments and @argumentDefinitions are only supported in ' +
       'experimental mode. Source: ' + text
     );
@@ -567,7 +567,7 @@ function getValidGraphQLTag(path) {
 
   if (ast.definitions.length === 0) {
     throw new Error(
-      'BabelPluginGraphQL: Unexpected empty graphql tag.'
+      'BabelPluginRelay: Unexpected empty graphql tag.'
     );
   }
 

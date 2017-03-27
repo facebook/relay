@@ -8,7 +8,7 @@
 * Fix an issue with custom scalar field arguments not printing correctly.
 * Promoted `RelayGraphQLMutation` to public API.
 * Added `rollback` method to `RelayGraphQLMutation`.
-* Added initial preparatory changes for moving to the new Relay API methods in a future release (eg. `BabelPluginGraphQL`).
+* Added initial preparatory changes for moving to the new Relay API methods in a future release (eg. `BabelPluginRelay`).
 * Avoid unnecessary un-ready updates.
 * Add `graphiqlPrinter` argument to the `RelayNetworkDebug` constructor that can be used to print a link to view the request in GraphiQL.
 * Fix problem using "node" as a key in a mutation response payload.

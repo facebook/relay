@@ -13,12 +13,12 @@ jest.autoMockOff();
 
 require('configureForRelayOSS');
 
-const BabelPluginGraphQL = require('BabelPluginGraphQL');
+const BabelPluginRelay = require('BabelPluginRelay');
 
 const babel = require('babel-core');
 const getGoldenMatchers = require('getGoldenMatchers');
 
-describe('BabelPluginGraphQL', () => {
+describe('BabelPluginRelay', () => {
   beforeEach(() => {
     jasmine.addMatchers(getGoldenMatchers(__filename));
   });
@@ -28,7 +28,7 @@ describe('BabelPluginGraphQL', () => {
       try {
         return babel.transform(text, {
           plugins: [
-            [BabelPluginGraphQL, {modernOnly: true}],
+            [BabelPluginRelay, {modernOnly: true}],
           ],
           compact: false,
           parserOpts: {plugins: ['jsx']},
@@ -44,7 +44,7 @@ describe('BabelPluginGraphQL', () => {
       try {
         return babel.transform(text, {
           plugins: [
-            BabelPluginGraphQL,
+            BabelPluginRelay,
           ],
           compact: false,
           parserOpts: {plugins: ['jsx']},

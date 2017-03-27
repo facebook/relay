@@ -7,14 +7,14 @@
 .*/react-static-container/node_modules/.*
 
 [include]
-../node_modules/fbjs/lib
-../node_modules/invariant
-../node_modules/react
-../node_modules/react-dom
-../node_modules/react-static-container/lib
+node_modules/fbjs/lib
+node_modules/invariant
+node_modules/react
+node_modules/react-dom
+node_modules/react-static-container/lib
 
 [libs]
-../node_modules/fbjs/flow/lib
+node_modules/fbjs/flow/lib
 
 [options]
 module.system=haste

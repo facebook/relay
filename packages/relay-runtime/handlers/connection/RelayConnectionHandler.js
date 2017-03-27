@@ -208,6 +208,10 @@ function update(proxy: RecordSourceProxy, payload: HandleFieldPayload): void {
  *   const edges = friends.getLinkedRecords('edges');
  * }
  * ```
+ *
+ * TODO: t15733312
+ * Currently we haven't run into this case yet, but we need to add a `getConnections`
+ * that returns an array of the connections under the same `key` regardless of the variables.
  */
 function getConnection(
   record: RecordProxy,

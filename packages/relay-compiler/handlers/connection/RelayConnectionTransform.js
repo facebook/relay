@@ -36,6 +36,7 @@ const {
   NODE,
   PAGE_INFO,
   START_CURSOR,
+  isConnectionCall,
 } = require('RelayConnectionInterface');
 
 import type {
@@ -170,10 +171,17 @@ function visitLinkedField(
     key,
   );
 
+  const generateFilters = () => {
+    const filteredVariableArgs = field.args
+      .filter(arg => !isConnectionCall({name: arg.name, value: null}))
+      .map(arg => arg.name);
+    return filteredVariableArgs.length === 0 ? null : filteredVariableArgs;
+  };
+
   const handle = {
     name: CONNECTION,
     key,
-    filters: filters || null,
+    filters: filters || generateFilters(),
   };
 
   if (options.generateRequisiteFields) {

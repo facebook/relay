@@ -14,7 +14,6 @@
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const stableStringify = require('stableStringify');
 
 const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
 const {GraphQLEnumType, GraphQLList, GraphQLNonNull} = require('graphql');
@@ -182,7 +181,7 @@ function printHandles(field: Field): string {
   const printed = field.handles.map(handle => {
     // For backward compatibility and also because this module is shared by ComponentScript.
     const key = handle.key === DEFAULT_HANDLE_KEY ? '' : `, key: "${handle.key}"`;
-    const filters = handle.filters == null ? '' : `, filters: "${stableStringify(handle.filters)}"`;
+    const filters = handle.filters == null ? '' : `, filters: ${JSON.stringify(handle.filters.sort())}`;
     return `@__clientField(handle: "${handle.name}"${key}${filters})`;
   });
   return printed.length ?

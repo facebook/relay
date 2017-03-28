@@ -29,7 +29,7 @@
     "update-schema": "babel-node ./scripts/jest/updateSchema.js"
   },
   "dependencies": {
-    "babel-runtime": "^6.6.1",
+    "babel-runtime": "^6.23.0",
     "fbjs": "^0.8.1",
     "react-static-container": "^1.0.1"
   },
@@ -38,8 +38,8 @@
     "react": "^15.0.0 || ^0.14.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.9.0",
-    "babel-core": "^6.9.0",
+    "babel-cli": "^6.24.0",
+    "babel-core": "^6.24.0",
     "babel-eslint": "^6.1.2",
     "babel-plugin-transform-runtime": "^6.9.0",
     "babel-polyfill": "^6.9.0",
@@ -87,7 +87,7 @@
     "automock": true,
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
-      "<rootDir>/src/(.*).native.js",
+      "<rootDir>/packages/(.*).native.js",
       "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"
     ],
     "roots": [
@@ -95,7 +95,7 @@
       "<rootDir>/node_modules/fbjs-scripts/jest",
       "<rootDir>/node_modules/react/lib/",
       "<rootDir>/node_modules/react-static-container/lib/",
-      "<rootDir>/src/"
+      "<rootDir>/packages/"
     ],
     "unmockedModulePathPatterns": [
       "<rootDir>/node_modules/fbjs-scripts/",

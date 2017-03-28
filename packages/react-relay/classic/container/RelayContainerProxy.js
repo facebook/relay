@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayOSSContainerProxy
+ * @providesModule RelayContainerProxy
  * @flow
  */
 
@@ -17,11 +17,19 @@ import type {RelayContainer} from 'RelayTypes';
 /**
  * This feature is deprecated and unavailable in open source.
  */
-const RelayOSSContainerProxy = {
+const RelayContainerProxy = {
   proxyMethods(
     Container: RelayContainer,
     Component: ReactClass<any>
   ): void {},
+  injectProxyMethods(
+    proxyMethods: (
+      Container: RelayContainer,
+      Component: ReactClass<any>
+    ) => void
+  ) {
+    this.proxyMethods = proxyMethods;
+  },
 };
 
-module.exports = RelayOSSContainerProxy;
+module.exports = RelayContainerProxy;

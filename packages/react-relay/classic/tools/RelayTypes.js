@@ -248,4 +248,4 @@ export type SubscriptionCallbacks<T> = {
   onCompleted(): void,
 };
 // Variables
-export type Variables = {[name: string]: *};
+export type Variables = {[name: string]: $FlowFixMe};

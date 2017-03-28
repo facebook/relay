@@ -109,7 +109,7 @@ const buildDist = function(opts) {
 
 const paths = {
   dist: 'dist',
-  entry: 'lib/Relay.js',
+  entry: 'lib/ReactRelayClassicExports.js',
   lib: 'lib',
   src: [
     '*src/**/*.js',

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayOSSNodeInterface
+ * @providesModule RelayNodeInterface
  * @flow
  */
 
@@ -17,7 +17,7 @@ const invariant = require('invariant');
 
 import type RelayQuery from 'RelayQuery';
 
-type PayloadResult = {
+export type PayloadResult = {
   result: mixed,
   rootCallInfo: RootCallInfo,
 };
@@ -27,12 +27,14 @@ type RootCallInfo = {
   identifyingArgValue: mixed,
 };
 
+let getResultsFromPayloadImpl = getResultsFromPayload;
+
 /**
  * @internal
  *
  * Defines logic relevant to the informal "Node" GraphQL interface.
  */
-const RelayOSSNodeInterface = {
+const RelayNodeInterface = {
   ANY_TYPE: '__any',
   ID: 'id',
   ID_TYPE: 'ID!',
@@ -43,8 +45,8 @@ const RelayOSSNodeInterface = {
 
   isNodeRootCall(fieldName: string): boolean {
     return (
-      fieldName === RelayOSSNodeInterface.NODE ||
-      fieldName === RelayOSSNodeInterface.NODES
+      fieldName === RelayNodeInterface.NODE ||
+      fieldName === RelayNodeInterface.NODES
     );
   },
 
@@ -52,47 +54,61 @@ const RelayOSSNodeInterface = {
     query: RelayQuery.Root,
     payload: {[key: string]: mixed}
   ): Array<PayloadResult> {
-    const results = [];
+    return getResultsFromPayloadImpl(query, payload);
+  },
 
-    const rootBatchCall = query.getBatchCall();
-    if (rootBatchCall) {
-      getPayloadRecords(query, payload).forEach(result => {
-        if (typeof result !== 'object' || !result) {
-          return;
-        }
-        const dataID = result[RelayOSSNodeInterface.ID];
-        invariant(
-          typeof dataID === 'string',
-          'RelayOSSNodeInterface.getResultsFromPayload(): Unable to write ' +
-          'result with no `%s` field for query, `%s`.',
-          RelayOSSNodeInterface.ID,
-          query.getName()
-        );
-        results.push({
-          result,
-          rootCallInfo: {
-            storageKey: RelayOSSNodeInterface.NODE,
-            identifyingArgKey: dataID,
-            identifyingArgValue: dataID,
-          },
-        });
-      });
-    } else {
-      const records = getPayloadRecords(query, payload);
-      let ii = 0;
-      const storageKey = query.getStorageKey();
-      forEachRootCallArg(query, ({identifyingArgKey, identifyingArgValue}) => {
-        const result = records[ii++];
-        results.push({
-          result,
-          rootCallInfo: {storageKey, identifyingArgKey, identifyingArgValue},
-        });
-      });
-    }
-
-    return results;
+  /**
+   * Allow for injecting custom behavior for getResultsFromPayload.
+   */
+  injectGetResultsFromPayloadImpl(impl: typeof getResultsFromPayload): void {
+    getResultsFromPayloadImpl = impl;
   },
 };
+
+function getResultsFromPayload(
+  query: RelayQuery.Root,
+  payload: {[key: string]: mixed}
+): Array<PayloadResult> {
+  const results = [];
+
+  const rootBatchCall = query.getBatchCall();
+  if (rootBatchCall) {
+    getPayloadRecords(query, payload).forEach(result => {
+      if (typeof result !== 'object' || !result) {
+        return;
+      }
+      const dataID = result[RelayNodeInterface.ID];
+      invariant(
+        typeof dataID === 'string',
+        'RelayNodeInterface.getResultsFromPayload(): Unable to write ' +
+        'result with no `%s` field for query, `%s`.',
+        RelayNodeInterface.ID,
+        query.getName()
+      );
+      results.push({
+        result,
+        rootCallInfo: {
+          storageKey: RelayNodeInterface.NODE,
+          identifyingArgKey: dataID,
+          identifyingArgValue: dataID,
+        },
+      });
+    });
+  } else {
+    const records = getPayloadRecords(query, payload);
+    let ii = 0;
+    const storageKey = query.getStorageKey();
+    forEachRootCallArg(query, ({identifyingArgKey, identifyingArgValue}) => {
+      const result = records[ii++];
+      results.push({
+        result,
+        rootCallInfo: {storageKey, identifyingArgKey, identifyingArgValue},
+      });
+    });
+  }
+
+  return results;
+}
 
 function getPayloadRecords(
   query: RelayQuery.Root,
@@ -106,14 +122,14 @@ function getPayloadRecords(
     if (Array.isArray(identifyingArgValue)) {
       invariant(
         Array.isArray(records),
-        'RelayOSSNodeInterface: Expected payload for root field `%s` to be ' +
+        'RelayNodeInterface: Expected payload for root field `%s` to be ' +
         'an array with %s results, instead received a single non-array result.',
         fieldName,
         identifyingArgValue.length
       );
       invariant(
         records.length === identifyingArgValue.length,
-        'RelayOSSNodeInterface: Expected payload for root field `%s` to be ' +
+        'RelayNodeInterface: Expected payload for root field `%s` to be ' +
         'an array with %s results, instead received an array with %s results.',
         fieldName,
         identifyingArgValue.length,
@@ -122,7 +138,7 @@ function getPayloadRecords(
     } else if (Array.isArray(records)) {
       invariant(
         false,
-        'RelayOSSNodeInterface: Expected payload for root field `%s` to be ' +
+        'RelayNodeInterface: Expected payload for root field `%s` to be ' +
         'a single non-array result, instead received an array with %s results.',
         fieldName,
         records.length
@@ -132,4 +148,4 @@ function getPayloadRecords(
   return Array.isArray(records) ? records : [records || null];
 }
 
-module.exports = RelayOSSNodeInterface;
+module.exports = RelayNodeInterface;

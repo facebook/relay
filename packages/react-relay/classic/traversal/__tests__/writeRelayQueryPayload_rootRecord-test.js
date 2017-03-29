@@ -515,7 +515,7 @@ describe('writeRelayQueryPayload()', () => {
       expect(() => {
         writePayload(store, writer, query, payload);
       }).toFailInvariant(
-        'RelayOSSNodeInterface: Expected payload for root field `nodes` to ' +
+        'RelayNodeInterface: Expected payload for root field `nodes` to ' +
         'be an array with 2 results, instead received a single non-array ' +
         'result.'
       );
@@ -547,7 +547,7 @@ describe('writeRelayQueryPayload()', () => {
       expect(() => {
         writePayload(store, writer, query, payload);
       }).toFailInvariant(
-        'RelayOSSNodeInterface: Expected payload for root field `me` to be a ' +
+        'RelayNodeInterface: Expected payload for root field `me` to be a ' +
         'single non-array result, instead received an array with 2 results.'
       );
     });

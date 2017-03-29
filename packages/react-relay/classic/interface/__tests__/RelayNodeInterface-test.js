@@ -12,10 +12,10 @@
 'use strict';
 
 const Relay = require('Relay');
-const RelayFBNodeInterface = require('RelayOSSNodeInterface');
+const RelayNodeInterface = require('RelayNodeInterface');
 const RelayTestUtils = require('RelayTestUtils');
 
-describe('RelayOSSNodeInterface', () => {
+describe('RelayNodeInterface', () => {
   const {getNode, getVerbatimNode} = RelayTestUtils;
 
   beforeEach(() => {
@@ -35,7 +35,7 @@ describe('RelayOSSNodeInterface', () => {
         id: '1055790163',
       },
     };
-    const result = RelayFBNodeInterface.getResultsFromPayload(
+    const result = RelayNodeInterface.getResultsFromPayload(
       query,
       payload
     );
@@ -67,7 +67,7 @@ describe('RelayOSSNodeInterface', () => {
         },
       },
     };
-    const result = RelayFBNodeInterface.getResultsFromPayload(
+    const result = RelayNodeInterface.getResultsFromPayload(
       query,
       payload
     );
@@ -96,7 +96,7 @@ describe('RelayOSSNodeInterface', () => {
       },
     };
 
-    const result = RelayFBNodeInterface.getResultsFromPayload(
+    const result = RelayNodeInterface.getResultsFromPayload(
       query,
       payload
     );
@@ -125,7 +125,7 @@ describe('RelayOSSNodeInterface', () => {
         name: 'Yuzhi Zheng',
       },
     };
-    const result = RelayFBNodeInterface.getResultsFromPayload(
+    const result = RelayNodeInterface.getResultsFromPayload(
       query,
       payload
     );
@@ -153,7 +153,7 @@ describe('RelayOSSNodeInterface', () => {
         id: '123',
       },
     };
-    const result = RelayFBNodeInterface.getResultsFromPayload(
+    const result = RelayNodeInterface.getResultsFromPayload(
       query,
       payload
     );
@@ -186,7 +186,7 @@ describe('RelayOSSNodeInterface', () => {
         },
       ],
     };
-    const result = RelayFBNodeInterface.getResultsFromPayload(
+    const result = RelayNodeInterface.getResultsFromPayload(
       query,
       payload
     );
@@ -224,7 +224,7 @@ describe('RelayOSSNodeInterface', () => {
         title: 'Give Relay',
       },
     };
-    const result = RelayFBNodeInterface.getResultsFromPayload(
+    const result = RelayNodeInterface.getResultsFromPayload(
       query,
       payload
     );
@@ -250,7 +250,7 @@ describe('RelayOSSNodeInterface', () => {
     const payload = {
       me: null,
     };
-    const result = RelayFBNodeInterface.getResultsFromPayload(
+    const result = RelayNodeInterface.getResultsFromPayload(
       query,
       payload
     );
@@ -274,7 +274,7 @@ describe('RelayOSSNodeInterface', () => {
       }`
     );
     const payload = {};
-    const result = RelayFBNodeInterface.getResultsFromPayload(
+    const result = RelayNodeInterface.getResultsFromPayload(
       query,
       payload
     );

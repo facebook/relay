@@ -1,5 +1,10 @@
 /**
- * Copyright 2004-present Facebook. All Rights Reserved.
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule RelayCodegenRunner
  * @flow
@@ -103,6 +108,19 @@ class RelayCodegenRunner {
     }
 
     return hasChanges;
+  }
+
+  async compile(writerName: string): Promise<boolean> {
+    const writerConfig = this.writerConfigs[writerName];
+
+    const parsers = [writerConfig.parser];
+    if (writerConfig.baseParsers) {
+      writerConfig.baseParsers.forEach(parser => parsers.push(parser));
+    }
+    // Don't bother resetting the parsers
+    await Promise.all(parsers.map(parser => this.parseEverything(parser)));
+
+    return await this.write(writerName);
   }
 
   async parseEverything(parserName: string): Promise<void> {

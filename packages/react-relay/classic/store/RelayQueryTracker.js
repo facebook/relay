@@ -35,7 +35,7 @@ class RelayQueryTracker {
     node: RelayQuery.Node,
     dataID: DataID
   ): void {
-    // Don't track `__type__` fields
+    // Don't track legacy `__type__` fields
     if (node instanceof RelayQuery.Field && node.getSchemaName() === TYPE) {
       return;
     }

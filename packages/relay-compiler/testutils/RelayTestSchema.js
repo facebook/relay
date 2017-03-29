@@ -602,11 +602,6 @@ type TopLevelCommentsConnection {
   totalCount: Int
 }
 
-type Type {
-  id: ID!
-  name: String
-}
-
 input UnfriendInput {
   clientMutationId: String
   friendId: ID
@@ -674,7 +669,6 @@ input StoryCommentSearchInput {
 
 type Viewer {
   __configs__(named: [String]): ConfigsConnection
-  __type__: Type
   actor: Actor
   allTimezones: [TimezoneInfo]
   isFbEmployee: Boolean

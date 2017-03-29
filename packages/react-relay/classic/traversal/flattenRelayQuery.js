@@ -17,8 +17,6 @@ const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 
-const sortTypeFirst = require('sortTypeFirst');
-
 type FlattenedQuery = {
   node: RelayQuery.Node,
   type: string,
@@ -66,7 +64,7 @@ function toQuery<Tn: RelayQuery.Node>(
   preserveEmptyNodes: boolean
 ): ?Tn {
   const children = [];
-  const aliases = Array.from(flattenedFieldMap.keys()).sort(sortTypeFirst);
+  const aliases = Array.from(flattenedFieldMap.keys());
   aliases.forEach(alias => {
     const field = flattenedFieldMap.get(alias);
     if (field) {

@@ -16,9 +16,11 @@ const getBabelOptions = require('../getBabelOptions');
 const getBabelRelayPlugin = require('../babel-relay-plugin');
 const path = require('path');
 
-const SCHEMA_PATH = path.resolve(__dirname, 'testschema.json');
+const getSchemaIntrospection = require('../../packages/babel-plugin-relay/getSchemaIntrospection');
 
-const schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8')).data;
+const SCHEMA_PATH = path.resolve(__dirname, 'testschema.graphql');
+
+const schema = getSchemaIntrospection(SCHEMA_PATH);
 
 const babelOptions = getBabelOptions({
   env: 'test',
@@ -32,6 +34,7 @@ const babelOptions = getBabelOptions({
     'StaticContainer.react': 'react-static-container',
   },
   plugins: [
+    require('../../packages/babel-plugin-relay/BabelPluginRelay.js'),
     getBabelRelayPlugin(schema, {substituteVariables: true}),
   ],
 });

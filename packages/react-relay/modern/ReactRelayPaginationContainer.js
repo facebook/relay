@@ -40,10 +40,11 @@ import type {
   RefetchOptions,
   RelayPaginationProp,
 } from 'ReactRelayTypes';
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {
+  Disposable,
   FragmentSpecResolver,
 } from 'RelayCombinedEnvironmentTypes';
+import type {PageInfo} from 'RelayConnectionInterface';
 import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 import type {
   FragmentMap,
@@ -76,24 +77,9 @@ export type ConnectionConfig = {
   ) => Variables,
   query: GraphQLTaggedNode,
 };
-export type ConnectionData = FBConnectionData | OSSConnectionData;
-type FBConnectionData = {
+export type ConnectionData = {
   edges?: ?Array<any>,
-  page_info?: ?{
-    end_cursor?: ?string,
-    has_next_page?: ?boolean,
-    has_previous_page?: ?boolean,
-    start_cursor?: ?string,
-  },
-};
-type OSSConnectionData = {
-  edges?: ?Array<any>,
-  pageInfo?: ?{
-    endCursor?: ?string,
-    hasNextPage?: ?boolean,
-    hasPreviousPage?: ?boolean,
-    startCursor?: ?string,
-  },
+  pageInfo?: ?PageInfo,
 };
 
 /**

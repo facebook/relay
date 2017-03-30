@@ -19,9 +19,10 @@ import type {
   DataID,
 } from 'RelayInternalTypes';
 import type {QueryPath} from 'RelayQueryPath';
+import type {Variables} from 'RelayTypes';
 
 export type Record = {
-  [key: string]: mixed;
+  // Records may contain many other fields as [fieldName: string]: mixed
   __dataID__: string,
   __filterCalls__?: Array<Call>,
   __forceIndex__?: number,
@@ -34,8 +35,13 @@ export type Record = {
   __resolvedFragmentMap__?: {[fragmentID: string]: boolean},
   __status__?: number,
   __typename?: ?string,
+  __fragments__?: ?{[fragmentID: string]: Array<Variables>},
 };
 export type RecordMap = {[key: DataID]: ?Record};
+export type EdgeRecord = Record & {
+  cursor: string,
+  node: Record,
+};
 
 const MetadataKey = {
   DATA_ID: '__dataID__',

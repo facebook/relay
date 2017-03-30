@@ -12,7 +12,7 @@
 
 'use strict';
 
-const {graphql} = require('RelayModern');
+const {graphql} = require('react-relay');
 
 /**
  * This would usually be a RelayQueryRenderer. Getting that set up

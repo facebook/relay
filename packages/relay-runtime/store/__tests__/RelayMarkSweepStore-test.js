@@ -247,6 +247,7 @@ describe('RelayStore', () => {
           __typename: 'User',
           name: 'Zuck',
           'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
+          emailAddresses: ['a@b.com'],
         },
         'client:1': {
           __id: 'client:1',
@@ -261,6 +262,7 @@ describe('RelayStore', () => {
           profilePicture(size: $size) {
             uri
           }
+          emailAddresses
         }
       `));
     });
@@ -293,6 +295,7 @@ describe('RelayStore', () => {
           profilePicture: {
             uri: 'https://photo2.jpg', // new uri
           },
+          emailAddresses: ['a@b.com'],
         },
         seenRecords: {
           ...data,
@@ -342,6 +345,7 @@ describe('RelayStore', () => {
         4: {
           __id: '4',
           name: 'Mark',
+          emailAddresses: ['a@b.com', 'c@d.net'],
         },
         'client:1': {
           __id: 'client:1',
@@ -366,6 +370,7 @@ describe('RelayStore', () => {
           profilePicture: {
             uri: 'https://photo3.jpg', // most recent uri
           },
+          emailAddresses: ['a@b.com', 'c@d.net'],
         },
         seenRecords: {
           4: {

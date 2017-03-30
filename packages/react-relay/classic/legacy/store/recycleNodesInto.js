@@ -29,7 +29,11 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
   if (prevArray && nextArray) {
     canRecycle =
       nextArray.reduce((wasEqual, nextItem, ii) => {
-        nextArray[ii] = recycleNodesInto(prevArray[ii], nextItem);
+        const prevValue = prevArray[ii];
+        const nextValue = recycleNodesInto(prevValue, nextItem);
+        if (nextValue !== nextArray[ii]) {
+          nextArray[ii] = nextValue;
+        }
         return wasEqual && nextArray[ii] === prevArray[ii];
       }, true) &&
       prevArray.length === nextArray.length;

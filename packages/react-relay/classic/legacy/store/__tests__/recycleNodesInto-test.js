@@ -124,12 +124,16 @@ describe('recycleNodesInto', () => {
     it('recycles arrays with equal scalars', () => {
       const prevData = [1, 2, 3];
       const nextData = [1, 2, 3];
+      Object.freeze(prevData);
+      Object.freeze(nextData);
       expect(recycleNodesInto(prevData, nextData)).toBe(prevData);
     });
 
     it('does not recycle arrays with unequal scalars', () => {
       const prevData = [1, 2, 3];
       const nextData = [4, 5, 6];
+      Object.freeze(prevData);
+      Object.freeze(nextData);
       expect(recycleNodesInto(prevData, nextData)).not.toBe(prevData);
     });
 

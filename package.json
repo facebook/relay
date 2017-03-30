@@ -65,22 +65,13 @@
     "npm": ">=2.x"
   },
   "jest": {
-    "rootDir": "",
-    "setupFiles": [
-      "<rootDir>/node_modules/fbjs-scripts/jest/environment.js"
-    ],
-    "transform": {
-      ".*": "<rootDir>/scripts/jest/preprocessor.js"
-    },
-    "transformIgnorePatterns": [
-      "<rootDir>/node_modules/"
-    ],
     "automock": true,
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
       "<rootDir>/packages/(.*).native.js",
       "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"
     ],
+    "rootDir": "",
     "roots": [
       "<rootDir>/node_modules/fbjs/lib/",
       "<rootDir>/node_modules/fbjs-scripts/jest",
@@ -88,16 +79,26 @@
       "<rootDir>/node_modules/react-static-container/lib/",
       "<rootDir>/packages/"
     ],
+    "setupFiles": [
+      "<rootDir>/node_modules/fbjs-scripts/jest/environment.js"
+    ],
+    "timers": "fake",
+    "transform": {
+      ".*": "<rootDir>/scripts/jest/preprocessor.js"
+    },
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ],
     "unmockedModulePathPatterns": [
       "<rootDir>/node_modules/fbjs-scripts/",
+      "<rootDir>/node_modules/fbjs/lib/(?!(ErrorUtils.js$|fetch.js$|fetchWithRetries.js$))",
       "<rootDir>/node_modules/fbjs/node_modules/core-js/",
       "<rootDir>/node_modules/fbjs/node_modules/promise/",
-      "<rootDir>/node_modules/fbjs/lib/(?!(ErrorUtils.js$|fetch.js$|fetchWithRetries.js$))",
       "<rootDir>/node_modules/object-assign/",
-      "<rootDir>/node_modules/react/",
       "<rootDir>/node_modules/react-addons-test-utils/",
       "<rootDir>/node_modules/react-dom/",
-      "<rootDir>/node_modules/react-static-container/"
+      "<rootDir>/node_modules/react-static-container/",
+      "<rootDir>/node_modules/react/"
     ]
   }
 }

@@ -13,11 +13,11 @@
 'use strict';
 
 const RelayConcreteNode = require('RelayConcreteNode');
-const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayStaticRecord = require('RelayStaticRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 
+const formatStorageKey = require('formatStorageKey');
 const generateRelayClientID = require('generateRelayClientID');
 const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
 const invariant = require('invariant');
@@ -49,9 +49,7 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
 } = RelayConcreteNode;
-const {ID} = RelayNodeInterface;
 const {
-  formatStorageKey,
   getArgumentValues,
   getStorageKey,
   TYPENAME_KEY,
@@ -174,7 +172,7 @@ class RelayResponseNormalizer {
             selection.filters,
             this._variables,
           );
-          handleKey = RelayStoreUtils.formatStorageKey(handleKey, filterValues);
+          handleKey = formatStorageKey(handleKey, filterValues);
         }
         this._handleFieldPayloads.push({
           args,
@@ -246,7 +244,7 @@ class RelayResponseNormalizer {
       storageKey
     );
     const nextID = (
-      fieldValue[ID] ||
+      fieldValue.id ||
       // Reuse previously generated client IDs
       RelayStaticRecord.getLinkedRecordID(record, storageKey) ||
       generateRelayClientID(RelayStaticRecord.getDataID(record), storageKey)
@@ -294,7 +292,7 @@ class RelayResponseNormalizer {
       );
 
       const nextID = (
-        item[ID] ||
+        item.id ||
         (prevIDs && prevIDs[nextIndex]) || // Reuse previously generated client IDs
         generateRelayClientID(RelayStaticRecord.getDataID(record), storageKey, nextIndex)
       );

@@ -34,6 +34,7 @@ const RelayRecord = require('RelayRecord');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTaskQueue = require('RelayTaskQueue');
+const {RelayRecordState} = require('RelayRuntime');
 
 const forEachObject = require('forEachObject');
 const generateForceIndex = require('generateForceIndex');
@@ -68,7 +69,7 @@ import type {Abortable, CacheManager, CacheProcessorCallbacks} from 'RelayTypes'
 const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreConstants');
-const {EXISTENT} = require('RelayRecordState');
+const {EXISTENT} = RelayRecordState;
 
 const idField = RelayQuery.Field.build({
   fieldName: ID,

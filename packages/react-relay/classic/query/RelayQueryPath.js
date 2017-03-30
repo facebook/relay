@@ -15,7 +15,7 @@
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
-const RelayRecordState = require('RelayRecordState');
+const {RelayRecordState} = require('RelayRuntime');
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');

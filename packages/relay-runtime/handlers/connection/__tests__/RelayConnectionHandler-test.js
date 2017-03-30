@@ -30,6 +30,7 @@ const {
   START_CURSOR,
 } = require('RelayConnectionInterface');
 
+const formatStorageKey = require('formatStorageKey');
 const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
 const simpleClone = require('simpleClone');
 
@@ -40,7 +41,6 @@ const {
   ROOT_ID,
   ROOT_TYPE,
   TYPENAME_KEY,
-  formatStorageKey,
 } = RelayStoreUtils;
 
 describe('RelayConnectionHandler', () => {

@@ -18,7 +18,7 @@ const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecord = require('RelayRecord');
-const RelayRecordState = require('RelayRecordState');
+const {RelayRecordState} = require('RelayRuntime');
 
 const generateClientEdgeID = require('generateClientEdgeID');
 const generateClientID = require('generateClientID');

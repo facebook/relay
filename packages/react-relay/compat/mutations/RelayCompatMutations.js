@@ -12,13 +12,13 @@
 
 'use strict';
 
-const commitRelayStaticMutation = require('commitRelayStaticMutation');
 const invariant = require('invariant');
 
 const {
   getRelayClassicEnvironment,
   getRelayStaticEnvironment,
 } = require('RelayCompatEnvironment');
+const {commitMutation} = require('RelayRuntime');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {CompatContext} from 'RelayCompatTypes';
@@ -32,7 +32,7 @@ const RelayCompatMutations = {
   ): Disposable {
     const relayStaticEnvironment = getRelayStaticEnvironment(context);
     if (relayStaticEnvironment) {
-      return commitRelayStaticMutation(relayStaticEnvironment, config);
+      return commitMutation(relayStaticEnvironment, config);
     } else {
       const relayClassicEnvironment = getRelayClassicEnvironment(context);
       invariant(

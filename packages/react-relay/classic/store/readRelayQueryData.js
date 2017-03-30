@@ -18,7 +18,7 @@ const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecord = require('RelayRecord');
-const RelayRecordState = require('RelayRecordState');
+const {RelayRecordState} = require('RelayRuntime');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 
 const callsFromGraphQL = require('callsFromGraphQL');

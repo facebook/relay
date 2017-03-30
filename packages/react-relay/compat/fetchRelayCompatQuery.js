@@ -12,13 +12,13 @@
 
 'use strict';
 
-const fetchRelayStaticQuery = require('fetchRelayStaticQuery');
 const invariant = require('invariant');
 
 const {
   getRelayClassicEnvironment,
   getRelayStaticEnvironment,
 } = require('RelayCompatEnvironment');
+const {fetchQuery} = require('RelayRuntime');
 
 import type {
   CacheConfig,
@@ -47,10 +47,10 @@ function fetchRelayCompatQuery(
     getRelayClassicEnvironment(context);
   invariant(
     environment,
-    'fetchRelayStaticQuery: Expected a valid Relay environment, got `%s`.',
+    'fetchRelayCompatQuery: Expected a valid Relay environment, got `%s`.',
     context,
   );
-  return fetchRelayStaticQuery(
+  return fetchQuery(
     environment,
     taggedNode,
     variables,

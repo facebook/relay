@@ -15,8 +15,8 @@
 const GraphQL = require('graphql');
 const RelayIRVisitor = require('RelayIRVisitor');
 const RelaySchemaUtils = require('RelaySchemaUtils');
-const RelayStoreUtils = require('RelayStoreUtils');
 
+const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
 const prettyStringify = require('prettyStringify');
 
@@ -38,7 +38,6 @@ const {
   isAbstractType,
   getNullableType,
 } = RelaySchemaUtils;
-const {formatStorageKey} = RelayStoreUtils;
 
 declare function generate(node: Root): ConcreteRoot;
 declare function generate(node: Fragment): ConcreteFragment;

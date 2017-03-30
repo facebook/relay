@@ -15,11 +15,11 @@
 const RelayStaticRecord = require('RelayStaticRecord');
 
 const forEachObject = require('forEachObject');
+const formatStorageKey = require('formatStorageKey');
 const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
 const invariant = require('invariant');
 const simpleClone = require('simpleClone');
 
-const {formatStorageKey} = require('RelayStoreUtils');
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
 const {
   REF_KEY,

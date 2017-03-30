@@ -12,6 +12,8 @@
 jest
   .autoMockOff();
 
+const formatStorageKey = require('formatStorageKey');
+
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayStaticTestUtils = require('RelayStaticTestUtils');
 
@@ -136,7 +138,7 @@ describe('RelayStoreUtils', () => {
           maxCost: 20,
         },
       };
-      expect(RelayStoreUtils.formatStorageKey(fieldName, argsWithValues))
+      expect(formatStorageKey(fieldName, argsWithValues))
         .toBe(
           'foo{"filter":{"color":"red","maxCost":20,"minSize":200},' +
           '"first":10,"orderBy":["name","age","date"]}'
@@ -149,7 +151,7 @@ describe('RelayStoreUtils', () => {
         first: 10,
         orderBy: null,
       };
-      expect(RelayStoreUtils.formatStorageKey(fieldName, argsWithValues))
+      expect(formatStorageKey(fieldName, argsWithValues))
         .toBe('foo{"first":10}');
     });
 
@@ -159,13 +161,13 @@ describe('RelayStoreUtils', () => {
         first: undefined,
         orderBy: null,
       };
-      expect(RelayStoreUtils.formatStorageKey(fieldName, argsWithValues))
+      expect(formatStorageKey(fieldName, argsWithValues))
         .toBe('foo');
     });
 
     it('disregards a null or undefined arguments object', () => {
-      expect(RelayStoreUtils.formatStorageKey('foo')).toBe('foo');
-      expect(RelayStoreUtils.formatStorageKey('bar', null)).toBe('bar');
+      expect(formatStorageKey('foo')).toBe('foo');
+      expect(formatStorageKey('bar', null)).toBe('bar');
     });
   });
 });

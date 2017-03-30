@@ -12,10 +12,9 @@
 
 'use strict';
 
+const formatStorageKey = require('formatStorageKey');
 const generateRelayClientID = require('generateRelayClientID');
 const invariant = require('invariant');
-
-const {formatStorageKey} = require('RelayStoreUtils');
 
 import type {DataID} from 'RelayInternalTypes';
 import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';

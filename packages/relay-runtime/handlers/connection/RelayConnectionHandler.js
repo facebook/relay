@@ -21,6 +21,7 @@ const {CONNECTION} = require('RelayConnectionConstants');
 const {
   CURSOR,
   EDGES,
+  NODE,
   END_CURSOR,
   HAS_NEXT_PAGE,
   HAS_PREV_PAGE,
@@ -28,10 +29,6 @@ const {
   PAGE_INFO_TYPE,
   START_CURSOR,
 } = require('RelayConnectionInterface');
-const {
-  ID,
-  NODE,
-} = require('RelayNodeInterface');
 
 import type {DataID} from 'RelayInternalTypes';
 import type {
@@ -470,7 +467,7 @@ function mergeEdges(
       continue;
     }
     const node = edge.getLinkedRecord(NODE);
-    const nodeID = node && node.getValue(ID);
+    const nodeID = node && node.getValue('id');
     if (nodeID) {
       if (nodeIDs.has(nodeID)) {
         continue;

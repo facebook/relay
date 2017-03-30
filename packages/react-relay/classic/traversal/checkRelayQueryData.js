@@ -15,7 +15,7 @@
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQueryVisitor = require('RelayQueryVisitor');
-const RelayRecordState = require('RelayRecordState');
+const {RelayRecordState} = require('RelayRuntime');
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');

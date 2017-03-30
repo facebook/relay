@@ -15,10 +15,11 @@
 const RelayConcreteNode = require('RelayConcreteNode');
 
 const areEqual = require('areEqual');
+const formatStorageKey = require('formatStorageKey');
 const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
 const invariant = require('invariant');
 
-const {getHandleFilterValues, formatStorageKey} = require('RelayStoreUtils');
+const {getHandleFilterValues} = require('RelayStoreUtils');
 
 import type {
   ConcreteLinkedField,

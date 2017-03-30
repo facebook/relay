@@ -16,12 +16,14 @@ const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
 const ReactRelayPaginationContainer = require('ReactRelayPaginationContainer');
 const ReactRelayQueryRenderer = require('ReactRelayQueryRenderer');
 const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
-const RelayStaticGraphQLTag = require('RelayStaticGraphQLTag');
 
-const commitLocalUpdate = require('commitLocalUpdate');
-const commitRelayStaticMutation = require('commitRelayStaticMutation');
-const fetchRelayStaticQuery = require('fetchRelayStaticQuery');
-const requestRelaySubscription = require('requestRelaySubscription');
+const {
+  commitLocalUpdate,
+  commitMutation,
+  fetchQuery,
+  graphql,
+  requestSubscription,
+} = require('RelayRuntime');
 
 export type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 export type {
@@ -45,12 +47,12 @@ export type {
  */
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
-  commitLocalUpdate: commitLocalUpdate,
-  commitMutation: commitRelayStaticMutation,
   createFragmentContainer: ReactRelayFragmentContainer.createContainer,
   createPaginationContainer: ReactRelayPaginationContainer.createContainer,
   createRefetchContainer: ReactRelayRefetchContainer.createContainer,
-  fetchQuery: fetchRelayStaticQuery,
-  graphql: RelayStaticGraphQLTag.graphql,
-  requestSubscription: requestRelaySubscription,
+  commitLocalUpdate: commitLocalUpdate,
+  commitMutation: commitMutation,
+  fetchQuery: fetchQuery,
+  graphql: graphql,
+  requestSubscription: requestSubscription,
 };

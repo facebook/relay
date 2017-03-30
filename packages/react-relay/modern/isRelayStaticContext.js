@@ -12,7 +12,7 @@
 
 'use strict';
 
-const isRelayStaticEnvironment = require('isRelayStaticEnvironment');
+const {isRelayStaticEnvironment} = require('RelayRuntime');
 const isRelayVariables = require('isRelayVariables');
 
 /**

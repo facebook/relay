@@ -15,7 +15,7 @@
 const isClassicRelayEnvironment = require('isClassicRelayEnvironment');
 const isRelayContext = require('isRelayContext');
 const isRelayStaticContext = require('isRelayStaticContext');
-const isRelayStaticEnvironment = require('isRelayStaticEnvironment');
+const {isRelayStaticEnvironment} = require('RelayRuntime');
 
 import type {CompatContext} from 'RelayCompatTypes';
 import type {RelayEnvironmentInterface} from 'RelayEnvironment';

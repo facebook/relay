@@ -14,7 +14,6 @@
 
 const RelayConcreteNode = require('RelayConcreteNode');
 
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const stableJSONStringify = require('stableJSONStringify');
 
@@ -90,30 +89,6 @@ function getStorageKey(field: ConcreteField, variables: Variables): string {
   }
 }
 
-/**
- * Given a `fieldName` (eg. "foo") and an object representing arguments and
- * values (eg. `{first: 10, orberBy: "name"}`) returns a unique storage key
- * (ie. `foo{"first":10,"orderBy":"name"}`).
- */
-function formatStorageKey(
-  fieldName: string,
-  argsWithValues: ?{[arg: string]: mixed}
-): string {
-  if (!argsWithValues) {
-    return fieldName;
-  }
-  let filtered = null;
-  forEachObject(argsWithValues, (value, argName) => {
-    if (value != null) {
-      if (!filtered) {
-        filtered = {};
-      }
-      filtered[argName] = value;
-    }
-  });
-  return fieldName + (filtered ? stableJSONStringify(filtered) : '');
-}
-
 function getVariableValue(name: string, variables: Variables): mixed {
   invariant(
     variables.hasOwnProperty(name),
@@ -136,7 +111,6 @@ const RelayStoreUtils = {
   TYPENAME_KEY: '__typename',
   UNPUBLISH_RECORD_SENTINEL: Object.freeze({__UNPUBLISH_RECORD_SENTINEL: true}),
 
-  formatStorageKey,
   getArgumentValues,
   getStorageKey,
   getHandleFilterValues,

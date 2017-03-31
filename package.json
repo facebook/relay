@@ -55,7 +55,6 @@
     "react-static-container": "^1.0.1",
     "react-test-renderer": "^15.1.0",
     "react": "^15.1.0",
-    "relay-runtime": "0.10.0",
     "run-sequence": "^1.2.1",
     "webpack-stream": "^3.2.0",
     "webpack": "^1.13.1"

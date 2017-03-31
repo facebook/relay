@@ -8,17 +8,19 @@
  */
 'use strict';
 
+const BabelPluginRelay = require('../../packages/babel-plugin-relay/BabelPluginRelay.js');
+
 const assign = require('object-assign');
 const babel = require('babel-core');
 const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
-const fs = require('fs');
 const getBabelOptions = require('../getBabelOptions');
 const getBabelRelayPlugin = require('../babel-relay-plugin');
+const getSchemaIntrospection = require('../../packages/babel-plugin-relay/getSchemaIntrospection');
 const path = require('path');
 
-const SCHEMA_PATH = path.resolve(__dirname, 'testschema.json');
+const SCHEMA_PATH = path.resolve(__dirname, 'testschema.graphql');
 
-const schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8')).data;
+const schema = getSchemaIntrospection(SCHEMA_PATH);
 
 const babelOptions = getBabelOptions({
   env: 'test',
@@ -32,6 +34,7 @@ const babelOptions = getBabelOptions({
     'StaticContainer.react': 'react-static-container',
   },
   plugins: [
+    BabelPluginRelay,
     getBabelRelayPlugin(schema, {substituteVariables: true}),
   ],
 });

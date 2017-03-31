@@ -86,7 +86,7 @@ function getClassicFragment(
   invariant(
     fragment,
     'RelayGraphQLTag: Expected a fragment, got `%s`.',
-    JSON.stringify(concreteNode),
+    concreteNode,
   );
   return fragment;
 }
@@ -99,7 +99,7 @@ function getClassicOperation(
   invariant(
     operation,
     'RelayGraphQLTag: Expected an operation, got `%s`.',
-    JSON.stringify(concreteNode),
+    concreteNode,
   );
   return operation;
 }

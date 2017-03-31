@@ -77,7 +77,7 @@ function printRelayOSSQuery(node: RelayQuery.Node): PrintedQuery {
   invariant(
     queryText,
     'printRelayOSSQuery(): Unsupported node type, got `%s`.',
-    JSON.stringify(node),
+    node,
   );
   const variables = {};
   variableMap.forEach(variablesForType => {

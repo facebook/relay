@@ -89,7 +89,7 @@ class RelayRecordProxy implements RecordProxy {
     invariant(
       record instanceof RelayRecordProxy,
       'RelayRecordProxy#setLinkedRecord(): Expected a record, got `%s`.',
-      JSON.stringify(record),
+      record,
     );
     const storageKey = args ? formatStorageKey(name, args) : name;
     const linkedID = record.getDataID();
@@ -125,7 +125,7 @@ class RelayRecordProxy implements RecordProxy {
     invariant(
       Array.isArray(records),
       'RelayRecordProxy#setLinkedRecords(): Expected records to be an array, got `%s`.',
-      JSON.stringify(records),
+      records,
     );
     const storageKey = args ? formatStorageKey(name, args) : name;
     const linkedIDs = records.map(record => record && record.getDataID());

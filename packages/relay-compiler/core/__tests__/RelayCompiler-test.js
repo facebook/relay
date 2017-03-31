@@ -41,7 +41,7 @@ describe('RelayCompiler', () => {
         RelayIRTransforms,
       );
       compiler.addDefinitions(parseGraphQLText(relaySchema, text).definitions);
-      return [...compiler.compile().values()].map(
+      return Array.from(compiler.compile().values()).map(
         ({text: queryText, ...ast}) => {
           let stringified = prettyStringify(ast);
           if (queryText) {

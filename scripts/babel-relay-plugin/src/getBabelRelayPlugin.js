@@ -54,15 +54,19 @@ function getBabelRelayPlugin(
     function() {} :
     console.warn.bind(console);
 
-  const schema = getSchema(schemaProvider);
-  const transformer = new RelayQLTransformer(schema, {
-    inputArgumentName: options.inputArgumentName,
-    snakeCase: !!options.snakeCase,
-    substituteVariables: !!options.substituteVariables,
-    validator: options.validator,
-  });
+  let transformer;
+  function initTransformer(schemaProvider) {
+    const schema = getSchema(schemaProvider);
+    transformer = new RelayQLTransformer(schema, {
+      inputArgumentName: options.inputArgumentName,
+      snakeCase: !!options.snakeCase,
+      substituteVariables: !!options.substituteVariables,
+      validator: options.validator,
+    });
+  }
+  initTransformer(schemaProvider);
 
-  return function({Plugin, types, version}) {
+  const plugin = function({Plugin, types, version}) {
     return babelAdapter(Plugin, types, version, 'relay-query', t => ({
       visitor: {
         /**
@@ -250,6 +254,9 @@ function getBabelRelayPlugin(
       },
     }));
   };
+
+  plugin.replaceSchema = initTransformer;
+  return plugin;
 }
 
 function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {

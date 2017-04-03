@@ -12,8 +12,12 @@
 
 'use strict';
 
+const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayNetwork = require('RelayNetwork');
 const RelayRecordState = require('RelayRecordState');
+const RelayStaticEnvironment = require('RelayStaticEnvironment');
 const RelayStaticGraphQLTag = require('RelayStaticGraphQLTag');
+const RelayMarkSweepStore = require('RelayMarkSweepStore');
 
 const commitLocalUpdate = require('commitLocalUpdate');
 const commitRelayStaticMutation = require('commitRelayStaticMutation');
@@ -25,13 +29,21 @@ const requestRelaySubscription = require('requestRelaySubscription');
  * The public interface to Relay Runtime.
  */
 module.exports = {
+  // Core API
+  ...RelayCore,
+  graphql: RelayStaticGraphQLTag.graphql,
+  Environment: RelayStaticEnvironment,
+  Network: RelayNetwork,
+  RecordSource: RelayInMemoryRecordSource,
+  Store: RelayMarkSweepStore,
+
+  // Helpers (can be implemented via the core API)
   commitLocalUpdate: commitLocalUpdate,
   commitMutation: commitRelayStaticMutation,
   fetchQuery: fetchRelayStaticQuery,
-  requestSubscription: requestRelaySubscription,
-  graphql: RelayStaticGraphQLTag.graphql,
-  getFragment: RelayStaticGraphQLTag.getFragment,
-  getOperation: RelayStaticGraphQLTag.getOperation,
   isRelayStaticEnvironment: isRelayStaticEnvironment,
+  requestSubscription: requestRelaySubscription,
+
+  // Internal API, exported only for compatibility with the react-relay/legacy
   RelayRecordState: RelayRecordState,
 };

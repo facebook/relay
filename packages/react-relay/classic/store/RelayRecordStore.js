@@ -13,6 +13,7 @@
 'use strict';
 
 const GraphQLRange = require('GraphQLRange');
+const RelayClassicRecordState = require('RelayClassicRecordState');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayRecord = require('RelayRecord');
@@ -21,6 +22,7 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
+import type {RecordState} from 'RelayClassicRecordState';
 import type {PageInfo} from 'RelayConnectionInterface';
 import type {
   Call,
@@ -35,7 +37,6 @@ import type {
   Record,
   RecordMap,
 } from 'RelayRecord';
-import type {RecordState} from 'RelayRecordState';
 
 type RangeEdge = {
   edgeID: string,
@@ -144,11 +145,11 @@ class RelayRecordStore {
   getRecordState(dataID: DataID): RecordState {
     const record = this._getRecord(dataID);
     if (record === null) {
-      return 'NONEXISTENT';
+      return RelayClassicRecordState.NONEXISTENT;
     } else if (record === undefined) {
-      return 'UNKNOWN';
+      return RelayClassicRecordState.UNKNOWN;
     }
-    return 'EXISTENT';
+    return RelayClassicRecordState.EXISTENT;
   }
 
   /**

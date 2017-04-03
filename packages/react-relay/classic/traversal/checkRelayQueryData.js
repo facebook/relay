@@ -12,10 +12,10 @@
 
 'use strict';
 
+const RelayClassicRecordState = require('RelayClassicRecordState');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQueryVisitor = require('RelayQueryVisitor');
-const {RelayRecordState} = require('RelayRuntime');
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
@@ -121,10 +121,10 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   ): void {
     const dataID = state.dataID;
     const recordState = dataID && this._store.getRecordState(dataID);
-    if (recordState === RelayRecordState.UNKNOWN) {
+    if (recordState === RelayClassicRecordState.UNKNOWN) {
       state.result = false;
       return;
-    } else if (recordState === RelayRecordState.NONEXISTENT) {
+    } else if (recordState === RelayClassicRecordState.NONEXISTENT) {
       return;
     }
     const rangeInfo = state.rangeInfo;

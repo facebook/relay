@@ -12,13 +12,13 @@
 
 'use strict';
 
+const RelayClassicRecordState = require('RelayClassicRecordState');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecord = require('RelayRecord');
-const {RelayRecordState} = require('RelayRuntime');
 
 const generateClientEdgeID = require('generateClientEdgeID');
 const generateClientID = require('generateClientID');
@@ -47,7 +47,7 @@ type WriterState = {
 
 const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
 const {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
-const {EXISTENT} = RelayRecordState;
+const {EXISTENT} = RelayClassicRecordState;
 
 /**
  * @internal

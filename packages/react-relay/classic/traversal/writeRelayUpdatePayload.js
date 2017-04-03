@@ -13,6 +13,7 @@
 'use strict';
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const RelayClassicRecordState = require('RelayClassicRecordState');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMutationTracker = require('RelayMutationTracker');
 const RelayMutationType = require('RelayMutationType');
@@ -20,7 +21,6 @@ const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
-const {RelayRecordState} = require('RelayRuntime');
 
 const generateClientEdgeID = require('generateClientEdgeID');
 const generateClientID = require('generateClientID');
@@ -148,7 +148,7 @@ function deleteRecord(
   const recordWriter = writer.getRecordWriter();
   // skip if already deleted
   const status = store.getRecordState(recordID);
-  if (status === RelayRecordState.NONEXISTENT) {
+  if (status === RelayClassicRecordState.NONEXISTENT) {
     return;
   }
 

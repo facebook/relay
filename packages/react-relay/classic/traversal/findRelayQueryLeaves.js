@@ -12,11 +12,11 @@
 
 'use strict';
 
+const RelayClassicRecordState = require('RelayClassicRecordState');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryVisitor = require('RelayQueryVisitor');
-const {RelayRecordState} = require('RelayRuntime');
 
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 
@@ -124,10 +124,10 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   ): void {
     const dataID = state.dataID;
     const recordState = this._store.getRecordState(dataID);
-    if (recordState === RelayRecordState.UNKNOWN) {
+    if (recordState === RelayClassicRecordState.UNKNOWN) {
       this._handleMissingData(fragment, state);
       return;
-    } else if (recordState === RelayRecordState.NONEXISTENT) {
+    } else if (recordState === RelayClassicRecordState.NONEXISTENT) {
       return;
     }
 
@@ -145,10 +145,10 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   ): void {
     const dataID = state.dataID;
     const recordState = this._store.getRecordState(dataID);
-    if (recordState === RelayRecordState.UNKNOWN) {
+    if (recordState === RelayClassicRecordState.UNKNOWN) {
       this._handleMissingData(field, state);
       return;
-    } else if (recordState === RelayRecordState.NONEXISTENT) {
+    } else if (recordState === RelayClassicRecordState.NONEXISTENT) {
       return;
     }
 

@@ -12,13 +12,13 @@
 
 'use strict';
 
+const RelayClassicRecordState = require('RelayClassicRecordState');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 const RelayRecord = require('RelayRecord');
-const {RelayRecordState} = require('RelayRuntime');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 
 const callsFromGraphQL = require('callsFromGraphQL');
@@ -118,7 +118,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     const status = this._recordStore.getRecordState(
       rangeData ? rangeData.dataID : dataID
     );
-    if (status === RelayRecordState.EXISTENT) {
+    if (status === RelayClassicRecordState.EXISTENT) {
       const state = this._createState({
         componentDataID: null,
         data: undefined,
@@ -130,7 +130,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       });
       this.visit(queryNode, state);
       result.data = state.data;
-    } else if (status === RelayRecordState.NONEXISTENT) {
+    } else if (status === RelayClassicRecordState.NONEXISTENT) {
       result.data = null;
     }
     return result;
@@ -196,7 +196,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     // If we have a valid `dataID`, ensure that a record is created for it even
     // if we do not actually end up populating it with fields.
     const status = this._recordStore.getRecordState(state.storeDataID);
-    if (status === RelayRecordState.EXISTENT) {
+    if (status === RelayClassicRecordState.EXISTENT) {
       getDataObject(state);
     }
     return state;

@@ -18,6 +18,7 @@ const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 const QueryBuilder = require('QueryBuilder');
 const RelayChangeTracker = require('RelayChangeTracker');
+const RelayClassicRecordState = require('RelayClassicRecordState');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayMetaRoute = require('RelayMetaRoute');
@@ -34,7 +35,6 @@ const RelayRecord = require('RelayRecord');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTaskQueue = require('RelayTaskQueue');
-const {RelayRecordState} = require('RelayRuntime');
 
 const forEachObject = require('forEachObject');
 const generateForceIndex = require('generateForceIndex');
@@ -69,7 +69,7 @@ import type {Abortable, CacheManager, CacheProcessorCallbacks} from 'RelayTypes'
 const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreConstants');
-const {EXISTENT} = RelayRecordState;
+const {EXISTENT} = RelayClassicRecordState;
 
 const idField = RelayQuery.Field.build({
   fieldName: ID,

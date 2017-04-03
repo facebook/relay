@@ -12,10 +12,10 @@
 
 'use strict';
 
+const RelayClassicRecordState = require('RelayClassicRecordState');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
-const {RelayRecordState} = require('RelayRuntime');
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
@@ -299,7 +299,7 @@ function getRootFragmentForQuery(
   } else {
     const rootState = rootID != null ?
       store.getRecordState(rootID) :
-      RelayRecordState.UNKNOWN;
+      RelayClassicRecordState.UNKNOWN;
     warning(
       false,
       'RelayQueryPath: No typename found for %s record `%s`. Generating a ' +

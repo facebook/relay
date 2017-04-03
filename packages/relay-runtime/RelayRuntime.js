@@ -12,7 +12,6 @@
 
 'use strict';
 
-const RelayRecordState = require('RelayRecordState');
 const RelayStaticGraphQLTag = require('RelayStaticGraphQLTag');
 
 const commitLocalUpdate = require('commitLocalUpdate');
@@ -33,5 +32,4 @@ module.exports = {
   getFragment: RelayStaticGraphQLTag.getFragment,
   getOperation: RelayStaticGraphQLTag.getOperation,
   isRelayStaticEnvironment: isRelayStaticEnvironment,
-  RelayRecordState: RelayRecordState,
 };

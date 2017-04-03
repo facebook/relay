@@ -15,7 +15,6 @@
 const RelayQLTransformer = require('./RelayQLTransformer');
 const RelayTransformError = require('./RelayTransformError');
 
-const babelAdapter = require('./babelAdapter');
 const computeLocation = require('./computeLocation');
 const invariant = require('./invariant');
 const util = require('./util');
@@ -62,8 +61,9 @@ function getBabelRelayPlugin(
     validator: options.validator,
   });
 
-  return function({Plugin, types, version}) {
-    return babelAdapter(Plugin, types, version, 'relay-query', t => ({
+  return function(babel) {
+    const t = babel.types;
+    return {
       visitor: {
         /**
          * Extract the module name from `@providesModule`.
@@ -248,7 +248,7 @@ function getBabelRelayPlugin(
           }
         },
       },
-    }));
+    };
   };
 }
 

@@ -17,6 +17,7 @@ const RelayCompiler = require('RelayCompiler');
 const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
+const RelayOSSCodegenRunner = require('RelayOSSCodegenRunner');
 
 module.exports = {
   Compiler: RelayCompiler,
@@ -24,4 +25,6 @@ module.exports = {
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
   Runner: RelayCodegenRunner,
+
+  run: RelayOSSCodegenRunner.run,
 };

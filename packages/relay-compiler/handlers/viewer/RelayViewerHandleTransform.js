@@ -15,8 +15,6 @@
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 
-const invariant = require('invariant');
-
 const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
 const {getRawType} = require('RelaySchemaUtils');
 
@@ -35,12 +33,10 @@ function transform(
   context: RelayCompilerContext,
   schema: GraphQLSchema
 ): RelayCompilerContext {
-  invariant(
-    schema.getType(VIEWER_TYPE),
-    'RelayViewerHandleTransform: Expected the schema to have a `%s` type, ' +
-    'cannot transform context.',
-    VIEWER_TYPE
-  );
+  const viewerType = schema.getType(VIEWER_TYPE);
+  if (viewerType == null) {
+    return context;
+  }
   return RelayIRTransformer.transform(
     context,
     {

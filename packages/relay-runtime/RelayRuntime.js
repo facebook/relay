@@ -12,6 +12,11 @@
 
 'use strict';
 
+const RelayCore = require('RelayCore');
+const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayMarkSweepStore = require('RelayMarkSweepStore');
+const RelayNetwork = require('RelayNetwork');
+const RelayStaticEnvironment = require('RelayStaticEnvironment');
 const RelayStaticGraphQLTag = require('RelayStaticGraphQLTag');
 
 const commitLocalUpdate = require('commitLocalUpdate');
@@ -24,12 +29,28 @@ const requestRelaySubscription = require('requestRelaySubscription');
  * The public interface to Relay Runtime.
  */
 module.exports = {
+  // Core API
+  Environment: RelayStaticEnvironment,
+  Network: RelayNetwork,
+  RecordSource: RelayInMemoryRecordSource,
+  Store: RelayMarkSweepStore,
+
+  areEqualSelectors: RelayCore.areEqualSelectors,
+  createFragmentSpecResolver: RelayCore.createFragmentSpecResolver,
+  createOperationSelector: RelayCore.createOperationSelector,
+  getDataIDsFromObject: RelayCore.getDataIDsFromObject,
+  getFragment: RelayStaticGraphQLTag.getFragment,
+  getOperation: RelayStaticGraphQLTag.getOperation,
+  getSelector: RelayCore.getSelector,
+  getSelectorList: RelayCore.getSelectorList,
+  getSelectorsFromObject: RelayCore.getSelectorsFromObject,
+  getVariablesFromObject: RelayCore.getVariablesFromObject,
+  graphql: RelayStaticGraphQLTag.graphql,
+
+  // Helpers (can be implemented via the above API)
   commitLocalUpdate: commitLocalUpdate,
   commitMutation: commitRelayStaticMutation,
   fetchQuery: fetchRelayStaticQuery,
-  requestSubscription: requestRelaySubscription,
-  graphql: RelayStaticGraphQLTag.graphql,
-  getFragment: RelayStaticGraphQLTag.getFragment,
-  getOperation: RelayStaticGraphQLTag.getOperation,
   isRelayStaticEnvironment: isRelayStaticEnvironment,
+  requestSubscription: requestRelaySubscription,
 };

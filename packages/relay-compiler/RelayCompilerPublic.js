@@ -6,19 +6,22 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayCodegen
  * @flow
+ * @providesModule RelayCompilerPublic
  */
 
 'use strict';
 
 const RelayCodegenRunner = require('RelayCodegenRunner');
+const RelayCompiler = require('RelayCompiler');
+const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
+const RelayIRTransforms = require('RelayIRTransforms');
 
-/**
- * The public interface to Relay compiler codegen.
- */
 module.exports = {
-  Runner: RelayCodegenRunner,
+  Compiler: RelayCompiler,
+  FileIRParser: RelayFileIRParser,
   FileWriter: RelayFileWriter,
+  IRTransforms: RelayIRTransforms,
+  Runner: RelayCodegenRunner,
 };

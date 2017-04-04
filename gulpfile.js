@@ -212,11 +212,11 @@ const builds = [
   {
     package: 'relay-compiler',
     exports: {
-      index: 'RelayCompiler.js',
+      index: 'RelayCompilerPublic.js',
     },
     bundles: [
       {
-        entry: 'RelayCompiler.js',
+        entry: 'RelayCompilerPublic.js',
         output: 'relay-compiler',
         libraryName: 'RelayCompiler',
         libraryTarget: 'commonjs2',

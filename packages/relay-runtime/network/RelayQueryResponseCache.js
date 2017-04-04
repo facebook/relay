@@ -63,10 +63,13 @@ class RelayQueryResponseCache {
     variables: Variables,
   ): ?QueryPayload {
     const cacheKey = getCacheKey(queryID, variables);
+    this._responses.forEach((response, key) => {
+      if (!isCurrent(response.fetchTime, this._ttl)) {
+        this._responses.delete(key);
+      }
+    });
     const response = this._responses.get(cacheKey);
-    return response != null && isCurrent(response.fetchTime, this._ttl) ?
-      response.payload :
-      null;
+    return response != null ? response.payload : null;
   }
 
   set(
@@ -88,14 +91,6 @@ class RelayQueryResponseCache {
         this._responses.delete(firstKey.value);
       }
     }
-    // Purge the entry on timeout
-    setTimeout(() => {
-      const response = this._responses.get(cacheKey);
-      if (response && !isCurrent(response.fetchTime, this._ttl)) {
-        // Only purge if the entry hasn't been updated
-        this._responses.delete(cacheKey);
-      }
-    }, this._ttl);
   }
 }
 

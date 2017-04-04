@@ -11,7 +11,6 @@
 
 const React = require('React');
 const Site = require('Site');
-const SiteData = require('SiteData');
 
 const index = React.createClass({
   render: function() {
@@ -62,7 +61,7 @@ const index = React.createClass({
             </a>
             <a
               className="button"
-              href={'https://github.com/facebook/relay/releases/tag/v' + SiteData.version}>
+              href="https://github.com/facebook/relay/releases/">
               Download
             </a>
           </section>
@@ -133,7 +132,7 @@ const index = React.createClass({
             </a>
             <a
               className="button"
-              href={'https://github.com/facebook/relay/releases/tag/v' + SiteData.version}>
+              href="https://github.com/facebook/relay/releases/">
               Download
             </a>
           </section>

@@ -309,21 +309,10 @@ gulp.task('bundles:min', ['modules'], function() {
   ));
 });
 
-gulp.task('website:check-version', function(cb) {
-  const version = require('./package').version;
-  const websiteVersion = require('./website/core/SiteData').version;
-  if (websiteVersion !== version) {
-    return cb(
-      new Error('Website version does not match package.json. Saw ' + websiteVersion + ' but expected ' + version)
-    );
-  }
-  cb();
-});
-
 gulp.task('watch', function() {
   gulp.watch(PACKAGES + '/**/*.js', ['exports', 'bundles']);
 });
 
 gulp.task('default', function(cb) {
-  runSequence('clean', 'website:check-version', ['exports', 'bundles', 'bundles:min'], cb);
+  runSequence('clean', ['exports', 'bundles', 'bundles:min'], cb);
 });

@@ -36,6 +36,8 @@ const babelOptions = getBabelOptions({
   plugins: [
     BabelPluginRelay,
     getBabelRelayPlugin(schema, {substituteVariables: true}),
+    require('babel-plugin-transform-async-to-generator'),
+    require('babel-plugin-transform-regenerator')
   ],
 });
 

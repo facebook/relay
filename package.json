@@ -20,6 +20,7 @@
     "babel-eslint": "^6.1.2",
     "babel-generator": "6.24.0",
     "babel-plugin-transform-async-to-generator": "6.22.0",
+    "babel-plugin-transform-regenerator": "^6.22.0",
     "babel-plugin-transform-runtime": "^6.9.0",
     "babel-polyfill": "^6.9.0",
     "babel-preset-fbjs": "^2.0.0",
@@ -29,34 +30,34 @@
     "babel-types": "6.23.0",
     "babylon": "6.16.1",
     "del": "^2.2.0",
+    "eslint": "^3.0.1",
     "eslint-config-fbjs": "^1.0.0",
     "eslint-plugin-babel": "^3.3.0",
     "eslint-plugin-flowtype": "2.30.0",
     "eslint-plugin-react": "^5.2.2",
-    "eslint": "^3.0.1",
     "event-stream": "3.3.4",
     "fb-watchman": "^2.0.0",
-    "fbjs-scripts": "^0.7.1",
     "fbjs": "^0.8.1",
+    "fbjs-scripts": "^0.7.1",
     "flow-bin": "^0.42.0",
     "graphql": "0.9.1",
+    "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-derequire": "^2.1.0",
     "gulp-flatten": "^0.3.0",
     "gulp-header": "1.8.7",
     "gulp-util": "^3.0.7",
-    "gulp": "^3.9.1",
     "immutable": "^3.8.1",
     "jest": "^19.0.2",
     "object-assign": "^4.1.0",
+    "react": "^15.1.0",
     "react-addons-test-utils": "^15.0.0",
     "react-dom": "^15.1.0",
     "react-static-container": "^1.0.1",
     "react-test-renderer": "^15.1.0",
-    "react": "^15.1.0",
     "run-sequence": "^1.2.1",
-    "webpack-stream": "^3.2.0",
-    "webpack": "^1.13.1"
+    "webpack": "^1.13.1",
+    "webpack-stream": "^3.2.0"
   },
   "devEngines": {
     "node": ">=4.x",
@@ -78,7 +79,8 @@
       "<rootDir>/packages/"
     ],
     "setupFiles": [
-      "<rootDir>/node_modules/fbjs-scripts/jest/environment.js"
+      "<rootDir>/node_modules/fbjs-scripts/jest/environment.js",
+      "<rootDir>/scripts/jest/environment.js"
     ],
     "timers": "fake",
     "transform": {

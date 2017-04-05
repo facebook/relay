@@ -1,0 +1,29 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule ReferenceStory
+ */
+
+'use strict';
+
+const { graphql } = require('Relay');
+
+module.exports = {
+  story: {
+    relayExperimental: function () {
+      return require('ReferenceStory_story.graphql');
+    },
+    relay: function () {
+      const RelayQL_GENERATED = require('RelayQL_GENERATED'),
+            NonConformingReference = NonConformingReference.getFragment();
+
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [],
+        node: RelayQL_GENERATED`fragment ReferenceStory_story on Story {
+  ...NonConformingReference
+}`
+      };
+    }
+  }
+};

@@ -1,0 +1,15 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule ReferenceStory
+ */
+
+'use strict';
+
+const {graphql} = require('Relay');
+
+module.exports = graphql`
+  fragment ReferenceStory_story on Story {
+    ...NonConformingReference
+  }
+`;

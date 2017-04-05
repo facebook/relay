@@ -1,18 +1,11 @@
 [ignore]
 .*/__tests__/.*
 .*/**/*.native.js
-.*/dist/.*
-.*/node_modules/graphql/.*
-.*/react/node_modules/.*
-.*/react-dom/node_modules/.*
-.*/react-static-container/node_modules/.*
-
-[include]
-node_modules/fbjs/lib
-node_modules/invariant
-node_modules/react
-node_modules/react-dom
-node_modules/react-static-container/lib
+<PROJECT_ROOT>/dist/.*
+<PROJECT_ROOT>/examples/.*
+<PROJECT_ROOT>/node_modules/react/node_modules/.*
+<PROJECT_ROOT>/node_modules/react-dom/node_modules/.*
+<PROJECT_ROOT>/node_modules/react-static-container/node_modules/.*
 
 [libs]
 node_modules/fbjs/flow/lib
@@ -30,9 +23,10 @@ suppress_type=$FlowIssue
 suppress_type=$FlowFixMe
 suppress_type=$FixMe
 
-suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe\\($\\|[^(]\\|(\\(>=0\\.\\(4[0-2]\\|[1-3][0-9]\\|[0-9]\\).[0-9]\\)? *\\(site=[a-z,_]*relay[a-z,_]*\\)?)\\)
-suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(>=0\\.\\(4[0-2]\\|[1-3][0-9]\\|[0-9]\\).[0-9]\\)? *\\(site=[a-z,_]*relay[a-z,_]*\\)?)\\)? #[0-9]+
+suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe\\($\\|[^(]\\|(\\(>=0\\.\\(4[0-2]\\|[1-3][0-9]\\|[0-9]\\).[0-9]\\)? *\\(site=[a-z,_]*react_native_fb[a-z,_]*\\)?)\\)
+suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(>=0\\.\\(4[0-2]\\|[1-3][0-9]\\|[0-9]\\).[0-9]\\)? *\\(site=[a-z,_]*react_native_fb[a-z,_]*\\)?)\\)?:? #[0-9]+
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
+suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
 
 [version]
 ^0.42.0

@@ -85,6 +85,11 @@
       "<rootDir>/node_modules/fbjs-scripts/jest/environment.js",
       "<rootDir>/scripts/jest/environment.js"
     ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/packages/react-relay/modern/__tests__/ReactRelayPaginationContainer-test.js",
+      "<rootDir>/packages/react-relay/modern/__tests__/ReactRelayQueryRenderer-test.js",
+      "<rootDir>/packages/react-relay/modern/__tests__/ReactRelayRefetchContainer-test.js"
+    ],
     "timers": "fake",
     "transform": {
       ".*": "<rootDir>/scripts/jest/preprocessor.js"

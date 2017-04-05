@@ -70,5 +70,5 @@
       "type": "Node"
     }
   ],
-  "type": "Root"
+  "type": "Query"
 }

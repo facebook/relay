@@ -55,7 +55,7 @@
         "storageKey": null
       }
     ],
-    "type": "Root"
+    "type": "Query"
   },
   "id": null,
   "kind": "Batch",

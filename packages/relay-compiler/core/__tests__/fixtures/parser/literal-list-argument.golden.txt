@@ -56,6 +56,6 @@
         "type": "Route"
       }
     ],
-    "type": "Root"
+    "type": "Query"
   }
 ]

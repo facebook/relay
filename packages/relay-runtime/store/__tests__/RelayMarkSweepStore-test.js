@@ -89,7 +89,7 @@ describe('RelayStore', () => {
 
     it('only collects unreferenced data', () => {
       const {JoeFragment} = generateWithTransforms(`
-        fragment JoeFragment on Root @argumentDefinitions(
+        fragment JoeFragment on Query @argumentDefinitions(
           id: {type: "ID"}
         ) {
           node(id: $id) {

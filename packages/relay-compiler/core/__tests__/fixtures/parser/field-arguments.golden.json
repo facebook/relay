@@ -106,6 +106,6 @@
         "type": "CheckinSearchResult"
       }
     ],
-    "type": "Root"
+    "type": "Query"
   }
 ]

@@ -1,5 +1,10 @@
 /**
- * Copyright 2004-present Facebook. All Rights Reserved.
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
  */
@@ -7,9 +12,8 @@
 'use strict';
 
 const React = require('React');
-const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
 
-const {graphql} = require('RelayCompat');
+const {graphql, createFragmentContainer} = require('ReactRelayPublic');
 
 /**
  * Verifies that normal prop type checking, as well as the methods proxying Relay does, is
@@ -20,9 +24,14 @@ const FooComponent = ({requiredProp}: {requiredProp: string}) => <div>{requiredP
 
 // Note that we must reassign to a new identifier to make sure flow doesn't propogate types without
 // the relay type definition doing the work.
-const Foo = ReactRelayFragmentContainer.createContainer(FooComponent, {
-  viewer: graphql` fragment ReactRelayFragmentContainer-flowtest_Foo_viewer on Viewer { actor { id } } `,
-});
+const Foo = createFragmentContainer(
+  FooComponent,
+  graphql`
+    fragment ReactRelayFragmentContainer-flowtest_Foo_viewer on Viewer {
+      actor { id }
+    }
+  `,
+);
 
 class BarComponent extends React.Component {
   props: {
@@ -50,13 +59,18 @@ class BarComponent extends React.Component {
     return <div>{reqLen && optionalProp && optionalFoo && missing && defLen}</div>;
   }
 }
-const Bar = ReactRelayFragmentContainer.createContainer(BarComponent, {
-  viewer: graphql` fragment ReactRelayFragmentContainer-flowtest_Bar_viewer on Viewer { actor { id } } `,
-});
+const Bar = createFragmentContainer(
+  BarComponent,
+  graphql`
+    fragment ReactRelayFragmentContainer-flowtest_Bar_viewer on Viewer {
+      actor { id }
+    }
+  `,
+);
 
 module.exports = {
   checkMissingPropOnFunctionalComponent() {
-    /** $FlowExpectedError: Foo missing `requiredProp` **/
+    /** $ShouldBeFlowExpectedError: Foo missing `requiredProp` **/
     return <Foo />;
   },
   checkMinimalPropsOnFunctionalComponent() {
@@ -64,7 +78,7 @@ module.exports = {
     return <Foo requiredProp="foo" />;
   },
   checkMissingPropOnClassComponent() {
-    /** $FlowExpectedError: Bar missing `requiredProp` **/
+    /** $ShouldBeFlowExpectedError: Bar missing `requiredProp` **/
     return <Bar />;
   },
   checkMinimalPropsOnClassComponent() {
@@ -72,19 +86,19 @@ module.exports = {
     return <Bar requiredProp="foo" />;
   },
   checkWrongPropType() {
-    /** $FlowExpectedError: Bar wrong `requiredProp` type, should be string **/
+    /** $ShouldBeFlowExpectedError: Bar wrong `requiredProp` type, should be string **/
     return <Bar requiredProp={17} />;
   },
   checkWrongOptionalType() {
-    /** $FlowExpectedError: Bar wrong `optionalProp` type, should be `{foo: string}` **/
+    /** $ShouldBeFlowExpectedError: Bar wrong `optionalProp` type, should be `{foo: string}` **/
     return <Bar optionalProp="wrongType" requiredProp="foo" />;
   },
   checkNullOptionalType() {
-    /** $FlowExpectedError: Bar `optionalProp` must be omitted or truthy, not null **/
+    /** $ShouldBeFlowExpectedError: Bar `optionalProp` must be omitted or truthy, not null **/
     return <Bar optionalProp={null} requiredProp="foo" />;
   },
   checkWrongDefaultPropType() {
-    /** $FlowExpectedError: Bar wrong `defaultProp` type, should be string **/
+    /** $ShouldBeFlowExpectedError: Bar wrong `defaultProp` type, should be string **/
     return <Bar defaultProp={false} requiredProp="foo" />;
   },
   checkAllPossibleProps() {
@@ -98,7 +112,7 @@ module.exports = {
   },
   checkMissingPropSpread() {
     const props = {defaultProp: 'foo'};
-    /** $FlowExpectedError: Bar missing `requiredProp` with spread **/
+    /** $ShouldBeFlowExpectedError: Bar missing `requiredProp` with spread **/
     return <Bar {...props} />;
   },
   checkStaticsAndMethodsProxying() {
@@ -107,10 +121,10 @@ module.exports = {
       getString(): string {
         const ok = this._barRef ? this._barRef.getNum() : 'default'; // legit
 
-        /** $FlowExpectedError: Bar does not have `missingMethod` **/
+        /** $ShouldBeFlowExpectedError: Bar does not have `missingMethod` **/
         const bad = this._barRef ? this._barRef.missingMethod() : 'default';
 
-        /** $FlowExpectedError: Bar `getNum` gives number, but `getString` assumes string  **/
+        /** $ShouldBeFlowExpectedError: Bar `getNum` gives number, but `getString` assumes string  **/
         return bad ? 'not good' : ok;
       }
       render() {

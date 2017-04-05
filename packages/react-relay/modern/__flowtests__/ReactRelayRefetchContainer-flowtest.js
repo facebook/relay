@@ -1,5 +1,10 @@
 /**
- * Copyright 2004-present Facebook. All Rights Reserved.
+ * Copyright (c) 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
  */
@@ -7,9 +12,8 @@
 'use strict';
 
 const React = require('React');
-const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
 
-const {graphql} = require('RelayCompat');
+const {graphql, createRefetchContainer} = require('ReactRelayPublic');
 
 /**
  * Verifies that normal prop type checking works correctly on Relay components.
@@ -43,21 +47,19 @@ class FooComponent extends React.Component {
 }
 // Note that we must reassign to a new identifier to make sure flow doesn't propogate types without
 // the relay type definition doing the work.
-const Foo = ReactRelayRefetchContainer.createContainer(
+const Foo = createRefetchContainer(
   FooComponent,
-  {
-    viewer: graphql`
-      fragment ReactRelayRefetchContainer-flowtest_Foo_viewer on Viewer {
-        all_friends(after: $cursor, first: $count) @connection {
-          edges {
-            node {
-              __typename
-            }
+  graphql`
+    fragment ReactRelayRefetchContainer-flowtest_Foo_viewer on Viewer {
+      all_friends(after: $cursor, first: $count) @connection {
+        edges {
+          node {
+            __typename
           }
         }
       }
-    `,
-  },
+    }
+  `,
   graphql`
     query ReactRelayRefetchContainer-flowtest_Foo_ViewerQuery(
       $count: Int!
@@ -72,7 +74,7 @@ const Foo = ReactRelayRefetchContainer.createContainer(
 
 module.exports = {
   checkMissingProp() {
-    /** $FlowExpectedError: Foo missing `requiredProp` **/
+    /** $ShouldBeFlowExpectedError: Foo missing `requiredProp` **/
     return <Foo />;
   },
   checkMinimalProps() {
@@ -80,19 +82,19 @@ module.exports = {
     return <Foo requiredProp="foo" />;
   },
   checkWrongPropType() {
-    /** $FlowExpectedError: Foo1 wrong `requiredProp` type, should be string **/
+    /** $ShouldBeFlowExpectedError: Foo1 wrong `requiredProp` type, should be string **/
     return <Foo requiredProp={17} />;
   },
   checkWrongOptionalType() {
-    /** $FlowExpectedError: Foo wrong `optionalProp` type, should be `{foo: string}` **/
+    /** $ShouldBeFlowExpectedError: Foo wrong `optionalProp` type, should be `{foo: string}` **/
     return <Foo optionalProp="wrongType" requiredProp="foo" />;
   },
   checkNullOptionalType() {
-    /** $FlowExpectedError: Foo `optionalProp` must be omitted or truthy, not null **/
+    /** $ShouldBeFlowExpectedError: Foo `optionalProp` must be omitted or truthy, not null **/
     return <Foo optionalProp={null} requiredProp="foo" />;
   },
   checkWrongDefaultPropType() {
-    /** $FlowExpectedError: Foo wrong `defaultProp` type, should be string **/
+    /** $ShouldBeFlowExpectedError: Foo wrong `defaultProp` type, should be string **/
     return <Foo defaultProp={false} requiredProp="foo" />;
   },
   checkAllPossibleProps() {
@@ -106,7 +108,7 @@ module.exports = {
   },
   checkMissingPropSpread() {
     const props = {defaultProp: 'foo'};
-    /** $FlowExpectedError: Foo missing `requiredProp` with spread **/
+    /** $ShouldBeFlowExpectedError: Foo missing `requiredProp` with spread **/
     return <Foo {...props} />;
   },
   checkStaticsAndMethodsProxying() {
@@ -115,10 +117,10 @@ module.exports = {
       getString(): string {
         const ok = this._fooRef ? this._fooRef.getNum() : 'default'; // legit
 
-        /** $FlowExpectedError: Foo does not have `missingMethod` **/
+        /** $ShouldBeFlowExpectedError: Foo does not have `missingMethod` **/
         const bad = this._fooRef ? this._fooRef.missingMethod() : 'default';
 
-        /** $FlowExpectedError: Foo `getNum` gives number, but `getString` assumes string  **/
+        /** $ShouldBeFlowExpectedError: Foo `getNum` gives number, but `getString` assumes string  **/
         return bad ? 'not good' : ok;
       }
       render() {

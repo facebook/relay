@@ -11,6 +11,8 @@
 
 const GraphQL = require('graphql');
 
+const DEFAULT_PROP_NAME = 'data';
+
 function compileGraphQLTag(t, path, state, ast) {
   const isModernOnly = Boolean(state.opts && state.opts.modernOnly);
 
@@ -44,12 +46,6 @@ function compileGraphQLTag(t, path, state, ast) {
       }
 
       const [, propName] = getFragmentNameParts(definition.name.value);
-      if (!propName) {
-        throw new Error(
-          'BabelPluginRelay: Fragments should be named ' +
-          '`ModuleName_fragmentName`, got `' + definition.name.value + '`.'
-        );
-      }
       nodeMap[propName] = isModernOnly ?
         createModernConcreteNode(t, definition) :
         createCompatFragmentConcreteNode(t, path, definition);
@@ -423,13 +419,27 @@ function createRelayQLTemplate(t, node) {
 }
 
 function getFragmentNameParts(fragmentName) {
-  const match = fragmentName.match(/^(\w+)_(\w+)$/);
+  const match = fragmentName.match(
+    /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][a-zA-Z0-9]*))?$/
+  );
   if (!match) {
-    return [ fragmentName, null ];
+    throw new Error(
+      'BabelPluginGraphQL: Fragments should be named ' +
+      '`ModuleName_fragmentName`, got `' + fragmentName + '`.'
+    );
   }
   const module = match[1];
   const propName = match[2];
-  return [ module, propName ];
+  if (propName === DEFAULT_PROP_NAME) {
+    throw new Error(
+      'BabelPluginGraphQL: Fragment `' + fragmentName + '` should not end in ' +
+      '`_data` to avoid conflict with a fragment named `' + module + '` ' +
+      'which also provides resulting data via the React prop `data`. Either ' +
+      'rename this fragment to `' + module + '` or choose a different ' +
+      'prop name.'
+    );
+  }
+  return [ module, propName || DEFAULT_PROP_NAME ];
 }
 
 function createSubstitutionsForFragmentSpreads(t, path, fragments) {

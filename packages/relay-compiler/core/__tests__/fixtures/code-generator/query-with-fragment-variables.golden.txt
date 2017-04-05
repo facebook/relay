@@ -136,7 +136,7 @@
     {
       "kind": "LocalArgument",
       "name": "pictureSize",
-      "type": "Int",
+      "type": "[Int]",
       "defaultValue": null
     }
   ],
@@ -152,7 +152,7 @@
           "kind": "Variable",
           "name": "size",
           "variableName": "pictureSize",
-          "type": "Int"
+          "type": "[Int]"
         }
       ],
       "concreteType": "Image",

@@ -374,7 +374,7 @@ describe('checkRelayQueryData', () => {
         query {
           node(id:"1055790163") {
             id
-            friends(first:"10") {
+            friends(first: 10) {
               edges { node {id}}
             }
           }
@@ -409,7 +409,7 @@ describe('checkRelayQueryData', () => {
         query {
           node(id:"1055790163") {
             id
-            friends(first:"10") {
+            friends(first: 10) {
               edges { node {id}}
             }
           }
@@ -494,7 +494,7 @@ describe('checkRelayQueryData', () => {
         query {
           node(id:"1055790163") {
             id
-            friends(first:"10") {
+            friends(first: 10) {
               edges { node {id}, cursor}
             }
           }
@@ -537,7 +537,7 @@ describe('checkRelayQueryData', () => {
         query {
           node(id:"1055790163") {
             id
-            friends(first:"10") {
+            friends(first: 10) {
               edges { node {id}, cursor}
             }
           }

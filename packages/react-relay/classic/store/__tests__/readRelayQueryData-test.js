@@ -172,7 +172,7 @@ describe('readRelayQueryData', () => {
       const fragment = getNode(Relay.QL`
         fragment on User {
           id
-          friends(first: "2") {
+          friends(first: 2) {
             edges {
               node {
                 id
@@ -217,7 +217,7 @@ describe('readRelayQueryData', () => {
       const fragment = getNode(Relay.QL`
         fragment on User {
           id
-          friends(first: "2") {
+          friends(first: 2) {
             edges {
               node {
                 id
@@ -604,7 +604,7 @@ describe('readRelayQueryData', () => {
     // seen in the wild and should be handled gracefully.
     const query = getNode(Relay.QL`
       fragment on Feedback {
-        topLevelComments(first:"1") {
+        topLevelComments(first: 1) {
           count
         }
       }
@@ -648,7 +648,7 @@ describe('readRelayQueryData', () => {
   it('retrieves PAGE_INFO with alias', () => {
     const query = getNode(Relay.QL`
       fragment on Feedback {
-        topLevelComments(first:"1") {
+        topLevelComments(first: 1) {
           count
           page_info: pageInfo {
             hasNextPage
@@ -698,7 +698,7 @@ describe('readRelayQueryData', () => {
   it('retrieves a mixture of "range" and non-"range" connection fields', () => {
     const query = getNode(Relay.QL`
       fragment on Feedback {
-        topLevelComments(first:"1") {
+        topLevelComments(first: 1) {
           count
           pageInfo {
             hasNextPage
@@ -903,7 +903,7 @@ describe('readRelayQueryData', () => {
     };
 
     let query = getNode(Relay.QL`
-      fragment on Feedback{likers(first:"1"){edges{node{name}}}}
+      fragment on Feedback{likers(first: 1){edges{node{name}}}}
     `);
     let data = readData(getStoreData({records}), query, 'feedback_id');
     expect(data).toEqual({
@@ -923,7 +923,7 @@ describe('readRelayQueryData', () => {
     });
 
     query = getNode(Relay.QL`
-      fragment on Feedback{likers(first:"1"){pageInfo{hasNextPage}}}
+      fragment on Feedback{likers(first: 1){pageInfo{hasNextPage}}}
     `);
     data = readData(getStoreData({records}), query, 'feedback_id');
     expect(data).toEqual({
@@ -956,7 +956,7 @@ describe('readRelayQueryData', () => {
       {}
     );
     const query = getNode(Relay.QL`  fragment on Feedback{
-            comments(first:"1") {
+            comments(first: 1) {
               pageInfo {
                 startCursor
                 ${fragmentReference}
@@ -1026,7 +1026,7 @@ describe('readRelayQueryData', () => {
       {}
     );
     const query = getNode(Relay.QL`  fragment on Feedback{
-            comments(first:"1") {
+            comments(first: 1) {
               edges {
                 node {
                   id
@@ -1487,7 +1487,7 @@ describe('readRelayQueryData', () => {
     );
     const query = getNode(Relay.QL`
       fragment on User {
-        friends(first:"25") {
+        friends(first: 25) {
           ${fragmentReference}
         }
       }
@@ -1612,7 +1612,7 @@ describe('readRelayQueryData', () => {
   it('can be configured to read generated fields (page info case)', () => {
     const query = getNode(Relay.QL`
       fragment on Feedback {
-        topLevelComments(first:"1") {
+        topLevelComments(first: 1) {
           pageInfo {
             hasNextPage
           }
@@ -1906,7 +1906,7 @@ describe('readRelayQueryData', () => {
       };
       const query = getNode(Relay.QL`
         fragment on Feedback {
-          comments(first: "5") {
+          comments(first: 5) {
             edges {
               node {
                 id
@@ -1962,7 +1962,7 @@ describe('readRelayQueryData', () => {
       // Missing `body.text` on the comment.
       const query = getNode(Relay.QL`
         fragment on Feedback {
-          comments(first: "1") {
+          comments(first: 1) {
             edges {
               node {
                 id

@@ -560,7 +560,7 @@ describe('findRelayQueryLeaves', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id
-        friends(first:"10") {
+        friends(first: 10) {
           edges { node {id}}
         }
       }
@@ -600,7 +600,7 @@ describe('findRelayQueryLeaves', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id
-        friends(first:"10") {
+        friends(first: 10) {
           edges { node {id}}
         }
       }
@@ -631,7 +631,7 @@ describe('findRelayQueryLeaves', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id
-        friends(first:"10") {
+        friends(first: 10) {
           edges { node {id}}
         }
       }
@@ -671,7 +671,7 @@ describe('findRelayQueryLeaves', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id
-        friends(first:"10") {
+        friends(first: 10) {
           edges { node {id}}
         }
       }
@@ -704,7 +704,7 @@ describe('findRelayQueryLeaves', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id
-        friends(first:"10") {
+        friends(first: 10) {
           edges { node {id}}
         }
       }
@@ -741,7 +741,7 @@ describe('findRelayQueryLeaves', () => {
     const queryNode = getNode(Relay.QL`
       fragment on Node {
         id
-        friends(first:"10") {
+        friends(first: 10) {
           edges { node {id}}
         }
       }

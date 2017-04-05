@@ -26,7 +26,7 @@ describe('RelayConcreteVariables', () => {
 
   describe('getFragmentVariables()', () => {
     /**
-     * defs: size: Int
+     * defs: size: [Int]
      * root vars: n/a
      * arg vars: {size: 42}
      * => size: 42
@@ -34,7 +34,7 @@ describe('RelayConcreteVariables', () => {
     it('sets variables to literal argument values', () => {
       const {Fragment} = generateAndCompile(`
         fragment Fragment on User @argumentDefinitions(
-          size: {type: "Int"}
+          size: {type: "[Int]"}
         ) {
           profilePicture(size: $size) { uri }
         }
@@ -50,7 +50,7 @@ describe('RelayConcreteVariables', () => {
     });
 
     /**
-     * defs: size: Int = 42
+     * defs: size: [Int] = 42
      * root vars: n/a
      * arg vars: n/a
      * => size: 42
@@ -58,7 +58,7 @@ describe('RelayConcreteVariables', () => {
     it('sets variables to default values if defined and no argument', () => {
       const {Fragment} = generateAndCompile(`
         fragment Fragment on User @argumentDefinitions(
-          size: {type: "Int", defaultValue: 42}
+          size: {type: "[Int]", defaultValue: 42}
         ) {
           profilePicture(size: $size) { uri }
         }
@@ -74,7 +74,7 @@ describe('RelayConcreteVariables', () => {
     });
 
     /**
-     * defs: size: Int = import 'rootSize'
+     * defs: size: [Int] = import 'rootSize'
      * root vars: rootSize: 42
      * arg vars: n/a
      * => size: 42

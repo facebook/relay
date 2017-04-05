@@ -529,7 +529,7 @@ describe('RelayQuery', () => {
       expect(grandchildren[0].getSchemaName()).toBe('id');
       expect(grandchildren[1].getSchemaName()).toBe('profilePicture');
       expect(grandchildren[1].getCallsWithValues()).toEqual([
-        {name: 'size', value: 'override'},
+        {name: 'size', type: '[Int]', value: 'override'},
       ]);
     });
 
@@ -580,7 +580,7 @@ describe('RelayQuery', () => {
       expect(grandchildren[0].getSchemaName()).toBe('id');
       expect(grandchildren[1].getSchemaName()).toBe('profilePicture');
       expect(grandchildren[1].getCallsWithValues()).toEqual([
-        {name: 'size', value: 'override'},
+        {name: 'size', type: '[Int]', value: 'override'},
       ]);
     });
 
@@ -629,7 +629,7 @@ describe('RelayQuery', () => {
       expect(grandchildren[0].getSchemaName()).toBe('id');
       expect(grandchildren[1].getSchemaName()).toBe('profilePicture');
       expect(grandchildren[1].getCallsWithValues()).toEqual([
-        {name: 'size', value: 'override'},
+        {name: 'size', type: '[Int]', value: 'override'},
       ]);
     });
 
@@ -679,7 +679,7 @@ describe('RelayQuery', () => {
       expect(grandchildren[0].getSchemaName()).toBe('id');
       expect(grandchildren[1].getSchemaName()).toBe('profilePicture');
       expect(grandchildren[1].getCallsWithValues()).toEqual([
-        {name: 'size', value: 'override'},
+        {name: 'size', type: '[Int]', value: 'override'},
       ]);
 
       expect(children[2] instanceof RelayQuery.Fragment);

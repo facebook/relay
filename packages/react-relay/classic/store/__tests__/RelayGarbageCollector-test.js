@@ -191,7 +191,7 @@ describe('RelayGarbageCollector', () => {
       const query = getNode(Relay.QL`
         query {
           viewer {
-            newsFeed(first:"1") {
+            newsFeed(first: 1) {
               edges {
                 node {
                   message {

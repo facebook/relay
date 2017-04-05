@@ -694,20 +694,23 @@ describe('printRelayOSSQuery', () => {
         }
         fragment F0 on User {
           ${generateRQLFieldAlias('profilePicture.size(32,32)')}:
-              profilePicture(size: [32, 32]) {
+              profilePicture(size: $size_0) {
             uri
           },
           id
         }
         fragment F1 on User {
           ${generateRQLFieldAlias('profilePicture.size(64,64)')}:
-              profilePicture(size: [64, 64]) {
+              profilePicture(size: $size_1) {
             uri
           },
           id
         }
       `);
-      expect(variables).toEqual({});
+      expect(variables).toEqual({
+        size_0: [32, 32],
+        size_1: [64, 64],
+      });
     });
 
     it('prints fragments with different runtime children separately', () => {
@@ -814,7 +817,7 @@ describe('printRelayOSSQuery', () => {
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQueryRelayQL on Viewer {
-          ${alias}:newsFeed(first:10) {
+          ${alias}:newsFeed(first:$first_0) {
             edges {
               node {
                 id,
@@ -829,14 +832,14 @@ describe('printRelayOSSQuery', () => {
           }
         }
       `);
-      expect(variables).toEqual({});
+      expect(variables).toEqual({first_0: 10});
     });
 
     it('prints a field with multiple arguments', () => {
       const alias = generateRQLFieldAlias('profilePicture.size(32,64)');
       const fragment = getNode(Relay.QL`
         fragment on Actor {
-          profilePicture(size:["32","64"]) {
+          profilePicture(size:[32, 64]) {
             uri
           }
         }
@@ -844,14 +847,14 @@ describe('printRelayOSSQuery', () => {
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQueryRelayQL on Actor {
-          ${alias}:profilePicture(size:["32","64"]) {
+          ${alias}:profilePicture(size:$size_0) {
             uri
           },
           id,
           __typename
         }
       `);
-      expect(variables).toEqual({});
+      expect(variables).toEqual({size_0: [32, 64]});
     });
 
     it('prints a field with multiple variable arguments', () => {
@@ -869,14 +872,14 @@ describe('printRelayOSSQuery', () => {
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQueryRelayQL on Actor {
-          ${alias}:profilePicture(size:[32,64]) {
+          ${alias}:profilePicture(size:$size_0) {
             uri
           },
           id,
           __typename
         }
       `);
-      expect(variables).toEqual({});
+      expect(variables).toEqual({size_0: [32, 64]});
     });
 
     it('prints scalar arguments', () => {
@@ -903,7 +906,7 @@ describe('printRelayOSSQuery', () => {
       const {text, variables} = printRelayOSSQuery(fragment);
       expect(text).toEqualPrintedQuery(`
         fragment PrintRelayOSSQueryRelayQL on Actor {
-          ${alias}:friends(first:10,orderby:["name"],isViewerFriend:false) {
+          ${alias}:friends(first:$first_0,orderby:["name"],isViewerFriend:false) {
             edges {
               node {
                 id
@@ -919,7 +922,7 @@ describe('printRelayOSSQuery', () => {
           __typename
         }
       `);
-      expect(variables).toEqual({});
+      expect(variables).toEqual({first_0: 10});
     });
 
     it('prints object call values', () => {

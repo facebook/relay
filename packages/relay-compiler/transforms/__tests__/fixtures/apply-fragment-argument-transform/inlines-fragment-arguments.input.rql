@@ -6,7 +6,7 @@ query TestQuery($id: ID!) {
 }
 
 fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "Int", nonNull: true}
+  pictureSize: {type: "[Int]", nonNull: true}
   includeFriends: {type: "Boolean!", defaultValue: false}
 ) {
   id

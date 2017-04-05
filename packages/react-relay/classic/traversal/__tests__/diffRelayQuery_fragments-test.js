@@ -315,7 +315,7 @@ describe('diffRelayQuery - fragments', () => {
     const query = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"1") {
+          newsFeed(first: 1) {
             edges {
               node {
                 ... on Story {
@@ -373,7 +373,7 @@ describe('diffRelayQuery - fragments', () => {
       const writeQuery = getNode(Relay.QL`
         query {
           viewer {
-            newsFeed(first:"1") {
+            newsFeed(first: 1) {
               edges {
                 node {
                   ... on Story {
@@ -397,7 +397,7 @@ describe('diffRelayQuery - fragments', () => {
       const query = getNode(Relay.QL`
         query {
           viewer {
-            newsFeed(first:"1") {
+            newsFeed(first: 1) {
               edges {
                 node {
                   ... on Story {
@@ -484,7 +484,7 @@ describe('diffRelayQuery - fragments', () => {
         getNode(Relay.QL`
           query {
             viewer {
-              newsFeed(first: "2") {
+              newsFeed(first: 2) {
                 edges {
                   node {
                     id
@@ -568,7 +568,7 @@ describe('diffRelayQuery - fragments', () => {
         query {
           node(id: "123") {
             ... on User {
-              friends(first: "1") {
+              friends(first: 1) {
                 edges {
                   ... on FriendsEdge @relay(variables: []) {
                     node {

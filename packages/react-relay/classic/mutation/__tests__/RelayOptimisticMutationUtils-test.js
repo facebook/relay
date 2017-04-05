@@ -229,7 +229,7 @@ describe('RelayOptimisticMutationUtils', () => {
     it('infers `id` and `cursor` fields for `node` data', () => {
       expect(RelayOptimisticMutationUtils.inferRelayFieldsFromData({
         id: '123',
-        'friends(first: "2")': {
+        'friends(first: 2)': {
           edges: [
             {node: {name: 'Alice'}},
             {node: {name: 'Bob'}},
@@ -242,7 +242,7 @@ describe('RelayOptimisticMutationUtils', () => {
       })).toEqualFields(Relay.QL`
         fragment on Actor {
           id
-          friends(first: "2") {
+          friends(first: 2) {
             edges {
               node {
                 id

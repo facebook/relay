@@ -30,7 +30,7 @@ describe('filterRelayQuery()', () => {
     query = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first: "10") {
+          newsFeed(first: 10) {
             edges {
               node {
                 message {
@@ -64,7 +64,7 @@ describe('filterRelayQuery()', () => {
     expect(filterRelayQuery(query, filter)).toEqualQueryRoot(getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first: "10") {
+          newsFeed(first: 10) {
             edges {
               cursor
               node {

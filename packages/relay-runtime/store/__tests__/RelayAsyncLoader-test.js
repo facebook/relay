@@ -91,7 +91,7 @@ describe('RelayAsyncLoader', () => {
         },
       };
       ({Query} = generateWithTransforms(`
-        query Query($id: ID, $size: Int) {
+        query Query($id: ID, $size: [Int]) {
           node(id: $id) {
             id
             __typename
@@ -280,7 +280,7 @@ describe('RelayAsyncLoader', () => {
       };
       const source = new RelayInMemoryRecordSource(data);
       const {FooQuery} = generateWithTransforms(`
-        query FooQuery($id: ID, $size: Int) {
+        query FooQuery($id: ID, $size: [Int]) {
           node(id: $id) {
             id
             __typename
@@ -362,7 +362,7 @@ describe('RelayAsyncLoader', () => {
       const source = new RelayInMemoryRecordSource(data);
       const {BarFragment} = generateWithTransforms(`
         fragment BarFragment on User @argumentDefinitions(
-          size: {type: "Int"}
+          size: {type: "[Int]"}
         ) {
           id
           firstName
@@ -459,7 +459,7 @@ describe('RelayAsyncLoader', () => {
       const source = new RelayInMemoryRecordSource(data);
       const {BarFragment} = generateWithTransforms(`
         fragment BarFragment on User @argumentDefinitions(
-          size: {type: "Int"}
+          size: {type: "[Int]"}
         ) {
           id
           firstName
@@ -501,7 +501,7 @@ describe('RelayAsyncLoader', () => {
       const source = new RelayInMemoryRecordSource(data);
       const {BarFragment} = generateWithTransforms(`
         fragment BarFragment on User @argumentDefinitions(
-          size: {type: "Int"}
+          size: {type: "[Int]"}
         ) {
           id
           firstName

@@ -85,7 +85,7 @@ describe('RelayReader', () => {
 
   it('reads query data', () => {
     const {FooQuery} = generateWithTransforms(`
-      query FooQuery($id: ID, $size: Int) {
+      query FooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename
@@ -164,7 +164,7 @@ describe('RelayReader', () => {
   it('reads fragment data', () => {
     const {BarFragment} = generateWithTransforms(`
       fragment BarFragment on User @argumentDefinitions(
-        size: {type: "Int"}
+        size: {type: "[Int]"}
       ) {
         id
         firstName
@@ -230,14 +230,14 @@ describe('RelayReader', () => {
   it('creates fragment pointers', () => {
     const {UserProfile} = generateAndCompile(`
       fragment UserProfile on User @argumentDefinitions(
-        size: {type: "Int"}
+        size: {type: "[Int]"}
       ) {
         id
         ...UserProfilePicture @arguments(size: $size)
       }
 
       fragment UserProfilePicture on User @argumentDefinitions(
-        size: {type: "Int"}
+        size: {type: "[Int]"}
       ) {
         profilePicture(size: $size) {
           uri

@@ -148,7 +148,7 @@ describe('toGraphQL', function() {
       query {
         viewer {
           actor {
-            friends(first:"5") {
+            friends(first: 5) {
               edges {
                 node {
                   name

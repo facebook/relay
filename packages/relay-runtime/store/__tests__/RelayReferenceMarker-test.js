@@ -86,7 +86,7 @@ describe('RelayReferenceMarker', () => {
 
   it('marks referenced records', () => {
     const {FooQuery} = generateAndCompile(`
-      query FooQuery($id: ID, $size: Int) {
+      query FooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename
@@ -100,7 +100,7 @@ describe('RelayReferenceMarker', () => {
       }
 
       fragment UserProfile on User @argumentDefinitions(
-        size: {type: "Int"}
+        size: {type: "[Int]"}
       ) {
         ... on User {
           firstName

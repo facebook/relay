@@ -148,7 +148,7 @@ type Comment implements Node {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: Int, preset: PhotoSize): Image
+  profilePicture(size: [Int], preset: PhotoSize): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -232,7 +232,7 @@ type Feedback implements Node {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: Int, preset: PhotoSize): Image
+  profilePicture(size: [Int], preset: PhotoSize): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -330,7 +330,7 @@ interface Node {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: Int, preset: PhotoSize): Image
+  profilePicture(size: [Int], preset: PhotoSize): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -354,7 +354,7 @@ interface Actor {
   id: ID!
   lastName: String
   name: String
-  profilePicture(size: Int, preset: PhotoSize): Image
+  profilePicture(size: [Int], preset: PhotoSize): Image
   screennames: [Screenname]
   subscribeStatus: String
   subscribers(first: Int): SubscribersConnection
@@ -392,7 +392,7 @@ type Page implements Node Actor {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: Int, preset: PhotoSize): Image
+  profilePicture(size: [Int], preset: PhotoSize): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -492,7 +492,7 @@ type PhotoStory implements FeedUnit Node {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: Int, preset: PhotoSize): Image
+  profilePicture(size: [Int], preset: PhotoSize): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -537,7 +537,7 @@ type Story implements FeedUnit Node {
   likeSentence: Text
   message: Text
   name: String
-  profilePicture(size: Int, preset: PhotoSize): Image
+  profilePicture(size: [Int], preset: PhotoSize): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -630,7 +630,7 @@ type User implements Named, Node, Actor {
   name: String
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
-  profilePicture(size: Int, preset: PhotoSize): Image
+  profilePicture(size: [Int], preset: PhotoSize): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String

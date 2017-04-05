@@ -14,7 +14,7 @@ query NodeQuery(
 fragment UserFragment on User @argumentDefinitions(
   after: {type: "ID"}
   first: {type: "Int", defaultValue: 5}
-  size: {type: "Int"}
+  size: {type: "[Int]"}
 ) {
   id
   __typename

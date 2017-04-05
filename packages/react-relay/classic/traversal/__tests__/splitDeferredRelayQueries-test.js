@@ -71,7 +71,7 @@ describe('splitDeferredRelayQueries()', () => {
   it('splits a deferred fragment on the viewer root', () => {
     const fragment = Relay.QL`
       fragment on Viewer {
-        newsFeed(first: "10") {
+        newsFeed(first: 10) {
           edges {
             node {
               id
@@ -119,7 +119,7 @@ describe('splitDeferredRelayQueries()', () => {
   it('splits a nested feed on the viewer root', () => {
     const nestedFragment = Relay.QL`
       fragment on Viewer {
-        newsFeed(first: "10") {
+        newsFeed(first: 10) {
           edges {
             node {
               id
@@ -189,7 +189,7 @@ describe('splitDeferredRelayQueries()', () => {
     const nestedFragment = Relay.QL`fragment on NonNodeStory{message{text}}`;
     const fragment = Relay.QL`
       fragment on Viewer {
-        newsFeed(first: "10") {
+        newsFeed(first: 10) {
           edges {
             node {
               tracking
@@ -229,7 +229,7 @@ describe('splitDeferredRelayQueries()', () => {
         viewer {
           ${Relay.QL`
       fragment on Viewer {
-        newsFeed(first: "10") {
+        newsFeed(first: 10) {
           edges {
             cursor,
             node {
@@ -264,7 +264,7 @@ describe('splitDeferredRelayQueries()', () => {
       toEqualQueryRoot(flattenRelayQuery(getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first: "10") {
+          newsFeed(first: 10) {
             edges {
               cursor
               node {
@@ -494,7 +494,7 @@ describe('splitDeferredRelayQueries()', () => {
   it('drops the required portion if it is empty', () => {
     const fragment = Relay.QL`
       fragment on Viewer {
-        newsFeed(first: "10") {
+        newsFeed(first: 10) {
           edges {
             node {
               id
@@ -753,7 +753,7 @@ describe('splitDeferredRelayQueries()', () => {
     const node = Relay.QL`
       query {
         node(id:"4") {
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 name
@@ -773,7 +773,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(required).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"4") {
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id
@@ -816,7 +816,7 @@ describe('splitDeferredRelayQueries()', () => {
     const node = Relay.QL`
       query {
         node(id:"4") {
-          friends(first: "5") {
+          friends(first: 5) {
             edges {
               node {
                 ${defer(fragment)}
@@ -835,7 +835,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(required).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"4") {
-          friends(first: "5") {
+          friends(first: 5) {
             edges {
               node {
                 id
@@ -878,7 +878,7 @@ describe('splitDeferredRelayQueries()', () => {
       query {
         node(id:"4") {
           id
-          profilePicture(size:"100") {
+          profilePicture(size: 100) {
             ${defer(fragment)}
           }
         }
@@ -897,7 +897,7 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred[0].required).toEqualQueryRoot(getNode(Relay.QL`
       query {
         node(id:"4") {
-          profilePicture(size:"100") {
+          profilePicture(size: 100) {
             ${fragment}
           }
         }

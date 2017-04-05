@@ -265,7 +265,7 @@ describe('RelayQueryPath', () => {
     `);
     const friends = getNode(Relay.QL`
       fragment on User {
-        friends(first:"1") {
+        friends(first: 1) {
           edges {
             cursor
           }
@@ -298,7 +298,7 @@ describe('RelayQueryPath', () => {
           ... on User {
             __typename
             id
-            friends(first:"1") {
+            friends(first: 1) {
               edges {
                 cursor
               }

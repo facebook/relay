@@ -105,7 +105,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id
-          profilePicture(size:"32") { uri }
+          profilePicture(size: 32) { uri }
         }
       }
     `);
@@ -117,7 +117,7 @@ describe('diffRelayQuery', () => {
       '4': {
         __dataID__: '4',
         id: '4',
-        'profilePicture{size:"32"}': {__dataID__: 'client:1'},
+        'profilePicture{size:32}': {__dataID__: 'client:1'},
       },
     };
     const store = new RelayRecordStore({records});
@@ -131,7 +131,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id
-          profilePicture(size:"64") { uri }
+          profilePicture(size: 64) { uri }
         }
       }
     `);
@@ -193,7 +193,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               count
               edges {
                 node {
@@ -238,7 +238,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               edges {
                 node {
                   id
@@ -275,7 +275,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               ${fragment}
             }
           }
@@ -301,7 +301,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               ${edgesFragment}
             }
           }
@@ -392,7 +392,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first: "10") {
+            topLevelComments(first: 10) {
               edges {
                 node {
                   id
@@ -440,7 +440,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               count
               edges {
                 node {
@@ -464,7 +464,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               count
             }
           }
@@ -486,7 +486,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               ${fragment}
             }
           }
@@ -508,7 +508,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"story") {
           feedback {
-            topLevelComments(first:"10") {
+            topLevelComments(first: 10) {
               ${edgesFragment}
             }
           }
@@ -1264,7 +1264,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id
@@ -1285,7 +1285,7 @@ describe('diffRelayQuery', () => {
         node(id:"4") {
           id
           name
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id
@@ -1330,7 +1330,7 @@ describe('diffRelayQuery', () => {
       requestedEdgeIDs: ['client:4:4808495'],
       diffCalls: [
         {name: 'after', value: 'cursor1'},
-        {name: 'first', value: '4'},
+        {name: 'first', value: 4},
       ],
     });
 
@@ -1338,7 +1338,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id
-          friends(after:"cursor1",first:"4") {
+          friends(after:"cursor1",first: 4) {
             edges {
               cursor
               node {
@@ -1358,7 +1358,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id
@@ -1404,7 +1404,7 @@ describe('diffRelayQuery', () => {
       requestedEdgeIDs: ['client:4:4808495'],
       diffCalls: [
         {name: 'after', value: 'cursor1'},
-        {name: 'first', value: '4'},
+        {name: 'first', value: 4},
       ],
     });
 
@@ -1412,7 +1412,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id
-          friends(after:"cursor1",first:"4") {
+          friends(after:"cursor1",first: 4) {
             edges{
               cursor
               node {
@@ -1446,7 +1446,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id
@@ -1473,7 +1473,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id
@@ -1575,7 +1575,7 @@ describe('diffRelayQuery', () => {
       requestedEdgeIDs: ['client:4:4808495', 'client:4:660361306'],
       diffCalls: [
         {name: 'after', value: 'cursor1'},
-        {name: 'first', value: '4'},
+        {name: 'first', value: 4},
       ],
     });
 
@@ -1583,7 +1583,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id
-          friends(after:"cursor1",first:"4") {
+          friends(after:"cursor1",first: 4) {
             edges{
               cursor
               node {
@@ -1616,7 +1616,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id
@@ -1644,7 +1644,7 @@ describe('diffRelayQuery', () => {
       query {
         node(id:"4") {
           id
-          friends(first:"5") {
+          friends(first: 5) {
             edges {
               node {
                 id
@@ -1697,7 +1697,7 @@ describe('diffRelayQuery', () => {
       query {
         viewer {
           actor {
-            friends(first:"1") {
+            friends(first: 1) {
               edges {
                 node {
                   name
@@ -1730,7 +1730,7 @@ describe('diffRelayQuery', () => {
         viewer {
           actor {
             id
-            friends(first:"1") {
+            friends(first: 1) {
               edges {
                 node {
                   id
@@ -1795,7 +1795,7 @@ describe('diffRelayQuery', () => {
 
     const fragment = Relay.QL`
       fragment on User {
-        friends(first:"1") {
+        friends(first: 1) {
           edges {
             node {
               firstName
@@ -1869,7 +1869,7 @@ describe('diffRelayQuery', () => {
       query {
         nodes(ids:"4") {
           id
-          friends(first:"1") {
+          friends(first: 1) {
             edges {
               node {
                 id
@@ -1962,14 +1962,14 @@ describe('diffRelayQuery', () => {
       query {
         nodes(ids:"4") {
           id
-          friends(first:"1") {
+          friends(first: 1) {
             edges {
               node {
                 id
               }
               source {
                 id
-                friends(first:"1") {
+                friends(first: 1) {
                   edges {
                     node {
                       id
@@ -1997,7 +1997,7 @@ describe('diffRelayQuery', () => {
       fragment on FriendsEdge {
         source {
           id
-          friends(first:"1") {
+          friends(first: 1) {
             edges {
               node {
                 id
@@ -2015,11 +2015,11 @@ describe('diffRelayQuery', () => {
       query {
         nodes(ids:"4") {
           id
-          friends(first:"1") {
+          friends(first: 1) {
             edges {
               source {
                 id
-                friends(first:"1") {
+                friends(first: 1) {
                   edges {
                     node {
                       id

@@ -86,7 +86,7 @@ describe('writeRelayUpdatePayload()', () => {
       query = getNode(Relay.QL`
         query TestQuery {
           node(id:"feedback_id") {
-            topLevelComments(first:"1") {
+            topLevelComments(first: 1) {
               count
               edges {
                 node {
@@ -254,7 +254,7 @@ describe('writeRelayUpdatePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"feedback_id") {
-            topLevelComments(first:"1") {
+            topLevelComments(first: 1) {
               count
               edges {
                 node {
@@ -457,7 +457,7 @@ describe('writeRelayUpdatePayload()', () => {
           query {
             viewer {
               actor {
-                friends(first: "1") {
+                friends(first: 1) {
                   edges {
                     node {
                       id
@@ -601,7 +601,7 @@ describe('writeRelayUpdatePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"feedback_id") {
-            topLevelComments(first:"3") {
+            topLevelComments(first: 3) {
               count
               edges {
                 node {
@@ -858,7 +858,7 @@ describe('writeRelayUpdatePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"feedback123") {
-            topLevelComments(first:"2") {
+            topLevelComments(first: 2) {
               count
               edges {
                 node {
@@ -1307,7 +1307,7 @@ describe('writeRelayUpdatePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"feedback123") {
-            topLevelComments(first:"1") {
+            topLevelComments(first: 1) {
               count
               edges {
                 node {

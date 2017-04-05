@@ -65,7 +65,7 @@ describe('RelayStoreUtils', () => {
     it('embeds variable values', () => {
       const {UserFragment} = generateAndCompile(`
         fragment UserFragment on User @argumentDefinitions(
-          size: {type: "Int"}
+          size: {type: "[Int]"}
         ) {
           profilePicture(size: $size) {
             uri
@@ -81,7 +81,7 @@ describe('RelayStoreUtils', () => {
       const {UserFragment} = generateAndCompile(`
         fragment UserFragment on User @argumentDefinitions(
           preset: {type: "PhotoSize"}
-          size: {type: "Int"}
+          size: {type: "[Int]"}
         ) {
           profilePicture(preset: $preset, size: $size) {
             uri
@@ -97,7 +97,7 @@ describe('RelayStoreUtils', () => {
       const {UserFragment} = generateAndCompile(`
         fragment UserFragment on User @argumentDefinitions(
           preset: {type: "PhotoSize"}
-          size: {type: "Int"}
+          size: {type: "[Int]"}
         ) {
           profilePicture(preset: $preset, size: $size) {
             uri

@@ -305,7 +305,7 @@ describe('GraphQLStoreQueryResolver', () => {
           actor {
             id
           }
-          newsFeed(first: "1") {
+          newsFeed(first: 1) {
             ${containerFragment}
           }
         }

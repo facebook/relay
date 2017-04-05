@@ -127,7 +127,7 @@ describe('RelayContainer', function() {
     it('throws if fragment and variable names are not unique', () => {
       Relay.createContainer(MockComponent, {
         initialVariables: {
-          badName: '100',
+          badName: 100,
         },
         fragments: {
           badName: () => Relay.QL`
@@ -151,7 +151,7 @@ describe('RelayContainer', function() {
       // Test that scalar constants are substituted, not only query fragments.
       const MockProfilePhoto = Relay.createContainer(MockComponent, {
         initialVariables: {
-          testPhotoSize: '100',
+          testPhotoSize: 100,
         },
         fragments: {
           photo: () => Relay.QL`
@@ -169,7 +169,7 @@ describe('RelayContainer', function() {
       );
       expect(fragment).toEqualQueryNode(getNode(Relay.QL`
         fragment on Actor {
-          profilePicture(size: "100") {
+          profilePicture(size: 100) {
             uri
           }
         }

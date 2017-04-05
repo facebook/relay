@@ -592,7 +592,7 @@ describe('RelayStoreData', () => {
         node(id:"123") {
           id
           ... on User {
-            friends(first:"2") {
+            friends(first: 2) {
               edges {
                 node {
                   id

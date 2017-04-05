@@ -53,7 +53,7 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 id
@@ -92,7 +92,7 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 id
@@ -153,7 +153,7 @@ describe('diffRelayQuery', () => {
     const query = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"5") {
+          newsFeed(first: 5) {
             edges {
               node {
                 id
@@ -195,7 +195,7 @@ describe('diffRelayQuery', () => {
     const writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 message {
@@ -246,7 +246,7 @@ describe('diffRelayQuery', () => {
     const fetchQueryA = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first: "3") @relay(isConnectionWithoutNodeID: true) {
+          newsFeed(first: 3) @relay(isConnectionWithoutNodeID: true) {
             edges {
               node {
                 feedback {
@@ -275,7 +275,7 @@ describe('diffRelayQuery', () => {
     const fetchQueryB = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 feedback {
@@ -310,7 +310,7 @@ describe('diffRelayQuery', () => {
     const writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"1") {
+          newsFeed(first: 1) {
             edges {
               node {
                 message {
@@ -348,7 +348,7 @@ describe('diffRelayQuery', () => {
     const fetchQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"1") {
+          newsFeed(first: 1) {
             edges {
               node {
                 message {
@@ -383,12 +383,12 @@ describe('diffRelayQuery', () => {
     const writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"1") {
+          newsFeed(first: 1) {
             edges {
               node {
                 feedback {
                   id
-                  comments(first:"1") {
+                  comments(first: 1) {
                     edges {
                       node {
                         id
@@ -446,12 +446,12 @@ describe('diffRelayQuery', () => {
     const fetchQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"1") {
+          newsFeed(first: 1) {
             edges {
               node {
                 feedback {
                   id
-                  comments(first:"1") {
+                  comments(first: 1) {
                     edges {
                       node {
                         id
@@ -532,7 +532,7 @@ describe('diffRelayQuery', () => {
     const writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 message {
@@ -550,7 +550,7 @@ describe('diffRelayQuery', () => {
     const fetchQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 feedback {
@@ -657,7 +657,7 @@ describe('diffRelayQuery', () => {
     const writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 message {
@@ -676,7 +676,7 @@ describe('diffRelayQuery', () => {
     const fetchQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               sortKey
               node {
@@ -842,7 +842,7 @@ describe('diffRelayQuery', () => {
     const writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          notificationStories(first:"3") {
+          notificationStories(first: 3) {
             edges {
               node {
                 message {
@@ -862,7 +862,7 @@ describe('diffRelayQuery', () => {
     const fetchQuery = getNode(Relay.QL`
       query {
         viewer {
-          notificationStories(first:"3") {
+          notificationStories(first: 3) {
             edges {
               showBeeper
               node {
@@ -952,7 +952,7 @@ describe('diffRelayQuery', () => {
     const writeQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"1") {
+          newsFeed(first: 1) {
             edges {
               node {
                 message {
@@ -973,7 +973,7 @@ describe('diffRelayQuery', () => {
     const fetchQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"1") {
+          newsFeed(first: 1) {
             edges {
               ${edgeFragment}
               node {
@@ -1000,7 +1000,7 @@ describe('diffRelayQuery', () => {
     const firstQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 id
@@ -1030,7 +1030,7 @@ describe('diffRelayQuery', () => {
     const secondQuery = getNode(Relay.QL`
       query {
         viewer {
-          newsFeed(first:"3") {
+          newsFeed(first: 3) {
             edges {
               node {
                 message {

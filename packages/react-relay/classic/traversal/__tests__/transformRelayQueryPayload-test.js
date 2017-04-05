@@ -27,13 +27,13 @@ describe('transformClientPayload()', () => {
     const query = getNode(Relay.QL`
       query {
         node(id: "123") {
-          friends(first:"1") {
+          friends(first: 1) {
             count
             edges {
               node {
                 id
                 ... on User {
-                  profilePicture(size: "32") {
+                  profilePicture(size: 32) {
                     uri
                   }
                 }
@@ -88,7 +88,7 @@ describe('transformClientPayload()', () => {
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
-            profilePicture(size: "32") {
+            profilePicture(size: 32) {
               uri
             }
           }
@@ -130,7 +130,7 @@ describe('transformClientPayload()', () => {
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
-            profilePicture(size: "32") {
+            profilePicture(size: 32) {
               uri
             }
           }
@@ -176,7 +176,7 @@ describe('transformClientPayload()', () => {
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
-            profilePicture(size: "32") {
+            profilePicture(size: 32) {
               uri
             }
           }

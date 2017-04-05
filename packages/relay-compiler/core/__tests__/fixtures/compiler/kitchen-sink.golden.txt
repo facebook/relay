@@ -21,13 +21,13 @@
     {
       "kind": "LocalArgument",
       "name": "size",
-      "type": "Int",
+      "type": "[Int]",
       "defaultValue": null
     },
     {
       "kind": "RootArgument",
       "name": "PictureSize",
-      "type": "Int"
+      "type": "[Int]"
     }
   ],
   "kind": "Fragment",
@@ -87,7 +87,7 @@
           "kind": "Literal",
           "name": "size",
           "value": 32,
-          "type": "Int"
+          "type": "[Int]"
         }
       ],
       "concreteType": "Image",
@@ -126,7 +126,7 @@
           "kind": "Variable",
           "name": "size",
           "variableName": "size",
-          "type": "Int"
+          "type": "[Int]"
         }
       ],
       "concreteType": "Image",
@@ -165,7 +165,7 @@
           "kind": "Variable",
           "name": "size",
           "variableName": "PictureSize",
-          "type": "Int"
+          "type": "[Int]"
         }
       ],
       "concreteType": "Image",
@@ -218,7 +218,7 @@
       {
         "kind": "LocalArgument",
         "name": "PictureSize",
-        "type": "Int!",
+        "type": "[Int]!",
         "defaultValue": null
       }
     ],
@@ -307,7 +307,7 @@
       {
         "kind": "LocalArgument",
         "name": "PictureSize",
-        "type": "Int!",
+        "type": "[Int]!",
         "defaultValue": null
       }
     ],
@@ -393,7 +393,7 @@
                         "kind": "Literal",
                         "name": "size",
                         "value": 32,
-                        "type": "Int"
+                        "type": "[Int]"
                       }
                     ],
                     "concreteType": "Image",
@@ -432,7 +432,7 @@
                         "kind": "Literal",
                         "name": "size",
                         "value": 32,
-                        "type": "Int"
+                        "type": "[Int]"
                       }
                     ],
                     "concreteType": "Image",
@@ -471,7 +471,7 @@
                         "kind": "Variable",
                         "name": "size",
                         "variableName": "PictureSize",
-                        "type": "Int"
+                        "type": "[Int]"
                       }
                     ],
                     "concreteType": "Image",
@@ -504,7 +504,7 @@ QUERY:
 query NodeQuery(
   $id: ID!
   $cond: Boolean!
-  $PictureSize: Int!
+  $PictureSize: [Int]!
 ) {
   node(id: $id) {
     __typename

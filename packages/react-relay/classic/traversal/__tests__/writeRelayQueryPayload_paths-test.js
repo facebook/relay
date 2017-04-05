@@ -239,7 +239,7 @@ describe('writePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(first:"1") {
+            friends(first: 1) {
               edges {
                 node {
                   id
@@ -504,7 +504,7 @@ describe('writePayload()', () => {
       const query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(first:"1") {
+            friends(first: 1) {
               edges {
                 node {
                   name
@@ -555,7 +555,7 @@ describe('writePayload()', () => {
       let query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(first:"1") {
+            friends(first: 1) {
               edges {
                 node {
                   name
@@ -591,7 +591,7 @@ describe('writePayload()', () => {
       query = getNode(Relay.QL`
         query {
           node(id:"123") {
-            friends(after:"c1",first:"1") {
+            friends(after:"c1",first: 1) {
               edges {
                 node {
                   name
@@ -642,7 +642,7 @@ describe('writePayload()', () => {
                 displayNumber
               }
             }
-            friends(first:"1") {
+            friends(first: 1) {
               edges {
                 node {
                   name

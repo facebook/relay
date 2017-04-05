@@ -165,7 +165,7 @@ describe('RelayGraphQLMutation', () => {
               ... on Feedback {
                 doesViewerLike
                 id
-                likers(first: "10") {
+                likers(first: 10) {
                   count
                   edges {
                     node {
@@ -228,7 +228,7 @@ describe('RelayGraphQLMutation', () => {
           fragment on Feedback {
             doesViewerLike
             id
-            likers(first: "10") {
+            likers(first: 10) {
               count
             }
           }
@@ -304,7 +304,7 @@ describe('RelayGraphQLMutation', () => {
                 ... on Feedback {
                   doesViewerLike
                   id
-                  likers(first: "10") {
+                  likers(first: 10) {
                     count
                     edges {
                       node {
@@ -422,7 +422,7 @@ describe('RelayGraphQLMutation', () => {
             fragment on Feedback {
               doesViewerLike
               id
-              likers(first: "10") {
+              likers(first: 10) {
                 count
                 edges {
                   cursor
@@ -476,7 +476,7 @@ describe('RelayGraphQLMutation', () => {
               node(id: "aFeedbackId") {
                 ... on Feedback {
                   id
-                  topLevelComments(first: "10") {
+                  topLevelComments(first: 10) {
                     edges {
                       node {
                         body {
@@ -622,7 +622,7 @@ describe('RelayGraphQLMutation', () => {
           getNode(Relay.QL`
             fragment on Feedback {
               id
-              topLevelComments(first: "10") {
+              topLevelComments(first: 10) {
                 edges {
                   cursor
                   node {

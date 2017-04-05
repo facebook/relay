@@ -18,7 +18,7 @@
               "metadata": null,
               "variableName": "PictureSize"
             },
-            "type": "Int"
+            "type": "[Int]"
           }
         ],
         "directives": [],
@@ -70,7 +70,7 @@
         "kind": "RootArgumentDefinition",
         "metadata": null,
         "name": "PictureSize",
-        "type": "Int"
+        "type": "[Int]"
       }
     ]
   }

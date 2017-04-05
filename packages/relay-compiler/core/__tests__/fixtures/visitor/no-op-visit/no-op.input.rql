@@ -1,7 +1,7 @@
 query NodeQuery(
   $id: ID!
   $cond: Boolean
-  $size: Int
+  $size: [Int]
 ) {
   node(id: $id) {
     id
@@ -20,7 +20,7 @@ fragment UserFragment on User @argumentDefinitions(
   after: {type: "ID"}
   cond: {type: "Boolean!", defaultValue: false}
   first: {type: "Int", defaultValue: 5}
-  size: {type: "Int"}
+  size: {type: "[Int]"}
 ) {
   ... on User @skip(if: $cond) {
     id

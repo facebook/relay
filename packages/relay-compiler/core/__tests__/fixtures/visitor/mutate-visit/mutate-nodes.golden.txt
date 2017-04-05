@@ -1,7 +1,7 @@
 query NodeQuery_mutated(
   $id_mutated: ID!
   $cond_mutated: Boolean
-  $size_mutated: Int
+  $size_mutated: [Int]
 ) {
   node_mutated(id_mutated: $id_mutated) {
     id_mutated
@@ -20,7 +20,7 @@ fragment UserFragment_mutated on User @argumentDefinitions(
   after_mutated: {type: "ID"}
   cond_mutated: {type: "Boolean!", defaultValue: false}
   first_mutated: {type: "Int", defaultValue: 5}
-  size_mutated: {type: "Int"}
+  size_mutated: {type: "[Int]"}
 ) {
   ... on Mutated @include(if: $cond_mutated) {
     id_mutated

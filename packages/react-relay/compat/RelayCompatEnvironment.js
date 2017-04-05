@@ -13,30 +13,22 @@
 'use strict';
 
 const isClassicRelayEnvironment = require('isClassicRelayEnvironment');
-const isRelayContext = require('isRelayContext');
-const isRelayStaticContext = require('isRelayStaticContext');
+
 const {isRelayStaticEnvironment} = require('RelayRuntime');
 
-import type {CompatContext} from 'RelayCompatTypes';
+import type {CompatEnvironment} from 'RelayCompatTypes';
 import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {Environment} from 'RelayStoreTypes';
 
-function getRelayStaticEnvironment(context: CompatContext): ?Environment {
-  if (isRelayStaticContext(context)) {
-    return (context: any).environment;
-  } else if (isRelayStaticEnvironment(context)) {
-    return (context: any);
+function getRelayStaticEnvironment(environment: CompatEnvironment): ?Environment {
+  if (isRelayStaticEnvironment(environment)) {
+    return (environment: any);
   }
 }
 
-function getRelayClassicEnvironment(context: CompatContext): ?RelayEnvironmentInterface {
-  if (
-    isRelayContext(context) &&
-    isClassicRelayEnvironment((context: any).environment)
-  ) {
-    return (context: any).environment;
-  } else if (isClassicRelayEnvironment(context)) {
-    return (context: any);
+function getRelayClassicEnvironment(environment: CompatEnvironment): ?RelayEnvironmentInterface {
+  if (isClassicRelayEnvironment(environment)) {
+    return (environment: any);
   }
 }
 

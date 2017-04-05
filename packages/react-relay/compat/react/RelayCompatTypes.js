@@ -13,13 +13,6 @@
 'use strict';
 
 import type {RelayEnvironmentInterface as RelayClassicEnvironment} from 'RelayEnvironment';
-import type {RelayContext as RelayClassicContext} from 'RelayEnvironmentTypes';
-import type {Environment, RelayContext} from 'RelayStoreTypes';
-
-export type CompatContext =
-  RelayContext |
-  Environment |
-  RelayClassicContext |
-  RelayClassicEnvironment;
+import type {Environment} from 'RelayStoreTypes';
 
 export type CompatEnvironment = Environment | RelayClassicEnvironment;

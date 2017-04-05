@@ -21,25 +21,25 @@ const {
 const {commitMutation} = require('RelayRuntime');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {CompatContext} from 'RelayCompatTypes';
+import type {CompatEnvironment} from 'RelayCompatTypes';
 import type {Environment as ClassicEnvironment} from 'RelayEnvironmentTypes';
 import type {MutationConfig} from 'commitRelayStaticMutation';
 
 const RelayCompatMutations = {
   commitUpdate(
-    context: CompatContext,
+    environment: CompatEnvironment,
     config: MutationConfig
   ): Disposable {
-    const relayStaticEnvironment = getRelayStaticEnvironment(context);
+    const relayStaticEnvironment = getRelayStaticEnvironment(environment);
     if (relayStaticEnvironment) {
       return commitMutation(relayStaticEnvironment, config);
     } else {
-      const relayClassicEnvironment = getRelayClassicEnvironment(context);
+      const relayClassicEnvironment = getRelayClassicEnvironment(environment);
       invariant(
         relayClassicEnvironment,
         'RelayCompatMutations: Expected an object that conforms to the ' +
         '`RelayEnvironmentInterface`, got `%s`.',
-        context
+        environment
       );
       return commitRelay1Mutation(
         // getRelayClassicEnvironment returns a RelayEnvironmentInterface

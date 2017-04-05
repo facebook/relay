@@ -12,6 +12,9 @@
 
 'use strict';
 
+const invariant = require('invariant');
+const isRelayStaticEnvironment = require('isRelayStaticEnvironment');
+
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
 import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
@@ -43,6 +46,11 @@ function commitRelayStaticMutation(
   environment: Environment,
   config: MutationConfig
 ): Disposable {
+  invariant(
+    isRelayStaticEnvironment(environment),
+    'commitRelayStaticMutation: expect `environment` to be an instance of ' +
+    '`RelayStaticEnvironment`.'
+  );
   const {
     createOperationSelector,
     getOperation,

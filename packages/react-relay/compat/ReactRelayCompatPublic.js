@@ -18,9 +18,10 @@ const RelayCompatContainer = require('RelayCompatContainer');
 const RelayCompatMutations = require('RelayCompatMutations');
 const RelayCompatPaginationContainer = require('RelayCompatPaginationContainer');
 const RelayCompatRefetchContainer = require('RelayCompatRefetchContainer');
-const {graphql} = require('RelayRuntime');
 
-const fetchRelayCompatQuery = require('fetchRelayCompatQuery');
+const fetchRelayStaticQuery = require('fetchRelayStaticQuery');
+
+const {graphql} = require('RelayRuntime');
 
 export type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 export type {
@@ -49,7 +50,7 @@ module.exports = {
   createFragmentContainer: (RelayCompatContainer.createContainer: $FlowFixMe),
   createPaginationContainer: (RelayCompatPaginationContainer.createContainer: $FlowFixMe),
   createRefetchContainer: (RelayCompatRefetchContainer.createContainer: $FlowFixMe),
-  fetchQuery: fetchRelayCompatQuery,
+  fetchQuery: fetchRelayStaticQuery,
   graphql: graphql,
   injectDefaultVariablesProvider:
     ReactRelayCompatContainerBuilder.injectDefaultVariablesProvider,

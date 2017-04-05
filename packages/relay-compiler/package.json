@@ -10,6 +10,9 @@
   "homepage": "https://facebook.github.io/relay/",
   "bugs": "https://github.com/facebook/relay/issues",
   "repository": "facebook/relay",
+  "bin": {
+    "relay-compiler": "bin/relay-compiler"
+  },
   "dependencies": {
     "babel-generator": "6.24.0",
     "babel-runtime": "^6.23.0",
@@ -20,6 +23,7 @@
     "fbjs": "^0.8.1",
     "graphql": "0.9.1",
     "immutable": "^3.8.1",
-    "relay-runtime": "1.0.0-alpha.1"
+    "relay-runtime": "1.0.0-alpha.1",
+    "yargs": "^7.0.2"
   }
 }

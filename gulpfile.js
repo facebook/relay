@@ -74,6 +74,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'child_process': 'child_process',
     'path': 'path',
     'util': 'util',
+    'yargs': 'yargs',
   },
   plugins: [
     'transform-runtime',
@@ -88,12 +89,14 @@ const es = require('event-stream');
 const flatten = require('gulp-flatten');
 const fs = require('fs');
 const gulp = require('gulp');
+const chmod = require('gulp-chmod');
 const gulpUtil = require('gulp-util');
 const header = require('gulp-header');
 const path = require('path');
 const runSequence = require('run-sequence');
 const webpackStream = require('webpack-stream');
 
+const SCRIPT_HASHBANG = '#!/usr/bin/env node\n';
 const DEVELOPMENT_HEADER = [
   '/**',
   ' * Relay v' + process.env.npm_package_version,
@@ -113,7 +116,7 @@ const PRODUCTION_HEADER = [
   ' */',
 ].join('\n') + '\n';
 
-const buildDist = function(opts, isProduction) {
+const buildDist = function(filename, opts, isProduction) {
   const webpackOpts = {
     debug: !isProduction,
     externals: opts.externals,
@@ -124,7 +127,7 @@ const buildDist = function(opts, isProduction) {
       child_process: 'empty',
     },
     output: {
-      filename: opts.output + (isProduction ? '.min.js' : '.js'),
+      filename: filename,
       libraryTarget: opts.libraryTarget,
       library: opts.libraryName,
     },
@@ -226,6 +229,15 @@ const builds = [
         externals: [/^[a-z\-0-9]+$/],
       },
     ],
+    bins: [
+      {
+        entry: 'RelayOSSCodegenRunner.js',
+        output: 'relay-compiler',
+        libraryTarget: 'commonjs2',
+        target: 'node',
+        externals: [/^[a-z\-0-9]+$/],
+      },
+    ]
   },
   {
     package: 'relay-runtime',
@@ -290,11 +302,24 @@ gulp.task('exports', ['copy-files', 'modules'], function() {
   );
 });
 
+gulp.task('bins', ['modules'], function() {
+  const buildsWithBins = builds.filter(build => build.bins);
+  return es.merge(buildsWithBins.map(build =>
+    es.merge(build.bins.map(bin =>
+      gulp.src(path.join(DIST, build.package, 'lib', bin.entry))
+        .pipe(buildDist(bin.output, bin, /* isProduction */ false))
+        .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
+        .pipe(chmod(0o755))
+        .pipe(gulp.dest(path.join(DIST, build.package, 'bin')))
+    ))
+  ));
+});
+
 gulp.task('bundles', ['modules'], function() {
   return es.merge(builds.map(build =>
     es.merge(build.bundles.map(bundle =>
       gulp.src(path.join(DIST, build.package, 'lib', bundle.entry))
-        .pipe(buildDist(bundle, /* isProduction */ false))
+        .pipe(buildDist(bundle.output + '.js', bundle, /* isProduction */ false))
         .pipe(derequire())
         .pipe(header(DEVELOPMENT_HEADER))
         .pipe(gulp.dest(path.join(DIST, build.package)))
@@ -306,7 +331,7 @@ gulp.task('bundles:min', ['modules'], function() {
   return es.merge(builds.map(build =>
     es.merge(build.bundles.map(bundle =>
       gulp.src(path.join(DIST, build.package, 'lib', bundle.entry))
-        .pipe(buildDist(bundle, /* isProduction */ true))
+        .pipe(buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true))
         .pipe(header(PRODUCTION_HEADER))
         .pipe(gulp.dest(path.join(DIST, build.package)))
     ))
@@ -318,5 +343,5 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', function(cb) {
-  runSequence('clean', ['exports', 'bundles', 'bundles:min'], cb);
+  runSequence('clean', ['exports', 'bins', 'bundles', 'bundles:min'], cb);
 });

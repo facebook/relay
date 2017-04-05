@@ -19,6 +19,7 @@ const RelayIRTransforms = require('RelayIRTransforms');
 
 const fs = require('fs');
 const path = require('path');
+const yargs = require('yargs');
 
 const {buildASTSchema, parse} = require('graphql');
 const {
@@ -31,8 +32,45 @@ const {
 
 import type {GraphQLSchema} from 'graphql';
 
-// TODO: change this to the name of the final build commaned
-const SCRIPT_NAME = '<relay-compiler>';
+// Collect args
+const argv = yargs
+  .usage(
+    'Create Relay generated files\n\n' +
+    '$0 --schema <path> --src <path> --out <path> [--watch]')
+  .options({
+    'schema': {
+      describe: 'Path to schema.graphql',
+      demandOption: true,
+      type: 'string'
+    },
+    'src': {
+      describe: 'Root directory of application code',
+      demandOption: true,
+      type: 'string'
+    },
+    'out': {
+      describe: 'Directory to which generated code will be written',
+      demandOption: true,
+      type: 'string'
+    },
+    'watch': {
+      describe: 'If specified, watches files and regenerates on changes',
+      type: 'boolean'
+    }
+  })
+  .help()
+  .argv;
+
+// Run script with args
+run(argv).then(
+  () => process.exit(0),
+  error => {
+    console.error(String(error));
+    process.exit(1);
+  }
+);
+
+const SCRIPT_NAME = 'relay-compiler';
 const WATCH_EXPRESSION = [
   'allof',
   ['type', 'f'],
@@ -44,29 +82,21 @@ const WATCH_EXPRESSION = [
 /* eslint-disable no-console-disallow */
 
 async function run(options: {
-  help?: ?boolean,
-  output?: ?string,
-  schema?: ?string,
-  src?: ?string,
+  out: string,
+  schema: string,
+  src: string,
   watch?: ?boolean,
 }) {
-  if (options.help) {
-    showHelp();
-    process.exit(1);
-  }
-
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
-    console.log(`--schema path does not exist: ${schemaPath}.`);
-    process.exit(1);
+    throw new Error(`--schema path does not exist: ${schemaPath}.`);
   }
   const srcDir = path.resolve(process.cwd(), options.src);
   if (!fs.existsSync(srcDir)) {
-    console.log(`--source path does not exist: ${srcDir}.`);
-    process.exit(1);
+    throw new Error(`--source path does not exist: ${srcDir}.`);
   }
   if (options.watch && !hasWatchmanRootFile(srcDir)) {
-    console.log(`
+    throw new Error(`
 --watch requires that the src directory have a valid watchman "root" file.
 
 Root files can include:
@@ -76,13 +106,12 @@ Root files can include:
 
 Ensure that one such file exists in ${srcDir} or its parents.
     `.trim());
-    process.exit(1);
   }
-  const outputDir = path.resolve(process.cwd(), options.output);
+  const outputDir = path.resolve(process.cwd(), options.out);
   if (!fs.existsSync(outputDir)) {
-    console.log(`--output path does not exist: ${outputDir}.`);
-    process.exit(1);
+    throw new Error(`--output path does not exist: ${outputDir}.`);
   }
+
   const parserConfigs = {
     default: {
       baseDir: srcDir,
@@ -144,13 +173,12 @@ function getSchema(schemaPath: string): GraphQLSchema {
   `;
     return buildASTSchema(parse(source));
   } catch (error) {
-    console.log(`
+    throw new Error(`
 Error loading schema. Expected the schema to be a .graphql file using the
 GraphQL schema definition language. Error detail:
 
 ${error.stack}
     `.trim());
-    process.exit(1);
   }
 }
 
@@ -168,18 +196,3 @@ function hasWatchmanRootFile(testPath) {
   }
   return false;
 }
-
-function showHelp(): void {
-  console.log(`
-Usage:
-  ${SCRIPT_NAME} --schema <path> --src <path> --output <path> [--watch]'
-
-Options:
-  --schema <path>: Path to schema.graphql.
-  --src <path>: Root directory of application code.
-  --output <path>: Directory to which generated code will be written.
-  --watch: (optional) If specified, watches files and regenerates on changes.
-  `.trim());
-}
-
-module.exports = {run};

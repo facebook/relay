@@ -51,7 +51,7 @@ type WriterConfig = {
     onlyValidate: boolean,
     schema: GraphQLSchema,
     documents: ImmutableMap<string, DocumentNode>,
-    baseDocuments?: ImmutableMap<string, DocumentNode>,
+    baseDocuments: ImmutableMap<string, DocumentNode>,
   ) => FileWriter,
 };
 

@@ -485,6 +485,7 @@ function isDefinedLocally(path, name) {
   // Binding comes from require.
   if (
     binding.path.isVariableDeclarator() &&
+    binding.path.get('init').node &&
     binding.path.get('init.callee').isIdentifier({name: 'require'})
   ) {
     return false;

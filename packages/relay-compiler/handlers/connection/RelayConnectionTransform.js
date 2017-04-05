@@ -22,7 +22,6 @@ const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
 const invariant = require('invariant');
 
 const {
-  CONNECTION,
   FIRST,
   KEY,
   LAST,
@@ -60,6 +59,8 @@ type Options = {
   definitionName: ?string,
   generateRequisiteFields: boolean,
 };
+
+const CONNECTION = 'connection';
 
 /**
  * @public

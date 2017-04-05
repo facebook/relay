@@ -14,7 +14,6 @@
 
 const AFTER = 'after';
 const BEFORE = 'before';
-const CONNECTION = 'connection';
 const FIRST = 'first';
 const KEY = 'key';
 const LAST = 'last';
@@ -22,7 +21,6 @@ const LAST = 'last';
 module.exports = {
   AFTER,
   BEFORE,
-  CONNECTION,
   FIRST,
   KEY,
   LAST,

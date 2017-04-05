@@ -14,7 +14,6 @@
 
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelaySchemaUtils = require('RelaySchemaUtils');
-const RelayStoreUtils = require('RelayStoreUtils');
 
 const {
   assertAbstractType,
@@ -41,8 +40,8 @@ const {
   isAbstractType,
   mayImplement,
 } = RelaySchemaUtils;
-const {TYPENAME_KEY} = RelayStoreUtils;
 
+const TYPENAME_KEY = '__typename';
 const ID = 'id';
 const ID_TYPE = 'ID';
 const NODE_TYPE = 'Node';

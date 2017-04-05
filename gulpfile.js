@@ -76,8 +76,10 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'util': 'util',
   },
   plugins: [
-    'transform-async-to-generator',
     'transform-runtime',
+  ],
+  postPlugins: [
+    'transform-regenerator',
   ],
 });
 const del = require('del');
@@ -253,6 +255,8 @@ gulp.task('modules', function() {
       // TODO: this is not a great way to share utility functions.
       '*' + PACKAGES + '/react-relay/classic/tools/*.js',
       '*' + PACKAGES + '/react-relay/classic/util/*.js',
+      '*' + PACKAGES + '/react-relay/classic/__forks__/interface/*.js',
+      '*' + PACKAGES + '/react-relay/classic/interface/*.js',
       '*' + PACKAGES + '/relay-runtime/util/*.js',
       '!' + PACKAGES + '/**/__tests__/**/*.js',
       '!' + PACKAGES + '/**/__mocks__/**/*.js',

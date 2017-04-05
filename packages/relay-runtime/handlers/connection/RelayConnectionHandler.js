@@ -17,7 +17,6 @@ const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {CONNECTION} = require('RelayConnectionConstants');
 const {
   CURSOR,
   EDGES,
@@ -37,6 +36,8 @@ import type {
   RecordSourceProxy,
 } from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
+
+const CONNECTION = 'connection';
 
 // Per-instance incrementing index used to generate unique edge IDs
 const NEXT_EDGE_INDEX = '__connection_next_edge_index';

@@ -17,7 +17,7 @@ const RelaySchemaUtils = require('RelaySchemaUtils');
 const areEqual = require('areEqual');
 const getIdentifierForRelaySelection = require('getIdentifierForRelaySelection');
 const invariant = require('invariant');
-const stableStringify = require('stableStringify');
+const stableJSONStringify = require('stableJSONStringify');
 
 const {
   GraphQLNonNull,
@@ -310,7 +310,7 @@ function dedupe(...arrays: Array<?Array<Handle>>): Array<Handle> {
   const uniqueItems = new Map();
   arrays.forEach(items => {
     items && items.forEach(item => {
-      uniqueItems.set(stableStringify(item), item);
+      uniqueItems.set(stableJSONStringify(item), item);
     });
   });
   return Array.from(uniqueItems.values());

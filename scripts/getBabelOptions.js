@@ -17,21 +17,28 @@ module.exports = function(options) {
     moduleMap: {},
     plugins: [],
   }, options);
+
+  const fbjsPreset = require('babel-preset-fbjs/configure')({
+    autoImport: true,
+    inlineRequires: true,
+    rewriteModules: {
+      map: assign({},
+        require('fbjs-scripts/third-party-module-map'),
+        require('fbjs/module-map'),
+        options.moduleMap
+      ),
+    },
+    stripDEV: options.env === 'production',
+  });
+
+  if (options.postPlugins) {
+    fbjsPreset.presets.push({
+      plugins: options.postPlugins
+    });
+  }
+
   return {
     plugins: options.plugins,
-    presets: [
-      require('babel-preset-fbjs/configure')({
-        autoImport: true,
-        inlineRequires: true,
-        rewriteModules: {
-          map: assign({},
-            require('fbjs-scripts/third-party-module-map'),
-            require('fbjs/module-map'),
-            options.moduleMap
-          ),
-        },
-        stripDEV: options.env === 'production',
-      }),
-    ],
+    presets: [fbjsPreset],
   };
 };

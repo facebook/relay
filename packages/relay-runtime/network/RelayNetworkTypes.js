@@ -81,17 +81,6 @@ export type FetchFunction = (
 
 /**
  * A function that executes a GraphQL operation with request/subscription
- * semantics, returning one or more raw server responses over time.
- */
-export type SubscribeFunction = (
-  operation: ConcreteBatch,
-  variables: Variables,
-  cacheConfig: ?CacheConfig,
-  observer: Observer<QueryPayload>,
-) => Disposable;
-
-/**
- * A function that executes a GraphQL operation with request/subscription
  * semantics, returning one or more responses over time that include the
  * initial result and optional updates e.g. as the results of the operation
  * change.

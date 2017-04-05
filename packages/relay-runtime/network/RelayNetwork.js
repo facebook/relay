@@ -16,7 +16,6 @@ const RelayError = require('RelayError');
 
 const invariant = require('invariant');
 const normalizeRelayPayload = require('normalizeRelayPayload');
-const normalizeRelaySubscriptionPayload = require('normalizeRelaySubscriptionPayload');
 
 const {ROOT_ID} = require('RelayStoreUtils');
 
@@ -27,7 +26,7 @@ import type {
   Network,
   QueryPayload,
   RelayResponsePayload,
-  SubscribeFunction,
+  RequestStreamFunction,
   UploadableMap,
 } from 'RelayNetworkTypes';
 import type {Observer} from 'RelayStoreTypes';
@@ -39,7 +38,7 @@ import type {Variables} from 'RelayTypes';
  */
 function create(
   fetch: FetchFunction,
-  subscribe?: SubscribeFunction,
+  subscribe?: RequestStreamFunction,
 ): Network {
   async function request(
     operation: ConcreteBatch,
@@ -66,16 +65,7 @@ function create(
       return subscribe(operation, variables, null, {
         onCompleted,
         onError,
-        onNext: payload => {
-          let relayPayload;
-          try {
-            relayPayload = normalizeRelaySubscriptionPayload(operation, variables, payload);
-          } catch (err) {
-            onError && onError(err);
-            return;
-          }
-          onNext && onNext(relayPayload);
-        },
+        onNext,
       });
     }
 

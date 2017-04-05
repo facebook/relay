@@ -16,15 +16,9 @@
 
 const prettyStringify = require('prettyStringify');
 
-import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
+import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
-import type {
-  FetchFunction,
-  SubscribeFunction,
-  QueryPayload,
-  UploadableMap,
-} from 'RelayNetworkTypes';
-import type {Observer} from 'RelayStoreTypes';
+import type {FetchFunction, QueryPayload, UploadableMap} from 'RelayNetworkTypes';
 import type {
   Variables,
 } from 'RelayTypes';
@@ -34,7 +28,7 @@ export type GraphiQLPrinter = (batch: ConcreteBatch, variables: Variables) => st
 let queryID = 1;
 
 const RelayNetworkLogger = {
-  wrapFetch(
+  create(
     fetch: FetchFunction,
     graphiQLPrinter: GraphiQLPrinter
   ): FetchFunction {
@@ -76,57 +70,6 @@ const RelayNetworkLogger = {
         },
       );
       return request;
-    };
-  },
-
-  wrapSubscribe(
-    subscribe: SubscribeFunction,
-    graphiQLPrinter: GraphiQLPrinter
-  ): SubscribeFunction {
-    return (
-      operation: ConcreteBatch,
-      variables: Variables,
-      cacheConfig: ?CacheConfig,
-      {onCompleted, onNext, onError}: Observer<QueryPayload>,
-    ): Disposable => {
-      const id = queryID++;
-      const name = operation.name;
-
-      const idName = `[${id}] Relay Modern: ${name}`;
-
-      const onResponse = (error: ?Error, response: ?QueryPayload, status: ?string): void => {
-        console.groupCollapsed(`%c${idName}`, error ? 'color:red' : '');
-        console.log('GraphiQL:', graphiQLPrinter(operation, variables));
-        console.log('Cache Config:', cacheConfig);
-        console.log('Variables:', prettyStringify(variables));
-        if (status) {
-          console.log('Status:', status);
-        }
-        if (error) {
-          console.log('Error:', error);
-        }
-        if (response) {
-          console.log('Response:', response);
-        }
-        console.groupEnd();
-      };
-
-      const subscription = subscribe(operation, variables, cacheConfig, {
-        onCompleted: () => {
-          onCompleted && onCompleted();
-          onResponse(null, null, 'subscription is unsubscribed.');
-        },
-        onNext: (payload: QueryPayload) => {
-          onNext && onNext(payload);
-          onResponse(null, payload, 'subscription receives update');
-        },
-        onError: (error: Error) => {
-          onError && onError(error);
-          onResponse(error, null);
-        },
-      });
-      onResponse(null, null, 'subscription is sent');
-      return subscription;
     };
   },
 };

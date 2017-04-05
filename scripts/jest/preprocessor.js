@@ -18,7 +18,7 @@ const getBabelRelayPlugin = require('../babel-relay-plugin');
 const getSchemaIntrospection = require('../../packages/babel-plugin-relay/getSchemaIntrospection');
 const path = require('path');
 
-const SCHEMA_PATH = path.resolve(__dirname, 'testschema.graphql');
+const SCHEMA_PATH = path.resolve(__dirname, '../../packages/relay-compiler/testutils/testschema.graphql');
 
 const schema = getSchemaIntrospection(SCHEMA_PATH);
 

@@ -98,25 +98,9 @@ function transform(
  * Extend the original schema with support for the `@connection` directive.
  */
 function transformSchema(schema: GraphQLSchema): GraphQLSchema {
-  const exportSchema = RelaySchemaUtils.parseSchema(`
-    # TODO: replace this when extendSchema supports directives
-    schema {
-      query: QueryType
-      mutation: MutationType
-    }
-    type QueryType {
-      id: ID
-    }
-    type MutationType {
-      id: ID
-    }
-    # The actual directive to add
-    directive @connection(key: String!, filters: [String]) on FIELD
-  `);
-  return RelaySchemaUtils.schemaWithDirectives(
-    schema,
-    exportSchema.getDirectives().filter(directive => directive.name === CONNECTION)
-  );
+  return GraphQL.extendSchema(schema, GraphQL.parse(
+    'directive @connection(key: String!, filters: [String]) on FIELD'
+  ));
 }
 
 /**

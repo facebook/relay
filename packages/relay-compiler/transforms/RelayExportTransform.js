@@ -12,16 +12,16 @@
 
 'use strict';
 
+const GraphQL = require('graphql');
 const RelayCompilerContext = require('RelayCompilerContext');
-const RelaySchemaUtils = require('RelaySchemaUtils');
 
 const invariant = require('invariant');
 const partitionArray = require('partitionArray');
 
-const {GraphQLList} = require('graphql');
-
 import type {Node, Selection} from 'RelayIR';
 import type {GraphQLSchema} from 'graphql';
+
+const {GraphQLList} = GraphQL;
 
 const EXPORT = 'export';
 const AS = 'as';
@@ -30,25 +30,9 @@ type Metadata = {[key: string]: Path};
 type Path = Array<string>;
 
 function transformSchema(schema: GraphQLSchema): GraphQLSchema {
-  const exportSchema = RelaySchemaUtils.parseSchema(`
-    # TODO: replace this when extendSchema supports directives
-    schema {
-      query: QueryType
-      mutation: MutationType
-    }
-    type QueryType {
-      id: ID
-    }
-    type MutationType {
-      id: ID
-    }
-    # The actual directive to add
-    directive @export(as: String!) on FIELD
-  `);
-  return RelaySchemaUtils.schemaWithDirectives(
-    schema,
-    exportSchema.getDirectives().filter(directive => directive.name === EXPORT)
-  );
+  return GraphQL.extendSchema(schema, GraphQL.parse(
+    'directive @export(as: String!) on FIELD'
+  ));
 }
 
 /**

@@ -21,7 +21,6 @@ import type {
   ASTNode,
   DefinitionNode,
   GraphQLCompositeType,
-  GraphQLDirective,
   GraphQLEnumType,
   GraphQLInputObjectType,
   GraphQLNamedType,
@@ -41,8 +40,6 @@ const {
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLUnionType,
-  buildASTSchema,
-  parse,
   print,
   typeFromAST,
 } = GraphQL;
@@ -180,48 +177,6 @@ function getInterfaces(type: GraphQLType): Array<GraphQLInterfaceType> {
 /**
  * @public
  *
- * Creates a copy of the schema with the given directives added.
- */
-function schemaWithDirectives(
-  schema: GraphQLSchema,
-  directives: Array<GraphQLDirective>
-): GraphQLSchema {
-  const combinedDirectives = [...schema.getDirectives(), ...directives];
-  // Validate uniquely named directives.
-  const directiveNames = new Set();
-  combinedDirectives.forEach(directive => {
-    invariant(
-      !directiveNames.has(directive.name),
-      'RelaySchemaUtils: Expected unique names for directives, found a ' +
-      'duplicate directive `%s`.',
-      directive.name
-    );
-    directiveNames.add(directive.name);
-  });
-  const typeMap = schema.getTypeMap();
-  const types = Object.keys(typeMap).map(typeName => typeMap[typeName]);
-  return new GraphQLSchema({
-    query: schema.getQueryType(),
-    mutation: schema.getMutationType(),
-    subscription: schema.getSubscriptionType(),
-    types,
-    directives: combinedDirectives,
-  });
-}
-
-/**
- * @public
- *
- * Create a schema from schema definition text.
- */
-function parseSchema(text: string): GraphQLSchema {
-  const ast = parse(text);
-  return buildASTSchema(ast);
-}
-
-/**
- * @public
- *
  * Determine if an AST node contains a fragment/operation definition.
  */
 function isOperationDefinitionAST(ast: ASTNode): boolean %checks {
@@ -316,6 +271,4 @@ module.exports = {
   isOperationDefinitionAST,
   isSchemaDefinitionAST,
   mayImplement,
-  parseSchema,
-  schemaWithDirectives,
 };

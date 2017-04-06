@@ -12,8 +12,8 @@
 
 'use strict';
 
+const GraphQL = require('graphql');
 const RelayCompilerContext = require('RelayCompilerContext');
-const RelaySchemaUtils = require('RelaySchemaUtils');
 
 const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
 const invariant = require('invariant');
@@ -30,25 +30,9 @@ function transformSchema(schema: GraphQLSchema): GraphQLSchema {
   if (schema.getDirectives().find(directive => directive.name === RELAY)) {
     return schema;
   }
-  const exportSchema = RelaySchemaUtils.parseSchema(`
-    # TODO: replace this when extendSchema supports directives
-    schema {
-      query: QueryType
-      mutation: MutationType
-    }
-    type QueryType {
-      id: ID
-    }
-    type MutationType {
-      id: ID
-    }
-    # The actual directive to add
-    directive @relay(plural: Boolean) on FRAGMENT
-  `);
-  return RelaySchemaUtils.schemaWithDirectives(
-    schema,
-    exportSchema.getDirectives().filter(directive => directive.name === RELAY)
-  );
+  return GraphQL.extendSchema(schema, GraphQL.parse(
+    'directive @relay(plural: Boolean) on FRAGMENT'
+  ));
 }
 
 /**

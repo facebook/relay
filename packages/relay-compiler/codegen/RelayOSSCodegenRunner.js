@@ -180,6 +180,9 @@ GraphQL schema definition language. Error detail:
 ${error.stack}
     `.trim());
   }
+  /* $FlowFixMe(>=0.43.0) - Remove this comment to see errors found when Flow
+   * v0.43.0 was deployed */
+  throw new Error('Hey Flow, this code is unreachable');
 }
 
 // Ensure that a watchman "root" file exists in the given directory

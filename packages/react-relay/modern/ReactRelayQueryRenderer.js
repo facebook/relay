@@ -42,6 +42,7 @@ type Props = {
 type ReadyState = {
   error: ?Error,
   props: ?Object,
+  retry: ?() => void,
 };
 type State = {
   readyState: ReadyState,
@@ -104,6 +105,7 @@ class ReactRelayQueryRenderer extends React.Component {
         readyState: {
           error: null,
           props: {},
+          retry: null,
         },
       };
     }
@@ -157,6 +159,7 @@ class ReactRelayQueryRenderer extends React.Component {
           readyState: {
             error: null,
             props: {},
+            retry: null,
           },
         });
       }
@@ -212,6 +215,9 @@ class ReactRelayQueryRenderer extends React.Component {
       readyState = {
         error,
         props: null,
+        retry: () => {
+          this._fetch(operation, cacheConfig);
+        },
       };
       if (this._selectionReference) {
         this._selectionReference.dispose();
@@ -231,6 +237,7 @@ class ReactRelayQueryRenderer extends React.Component {
       readyState = {
         error: null,
         props: snapshot.data,
+        retry: null,
       };
 
       if (this._selectionReference) {
@@ -296,6 +303,7 @@ function getDefaultState(): ReadyState {
   return {
     error: null,
     props: null,
+    retry: null,
   };
 }
 

@@ -141,6 +141,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: null,
         props: null,
+        retry: null,
       }).toBeRendered();
     });
   });
@@ -206,6 +207,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: null,
         props: {},
+        retry: null,
       }).toBeRendered();
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual(variables);
@@ -416,6 +418,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: null,
         props: null,
+        retry: null,
       }).toBeRendered();
     });
 
@@ -440,6 +443,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: null,
         props: null,
+        retry: null,
       }).toBeRendered();
     });
 
@@ -465,6 +469,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: null,
         props: null,
+        retry: null,
       }).toBeRendered();
     });
 
@@ -490,6 +495,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: null,
         props: null,
+        retry: null,
       }).toBeRendered();
     });
 
@@ -521,6 +527,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: null,
         props: {},
+        retry: null,
       }).toBeRendered();
     });
   });
@@ -542,14 +549,48 @@ describe('ReactRelayQueryRenderer', () => {
       expect(environment.retain.mock.dispose).not.toBeCalled();
     });
 
-    it('renders the error', () => {
+    it('renders the error and retry', () => {
       render.mockClear();
       const error = new Error('fail');
       environment.mock.reject(TestQuery, error);
       expect({
         error,
         props: null,
+        retry: jasmine.any(Function),
       }).toBeRendered();
+    });
+
+    it('refetch the query if `retry`', () => {
+      render.mockClear();
+      const error = new Error('network fails');
+      environment.mock.reject(TestQuery, error);
+      const readyState = render.mock.calls[0][0];
+      expect(readyState.retry).not.toBe(null);
+
+      readyState.retry();
+      const response = {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '4',
+            name: 'Zuck',
+          },
+        },
+      };
+      environment.mock.resolve(TestQuery, response);
+      expect({
+        error: null,
+        props: {
+          node: {
+            id: '4',
+            __fragments: {
+              TestFragment: {},
+            },
+            __id: '4',
+          },
+        },
+        retry: null,
+      }).toBeRendered;
     });
   });
 
@@ -596,6 +637,7 @@ describe('ReactRelayQueryRenderer', () => {
             __id: '4',
           },
         },
+        retry: null,
       }).toBeRendered();
     });
 
@@ -672,6 +714,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: null,
         props: null,
+        retry: null,
       }).toBeRendered();
     });
     it('renders if the `query` prop changes to null', () => {
@@ -697,6 +740,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: null,
         props: {},
+        retry: null,
       }).toBeRendered();
     });
   });
@@ -773,6 +817,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: null,
         props: null,
+        retry: null,
       }).toBeRendered();
     });
 
@@ -881,6 +926,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: null,
         props: null,
+        retry: null,
       }).toBeRendered();
     });
 

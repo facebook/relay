@@ -24,6 +24,7 @@
     "graphql": "0.9.1",
     "immutable": "^3.8.1",
     "relay-runtime": "1.0.0-alpha.1",
+    "signedsource": "^1.0.0",
     "yargs": "^7.0.2"
   }
 }

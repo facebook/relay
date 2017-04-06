@@ -39,7 +39,7 @@
     "fb-watchman": "^2.0.0",
     "fbjs": "^0.8.1",
     "fbjs-scripts": "^0.7.1",
-    "flow-bin": "^0.42.0",
+    "flow-bin": "^0.43.0",
     "graphql": "0.9.1",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
@@ -57,6 +57,7 @@
     "react-static-container": "^1.0.1",
     "react-test-renderer": "^15.1.0",
     "run-sequence": "^1.2.1",
+    "signedsource": "^1.0.0",
     "webpack": "^1.13.1",
     "webpack-stream": "^3.2.0",
     "yargs": "^7.0.2"

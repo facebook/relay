@@ -13,8 +13,6 @@
 'use strict';
 
 const invariant = require('invariant');
-const isClassicRelayEnvironment = require('isClassicRelayEnvironment');
-const isRelayStaticEnvironment = require('isRelayStaticEnvironment');
 
 import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
@@ -40,7 +38,7 @@ function fetchRelayStaticQuery(
   cacheConfig?: ?CacheConfig,
 ): Promise<$FlowFixMe> {
   invariant(
-    isClassicRelayEnvironment(environment) || isRelayStaticEnvironment(environment),
+    environment.unstable_internal,
     'fetchRelayStaticQuery: Expected a valid Relay environment, got `%s`.',
     environment,
   );

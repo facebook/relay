@@ -1,4 +1,4 @@
-require('regenerator-runtime/runtime');
+require('babel-runtime/regenerator');
 
 /* eslint-disable no-console */
 

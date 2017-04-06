@@ -256,7 +256,7 @@ function assertTypeWithFields(type: GraphQLType): GraphQLObjectType | GraphQLInt
     'RelaySchemaUtils: Expected type `%s` to be an object or interface type.',
     type
   );
-  return (type: any);
+  return type;
 }
 
 /**

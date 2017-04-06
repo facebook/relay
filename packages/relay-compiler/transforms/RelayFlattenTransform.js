@@ -103,7 +103,8 @@ function transform(
 function buildNode(state: FlattenState): Root | Selection {
   return {
     ...state.node,
-    selections: Object.values(state.selections).map(selectionState => {
+    selections: Object.keys(state.selections).map(key => {
+      const selectionState = state.selections[key];
       if (
         selectionState.kind === 'FragmentSpread' ||
         selectionState.kind === 'ScalarField'

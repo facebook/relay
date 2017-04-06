@@ -33,7 +33,6 @@ import type {
 
 const {
   assertAbstractType,
-  assertType,
   getNamedType,
   getNullableType,
   isType,
@@ -128,19 +127,6 @@ function getRawType(type: GraphQLType): GraphQLNamedType {
 }
 
 /**
- * Determines if the given type is a named type.
- */
-function assertNamedType(type: mixed): GraphQLNamedType {
-  const namedType = getNamedType(assertType(type));
-  invariant(
-    namedType === type,
-    'RelaySchemaUtils: Expected `%s` to be a named type.',
-    type
-  );
-  return (type: any);
-}
-
-/**
  * Gets the non-list type, removing the list wrapper if present.
  */
 function getSingularType(type: GraphQLType): GraphQLSingularType {
@@ -212,8 +198,8 @@ function schemaWithDirectives(
     );
     directiveNames.add(directive.name);
   });
-  const types: Array<GraphQLNamedType> =
-    Object.values(schema.getTypeMap()).map(assertNamedType);
+  const typeMap = schema.getTypeMap();
+  const types = Object.keys(typeMap).map(typeName => typeMap[typeName]);
   return new GraphQLSchema({
     query: schema.getQueryType(),
     mutation: schema.getMutationType(),

@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
- * @providesModule RelayOSSCodegenRunner
+ * @providesModule RelayCompilerBin
  */
 
 'use strict';
@@ -65,7 +65,7 @@ const argv = yargs
 run(argv).then(
   () => process.exit(0),
   error => {
-    console.error(String(error));
+    console.error(String(error.stack || error));
     process.exit(1);
   }
 );

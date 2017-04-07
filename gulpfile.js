@@ -80,7 +80,8 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'transform-runtime',
   ],
   postPlugins: [
-    'transform-regenerator',
+    'transform-async-to-generator',
+    'transform-es2015-modules-commonjs',
   ],
 });
 const del = require('del');
@@ -124,6 +125,7 @@ const buildDist = function(filename, opts, isProduction) {
     node: {
       fs: 'empty',
       net: 'empty',
+      path: 'empty',
       child_process: 'empty',
     },
     output: {
@@ -141,7 +143,7 @@ const buildDist = function(filename, opts, isProduction) {
       new webpackStream.webpack.optimize.DedupePlugin(),
     ],
   };
-  if (isProduction) {
+  if (isProduction && !opts.noMinify) {
     webpackOpts.plugins.push(
       new webpackStream.webpack.optimize.UglifyJsPlugin({
         compress: {
@@ -226,12 +228,13 @@ const builds = [
         libraryName: 'RelayCompiler',
         libraryTarget: 'commonjs2',
         target: 'node',
+        noMinify: true, // Note: uglify can't yet handle modern JS
         externals: [/^[a-z\-0-9]+$/],
       },
     ],
     bins: [
       {
-        entry: 'RelayOSSCodegenRunner.js',
+        entry: 'RelayCompilerBin.js',
         output: 'relay-compiler',
         libraryTarget: 'commonjs2',
         target: 'node',

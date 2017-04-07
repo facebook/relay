@@ -50,6 +50,7 @@
     "gulp-header": "1.8.7",
     "gulp-util": "^3.0.7",
     "immutable": "^3.8.1",
+    "iterall": "^1.0.3",
     "jest": "^19.0.2",
     "object-assign": "^4.1.0",
     "react": "^15.1.0",

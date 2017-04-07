@@ -26,7 +26,7 @@ import type {
   Network,
   QueryPayload,
   RelayResponsePayload,
-  RequestStreamFunction,
+  SubscribeFunction,
   UploadableMap,
 } from 'RelayNetworkTypes';
 import type {Observer} from 'RelayStoreTypes';
@@ -38,17 +38,16 @@ import type {Variables} from 'RelayTypes';
  */
 function create(
   fetch: FetchFunction,
-  subscribe?: RequestStreamFunction,
+  subscribe?: SubscribeFunction,
 ): Network {
-  function request(
+  async function request(
     operation: ConcreteBatch,
     variables: Variables,
     cacheConfig?: ?CacheConfig,
     uploadables?: UploadableMap,
   ): Promise<RelayResponsePayload> {
-    return fetch(operation, variables, cacheConfig, uploadables).then(
-      payload => normalizePayload(operation, variables, payload)
-    );
+    const payload = await fetch(operation, variables, cacheConfig, uploadables);
+    return normalizePayload(operation, variables, payload);
   }
 
   function requestStream(
@@ -66,7 +65,16 @@ function create(
       return subscribe(operation, variables, null, {
         onCompleted,
         onError,
-        onNext,
+        onNext: payload => {
+          let relayPayload;
+          try {
+            relayPayload = normalizePayload(operation, variables, payload);
+          } catch (err) {
+            onError && onError(err);
+            return;
+          }
+          onNext && onNext(relayPayload);
+        },
       });
     }
 

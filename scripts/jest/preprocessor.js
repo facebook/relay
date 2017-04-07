@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
+
 'use strict';
 
 const BabelPluginRelay = require('../../packages/babel-plugin-relay/BabelPluginRelay.js');
@@ -37,7 +38,7 @@ const babelOptions = getBabelOptions({
     BabelPluginRelay,
     getBabelRelayPlugin(schema, {substituteVariables: true}),
     require('babel-plugin-transform-async-to-generator'),
-    require('babel-plugin-transform-regenerator')
+    require('babel-plugin-transform-regenerator'),
   ],
 });
 

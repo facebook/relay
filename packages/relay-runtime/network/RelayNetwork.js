@@ -40,14 +40,15 @@ function create(
   fetch: FetchFunction,
   subscribe?: SubscribeFunction,
 ): Network {
-  async function request(
+  function request(
     operation: ConcreteBatch,
     variables: Variables,
     cacheConfig?: ?CacheConfig,
     uploadables?: UploadableMap,
   ): Promise<RelayResponsePayload> {
-    const payload = await fetch(operation, variables, cacheConfig, uploadables);
-    return normalizePayload(operation, variables, payload);
+    return fetch(operation, variables, cacheConfig, uploadables).then(
+      payload => normalizePayload(operation, variables, payload)
+    );
   }
 
   function requestStream(

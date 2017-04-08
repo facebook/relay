@@ -67,10 +67,10 @@ class RelayCompilerContext {
       node.name
     );
     return this._update(
-      this._documents.set(node.name, new Document({
+      (this._documents.set(node.name, new Document({
         name: node.name,
         node,
-      }))
+      })): $FlowFixMe)
     );
   }
 

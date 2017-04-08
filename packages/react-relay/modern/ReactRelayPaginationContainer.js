@@ -393,7 +393,7 @@ function createContainerWithFragments<TDefaultProps, TProps>(
           'Be sure to fetch %s (got `%s`) and %s (got `%s`).',
           PAGE_INFO,
           componentName,
-          connectionConfig.direction === FORWARD ? HAS_NEXT_PAGE : HAS_NEXT_PAGE,
+          connectionConfig.direction === FORWARD ? HAS_NEXT_PAGE : HAS_PREV_PAGE,
           hasMore,
           connectionConfig.direction === FORWARD ? END_CURSOR : START_CURSOR,
           cursor,

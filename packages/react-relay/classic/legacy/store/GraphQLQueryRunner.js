@@ -26,6 +26,7 @@ const mapObject = require('mapObject');
 const resolveImmediate = require('resolveImmediate');
 const someObject = require('someObject');
 const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
+const throwFailedPromise = require('throwFailedPromise');
 const warning = require('warning');
 
 import type {FetchMode} from 'RelayFetchMode';
@@ -177,7 +178,7 @@ function runQueries(
     );
   }
 
-  storeData.getTaskQueue().enqueue(() => {
+  throwFailedPromise(storeData.getTaskQueue().enqueue(() => {
     const forceIndex = fetchMode === RelayFetchMode.REFETCH ?
       generateForceIndex() :
       null;
@@ -277,7 +278,7 @@ function runQueries(
     }
     // Stop profiling when queries have been sent to the network layer.
     profiler.stop();
-  }).done();
+  }));
 
   return {
     abort(): void {

@@ -17,6 +17,7 @@ const PromiseMap = require('PromiseMap');
 const RelayFetchMode = require('RelayFetchMode');
 
 const invariant = require('invariant');
+const throwFailedPromise = require('throwFailedPromise');
 
 import type {FetchMode} from 'RelayFetchMode';
 import type RelayQuery from 'RelayQuery';
@@ -129,10 +130,10 @@ class PendingFetch {
       fetch: this,
       query: query,
     };
-    this._fetchQueryPromise.done(
+    throwFailedPromise(this._fetchQueryPromise.then(
       this._handleQuerySuccess.bind(this),
       this._handleQueryFailure.bind(this),
-    );
+    ));
   }
 
   isResolvable(): boolean {
@@ -152,7 +153,7 @@ class PendingFetch {
   ): void {
     this._fetchedQuery = true;
 
-    this._storeData.getTaskQueue().enqueue(() => {
+    throwFailedPromise(this._storeData.getTaskQueue().enqueue(() => {
       const response = result.response;
       invariant(
         response && typeof response === 'object',
@@ -165,10 +166,10 @@ class PendingFetch {
         response,
         this._forceIndex
       );
-    }).done(
+    }).then(
       this._markQueryAsResolved.bind(this),
       this._markAsRejected.bind(this)
-    );
+    ));
   }
 
   _handleQueryFailure(

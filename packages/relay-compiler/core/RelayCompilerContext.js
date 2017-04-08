@@ -90,7 +90,7 @@ class RelayCompilerContext {
       errors = ImmutableList([error]);
     }
     return this._update(
-      this._documents.set(name, record.set('errors', errors))
+      (this._documents.set(name, record.set('errors', errors)): $FlowFixMe)
     );
   }
 

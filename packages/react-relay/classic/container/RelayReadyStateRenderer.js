@@ -43,7 +43,7 @@ type RelayRenderArgs = {
   error: ?Error,
   events: Array<ReadyStateEvent>,
   props: ?RelayContainerProps,
-  retry: ?RelayRetryCallback,
+  retry: RelayRetryCallback,
   stale: boolean,
 };
 

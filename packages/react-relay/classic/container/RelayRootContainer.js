@@ -18,6 +18,7 @@ const RelayRenderer = require('RelayRenderer');
 const RelayStore = require('RelayStore');
 
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
+import type {RelayRetryCallback} from 'RelayReadyStateRenderer';
 import type {
   ComponentFetchState,
   ReadyState,
@@ -29,9 +30,10 @@ type RootContainerProps = {
   forceFetch?: ?boolean,
   shouldFetch?: ?boolean,
   onReadyStateChange?: ?(readyState: ReadyState) => void,
-  /* $FlowFixMe(site=react_native_fb) - should renderFailure be allowed to
-   * return null/undefined? */
-  renderFailure?: ?(error: Error, retry: ?() => void) => ?React.Element<any>,
+  renderFailure?: ?(
+    error: Error,
+    retry: RelayRetryCallback
+  ) => ?React.Element<any>,
   renderFetched?: ?(
     data: Object,
     fetchState: ComponentFetchState

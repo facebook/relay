@@ -17,6 +17,7 @@ const RelayQueryRequest = require('RelayQueryRequest');
 
 const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
+const throwFailedPromise = require('throwFailedPromise');
 const warning = require('warning');
 
 import type RelayMutationRequest from 'RelayMutationRequest';
@@ -93,9 +94,9 @@ class RelayNetworkLayer {
         mutationCallback(mutationRequest);
       }
     });
-    const promise = implementation.sendMutation(mutationRequest);
-    if (promise) {
-      Promise.resolve(promise).done();
+    const maybePromise = implementation.sendMutation(mutationRequest);
+    if (maybePromise) {
+      throwFailedPromise(Promise.resolve(maybePromise));
     }
   }
 
@@ -109,9 +110,9 @@ class RelayNetworkLayer {
         });
       }
     });
-    const promise = implementation.sendQueries(queryRequests);
-    if (promise) {
-      Promise.resolve(promise).done();
+    const maybePromise = implementation.sendQueries(queryRequests);
+    if (maybePromise) {
+      throwFailedPromise(Promise.resolve(maybePromise));
     }
   }
 

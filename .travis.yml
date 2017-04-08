@@ -3,15 +3,11 @@ language: node_js
 install: true
 matrix:
   include:
-  - node_js: '4'
-    env: TEST=.
   - node_js: '6'
     env: TEST=.
   - node_js: '7'
     env: TEST=.
 
-  - node_js: '4'
-    env: TEST=scripts/babel-relay-plugin
   - node_js: '6'
     env: TEST=scripts/babel-relay-plugin
   - node_js: '7'

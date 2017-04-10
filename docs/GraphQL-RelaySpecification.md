@@ -17,7 +17,7 @@ The three core assumptions that Relay makes about a GraphQL server are that it p
 
 This example demonstrates all three of these assumptions.
 
-This example is not comprehensive, but it is designed to quickly introduce these core assumptions, to provide some context before diving into the more detailed specification or the library.
+This example is not comprehensive, but it is designed to quickly introduce these core assumptions, to provide some context before diving into the more detailed specification of the library.
 
 The premise of the example is that we want to use GraphQL to query for information about ships and factions in the original Star Wars trilogy.
 

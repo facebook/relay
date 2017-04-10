@@ -80,7 +80,7 @@ describe('RelayFlattenTransform', () => {
   it('throws errors under some conditions', () => {
     expect('fixtures/flatten-transform-errors').toMatchGolden(text => {
       try {
-        const out = printContextTransform({})(text);
+        printContextTransform({})(text);
       } catch (error) {
         return error.toString();
       }

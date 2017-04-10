@@ -38,7 +38,7 @@ describe('RelayFlattenTransform', () => {
     options: FlattenOptions
   ): (text: string) => string {
     return text => {
-      const context = (new RelayCompilerContext(RelayTestSchema))
+      const context = new RelayCompilerContext(RelayTestSchema)
         .addAll(RelayParser.parse(RelayTestSchema, text));
       const nextContext = RelayFlattenTransform.transform(context, options);
       return nextContext.documents().map(

@@ -369,6 +369,85 @@ describe('RelayResponseNormalizer', () => {
     ]);
   });
 
+  it('warns in __DEV__ if payload contains inconsistent types for a record', () => {
+    jest.mock('warning');
+
+    const {BarQuery} = generateWithTransforms(`
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            actor {
+              id
+              __typename
+            }
+            actors {
+              id
+              __typename
+            }
+          }
+        }
+      }
+    `);
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        actor: {
+          id: '1',
+          __typename: 'Actor', // <- invalid
+        },
+        actors: [{
+          id: '1',
+          __typename: 'Actors', // <- invalid
+        }],
+      },
+    };
+    const recordSource = new RelayInMemoryRecordSource();
+    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
+    expect(() => {
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery,
+          variables: {id: '1'},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+    }).toWarn([
+      'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
+      'be consistent, but the record was assigned conflicting types ' +
+      '`%s` and `%s`.',
+      '1',
+      '__typename',
+      'User',
+      'Actor',
+    ]);
+    expect(() => {
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery,
+          variables: {id: '1'},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+    }).toWarn([
+      'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
+      'be consistent, but the record was assigned conflicting types ' +
+      '`%s` and `%s`.',
+      '1',
+      '__typename',
+      'Actor', // `User` is already overwritten when the plural field is reached
+      'Actors',
+    ]);
+  });
+
   it('leaves undefined fields unset, as handleStrippedNulls == false', () => {
     const {StrippedQuery} = generateWithTransforms(`
       query StrippedQuery($id: ID, $size: Int) {

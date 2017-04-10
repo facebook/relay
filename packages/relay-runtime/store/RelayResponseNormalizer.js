@@ -260,6 +260,8 @@ class RelayResponseNormalizer {
       const typeName = field.concreteType || this._getRecordType(fieldValue);
       nextRecord = RelayStaticRecord.create(nextID, typeName);
       this._recordSource.set(nextID, nextRecord);
+    } else if (__DEV__) {
+      this._validateRecordType(nextRecord, field, fieldValue);
     }
     this._traverseSelections(field.selections, nextRecord, fieldValue);
   }
@@ -309,12 +311,36 @@ class RelayResponseNormalizer {
         const typeName = field.concreteType || this._getRecordType(item);
         nextRecord = RelayStaticRecord.create(nextID, typeName);
         this._recordSource.set(nextID, nextRecord);
+      } else if (__DEV__) {
+        this._validateRecordType(nextRecord, field, item);
       }
       this._traverseSelections(field.selections, nextRecord, item);
     });
     RelayStaticRecord.setLinkedRecordIDs(record, storageKey, nextIDs);
   }
+
+  /**
+   * Warns if the type of the record does not match the type of the field/payload.
+   */
+  _validateRecordType(
+    record: Record,
+    field: ConcreteLinkedField,
+    payload: Object,
+  ): void {
+    const typeName = field.concreteType || this._getRecordType(payload);
+    warning(
+      RelayStaticRecord.getType(record) === typeName,
+      'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
+      'be consistent, but the record was assigned conflicting types ' +
+      '`%s` and `%s`.',
+      RelayStaticRecord.getDataID(record),
+      TYPENAME_KEY,
+      RelayStaticRecord.getType(record),
+      typeName,
+    );
+  }
 }
+
 
 // eslint-disable-next-line no-func-assign
 normalize = RelayProfiler.instrument('RelayResponseNormalizer.normalize', normalize);

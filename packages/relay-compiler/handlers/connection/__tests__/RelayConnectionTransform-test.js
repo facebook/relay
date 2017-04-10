@@ -34,36 +34,37 @@ describe('RelayConnectionTransform', () => {
     jasmine.addMatchers(getGoldenMatchers(__filename));
   });
 
-  it('transforms @connection fields', () => {
-    expect('fixtures/connection-transform').toMatchGolden(text => {
+  function transformerWithOptions(options) {
+    return text => {
       try {
-        const schema = RelayConnectionTransform.transformSchema(RelayTestSchema);
+        const schema = RelayConnectionTransform.transformSchema(
+          RelayTestSchema
+        );
         const {definitions} = parseGraphQLText(schema, text);
-        let context = (new RelayCompilerContext(schema)).addAll(definitions);
-        context = RelayConnectionTransform.transform(context);
-        return context.documents().map(doc => RelayPrinter.print(doc)).join('\n');
+        let context = new RelayCompilerContext(schema).addAll(definitions);
+        context = RelayConnectionTransform.transform(context, options);
+        return context.documents().map(
+          doc => RelayPrinter.print(doc)
+        ).join('\n');
       } catch (error) {
         return error.message;
       }
-    });
+    };
+  }
+
+  it('transforms @connection fields', () => {
+    expect('fixtures/connection-transform').toMatchGolden(
+      transformerWithOptions(),
+    );
   });
 
   it('transforms @connection fields with requisite fields', () => {
-    expect('fixtures/connection-transform-generate-requisite-fields').toMatchGolden(text => {
-      try {
-        const schema = RelayConnectionTransform.transformSchema(RelayTestSchema);
-        const {definitions} = parseGraphQLText(schema, text);
-        let context = definitions.reduce(
-          (ctx, def) => ctx.add(def),
-          new RelayCompilerContext(schema)
-        );
-        context = RelayConnectionTransform.transform(context, {
-          generateRequisiteFields: true,
-        });
-        return context.documents().map(doc => RelayPrinter.print(doc)).join('\n');
-      } catch (error) {
-        return error.message;
-      }
-    });
+    expect(
+      'fixtures/connection-transform-generate-requisite-fields'
+    ).toMatchGolden(
+      transformerWithOptions({
+        generateRequisiteFields: true,
+      }),
+    );
   });
 });

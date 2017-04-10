@@ -1,4 +1,8 @@
-query NodeQuery($id: ID!, $orderBy: String, $traits: [PersonalityTraits]) {
+query NodeQuery(
+  $id: ID!
+  $orderBy: String
+  $traits: [PersonalityTraits]
+) {
   node(id: $id) {
     id
     ... on Story {

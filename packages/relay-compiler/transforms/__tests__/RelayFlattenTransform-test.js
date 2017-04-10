@@ -38,10 +38,8 @@ describe('RelayFlattenTransform', () => {
     options: FlattenOptions
   ): (text: string) => string {
     return text => {
-      const context = RelayParser.parse(RelayTestSchema, text).reduce(
-        (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema)
-      );
+      const context = (new RelayCompilerContext(RelayTestSchema))
+        .addAll(RelayParser.parse(RelayTestSchema, text));
       const nextContext = RelayFlattenTransform.transform(context, options);
       return nextContext.documents().map(
         doc => RelayPrinter.print(doc)
@@ -77,5 +75,16 @@ describe('RelayFlattenTransform', () => {
     expect('fixtures/flatten-transform-option-flatten-inline').toMatchGolden(
       printContextTransform({flattenInlineFragments: true})
     );
+  });
+
+  it('throws errors under some conditions', () => {
+    expect('fixtures/flatten-transform-errors').toMatchGolden(text => {
+      try {
+        const out = printContextTransform({})(text);
+      } catch (error) {
+        return error.toString();
+      }
+      throw new Error('This transform should have thrown an error');
+    });
   });
 });

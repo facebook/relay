@@ -68,7 +68,7 @@ type ActorSubscribeSubscription {
 }
 
 type Viewer {
-  __configs__: ConfigsConnection
+  configs: ConfigsConnection
   newsFeed(first: Int): NewsFeedConnection
   pendingPosts(first: Int): PendingPostsConnection
   actor: User

@@ -657,7 +657,7 @@ input StoryCommentSearchInput {
 }
 
 type Viewer {
-  __configs__(named: [String]): ConfigsConnection
+  configs(named: [String]): ConfigsConnection
   actor: Actor
   allTimezones: [TimezoneInfo]
   isFbEmployee: Boolean

@@ -1077,7 +1077,7 @@
           "description": "",
           "fields": [
             {
-              "name": "__configs__",
+              "name": "configs",
               "description": "",
               "args": [],
               "type": {

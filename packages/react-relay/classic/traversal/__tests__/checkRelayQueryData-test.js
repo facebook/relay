@@ -423,7 +423,7 @@ describe('checkRelayQueryData', () => {
   it('returns true when `edges` is available on non-connections', () => {
     const records = {
       viewer_id: {
-        '__configs__{named:"some_gk"}': {__dataID__:'configs_id'},
+        'configs{named:"some_gk"}': {__dataID__:'configs_id'},
         __dataID__: 'viewer_id',
       },
       configs_id: {
@@ -444,7 +444,7 @@ describe('checkRelayQueryData', () => {
       Relay.QL`
         query {
           viewer {
-            __configs__(named:"some_gk") {
+            configs(named:"some_gk") {
               edges {
                 node {
                   name

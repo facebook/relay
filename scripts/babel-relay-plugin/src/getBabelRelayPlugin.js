@@ -240,12 +240,7 @@ function getBabelRelayPlugin(
               console.error(error.stack);
             }
           }
-          // For babel 5 compatibility
-          if (state.isLegacyState) {
-            return result; // eslint-disable-line consistent-return
-          } else {
-            path.replaceWith(result);
-          }
+          path.replaceWith(result);
         },
       },
     };

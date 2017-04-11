@@ -23,7 +23,7 @@ export type GraphQLSubscriptionConfig = {|
   variables: Variables,
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
-  onNext?: ?(payload: RelayResponsePayload) => void,
+  onNext?: ?(response: ?Object) => void,
   updater?: ?(proxy: RecordSourceSelectorProxy) => void,
 |};
 
@@ -47,7 +47,12 @@ function requestRelaySubscription(
   return environment.sendSubscription({
     onCompleted,
     onError,
-    onNext,
+    onNext(payload: ?RelayResponsePayload) {
+      if (onNext) {
+        const snapshot = environment.lookup(operation.fragment);
+        onNext(snapshot.data);
+      }
+    },
     updater,
     operation,
   });

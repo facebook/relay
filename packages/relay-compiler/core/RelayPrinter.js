@@ -16,7 +16,12 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
-const {GraphQLEnumType, GraphQLList, GraphQLNonNull} = require('graphql');
+const {
+  GraphQLEnumType,
+  GraphQLInputObjectType,
+  GraphQLList,
+  GraphQLNonNull,
+} = require('graphql');
 
 import type {
   Argument,
@@ -219,7 +224,7 @@ function printArguments(args: Array<Argument>): string {
     '';
 }
 
-function printValue(value: ArgumentValue, type?: ?GraphQLInputType): ?string {
+function printValue(value: ArgumentValue, type: ?GraphQLInputType): ?string {
   if (value.kind === 'Variable') {
     return '$' + value.variableName;
   } else if (value.value != null) {
@@ -229,7 +234,7 @@ function printValue(value: ArgumentValue, type?: ?GraphQLInputType): ?string {
   }
 }
 
-function printLiteral(value: mixed, type?: ?GraphQLInputType): string {
+function printLiteral(value: mixed, type: ?GraphQLInputType): string {
   if (type instanceof GraphQLNonNull) {
     type = type.ofType;
   }
@@ -251,8 +256,13 @@ function printLiteral(value: mixed, type?: ?GraphQLInputType): string {
     return '[' + value.map(item => printLiteral(item, itemType)).join(', ') + ']';
   } else if (typeof value === 'object' && value) {
     const fields = [];
+    invariant(
+      type instanceof GraphQLInputObjectType,
+      'RelayPrinter: Need an InputObject type to print objects.',
+    );
+    const typeFields = type.getFields();
     forEachObject(value, (val, key) => {
-      fields.push(key + ': ' + printLiteral(val));
+      fields.push(key + ': ' + printLiteral(val, typeFields[key].type));
     });
     return '{' + fields.join(', ') + '}';
   } else {

@@ -77,6 +77,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'yargs': 'yargs',
   },
   plugins: [
+    'transform-flow-strip-types',
     'transform-runtime',
   ],
   postPlugins: [
@@ -240,7 +241,7 @@ const builds = [
         target: 'node',
         externals: [/^[a-z\-0-9]+$/],
       },
-    ]
+    ],
   },
   {
     package: 'relay-runtime',

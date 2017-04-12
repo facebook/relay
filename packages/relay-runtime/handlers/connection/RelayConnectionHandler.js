@@ -40,6 +40,8 @@ import type {Variables} from 'RelayTypes';
 export type ConnectionMetadata = {
   path: ?Array<string>,
   direction: ?('forward' | 'backward'),
+  cursor: ?string,
+  count: ?string,
 };
 
 const CONNECTION = 'connection';

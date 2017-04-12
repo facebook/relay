@@ -22,6 +22,8 @@ const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
 const invariant = require('invariant');
 
 const {
+  AFTER,
+  BEFORE,
   FIRST,
   KEY,
   LAST,
@@ -40,6 +42,7 @@ const {
 
 import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {
+  Argument,
   Fragment,
   InlineFragment,
   LinkedField,
@@ -158,17 +161,31 @@ function visitLinkedField(
   validateConnectionType(definitionName, transformedField.type);
 
   const pathHasPlural = options.path.includes(null);
-  const hasFirst = transformedField.args.some(arg => arg.name === FIRST);
-  const hasLast = transformedField.args.some(arg => arg.name === LAST);
+  const firstArg = findArg(transformedField, FIRST);
+  const lastArg = findArg(transformedField, LAST);
   let direction = null;
-  if (hasFirst && !hasLast) {
+  let countArg = null;
+  let cursorArg = null;
+  if (firstArg && !lastArg) {
     direction = 'forward';
-  } else if (hasLast && !hasFirst) {
+    countArg = firstArg;
+    cursorArg = findArg(transformedField, AFTER);
+  } else if (lastArg && !firstArg) {
     direction = 'backward';
+    countArg = lastArg;
+    cursorArg = findArg(transformedField, BEFORE);
   }
+  const countVariable = (countArg && countArg.value.kind === 'Variable')
+    ? countArg.value.variableName
+    : null;
+  const cursorVariable = (cursorArg && cursorArg.value.kind === 'Variable')
+    ? cursorArg.value.variableName
+    : null;
   options.connectionMetadata.push({
-    path: pathHasPlural ? null : ([...options.path]: any),
+    count: countVariable,
+    cursor: cursorVariable,
     direction,
+    path: pathHasPlural ? null : ([...options.path]: any),
   });
   options.path.pop();
 
@@ -272,6 +289,10 @@ function generateConnectionFragment(
   };
 }
 
+function findArg(field: LinkedField, argName: string): ?Argument {
+  return field.args && field.args.find(arg => arg.name === argName);
+}
+
 /**
  * @internal
  *
@@ -290,7 +311,7 @@ function validateConnectionSelection(
   field: LinkedField,
 ): void {
   invariant(
-    field.args && field.args.some(arg => arg.name === FIRST || arg.name === LAST),
+    findArg(field, FIRST) || findArg(field, LAST),
     'RelayConnectionTransform: Expected field `%s: %s` to have a %s or %s ' +
     'argument in document `%s`.',
     field.name,

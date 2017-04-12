@@ -29,15 +29,19 @@ query NodeQuery(
 {
   "connection": [
     {
-      "path": null,
-      "direction": "forward"
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": null
     },
     {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
       "path": [
         "node",
         "comments"
-      ],
-      "direction": "forward"
+      ]
     }
   ]
 }

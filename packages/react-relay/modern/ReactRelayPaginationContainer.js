@@ -64,13 +64,15 @@ const containerContextTypes = {
 
 const FORWARD = 'forward';
 
+type FragmentVariablesGetter = (
+  prevVars: Variables,
+  totalCount: number,
+) => Variables;
+
 export type ConnectionConfig = {
   direction?: 'backward' | 'forward',
   getConnectionFromProps?: (props: Object) => ?ConnectionData,
-  getFragmentVariables: (
-    prevVars: Variables,
-    totalCount: number,
-  ) => Variables,
+  getFragmentVariables?: FragmentVariablesGetter,
   getVariables: (
     props: Object,
     paginationInfo: {count: number, cursor: ?string},
@@ -233,6 +235,24 @@ function createGetConnectionFromProps(metadata: ReactConnectionMetadata) {
   };
 }
 
+function createGetFragmentVariables(
+  metadata: ReactConnectionMetadata,
+): FragmentVariablesGetter {
+  const countVariable = metadata.count;
+  invariant(
+    countVariable,
+    'ReactRelayPaginationContainer: Unable to synthesize a ' +
+      'getFragmentVariables function.',
+  );
+  return (
+    prevVars: Variables,
+    totalCount: number,
+  ) => ({
+    ...prevVars,
+    [countVariable]: totalCount,
+  });
+}
+
 type ReactConnectionMetadata = ConnectionMetadata & {
   fragmentName: string,
 };
@@ -290,6 +310,9 @@ function createContainerWithFragments<TDefaultProps, TProps>(
     'ReactRelayPaginationContainer: Unable to infer direction of the ' +
       'connection, possibly because both first and last are provided.',
   );
+
+  const getFragmentVariables = connectionConfig.getFragmentVariables ||
+    createGetFragmentVariables(metadata);
 
   class Container extends React.Component {
     state: ContainerState;
@@ -610,10 +633,8 @@ function createContainerWithFragments<TDefaultProps, TProps>(
         fragments,
         this.props,
       );
-      const nextVariables = connectionConfig.getFragmentVariables(
-        prevVariables,
-        totalCount,
-      );
+      const nextVariables = getFragmentVariables(prevVariables, totalCount);
+
       const prevData = this._resolver.resolve();
       this._resolver.setVariables(nextVariables);
       const nextData = this._resolver.resolve();

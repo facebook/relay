@@ -32,25 +32,31 @@ query NodeQuery(
 {
   "connection": [
     {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
       "path": [
         "node",
         "forwardComments"
-      ],
-      "direction": "forward"
+      ]
     },
     {
+      "count": null,
+      "cursor": null,
+      "direction": "backward",
       "path": [
         "node",
         "backwardComments"
-      ],
-      "direction": "backward"
+      ]
     },
     {
+      "count": null,
+      "cursor": null,
+      "direction": null,
       "path": [
         "node",
         "mixedDirectionComments"
-      ],
-      "direction": null
+      ]
     }
   ]
 }

@@ -79,6 +79,17 @@ function create(
       });
     }
 
+    const pollInterval = cacheConfig && cacheConfig.poll;
+    if (pollInterval != null) {
+      return doFetchWithPolling(
+        request,
+        operation,
+        variables,
+        {onCompleted, onError, onNext},
+        pollInterval,
+      );
+    }
+
     let isDisposed = false;
     fetch(operation, variables, cacheConfig)
       .then(
@@ -116,6 +127,43 @@ function create(
     request,
     requestStream,
   };
+}
+
+function doFetchWithPolling(
+  request,
+  operation: ConcreteBatch,
+  variables: Variables,
+  {onCompleted, onError, onNext}: Observer<RelayResponsePayload>,
+  pollInterval: number,
+): Disposable {
+  invariant(
+    pollInterval > 0,
+    'RelayNetwork: Expected pollInterval to be positive, got `%s`.',
+    pollInterval,
+  );
+  let isDisposed = false;
+  let timeout = null;
+  const dispose = () => {
+    if (!isDisposed) {
+      isDisposed = true;
+      timeout && clearTimeout(timeout);
+    }
+  };
+  function poll() {
+    request(operation, variables, {force: true}).then(
+      payload => {
+        onNext && onNext(payload);
+        timeout = setTimeout(poll, pollInterval);
+      },
+      error => {
+        dispose();
+        onError && onError(error);
+      }
+    );
+  }
+  timeout = setTimeout(poll, pollInterval);
+
+  return {dispose};
 }
 
 function normalizePayload(

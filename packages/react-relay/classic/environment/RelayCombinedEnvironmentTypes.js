@@ -22,9 +22,12 @@ import type {
  *
  * - `force`: causes a query to be issued unconditionally, irrespective of the
  *   state of any configured response cache.
+ * - `poll`: causes a query to live update by polling at the specified interval
+     in milliseconds. (This value will be passed to setTimeout.)
  */
 export type CacheConfig = {
-  force: boolean,
+  force?: ?boolean,
+  poll?: ?number,
 };
 
 /**

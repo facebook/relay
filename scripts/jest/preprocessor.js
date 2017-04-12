@@ -9,7 +9,7 @@
 
 'use strict';
 
-const BabelPluginRelay = require('../../packages/babel-plugin-relay/BabelPluginRelay.js');
+const BabelPluginRelay = require('../../dist/babel-plugin-relay');
 
 const assign = require('object-assign');
 const babel = require('babel-core');

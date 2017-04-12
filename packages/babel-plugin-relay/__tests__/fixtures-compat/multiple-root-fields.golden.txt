@@ -10,10 +10,10 @@ const graphql = require('graphql');
 const CompatProfilePic = require('CompatProfilePic');
 
 const CompatViewerQuery = {
-  relayExperimental: function () {
+  modern: function () {
     return require('CompatViewerQuery.graphql');
   },
-  relay: function () {
+  classic: function () {
     const RelayQL_GENERATED = require('RelayQL_GENERATED'),
           CompatProfilePic_user = CompatProfilePic.getFragment('user');
 

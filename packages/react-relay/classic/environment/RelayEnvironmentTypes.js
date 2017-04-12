@@ -27,7 +27,7 @@ import type {
   CUnstableEnvironmentCore,
   Disposable,
 } from 'RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode} from 'RelayGraphQLTag';
+import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 import type {Variables, RelayMutationConfig} from 'RelayTypes';
 
 type TEnvironment = Environment;

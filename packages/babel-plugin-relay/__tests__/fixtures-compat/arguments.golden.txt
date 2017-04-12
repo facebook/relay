@@ -13,10 +13,10 @@ const CompatProfilePic = () => null;
 
 module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
   passing: {
-    relayExperimental: function () {
+    modern: function () {
       return require('CompatProfile_passing.graphql');
     },
-    relay: function () {
+    classic: function () {
       const RelayQL_GENERATED = require('RelayQL_GENERATED'),
             ProfilePic_user_args1 = ProfilePic.getFragment('user', {
         size: 40,
@@ -41,10 +41,10 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
     }
   },
   receiving: {
-    relayExperimental: function () {
+    modern: function () {
       return require('CompatProfile_receiving.graphql');
     },
-    relay: function () {
+    classic: function () {
       const RelayQL_GENERATED = require('RelayQL_GENERATED');
 
       return {
@@ -71,10 +71,10 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
     }
   },
   receivingGlobals: {
-    relayExperimental: function () {
+    modern: function () {
       return require('CompatProfile_receivingGlobals.graphql');
     },
-    relay: function () {
+    classic: function () {
       const RelayQL_GENERATED = require('RelayQL_GENERATED');
 
       return {

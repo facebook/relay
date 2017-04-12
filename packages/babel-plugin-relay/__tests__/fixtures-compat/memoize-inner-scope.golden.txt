@@ -15,10 +15,10 @@ function SomeTopLevelView() {
 
   return <View>
       <QueryRenderer environment={RelayStore} query={_graphql2 || (_graphql2 = {
-      relayExperimental: function () {
+      modern: function () {
         return require('ExampleQuery.graphql');
       },
-      relay: function () {
+      classic: function () {
         const RelayQL_GENERATED = require('RelayQL_GENERATED'),
               ProfilePic_user = ProfilePic.getFragment('user');
 

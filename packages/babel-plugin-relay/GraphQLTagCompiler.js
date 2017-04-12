@@ -14,7 +14,7 @@ const GraphQL = require('graphql');
 const DEFAULT_PROP_NAME = 'data';
 
 function compileGraphQLTag(t, path, state, ast) {
-  const isModernOnly = Boolean(state.opts && state.opts.modernOnly);
+  const isCompatMode = Boolean(state.opts && state.opts.compat);
 
   const mainDefinition = ast.definitions[0];
 
@@ -30,9 +30,9 @@ function compileGraphQLTag(t, path, state, ast) {
       return replaceMemoized(
         t,
         path,
-        isModernOnly ?
-          createModernConcreteNode(t, mainDefinition) :
-          createCompatFragmentConcreteNode(t, path, mainDefinition)
+        isCompatMode
+          ? createCompatFragmentConcreteNode(t, path, mainDefinition)
+          : createModernConcreteNode(t, mainDefinition)
       );
     }
 
@@ -46,9 +46,9 @@ function compileGraphQLTag(t, path, state, ast) {
       }
 
       const [, propName] = getFragmentNameParts(definition.name.value);
-      nodeMap[propName] = isModernOnly ?
-        createModernConcreteNode(t, definition) :
-        createCompatFragmentConcreteNode(t, path, definition);
+      nodeMap[propName] = isCompatMode
+        ? createCompatFragmentConcreteNode(t, path, definition)
+        : createModernConcreteNode(t, definition);
     }
     return replaceMemoized(t, path, createObject(t, nodeMap));
   }
@@ -63,9 +63,9 @@ function compileGraphQLTag(t, path, state, ast) {
     return replaceMemoized(
       t,
       path,
-      isModernOnly ?
-        createModernConcreteNode(t, mainDefinition) :
-        createCompatOperationConcreteNode(t, path, mainDefinition)
+      isCompatMode
+        ? createCompatOperationConcreteNode(t, path, mainDefinition)
+        : createModernConcreteNode(t, mainDefinition)
     );
   }
 
@@ -250,8 +250,8 @@ function createClassicAST(t, definition) {
 
 function createCompatConcreteNode(t, definition, transformedAST, substitutions) {
   return createObject(t, {
-    relayExperimental: createModernConcreteNode(t, definition),
-    relay: t.functionExpression(
+    modern: createModernConcreteNode(t, definition),
+    classic: t.functionExpression(
       null,
       [],
       t.blockStatement([

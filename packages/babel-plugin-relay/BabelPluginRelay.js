@@ -21,7 +21,7 @@ const {
  *
  *     {
  *       plugins: [
- *         ["relay", {"modernOnly": true}]
+ *         "relay"
  *       ]
  *     }
  *
@@ -29,7 +29,7 @@ const {
  *
  *     {
  *       plugins: [
- *         "relay"
+ *         ["relay", {"compat": true}]
  *       ]
  *     }
  *

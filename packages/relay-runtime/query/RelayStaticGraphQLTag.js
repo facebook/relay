@@ -27,8 +27,8 @@ import type {
 export type GraphQLTaggedNode =
   (() => ConcreteFragment | ConcreteBatch) |
   {
-    relayExperimental: () => ConcreteFragment | ConcreteBatch,
-    relay: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
+    modern: () => ConcreteFragment | ConcreteBatch,
+    classic: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
   };
 
 /**
@@ -57,7 +57,11 @@ graphql.experimental = function(): GraphQLTaggedNode {
 };
 
 function getNode(taggedNode) {
-  const fn = typeof taggedNode === 'function' ? taggedNode : taggedNode.relayExperimental;
+  const fn = typeof taggedNode === 'function'
+    ? taggedNode
+    // Note: this is a temporary "push safe" fix so existing built files
+    // referencing "node.relayExperimental" continue to work.
+    : (taggedNode.modern || (taggedNode: any).relayExperimental);
   // Support for classic raw nodes (used in test mock)
   if (typeof fn !== 'function') {
     return (taggedNode: any);

@@ -28,7 +28,7 @@ describe('BabelPluginRelay', () => {
       try {
         return babel.transform(text, {
           plugins: [
-            [BabelPluginRelay, {modernOnly: true}],
+            BabelPluginRelay,
           ],
           compact: false,
           parserOpts: {plugins: ['jsx']},
@@ -44,7 +44,7 @@ describe('BabelPluginRelay', () => {
       try {
         return babel.transform(text, {
           plugins: [
-            BabelPluginRelay,
+            [BabelPluginRelay, {compat: true}],
           ],
           compact: false,
           parserOpts: {plugins: ['jsx']},

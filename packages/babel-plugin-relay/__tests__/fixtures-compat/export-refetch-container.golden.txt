@@ -15,10 +15,10 @@ class RefetchExample extends React.Component {
 
 module.exports = createRefetchContainer(RefetchExample, {
   user: {
-    relayExperimental: function () {
+    modern: function () {
       return require('RefetchExample_user.graphql');
     },
-    relay: function () {
+    classic: function () {
       const RelayQL_GENERATED = require('RelayQL_GENERATED');
 
       return {
@@ -31,10 +31,10 @@ module.exports = createRefetchContainer(RefetchExample, {
     }
   }
 }, {
-  relayExperimental: function () {
+  modern: function () {
     return require('RefetchExampleRefetchQuery.graphql');
   },
-  relay: function () {
+  classic: function () {
     const RelayQL_GENERATED = require('RelayQL_GENERATED'),
           RefetchExample_user = (RefetchExample.__container__ || RefetchExample).getFragment('user');
 

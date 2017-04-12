@@ -20,15 +20,7 @@ import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from 'ConcreteQuery';
-
-// The type of a graphql`...` tagged template expression.
-// TODO: type this once the modern core is in OSS
-export type GraphQLTaggedNode =
-  (() => any) |
-  {
-    relayExperimental: () => any,
-    relay: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
-  };
+import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.
@@ -58,7 +50,7 @@ graphql.experimental = function(): GraphQLTaggedNode {
 const CLASSIC_NODE = '__classic_node__';
 
 /**
- * Memoizes the results of executing the `.relay()` functions on
+ * Memoizes the results of executing the `.classic()` functions on
  * graphql`...` tagged expressions. Memoization allows the framework to use
  * object equality checks to compare fragments (useful, for example, when
  * comparing two `Selector`s to see if they select the same data).
@@ -66,10 +58,12 @@ const CLASSIC_NODE = '__classic_node__';
 function getClassicNode(taggedNode) {
   let concreteNode = (taggedNode: any)[CLASSIC_NODE];
   if (concreteNode == null) {
-    const fn = taggedNode.relay;
+    // Note: this is a temporary "push safe" fix so existing built files
+    // referencing "node.relay" continue to work.
+    const fn = (taggedNode.classic || (taggedNode: any).relay);
     invariant(
       typeof fn === 'function',
-      'RelayGraphQLTag: Expected a graphql literal, got `%s`.',
+      'RelayGraphQLTag: Expected a graphql literal (in compat mode), got `%s`.',
       JSON.stringify(taggedNode),
     );
     concreteNode = fn();

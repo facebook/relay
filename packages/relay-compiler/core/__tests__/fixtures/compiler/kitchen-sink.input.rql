@@ -4,7 +4,7 @@ query NodeQuery($id: ID! $cond: Boolean! $PictureSize: [Int]!) {
     ... on User @include(if: $cond) {
       name
     }
-    ...UserFragment @include(if: $cond) @arguments(size: 32)
+    ...UserFragment @include(if: $cond) @arguments(size: $PictureSize)
   }
 }
 

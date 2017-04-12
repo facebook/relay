@@ -41,6 +41,7 @@ import type {
   LocalArgumentDefinition,
   Root,
   Selection,
+  Variable,
 } from 'RelayIR';
 import type {
   ArgumentNode,
@@ -53,6 +54,7 @@ import type {
   SelectionSetNode,
   ValueNode,
   VariableDefinitionNode,
+  VariableNode,
   GraphQLInputType,
   GraphQLOutputType,
   GraphQLSchema,
@@ -470,11 +472,20 @@ class RelayParser {
     let args;
     if (argumentDirectives.length) {
       args = (argumentDirectives[0].arguments || []).map(arg => {
+        const argValue = arg.value;
+        invariant(
+          argValue.kind === 'Variable',
+          'RelayParser: All @arguments() args must be variables, got %s. ' +
+          'Source: %s.',
+          argValue.kind,
+          this._getErrorContext(),
+        );
+
         return {
           kind: 'Argument',
           metadata: null,
           name: getName(arg),
-          value: this._transformValue(arg.value),
+          value: this._transformVariable(argValue),
           type: null, // TODO: can't get type until referenced fragment is defined
         };
       });
@@ -733,6 +744,16 @@ class RelayParser {
     return [sortedConditions, directives];
   }
 
+  _transformVariable(ast: VariableNode, type?: ?GraphQLInputType): Variable {
+    const variableName = getName(ast);
+    this._recordVariableReference(variableName, type);
+    return {
+      kind: 'Variable',
+      metadata: null,
+      variableName,
+    };
+  }
+
   /**
    * Transforms AST values into IR values, extracting the literal JS values of any
    * subtree of the AST that does not contain a variable.
@@ -852,13 +873,7 @@ class RelayParser {
           };
         }
       case 'Variable':
-        const variableName = getName(ast);
-        this._recordVariableReference(variableName, type);
-        return {
-          kind: 'Variable',
-          metadata: null,
-          variableName,
-        };
+        return this._transformVariable(ast, type);
       // eslint-disable: no-fallthrough
       default:
         invariant(

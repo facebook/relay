@@ -11,6 +11,14 @@
       "name": "cond",
       "type": "Boolean!",
       "defaultValue": null
+    },
+    {
+      "kind": "LocalArgument",
+      "name": "pictureSize",
+      "type": "[Int]",
+      "defaultValue": [
+        128
+      ]
     }
   ],
   "kind": "Root",
@@ -44,9 +52,9 @@
           "name": "Profile",
           "args": [
             {
-              "kind": "Literal",
+              "kind": "Variable",
               "name": "pictureSize",
-              "value": 128,
+              "variableName": "pictureSize",
               "type": null
             }
           ]
@@ -70,7 +78,13 @@
 }
 
 {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "pictureSize",
+      "type": null
+    }
+  ],
   "kind": "Fragment",
   "metadata": null,
   "name": "ProfileFriends",
@@ -111,9 +125,9 @@
                   "name": "Profile",
                   "args": [
                     {
-                      "kind": "Literal",
+                      "kind": "Variable",
                       "name": "pictureSize",
-                      "value": 128,
+                      "variableName": "pictureSize",
                       "type": null
                     }
                   ]

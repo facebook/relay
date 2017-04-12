@@ -77,12 +77,12 @@ describe('ReactRelayFragmentContainer', () => {
     ({UserFragment, UserQuery} = environment.mock.compile(`
       query UserQuery($id: ID!) {
         node(id: $id) {
-          ...UserFragment @arguments(cond: true)
+          ...UserFragment
         }
       }
 
       fragment UserFragment on User @argumentDefinitions(
-        cond: {type: "Boolean!", defaultValue: false}
+        cond: {type: "Boolean!", defaultValue: true}
       ) {
         id
         name @include(if: $cond)

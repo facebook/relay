@@ -258,9 +258,9 @@
                 "name": "UserFragment",
                 "args": [
                   {
-                    "kind": "Literal",
+                    "kind": "Variable",
                     "name": "size",
-                    "value": 32,
+                    "variableName": "PictureSize",
                     "type": null
                   }
                 ]
@@ -429,9 +429,9 @@
                     "alias": null,
                     "args": [
                       {
-                        "kind": "Literal",
+                        "kind": "Variable",
                         "name": "size",
-                        "value": 32,
+                        "variableName": "PictureSize",
                         "type": "[Int]"
                       }
                     ],
@@ -461,7 +461,7 @@
                         "storageKey": null
                       }
                     ],
-                    "storageKey": "profilePicture{\"size\":32}"
+                    "storageKey": null
                   },
                   {
                     "kind": "LinkedField",
@@ -512,11 +512,11 @@ query NodeQuery(
     ... on User @include(if: $cond) {
       name
     }
-  ...UserFragment_3nSeC4 @include(if: $cond)
+  ...UserFragment_3M2EvT @include(if: $cond)
   }
 }
 
-fragment UserFragment_3nSeC4 on User {
+fragment UserFragment_3M2EvT on User {
   id
   __typename
   friends(first: 5) {
@@ -527,7 +527,7 @@ fragment UserFragment_3nSeC4 on User {
     width
     src: uri
   }
-  profilePicture(size: 32) {
+  profilePicture(size: $PictureSize) {
     height
     width
     src: uri

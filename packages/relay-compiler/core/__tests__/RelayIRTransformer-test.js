@@ -26,7 +26,7 @@ describe('RelayIRTransformer', () => {
             id
             ...UserProfile @include(if: $condition)
           }
-          ...Foo @arguments(localId: $id, someLiteral: 10)
+          ...Foo @arguments(localId: $id)
         }
       }
 

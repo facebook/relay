@@ -1,15 +1,16 @@
 query TestQuery(
   $id: ID!
+  $pictureSize: [Int] = [128]
 ) {
   node(id: $id) {
     id
-    ...Profile_4j8R3y
+    ...Profile_4CNNX6
     ...ProfileFriends
   }
 }
 
-fragment Profile_4j8R3y on User {
-  profilePicture(size: 128) {
+fragment Profile_4CNNX6 on User {
+  profilePicture(size: $pictureSize) {
     uri
   }
 }
@@ -18,7 +19,7 @@ fragment ProfileFriends on User {
   friends(first: 10) {
     edges {
       node {
-        ...Profile_4j8R3y
+        ...Profile_4CNNX6
       }
     }
   }

@@ -1,31 +1,33 @@
 query TestQuery(
   $id: ID!
+  $pictureSize: [Int] = [128]
+  $includeFriends: Boolean = true
 ) {
   node(id: $id) {
     id
-    ...Profile_36sqyd
+    ...Profile_4FmGHP
   }
 }
 
-fragment Profile_36sqyd on User {
+fragment Profile_4FmGHP on User {
   id
   name
-  profilePicture(size: 128) {
+  profilePicture(size: $pictureSize) {
     uri
   }
-  friends(first: 10) {
+  friends(first: 10) @include(if: $includeFriends) {
     edges {
       node {
-        ...Profile_4j8R3y
+        ...Profile_4CNNX6
       }
     }
   }
 }
 
-fragment Profile_4j8R3y on User {
+fragment Profile_4CNNX6 on User {
   id
   name
-  profilePicture(size: 128) {
+  profilePicture(size: $pictureSize) {
     uri
   }
 }

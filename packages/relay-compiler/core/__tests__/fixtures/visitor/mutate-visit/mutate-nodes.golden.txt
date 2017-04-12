@@ -11,7 +11,7 @@ query NodeQuery_mutated(
       }
     }
     ... on Mutated {
-      ...UserFragment_mutated @arguments(size_mutated: "32_mutated")
+      ...UserFragment_mutated @arguments(size_mutated: $size_mutated)
     }
   }
 }

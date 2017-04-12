@@ -1,7 +1,7 @@
-query TestQuery($id: ID!) {
+query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
   node(id: $id) {
     id
-    ...Profile @arguments(pictureSize: 128)
+    ...Profile @arguments(pictureSize: $pictureSize)
     ...ProfileFriends
   }
 }
@@ -10,7 +10,7 @@ fragment ProfileFriends on User {
   friends(first: 10) {
     edges {
       node {
-        ...Profile @arguments(pictureSize: 128)
+        ...Profile @arguments(pictureSize: $pictureSize)
       }
     }
   }

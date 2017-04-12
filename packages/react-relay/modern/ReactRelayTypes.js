@@ -39,8 +39,8 @@ export type RelayPaginationProp = RelayProp & {
 
 export type RelayRefetchProp = RelayProp & {
   refetch: (
-    variableProvider: Variables | (fragmentVariables: Variables) => Variables,
-    finalVariables: ?Variables,
+    refetchVariables: Variables | (fragmentVariables: Variables) => Variables,
+    renderVariables: ?Variables,
     callback: ?(error: ?Error) => void,
     options?: RefetchOptions
   ) => Disposable,

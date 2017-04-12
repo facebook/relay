@@ -198,18 +198,18 @@ function createContainerWithFragments<TDefaultProps, TProps>(
     }
 
     _refetch = (
-      variableProvider: Variables | (fragmentVariables: Variables) => Variables,
-      finalVariables: ?Variables,
+      refetchVariables: Variables | (fragmentVariables: Variables) => Variables,
+      renderVariables: ?Variables,
       callback: ?(error: ?Error) => void,
       options: ?RefetchOptions
     ): Disposable => {
       const {environment, variables: rootVariables} = assertRelayContext(this.context.relay);
-      let fetchVariables = typeof variableProvider === 'function' ?
-        variableProvider(this._getFragmentVariables()) :
-        variableProvider;
+      let fetchVariables = typeof refetchVariables === 'function' ?
+        refetchVariables(this._getFragmentVariables()) :
+        refetchVariables;
       fetchVariables = {...rootVariables, ...fetchVariables};
-      const fragmentVariables = finalVariables ?
-        {...rootVariables, ...finalVariables} :
+      const fragmentVariables = renderVariables ?
+        {...rootVariables, ...renderVariables} :
         fetchVariables;
 
       const onNext = response => {

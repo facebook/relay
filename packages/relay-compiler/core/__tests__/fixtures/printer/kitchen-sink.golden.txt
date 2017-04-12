@@ -36,4 +36,7 @@ fragment UserFragment on User @argumentDefinitions(
     width
     src: uri
   }
+  storySearch(query: {type: DIRECTED}) {
+    id
+  }
 }

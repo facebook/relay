@@ -648,6 +648,7 @@ input StorySearchInput {
   text: String
   limit: Int
   offset: Int
+  type: StoryType
 }
 
 input StoryCommentSearchInput {
@@ -687,6 +688,11 @@ enum PersonalityTraits {
   DERISIVE
   HELPFUL
   SNARKY
+}
+
+enum StoryType {
+  DIRECTED
+  UNDIRECTED
 }
 
 type Settings {

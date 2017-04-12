@@ -38,6 +38,7 @@ const {
   isConnectionCall,
 } = require('RelayConnectionInterface');
 
+import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {
   Fragment,
   InlineFragment,
@@ -56,6 +57,10 @@ const {
 } = GraphQL;
 
 type Options = {
+  // The current path
+  path: Array<?string>,
+  // Metadata recorded for @connection fields
+  connectionMetadata: Array<ConnectionMetadata>,
   definitionName: ?string,
   generateRequisiteFields: boolean,
 };
@@ -86,6 +91,8 @@ function transform(
       Root: visitFragmentOrRoot,
     },
     () => ({
+      path: [],
+      connectionMetadata: [],
       definitionName: null,
       generateRequisiteFields,
     })
@@ -107,10 +114,22 @@ function transformSchema(schema: GraphQLSchema): GraphQLSchema {
  * @internal
  */
 function visitFragmentOrRoot<N: Fragment | Root>(node: N, options: Options): ?N {
-  return this.traverse(node, {
+  const passedOptions = {
     ...options,
     definitionName: node.name,
-  });
+  };
+  const transformedNode = this.traverse(node, passedOptions);
+  const connectionMetadata = passedOptions.connectionMetadata;
+  if (connectionMetadata.length) {
+    return {
+      ...transformedNode,
+      metadata: {
+        ...transformedNode.metadata,
+        connection: connectionMetadata,
+      },
+    };
+  }
+  return transformedNode;
 }
 
 /**
@@ -120,9 +139,13 @@ function visitLinkedField(
   field: LinkedField,
   options: Options
 ): LinkedField {
+  const isPlural =
+    RelaySchemaUtils.getNullableType(field.type) instanceof GraphQLList;
+  options.path.push(isPlural ? null : (field.alias || field.name));
   let transformedField = this.traverse(field, options);
   const connectionDirective = field.directives.find(directive => directive.name === CONNECTION);
   if (!connectionDirective) {
+    options.path.pop();
     return transformedField;
   }
   const {definitionName} = options;
@@ -133,6 +156,21 @@ function visitLinkedField(
   );
   validateConnectionSelection(definitionName, transformedField);
   validateConnectionType(definitionName, transformedField.type);
+
+  const pathHasPlural = options.path.includes(null);
+  const hasFirst = transformedField.args.some(arg => arg.name === FIRST);
+  const hasLast = transformedField.args.some(arg => arg.name === LAST);
+  let direction = null;
+  if (hasFirst && !hasLast) {
+    direction = 'forward';
+  } else if (hasLast && !hasFirst) {
+    direction = 'backward';
+  }
+  options.connectionMetadata.push({
+    path: pathHasPlural ? null : ([...options.path]: any),
+    direction,
+  });
+  options.path.pop();
 
   const {key, filters} = getRelayLiteralArgumentValues(connectionDirective.args);
   invariant(

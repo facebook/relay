@@ -51,3 +51,19 @@ query NodeQuery(
     }
   }
 }
+# Metadata:
+{
+  "connection": [
+    {
+      "path": null,
+      "direction": "forward"
+    },
+    {
+      "path": [
+        "node",
+        "comments"
+      ],
+      "direction": "forward"
+    }
+  ]
+}

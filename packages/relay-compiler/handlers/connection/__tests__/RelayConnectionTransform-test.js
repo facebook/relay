@@ -35,17 +35,25 @@ describe('RelayConnectionTransform', () => {
   });
 
   function transformerWithOptions(options) {
+    const prettyStringify = require('prettyStringify');
+
     return text => {
       try {
         const schema = RelayConnectionTransform.transformSchema(
-          RelayTestSchema
+          RelayTestSchema,
         );
         const {definitions} = parseGraphQLText(schema, text);
         let context = new RelayCompilerContext(schema).addAll(definitions);
         context = RelayConnectionTransform.transform(context, options);
-        return context.documents().map(
-          doc => RelayPrinter.print(doc)
-        ).join('\n');
+        return context
+          .documents()
+          .map(
+            doc =>
+              RelayPrinter.print(doc) +
+              '# Metadata:\n' +
+              prettyStringify(doc.metadata),
+          )
+          .join('\n');
       } catch (error) {
         return error.message;
       }
@@ -60,7 +68,7 @@ describe('RelayConnectionTransform', () => {
 
   it('transforms @connection fields with requisite fields', () => {
     expect(
-      'fixtures/connection-transform-generate-requisite-fields'
+      'fixtures/connection-transform-generate-requisite-fields',
     ).toMatchGolden(
       transformerWithOptions({
         generateRequisiteFields: true,

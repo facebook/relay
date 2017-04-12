@@ -139,7 +139,21 @@
   },
   "id": null,
   "kind": "Batch",
-  "metadata": {},
+  "metadata": {
+    "connection": [
+      {
+        "path": null,
+        "direction": "forward"
+      },
+      {
+        "path": [
+          "node",
+          "comments"
+        ],
+        "direction": "forward"
+      }
+    ]
+  },
   "name": "NodeQuery",
   "query": {
     "argumentDefinitions": [

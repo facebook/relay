@@ -37,6 +37,11 @@ import type {
 } from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
+export type ConnectionMetadata = {
+  path: ?Array<string>,
+  direction: ?('forward' | 'backward'),
+};
+
 const CONNECTION = 'connection';
 
 // Per-instance incrementing index used to generate unique edge IDs

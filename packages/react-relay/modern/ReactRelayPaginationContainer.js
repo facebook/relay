@@ -44,6 +44,7 @@ import type {
   Disposable,
   FragmentSpecResolver,
 } from 'RelayCombinedEnvironmentTypes';
+import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {PageInfo} from 'RelayConnectionInterface';
 import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 import type {
@@ -64,8 +65,8 @@ const containerContextTypes = {
 const FORWARD = 'forward';
 
 export type ConnectionConfig = {
-  direction: 'backward' | 'forward',
-  getConnectionFromProps: (props: Object) => ?ConnectionData,
+  direction?: 'backward' | 'forward',
+  getConnectionFromProps?: (props: Object) => ?ConnectionData,
   getFragmentVariables: (
     prevVars: Variables,
     totalCount: number,
@@ -212,6 +213,63 @@ export type ConnectionData = {
  *   typically reference one of the container's fragment (as in the example)
  *   to ensure that all the necessary fields for sub-components are fetched.
  */
+
+function createGetConnectionFromProps(metadata: ReactConnectionMetadata) {
+  const path = metadata.path;
+  invariant(
+    path,
+    'ReactRelayPaginationContainer: Unable to synthesize a ' +
+      'getConnectionFromProps function.',
+  );
+  return props => {
+    let data = props[metadata.fragmentName];
+    for (let i = 0; i < path.length; i++) {
+      if (!data || typeof data !== 'object') {
+        return null;
+      }
+      data = data[path[i]];
+    }
+    return data;
+  };
+}
+
+type ReactConnectionMetadata = ConnectionMetadata & {
+  fragmentName: string,
+};
+
+function findConnectionMetadata(fragments): ReactConnectionMetadata {
+  let foundConnectionMetadata = null;
+  for (const fragmentName in fragments) {
+    const fragment = fragments[fragmentName];
+    const connectionMetadata: ?Array<ConnectionMetadata> =
+      (fragment.metadata && fragment.metadata.connection: any);
+    if (connectionMetadata) {
+      invariant(
+        connectionMetadata.length === 1,
+        'ReactRelayPaginationContainer: Only a single @connection is ' +
+        'supported, `%s` has %s.',
+        fragmentName,
+        connectionMetadata.length,
+      );
+      invariant(
+        !foundConnectionMetadata,
+        'ReactRelayPaginationContainer: Only a single fragment with ' +
+        '@connection is supported.',
+      );
+      foundConnectionMetadata = {
+        ...connectionMetadata[0],
+        fragmentName,
+      };
+    }
+  }
+  invariant(
+    foundConnectionMetadata,
+    'ReactRelayPaginationContainer: A connection field should be marked ' +
+    'with the @connection directive.'
+  );
+  return foundConnectionMetadata;
+}
+
 function createContainerWithFragments<TDefaultProps, TProps>(
   Component: Class<React.Component<TDefaultProps, TProps, *>> | ReactClass<TProps>,
   fragments: FragmentMap,
@@ -220,6 +278,18 @@ function createContainerWithFragments<TDefaultProps, TProps>(
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
+
+  const metadata = findConnectionMetadata(fragments);
+
+  const getConnectionFromProps = connectionConfig.getConnectionFromProps ||
+    createGetConnectionFromProps(metadata);
+
+  const direction = connectionConfig.direction || metadata.direction;
+  invariant(
+    direction,
+    'ReactRelayPaginationContainer: Unable to infer direction of the ' +
+      'connection, possibly because both first and last are provided.',
+  );
 
   class Container extends React.Component {
     state: ContainerState;
@@ -346,7 +416,7 @@ function createContainerWithFragments<TDefaultProps, TProps>(
         ...this.props,
         ...this.state.data,
       };
-      const connectionData = connectionConfig.getConnectionFromProps(props);
+      const connectionData = getConnectionFromProps(props);
       if (connectionData == null) {
         return null;
       }
@@ -380,10 +450,10 @@ function createContainerWithFragments<TDefaultProps, TProps>(
         PAGE_INFO,
         pageInfo
       );
-      const hasMore = connectionConfig.direction === FORWARD ?
+      const hasMore = direction === FORWARD ?
         pageInfo[HAS_NEXT_PAGE] :
         pageInfo[HAS_PREV_PAGE];
-      const cursor = connectionConfig.direction === FORWARD ?
+      const cursor = direction === FORWARD ?
         pageInfo[END_CURSOR] :
         pageInfo[START_CURSOR];
       if (typeof hasMore !== 'boolean' || typeof cursor !== 'string') {
@@ -393,9 +463,9 @@ function createContainerWithFragments<TDefaultProps, TProps>(
           'Be sure to fetch %s (got `%s`) and %s (got `%s`).',
           PAGE_INFO,
           componentName,
-          connectionConfig.direction === FORWARD ? HAS_NEXT_PAGE : HAS_PREV_PAGE,
+          direction === FORWARD ? HAS_NEXT_PAGE : HAS_PREV_PAGE,
           hasMore,
-          connectionConfig.direction === FORWARD ? END_CURSOR : START_CURSOR,
+          direction === FORWARD ? END_CURSOR : START_CURSOR,
           cursor,
         );
         return null;

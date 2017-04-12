@@ -13,6 +13,7 @@
 'use strict';
 
 const React = require('React');
+const PropTypes = require('prop-types');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayPropTypes = require('RelayPropTypes');
 
@@ -38,7 +39,7 @@ class RelayMockRenderer extends React.Component {
   static childContextTypes = {
     relay: RelayPropTypes.ClassicRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
-    useFakeData: React.PropTypes.bool,
+    useFakeData: PropTypes.bool,
   };
 
   constructor() {

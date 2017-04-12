@@ -13,9 +13,10 @@
 import './RelayPlayground.css';
 import 'codemirror/mode/javascript/javascript';
 import React from 'react';
+import PropTypes from 'prop-types';
 import Codemirror from 'react-codemirror';
 import ReactDOM from 'react-dom';
-import Relay from 'react-relay'; window.Relay = Relay;
+import Relay from 'react-relay';window.Relay = Relay;
 import RelayLocalSchema from 'relay-local-schema';
 
 import babelRelayPlaygroundPlugin from './babelRelayPlaygroundPlugin';
@@ -28,8 +29,6 @@ import getBabelRelayPlugin from 'babel-relay-plugin';
 import {transform} from 'babel-core';
 import {introspectionQuery} from 'graphql/utilities';
 import {graphql} from 'graphql';
-
-const {PropTypes} = React;
 
 const CODE_EDITOR_OPTIONS = {
   extraKeys: {

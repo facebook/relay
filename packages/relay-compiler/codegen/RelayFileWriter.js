@@ -176,7 +176,10 @@ class RelayFileWriter {
         );
       }
 
-      outputDirectory.deleteExtraFiles();
+      // clean output directories
+      allOutputDirectories.forEach(dir => {
+        dir.deleteExtraFiles();
+      });
     } catch (error) {
       tRelayQL = Date.now();
       let details;

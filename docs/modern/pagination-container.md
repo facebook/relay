@@ -1,6 +1,6 @@
 # `PaginationContainer`
 
-`PaginationContainer` is designed to simplify the workflow of loading more items in a list -- in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on GraphQL server exposing connections in a standardized way. For detailed spec, please checkout [this](https://facebook.github.io/relay/graphql/connections.htm) page.
+`PaginationContainer` is designed to simplify the workflow of loading more items in a list -- in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://facebook.github.io/relay/graphql/connections.htm).
 
 `this.props.relay` exposes the following APIs:
 
@@ -14,12 +14,12 @@ type Disposable = {
 };
 
 /**
- * Check if there is more page to be loaded.
+ * Check if there is at least one more page.
  */
 hasMore: () => boolean,
 
 /**
- * Check if there is pending requests.
+ * Check if there are pending requests.
  */
 isLoading: () => boolean,
 
@@ -35,7 +35,7 @@ loadMore: (
 ) => ?Disposable,
 
 /**
- * Refetch all the items in the connection.
+ * Refetch the items in the connection.
  */
 refetchConnection:(
   totalCount: number,
@@ -44,7 +44,8 @@ refetchConnection:(
 ```
 
 ## `@connection` directive
-The pagination container expects the connection field to be annotated with `@connection(key: ...)` directive, where the `key` is expected to be a unique identifier under the parent field type `User`. A good practice could be '<ComponentName>_<fieldName | fieldAlias>'.
+
+The pagination container expects the connection field to be annotated with a `@connection(key: ...)` directive, where the `key` is expected to be a unique identifier under the parent field type `User`. A good practice could be `<ComponentName>_<fieldName | fieldAlias>`.
 
 ```javascript
 graphql`
@@ -90,9 +91,9 @@ class Feed extends React.Component {
     }
 
     this.props.relay.loadMore(
-      10, // Fetch the next 10 feeds
+      10, // Fetch the next 10 feed items
       e => {
-        console.log(e)
+        console.log(e);
       },
     );
   }

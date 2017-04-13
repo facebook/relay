@@ -18,6 +18,8 @@ const RelayCompiler = require('RelayCompiler');
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayValidator = require('RelayValidator');
 
+const invariant = require('invariant');
+const path = require('path');
 const writeFlowFile = require('./writeFlowFile');
 const writeRelayQLFile = require('./writeRelayQLFile');
 
@@ -38,10 +40,11 @@ type GenerateExtraFiles = (
 ) => void;
 
 export type WriterConfig = {
+  baseDir: string,
   buildCommand: string,
   compilerTransforms: CompilerTransforms,
   generateExtraFiles?: GenerateExtraFiles,
-  outputDir: string,
+  outputDir?: string,
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
   schemaTransforms: Array<SchemaTransform>,
@@ -93,6 +96,33 @@ class RelayFileWriter {
         }
       });
     });
+    const definitionDirectories = new Map();
+    const allOutputDirectories: Map<string, CodegenDirectory> = new Map();
+    const addCodegenDir = dirPath => {
+      const codegenDir = new CodegenDirectory(
+        dirPath,
+        {onlyValidate: this._onlyValidate},
+      );
+      allOutputDirectories.set(dirPath, codegenDir);
+      return codegenDir;
+    };
+
+    let configOutputDirectory;
+    if (this._config.outputDir) {
+      configOutputDirectory = addCodegenDir(this._config.outputDir);
+    } else {
+      this._documents.forEach((doc, filePath) => {
+        doc.definitions.forEach(def => {
+          if (isOperationDefinitionAST(def) && def.name) {
+            definitionDirectories.set(
+              def.name.value,
+              path.join(this._config.baseDir, path.dirname(filePath)),
+            );
+          }
+        });
+      });
+    }
+
     const definitions = ASTConvert.convertASTDocumentsWithBase(
       extendedSchema,
       this._baseDocuments.valueSeq().toArray(),
@@ -107,12 +137,26 @@ class RelayFileWriter {
       this._config.compilerTransforms,
     );
 
-    const outputDirectory = new CodegenDirectory(
-      this._config.outputDir,
-      {onlyValidate: this._onlyValidate},
-    );
-    const allOutputDirectories: Map<string, CodegenDirectory> = new Map();
-    allOutputDirectories.set(this._config.outputDir, outputDirectory);
+    const getGeneratedDirectory = definitionName => {
+      if (configOutputDirectory) {
+        return configOutputDirectory;
+      }
+      const definitionDir = definitionDirectories.get(definitionName);
+      invariant(
+        definitionDir,
+        'RelayFileWriter: Could not determine source directory for definition: %s',
+        definitionName,
+      );
+      const generatedPath = path.join(
+        definitionDir,
+        '__generated__',
+      );
+      let cachedDir = allOutputDirectories.get(generatedPath);
+      if (!cachedDir) {
+        cachedDir = addCodegenDir(generatedPath);
+      }
+      return cachedDir;
+    };
 
     const nodes = compiler.addDefinitions(definitions);
 
@@ -122,17 +166,6 @@ class RelayFileWriter {
     const tCompiled = Date.now();
 
     const onlyValidate = this._onlyValidate;
-    function getOutputDirectory(dir?: string): CodegenDirectory {
-      if (!dir) {
-        return outputDirectory;
-      }
-      let outputDir = allOutputDirectories.get(dir);
-      if (!outputDir) {
-        outputDir = new CodegenDirectory(dir, {onlyValidate});
-        allOutputDirectories.set(dir, outputDir);
-      }
-      return outputDir;
-    }
 
     const compiledDocuments: Array<GeneratedNode> = [];
     nodes.forEach(node => {
@@ -142,7 +175,7 @@ class RelayFileWriter {
       }
       if (node.kind === 'Fragment') {
         writeFlowFile(
-          outputDirectory,
+          getGeneratedDirectory(node.name),
           node,
           this._config.buildCommand,
           this._config.platform,
@@ -160,7 +193,7 @@ class RelayFileWriter {
     try {
       await Promise.all(compiledDocuments.map(async (generatedNode) => {
         await writeRelayQLFile(
-          outputDirectory,
+          getGeneratedDirectory(generatedNode.name),
           generatedNode,
           this._config.buildCommand,
           this.skipPersist ? null : this._config.persistQuery,
@@ -170,8 +203,23 @@ class RelayFileWriter {
       tRelayQL = Date.now();
 
       if (this._config.generateExtraFiles) {
+        const configDirectory = this._config.outputDir;
+        invariant(
+          configDirectory,
+          'RelayFileWriter: cannot generate extra files without specifying ' +
+          ' an outputDir in the config.'
+        );
+
         this._config.generateExtraFiles(
-          getOutputDirectory,
+          dir => {
+            const outputDirectory = dir || configDirectory;
+            let outputDir = allOutputDirectories.get(outputDirectory);
+            if (!outputDir) {
+              outputDir = new CodegenDirectory(outputDirectory, {onlyValidate});
+              allOutputDirectories.set(outputDirectory, outputDir);
+            }
+            return outputDir;
+          },
           transformedQueryContext,
         );
       }

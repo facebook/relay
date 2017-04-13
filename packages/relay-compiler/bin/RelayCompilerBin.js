@@ -36,27 +36,22 @@ import type {GraphQLSchema} from 'graphql';
 const argv = yargs
   .usage(
     'Create Relay generated files\n\n' +
-    '$0 --schema <path> --src <path> --out <path> [--watch]')
+    '$0 --schema <path> --src <path> [--watch]')
   .options({
     'schema': {
       describe: 'Path to schema.graphql',
       demandOption: true,
-      type: 'string'
+      type: 'string',
     },
     'src': {
       describe: 'Root directory of application code',
       demandOption: true,
-      type: 'string'
-    },
-    'out': {
-      describe: 'Directory to which generated code will be written',
-      demandOption: true,
-      type: 'string'
+      type: 'string',
     },
     'watch': {
       describe: 'If specified, watches files and regenerates on changes',
-      type: 'boolean'
-    }
+      type: 'boolean',
+    },
   })
   .help()
   .argv;
@@ -82,7 +77,6 @@ const WATCH_EXPRESSION = [
 /* eslint-disable no-console-disallow */
 
 async function run(options: {
-  out: string,
   schema: string,
   src: string,
   watch?: ?boolean,
@@ -107,10 +101,6 @@ Root files can include:
 Ensure that one such file exists in ${srcDir} or its parents.
     `.trim());
   }
-  const outputDir = path.resolve(process.cwd(), options.out);
-  if (!fs.existsSync(outputDir)) {
-    throw new Error(`--output path does not exist: ${outputDir}.`);
-  }
 
   const parserConfigs = {
     default: {
@@ -123,7 +113,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
   };
   const writerConfigs = {
     default: {
-      getWriter: getRelayFileWriter(outputDir),
+      getWriter: getRelayFileWriter(srcDir),
       parser: 'default',
     },
   };
@@ -141,7 +131,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
   }
 }
 
-function getRelayFileWriter(outputDir: string) {
+function getRelayFileWriter(baseDir: string) {
   return (onlyValidate, schema, documents, baseDocuments) => new RelayFileWriter({
     config: {
       buildCommand: SCRIPT_NAME,
@@ -151,7 +141,7 @@ function getRelayFileWriter(outputDir: string) {
         printTransforms,
         queryTransforms,
       },
-      outputDir,
+      baseDir,
       schemaTransforms,
     },
     onlyValidate,

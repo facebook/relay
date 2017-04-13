@@ -5,119 +5,35 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule createClassicNode
  */
 
 'use strict';
 
 const GraphQL = require('graphql');
 
-const DEFAULT_PROP_NAME = 'data';
-const GENERATED = './__generated__/';
+const getFragmentNameParts = require('./getFragmentNameParts');
 
-function compileGraphQLTag(t, path, state, ast) {
-  const isCompatMode = Boolean(state.opts && state.opts.compat);
-  const isHasteMode = Boolean(state.opts && state.opts.haste);
-
-  const mainDefinition = ast.definitions[0];
-
-  if (mainDefinition.kind === 'FragmentDefinition') {
-    const objPropName = getAssignedObjectPropertyName(t, path);
-    if (objPropName) {
-      if (ast.definitions.length !== 1) {
-        throw new Error(
-          'BabelPluginRelay: Expected exactly one fragment in the ' +
-          `graphql tag referenced by the property ${objPropName}.`
-        );
-      }
-      return replaceMemoized(
-        t,
-        path,
-        isCompatMode
-          ? createCompatFragmentConcreteNode(t, path, mainDefinition, isHasteMode)
-          : createModernConcreteNode(t, mainDefinition, isHasteMode)
-      );
-    }
-
-    const nodeMap = {};
-    for (const definition of ast.definitions) {
-      if (definition.kind !== 'FragmentDefinition') {
-        throw new Error(
-          'BabelPluginRelay: Expected only fragments within this ' +
-          'graphql tag.'
-        );
-      }
-
-      const [, propName] = getFragmentNameParts(definition.name.value);
-      nodeMap[propName] = isCompatMode
-        ? createCompatFragmentConcreteNode(t, path, definition, isHasteMode)
-        : createModernConcreteNode(t, definition, isHasteMode);
-    }
-    return replaceMemoized(t, path, createObject(t, nodeMap));
+/**
+ * Relay Classic transforms to inline generated content.
+ */
+function createClassicNode(t, path, graphqlDefinition) {
+  if (graphqlDefinition.kind === 'FragmentDefinition') {
+    return createFragmentConcreteNode(t, path, graphqlDefinition);
   }
 
-  if (mainDefinition.kind === 'OperationDefinition') {
-    if (ast.definitions.length !== 1) {
-      throw new Error(
-        'BabelPluginRelay: Expected exactly one operation ' +
-        '(query, mutation, or subscription) per graphql tag.'
-      );
-    }
-    return replaceMemoized(
-      t,
-      path,
-      isCompatMode
-        ? createCompatOperationConcreteNode(t, path, mainDefinition, isHasteMode)
-        : createModernConcreteNode(t, mainDefinition, isHasteMode)
-    );
+  if (graphqlDefinition.kind === 'OperationDefinition') {
+    return createOperationConcreteNode(t, path, graphqlDefinition);
   }
 
   throw new Error(
     'BabelPluginRelay: Expected a fragment, mutation, query, or ' +
-    'subscription, got `' + mainDefinition.kind + '`.'
+    'subscription, got `' + graphqlDefinition.kind + '`.'
   );
 }
 
-function replaceMemoized(t, path, ast) {
-  let topScope = path.scope;
-  while (topScope.parent) {
-    topScope = topScope.parent;
-  }
-
-  if (path.scope === topScope) {
-    path.replaceWith(ast);
-  } else {
-    const id = topScope.generateDeclaredUidIdentifier('graphql');
-    path.replaceWith(
-      t.logicalExpression('||', id, t.assignmentExpression('=', id, ast))
-    );
-  }
-}
-
-function getAssignedObjectPropertyName(t, path) {
-  let property = path;
-  while (property) {
-    if (t.isObjectProperty(property) && property.node.key.name) {
-      return property.node.key.name;
-    }
-    property = property.parentPath;
-  }
-}
-
-function createModernConcreteNode(t, definition, isHasteMode) {
-  const requiredFile = definition.name.value + '.graphql';
-  const requiredPath = isHasteMode ? requiredFile : GENERATED + requiredFile;
-  return t.functionExpression(
-    null,
-    [],
-    t.blockStatement([
-      t.returnStatement(
-        createRequireCall(t, requiredPath)
-      ),
-    ])
-  );
-}
-
-function createCompatFragmentConcreteNode(t, path, definition, isHasteMode) {
+function createFragmentConcreteNode(t, path, definition) {
   const {
     classicAST,
     fragments,
@@ -136,16 +52,10 @@ function createCompatFragmentConcreteNode(t, path, definition, isHasteMode) {
     node: createRelayQLTemplate(t, classicAST),
   });
 
-  return createCompatConcreteNode(
-    t,
-    definition,
-    transformedAST,
-    substitutions,
-    isHasteMode
-  );
+  return createConcreteNode(t, transformedAST, substitutions);
 }
 
-function createCompatOperationConcreteNode(t, path, definition, isHasteMode) {
+function createOperationConcreteNode(t, path, definition) {
   const {classicAST, fragments} = createClassicAST(t, definition);
   const substitutions = createSubstitutionsForFragmentSpreads(t, path, fragments);
   const nodeAST = classicAST.operation === 'query' ?
@@ -162,13 +72,7 @@ function createCompatOperationConcreteNode(t, path, definition, isHasteMode) {
     node: nodeAST,
   });
 
-  return createCompatConcreteNode(
-    t,
-    definition,
-    transformedAST,
-    substitutions,
-    isHasteMode
-  );
+  return createConcreteNode(t, transformedAST, substitutions);
 }
 
 function createClassicAST(t, definition) {
@@ -254,32 +158,23 @@ function createClassicAST(t, definition) {
   };
 }
 
-function createCompatConcreteNode(
-  t,
-  definition,
-  transformedAST,
-  substitutions,
-  isHasteMode
-) {
-  return createObject(t, {
-    modern: createModernConcreteNode(t, definition, isHasteMode),
-    classic: t.functionExpression(
-      null,
-      [],
-      t.blockStatement([
-        t.variableDeclaration(
-          'const',
-          [
-            t.variableDeclarator(
-              t.identifier('RelayQL_GENERATED'),
-              createRequireCall(t, 'RelayQL_GENERATED')
-            ),
-          ].concat(substitutions)
-        ),
-        t.returnStatement(transformedAST),
-      ])
-    ),
-  });
+function createConcreteNode(t, transformedAST, substitutions) {
+  return t.functionExpression(
+    null,
+    [],
+    t.blockStatement([
+      t.variableDeclaration(
+        'const',
+        [
+          t.variableDeclarator(
+            t.identifier('RelayQL_GENERATED'),
+            createRequireCall(t, 'RelayQL_GENERATED')
+          ),
+        ].concat(substitutions)
+      ),
+      t.returnStatement(transformedAST),
+    ])
+  );
 }
 
 function createOperationArguments(t, variableDefinitions) {
@@ -367,7 +262,7 @@ function convertArgument(t, argNode) {
   return {name, ast};
 }
 
-function createObject(t, obj) {
+function createObject(t, obj: any) {
   return t.objectExpression(
     Object.keys(obj).map(
       key => t.objectProperty(t.identifier(key), obj[key])
@@ -428,30 +323,6 @@ function createRelayQLTemplate(t, node) {
       []
     )
   );
-}
-
-function getFragmentNameParts(fragmentName) {
-  const match = fragmentName.match(
-    /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/
-  );
-  if (!match) {
-    throw new Error(
-      'BabelPluginGraphQL: Fragments should be named ' +
-      '`ModuleName_fragmentName`, got `' + fragmentName + '`.'
-    );
-  }
-  const module = match[1];
-  const propName = match[2];
-  if (propName === DEFAULT_PROP_NAME) {
-    throw new Error(
-      'BabelPluginGraphQL: Fragment `' + fragmentName + '` should not end in ' +
-      '`_data` to avoid conflict with a fragment named `' + module + '` ' +
-      'which also provides resulting data via the React prop `data`. Either ' +
-      'rename this fragment to `' + module + '` or choose a different ' +
-      'prop name.'
-    );
-  }
-  return [ module, propName || DEFAULT_PROP_NAME ];
 }
 
 function createSubstitutionsForFragmentSpreads(t, path, fragments) {
@@ -517,57 +388,4 @@ function isDefinedLocally(path, name) {
   return true;
 }
 
-/**
- * Given a babel AST path to a tagged template literal, return an AST if it is
- * a graphql`` or graphql.experimental`` literal being used in a valid way.
- * If it is some other type of template literal then return nothing.
- */
-function getValidGraphQLTag(path) {
-  const tag = path.get('tag');
-
-  const tagName =
-    tag.isIdentifier({name: 'graphql'}) ? 'graphql' :
-    tag.matchesPattern('graphql.experimental') ? 'graphql.experimental' :
-    undefined;
-
-  if (!tagName) {
-    return;
-  }
-
-  const quasis = path.node.quasi.quasis;
-
-  if (quasis.length !== 1) {
-    throw new Error(
-      'BabelPluginRelay: Substitutions are not allowed in ' +
-      'graphql fragments. Included fragments should be referenced ' +
-      'as `...MyModule_propName`.'
-    );
-  }
-
-  const text = quasis[0].value.raw;
-
-  // `graphql` only supports spec-compliant GraphQL: experimental extensions
-  // such as fragment arguments are disabled
-  if (tagName === 'graphql' && /@argument(Definition)?s\b/.test(text)) {
-    throw new Error(
-      'BabelPluginRelay: Unexpected use of fragment variables: ' +
-      '@arguments and @argumentDefinitions are only supported in ' +
-      'experimental mode. Source: ' + text
-    );
-  }
-
-  const ast = GraphQL.parse(text);
-
-  if (ast.definitions.length === 0) {
-    throw new Error(
-      'BabelPluginRelay: Unexpected empty graphql tag.'
-    );
-  }
-
-  return ast;
-}
-
-module.exports = {
-  getValidGraphQLTag,
-  compileGraphQLTag,
-};
+module.exports = createClassicNode;

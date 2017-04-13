@@ -11,10 +11,8 @@
 
 'use strict';
 
-const {
-  compileGraphQLTag,
-  getValidGraphQLTag,
-} = require('./GraphQLTagCompiler');
+const compileGraphQLTag = require('./compileGraphQLTag');
+const getValidGraphQLTag = require('./getValidGraphQLTag');
 
 /**
  * Using babel-plugin-relay with only the modern runtime?

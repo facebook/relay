@@ -1,10 +1,10 @@
-# Upgrading setVariables
+# Upgrading `setVariables`
 
-> Examples on how to migrate this.props.setVariables calls from the old API.
+> Examples on how to migrate `this.props.setVariables` calls from the old API.
 
-`this.props.setVariables` from the old API does not have a direct equivalent in the new API. A big reason for this change is that the new core no longer tracks how to refetch any specific sub-tree from the query. This makes the new core a lot faster, but requires explicit queries for how to fetch new data. For different scenarios.
+`this.props.setVariables` from the old API does not have a direct equivalent in the new API. A big reason for this change is that the new core no longer tracks how to refetch any specific sub-tree from the query. This makes the new core a lot faster, but requires explicit queries for how to fetch new data. Check out these four different scenarios:
 
-## initialVariables
+## `initialVariables`
 
 If the component doesn't actually use `setVariables()`, and just uses `initialVariables` to share values between JS and GraphQL, there are two alternative approaches:
 
@@ -30,7 +30,7 @@ Typical Relay Classic code:
       }
     }
 
-This should be upgraded to use a [PaginationContainer](pagination-container.md) which is described in [[relay/pagination]].
+This should be upgraded to use a [PaginationContainer](pagination-container.md).
 
 ## Changing Arguments
 
@@ -51,7 +51,7 @@ Typical old code:
       }
     }
 
-This can be upgraded by using a [Refetch Container](refetch-container.html) which allows you to specify the exact query to fetch the new data with.
+This can be upgraded by using a [Refetch Container](refetch-container.html) which allows you to specify the exact query to use to fetch the new data.
 
 ## Show More
 
@@ -72,6 +72,6 @@ Typical old code:
       }
     }
 
-This can be upgraded by conditionally rendering a `QueryRenderer` which will load the data once it is rendered. The code overhead of doing this is dramatically reduced with the new API.
+This can be upgraded by conditionally rendering a [`QueryRenderer`](QueryRenderer.html) which will load the data once it is rendered. The code overhead of doing this is dramatically reduced with the new API.
 
 Alternatively a [Refetch Container](refetch-container.html) can also be used.

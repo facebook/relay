@@ -14,18 +14,16 @@
 
 const SignedSource = require('signedsource');
 
-const printFlowTypes = require('printFlowTypes');
-
 import type CodegenDirectory from 'CodegenDirectory';
-import type {Fragment} from 'RelayIR';
 
 function writeFlowFile(
   outputDirectory: CodegenDirectory,
-  node: Fragment,
+  name: string,
+  flowTypes: string,
   buildCommand: string,
   platform?: ?string,
 ): void {
-  const moduleName = node.name + '.flow';
+  const moduleName = name + '.flow';
   const header = `/**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
@@ -40,16 +38,12 @@ function writeFlowFile(
 'use strict';
 
 `;
-  const types = printFlowTypes(node);
 
-  if (!types) {
-    throw new Error('No types generated for node: ' + node.name);
-  }
 
   const fileName = platform ? moduleName + '.' + platform : moduleName;
   outputDirectory.writeFile(
     fileName + '.js',
-    SignedSource.signFile(header + types + '\n')
+    SignedSource.signFile(header + flowTypes + '\n')
   );
 }
 

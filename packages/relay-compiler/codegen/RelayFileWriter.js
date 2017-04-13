@@ -20,6 +20,7 @@ const RelayValidator = require('RelayValidator');
 
 const invariant = require('invariant');
 const path = require('path');
+const printFlowTypes = require('printFlowTypes');
 const writeFlowFile = require('./writeFlowFile');
 const writeRelayQLFile = require('./writeRelayQLFile');
 
@@ -27,7 +28,6 @@ const {isOperationDefinitionAST} = require('RelaySchemaUtils');
 const {Map: ImmutableMap} = require('immutable');
 
 import type {CompilerTransforms} from 'RelayCompiler';
-import type {GeneratedNode} from 'RelayConcreteNode';
 import type {SchemaTransform} from 'RelayIRTransforms';
 import type {
   DocumentNode,
@@ -165,37 +165,34 @@ class RelayFileWriter {
 
     const tCompiled = Date.now();
 
-    const onlyValidate = this._onlyValidate;
-
-    const compiledDocuments: Array<GeneratedNode> = [];
-    nodes.forEach(node => {
-      if (baseDefinitionNames.has(node.name)) {
-        // don't add definitions that were part of base context
-        return;
-      }
-      if (node.kind === 'Fragment') {
-        writeFlowFile(
-          getGeneratedDirectory(node.name),
-          node,
-          this._config.buildCommand,
-          this._config.platform,
-        );
-      }
-      const compiledNode = compiledDocumentMap.get(node.name);
-      if (compiledNode) {
-        compiledDocuments.push(compiledNode);
-      }
-    });
-
-    const tFlow = Date.now();
-
     let tRelayQL;
     try {
-      await Promise.all(compiledDocuments.map(async (generatedNode) => {
+      await Promise.all(nodes.map(async (node) => {
+        if (baseDefinitionNames.has(node.name)) {
+          // don't add definitions that were part of base context
+          return;
+        }
+        const flowTypes = printFlowTypes(node);
+        if (node.kind === 'Fragment' && flowTypes) {
+          writeFlowFile(
+            getGeneratedDirectory(node.name),
+            node.name,
+            flowTypes,
+            this._config.buildCommand,
+            this._config.platform,
+          );
+        }
+        const compiledNode = compiledDocumentMap.get(node.name);
+        invariant(
+          compiledNode,
+          'RelayCompiler: did not compile definition: %s',
+          node.name,
+        );
         await writeRelayQLFile(
-          getGeneratedDirectory(generatedNode.name),
-          generatedNode,
+          getGeneratedDirectory(compiledNode.name),
+          compiledNode,
           this._config.buildCommand,
+          flowTypes,
           this.skipPersist ? null : this._config.persistQuery,
           this._config.platform,
         );
@@ -215,8 +212,7 @@ class RelayFileWriter {
             const outputDirectory = dir || configDirectory;
             let outputDir = allOutputDirectories.get(outputDirectory);
             if (!outputDir) {
-              outputDir = new CodegenDirectory(outputDirectory, {onlyValidate});
-              allOutputDirectories.set(outputDirectory, outputDir);
+              outputDir = addCodegenDir(outputDirectory);
             }
             return outputDir;
           },
@@ -245,11 +241,10 @@ class RelayFileWriter {
 
     const tExtra = Date.now();
     console.log(
-      'Writer time: %s [%s compiling, %s relay files, %s flow types, %s extra]',
+      'Writer time: %s [%s compiling, %s relay files, %s extra]',
       toSeconds(tStart, tExtra),
       toSeconds(tStart, tCompiled),
-      toSeconds(tCompiled, tFlow),
-      toSeconds(tFlow, tRelayQL),
+      toSeconds(tCompiled, tRelayQL),
       toSeconds(tRelayQL, tExtra),
     );
     return allOutputDirectories;

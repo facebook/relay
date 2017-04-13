@@ -43,6 +43,7 @@ type Annotation = Object;
  */
 function printFlowTypes(node: Root | Fragment): ?string {
   if (node.kind === 'Root') {
+    // for now, only fragments and mutations have flow types
     if (node.operation === 'mutation') {
       const selection = node.selections[0];
       if (selection.kind === 'LinkedField') {

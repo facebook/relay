@@ -282,12 +282,8 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
       };
     }
   }
-  invariant(
-    foundConnectionMetadata,
-    'ReactRelayPaginationContainer: A connection field should be marked ' +
-    'with the @connection directive.'
-  );
-  return foundConnectionMetadata;
+  // TODO(t17350438) for modern, this should be an invariant.
+  return foundConnectionMetadata || ({}: any);
 }
 
 function createContainerWithFragments<TDefaultProps, TProps>(

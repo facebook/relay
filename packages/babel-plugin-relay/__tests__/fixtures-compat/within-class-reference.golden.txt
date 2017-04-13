@@ -23,7 +23,7 @@ class CompatStory extends React.Component {
   doSomething() {
     commitMutation(this.props.relay, _graphql || (_graphql = {
       modern: function () {
-        return require('LikeStory.graphql');
+        return require('./__generated__/LikeStory.graphql');
       },
       classic: function () {
         const RelayQL_GENERATED = require('RelayQL_GENERATED'),
@@ -52,7 +52,7 @@ class CompatStory extends React.Component {
 module.exports = createFragmentContainer(CompatStory, {
   story: {
     modern: function () {
-      return require('CompatStory_story.graphql');
+      return require('./__generated__/CompatStory_story.graphql');
     },
     classic: function () {
       const RelayQL_GENERATED = require('RelayQL_GENERATED'),

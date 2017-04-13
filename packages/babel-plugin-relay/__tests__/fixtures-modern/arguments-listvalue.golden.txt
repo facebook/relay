@@ -13,6 +13,6 @@ const CompatProfile = () => null;
 
 module.exports = Relay.createFragmentContainer(CompatProfile, {
   viewer: function () {
-    return require('CompatProfile_viewer.graphql');
+    return require('./__generated__/CompatProfile_viewer.graphql');
   }
 });

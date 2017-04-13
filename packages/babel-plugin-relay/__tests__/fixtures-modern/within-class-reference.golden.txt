@@ -22,13 +22,13 @@ class CompatStory extends React.Component {
 
   doSomething() {
     commitMutation(this.props.relay, _graphql || (_graphql = function () {
-      return require('LikeStory.graphql');
+      return require('./__generated__/LikeStory.graphql');
     }), { id: 123 });
   }
 }
 
 module.exports = createFragmentContainer(CompatStory, {
   story: function () {
-    return require('CompatStory_story.graphql');
+    return require('./__generated__/CompatStory_story.graphql');
   }
 });

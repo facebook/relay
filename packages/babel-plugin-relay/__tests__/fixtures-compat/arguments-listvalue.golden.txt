@@ -14,7 +14,7 @@ const CompatProfile = () => null;
 module.exports = Relay.createFragmentContainer(CompatProfile, {
   viewer: {
     modern: function () {
-      return require('CompatProfile_viewer.graphql');
+      return require('./__generated__/CompatProfile_viewer.graphql');
     },
     classic: function () {
       const RelayQL_GENERATED = require('RelayQL_GENERATED');

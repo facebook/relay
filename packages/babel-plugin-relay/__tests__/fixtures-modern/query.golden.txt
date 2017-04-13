@@ -10,5 +10,5 @@ const graphql = require('graphql');
 const CompatProfilePic = require('CompatProfilePic');
 
 const CompatViewerQuery = function () {
-  return require('CompatViewerQuery.graphql');
+  return require('./__generated__/CompatViewerQuery.graphql');
 };

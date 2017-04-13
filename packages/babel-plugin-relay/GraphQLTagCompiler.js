@@ -12,9 +12,11 @@
 const GraphQL = require('graphql');
 
 const DEFAULT_PROP_NAME = 'data';
+const GENERATED = './__generated__/';
 
 function compileGraphQLTag(t, path, state, ast) {
   const isCompatMode = Boolean(state.opts && state.opts.compat);
+  const isHasteMode = Boolean(state.opts && state.opts.haste);
 
   const mainDefinition = ast.definitions[0];
 
@@ -31,8 +33,8 @@ function compileGraphQLTag(t, path, state, ast) {
         t,
         path,
         isCompatMode
-          ? createCompatFragmentConcreteNode(t, path, mainDefinition)
-          : createModernConcreteNode(t, mainDefinition)
+          ? createCompatFragmentConcreteNode(t, path, mainDefinition, isHasteMode)
+          : createModernConcreteNode(t, mainDefinition, isHasteMode)
       );
     }
 
@@ -47,8 +49,8 @@ function compileGraphQLTag(t, path, state, ast) {
 
       const [, propName] = getFragmentNameParts(definition.name.value);
       nodeMap[propName] = isCompatMode
-        ? createCompatFragmentConcreteNode(t, path, definition)
-        : createModernConcreteNode(t, definition);
+        ? createCompatFragmentConcreteNode(t, path, definition, isHasteMode)
+        : createModernConcreteNode(t, definition, isHasteMode);
     }
     return replaceMemoized(t, path, createObject(t, nodeMap));
   }
@@ -64,8 +66,8 @@ function compileGraphQLTag(t, path, state, ast) {
       t,
       path,
       isCompatMode
-        ? createCompatOperationConcreteNode(t, path, mainDefinition)
-        : createModernConcreteNode(t, mainDefinition)
+        ? createCompatOperationConcreteNode(t, path, mainDefinition, isHasteMode)
+        : createModernConcreteNode(t, mainDefinition, isHasteMode)
     );
   }
 
@@ -101,19 +103,21 @@ function getAssignedObjectPropertyName(t, path) {
   }
 }
 
-function createModernConcreteNode(t, definition) {
+function createModernConcreteNode(t, definition, isHasteMode) {
+  const requiredFile = definition.name.value + '.graphql';
+  const requiredPath = isHasteMode ? requiredFile : GENERATED + requiredFile;
   return t.functionExpression(
     null,
     [],
     t.blockStatement([
       t.returnStatement(
-        createRequireCall(t, definition.name.value + '.graphql')
+        createRequireCall(t, requiredPath)
       ),
     ])
   );
 }
 
-function createCompatFragmentConcreteNode(t, path, definition) {
+function createCompatFragmentConcreteNode(t, path, definition, isHasteMode) {
   const {
     classicAST,
     fragments,
@@ -136,11 +140,12 @@ function createCompatFragmentConcreteNode(t, path, definition) {
     t,
     definition,
     transformedAST,
-    substitutions
+    substitutions,
+    isHasteMode
   );
 }
 
-function createCompatOperationConcreteNode(t, path, definition) {
+function createCompatOperationConcreteNode(t, path, definition, isHasteMode) {
   const {classicAST, fragments} = createClassicAST(t, definition);
   const substitutions = createSubstitutionsForFragmentSpreads(t, path, fragments);
   const nodeAST = classicAST.operation === 'query' ?
@@ -161,7 +166,8 @@ function createCompatOperationConcreteNode(t, path, definition) {
     t,
     definition,
     transformedAST,
-    substitutions
+    substitutions,
+    isHasteMode
   );
 }
 
@@ -248,9 +254,15 @@ function createClassicAST(t, definition) {
   };
 }
 
-function createCompatConcreteNode(t, definition, transformedAST, substitutions) {
+function createCompatConcreteNode(
+  t,
+  definition,
+  transformedAST,
+  substitutions,
+  isHasteMode
+) {
   return createObject(t, {
-    modern: createModernConcreteNode(t, definition),
+    modern: createModernConcreteNode(t, definition, isHasteMode),
     classic: t.functionExpression(
       null,
       [],
@@ -363,10 +375,10 @@ function createObject(t, obj) {
   );
 }
 
-function createRequireCall(t, moduleName) {
+function createRequireCall(t, requiredPath) {
   return t.callExpression(
     t.identifier('require'),
-    [t.stringLiteral(moduleName)]
+    [t.stringLiteral(requiredPath)]
   );
 }
 

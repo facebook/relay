@@ -16,7 +16,7 @@ function SomeTopLevelView() {
   return <View>
       <QueryRenderer environment={RelayStore} query={_graphql2 || (_graphql2 = {
       modern: function () {
-        return require('ExampleQuery.graphql');
+        return require('./__generated__/ExampleQuery.graphql');
       },
       classic: function () {
         const RelayQL_GENERATED = require('RelayQL_GENERATED'),

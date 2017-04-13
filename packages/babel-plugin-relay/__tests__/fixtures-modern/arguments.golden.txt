@@ -13,12 +13,12 @@ const CompatProfilePic = () => null;
 
 module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
   passing: function () {
-    return require('CompatProfile_passing.graphql');
+    return require('./__generated__/CompatProfile_passing.graphql');
   },
   receiving: function () {
-    return require('CompatProfile_receiving.graphql');
+    return require('./__generated__/CompatProfile_receiving.graphql');
   },
   receivingGlobals: function () {
-    return require('CompatProfile_receivingGlobals.graphql');
+    return require('./__generated__/CompatProfile_receivingGlobals.graphql');
   }
 });

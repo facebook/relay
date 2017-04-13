@@ -15,7 +15,7 @@ function SomeTopLevelView() {
 
   return <View>
       <QueryRenderer environment={RelayStore} query={_graphql2 || (_graphql2 = function () {
-      return require('ExampleQuery.graphql');
+      return require('./__generated__/ExampleQuery.graphql');
     })} variables={{ id: '12345' }} />
     </View>;
 }

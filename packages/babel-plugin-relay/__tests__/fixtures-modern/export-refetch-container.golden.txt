@@ -15,8 +15,8 @@ class RefetchExample extends React.Component {
 
 module.exports = createRefetchContainer(RefetchExample, {
   user: function () {
-    return require('RefetchExample_user.graphql');
+    return require('./__generated__/RefetchExample_user.graphql');
   }
 }, function () {
-  return require('RefetchExampleRefetchQuery.graphql');
+  return require('./__generated__/RefetchExampleRefetchQuery.graphql');
 });

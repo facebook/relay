@@ -13,9 +13,9 @@ const CompatProfile = () => null;
 
 module.exports = RelayCompatContainer.createContainer(CompatProfile, {
   data: function () {
-    return require('CompatProfile.graphql');
+    return require('./__generated__/CompatProfile.graphql');
   },
   viewer: function () {
-    return require('CompatProfile_viewer.graphql');
+    return require('./__generated__/CompatProfile_viewer.graphql');
   }
 });

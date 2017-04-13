@@ -1,0 +1,43 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatStory
+ */
+
+'use strict';
+
+const {createFragmentContainer, graphql} = require('Relay');
+const React = require('React');
+const CompatProfilePic = require('CompatProfilePic');
+
+class CompatStory extends React.Component {
+  render() {
+    return <div>
+      <CompatProfilePic user={this.props.story.actor} />
+      {this.props.story.message}
+    </div>;
+  }
+
+  doSomething() {
+    commitMutation(
+      this.props.relay,
+      graphql`
+        mutation LikeStory($id: ID!) {
+          likeStory(id: $id) {
+            ...CompatStory_story
+          }
+        }
+      `,
+      { id: 123 }
+    )
+  }
+}
+
+module.exports = createFragmentContainer(CompatStory, graphql`
+  fragment CompatStory_story on Story {
+    message
+    actor {
+      ...CompatProfilePic_user
+    }
+  }
+`);

@@ -54,4 +54,37 @@ describe('BabelPluginRelay', () => {
       }
     });
   });
+
+  it('transforms source for modern core when using haste', () => {
+    expect('fixtures-modern-haste').toMatchGolden(text => {
+      try {
+        return babel.transform(text, {
+          plugins: [
+            [BabelPluginRelay, {haste: true}],
+          ],
+          compact: false,
+          parserOpts: {plugins: ['jsx']},
+        }).code;
+      } catch (e) {
+        return 'ERROR:\n\n' + e;
+      }
+    });
+  });
+
+  it('transforms source for compatability mode when using haste', () => {
+    expect('fixtures-compat-haste').toMatchGolden(text => {
+      try {
+        return babel.transform(text, {
+          plugins: [
+            [BabelPluginRelay, {compat: true, haste: true}],
+          ],
+          compact: false,
+          parserOpts: {plugins: ['jsx']},
+        }).code;
+      } catch (e) {
+        return 'ERROR:\n\n' + e;
+      }
+    });
+  });
+
 });

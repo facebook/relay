@@ -12,12 +12,14 @@
 
 'use strict';
 
+const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayCore = require('RelayCore');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayNetwork = require('RelayNetwork');
 const RelayStaticEnvironment = require('RelayStaticEnvironment');
 const RelayStaticGraphQLTag = require('RelayStaticGraphQLTag');
+const RelayViewerHandler = require('RelayViewerHandler');
 
 const commitLocalUpdate = require('commitLocalUpdate');
 const commitRelayStaticMutation = require('commitRelayStaticMutation');
@@ -46,6 +48,10 @@ module.exports = {
   getSelectorsFromObject: RelayCore.getSelectorsFromObject,
   getVariablesFromObject: RelayCore.getVariablesFromObject,
   graphql: RelayStaticGraphQLTag.graphql,
+
+  // Extensions
+  ConnectionHandler: RelayConnectionHandler,
+  ViewerHandler: RelayViewerHandler,
 
   // Helpers (can be implemented via the above API)
   commitLocalUpdate: commitLocalUpdate,

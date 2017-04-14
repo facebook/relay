@@ -63,17 +63,18 @@ const babelOptions = require('./scripts/getBabelOptions')({
   ],
 });
 const del = require('del');
-const derequire = require('gulp-derequire');
 const es = require('event-stream');
 const flatten = require('gulp-flatten');
 const fs = require('fs');
 const gulp = require('gulp');
-const chmod = require('gulp-chmod');
 const gulpUtil = require('gulp-util');
-const header = require('gulp-header');
 const path = require('path');
 const runSequence = require('run-sequence');
-const webpackStream = require('webpack-stream');
+const rollup = require('rollup');
+const commonjs = require('rollup-plugin-commonjs');
+const enhancedResolve = require('enhanced-resolve');
+const uglify = require('rollup-plugin-uglify');
+const replace = require('rollup-plugin-replace');
 
 const SCRIPT_HASHBANG = '#!/usr/bin/env node\n';
 const DEVELOPMENT_HEADER = [
@@ -95,51 +96,86 @@ const PRODUCTION_HEADER = [
   ' */',
 ].join('\n') + '\n';
 
-const buildDist = function(filename, opts, isProduction) {
-  const webpackOpts = {
-    debug: !isProduction,
-    externals: [/^[-/a-zA-Z0-9]+$/],
-    target: opts.target,
-    node: {
-      fs: 'empty',
-      net: 'empty',
-      path: 'empty',
-      child_process: 'empty',
-      util: 'empty',
+const isExternalModule = function(id, externals) {
+  return !!externals.some(e => id.split('/')[0] === e);
+};
+
+const buildDist = function(opts) {
+  const {
+    entry,
+    dest,
+    format,
+    moduleName,
+    isProduction,
+    noMinify,
+    globals,
+    banner,
+    externals
+  } = opts;
+  const plugins = [
+    {
+      resolveId: (importee, importer) => {
+        if (!importer) {
+          // don't handle entry
+          return null;
+        }
+
+        if (importee.startsWith('\0')) {
+          // from commonjs plugin
+          return null;
+        }
+
+        if (isExternalModule(importee, externals)) {
+          // external, do not resolve
+          return null;
+        }
+
+        // resolve using node resolve algorithm
+        const resolver = enhancedResolve.create.sync({
+          mainFields: format === 'umd' ? ['browser', 'main'] : ['main'],
+          aliasFields: format === 'umd' ? ['browser'] : []
+        });
+
+        return resolver(path.dirname(importer), importee);
+      }
     },
-    output: {
-      filename: filename,
-      libraryTarget: opts.libraryTarget,
-      library: opts.libraryName,
-    },
-    plugins: [
-      new webpackStream.webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(
-          isProduction ? 'production' : 'development'
-        ),
-      }),
-      new webpackStream.webpack.optimize.OccurenceOrderPlugin(),
-      new webpackStream.webpack.optimize.DedupePlugin(),
-    ],
-  };
-  if (isProduction && !opts.noMinify) {
-    webpackOpts.plugins.push(
-      new webpackStream.webpack.optimize.UglifyJsPlugin({
+    replace({
+      'process.env.NODE_ENV': isProduction ?
+        JSON.stringify('production') :
+        JSON.stringify('development')
+    }),
+    commonjs(),
+  ];
+
+  if (isProduction && !noMinify) {
+    plugins.push(
+      uglify({
         compress: {
           hoist_vars: true,
           screw_ie8: true,
           warnings: false,
-        },
+        }
       })
-    );
+    )
   }
-  return webpackStream(webpackOpts, null, function(err, stats) {
-    if (err) {
-      throw new gulpUtil.PluginError('webpack', err);
+
+  return rollup.rollup({
+    entry,
+    plugins,
+    external: (id) => {
+      // console.log('module', id);
+      return isExternalModule(id, externals);
     }
-    if (stats.compilation.errors.length) {
-      throw new gulpUtil.PluginError('webpack', stats.toString());
-    }
+  }).then(function (b) {
+    b.write({
+      banner,
+      format,
+      moduleName,
+      dest,
+      globals
+    });
+  }).catch(e => {
+    throw new gulpUtil.PluginError('rollup', e.toString())
   });
 };
 
@@ -150,82 +186,224 @@ const DIST = 'dist';
 const builds = [
   {
     package: 'babel-plugin-relay',
-    exports: {
-      index: 'BabelPluginRelay.js',
-    },
     bundles: [
       {
+        export: 'index',
         entry: 'BabelPluginRelay.js',
         output: 'babel-plugin-relay',
-        libraryName: 'BabelPluginRelay',
-        libraryTarget: 'commonjs2',
+        moduleName: 'BabelPluginRelay',
+        format: 'cjs',
         target: 'node',
+        externals: [
+          'fs',
+          'util',
+          'graphql'
+        ],
       },
     ],
   },
   {
     package: 'react-relay',
-    exports: {
-      classic: 'ReactRelayClassicExports.js',
-      compat: 'ReactRelayCompatPublic.js',
-      index: 'ReactRelayPublic.js',
-    },
     bundles: [
       {
         entry: 'ReactRelayClassicExports.js',
         output: 'react-relay-classic',
-        libraryName: 'ReactRelayClassic',
-        libraryTarget: 'umd',
+        export: 'classic',
+        moduleName: 'ReactRelayClassic',
+        format: 'umd',
+        globals: {
+          'promise': 'Promise',
+          'isomorphic-fetch': 'fetch',
+          'react': 'React',
+          'react-dom': 'ReactDOM',
+          'relay-runtime': 'RelayRuntime'
+        },
+        externals: [
+          'promise',
+          'isomorphic-fetch',
+          'react',
+          'react-dom',
+          'relay-runtime',
+        ],
       },
       {
         entry: 'ReactRelayCompatPublic.js',
         output: 'react-relay-compat',
-        libraryName: 'ReactRelayCompat',
-        libraryTarget: 'umd',
+        export: 'compat',
+        moduleName: 'ReactRelayCompat',
+        format: 'umd',
+        globals: {
+          'promise': 'Promise',
+          'isomorphic-fetch': 'fetch',
+          'react': 'React',
+          'react-dom': 'ReactDOM',
+          'relay-runtime': 'RelayRuntime'
+        },
+        externals: [
+          'promise',
+          'isomorphic-fetch',
+          'react',
+          'react-dom',
+          'relay-runtime',
+        ],
       },
       {
         entry: 'ReactRelayPublic.js',
         output: 'react-relay',
-        libraryName: 'ReactRelay',
-        libraryTarget: 'umd',
+        export: 'index',
+        moduleName: 'ReactRelay',
+        format: 'umd',
+        globals: {
+          'promise': 'Promise',
+          'isomorphic-fetch': 'fetch',
+          'react': 'React',
+          'react-dom': 'ReactDOM',
+          'relay-runtime': 'RelayRuntime'
+        },
+        externals: [
+          'promise',
+          'isomorphic-fetch',
+          'react',
+          'react-dom',
+          'relay-runtime',
+        ],
+      },
+      {
+        entry: 'ReactRelayClassicExports.js',
+        output: 'react-relay-classic',
+        export: 'classic',
+        moduleName: 'ReactRelayClassic',
+        format: 'cjs',
+        externals: [
+          'babel-runtime',
+          'fbjs',
+          'prop-types',
+          'react',
+          'react-dom',
+          'react-static-container',
+          'relay-runtime',
+        ],
+      },
+      {
+        entry: 'ReactRelayCompatPublic.js',
+        output: 'react-relay-compat',
+        export: 'compat',
+        moduleName: 'ReactRelayCompat',
+        format: 'cjs',
+        externals: [
+          'babel-runtime',
+          'fbjs',
+          'prop-types',
+          'react',
+          'react-dom',
+          'react-static-container',
+          'relay-runtime',
+        ],
+      },
+      {
+        entry: 'ReactRelayPublic.js',
+        output: 'react-relay',
+        export: 'index',
+        moduleName: 'ReactRelay',
+        format: 'cjs',
+        externals: [
+          'babel-runtime',
+          'fbjs',
+          'prop-types',
+          'react',
+          'react-dom',
+          'react-static-container',
+          'relay-runtime',
+        ],
       },
     ],
   },
   {
     package: 'relay-compiler',
-    exports: {
-      index: 'RelayCompilerPublic.js',
-    },
     bundles: [
       {
+        export: 'index',
         entry: 'RelayCompilerPublic.js',
         output: 'relay-compiler',
-        libraryName: 'RelayCompiler',
-        libraryTarget: 'commonjs2',
+        moduleName: 'RelayCompiler',
+        format: 'cjs',
         target: 'node',
         noMinify: true, // Note: uglify can't yet handle modern JS
+        externals: [
+          'babel-generator',
+          'babel-runtime',
+          'babel-traverse',
+          'babel-types',
+          'babylon',
+          'crypto',
+          'fb-watchman',
+          'fbjs',
+          'fs',
+          'graphql',
+          'immutable',
+          'path',
+          'relay-runtime',
+          'signedsource',
+          'util',
+          'yargs',
+        ],
       },
     ],
     bins: [
       {
         entry: 'RelayCompilerBin.js',
         output: 'relay-compiler',
-        libraryTarget: 'commonjs2',
+        format: 'cjs',
         target: 'node',
+        externals: [
+          'babel-generator',
+          'babel-runtime',
+          'babel-traverse',
+          'babel-types',
+          'babylon',
+          'crypto',
+          'fb-watchman',
+          'fbjs',
+          'fs',
+          'graphql',
+          'immutable',
+          'path',
+          'relay-runtime',
+          'signedsource',
+          'util',
+          'yargs',
+        ],
       },
     ],
   },
   {
     package: 'relay-runtime',
-    exports: {
-      index: 'RelayRuntime.js',
-    },
     bundles: [
       {
+        export: 'index',
         entry: 'RelayRuntime.js',
         output: 'relay-runtime',
-        libraryName: 'RelayRuntime',
-        libraryTarget: 'umd',
+        moduleName: 'RelayRuntime',
+        format: 'umd',
+        globals: {
+          'promise': 'Promise',
+          'isomorphic-fetch': 'fetch'
+        },
+        externals: [
+          'promise',
+          'isomorphic-fetch'
+        ],
+      },
+      {
+        export: 'index',
+        entry: 'RelayRuntime.js',
+        output: 'relay-runtime',
+        moduleName: 'RelayRuntime',
+        format: 'cjs',
+        externals: [
+          'babel-runtime',
+          'fbjs'
+        ],
       },
     ],
   },
@@ -267,11 +445,15 @@ gulp.task('copy-files', function() {
 
 gulp.task('exports', ['copy-files', 'modules'], function() {
   builds.map(build =>
-    Object.keys(build.exports).map(exportName =>
+    build.bundles.map(bundle =>
       fs.writeFileSync(
-        path.join(DIST, build.package, exportName + '.js'),
+        path.join(DIST, build.package, bundle.export + '.js'),
         PRODUCTION_HEADER +
-        `\nmodule.exports = require('./lib/${build.exports[exportName]}');`
+        `\nif (process.env.NODE_ENV === 'production') {` +
+        `\n  module.exports = require('./cjs/${bundle.output}.production.min.js')` +
+        `\n} else {` +
+        `\n  module.exports = require('./cjs/${bundle.output}.development.js');` +
+        `\n}`
       )
     )
   );
@@ -279,38 +461,79 @@ gulp.task('exports', ['copy-files', 'modules'], function() {
 
 gulp.task('bins', ['modules'], function() {
   const buildsWithBins = builds.filter(build => build.bins);
-  return es.merge(buildsWithBins.map(build =>
-    es.merge(build.bins.map(bin =>
-      gulp.src(path.join(DIST, build.package, 'lib', bin.entry))
-        .pipe(buildDist(bin.output, bin, /* isProduction */ false))
-        .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
-        .pipe(chmod(0o755))
-        .pipe(gulp.dest(path.join(DIST, build.package, 'bin')))
-    ))
-  ));
+  buildsWithBins.map(build =>
+    Promise.all(
+      build.bins.map(bin => {
+        const dest = `./dist/${build.package}/bin/${bin.output}`;
+        return buildDist({
+          entry: path.resolve(__dirname, DIST, build.package, 'lib', bin.entry),
+          dest,
+          banner: SCRIPT_HASHBANG + PRODUCTION_HEADER,
+          noMinify: bin.noMinify,
+          format: bin.format,
+          moduleName: bin.moduleName,
+          externals: bin.externals,
+          isProduction: false
+        }).then(() =>
+          fs.chmodSync(dest, 0o755)
+        )
+      })
+    )
+  );
 });
 
-gulp.task('bundles', ['modules'], function() {
-  return es.merge(builds.map(build =>
-    es.merge(build.bundles.map(bundle =>
-      gulp.src(path.join(DIST, build.package, 'lib', bundle.entry))
-        .pipe(buildDist(bundle.output + '.js', bundle, /* isProduction */ false))
-        .pipe(derequire())
-        .pipe(header(DEVELOPMENT_HEADER))
-        .pipe(gulp.dest(path.join(DIST, build.package)))
-    ))
-  ));
+gulp.task('bundles:dev', ['modules'], function() {
+  return Promise.all(
+    builds.map(build =>
+      Promise.all(
+        build.bundles.map(bundle =>
+          buildDist({
+            entry: path.resolve(__dirname, DIST, build.package, 'lib', bundle.entry),
+            dest: `./dist/${build.package}/${bundle.format}/${bundle.output}.development.js`,
+            banner: DEVELOPMENT_HEADER,
+            noMinify: bundle.noMinify,
+            format: bundle.format,
+            moduleName: bundle.moduleName,
+            externals: bundle.externals,
+            globals: bundle.globals,
+            isProduction: false
+          })
+        )
+      )
+    )
+  );
 });
 
-gulp.task('bundles:min', ['modules'], function() {
-  return es.merge(builds.map(build =>
-    es.merge(build.bundles.map(bundle =>
-      gulp.src(path.join(DIST, build.package, 'lib', bundle.entry))
-        .pipe(buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true))
-        .pipe(header(PRODUCTION_HEADER))
-        .pipe(gulp.dest(path.join(DIST, build.package)))
-    ))
-  ));
+gulp.task('bundles:prod', ['modules'], function() {
+  return Promise.all(
+    builds.map(build =>
+      Promise.all(
+        build.bundles.map(bundle =>
+          buildDist({
+            entry: path.resolve(__dirname, DIST, build.package, 'lib', bundle.entry),
+            dest: `./dist/${build.package}/${bundle.format}/${bundle.output}.production.min.js`,
+            banner: PRODUCTION_HEADER,
+            noMinify: bundle.noMinify,
+            format: bundle.format,
+            moduleName: bundle.moduleName,
+            externals: bundle.externals,
+            globals: bundle.globals,
+            isProduction: true
+          })
+        )
+      )
+    )
+  );
+});
+
+gulp.task('bundles', ['bundles:prod', 'bundles:dev']);
+
+gulp.task('cleanup', function() {
+  return Promise.all(
+    builds.map(build =>
+      del(path.resolve(__dirname, DIST, build.package, 'lib'))
+    )
+  );
 });
 
 gulp.task('watch', function() {
@@ -318,5 +541,5 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', function(cb) {
-  runSequence('clean', ['exports', 'bins', 'bundles', 'bundles:min'], cb);
+  runSequence('clean', ['exports', 'bins', 'bundles'], 'cleanup', cb);
 });

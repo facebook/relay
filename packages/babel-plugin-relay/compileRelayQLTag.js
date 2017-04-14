@@ -27,14 +27,10 @@ function compileRelayQLTag(
   documentName,
   propName,
   tagName,
-  state,
-  options
+  state
 ) {
   try {
-    const transformer = getClassicTransformer(
-      schemaProvider,
-      options || state.opts || {}
-    );
+    const transformer = getClassicTransformer(schemaProvider, state.opts || {});
     return transformer.transform(t, quasi, {
       documentName,
       propName,
@@ -42,7 +38,7 @@ function compileRelayQLTag(
       enableValidation: tagName !== RELAY_QL_GENERATED,
     });
   } catch (error) {
-    return createTransformError(t, error, quasi, state, options);
+    return createTransformError(t, error, quasi, state);
   }
 }
 

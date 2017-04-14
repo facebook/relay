@@ -20,9 +20,9 @@ const util = require('util');
  * In case of an error during transform, determine if it should be logged
  * to the console and/or printed in the source.
  */
-function createTransformError(t, error, quasi, state, extraOpts = {}) {
+function createTransformError(t, error, quasi, state) {
   const opts = state.opts || {};
-  const warning = opts.suppressWarnings || extraOpts.suppressWarnings ?
+  const warning = opts.suppressWarnings ?
     function() {} :
     console.warn.bind(console);
 
@@ -100,7 +100,7 @@ function createTransformError(t, error, quasi, state, extraOpts = {}) {
     filename
   );
 
-  if (opts.enforceSchema || extraOpts.enforceSchema) {
+  if (opts.enforceSchema) {
     throw new Error(util.format(
       errorMessages.length ?
         'Aborting due to a %s error:\n\n%s\n' :
@@ -110,7 +110,7 @@ function createTransformError(t, error, quasi, state, extraOpts = {}) {
         .map(errorMessage => '  - ' + errorMessage)
         .join('\n'),
     ));
-  } else if (opts.debug || extraOpts.debug) {
+  } else if (opts.debug) {
     console.error(error.stack);
   }
 

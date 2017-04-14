@@ -13,7 +13,7 @@
 
 const RelayQLTransformer = require('./RelayQLTransformer');
 
-const getSchemaIntrospection = require('../getSchemaIntrospection');
+const getSchemaIntrospection = require('./getSchemaIntrospection');
 
 const {buildASTSchema, buildClientSchema} = require('graphql');
 

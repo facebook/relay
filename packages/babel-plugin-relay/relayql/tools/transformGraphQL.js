@@ -13,9 +13,8 @@
 
 const babel = require('babel-core');
 const fs = require('fs');
-const util = require('../util');
-
-const getBabelRelayPlugin = require('../getBabelRelayPlugin');
+const getBabelRelayPlugin = require('../../getBabelRelayPlugin');
+const util = require('../../util');
 
 const schemaCache = {};
 function getSchema(schemaPath) {

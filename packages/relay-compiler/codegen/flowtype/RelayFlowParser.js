@@ -50,6 +50,8 @@ const {
   validate,
 } = GraphQL;
 
+const RELAY_CLASSIC_MUTATION =  '__RelayClassicMutation__';
+
 /**
  * Validates that a given DocumentNode is properly formed. Returns an Array
  * of ValidationErrors if there are errors.
@@ -192,10 +194,6 @@ function parse(
       `Mutations should only have one argument, ${selections.length} found.`
     );
 
-    // We need to manually add a `name` and a selection to each `selectionSet`
-    // in order for this to be a valid GraphQL document. The RelayParser will
-    // throw an error if we give it a "classic" mutation. `__typename` is a
-    // valid field in *all* mutation payloads.
     const mutationField = selections[0];
     invariant(
       mutationField.kind === 'Field',
@@ -203,19 +201,28 @@ function parse(
       'field, got `%s`.',
       mutationField.kind,
     );
-    definition.name = mutationField.name;
-    mutationField.selectionSet = {
-      kind: 'SelectionSet',
-      selections: [
-        {
-          kind: 'Field',
-          name: {
-            kind: 'Name',
-            value: '__typename',
+    if (definition.name == null) {
+      // We need to manually add a `name` and a selection to each `selectionSet`
+      // in order for this to be a valid GraphQL document. The RelayParser will
+      // throw an error if we give it a "classic" mutation. `__typename` is a
+      // valid field in *all* mutation payloads.
+      definition.name = {
+        kind: 'Name',
+        value: RELAY_CLASSIC_MUTATION,
+      };
+      mutationField.selectionSet = {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: {
+              kind: 'Name',
+              value: '__typename',
+            },
           },
-        },
-      ],
-    };
+        ],
+      };
+    }
   });
 
   const nodes = [];
@@ -263,4 +270,5 @@ function transformFiles(
 module.exports = {
   transformFiles,
   parse,
+  RELAY_CLASSIC_MUTATION,
 };

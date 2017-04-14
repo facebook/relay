@@ -16,6 +16,8 @@ const GraphQL = require('graphql');
 
 const t = require('babel-types');
 
+const {RELAY_CLASSIC_MUTATION} = require('RelayFlowParser');
+
 import type {
   Fragment,
   LinkedField,
@@ -48,8 +50,16 @@ function printFlowTypes(node: Root | Fragment): ?string {
       const selection = node.selections[0];
       if (selection.kind === 'LinkedField') {
         const argument = selection.args[0];
-        const ir = transformInputObjectToIR(argument);
-        return normalize(transform(ir)).map(n => generate(n).code).join('\n\n');
+        const inputIR = transformInputObjectToIR(argument);
+
+        let response = [];
+        if (node.name !== RELAY_CLASSIC_MUTATION) {
+          selection.name = `${node.name}Response`;
+          response = normalize(transform(selection));
+        }
+        return normalize(transform(inputIR))
+          .concat(response)
+          .map(n => generate(n).code).join('\n\n');
       }
     }
   } else if (node.kind === 'Fragment') {

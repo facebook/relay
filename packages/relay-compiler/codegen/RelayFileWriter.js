@@ -173,7 +173,7 @@ class RelayFileWriter {
           return;
         }
         const flowTypes = printFlowTypes(node);
-        if (node.kind === 'Fragment' && flowTypes) {
+        if (flowTypes) {
           writeFlowFile(
             getGeneratedDirectory(node.name),
             node.name,

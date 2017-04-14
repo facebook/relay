@@ -343,6 +343,40 @@ describe('printFlowTypes', () => {
     expect(printFlowTypes(IR[0]).trim()).toBe(dedent(expected));
   });
 
+  it('prints mutation payload', () => {
+    const IR = parse(
+      `
+      mutation CommentCreateMutation(
+        $input: CommentCreateInput!
+      ) {
+        commentCreate(input: $input) {
+          comment {
+            id
+            name
+          }
+        }
+      }
+      `,
+      RelayTestSchema,
+    );
+    const expected = `
+      export type CommentCreateInput = {
+        feedbackId?: ?string;
+      };
+
+      export type CommentCreateMutationResponse = {
+        comment?: ?CommentCreateMutationResponse_comment;
+      };
+
+      export type CommentCreateMutationResponse_comment = {
+        id: string;
+        name?: ?string;
+      };
+    `;
+
+    expect(printFlowTypes(IR[0]).trim()).toBe(dedent(expected));
+  });
+
   describe('directives', () => {
     it('verify id is usually nonnullable', () => {
       const IR = parse(

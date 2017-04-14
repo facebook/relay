@@ -17,7 +17,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
       return require('./__generated__/CompatProfile_user.graphql');
     },
     classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED');
+      const RelayQL_GENERATED = require('react-relay/classic').QL;
 
       return {
         kind: 'FragmentDefinition',
@@ -39,7 +39,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
       return require('./__generated__/CompatProfile_user2.graphql');
     },
     classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED');
+      const RelayQL_GENERATED = require('react-relay/classic').QL;
 
       return {
         kind: 'FragmentDefinition',

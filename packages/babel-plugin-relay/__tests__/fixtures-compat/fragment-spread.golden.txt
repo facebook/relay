@@ -18,7 +18,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
       return require('./__generated__/CompatProfile_user.graphql');
     },
     classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED'),
+      const RelayQL_GENERATED = require('react-relay/classic').QL,
             CompatProfilePic_user = CompatProfilePic.getFragment('user');
 
       return {

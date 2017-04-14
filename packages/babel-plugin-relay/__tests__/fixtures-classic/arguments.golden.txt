@@ -17,7 +17,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
       return require('./__generated__/CompatProfile_passing.graphql');
     },
     classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED'),
+      const RelayQL_GENERATED = require('react-relay/classic').QL,
             ProfilePic_user_args1 = ProfilePic.getFragment('user', {
         size: 40,
         scale: 1.5,
@@ -59,7 +59,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
       return require('./__generated__/CompatProfile_receiving.graphql');
     },
     classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED');
+      const RelayQL_GENERATED = require('react-relay/classic').QL;
 
       return {
         kind: 'FragmentDefinition',
@@ -87,7 +87,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
       return require('./__generated__/CompatProfile_receivingGlobals.graphql');
     },
     classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED');
+      const RelayQL_GENERATED = require('react-relay/classic').QL;
 
       return {
         kind: 'FragmentDefinition',

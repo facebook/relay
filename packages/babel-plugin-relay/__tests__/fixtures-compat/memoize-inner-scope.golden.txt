@@ -19,7 +19,7 @@ function SomeTopLevelView() {
         return require('./__generated__/ExampleQuery.graphql');
       },
       classic: function () {
-        const RelayQL_GENERATED = require('RelayQL_GENERATED'),
+        const RelayQL_GENERATED = require('react-relay/classic').QL,
               ProfilePic_user = ProfilePic.getFragment('user');
 
         return {

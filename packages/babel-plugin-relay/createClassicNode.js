@@ -18,13 +18,13 @@ const getFragmentNameParts = require('./getFragmentNameParts');
 /**
  * Relay Classic transforms to inline generated content.
  */
-function createClassicNode(t, path, graphqlDefinition) {
+function createClassicNode(t, path, graphqlDefinition, opts) {
   if (graphqlDefinition.kind === 'FragmentDefinition') {
-    return createFragmentConcreteNode(t, path, graphqlDefinition);
+    return createFragmentConcreteNode(t, path, graphqlDefinition, opts);
   }
 
   if (graphqlDefinition.kind === 'OperationDefinition') {
-    return createOperationConcreteNode(t, path, graphqlDefinition);
+    return createOperationConcreteNode(t, path, graphqlDefinition, opts);
   }
 
   throw new Error(
@@ -33,7 +33,7 @@ function createClassicNode(t, path, graphqlDefinition) {
   );
 }
 
-function createFragmentConcreteNode(t, path, definition) {
+function createFragmentConcreteNode(t, path, definition, opts) {
   const {
     classicAST,
     fragments,
@@ -52,10 +52,10 @@ function createFragmentConcreteNode(t, path, definition) {
     node: createRelayQLTemplate(t, classicAST),
   });
 
-  return createConcreteNode(t, transformedAST, substitutions);
+  return createConcreteNode(t, transformedAST, substitutions, opts);
 }
 
-function createOperationConcreteNode(t, path, definition) {
+function createOperationConcreteNode(t, path, definition, opts) {
   const {classicAST, fragments} = createClassicAST(t, definition);
   const substitutions = createSubstitutionsForFragmentSpreads(t, path, fragments);
   const nodeAST = classicAST.operation === 'query' ?
@@ -72,7 +72,7 @@ function createOperationConcreteNode(t, path, definition) {
     node: nodeAST,
   });
 
-  return createConcreteNode(t, transformedAST, substitutions);
+  return createConcreteNode(t, transformedAST, substitutions, opts);
 }
 
 function createClassicAST(t, definition) {
@@ -158,7 +158,19 @@ function createClassicAST(t, definition) {
   };
 }
 
-function createConcreteNode(t, transformedAST, substitutions) {
+const RELAYQL_GENERATED = 'RelayQL_GENERATED';
+
+function createConcreteNode(t, transformedAST, substitutions, opts) {
+  // Allow for an optional direct require to RelayQL,
+  // otherwise default to `require('react-relay/classic').QL`.
+  const relayQLModule = opts && opts.relayQLModule;
+  const relayQLRequire = relayQLModule ?
+    createRequireCall(t, relayQLModule) :
+    t.memberExpression(
+      createRequireCall(t, 'react-relay/classic'),
+      t.identifier('QL'),
+    );
+
   return t.functionExpression(
     null,
     [],
@@ -167,8 +179,8 @@ function createConcreteNode(t, transformedAST, substitutions) {
         'const',
         [
           t.variableDeclarator(
-            t.identifier('RelayQL_GENERATED'),
-            createRequireCall(t, 'RelayQL_GENERATED')
+            t.identifier(RELAYQL_GENERATED),
+            relayQLRequire
           ),
         ].concat(substitutions)
       ),
@@ -317,7 +329,7 @@ function createFragmentForOperation(t, operation) {
 function createRelayQLTemplate(t, node) {
   const text = GraphQL.print(node);
   return t.taggedTemplateExpression(
-    t.identifier('RelayQL_GENERATED'),
+    t.identifier(RELAYQL_GENERATED),
     t.templateLiteral(
       [t.templateElement({raw: text, cooked: text}, true)],
       []

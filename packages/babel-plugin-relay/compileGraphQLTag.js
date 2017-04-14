@@ -83,7 +83,7 @@ function createAST(t, opts, path, graphqlDefinition) {
     return createCompatNode(
       t,
       modernNode,
-      createClassicNode(t, path, graphqlDefinition)
+      createClassicNode(t, path, graphqlDefinition, opts)
     );
   }
   return modernNode;

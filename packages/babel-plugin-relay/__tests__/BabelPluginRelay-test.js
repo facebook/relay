@@ -99,12 +99,16 @@ describe('BabelPluginRelay', () => {
     });
   });
 
-  it('transforms source for compatability mode when using haste', () => {
+  it('transforms source for compatability mode when using haste and custom module', () => {
     expect('fixtures-compat-haste').toMatchGolden(text => {
       try {
         return babel.transform(text, {
           plugins: [
-            [BabelPluginRelay, {compat: true, haste: true}],
+            [BabelPluginRelay, {
+              compat: true,
+              haste: true,
+              relayQLModule: 'RelayQL_GENERATED',
+            }],
           ],
           compact: false,
           parserOpts: {plugins: ['jsx']},

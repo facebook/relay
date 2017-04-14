@@ -26,7 +26,7 @@ class CompatStory extends React.Component {
         return require('./__generated__/LikeStory.graphql');
       },
       classic: function () {
-        const RelayQL_GENERATED = require('RelayQL_GENERATED'),
+        const RelayQL_GENERATED = require('react-relay/classic').QL,
               CompatStory_story = (CompatStory.__container__ || CompatStory).getFragment('story');
 
         return {
@@ -55,7 +55,7 @@ module.exports = createFragmentContainer(CompatStory, {
       return require('./__generated__/CompatStory_story.graphql');
     },
     classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED'),
+      const RelayQL_GENERATED = require('react-relay/classic').QL,
             CompatProfilePic_user = CompatProfilePic.getFragment('user');
 
       return {

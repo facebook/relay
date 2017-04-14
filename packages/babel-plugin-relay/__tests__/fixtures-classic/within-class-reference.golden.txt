@@ -12,45 +12,98 @@ const { createFragmentContainer, graphql } = require('Relay');
 const React = require('React');
 const CompatProfilePic = require('CompatProfilePic');
 
-class CompatStory extends React.Component {
+class CompatProfile extends React.Component {
   render() {
     return <div>
-      <CompatProfilePic user={this.props.story.actor} />
-      {this.props.story.message}
+      <CompatProfilePic user={this.props.data} />
+      {this.props.data.name}
+      {this.props.data.subscribeStatus}
     </div>;
   }
 
   doSomething() {
     commitMutation(this.props.relay, _graphql || (_graphql = {
       modern: function () {
-        return require('./__generated__/LikeStory.graphql');
+        return require('./__generated__/ActorSubscribe.graphql');
       },
       classic: function () {
         const RelayQL_GENERATED = require('react-relay/classic').QL,
-              CompatStory_story = (CompatStory.__container__ || CompatStory).getFragment('story');
+              CompatProfile = (CompatProfile.__container__ || CompatProfile).getFragment('data');
 
         return {
           kind: 'OperationDefinition',
           argumentDefinitions: [{
             defaultValue: null,
             kind: 'LocalArgument',
-            name: 'id'
+            name: 'input'
           }],
-          name: 'LikeStory',
+          name: 'ActorSubscribe',
           operation: 'mutation',
           node: function () {
-            throw new Error('Relay transform error ``You supplied a field named `likeStory` on type `Mutation`, but no such field exists on that type.`` in file `unknown`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+            return {
+              calls: [{
+                kind: 'Call',
+                metadata: {},
+                name: 'actorSubscribe',
+                value: {
+                  kind: 'CallVariable',
+                  callVariableName: 'input'
+                }
+              }],
+              children: [{
+                children: [].concat.apply([], [{
+                  fieldName: 'id',
+                  kind: 'Field',
+                  metadata: {
+                    isGenerated: true,
+                    isRequisite: true
+                  },
+                  type: 'ID'
+                }, {
+                  fieldName: '__typename',
+                  kind: 'Field',
+                  metadata: {
+                    isGenerated: true,
+                    isRequisite: true
+                  },
+                  type: 'String'
+                }, RelayQL_GENERATED.__frag(CompatProfile)]),
+                fieldName: 'subscribee',
+                kind: 'Field',
+                metadata: {
+                  canHaveSubselections: true,
+                  inferredRootCallName: 'node',
+                  inferredPrimaryKey: 'id',
+                  isAbstract: true
+                },
+                type: 'Actor'
+              }, {
+                fieldName: 'clientMutationId',
+                kind: 'Field',
+                metadata: {
+                  isGenerated: true,
+                  isRequisite: true
+                },
+                type: 'String'
+              }],
+              kind: 'Mutation',
+              metadata: {
+                inputType: 'ActorSubscribeInput'
+              },
+              name: 'ActorSubscribe',
+              responseType: 'ActorSubscribeResponsePayload'
+            };
           }()
         };
       }
-    }), { id: 123 });
+    }), { input: { subscribeeId: 123 } });
   }
 }
 
-module.exports = createFragmentContainer(CompatStory, {
-  story: {
+module.exports = createFragmentContainer(CompatProfile, {
+  data: {
     modern: function () {
-      return require('./__generated__/CompatStory_story.graphql');
+      return require('./__generated__/CompatProfile.graphql');
     },
     classic: function () {
       const RelayQL_GENERATED = require('react-relay/classic').QL,
@@ -61,40 +114,16 @@ module.exports = createFragmentContainer(CompatStory, {
         argumentDefinitions: [],
         node: function () {
           return {
-            children: [{
-              fieldName: 'message',
+            children: [].concat.apply([], [{
+              fieldName: 'name',
               kind: 'Field',
-              metadata: {
-                canHaveSubselections: true
-              },
-              type: 'Text'
+              metadata: {},
+              type: 'String'
             }, {
-              children: [].concat.apply([], [{
-                fieldName: 'id',
-                kind: 'Field',
-                metadata: {
-                  isGenerated: true,
-                  isRequisite: true
-                },
-                type: 'ID'
-              }, {
-                fieldName: '__typename',
-                kind: 'Field',
-                metadata: {
-                  isGenerated: true,
-                  isRequisite: true
-                },
-                type: 'String'
-              }, RelayQL_GENERATED.__frag(CompatProfilePic_user)]),
-              fieldName: 'actor',
+              fieldName: 'subscribeStatus',
               kind: 'Field',
-              metadata: {
-                canHaveSubselections: true,
-                inferredRootCallName: 'node',
-                inferredPrimaryKey: 'id',
-                isAbstract: true
-              },
-              type: 'Actor'
+              metadata: {},
+              type: 'String'
             }, {
               fieldName: 'id',
               kind: 'Field',
@@ -103,12 +132,22 @@ module.exports = createFragmentContainer(CompatStory, {
                 isRequisite: true
               },
               type: 'ID'
-            }],
+            }, {
+              fieldName: '__typename',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'String'
+            }, RelayQL_GENERATED.__frag(CompatProfilePic_user)]),
             id: RelayQL_GENERATED.__id(),
             kind: 'Fragment',
-            metadata: {},
-            name: 'CompatStory_story',
-            type: 'Story'
+            metadata: {
+              isAbstract: true
+            },
+            name: 'CompatProfile',
+            type: 'Actor'
           };
         }()
       };

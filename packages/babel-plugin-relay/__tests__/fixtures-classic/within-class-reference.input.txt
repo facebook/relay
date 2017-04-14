@@ -10,11 +10,12 @@ const {createFragmentContainer, graphql} = require('Relay');
 const React = require('React');
 const CompatProfilePic = require('CompatProfilePic');
 
-class CompatStory extends React.Component {
+class CompatProfile extends React.Component {
   render() {
     return <div>
-      <CompatProfilePic user={this.props.story.actor} />
-      {this.props.story.message}
+      <CompatProfilePic user={this.props.data} />
+      {this.props.data.name}
+      {this.props.data.subscribeStatus}
     </div>;
   }
 
@@ -22,22 +23,23 @@ class CompatStory extends React.Component {
     commitMutation(
       this.props.relay,
       graphql`
-        mutation LikeStory($id: ID!) {
-          likeStory(id: $id) {
-            ...CompatStory_story
+        mutation ActorSubscribe($input: ActorSubscribeInput!) {
+          actorSubscribe(input: $input) {
+            subscribee {
+              ...CompatProfile
+            }
           }
         }
       `,
-      { id: 123 }
+      { input: { subscribeeId: 123 } }
     )
   }
 }
 
-module.exports = createFragmentContainer(CompatStory, graphql`
-  fragment CompatStory_story on Story {
-    message
-    actor {
-      ...CompatProfilePic_user
-    }
+module.exports = createFragmentContainer(CompatProfile, graphql`
+  fragment CompatProfile on Actor {
+    name
+    subscribeStatus
+    ...CompatProfilePic_user
   }
 `);

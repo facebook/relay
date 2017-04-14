@@ -99,8 +99,8 @@ describe('RelayStaticEnvironment', () => {
     let environment;
 
     function setName(id, name) {
-      environment.applyUpdate(proxy => {
-        const user = proxy.get(id);
+      environment.applyUpdate(store => {
+        const user = store.get(id);
         user.setValue(name, 'name');
       });
     }
@@ -269,8 +269,8 @@ describe('RelayStaticEnvironment', () => {
       const snapshot = environment.lookup(selector);
       environment.subscribe(snapshot, callback);
 
-      environment.applyUpdate(proxy => {
-        const zuck = proxy.create('4', 'User');
+      environment.applyUpdate(store => {
+        const zuck = store.create('4', 'User');
         zuck.setValue('4', 'id');
         zuck.setValue('zuck', 'name');
       });
@@ -291,8 +291,8 @@ describe('RelayStaticEnvironment', () => {
       const snapshot = environment.lookup(selector);
       environment.subscribe(snapshot, callback);
 
-      const {dispose} = environment.applyUpdate(proxy => {
-        const zuck = proxy.create('4', 'User');
+      const {dispose} = environment.applyUpdate(store => {
+        const zuck = store.create('4', 'User');
         zuck.setValue('zuck', 'name');
       });
       callback.mockClear();
@@ -361,8 +361,8 @@ describe('RelayStaticEnvironment', () => {
       const snapshot = environment.lookup(selector);
       environment.subscribe(snapshot, callback);
 
-      environment.applyUpdate(proxy => {
-        const zuck = proxy.get('4');
+      environment.applyUpdate(store => {
+        const zuck = store.get('4');
         if (zuck) {
           const name = zuck.getValue('name');
           zuck.setValue(name.toUpperCase(), 'name');
@@ -796,10 +796,10 @@ describe('RelayStaticEnvironment', () => {
         onCompleted,
         onError,
         operation,
-        optimisticUpdater: (proxy) => {
-          const comment = proxy.create(commentID, 'Comment');
+        optimisticUpdater: (store) => {
+          const comment = store.create(commentID, 'Comment');
           comment.setValue(commentID, 'id');
-          const body = proxy.create(commentID + '.text', 'Text');
+          const body = store.create(commentID + '.text', 'Text');
           comment.setLinkedRecord(body, 'body');
           body.setValue('Give Relay', 'text');
         },
@@ -830,10 +830,10 @@ describe('RelayStaticEnvironment', () => {
         onCompleted,
         onError,
         operation,
-        optimisticUpdater: (proxy) => {
-          const comment = proxy.create(commentID, 'Comment');
+        optimisticUpdater: (store) => {
+          const comment = store.create(commentID, 'Comment');
           comment.setValue(commentID, 'id');
-          const body = proxy.create(commentID + '.text', 'Text');
+          const body = store.create(commentID + '.text', 'Text');
           comment.setLinkedRecord(body, 'body');
           body.setValue('Give Relay', 'text');
         },
@@ -861,10 +861,10 @@ describe('RelayStaticEnvironment', () => {
         onCompleted,
         onError,
         operation,
-        optimisticUpdater: (proxy) => {
-          const comment = proxy.create(commentID, 'Comment');
+        optimisticUpdater: (store) => {
+          const comment = store.create(commentID, 'Comment');
           comment.setValue(commentID, 'id');
-          const body = proxy.create(commentID + '.text', 'Text');
+          const body = store.create(commentID + '.text', 'Text');
           comment.setLinkedRecord(body, 'body');
           body.setValue('Give Relay', 'text');
         },
@@ -911,8 +911,8 @@ describe('RelayStaticEnvironment', () => {
         onCompleted,
         onError,
         operation,
-        updater: (proxy) => {
-          const comment = proxy.get(commentID);
+        updater: (store) => {
+          const comment = store.get(commentID);
           const body = comment.getLinkedRecord('body');
           body.setValue(body.getValue('text').toUpperCase(), 'text');
         },
@@ -959,10 +959,10 @@ describe('RelayStaticEnvironment', () => {
         onCompleted,
         onError,
         operation,
-        optimisticUpdater: (proxy) => {
-          const comment = proxy.create(commentID, 'Comment');
+        optimisticUpdater: (store) => {
+          const comment = store.create(commentID, 'Comment');
           comment.setValue(commentID, 'id');
-          const body = proxy.create(commentID + '.text', 'Text');
+          const body = store.create(commentID + '.text', 'Text');
           comment.setLinkedRecord(body, 'body');
           body.setValue('Give Relay', 'text');
         },
@@ -993,10 +993,10 @@ describe('RelayStaticEnvironment', () => {
         onCompleted,
         onError,
         operation,
-        optimisticUpdater: (proxy) => {
-          const comment = proxy.create(commentID, 'Comment');
+        optimisticUpdater: (store) => {
+          const comment = store.create(commentID, 'Comment');
           comment.setValue(commentID, 'id');
-          const body = proxy.create(commentID + '.text', 'Text');
+          const body = store.create(commentID + '.text', 'Text');
           comment.setLinkedRecord(body, 'body');
           body.setValue('Give Relay', 'text');
         },

@@ -56,8 +56,8 @@ const NEXT_EDGE_INDEX = '__connection_next_edge_index';
  * edges onto the end of a connection, regardless of the arguments used to fetch
  * those edges.
  */
-function update(proxy: RecordSourceProxy, payload: HandleFieldPayload): void {
-  const record = proxy.get(payload.dataID);
+function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
+  const record = store.get(payload.dataID);
   if (!record) {
     return;
   }
@@ -74,7 +74,7 @@ function update(proxy: RecordSourceProxy, payload: HandleFieldPayload): void {
     clientConnection && clientConnection.getLinkedRecord(PAGE_INFO);
   if (!clientConnection) {
     // Initial fetch with data: copy fields from the server record
-    const connection = proxy.create(
+    const connection = store.create(
       generateRelayClientID(record.getDataID(), payload.handleKey),
       serverConnection.getType()
     );
@@ -83,13 +83,13 @@ function update(proxy: RecordSourceProxy, payload: HandleFieldPayload): void {
     let serverEdges = serverConnection.getLinkedRecords(EDGES);
     if (serverEdges) {
       serverEdges = serverEdges.map(edge =>
-        buildConnectionEdge(proxy, connection, edge)
+        buildConnectionEdge(store, connection, edge)
       );
       connection.setLinkedRecords(serverEdges, EDGES);
     }
     record.setLinkedRecord(connection, payload.handleKey);
 
-    clientPageInfo = proxy.create(
+    clientPageInfo = store.create(
       generateRelayClientID(connection.getDataID(), PAGE_INFO),
       PAGE_INFO_TYPE
     );
@@ -109,7 +109,7 @@ function update(proxy: RecordSourceProxy, payload: HandleFieldPayload): void {
     let serverEdges = serverConnection.getLinkedRecords(EDGES);
     if (serverEdges) {
       serverEdges = serverEdges.map(edge =>
-        buildConnectionEdge(proxy, connection, edge)
+        buildConnectionEdge(store, connection, edge)
       );
     }
     const prevEdges = connection.getLinkedRecords(EDGES);
@@ -206,8 +206,8 @@ function update(proxy: RecordSourceProxy, payload: HandleFieldPayload): void {
  * The `friends` connection record can be accessed with:
  *
  * ```
- * proxy => {
- *   const user = proxy.get('<id>');
+ * store => {
+ *   const user = store.get('<id>');
  *   const friends = RelayConnectionHandler.getConnection(user, 'FriendsFragment_friends');
  *   // Access fields on the connection:
  *   const edges = friends.getLinkedRecords('edges');
@@ -253,10 +253,10 @@ function getConnection(
  * An edge can be appended with:
  *
  * ```
- * proxy => {
- *   const user = proxy.get('<id>');
+ * store => {
+ *   const user = store.get('<id>');
  *   const friends = RelayConnectionHandler.getConnection(user, 'FriendsFragment_friends');
- *   const edge = proxy.create('<edge-id>', 'FriendsEdge');
+ *   const edge = store.create('<edge-id>', 'FriendsEdge');
  *   RelayConnectionHandler.insertEdgeAfter(friends, edge);
  * }
  * ```
@@ -302,7 +302,7 @@ function insertEdgeAfter(
  * Creates an edge for a connection record, given a node and edge type.
  */
 function createEdge(
-  proxy: RecordSourceProxy,
+  store: RecordSourceProxy,
   record: RecordProxy,
   node: RecordProxy,
   edgeType: string,
@@ -317,7 +317,7 @@ function createEdge(
     record.getDataID(),
     node.getDataID(),
   );
-  const edge = proxy.create(edgeID, edgeType);
+  const edge = store.create(edgeID, edgeType);
   edge.setLinkedRecord(node, NODE);
   return edge;
 }
@@ -348,10 +348,10 @@ function createEdge(
  * An edge can be prepended with:
  *
  * ```
- * proxy => {
- *   const user = proxy.get('<id>');
+ * store => {
+ *   const user = store.get('<id>');
  *   const friends = RelayConnectionHandler.getConnection(user, 'FriendsFragment_friends');
- *   const edge = proxy.create('<edge-id>', 'FriendsEdge');
+ *   const edge = store.create('<edge-id>', 'FriendsEdge');
  *   RelayConnectionHandler.insertEdgeBefore(friends, edge);
  * }
  * ```
@@ -434,7 +434,7 @@ function deleteNode(
  * order).
  */
 function buildConnectionEdge(
-  proxy: RecordSourceProxy,
+  store: RecordSourceProxy,
   connection: RecordProxy,
   edge: ?RecordProxy,
 ): ?RecordProxy {
@@ -449,7 +449,7 @@ function buildConnectionEdge(
     edgeIndex,
   );
   const edgeID = generateRelayClientID(connection.getDataID(), EDGES, edgeIndex);
-  const connectionEdge = proxy.create(
+  const connectionEdge = store.create(
     edgeID,
     edge.getType(),
   );

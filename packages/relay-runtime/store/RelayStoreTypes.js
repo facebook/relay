@@ -272,7 +272,7 @@ export type UpdatedRecords = {[dataID: DataID]: boolean};
  */
 export type Handler = {
   update: (
-    proxy: RecordSourceProxy,
+    store: RecordSourceProxy,
     fieldPayload: HandleFieldPayload,
   ) => void,
 };
@@ -299,10 +299,10 @@ export type HandleFieldPayload = $Exact<{
  * A function that receives a proxy over the store and may trigger side-effects
  * (indirectly) by calling `set*` methods on the store or its record proxies.
  */
-export type StoreUpdater = (proxy: RecordSourceProxy) => void;
+export type StoreUpdater = (store: RecordSourceProxy) => void;
 
 /**
  * Similar to StoreUpdater, but accepts a proxy tied to a specific selector in
  * order to easily access the root fields of a query/mutation.
  */
-export type SelectorStoreUpdater = (proxy: RecordSourceSelectorProxy) => void;
+export type SelectorStoreUpdater = (store: RecordSourceSelectorProxy) => void;

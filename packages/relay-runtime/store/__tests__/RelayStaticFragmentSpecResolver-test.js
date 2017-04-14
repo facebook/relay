@@ -28,15 +28,15 @@ describe('RelayStaticFragmentSpecResolver', () => {
   let variables;
 
   function setName(id, name) {
-    environment.applyUpdate(proxy => {
-      const user = proxy.get(id);
+    environment.applyUpdate(store => {
+      const user = store.get(id);
       user.setValue(name, 'name');
     });
   }
 
   function setPhotoUri(id, size, uri) {
-    environment.applyUpdate(proxy => {
-      const user = proxy.get(id);
+    environment.applyUpdate(store => {
+      const user = store.get(id);
       const profilePicture = user.getOrCreateLinkedRecord('profilePicture', 'Image', {size});
       profilePicture.setValue(uri, 'uri');
     });

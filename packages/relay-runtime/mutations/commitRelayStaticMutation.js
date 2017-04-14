@@ -33,9 +33,9 @@ export type MutationConfig = {|
   uploadables?: UploadableMap,
   onCompleted?: ?(response: ?Object) => void,
   onError?: ?(error: Error) => void,
-  optimisticUpdater?: ?(proxy: RecordSourceProxy) => void,
+  optimisticUpdater?: ?(store: RecordSourceProxy) => void,
   optimisticResponse?: ?() => Object,
-  updater?: ?(proxy: RecordSourceSelectorProxy) => void,
+  updater?: ?(store: RecordSourceSelectorProxy) => void,
 |};
 
 /**

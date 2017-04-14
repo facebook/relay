@@ -36,7 +36,7 @@ describe('RelayRecordSourceProxy', () => {
   let baseSource;
   let initialData;
   let mutator;
-  let proxy;
+  let store;
   let sinkData;
   let sinkSource;
 
@@ -96,45 +96,45 @@ describe('RelayRecordSourceProxy', () => {
       sinkSource,
       backupSource
     );
-    proxy = new RelayRecordSourceProxy(mutator);
+    store = new RelayRecordSourceProxy(mutator);
   });
 
   describe('get()', () => {
     it('returns undefined for unfetched records', () => {
-      expect(proxy.get('unfetched')).toBe(undefined);
+      expect(store.get('unfetched')).toBe(undefined);
     });
 
     it('returns null for deleted records', () => {
-      expect(proxy.get('deleted')).toBe(null);
+      expect(store.get('deleted')).toBe(null);
     });
 
     it('returns a writer for defined records', () => {
-      const record = proxy.get('4');
+      const record = store.get('4');
       expect(record.getDataID()).toBe('4');
       expect(record instanceof RelayRecordProxy).toBe(true);
     });
 
     it('returns the same writer for the same id', () => {
-      expect(proxy.get('4')).toBe(proxy.get('4'));
+      expect(store.get('4')).toBe(store.get('4'));
     });
   });
 
   describe('getRoot()', () => {
     it('returns a writer for the root', () => {
-      const root = proxy.getRoot();
+      const root = store.getRoot();
       expect(root instanceof RelayRecordProxy).toBe(true);
       expect(root.getDataID()).toBe(ROOT_ID);
     });
 
     it('returns the same root writer', () => {
-      expect(proxy.getRoot()).toBe(proxy.getRoot());
+      expect(store.getRoot()).toBe(store.getRoot());
     });
 
     it('synthesizes a root if it does not exist', () => {
       delete backupData[ROOT_ID];
       delete baseData[ROOT_ID];
       delete sinkData[ROOT_ID];
-      const root = proxy.getRoot();
+      const root = store.getRoot();
       expect(root instanceof RelayRecordProxy).toBe(true);
       expect(root.getDataID()).toBe(ROOT_ID);
       expect(sinkData[ROOT_ID]).toEqual({
@@ -146,22 +146,22 @@ describe('RelayRecordSourceProxy', () => {
 
   describe('delete()', () => {
     it('deletes records that are in the source', () => {
-      proxy.delete('4');
+      store.delete('4');
       expect(sinkData['4']).toBe(null);
     });
 
     it('marks unknown records as deleted', () => {
-      proxy.delete('unfetched');
+      store.delete('unfetched');
       expect(sinkData.unfetched).toBe(null);
     });
 
     it('get() returns null for deleted records', () => {
-      proxy.delete('4');
-      expect(proxy.get('4')).toBe(null);
+      store.delete('4');
+      expect(store.get('4')).toBe(null);
     });
 
     it('throws if the root is deleted', () => {
-      expect(() => proxy.delete(ROOT_ID)).toFailInvariant(
+      expect(() => store.delete(ROOT_ID)).toFailInvariant(
         'RelayRecordSourceProxy#delete(): Cannot delete the root record.'
       );
     });
@@ -169,8 +169,8 @@ describe('RelayRecordSourceProxy', () => {
 
   describe('copyFields()', () => {
     it('copies fields', () => {
-      const sf = proxy.get('sf');
-      const mpk = proxy.get('mpk');
+      const sf = store.get('sf');
+      const mpk = store.get('mpk');
       sf.copyFieldsFrom(mpk);
       expect(sinkData).toEqual({
         sf: {
@@ -201,7 +201,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'SF',
         },
       };
-      proxy.commitPayload(
+      store.commitPayload(
         {
           dataID: ROOT_ID,
           node: Query,
@@ -234,7 +234,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'Seattle',
         },
       };
-      proxy.commitPayload(
+      store.commitPayload(
         {
           dataID: ROOT_ID,
           node: Query,
@@ -256,7 +256,7 @@ describe('RelayRecordSourceProxy', () => {
         handlerName: {update: handlerFunction},
       };
       const handlerProvider = name => handlers[name];
-      proxy = new RelayRecordSourceProxy(mutator, handlerProvider);
+      store = new RelayRecordSourceProxy(mutator, handlerProvider);
 
       const {Query} = generateWithTransforms(`
         query Query {
@@ -274,7 +274,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'SF',
         },
       };
-      proxy.commitPayload(
+      store.commitPayload(
         {
           dataID: ROOT_ID,
           node: Query,
@@ -290,15 +290,15 @@ describe('RelayRecordSourceProxy', () => {
         handle: 'handlerName',
         handleKey: '__name_handlerName',
       };
-      expect(handlerFunction).toBeCalledWith(proxy, fieldPayload);
+      expect(handlerFunction).toBeCalledWith(store, fieldPayload);
     });
   });
 
   describe('create()', () => {
     it('creates a record writer with the id and type', () => {
-      const joe = proxy.create('842472', 'User');
+      const joe = store.create('842472', 'User');
       expect(joe instanceof RelayRecordProxy).toBe(true);
-      expect(proxy.get('842472')).toBe(joe);
+      expect(store.get('842472')).toBe(joe);
       expect(joe.getDataID()).toBe('842472');
       expect(joe.getType()).toBe('User');
       expect(sinkData['842472']).toEqual({
@@ -309,16 +309,16 @@ describe('RelayRecordSourceProxy', () => {
 
     it('creates records that were previously deleted', () => {
       // Prime the RecordProxy cache
-      let zombie = proxy.get('deleted');
+      let zombie = store.get('deleted');
       expect(zombie).toBe(null);
-      zombie = proxy.create('deleted', 'User');
+      zombie = store.create('deleted', 'User');
       expect(zombie instanceof RelayRecordProxy).toBe(true);
-      expect(proxy.get('deleted')).toBe(zombie);
+      expect(store.get('deleted')).toBe(zombie);
     });
 
     it('throws if a duplicate record is created', () => {
       expect(() => {
-        proxy.create('4', 'User');
+        store.create('4', 'User');
       }).toFailInvariant(
         'RelayRecordSourceMutator#create(): Cannot create a record with id ' +
         '`4`, this record already exists.'
@@ -328,14 +328,14 @@ describe('RelayRecordSourceProxy', () => {
 
   describe('getOrCreateLinkedRecord', () => {
     it('retrieves a record if it already exists', () => {
-      const zuck = proxy.get('4');
+      const zuck = store.get('4');
       expect(
         zuck.getOrCreateLinkedRecord('hometown').getValue('name')
       ).toBe('Menlo Park');
     });
 
     it('creates a record if it does not already exist', () => {
-      const greg = proxy.get('660361306');
+      const greg = store.get('660361306');
       expect(greg.getLinkedRecord('hometown')).toBe(undefined);
 
       greg.getOrCreateLinkedRecord('hometown', 'Page')
@@ -350,17 +350,17 @@ describe('RelayRecordSourceProxy', () => {
   it('combines operations', () => {
     const markBackup = baseSource.get('4');
     const gregBackup = baseSource.get('660361306');
-    const mark = proxy.get('4');
+    const mark = store.get('4');
     mark.setValue('Marcus', 'name');
     mark.setValue('Marcus Jr.', 'name');
     mark.setValue('1601 Willow Road', 'address', {location: 'WORK'});
-    const beast = proxy.get('beast');
+    const beast = store.get('beast');
     beast.setValue('Dog', 'name');
     mark.setLinkedRecord(beast, 'hometown');
-    const mpk = proxy.get('mpk');
+    const mpk = store.get('mpk');
     mark.setLinkedRecord(mpk, 'pet');
     mark.setLinkedRecord(beast, 'pet');
-    const greg = proxy.get('660361306');
+    const greg = store.get('660361306');
     greg.setLinkedRecord(mpk, 'hometown');
     mark.setLinkedRecords([mpk], 'administeredPages');
     mark.setLinkedRecords([], 'blockedPages');

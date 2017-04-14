@@ -163,7 +163,7 @@ class RelayPublishQueue {
         this._store.getSource(),
         source
       );
-      const proxy = new RelayRecordSourceSelectorProxy(mutator, selector);
+      const store = new RelayRecordSourceSelectorProxy(mutator, selector);
       if (fieldPayloads && fieldPayloads.length) {
         fieldPayloads.forEach(fieldPayload => {
           const handler =
@@ -174,11 +174,11 @@ class RelayPublishQueue {
               'handle `%s`.',
             fieldPayload.handle,
           );
-          handler.update(proxy, fieldPayload);
+          handler.update(store, fieldPayload);
         });
       }
       if (updater) {
-        updater(proxy);
+        updater(store);
       }
       // Publish the server data first so that it is reflected in the mutation
       // backup created during the rebase
@@ -197,8 +197,8 @@ class RelayPublishQueue {
         this._store.getSource(),
         sink
       );
-      const proxy = new RelayRecordSourceProxy(mutator);
-      updater(proxy);
+      const store = new RelayRecordSourceProxy(mutator);
+      updater(store);
     });
     this._store.publish(sink);
     this._pendingUpdaters.clear();
@@ -215,17 +215,17 @@ class RelayPublishQueue {
         sink,
         this._backup,
       );
-      const proxy = new RelayRecordSourceProxy(mutator);
+      const store = new RelayRecordSourceProxy(mutator);
 
       // rerun all updaters in case we are running a rebase
       if (this._pendingBackupRebase && this._appliedOptimisticUpdaters.size) {
-        this._appliedOptimisticUpdaters.forEach(updater => updater(proxy));
+        this._appliedOptimisticUpdaters.forEach(updater => updater(store));
       }
 
       // apply any new updaters
       if (this._pendingOptimisticUpdaters.size) {
         this._pendingOptimisticUpdaters.forEach(updater => {
-          updater(proxy);
+          updater(store);
           this._appliedOptimisticUpdaters.add(updater);
         });
         this._pendingOptimisticUpdaters.clear();

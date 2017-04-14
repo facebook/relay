@@ -39,7 +39,7 @@ describe('RelayViewerHandler', () => {
   let sinkData;
   let sinkSource;
   let mutator;
-  let proxy;
+  let store;
 
   beforeEach(() => {
     jest.resetModules();
@@ -55,7 +55,7 @@ describe('RelayViewerHandler', () => {
     sinkData = {};
     sinkSource = new RelayInMemoryRecordSource(sinkData);
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-    proxy = new RelayRecordSourceProxy(mutator);
+    store = new RelayRecordSourceProxy(mutator);
   });
 
   it('does nothing if the payload record does not exist', () => {
@@ -64,7 +64,7 @@ describe('RelayViewerHandler', () => {
       fieldKey: 'viewer',
       handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
     };
-    RelayViewerHandler.update(proxy, payload);
+    RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({});
   });
 
@@ -77,7 +77,7 @@ describe('RelayViewerHandler', () => {
       fieldKey: 'viewer',
       handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
     };
-    RelayViewerHandler.update(proxy, payload);
+    RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
       [ROOT_ID]: {
         [ID_KEY]: ROOT_ID,
@@ -95,7 +95,7 @@ describe('RelayViewerHandler', () => {
       fieldKey: 'viewer',
       handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
     };
-    RelayViewerHandler.update(proxy, payload);
+    RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
       [ROOT_ID]: {
         [ID_KEY]: ROOT_ID,
@@ -115,7 +115,7 @@ describe('RelayViewerHandler', () => {
       fieldKey: 'viewer',
       handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
     };
-    RelayViewerHandler.update(proxy, payload);
+    RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
       [ROOT_ID]: {
         [ID_KEY]: ROOT_ID,
@@ -143,7 +143,7 @@ describe('RelayViewerHandler', () => {
       fieldKey: 'viewer',
       handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
     };
-    RelayViewerHandler.update(proxy, payload);
+    RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
       [ROOT_ID]: {
         [ID_KEY]: ROOT_ID,

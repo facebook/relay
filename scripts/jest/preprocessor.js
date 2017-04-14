@@ -15,13 +15,9 @@ const assign = require('object-assign');
 const babel = require('babel-core');
 const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
 const getBabelOptions = require('../getBabelOptions');
-const getBabelRelayPlugin = require('../babel-relay-plugin');
-const getSchemaIntrospection = require('../../packages/babel-plugin-relay/getSchemaIntrospection');
 const path = require('path');
 
 const SCHEMA_PATH = path.resolve(__dirname, '../../packages/relay-compiler/testutils/testschema.graphql');
-
-const schema = getSchemaIntrospection(SCHEMA_PATH);
 
 const babelOptions = getBabelOptions({
   env: 'test',
@@ -35,8 +31,13 @@ const babelOptions = getBabelOptions({
     'StaticContainer.react': 'react-static-container',
   },
   plugins: [
-    [BabelPluginRelay, {compat: true, haste: true, relayQLModule: 'RelayQL'}],
-    getBabelRelayPlugin(schema, {substituteVariables: true}),
+    [BabelPluginRelay, {
+      compat: true,
+      haste: true,
+      relayQLModule: 'RelayQL',
+      substituteVariables: true,
+      schema: SCHEMA_PATH,
+    }],
     require('babel-plugin-transform-async-to-generator'),
     require('babel-plugin-transform-regenerator'),
   ],

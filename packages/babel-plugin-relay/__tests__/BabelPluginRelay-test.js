@@ -17,6 +17,17 @@ const BabelPluginRelay = require('BabelPluginRelay');
 
 const babel = require('babel-core');
 const getGoldenMatchers = require('getGoldenMatchers');
+const path = require('path');
+
+const getSchemaIntrospection = require('../getSchemaIntrospection');
+const getBabelRelayPlugin = require('../relayql/getBabelRelayPlugin');
+
+const SCHEMA_PATH = path.resolve(__dirname, '../../relay-compiler/testutils/testschema.graphql');
+
+const schema = getSchemaIntrospection(SCHEMA_PATH);
+const BabelPluginRelayClassic = getBabelRelayPlugin(schema, {
+  substituteVariables: true,
+});
 
 describe('BabelPluginRelay', () => {
   beforeEach(() => {
@@ -45,6 +56,23 @@ describe('BabelPluginRelay', () => {
         return babel.transform(text, {
           plugins: [
             [BabelPluginRelay, {compat: true}],
+          ],
+          compact: false,
+          parserOpts: {plugins: ['jsx']},
+        }).code;
+      } catch (e) {
+        return 'ERROR:\n\n' + e;
+      }
+    });
+  });
+
+  it('transforms source for compatibility mode + classic transform', () => {
+    expect('fixtures-classic').toMatchGolden(text => {
+      try {
+        return babel.transform(text, {
+          plugins: [
+            [BabelPluginRelay, {compat: true}],
+            BabelPluginRelayClassic,
           ],
           compact: false,
           parserOpts: {plugins: ['jsx']},

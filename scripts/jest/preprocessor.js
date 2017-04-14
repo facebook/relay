@@ -35,7 +35,7 @@ const babelOptions = getBabelOptions({
     'StaticContainer.react': 'react-static-container',
   },
   plugins: [
-    [BabelPluginRelay, {compat: true}],
+    [BabelPluginRelay, {compat: true, haste: true, relayQLModule: 'RelayQL'}],
     getBabelRelayPlugin(schema, {substituteVariables: true}),
     require('babel-plugin-transform-async-to-generator'),
     require('babel-plugin-transform-regenerator'),

@@ -31,7 +31,10 @@ function compileRelayQLTag(
   options
 ) {
   try {
-    const transformer = getClassicTransformer(schemaProvider, options);
+    const transformer = getClassicTransformer(
+      schemaProvider,
+      options || state.opts || {}
+    );
     return transformer.transform(t, quasi, {
       documentName,
       propName,

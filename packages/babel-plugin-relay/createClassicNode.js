@@ -13,8 +13,7 @@
 
 const GraphQL = require('graphql');
 
-const createTransformError = require('./createTransformError');
-const getClassicTransformer = require('./getClassicTransformer');
+const compileRelayQLTag = require('./compileRelayQLTag');
 const getFragmentNameParts = require('./getFragmentNameParts');
 const invariant = require('./invariant');
 
@@ -336,7 +335,6 @@ function createRelayQLTemplate(t, node, state) {
     schema,
     'babel-plugin-relay: Missing schema option'
   );
-  const classicTransformer = getClassicTransformer(schema, state.opts || {});
   const [documentName, propName] = getFragmentNameParts(node.name.value);
   const text = GraphQL.print(node);
   const quasi = t.templateLiteral(
@@ -344,16 +342,15 @@ function createRelayQLTemplate(t, node, state) {
     []
   );
 
-  try {
-    return classicTransformer.transform(t, quasi, {
-      documentName,
-      propName,
-      tagName: RELAYQL_GENERATED,
-      enableValidation: false,
-    });
-  } catch (error) {
-    return createTransformError(t, error, quasi, state);
-  }
+  return compileRelayQLTag(
+    t,
+    schema,
+    quasi,
+    documentName,
+    propName,
+    RELAYQL_GENERATED, // tagName
+    state
+  );
 }
 
 function createSubstitutionsForFragmentSpreads(t, path, fragments) {

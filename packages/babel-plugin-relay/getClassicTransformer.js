@@ -62,6 +62,8 @@ function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
     schemaReference;
   if (introspection.__schema) {
     return buildClientSchema(introspection);
+  } else if (introspection.data && introspection.data.__schema) {
+    return buildClientSchema(introspection.data);
   } else if (introspection.kind && introspection.kind === 'Document') {
     return buildASTSchema(introspection);
   }

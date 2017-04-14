@@ -11,38 +11,21 @@
 
 'use strict';
 
-const babel = require('babel-core');
-const fs = require('fs');
-const getBabelRelayPlugin = require('../../getBabelRelayPlugin');
-const util = require('util');
+const BabelPluginRelay = require('../../BabelPluginRelay');
 
-const schemaCache = {};
-function getSchema(schemaPath) {
-  try {
-    let schema = schemaCache[schemaPath];
-    if (!schema) {
-      schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8')).data;
-      schemaCache[schemaPath] = schema;
-    }
-    return schema;
-  } catch (e) {
-    throw new Error(util.format(
-      'transformGraphQL(): Failed to read schema path `%s`. Error: %s, %s',
-       schemaPath,
-       e.message,
-       e.stack
-    ));
-  }
-}
+const babel = require('babel-core');
 
 function transformGraphQL(schemaPath, source, filename) {
-  const relayPlugin = getBabelRelayPlugin(getSchema(schemaPath), {
-    debug: true,
-    substituteVariables: true,
-    suppressWarnings: true,
-  });
   return babel.transform(source, {
-    plugins: [relayPlugin],
+    plugins: [
+      [BabelPluginRelay, {
+        compat: true,
+        schema: schemaPath,
+        debug: true,
+        substituteVariables: true,
+        suppressWarnings: true,
+      }],
+    ],
     compact: false,
     filename,
   }).code;

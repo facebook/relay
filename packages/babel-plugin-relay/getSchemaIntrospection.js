@@ -31,6 +31,9 @@ const RELAY_DIRECTIVES = `
 function getSchemaIntrospection(schemaPath /*: string*/) {
   try {
     const source = fs.readFileSync(schemaPath, 'utf8');
+    if (source[0] === '{') {
+      return JSON.parse(source);
+    }
     return parse(RELAY_DIRECTIVES + '\n' + source);
   } catch (error) {
     // Log a more helpful warning (by including the schema path).

@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule getClassicTransformer
+ * @flow
  */
 
 'use strict';
@@ -61,9 +62,9 @@ function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
     getSchemaIntrospection(schemaReference) :
     schemaReference;
   if (introspection.__schema) {
-    return buildClientSchema(introspection);
+    return buildClientSchema((introspection: any));
   } else if (introspection.data && introspection.data.__schema) {
-    return buildClientSchema(introspection.data);
+    return buildClientSchema((introspection.data: any));
   } else if (introspection.kind && introspection.kind === 'Document') {
     return buildASTSchema(introspection);
   }

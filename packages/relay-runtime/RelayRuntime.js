@@ -27,6 +27,12 @@ const fetchRelayStaticQuery = require('fetchRelayStaticQuery');
 const isRelayStaticEnvironment = require('isRelayStaticEnvironment');
 const requestRelaySubscription = require('requestRelaySubscription');
 
+export type {
+  GeneratedNode,
+  ConcreteBatch,
+  ConcreteFragment,
+} from 'RelayConcreteNode';
+
 /**
  * The public interface to Relay Runtime.
  */

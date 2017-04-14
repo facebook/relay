@@ -28,6 +28,7 @@ async function writeRelayGeneratedFile(
   flowText: ?string,
   persistQuery: ?(text: string) => Promise<string>,
   platform: ?string,
+  relayRuntimeModule: string,
 ): Promise<?GeneratedNode> {
   const moduleName = generatedNode.name + '.graphql';
   const platformName = platform ? moduleName + '.' + platform : moduleName;
@@ -77,6 +78,7 @@ async function writeRelayGeneratedFile(
     flowText,
     hash,
     concreteText: prettyStringify(generatedNode),
+    relayRuntimeModule,
   });
 
   codegenDir.writeFile(filename, moduleText);
@@ -106,6 +108,7 @@ function generateModule({
   concreteText,
   flowText,
   hash,
+  relayRuntimeModule,
 }: {
   buildCommand: string,
   moduleName: string,
@@ -114,6 +117,7 @@ function generateModule({
   concreteText: string,
   flowText: ?string,
   hash: ?string,
+  relayRuntimeModule: string,
 }): string {
   const objectName = documentType === 'ConcreteBatch' ? 'batch' : 'fragment';
   const docTextComment = docText ?
@@ -135,7 +139,7 @@ function generateModule({
 'use strict';
 
 /*::
-import type {${documentType}} from 'RelayConcreteNode';
+import type {${documentType}} from '${relayRuntimeModule}';
 ${flowText || ''}
 */
 

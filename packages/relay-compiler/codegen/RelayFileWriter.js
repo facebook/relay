@@ -48,6 +48,7 @@ export type WriterConfig = {
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
   schemaTransforms: Array<SchemaTransform>,
+  relayRuntimeModule?: string,
 };
 
 /* eslint-disable no-console-disallow */
@@ -195,6 +196,7 @@ class RelayFileWriter {
           flowTypes,
           this.skipPersist ? null : this._config.persistQuery,
           this._config.platform,
+          this._config.relayRuntimeModule || 'relay-runtime'
         );
       }));
       tGenerated = Date.now();

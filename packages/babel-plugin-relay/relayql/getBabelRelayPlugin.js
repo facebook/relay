@@ -12,24 +12,15 @@
 
 'use strict';
 
-const RelayQLTransformer = require('./RelayQLTransformer');
-const RelayTransformError = require('./RelayTransformError');
-
-const computeLocation = require('./computeLocation');
+const createTransformError = require('./createTransformError');
+const getClassicTransformer = require('./getClassicTransformer');
 const invariant = require('./invariant');
-const util = require('./util');
-
-const {
-  buildASTSchema,
-  buildClientSchema,
-} = require('graphql');
 
 import type {Validator} from './RelayQLTransformer';
 
 const PROVIDES_MODULE = 'providesModule';
 const RELAY_QL_GENERATED = 'RelayQL_GENERATED';
 
-type GraphQLSchema = Object;
 type GraphQLSchemaProvider = (Object | () => Object);
 
 /**
@@ -49,17 +40,8 @@ function getBabelRelayPlugin(
   }
 ): Function {
   const options = pluginOptions || {};
-  const warning = options.suppressWarnings ?
-    function() {} :
-    console.warn.bind(console);
 
-  const schema = getSchema(schemaProvider);
-  const transformer = new RelayQLTransformer(schema, {
-    inputArgumentName: options.inputArgumentName,
-    snakeCase: !!options.snakeCase,
-    substituteVariables: !!options.substituteVariables,
-    validator: options.validator,
-  });
+  const transformer = getClassicTransformer(schemaProvider, options);
 
   return function(babel) {
     const t = babel.types;
@@ -137,131 +119,13 @@ function getBabelRelayPlugin(
                 }
               );
           } catch (error) {
-            var basename = state.file.opts.basename || 'UnknownFile';
-            var filename = state.file.opts.filename || 'UnknownFile';
-            var errorMessages = [];
-
-            if (error instanceof RelayTransformError) {
-              errorMessages.push(error.message);
-              warning(
-                '\n-- Relay Transform Error -- %s --\n',
-                basename
-              );
-              const sourceLine = node.quasi.loc && node.quasi.loc.start.line;
-              const relativeLocation = error.loc && computeLocation(error.loc);
-              if (sourceLine && relativeLocation) {
-                warning([
-                  'Within RelayQLDocument ' + filename + ':' + sourceLine,
-                  '> ',
-                  '> line ' + (relativeLocation.line) + ' (approximate)',
-                  '> ' + relativeLocation.source,
-                  '> ' + ' '.repeat(relativeLocation.column - 1) + '^^^',
-                  'Error: ' + error.message,
-                  'Stack: ' + error.stack,
-                ].join('\n'));
-              } else {
-                warning(error.message);
-              }
-            } else {
-              // Print a console warning and replace the code with a function
-              // that will immediately throw an error in the browser.
-              var {sourceText, validationErrors} = error;
-              var isValidationError = !!(validationErrors && sourceText);
-              if (isValidationError) {
-                var sourceLines = sourceText.split('\n');
-                validationErrors.forEach(({message, locations}) => {
-                  errorMessages.push(message);
-                  warning(
-                    '\n-- GraphQL Validation Error -- %s --\n',
-                    basename
-                  );
-                  warning([
-                    'File:  ' + filename,
-                    'Error: ' + message,
-                    'Source:',
-                  ].join('\n'));
-                  locations.forEach(location => {
-                    var preview = sourceLines[location.line - 1];
-                    if (preview) {
-                      warning([
-                        '> ',
-                        '> ' + preview,
-                        '> ' + ' '.repeat(location.column - 1) + '^^^',
-                      ].join('\n'));
-                    }
-                  });
-                });
-              } else {
-                errorMessages.push(error.message);
-                warning(
-                  '\n-- Relay Transform Error -- %s --\n',
-                  basename
-                );
-                warning([
-                  'File:  ' + filename,
-                  'Error: ' + error.stack,
-                ].join('\n'));
-              }
-            }
-            var runtimeMessage = util.format(
-              '%s error ``%s`` in file `%s`. Try updating your GraphQL ' +
-              'schema if an argument/field/type was recently added.',
-              isValidationError ? 'GraphQL validation' : 'Relay transform',
-              errorMessages.join(' '),
-              filename
-            );
-            result = t.callExpression(
-              t.functionExpression(
-                null,
-                [],
-                t.blockStatement([
-                  t.throwStatement(
-                    t.newExpression(
-                      t.identifier('Error'),
-                      [t.valueToNode(runtimeMessage)]
-                    )
-                  ),
-                ])
-              ),
-              []
-            );
-
-            if (state.opts && state.opts.enforceSchema) {
-              throw new Error(util.format(
-                errorMessages.length ?
-                  'Aborting due to a %s error:\n\n%s\n' :
-                  'Aborting due to %s errors:\n\n%s\n',
-                isValidationError ? 'GraphQL validation' : 'Relay transform',
-                errorMessages
-                  .map(errorMessage => '  - ' + errorMessage)
-                  .join('\n'),
-              ));
-            } else if (options.debug) {
-              console.error(error.stack);
-            }
+            result = createTransformError(t, error, node.quasi, state, options);
           }
           path.replaceWith(result);
         },
       },
     };
   };
-}
-
-function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
-  const introspection = typeof schemaProvider === 'function' ?
-    schemaProvider() :
-    schemaProvider;
-  if (typeof introspection.__schema === 'object' && introspection.__schema) {
-    return buildClientSchema(introspection);
-  } else if (introspection.kind && introspection.kind === 'Document') {
-    return buildASTSchema(introspection);
-  }
-
-  throw new Error(
-    'Invalid introspection data supplied to `getBabelRelayPlugin()`. The ' +
-    'resulting schema is not an object with a `__schema` property or ' +
-    'a schema IDL language.'
-  );
 }
 
 module.exports = getBabelRelayPlugin;

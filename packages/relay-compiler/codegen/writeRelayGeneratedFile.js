@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule writeRelayQLFile
+ * @providesModule writeRelayGeneratedFile
  * @flow
  */
 
@@ -21,7 +21,7 @@ const prettyStringify = require('prettyStringify');
 import type CodegenDirectory from 'CodegenDirectory';
 import type {GeneratedNode} from 'RelayConcreteNode';
 
-async function writeRelayQLFile(
+async function writeRelayGeneratedFile(
   codegenDir: CodegenDirectory,
   generatedNode: GeneratedNode,
   buildCommand: string,
@@ -152,4 +152,4 @@ function md5(text: string): string {
   return crypto.createHash('md5').update(text).digest('hex');
 }
 
-module.exports = writeRelayQLFile;
+module.exports = writeRelayGeneratedFile;

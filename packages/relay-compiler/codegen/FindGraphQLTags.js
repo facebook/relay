@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule FindRelayQL
+ * @providesModule FindGraphQLTags
  * @flow
  */
 
@@ -46,7 +46,7 @@ function find(text: string, fileName: string): Array<{tag: string, template: str
   const rawModuleName = extractModuleName(text) || fileName;
   invariant(
     rawModuleName,
-    'FindRelayQL: Expected a module name to be defined with ' +
+    'FindGraphQLTags: Expected a module name to be defined with ' +
     '`@providesModule <name>`.'
   );
   const moduleName = rawModuleName
@@ -79,15 +79,16 @@ function find(text: string, fileName: string): Array<{tag: string, template: str
             property.type === 'ObjectProperty' &&
             property.key.type === 'Identifier' &&
             property.value.type === 'TaggedTemplateExpression',
-            'FindRelayQL: `%s` expects fragment definitions to be `key: graphql`.',
+            'FindGraphQLTags: `%s` expects fragment definitions to be ' +
+            '`key: graphql`.',
             node.callee.name
           );
           const keyName = property.key.name;
           const tagName = getGraphQLTagName(property.value.tag);
           invariant(
             tagName,
-            'FindRelayQL: `%s` expects fragment definitions to be tagged with ' +
-            '`graphql` or `Relay2QL`, got `%s`.',
+            'FindGraphQLTags: `%s` expects fragment definitions to be tagged ' +
+            'with `graphql`, got `%s`.',
             node.callee.name,
             getSourceTextForLocation(text, property.value.tag.loc)
           );
@@ -107,14 +108,15 @@ function find(text: string, fileName: string): Array<{tag: string, template: str
       } else {
         invariant(
           fragments && fragments.type === 'TaggedTemplateExpression',
-          'FindRelayQL: `%s` expects a second argument of fragment definitions.',
+          'FindGraphQLTags: `%s` expects a second argument of fragment ' +
+          'definitions.',
           node.callee.name
         );
         const tagName = getGraphQLTagName(fragments.tag);
         invariant(
           tagName,
-          'FindRelayQL: `%s` expects fragment definitions to be tagged with ' +
-          '`graphql`, or `Relay2QL`, got `%s`.',
+          'FindGraphQLTags: `%s` expects fragment definitions to be tagged ' +
+          'with `graphql`, got `%s`.',
           node.callee.name,
           getSourceTextForLocation(text, fragments.tag.loc)
         );
@@ -175,8 +177,9 @@ const CREATE_CONTAINER_FUNCTIONS = {
 };
 
 const IDENTIFIERS = {
-  Relay2QL: true,
   graphql: true,
+  // TODO: remove this deprecated usage
+  Relay2QL: true,
 };
 
 const IGNORED_KEYS = {
@@ -209,7 +212,7 @@ function getGraphQLText(quasi) {
   const quasis = quasi.quasis;
   invariant(
     quasis && quasis.length === 1,
-    'FindRelayQL: Substitutions are not allowed in graphql tags.'
+    'FindGraphQLTags: Substitutions are not allowed in graphql tags.'
   );
   return quasis[0].value.raw;
 }
@@ -234,9 +237,9 @@ function validateTemplate(template, moduleName, keyName) {
       invariant(
         operationNameParts &&
         definitionName.startsWith(moduleName),
-        'FindRelayQL: Operation names in graphql tags must be prefixed with ' +
-        'the module name and end in "Mutation", "Query", or "Subscription". ' +
-        'Got `%s` in module `%s`.',
+        'FindGraphQLTags: Operation names in graphql tags must be prefixed ' +
+        'with the module name and end in "Mutation", "Query", or ' +
+        '"Subscription". Got `%s` in module `%s`.',
         definitionName,
         moduleName
       );
@@ -244,16 +247,16 @@ function validateTemplate(template, moduleName, keyName) {
       if (keyName) {
         invariant(
           definitionName === moduleName + '_' + keyName,
-          'FindRelayQL: Container fragment names must be `<ModuleName>_<propName>`. ' +
-          'Got `%s`, expected `%s`.',
+          'FindGraphQLTags: Container fragment names must be ' +
+          '`<ModuleName>_<propName>`. Got `%s`, expected `%s`.',
           definitionName,
           moduleName + '_' + keyName
         );
       } else {
         invariant(
           definitionName.startsWith(moduleName),
-          'FindRelayQL: Fragment names in graphql tags must be prefixed with ' +
-          'the module name. Got `%s` in module `%s`.',
+          'FindGraphQLTags: Fragment names in graphql tags must be prefixed ' +
+          'with the module name. Got `%s` in module `%s`.',
           definitionName,
           moduleName
         );

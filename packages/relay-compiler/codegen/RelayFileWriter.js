@@ -22,7 +22,7 @@ const invariant = require('invariant');
 const path = require('path');
 const printFlowTypes = require('printFlowTypes');
 const writeFlowFile = require('./writeFlowFile');
-const writeRelayQLFile = require('./writeRelayQLFile');
+const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
 const {isOperationDefinitionAST} = require('RelaySchemaUtils');
 const {Map: ImmutableMap} = require('immutable');
@@ -165,7 +165,7 @@ class RelayFileWriter {
 
     const tCompiled = Date.now();
 
-    let tRelayQL;
+    let tGenerated;
     try {
       await Promise.all(nodes.map(async (node) => {
         if (baseDefinitionNames.has(node.name)) {
@@ -188,7 +188,7 @@ class RelayFileWriter {
           'RelayCompiler: did not compile definition: %s',
           node.name,
         );
-        await writeRelayQLFile(
+        await writeRelayGeneratedFile(
           getGeneratedDirectory(compiledNode.name),
           compiledNode,
           this._config.buildCommand,
@@ -197,7 +197,7 @@ class RelayFileWriter {
           this._config.platform,
         );
       }));
-      tRelayQL = Date.now();
+      tGenerated = Date.now();
 
       if (this._config.generateExtraFiles) {
         const configDirectory = this._config.outputDir;
@@ -225,7 +225,7 @@ class RelayFileWriter {
         dir.deleteExtraFiles();
       });
     } catch (error) {
-      tRelayQL = Date.now();
+      tGenerated = Date.now();
       let details;
       try {
         details = JSON.parse(error.message);
@@ -241,11 +241,11 @@ class RelayFileWriter {
 
     const tExtra = Date.now();
     console.log(
-      'Writer time: %s [%s compiling, %s relay files, %s extra]',
+      'Writer time: %s [%s compiling, %s generating, %s extra]',
       toSeconds(tStart, tExtra),
       toSeconds(tStart, tCompiled),
-      toSeconds(tCompiled, tRelayQL),
-      toSeconds(tRelayQL, tExtra),
+      toSeconds(tCompiled, tGenerated),
+      toSeconds(tGenerated, tExtra),
     );
     return allOutputDirectories;
   }

@@ -13,7 +13,7 @@
 'use strict';
 
 const FileParser = require('FileParser');
-const FindRelayQL = require('FindRelayQL');
+const FindGraphQLTags = require('FindGraphQLTags');
 const GraphQL = require('graphql');
 
 const fs = require('fs');
@@ -36,7 +36,7 @@ function parseFile(file: string): ?DocumentNode {
   );
 
   const astDefinitions = [];
-  FindRelayQL.memoizedFind(text, moduleName).forEach(({tag, template}) => {
+  FindGraphQLTags.memoizedFind(text, moduleName).forEach(({tag, template}) => {
     if (!(tag === 'graphql' || tag === 'graphql.experimental')) {
       throw new Error(
         'Invalid tag ' + tag + ' in module ' + moduleName + '. Expected `graphql` ' +

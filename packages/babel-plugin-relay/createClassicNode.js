@@ -13,18 +13,21 @@
 
 const GraphQL = require('graphql');
 
+const createTransformError = require('./createTransformError');
+const getClassicTransformer = require('./getClassicTransformer');
 const getFragmentNameParts = require('./getFragmentNameParts');
+const invariant = require('./invariant');
 
 /**
  * Relay Classic transforms to inline generated content.
  */
-function createClassicNode(t, path, graphqlDefinition, opts) {
+function createClassicNode(t, path, graphqlDefinition, state) {
   if (graphqlDefinition.kind === 'FragmentDefinition') {
-    return createFragmentConcreteNode(t, path, graphqlDefinition, opts);
+    return createFragmentConcreteNode(t, path, graphqlDefinition, state);
   }
 
   if (graphqlDefinition.kind === 'OperationDefinition') {
-    return createOperationConcreteNode(t, path, graphqlDefinition, opts);
+    return createOperationConcreteNode(t, path, graphqlDefinition, state);
   }
 
   throw new Error(
@@ -33,7 +36,7 @@ function createClassicNode(t, path, graphqlDefinition, opts) {
   );
 }
 
-function createFragmentConcreteNode(t, path, definition, opts) {
+function createFragmentConcreteNode(t, path, definition, state) {
   const {
     classicAST,
     fragments,
@@ -49,18 +52,18 @@ function createFragmentConcreteNode(t, path, definition, opts) {
       argumentDefinitions,
       variables
     ),
-    node: createRelayQLTemplate(t, classicAST),
+    node: createRelayQLTemplate(t, classicAST, state),
   });
 
-  return createConcreteNode(t, transformedAST, substitutions, opts);
+  return createConcreteNode(t, transformedAST, substitutions, state);
 }
 
-function createOperationConcreteNode(t, path, definition, opts) {
+function createOperationConcreteNode(t, path, definition, state) {
   const {classicAST, fragments} = createClassicAST(t, definition);
   const substitutions = createSubstitutionsForFragmentSpreads(t, path, fragments);
   const nodeAST = classicAST.operation === 'query' ?
-    createFragmentForOperation(t, classicAST) :
-    createRelayQLTemplate(t, classicAST);
+    createFragmentForOperation(t, classicAST, state) :
+    createRelayQLTemplate(t, classicAST, state);
   const transformedAST = createObject(t, {
     kind: t.stringLiteral('OperationDefinition'),
     argumentDefinitions: createOperationArguments(
@@ -72,7 +75,7 @@ function createOperationConcreteNode(t, path, definition, opts) {
     node: nodeAST,
   });
 
-  return createConcreteNode(t, transformedAST, substitutions, opts);
+  return createConcreteNode(t, transformedAST, substitutions, state);
 }
 
 function createClassicAST(t, definition) {
@@ -160,10 +163,10 @@ function createClassicAST(t, definition) {
 
 const RELAYQL_GENERATED = 'RelayQL_GENERATED';
 
-function createConcreteNode(t, transformedAST, substitutions, opts) {
+function createConcreteNode(t, transformedAST, substitutions, state) {
   // Allow for an optional direct require to RelayQL,
   // otherwise default to `require('react-relay/classic').QL`.
-  const relayQLModule = opts && opts.relayQLModule;
+  const relayQLModule = state.opts && state.opts.relayQLModule;
   const relayQLRequire = relayQLModule ?
     createRequireCall(t, relayQLModule) :
     t.memberExpression(
@@ -289,7 +292,7 @@ function createRequireCall(t, requiredPath) {
   );
 }
 
-function createFragmentForOperation(t, operation) {
+function createFragmentForOperation(t, operation, state) {
   let type;
   switch (operation.operation) {
     case 'query':
@@ -307,7 +310,7 @@ function createFragmentForOperation(t, operation) {
         operation.operation + '`.'
       );
   }
-  return createRelayQLTemplate(t, {
+  const fragmentNode = {
     kind: 'FragmentDefinition',
     loc: operation.loc,
     name: {
@@ -323,18 +326,34 @@ function createFragmentForOperation(t, operation) {
     },
     directives: operation.directives,
     selectionSet: operation.selectionSet,
-  });
+  };
+  return createRelayQLTemplate(t, fragmentNode, state);
 }
 
-function createRelayQLTemplate(t, node) {
-  const text = GraphQL.print(node);
-  return t.taggedTemplateExpression(
-    t.identifier(RELAYQL_GENERATED),
-    t.templateLiteral(
-      [t.templateElement({raw: text, cooked: text}, true)],
-      []
-    )
+function createRelayQLTemplate(t, node, state) {
+  const schema = state.opts && state.opts.schema;
+  invariant(
+    schema,
+    'babel-plugin-relay: Missing schema option'
   );
+  const classicTransformer = getClassicTransformer(schema, state.opts || {});
+  const [documentName, propName] = getFragmentNameParts(node.name.value);
+  const text = GraphQL.print(node);
+  const quasi = t.templateLiteral(
+    [t.templateElement({raw: text, cooked: text}, true)],
+    []
+  );
+
+  try {
+    return classicTransformer.transform(t, quasi, {
+      documentName,
+      propName,
+      tagName: RELAYQL_GENERATED,
+      enableValidation: false,
+    });
+  } catch (error) {
+    return createTransformError(t, error, quasi, state);
+  }
 }
 
 function createSubstitutionsForFragmentSpreads(t, path, fragments) {

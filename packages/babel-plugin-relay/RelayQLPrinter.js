@@ -15,7 +15,7 @@
 const RelayTransformError = require('./RelayTransformError');
 
 const find = require('./find');
-const util = require('./util');
+const util = require('util');
 
 const {
   RelayQLArgument,

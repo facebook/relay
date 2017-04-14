@@ -19,15 +19,7 @@ const babel = require('babel-core');
 const getGoldenMatchers = require('getGoldenMatchers');
 const path = require('path');
 
-const getSchemaIntrospection = require('../getSchemaIntrospection');
-const getBabelRelayPlugin = require('../getBabelRelayPlugin');
-
 const SCHEMA_PATH = path.resolve(__dirname, '../../relay-compiler/testutils/testschema.graphql');
-
-const schema = getSchemaIntrospection(SCHEMA_PATH);
-const BabelPluginRelayClassic = getBabelRelayPlugin(schema, {
-  substituteVariables: true,
-});
 
 describe('BabelPluginRelay', () => {
   beforeEach(() => {
@@ -55,8 +47,11 @@ describe('BabelPluginRelay', () => {
       try {
         return babel.transform(text, {
           plugins: [
-            [BabelPluginRelay, {compat: true}],
-            BabelPluginRelayClassic,
+            [BabelPluginRelay, {
+              compat: true,
+              schema: SCHEMA_PATH,
+              substituteVariables: true,
+            }],
           ],
           compact: false,
           parserOpts: {plugins: ['jsx']},
@@ -92,8 +87,9 @@ describe('BabelPluginRelay', () => {
               compat: true,
               haste: true,
               relayQLModule: 'RelayQL_GENERATED',
+              schema: SCHEMA_PATH,
+              substituteVariables: true,
             }],
-            BabelPluginRelayClassic,
           ],
           compact: false,
           parserOpts: {plugins: ['jsx']},

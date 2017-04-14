@@ -14,7 +14,7 @@
 const RelayTransformError = require('./RelayTransformError');
 
 const computeLocation = require('./computeLocation');
-const util = require('./util');
+const util = require('util');
 
 /**
  * In case of an error during transform, determine if it should be logged

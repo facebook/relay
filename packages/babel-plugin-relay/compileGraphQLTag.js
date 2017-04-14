@@ -35,7 +35,7 @@ function compileGraphQLTag(t, path, state, ast) {
       return replaceMemoized(
         t,
         path,
-        createAST(t, state.opts, path, mainDefinition)
+        createAST(t, state, path, mainDefinition)
       );
     }
 
@@ -49,7 +49,7 @@ function compileGraphQLTag(t, path, state, ast) {
       }
 
       const [, propName] = getFragmentNameParts(definition.name.value);
-      nodeMap[propName] = createAST(t, state.opts, path, definition);
+      nodeMap[propName] = createAST(t, state, path, definition);
     }
     return replaceMemoized(t, path, createObject(t, nodeMap));
   }
@@ -64,7 +64,7 @@ function compileGraphQLTag(t, path, state, ast) {
     return replaceMemoized(
       t,
       path,
-      createAST(t, state.opts, path, mainDefinition)
+      createAST(t, state, path, mainDefinition)
     );
   }
 
@@ -74,16 +74,16 @@ function compileGraphQLTag(t, path, state, ast) {
   );
 }
 
-function createAST(t, opts, path, graphqlDefinition) {
-  const isCompatMode = Boolean(opts && opts.compat);
-  const isHasteMode = Boolean(opts && opts.haste);
+function createAST(t, state, path, graphqlDefinition) {
+  const isCompatMode = Boolean(state.opts && state.opts.compat);
+  const isHasteMode = Boolean(state.opts && state.opts.haste);
 
   const modernNode = createModernNode(t, graphqlDefinition, isHasteMode);
   if (isCompatMode) {
     return createCompatNode(
       t,
       modernNode,
-      createClassicNode(t, path, graphqlDefinition, opts)
+      createClassicNode(t, path, graphqlDefinition, state)
     );
   }
   return modernNode;

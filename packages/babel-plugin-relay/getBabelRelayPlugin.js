@@ -8,6 +8,7 @@
  *
  * @flow
  * @fullSyntaxTransform
+ * @providesModule getBabelRelayPlugin
  */
 
 'use strict';

@@ -24,10 +24,29 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [],
-        node: RelayQL_GENERATED`fragment CompatProfile_user on User {
-  name
-  ...CompatProfilePic_user
-}`
+        node: function () {
+          return {
+            children: [].concat.apply([], [{
+              fieldName: 'name',
+              kind: 'Field',
+              metadata: {},
+              type: 'String'
+            }, {
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }, RelayQL_GENERATED.__frag(CompatProfilePic_user)]),
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile_user',
+            type: 'User'
+          };
+        }()
       };
     }
   }

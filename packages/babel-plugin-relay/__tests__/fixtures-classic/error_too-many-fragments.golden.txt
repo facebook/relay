@@ -1,3 +1,0 @@
-ERROR:
-
-Error: unknown: BabelPluginRelay: Expected exactly one fragment in the graphql tag referenced by the property user.

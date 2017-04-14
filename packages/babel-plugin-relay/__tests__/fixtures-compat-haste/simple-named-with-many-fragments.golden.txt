@@ -22,9 +22,29 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [],
-        node: RelayQL_GENERATED`fragment CompatProfile on User {
-  name
-}`
+        node: function () {
+          return {
+            children: [{
+              fieldName: 'name',
+              kind: 'Field',
+              metadata: {},
+              type: 'String'
+            }, {
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }],
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile',
+            type: 'User'
+          };
+        }()
       };
     }
   },
@@ -38,9 +58,29 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [],
-        node: RelayQL_GENERATED`fragment CompatProfile_viewer on User {
-  name
-}`
+        node: function () {
+          return {
+            children: [{
+              fieldName: 'name',
+              kind: 'Field',
+              metadata: {},
+              type: 'String'
+            }, {
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }],
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile_viewer',
+            type: 'User'
+          };
+        }()
       };
     }
   }

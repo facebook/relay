@@ -26,11 +26,9 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
           kind: 'LocalArgument',
           name: 'scale'
         }],
-        node: RelayQL_GENERATED`fragment CompatProfile_user on User {
-  profile_picture(scale: $scale) {
-    uri
-  }
-}`
+        node: function () {
+          throw new Error('Relay transform error ``You supplied a field named `profile_picture` on type `User`, but no such field exists on that type.`` in file `unknown`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+        }()
       };
     }
   },
@@ -48,11 +46,9 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
           kind: 'LocalArgument',
           name: 'scale'
         }],
-        node: RelayQL_GENERATED`fragment CompatProfile_user2 on User {
-  profile_picture(scale: $scale) {
-    uri
-  }
-}`
+        node: function () {
+          throw new Error('Relay transform error ``You supplied a field named `profile_picture` on type `User`, but no such field exists on that type.`` in file `unknown`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+        }()
       };
     }
   }

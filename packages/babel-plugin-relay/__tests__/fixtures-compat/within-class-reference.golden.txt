@@ -39,13 +39,61 @@ class CompatProfile extends React.Component {
           }],
           name: 'ActorSubscribe',
           operation: 'mutation',
-          node: RelayQL_GENERATED`mutation ActorSubscribe($input: ActorSubscribeInput!) {
-  actorSubscribe(input: $input) {
-    subscribee {
-      ...CompatProfile
-    }
-  }
-}`
+          node: function () {
+            return {
+              calls: [{
+                kind: 'Call',
+                metadata: {},
+                name: 'actorSubscribe',
+                value: {
+                  kind: 'CallVariable',
+                  callVariableName: 'input'
+                }
+              }],
+              children: [{
+                children: [].concat.apply([], [{
+                  fieldName: 'id',
+                  kind: 'Field',
+                  metadata: {
+                    isGenerated: true,
+                    isRequisite: true
+                  },
+                  type: 'ID'
+                }, {
+                  fieldName: '__typename',
+                  kind: 'Field',
+                  metadata: {
+                    isGenerated: true,
+                    isRequisite: true
+                  },
+                  type: 'String'
+                }, RelayQL_GENERATED.__frag(CompatProfile)]),
+                fieldName: 'subscribee',
+                kind: 'Field',
+                metadata: {
+                  canHaveSubselections: true,
+                  inferredRootCallName: 'node',
+                  inferredPrimaryKey: 'id',
+                  isAbstract: true
+                },
+                type: 'Actor'
+              }, {
+                fieldName: 'clientMutationId',
+                kind: 'Field',
+                metadata: {
+                  isGenerated: true,
+                  isRequisite: true
+                },
+                type: 'String'
+              }],
+              kind: 'Mutation',
+              metadata: {
+                inputType: 'ActorSubscribeInput'
+              },
+              name: 'ActorSubscribe',
+              responseType: 'ActorSubscribeResponsePayload'
+            };
+          }()
         };
       }
     }), { input: { subscribeeId: 123 } });
@@ -64,11 +112,44 @@ module.exports = createFragmentContainer(CompatProfile, {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [],
-        node: RelayQL_GENERATED`fragment CompatProfile on Actor {
-  name
-  subscribeStatus
-  ...CompatProfilePic_user
-}`
+        node: function () {
+          return {
+            children: [].concat.apply([], [{
+              fieldName: 'name',
+              kind: 'Field',
+              metadata: {},
+              type: 'String'
+            }, {
+              fieldName: 'subscribeStatus',
+              kind: 'Field',
+              metadata: {},
+              type: 'String'
+            }, {
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }, {
+              fieldName: '__typename',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'String'
+            }, RelayQL_GENERATED.__frag(CompatProfilePic_user)]),
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {
+              isAbstract: true
+            },
+            name: 'CompatProfile',
+            type: 'Actor'
+          };
+        }()
       };
     }
   }

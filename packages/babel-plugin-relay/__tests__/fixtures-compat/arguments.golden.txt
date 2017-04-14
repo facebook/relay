@@ -33,10 +33,24 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [],
-        node: RelayQL_GENERATED`fragment CompatProfile_passing on User {
-  ...ProfilePic_user_args1
-  ...ProfilePic_user_args2
-}`
+        node: function () {
+          return {
+            children: [].concat.apply([], [{
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }, RelayQL_GENERATED.__frag(ProfilePic_user_args1), RelayQL_GENERATED.__frag(ProfilePic_user_args2)]),
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile_passing',
+            type: 'User'
+          };
+        }()
       };
     }
   },
@@ -62,11 +76,9 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
           kind: 'LocalArgument',
           name: 'scale'
         }],
-        node: RelayQL_GENERATED`fragment CompatProfile_receiving on User {
-  friends(first: $first, named: $named, scale: $scale) {
-    count
-  }
-}`
+        node: function () {
+          throw new Error('Relay transform error ``You supplied an argument named `named` on field `friends`, but no such argument exists on that field.`` in file `unknown`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+        }()
       };
     }
   },
@@ -83,11 +95,50 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
           kind: 'RootArgument',
           name: 'friendsCount'
         }],
-        node: RelayQL_GENERATED`fragment CompatProfile_receivingGlobals on User {
-  friends(first: $friendsCount) {
-    count
-  }
-}`
+        node: function () {
+          return {
+            children: [{
+              calls: [{
+                kind: 'Call',
+                metadata: {
+                  type: 'Int'
+                },
+                name: 'first',
+                value: {
+                  kind: 'CallVariable',
+                  callVariableName: 'friendsCount'
+                }
+              }],
+              children: [{
+                fieldName: 'count',
+                kind: 'Field',
+                metadata: {},
+                type: 'Int'
+              }],
+              fieldName: 'friends',
+              kind: 'Field',
+              metadata: {
+                canHaveSubselections: true,
+                isConnection: true,
+                isFindable: true
+              },
+              type: 'FriendsConnection'
+            }, {
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }],
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile_receivingGlobals',
+            type: 'User'
+          };
+        }()
       };
     }
   }

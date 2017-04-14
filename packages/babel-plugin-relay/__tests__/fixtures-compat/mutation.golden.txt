@@ -26,16 +26,68 @@ const CompatCommentCreateMutation = {
       }],
       name: 'CompatCommentCreateMutation',
       operation: 'mutation',
-      node: RelayQL_GENERATED`mutation CompatCommentCreateMutation($input: CommentCreateInput!) {
-  commentCreate(input: $input) {
-    viewer {
-      actor {
-        id
-        ...CompatProfilePic_user
-      }
-    }
-  }
-}`
+      node: function () {
+        return {
+          calls: [{
+            kind: 'Call',
+            metadata: {},
+            name: 'commentCreate',
+            value: {
+              kind: 'CallVariable',
+              callVariableName: 'input'
+            }
+          }],
+          children: [{
+            children: [{
+              children: [].concat.apply([], [{
+                fieldName: 'id',
+                kind: 'Field',
+                metadata: {
+                  isRequisite: true
+                },
+                type: 'ID'
+              }, {
+                fieldName: '__typename',
+                kind: 'Field',
+                metadata: {
+                  isGenerated: true,
+                  isRequisite: true
+                },
+                type: 'String'
+              }, RelayQL_GENERATED.__frag(CompatProfilePic_user)]),
+              fieldName: 'actor',
+              kind: 'Field',
+              metadata: {
+                canHaveSubselections: true,
+                inferredRootCallName: 'node',
+                inferredPrimaryKey: 'id',
+                isAbstract: true
+              },
+              type: 'Actor'
+            }],
+            fieldName: 'viewer',
+            kind: 'Field',
+            metadata: {
+              canHaveSubselections: true
+            },
+            type: 'Viewer'
+          }, {
+            fieldName: 'clientMutationId',
+            kind: 'Field',
+            metadata: {
+              isGenerated: true,
+              isRequisite: true
+            },
+            type: 'String'
+          }],
+          kind: 'Mutation',
+          metadata: {
+            inputType: 'CommentCreateInput'
+          },
+          name: 'CompatCommentCreateMutation',
+          responseType: 'CommentCreateResponsePayload'
+        };
+      }()
     };
   }
 };

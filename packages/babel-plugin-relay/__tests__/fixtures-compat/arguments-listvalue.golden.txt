@@ -30,11 +30,9 @@ module.exports = Relay.createFragmentContainer(CompatProfile, {
           kind: 'LocalArgument',
           name: 'priceRange'
         }],
-        node: RelayQL_GENERATED`fragment CompatProfile_viewer on Viewer {
-  marketplace_explore(marketplace_browse_context: $browserContext, with_price_between: $priceRange) {
-    count
-  }
-}`
+        node: function () {
+          throw new Error('Relay transform error ``You supplied a field named `marketplace_explore` on type `Viewer`, but no such field exists on that type.`` in file `unknown`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+        }()
       };
     }
   }

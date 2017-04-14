@@ -24,9 +24,29 @@ module.exports = createRefetchContainer(RefetchExample, {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [],
-        node: RelayQL_GENERATED`fragment RefetchExample_user on User {
-  name
-}`
+        node: function () {
+          return {
+            children: [{
+              fieldName: 'name',
+              kind: 'Field',
+              metadata: {},
+              type: 'String'
+            }, {
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }],
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'RefetchExample_user',
+            type: 'User'
+          };
+        }()
       };
     }
   }
@@ -43,13 +63,51 @@ module.exports = createRefetchContainer(RefetchExample, {
       argumentDefinitions: [],
       name: 'RefetchExampleRefetchQuery',
       operation: 'query',
-      node: RelayQL_GENERATED`fragment RefetchExampleRefetchQuery on Query {
-  viewer {
-    actor {
-      ...RefetchExample_user
-    }
-  }
-}`
+      node: function () {
+        return {
+          children: [{
+            children: [{
+              children: [].concat.apply([], [{
+                fieldName: 'id',
+                kind: 'Field',
+                metadata: {
+                  isGenerated: true,
+                  isRequisite: true
+                },
+                type: 'ID'
+              }, {
+                fieldName: '__typename',
+                kind: 'Field',
+                metadata: {
+                  isGenerated: true,
+                  isRequisite: true
+                },
+                type: 'String'
+              }, RelayQL_GENERATED.__frag(RefetchExample_user)]),
+              fieldName: 'actor',
+              kind: 'Field',
+              metadata: {
+                canHaveSubselections: true,
+                inferredRootCallName: 'node',
+                inferredPrimaryKey: 'id',
+                isAbstract: true
+              },
+              type: 'Actor'
+            }],
+            fieldName: 'viewer',
+            kind: 'Field',
+            metadata: {
+              canHaveSubselections: true
+            },
+            type: 'Viewer'
+          }],
+          id: RelayQL_GENERATED.__id(),
+          kind: 'Fragment',
+          metadata: {},
+          name: 'RefetchExampleRefetchQuery',
+          type: 'Query'
+        };
+      }()
     };
   }
 });

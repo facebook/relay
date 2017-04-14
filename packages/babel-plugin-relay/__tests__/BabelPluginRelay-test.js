@@ -56,22 +56,6 @@ describe('BabelPluginRelay', () => {
         return babel.transform(text, {
           plugins: [
             [BabelPluginRelay, {compat: true}],
-          ],
-          compact: false,
-          parserOpts: {plugins: ['jsx']},
-        }).code;
-      } catch (e) {
-        return 'ERROR:\n\n' + e;
-      }
-    });
-  });
-
-  it('transforms source for compatibility mode + classic transform', () => {
-    expect('fixtures-classic').toMatchGolden(text => {
-      try {
-        return babel.transform(text, {
-          plugins: [
-            [BabelPluginRelay, {compat: true}],
             BabelPluginRelayClassic,
           ],
           compact: false,
@@ -109,6 +93,7 @@ describe('BabelPluginRelay', () => {
               haste: true,
               relayQLModule: 'RelayQL_GENERATED',
             }],
+            BabelPluginRelayClassic,
           ],
           compact: false,
           parserOpts: {plugins: ['jsx']},

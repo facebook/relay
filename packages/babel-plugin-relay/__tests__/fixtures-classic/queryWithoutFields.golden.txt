@@ -1,0 +1,12 @@
+'use strict';
+
+var Relay = require('react-relay');
+var x = function () {
+  return {
+    fieldName: 'viewer',
+    kind: 'Query',
+    metadata: {},
+    name: 'QueryWithoutFields',
+    type: 'Viewer'
+  };
+}();

@@ -1,0 +1,10 @@
+var Relay = require('Relay');
+var fragment = Relay.QL`
+  fragment on InvalidType {
+    node(id: 123) {
+      ... on User {
+        name
+      }
+    }
+  }
+`;

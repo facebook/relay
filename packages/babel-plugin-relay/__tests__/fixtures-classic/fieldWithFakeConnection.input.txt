@@ -1,0 +1,12 @@
+var Relay = require('Relay');
+var foo = Relay.QL`
+  fragment on User {
+    fakeConnection {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+`;

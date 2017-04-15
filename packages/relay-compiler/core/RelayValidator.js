@@ -16,7 +16,12 @@ const GraphQL = require('graphql');
 
 const util = require('util');
 
-import type {GraphQLSchema, DocumentNode} from 'graphql';
+import type {
+  DocumentNode,
+  GraphQLField,
+  GraphQLSchema,
+  ValidationContext,
+} from 'graphql';
 
 function validate(
   document: DocumentNode,
@@ -33,6 +38,22 @@ function validate(
     (error: any).validationErrors = formattedErrors;
     throw error;
   }
+}
+
+function DisallowIdAsAliasValidation(context: ValidationContext) {
+  return {
+    Field(field: GraphQLField<*, *>): void {
+      if (
+        field.alias && field.alias.value === 'id' && field.name.value !== 'id'
+      ) {
+        throw new Error(
+          'RelayValidator: Relay does not allow aliasing fields to `id`. ' +
+            'This name is reserved for the globally unique `id` field on ' +
+            '`Node`.',
+        );
+      }
+    },
+  };
 }
 
 module.exports = {
@@ -111,6 +132,7 @@ module.exports = {
     require(
       'graphql/validation/rules/VariablesInAllowedPosition'
     ).VariablesInAllowedPosition,
+    DisallowIdAsAliasValidation,
   ],
   validate,
 };

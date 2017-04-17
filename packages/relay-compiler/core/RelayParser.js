@@ -40,6 +40,7 @@ import type {
   InlineFragment,
   LocalArgumentDefinition,
   Root,
+  ScalarFieldType,
   Selection,
   Variable,
 } from 'RelayIR';
@@ -65,15 +66,17 @@ const {
   assertAbstractType,
   assertCompositeType,
   assertInputType,
-  assertLeafType,
   assertOutputType,
   isAbstractType,
   isLeafType,
+  getNamedType,
   GraphQLInputObjectType,
   GraphQLInterfaceType,
   GraphQLList,
   GraphQLObjectType,
   GraphQLUnionType,
+  GraphQLEnumType,
+  GraphQLScalarType,
   Source,
   isTypeSubTypeOf,
   parseType,
@@ -527,7 +530,7 @@ class RelayParser {
     const directives = this._transformDirectives(otherDirectives);
     const type = assertOutputType(fieldDef.type);
     const handles = this._transformHandle(name, args, clientFieldDirectives);
-    if (isLeafType(type)) {
+    if (isLeafType(getNamedType(type))) {
       invariant(
         !field.selectionSet ||
         !field.selectionSet.selections ||
@@ -545,7 +548,7 @@ class RelayParser {
         handles,
         metadata: null,
         name,
-        type: assertLeafType(type),
+        type: assertScalarFieldType(type),
       };
     } else {
       const selections = field.selectionSet ?
@@ -885,6 +888,23 @@ class RelayParser {
       // eslint-enable
     }
   }
+}
+
+function isScalarFieldType(type: GraphQLOutputType): boolean {
+  const namedType = getNamedType(type);
+  return (
+    namedType instanceof GraphQLScalarType ||
+    namedType instanceof GraphQLEnumType
+  );
+}
+
+function assertScalarFieldType(type: GraphQLOutputType): ScalarFieldType {
+  invariant(
+    isScalarFieldType(type),
+    'Expected %s to be a Scalar Field type.',
+    type
+  );
+  return (type: any);
 }
 
 function applyConditions(

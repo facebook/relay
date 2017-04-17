@@ -1,5 +1,3 @@
-'use strict';
-
 var RelayQL = require('react-relay/RelayQL');
 var x = function () {
   return {

@@ -20,6 +20,7 @@ const getGoldenMatchers = require('getGoldenMatchers');
 const path = require('path');
 
 const SCHEMA_PATH = path.resolve(__dirname, '../../relay-compiler/testutils/testschema.graphql');
+const OLD_SCHEMA_PATH = path.resolve(__dirname, '../relayql/__tests__/testschema.rfc.graphql');
 
 describe('BabelPluginRelay', () => {
   beforeEach(() => {
@@ -92,6 +93,28 @@ describe('BabelPluginRelay', () => {
             }],
           ],
           compact: false,
+          parserOpts: {plugins: ['jsx']},
+        }).code;
+      } catch (e) {
+        return 'ERROR:\n\n' + e;
+      }
+    });
+  });
+
+  it('transforms source with classic Relay.QL tags', () => {
+    expect('fixtures-classic').toMatchGolden((text, filename) => {
+      try {
+        return babel.transform(text, {
+          plugins: [
+            [BabelPluginRelay, {
+              schema: OLD_SCHEMA_PATH,
+              debug: true,
+              substituteVariables: true,
+              suppressWarnings: true,
+            }],
+          ],
+          compact: false,
+          filename,
           parserOpts: {plugins: ['jsx']},
         }).code;
       } catch (e) {

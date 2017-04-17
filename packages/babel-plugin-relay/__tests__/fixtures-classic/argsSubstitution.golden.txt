@@ -1,5 +1,3 @@
-"use strict";
-
 var foo = function (RQL_0) {
   return {
     calls: [{

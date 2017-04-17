@@ -1,5 +1,3 @@
-'use strict';
-
 /** @providesModule Foo.react */
 var Relay = require('react-relay');
 var x = function () {

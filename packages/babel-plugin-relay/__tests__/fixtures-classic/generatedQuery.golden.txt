@@ -1,5 +1,3 @@
-'use strict';
-
 var RelayQL_GENERATED = require('RelayQL_GENERATED');
 var x = function () {
   return {

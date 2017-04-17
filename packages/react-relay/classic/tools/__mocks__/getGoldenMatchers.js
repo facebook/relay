@@ -159,7 +159,7 @@ function getGoldenMatchers(...args) {
             let output;
 
             try {
-              output = operation(input);
+              output = operation(input, inputFile);
             } catch (e) {
               throw new Error(
                 'Failure applying function to input from file ' +

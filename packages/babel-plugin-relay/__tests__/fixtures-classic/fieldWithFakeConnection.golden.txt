@@ -1,5 +1,3 @@
-'use strict';
-
 var Relay = require('Relay');
 var foo = function () {
   return {

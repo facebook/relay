@@ -17,6 +17,8 @@ import type {
   GraphQLOutputType,
   GraphQLInputType,
   GraphQLLeafType,
+  GraphQLList,
+  GraphQLNonNull,
 } from 'graphql';
 
 export type Argument = {
@@ -150,6 +152,13 @@ export type Root = {
   selections: Array<Selection>,
   type: GraphQLCompositeType,
 };
+export type ScalarFieldType =
+  GraphQLLeafType | 
+  GraphQLList<ScalarFieldType> |
+  GraphQLNonNull<
+    GraphQLLeafType |
+    GraphQLList<ScalarFieldType>
+  >;
 export type ScalarField = {
   alias: ?string,
   args: Array<Argument>,
@@ -158,7 +167,7 @@ export type ScalarField = {
   kind: 'ScalarField',
   metadata: ?{[key: string]: mixed},
   name: string,
-  type: GraphQLLeafType,
+  type: ScalarFieldType,
 };
 export type Selection =
   Condition |

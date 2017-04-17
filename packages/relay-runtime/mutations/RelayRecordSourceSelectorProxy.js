@@ -19,8 +19,8 @@ const invariant = require('invariant');
 const {getStorageKey} = require('RelayStoreUtils');
 
 import type {ConcreteLinkedField} from 'RelayConcreteNode';
+import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
-import type {HandlerProvider} from 'RelayStaticEnvironment';
 import type {RecordProxy, Selector, RecordSourceSelectorProxy} from 'RelayStoreTypes';
 
 /**

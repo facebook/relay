@@ -13,11 +13,13 @@
 'use strict';
 
 const RelayCore = require('RelayCore');
+const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
 const RelayPublishQueue = require('RelayPublishQueue');
 
 const normalizeRelayPayload = require('normalizeRelayPayload');
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
+import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type {
   Network,
   PayloadData,
@@ -27,7 +29,6 @@ import type {
 } from 'RelayNetworkTypes';
 import type {
   Environment,
-  Handler,
   OperationSelector,
   Selector,
   SelectorStoreUpdater,
@@ -38,11 +39,10 @@ import type {
 } from 'RelayStoreTypes';
 
 export type EnvironmentConfig = {
-  handlerProvider: ?HandlerProvider,
+  handlerProvider?: HandlerProvider,
   network: Network,
   store: Store,
 };
-export type HandlerProvider = (name: string) => ?Handler;
 
 class RelayStaticEnvironment implements Environment {
   _network: Network;
@@ -51,8 +51,11 @@ class RelayStaticEnvironment implements Environment {
   unstable_internal: UnstableEnvironmentCore;
 
   constructor(config: EnvironmentConfig) {
+    const handlerProvider = config.handlerProvider ?
+      config.handlerProvider :
+      RelayDefaultHandlerProvider;
     this._network = config.network;
-    this._publishQueue = new RelayPublishQueue(config.store, config.handlerProvider);
+    this._publishQueue = new RelayPublishQueue(config.store, handlerProvider);
     this._store = config.store;
     this.unstable_internal = RelayCore;
   }

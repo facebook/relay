@@ -22,7 +22,7 @@ const network = Network.create(fetch); // TODO: still need to provide a non-FB f
 const handlerProvider = null;
 
 const environment = new Environment({
-  handlerProvider,
+  handlerProvider, // Can omit.
   network,
   store,
 });
@@ -32,14 +32,11 @@ Once you have an environment, you can pass it in to your [`QueryRenderer`](Query
 
 ## Adding a `handlerProvider`
 
-The example above did not configure a `handlerProvider`, but you may wish to do so. Relay Modern comes with a couple of built-in providers that augment the core with special functionality for handling connections (which is not a standard GraphQL feature, but a set of pagination conventions used at Facebook, specified in detail in the [Relay Cursor Connections Specification](../../graphql/connections.htm), and well-supported by Relay itself) and the `viewer` field (again, not a standard GraphQL schema feature, but one which has been conventionally used extensively within Facebook).
+The example above did not configure a `handlerProvider`, which means that a default one will be provided. Relay Modern comes with a couple of built-in handlers that augment the core with special functionality for handling connections (which is not a standard GraphQL feature, but a set of pagination conventions used at Facebook, specified in detail in the [Relay Cursor Connections Specification](../../graphql/connections.htm), and well-supported by Relay itself) and the `viewer` field (again, not a standard GraphQL schema feature, but one which has been conventionally used extensively within Facebook).
+
+If you wish to provide your own `handlerProvider`, you can do so:
 
 ```javascript
-// TODO: Actually export these handlers:
-// Don't want to actively promote the use of `viewer`,
-// but many Relay users do use it, so we should
-// probably expose the handler.
-// May also just want to provide a default handler provider.
 const {
   ConnectionHandler,
   ViewerHandler,
@@ -47,6 +44,7 @@ const {
 
 function handlerProvider(handle) {
   switch (handle) {
+    // Augment (or remove from) this list:
     case 'connection': return ConnectionHandler;
     case 'viewer': return ViewerHandler;
   }

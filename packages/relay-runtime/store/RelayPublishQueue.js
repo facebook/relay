@@ -19,8 +19,8 @@ const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy')
 
 const invariant = require('invariant');
 
+import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type {RelayResponsePayload} from 'RelayNetworkTypes';
-import type {HandlerProvider} from 'RelayStaticEnvironment';
 import type {
   HandleFieldPayload,
   MutableRecordSource,

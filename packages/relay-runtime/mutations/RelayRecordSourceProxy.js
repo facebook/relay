@@ -24,9 +24,9 @@ const {
 } = require('RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
 
+import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type {DataID} from 'RelayInternalTypes';
 import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
-import type {HandlerProvider} from 'RelayStaticEnvironment';
 import type {
   RecordProxy,
   RecordSourceProxy,

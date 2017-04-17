@@ -12,9 +12,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-const isRelayStaticEnvironment = require('isRelayStaticEnvironment');
-
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
 import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
@@ -46,11 +43,6 @@ function commitRelayStaticMutation(
   environment: Environment,
   config: MutationConfig
 ): Disposable {
-  invariant(
-    isRelayStaticEnvironment(environment),
-    'commitRelayStaticMutation: expect `environment` to be an instance of ' +
-    '`RelayStaticEnvironment`.'
-  );
   const {
     createOperationSelector,
     getOperation,
@@ -59,12 +51,13 @@ function commitRelayStaticMutation(
   const {
     onError,
     optimisticUpdater,
+    optimisticResponse,
     updater,
     variables,
     uploadables,
   } = config;
   const operation = createOperationSelector(mutation, variables);
-  return environment.sendMutation({
+  const mutationObject = {
     onError,
     operation,
     optimisticUpdater,
@@ -77,7 +70,13 @@ function commitRelayStaticMutation(
         onCompleted(snapshot.data, errors);
       }
     },
-  });
+  };
+  if (!optimisticUpdater && optimisticResponse) {
+    mutationObject.optimisticUpdater = (proxy: RecordSourceProxy) => {
+      proxy.commitPayload(operation.fragment, optimisticResponse());
+    };
+  }
+  return environment.sendMutation(mutationObject);
 }
 
 module.exports = commitRelayStaticMutation;

@@ -291,7 +291,6 @@ gulp.task('modules', function() {
       '*' + PACKAGES + '/relay-runtime/util/*.js',
       '!' + PACKAGES + '/**/__tests__/**/*.js',
       '!' + PACKAGES + '/**/__mocks__/**/*.js',
-      '!' + PACKAGES + '/babel-plugin-relay/relayql/**/*',
     ]).pipe(babel(babelOptions))
       .pipe(flatten())
       .pipe(gulp.dest(path.join(DIST, build.package, 'lib')))

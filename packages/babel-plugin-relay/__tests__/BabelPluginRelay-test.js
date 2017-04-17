@@ -20,7 +20,7 @@ const getGoldenMatchers = require('getGoldenMatchers');
 const path = require('path');
 
 const SCHEMA_PATH = path.resolve(__dirname, '../../relay-compiler/testutils/testschema.graphql');
-const OLD_SCHEMA_PATH = path.resolve(__dirname, '../relayql/__tests__/testschema.rfc.graphql');
+const OLD_SCHEMA_PATH = path.resolve(__dirname, './testschema.rfc.graphql');
 
 describe('BabelPluginRelay', () => {
   beforeEach(() => {

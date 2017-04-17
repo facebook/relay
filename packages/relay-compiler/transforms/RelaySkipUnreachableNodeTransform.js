@@ -44,12 +44,18 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
     if (node.kind === 'Root') {
       const transformedNode = transformNode(context, fragments, node);
       if (transformedNode) {
+        /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
+         * deploying v0.44.0. Remove this comment to see the error */
         return ctx.add(transformedNode);
       }
     }
     return ctx;
   }, new RelayCompilerContext(context.schema));
+  /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while deploying
+   * v0.44.0. Remove this comment to see the error */
   return Array.from(fragments.values()).reduce((ctx, fragment) => (
+    /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
+     * deploying v0.44.0. Remove this comment to see the error */
     fragment ? ctx.add(fragment) : ctx
   ), nextContext);
 }

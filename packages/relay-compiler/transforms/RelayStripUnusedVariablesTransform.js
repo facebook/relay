@@ -26,7 +26,11 @@ type State = {referencedVariables: Set<string>};
  * by the query itself.
  */
 function transform(context: RelayCompilerContext): RelayCompilerContext {
+  /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while deploying
+   * v0.44.0. Remove this comment to see the error */
   return context.documents().reduce((ctx, node) => {
+    /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
+     * deploying v0.44.0. Remove this comment to see the error */
     return ctx.add(node.kind === 'Root' ? transformRoot(context, node) : node);
   }, new RelayCompilerContext(context.schema));
 }

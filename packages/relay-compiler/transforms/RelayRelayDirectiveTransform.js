@@ -40,7 +40,11 @@ function transformSchema(schema: GraphQLSchema): GraphQLSchema {
  * them to metadata that can be accessed at runtime.
  */
 function transform(context: RelayCompilerContext): RelayCompilerContext {
+  /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while deploying
+   * v0.44.0. Remove this comment to see the error */
   return context.documents().reduce((ctx, node) => {
+    /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
+     * deploying v0.44.0. Remove this comment to see the error */
     return ctx.add(visit(node, {
       Fragment: visitFragment,
     }));

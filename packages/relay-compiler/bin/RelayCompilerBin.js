@@ -39,6 +39,7 @@ const WATCH_EXPRESSION = [
   ['suffix', 'js'],
   ['not', ['match', '**/__mocks__/**', 'wholename']],
   ['not', ['match', '**/__tests__/**', 'wholename']],
+  ['not', ['match', '**/__generated__/**', 'wholename']],
 ];
 
 // Collect args

@@ -50,7 +50,7 @@ fi
 # Check if this is a tagged commit.
 if [ "$GITTAG" == "" ]; then
   confirm "Git commit does not have a version tag.\n  To fix: ${B}git tag 'v$RELAY_V' && git push --tags${X}"
-elif [ "v$RELAY_V" != GITTAG ]; then
+elif [ "v$RELAY_V" != "$GITTAG" ]; then
   confirm "Top level Relay ${B}v${RELAY_V}${X} doesn't match git tag ${B}${GITTAG}${X}.";
 fi
 
@@ -85,10 +85,10 @@ for PACKAGE in *; do
     PACKAGE_V=$(node -p -e "require('./$PACKAGE/package.json').version")
     IS_PRERELEASE=$(sed -n '/[0-9]-[a-zA-Z]/p' <<< $PACKAGE_V)
     TAG_ARG=$([[ $IS_PRERELEASE != "" ]] && echo '--tag dev')
-    COMMAND="yarn publish $PACKAGE $TAG_ARG"
+    COMMAND="cd $PACKAGE && npm publish $TAG_ARG"
     printf "\n# $COMMAND\n"
     if [ "$SHIPIT" == "true" ]; then
-      $COMMAND
+      bash -c "$COMMAND"
     fi
   fi
 done

@@ -85,7 +85,7 @@ class Feed extends React.Component {
           edge => <Story story={edge.node} key={edge.node.id} />
         )}
         <button
-          onPress={this._loadMore}
+          onPress={() => this._loadMore()}
           title="Load More"
         />
       </div>
@@ -104,56 +104,56 @@ class Feed extends React.Component {
       },
     );
   }
+}
 
-  module.exports = createPaginationContainer(
-    Feed,
-    {
-      user: graphql`
-        fragment Feed_user on User {
-          feed(
-            first: $count
-            after: $cursor
-            orderby: $orderBy # other variables
-          ) @connection(key: "Feed_feed") {
-            edges {
-              node {
-                id
-                ...Story_story
-              }
+module.exports = createPaginationContainer(
+  Feed,
+  {
+    user: graphql`
+      fragment Feed_user on User {
+        feed(
+          first: $count
+          after: $cursor
+          orderby: $orderBy # other variables
+        ) @connection(key: "Feed_feed") {
+          edges {
+            node {
+              id
+              ...Story_story
             }
           }
         }
-      `,
+      }
+    `,
+  },
+  {
+    getFragmentVariables(prevVars, totalCount) {
+      return {
+        ...prevVars,
+        count: totalCount,
+      };
     },
-    {
-      getFragmentVariables(prevVars, totalCount) {
-        return {
-          ...prevVars,
-          count: totalCount,
-        };
-      },
-      getVariables(props, {count, cursor}, fragmentVariables) {
-        return {
-          count,
-          cursor,
-          // in most cases, for variables other than connection filters like
-          // `first`, `after`, etc. you may want to use the previous values.
-          orderBy: fragmentVariables.orderBy,
-        };
-      },
-      query: graphql`
-        query FeedPaginationQuery(
-          $count: Int!
-          $cursor: ID
-          $orderby: String!
-        ) {
-          user {
-            # You could reference the fragment defined previously.
-            ...Feed_user
-          }
+    getVariables(props, {count, cursor}, fragmentVariables) {
+      return {
+        count,
+        cursor,
+        // in most cases, for variables other than connection filters like
+        // `first`, `after`, etc. you may want to use the previous values.
+        orderBy: fragmentVariables.orderBy,
+      };
+    },
+    query: graphql`
+      query FeedPaginationQuery(
+        $count: Int!
+        $cursor: ID
+        $orderby: String!
+      ) {
+        user {
+          # You could reference the fragment defined previously.
+          ...Feed_user
         }
-      `
-    }
-  );
-}
+      }
+    `
+  }
+);
 ```

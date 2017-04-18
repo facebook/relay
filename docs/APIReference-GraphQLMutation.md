@@ -2,7 +2,7 @@
 id: api-reference-relay-graphql-mutation
 title: Relay.GraphQLMutation
 layout: docs
-category: API Reference
+category: Relay Classic API
 permalink: docs/api-reference-relay-graphql-mutation.html
 next: api-reference-relay-proptypes
 ---

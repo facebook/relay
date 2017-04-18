@@ -1,4 +1,11 @@
-# Routing
+---
+id: routing
+title: Routing
+layout: docs
+category: Relay Modern
+permalink: docs/routing.html
+next: mutations
+---
 
 > How Routing can work with the updated APIs.
 

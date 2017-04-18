@@ -2,7 +2,7 @@
 id: api-reference-relay-store
 title: Relay.Store
 layout: docs
-category: API Reference
+category: Relay Classic API
 permalink: docs/api-reference-relay-store.html
 next: interfaces-relay-network-layer
 ---

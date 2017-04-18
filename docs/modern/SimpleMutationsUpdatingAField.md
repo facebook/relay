@@ -1,4 +1,11 @@
-# Simple Mutations: Updating a field
+---
+id: mutations
+title: Mutations
+layout: docs
+category: Relay Modern
+permalink: docs/mutations.html
+next: conversion-playbook
+---
 
 Relay exports `commitMutation(environment: Environment, config: MutationConfig)` for performing mutations.
 

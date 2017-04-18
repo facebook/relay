@@ -1,5 +1,13 @@
-# Compatibility Cheatsheet
-*What works with what?*
+---
+id: compatibility-cheatsheet
+title: Compatibility Cheatsheet
+layout: docs
+category: Converting to Modern
+permalink: docs/compatibility-cheatsheet.html
+next: api-cheatsheet
+---
+
+> What works with what?
 
 'react-relay/compat' is the most flexible. Compatibility components and mutations can be used by everything. Compatibility components can also have any kind of children.
 

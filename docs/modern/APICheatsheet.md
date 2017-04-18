@@ -1,4 +1,13 @@
-A reference for translating between the classic and modern APIs.
+---
+id: api-cheatsheet
+title: API Cheatsheet
+layout: docs
+category: Converting to Modern
+permalink: docs/api-cheatsheet.html
+next: guides-containers
+---
+
+> A reference for translating between the classic and modern APIs.
 
 |I need to... | Legacy API | Modern API
 |-----|-----|-----

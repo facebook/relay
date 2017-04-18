@@ -2,7 +2,7 @@
 id: interfaces-relay-query-request
 title: RelayQueryRequest
 layout: docs
-category: Interfaces
+category: Relay Classic Interfaces
 indent: true
 permalink: docs/interfaces-relay-query-request.html
 ---

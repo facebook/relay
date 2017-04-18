@@ -2,7 +2,7 @@
 id: api-reference-relay-container
 title: RelayContainer
 layout: docs
-category: API Reference
+category: Relay Classic API
 permalink: docs/api-reference-relay-container.html
 next: api-reference-relay-route
 ---
@@ -530,7 +530,7 @@ module.exports = Relay.createContainer(ProfilePicture, {
 
 ```
 getFragment(
-  fragmentName: string, 
+  fragmentName: string,
   variables?: {[name: string]: mixed}
 ): RelayFragmentReference
 ```
@@ -539,7 +539,7 @@ Gets a reference to a child container's fragment for inclusion in a parent fragm
 
 #### Example
 
-Fragment composition is achieved via ES6 template string interpolation and `getFragment`: 
+Fragment composition is achieved via ES6 template string interpolation and `getFragment`:
 
 ```{6}
 // Parent.js
@@ -593,9 +593,9 @@ Now Relay will fetch the photo with size 128 - but the `Child` container won't m
 ```{4}
 const Parent = (props) => {
   return (
-    <Child 
-      childFragment={props.parentFragment} 
-      size={128} 
+    <Child
+      childFragment={props.parentFragment}
+      size={128}
     />;
   );
 }

@@ -2,7 +2,7 @@
 id: guides-mutations
 title: Mutations
 layout: docs
-category: Guides
+category: Relay Classic Guides
 permalink: docs/guides-mutations.html
 next: guides-network-layer
 ---

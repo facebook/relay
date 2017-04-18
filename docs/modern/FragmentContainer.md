@@ -1,4 +1,11 @@
-## Overview
+---
+id: FragmentContainer
+title: FragmentContainer
+layout: docs
+category: Relay Modern
+permalink: docs/FragmentContainer.html
+next: PaginationContainer
+---
 
 The primary way to declare data requirements is via `createFragmentContainer` — a higher-order React component that lets React components encode their data requirements.
 
@@ -56,7 +63,7 @@ Given the plain React component and a GraphQL fragment, we can now define a `Con
 class TodoItem extends React.Component {/* as above */}
 
 // Export a *new* React component that wraps the original `<TodoItem>`.
-module.exports = createFragmentContainer(TodoItem, {  
+module.exports = createFragmentContainer(TodoItem, {
   // For each of the props that depend on server data, we define a corresponding
   // key in this object. Here, the component expects server data to populate the
   // `item` prop, so we'll specify the fragment from above at the `item` key.
@@ -75,7 +82,7 @@ The example above is very similar to the classic container API, but in the moder
 
 ```javascript
 module.exports = createFragmentContainer(
-  TodoItem,  
+  TodoItem,
   graphql`
     fragment TodoItem_item on Todo {
       text

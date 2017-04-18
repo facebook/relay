@@ -29,7 +29,7 @@
     "react": "^0.14.7",
     "react-codemirror": "0.1.5",
     "react-dom": "^0.14.7",
-    "react-relay": "../",
+    "react-relay": "../dist/react-relay",
     "relay-local-schema": "0.3.0",
     "style-loader": "0.12.3",
     "webpack": "^1.12.14"

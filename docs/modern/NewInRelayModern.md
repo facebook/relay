@@ -1,6 +1,13 @@
-# New in Relay Modern
+---
+id: new-in-relay-modern
+title: New in Relay Modern
+layout: docs
+category: Relay Modern
+permalink: docs/new-in-relay-modern.html
+next: relay-environment
+---
 
-*A summary of the biggest improvements that Relay Modern brings.*
+> A summary of the biggest improvements that Relay Modern brings.
 
 ## Performance
 

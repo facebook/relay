@@ -2,7 +2,7 @@
 id: api-reference-relay-route
 title: Relay.Route
 layout: docs
-category: API Reference
+category: Relay Classic API
 permalink: docs/api-reference-relay-route.html
 next: api-reference-relay-renderer
 ---

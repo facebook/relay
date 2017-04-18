@@ -1,6 +1,13 @@
-# Conversion Playbook
+---
+id: conversion-playbook
+title: Conversion Playbook
+layout: docs
+category: Converting to Modern
+permalink: docs/conversion-playbook.html
+next: conversion-scripts
+---
 
-*Steps to incrementally modernize your app.*
+> Steps to incrementally modernize your app.
 
 ## Step 1
 Start converting your components and mutations to use the Relay Modern APIs from the `react-relay/compat` module (`createFragmentContainer`, `createRefetchContainer`, `createPaginationContainer`, `commitMutation`). It will be easier to go from the leaf components up. The [conversion scripts](https://github.com/relayjs/relay-codemod) should make this step less tedious.

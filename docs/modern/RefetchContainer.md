@@ -1,6 +1,13 @@
-# `RefetchContainer`
+---
+id: RefetchContainer
+title: RefetchContainer
+layout: docs
+category: Relay Modern
+permalink: docs/RefetchContainer.html
+next: routing
+---
 
-A `RefetchContainer` first renders like a regular [`FragmentContainer`](FragmentContainer.md), but has the option to execute a new query with different variables and render the response of that query instead when the request comes back.
+A `RefetchContainer` first renders like a regular [`FragmentContainer`](./FragmentContainer.html), but has the option to execute a new query with different variables and render the response of that query instead when the request comes back.
 
 `this.props.relay` exports the following API to execute the refetch query:
 

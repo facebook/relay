@@ -2,7 +2,7 @@
 id: api-reference-relay-mutation
 title: Relay.Mutation
 layout: docs
-category: API Reference
+category: Relay Classic API
 permalink: docs/api-reference-relay-mutation.html
 next: api-reference-relay-graphql-mutation
 ---

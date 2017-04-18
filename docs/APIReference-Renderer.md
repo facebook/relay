@@ -2,7 +2,7 @@
 id: api-reference-relay-renderer
 title: Relay.Renderer
 layout: docs
-category: API Reference
+category: Relay Classic API
 permalink: docs/api-reference-relay-renderer.html
 next: api-reference-relay-root-container
 ---

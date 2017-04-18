@@ -2,7 +2,7 @@
 id: guides-babel-plugin
 title: Babel Relay Plugin
 layout: docs
-category: Guides
+category: Relay Classic Guides
 permalink: docs/guides-babel-plugin.html
 next: graphql-relay-specification
 ---

@@ -41,13 +41,13 @@ The Relay Environment is a self-contained environment with its own in-memory cac
 
 ## Workflow
 
-One of the big ideas behind the new API is that execution can be made a lot more efficient by moving work ahead-of-time: from to runtime of the app to the build-time. As such, changes to GraphQL fragments require a build step to regenerate a set of artifacts. More on [the Relay Compiler](#).
+One of the big ideas behind the new API is that execution can be made a lot more efficient by moving work ahead-of-time: from to runtime of the app to the build-time. As such, changes to GraphQL fragments require a build step to regenerate a set of artifacts. More on [the Relay Compiler](./Compiler.html).
 
 ## What's the difference between Relay Classic and Relay Modern
 
 ### Everything is static and persistable
 
-The updated Relay engine uses only static GraphQL queries — that is, queries that can be known at build-time — and doesn't do any dynamic query construction at runtime. Because the queries can be statically deftermined, they can also be persisted on the server ahead of time: this means that request size can be drastically reduced by sending an ID for a previously perisisted query rather than the full query text.
+The updated Relay engine uses only static GraphQL queries — that is, queries that can be known at build-time — and doesn't do any dynamic query construction at runtime. Because the queries can be statically determined, they can also be persisted on the server ahead of time: this means that request size can be drastically reduced by sending an ID for a previously persisted query rather than the full query text.
 
 ### Mutation is imperative
 

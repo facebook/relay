@@ -9,7 +9,7 @@ next: QueryRenderer
 
 The Relay "Environment" bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.
 
-For most applications, you will create a single instance of the environment, and then you will use that throughout. In specific situations, however, you may wish to create a special-purpose environment and use that. For example, in a server-rendering context you may want to create a brand new environment for every request so that user-specific data gets its own request-specific cache. Alternatively, you might have multiple products or features within a larger application, and you want each one to have product-specific network-handling or caching.
+Most applications will create a single Environment instance and use it throughout. In specific situations, however, you may want to create multiple environments for different purposes. For example, you may create a new environment instance whenever the user logs in or out in order to prevent data for different users being cached together. Similarly, a server rendered application may create a new environment instance per request, so that each request gets its own cache and user data does not overlap. Alternatively, you might have multiple products or features within a larger application, and you want each one to have product-specific network-handling or caching.
 
 ## A simple example
 
@@ -25,7 +25,7 @@ const {
 
 const source = new RecordSource();
 const store = new Store(source);
-const network = Network.create(fetch); // TODO: still need to provide a non-FB fetch
+const network = Network.create(/*...*/);
 const handlerProvider = null;
 
 const environment = new Environment({
@@ -34,6 +34,8 @@ const environment = new Environment({
   store,
 });
 ```
+
+For more details on creating a Network, see the ['network section'](./Network.html).
 
 Once you have an environment, you can pass it in to your [`QueryRenderer`](./QueryRenderer.html) instance, or into mutations via the `commitUpdate` function (see "[Mutations](./mutations.html)").
 

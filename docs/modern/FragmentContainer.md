@@ -43,7 +43,7 @@ class TodoItem extends React.Component {
 
 In Relay, data dependencies are described using [GraphQL](https://github.com/facebook/graphql). For `<TodoItem>`, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the `item` prop.
 
-A naming convention of `<file name>_<prop name>` for fragments is advised. This restriction is required while migrating from classic to modern APIs to allow for cross-compatibility.
+A naming convention of `<FileName>_<propName>` for fragments is advised. This restriction is required while migrating from classic to modern APIs to allow for cross-compatibility.
 
 ```javascript
 graphql`
@@ -78,7 +78,7 @@ module.exports = createFragmentContainer(TodoItem, {
 });
 ```
 
-The example above is very similar to the classic container API, but in the modern API we can just pass the `graphql` template literal directly as the second argument. Relay will infer the prop name from the fragment name according to the fragment naming convention `<file name>_<prop_name>`. The example below is equivalent to the one above:
+The example above is very similar to the classic container API, but in the modern API we can just pass the `graphql` template literal directly as the second argument. Relay will infer the prop name from the fragment name according to the fragment naming convention `<FileName>_<propName>`. The example below is equivalent to the one above:
 
 ```javascript
 module.exports = createFragmentContainer(
@@ -92,7 +92,7 @@ module.exports = createFragmentContainer(
 );
 ```
 
-If there is no `_<prop name>` suffix, the `data` prop name will be used:
+If there is no `_<propName>` suffix, the `data` prop name will be used:
 
 ```javascript
 class TodoItem extends React.Component {

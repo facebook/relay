@@ -207,10 +207,10 @@ The final data declaration is equivalent to the following plain GraphQL:
 `
   fragment Profile on User {
     name,
-    ...ProfilePhoto,
+    ...ProfilePicture,
   }
 
-  fragment ProfilePhoto on User {
+  fragment ProfilePicture on User {
     profilePhoto(size: $size) {
       uri,
     },

@@ -14,6 +14,8 @@ type MutationConfig = {|
   variables: Variables,        // variables for the mutation
   onCompleted?: ?(response: ?Object) => void,
   onError?: ?(error: Error) => void,
+  // Returns an optimisticPayload that updates the in-memory cache if an optimisticUpdater is not provided
+  optimisticResponse?: ?() => Object,
   // 'Optimistically' update the in-memory cache.
   optimisticUpdater?: ?(proxy: RecordSourceProxy) => void,
   // Update the in-memory cache based on the server response.
@@ -72,12 +74,33 @@ const optimisticUpdater = store => {
   }
 };
 
-// As before, but this time we passing in the updater:
+// As before, but this time we're passing in the updater:
 commitMutation(
   environment,
   {
     mutation,
     optimisticUpdater,
+    variables,
+  },
+);
+```
+Alternatively, you can pass in an optimisticResponse, which returns an "optimistic payload" object that reflects what the server response would look like.
+```javascript
+const optimisticResponse = () => {
+  const optimisticPayload = {
+    markReadNotification: {
+      notification: {
+        seenState: SEEN,
+      },
+    },
+  },
+};
+
+commitMutation(
+  environment,
+  {
+    mutation,
+    optimisticResponse,
     variables,
   },
 );

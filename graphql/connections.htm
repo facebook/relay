@@ -15,7 +15,8 @@
     <section id="intro">
       <p>Relay&rsquo;s support for pagination relies on the GraphQL server exposing connections in a standardized way. In the query, the connection model provides a standard mechanism for slicing and paginating the result set. In the response, the connection
         model provides a standard way of providing cursors, and a way of telling the client when more results are available.</p>
-      <p>An example of all four of those is the following query:</p><pre><code>{
+      <p>An example of all four of those is the following query:</p>
+      <pre><code>{
   user {
     id
     name
@@ -96,7 +97,7 @@
     <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Connection-Types">2</a></span>Connection Types</h2>
     <p>Any type whose name ends in &ldquo;Connection&rdquo; is considered by Relay to be a <em>Connection Type</em>. Connection types must be an &ldquo;Object&rdquo; as defined in the &ldquo;Type System&rdquo; section of the GraphQL Specification.</p>
     <section
-    id="sec-Connection-Types.Fields">
+      id="sec-Connection-Types.Fields">
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Connection-Types.Fields">2.1</a></span>Fields</h3>
       <p>Connection types must have fields named <code>edges</code> and <code>pageInfo</code>. They may have additional fields related to the connection, as the schema designer sees fit.</p>
       <section id="sec-Edges">
@@ -111,7 +112,8 @@
   <section id="sec-Connection-Types.Introspection">
     <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Connection-Types.Introspection">2.2</a></span>Introspection</h3>
     <p>If <code>ExampleConnection</code> existed in the type system, it would be a connection, since its name ends in &ldquo;Connection&rdquo;. If this connection&rsquo;s edge type was named <code>ExampleEdge</code>, then a server that correctly implements
-      the above requirement would accept the following introspection query, and return the provided response:</p><pre><code>{
+      the above requirement would accept the following introspection query, and return the provided response:</p>
+    <pre><code>{
   __type(name: &quot;ExampleConnection&quot;) {
     fields {
       name
@@ -127,7 +129,8 @@
   }
 }
 </code></pre>
-    <p>returns</p><pre><code>{
+    <p>returns</p>
+    <pre><code>{
   "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
     "<span class="hljs-attribute">__type</span>": <span class="hljs-value">{
       "<span class="hljs-attribute">fields</span>": <span class="hljs-value">[
@@ -158,7 +161,8 @@
     </span>}
   </span>}
 </span>}
-</code></pre></section>
+</code></pre>
+  </section>
   </section>
   <section id="sec-Edge-Types">
     <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Edge-Types">3</a></span>Edge Types</h2>
@@ -184,7 +188,8 @@
     </section>
     <section id="sec-Edge-Types.Introspection">
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-Edge-Types.Introspection">3.2</a></span>Introspection</h3>
-      <p>If <code>ExampleEdge</code> is an edge type in our schema, that returned &ldquo;Example&rdquo; objects, then a server that correctly implements the above requirement would accept the following introspection query, and return the provided response:</p><pre><code>{
+      <p>If <code>ExampleEdge</code> is an edge type in our schema, that returned &ldquo;Example&rdquo; objects, then a server that correctly implements the above requirement would accept the following introspection query, and return the provided response:</p>
+      <pre><code>{
   __type(name: &quot;ExampleEdge&quot;) {
     fields {
       name
@@ -200,7 +205,8 @@
   }
 }
 </code></pre>
-      <p>returns</p><pre><code>{
+      <p>returns</p>
+      <pre><code>{
   "data": {
     "__type": {
       "fields": [
@@ -229,7 +235,8 @@
     }
   }
 }
-</code></pre></section>
+</code></pre>
+    </section>
   </section>
   <section id="sec-Arguments">
     <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Arguments">4</a></span>Arguments</h2>
@@ -349,7 +356,8 @@
     </section>
     <section id="sec-undefined.PageInfo.Introspection">
       <h3><span class="spec-secnum" title="link to this section"><a href="#sec-undefined.PageInfo.Introspection">5.2</a></span>Introspection</h3>
-      <p>A server that correctly implements the above requirement would accept the following introspection query, and return the provided response:</p><pre><code>{
+      <p>A server that correctly implements the above requirement would accept the following introspection query, and return the provided response:</p>
+      <pre><code>{
   __type(name: &quot;PageInfo&quot;) {
     fields {
       name
@@ -365,7 +373,8 @@
   }
 }
 </code></pre>
-      <p>returns</p><pre><code>{
+      <p>returns</p>
+      <pre><code>{
   "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
     "<span class="hljs-attribute">__type</span>": <span class="hljs-value">{
       "<span class="hljs-attribute">fields</span>": <span class="hljs-value">[
@@ -396,7 +405,8 @@
     </span>}
   </span>}
 </span>}
-</code></pre></section>
+</code></pre>
+    </section>
   </section>
   <footer>Written in <a href="http://leebyron.com/spec-md/" target="_blank">Spec Markdown</a>.</footer>
 </body>

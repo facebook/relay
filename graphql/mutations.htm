@@ -15,7 +15,8 @@
     <section id="intro">
       <p>Relay&rsquo;s support for mutations relies on the GraphQL server exposing mutation fields in a standardized way. These mutations accept and emit a identifier string, which allows Relay to track mutations and responses.</p>
       <p>All mutations include in their input a <code>clientMutationId</code> string, which is then returned as part of the object returned by the mutation field.</p>
-      <p>An example of this is the following query:</p><pre><code>mutation M {
+      <p>An example of this is the following query:</p>
+      <pre><code>mutation M {
   updateStatus(input: $input) {
     clientMutationId
     status {
@@ -24,14 +25,16 @@
   }
 }
 </code></pre>
-      <p>where the provided parameters are:</p><pre><code>{
+      <p>where the provided parameters are:</p>
+      <pre><code>{
   "<span class="hljs-attribute">input</span>": <span class="hljs-value">{
     "<span class="hljs-attribute">clientMutationId</span>": <span class="hljs-value"><span class="hljs-string">"549b5e7c-0516-4fc9-8944-125401211590"</span></span>,
     "<span class="hljs-attribute">text</span>": <span class="hljs-value"><span class="hljs-string">"Hello World!"</span>
   </span>}
 </span>}
 </code></pre>
-      <p>and the response is:</p><pre><code>{
+      <p>and the response is:</p>
+      <pre><code>{
   "<span class="hljs-attribute">updateStatus</span>": <span class="hljs-value">{
     "<span class="hljs-attribute">clientMutationId</span>": <span class="hljs-value"><span class="hljs-string">"549b5e7c-0516-4fc9-8944-125401211590"</span></span>,
     "<span class="hljs-attribute">status</span>": <span class="hljs-value">{
@@ -62,7 +65,8 @@
   </section>
   <section id="sec-Introspection">
     <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Introspection">3</a></span>Introspection</h2>
-    <p>A server that correctly implements the above requirement will accept the following introspection query, and return a response that contains the provided response.</p><pre><code>{
+    <p>A server that correctly implements the above requirement will accept the following introspection query, and return a response that contains the provided response.</p>
+    <pre><code>{
   __schema {
     mutationType {
       fields {
@@ -103,7 +107,8 @@
   }
 }
 </code></pre>
-    <p>yields</p><pre><code>{
+    <p>yields</p>
+    <pre><code>{
   "__schema": {
     "mutationType": {
       "fields": [
@@ -150,7 +155,8 @@
     }
   }
 }
-</code></pre></section>
+</code></pre>
+  </section>
   <footer>Written in <a href="http://leebyron.com/spec-md/" target="_blank">Spec Markdown</a>.</footer>
 </body>
 

@@ -12,9 +12,9 @@ Para começar a criar uma aplicação com Relay, você vai precisar de três coi
 1. **Esquema (Schema) GraphQL**
 
   Uma descrição do seu modelo de dados com um conjunto de métodos e resoluções que sabem como obter os dados que seu aplicativo precisa.
-  
-  GraphQL é projetado para suportar uma ampla gama de padrões de acesso a dados. Para entender a estrutura dos dados de uma aplicação, o Relay exige que você siga certas convenções ao definir seu esquema. 
-  Documentação aqui [Especificação GraphQL Relay](graphql-relay-specification.html#content).
+
+  GraphQL é projetado para suportar uma ampla gama de padrões de acesso a dados. Para entender a estrutura dos dados de uma aplicação, o Relay exige que você siga certas convenções ao definir seu esquema.
+  Documentação aqui [Especificação GraphQL Relay](graphql-relay-specification.html).
 
   - **[graphql-js](https://github.com/graphql/graphql-js)** no [npm](https://www.npmjs.com/package/graphql)
 

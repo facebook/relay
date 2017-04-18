@@ -2,7 +2,7 @@
 id: conversion-scripts
 title: Conversion Scripts
 layout: docs
-category: Converting to Modern
+category: Relay Compat
 permalink: docs/conversion-scripts.html
 next: upgrading-setvariables
 ---

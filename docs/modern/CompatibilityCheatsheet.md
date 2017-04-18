@@ -2,23 +2,50 @@
 id: compatibility-cheatsheet
 title: Compatibility Cheatsheet
 layout: docs
-category: Converting to Modern
+category: Relay Compat
 permalink: docs/compatibility-cheatsheet.html
 next: api-cheatsheet
 ---
 
-> What works with what?
+What works with what? Relay Compat (`'react-relay/compat'`) is the most flexible.
+Compat components and mutations can be used by everything. Compat components can also have any kind of children.
 
-'react-relay/compat' is the most flexible. Compatibility components and mutations can be used by everything. Compatibility components can also have any kind of children.
+However components using the Relay Modern API (`'react-relay'`) and the Relay Classic API (`'react-relay/classic'`) cannot be used with each other.
 
-|Item in this column can be a parent of/call into...|Legacy Component|Compat Component| Modern Component| Legacy Mutation| Compat Mutation| Modern Mutation
-|----|----|----|----|----|----|----
-|RelayRootContainer|**Yes**|**Yes**|*No*|**Yes**| **Yes**|*No*|
-|QueryRenderer using Legacy Environment (`Store` in `react-relay/classic`)|**Yes**|**Yes**|*No*|**Yes**|**Yes**|*No*|
-|QueryRenderer using Modern Environment (instance of `RelayStaticEnvironment`)|*No*|**Yes**|**Yes**|*No*|**Yes**|**Yes**
-|Legacy Component|**Yes**|**Yes**|*No*|**Yes**|**Yes**|*No*|
-|Compat Component|**Yes**|**Yes**|**Yes**|**Yes\***|**Yes**|**Yes**|
-|Modern Component|*No*|**Yes**|**Yes**|*No*|**Yes**|**Yes**
+### Can RelayRootContainer use:
 
+|Classic Component|Compat Component|Modern Component|Classic Mutation|Compat Mutation|Modern Mutation
+|----|----|----|----|----|----|
+|Yes |Yes | No |Yes |Yes | No |
 
-\*Modern API doesn't support mutation fragments. You might have to inline the mutation fragments from your legacy mutation in the fragment of the component.
+### Can QueryRenderer using Classic Environment (`Store` in `react-relay/classic`) use:
+
+|Classic Component|Compat Component|Modern Component|Classic Mutation|Compat Mutation|Modern Mutation
+|----|----|----|----|----|----|
+|Yes |Yes | No |Yes |Yes | No |
+
+### Can QueryRenderer using Modern Environment use:
+
+|Classic Component|Compat Component|Modern Component|Classic Mutation|Compat Mutation|Modern Mutation
+|----|----|----|----|----|----|
+| No |Yes |Yes | No |Yes |Yes |
+
+### Can React Modern Component use:
+
+|Classic Component|Compat Component|Modern Component|Classic Mutation|Compat Mutation|Modern Mutation
+|----|----|----|----|----|----|
+| No |Yes |Yes | No |Yes |Yes |
+
+### Can React Compat Component use:
+
+|Classic Component|Compat Component|Modern Component|Classic Mutation|Compat Mutation|Modern Mutation
+|----|----|----|-----|----|----|
+|Yes |Yes |Yes |Yes\*|Yes |Yes |
+
+\* Modern API doesn't support mutation fragments. You might have to inline the mutation fragments from your legacy mutation in the fragment of the component.
+
+### Can React Classic Component use:
+
+|Classic Component|Compat Component|Modern Component|Classic Mutation|Compat Mutation|Modern Mutation
+|----|----|----|----|----|----|
+|Yes |Yes | No |Yes |Yes | No |

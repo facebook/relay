@@ -32,6 +32,16 @@ const {
 
 import type {GraphQLSchema} from 'graphql';
 
+const SCRIPT_NAME = 'relay-compiler';
+const WATCH_EXPRESSION = [
+  'allof',
+  ['type', 'f'],
+  ['suffix', 'js'],
+  ['not', ['match', '**/__mocks__/**', 'wholename']],
+  ['not', ['match', '**/__tests__/**', 'wholename']],
+  ['not', ['match', '**/__generated__/**', 'wholename']],
+];
+
 // Collect args
 const argv = yargs
   .usage(
@@ -64,15 +74,6 @@ run(argv).then(
     process.exit(1);
   }
 );
-
-const SCRIPT_NAME = 'relay-compiler';
-const WATCH_EXPRESSION = [
-  'allof',
-  ['type', 'f'],
-  ['suffix', 'js'],
-  ['not', ['match', '**/__mocks__/**', 'wholename']],
-  ['not', ['match', '**/__tests__/**', 'wholename']],
-];
 
 /* eslint-disable no-console-disallow */
 

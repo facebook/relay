@@ -4,7 +4,6 @@ title: Object Identification
 layout: docs
 category: GraphQL
 permalink: docs/graphql-object-identification.html
-indent: true
 next: graphql-connections
 ---
 

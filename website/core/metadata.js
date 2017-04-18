@@ -100,7 +100,6 @@ module.exports = {
       "layout": "docs",
       "category": "GraphQL",
       "permalink": "docs/graphql-connections.html",
-      "indent": true,
       "next": "graphql-mutations",
       "source": "GraphQL-Connections.md"
     },
@@ -110,7 +109,6 @@ module.exports = {
       "layout": "docs",
       "category": "GraphQL",
       "permalink": "docs/graphql-further-reading.html",
-      "indent": true,
       "next": "api-reference-relay",
       "source": "GraphQL-FurtherReading.md"
     },
@@ -120,7 +118,6 @@ module.exports = {
       "layout": "docs",
       "category": "GraphQL",
       "permalink": "docs/graphql-mutations.html",
-      "indent": true,
       "next": "graphql-further-reading",
       "source": "GraphQL-Mutations.md"
     },
@@ -130,7 +127,6 @@ module.exports = {
       "layout": "docs",
       "category": "GraphQL",
       "permalink": "docs/graphql-object-identification.html",
-      "indent": true,
       "next": "graphql-connections",
       "source": "GraphQL-ObjectIdentification.md"
     },
@@ -212,7 +208,6 @@ module.exports = {
       "layout": "docs",
       "category": "Relay Classic Interfaces",
       "permalink": "docs/interfaces-relay-mutation-request.html",
-      "indent": true,
       "next": "interfaces-relay-query-request",
       "source": "Interfaces-MutationRequest.md"
     },
@@ -230,7 +225,6 @@ module.exports = {
       "title": "RelayQueryRequest",
       "layout": "docs",
       "category": "Relay Classic Interfaces",
-      "indent": true,
       "permalink": "docs/interfaces-relay-query-request.html",
       "source": "Interfaces-QueryRequest.md"
     },
@@ -238,16 +232,25 @@ module.exports = {
       "id": "api-cheatsheet",
       "title": "API Cheatsheet",
       "layout": "docs",
-      "category": "Converting to Modern",
+      "category": "Relay Compat",
       "permalink": "docs/api-cheatsheet.html",
       "next": "guides-containers",
       "source": "APICheatsheet.md"
     },
     {
+      "id": "babel-plugin-relay",
+      "title": "babel-plugin-relay",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/babel-plugin-relay.html",
+      "next": "relay-compiler",
+      "source": "BabelPluginRelay.md"
+    },
+    {
       "id": "compatibility-cheatsheet",
       "title": "Compatibility Cheatsheet",
       "layout": "docs",
-      "category": "Converting to Modern",
+      "category": "Relay Compat",
       "permalink": "docs/compatibility-cheatsheet.html",
       "next": "api-cheatsheet",
       "source": "CompatibilityCheatsheet.md"
@@ -256,7 +259,7 @@ module.exports = {
       "id": "conversion-playbook",
       "title": "Conversion Playbook",
       "layout": "docs",
-      "category": "Converting to Modern",
+      "category": "Relay Compat",
       "permalink": "docs/conversion-playbook.html",
       "next": "conversion-scripts",
       "source": "ConversionPlaybook.md"
@@ -265,7 +268,7 @@ module.exports = {
       "id": "conversion-scripts",
       "title": "Conversion Scripts",
       "layout": "docs",
-      "category": "Converting to Modern",
+      "category": "Relay Compat",
       "permalink": "docs/conversion-scripts.html",
       "next": "upgrading-setvariables",
       "source": "ConversionScripts.md"
@@ -289,11 +292,11 @@ module.exports = {
       "source": "FragmentContainer.md"
     },
     {
-      "id": "intro-to-relay-modern",
+      "id": "relay-modern",
       "title": "Introduction to Relay Modern",
       "layout": "docs",
       "category": "Relay Modern",
-      "permalink": "docs/intro-to-relay-modern.html",
+      "permalink": "docs/relay-modern.html",
       "next": "new-in-relay-modern",
       "source": "Introduction.md"
     },
@@ -334,6 +337,24 @@ module.exports = {
       "source": "RefetchContainer.md"
     },
     {
+      "id": "relay-compat",
+      "title": "Compatibility Mode",
+      "layout": "docs",
+      "category": "Relay Compat",
+      "permalink": "docs/relay-compat.html",
+      "next": "conversion-playbook",
+      "source": "RelayCompat.md"
+    },
+    {
+      "id": "relay-compiler",
+      "title": "Relay Compiler",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/relay-compiler.html",
+      "next": "relay-compat",
+      "source": "RelayCompiler.md"
+    },
+    {
       "id": "routing",
       "title": "Routing",
       "layout": "docs",
@@ -348,14 +369,14 @@ module.exports = {
       "layout": "docs",
       "category": "Relay Modern",
       "permalink": "docs/mutations.html",
-      "next": "conversion-playbook",
+      "next": "babel-plugin-relay",
       "source": "SimpleMutationsUpdatingAField.md"
     },
     {
       "id": "upgrading-setvariables",
       "title": "Upgrading setVariables",
       "layout": "docs",
-      "category": "Converting to Modern",
+      "category": "Relay Compat",
       "permalink": "docs/upgrading-setvariables.html",
       "next": "compatibility-cheatsheet",
       "source": "UpgradingSetVariables.md"
@@ -438,7 +459,7 @@ module.exports = {
       "layout": "docs",
       "category": "Quick Start",
       "permalink": "docs/videos.html",
-      "next": "intro-to-relay-modern",
+      "next": "relay-modern",
       "source": "QuickStart-Videos.md"
     }
   ]

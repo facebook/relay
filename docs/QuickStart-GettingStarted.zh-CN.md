@@ -13,7 +13,7 @@ next: tutorial
 
   GraphQL Schema 是对你的数据模型的描述，它拥有一套相关的 resolve 方法，并且这些方法知道如何抓取应用可能需要的数据。
 
-  GraphQL 是用来支撑大范围数据连接模式。为了理解一个应用的数据结构， 在你定义 schema 时，Relay 要求你遵守 [GraphQL Relay Specification](graphql-relay-specification.html#content) 里的约定。
+  GraphQL 是用来支撑大范围数据连接模式。为了理解一个应用的数据结构， 在你定义 schema 时，Relay 要求你遵守 [GraphQL Relay Specification](graphql-relay-specification.html) 里的约定。
 
   - **[graphql-js](https://github.com/graphql/graphql-js)** on [npm](https://www.npmjs.com/package/graphql)
 

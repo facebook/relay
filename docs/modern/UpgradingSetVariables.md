@@ -2,7 +2,7 @@
 id: upgrading-setvariables
 title: Upgrading setVariables
 layout: docs
-category: Converting to Modern
+category: Relay Compat
 permalink: docs/upgrading-setvariables.html
 next: compatibility-cheatsheet
 ---

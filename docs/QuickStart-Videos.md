@@ -4,7 +4,7 @@ title: Videos
 layout: docs
 category: Quick Start
 permalink: docs/videos.html
-next: intro-to-relay-modern
+next: relay-modern
 ---
 
 ## [Silicon Valley ReactJS Meetup](http://www.meetup.com/Silicon-Valley-ReactJS-Meetup/)

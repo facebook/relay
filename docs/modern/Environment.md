@@ -4,7 +4,7 @@ title: The Relay "Environment"
 layout: docs
 category: Relay Modern
 permalink: docs/relay-environment.html
-next: QueryRenderer
+next: network-layer
 ---
 
 The Relay "Environment" bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.
@@ -37,7 +37,7 @@ const environment = new Environment({
 
 For more details on creating a Network, see the ['network section'](./Network.html).
 
-Once you have an environment, you can pass it in to your [`QueryRenderer`](./QueryRenderer.html) instance, or into mutations via the `commitUpdate` function (see "[Mutations](./mutations.html)").
+Once you have an environment, you can pass it in to your [`QueryRenderer`](./query-renderer.html) instance, or into mutations via the `commitUpdate` function (see "[Mutations](./mutations.html)").
 
 ## Adding a `handlerProvider`
 

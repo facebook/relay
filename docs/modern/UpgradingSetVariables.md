@@ -37,7 +37,7 @@ Typical Relay Classic code:
       }
     }
 
-This should be upgraded to use a [`PaginationContainer`](./PaginationContainer.html).
+This should be upgraded to use a [`PaginationContainer`](./pagination-container.html).
 
 ## Changing Arguments
 
@@ -58,7 +58,7 @@ Typical old code:
       }
     }
 
-This can be upgraded by using a [`RefetchContainer`](./RefetchContainer.html) which allows you to specify the exact query to use to fetch the new data.
+This can be upgraded by using a [`RefetchContainer`](./refetch-container.html) which allows you to specify the exact query to use to fetch the new data.
 
 ## Show More
 
@@ -79,6 +79,6 @@ Typical old code:
       }
     }
 
-This can be upgraded by conditionally rendering a [`QueryRenderer`](./QueryRenderer.html) which will load the data once it is rendered. The code overhead of doing this is dramatically reduced with the new API.
+This can be upgraded by conditionally rendering a [`QueryRenderer`](./query-renderer.html) which will load the data once it is rendered. The code overhead of doing this is dramatically reduced with the new API.
 
-Alternatively a [`RefetchContainer`](./RefetchContainer.html) can also be used.
+Alternatively a [`RefetchContainer`](./refetch-container.html) can also be used.

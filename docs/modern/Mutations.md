@@ -35,7 +35,7 @@ Now let's take a closer look at the `config`:
 * `onError`: a callback function executed when Relay encounters an error.
 * `optimisticResponse`: a function that provides an object conforming to the mutation's response type definition. If an `optimisticUpdater` is not provided, Relay will use this to optimistically update the store.
 * `optimisticUpdater`: a function that takes in a proxy of the in-memory Relay store. In this function, the client defines 'how to' update the store through the proxy in an imperative way.
-* `updater`: a function that updates the in-memory Relay store based on the **real** server response. When the server response comes back, Relay first reverts any changes introduced by `optimisticUpdater` or `optimisticResponse` and then applies the `updater` to the store. 
+* `updater`: a function that updates the in-memory Relay store based on the **real** server response. When the server response comes back, Relay first reverts any changes introduced by `optimisticUpdater` or `optimisticResponse` and then applies the `updater` to the store.
 
 ## Example
 

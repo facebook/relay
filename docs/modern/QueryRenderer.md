@@ -1,10 +1,10 @@
 ---
-id: QueryRenderer
+id: query-renderer
 title: QueryRenderer
 layout: docs
 category: Relay Modern
-permalink: docs/QueryRenderer.html
-next: FragmentContainer
+permalink: docs/query-renderer.html
+next: fragment-container
 ---
 
 `QueryRenderer` is the root of a Relay tree. It takes a query, fetches the data and calls the `render` callback with the data.

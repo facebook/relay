@@ -1,10 +1,10 @@
 ---
-id: FragmentContainer
+id: fragment-container
 title: FragmentContainer
 layout: docs
 category: Relay Modern
-permalink: docs/FragmentContainer.html
-next: PaginationContainer
+permalink: docs/fragment-container.html
+next: refetch-container
 ---
 
 The primary way to declare data requirements is via `createFragmentContainer` — a higher-order React component that lets React components encode their data requirements.

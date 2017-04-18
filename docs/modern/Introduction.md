@@ -51,7 +51,7 @@ Then after making edits to your application files, just run `yarn run relay` to 
 ## Migrating to Relay Modern
 
 Migrating a Relay Classic app to Relay Modern doesn't require rewriting from
-scratch. Instead, convert one component at a time to the Relay Modern API while
+scratch. Instead, you can convert one component at a time to the Relay Modern API while
 continuing to have a working app. Once all components have been converted, the
 smaller and faster Relay Modern runtime can be used.
 
@@ -68,38 +68,34 @@ Relay couples React with GraphQL and develops the idea of encapsulation further.
 
 ### Container
 
-Relay Modern containers take a usual React component (UI) and the collocated GraphQL queries (data requirements), and return a higher order React component. The basic container is the generic [fragment container](./FragmentContainer.html). Relay Modern also provides more advanced containers for dynamic use cases (which were previously handled in Relay Classic via `setVariables`):
+Relay Modern containers combine standard React components with a description of their data requirements, expressed as one or more GraphQL fragments. Each container is itself a standard React component that can be rendered using the standard React API (e.g. `<YourComponent prop={...} />`). When rendered, a container will read the data for its fragment from the Relay cache. As the fragment data changes - for example due to a mutation, subscription, or updated query response - the container will automatically re-render the component.
 
-### Refetch Container ("See More")
+[`createFragmentContainer`](./fragment-container.html) returns a basic container that cannot fetch additional data beyond what is declared in its fragment(s). Relay Modern also provides more advanced containers for dynamic use cases (which were previously handled in Relay Classic via `setVariables`):
 
-[`createRefetchContainer`](./RefetchContainer.html) addresses the "see more" use case, where you have an initial view that shows a subset of the available data, and you wish to fetch additional information — or re-issue the original query with some new variables — and then redisplay the component.
+#### Refetching Data (aka "See More")
+
+[`createRefetchContainer`](./refetch-container.html) is a variation of `createFragmentContainer` that addresses the "see more" use case, where a subset of data is rendered initially and then additional data is fetched on demand. Refetch containers initially fetch data for their fragments just like fragment containers, but also offer a `refetch()` method by which additional data can be fetched, or the container can be re-rendered to read data using different variables.
 
 ### Pagination Container
 
-This is a specialization of the general-purpose refetch container that is tailored for the common scenario of paginating through a collection of items by fetching successively more pages of data. See [`createPaginationContainer`](./PaginationContainer.html) for details.
+This is a specialization of the general-purpose refetch container that is tailored for the common scenario of paginating through a collection of items by fetching successively more pages of data. See [`createPaginationContainer`](./pagination-container.html) for details.
 
 ### Query Renderer
 
-`QueryRenderer` manages the execution of the GraphQL query. It sends the query with given parameters, parses the response, saves the data to the internal store, and finally renders the view. [More details](./QueryRenderer.html).
+[`QueryRenderer`](./query-renderer.html) manages the execution of the GraphQL query. It sends the query with given variables, parses the response, saves the data to the internal cache, and finally renders the view.
 
 ### Relay Environment
 
-The Relay Environment is a self-contained environment with its own in-memory cache, and exports public APIs of Relay core. It can be accessed via `this.props.relay.environment`. Most of the time, you don't need to interact with this lower level API, but you will need it [when doing a mutation](./mutations.html). For more details about the Environment, see [this page](./relay-environment.html).
+An instance of a [Relay Environment](./environment.html) encapsulates an in-memory cache of GraphQL data and a network layer that provides access to your GraphQL server. The Environment object is typically not used by developers directly, instead it is passed to each [`QueryRenderer`](./query-renderer.html), which uses the environment to access, modify, and fetch data. Within a container, the current environment can be accessed via `this.props.relay.environment`. This is most commonly used to [execute a mutation](./mutations.html).
+
+### Network layer
+
+Applications must supply a [Network Layer](./network-layer.html) when creating an instance of a Relay Environment. The network layer is an object confirming to a simple interface through which Relay can execute queries, mutations, and subscriptions. Essentially, this object teaches Relay how to talk to your GraphQL server.
 
 ## Workflow
 
-One of the big ideas behind the new API is that execution can be made a lot more efficient by moving work ahead-of-time: from to runtime of the app to the build-time. As such, changes to GraphQL fragments require a build step to regenerate a set of artifacts. More on [the Relay Compiler](./Compiler.html).
+One of the big ideas behind the new API is that execution can be made a lot more efficient by moving work ahead-of-time: from to runtime of the app to the build-time. As such, changes to GraphQL fragments require a build step to regenerate a set of artifacts. More on [the Relay Compiler](./relay-compiler.html).
 
-## The difference between Relay Classic and Relay Modern
+## Comparing Relay Classic and Relay Modern
 
-### Everything is static and persistable
-
-The updated Relay engine uses only static GraphQL queries — that is, queries that can be known at build-time — and doesn't do any dynamic query construction at runtime. Because the queries can be statically determined, they can also be persisted on the server ahead of time: this means that request size can be drastically reduced by sending an ID for a previously persisted query rather than the full query text.
-
-### Mutation is imperative
-
-Mutation — performing updates to the data — is an intrinsically imperative, mutative operation. Relay Classic provides a declarative API for mutation and does the dirty work behind the scenes. However, the amount of "magic" involved made it confusing and hard to debug, especially for connection fields. Thus, in Relay Modern, we provide a set of imperative APIs and let the engineers take full control over the data. Check out the [Optimistic Updates](#) section and see how it works.
-
-### Built in Flow support
-
-The build step for the new API automatically creates (optional) [Flow](https://flow.org/) types for the structure of the props enabling auto-completion in Flow-aware tools and type-safety checks.
+Relay Modern enables a variety of new features. Some are available via the Compat API, while others require upgrading fully to the Modern runtime. See [what's new in Relay Modern](./new-in-relay-modern.html) for more details.

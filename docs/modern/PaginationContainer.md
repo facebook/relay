@@ -1,10 +1,10 @@
 ---
-id: PaginationContainer
+id: pagination-container
 title: PaginationContainer
 layout: docs
 category: Relay Modern
-permalink: docs/PaginationContainer.html
-next: RefetchContainer
+permalink: docs/pagination-container.html
+next: routing
 ---
 
 `PaginationContainer` is designed to simplify the workflow of loading more items in a list -- in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://facebook.github.io/relay/graphql/connections.htm).

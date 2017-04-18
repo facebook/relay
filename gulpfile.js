@@ -135,7 +135,7 @@ const PRODUCTION_HEADER = [
 const buildDist = function(filename, opts, isProduction) {
   const webpackOpts = {
     debug: !isProduction,
-    externals: opts.externals,
+    externals: [/^[-/a-zA-Z0-9]+$/],
     target: opts.target,
     node: {
       fs: 'empty',
@@ -197,7 +197,6 @@ const builds = [
         libraryName: 'BabelPluginRelay',
         libraryTarget: 'commonjs2',
         target: 'node',
-        externals: [/^[a-z\-0-9]+$/],
       },
     ],
   },
@@ -214,21 +213,18 @@ const builds = [
         output: 'react-relay-classic',
         libraryName: 'ReactRelayClassic',
         libraryTarget: 'umd',
-        externals: [/^[a-z\-0-9]+$/],
       },
       {
         entry: 'ReactRelayCompatPublic.js',
         output: 'react-relay-compat',
         libraryName: 'ReactRelayCompat',
         libraryTarget: 'umd',
-        externals: [/^[a-z\-0-9]+$/],
       },
       {
         entry: 'ReactRelayPublic.js',
         output: 'react-relay',
         libraryName: 'ReactRelay',
         libraryTarget: 'umd',
-        externals: [/^[a-z\-0-9]+$/],
       },
     ],
   },
@@ -245,7 +241,6 @@ const builds = [
         libraryTarget: 'commonjs2',
         target: 'node',
         noMinify: true, // Note: uglify can't yet handle modern JS
-        externals: [/^[a-z\-0-9]+$/],
       },
     ],
     bins: [
@@ -254,7 +249,6 @@ const builds = [
         output: 'relay-compiler',
         libraryTarget: 'commonjs2',
         target: 'node',
-        externals: [/^[a-z\-0-9]+$/],
       },
     ],
   },
@@ -269,7 +263,6 @@ const builds = [
         output: 'relay-runtime',
         libraryName: 'RelayRuntime',
         libraryTarget: 'umd',
-        externals: [/^[a-z\-0-9]+$/],
       },
     ],
   },

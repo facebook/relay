@@ -140,18 +140,6 @@ describe('ReactRelayRefetchContainer', () => {
     expect(TestContainer.displayName).toBe('Relay(TestComponent)');
   });
 
-  it('throws for invalid fragments', () => {
-    expect(() => {
-      ReactRelayRefetchContainer.createContainer(TestComponent, {
-        foo: null,
-      });
-    }).toFailInvariant(
-      'ReactRelayCompatContainerBuilder: Could not create container for ' +
-      '`TestComponent`. The value of fragment `foo` was expected to be a ' +
-      'fragment, got `null` instead.'
-    );
-  });
-
   it('passes non-fragment props to the component', () => {
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>

@@ -1,0 +1,213 @@
+/**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule RelayQueryPath
+ * @flow
+ * @typechecks
+ */
+
+'use strict';
+
+var RelayNodeInterface = require('RelayNodeInterface');
+var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
+var RelayQuery = require('RelayQuery');
+var RelayQuerySerializer = require('RelayQuerySerializer');
+
+var invariant = require('invariant');
+
+import type {DataID} from 'RelayInternalTypes';
+
+// Placeholder to mark fields as non-scalar
+var EMPTY_FRAGMENT = RelayQuery.Node.buildFragment(
+  '$RelayQueryPath',
+  'Node'
+);
+
+/**
+ * @internal
+ *
+ * Represents the path (root plus fields) within a query that fetched a
+ * particular node. Each step of the path may represent a root query (for
+ * refetchable nodes) or the field path from the nearest refetchable node.
+ */
+class RelayQueryPath {
+  _name: string;
+  _node: RelayQuery.Root | RelayQuery.Field;
+  _parent: ?RelayQueryPath;
+
+  constructor(
+    node: RelayQuery.Root | RelayQuery.Field,
+    parent?: RelayQueryPath
+  ) {
+    if (node instanceof RelayQuery.Root) {
+      invariant(
+        !parent,
+        'RelayQueryPath: Root paths may not have a parent.'
+      );
+      this._name = node.getName();
+    } else {
+      invariant(
+        parent,
+        'RelayQueryPath: A parent is required for field paths.'
+      );
+      this._name = parent.getName();
+    }
+    this._node = node;
+    this._parent = parent;
+  }
+
+  /**
+   * Returns true if this is a root path (the node is a root node with an ID),
+   * false otherwise.
+   */
+  isRootPath(): boolean {
+    return !this._parent;
+  }
+
+  /**
+   * Gets the parent path, throwing if it does not exist. Use `!isRootPath()`
+   * to check if there is a parent.
+   */
+  getParent(): RelayQueryPath {
+    var parent = this._parent;
+    invariant(
+      parent,
+      'RelayQueryPath.getParent(): Cannot get the parent of a root path.'
+    );
+    return parent;
+  }
+
+  /**
+   * Helper to get the name of the root query node.
+   */
+  getName(): string {
+    return this._name;
+  }
+
+  /**
+   * Gets a new path that describes how to access the given `node` via the
+   * current path. Returns a new, root path if `dataID` is provided and
+   * refetchable, otherwise returns an extension of the current path.
+   */
+  getPath(
+    node: RelayQuery.Field,
+    dataID: DataID
+  ): RelayQueryPath {
+    if (GraphQLStoreDataHandler.isClientID(dataID)) {
+      return new RelayQueryPath(node, this);
+    } else {
+      // refetchable ID
+      var root = RelayQuery.Node.buildRoot(
+        RelayNodeInterface.NODE,
+        dataID,
+        [RelayQuery.Node.buildField('id')],
+        {rootArg: RelayNodeInterface.ID},
+        this.getName()
+      );
+      return new RelayQueryPath(root);
+    }
+  }
+
+  /**
+   * Returns a new root query that follows only the fields in this path and then
+   * appends the specified field/fragment at the node reached by the path.
+   *
+   * The query also includes any ID fields along the way.
+   */
+  getQuery(
+    appendNode: RelayQuery.Fragment | RelayQuery.Field
+  ): RelayQuery.Root {
+    var node = this._node;
+    var path = this;
+    var child = appendNode;
+    while (node instanceof RelayQuery.Field) {
+      var idFieldName = node.getInferredPrimaryKey();
+      if (idFieldName) {
+        child = node.clone([child, node.getFieldByStorageKey(idFieldName)]);
+      } else {
+        child = node.clone([child]);
+      }
+      path = path._parent;
+      invariant(
+        path,
+        'RelayQueryPath.getQuery(): Expected field to have a parent path.'
+      );
+      node = path._node;
+    }
+    invariant(child, 'RelayQueryPath: Expected a leaf node.');
+    invariant(
+      node instanceof RelayQuery.Root,
+      'RelayQueryPath: Expected a root node.'
+    );
+    var rootCall = node.getRootCall();
+    return RelayQuery.Node.buildRoot(
+      rootCall.name,
+      rootCall.value,
+      [child, (node: $FlowIssue).getFieldByStorageKey('id')],
+      {
+        ...node.__concreteNode__.metatada,
+        rootArg: node.getRootCallArgument(),
+      },
+      this.getName()
+    );
+  }
+
+  toJSON(): mixed {
+    var path = [];
+    var next = this;
+    while (next) {
+      path.unshift(RelayQuerySerializer.toJSON(getShallowClone(next._node)));
+      next = next._parent;
+    }
+    return path;
+  }
+
+  static fromJSON(data: mixed): RelayQueryPath {
+    invariant(
+      Array.isArray(data) && data.length > 0,
+      'RelayQueryPath.fromJSON(): expected an array with at least one item.'
+    );
+    var root = RelayQuerySerializer.fromJSON(data[0]);
+    invariant(
+      root instanceof RelayQuery.Root,
+      'RelayQueryPath.fromJSON(): invalid path, expected first node to be ' +
+      'a `RelayQueryRoot`.'
+    );
+    var path = new RelayQueryPath(root);
+
+    for (var ii = 1; ii < data.length; ii++) {
+      var field = RelayQuerySerializer.fromJSON(data[ii]);
+      invariant(
+        field instanceof RelayQuery.Field,
+        'RelayQueryPath.fromJSON(): invalid path, expected node at index %s ' +
+        'to be a `RelayQueryField`.',
+        ii
+      );
+      path = new RelayQueryPath(field, path);
+    }
+    return path;
+  }
+}
+
+/**
+ * Creates a shallow version of `node` with only a primary key field. If the
+ * node is not scalar and would otherwise be empty, an empty fragment is added.
+ */
+function getShallowClone(
+  node: RelayQuery.Root | RelayQuery.Field
+): RelayQuery.Node {
+  // cloning with non-empty children guarantees result is non-null
+  if (node instanceof RelayQuery.Field) {
+    var idFieldName = node.getInferredPrimaryKey();
+    var idField = idFieldName && node.getFieldByStorageKey(idFieldName);
+    return (node.clone([idField || EMPTY_FRAGMENT]): any);
+  }
+  return (node.clone([node.getFieldByStorageKey('id') || EMPTY_FRAGMENT]): any);
+}
+
+module.exports = RelayQueryPath;

@@ -1,0 +1,8 @@
+---
+language: node_js
+node_js:
+- 'iojs-v3'
+env:
+- TEST_DIR=.
+- TEST_DIR=scripts/babel-relay-plugin
+script: cd $TEST_DIR && npm install && npm test

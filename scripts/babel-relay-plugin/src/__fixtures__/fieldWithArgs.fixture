@@ -1,0 +1,28 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  query {
+    node(id: 123) {
+      profilePicture(size: 100) {
+        uri
+      }
+    }
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  var GraphQL = Relay.QL.__GraphQL;
+  return new GraphQL.Query('node', 123, [new GraphQL.Field('profilePicture', [new GraphQL.Field('uri', null, null, null, null, null, {
+    'parentType': 'ProfilePicture'
+  })], null, [new GraphQL.Callv('size', 100)], null, null, {
+    'parentType': 'Node'
+  }), new GraphQL.Field('id', null, null, null, null, null, {
+    'parentType': 'Node',
+    'generated': true,
+    'requisite': true
+  })], null, {
+    'rootArg': 'id'
+  }, 'FieldWithArgs');
+})();

@@ -1,0 +1,21 @@
+Input:
+var Relay = require('react-relay');
+var x = Relay.QL`
+  query {
+    node(id: 123) {
+      friends(first: 3, before: "foo") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+`;
+
+Output:
+var Relay = require('react-relay');
+var x = (function () {
+  throw new Error('GraphQL validation/transform error ``Connections arguments `friends(before: <cursor>, first: <count>)` are not supported. Use `(first: <count>)` or `(after: <cursor>, first: <count>)`. `` in file `connectionWithBeforeFirstCalls.fixture`.');
+})();

@@ -1,0 +1,27 @@
+Input:
+var Relay = require('react-relay');
+Relay.createContainer(Component, {
+  queries: {
+    viewer: params => Relay.QL`fragment on Viewer{actor{id}}`
+  }
+});
+
+Output:
+var Relay = require('react-relay');
+Relay.createContainer(Component, {
+  queries: {
+    viewer: function viewer(params) {
+      return (function () {
+        var GraphQL = Relay.QL.__GraphQL;
+        return new GraphQL.QueryFragment('Container', 'Viewer', [new GraphQL.Field('actor', [new GraphQL.Field('id', null, null, null, null, null, {
+          'parentType': 'User',
+          'requisite': true
+        })], null, null, null, null, {
+          'parentType': 'Viewer',
+          'rootCall': 'node',
+          'pk': 'id'
+        })]);
+      })();
+    }
+  }
+});

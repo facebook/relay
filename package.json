@@ -1,0 +1,90 @@
+{
+  "name": "react-relay",
+  "description": "A framework for building data-driven React applications.",
+  "version": "0.2.1",
+  "keywords": [
+    "graphql",
+    "react",
+    "relay"
+  ],
+  "license": "BSD-3-Clause",
+  "homepage": "https://facebook.github.io/relay/",
+  "bugs": "https://github.com/facebook/relay/issues",
+  "files": [
+    "LICENSE",
+    "PATENTS",
+    "README.md",
+    "dist/",
+    "lib/"
+  ],
+  "main": "lib/Relay.js",
+  "repository": "facebook/relay",
+  "scripts": {
+    "build": "[ $(ulimit -n) -lt 4096 ] && ulimit -n 4096; gulp",
+    "prepublish": "npm run build",
+    "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; NODE_ENV=test jest $@ || EXIT=$?; exit $EXIT; }; f",
+    "typecheck": "flow check src/",
+    "update-schema": "babel-node ./scripts/jest/updateSchema.js",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "babel-runtime": "5.8.20",
+    "fbjs": "^0.2.1",
+    "react-static-container": "^1.0.0-alpha.1"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0-beta3"
+  },
+  "devDependencies": {
+    "babel-core": "^5.8.23",
+    "babel-eslint": "^4.1.1",
+    "babel-loader": "^5.3.2",
+    "babel-relay-plugin": "^0.2.1",
+    "del": "^1.2.0",
+    "envify": "^3.4.0",
+    "eslint": "^1.3.1",
+    "eslint-plugin-react": "^3.3.1",
+    "fbjs-scripts": "^0.2.0",
+    "flow-bin": "0.14.0",
+    "graphql": "^0.4.2",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.1.0",
+    "gulp-derequire": "^2.1.0",
+    "gulp-flatten": "^0.1.0",
+    "gulp-header": "^1.2.2",
+    "gulp-util": "^3.0.6",
+    "jest-cli": "^0.5.0",
+    "object-assign": "^3.0.0",
+    "react": "^0.14.0-beta3",
+    "run-sequence": "^1.1.2",
+    "webpack": "1.11.0",
+    "webpack-stream": "^2.1.0"
+  },
+  "jest": {
+    "rootDir": "",
+    "scriptPreprocessor": "scripts/jest/preprocessor.js",
+    "setupEnvScriptFile": "node_modules/fbjs-scripts/jest/environment.js",
+    "persistModuleRegistryBetweenSpecs": true,
+    "modulePathIgnorePatterns": [
+      "<rootDir>/lib/",
+      "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/))"
+    ],
+    "preprocessorIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ],
+    "testPathDirs": [
+      "<rootDir>/node_modules/fbjs/lib/",
+      "<rootDir>/node_modules/react/lib/",
+      "<rootDir>/node_modules/react-static-container/lib/",
+      "<rootDir>/src/"
+    ],
+    "unmockedModulePathPatterns": [
+      "<rootDir>/node_modules/fbjs/node_modules/core-js/",
+      "<rootDir>/node_modules/fbjs-scripts/node_modules/core-js/",
+      "<rootDir>/node_modules/fbjs/node_modules/promise/",
+      "<rootDir>/node_modules/fbjs/lib/(?!(ErrorUtils.js$|fetch.js$|fetchWithRetries.js$))",
+      "<rootDir>/node_modules/react/",
+      "<rootDir>/node_modules/react-static-container/"
+    ]
+  }
+}

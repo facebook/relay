@@ -1,0 +1,18 @@
+fragment InlineFragment on Node {
+  id
+  ... on Actor {
+    name
+  }
+  ... on User {
+    message {
+      text
+    }
+  }
+}
+
+fragment InlineFragmentConditionalID on Node {
+  ... on Actor {
+    id # nullable since it's conditional
+    name
+  }
+}

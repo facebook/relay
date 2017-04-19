@@ -1,0 +1,12 @@
+export type InlineFragment = {
+  id: string;
+  name?: ?string;
+  message?: ?{
+    text: ?string;
+  };
+};
+
+export type InlineFragmentConditionalID = {
+  id?: string;
+  name?: ?string;
+};

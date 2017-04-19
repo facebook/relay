@@ -7,7 +7,7 @@ permalink: docs/new-in-relay-modern.html
 next: relay-environment
 ---
 
-> A summary of the improvements and new features in Relay Modern brings.
+> A summary of the improvements and new features in Relay Modern.
 
 
 ## Compat Mode

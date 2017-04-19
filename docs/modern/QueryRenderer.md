@@ -40,3 +40,7 @@ const {
   }}
 />
 ```
+
+### Query naming convention
+
+`relay-compiler` is enforcing a naming convention for your queries of `FileName|OperationType`. So for the above example to be valid, the code is expected to be saved into a file called `Example.js`.

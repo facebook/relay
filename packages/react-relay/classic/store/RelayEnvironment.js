@@ -48,6 +48,7 @@ import type {
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
+import type {UploadableMap} from 'RelayNetworkTypes';
 import type RelayQueryTracker from 'RelayQueryTracker';
 import type {TaskScheduler} from 'RelayTaskQueue';
 import type {
@@ -215,6 +216,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     optimisticOperation,
     optimisticResponse,
     variables,
+    uploadables,
   }: {
     configs: Array<RelayMutationConfig>,
     onCompleted?: ?(response: {[key: string]: Object}) => void,
@@ -223,12 +225,13 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     optimisticOperation?: ?ConcreteOperationDefinition,
     optimisticResponse?: ?Object,
     variables: Variables,
+    uploadables?: UploadableMap,
   }): Disposable {
     let disposed = false;
     const mutationTransaction = new RelayGraphQLMutation(
       operation.node,
       RelayVariables.getOperationVariables(operation, variables),
-      null,
+      uploadables,
       this,
       {
         onSuccess: response => {

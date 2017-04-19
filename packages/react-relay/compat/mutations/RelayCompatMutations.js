@@ -60,6 +60,7 @@ function commitRelay1Mutation(
     onError,
     optimisticResponse,
     variables,
+    uploadables,
   }: MutationConfig
 ): Disposable {
   const {getOperation} = environment.unstable_internal;
@@ -71,6 +72,7 @@ function commitRelay1Mutation(
     onError,
     optimisticResponse: optimisticResponse && optimisticResponse(),
     variables,
+    uploadables,
   });
 }
 

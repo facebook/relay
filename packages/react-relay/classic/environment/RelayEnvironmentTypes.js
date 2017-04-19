@@ -27,6 +27,7 @@ import type {
   CUnstableEnvironmentCore,
   Disposable,
 } from 'RelayCombinedEnvironmentTypes';
+import type {UploadableMap} from 'RelayNetworkTypes';
 import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 import type {Variables, RelayMutationConfig} from 'RelayTypes';
 
@@ -87,5 +88,6 @@ export interface Environment extends CEnvironment<
     optimisticOperation?: ?ConcreteOperationDefinition,
     optimisticResponse?: ?Object,
     variables: Variables,
+    uploadables?: UploadableMap,
   |}): Disposable,
 }

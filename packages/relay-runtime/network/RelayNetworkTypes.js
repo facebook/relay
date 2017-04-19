@@ -115,4 +115,5 @@ export type RequestResponseFunction = (
 ) => Promise<RelayResponsePayload>;
 
 export type Uploadable = File | Blob;
+// $FlowFixMe this is compatible with classic api see D4658012
 export type UploadableMap = {[key: string]: Uploadable};

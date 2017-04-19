@@ -94,7 +94,7 @@ Applications must supply a [Network Layer](./network-layer.html) when creating a
 
 ## Workflow
 
-One of the big ideas behind the new API is that execution can be made a lot more efficient by moving work ahead-of-time: from to runtime of the app to the build-time. As such, changes to GraphQL fragments require a build step to regenerate a set of artifacts. More on [the Relay Compiler](./relay-compiler.html).
+One of the big ideas behind the new API is that execution can be made a lot more efficient by moving work ahead-of-time: from the runtime of the app to the build-time. As such, changes to GraphQL fragments require a build step to regenerate a set of artifacts. More on [the Relay Compiler](./relay-compiler.html).
 
 ## Comparing Relay Classic and Relay Modern
 

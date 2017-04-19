@@ -29,6 +29,7 @@ commitMutation(
 ```
 
 Now let's take a closer look at the `config`:
+
 * `mutation`: the `graphql` tagged mutation query.
 * `variables`: an object that contains the variables needed for the mutation.
 * `onCompleted`: a callback function executed with the 'raw' response from the server after the in-memory Relay store is updated with the `updater`.

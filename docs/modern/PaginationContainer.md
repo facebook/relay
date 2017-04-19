@@ -37,8 +37,8 @@ isLoading: () => boolean,
  */
 loadMore: (
   pageSize: number,
-  callback: (error: ?Error) => void,
-  options?: RefetchOptions
+  callback: ?(error: ?Error) => void,
+  options: ?RefetchOptions
 ) => ?Disposable,
 
 /**

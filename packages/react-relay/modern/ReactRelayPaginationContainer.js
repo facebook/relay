@@ -123,7 +123,7 @@ export type ConnectionData = {
  * total).
  *
  * ```
- * loadMore(pageSize: number, callback: (error: ?Error) => void): ?Disposable
+ * loadMore(pageSize: number, callback: ?(error: ?Error) => void): ?Disposable
  * ```
  *
  * A complete example:
@@ -507,7 +507,7 @@ function createContainerWithFragments<TDefaultProps, TProps>(
 
     _refetchConnection = (
       totalCount: number,
-      callback: (error: ?Error) => void,
+      callback: ?(error: ?Error) => void,
     ): ?Disposable => {
       const paginatingVariables = {
         count: totalCount,
@@ -519,7 +519,7 @@ function createContainerWithFragments<TDefaultProps, TProps>(
 
     _loadMore = (
       pageSize: number,
-      callback: (error: ?Error) => void,
+      callback: ?(error: ?Error) => void,
       options: ?RefetchOptions
     ): ?Disposable => {
       const connectionData = this._getConnectionData();
@@ -544,7 +544,7 @@ function createContainerWithFragments<TDefaultProps, TProps>(
         cursor: ?string,
         totalCount: number,
       },
-      callback: (error: ?Error) => void,
+      callback: ?(error: ?Error) => void,
       options: ?RefetchOptions
     ): ?Disposable {
       const {environment} = assertRelayContext(this.context.relay);
@@ -586,12 +586,12 @@ function createContainerWithFragments<TDefaultProps, TProps>(
 
       const onCompleted = () => {
         this._pendingRefetch = null;
-        callback();
+        callback && callback();
         this._updateSnapshots(paginatingVariables.totalCount);
       };
       const onError = error => {
         this._pendingRefetch = null;
-        callback(error);
+        callback && callback(error);
       };
 
       // Immediately retain the results of the query to prevent cached

@@ -396,7 +396,7 @@ function validateConnectionType(
     );
   }
   const cursor = edgeType.getFields()[CURSOR];
-  if (!cursor || !(cursor.type instanceof GraphQLScalarType)) {
+  if (!cursor || !(RelaySchemaUtils.getNullableType(cursor.type) instanceof GraphQLScalarType)) {
     invariant(
       false,
       'RelayConnectionTransform: Expected type `%s` to have an ' +
@@ -408,7 +408,8 @@ function validateConnectionType(
     );
   }
   const pageInfo = typeFields[PAGE_INFO];
-  if (!pageInfo || !(pageInfo.type instanceof GraphQLObjectType)) {
+  const nullablePageInfoType = RelaySchemaUtils.getNullableType(pageInfo.type)
+  if (!pageInfo || !(nullablePageInfoType instanceof GraphQLObjectType)) {
     invariant(
       false,
       'RelayConnectionTransform: Expected type `%s` to have a %s field for ' +
@@ -418,10 +419,10 @@ function validateConnectionType(
       definitionName,
     );
   }
-  const pageInfoType = RelaySchemaUtils.assertTypeWithFields(pageInfo.type);
+  const pageInfoType = RelaySchemaUtils.assertTypeWithFields(nullablePageInfoType);
   [END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, START_CURSOR].forEach(fieldName => {
     const pageInfoField = pageInfoType.getFields()[fieldName];
-    if (!pageInfoField || !(pageInfoField.type instanceof GraphQLScalarType)) {
+    if (!pageInfoField || !(RelaySchemaUtils.getNullableType(pageInfoField.type) instanceof GraphQLScalarType)) {
       invariant(
         false,
         'RelayConnectionTransform: Expected type `%s` to have an ' +

@@ -16,7 +16,7 @@ const compileRelayQLTag = require('./compileRelayQLTag');
 const getDocumentName = require('./getDocumentName');
 const getValidGraphQLTag = require('./getValidGraphQLTag');
 const getValidRelayQLTag = require('./getValidRelayQLTag');
-const invariant = require('invariant');
+const invariant = require('./invariant');
 
 /**
  * Using babel-plugin-relay with only the modern runtime?

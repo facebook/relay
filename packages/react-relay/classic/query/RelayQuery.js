@@ -124,7 +124,6 @@ type RootContext = {
  * TODO (#6937314): RelayQueryNode support for toJSON/fromJSON
  */
 class RelayQueryNode {
-  constructor: Function; // for flow
   __calls__: ?Array<Call>;
   __children__: ?Array<RelayQueryNode>;
   __concreteNode__: any;

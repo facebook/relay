@@ -107,6 +107,7 @@
       "<rootDir>/node_modules/fbjs/node_modules/core-js/",
       "<rootDir>/node_modules/fbjs/node_modules/promise/",
       "<rootDir>/node_modules/object-assign/",
+      "<rootDir>/node_modules/prop-types/",
       "<rootDir>/node_modules/react-addons-test-utils/",
       "<rootDir>/node_modules/react-dom/",
       "<rootDir>/node_modules/react-static-container/",

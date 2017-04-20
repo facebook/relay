@@ -10,6 +10,8 @@ matrix:
     env: TEST=1
   - node_js: '7'
     env: TYPECHECK=1
+  - node_js: '7'
+    env: LINT=1
 
 script:
 - |
@@ -19,4 +21,8 @@ script:
 - |
     if [ $TYPECHECK ]; then
       npm install --ignore-scripts && npm run typecheck
+    fi
+- |
+    if [ $LINT ]; then
+      npm install --ignore-scripts && npm run lint
     fi

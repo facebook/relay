@@ -57,11 +57,7 @@ graphql.experimental = function(): GraphQLTaggedNode {
 };
 
 function getNode(taggedNode) {
-  const fn = typeof taggedNode === 'function'
-    ? taggedNode
-    // Note: this is a temporary "push safe" fix so existing built files
-    // referencing "node.relayExperimental" continue to work.
-    : (taggedNode.modern || (taggedNode: any).relayExperimental);
+  const fn = typeof taggedNode === 'function' ? taggedNode : taggedNode.modern;
   // Support for classic raw nodes (used in test mock)
   if (typeof fn !== 'function') {
     return (taggedNode: any);

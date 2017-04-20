@@ -58,9 +58,7 @@ const CLASSIC_NODE = '__classic_node__';
 function getClassicNode(taggedNode) {
   let concreteNode = (taggedNode: any)[CLASSIC_NODE];
   if (concreteNode == null) {
-    // Note: this is a temporary "push safe" fix so existing built files
-    // referencing "node.relay" continue to work.
-    const fn = (taggedNode.classic || (taggedNode: any).relay);
+    const fn = taggedNode.classic;
     invariant(
       typeof fn === 'function',
       'RelayGraphQLTag: Expected a graphql literal (in compat mode), got `%s`.',

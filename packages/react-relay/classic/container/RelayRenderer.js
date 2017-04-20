@@ -12,6 +12,7 @@
 
 'use strict';
 
+const PropTypes = require('prop-types');
 const React = require('React');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
@@ -58,8 +59,6 @@ type State = {
   readyState: ?ComponentReadyState,
   retry: RelayRetryCallback,
 };
-
-const {PropTypes} = React;
 
 const INACTIVE_READY_STATE = {
   aborted: false,

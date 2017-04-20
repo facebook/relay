@@ -12,6 +12,7 @@
 
 'use strict';
 
+const PropTypes = require('prop-types');
 const React = require('React');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayRenderer = require('RelayRenderer');
@@ -41,8 +42,6 @@ type RootContainerProps = {
   renderLoading?: ?() => ?React.Element<any>,
   route: RelayQueryConfigInterface,
 };
-
-const {PropTypes} = React;
 
 /**
  * @public

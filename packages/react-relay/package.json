@@ -14,6 +14,7 @@
   "dependencies": {
     "babel-runtime": "^6.23.0",
     "fbjs": "^0.8.1",
+    "prop-types": "^15.5.8",
     "react-static-container": "^1.0.1",
     "relay-runtime": "1.0.0-rc.1"
   },

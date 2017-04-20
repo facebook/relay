@@ -1,29 +1,12 @@
----
 language: node_js
-install: true
-matrix:
-  include:
-  - node_js: '6'
-    env: TEST=.
-  - node_js: '7'
-    env: TEST=.
 
-  - node_js: '6'
-    env: TEST=scripts/babel-relay-plugin
-  - node_js: '7'
-    env: TEST=scripts/babel-relay-plugin
+git:
+  depth: 5
 
-  - node_js: '6'
-    env: TYPECHECK=.
+node_js:
+  - '7'
+  - '6'
 
-  - node_js: '6'
-    env: TYPECHECK=scripts/babel-relay-plugin
-script:
-- |
-    if [ $TEST ]; then
-      cd $TEST && npm install && npm run jest -- --runInBand --no-watchman
-    fi
-- |
-    if [ $TYPECHECK ]; then
-      cd $TYPECHECK && npm install && npm run typecheck
-    fi
+script: 
+  - if [[ "$TRAVIS_JOB_NUMBER" == *.1 ]]; then npm run typecheck && npm run jest -- --runInBand --no-watchman; else npm run jest -- --runInBand --no-watchman; fi
+

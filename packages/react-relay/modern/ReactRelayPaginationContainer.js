@@ -23,7 +23,6 @@ const isScalarAndEqual = require('isScalarAndEqual');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
 const {profileContainer} = require('ReactRelayContainerProfiler');
 const {
   EDGES,
@@ -36,7 +35,6 @@ const {
 const {getComponentName, getReactComponent} = require('RelayContainerUtils');
 
 import type {
-  GeneratedNodeMap,
   RefetchOptions,
   RelayPaginationProp,
 } from 'ReactRelayTypes';
@@ -86,12 +84,12 @@ export type ConnectionData = {
 };
 
 /**
- * Extends the functionality of RelayCompatContainer by providing a mechanism
+ * Extends the functionality of RelayFragmentContainer by providing a mechanism
  * to load more data from a connection.
  *
  * # Configuring a PaginationContainer
  *
- * PaginationContainer accepts the standard CompatContainer arguments and an
+ * PaginationContainer accepts the standard FragmentContainer arguments and an
  * additional `connectionConfig` argument:
  *
  * - `Component`: the component to be wrapped/rendered.
@@ -286,7 +284,7 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
   return foundConnectionMetadata || ({}: any);
 }
 
-function createContainerWithFragments<TDefaultProps, TProps>(
+function createContainer<TDefaultProps, TProps>(
   Component: Class<React.Component<TDefaultProps, TProps, *>> | ReactClass<TProps>,
   fragments: FragmentMap,
   connectionConfig: ConnectionConfig,
@@ -695,28 +693,4 @@ function assertRelayContext(relay: mixed): RelayContext {
   return (relay: any);
 }
 
-/**
- * Wrap the basic `createContainer()` function with logic to adapt to the
- * `context.relay.environment` in which it is rendered. Specifically, the
- * extraction of the environment-specific version of fragments in the
- * `fragmentSpec` is memoized once per environment, rather than once per
- * instance of the container constructed/rendered.
- */
-function createContainer<TBase: ReactClass<*>>(
-  Component: TBase,
-  fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
-  connectionConfig: ConnectionConfig,
-): TBase {
-  return buildCompatContainer(
-    Component,
-    (fragmentSpec: any),
-    (ComponentClass, fragments) => {
-      return createContainerWithFragments(ComponentClass, fragments, connectionConfig);
-    },
-  );
-}
-
-module.exports = {
-  createContainer,
-  createContainerWithFragments,
-};
+module.exports = {createContainer};

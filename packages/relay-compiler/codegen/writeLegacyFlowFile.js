@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule writeFlowFile
+ * @providesModule writeLegacyFlowFile
  * @flow
  */
 
@@ -16,7 +16,7 @@ const SignedSource = require('signedsource');
 
 import type CodegenDirectory from 'CodegenDirectory';
 
-function writeFlowFile(
+function writeLegacyFlowFile(
   outputDirectory: CodegenDirectory,
   name: string,
   flowTypes: string,
@@ -37,6 +37,23 @@ function writeFlowFile(
 
 'use strict';
 
+/**
+ * NOTE:
+ * These are legacy flow types that have issues in some edge cases. For example:
+ *
+ *   fragment on Actor {
+ *     ... on User {
+ *       name
+ *     }
+ *     ... on Page {
+ *       name
+ *     }
+ *   }
+ *
+ * generates invalid output. Please use the flow types from the *.graphql.js
+ * file instead.
+ */
+
 `;
 
 
@@ -47,4 +64,4 @@ function writeFlowFile(
   );
 }
 
-module.exports = writeFlowFile;
+module.exports = writeLegacyFlowFile;

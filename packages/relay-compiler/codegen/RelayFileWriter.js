@@ -21,7 +21,7 @@ const RelayValidator = require('RelayValidator');
 const invariant = require('invariant');
 const path = require('path');
 const printFlowTypes = require('printFlowTypes');
-const writeFlowFile = require('./writeFlowFile');
+const writeLegacyFlowFile = require('./writeLegacyFlowFile');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
 const {isOperationDefinitionAST} = require('RelaySchemaUtils');
@@ -47,6 +47,7 @@ export type WriterConfig = {
   outputDir?: string,
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
+  fragmentsWithLegacyFlowTypes?: Set<string>,
   schemaTransforms: Array<SchemaTransform>,
   relayRuntimeModule?: string,
 };
@@ -173,16 +174,23 @@ class RelayFileWriter {
           // don't add definitions that were part of base context
           return;
         }
-        const flowTypes = printFlowTypes(node);
-        if (flowTypes) {
-          writeFlowFile(
-            getGeneratedDirectory(node.name),
-            node.name,
-            flowTypes,
-            this._config.buildCommand,
-            this._config.platform,
-          );
+        if (
+          this._config.fragmentsWithLegacyFlowTypes &&
+          this._config.fragmentsWithLegacyFlowTypes.has(node.name)
+        ) {
+          const legacyFlowTypes = printFlowTypes(node);
+          if (legacyFlowTypes) {
+            writeLegacyFlowFile(
+              getGeneratedDirectory(node.name),
+              node.name,
+              legacyFlowTypes,
+              this._config.buildCommand,
+              this._config.platform,
+            );
+          }
         }
+
+        const flowTypes = printFlowTypes(node);
         const compiledNode = compiledDocumentMap.get(node.name);
         invariant(
           compiledNode,

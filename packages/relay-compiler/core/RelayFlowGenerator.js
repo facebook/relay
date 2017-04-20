@@ -88,7 +88,9 @@ function selectionsToBabel(selections) {
     onlySelectsTypename(baseFields) &&
     (
       hasTypenameSelection(baseFields) ||
-      Object.values(byConcreteType).every(hasTypenameSelection)
+      Object.keys(byConcreteType).every(
+        type => hasTypenameSelection(byConcreteType[type])
+      )
     )
   ) {
     for (const concreteType in byConcreteType) {

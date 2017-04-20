@@ -10,6 +10,24 @@ fragment InlineFragment on Node {
   }
 }
 
+fragment InlineFragmentWithOverlappingFields on Actor {
+  ... on User {
+    hometown {
+      id
+      name
+    }
+  }
+  ... on Page {
+    name
+    hometown {
+      id
+      message {
+        text
+      }
+    }
+  }
+}
+
 fragment InlineFragmentConditionalID on Node {
   ... on Actor {
     id # nullable since it's conditional

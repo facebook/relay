@@ -16,7 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Codemirror from 'react-codemirror';
 import ReactDOM from 'react-dom';
-import Relay from 'react-relay';window.Relay = Relay;
+import Relay from 'react-relay'; window.Relay = Relay;
 import RelayLocalSchema from 'relay-local-schema';
 
 import babelRelayPlaygroundPlugin from './babelRelayPlaygroundPlugin';

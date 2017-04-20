@@ -51,6 +51,8 @@ export type FragmentReference<T> =
  * unchanged. This is primarily useful for Higher Order Components whose input
  * will be a FragmentReference<> when used.
  */
+/* eslint-disable no-redeclare */
 declare function _MaskFragments<U>(u: Fragment<U>): FragmentReference<U>;
 declare function _MaskFragments<U>(u: U): U;
+/* eslint-enable no-redeclare */
 export type ObjectWithMaskedFragments<T> = $ObjMapi<T, _MaskFragments<T>>;

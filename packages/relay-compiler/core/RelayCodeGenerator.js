@@ -39,6 +39,7 @@ const {
   getNullableType,
 } = RelaySchemaUtils;
 
+/* eslint-disable no-redeclare */
 declare function generate(node: Root): ConcreteRoot;
 declare function generate(node: Fragment): ConcreteFragment;
 
@@ -57,6 +58,7 @@ function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
   );
   return RelayIRVisitor.visit(node, RelayCodeGenVisitor);
 }
+/* eslint-enable no-redeclare */
 
 const RelayCodeGenVisitor = {
   leave: {
@@ -144,7 +146,8 @@ const RelayCodeGenVisitor = {
         };
       })) || [];
       const type = getRawType(node.type);
-      return [{
+      return [
+        {
           kind: 'LinkedField',
           alias: node.alias,
           args: valuesOrNull(sortByName(node.args)),
@@ -172,7 +175,8 @@ const RelayCodeGenVisitor = {
           filters: handle.filters,
         };
       })) || [];
-      return [{
+      return [
+        {
           kind: 'ScalarField',
           alias: node.alias,
           args: valuesOrNull(sortByName(node.args)),

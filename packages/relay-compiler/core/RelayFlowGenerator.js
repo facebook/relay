@@ -42,9 +42,15 @@ function generate(node: Root | Fragment): string {
   return printBabel(babelAST);
 }
 
-function makeProp({key, schemaName, value, conditional, nodeType, nodeSelections}, concreteType) {
+function makeProp(
+  {key, schemaName, value, conditional, nodeType, nodeSelections},
+  concreteType,
+) {
   if (nodeType) {
-    value = transformScalarField(nodeType, selectionsToBabel([nodeSelections.values()]));
+    value = transformScalarField(
+      nodeType,
+      selectionsToBabel([Array.from(nodeSelections.values())]),
+    );
   }
   if (schemaName === '__typename' && concreteType) {
     value = stringLiteralTypeAnnotation(concreteType);
@@ -57,7 +63,8 @@ function makeProp({key, schemaName, value, conditional, nodeType, nodeSelections
 }
 
 const isTypenameSelection = selection => selection.schemaName === '__typename';
-const hasTypenameSelection = (selections: $FlowIssue) => selections.some(isTypenameSelection);
+const hasTypenameSelection = (selections: $FlowIssue) =>
+  selections.some(isTypenameSelection);
 const onlySelectsTypename = selections => selections.every(isTypenameSelection);
 
 function selectionsToBabel(selections) {
@@ -119,7 +126,7 @@ function selectionsToBabel(selections) {
       );
     }
     types.push(t.objectTypeAnnotation(
-      [...selectionMap.values()].map(sel => makeProp(sel))
+      Array.from(selectionMap.values()).map(sel => makeProp(sel))
     ));
   }
 

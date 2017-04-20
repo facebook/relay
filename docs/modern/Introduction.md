@@ -86,7 +86,7 @@ This is a specialization of the general-purpose refetch container that is tailor
 
 ### Relay Environment
 
-An instance of a [Relay Environment](./environment.html) encapsulates an in-memory cache of GraphQL data and a network layer that provides access to your GraphQL server. The Environment object is typically not used by developers directly, instead it is passed to each [`QueryRenderer`](./query-renderer.html), which uses the environment to access, modify, and fetch data. Within a container, the current environment can be accessed via `this.props.relay.environment`. This is most commonly used to [execute a mutation](./mutations.html).
+An instance of a [Relay Environment](./relay-environment.html) encapsulates an in-memory cache of GraphQL data and a network layer that provides access to your GraphQL server. The Environment object is typically not used by developers directly, instead it is passed to each [`QueryRenderer`](./query-renderer.html), which uses the environment to access, modify, and fetch data. Within a container, the current environment can be accessed via `this.props.relay.environment`. This is most commonly used to [execute a mutation](./mutations.html).
 
 ### Network layer
 

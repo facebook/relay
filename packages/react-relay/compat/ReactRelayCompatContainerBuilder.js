@@ -157,11 +157,19 @@ function assertFragmentMap(
   componentName: string,
   fragments: GeneratedNodeMap,
 ): void {
+  invariant(
+    fragments && typeof fragments === 'object',
+    'ReactRelayCompatContainerBuilder: Could not create container for `%s`. ' +
+    'Expected a set of GraphQL fragments, got `%s` instead.',
+    componentName,
+    fragments,
+  );
+
   forEachObject(fragments, (fragment, key) => {
     invariant(
-      typeof fragment === 'object' && fragment !== null,
-      'ReactRelayCompatContainerBuilder: Could not create container for `%s`. The ' +
-      'value of fragment `%s` was expected to be a fragment, got `%s` instead.',
+      fragment && (typeof fragment === 'object' || typeof fragment === 'function'),
+      'ReactRelayCompatContainerBuilder: Could not create container for `%s`. ' +
+      'The value of fragment `%s` was expected to be a fragment, got `%s` instead.',
       componentName,
       key,
       fragment,

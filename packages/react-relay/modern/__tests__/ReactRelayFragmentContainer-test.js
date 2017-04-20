@@ -133,6 +133,16 @@ describe('ReactRelayFragmentContainer', () => {
     expect(TestContainer.displayName).toBe('Relay(TestComponent)');
   });
 
+  it('throws for invalid fragment set', () => {
+    expect(() => {
+      ReactRelayFragmentContainer.createContainer(TestComponent, 'a string');
+    }).toFailInvariant(
+      'ReactRelayCompatContainerBuilder: Could not create container for ' +
+      '`TestComponent`. Expected a set of GraphQL fragments, got `a string` ' +
+      'instead.'
+    );
+  });
+
   it('throws for invalid fragments', () => {
     expect(() => {
       ReactRelayFragmentContainer.createContainer(TestComponent, {
@@ -143,6 +153,14 @@ describe('ReactRelayFragmentContainer', () => {
       '`TestComponent`. The value of fragment `foo` was expected to be a ' +
       'fragment, got `null` instead.'
     );
+  });
+
+  it('does not throw when fragments are in modern mode', () => {
+    expect(() => {
+      ReactRelayFragmentContainer.createContainer(TestComponent, {
+        foo: () => ({ kind: 'Fragment' }),
+      });
+    }).not.toThrow();
   });
 
   it('passes non-fragment props to the component', () => {

@@ -79,7 +79,10 @@ function getClassicFragment(
   const fragment = QueryBuilder.getFragmentDefinition(concreteNode);
   invariant(
     fragment,
-    'RelayGraphQLTag: Expected a fragment, got `%s`.',
+    'RelayGraphQLTag: Expected a fragment, got `%s`.\n' +
+    'The "relay" Babel plugin must enable "compat" mode to be used with ' +
+    '"react-relay/compat" or "react-relay/classic".\n' +
+    'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
     concreteNode,
   );
   return fragment;
@@ -92,7 +95,10 @@ function getClassicOperation(
   const operation = QueryBuilder.getOperationDefinition(concreteNode);
   invariant(
     operation,
-    'RelayGraphQLTag: Expected an operation, got `%s`.',
+    'RelayGraphQLTag: Expected an operation, got `%s`.\n' +
+    'The "relay" Babel plugin must enable "compat" mode to be used with ' +
+    '"react-relay/compat" or "react-relay/classic".\n' +
+    'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
     concreteNode,
   );
   return operation;

@@ -42,39 +42,6 @@ const WATCH_EXPRESSION = [
   ['not', ['match', '**/__generated__/**', 'wholename']],
 ];
 
-// Collect args
-const argv = yargs
-  .usage(
-    'Create Relay generated files\n\n' +
-    '$0 --schema <path> --src <path> [--watch]')
-  .options({
-    'schema': {
-      describe: 'Path to schema.graphql',
-      demandOption: true,
-      type: 'string',
-    },
-    'src': {
-      describe: 'Root directory of application code',
-      demandOption: true,
-      type: 'string',
-    },
-    'watch': {
-      describe: 'If specified, watches files and regenerates on changes',
-      type: 'boolean',
-    },
-  })
-  .help()
-  .argv;
-
-// Run script with args
-run(argv).then(
-  () => process.exit(0),
-  error => {
-    console.error(String(error.stack || error));
-    process.exit(1);
-  }
-);
-
 /* eslint-disable no-console-disallow */
 
 async function run(options: {
@@ -187,3 +154,33 @@ function hasWatchmanRootFile(testPath) {
   }
   return false;
 }
+
+// Collect args
+const argv = yargs
+  .usage(
+    'Create Relay generated files\n\n' +
+    '$0 --schema <path> --src <path> [--watch]')
+  .options({
+    'schema': {
+      describe: 'Path to schema.graphql',
+      demandOption: true,
+      type: 'string',
+    },
+    'src': {
+      describe: 'Root directory of application code',
+      demandOption: true,
+      type: 'string',
+    },
+    'watch': {
+      describe: 'If specified, watches files and regenerates on changes',
+      type: 'boolean',
+    },
+  })
+  .help()
+  .argv;
+
+// Run script with args
+run(argv).catch(error => {
+  console.error(String(error.stack || error));
+  process.exit(1);
+});

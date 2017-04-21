@@ -30,10 +30,7 @@ const {
 } = require('graphql');
 const {isAbstractType} = require('RelaySchemaUtils');
 
-import type {
-  Fragment,
-  Root,
-} from 'RelayIR';
+import type {Fragment, Root} from 'RelayIR';
 
 const printBabel = ast => babelGenerator(ast).code;
 
@@ -86,21 +83,17 @@ function selectionsToBabel(selections) {
   if (
     Object.keys(byConcreteType).length &&
     onlySelectsTypename(baseFields) &&
-    (
-      hasTypenameSelection(baseFields) ||
-      Object.keys(byConcreteType).every(
-        type => hasTypenameSelection(byConcreteType[type])
-      )
-    )
+    (hasTypenameSelection(baseFields) ||
+      Object.keys(byConcreteType).every(type =>
+        hasTypenameSelection(byConcreteType[type])))
   ) {
     for (const concreteType in byConcreteType) {
       types.push(
         t.objectTypeAnnotation([
           ...baseFields.map(selection => makeProp(selection, concreteType)),
-          ...byConcreteType[concreteType].map(
-            selection => makeProp(selection, concreteType)
-          ),
-        ])
+          ...byConcreteType[concreteType].map(selection =>
+            makeProp(selection, concreteType)),
+        ]),
       );
     }
     // It might be some other type then the listed concrete types. Ideally, we
@@ -111,8 +104,8 @@ function selectionsToBabel(selections) {
       stringLiteralTypeAnnotation('%other'),
     );
     otherProp.leadingComments = lineComments(
-      'This will never be \'%other\', but we need some',
-      'value in case none of the concrete values match.'
+      "This will never be '%other', but we need some",
+      'value in case none of the concrete values match.',
     );
     types.push(t.objectTypeAnnotation([otherProp]));
   } else {
@@ -124,12 +117,14 @@ function selectionsToBabel(selections) {
     for (const concreteType in byConcreteType) {
       selectionMap = mergeSelections(
         selectionMap,
-        selectionsToMap(byConcreteType[concreteType])
+        selectionsToMap(byConcreteType[concreteType]),
       );
     }
-    types.push(t.objectTypeAnnotation(
-      Array.from(selectionMap.values()).map(sel => makeProp(sel))
-    ));
+    types.push(
+      t.objectTypeAnnotation(
+        Array.from(selectionMap.values()).map(sel => makeProp(sel)),
+      ),
+    );
   }
 
   if (!types.length) {
@@ -140,9 +135,7 @@ function selectionsToBabel(selections) {
 }
 
 function lineComments(...lines: Array<string>) {
-  return lines.map(line => (
-    {type: 'CommentLine', value: ' ' + line}
-  ));
+  return lines.map(line => ({type: 'CommentLine', value: ' ' + line}));
 }
 
 function stringLiteralTypeAnnotation(value) {
@@ -187,10 +180,10 @@ const RelayCodeGenVisitor = {
         t.typeAlias(
           t.identifier(node.name),
           null,
-          selectionsToBabel(node.selections)
+          selectionsToBabel(node.selections),
         ),
         [],
-        null
+        null,
       );
     },
 
@@ -199,23 +192,25 @@ const RelayCodeGenVisitor = {
         t.typeAlias(
           t.identifier(node.name),
           null,
-          selectionsToBabel(node.selections)
+          selectionsToBabel(node.selections),
         ),
         [],
-        null
+        null,
       );
     },
 
     InlineFragment(node) {
       const typeCondition = node.typeCondition;
       return flattenArray(node.selections).map(typeSelection => {
-        return isAbstractType(typeCondition) ? {
-          ...typeSelection,
-          conditional: true,
-        } : {
-          ...typeSelection,
-          concreteType: typeCondition.toString(),
-        };
+        return isAbstractType(typeCondition)
+          ? {
+              ...typeSelection,
+              conditional: true,
+            }
+          : {
+              ...typeSelection,
+              concreteType: typeCondition.toString(),
+            };
       });
     },
     Condition(node) {
@@ -257,7 +252,7 @@ function selectionsToMap(selections) {
     invariant(
       !map.has(selection.key),
       'RelayFlowGenerator: Duplicate key: `%s`.',
-      selection.key
+      selection.key,
     );
     map.set(selection.key, selection);
   });
@@ -275,7 +270,7 @@ function transformScalarField(type, objectProps) {
     return transformNonNullableScalarField(type.ofType, objectProps);
   } else {
     return t.nullableTypeAnnotation(
-      transformNonNullableScalarField(type, objectProps)
+      transformNonNullableScalarField(type, objectProps),
     );
   }
 }
@@ -283,7 +278,7 @@ function transformScalarField(type, objectProps) {
 function arrayOfType(thing) {
   return t.genericTypeAnnotation(
     t.identifier('Array'),
-    t.typeParameterInstantiation([thing])
+    t.typeParameterInstantiation([thing]),
   );
 }
 
@@ -313,7 +308,7 @@ function transformNonNullableScalarField(type: GraphQLType, objectProps) {
   } else if (type instanceof GraphQLEnumType) {
     // TODO create a flow type for enums
     return t.unionTypeAnnotation(
-      type.getValues().map(({value}) => stringLiteralTypeAnnotation(value))
+      type.getValues().map(({value}) => stringLiteralTypeAnnotation(value)),
     );
   } else {
     throw new Error(`Could not convert from GraphQL type ${type.toString()}`);

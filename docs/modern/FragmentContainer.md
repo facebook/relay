@@ -67,14 +67,12 @@ module.exports = createFragmentContainer(TodoItem, {
   // For each of the props that depend on server data, we define a corresponding
   // key in this object. Here, the component expects server data to populate the
   // `item` prop, so we'll specify the fragment from above at the `item` key.
-  {
-    item: graphql`
-      fragment TodoItem_item on Todo {
-        text
-        isComplete
-      }
-    `,
-  },
+  item: graphql`
+    fragment TodoItem_item on Todo {
+      text
+      isComplete
+    }
+  `,
 });
 ```
 

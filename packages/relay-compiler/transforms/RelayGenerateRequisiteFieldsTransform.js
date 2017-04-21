@@ -56,12 +56,8 @@ const STRING_TYPE = 'String';
  */
 function transform(context: RelayCompilerContext): RelayCompilerContext {
   const documents = context.documents();
-  /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while deploying
-   * v0.44.0. Remove this comment to see the error */
-  return documents.reduce((ctx, node) => {
+  return documents.reduce((ctx: RelayCompilerContext, node) => {
     const transformedNode = transformNode(context, node);
-    /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
-     * deploying v0.44.0. Remove this comment to see the error */
     return ctx.add(transformedNode);
   }, new RelayCompilerContext(context.schema));
 }

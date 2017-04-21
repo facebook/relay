@@ -62,9 +62,9 @@ const {
  */
 function transform(context: RelayCompilerContext): RelayCompilerContext {
   const documents = context.documents();
-  const fragments = new Map();
+  const fragments: Map<string, ?Fragment> = new Map();
   let nextContext = new RelayCompilerContext(context.schema);
-  nextContext = documents.reduce((ctx, node) => {
+  nextContext = documents.reduce((ctx: RelayCompilerContext, node) => {
     if (node.kind === 'Root') {
       const scope = getRootScope(node.argumentDefinitions);
       const transformedNode = transformNode(
@@ -73,8 +73,6 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
         scope,
         node
       );
-      /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
-       * deploying v0.44.0. Remove this comment to see the error */
       return transformedNode ? ctx.add(transformedNode) : ctx;
     } else {
       // fragments are transformed when referenced; unreferenced fragments are
@@ -82,12 +80,8 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
       return ctx;
     }
   }, nextContext);
-  /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while deploying
-   * v0.44.0. Remove this comment to see the error */
   return Array.from(fragments.values()).reduce(
-    /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
-     * deploying v0.44.0. Remove this comment to see the error */
-    (ctx, fragment) => fragment ? ctx.add(fragment) : ctx,
+    (ctx: RelayCompilerContext, fragment) => fragment ? ctx.add(fragment) : ctx,
     nextContext
   );
 }

@@ -123,14 +123,10 @@ type SelectionMap = IMap<string, ?SelectionMap>;
  * 1 can be skipped because it is already fetched at the outer level.
  */
 function transform(context: RelayCompilerContext): RelayCompilerContext {
-  /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while deploying
-   * v0.44.0. Remove this comment to see the error */
-  return context.documents().reduce((ctx, node) => {
+  return context.documents().reduce((ctx: RelayCompilerContext, node) => {
     const selectionMap = new IMap();
     const transformed = transformNode(node, selectionMap);
     if (transformed) {
-      /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
-       * deploying v0.44.0. Remove this comment to see the error */
       return ctx.add(transformed.node);
     } else {
       return ctx;

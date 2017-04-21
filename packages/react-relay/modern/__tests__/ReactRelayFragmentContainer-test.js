@@ -137,9 +137,8 @@ describe('ReactRelayFragmentContainer', () => {
     expect(() => {
       ReactRelayFragmentContainer.createContainer(TestComponent, 'a string');
     }).toFailInvariant(
-      'ReactRelayCompatContainerBuilder: Could not create container for ' +
-      '`TestComponent`. Expected a set of GraphQL fragments, got `a string` ' +
-      'instead.'
+      'Could not create Relay Container for `TestComponent`. ' +
+      'Expected a set of GraphQL fragments, got `a string` instead.'
     );
   });
 
@@ -149,9 +148,9 @@ describe('ReactRelayFragmentContainer', () => {
         foo: null,
       });
     }).toFailInvariant(
-      'ReactRelayCompatContainerBuilder: Could not create container for ' +
-      '`TestComponent`. The value of fragment `foo` was expected to be a ' +
-      'fragment, got `null` instead.'
+      'Could not create Relay Container for `TestComponent`. ' +
+      'The value of fragment `foo` was expected to be a fragment, ' +
+      'got `null` instead.'
     );
   });
 

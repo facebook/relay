@@ -17,12 +17,12 @@ const RelayProfiler = require('RelayProfiler');
 const RelayPropTypes = require('RelayPropTypes');
 
 const areEqual = require('areEqual');
+const assertFragmentMap = require('assertFragmentMap');
 const invariant = require('invariant');
 const isRelayContext = require('isRelayContext');
 const isScalarAndEqual = require('isScalarAndEqual');
 const nullthrows = require('nullthrows');
 
-const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
 const {profileContainer} = require('ReactRelayContainerProfiler');
 const {getComponentName, getReactComponent} = require('RelayContainerUtils');
 
@@ -36,13 +36,8 @@ import type {
   FragmentSpecResolver,
 } from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
-import type {
-  FragmentMap,
-  RelayContext,
-} from 'RelayStoreTypes';
-import type {
-  Variables,
-} from 'RelayTypes';
+import type {RelayContext} from 'RelayStoreTypes';
+import type {Variables} from 'RelayTypes';
 
 type ContainerState = {
   data: {[key: string]: mixed},
@@ -57,14 +52,17 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TDefaultProps, TProps>(
-  Component: Class<React.Component<TDefaultProps, TProps, *>> | ReactClass<TProps>,
-  fragments: FragmentMap,
+function createContainer<TBase: ReactClass<*>>(
+  Component: TBase,
+  fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
-): Class<React.Component<TDefaultProps, TProps, *>> {
+): TBase {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
+
+  // Sanity-check user-defined fragment input
+  const fragments = assertFragmentMap(componentName, fragmentSpec);
 
   class Container extends React.Component {
     state: ContainerState;
@@ -302,28 +300,4 @@ function assertRelayContext(relay: mixed): RelayContext {
   return (relay: any);
 }
 
-/**
- * Wrap the basic `createContainer()` function with logic to adapt to the
- * `context.relay.environment` in which it is rendered. Specifically, the
- * extraction of the environment-specific version of fragments in the
- * `fragmentSpec` is memoized once per environment, rather than once per
- * instance of the container constructed/rendered.
- */
-function createContainer<TBase: ReactClass<*>>(
-  Component: TBase,
-  fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
-  taggedNode: GraphQLTaggedNode,
-): TBase {
-  return buildCompatContainer(
-    Component,
-    (fragmentSpec: any),
-    (ComponentClass, fragments) => {
-      return createContainerWithFragments(ComponentClass, fragments, taggedNode);
-    },
-  );
-}
-
-module.exports = {
-  createContainer,
-  createContainerWithFragments,
-};
+module.exports = {createContainer};

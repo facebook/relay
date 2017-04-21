@@ -217,9 +217,9 @@ describe('ReactRelayPaginationContainer', () => {
         foo: null,
       });
     }).toFailInvariant(
-      'ReactRelayCompatContainerBuilder: Could not create container for ' +
-      '`TestComponent`. The value of fragment `foo` was expected to be a ' +
-      'fragment, got `null` instead.'
+      'Could not create Relay Container for `TestComponent`. ' +
+      'The value of fragment `foo` was expected to be a fragment, ' +
+      'got `null` instead.'
     );
   });
 

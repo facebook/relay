@@ -1,6 +1,7 @@
 fragment InlineFragment on Node {
   id
   ... on Actor {
+    id
     name
   }
   ... on User {

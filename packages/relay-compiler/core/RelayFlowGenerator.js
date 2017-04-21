@@ -65,7 +65,7 @@ const hasTypenameSelection = (selections: $FlowIssue) =>
 const onlySelectsTypename = selections => selections.every(isTypenameSelection);
 
 function selectionsToBabel(selections) {
-  const baseFields = [];
+  const baseFields = new Map();
   const byConcreteType = {};
 
   flattenArray(selections).forEach(selection => {
@@ -74,7 +74,12 @@ function selectionsToBabel(selections) {
       byConcreteType[concreteType] = byConcreteType[concreteType] || [];
       byConcreteType[concreteType].push(selection);
     } else {
-      baseFields.push(selection);
+      const previousSel = baseFields.get(selection.key);
+
+      baseFields.set(
+        selection.key,
+        previousSel ? mergeSelection(selection, previousSel) : selection,
+      );
     }
   });
 
@@ -82,15 +87,16 @@ function selectionsToBabel(selections) {
 
   if (
     Object.keys(byConcreteType).length &&
-    onlySelectsTypename(baseFields) &&
-    (hasTypenameSelection(baseFields) ||
+    onlySelectsTypename([...baseFields.values()]) &&
+    (hasTypenameSelection([...baseFields.values()]) ||
       Object.keys(byConcreteType).every(type =>
         hasTypenameSelection(byConcreteType[type])))
   ) {
     for (const concreteType in byConcreteType) {
       types.push(
         t.objectTypeAnnotation([
-          ...baseFields.map(selection => makeProp(selection, concreteType)),
+          ...[...baseFields.values()].map(selection =>
+            makeProp(selection, concreteType)),
           ...byConcreteType[concreteType].map(selection =>
             makeProp(selection, concreteType)),
         ]),
@@ -109,15 +115,16 @@ function selectionsToBabel(selections) {
     );
     types.push(t.objectTypeAnnotation([otherProp]));
   } else {
-    const props = {};
-    baseFields.forEach(selection => {
-      props[selection.key] = makeProp(selection);
-    });
-    let selectionMap = selectionsToMap(baseFields);
+    let selectionMap = selectionsToMap([...baseFields.values()]);
     for (const concreteType in byConcreteType) {
       selectionMap = mergeSelections(
         selectionMap,
-        selectionsToMap(byConcreteType[concreteType]),
+        selectionsToMap(
+          byConcreteType[concreteType].map(sel => ({
+            ...sel,
+            conditional: true,
+          })),
+        ),
       );
     }
     types.push(
@@ -151,15 +158,13 @@ function mergeSelection(a, b) {
       conditional: true,
     };
   }
-  if (a.nodeSelections) {
-    invariant(b.nodeSelections, 'xx');
-    return {
-      ...a,
-      nodeSelections: mergeSelections(a.nodeSelections, b.nodeSelections),
-      conditional: a.conditional || b.conditional,
-    };
-  }
-  return a;
+  return {
+    ...a,
+    nodeSelections: a.nodeSelections
+      ? mergeSelections(a.nodeSelections, b.nodeSelections)
+      : null,
+    conditional: a.conditional && b.conditional,
+  };
 }
 
 function mergeSelections(a, b) {

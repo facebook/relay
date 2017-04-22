@@ -38,7 +38,7 @@ module.exports = function(options) {
   }
 
   return {
-    plugins: options.plugins,
+    plugins: options.plugins.concat('transform-es2015-spread'),
     presets: [fbjsPreset],
   };
 };

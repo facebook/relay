@@ -14,6 +14,7 @@
 
 const ErrorUtils = require('ErrorUtils');
 const React = require('React');
+const PropTypes = require('prop-types');
 const RelayContainerComparators = require('RelayContainerComparators');
 const RelayContainerProxy = require('RelayContainerProxy');
 const RelayFragmentPointer = require('RelayFragmentPointer');
@@ -77,7 +78,7 @@ export type RelayLazyContainer = Function;
 const containerContextTypes = {
   relay: RelayPropTypes.ClassicRelay,
   route: RelayPropTypes.QueryConfig.isRequired,
-  useFakeData: React.PropTypes.bool,
+  useFakeData: PropTypes.bool,
 };
 
 /**

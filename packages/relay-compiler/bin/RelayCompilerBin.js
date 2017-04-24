@@ -33,21 +33,27 @@ const {
 import type {GraphQLSchema} from 'graphql';
 
 const SCRIPT_NAME = 'relay-compiler';
-const WATCH_EXPRESSION = [
-  'allof',
-  ['type', 'f'],
-  ['suffix', 'js'],
-  ['not', ['match', '**/node_modules/**', 'wholename']],
-  ['not', ['match', '**/__mocks__/**', 'wholename']],
-  ['not', ['match', '**/__tests__/**', 'wholename']],
-  ['not', ['match', '**/__generated__/**', 'wholename']],
-];
+
+function buildWatchExpression(options: {
+  extensions: Array<string>
+}) {
+  return [
+    'allof',
+    ['type', 'f'],
+    ['anyof', ...options.extensions.map(ext => ['suffix', ext])],
+    ['not', ['match', '**/node_modules/**', 'wholename']],
+    ['not', ['match', '**/__mocks__/**', 'wholename']],
+    ['not', ['match', '**/__tests__/**', 'wholename']],
+    ['not', ['match', '**/__generated__/**', 'wholename']],
+  ];
+}
 
 /* eslint-disable no-console-disallow */
 
 async function run(options: {
   schema: string,
   src: string,
+  extensions: Array<string>,
   watch?: ?boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
@@ -77,7 +83,9 @@ Ensure that one such file exists in ${srcDir} or its parents.
       getFileFilter: RelayFileIRParser.getFileFilter,
       getParser: RelayFileIRParser.getParser,
       getSchema: () => getSchema(schemaPath),
-      watchmanExpression: WATCH_EXPRESSION,
+      watchmanExpression: buildWatchExpression({
+        extensions: options.extensions
+      }),
     },
   };
   const writerConfigs = {
@@ -170,6 +178,12 @@ const argv = yargs
     'src': {
       describe: 'Root directory of application code',
       demandOption: true,
+      type: 'string',
+    },
+    'extensions': {
+      array: true,
+      default: ['js'],
+      describe: 'File extensions to compile (--extensions js jsx)',
       type: 'string',
     },
     'watch': {

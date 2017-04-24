@@ -138,7 +138,9 @@ describe('ReactRelayPaginationContainer', () => {
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
-      {user: UserFragment},
+      {
+        user: () => UserFragment,
+      },
       {
         direction: 'forward',
         getConnectionFromProps,

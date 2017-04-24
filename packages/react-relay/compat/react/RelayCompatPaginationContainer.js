@@ -36,7 +36,7 @@ function createContainer<TBase: ReactClass<*>>(
     Component,
     (fragmentSpec: any),
     (ComponentClass, fragments) => {
-      return ReactRelayPaginationContainer.createContainer(
+      return ReactRelayPaginationContainer.createContainerWithFragments(
         ComponentClass,
         fragments,
         connectionConfig,

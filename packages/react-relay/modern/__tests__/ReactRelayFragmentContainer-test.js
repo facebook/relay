@@ -91,7 +91,7 @@ describe('ReactRelayFragmentContainer', () => {
 
     render = jest.fn(() => <div />);
     spec = {
-      user: UserFragment,
+      user: () => UserFragment,
     };
     variables = {rootVariable: 'root'};
     TestComponent = render;

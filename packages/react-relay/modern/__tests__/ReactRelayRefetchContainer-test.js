@@ -101,7 +101,9 @@ describe('ReactRelayRefetchContainer', () => {
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayRefetchContainer.createContainer(
       TestComponent,
-      {user: UserFragment},
+      {
+        user: () => UserFragment,
+      },
       UserQuery,
     );
 

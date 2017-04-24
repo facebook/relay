@@ -51,7 +51,12 @@ function getComponentName(Component: ReactClass<any>): string {
   return name;
 }
 
+function getContainerName(Component: ReactClass<any>): string {
+  return 'Relay(' + getComponentName(Component) + ')';
+}
+
 module.exports = {
   getComponentName,
+  getContainerName,
   getReactComponent,
 };

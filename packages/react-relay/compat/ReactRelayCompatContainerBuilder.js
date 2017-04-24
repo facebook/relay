@@ -20,7 +20,7 @@ const assertFragmentMap = require('assertFragmentMap');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
-const {getComponentName} = require('RelayContainerUtils');
+const {getComponentName, getContainerName} = require('RelayContainerUtils');
 
 import type {ConcreteFragmentSpread} from 'ConcreteQuery';
 import type {GeneratedNodeMap} from 'ReactRelayTypes';
@@ -148,10 +148,6 @@ function buildCompatContainer<TBase: ReactClass<*>>(
   ComponentClass.__container__ = ContainerConstructor;
 
   return (ContainerConstructor: any);
-}
-
-function getContainerName(Component: ReactClass<any>): string {
-  return 'Relay(' + getComponentName(Component) + ')';
 }
 
 module.exports = {injectDefaultVariablesProvider, buildCompatContainer};

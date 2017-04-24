@@ -33,7 +33,7 @@ function createContainer<TBase: ReactClass<*>>(
   return buildCompatContainer(
     Component,
     (fragmentSpec: any),
-    ReactRelayFragmentContainer.createContainer,
+    ReactRelayFragmentContainer.createContainerWithFragments,
   );
 }
 

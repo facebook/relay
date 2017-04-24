@@ -35,7 +35,7 @@ function createContainer<TBase: ReactClass<*>>(
     Component,
     (fragmentSpec: any),
     (ComponentClass, fragments) => {
-      return ReactRelayRefetchContainer.createContainer(
+      return ReactRelayRefetchContainer.createContainerWithFragments(
         ComponentClass,
         fragments,
         taggedNode,

@@ -90,7 +90,7 @@ An instance of a [Relay Environment](./relay-environment.html) encapsulates an i
 
 ### Network layer
 
-Applications must supply a [Network Layer](./network-layer.html) when creating an instance of a Relay Environment. The network layer is an object confirming to a simple interface through which Relay can execute queries, mutations, and subscriptions. Essentially, this object teaches Relay how to talk to your GraphQL server.
+Applications must supply a [Network Layer](./network-layer.html) when creating an instance of a Relay Environment. The network layer is an object conforming to a simple interface through which Relay can execute queries, mutations, and subscriptions. Essentially, this object teaches Relay how to talk to your GraphQL server.
 
 ## Workflow
 

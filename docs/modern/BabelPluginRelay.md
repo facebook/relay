@@ -104,8 +104,8 @@ When compiling code for production deployment, the plugin can be configured to i
       // Suppresses all warnings that would be printed.
       "suppressWarnings": false,
 
-      // Only if `enforceSchema` is `false` and `debug` is `true`
-      // will validation errors be logged at build time.
+      // If `enforceSchema` is `false` and `debug` is `true`
+      // then validation errors be logged at build time.
       "debug": false,
     }]
   ]

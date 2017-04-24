@@ -37,6 +37,7 @@ const WATCH_EXPRESSION = [
   'allof',
   ['type', 'f'],
   ['suffix', 'js'],
+  ['not', ['match', '**/node_modules/**', 'wholename']],
   ['not', ['match', '**/__mocks__/**', 'wholename']],
   ['not', ['match', '**/__tests__/**', 'wholename']],
   ['not', ['match', '**/__generated__/**', 'wholename']],

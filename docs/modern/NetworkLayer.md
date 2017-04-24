@@ -26,7 +26,10 @@ function fetchQuery(
 ) {
   return fetch('/graphql', {
     method: 'POST',
-    headers: {}, // Add authentication and other headers here
+    headers: {
+      // Add authentication and other headers here
+      'content-type': 'application/json'
+    },
     body: JSON.stringify({
       query: operation.text, // GraphQL text from input
       variables,

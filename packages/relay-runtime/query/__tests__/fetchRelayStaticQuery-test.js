@@ -13,7 +13,7 @@ jest
   .autoMockOff();
 
 const fetchRelayStaticQuery = require('fetchRelayStaticQuery');
-const {createMockEnvironment} = require('RelayStaticMockEnvironment');
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 

@@ -12,7 +12,7 @@ jest.autoMockOff();
 
 const commitRelayModernMutation = require('commitRelayModernMutation');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const {createMockEnvironment} = require('RelayStaticMockEnvironment');
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {ROOT_ID} = require('RelayStoreUtils');
 
 describe('commitRelayModernMutation', () => {

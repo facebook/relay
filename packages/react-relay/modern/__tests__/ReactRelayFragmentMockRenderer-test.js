@@ -20,7 +20,7 @@ const ReactTestRenderer = require('ReactTestRenderer');
 const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
 const ReactRelayFragmentMockRenderer = require('ReactRelayFragmentMockRenderer');
 const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
-const RelayStaticMockEnvironment = require('RelayStaticMockEnvironment');
+const RelayModernMockEnvironment = require('RelayModernMockEnvironment');
 
 describe('ReactRelayFragmentMockRenderer', () => {
   it('renders fragment containers with mock data as supplied as props', () => {
@@ -60,7 +60,7 @@ describe('ReactRelayFragmentMockRenderer', () => {
 
     const instance = ReactTestRenderer.create(
       <ReactRelayFragmentMockRenderer
-        environment={RelayStaticMockEnvironment.createMockEnvironment()}
+        environment={RelayModernMockEnvironment.createMockEnvironment()}
         render={() =>
           <ParentContainer viewer={mockViewer}/>
         }

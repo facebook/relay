@@ -23,7 +23,7 @@ const ReactTestRenderer = require('ReactTestRenderer');
 const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const {ROOT_ID} = require('RelayStoreUtils');
-const {createMockEnvironment} = require('RelayStaticMockEnvironment');
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {END_CURSOR, HAS_NEXT_PAGE, PAGE_INFO} = require('RelayConnectionInterface');
 
 describe('ReactRelayPaginationContainer', () => {

@@ -47,7 +47,7 @@ function mockDisposableMethod(object, key) {
  * Usage:
  *
  * ```
- * const environment = RelayStaticMockEnvironment.createMockEnvironment();
+ * const environment = RelayModernMockEnvironment.createMockEnvironment();
  * ```
  *
  * Mock API:

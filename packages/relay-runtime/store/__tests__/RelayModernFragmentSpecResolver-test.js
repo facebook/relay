@@ -13,7 +13,7 @@ jest
   .autoMockOff();
 
 const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver');
-const {createMockEnvironment} = require('RelayStaticMockEnvironment');
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {ROOT_ID} = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 

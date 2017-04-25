@@ -40,3 +40,7 @@ const {
   }}
 />
 ```
+
+### Query naming convention
+
+To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces a simple naming convention for your queries. Queries must be named as `<FileName><OperationType>`, where "<OperationType>" is one of "Query", "Mutation", or "Subscription". The query above is named `ExampleQuery` so should be placed in `Example.js`.

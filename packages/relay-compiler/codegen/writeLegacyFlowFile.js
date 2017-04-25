@@ -23,7 +23,7 @@ function writeLegacyFlowFile(
   buildCommand: string,
   platform?: ?string,
 ): void {
-  const moduleName = name + '.flow';
+  const moduleName = name + '.legacyflow';
   const header = `/**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule fetchRelayStaticQuery
+ * @providesModule fetchRelayModernQuery
  * @flow
  */
 
@@ -31,7 +31,7 @@ import type {Variables} from 'RelayTypes';
  * can probably leverage generated flow types here to return the real expected
  * shape.
  */
-function fetchRelayStaticQuery(
+function fetchRelayModernQuery(
   environment: $FlowFixMe,
   taggedNode: GraphQLTaggedNode,
   variables: Variables,
@@ -39,7 +39,7 @@ function fetchRelayStaticQuery(
 ): Promise<$FlowFixMe> {
   invariant(
     environment.unstable_internal,
-    'fetchRelayStaticQuery: Expected a valid Relay environment, got `%s`.',
+    'fetchRelayModernQuery: Expected a valid Relay environment, got `%s`.',
     environment,
   );
   const {
@@ -65,4 +65,4 @@ function fetchRelayStaticQuery(
   });
 }
 
-module.exports = fetchRelayStaticQuery;
+module.exports = fetchRelayModernQuery;

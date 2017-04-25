@@ -12,12 +12,12 @@
 jest
   .autoMockOff();
 
-const fetchRelayStaticQuery = require('fetchRelayStaticQuery');
+const fetchRelayModernQuery = require('fetchRelayModernQuery');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 
-describe('fetchRelayStaticQuery', () => {
+describe('fetchRelayModernQuery', () => {
   const {generateAndCompile} = RelayModernTestUtils;
   let cacheConfig;
   let environment;
@@ -45,7 +45,7 @@ describe('fetchRelayStaticQuery', () => {
 
   it('fetches the query', () => {
     cacheConfig = {force: true};
-    fetchRelayStaticQuery(
+    fetchRelayModernQuery(
       environment,
       query,
       variables,
@@ -64,7 +64,7 @@ describe('fetchRelayStaticQuery', () => {
 
   it('resolves with the query results', () => {
     let results;
-    fetchRelayStaticQuery(environment, query, variables).then(data => {
+    fetchRelayModernQuery(environment, query, variables).then(data => {
       results = data;
     });
     environment.mock.resolve(query, {
@@ -85,7 +85,7 @@ describe('fetchRelayStaticQuery', () => {
 
   it('rejects with query errors', () => {
     const error = new Error('wtf');
-    fetchRelayStaticQuery(environment, query, variables).catch(err => {
+    fetchRelayModernQuery(environment, query, variables).catch(err => {
       expect(err).toBe(error);
     });
 

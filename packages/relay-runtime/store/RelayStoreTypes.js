@@ -90,6 +90,12 @@ export interface Store {
   getSource(): RecordSource,
 
   /**
+   * Determine if the selector can be resolved with data in the store (i.e. no
+   * fields are missing).
+   */
+  check(selector: Selector): boolean,
+
+  /**
    * Read the results of a selector from in-memory records in the store.
    */
   lookup(selector: Selector): Snapshot,
@@ -109,7 +115,7 @@ export interface Store {
 
   /**
    * Attempts to load all the records necessary to fulfill the selector into the
-   * in-memory record source.
+   * target record source.
    */
   resolve(
     target: MutableRecordSource,
@@ -198,6 +204,16 @@ export interface Environment extends CEnvironment<
    * by calling `dispose()` on the returned value.
    */
   applyUpdate(updater: StoreUpdater): Disposable,
+
+  /**
+   * Determine if the selector can be resolved with data in the store (i.e. no
+   * fields are missing).
+   *
+   * Note that this operation effectively "executes" the selector against the
+   * cache and therefore takes time proportional to the size/complexity of the
+   * selector.
+   */
+  check(selector: Selector): boolean,
 
   /**
    * Commit an updater to the environment. This mutation cannot be reverted and

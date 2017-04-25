@@ -545,6 +545,91 @@ describe('RelayStore', () => {
     });
   });
 
+  describe('check()', () => {
+    let UserFragment;
+    let data;
+    let source;
+    let store;
+
+    beforeEach(() => {
+      data = {
+        '4': {
+          __id: '4',
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
+        },
+        'client:1': {
+          __id: 'client:1',
+          uri: 'https://photo1.jpg',
+        },
+      };
+      source = new RelayInMemoryRecordSource(data);
+      store = new RelayMarkSweepStore(source);
+      ({UserFragment} = generateWithTransforms(`
+        fragment UserFragment on User {
+          name
+          profilePicture(size: $size) {
+            uri
+          }
+        }
+      `));
+    });
+
+    it('returns true if all data exists in the cache', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      expect(store.check(selector)).toBe(true);
+    });
+
+    it('returns false if a scalar field is missing', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      store.publish(new RelayInMemoryRecordSource({
+        'client:1': {
+          __id: 'client:1',
+          uri: undefined, // unpublish the field
+        },
+      }));
+      expect(store.check(selector)).toBe(false);
+    });
+
+    it('returns false if a linked field is missing', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 64}, // unfetched size
+      };
+      expect(store.check(selector)).toBe(false);
+    });
+
+    it('returns false if a linked record is missing', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      delete data['client:1']; // profile picture
+      expect(store.check(selector)).toBe(false);
+    });
+
+    it('returns false if the root record is missing', () => {
+      const selector = {
+        dataID: '842472', // unfetched record
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      expect(store.check(selector)).toBe(false);
+    });
+  });
+
   describe('resolve()', () => {
     let UserFragment;
     let data;

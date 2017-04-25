@@ -46,6 +46,64 @@ describe('RelayModernEnvironment', () => {
     });
   });
 
+  describe('check()', () => {
+    let ParentQuery;
+    let environment;
+    let selector;
+
+    beforeEach(() => {
+      ({ParentQuery} = generateAndCompile(`
+        query ParentQuery($size: Int!) {
+          me {
+            id
+            name
+            profilePicture(size: $size) {
+              uri
+            }
+          }
+        }
+      `));
+      environment = new RelayModernEnvironment(config);
+      selector = {
+        dataID: ROOT_ID,
+        node: ParentQuery.query,
+        variables: {size: 32},
+      };
+    });
+
+    it('returns true if all data exists in the environment', () => {
+      environment.commitPayload(
+        selector,
+        {
+          me: {
+            id: '4',
+            name: 'Zuck',
+            profilePicture: {
+              uri: 'https://...',
+            },
+          },
+        }
+      );
+      expect(environment.check(selector)).toBe(true);
+    });
+
+    it('returns false if data is missing from the environment', () => {
+      environment.commitPayload(
+        selector,
+        {
+          me: {
+            id: '4',
+            name: 'Zuck',
+            profilePicture: {
+              uri: undefined,
+            },
+          },
+        }
+      );
+      expect(environment.check(selector)).toBe(false);
+    });
+  });
+
   describe('lookup()', () => {
     let ParentQuery;
     let environment;

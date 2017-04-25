@@ -84,6 +84,14 @@ class RelayMarkSweepStore implements Store {
     return this._recordSource;
   }
 
+  check(selector: Selector): boolean {
+    return RelayAsyncLoader.check(
+      this._recordSource,
+      this._recordSource,
+      selector,
+    );
+  }
+
   retain(selector: Selector): Disposable {
     const index = this._index++;
     const dispose = () => {

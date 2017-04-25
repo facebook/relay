@@ -74,6 +74,10 @@ class RelayModernEnvironment implements Environment {
     return {dispose};
   }
 
+  check(selector: Selector): boolean {
+    return this._store.check(selector);
+  }
+
   commitPayload(
     selector: Selector,
     payload: PayloadData,

@@ -21,7 +21,13 @@ const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
 
-const {buildASTSchema, parse} = require('graphql');
+const {
+  buildASTSchema,
+  buildClientSchema,
+  parse,
+  printSchema,
+} = require('graphql');
+
 const {
   codegenTransforms,
   fragmentTransforms,
@@ -83,9 +89,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
       getFileFilter: RelayFileIRParser.getFileFilter,
       getParser: RelayFileIRParser.getParser,
       getSchema: () => getSchema(schemaPath),
-      watchmanExpression: buildWatchExpression({
-        extensions: options.extensions
-      }),
+      watchmanExpression: buildWatchExpression(options),
     },
   };
   const writerConfigs = {
@@ -131,6 +135,9 @@ function getRelayFileWriter(baseDir: string) {
 function getSchema(schemaPath: string): GraphQLSchema {
   try {
     let source = fs.readFileSync(schemaPath, 'utf8');
+    if (path.extname(schemaPath) === '.json') {
+      source = printSchema(buildClientSchema(JSON.parse(source).data));
+    }
     source = `
   directive @include(if: Boolean) on FRAGMENT | FIELD
   directive @skip(if: Boolean) on FRAGMENT | FIELD
@@ -141,8 +148,8 @@ function getSchema(schemaPath: string): GraphQLSchema {
     return buildASTSchema(parse(source));
   } catch (error) {
     throw new Error(`
-Error loading schema. Expected the schema to be a .graphql file using the
-GraphQL schema definition language. Error detail:
+Error loading schema. Expected the schema to be a .graphql or a .json
+file, describing your GraphQL server's API. Error detail:
 
 ${error.stack}
     `.trim());
@@ -171,7 +178,7 @@ const argv = yargs
     '$0 --schema <path> --src <path> [--watch]')
   .options({
     'schema': {
-      describe: 'Path to schema.graphql',
+      describe: 'Path to schema.graphql or schema.json',
       demandOption: true,
       type: 'string',
     },

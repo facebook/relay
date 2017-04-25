@@ -23,7 +23,7 @@ Once all the components and mutations have been converted to use the Relay Moder
 
 ## Step 3: Introduce Relay Modern runtime
 
-Once a few or all of your views are using `QueryRenderer`, `Store` from `'react-relay/classic'` could be replaced with a `RelayStaticEnvironment`. Keep in mind that `RelayStaticEnvironment` and `Store` do not share any data. You might want to hold off on this step until views that have significant data overlap can be switched over at the same time. This step is what unlocks the perf wins for your app. Apps using the `RelayStaticEnvironment` get to send persisted query IDs instead of the full query strings to the server, as well as much more optimized data normalizing and processing.
+Once a few or all of your views are using `QueryRenderer`, `Store` from `'react-relay/classic'` could be replaced with a `RelayModernEnvironment`. Keep in mind that `RelayModernEnvironment` and `Store` do not share any data. You might want to hold off on this step until views that have significant data overlap can be switched over at the same time. This step is what unlocks the perf wins for your app. Apps using the `RelayModernEnvironment` get to send persisted query IDs instead of the full query strings to the server, as well as much more optimized data normalizing and processing.
 
 ## Step 4: Clean up by replacing Relay Compat with Relay Modern.
 

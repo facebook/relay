@@ -20,7 +20,7 @@ const mapObject = require('mapObject');
 const {getComponentName, getContainerName} = require('RelayContainerUtils');
 
 import type {GeneratedNodeMap} from 'ReactRelayTypes';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {FragmentMap} from 'RelayStoreTypes';
 
 const containerContextTypes = {

@@ -17,7 +17,7 @@ const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
 const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
 
 import type {GeneratedNodeMap} from 'ReactRelayTypes';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 
 /**
  * Wrap the basic `createContainer()` function with logic to adapt to the

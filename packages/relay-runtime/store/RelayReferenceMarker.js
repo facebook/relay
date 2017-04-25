@@ -13,7 +13,7 @@
 'use strict';
 
 const RelayConcreteNode = require('RelayConcreteNode');
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
@@ -115,7 +115,7 @@ class RelayReferenceMarker {
           this._traverseSelections(selection.selections, record);
         }
       } else if (selection.kind === INLINE_FRAGMENT) {
-        const typeName = RelayStaticRecord.getType(record);
+        const typeName = RelayModernRecord.getType(record);
         if (typeName != null && typeName === selection.type) {
           this._traverseSelections(selection.selections, record);
         }
@@ -158,7 +158,7 @@ class RelayReferenceMarker {
     record: Record
   ): void {
     const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayStaticRecord.getLinkedRecordID(record, storageKey);
+    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
 
     if (linkedID == null) {
       return;
@@ -172,7 +172,7 @@ class RelayReferenceMarker {
   ): void {
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs =
-      RelayStaticRecord.getLinkedRecordIDs(record, storageKey);
+      RelayModernRecord.getLinkedRecordIDs(record, storageKey);
 
     if (linkedIDs == null) {
       return;

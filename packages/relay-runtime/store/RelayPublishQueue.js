@@ -170,7 +170,7 @@ class RelayPublishQueue {
             this._handlerProvider && this._handlerProvider(fieldPayload.handle);
           invariant(
             handler,
-            'RelayStaticEnvironment: Expected a handler to be provided for ' +
+            'RelayModernEnvironment: Expected a handler to be provided for ' +
               'handle `%s`.',
             fieldPayload.handle,
           );

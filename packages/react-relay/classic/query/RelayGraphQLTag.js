@@ -20,7 +20,7 @@ import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from 'ConcreteQuery';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.

@@ -20,7 +20,7 @@ const deepFreeze = require('deepFreeze');
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {RelayEnvironmentInterface as ClassicEnvironment} from 'RelayEnvironment';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {
   Environment,
   OperationSelector,

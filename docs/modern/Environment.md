@@ -13,7 +13,7 @@ Most applications will create a single Environment instance and use it throughou
 
 ## A simple example
 
-To create an environment instance in Relay Modern, use the `RelayStaticEnvironment` class:
+To create an environment instance in Relay Modern, use the `RelayModernEnvironment` class:
 
 ```javascript
 const {

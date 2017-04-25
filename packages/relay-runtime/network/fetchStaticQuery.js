@@ -11,12 +11,12 @@
  */
 
 'use strict';
-const {getOperation} = require('RelayStaticGraphQLTag');
-const {createOperationSelector} = require('RelayStaticOperationSelector');
+const {getOperation} = require('RelayModernGraphQLTag');
+const {createOperationSelector} = require('RelayModernOperationSelector');
 
 import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {Network, QueryPayload} from 'RelayNetworkTypes';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 import type {Variables} from 'RelayTypes';
 
 /**

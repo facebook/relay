@@ -15,7 +15,7 @@
 const invariant = require('invariant');
 
 import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {Variables} from 'RelayTypes';
 
 /**

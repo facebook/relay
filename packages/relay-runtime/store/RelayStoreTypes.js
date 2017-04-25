@@ -25,13 +25,13 @@ import type {
 } from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch, ConcreteFragment, ConcreteSelectableNode} from 'RelayConcreteNode';
 import type {DataID} from 'RelayInternalTypes';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {
   PayloadError,
   RelayResponsePayload,
   UploadableMap,
 } from 'RelayNetworkTypes';
 import type {RecordState} from 'RelayRecordState';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 import type {Variables} from 'RelayTypes';
 
 type TEnvironment = Environment;

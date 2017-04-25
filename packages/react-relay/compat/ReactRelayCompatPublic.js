@@ -21,7 +21,7 @@ const RelayCompatRefetchContainer = require('RelayCompatRefetchContainer');
 
 const {graphql, fetchQuery} = require('RelayRuntime');
 
-export type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+export type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 export type {
   Environment,
   OperationSelector,

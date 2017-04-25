@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayStaticFragmentSpecResolver
+ * @providesModule RelayModernFragmentSpecResolver
  * @flow
  */
 
@@ -16,7 +16,7 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const isScalarAndEqual = require('isScalarAndEqual');
 
-const {areEqualSelectors, getSelectorsFromObject} = require('RelayStaticSelector');
+const {areEqualSelectors, getSelectorsFromObject} = require('RelayModernSelector');
 
 import type {
   Disposable,
@@ -55,7 +55,7 @@ type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
  * the resolver as stale and notify the caller, and the actual results are
  * recomputed the first time `resolve()` is called.
  */
-class RelayStaticFragmentSpecResolver implements FragmentSpecResolver {
+class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   _callback: () => void;
   _context: RelayContext;
   _data: Object;
@@ -133,7 +133,7 @@ class RelayStaticFragmentSpecResolver implements FragmentSpecResolver {
         } else {
           invariant(
             resolver instanceof SelectorListResolver,
-            'RelayStaticFragmentSpecResolver: Expected prop `%s` to always be an array.',
+            'RelayModernFragmentSpecResolver: Expected prop `%s` to always be an array.',
             key,
           );
           resolver.setSelectors(selector);
@@ -144,7 +144,7 @@ class RelayStaticFragmentSpecResolver implements FragmentSpecResolver {
         } else {
           invariant(
             resolver instanceof SelectorResolver,
-            'RelayStaticFragmentSpecResolver: Expected prop `%s` to always be an object.',
+            'RelayModernFragmentSpecResolver: Expected prop `%s` to always be an object.',
             key,
           );
           resolver.setSelector(selector);
@@ -312,4 +312,4 @@ function disposeCallback(disposable: ?Disposable): void {
   disposable && disposable.dispose();
 }
 
-module.exports = RelayStaticFragmentSpecResolver;
+module.exports = RelayModernFragmentSpecResolver;

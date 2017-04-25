@@ -14,14 +14,14 @@
 
 const isClassicRelayEnvironment = require('isClassicRelayEnvironment');
 
-const {isRelayStaticEnvironment} = require('RelayRuntime');
+const {isRelayModernEnvironment} = require('RelayRuntime');
 
 import type {CompatEnvironment} from 'RelayCompatTypes';
 import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {Environment} from 'RelayStoreTypes';
 
-function getRelayStaticEnvironment(environment: CompatEnvironment): ?Environment {
-  if (isRelayStaticEnvironment(environment)) {
+function getRelayModernEnvironment(environment: CompatEnvironment): ?Environment {
+  if (isRelayModernEnvironment(environment)) {
     return (environment: any);
   }
 }
@@ -34,5 +34,5 @@ function getRelayClassicEnvironment(environment: CompatEnvironment): ?RelayEnvir
 
 module.exports = {
   getRelayClassicEnvironment,
-  getRelayStaticEnvironment,
+  getRelayModernEnvironment,
 };

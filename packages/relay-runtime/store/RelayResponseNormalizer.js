@@ -13,8 +13,8 @@
 'use strict';
 
 const RelayConcreteNode = require('RelayConcreteNode');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
-const RelayStaticRecord = require('RelayStaticRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 
 const formatStorageKey = require('formatStorageKey');
@@ -148,7 +148,7 @@ class RelayResponseNormalizer {
           this._traverseSelections(selection.selections, record, data);
         }
       } else if (selection.kind === INLINE_FRAGMENT) {
-        const typeName = RelayStaticRecord.getType(record);
+        const typeName = RelayModernRecord.getType(record);
         if (typeName === selection.type) {
           this._traverseSelections(selection.selections, record, data);
         }
@@ -176,7 +176,7 @@ class RelayResponseNormalizer {
         }
         this._handleFieldPayloads.push({
           args,
-          dataID: RelayStaticRecord.getDataID(record),
+          dataID: RelayModernRecord.getDataID(record),
           fieldKey,
           handle: selection.handle,
           handleKey,
@@ -219,12 +219,12 @@ class RelayResponseNormalizer {
           storageKey
         );
       }
-      RelayStaticRecord.setValue(record, storageKey, null);
+      RelayModernRecord.setValue(record, storageKey, null);
       return;
     }
 
     if (selection.kind === SCALAR_FIELD) {
-      RelayStaticRecord.setValue(record, storageKey, fieldValue);
+      RelayModernRecord.setValue(record, storageKey, fieldValue);
     } else if (selection.plural) {
       this._normalizePluralLink(selection, record, storageKey, fieldValue);
     } else {
@@ -246,19 +246,19 @@ class RelayResponseNormalizer {
     const nextID = (
       fieldValue.id ||
       // Reuse previously generated client IDs
-      RelayStaticRecord.getLinkedRecordID(record, storageKey) ||
-      generateRelayClientID(RelayStaticRecord.getDataID(record), storageKey)
+      RelayModernRecord.getLinkedRecordID(record, storageKey) ||
+      generateRelayClientID(RelayModernRecord.getDataID(record), storageKey)
     );
     invariant(
       typeof nextID === 'string',
       'RelayResponseNormalizer: Expected id on field `%s` to be a string.',
       storageKey
     );
-    RelayStaticRecord.setLinkedRecordID(record, storageKey, nextID);
+    RelayModernRecord.setLinkedRecordID(record, storageKey, nextID);
     let nextRecord = this._recordSource.get(nextID);
     if (!nextRecord) {
       const typeName = field.concreteType || this._getRecordType(fieldValue);
-      nextRecord = RelayStaticRecord.create(nextID, typeName);
+      nextRecord = RelayModernRecord.create(nextID, typeName);
       this._recordSource.set(nextID, nextRecord);
     } else if (__DEV__) {
       this._validateRecordType(nextRecord, field, fieldValue);
@@ -278,7 +278,7 @@ class RelayResponseNormalizer {
       'of objects.',
       storageKey
     );
-    const prevIDs = RelayStaticRecord.getLinkedRecordIDs(record, storageKey);
+    const prevIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
     const nextIDs = [];
     fieldValue.forEach((item, nextIndex) => {
       // validate response data
@@ -296,7 +296,7 @@ class RelayResponseNormalizer {
       const nextID = (
         item.id ||
         (prevIDs && prevIDs[nextIndex]) || // Reuse previously generated client IDs
-        generateRelayClientID(RelayStaticRecord.getDataID(record), storageKey, nextIndex)
+        generateRelayClientID(RelayModernRecord.getDataID(record), storageKey, nextIndex)
       );
       invariant(
         typeof nextID === 'string',
@@ -309,14 +309,14 @@ class RelayResponseNormalizer {
       let nextRecord = this._recordSource.get(nextID);
       if (!nextRecord) {
         const typeName = field.concreteType || this._getRecordType(item);
-        nextRecord = RelayStaticRecord.create(nextID, typeName);
+        nextRecord = RelayModernRecord.create(nextID, typeName);
         this._recordSource.set(nextID, nextRecord);
       } else if (__DEV__) {
         this._validateRecordType(nextRecord, field, item);
       }
       this._traverseSelections(field.selections, nextRecord, item);
     });
-    RelayStaticRecord.setLinkedRecordIDs(record, storageKey, nextIDs);
+    RelayModernRecord.setLinkedRecordIDs(record, storageKey, nextIDs);
   }
 
   /**
@@ -329,13 +329,13 @@ class RelayResponseNormalizer {
   ): void {
     const typeName = field.concreteType || this._getRecordType(payload);
     warning(
-      RelayStaticRecord.getType(record) === typeName,
+      RelayModernRecord.getType(record) === typeName,
       'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
       'be consistent, but the record was assigned conflicting types ' +
       '`%s` and `%s`.',
-      RelayStaticRecord.getDataID(record),
+      RelayModernRecord.getDataID(record),
       TYPENAME_KEY,
-      RelayStaticRecord.getType(record),
+      RelayModernRecord.getType(record),
       typeName,
     );
   }

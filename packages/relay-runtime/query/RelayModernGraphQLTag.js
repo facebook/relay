@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayStaticGraphQLTag
+ * @providesModule RelayModernGraphQLTag
  * @flow
  */
 
@@ -71,7 +71,7 @@ function getFragment(
   const fragment = getNode(taggedNode);
   invariant(
     typeof fragment === 'object' && fragment !== null && fragment.kind === 'Fragment',
-    'RelayStaticGraphQLTag: Expected a fragment, got `%s`.',
+    'RelayModernGraphQLTag: Expected a fragment, got `%s`.',
     JSON.stringify(fragment),
   );
   return (fragment: any);
@@ -83,7 +83,7 @@ function getOperation(
   const operation = getNode(taggedNode);
   invariant(
     typeof operation === 'object' && operation !== null && operation.kind === 'Batch',
-    'RelayStaticGraphQLTag: Expected an operation, got `%s`.',
+    'RelayModernGraphQLTag: Expected an operation, got `%s`.',
     JSON.stringify(operation),
   );
   return (operation: any);

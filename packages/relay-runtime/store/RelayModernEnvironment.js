@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayStaticEnvironment
+ * @providesModule RelayModernEnvironment
  * @flow
  */
 
@@ -44,7 +44,7 @@ export type EnvironmentConfig = {
   store: Store,
 };
 
-class RelayStaticEnvironment implements Environment {
+class RelayModernEnvironment implements Environment {
   _network: Network;
   _publishQueue: RelayPublishQueue;
   _store: Store;
@@ -253,4 +253,4 @@ class RelayStaticEnvironment implements Environment {
   }
 }
 
-module.exports = RelayStaticEnvironment;
+module.exports = RelayModernEnvironment;

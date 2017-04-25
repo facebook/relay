@@ -12,7 +12,7 @@
 
 'use strict';
 
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayModernRecord = require('RelayModernRecord');
 
 const forEachObject = require('forEachObject');
 const formatStorageKey = require('formatStorageKey');
@@ -180,7 +180,7 @@ class RecordInspector {
    * record that does have an `id`.
    */
   getDataID(): DataID {
-    return RelayStaticRecord.getDataID(this._record);
+    return RelayModernRecord.getDataID(this._record);
   }
 
   /**
@@ -194,7 +194,7 @@ class RecordInspector {
    * Returns the type of the record.
    */
   getType(): string {
-    return RelayStaticRecord.getType(this._record);
+    return RelayModernRecord.getType(this._record);
   }
 
   /**
@@ -210,7 +210,7 @@ class RecordInspector {
    */
   getValue(name: string, args?: ?Variables): mixed {
     const storageKey = args ? formatStorageKey(name, args) : name;
-    return RelayStaticRecord.getValue(this._record, storageKey);
+    return RelayModernRecord.getValue(this._record, storageKey);
   }
 
   /**
@@ -220,7 +220,7 @@ class RecordInspector {
    */
   getLinkedRecord(name: string, args?: ?Variables): ?RecordInspector {
     const storageKey = args ? formatStorageKey(name, args) : name;
-    const linkedID = RelayStaticRecord.getLinkedRecordID(this._record, storageKey);
+    const linkedID = RelayModernRecord.getLinkedRecordID(this._record, storageKey);
     return linkedID != null ?
       this._sourceInspector.get(linkedID) :
       linkedID;
@@ -233,7 +233,7 @@ class RecordInspector {
    */
   getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordInspector> {
     const storageKey = args ? formatStorageKey(name, args) : name;
-    const linkedIDs = RelayStaticRecord.getLinkedRecordIDs(this._record, storageKey);
+    const linkedIDs = RelayModernRecord.getLinkedRecordIDs(this._record, storageKey);
     if (linkedIDs == null) {
       return linkedIDs;
     }
@@ -255,7 +255,7 @@ class RecordSummary {
 
   static createFromRecord(id: DataID, record: ?Record): RecordSummary {
     const type = record ?
-      RelayStaticRecord.getType(record) :
+      RelayModernRecord.getType(record) :
       null;
     return new RecordSummary(id, type);
   }

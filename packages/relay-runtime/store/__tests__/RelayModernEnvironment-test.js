@@ -13,15 +13,15 @@ jest
   .autoMockOff();
 
 const Deferred = require('Deferred');
-const RelayStaticEnvironment = require('RelayStaticEnvironment');
+const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayNetwork = require('RelayNetwork');
 const {ROOT_ID} = require('RelayStoreUtils');
 const RelayStaticTestUtils = require('RelayStaticTestUtils');
-const {createOperationSelector} = require('RelayStaticOperationSelector');
+const {createOperationSelector} = require('RelayModernOperationSelector');
 
-describe('RelayStaticEnvironment', () => {
+describe('RelayModernEnvironment', () => {
   const {generateAndCompile} = RelayStaticTestUtils;
   let config;
   let source;
@@ -41,7 +41,7 @@ describe('RelayStaticEnvironment', () => {
 
   describe('getStore()', () => {
     it('returns the store passed to the constructor', () => {
-      const environment = new RelayStaticEnvironment(config);
+      const environment = new RelayModernEnvironment(config);
       expect(environment.getStore()).toBe(store);
     });
   });
@@ -63,7 +63,7 @@ describe('RelayStaticEnvironment', () => {
           name
         }
       `));
-      environment = new RelayStaticEnvironment(config);
+      environment = new RelayModernEnvironment(config);
       environment.commitPayload(
         {
           dataID: ROOT_ID,
@@ -118,7 +118,7 @@ describe('RelayStaticEnvironment', () => {
           name
         }
       `));
-      environment = new RelayStaticEnvironment(config);
+      environment = new RelayModernEnvironment(config);
       environment.commitPayload(
         {
           dataID: ROOT_ID,
@@ -184,7 +184,7 @@ describe('RelayStaticEnvironment', () => {
           name
         }
       `));
-      environment = new RelayStaticEnvironment(config);
+      environment = new RelayModernEnvironment(config);
       environment.commitPayload(
         {
           dataID: ROOT_ID,
@@ -256,7 +256,7 @@ describe('RelayStaticEnvironment', () => {
           name
         }
       `));
-      environment = new RelayStaticEnvironment(config);
+      environment = new RelayModernEnvironment(config);
     });
 
     it('applies the mutation to the store', () => {
@@ -316,7 +316,7 @@ describe('RelayStaticEnvironment', () => {
       `));
       store.notify = jest.fn(store.notify.bind(store));
       store.publish = jest.fn(store.publish.bind(store));
-      environment = new RelayStaticEnvironment(config);
+      environment = new RelayModernEnvironment(config);
     });
 
     it('applies server updates', () => {
@@ -427,7 +427,7 @@ describe('RelayStaticEnvironment', () => {
       callbacks = {onCompleted, onError, onNext};
       deferred = new Deferred();
       fetch = jest.fn(() => deferred.getPromise());
-      environment = new RelayStaticEnvironment({
+      environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
         store,
       });
@@ -593,7 +593,7 @@ describe('RelayStaticEnvironment', () => {
           },
         };
       });
-      environment = new RelayStaticEnvironment({
+      environment = new RelayModernEnvironment({
         network: {
           request: () => new Deferred(), // not used in this test
           requestStream: fetch,
@@ -761,7 +761,7 @@ describe('RelayStaticEnvironment', () => {
 
       deferred = new Deferred();
       fetch = jest.fn(() => deferred.getPromise());
-      environment = new RelayStaticEnvironment({
+      environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
         store,
       });

@@ -25,7 +25,7 @@ const {
   requestSubscription,
 } = require('RelayRuntime');
 
-export type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+export type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 export type {
   Environment,
   OperationSelector,

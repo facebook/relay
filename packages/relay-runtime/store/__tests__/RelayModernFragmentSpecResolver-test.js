@@ -12,12 +12,12 @@
 jest
   .autoMockOff();
 
-const RelayStaticFragmentSpecResolver = require('RelayStaticFragmentSpecResolver');
+const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver');
 const {createMockEnvironment} = require('RelayStaticMockEnvironment');
 const {ROOT_ID} = require('RelayStoreUtils');
 const RelayStaticTestUtils = require('RelayStaticTestUtils');
 
-describe('RelayStaticFragmentSpecResolver', () => {
+describe('RelayModernFragmentSpecResolver', () => {
   let UserFragment;
   let UserQuery;
   let UsersFragment;
@@ -116,7 +116,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
   });
 
   it('ignores non-fragment data, sets missing fragment props to null', () => {
-    const resolver = new RelayStaticFragmentSpecResolver(
+    const resolver = new RelayModernFragmentSpecResolver(
       context,
       {user: UserFragment},
       {foo: 'foo', bar: 42},
@@ -129,14 +129,14 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
   describe('singular props', () => {
     it('passes through null-ish values', () => {
-      let resolver = new RelayStaticFragmentSpecResolver(
+      let resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
         {user: null},
         jest.fn(),
       );
       expect(resolver.resolve()).toEqual({user: null});
-      resolver = new RelayStaticFragmentSpecResolver(
+      resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
         {user: undefined},
@@ -147,7 +147,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
     it('passes through mock values', () => {
       const user = {};
-      const resolver = new RelayStaticFragmentSpecResolver(
+      const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
         {user},
@@ -157,7 +157,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
     });
 
     it('disposes with null props', () => {
-      const resolver = new RelayStaticFragmentSpecResolver(
+      const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
         {user: null},
@@ -167,7 +167,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
     });
 
     it('resolves fragment data', () => {
-      const resolver = new RelayStaticFragmentSpecResolver(
+      const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
         {user: zuck},
@@ -183,7 +183,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
     it('calls callback when fragment data changes', () => {
       const callback = jest.fn();
-      const resolver = new RelayStaticFragmentSpecResolver(
+      const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
         {user: zuck},
@@ -201,7 +201,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
     it('disposes subscriptions', () => {
       const callback = jest.fn();
-      const resolver = new RelayStaticFragmentSpecResolver(
+      const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
         {user: zuck},
@@ -224,7 +224,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
       beforeEach(() => {
         callback = jest.fn();
-        resolver = new RelayStaticFragmentSpecResolver(
+        resolver = new RelayModernFragmentSpecResolver(
           context,
           {user: UserFragment},
           {user: zuck},
@@ -249,7 +249,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
       });
 
       it('creates a subscription if a prop is set to non-mock value', () => {
-        resolver = new RelayStaticFragmentSpecResolver(
+        resolver = new RelayModernFragmentSpecResolver(
           context,
           {user: UserFragment},
           {user: {}},
@@ -325,7 +325,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
       beforeEach(() => {
         callback = jest.fn();
-        resolver = new RelayStaticFragmentSpecResolver(
+        resolver = new RelayModernFragmentSpecResolver(
           context,
           {user: UserFragment},
           {user: zuck},
@@ -394,14 +394,14 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
   describe('plural props', () => {
     it('passes through null-ish values', () => {
-      let resolver = new RelayStaticFragmentSpecResolver(
+      let resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
         {user: null},
         jest.fn(),
       );
       expect(resolver.resolve()).toEqual({user: null});
-      resolver = new RelayStaticFragmentSpecResolver(
+      resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
         {user: undefined},
@@ -412,7 +412,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
     it('passes through mock values', () => {
       const users = [{}];
-      const resolver = new RelayStaticFragmentSpecResolver(
+      const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
         {user: users},
@@ -422,7 +422,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
     });
 
     it('resolves fragment data', () => {
-      const resolver = new RelayStaticFragmentSpecResolver(
+      const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
         {user: [zuck]},
@@ -438,7 +438,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
     it('calls callback when fragment data changes', () => {
       const callback = jest.fn();
-      const resolver = new RelayStaticFragmentSpecResolver(
+      const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
         {user: [zuck]},
@@ -456,7 +456,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
     it('disposes subscriptions', () => {
       const callback = jest.fn();
-      const resolver = new RelayStaticFragmentSpecResolver(
+      const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
         {user: [zuck]},
@@ -479,7 +479,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
       beforeEach(() => {
         callback = jest.fn();
-        resolver = new RelayStaticFragmentSpecResolver(
+        resolver = new RelayModernFragmentSpecResolver(
           context,
           {user: UsersFragment},
           {user: [zuck]},
@@ -504,7 +504,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
       });
 
       it('creates a subscription if a prop is set to non-mock value', () => {
-        resolver = new RelayStaticFragmentSpecResolver(
+        resolver = new RelayModernFragmentSpecResolver(
           context,
           {user: UsersFragment},
           {user: [{}]},
@@ -635,7 +635,7 @@ describe('RelayStaticFragmentSpecResolver', () => {
 
       beforeEach(() => {
         callback = jest.fn();
-        resolver = new RelayStaticFragmentSpecResolver(
+        resolver = new RelayModernFragmentSpecResolver(
           context,
           {user: UsersFragment},
           {user: [zuck]},

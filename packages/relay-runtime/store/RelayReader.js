@@ -13,7 +13,7 @@
 'use strict';
 
 const RelayConcreteNode = require('RelayConcreteNode');
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 
 const invariant = require('invariant');
@@ -138,7 +138,7 @@ class RelayReader {
           this._traverseSelections(selection.selections, record, data);
         }
       } else if (selection.kind === INLINE_FRAGMENT) {
-        const typeName = RelayStaticRecord.getType(record);
+        const typeName = RelayModernRecord.getType(record);
         if (typeName != null && typeName === selection.type) {
           this._traverseSelections(selection.selections, record, data);
         }
@@ -161,7 +161,7 @@ class RelayReader {
   ): void {
     const applicationName = field.alias || field.name;
     const storageKey = getStorageKey(field, this._variables);
-    const value = RelayStaticRecord.getValue(record, storageKey);
+    const value = RelayModernRecord.getValue(record, storageKey);
     data[applicationName] = value;
   }
 
@@ -172,7 +172,7 @@ class RelayReader {
   ): void {
     const applicationName = field.alias || field.name;
     const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayStaticRecord.getLinkedRecordID(record, storageKey);
+    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
 
     if (linkedID == null) {
       data[applicationName] = linkedID;
@@ -185,7 +185,7 @@ class RelayReader {
       'RelayReader(): Expected data for field `%s` on record `%s` ' +
       'to be an object, got `%s`.',
       applicationName,
-      RelayStaticRecord.getDataID(record),
+      RelayModernRecord.getDataID(record),
       prevData
     );
     data[applicationName] = this._traverse(
@@ -203,7 +203,7 @@ class RelayReader {
     const applicationName = field.alias || field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs =
-      RelayStaticRecord.getLinkedRecordIDs(record, storageKey);
+      RelayModernRecord.getLinkedRecordIDs(record, storageKey);
 
     if (linkedIDs == null) {
       data[applicationName] = linkedIDs;
@@ -216,7 +216,7 @@ class RelayReader {
       'RelayReader(): Expected data for field `%s` on record `%s` ' +
       'to be an array, got `%s`.',
       applicationName,
-      RelayStaticRecord.getDataID(record),
+      RelayModernRecord.getDataID(record),
       prevData
     );
     const linkedArray = prevData || [];
@@ -231,7 +231,7 @@ class RelayReader {
         'RelayReader(): Expected data for field `%s` on record `%s` ' +
         'to be an object, got `%s`.',
         applicationName,
-        RelayStaticRecord.getDataID(record),
+        RelayModernRecord.getDataID(record),
         prevItem
       );
       const linkedItem = this._traverse(
@@ -258,7 +258,7 @@ class RelayReader {
       'RelayReader: Expected fragment spread data to be an object, got `%s`.',
       fragmentPointers
     );
-    data[ID_KEY] = data[ID_KEY] || RelayStaticRecord.getDataID(record);
+    data[ID_KEY] = data[ID_KEY] || RelayModernRecord.getDataID(record);
     const variables = fragmentSpread.args ?
       getArgumentValues(fragmentSpread.args, this._variables) :
       {};

@@ -12,8 +12,8 @@
 
 'use strict';
 
+const RelayModernRecord = require('RelayModernRecord');
 const RelayRecordProxy = require('RelayRecordProxy');
-const RelayStaticRecord = require('RelayStaticRecord');
 
 const invariant = require('invariant');
 const normalizeRelayPayload = require('normalizeRelayPayload');
@@ -61,7 +61,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
         const sourceRecord = source.get(dataID);
         if (sourceRecord) {
           if (this._mutator.getStatus(dataID) !== EXISTENT) {
-            this.create(dataID, RelayStaticRecord.getType(sourceRecord));
+            this.create(dataID, RelayModernRecord.getType(sourceRecord));
           }
           this._mutator.copyFieldsFromRecord(sourceRecord, dataID);
           delete this._proxies[dataID];
@@ -77,7 +77,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
           this._handlerProvider && this._handlerProvider(fieldPayload.handle);
         invariant(
           handler,
-          'RelayStaticEnvironment: Expected a handler to be provided for handle `%s`.',
+          'RelayModernEnvironment: Expected a handler to be provided for handle `%s`.',
           fieldPayload.handle
         );
         handler.update(this, fieldPayload);

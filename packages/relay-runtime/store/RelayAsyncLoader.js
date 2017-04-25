@@ -13,7 +13,7 @@
 'use strict';
 
 const RelayConcreteNode = require('RelayConcreteNode');
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
@@ -245,7 +245,7 @@ class RelayAsyncLoader {
           }
           break;
         case INLINE_FRAGMENT:
-          const typeName = RelayStaticRecord.getType(record);
+          const typeName = RelayModernRecord.getType(record);
           if (typeName != null && typeName === selection.type) {
             this._traverseSelections(selection.selections, record);
           }
@@ -276,7 +276,7 @@ class RelayAsyncLoader {
     record: Record
   ): void {
     const storageKey = getStorageKey(field, this._variables);
-    const fieldValue = RelayStaticRecord.getValue(record, storageKey);
+    const fieldValue = RelayModernRecord.getValue(record, storageKey);
     if (fieldValue === undefined) {
       this._handleMissing();
     }
@@ -287,7 +287,7 @@ class RelayAsyncLoader {
     record: Record
   ): void {
     const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayStaticRecord.getLinkedRecordID(record, storageKey);
+    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
 
     if (linkedID === undefined) {
       this._handleMissing();
@@ -302,7 +302,7 @@ class RelayAsyncLoader {
   ): void {
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs =
-      RelayStaticRecord.getLinkedRecordIDs(record, storageKey);
+      RelayModernRecord.getLinkedRecordIDs(record, storageKey);
 
     if (linkedIDs === undefined) {
       this._handleMissing();

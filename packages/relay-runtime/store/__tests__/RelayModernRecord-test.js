@@ -12,7 +12,7 @@
 jest
   .autoMockOff();
 
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayStaticTestUtils = require('RelayStaticTestUtils');
 
@@ -20,7 +20,7 @@ const deepFreeze = require('deepFreeze');
 
 const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 
-describe('RelayStaticRecord', () => {
+describe('RelayModernRecord', () => {
   beforeEach(() => {
     jasmine.addMatchers(RelayStaticTestUtils.matchers);
   });
@@ -32,7 +32,7 @@ describe('RelayStaticRecord', () => {
         name: 'Mark',
         pet: {[REF_KEY]: 'beast'},
       };
-      const clone = RelayStaticRecord.clone(record);
+      const clone = RelayModernRecord.clone(record);
       expect(clone).toEqual(record);
       expect(clone).not.toBe(record);
       expect(clone.pet).toBe(record.pet);
@@ -53,7 +53,7 @@ describe('RelayStaticRecord', () => {
         pets: {[REFS_KEY]: ['beast']},
       };
       deepFreeze(source);
-      RelayStaticRecord.copyFields(source, sink);
+      RelayModernRecord.copyFields(source, sink);
       expect(sink).toEqual({
         [ID_KEY]: '4',
         [TYPENAME_KEY]: 'User',
@@ -85,32 +85,32 @@ describe('RelayStaticRecord', () => {
     });
 
     it('returns undefined when the link is unknown', () => {
-      expect(RelayStaticRecord.getLinkedRecordIDs(record, 'colors')).toBe(undefined);
+      expect(RelayModernRecord.getLinkedRecordIDs(record, 'colors')).toBe(undefined);
     });
 
     it('returns null when the link is non-existent', () => {
-      expect(RelayStaticRecord.getLinkedRecordIDs(record, 'enemies')).toBe(null);
+      expect(RelayModernRecord.getLinkedRecordIDs(record, 'enemies')).toBe(null);
     });
 
     it('returns the linked record IDs when they exist', () => {
-      expect(RelayStaticRecord.getLinkedRecordIDs(record, 'friends{"first":10}'))
+      expect(RelayModernRecord.getLinkedRecordIDs(record, 'friends{"first":10}'))
         .toEqual(['beast', 'greg', null]);
     });
 
     it('throws if the field is actually a scalar', () => {
       expect(
-        () => RelayStaticRecord.getLinkedRecordIDs(record, 'name')
+        () => RelayModernRecord.getLinkedRecordIDs(record, 'name')
       ).toFailInvariant(
-        'RelayStaticRecord.getLinkedRecordIDs(): Expected `4.name` to contain ' +
+        'RelayModernRecord.getLinkedRecordIDs(): Expected `4.name` to contain ' +
         'an array of linked IDs, got `"Mark"`.'
       );
     });
 
     it('throws if the field is a singular link', () => {
       expect(
-        () => RelayStaticRecord.getLinkedRecordIDs(record, 'hometown')
+        () => RelayModernRecord.getLinkedRecordIDs(record, 'hometown')
       ).toFailInvariant(
-        'RelayStaticRecord.getLinkedRecordIDs(): Expected `4.hometown` to contain ' +
+        'RelayModernRecord.getLinkedRecordIDs(): Expected `4.hometown` to contain ' +
         'an array of linked IDs, got `{"__ref":"mpk"}`.'
       );
     });
@@ -121,8 +121,8 @@ describe('RelayStaticRecord', () => {
       const record = {
         [ID_KEY]: '4',
       };
-      RelayStaticRecord.setLinkedRecordID(record, 'pet', 'beast');
-      expect(RelayStaticRecord.getLinkedRecordID(record, 'pet')).toBe('beast');
+      RelayModernRecord.setLinkedRecordID(record, 'pet', 'beast');
+      expect(RelayModernRecord.getLinkedRecordID(record, 'pet')).toBe('beast');
     });
   });
 
@@ -132,12 +132,12 @@ describe('RelayStaticRecord', () => {
         [ID_KEY]: '4',
       };
       const storageKey = 'friends{"first":10}';
-      RelayStaticRecord.setLinkedRecordIDs(
+      RelayModernRecord.setLinkedRecordIDs(
         record,
         storageKey,
         ['beast', 'greg', null]
       );
-      expect(RelayStaticRecord.getLinkedRecordIDs(record, storageKey))
+      expect(RelayModernRecord.getLinkedRecordIDs(record, storageKey))
         .toEqual(['beast', 'greg', null]);
     });
   });
@@ -164,14 +164,14 @@ describe('RelayStaticRecord', () => {
     });
 
     it('returns a scalar value', () => {
-      expect(RelayStaticRecord.getValue(record, 'name')).toBe('Mark');
+      expect(RelayModernRecord.getValue(record, 'name')).toBe('Mark');
     });
 
     it('returns a (list) scalar value', () => {
       // Note that lists can be scalars too. The definition of scalar value is
       // "not a singular or plural link", and means that no query can traverse
       // into it.
-      expect(RelayStaticRecord.getValue(record, 'favoriteColors'))
+      expect(RelayModernRecord.getValue(record, 'favoriteColors'))
         .toEqual(['red', 'green', 'blue']);
     });
 
@@ -179,30 +179,30 @@ describe('RelayStaticRecord', () => {
       // Objects can be scalars too. The definition of scalar value is
       // "not a singular or plural link", and means that no query can traverse
       // into it.
-      expect(RelayStaticRecord.getValue(record, 'other'))
+      expect(RelayModernRecord.getValue(record, 'other'))
         .toEqual({customScalar: true});
     });
 
     it('returns null when the field is non-existent', () => {
-      expect(RelayStaticRecord.getValue(record, 'blockbusterMembership')).toBe(null);
+      expect(RelayModernRecord.getValue(record, 'blockbusterMembership')).toBe(null);
     });
 
     it('returns undefined when the field is unknown', () => {
-      expect(RelayStaticRecord.getValue(record, 'horoscope')).toBe(undefined);
+      expect(RelayModernRecord.getValue(record, 'horoscope')).toBe(undefined);
     });
 
     it('throws on encountering a linked record', () => {
-      expect(() => RelayStaticRecord.getValue(record, 'hometown'))
+      expect(() => RelayModernRecord.getValue(record, 'hometown'))
         .toFailInvariant(
-          'RelayStaticRecord.getValue(): Expected a scalar (non-link) value for ' +
+          'RelayModernRecord.getValue(): Expected a scalar (non-link) value for ' +
           '`4.hometown` but found a linked record.'
         );
     });
 
     it('throws on encountering a plural linked record', () => {
-      expect(() => RelayStaticRecord.getValue(record, 'friends{"first":10}'))
+      expect(() => RelayModernRecord.getValue(record, 'friends{"first":10}'))
         .toFailInvariant(
-          'RelayStaticRecord.getValue(): Expected a scalar (non-link) value for ' +
+          'RelayModernRecord.getValue(): Expected a scalar (non-link) value for ' +
           '`4.friends{"first":10}` but found plural linked records.'
         );
     });
@@ -210,10 +210,10 @@ describe('RelayStaticRecord', () => {
 
   describe('freeze()', () => {
     it('prevents modification of records', () => {
-      const record = RelayStaticRecord.create('4', 'User');
-      RelayStaticRecord.freeze(record);
+      const record = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.freeze(record);
       expect(() => {
-        RelayStaticRecord.setValue(record, 'pet', 'Beast');
+        RelayModernRecord.setValue(record, 'pet', 'Beast');
       }).toThrowTypeError();
     });
   });

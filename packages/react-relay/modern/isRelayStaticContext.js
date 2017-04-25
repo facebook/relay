@@ -12,8 +12,9 @@
 
 'use strict';
 
-const {isRelayStaticEnvironment} = require('RelayRuntime');
 const isRelayVariables = require('isRelayVariables');
+
+const {isRelayModernEnvironment} = require('RelayRuntime');
 
 /**
  * Determine if the object is a plain object that matches the `RelayContext`
@@ -24,7 +25,7 @@ function isRelayStaticContext(context: mixed): boolean {
     typeof context === 'object' &&
     context !== null &&
     !Array.isArray(context) &&
-    isRelayStaticEnvironment(context.environment) &&
+    isRelayModernEnvironment(context.environment) &&
     isRelayVariables(context.variables)
   );
 }

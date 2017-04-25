@@ -13,8 +13,8 @@
 'use strict';
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {RelayResponsePayload} from 'RelayNetworkTypes';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
 import type {Environment, RecordSourceSelectorProxy} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 

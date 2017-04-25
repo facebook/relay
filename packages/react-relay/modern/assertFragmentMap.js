@@ -16,7 +16,7 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 import type {GeneratedNodeMap} from 'ReactRelayTypes';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 
 /**
  * Fail fast if the user supplies invalid fragments as input.

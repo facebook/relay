@@ -14,7 +14,7 @@ jest
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayStaticTestUtils = require('RelayStaticTestUtils');
 
@@ -506,41 +506,41 @@ describe('RelayStore', () => {
     it('throws if source records are modified', () => {
       const zuck = source.get('4');
       expect(() => {
-        RelayStaticRecord.setValue(zuck, 'pet', 'Beast');
+        RelayModernRecord.setValue(zuck, 'pet', 'Beast');
       }).toThrowTypeError();
     });
 
     it('throws if published records are modified', () => {
       // Create and publish a source with a new record
       const nextSource = new RelayInMemoryRecordSource();
-      const beast = RelayStaticRecord.create('beast', 'Pet');
+      const beast = RelayModernRecord.create('beast', 'Pet');
       nextSource.set('beast', beast);
       store.publish(nextSource);
       expect(() => {
-        RelayStaticRecord.setValue(beast, 'name', 'Beast');
+        RelayModernRecord.setValue(beast, 'name', 'Beast');
       }).toThrowTypeError();
     });
 
     it('throws if updated records are modified', () => {
       // Create and publish a source with a record of the same id
       const nextSource = new RelayInMemoryRecordSource();
-      const beast = RelayStaticRecord.create('beast', 'Pet');
+      const beast = RelayModernRecord.create('beast', 'Pet');
       nextSource.set('beast', beast);
-      const zuck = RelayStaticRecord.create('4', 'User');
-      RelayStaticRecord.setLinkedRecordID(zuck, 'pet', 'beast');
+      const zuck = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setLinkedRecordID(zuck, 'pet', 'beast');
       nextSource.set('4', zuck);
       store.publish(nextSource);
 
       // Cannot modify merged record
       expect(() => {
         const mergedRecord = source.get('4');
-        RelayStaticRecord.setValue(mergedRecord, 'pet', null);
+        RelayModernRecord.setValue(mergedRecord, 'pet', null);
       }).toThrowTypeError();
       // Cannot modify the published record, even though it isn't in the store
       // This is for consistency because it is non-deterinistic if published
       // records will be merged into a new object or used as-is.
       expect(() => {
-        RelayStaticRecord.setValue(zuck, 'pet', null);
+        RelayModernRecord.setValue(zuck, 'pet', null);
       }).toThrowTypeError();
     });
   });

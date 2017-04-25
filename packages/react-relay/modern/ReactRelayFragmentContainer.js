@@ -27,7 +27,7 @@ const {getComponentName, getReactComponent} = require('RelayContainerUtils');
 
 import type {GeneratedNodeMap, RelayProp} from 'ReactRelayTypes';
 import type {FragmentSpecResolver} from 'RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
 
 type ContainerState = {

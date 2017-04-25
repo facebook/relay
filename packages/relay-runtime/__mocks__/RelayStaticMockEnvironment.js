@@ -12,9 +12,9 @@
 const Deferred = require('Deferred');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
+const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayNetwork = require('RelayNetwork');
 const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
-const RelayStaticEnvironment = require('RelayStaticEnvironment');
 const RelayStaticTestUtils = require('RelayStaticTestUtils');
 const RelayTestSchema = require('RelayTestSchema');
 
@@ -131,7 +131,7 @@ function createMockEnvironment(options: {
   const storeInspector = new RelayRecordSourceInspector(source);
 
   // Mock instance
-  const environment = new RelayStaticEnvironment({
+  const environment = new RelayModernEnvironment({
     handlerProvider,
     network: RelayNetwork.create(fetch),
     store,

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayStaticRecord
+ * @providesModule RelayModernRecord
  * @flow
  */
 
@@ -144,7 +144,7 @@ function getValue(record: Record, storageKey: string): mixed {
     invariant(
       !value.hasOwnProperty(REF_KEY) &&
       !value.hasOwnProperty(REFS_KEY),
-      'RelayStaticRecord.getValue(): Expected a scalar (non-link) value for `%s.%s` ' +
+      'RelayModernRecord.getValue(): Expected a scalar (non-link) value for `%s.%s` ' +
       'but found %s.',
       record[ID_KEY],
       storageKey,
@@ -167,7 +167,7 @@ function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
   }
   invariant(
     typeof link === 'object' && link && typeof link[REF_KEY] === 'string',
-    'RelayStaticRecord.getLinkedRecordID(): Expected `%s.%s` to be a linked ID, ' +
+    'RelayModernRecord.getLinkedRecordID(): Expected `%s.%s` to be a linked ID, ' +
     'was `%s`.',
     record[ID_KEY],
     storageKey,
@@ -190,7 +190,7 @@ function getLinkedRecordIDs(record: Record, storageKey: string): ?Array<?DataID>
   invariant(
     typeof links === 'object' &&
     Array.isArray(links[REFS_KEY]),
-    'RelayStaticRecord.getLinkedRecordIDs(): Expected `%s.%s` to contain an array ' +
+    'RelayModernRecord.getLinkedRecordIDs(): Expected `%s.%s` to contain an array ' +
     'of linked IDs, got `%s`.',
     record[ID_KEY],
     storageKey,

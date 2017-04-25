@@ -14,7 +14,7 @@ jest
   .mock('generateClientID');
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayModernRecord = require('RelayModernRecord');
 const {normalize} = require('RelayResponseNormalizer');
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
 const RelayStaticTestUtils = require('RelayStaticTestUtils');
@@ -85,7 +85,7 @@ describe('RelayResponseNormalizer', () => {
       },
     };
     const recordSource = new RelayInMemoryRecordSource();
-    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
       {
@@ -189,7 +189,7 @@ describe('RelayResponseNormalizer', () => {
       },
     };
     const recordSource = new RelayInMemoryRecordSource();
-    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     const handleFieldPayloads = normalize(
       recordSource,
       {
@@ -266,7 +266,7 @@ describe('RelayResponseNormalizer', () => {
     };
 
     const recordSource = new RelayInMemoryRecordSource();
-    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     let handleFieldPayloads = normalize(
       recordSource,
       {
@@ -348,7 +348,7 @@ describe('RelayResponseNormalizer', () => {
       },
     };
     const recordSource = new RelayInMemoryRecordSource();
-    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     expect(() => {
       normalize(
         recordSource,
@@ -405,7 +405,7 @@ describe('RelayResponseNormalizer', () => {
       },
     };
     const recordSource = new RelayInMemoryRecordSource();
-    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     expect(() => {
       normalize(
         recordSource,
@@ -471,7 +471,7 @@ describe('RelayResponseNormalizer', () => {
       },
     };
     const recordSource = new RelayInMemoryRecordSource();
-    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
       {

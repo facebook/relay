@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayStaticSelector
+ * @providesModule RelayModernSelector
  * @flow
  */
 
@@ -61,7 +61,7 @@ function getSelector(
 ): ?Selector {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
-    'RelayStaticSelector: Expected value for fragment `%s` to be an object, got ' +
+    'RelayModernSelector: Expected value for fragment `%s` to be an object, got ' +
     '`%s`.',
     fragment.name,
     JSON.stringify(item),
@@ -89,7 +89,7 @@ function getSelector(
   }
   warning(
     false,
-    'RelayStaticSelector: Expected object to contain data for fragment `%s`, got ' +
+    'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
     '`%s`. Make sure that the parent operation/fragment included fragment ' +
     '`...%s`.',
     fragment.name,
@@ -148,7 +148,7 @@ function getSelectorsFromObject(
     } else if (fragment.metadata && fragment.metadata.plural === true) {
       invariant(
         Array.isArray(item),
-        'RelayStaticSelector: Expected value for key `%s` to be an array, got `%s`. ' +
+        'RelayModernSelector: Expected value for key `%s` to be an array, got `%s`. ' +
         'Remove `@relay(plural: true)` from fragment `%s` to allow the prop to be an object.',
         key,
         JSON.stringify(item),
@@ -162,7 +162,7 @@ function getSelectorsFromObject(
     } else {
       invariant(
         !Array.isArray(item),
-        'RelayStaticFragmentSpecResolver: Expected value for key `%s` to be an object, got `%s`. ' +
+        'RelayModernFragmentSpecResolver: Expected value for key `%s` to be an object, got `%s`. ' +
         'Add `@relay(plural: true)` to fragment `%s` to allow the prop to be an array of items.',
         key,
         JSON.stringify(item),
@@ -199,7 +199,7 @@ function getDataIDsFromObject(
     } else if (fragment.metadata && fragment.metadata.plural === true) {
       invariant(
         Array.isArray(item),
-        'RelayStaticSelector: Expected value for key `%s` to be an array, got `%s`. ' +
+        'RelayModernSelector: Expected value for key `%s` to be an array, got `%s`. ' +
         'Remove `@relay(plural: true)` from fragment `%s` to allow the prop to be an object.',
         key,
         JSON.stringify(item),
@@ -209,7 +209,7 @@ function getDataIDsFromObject(
     } else {
       invariant(
         !Array.isArray(item),
-        'RelayStaticFragmentSpecResolver: Expected value for key `%s` to be an object, got `%s`. ' +
+        'RelayModernFragmentSpecResolver: Expected value for key `%s` to be an object, got `%s`. ' +
         'Add `@relay(plural: true)` to fragment `%s` to allow the prop to be an array of items.',
         key,
         JSON.stringify(item),
@@ -244,7 +244,7 @@ function getDataIDs(fragment: ConcreteFragment, items: Array<mixed>): ?Array<Dat
 function getDataID(fragment: ConcreteFragment, item: mixed): ?DataID {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
-    'RelayStaticSelector: Expected value for fragment `%s` to be an object, got ' +
+    'RelayModernSelector: Expected value for fragment `%s` to be an object, got ' +
     '`%s`.',
     fragment.name,
     JSON.stringify(item),
@@ -255,7 +255,7 @@ function getDataID(fragment: ConcreteFragment, item: mixed): ?DataID {
   }
   warning(
     false,
-    'RelayStaticSelector: Expected object to contain data for fragment `%s`, got ' +
+    'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
     '`%s`. Make sure that the parent operation/fragment included fragment ' +
     '`...%s`.',
     fragment.name,
@@ -288,7 +288,7 @@ function getVariablesFromObject(
     } else if (fragment.metadata && fragment.metadata.plural === true) {
       invariant(
         Array.isArray(item),
-        'RelayStaticSelector: Expected value for key `%s` to be an array, got `%s`. ' +
+        'RelayModernSelector: Expected value for key `%s` to be an array, got `%s`. ' +
         'Remove `@relay(plural: true)` from fragment `%s` to allow the prop to be an object.',
         key,
         JSON.stringify(item),
@@ -305,7 +305,7 @@ function getVariablesFromObject(
     } else {
       invariant(
         !Array.isArray(item),
-        'RelayStaticFragmentSpecResolver: Expected value for key `%s` to be an object, got `%s`. ' +
+        'RelayModernFragmentSpecResolver: Expected value for key `%s` to be an object, got `%s`. ' +
         'Add `@relay(plural: true)` to fragment `%s` to allow the prop to be an array of items.',
         key,
         JSON.stringify(item),

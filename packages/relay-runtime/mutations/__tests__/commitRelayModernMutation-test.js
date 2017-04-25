@@ -10,12 +10,12 @@
 
 jest.autoMockOff();
 
-const commitRelayStaticMutation = require('commitRelayStaticMutation');
+const commitRelayModernMutation = require('commitRelayModernMutation');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const {createMockEnvironment} = require('RelayStaticMockEnvironment');
 const {ROOT_ID} = require('RelayStoreUtils');
 
-describe('commitRelayStaticMutation', () => {
+describe('commitRelayModernMutation', () => {
   let callback, environment, snapshot, store;
   const {generateAndCompile} = RelayModernTestUtils;
 
@@ -104,7 +104,7 @@ describe('commitRelayStaticMutation', () => {
   });
 
   it('defaults to using the optimisticResponse in optimisticUpdater is not provided', () => {
-    commitRelayStaticMutation(
+    commitRelayModernMutation(
       environment,
       {
         mutation,
@@ -136,7 +136,7 @@ describe('commitRelayStaticMutation', () => {
     const optimisticUpdater = (proxy) => {
       proxy.commitPayload(proxySelector, payload);
     };
-    commitRelayStaticMutation(
+    commitRelayModernMutation(
       environment,
       {
         mutation,

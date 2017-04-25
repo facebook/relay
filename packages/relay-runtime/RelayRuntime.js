@@ -22,7 +22,7 @@ const RelayNetwork = require('RelayNetwork');
 const RelayViewerHandler = require('RelayViewerHandler');
 
 const commitLocalUpdate = require('commitLocalUpdate');
-const commitRelayStaticMutation = require('commitRelayStaticMutation');
+const commitRelayModernMutation = require('commitRelayModernMutation');
 const fetchRelayStaticQuery = require('fetchRelayStaticQuery');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const requestRelaySubscription = require('requestRelaySubscription');
@@ -61,7 +61,7 @@ module.exports = {
 
   // Helpers (can be implemented via the above API)
   commitLocalUpdate: commitLocalUpdate,
-  commitMutation: commitRelayStaticMutation,
+  commitMutation: commitRelayModernMutation,
   fetchQuery: fetchRelayStaticQuery,
   isRelayModernEnvironment: isRelayModernEnvironment,
   requestSubscription: requestRelaySubscription,

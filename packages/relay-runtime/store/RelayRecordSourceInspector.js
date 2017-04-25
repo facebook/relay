@@ -16,7 +16,7 @@ const RelayModernRecord = require('RelayModernRecord');
 
 const forEachObject = require('forEachObject');
 const formatStorageKey = require('formatStorageKey');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const simpleClone = require('simpleClone');
 
@@ -109,7 +109,7 @@ class RelayRecordSourceInspector {
     // field name but is present on the viewer handle field, rewrite the getter
     // to make `root.viewer` work.
     if (root.viewer == null) {
-      const viewerHandle = getRelayStaticHandleKey('viewer', null, 'viewer');
+      const viewerHandle = getRelayHandleKey('viewer', null, 'viewer');
       const unsafeRoot = (root: any); // to access getter properties
       if (unsafeRoot[viewerHandle] != null) {
         Object.defineProperty(unsafeRoot, 'viewer', ({

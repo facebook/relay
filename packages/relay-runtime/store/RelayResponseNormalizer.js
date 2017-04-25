@@ -19,7 +19,7 @@ const RelayStoreUtils = require('RelayStoreUtils');
 
 const formatStorageKey = require('formatStorageKey');
 const generateRelayClientID = require('generateRelayClientID');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -161,7 +161,7 @@ class RelayResponseNormalizer {
           {};
 
         const fieldKey = formatStorageKey(selection.name, args);
-        let handleKey = getRelayStaticHandleKey(
+        let handleKey = getRelayHandleKey(
           selection.handle,
           selection.key,
           selection.name,

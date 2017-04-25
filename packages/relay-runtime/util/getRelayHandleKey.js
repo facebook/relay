@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
- * @providesModule getRelayStaticHandleKey
+ * @providesModule getRelayHandleKey
  */
 
 'use strict';
@@ -23,7 +23,7 @@ const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
  * Helper to create a unique name for a handle field based on the handle name, handle key and
  * source field.
  */
-function getRelayStaticHandleKey(handleName: string, key: ?string, fieldName: ?string): string {
+function getRelayHandleKey(handleName: string, key: ?string, fieldName: ?string): string {
   if (key && key !== DEFAULT_HANDLE_KEY) {
     return `__${key}_${handleName}`;
   }
@@ -35,4 +35,4 @@ function getRelayStaticHandleKey(handleName: string, key: ?string, fieldName: ?s
   return  `__${fieldName}_${handleName}`;
 }
 
-module.exports = getRelayStaticHandleKey;
+module.exports = getRelayHandleKey;

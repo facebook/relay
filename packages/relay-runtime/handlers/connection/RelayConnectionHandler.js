@@ -13,7 +13,7 @@
 'use strict';
 
 const generateRelayClientID = require('generateRelayClientID');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -223,7 +223,7 @@ function getConnection(
   key: string,
   filters?: ?Variables,
 ): ?RecordProxy {
-  const handleKey = getRelayStaticHandleKey(CONNECTION, key, null);
+  const handleKey = getRelayHandleKey(CONNECTION, key, null);
   return record.getLinkedRecord(handleKey, filters);
 }
 

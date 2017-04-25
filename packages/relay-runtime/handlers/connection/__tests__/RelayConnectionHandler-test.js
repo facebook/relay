@@ -31,7 +31,7 @@ const {
 } = require('RelayConnectionInterface');
 
 const formatStorageKey = require('formatStorageKey');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 const simpleClone = require('simpleClone');
 
 const {
@@ -144,7 +144,7 @@ describe('RelayConnectionHandler', () => {
         id: '4',
       });
       const args = {first: 10, orderby:['first name']};
-      const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+      const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
         '{"orderby":["first name"]}';
       const payload = {
         args,
@@ -262,7 +262,7 @@ describe('RelayConnectionHandler', () => {
         id: '4',
       });
       const args = {first: 10, orderby:['first name']};
-      const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+      const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
         '{"orderby":["first name"]}';
       const payload = {
         args,
@@ -379,7 +379,7 @@ describe('RelayConnectionHandler', () => {
         id: '4',
       });
       const args = {first: 10, orderby:['first name']};
-      const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+      const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
         '{"orderby":["first name"]}';
       const payload = {
         args,
@@ -433,7 +433,7 @@ describe('RelayConnectionHandler', () => {
       const payload = {
         dataID: 'unfetched',
         fieldKey: 'friends',
-        handleKey: getRelayStaticHandleKey('connection', null, 'friends'),
+        handleKey: getRelayHandleKey('connection', null, 'friends'),
       };
       RelayConnectionHandler.update(proxy, payload);
       expect(sinkData).toEqual({});
@@ -447,7 +447,7 @@ describe('RelayConnectionHandler', () => {
       const payload = {
         dataID: ROOT_ID,
         fieldKey: 'friends',
-        handleKey: getRelayStaticHandleKey('connection', null, 'friend'),
+        handleKey: getRelayHandleKey('connection', null, 'friend'),
       };
       RelayConnectionHandler.update(proxy, payload);
       expect(sinkData).toEqual({
@@ -467,7 +467,7 @@ describe('RelayConnectionHandler', () => {
       const payload = {
         dataID: ROOT_ID,
         fieldKey: 'friends',
-        handleKey: getRelayStaticHandleKey('connection', null, 'friend'),
+        handleKey: getRelayHandleKey('connection', null, 'friend'),
       };
       RelayConnectionHandler.update(proxy, payload);
       expect(sinkData).toEqual({
@@ -507,7 +507,7 @@ describe('RelayConnectionHandler', () => {
         id: '4',
       });
       const args = {first: 10, orderby:['first name']};
-      const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+      const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
         '{"orderby":["first name"]}';
       const payload = {
         args,
@@ -569,7 +569,7 @@ describe('RelayConnectionHandler', () => {
         id: '4',
       });
       const args = {first: 10, orderby:['first name']};
-      const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+      const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
         '{"orderby":["first name"]}';
       const payload = {
         args,
@@ -637,7 +637,7 @@ describe('RelayConnectionHandler', () => {
           id: '4',
         });
         const args = {first: 10, orderby:['first name']};
-        const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
           '{"orderby":["first name"]}';
         const payload = {
           dataID: '4',
@@ -683,7 +683,7 @@ describe('RelayConnectionHandler', () => {
           id: '4',
         });
         const args = {after: 'cursor:1', first: 10, orderby:['first name']};
-        const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
           '{"orderby":["first name"]}';
         const payload = {
           args,
@@ -745,7 +745,7 @@ describe('RelayConnectionHandler', () => {
           id: '4',
         });
         const args = {before: 'cursor:1', first: 10, orderby: ['first name']};
-        const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
           '{"orderby":["first name"]}';
         const payload = {
           args,
@@ -807,7 +807,7 @@ describe('RelayConnectionHandler', () => {
           id: '4',
         });
         const args = {first: 10, orderby:['first name']};
-        const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
           '{"orderby":["first name"]}';
         const payload = {
           args,
@@ -868,7 +868,7 @@ describe('RelayConnectionHandler', () => {
           id: '4',
         });
         const args = {after: 'cursor:1', first: 10, orderby: ['first name']};
-        const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
           '{"orderby":["first name"]}';
         const payload = {
           args,
@@ -930,7 +930,7 @@ describe('RelayConnectionHandler', () => {
           id: '4',
         });
         const args = {after: 'cursor:1', first: 10, orderby: ['first name']};
-        const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
           '{"orderby":["first name"]}';
         const payload = {
           args,
@@ -987,7 +987,7 @@ describe('RelayConnectionHandler', () => {
           id: '4',
         });
         const args = {after: 'cursor:1', first: 10, orderby: ['first name']};
-        const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
           '{"orderby":["first name"]}';
         const payload = {
           args,
@@ -1046,7 +1046,7 @@ describe('RelayConnectionHandler', () => {
           id: '4',
         });
         const args = {after: 'cursor:1', first: 10, orderby:['first name']};
-        const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
           '{"orderby":["first name"]}';
         const payload = {
           args,
@@ -1120,7 +1120,7 @@ describe('RelayConnectionHandler', () => {
           id: '4',
         });
         const args = {after: 'cursor:1', first: 10, orderby:['first name']};
-        const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
           '{"orderby":["first name"]}';
         const payload = {
           args,
@@ -1189,7 +1189,7 @@ describe('RelayConnectionHandler', () => {
           id: '4',
         });
         const args = {before: '<unknown-cursor>', first: 10, orderby:['first name']};
-        const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
           '{"orderby":["first name"]}';
 
         const payload = {
@@ -1244,7 +1244,7 @@ describe('RelayConnectionHandler', () => {
           id: '4',
         });
         const args = {after: '<unknown-cursor>', first: 10, orderby:['first name']};
-        const handleKey = getRelayStaticHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        const handleKey = getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
           '{"orderby":["first name"]}';
         const payload = {
           args,

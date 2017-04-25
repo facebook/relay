@@ -18,7 +18,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 
 const {
   generateWithTransforms,
@@ -50,7 +50,7 @@ describe('cloneRelayHandleSourceField()', () => {
     const clone = cloneRelayHandleSourceField(handleField, selections);
 
     expect(clone.kind).toBe(LINKED_FIELD);
-    expect(clone.name).toBe(getRelayStaticHandleKey('test', null, 'address'));
+    expect(clone.name).toBe(getRelayHandleKey('test', null, 'address'));
     expect(clone.selections).toEqual(sourceField.selections);
   });
 

@@ -17,7 +17,7 @@ const RelayAsyncLoader = require('RelayAsyncLoader');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 
 const {
   check,
@@ -399,7 +399,7 @@ describe('RelayAsyncLoader', () => {
     });
 
     it('reads handle fields', () => {
-      const handleKey = getRelayStaticHandleKey('test', null, 'profilePicture');
+      const handleKey = getRelayHandleKey('test', null, 'profilePicture');
       const data = {
         '1': {
           __id: '1',

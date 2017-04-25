@@ -15,7 +15,7 @@
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 
 import type {Field} from 'RelayIR';
@@ -57,7 +57,7 @@ function visitField<F: Field>(field: F, state: State): F {
   );
   const alias = field.alias || field.name;
   const handle = handles[0];
-  const name = getRelayStaticHandleKey(handle.name, handle.key, field.name);
+  const name = getRelayHandleKey(handle.name, handle.key, field.name);
   const filters = handle.filters;
   const args = filters ?
     field.args.filter(arg => filters.indexOf(arg.name) > -1) :

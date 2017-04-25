@@ -16,7 +16,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 
 const areEqual = require('areEqual');
 const formatStorageKey = require('formatStorageKey');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 
 const {getHandleFilterValues} = require('RelayStoreUtils');
@@ -54,7 +54,7 @@ function cloneRelayHandleSourceField(
     'handle `%s`.',
     handleField.handle
   );
-  let handleKey = getRelayStaticHandleKey(handleField.handle, handleField.key, handleField.name);
+  let handleKey = getRelayHandleKey(handleField.handle, handleField.key, handleField.name);
   if (handleField.filters && handleField.filters.length > 0) {
     const filterValues = getHandleFilterValues(
       handleField.args || [],

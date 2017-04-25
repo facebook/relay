@@ -18,7 +18,7 @@ const RelayPublishQueue = require('RelayPublishQueue');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const simpleClone = require('simpleClone');
 
@@ -515,17 +515,17 @@ describe('RelayPublishQueue', () => {
           fieldPayloads: [{
             dataID: '4',
             fieldKey: 'screennames',
-            handleKey: getRelayStaticHandleKey('handleScreennames', null, 'screennames'),
+            handleKey: getRelayHandleKey('handleScreennames', null, 'screennames'),
             handle: 'handleScreennames',
           }, {
             dataID: 'client:4:screennames:0',
             fieldKey: 'name',
-            handleKey: getRelayStaticHandleKey('handleName', null, 'name'),
+            handleKey: getRelayHandleKey('handleName', null, 'name'),
             handle: 'handleName',
           }, {
             dataID: 'client:4:screennames:1',
             fieldKey: 'name',
-            handleKey: getRelayStaticHandleKey('handleName', null, 'name'),
+            handleKey: getRelayHandleKey('handleName', null, 'name'),
             handle: 'handleName',
           }],
           source: new RelayInMemoryRecordSource({

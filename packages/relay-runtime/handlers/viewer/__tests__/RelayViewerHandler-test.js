@@ -21,7 +21,7 @@ const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayViewerHandler = require('RelayViewerHandler');
 
 const generateRelayClientID = require('generateRelayClientID');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 
 const {
   ID_KEY,
@@ -62,7 +62,7 @@ describe('RelayViewerHandler', () => {
     const payload = {
       dataID: 'unfetched',
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
     RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({});
@@ -75,7 +75,7 @@ describe('RelayViewerHandler', () => {
     const payload = {
       dataID: ROOT_ID,
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
     RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
@@ -93,7 +93,7 @@ describe('RelayViewerHandler', () => {
     const payload = {
       dataID: ROOT_ID,
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
     RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
@@ -113,7 +113,7 @@ describe('RelayViewerHandler', () => {
     const payload = {
       dataID: ROOT_ID,
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
     RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
@@ -141,7 +141,7 @@ describe('RelayViewerHandler', () => {
     const payload = {
       dataID: commentID,
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
     RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({

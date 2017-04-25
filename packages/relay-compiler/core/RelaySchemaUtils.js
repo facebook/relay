@@ -204,7 +204,7 @@ function isSchemaDefinitionAST(ast: ASTNode): boolean %checks {
   );
 }
 
-function assertTypeWithFields(type: GraphQLType): GraphQLObjectType | GraphQLInterfaceType {
+function assertTypeWithFields(type: ?GraphQLType): GraphQLObjectType | GraphQLInterfaceType {
   invariant(
     type instanceof GraphQLObjectType ||
     type instanceof GraphQLInterfaceType,

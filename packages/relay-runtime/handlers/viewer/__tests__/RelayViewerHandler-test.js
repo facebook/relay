@@ -17,7 +17,7 @@ const RelayModernRecord = require('RelayModernRecord');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayViewerHandler = require('RelayViewerHandler');
 
 const generateRelayClientID = require('generateRelayClientID');
@@ -43,7 +43,7 @@ describe('RelayViewerHandler', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
 
     baseData = {
       [ROOT_ID]: {

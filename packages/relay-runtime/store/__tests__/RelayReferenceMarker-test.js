@@ -16,14 +16,14 @@ jest
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayReferenceMarker = require('RelayReferenceMarker');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const Set = require('Set');
 
 const {mark} = RelayReferenceMarker;
 const {ROOT_ID} = RelayStoreUtils;
 
 describe('RelayReferenceMarker', () => {
-  const {generateAndCompile} = RelayStaticTestUtils;
+  const {generateAndCompile} = RelayModernTestUtils;
   let source;
 
   beforeEach(() => {

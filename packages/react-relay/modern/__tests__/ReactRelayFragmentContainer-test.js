@@ -18,7 +18,7 @@ const React = require('React');
 const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
 const ReactRelayPropTypes = require('ReactRelayPropTypes');
 const ReactTestRenderer = require('ReactTestRenderer');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const {ROOT_ID} = require('RelayStoreUtils');
 const {createMockEnvironment} = require('RelayStaticMockEnvironment');
 
@@ -71,7 +71,7 @@ describe('ReactRelayFragmentContainer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery} = environment.mock.compile(`

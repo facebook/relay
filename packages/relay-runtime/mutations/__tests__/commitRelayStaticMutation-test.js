@@ -11,13 +11,13 @@
 jest.autoMockOff();
 
 const commitRelayStaticMutation = require('commitRelayStaticMutation');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const {createMockEnvironment} = require('RelayStaticMockEnvironment');
 const {ROOT_ID} = require('RelayStoreUtils');
 
 describe('commitRelayStaticMutation', () => {
   let callback, environment, snapshot, store;
-  const {generateAndCompile} = RelayStaticTestUtils;
+  const {generateAndCompile} = RelayModernTestUtils;
 
   const mutation = generateAndCompile(`
     mutation FeedbackLikeMutation(

@@ -16,7 +16,7 @@ const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayRecordProxy = require('RelayRecordProxy');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const simpleClone = require('simpleClone');
 
@@ -42,7 +42,7 @@ describe('RelayRecordSourceProxy', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
 
     initialData = {
       4: {
@@ -183,7 +183,7 @@ describe('RelayRecordSourceProxy', () => {
   });
 
   describe('commitPayload()', () => {
-    const {generateWithTransforms} = RelayStaticTestUtils;
+    const {generateWithTransforms} = RelayModernTestUtils;
     it('override current fields ', () => {
       const {Query} = generateWithTransforms(`
         query Query {

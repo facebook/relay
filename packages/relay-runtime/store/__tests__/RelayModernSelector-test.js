@@ -23,7 +23,7 @@ const {
 } = require('RelayModernSelector');
 const {createMockEnvironment} = require('RelayStaticMockEnvironment');
 const {ROOT_ID} = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 describe('RelayModernSelector', () => {
   let UserFragment;
@@ -34,7 +34,7 @@ describe('RelayModernSelector', () => {
   let variables;
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(`

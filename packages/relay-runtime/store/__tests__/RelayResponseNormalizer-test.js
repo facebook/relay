@@ -17,14 +17,14 @@ const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayModernRecord = require('RelayModernRecord');
 const {normalize} = require('RelayResponseNormalizer');
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 describe('RelayResponseNormalizer', () => {
   const {
     generateAndCompile,
     generateWithTransforms,
     matchers,
-  } = RelayStaticTestUtils;
+  } = RelayModernTestUtils;
 
   beforeEach(() => {
     jest.resetModules();

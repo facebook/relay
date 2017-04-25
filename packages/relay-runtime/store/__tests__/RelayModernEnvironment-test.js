@@ -18,18 +18,18 @@ const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayNetwork = require('RelayNetwork');
 const {ROOT_ID} = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 
 describe('RelayModernEnvironment', () => {
-  const {generateAndCompile} = RelayStaticTestUtils;
+  const {generateAndCompile} = RelayModernTestUtils;
   let config;
   let source;
   let store;
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
     source = new RelayInMemoryRecordSource();
     store = new RelayMarkSweepStore(source);
 

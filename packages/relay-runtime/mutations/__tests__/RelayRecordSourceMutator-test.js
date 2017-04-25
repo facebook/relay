@@ -16,7 +16,7 @@ const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayRecordState = require('RelayRecordState');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const simpleClone = require('simpleClone');
 
@@ -45,7 +45,7 @@ describe('RelayRecordSourceMutator', () => {
   let sinkSource;
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
 
     initialData = {
       4: {

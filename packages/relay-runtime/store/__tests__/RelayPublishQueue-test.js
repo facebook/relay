@@ -16,7 +16,7 @@ const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayPublishQueue = require('RelayPublishQueue');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
 const invariant = require('invariant');
@@ -31,11 +31,11 @@ const {
 } = RelayStoreUtils;
 
 describe('RelayPublishQueue', () => {
-  const {generateAndCompile} = RelayStaticTestUtils;
+  const {generateAndCompile} = RelayModernTestUtils;
 
   beforeEach(() => {
     jest.resetModules();
-    jest.addMatchers(RelayStaticTestUtils.matchers);
+    jest.addMatchers(RelayModernTestUtils.matchers);
   });
 
   describe('applyUpdate()/revertUpdate()', () => {

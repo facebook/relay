@@ -14,11 +14,11 @@ jest
 
 const fetchRelayStaticQuery = require('fetchRelayStaticQuery');
 const {createMockEnvironment} = require('RelayStaticMockEnvironment');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 
 describe('fetchRelayStaticQuery', () => {
-  const {generateAndCompile} = RelayStaticTestUtils;
+  const {generateAndCompile} = RelayModernTestUtils;
   let cacheConfig;
   let environment;
   let operation;

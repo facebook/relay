@@ -18,7 +18,7 @@ import type {
 /**
  * Utilities (custom matchers etc) for Relay "static" tests.
  */
-const RelayStaticTestUtils = {
+const RelayModernTestUtils = {
   matchers: {
     toBeDeeplyFrozen() {
       return {
@@ -231,4 +231,4 @@ const RelayStaticTestUtils = {
   },
 };
 
-module.exports = RelayStaticTestUtils;
+module.exports = RelayModernTestUtils;

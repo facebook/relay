@@ -9,9 +9,9 @@
 
 'use strict';
 
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
-describe('RelayStaticTestUtils', () => {
+describe('RelayModernTestUtils', () => {
   beforeEach(() => {
     // Define custom matchers to test our custom matchers...
     jasmine.addMatchers({
@@ -90,7 +90,7 @@ describe('RelayStaticTestUtils', () => {
     beforeEach(() => {
       jest.mock('warning');
       warning = require('warning');
-      const matcher = RelayStaticTestUtils.matchers.toWarn();
+      const matcher = RelayModernTestUtils.matchers.toWarn();
       toWarn = matcher.compare;
       not = {
         toWarn: matcher.negativeCompare,

@@ -15,7 +15,7 @@ describe('RelayCompilerContext', () => {
   let RelayCompilerContext;
   let RelayParser;
   let RelayTestSchema;
-  let RelayStaticTestUtils;
+  let RelayModernTestUtils;
 
   let queryFoo;
   let fragmentBar;
@@ -28,9 +28,9 @@ describe('RelayCompilerContext', () => {
     RelayParser = require('RelayParser');
     parseGraphQLText = require('parseGraphQLText');
     RelayTestSchema = require('RelayTestSchema');
-    RelayStaticTestUtils = require('RelayStaticTestUtils');
+    RelayModernTestUtils = require('RelayModernTestUtils');
 
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
 
     [
       queryFoo,

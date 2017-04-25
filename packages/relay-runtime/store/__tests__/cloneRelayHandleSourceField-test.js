@@ -15,7 +15,7 @@ jest
   .autoMockOff();
 
 const RelayConcreteNode = require('RelayConcreteNode');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
 const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
@@ -23,7 +23,7 @@ const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
 const {
   generateWithTransforms,
   matchers,
-} = RelayStaticTestUtils;
+} = RelayModernTestUtils;
 const {
   LINKED_FIELD,
   LINKED_HANDLE,

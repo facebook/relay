@@ -11,14 +11,14 @@
 
 jest.disableAutomock();
 
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const {
   getFragmentVariables,
   getOperationVariables,
 } = require('RelayConcreteVariables');
 
 describe('RelayConcreteVariables', () => {
-  const {generateAndCompile} = RelayStaticTestUtils;
+  const {generateAndCompile} = RelayModernTestUtils;
 
   beforeEach(() => {
     jest.resetModules();

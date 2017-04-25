@@ -16,7 +16,7 @@ const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const forEachObject = require('forEachObject');
 const simpleClone = require('simpleClone');
@@ -24,11 +24,11 @@ const simpleClone = require('simpleClone');
 const {REF_KEY, ROOT_ID, ROOT_TYPE} = RelayStoreUtils;
 
 describe('RelayStore', () => {
-  const {generateWithTransforms} = RelayStaticTestUtils;
+  const {generateWithTransforms} = RelayModernTestUtils;
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
   });
 
   describe('retain()', () => {

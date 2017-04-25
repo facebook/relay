@@ -15,11 +15,11 @@ jest.autoMockOff();
 
 const React = require('React');
 const RelayCompatFragmentContainer = require('RelayCompatContainer');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 describe('RelayCompatFragmentContainer', () => {
   beforeEach(() => {
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
   });
 
   it('throws for invalid fragments', () => {

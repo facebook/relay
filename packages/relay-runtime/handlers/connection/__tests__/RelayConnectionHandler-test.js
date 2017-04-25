@@ -21,7 +21,7 @@ const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayResponseNormalizer = require('RelayResponseNormalizer');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const {
   END_CURSOR,
   HAS_NEXT_PAGE,
@@ -44,7 +44,7 @@ const {
 } = RelayStoreUtils;
 
 describe('RelayConnectionHandler', () => {
-  const {generateWithTransforms} = RelayStaticTestUtils;
+  const {generateWithTransforms} = RelayModernTestUtils;
   let ConnectionQuery;
   let baseData;
   let baseSource;
@@ -67,7 +67,7 @@ describe('RelayConnectionHandler', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
 
     baseData = {
       [ROOT_ID]: {

@@ -16,7 +16,7 @@ jest
 const RelayAsyncLoader = require('RelayAsyncLoader');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
 
 const {
@@ -26,7 +26,7 @@ const {
 const {ROOT_ID} = RelayStoreUtils;
 
 describe('RelayAsyncLoader', () => {
-  const {generateWithTransforms} = RelayStaticTestUtils;
+  const {generateWithTransforms} = RelayModernTestUtils;
 
   beforeEach(() => {
     jest.resetModules();

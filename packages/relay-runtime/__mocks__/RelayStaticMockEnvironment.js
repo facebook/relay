@@ -13,9 +13,9 @@ const Deferred = require('Deferred');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayNetwork = require('RelayNetwork');
 const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
 const RelayTestSchema = require('RelayTestSchema');
 
 const areEqual = require('areEqual');
@@ -84,7 +84,7 @@ function createMockEnvironment(options: {
   // Helper to compile a query with the given schema (or the test schema by
   // default).
   const compile = (text) => {
-    return RelayStaticTestUtils.generateAndCompile(text, schema || RelayTestSchema);
+    return RelayModernTestUtils.generateAndCompile(text, schema || RelayTestSchema);
   };
 
   // Helper to determine if a given query/variables pair is pending

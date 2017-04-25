@@ -15,9 +15,9 @@ jest
 const formatStorageKey = require('formatStorageKey');
 
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const {generateAndCompile} = RelayStaticTestUtils;
+const {generateAndCompile} = RelayModernTestUtils;
 
 describe('RelayStoreUtils', () => {
   describe('getArgumentValues()', () => {

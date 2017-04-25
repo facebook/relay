@@ -16,13 +16,13 @@ jest
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayReader = require('RelayReader');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {read} = RelayReader;
 const {ROOT_ID} = RelayStoreUtils;
 
 describe('RelayReader', () => {
-  const {generateAndCompile, generateWithTransforms} = RelayStaticTestUtils;
+  const {generateAndCompile, generateWithTransforms} = RelayModernTestUtils;
   let source;
 
   beforeEach(() => {

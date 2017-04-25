@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule isRelayStaticContext
+ * @providesModule isRelayModernContext
  * @flow
  */
 
@@ -20,7 +20,7 @@ const {isRelayModernEnvironment} = require('RelayRuntime');
  * Determine if the object is a plain object that matches the `RelayContext`
  * type.
  */
-function isRelayStaticContext(context: mixed): boolean {
+function isRelayModernContext(context: mixed): boolean {
   return (
     typeof context === 'object' &&
     context !== null &&
@@ -30,4 +30,4 @@ function isRelayStaticContext(context: mixed): boolean {
   );
 }
 
-module.exports = isRelayStaticContext;
+module.exports = isRelayModernContext;

@@ -12,18 +12,16 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('RelayModernEnvironment');
-
 /**
  * Determine if a given value is an object that implements the `Environment`
  * interface defined in `RelayStoreTypes`.
  *
- * Currently the only true implementation is `RelayModernEnvironment`, so to
- * avoid possible confusion with `RelayEnvironment` during the transition period
- * this function uses an instanceof check.
+ * Use a sigil for detection to avoid a realm-specific instanceof check, and to
+ * aid in module tree-shaking to avoid requiring all of RelayRuntime just to
+ * detect its environment.
  */
 function isRelayModernEnvironment(environment: mixed): boolean {
-  return environment instanceof RelayModernEnvironment;
+  return Boolean(environment && (environment: any)['@@RelayModernEnvironment']);
 }
 
 module.exports = isRelayModernEnvironment;

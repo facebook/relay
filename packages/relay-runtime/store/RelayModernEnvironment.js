@@ -266,4 +266,9 @@ class RelayModernEnvironment implements Environment {
   }
 }
 
+// Add a sigil for detection by `isRelayModernEnvironment()` to avoid a
+// realm-specific instanceof check, and to aid in module tree-shaking to
+// avoid requiring all of RelayRuntime just to detect its environment.
+(RelayModernEnvironment: any).prototype['@@RelayModernEnvironment'] = true;
+
 module.exports = RelayModernEnvironment;

@@ -110,6 +110,7 @@ const RelayStoreUtils = {
   ROOT_TYPE: '__Root',
   TYPENAME_KEY: '__typename',
   UNPUBLISH_RECORD_SENTINEL: Object.freeze({__UNPUBLISH_RECORD_SENTINEL: true}),
+  UNPUBLISH_FIELD_SENTINEL: Object.freeze({__UNPUBLISH_FIELD_SENTINEL: true}),
 
   getArgumentValues,
   getStorageKey,

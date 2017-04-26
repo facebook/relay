@@ -14,10 +14,14 @@
 
 const RelayModernRecord = require('RelayModernRecord');
 
+const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 const {EXISTENT} = require('RelayRecordState');
-const {UNPUBLISH_RECORD_SENTINEL} = require('RelayStoreUtils');
+const {
+  UNPUBLISH_FIELD_SENTINEL,
+  UNPUBLISH_RECORD_SENTINEL,
+} = require('RelayStoreUtils');
 
 import type {
   Record,
@@ -78,6 +82,39 @@ class RelayRecordSourceMutator {
     }
   }
 
+  _setSentinelFieldsInBackupRecord(dataID: DataID, record: Record): void {
+    const backup = this._backup;
+    if (backup) {
+      const backupRecord = backup.get(dataID);
+      if (backupRecord && backupRecord !== UNPUBLISH_RECORD_SENTINEL) {
+        let copy = null;
+        forEachObject(record, (value, key) => {
+          if (!(key in backupRecord)) {
+            copy = copy || {...backupRecord};
+            copy[key] = UNPUBLISH_FIELD_SENTINEL;
+          }
+        });
+        backup.set(dataID, copy || backupRecord);
+      }
+    }
+  }
+
+  _setSentinelFieldInBackupRecord(dataID: DataID, storageKey: string): void {
+    const backup = this._backup;
+    if (backup) {
+      const backupRecord = backup.get(dataID);
+      if (
+        backupRecord &&
+        backupRecord !== UNPUBLISH_RECORD_SENTINEL &&
+        !(storageKey in backupRecord)
+      ) {
+        const copy = {...backupRecord};
+        RelayModernRecord.setValue(copy, storageKey, UNPUBLISH_FIELD_SENTINEL);
+        backup.set(dataID, copy);
+      }
+    }
+  }
+
   _getSinkRecord(dataID: DataID): Record {
     let sinkRecord = this._sink.get(dataID);
     if (!sinkRecord) {
@@ -110,12 +147,14 @@ class RelayRecordSourceMutator {
     if (sinkSource) {
       RelayModernRecord.copyFields(sinkSource, sink);
     }
+    this._setSentinelFieldsInBackupRecord(sinkID, sink);
   }
 
   copyFieldsFromRecord(record: Record, sinkID: DataID): void {
     this.copyFields(RelayModernRecord.getDataID(record), sinkID);
     const sink = this._getSinkRecord(sinkID);
     RelayModernRecord.copyFields(record, sink);
+    this._setSentinelFieldsInBackupRecord(sinkID, sink);
   }
 
   create(dataID: DataID, typeName: string): void {
@@ -173,6 +212,7 @@ class RelayRecordSourceMutator {
     this._createBackupRecord(dataID);
     const sinkRecord = this._getSinkRecord(dataID);
     RelayModernRecord.setValue(sinkRecord, storageKey, value);
+    this._setSentinelFieldInBackupRecord(dataID, storageKey);
   }
 
   getLinkedRecordID(dataID: DataID, storageKey: string): ?DataID {
@@ -193,6 +233,7 @@ class RelayRecordSourceMutator {
     this._createBackupRecord(dataID);
     const sinkRecord = this._getSinkRecord(dataID);
     RelayModernRecord.setLinkedRecordID(sinkRecord, storageKey, linkedID);
+    this._setSentinelFieldInBackupRecord(dataID, storageKey);
   }
 
   getLinkedRecordIDs(dataID: DataID, storageKey: string): ?Array<?DataID> {
@@ -213,6 +254,7 @@ class RelayRecordSourceMutator {
     this._createBackupRecord(dataID);
     const sinkRecord = this._getSinkRecord(dataID);
     RelayModernRecord.setLinkedRecordIDs(sinkRecord, storageKey, linkedIDs);
+    this._setSentinelFieldInBackupRecord(dataID, storageKey);
   }
 }
 

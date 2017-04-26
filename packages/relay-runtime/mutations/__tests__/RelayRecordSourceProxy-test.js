@@ -27,6 +27,7 @@ const {
   ROOT_ID,
   ROOT_TYPE,
   TYPENAME_KEY,
+  UNPUBLISH_FIELD_SENTINEL,
 } = RelayStoreUtils;
 
 describe('RelayRecordSourceProxy', () => {
@@ -392,7 +393,10 @@ describe('RelayRecordSourceProxy', () => {
     });
     expect(backupSource.get('4')).toBe(markBackup); // Same record (referential equality).
     expect(backupSource.get('4')).toEqual(initialData['4']); // And not mutated.
-    expect(backupSource.get('660361306')).toBe(gregBackup); // Same record (referential equality).
-    expect(backupSource.get('660361306')).toEqual(initialData['660361306']); // And not mutated.
+    expect(backupSource.get('660361306')).toEqual({
+      ...initialData['660361306'],
+      blockedPages: UNPUBLISH_FIELD_SENTINEL,
+      hometown: UNPUBLISH_FIELD_SENTINEL,
+    });
   });
 });

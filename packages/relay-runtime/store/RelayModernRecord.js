@@ -22,6 +22,7 @@ const {
   REF_KEY,
   REFS_KEY,
   TYPENAME_KEY,
+  UNPUBLISH_FIELD_SENTINEL,
 } = require('RelayStoreUtils');
 
 import type {
@@ -214,7 +215,11 @@ function update(prevRecord: Record, nextRecord: Record): Record {
     const key = keys[ii];
     if (updated || !areEqual(prevRecord[key], nextRecord[key])) {
       updated = updated || {...prevRecord};
-      updated[key] = nextRecord[key];
+      if (nextRecord[key] !== UNPUBLISH_FIELD_SENTINEL) {
+        updated[key] = nextRecord[key];
+      } else {
+        delete updated[key];
+      }
     }
   }
   return updated || prevRecord;

@@ -26,6 +26,7 @@ const {
   REFS_KEY,
   TYPENAME_KEY,
   UNPUBLISH_RECORD_SENTINEL,
+  UNPUBLISH_FIELD_SENTINEL,
 } = RelayStoreUtils;
 const {
   EXISTENT,
@@ -81,6 +82,12 @@ describe('RelayRecordSourceMutator', () => {
         [ID_KEY]: 'sf',
         [TYPENAME_KEY]: 'Page',
         name: 'San Francisco',
+      },
+      nyc: {
+        [ID_KEY]: 'nyc',
+        [TYPENAME_KEY]: 'Page',
+        name: 'New York',
+        timezone: 'East Time Zone',
       },
     };
     backupData = {};
@@ -157,6 +164,23 @@ describe('RelayRecordSourceMutator', () => {
       expect(backupData.seattle).toEqual(UNPUBLISH_RECORD_SENTINEL);
     });
 
+    it('copies new fields and create sentinel', () => {
+      backupMutator.copyFields('nyc', 'sf');
+      expect(sinkData).toEqual({
+        sf: {
+          [ID_KEY]: 'sf',
+          [TYPENAME_KEY]: 'Page',
+          name: 'New York',
+          timezone: 'East Time Zone',
+        },
+      });
+      expect(Object.keys(backupData)).toEqual(['sf']);
+      expect(backupData.sf).toEqual({
+        ...baseData.sf,
+        timezone: UNPUBLISH_FIELD_SENTINEL,
+      });
+    });
+
     it('copies fields from a modified record to an existing record', () => {
       backupMutator.setLinkedRecordID('mpk', 'mayor', 'beast');
       backupMutator.copyFields('mpk', 'sf');
@@ -174,8 +198,14 @@ describe('RelayRecordSourceMutator', () => {
         },
       });
       expect(Object.keys(backupData)).toEqual(['mpk', 'sf']);
-      expect(backupData.mpk).toBe(baseData.mpk);
-      expect(backupData.sf).toBe(baseData.sf);
+      expect(backupData.mpk).toEqual({
+        ...baseData.mpk,
+        mayor: UNPUBLISH_FIELD_SENTINEL,
+      });
+      expect(backupData.sf).toEqual({
+        ...baseData.sf,
+        mayor: UNPUBLISH_FIELD_SENTINEL,
+      });
     });
   });
 
@@ -219,7 +249,10 @@ describe('RelayRecordSourceMutator', () => {
         },
       });
       expect(Object.keys(backupData)).toEqual(['sf']);
-      expect(backupData.sf).toBe(baseData.sf);
+      expect(backupData.sf).toEqual({
+        ...baseData.sf,
+        state: UNPUBLISH_FIELD_SENTINEL,
+      });
     });
 
     it('copies fields from to a created record', () => {
@@ -802,8 +835,11 @@ describe('RelayRecordSourceMutator', () => {
       expect(markBackup).toBe(mark); // Same record (referential equality).
       expect(markBackup).toEqual(initialData['4']); // And not mutated.
       const gregBackup = backupSource.get('660361306');
-      expect(gregBackup).toBe(greg); // Same record (referential equality).
-      expect(gregBackup).toEqual(initialData['660361306']); // And not mutated.
+      expect(gregBackup).toEqual({
+        ...greg,
+        blockedPages: UNPUBLISH_FIELD_SENTINEL,
+        hometown: UNPUBLISH_FIELD_SENTINEL,
+      });
     });
   });
 });

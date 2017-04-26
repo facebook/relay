@@ -21,3 +21,15 @@ export type InlineFragmentConditionalID = {
   id?: string;
   name?: ?string;
 };
+
+export type InlineFragmentKitchenSink = {
+  actor: ?{
+    id: string;
+    profilePicture: ?{
+      uri: ?string;
+      width?: ?number;
+      height?: ?number;
+    };
+    name?: ?string;
+  };
+};

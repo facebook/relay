@@ -15,7 +15,6 @@
 const RelayIRVisitor = require('RelayIRVisitor');
 
 const babelGenerator = require('babel-generator').default;
-const invariant = require('invariant');
 const t = require('babel-types');
 
 const {
@@ -254,12 +253,11 @@ const RelayCodeGenVisitor = {
 function selectionsToMap(selections) {
   const map = new Map();
   selections.forEach(selection => {
-    invariant(
-      !map.has(selection.key),
-      'RelayFlowGenerator: Duplicate key: `%s`.',
+    const previousSel = map.get(selection.key);
+    map.set(
       selection.key,
+      previousSel ? mergeSelection(previousSel, selection) : selection,
     );
-    map.set(selection.key, selection);
   });
   return map;
 }

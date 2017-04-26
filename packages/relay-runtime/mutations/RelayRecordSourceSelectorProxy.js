@@ -12,16 +12,18 @@
 
 'use strict';
 
-const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-
 const invariant = require('invariant');
 
 const {getStorageKey} = require('RelayStoreUtils');
 
 import type {ConcreteLinkedField} from 'RelayConcreteNode';
-import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
-import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
-import type {RecordProxy, Selector, RecordSourceSelectorProxy} from 'RelayStoreTypes';
+import type {DataID} from 'RelayInternalTypes';
+import type {
+  RecordProxy,
+  Selector,
+  RecordSourceProxy,
+  RecordSourceSelectorProxy,
+} from 'RelayStoreTypes';
 
 /**
  * @internal
@@ -31,23 +33,36 @@ import type {RecordProxy, Selector, RecordSourceSelectorProxy} from 'RelayStoreT
  * complex arguments and it can be tedious to re-construct the correct sets of
  * arguments to pass to e.g. `getRoot().getLinkedRecord()`.
  */
-class RelayRecordSourceSelectorProxy
-  extends RelayRecordSourceProxy
-  implements RecordSourceSelectorProxy {
-
+class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
+  _recordSource: RecordSourceProxy;
   _selector: Selector;
 
   constructor(
-    mutator: RelayRecordSourceMutator,
-    selector: Selector,
-    handlerProvider?: ?HandlerProvider
+    recordSource: RecordSourceProxy,
+    selector: Selector
   ) {
-    super(mutator, handlerProvider);
+    this._recordSource = recordSource;
     this._selector = selector;
   }
 
-  _getRootField(fieldName: string, plural: boolean): ConcreteLinkedField {
-    const field = this._selector.node.selections.find(selection =>
+  create(dataID: DataID, typeName: string): RecordProxy {
+    return this._recordSource.create(dataID, typeName);
+  }
+
+  delete(dataID: DataID): void {
+    this._recordSource.delete(dataID);
+  }
+
+  get(dataID: DataID): ?RecordProxy {
+    return this._recordSource.get(dataID);
+  }
+
+  getRoot(): RecordProxy {
+    return this._recordSource.getRoot();
+  }
+
+  _getRootField(selector: Selector, fieldName: string, plural: boolean): ConcreteLinkedField {
+    const field = selector.node.selections.find(selection =>
       selection.kind === 'LinkedField' && selection.name === fieldName
     );
     invariant(
@@ -55,7 +70,7 @@ class RelayRecordSourceSelectorProxy
       'RelayRecordSourceSelectorProxy#getRootField(): Cannot find root ' +
       'field `%s`, no such field is defined on GraphQL document `%s`.',
       fieldName,
-      this._selector.node.name,
+      selector.node.name,
     );
     invariant(
       field.plural === plural,
@@ -68,13 +83,13 @@ class RelayRecordSourceSelectorProxy
   }
 
   getRootField(fieldName: string): ?RecordProxy {
-    const field = this._getRootField(fieldName, false);
+    const field = this._getRootField(this._selector, fieldName, false);
     const storageKey = getStorageKey(field, this._selector.variables);
     return this.getRoot().getLinkedRecord(storageKey);
   }
 
   getPluralRootField(fieldName: string): ?Array<?RecordProxy> {
-    const field = this._getRootField(fieldName, true);
+    const field = this._getRootField(this._selector, fieldName, true);
     const storageKey = getStorageKey(field, this._selector.variables);
     return this.getRoot().getLinkedRecords(storageKey);
   }

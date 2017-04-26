@@ -167,7 +167,6 @@ export interface RecordProxy {
  * the modifications.
  */
 export interface RecordSourceProxy {
-  commitPayload(selector: Selector, response: Object): void,
   create(dataID: DataID, typeName: string): RecordProxy,
   delete(dataID: DataID): void,
   get(dataID: DataID): ?RecordProxy,
@@ -236,7 +235,8 @@ export interface Environment extends CEnvironment<
     onCompleted?: ?(errors: ?Array<PayloadError>) => void,
     onError?: ?(error: Error) => void,
     operation: OperationSelector,
-    optimisticUpdater?: ?StoreUpdater,
+    optimisticResponse?: ?() => Object,
+    optimisticUpdater?: ?SelectorStoreUpdater,
     updater?: ?SelectorStoreUpdater,
     uploadables?: UploadableMap,
   |}): Disposable,

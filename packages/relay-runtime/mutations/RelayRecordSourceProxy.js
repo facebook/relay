@@ -14,6 +14,7 @@
 
 const RelayModernRecord = require('RelayModernRecord');
 const RelayRecordProxy = require('RelayRecordProxy');
+const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
 const normalizeRelayPayload = require('normalizeRelayPayload');
@@ -30,6 +31,7 @@ import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
 import type {
   RecordProxy,
   RecordSourceProxy,
+  RecordSourceSelectorProxy,
   Selector,
 } from 'RelayStoreTypes';
 
@@ -52,7 +54,10 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     this._proxies = {};
   }
 
-  commitPayload(selector: Selector, response: Object): void {
+  commitPayload(selector: Selector, response: ?Object): RecordSourceSelectorProxy {
+    if (!response) {
+      return new RelayRecordSourceSelectorProxy(this, selector);
+    }
     const {source, fieldPayloads} = normalizeRelayPayload(selector, response);
     const dataIDs = source.getRecordIDs();
     dataIDs.forEach((dataID) => {
@@ -83,6 +88,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
         handler.update(this, fieldPayload);
       });
     }
+    return new RelayRecordSourceSelectorProxy(this, selector);
   }
 
   create(dataID: DataID, typeName: string): RecordProxy {

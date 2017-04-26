@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule commitRelayModernMutation
+ * @providesModule commitRelayStaticMutation
  * @flow
  */
 
@@ -35,7 +35,7 @@ export type MutationConfig = {|
  * Higher-level helper function to execute a mutation against a specific
  * environment.
  */
-function commitRelayModernMutation(
+function commitRelayStaticMutation(
   environment: Environment,
   config: MutationConfig
 ): Disposable {
@@ -70,4 +70,4 @@ function commitRelayModernMutation(
   });
 }
 
-module.exports = commitRelayModernMutation;
+module.exports = commitRelayStaticMutation;

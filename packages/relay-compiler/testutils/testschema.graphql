@@ -56,6 +56,7 @@ type RouteStep {
 
 type Mutation {
   actorSubscribe(input: ActorSubscribeInput): ActorSubscribeResponsePayload
+  actorNameChange(input: ActorNameChangeInput): ActorNameChangePayload
   applicationRequestDeleteAll(input: ApplicationRequestDeleteAllInput): ApplicationRequestDeleteAllResponsePayload
   commentCreate(input: CommentCreateInput): CommentCreateResponsePayload
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
@@ -73,6 +74,11 @@ type Subscription {
 input ActorSubscribeInput {
   clientMutationId: String
   subscribeeId: ID
+}
+
+input ActorNameChangeInput {
+  clientMutationId: String
+  newName: String
 }
 
 input ApplicationRequestDeleteAllInput {
@@ -108,6 +114,11 @@ input UpdateAllSeenStateInput {
 type ActorSubscribeResponsePayload {
   clientMutationId: String
   subscribee: Actor
+}
+
+type ActorNameChangePayload {
+  clientMutationId: String
+  actor: Actor
 }
 
 type ApplicationRequestDeleteAllResponsePayload {

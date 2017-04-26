@@ -65,11 +65,12 @@ class RelayModernEnvironment implements Environment {
   }
 
   applyUpdate(updater: StoreUpdater): Disposable {
+    const optimisticUpdate = {storeUpdater: updater};
     const dispose = () => {
-      this._publishQueue.revertUpdate(updater);
+      this._publishQueue.revertUpdate(optimisticUpdate);
       this._publishQueue.run();
     };
-    this._publishQueue.applyUpdate(updater);
+    this._publishQueue.applyUpdate(optimisticUpdate);
     this._publishQueue.run();
     return {dispose};
   }
@@ -175,6 +176,7 @@ class RelayModernEnvironment implements Environment {
     onCompleted,
     onError,
     operation,
+    optimisticResponse,
     optimisticUpdater,
     updater,
     uploadables,
@@ -182,20 +184,27 @@ class RelayModernEnvironment implements Environment {
     onCompleted?: ?(errors: ?Array<PayloadError>) => void,
     onError?: ?(error: Error) => void,
     operation: OperationSelector,
-    optimisticUpdater?: ?StoreUpdater,
+    optimisticUpdater?: ?SelectorStoreUpdater,
+    optimisticResponse?: ?() => Object,
     updater?: ?SelectorStoreUpdater,
     uploadables?: UploadableMap,
   }): Disposable {
-    if (optimisticUpdater) {
-      this._publishQueue.applyUpdate(optimisticUpdater);
+    let hasOptimisticUpdate = optimisticResponse || optimisticUpdater;
+    const optimisticUpdate = {
+      selector: operation.fragment,
+      selectorStoreUpdater: optimisticUpdater,
+      response: optimisticResponse ? optimisticResponse() : null,
+    };
+    if (hasOptimisticUpdate) {
+      this._publishQueue.applyUpdate(optimisticUpdate);
       this._publishQueue.run();
     }
     let isDisposed = false;
     const dispose = () => {
-      if (optimisticUpdater) {
-        this._publishQueue.revertUpdate(optimisticUpdater);
+      if (hasOptimisticUpdate) {
+        this._publishQueue.revertUpdate(optimisticUpdate);
         this._publishQueue.run();
-        optimisticUpdater = null;
+        hasOptimisticUpdate = false;
       }
       isDisposed = true;
     };
@@ -208,8 +217,8 @@ class RelayModernEnvironment implements Environment {
       if (isDisposed) {
         return;
       }
-      if (optimisticUpdater) {
-        this._publishQueue.revertUpdate(optimisticUpdater);
+      if (hasOptimisticUpdate) {
+        this._publishQueue.revertUpdate(optimisticUpdate);
       }
       this._publishQueue.commitPayload(operation.fragment, payload, updater);
       this._publishQueue.run();
@@ -218,8 +227,8 @@ class RelayModernEnvironment implements Environment {
       if (isDisposed) {
         return;
       }
-      if (optimisticUpdater) {
-        this._publishQueue.revertUpdate(optimisticUpdater);
+      if (hasOptimisticUpdate) {
+        this._publishQueue.revertUpdate(optimisticUpdate);
       }
       this._publishQueue.run();
       onError && onError(error);

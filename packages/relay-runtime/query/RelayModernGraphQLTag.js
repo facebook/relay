@@ -35,7 +35,7 @@ export type GraphQLTaggedNode =
  * Runtime function to correspond to the `graphql` tagged template function.
  * All calls to this function should be transformed by the plugin.
  */
-function graphql(...args: Array<any>): GraphQLTaggedNode {
+function graphql(strings: Array<string>): GraphQLTaggedNode {
   invariant(
     false,
     'graphql: Unexpected invocation at runtime. Either the Babel transform ' +
@@ -47,7 +47,7 @@ function graphql(...args: Array<any>): GraphQLTaggedNode {
 /**
  * Variant of the `graphql` tag that enables experimental features.
  */
-graphql.experimental = function(...args: Array<any>): GraphQLTaggedNode {
+graphql.experimental = function(strings: Array<string>): GraphQLTaggedNode {
   invariant(
     false,
     'graphql.experimental: Unexpected invocation at runtime. Either the ' +

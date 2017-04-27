@@ -3,7 +3,7 @@ var Relay = require('react-relay');
 var x = Relay.QL`
   query {
     viewer {
-      __configs__ {
+      configs {
         edges {
           node {
             name
@@ -53,7 +53,7 @@ var x = function () {
         },
         type: 'ConfigsConnectionEdge'
       }],
-      fieldName: '__configs__',
+      fieldName: 'configs',
       kind: 'Field',
       metadata: {
         canHaveSubselections: true

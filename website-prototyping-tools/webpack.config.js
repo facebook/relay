@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
+'use strict';
 
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 const HTMLWebpackPlugin = require('html-webpack-plugin');

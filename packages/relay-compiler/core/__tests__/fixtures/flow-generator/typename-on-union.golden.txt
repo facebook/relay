@@ -1,0 +1,34 @@
+export type TypenameInside = {
+  __typename: "User";
+  firstName: ?string;
+} | {
+  __typename: "Page";
+  username: ?string;
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  __typename: "%other";
+};
+
+export type TypenameOutside = {
+  __typename: "User";
+  firstName: ?string;
+} | {
+  __typename: "Page";
+  username: ?string;
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  __typename: "%other";
+};
+
+export type TypenameOutsideWithAbstractType = {
+  __typename: string;
+  username?: ?string;
+  address?: ?{
+    city: ?string;
+    country: ?string;
+    street?: ?string;
+  };
+  firstName?: ?string;
+};

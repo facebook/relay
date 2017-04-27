@@ -6,15 +6,17 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
+'use strict';
 
 /* eslint-disable no-unused-vars, no-eval */
 
 import './RelayPlayground.css';
 import 'codemirror/mode/javascript/javascript';
 import React from 'react';
+import PropTypes from 'prop-types';
 import Codemirror from 'react-codemirror';
 import ReactDOM from 'react-dom';
-import Relay from 'react-relay'; window.Relay = Relay;
+import Relay from 'react-relay';window.Relay = Relay;
 import RelayLocalSchema from 'relay-local-schema';
 
 import babelRelayPlaygroundPlugin from './babelRelayPlaygroundPlugin';
@@ -27,8 +29,6 @@ import getBabelRelayPlugin from 'babel-relay-plugin';
 import {transform} from 'babel-core';
 import {introspectionQuery} from 'graphql/utilities';
 import {graphql} from 'graphql';
-
-const {PropTypes} = React;
 
 const CODE_EDITOR_OPTIONS = {
   extraKeys: {
@@ -189,7 +189,7 @@ export default class RelayPlayground extends React.Component {
       this._updateApp(appSource);
     }
   }, 300, {trailing: true})
-  _updateApp = (appSource) => {
+  _updateApp(appSource) {
     clearTimeout(this._errorReporterTimeout);
     // We're running in a browser. Create a require() shim to catch any imports.
     const require = (path) => {
@@ -266,10 +266,10 @@ export default class RelayPlayground extends React.Component {
       this.props.onSchemaSourceChange(newSource);
     }
   }
-  _updateEditTarget = (editTarget) => {
+  _updateEditTarget(editTarget) {
     this.setState({editTarget});
   }
-  _updateSchema = (schemaSource, appSource) => {
+  _updateSchema(schemaSource, appSource) {
     try {
       var Schema = evalSchema(schemaSource);
     } catch (error) {

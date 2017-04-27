@@ -24,10 +24,15 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 ## C
 
 - [chloe + isabel](https://www.chloeandisabel.com)
+- [Collibra](https://www.collibra.com)
 
 ## F
 
 - [Facebook](https://www.facebook.com/)
+
+## H
+
+- [Hudl](https://www.hudl.com/)
 
 ## J
 
@@ -37,6 +42,7 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 ## M
 
 - [M1 Finance](https://www.m1finance.com/)
+- [Mixcloud](https://www.mixcloud.com/)
 
 ## N
 
@@ -44,6 +50,7 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 
 ## O
 
+- [ONEHOPE Wine](https://beta.onehopewine.com)
 - [OpenGov](http://opengov.com/)
 
 ## P
@@ -61,3 +68,7 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 - [ThoughtMachine](https://thoughtmachine.net/)
 - [Twitter](https://fabric.io/blog/building-fabric-mission-control-with-graphql-and-relay)
 - [Two-N](http://two-n.com/)
+
+## Z
+
+- [Zzish](https://zzish.com/)

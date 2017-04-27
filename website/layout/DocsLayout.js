@@ -12,29 +12,31 @@
 'use strict';
 
 const DocsSidebar = require('DocsSidebar');
+const Footer = require('Footer');
 const Marked = require('Marked');
 const React = require('React');
 const Site = require('Site');
+
 const DocsLayout = React.createClass({
   render: function() {
     const metadata = this.props.metadata;
     const content = this.props.children;
-    const title = metadata.title + ' | Relay Docs';
+    const title = metadata.title + ' - Relay Docs';
     return (
       <Site section="docs" title={title}>
         <section className="content wrap documentationContent">
-          <DocsSidebar metadata={metadata} />
           <div className="inner-content">
             <a id="content" />
-            <a className="edit-page-link" href={'https://github.com/facebook/relay/blob/master/docs/' + metadata.source} target="_blank">Edit on GitHub</a>
             <h1>{metadata.title}</h1>
             <Marked>{content}</Marked>
             <div className="docs-prevnext">
-              {metadata.previous && <a className="docs-prev" href={metadata.previous + '.html#content'}>&larr; Prev</a>}
-              {metadata.next && <a className="docs-next" href={metadata.next + '.html#content'}>Next &rarr;</a>}
+              {metadata.previous && <a className="docs-prev" href={metadata.previous + '.html'}>&larr; Prev</a>}
+              {metadata.next && <a className="docs-next" href={metadata.next + '.html'}>Next &rarr;</a>}
             </div>
           </div>
+          <DocsSidebar metadata={metadata} />
         </section>
+        <Footer metadata={metadata} />
       </Site>
     );
   },

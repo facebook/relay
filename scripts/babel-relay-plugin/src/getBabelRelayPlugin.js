@@ -12,14 +12,19 @@
 
 'use strict';
 
-const computeLocation = require('./computeLocation');
-const {utilities_buildClientSchema: {buildClientSchema}} = require('./GraphQL');
-import type {Validator} from './RelayQLTransformer';
 const RelayQLTransformer = require('./RelayQLTransformer');
 const RelayTransformError = require('./RelayTransformError');
-const babelAdapter = require('./babelAdapter');
+
+const computeLocation = require('./computeLocation');
 const invariant = require('./invariant');
-const util = require('util');
+const util = require('./util');
+
+const {
+  buildASTSchema,
+  buildClientSchema,
+} = require('graphql');
+
+import type {Validator} from './RelayQLTransformer';
 
 const PROVIDES_MODULE = 'providesModule';
 const RELAY_QL_GENERATED = 'RelayQL_GENERATED';
@@ -56,8 +61,9 @@ function getBabelRelayPlugin(
     validator: options.validator,
   });
 
-  return function({Plugin, types, version}) {
-    return babelAdapter(Plugin, types, version, 'relay-query', t => ({
+  return function(babel) {
+    const t = babel.types;
+    return {
       visitor: {
         /**
          * Extract the module name from `@providesModule`.
@@ -141,18 +147,20 @@ function getBabelRelayPlugin(
                 '\n-- Relay Transform Error -- %s --\n',
                 basename
               );
-              const sourceLine = node.quasi.loc.start.line;
-              const relative_loc = computeLocation(error.loc);
-              if (relative_loc) {
+              const sourceLine = node.quasi.loc && node.quasi.loc.start.line;
+              const relativeLocation = error.loc && computeLocation(error.loc);
+              if (sourceLine && relativeLocation) {
                 warning([
                   'Within RelayQLDocument ' + filename + ':' + sourceLine,
                   '> ',
-                  '> line ' + (relative_loc.line) + ' (approximate)',
-                  '> ' + relative_loc.source,
-                  '> ' + ' '.repeat(relative_loc.column - 1) + '^^^',
+                  '> line ' + (relativeLocation.line) + ' (approximate)',
+                  '> ' + relativeLocation.source,
+                  '> ' + ' '.repeat(relativeLocation.column - 1) + '^^^',
                   'Error: ' + error.message,
                   'Stack: ' + error.stack,
                 ].join('\n'));
+              } else {
+                warning(error.message);
               }
             } else {
               // Print a console warning and replace the code with a function
@@ -232,15 +240,10 @@ function getBabelRelayPlugin(
               console.error(error.stack);
             }
           }
-          // For babel 5 compatibility
-          if (state.isLegacyState) {
-            return result; // eslint-disable-line consistent-return
-          } else {
-            path.replaceWith(result);
-          }
+          path.replaceWith(result);
         },
       },
-    }));
+    };
   };
 }
 
@@ -248,13 +251,17 @@ function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
   const introspection = typeof schemaProvider === 'function' ?
     schemaProvider() :
     schemaProvider;
-  invariant(
-    typeof introspection === 'object' && introspection &&
-    typeof introspection.__schema === 'object' && introspection.__schema,
+  if (typeof introspection.__schema === 'object' && introspection.__schema) {
+    return buildClientSchema(introspection);
+  } else if (introspection.kind && introspection.kind === 'Document') {
+    return buildASTSchema(introspection);
+  }
+
+  throw new Error(
     'Invalid introspection data supplied to `getBabelRelayPlugin()`. The ' +
-    'resulting schema is not an object with a `__schema` property.'
+    'resulting schema is not an object with a `__schema` property or ' +
+    'a schema IDL language.'
   );
-  return buildClientSchema(introspection);
 }
 
 module.exports = getBabelRelayPlugin;

@@ -1,0 +1,4 @@
+export type InlineFragment = {
+  id: string;
+  profilePicture: ?{ };
+};

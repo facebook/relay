@@ -1,0 +1,8 @@
+fragment TestFragment on User @argumentDefinitions(
+  id: {type: "ID", nonNull: true}
+) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+  ...Foo @arguments(localId: $id)
+}

@@ -1,0 +1,65 @@
+{
+  "kind": "Root",
+  "operation": "query",
+  "metadata": {
+    "export": {
+      "id": [
+        "node",
+        "id"
+      ]
+    }
+  },
+  "name": "TestQuery",
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgumentDefinition",
+      "metadata": null,
+      "name": "id",
+      "defaultValue": null,
+      "type": "ID!"
+    },
+    {
+      "kind": "LocalArgumentDefinition",
+      "metadata": null,
+      "name": "count",
+      "defaultValue": null,
+      "type": "Int!"
+    }
+  ],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Argument",
+          "metadata": null,
+          "name": "id",
+          "value": {
+            "kind": "Variable",
+            "metadata": null,
+            "variableName": "id"
+          },
+          "type": "ID"
+        }
+      ],
+      "directives": [],
+      "metadata": null,
+      "name": "node",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "metadata": null,
+          "name": "id",
+          "type": "ID!"
+        }
+      ],
+      "type": "Node"
+    }
+  ],
+  "type": "Query"
+}

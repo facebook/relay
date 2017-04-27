@@ -2,7 +2,7 @@
 id: guides-ready-state
 title: Ready State
 layout: docs
-category: Guides
+category: Relay Classic Guides
 permalink: docs/guides-ready-state.html
 next: guides-mutations
 ---

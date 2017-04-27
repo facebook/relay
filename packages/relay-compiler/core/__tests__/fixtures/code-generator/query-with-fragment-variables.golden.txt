@@ -1,0 +1,188 @@
+{
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "id",
+      "type": "ID!",
+      "defaultValue": null
+    },
+    {
+      "kind": "LocalArgument",
+      "name": "cond",
+      "type": "Boolean!",
+      "defaultValue": null
+    },
+    {
+      "kind": "LocalArgument",
+      "name": "pictureSize",
+      "type": "[Int]",
+      "defaultValue": [
+        128
+      ]
+    }
+  ],
+  "kind": "Root",
+  "name": "TestQuery",
+  "operation": "query",
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "id",
+          "type": "ID"
+        }
+      ],
+      "concreteType": null,
+      "name": "node",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": null,
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "kind": "FragmentSpread",
+          "name": "Profile",
+          "args": [
+            {
+              "kind": "Variable",
+              "name": "pictureSize",
+              "variableName": "pictureSize",
+              "type": null
+            }
+          ]
+        },
+        {
+          "kind": "Condition",
+          "passingValue": true,
+          "condition": "cond",
+          "selections": [
+            {
+              "kind": "FragmentSpread",
+              "name": "ProfileFriends",
+              "args": null
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "pictureSize",
+      "type": null
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ProfileFriends",
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "first",
+          "value": 10,
+          "type": "Int"
+        }
+      ],
+      "concreteType": "FriendsConnection",
+      "name": "friends",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "args": null,
+          "concreteType": "FriendsEdge",
+          "name": "edges",
+          "plural": true,
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "name": "node",
+              "plural": false,
+              "selections": [
+                {
+                  "kind": "FragmentSpread",
+                  "name": "Profile",
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "pictureSize",
+                      "variableName": "pictureSize",
+                      "type": null
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "storageKey": "friends{\"first\":10}"
+    }
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "pictureSize",
+      "type": "[Int]",
+      "defaultValue": null
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Profile",
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "pictureSize",
+          "type": "[Int]"
+        }
+      ],
+      "concreteType": "Image",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": null,
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}

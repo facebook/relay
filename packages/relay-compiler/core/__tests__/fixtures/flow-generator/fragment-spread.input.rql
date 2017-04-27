@@ -1,0 +1,7 @@
+fragment InlineFragment on Node {
+  id
+  ...OtherFragment
+  profilePicture {
+    ...PictureFragment
+  }
+}

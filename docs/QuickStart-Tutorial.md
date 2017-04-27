@@ -99,7 +99,7 @@ import {
 
 At this point, you can delete everything up until `queryType` in `./data/schema.js`.
 
-Next, let's define a node interface and type. We need only provide a way for Relay to map from an object to the GraphQL type associated with that object, and from a global ID to the object it points to:
+Next, let's define a node interface and type. We only need to provide a way for Relay to map from an object to the GraphQL type associated with that object, and from a global ID to the object it points to:
 
 ```
 const {nodeInterface, nodeField} = nodeDefinitions(

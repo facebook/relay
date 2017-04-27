@@ -8,16 +8,17 @@
  *
  * @fullSyntaxTransform
  */
+'use strict';
 
 /**
  * Generates `testschema.rfc.json` from `testschema.rfc.graphql`.
  */
 
 const fs = require('fs');
-const path = require('path');
-const language = require('graphql/language');
-const utilities = require('graphql/utilities');
 const graphql = require('graphql');
+const language = require('graphql/language');
+const path = require('path');
+const utilities = require('graphql/utilities');
 
 const TESTS_DIR = path.resolve(__dirname, '..', '__tests__');
 

@@ -1,0 +1,11 @@
+query BestFriendsQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...BestFriends
+  }
+}
+
+fragment BestFriends on User {
+  id
+}

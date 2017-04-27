@@ -1,0 +1,13 @@
+query UnionQuery {
+  maybeNode {
+    ... on NonNode {
+      name
+    }
+    ... on Story {
+      id
+      body {
+        text
+      }
+    }
+  }
+}

@@ -12,7 +12,7 @@
 
 'use strict';
 
-const util = require('util');
+const util = require('./util');
 
 function invariant(
   condition: mixed,

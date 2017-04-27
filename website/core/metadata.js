@@ -8,25 +8,34 @@ module.exports = {
       "id": "api-reference-relay-container",
       "title": "RelayContainer",
       "layout": "docs",
-      "category": "API Reference",
+      "category": "Relay Classic API",
       "permalink": "docs/api-reference-relay-container.html",
       "next": "api-reference-relay-route",
       "source": "APIReference-Container.md"
     },
     {
+      "id": "api-reference-relay-graphql-mutation",
+      "title": "Relay.GraphQLMutation",
+      "layout": "docs",
+      "category": "Relay Classic API",
+      "permalink": "docs/api-reference-relay-graphql-mutation.html",
+      "next": "api-reference-relay-proptypes",
+      "source": "APIReference-GraphQLMutation.md"
+    },
+    {
       "id": "api-reference-relay-mutation",
       "title": "Relay.Mutation",
       "layout": "docs",
-      "category": "API Reference",
+      "category": "Relay Classic API",
       "permalink": "docs/api-reference-relay-mutation.html",
-      "next": "api-reference-relay-proptypes",
+      "next": "api-reference-relay-graphql-mutation",
       "source": "APIReference-Mutation.md"
     },
     {
       "id": "api-reference-relay-proptypes",
       "title": "Relay.PropTypes",
       "layout": "docs",
-      "category": "API Reference",
+      "category": "Relay Classic API",
       "permalink": "docs/api-reference-relay-proptypes.html",
       "next": "api-reference-relay-store",
       "source": "APIReference-PropTypes.md"
@@ -35,7 +44,7 @@ module.exports = {
       "id": "api-reference-relay-ql",
       "title": "Relay.QL",
       "layout": "docs",
-      "category": "API Reference",
+      "category": "Relay Classic API",
       "permalink": "docs/api-reference-relay-ql.html",
       "next": "api-reference-relay-mutation",
       "source": "APIReference-QL.md"
@@ -44,7 +53,7 @@ module.exports = {
       "id": "api-reference-relay",
       "title": "Relay",
       "layout": "docs",
-      "category": "API Reference",
+      "category": "Relay Classic API",
       "permalink": "docs/api-reference-relay.html",
       "next": "api-reference-relay-container",
       "source": "APIReference-Relay.md"
@@ -53,7 +62,7 @@ module.exports = {
       "id": "api-reference-relay-renderer",
       "title": "Relay.Renderer",
       "layout": "docs",
-      "category": "API Reference",
+      "category": "Relay Classic API",
       "permalink": "docs/api-reference-relay-renderer.html",
       "next": "api-reference-relay-root-container",
       "source": "APIReference-Renderer.md"
@@ -62,7 +71,7 @@ module.exports = {
       "id": "api-reference-relay-root-container",
       "title": "Relay.RootContainer",
       "layout": "docs",
-      "category": "API Reference",
+      "category": "Relay Classic API",
       "permalink": "docs/api-reference-relay-root-container.html",
       "next": "api-reference-relay-ql",
       "source": "APIReference-RootContainer.md"
@@ -71,7 +80,7 @@ module.exports = {
       "id": "api-reference-relay-route",
       "title": "Relay.Route",
       "layout": "docs",
-      "category": "API Reference",
+      "category": "Relay Classic API",
       "permalink": "docs/api-reference-relay-route.html",
       "next": "api-reference-relay-renderer",
       "source": "APIReference-Route.md"
@@ -80,7 +89,7 @@ module.exports = {
       "id": "api-reference-relay-store",
       "title": "Relay.Store",
       "layout": "docs",
-      "category": "API Reference",
+      "category": "Relay Classic API",
       "permalink": "docs/api-reference-relay-store.html",
       "next": "interfaces-relay-network-layer",
       "source": "APIReference-Store.md"
@@ -91,7 +100,6 @@ module.exports = {
       "layout": "docs",
       "category": "GraphQL",
       "permalink": "docs/graphql-connections.html",
-      "indent": true,
       "next": "graphql-mutations",
       "source": "GraphQL-Connections.md"
     },
@@ -101,7 +109,6 @@ module.exports = {
       "layout": "docs",
       "category": "GraphQL",
       "permalink": "docs/graphql-further-reading.html",
-      "indent": true,
       "next": "api-reference-relay",
       "source": "GraphQL-FurtherReading.md"
     },
@@ -111,7 +118,6 @@ module.exports = {
       "layout": "docs",
       "category": "GraphQL",
       "permalink": "docs/graphql-mutations.html",
-      "indent": true,
       "next": "graphql-further-reading",
       "source": "GraphQL-Mutations.md"
     },
@@ -121,7 +127,6 @@ module.exports = {
       "layout": "docs",
       "category": "GraphQL",
       "permalink": "docs/graphql-object-identification.html",
-      "indent": true,
       "next": "graphql-connections",
       "source": "GraphQL-ObjectIdentification.md"
     },
@@ -138,7 +143,7 @@ module.exports = {
       "id": "guides-babel-plugin",
       "title": "Babel Relay Plugin",
       "layout": "docs",
-      "category": "Guides",
+      "category": "Relay Classic Guides",
       "permalink": "docs/guides-babel-plugin.html",
       "next": "graphql-relay-specification",
       "source": "Guides-BabelPlugin.md"
@@ -147,7 +152,7 @@ module.exports = {
       "id": "guides-containers",
       "title": "Containers",
       "layout": "docs",
-      "category": "Guides",
+      "category": "Relay Classic Guides",
       "permalink": "docs/guides-containers.html",
       "next": "guides-routes",
       "source": "Guides-Containers.md"
@@ -156,7 +161,7 @@ module.exports = {
       "id": "guides-mutations",
       "title": "Mutations",
       "layout": "docs",
-      "category": "Guides",
+      "category": "Relay Classic Guides",
       "permalink": "docs/guides-mutations.html",
       "next": "guides-network-layer",
       "source": "Guides-Mutations.md"
@@ -165,7 +170,7 @@ module.exports = {
       "id": "guides-network-layer",
       "title": "Network Layer",
       "layout": "docs",
-      "category": "Guides",
+      "category": "Relay Classic Guides",
       "permalink": "docs/guides-network-layer.html",
       "next": "guides-babel-plugin",
       "source": "Guides-NetworkLayer.md"
@@ -174,7 +179,7 @@ module.exports = {
       "id": "guides-ready-state",
       "title": "Ready State",
       "layout": "docs",
-      "category": "Guides",
+      "category": "Relay Classic Guides",
       "permalink": "docs/guides-ready-state.html",
       "next": "guides-mutations",
       "source": "Guides-ReadyState.md"
@@ -183,7 +188,7 @@ module.exports = {
       "id": "guides-root-container",
       "title": "Root Container",
       "layout": "docs",
-      "category": "Guides",
+      "category": "Relay Classic Guides",
       "permalink": "docs/guides-root-container.html",
       "next": "guides-ready-state",
       "source": "Guides-RootContainer.md"
@@ -192,7 +197,7 @@ module.exports = {
       "id": "guides-routes",
       "title": "Routes",
       "layout": "docs",
-      "category": "Guides",
+      "category": "Relay Classic Guides",
       "permalink": "docs/guides-routes.html",
       "next": "guides-root-container",
       "source": "Guides-Routes.md"
@@ -201,9 +206,8 @@ module.exports = {
       "id": "interfaces-relay-mutation-request",
       "title": "RelayMutationRequest",
       "layout": "docs",
-      "category": "Interfaces",
+      "category": "Relay Classic Interfaces",
       "permalink": "docs/interfaces-relay-mutation-request.html",
-      "indent": true,
       "next": "interfaces-relay-query-request",
       "source": "Interfaces-MutationRequest.md"
     },
@@ -211,7 +215,7 @@ module.exports = {
       "id": "interfaces-relay-network-layer",
       "title": "RelayNetworkLayer",
       "layout": "docs",
-      "category": "Interfaces",
+      "category": "Relay Classic Interfaces",
       "permalink": "docs/interfaces-relay-network-layer.html",
       "next": "interfaces-relay-mutation-request",
       "source": "Interfaces-NetworkLayer.md"
@@ -220,10 +224,162 @@ module.exports = {
       "id": "interfaces-relay-query-request",
       "title": "RelayQueryRequest",
       "layout": "docs",
-      "category": "Interfaces",
-      "indent": true,
+      "category": "Relay Classic Interfaces",
       "permalink": "docs/interfaces-relay-query-request.html",
       "source": "Interfaces-QueryRequest.md"
+    },
+    {
+      "id": "api-cheatsheet",
+      "title": "API Cheatsheet",
+      "layout": "docs",
+      "category": "Relay Compat",
+      "permalink": "docs/api-cheatsheet.html",
+      "next": "guides-containers",
+      "source": "APICheatsheet.md"
+    },
+    {
+      "id": "babel-plugin-relay",
+      "title": "babel-plugin-relay",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/babel-plugin-relay.html",
+      "next": "relay-compiler",
+      "source": "BabelPluginRelay.md"
+    },
+    {
+      "id": "compatibility-cheatsheet",
+      "title": "Compatibility Cheatsheet",
+      "layout": "docs",
+      "category": "Relay Compat",
+      "permalink": "docs/compatibility-cheatsheet.html",
+      "next": "api-cheatsheet",
+      "source": "CompatibilityCheatsheet.md"
+    },
+    {
+      "id": "conversion-playbook",
+      "title": "Conversion Playbook",
+      "layout": "docs",
+      "category": "Relay Compat",
+      "permalink": "docs/conversion-playbook.html",
+      "next": "conversion-scripts",
+      "source": "ConversionPlaybook.md"
+    },
+    {
+      "id": "conversion-scripts",
+      "title": "Conversion Scripts",
+      "layout": "docs",
+      "category": "Relay Compat",
+      "permalink": "docs/conversion-scripts.html",
+      "next": "upgrading-setvariables",
+      "source": "ConversionScripts.md"
+    },
+    {
+      "id": "relay-environment",
+      "title": "The Relay \"Environment\"",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/relay-environment.html",
+      "next": "QueryRenderer",
+      "source": "Environment.md"
+    },
+    {
+      "id": "FragmentContainer",
+      "title": "FragmentContainer",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/FragmentContainer.html",
+      "next": "PaginationContainer",
+      "source": "FragmentContainer.md"
+    },
+    {
+      "id": "relay-modern",
+      "title": "Introduction to Relay Modern",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/relay-modern.html",
+      "next": "new-in-relay-modern",
+      "source": "Introduction.md"
+    },
+    {
+      "id": "new-in-relay-modern",
+      "title": "New in Relay Modern",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/new-in-relay-modern.html",
+      "next": "relay-environment",
+      "source": "NewInRelayModern.md"
+    },
+    {
+      "id": "PaginationContainer",
+      "title": "PaginationContainer",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/PaginationContainer.html",
+      "next": "RefetchContainer",
+      "source": "PaginationContainer.md"
+    },
+    {
+      "id": "QueryRenderer",
+      "title": "QueryRenderer",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/QueryRenderer.html",
+      "next": "FragmentContainer",
+      "source": "QueryRenderer.md"
+    },
+    {
+      "id": "RefetchContainer",
+      "title": "RefetchContainer",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/RefetchContainer.html",
+      "next": "routing",
+      "source": "RefetchContainer.md"
+    },
+    {
+      "id": "relay-compat",
+      "title": "Compatibility Mode",
+      "layout": "docs",
+      "category": "Relay Compat",
+      "permalink": "docs/relay-compat.html",
+      "next": "conversion-playbook",
+      "source": "RelayCompat.md"
+    },
+    {
+      "id": "relay-compiler",
+      "title": "Relay Compiler",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/relay-compiler.html",
+      "next": "relay-compat",
+      "source": "RelayCompiler.md"
+    },
+    {
+      "id": "routing",
+      "title": "Routing",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/routing.html",
+      "next": "mutations",
+      "source": "Routing.md"
+    },
+    {
+      "id": "mutations",
+      "title": "Mutations",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/mutations.html",
+      "next": "babel-plugin-relay",
+      "source": "SimpleMutationsUpdatingAField.md"
+    },
+    {
+      "id": "upgrading-setvariables",
+      "title": "Upgrading setVariables",
+      "layout": "docs",
+      "category": "Relay Compat",
+      "permalink": "docs/upgrading-setvariables.html",
+      "next": "compatibility-cheatsheet",
+      "source": "UpgradingSetVariables.md"
     },
     {
       "id": "getting-started",
@@ -233,6 +389,15 @@ module.exports = {
       "permalink": "docs/getting-started.html",
       "next": "tutorial",
       "source": "QuickStart-GettingStarted.md"
+    },
+    {
+      "id": "getting-started",
+      "title": "Começando",
+      "layout": "docs",
+      "category": "Quick Start",
+      "permalink": "docs/getting-started.pt-br.html",
+      "next": "tutorial",
+      "source": "QuickStart-GettingStarted.pt-br.md"
     },
     {
       "id": "getting-started",
@@ -294,7 +459,7 @@ module.exports = {
       "layout": "docs",
       "category": "Quick Start",
       "permalink": "docs/videos.html",
-      "next": "guides-containers",
+      "next": "relay-modern",
       "source": "QuickStart-Videos.md"
     }
   ]

@@ -1,0 +1,22 @@
+query EmptyQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...SkippedFragment
+  }
+}
+
+query TestQuery {
+  viewer {
+    actor {
+      name
+      ...SkippedFragment
+    }
+  }
+}
+
+fragment SkippedFragment on User @argumentDefinitions(
+  cond: {type: "Boolean!", defaultValue: false}
+) {
+  id @include(if: $cond)
+}

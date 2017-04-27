@@ -16,7 +16,8 @@ const React = require('React');
 
 const Site = React.createClass({
   render: function() {
-    const title = this.props.title ? this.props.title : 'Relay | A JavaScript framework for building data-driven React applications';
+    const metadata = this.props.metadata;
+    const title = this.props.title ? this.props.title : 'Relay - A JavaScript framework for building data-driven React applications';
     return (
       <html>
         <head>
@@ -26,7 +27,7 @@ const Site = React.createClass({
           <meta name="viewport" content="width=device-width" />
           <meta property="og:title" content={title} />
           <meta property="og:type" content="website" />
-          <meta property="og:url" content="http://facebook.github.io/relay/index.html" />
+          <meta property="og:url" content="http://facebook.github.io/relay/" />
           <meta property="og:description" content="A JavaScript framework for building data-driven React applications" />
 
           <link rel="shortcut icon" href="/relay/img/favicon.png" />
@@ -49,10 +50,6 @@ const Site = React.createClass({
             </div>
 
             {this.props.children}
-
-            <footer className="wrap">
-              <div className="right">©2016 Facebook Inc.</div>
-            </footer>
           </div>
 
           <div id="fb-root" />

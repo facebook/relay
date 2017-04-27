@@ -13,7 +13,7 @@
 
 'use strict';
 
-var util = require('util');
+var util = require('./util');
 
 function invariant(condition, format) {
   if (!condition) {

@@ -1,0 +1,23 @@
+query TestQuery(
+  $id: ID!
+  $size: Int!
+) {
+  node(id: $id) {
+    ... on User {
+      id
+      firstName
+      profilePicture(size: 64) {
+        uri
+      }
+      aliasedPic: profilePicture(size: 64) {
+        uri
+      }
+      varPic: profilePicture(size: $size) {
+        uri
+      }
+      lastName
+    }
+    id
+    __typename
+  }
+}

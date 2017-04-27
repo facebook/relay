@@ -1,0 +1,4 @@
+var Relay = require('react-relay');
+var x = function () {
+  throw new Error('Relay transform error ``You supplied a directive named `if`, but no such directive exists.`` in file `queryWithBadDirectiveArgs.input.txt`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+}();

@@ -17,24 +17,44 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var GraphQL = require('./GraphQL');
-var formatError = GraphQL.error.formatError;
-var parser = GraphQL.language_parser;
-var Source = GraphQL.language_source.Source;
-var validate = GraphQL.validation.validate;
-
-var _require = require('./RelayQLAST');
-
-var RelayQLDefinition = _require.RelayQLDefinition;
-var RelayQLFragment = _require.RelayQLFragment;
-var RelayQLMutation = _require.RelayQLMutation;
-var RelayQLQuery = _require.RelayQLQuery;
-var RelayQLSubscription = _require.RelayQLSubscription;
-
 var RelayQLPrinter = require('./RelayQLPrinter');
 
 var invariant = require('./invariant');
-var util = require('util');
+var util = require('./util');
+
+var _require = require('./RelayQLAST'),
+    RelayQLDefinition = _require.RelayQLDefinition,
+    RelayQLFragment = _require.RelayQLFragment,
+    RelayQLMutation = _require.RelayQLMutation,
+    RelayQLQuery = _require.RelayQLQuery,
+    RelayQLSubscription = _require.RelayQLSubscription;
+
+var _require2 = require('graphql'),
+    formatError = _require2.formatError,
+    parse = _require2.parse,
+    Source = _require2.Source,
+    validate = _require2.validate;
+
+var GraphQLWrapper = {
+  error: require('graphql/error'),
+  language: require('graphql/language'),
+  language_parser: require('graphql/language/parser'),
+  language_source: require('graphql/language/source'),
+  type: require('graphql/type'),
+  type_definition: require('graphql/type/definition'),
+  type_directives: require('graphql/type/directives'),
+  type_introspection: require('graphql/type/introspection'),
+  type_scalars: require('graphql/type/scalars'),
+  utilities: require('graphql/utilities'),
+  utilities_buildClientSchema: require('graphql/utilities/buildClientSchema'),
+  utilities_buildASTSchema: require('graphql/utilities/buildASTSchema'),
+  validation: require('graphql/validation'),
+  validation_rules_KnownFragmentNames: require('graphql/validation/rules/KnownFragmentNames'),
+  validation_rules_NoUndefinedVariables: require('graphql/validation/rules/NoUndefinedVariables'),
+  validation_rules_NoUnusedFragments: require('graphql/validation/rules/NoUnusedFragments'),
+  validation_rules_ScalarLeafs: require('graphql/validation/rules/ScalarLeafs'),
+  validation_validate: require('graphql/validation/validate')
+};
 
 /**
  * Transforms a TemplateLiteral node into a RelayQLDefinition, which is then
@@ -52,11 +72,10 @@ var RelayQLTransformer = function () {
     key: 'transform',
     value: function transform(t, // Babel
     node, options) {
-      var _processTemplateLiter = this.processTemplateLiteral(node, options.documentName);
-
-      var substitutions = _processTemplateLiter.substitutions;
-      var templateText = _processTemplateLiter.templateText;
-      var variableNames = _processTemplateLiter.variableNames;
+      var _processTemplateLiter = this.processTemplateLiteral(node, options.documentName),
+          substitutions = _processTemplateLiter.substitutions,
+          templateText = _processTemplateLiter.templateText,
+          variableNames = _processTemplateLiter.variableNames;
 
       var documentText = this.processTemplateText(templateText, options);
       var definition = this.processDocumentText(documentText, options);
@@ -105,8 +124,8 @@ var RelayQLTransformer = function () {
   }, {
     key: 'processTemplateText',
     value: function processTemplateText(templateText, _ref) {
-      var documentName = _ref.documentName;
-      var propName = _ref.propName;
+      var documentName = _ref.documentName,
+          propName = _ref.propName;
 
       var pattern = /^(fragment|mutation|query|subscription)\s*(\w*)?([\s\S]*)/;
       var matches = pattern.exec(templateText);
@@ -130,10 +149,10 @@ var RelayQLTransformer = function () {
   }, {
     key: 'processDocumentText',
     value: function processDocumentText(documentText, _ref2) {
-      var documentName = _ref2.documentName;
-      var enableValidation = _ref2.enableValidation;
+      var documentName = _ref2.documentName,
+          enableValidation = _ref2.enableValidation;
 
-      var document = parser.parse(new Source(documentText, documentName));
+      var document = parse(new Source(documentText, documentName));
       var validationErrors = enableValidation ? this.validateDocument(document, documentName) : null;
       if (validationErrors) {
         var error = new Error(util.format('You supplied a GraphQL document named `%s` with validation errors.', documentName));
@@ -175,11 +194,7 @@ var RelayQLTransformer = function () {
       var validator = this.options.validator;
       var validationErrors = void 0;
       if (validator) {
-        var _validator = validator(GraphQL);
-
-        var _validate = _validator.validate;
-
-        validationErrors = _validate(this.schema, document);
+        validationErrors = validator(GraphQLWrapper).validate(this.schema, document);
       } else {
         var rules = [require('graphql/validation/rules/ArgumentsOfCorrectType').ArgumentsOfCorrectType, require('graphql/validation/rules/DefaultValuesOfCorrectType').DefaultValuesOfCorrectType, require('graphql/validation/rules/FieldsOnCorrectType').FieldsOnCorrectType, require('graphql/validation/rules/FragmentsOnCompositeTypes').FragmentsOnCompositeTypes, require('graphql/validation/rules/KnownArgumentNames').KnownArgumentNames, require('graphql/validation/rules/KnownTypeNames').KnownTypeNames, require('graphql/validation/rules/PossibleFragmentSpreads').PossibleFragmentSpreads, require('graphql/validation/rules/VariablesInAllowedPosition').VariablesInAllowedPosition];
         if (!isMutation) {

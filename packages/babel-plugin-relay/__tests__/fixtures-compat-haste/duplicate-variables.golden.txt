@@ -1,0 +1,55 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfilePic = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
+  user: {
+    modern: function () {
+      return require('CompatProfile_user.graphql');
+    },
+    classic: function () {
+      const RelayQL_GENERATED = require('RelayQL_GENERATED');
+
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [{
+          defaultValue: null,
+          kind: 'LocalArgument',
+          name: 'scale'
+        }],
+        node: function () {
+          throw new Error('Relay transform error ``You supplied a field named `profile_picture` on type `User`, but no such field exists on that type.`` in file `unknown`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+        }()
+      };
+    }
+  },
+  user2: {
+    modern: function () {
+      return require('CompatProfile_user2.graphql');
+    },
+    classic: function () {
+      const RelayQL_GENERATED = require('RelayQL_GENERATED');
+
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [{
+          defaultValue: null,
+          kind: 'LocalArgument',
+          name: 'scale'
+        }],
+        node: function () {
+          throw new Error('Relay transform error ``You supplied a field named `profile_picture` on type `User`, but no such field exists on that type.`` in file `unknown`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+        }()
+      };
+    }
+  }
+});

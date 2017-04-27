@@ -35,7 +35,7 @@ files.forEach(file => {
 
   // Prepend generated annotation
   const code = '// @' + 'generated\n' + result.code;
-  fs.writeFile(libFile, code, 'utf8');
+  fs.writeFileSync(libFile, code, 'utf8');
 });
 
 // Hash sources to be used as a cache breaker and to verify we've build the
@@ -47,4 +47,4 @@ sources.forEach((source) => {
 });
 
 const hashFile = path.resolve(lib, 'HASH');
-fs.writeFile(hashFile, hash.digest('base64'), 'utf8');
+fs.writeFileSync(hashFile, hash.digest('base64'), 'utf8');

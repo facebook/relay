@@ -53,7 +53,9 @@ var x = function () {
       children: [{
         calls: [{
           kind: 'Call',
-          metadata: {},
+          metadata: {
+            type: 'Int'
+          },
           name: 'first',
           value: {
             kind: 'CallValue',

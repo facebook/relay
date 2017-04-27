@@ -1,0 +1,6 @@
+var Relay = require('react-relay');
+var x = Relay.QL`
+  fragment on Actor @relay(isStaticFragment: true) {
+    name
+  }
+`;

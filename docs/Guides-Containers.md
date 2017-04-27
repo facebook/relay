@@ -2,7 +2,7 @@
 id: guides-containers
 title: Containers
 layout: docs
-category: Guides
+category: Relay Classic Guides
 permalink: docs/guides-containers.html
 next: guides-routes
 ---

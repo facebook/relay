@@ -1,0 +1,5 @@
+fragment myFragment on User {
+  actor @include(if: $conditional) {
+    id
+  }
+}

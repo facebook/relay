@@ -23,31 +23,27 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _require = require('./RelayQLAST');
-
-var RelayQLArgument = _require.RelayQLArgument;
-var RelayQLArgumentType = _require.RelayQLArgumentType;
-var RelayQLDefinition = _require.RelayQLDefinition;
-var RelayQLDirective = _require.RelayQLDirective;
-var RelayQLField = _require.RelayQLField;
-var RelayQLFragment = _require.RelayQLFragment;
-var RelayQLFragmentSpread = _require.RelayQLFragmentSpread;
-var RelayQLInlineFragment = _require.RelayQLInlineFragment;
-var RelayQLMutation = _require.RelayQLMutation;
-var RelayQLQuery = _require.RelayQLQuery;
-var RelayQLSubscription = _require.RelayQLSubscription;
-var RelayQLType = _require.RelayQLType;
-
-
-var find = require('./find');
-var invariant = require('./invariant');
-var util = require('util');
 var RelayTransformError = require('./RelayTransformError');
 
-var _require2 = require('./RelayQLNodeInterface');
+var find = require('./find');
+var util = require('./util');
 
-var ID = _require2.ID;
+var _require = require('./RelayQLAST'),
+    RelayQLArgument = _require.RelayQLArgument,
+    RelayQLArgumentType = _require.RelayQLArgumentType,
+    RelayQLDefinition = _require.RelayQLDefinition,
+    RelayQLDirective = _require.RelayQLDirective,
+    RelayQLField = _require.RelayQLField,
+    RelayQLFragment = _require.RelayQLFragment,
+    RelayQLFragmentSpread = _require.RelayQLFragmentSpread,
+    RelayQLInlineFragment = _require.RelayQLInlineFragment,
+    RelayQLMutation = _require.RelayQLMutation,
+    RelayQLQuery = _require.RelayQLQuery,
+    RelayQLSubscription = _require.RelayQLSubscription,
+    RelayQLType = _require.RelayQLType;
 
+var _require2 = require('./RelayQLNodeInterface'),
+    ID = _require2.ID;
 
 module.exports = function (t, options) {
   var formatFields = options.snakeCase ? function (fields) {
@@ -215,6 +211,7 @@ module.exports = function (t, options) {
             throw new RelayTransformError('The variables argument to the @relay directive should be an array ' + 'of strings.', fragment.getLocation());
           }
           return t.callExpression(t.memberExpression(identify(this.tagName), t.identifier('__createFragment')), [fragmentCode, t.objectExpression(selectVariablesValue.map(function (item) {
+            // $FlowFixMe
             var value = item.getValue();
             return property(value, _this.printVariable(value));
           }))]);
@@ -497,13 +494,18 @@ module.exports = function (t, options) {
         var _this5 = this;
 
         if (Array.isArray(value)) {
-          return t.arrayExpression(value.map(function (element) {
+          return t.arrayExpression(
+          // $FlowFixMe
+          value.map(function (element) {
             return _this5.printArgumentValue(element);
           }));
         }
         return codify({
           kind: t.valueToNode('CallValue'),
-          callValue: printLiteralValue(value)
+          // codify() skips properties where value === NULL, but `callValue` is a
+          // required property. Create fresh null literals to force the property
+          // to be printed.
+          callValue: value == null ? t.nullLiteral() : printLiteralValue(value)
         });
       }
     }, {
@@ -527,7 +529,11 @@ module.exports = function (t, options) {
       }
     }, {
       key: 'printRelayDirectiveMetadata',
-      value: function printRelayDirectiveMetadata(node, maybeMetadata) {
+      value: function printRelayDirectiveMetadata(node,
+      /* $FlowFixMe(>=0.38.0 site=react_native_fb,oss) - Flow error detected during
+       * the deployment of v0.38.0. To see the error, remove this comment and
+       * run flow */
+      maybeMetadata) {
         var properties = [];
         var relayDirective = findRelayDirective(node);
         if (relayDirective) {
@@ -541,14 +547,12 @@ module.exports = function (t, options) {
           });
         }
         if (maybeMetadata) {
-          (function () {
-            var metadata = maybeMetadata;
-            Object.keys(metadata).forEach(function (key) {
-              if (metadata[key]) {
-                properties.push(property(key, t.valueToNode(metadata[key])));
-              }
-            });
-          })();
+          var metadata = maybeMetadata;
+          Object.keys(metadata).forEach(function (key) {
+            if (metadata[key]) {
+              properties.push(property(key, t.valueToNode(metadata[key])));
+            }
+          });
         }
         return t.objectExpression(properties);
       }
@@ -560,15 +564,19 @@ module.exports = function (t, options) {
     }, {
       key: 'printArgumentTypeForMetadata',
       value: function printArgumentTypeForMetadata(argType) {
-        // Currently, we always send Enum and Object types as variables.
-        if (argType.isEnum() || argType.isObject()) {
-          return argType.getName({ modifiers: true });
-        }
-        // Currently, we always inline scalar types.
-        if (argType.isScalar()) {
+        // Only booleans and strings can be safely inlined, which is indicated to
+        // the runtime by the lack of a `metadata.type` property.
+        // - numbers may be represented as strings in client code due to
+        //   the limitations with JavaScript numeric representations, and a
+        //   string can't be inlined where a number is expected.
+        // - enums are unquoted, unlike JSON.
+        // - input objects have unquoted keys, unlike JSON.
+        // - custom scalars could be objects, in which case input object rules
+        //   apply.
+        if (argType.isBoolean() || argType.isID() || argType.isString()) {
           return null;
         }
-        invariant(false, 'Unsupported input type: %s', argType);
+        return argType.getName({ modifiers: true });
       }
     }]);
 
@@ -594,18 +602,18 @@ module.exports = function (t, options) {
     if (field.getName() === 'node') {
       var argTypes = field.getDeclaredArguments();
       var argNames = Object.keys(argTypes);
-      if (argNames.length === 1 && argNames[0] === ID) {
+      if (!parentType.isQueryType() && argNames.length === 1 && argNames[0] === ID) {
         throw new RelayTransformError(util.format('You defined a `node(%s: %s)` field on type `%s`, but Relay requires ' + 'the `node` field to be defined on the root type. See the Object ' + 'Identification Guide: \n' + 'http://facebook.github.io/relay/docs/graphql-object-identification.html', ID, argNames[0] && argTypes[argNames[0]].getName({ modifiers: true }), parentType.getName({ modifiers: false })), field.getLocation());
       }
     }
   }
 
   function validateConnectionField(field) {
-    var _ref = [field.findArgument('first'), field.findArgument('last'), field.findArgument('before'), field.findArgument('after')];
-    var first = _ref[0];
-    var last = _ref[1];
-    var before = _ref[2];
-    var after = _ref[3];
+    var _ref = [field.findArgument('first'), field.findArgument('last'), field.findArgument('before'), field.findArgument('after')],
+        first = _ref[0],
+        last = _ref[1],
+        before = _ref[2],
+        after = _ref[3];
 
     var condition = !first || !last || first.isVariable() && last.isVariable();
     if (!condition) {
@@ -660,8 +668,8 @@ module.exports = function (t, options) {
     }
   }
 
-  var forEachRecursiveField = function forEachRecursiveField(selection, callback) {
-    selection.getSelections().forEach(function (selection) {
+  var forEachRecursiveField = function forEachRecursiveField(parentSelection, callback) {
+    parentSelection.getSelections().forEach(function (selection) {
       if (selection instanceof RelayQLField) {
         callback(selection);
       } else if (selection instanceof RelayQLInlineFragment) {
@@ -713,16 +721,10 @@ module.exports = function (t, options) {
     } else if (Array.isArray(value)) {
       return t.arrayExpression(value.map(printLiteralValue));
     } else if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && value != null) {
-      var _ret2 = function () {
-        var objectValue = value;
-        return {
-          v: t.objectExpression(Object.keys(objectValue).map(function (key) {
-            return property(key, printLiteralValue(objectValue[key]));
-          }))
-        };
-      }();
-
-      if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+      var objectValue = value;
+      return t.objectExpression(Object.keys(objectValue).map(function (key) {
+        return property(key, printLiteralValue(objectValue[key]));
+      }));
     } else {
       return t.valueToNode(value);
     }

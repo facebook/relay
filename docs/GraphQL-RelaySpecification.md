@@ -17,13 +17,13 @@ The three core assumptions that Relay makes about a GraphQL server are that it p
 
 This example demonstrates all three of these assumptions.
 
-This example is not comprehensive, but it is designed to quickly introduce these core assumptions, to provide some context before diving into the more detailed specification or the library.
+This example is not comprehensive, but it is designed to quickly introduce these core assumptions, to provide some context before diving into the more detailed specification of the library.
 
 The premise of the example is that we want to use GraphQL to query for information about ships and factions in the original Star Wars trilogy.
 
 It is assumed that the reader is already familiar with GraphQL; if not, the README for [GraphQL.js](https://github.com/graphql/graphql-js) is a good place to start.
 
-It is also assumed that the reader is already familiar with Star Wars; if not, the 1977 version of Star Wars is a good place to start, though the 1997 Special Edition will serve for the purposes of this document.
+It is also assumed that the reader is already familiar with [Star Wars](https://en.wikipedia.org/wiki/Star_Wars); if not, the 1977 version of Star Wars is a good place to start, though the 1997 Special Edition will serve for the purposes of this document.
 
 ## Schema
 

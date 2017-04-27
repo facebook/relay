@@ -9,9 +9,9 @@
 
 'use strict';
 
+const Footer = require('Footer');
 const React = require('React');
 const Site = require('Site');
-const SiteData = require('SiteData');
 
 const index = React.createClass({
   render: function() {
@@ -19,10 +19,21 @@ const index = React.createClass({
       <Site>
         <div className="hero">
           <div className="wrap">
+            <img className="hero-logo" src="/relay/img/logo.svg" width="300" height="300" />
             <h1 className="text"><strong>Relay</strong></h1>
             <h2 className="minitext">
               A JavaScript framework for building data-driven React applications
             </h2>
+
+            <div className="buttons-unit">
+              <a className="button" href="prototyping/playground.html">
+                Try It Out
+              </a>
+              <a className="button" href="docs/getting-started.html">
+                Get Started
+              </a>
+            </div>
+
           </div>
         </div>
 
@@ -31,48 +42,48 @@ const index = React.createClass({
             <div className="marketing-col">
               <h3>Declarative</h3>
               <p>
-                Never again communicate with your data store using an imperative
-                API. Simply declare your data requirements using GraphQL and let
-                Relay figure out how and when to fetch your data.
+                Declare the data your components need with GraphQL, Relay
+                determines how and when to fetch your data.
               </p>
             </div>
             <div className="marketing-col">
               <h3>Colocation</h3>
               <p>
-                Queries live next to the views that rely on them, so you can
-                easily reason about your app. Relay aggregates queries into
-                efficient network requests to fetch only what you need.
+                GraphQL is written next to the views that rely on them. Relay
+                aggregates queries into efficient network requests.
               </p>
             </div>
             <div className="marketing-col">
               <h3>Mutations</h3>
               <p>
-                Relay lets you mutate data on the client and server using
-                GraphQL mutations, and offers automatic data consistency,
-                optimistic updates, and error handling.
+                Write GraphQL mutations and Relay offers automatic data
+                consistency, optimistic updates, and error handling.
               </p>
             </div>
           </section>
 
-          <hr className="home-divider" />
-
-          <section className="buttons-unit">
-            <a className="button" href="docs/getting-started.html">
-              Get Started
-            </a>
-            <a
-              className="button"
-              href={'https://github.com/facebook/relay/releases/tag/v' + SiteData.version}>
-              Download
+          <section className="relay-modern">
+            <div className="starburst">New</div>
+            <h2>Relay Modern (Release Candidate)</h2>
+            <p>
+              Relay Modern is a new version of Relay designed from the ground up
+              to be easier to use, more extensible and, most of all, able to
+              improve performance on mobile devices. Relay Modern accomplishes
+              this with static queries and ahead-of-time code generation.
+            </p>
+            <p>
+              Incrementally convert existing Relay apps, or start a new one with
+              Relay Modern.
+            </p>
+            <a className="button" href="docs/relay-modern.html">
+              Try Relay Modern
             </a>
           </section>
-
-          <hr className="home-divider" />
 
           <section className="home-section">
             <section id="examples">
               <div className="example">
-                <h3>A simple list</h3>
+                <h2>A simple list</h2>
                 <p>
                   Relay lets each view declare its own data requirements in the
                   form of a <strong>GraphQL query fragment</strong>. Here, each
@@ -89,7 +100,7 @@ const index = React.createClass({
                 />
               </div>
               <div className="example">
-                <h3>A simple parameterization</h3>
+                <h2>A simple parameterization</h2>
                 <p>
                   Relay query fragments can be parameterized using{' '}
                   <strong>variables</strong> in GraphQL <strong>calls</strong>.
@@ -103,7 +114,7 @@ const index = React.createClass({
                 />
               </div>
               <div className="example">
-                <h3>A simple mutation</h3>
+                <h2>A simple mutation</h2>
                 <p>
                   Use Relay to change the world through the use of GraphQL
                   mutations. Given a set of <strong>query fragments</strong>,
@@ -125,19 +136,9 @@ const index = React.createClass({
             </section>
           </section>
 
-          <hr className="home-divider" />
-
-          <section className="buttons-unit">
-            <a className="button" href="docs/getting-started.html">
-              Get Started
-            </a>
-            <a
-              className="button"
-              href={'https://github.com/facebook/relay/releases/tag/v' + SiteData.version}>
-              Download
-            </a>
-          </section>
         </section>
+
+        <Footer />
       </Site>
     );
   },

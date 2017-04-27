@@ -2,7 +2,7 @@
 id: guides-mutations
 title: Mutations
 layout: docs
-category: Guides
+category: Relay Classic Guides
 permalink: docs/guides-mutations.html
 next: guides-network-layer
 ---
@@ -266,9 +266,9 @@ Given a parent, a connection, and one or more DataIDs in the response payload, R
 
   The field name in the response that represents the parent of the connection
 
-- `parentID: string`
+- `parentID?: string`
 
-  The DataID of the parent node that contains the connection
+  The DataID of the parent node that contains the connection. This argument is optional.
 
 - `connectionName: string`
 
@@ -320,9 +320,9 @@ Given a parent, a connection, and the name of the newly created edge in the resp
 
   The field name in the response that represents the parent of the connection
 
-- `parentID: string`
+- `parentID?: string`
 
-  The DataID of the parent node that contains the connection
+  The DataID of the parent node that contains the connection. This argument is optional.
 
 - `connectionName: string`
 

@@ -2,9 +2,8 @@
 id: interfaces-relay-mutation-request
 title: RelayMutationRequest
 layout: docs
-category: Interfaces
+category: Relay Classic Interfaces
 permalink: docs/interfaces-relay-mutation-request.html
-indent: true
 next: interfaces-relay-query-request
 ---
 

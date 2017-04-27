@@ -1,0 +1,14 @@
+query SkipNestedLinkedFields {
+  viewer {
+    actor {
+      hometown {
+        name
+      }
+      ... on User {
+        hometown {
+          id
+        }
+      }
+    }
+  }
+}

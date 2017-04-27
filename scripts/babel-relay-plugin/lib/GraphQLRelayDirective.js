@@ -13,14 +13,11 @@
 
 'use strict';
 
-var _require = require('./GraphQL');
-
-var DirectiveLocation = _require.type_directives.DirectiveLocation;
-var GraphQLList = _require.type_definition.GraphQLList;
-var _require$type_scalars = _require.type_scalars;
-var GraphQLBoolean = _require$type_scalars.GraphQLBoolean;
-var GraphQLString = _require$type_scalars.GraphQLString;
-
+var _require = require('graphql'),
+    DirectiveLocation = _require.DirectiveLocation,
+    GraphQLBoolean = _require.GraphQLBoolean,
+    GraphQLList = _require.GraphQLList,
+    GraphQLString = _require.GraphQLString;
 
 module.exports = {
   name: 'relay',

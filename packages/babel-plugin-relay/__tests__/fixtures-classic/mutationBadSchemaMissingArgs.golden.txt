@@ -1,0 +1,4 @@
+var Relay = require('react-relay');
+var x = function () {
+  throw new Error('Relay transform error ``Your schema defines a mutation field `mutationMissingArg` that takes 0 arguments, but mutation fields must have exactly one argument named `input`.`` in file `mutationBadSchemaMissingArgs.input.txt`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+}();

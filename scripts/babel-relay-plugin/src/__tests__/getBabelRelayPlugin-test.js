@@ -92,9 +92,23 @@ describe('getBabelRelayPlugin', () => {
   });
 });
 
+/**
+ * Tries to normalize code generated from slightly different versions of
+ * babel.
+ */
 function trimCode(code) {
-  return code
+  code = code
+    .replace(/['"]use strict['"];/, '')
     .replace(/\s*([\[\]\(\){};,=:])\s*/g, '$1')
-    .replace(/;+/, ';')
-    .replace(/\s+/g, ' ');
+    .replace(/;+/g, ';')
+    .replace(/\s+/g, ' ')
+    .replace(/`/g, "'")
+    .trim();
+  if (code.indexOf('viewer:()=> function') !== -1) {
+    code = code.replace(
+      'viewer:()=> function',
+      'viewer:function viewer(){return function'
+    ).replace('};}()}});', '};}();}}});');
+  }
+  return code;
 }

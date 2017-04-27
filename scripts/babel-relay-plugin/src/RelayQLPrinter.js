@@ -12,6 +12,11 @@
 
 'use strict';
 
+const RelayTransformError = require('./RelayTransformError');
+
+const find = require('./find');
+const util = require('./util');
+
 const {
   RelayQLArgument,
   RelayQLArgumentType,
@@ -26,11 +31,6 @@ const {
   RelayQLSubscription,
   RelayQLType,
 } = require('./RelayQLAST');
-
-const find = require('./find');
-const invariant = require('./invariant');
-const util = require('util');
-const RelayTransformError = require('./RelayTransformError');
 const {ID} = require('./RelayQLNodeInterface');
 
 export type Printable = Object;
@@ -252,6 +252,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             fragmentCode,
             t.objectExpression(
               selectVariablesValue.map((item) => {
+                // $FlowFixMe
                 const value = item.getValue();
                 return property(value, this.printVariable(value));
               })
@@ -617,12 +618,18 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     printValue(value: mixed): Printable {
       if (Array.isArray(value)) {
         return t.arrayExpression(
+          // $FlowFixMe
           value.map(element => this.printArgumentValue(element))
         );
       }
       return codify({
         kind: t.valueToNode('CallValue'),
-        callValue: printLiteralValue(value),
+        // codify() skips properties where value === NULL, but `callValue` is a
+        // required property. Create fresh null literals to force the property
+        // to be printed.
+        callValue: value == null ?
+          t.nullLiteral() :
+          printLiteralValue(value),
       });
     }
 
@@ -655,6 +662,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
     printRelayDirectiveMetadata(
       node: RelayQLField | RelayQLFragment,
+      /* $FlowFixMe(>=0.38.0 site=react_native_fb,oss) - Flow error detected during
+       * the deployment of v0.38.0. To see the error, remove this comment and
+       * run flow */
       maybeMetadata?: {[key: string]: mixed}
     ): Printable {
       const properties = [];
@@ -692,15 +702,23 @@ module.exports = function(t: any, options: PrinterOptions): Function {
      * Prints the type for arguments that are transmitted via variables.
      */
     printArgumentTypeForMetadata(argType: RelayQLArgumentType): ?string {
-      // Currently, we always send Enum and Object types as variables.
-      if (argType.isEnum() || argType.isObject()) {
-        return argType.getName({modifiers: true});
-      }
-      // Currently, we always inline scalar types.
-      if (argType.isScalar()) {
+      // Only booleans and strings can be safely inlined, which is indicated to
+      // the runtime by the lack of a `metadata.type` property.
+      // - numbers may be represented as strings in client code due to
+      //   the limitations with JavaScript numeric representations, and a
+      //   string can't be inlined where a number is expected.
+      // - enums are unquoted, unlike JSON.
+      // - input objects have unquoted keys, unlike JSON.
+      // - custom scalars could be objects, in which case input object rules
+      //   apply.
+      if (
+        argType.isBoolean() ||
+        argType.isID() ||
+        argType.isString()
+      ) {
         return null;
       }
-      invariant(false, 'Unsupported input type: %s', argType);
+      return argType.getName({modifiers: true});
     }
   }
 
@@ -727,7 +745,11 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     if (field.getName() === 'node') {
       var argTypes = field.getDeclaredArguments();
       var argNames = Object.keys(argTypes);
-      if (argNames.length === 1 && argNames[0] === ID) {
+      if (
+        !parentType.isQueryType() &&
+        argNames.length === 1 &&
+        argNames[0] === ID
+      ) {
         throw new RelayTransformError(
           util.format(
             'You defined a `node(%s: %s)` field on type `%s`, but Relay requires ' +
@@ -745,7 +767,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   }
 
   function validateConnectionField(field: RelayQLField): void {
-    let [first, last, before, after] = [
+    const [first, last, before, after] = [
       field.findArgument('first'),
       field.findArgument('last'),
       field.findArgument('before'),
@@ -890,10 +912,10 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   }
 
   const forEachRecursiveField = function(
-    selection: RelayQLField | RelayQLFragment,
+    parentSelection: RelayQLField | RelayQLFragment,
     callback: (field: RelayQLField) => void
   ): void {
-    selection.getSelections().forEach(selection => {
+    parentSelection.getSelections().forEach(selection => {
       if (selection instanceof RelayQLField) {
         callback(selection);
       } else if (selection instanceof RelayQLInlineFragment) {

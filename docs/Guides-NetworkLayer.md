@@ -2,7 +2,7 @@
 id: guides-network-layer
 title: Network Layer
 layout: docs
-category: Guides
+category: Relay Classic Guides
 permalink: docs/guides-network-layer.html
 next: guides-babel-plugin
 ---

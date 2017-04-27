@@ -16,6 +16,7 @@ const ASTConvert = require('ASTConvert');
 const CodegenDirectory = require('CodegenDirectory');
 const RelayCompiler = require('RelayCompiler');
 const RelayCompilerContext = require('RelayCompilerContext');
+const RelayFlowGenerator = require('RelayFlowGenerator');
 const RelayValidator = require('RelayValidator');
 
 const invariant = require('invariant');
@@ -190,7 +191,9 @@ class RelayFileWriter {
           }
         }
 
-        const flowTypes = printFlowTypes(node);
+        const flowTypes = node.kind === 'Fragment' ?
+          RelayFlowGenerator.generate(node) :
+          printFlowTypes(node);
         const compiledNode = compiledDocumentMap.get(node.name);
         invariant(
           compiledNode,

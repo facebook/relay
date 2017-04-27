@@ -253,7 +253,9 @@ function generateConnectionFragment(
   context: RelayCompilerContext,
   type: GraphQLType
 ): InlineFragment {
-  const compositeType = assertCompositeType(type);
+  const compositeType = assertCompositeType(
+    RelaySchemaUtils.getNullableType((type: $FlowFixMe))
+  );
   const ast = GraphQL.parse(`
     fragment ConnectionFragment on ${String(compositeType)} {
       ${EDGES} {
@@ -347,7 +349,9 @@ function validateConnectionType(
   definitionName: string,
   type: GraphQLType,
 ): void {
-  const typeWithFields = RelaySchemaUtils.assertTypeWithFields(type);
+  const typeWithFields = RelaySchemaUtils.assertTypeWithFields(
+    RelaySchemaUtils.getNullableType((type: $FlowFixMe))
+  );
   const typeFields = typeWithFields.getFields();
   const edges = typeFields[EDGES];
 

@@ -86,15 +86,15 @@ function selectionsToBabel(selections) {
 
   if (
     Object.keys(byConcreteType).length &&
-    onlySelectsTypename([...baseFields.values()]) &&
-    (hasTypenameSelection([...baseFields.values()]) ||
+    onlySelectsTypename(Array.from(baseFields.values())) &&
+    (hasTypenameSelection(Array.from(baseFields.values())) ||
       Object.keys(byConcreteType).every(type =>
         hasTypenameSelection(byConcreteType[type])))
   ) {
     for (const concreteType in byConcreteType) {
       types.push(
         t.objectTypeAnnotation([
-          ...[...baseFields.values()].map(selection =>
+          ...Array.from(baseFields.values()).map(selection =>
             makeProp(selection, concreteType)),
           ...byConcreteType[concreteType].map(selection =>
             makeProp(selection, concreteType)),
@@ -114,7 +114,7 @@ function selectionsToBabel(selections) {
     );
     types.push(t.objectTypeAnnotation([otherProp]));
   } else {
-    let selectionMap = selectionsToMap([...baseFields.values()]);
+    let selectionMap = selectionsToMap(Array.from(baseFields.values()));
     for (const concreteType in byConcreteType) {
       selectionMap = mergeSelections(
         selectionMap,

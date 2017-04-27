@@ -271,6 +271,15 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
       };
     };
 
+    getChildContext(): Object {
+      return {
+        relay: {
+          environment: this.context.relay.environment,
+          variables: this._localVariables || this.context.relay.variables,
+        },
+      };
+    }
+
     render() {
       if (ComponentClass) {
         return (
@@ -320,12 +329,14 @@ function createContainer<TBase: ReactClass<*>>(
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
 ): TBase {
-  return buildReactRelayContainer(
+  const Container = buildReactRelayContainer(
     Component,
     fragmentSpec,
     (ComponentClass, fragments) =>
       createContainerWithFragments(ComponentClass, fragments, taggedNode),
   );
+  Container.childContextTypes = containerContextTypes;
+  return Container;
 }
 
 module.exports = {createContainer, createContainerWithFragments};

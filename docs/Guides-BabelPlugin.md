@@ -35,11 +35,10 @@ The easiest way to get started for now is with the [Relay Starter Kit](https://g
 
 ### React Native Configuration
 
-The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, in `.babelrc`  `"react-native"` must come after `babelRelayPlugin`.
+The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, in `.babelrc` `"react-native"` must come after `babelRelayPlugin`.
 
 ```javascript
 {
-  "passPerPreset": true,
   "plugins": [
     "./plugins/babelRelayPlugin"
   ],

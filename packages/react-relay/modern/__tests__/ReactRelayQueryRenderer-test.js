@@ -637,7 +637,7 @@ describe('ReactRelayQueryRenderer', () => {
             __id: '4',
           },
         },
-        retry: null,
+        retry: jasmine.any(Function),
       }).toBeRendered();
     });
 

@@ -237,7 +237,9 @@ class ReactRelayQueryRenderer extends React.Component {
       readyState = {
         error: null,
         props: snapshot.data,
-        retry: null,
+        retry: () => {
+          this._fetch(operation, cacheConfig);
+        },
       };
 
       if (this._selectionReference) {

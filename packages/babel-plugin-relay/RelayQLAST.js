@@ -483,9 +483,9 @@ class RelayQLArgument {
     const value = this.ast.value;
     if (value.kind === 'ListValue') {
       return value.values.map(
-        value => new RelayQLArgument(
+        val => new RelayQLArgument(
           this.context,
-          {...this.ast, value},
+          {...this.ast, value: val},
           this.type.ofType()
         )
       );
@@ -762,7 +762,7 @@ class RelayQLFieldDefinition {
   getArgument(argName: string): RelayQLArgumentType {
     const schemaArg = find(
       this.schemaFieldDef.args,
-      schemaArg => schemaArg.name === argName
+      arg => arg.name === argName
     );
     invariant(
       schemaArg,

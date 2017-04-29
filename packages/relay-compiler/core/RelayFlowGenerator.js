@@ -93,7 +93,7 @@ function selectionsToBabel(selections) {
   ) {
     for (const concreteType in byConcreteType) {
       types.push(
-        t.objectTypeAnnotation([
+        exactObjectTypeAnnotation([
           ...Array.from(baseFields.values()).map(selection =>
             makeProp(selection, concreteType)),
           ...byConcreteType[concreteType].map(selection =>
@@ -112,7 +112,7 @@ function selectionsToBabel(selections) {
       "This will never be '%other', but we need some",
       'value in case none of the concrete values match.',
     );
-    types.push(t.objectTypeAnnotation([otherProp]));
+    types.push(exactObjectTypeAnnotation([otherProp]));
   } else {
     let selectionMap = selectionsToMap(Array.from(baseFields.values()));
     for (const concreteType in byConcreteType) {
@@ -127,14 +127,14 @@ function selectionsToBabel(selections) {
       );
     }
     types.push(
-      t.objectTypeAnnotation(
+      exactObjectTypeAnnotation(
         Array.from(selectionMap.values()).map(sel => makeProp(sel)),
       ),
     );
   }
 
   if (!types.length) {
-    return t.objectTypeAnnotation([]);
+    return exactObjectTypeAnnotation([]);
   }
 
   return types.length > 1 ? t.unionTypeAnnotation(types) : types[0];
@@ -283,6 +283,12 @@ function arrayOfType(thing) {
     t.identifier('$ReadOnlyArray'),
     t.typeParameterInstantiation([thing]),
   );
+}
+
+function exactObjectTypeAnnotation(props) {
+  const typeAnnotation = t.objectTypeAnnotation(props);
+  typeAnnotation.exact = true;
+  return typeAnnotation;
 }
 
 function transformNonNullableScalarField(type: GraphQLType, objectProps) {

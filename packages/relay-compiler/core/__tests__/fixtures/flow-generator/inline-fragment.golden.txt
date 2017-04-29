@@ -1,35 +1,35 @@
-export type InlineFragment = {
+export type InlineFragment = {|
   id: string;
   name?: ?string;
-  message?: ?{
+  message?: ?{|
     text: ?string;
-  };
-};
+  |};
+|};
 
-export type InlineFragmentWithOverlappingFields = {
-  hometown?: ?{
+export type InlineFragmentWithOverlappingFields = {|
+  hometown?: ?{|
     id: string;
     name: ?string;
-    message?: ?{
+    message?: ?{|
       text: ?string;
-    };
-  };
+    |};
+  |};
   name?: ?string;
-};
+|};
 
-export type InlineFragmentConditionalID = {
+export type InlineFragmentConditionalID = {|
   id?: string;
   name?: ?string;
-};
+|};
 
-export type InlineFragmentKitchenSink = {
-  actor: ?{
+export type InlineFragmentKitchenSink = {|
+  actor: ?{|
     id: string;
-    profilePicture: ?{
+    profilePicture: ?{|
       uri: ?string;
       width?: ?number;
       height?: ?number;
-    };
+    |};
     name?: ?string;
-  };
-};
+  |};
+|};

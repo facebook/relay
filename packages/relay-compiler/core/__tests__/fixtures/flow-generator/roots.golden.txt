@@ -1,25 +1,25 @@
-export type ExampleQuery = {
-  me: ?{
+export type ExampleQuery = {|
+  me: ?{|
     id: string;
-  };
-};
+  |};
+|};
 
-export type ExampleFragment = {
+export type ExampleFragment = {|
   id: string;
-};
+|};
 
-export type TestMutation = {
-  commentCreate: ?{
-    comment: ?{
+export type TestMutation = {|
+  commentCreate: ?{|
+    comment: ?{|
       id: string;
-    };
-  };
-};
+    |};
+  |};
+|};
 
-export type TestSubscription = {
-  feedbackLikeSubscribe: ?{
-    feedback: ?{
+export type TestSubscription = {|
+  feedbackLikeSubscribe: ?{|
+    feedback: ?{|
       id: string;
-    };
-  };
-};
+    |};
+  |};
+|};

@@ -1,4 +1,4 @@
-export type InlineFragment = {
+export type InlineFragment = {|
   id: string;
-  profilePicture: ?{ };
-};
+  profilePicture: ?{| |};
+|};

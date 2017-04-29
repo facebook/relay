@@ -1,7 +1,7 @@
-export type ConditionField = {
+export type ConditionField = {|
   id?: string;
-};
+|};
 
-export type NestedCondition = {
+export type NestedCondition = {|
   id?: string;
-};
+|};

@@ -18,7 +18,6 @@ const RelaySchemaUtils = require('RelaySchemaUtils');
 
 const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
-const prettyStringify = require('prettyStringify');
 
 import type {
   ConcreteArgument,
@@ -207,15 +206,6 @@ const RelayCodeGenVisitor = {
     },
 
     Argument(node, key, parent, ancestors): ?ConcreteArgument {
-      invariant(
-        ['Variable', 'Literal'].indexOf(node.value.kind) >= 0,
-        'RelayCodeGenerator: Complex argument values (Lists or ' +
-        'InputObjects with nested variables) are not supported, argument ' +
-        '`%s` had value `%s`. Source: %s.',
-        node.name,
-        prettyStringify(node.value),
-        getErrorMessage(ancestors[0])
-      );
       return node.value.value !== null ? node.value : null;
     },
   },

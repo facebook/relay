@@ -20,7 +20,6 @@ const RELAY_DIRECTIVES = `
   directive @skip(if: Boolean) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | FIELD
   directive @relay(
     isConnectionWithoutNodeID: Boolean,
-    isStaticFragment: Boolean,
     pattern: Boolean,
     plural: Boolean,
     variables: [String],

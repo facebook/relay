@@ -12,7 +12,6 @@
 
 'use strict';
 
-const GraphQLIntrospection = require('graphql/type/introspection');
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 
@@ -23,6 +22,11 @@ const {
   canHaveSelections,
   getRawType,
 } = require('RelaySchemaUtils');
+const {
+  SchemaMetaFieldDef,
+  TypeMetaFieldDef,
+  TypeNameMetaFieldDef,
+} = require('graphql');
 
 import type {
   Field,
@@ -32,12 +36,6 @@ import type {
   Root,
 } from 'RelayIR';
 import type {GraphQLSchema, GraphQLType} from 'graphql';
-
-const {
-  SchemaMetaFieldDef,
-  TypeMetaFieldDef,
-  TypeNameMetaFieldDef,
-} = GraphQLIntrospection;
 
 type State = {
   schema: GraphQLSchema,

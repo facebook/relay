@@ -12,12 +12,26 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
 const RelayParser = require('RelayParser');
 
 const invariant = require('invariant');
 
 const {isOperationDefinitionAST} = require('RelaySchemaUtils');
+const {
+  ArgumentsOfCorrectTypeRule,
+  DefaultValuesOfCorrectTypeRule,
+  FieldsOnCorrectTypeRule,
+  formatError,
+  FragmentsOnCompositeTypesRule,
+  KnownArgumentNamesRule,
+  KnownTypeNamesRule,
+  parse,
+  PossibleFragmentSpreadsRule,
+  ProvidedNonNullArgumentsRule,
+  Source,
+  validate,
+  VariablesInAllowedPositionRule,
+} = require('graphql');
 
 import type {
   Fragment,
@@ -44,12 +58,6 @@ export type ExtractedGQLDocuments = {
   documents: Array<Fragment | Root>,
 }
 
-const {
-  formatError,
-  Source,
-  validate,
-} = GraphQL;
-
 const RELAY_CLASSIC_MUTATION =  '__RelayClassicMutation__';
 
 /**
@@ -74,37 +82,17 @@ function validateDocument(
     definition.operation === 'mutation';
 
   const rules = [
-    require(
-      'graphql/validation/rules/ArgumentsOfCorrectType'
-    ).ArgumentsOfCorrectType,
-    require(
-      'graphql/validation/rules/DefaultValuesOfCorrectType'
-    ).DefaultValuesOfCorrectType,
-    require(
-      'graphql/validation/rules/FieldsOnCorrectType'
-    ).FieldsOnCorrectType,
-    require(
-      'graphql/validation/rules/FragmentsOnCompositeTypes'
-    ).FragmentsOnCompositeTypes,
-    require(
-      'graphql/validation/rules/KnownArgumentNames'
-    ).KnownArgumentNames,
-    require(
-      'graphql/validation/rules/KnownTypeNames'
-    ).KnownTypeNames,
-    require(
-      'graphql/validation/rules/PossibleFragmentSpreads'
-    ).PossibleFragmentSpreads,
-    require(
-      'graphql/validation/rules/VariablesInAllowedPosition'
-    ).VariablesInAllowedPosition,
+    ArgumentsOfCorrectTypeRule,
+    DefaultValuesOfCorrectTypeRule,
+    FieldsOnCorrectTypeRule,
+    FragmentsOnCompositeTypesRule,
+    KnownArgumentNamesRule,
+    KnownTypeNamesRule,
+    PossibleFragmentSpreadsRule,
+    VariablesInAllowedPositionRule,
   ];
   if (!isMutation) {
-    rules.push(
-      require(
-        'graphql/validation/rules/ProvidedNonNullArguments'
-      ).ProvidedNonNullArguments
-    );
+    rules.push(ProvidedNonNullArgumentsRule);
   }
   const validationErrors = validate(schema, document, rules);
 
@@ -118,7 +106,7 @@ function validateDocument(
  * Parses a given string containing one or more GraphQL operations into an array
  * of GraphQL documents.
  */
-function parse(
+function parseRelayGraphQL(
   source: string,
   schema: GraphQLSchema,
   sourceName: string = 'default',
@@ -142,7 +130,7 @@ function parse(
 
   let ast = null;
   try {
-    ast = GraphQL.parse(new Source(source, sourceName));
+    ast = parse(new Source(source, sourceName));
   } catch (e) {
     console.error('\n-- GraphQL Parsing Error --\n');
     console.error([
@@ -247,7 +235,7 @@ function transformFiles(
   extractedTags.forEach(file => {
     const documents = [];
     file.tags.forEach(tag => {
-      const transformed = parse(
+      const transformed = parseRelayGraphQL(
         tag,
         schema,
         file.filename
@@ -269,6 +257,6 @@ function transformFiles(
 
 module.exports = {
   transformFiles,
-  parse,
+  parse: parseRelayGraphQL,
   RELAY_CLASSIC_MUTATION,
 };

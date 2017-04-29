@@ -280,7 +280,7 @@ function transformScalarField(type, objectProps) {
 
 function arrayOfType(thing) {
   return t.genericTypeAnnotation(
-    t.identifier('Array'),
+    t.identifier('$ReadOnlyArray'),
     t.typeParameterInstantiation([thing]),
   );
 }

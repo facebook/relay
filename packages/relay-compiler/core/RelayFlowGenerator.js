@@ -51,7 +51,7 @@ function makeProp(
   if (schemaName === '__typename' && concreteType) {
     value = stringLiteralTypeAnnotation(concreteType);
   }
-  const typeProperty = t.objectTypeProperty(t.identifier(key), value);
+  const typeProperty = readOnlyObjectTypeProperty(key, value);
   if (conditional) {
     typeProperty.optional = true;
   }
@@ -89,23 +89,26 @@ function selectionsToBabel(selections) {
     onlySelectsTypename(Array.from(baseFields.values())) &&
     (hasTypenameSelection(Array.from(baseFields.values())) ||
       Object.keys(byConcreteType).every(type =>
-        hasTypenameSelection(byConcreteType[type])))
+        hasTypenameSelection(byConcreteType[type]),
+      ))
   ) {
     for (const concreteType in byConcreteType) {
       types.push(
         exactObjectTypeAnnotation([
           ...Array.from(baseFields.values()).map(selection =>
-            makeProp(selection, concreteType)),
+            makeProp(selection, concreteType),
+          ),
           ...byConcreteType[concreteType].map(selection =>
-            makeProp(selection, concreteType)),
+            makeProp(selection, concreteType),
+          ),
         ]),
       );
     }
     // It might be some other type then the listed concrete types. Ideally, we
     // would set the type to diff(string, set of listed concrete types), but
     // this doesn't exist in Flow at the time.
-    const otherProp = t.objectTypeProperty(
-      t.identifier('__typename'),
+    const otherProp = readOnlyObjectTypeProperty(
+      '__typename',
       stringLiteralTypeAnnotation('%other'),
     );
     otherProp.leadingComments = lineComments(
@@ -289,6 +292,12 @@ function exactObjectTypeAnnotation(props) {
   const typeAnnotation = t.objectTypeAnnotation(props);
   typeAnnotation.exact = true;
   return typeAnnotation;
+}
+
+function readOnlyObjectTypeProperty(key, value) {
+  const prop = t.objectTypeProperty(t.identifier(key), value);
+  prop.variance = 'plus';
+  return prop;
 }
 
 function transformNonNullableScalarField(type: GraphQLType, objectProps) {

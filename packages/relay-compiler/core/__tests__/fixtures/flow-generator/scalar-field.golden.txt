@@ -1,13 +1,13 @@
 export type ScalarField = {|
-  id: string;
-  name: ?string;
-  websites: ?$ReadOnlyArray<?string>;
-  traits: ?$ReadOnlyArray<?"CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY">;
-  aliasedLinkedField: ?{|
-    aliasedField: ?number;
+  +id: string;
+  +name: ?string;
+  +websites: ?$ReadOnlyArray<?string>;
+  +traits: ?$ReadOnlyArray<?"CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY">;
+  +aliasedLinkedField: ?{|
+    +aliasedField: ?number;
   |};
-  screennames: ?$ReadOnlyArray<?{|
-    name: ?string;
-    service: ?string;
+  +screennames: ?$ReadOnlyArray<?{|
+    +name: ?string;
+    +service: ?string;
   |}>;
 |};

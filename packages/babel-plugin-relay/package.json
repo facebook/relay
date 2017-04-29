@@ -13,7 +13,7 @@
   "bugs": "https://github.com/facebook/relay/issues",
   "repository": "facebook/relay",
   "dependencies": {
-    "graphql": "^0.9.1",
+    "graphql": "^0.9.5",
     "babel-runtime": "^6.23.0"
   }
 }

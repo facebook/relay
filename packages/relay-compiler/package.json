@@ -21,7 +21,7 @@
     "babylon": "6.16.1",
     "fb-watchman": "^2.0.0",
     "fbjs": "^0.8.1",
-    "graphql": "^0.9.1",
+    "graphql": "^0.9.5",
     "immutable": "^3.8.1",
     "relay-runtime": "1.0.0-rc.3",
     "signedsource": "^1.0.0",

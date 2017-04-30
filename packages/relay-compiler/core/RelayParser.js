@@ -12,9 +12,6 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
-const GraphQLIntrospection = require('graphql/type/introspection');
-
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const partitionArray = require('partitionArray');
@@ -26,6 +23,30 @@ const {
   getTypeFromAST,
   isOperationDefinitionAST,
 } = require('RelaySchemaUtils');
+const {
+  assertAbstractType,
+  assertCompositeType,
+  assertInputType,
+  assertOutputType,
+  extendSchema,
+  getNamedType,
+  GraphQLEnumType,
+  GraphQLInputObjectType,
+  GraphQLInterfaceType,
+  GraphQLList,
+  GraphQLObjectType,
+  GraphQLScalarType,
+  GraphQLUnionType,
+  isAbstractType,
+  isLeafType,
+  isTypeSubTypeOf,
+  parse,
+  parseType,
+  SchemaMetaFieldDef,
+  Source,
+  TypeMetaFieldDef,
+  TypeNameMetaFieldDef,
+} = require('graphql');
 
 import type {
   Argument,
@@ -60,36 +81,9 @@ import type {
   GraphQLOutputType,
   GraphQLSchema,
   GraphQLType,
+  GraphQLArgument,
+  GraphQLField,
 } from 'graphql';
-
-const {
-  assertAbstractType,
-  assertCompositeType,
-  assertInputType,
-  assertOutputType,
-  isAbstractType,
-  isLeafType,
-  getNamedType,
-  GraphQLInputObjectType,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLObjectType,
-  GraphQLUnionType,
-  GraphQLEnumType,
-  GraphQLScalarType,
-  Source,
-  isTypeSubTypeOf,
-  parseType,
-} = GraphQL;
-const {
-  SchemaMetaFieldDef,
-  TypeMetaFieldDef,
-  TypeNameMetaFieldDef,
-} = GraphQLIntrospection;
-
-// TODO: Import types from `graphql`.
-type GraphQLSchemaArgumentDefinition = Object;
-type GraphQLSchemaFieldDefinition = Object;
 
 const ARGUMENT_DEFINITIONS = 'argumentDefinitions';
 const ARGUMENTS = 'arguments';
@@ -109,14 +103,14 @@ const INCLUDE = 'include';
 const SKIP = 'skip';
 const IF = 'if';
 
-function parse(
+function parseRelay(
   schema: GraphQLSchema,
   text: string,
   filename?: string
 ): Array<Root | Fragment> {
-  const ast = GraphQL.parse(new Source(text, filename));
+  const ast = parse(new Source(text, filename));
   const nodes = [];
-  schema = GraphQL.extendSchema(schema, ast);
+  schema = extendSchema(schema, ast);
   ast.definitions.forEach(definition => {
     if (isOperationDefinitionAST(definition)) {
       nodes.push(transform(schema, definition));
@@ -674,7 +668,7 @@ class RelayParser {
 
   _transformArguments(
     args: Array<ArgumentNode>,
-    argumentDefinitions: Array<GraphQLSchemaArgumentDefinition>
+    argumentDefinitions: Array<GraphQLArgument>
   ): Array<Argument> {
     return args.map(arg => {
       const argName = getName(arg);
@@ -942,7 +936,7 @@ function getFieldDefinition(
   parentType: GraphQLOutputType,
   fieldName: string,
   fieldAST: FieldNode
-): ?GraphQLSchemaFieldDefinition {
+): ?GraphQLField<any, any> {
   const type = getRawType(parentType);
   const isQueryType = type === schema.getQueryType();
   const hasTypeName =
@@ -976,7 +970,7 @@ function getClassicFieldDefinition(
   type: GraphQLType,
   fieldName: string,
   fieldAST: FieldNode
-): ?GraphQLSchemaFieldDefinition {
+): ?GraphQLField<any, any> {
   if (
     isAbstractType(type) &&
     fieldAST &&
@@ -1011,6 +1005,6 @@ function getClassicFieldDefinition(
 }
 
 module.exports = {
-  parse,
+  parse: parseRelay,
   transform,
 };

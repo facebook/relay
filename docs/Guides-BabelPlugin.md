@@ -83,7 +83,7 @@ Use `introspectionQuery` to generate a Schema JSON for the Babel Relay Plugin, a
 import fs from 'fs';
 import path from 'path';
 import {graphql}  from 'graphql';
-import {introspectionQuery, printSchema} from 'graphql/utilities';
+import {introspectionQuery, printSchema} from 'graphql';
 
 // Assume your schema is in ../data/schema
 import {schema} from '../data/schema';

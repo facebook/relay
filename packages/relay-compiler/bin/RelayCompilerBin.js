@@ -60,6 +60,7 @@ async function run(options: {
   schema: string,
   src: string,
   extensions: Array<string>,
+  transform: Array<string>,
   watch?: ?boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
@@ -87,7 +88,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
     default: {
       baseDir: srcDir,
       getFileFilter: RelayFileIRParser.getFileFilter,
-      getParser: RelayFileIRParser.getParser,
+      getParser: RelayFileIRParser.getParser(options.transform),
       getSchema: () => getSchema(schemaPath),
       watchmanExpression: buildWatchExpression(options),
     },
@@ -191,6 +192,11 @@ const argv = yargs
       array: true,
       default: ['js'],
       describe: 'File extensions to compile (--extensions js jsx)',
+      type: 'string',
+    },
+    'transform': {
+      array: true,
+      describe: 'Use a transform module on top-level files',
       type: 'string',
     },
     'watch': {

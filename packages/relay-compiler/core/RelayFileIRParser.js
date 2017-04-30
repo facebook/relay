@@ -24,8 +24,7 @@ import type {FileFilter} from 'RelayCodegenWatcher';
 import type {DocumentNode} from 'graphql';
 
 // Throws an error if parsing the file fails
-function parseFile(file: string): ?DocumentNode {
-  const text = fs.readFileSync(file, 'utf8');
+function parseFile(file: string, text: string): ?DocumentNode {
   const moduleName = path.basename(file, path.extname(file));
 
   invariant(
@@ -71,11 +70,46 @@ function parseFile(file: string): ?DocumentNode {
   };
 }
 
-function getParser(baseDir: string): FileParser {
-  return new FileParser({
-    baseDir,
-    parse: parseFile,
-  });
+type TransformFactory = (baseDir: string) => (filename: string, text: string) => string
+type TransformModule = { default: TransformFactory }
+
+function getParser(transformModules: Array<string> = []) { 
+  return (baseDir: string): FileParser => {
+    const transformer = getTransformer(baseDir, transformModules)
+    return new FileParser({
+      baseDir,
+      parse: (filename: string) => {
+        const text = fs.readFileSync(filename, 'utf8');
+        return parseFile(filename, transformer(filename, text))
+      },
+    });
+  }
+}
+
+function getTransformer(baseDir: string, transformModules: Array<string> = []) {
+  let transformer = (filename: string, text: string) => text 
+  if (transformModules.length) {
+    transformModules.forEach(moduleName => {
+      let moduleImpl: TransformFactory
+      try {
+        // $FlowFixMe flow doesn't know about __non_webpack_require__
+        moduleImpl = (__non_webpack_require__(moduleName): TransformFactory)
+        invariant(
+          moduleImpl.default,
+          'Transformer module "' + moduleName + '" should have a default export'
+        );
+      } catch (e) {
+        throw new Error(
+          'Can not resolve transformer module "' + moduleName + '"' 
+        );
+      }
+      const transformerImpl = moduleImpl.default(baseDir)
+      const prevTransformer = transformer
+      transformer = (filename: string, text: string) => transformerImpl(filename, prevTransformer(filename, text))
+    })
+  }
+
+  return transformer
 }
 
 function getFileFilter(baseDir: string): FileFilter {

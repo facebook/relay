@@ -230,6 +230,12 @@ function getSourceTextForLocation(text, loc) {
 function validateTemplate(template, moduleName, keyName) {
   const ast = graphql.parse(template);
   ast.definitions.forEach((def: any) => {
+    invariant(
+      def.name,
+      'FindGraphQLTags: In module `%s`, a definition of kind `%s` requires a name.',
+      moduleName,
+      def.kind,
+    );
     const definitionName = def.name.value;
     if (def.kind === 'OperationDefinition') {
       const operationNameParts =

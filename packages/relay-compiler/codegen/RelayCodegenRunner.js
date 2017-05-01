@@ -29,7 +29,7 @@ interface FileWriter {
   writeAll(): Promise<Map<string, CodegenDirectory>>
 }
 
-type ParserConfig = {|
+export type ParserConfig = {|
   baseDir: string,
   getFileFilter?: (baseDir: string) => FileFilter,
   getParser: (baseDir: string) => FileParser,
@@ -44,7 +44,7 @@ type Parsers = {
   [parser: string]: FileParser,
 }
 
-type WriterConfig = {
+export type WriterConfig = {
   parser: string,
   baseParsers?: Array<string>,
   getWriter: (

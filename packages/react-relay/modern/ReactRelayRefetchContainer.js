@@ -83,6 +83,10 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
         props,
         this._handleFragmentDataUpdate,
       );
+      this._relayContext = {
+        environment: this.context.relay.environment,
+        variables: this.context.relay.variables,
+      };
       this.state = {
         data: this._resolver.resolve(),
         relayProp: this._buildRelayProp(relay),
@@ -225,6 +229,10 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
         }
         // TODO t15106389: add helper utility for fetching more data
         this._pendingRefetch = null;
+        this._relayContext = {
+          environment: this.context.relay.environment,
+          variables: fragmentVariables
+        };
         callback && callback();
         this._resolver.setVariables(fragmentVariables);
         this.setState({data: this._resolver.resolve()});
@@ -272,12 +280,7 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
     };
 
     getChildContext(): Object {
-      return {
-        relay: {
-          environment: this.context.relay.environment,
-          variables: this._localVariables || this.context.relay.variables,
-        },
-      };
+      return {relay: this._relayContext};
     }
 
     render() {

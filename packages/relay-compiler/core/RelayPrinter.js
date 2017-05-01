@@ -227,12 +227,21 @@ function printArguments(args: Array<Argument>): string {
 function printValue(value: ArgumentValue, type: ?GraphQLInputType): ?string {
   if (value.kind === 'Variable') {
     return '$' + value.variableName;
+  } else if (value.kind === 'ObjectValue') {
+    const pairs = value.fields.map(({ name, value }) => {
+      const innerValue = printValue(value);
+      return innerValue == null ? null : (name + ': ' + innerValue);
+    })
+    .filter(Boolean);
+
+    return '{' + pairs.join(', ') + '}';
   } else if (value.value != null) {
     return printLiteral(value.value, type);
   } else {
     return null;
   }
 }
+
 
 function printLiteral(value: mixed, type: ?GraphQLInputType): string {
   if (type instanceof GraphQLNonNull) {

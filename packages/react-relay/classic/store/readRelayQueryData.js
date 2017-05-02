@@ -225,7 +225,8 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     if (dataIDs) {
       const applicationName = node.getApplicationName();
       const previousData = getDataValue(state, applicationName);
-      const nextData = dataIDs.map((dataID, ii) => {
+      const nextData = [];
+      dataIDs.forEach((dataID, ii) => {
         let data;
         if (previousData instanceof Object) {
           data = previousData[ii];
@@ -239,11 +240,13 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
           seenDataIDs: state.seenDataIDs,
           storeDataID: dataID,
         });
+        // remove null plural fields
+        if (!nextState.data) {return;}
         node.getChildren().forEach(child => this.visit(child, nextState));
         if (nextState.isPartial) {
           state.isPartial = true;
         }
-        return nextState.data;
+        nextData.push(nextState.data);
       });
       this._setDataValue(state, applicationName, nextData);
     }

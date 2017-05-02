@@ -14,6 +14,7 @@
 'use strict';
 
 const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
+const RelayPropTypes = require('RelayPropTypes');
 
 const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
 
@@ -32,7 +33,7 @@ function createContainer<TBase: ReactClass<*>>(
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
 ): TBase {
-  return buildCompatContainer(
+  const Container = buildCompatContainer(
     Component,
     (fragmentSpec: any),
     (ComponentClass, fragments) => {
@@ -43,6 +44,10 @@ function createContainer<TBase: ReactClass<*>>(
       );
     },
   );
+  Container.childContextTypes = {
+    relay: RelayPropTypes.Relay,
+  };
+  return Container;
 }
 
 module.exports = {createContainer};

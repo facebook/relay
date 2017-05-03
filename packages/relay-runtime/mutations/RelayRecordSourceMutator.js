@@ -57,7 +57,7 @@ class RelayRecordSourceMutator {
   _backup: ?MutableRecordSource;
   _base: RecordSource;
   _sink: MutableRecordSource;
-  _sources: Array<RecordSource>;
+  __sources: Array<RecordSource>;
 
   constructor(
     base: RecordSource,
@@ -67,7 +67,7 @@ class RelayRecordSourceMutator {
     this._backup = backup;
     this._base = base;
     this._sink = sink;
-    this._sources = [sink, base];
+    this.__sources = [sink, base];
   }
 
   _createBackupRecord(dataID: DataID): void {
@@ -184,8 +184,8 @@ class RelayRecordSourceMutator {
   }
 
   getType(dataID: DataID): ?string {
-    for (let ii = 0; ii < this._sources.length; ii++) {
-      const record = this._sources[ii].get(dataID);
+    for (let ii = 0; ii < this.__sources.length; ii++) {
+      const record = this.__sources[ii].get(dataID);
       if (record) {
         return RelayModernRecord.getType(record);
       } else if (record === null) {
@@ -195,8 +195,8 @@ class RelayRecordSourceMutator {
   }
 
   getValue(dataID: DataID, storageKey: string): mixed {
-    for (let ii = 0; ii < this._sources.length; ii++) {
-      const record = this._sources[ii].get(dataID);
+    for (let ii = 0; ii < this.__sources.length; ii++) {
+      const record = this.__sources[ii].get(dataID);
       if (record) {
         const value = RelayModernRecord.getValue(record, storageKey);
         if (value !== undefined) {
@@ -216,8 +216,8 @@ class RelayRecordSourceMutator {
   }
 
   getLinkedRecordID(dataID: DataID, storageKey: string): ?DataID {
-    for (let ii = 0; ii < this._sources.length; ii++) {
-      const record = this._sources[ii].get(dataID);
+    for (let ii = 0; ii < this.__sources.length; ii++) {
+      const record = this.__sources[ii].get(dataID);
       if (record) {
         const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
         if (linkedID !== undefined) {
@@ -237,8 +237,8 @@ class RelayRecordSourceMutator {
   }
 
   getLinkedRecordIDs(dataID: DataID, storageKey: string): ?Array<?DataID> {
-    for (let ii = 0; ii < this._sources.length; ii++) {
-      const record = this._sources[ii].get(dataID);
+    for (let ii = 0; ii < this.__sources.length; ii++) {
+      const record = this.__sources[ii].get(dataID);
       if (record) {
         const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
         if (linkedIDs !== undefined) {

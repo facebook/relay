@@ -34,31 +34,31 @@ import type {
  * arguments to pass to e.g. `getRoot().getLinkedRecord()`.
  */
 class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
-  _recordSource: RecordSourceProxy;
+  __recordSource: RecordSourceProxy;
   _selector: Selector;
 
   constructor(
     recordSource: RecordSourceProxy,
     selector: Selector
   ) {
-    this._recordSource = recordSource;
+    this.__recordSource = recordSource;
     this._selector = selector;
   }
 
   create(dataID: DataID, typeName: string): RecordProxy {
-    return this._recordSource.create(dataID, typeName);
+    return this.__recordSource.create(dataID, typeName);
   }
 
   delete(dataID: DataID): void {
-    this._recordSource.delete(dataID);
+    this.__recordSource.delete(dataID);
   }
 
   get(dataID: DataID): ?RecordProxy {
-    return this._recordSource.get(dataID);
+    return this.__recordSource.get(dataID);
   }
 
   getRoot(): RecordProxy {
-    return this._recordSource.getRoot();
+    return this.__recordSource.getRoot();
   }
 
   _getRootField(selector: Selector, fieldName: string, plural: boolean): ConcreteLinkedField {

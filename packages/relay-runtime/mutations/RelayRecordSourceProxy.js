@@ -42,14 +42,14 @@ import type {
  */
 class RelayRecordSourceProxy implements RecordSourceProxy {
   _handlerProvider: ?HandlerProvider;
-  _mutator: RelayRecordSourceMutator;
+  __mutator: RelayRecordSourceMutator;
   _proxies: {[dataID: DataID]: ?RelayRecordProxy};
 
   constructor(
     mutator: RelayRecordSourceMutator,
     handlerProvider?: ?HandlerProvider
   ) {
-    this._mutator = mutator;
+    this.__mutator = mutator;
     this._handlerProvider = handlerProvider || null;
     this._proxies = {};
   }
@@ -65,10 +65,10 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
       if (status === EXISTENT) {
         const sourceRecord = source.get(dataID);
         if (sourceRecord) {
-          if (this._mutator.getStatus(dataID) !== EXISTENT) {
+          if (this.__mutator.getStatus(dataID) !== EXISTENT) {
             this.create(dataID, RelayModernRecord.getType(sourceRecord));
           }
-          this._mutator.copyFieldsFromRecord(sourceRecord, dataID);
+          this.__mutator.copyFieldsFromRecord(sourceRecord, dataID);
           delete this._proxies[dataID];
         }
       } else if (status === NONEXISTENT) {
@@ -92,7 +92,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   }
 
   create(dataID: DataID, typeName: string): RecordProxy {
-    this._mutator.create(dataID, typeName);
+    this.__mutator.create(dataID, typeName);
     delete this._proxies[dataID];
     const record = this.get(dataID);
     // For flow
@@ -109,14 +109,14 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
       'RelayRecordSourceProxy#delete(): Cannot delete the root record.'
     );
     delete this._proxies[dataID];
-    this._mutator.delete(dataID);
+    this.__mutator.delete(dataID);
   }
 
   get(dataID: DataID): ?RecordProxy {
     if (!this._proxies.hasOwnProperty(dataID)) {
-      const status = this._mutator.getStatus(dataID);
+      const status = this.__mutator.getStatus(dataID);
       if (status === EXISTENT) {
-        this._proxies[dataID] = new RelayRecordProxy(this, this._mutator, dataID);
+        this._proxies[dataID] = new RelayRecordProxy(this, this.__mutator, dataID);
       } else {
         this._proxies[dataID] = status === NONEXISTENT ? null : undefined;
       }

@@ -21,6 +21,7 @@ import type {
   DataID,
   FieldValue,
   RangeBehaviors,
+  QueryPayload,
 } from 'RelayInternalTypes';
 import type RelayMutation from 'RelayMutation';
 import type RelayMutationRequest from 'RelayMutationRequest';
@@ -113,7 +114,7 @@ export type MultiObservable<T> = {
   setDataIDs(dataIDs: Array<DataID>): void,
 };
 export type MutationResult = {
-  response: Object,
+  response: QueryPayload,
 };
 // Network requests
 export type NetworkLayer = {
@@ -128,7 +129,7 @@ export type Observable<T> = {
 export type QueryResult = {
   error?: ?Error,
   ref_params?: ?{[name: string]: mixed},
-  response: Object,
+  response: QueryPayload,
 };
 export type ReadyState = {
   aborted: boolean,

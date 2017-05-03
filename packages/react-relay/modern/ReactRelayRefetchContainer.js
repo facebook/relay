@@ -67,6 +67,7 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
     _localVariables: ?Variables;
     _pendingRefetch: ?Disposable;
     _references: Array<Disposable>;
+    _relayContext: RelayContext;
     _resolver: FragmentSpecResolver;
 
     constructor(props, context) {

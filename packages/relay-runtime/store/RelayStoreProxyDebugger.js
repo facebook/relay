@@ -20,7 +20,10 @@ const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy')
 
 const warning = require('warning');
 
-import {RecordSourceProxy, RecordSourceSelectorProxy} from 'RelayStoreTypes';
+import type {
+  RecordSourceProxy,
+  RecordSourceSelectorProxy,
+} from 'RelayStoreTypes';
 
 type StoreProxy = RecordSourceProxy | RecordSourceSelectorProxy;
 

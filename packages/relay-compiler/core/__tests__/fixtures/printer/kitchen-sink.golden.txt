@@ -11,7 +11,7 @@ query NodeQuery(
     }
     ...UserFragment @include(if: $cond) @arguments(size: $size)
   }
-  checkinSearchQuery(query: {query: $query}) {
+  checkinSearchQuery(query: {query: $query, inputs: [{query: $query}, {query: "test"}]}) {
     query
   }
 }

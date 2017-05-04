@@ -132,6 +132,7 @@ type CheckinSearchResult {
 
 input CheckinSearchInput {
   query: String
+  inputs: [CheckinSearchInput]
 }
 
 type Comment implements Node {

@@ -144,7 +144,7 @@ This would produce three generated files, and two `__generated__` directories:
 
 Typically you will not need to import your generated definitions. The [Relay Babel plugin](./babel-plugin-relay.html) will convert the `graphql` literals to `require()` the generated files.
 
-However the Relay Compiler also automatically generats flow types, as [type comments](https://flow.org/en/docs/types/comments/). To import the types:
+However the Relay Compiler also automatically generates flow types, as [type comments](https://flow.org/en/docs/types/comments/). To import the types:
 
 ```javascript
 import type {DictionaryComponent_word} from './__generated__/DictionaryComponent_word.graphql';

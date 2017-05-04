@@ -13,8 +13,8 @@
 'use strict';
 
 const ErrorUtils = require('ErrorUtils');
-const React = require('React');
 const PropTypes = require('prop-types');
+const React = require('React');
 const RelayContainerComparators = require('RelayContainerComparators');
 const RelayContainerProxy = require('RelayContainerProxy');
 const RelayFragmentPointer = require('RelayFragmentPointer');

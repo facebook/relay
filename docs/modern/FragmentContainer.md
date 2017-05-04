@@ -148,7 +148,7 @@ Fragment composition works similarly — a parent container's fragment composes 
 class TodoList extends React.Component {/* as above */}
 
 module.exports = createFragmentContainer(
-  TodoList, {
+  TodoList,
   // This `_list` fragment name suffix corresponds to the prop named `list` that
   // is expected to be populated with server data by the `<TodoList>` component.
   graphql`

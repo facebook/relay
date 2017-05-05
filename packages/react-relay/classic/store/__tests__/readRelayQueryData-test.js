@@ -134,33 +134,6 @@ describe('readRelayQueryData', () => {
       });
     });
 
-    it('returns the id of null plural links', () => {
-      const records = {
-        actor: null,
-        node: {
-          id: 'node',
-          actors: [{__dataID__: 'actor'}],
-        },
-      };
-      const fragment = getNode(Relay.QL`
-        fragment on Story {
-          id
-          actors {
-            name
-          }
-        }
-      `);
-      const {dataIDs} = readRelayQueryData(
-        getStoreData({records}),
-        fragment,
-        'node'
-      );
-      expect(dataIDs).toEqual({
-        actor: true,
-        node: true,
-      });
-    });
-
     it('returns the id of null connections', () => {
       const records = {
         friends: null,
@@ -1326,6 +1299,42 @@ describe('readRelayQueryData', () => {
       phone2ID: true,
       userID: true,
     });
+  });
+
+  it('filters null plural fields', () => {
+    const query = getNode(Relay.QL`
+      fragment on User {
+        allPhones {
+          isVerified
+        }
+      }
+    `);
+    const records = {
+      userID: {
+        __dataID__: 'userID',
+        allPhones: [{__dataID__: 'phone1ID'}, {__dataID__: 'phone2ID'}],
+      },
+      phone1ID: {
+        __dataID__: 'phone1ID',
+        isVerified: true,
+      },
+      phone2ID: {
+        __dataID__: 'phone2ID',
+        isVerified: false,
+      },
+    };
+    const recordStore = new RelayRecordStore({records});
+    recordStore.removeRecord('phone2ID');
+
+    const storeData = new RelayStoreData();
+    storeData.getQueuedStore = jest.fn(() => {
+      return recordStore;
+    });
+
+    const data = readData(storeData, query, 'userID');
+    expect(data.allPhones).toEqual(
+      [{ __dataID__: 'phone1ID', isVerified: true }]
+    );
   });
 
   it('allocates linked fields even if all child fields are null', () => {

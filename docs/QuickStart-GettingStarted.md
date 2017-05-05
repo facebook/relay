@@ -31,6 +31,6 @@ Any server can be taught to load a schema and speak GraphQL. Our [examples](http
 
 ### Relay
 
-Relay speaks to GraphQL servers through a network layer. The [network layer](https://github.com/facebook/relay/tree/master/packages/react-relay/classic/network-layer/default) that ships with Relay is compatible with express-graphql out of the box, and will continue to evolve as we add new features to the transport.
+Relay speaks to GraphQL servers through a network layer. The [network layer](https://facebook.github.io/relay/docs/guides-network-layer.html) that ships with Relay is compatible with express-graphql out of the box, and will continue to evolve as we add new features to the transport.
 
 The best way to get started right now is to take a look at how these three parts come together to form a working example. The tutorial on the next page will lead you through an example application, using the [Relay Starter Kit](https://github.com/facebook/relay-starter-kit), to give you an idea of how you can start using Relay on yours.

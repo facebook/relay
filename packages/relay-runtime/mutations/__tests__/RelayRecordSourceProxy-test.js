@@ -211,10 +211,10 @@ describe('RelayRecordSourceProxy', () => {
         rawPayload
       );
       expect(sinkData.sf).toEqual({
-          [ID_KEY]: 'sf',
-          [TYPENAME_KEY]: 'Page',
-          id: 'sf',
-          name: 'SF',
+        [ID_KEY]: 'sf',
+        [TYPENAME_KEY]: 'Page',
+        id: 'sf',
+        name: 'SF',
       });
     });
 
@@ -244,10 +244,10 @@ describe('RelayRecordSourceProxy', () => {
         rawPayload
       );
       expect(sinkData.seattle).toEqual({
-          [ID_KEY]: 'seattle',
-          [TYPENAME_KEY]: 'Page',
-          id: 'seattle',
-          name: 'Seattle',
+        [ID_KEY]: 'seattle',
+        [TYPENAME_KEY]: 'Page',
+        id: 'seattle',
+        name: 'Seattle',
       });
     });
 

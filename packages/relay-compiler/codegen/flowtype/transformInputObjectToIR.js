@@ -77,7 +77,7 @@ function transformFieldToIR(
   ) {
     return transformScalarToIR(node.name, type);
   } else {
-    throw 'Unhandled node type';
+    throw new Error('Unhandled node type');
   }
 }
 

@@ -32,9 +32,7 @@ module.exports = function(options) {
   });
 
   if (options.postPlugins) {
-    fbjsPreset.presets.push({
-      plugins: options.postPlugins
-    });
+    fbjsPreset.presets.push({plugins: options.postPlugins});
   }
 
   return {

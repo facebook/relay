@@ -114,7 +114,7 @@ function parseRelayGraphQL(
   // We need to ignore these directives. The RelayParser cannot handle these
   // directives, so this needs to happen here.
   const PATTERN_LIST = ['@relay(pattern:true)', '@fixme_fat_interface'];
-  const strippedSource = source.replace(/ /g,'');
+  const strippedSource = source.replace(/ /g, '');
   const patternFound = PATTERN_LIST.some(pattern => {
     const isSubstring = strippedSource.indexOf(pattern) !== -1;
     if (isSubstring) {
@@ -172,7 +172,7 @@ function parseRelayGraphQL(
   definitions.forEach(definition => {
     if (definition.kind !== 'OperationDefinition' ||
         definition.operation !== 'mutation') {
-        return;
+      return;
     }
 
     const selections = definition.selectionSet.selections;

@@ -256,12 +256,12 @@ class RelayDiffQueryBuilder {
           node.getSchemaName() === EDGES ||
           node.getSchemaName() === PAGE_INFO
         ) {
-          return rangeInfo.diffCalls.length > 0 ?
-            {
+          return rangeInfo.diffCalls.length > 0
+            ? {
               diffNode: node,
               trackedNode: null,
-            } :
-            null;
+            }
+            : null;
         }
       }
     }

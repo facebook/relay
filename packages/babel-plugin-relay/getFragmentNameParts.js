@@ -38,7 +38,7 @@ function getFragmentNameParts(fragmentName) {
       'prop name.'
     );
   }
-  return [ module, propName || DEFAULT_PROP_NAME ];
+  return [module, propName || DEFAULT_PROP_NAME];
 }
 
 module.exports = getFragmentNameParts;

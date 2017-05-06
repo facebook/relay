@@ -517,10 +517,10 @@ function createContainerComponent(
       return {
         queryData: this._getQueryData(props),
         rawVariables,
-        relayProp: (this.state.relayProp.route === context.route)
-          && shallowEqual(this.state.relayProp.variables, nextVariables) ?
-          this.state.relayProp :
-          {
+        relayProp: this.state.relayProp.route === context.route
+          && shallowEqual(this.state.relayProp.variables, nextVariables)
+          ? this.state.relayProp
+          : {
             ...this.state.relayProp,
             route: context.route,
             variables: nextVariables,
